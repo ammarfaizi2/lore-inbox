@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277286AbRJJPv6>; Wed, 10 Oct 2001 11:51:58 -0400
+	id <S277278AbRJJP4J>; Wed, 10 Oct 2001 11:56:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277285AbRJJPvi>; Wed, 10 Oct 2001 11:51:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2063 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277284AbRJJPvh>; Wed, 10 Oct 2001 11:51:37 -0400
-Date: Wed, 10 Oct 2001 12:51:51 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Erik Gustavsson <cyrano@algonet.se>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-acX VM troubles
-In-Reply-To: <Pine.LNX.4.21.0110101727070.777-100000@lillan>
-Message-ID: <Pine.LNX.4.33L.0110101249370.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277293AbRJJPz6>; Wed, 10 Oct 2001 11:55:58 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59389 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S277285AbRJJPzl>; Wed, 10 Oct 2001 11:55:41 -0400
+Date: Wed, 10 Oct 2001 09:55:36 -0600
+From: "'adilger@turbolabs.com'" <adilger@turbolabs.com>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'xuan--lkml@baldauf.org'" <xuan--lkml@baldauf.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic swap prioritizing
+Message-ID: <20011010095536.C10443@turbolinux.com>
+Mail-Followup-To: Venkatesh Ramamurthy <Venkateshr@ami.com>,
+	"'xuan--lkml@baldauf.org'" <xuan--lkml@baldauf.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9E013@ATL_MS1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9E013@ATL_MS1>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Erik Gustavsson wrote:
+On Oct 10, 2001  11:23 -0400, Venkatesh Ramamurthy wrote:
+> > If this is to be generally useful, it would be good to find things
+> > like max sequential read speed, max sequential write speed, and max
+> > seek time (at least). Estimates for max sequential read speed and
+> > seek time could be found at boot time for each disk relatively
+> > easily, but write speed may have to be found only at runtime (or
+> > it could all be fed in to the kernel from user space from benchmarks
+> > run previously).
+> 
+> Maybe we can find out the statistics for the first time (or when swap is
+> created) and store this information in the swap partition itself. This would
+> allow us to compute time consuming statistics only once. Also we need to
+> create new fields in the swap structure for this purpose.
 
-> At first I thought that the VM in 2.4.10-acX (I've tried ac3 and ac7) was
-> a big improvement over vanilla 2.4.9 (my previous kernel). But after
-> playing around with different versions and patches, and actually running
-> the same kernel for a day or more I ran into severe problems.
+I'd rather just have the statistic data in a regular file for ALL disks,
+and then send it to the kernel via ioctl or write to a special file that
+the kernel will read from.  I don't think it is critical to have this
+data right at boot time, since it would only be used for optimizing I/O
+access and would not be required for a disk to actually work.
 
-I've already put out a patch which tries to fix this problem,
-once we've established that it indeed works as advertised and
-doesn't have bad side effects, I'll ask Alan to integrate it:
-
-http://www.surriel.com/patches/2.4/2.4.10-ac9-eatcache
-
-The patch applies cleanly to at least 2.4.10-ac9 and -ac10,
-maybe a few others too.
-
-It would be nice to know if this patch fixes the problems for
-you, if it does there's another reason to ask Alan to integrate
-it ... if it doesn't I'll try to make it work before sending
-the thing to Alan.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

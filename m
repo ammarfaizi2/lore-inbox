@@ -1,124 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267962AbUGaO1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUGaO34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267962AbUGaO1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 10:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267957AbUGaO1i
+	id S267957AbUGaO34 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 10:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267960AbUGaO34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 10:27:38 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:15772 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S267961AbUGaO0K
+	Sat, 31 Jul 2004 10:29:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6031 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267957AbUGaO3T convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 10:26:10 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Solving suspend-level confusion
-Date: Sat, 31 Jul 2004 07:23:12 -0700
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz> <200407302102.12554.david-b@pacbell.net> <1091252962.7387.14.camel@gaston>
-In-Reply-To: <1091252962.7387.14.camel@gaston>
-MIME-Version: 1.0
+	Sat, 31 Jul 2004 10:29:19 -0400
+Date: Sat, 31 Jul 2004 11:26:59 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.27-rc4
+Message-ID: <20040731142658.GA6497@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407310723.12137.david-b@pacbell.net>
+User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 July 2004 22:49, Benjamin Herrenschmidt wrote:
-> On Sat, 2004-07-31 at 14:02, David Brownell wrote:
-> > On Friday 30 July 2004 09:44, Pavel Machek wrote:
-> > 
-> > > * system-wide suspend level is always passed down (it is more
-> > > detailed, and for example IDE driver cares)
-> > 
-> > This bothers me -- why should a "system" suspend level matter
-> > to a device-level suspend call?  Seems like if IDE cares, it's
-> > probably being given the wrong device-level suspend state,
-> > or it needs more information than the target device state.
-> 
-> Well, as I explained you during OLS ... Drivers will act differently
-> for suspend-to-ram, suspend-to-disk, and eventually other states we
-> may introduce, like a system "idle" state.
+Hi, 
 
-We didn't quite get into details enough to have it be "explain"
-though ... it was more of "assert"!
+Here goes the forth 2.4.27 release candidate.
+
+It includes a dozen of USB fixes, JFS update, IA64 fixes, 
+networking update, amongst others.
+
+2.4.27 final should be out soon.
+
+Please read the detailed changelog for more details.
 
 
-> Disks in general are an example (IDE beeing the one that is currently
-> implemented, but we'll probably have to do the same for SATA and SCSI
-> at one point), you want to spin them off (with proper cache flush
-> etc...) when suspending to RAM, while you don't when suspending to
-> disk, as you really don't want them to be spun up again right away to
-> write the suspend image.
+Summary of changes from v2.4.27-rc3 to v2.4.27-rc4
+============================================
 
-So suspend-to-RAM more or less matches PCI D3hot, and
-suspend-to-DISK matches PCI D3cold.  If those power states
-were passed to the device suspend(), the disk driver could act
-appropriately.  In my observation, D3cold was never passed
-down, it was always D3hot.
+<ajgrothe:yahoo.com>:
+  o [CRYPTO]: Add TEA and XTEA algorithms
 
-These look to me like "wrong device-level suspend state" cases.
+<jaap.keuter:xs4all.nl>:
+  o [IPV4]: Calculate default broadcast even when using SIOCSIGNETMASK
 
+<mjc:redhat.com>:
+  o USB: more sparse fixes
 
-> USB is another example. Typically, suspend-to-RAM wants to do a bus
-> suspend, eventually enabling remote wakeup on some devices, and expects
-> to recover the bus on wakeup, while suspend-to-disk is roughtly
-> equivalent to a full shutdown & reconnect on wakeup.
+<tomd:csds.uidaho.edu>:
+  o [CRYPTO]: Set CRYPTO_TFM_RES_BAD_KEY_LEN in twofish
 
-Same thing:  an HCD could do the right thing if it was told to go
-into D1, D2, or D3hot (supports USB suspend) vs D3cold (doesn't).
+Adrian Bunk:
+  o [IPV4]: Remove no longer available URL
+  o cmpci oops on rmmod + fix
 
-Though the PM core doesn't cooperate at all there.  Neither the
-suspend nor the resume codepaths cope well with disconnect
-(and hence device removal), the PM core self-deadlocks since
-suspend/resume outcalls are done while holding the semaphore
-that device_pm_remove() needs, ugh.
+Anton Blanchard:
+  o [TG3]: Missing rmb() in rx processing
 
-And FWIW Greg's now merged the CONFIG_USB_SUSPEND code
-into his tree, as experimental ... so now all the relevant integration
-issues can start to get sorted out.  Eventually, that PM core deadlock
-can get fixed.  And remote wakeup needs work ... x86 machines need
-a way to tell ACPI to pay attention to PME# wakeups (which Len says
-is in some recent ACPI patch), and maybe the PPC/Mac platforms
-will need something similar.
+Arun Sharma:
+  o ia64: tighten FPH state context switch check
 
- 
-> > The problem I'm clear on is with PCI suspend, which some
-> > earlier driver model PM changes goofed up.  It's trying to
-> > pass a system state to driver suspend() methods that are
-> > expecting a value appropriate for pci_set_power_state().
-> > You're proposing to fix that by changing the call semantics,
-> > while I'd rather just see the call site fixed.
-> 
-> No, I don't agree. It's a driver policy to decide what PCI state
-> to use based on the system suspend level.
+Dave Kleikamp:
+  o JFS: Error path released metadata page it shouldn't have
+  o JFS: Updated field isn't always written to disk during truncate
+  o JFS: Protect active_ag with a spinlock
+  o JFS: prevent concurrent calls to txCommit on the imap inode
+  o JFS: Check for dmap corruption before using leafidx
+  o JFS: jfs_dmap build fix
 
-You've not persuaded me on that point at all ...
+David S. Miller:
+  o [TG3]: Always do 4gb tx dma test, and fix the test
+  o [TG3]: Fibre PHY fixes from Sun
+  o [TG3]: Update driver version and reldate
+  o [TG3]: Delay both before and after PCI cfg space readback after reset
+  o [TG3]: Bump driver version and reldate
+  o [TG3]: Update reldate to match 2.6.x sources
+  o [IPV4]: Make raw sockets behave like udp wrt. MSG_TRUNC
+  o [ATM]: Update Marko Kiiskila's email address
+  o [PKT_SCHED]: sch_netem.c needs linux/init.h
+  o [CRYPTO]: No MODULE_ALIAS in 2.4.x
 
-Consider:  device PM calls  aren't only made as part of changing
-a "system suspend level".  Minimally, there's the ability to suspend
-a single device through sysfs.  And in general, we need to be able
-to do that directly ... one device suspending **must** be able to
-trigger another one suspending, without assuming that every
-device on the system is suspending to the same state.
+Geert Uytterhoeven:
+  o M68k ifpsp060
+  o M68k 68060 errata I14
+  o M68k Maintainership
 
-As for example, suspending a USB flash storage device must
-be able to suspend its subsidiary storage and block devices,
-without necessarily suspending the network link on an adjacent
-hub port.  Or a USB port on a camera (or cell phone) that must
-act as either host or peripheral (USB OTG) ... at most one of those
-controllers should be active at a time.
+Herbert Xu:
+  o [CRYPTO]: Fix stack overrun in crypt()
 
-Consider a system PM policy including "suspend all idle devices".
-With N devices supporting only "on" and "suspend" states, that's
-something like 2^N system suspend levels.  Or more; most
-devices support more than two suspend states (add at least
-"off", plus often light weight suspend states).  And N is system-specific,
-so there's no way all those system states can be given small
-integer values ... much less fit into a "u32 state".
+Jochen Hein:
+  o Update Jochen CREDITS entry
 
- - Dave
+Karsten Keil:
+  o I4L: Fix IRQ-sharing lockup in nj_s
+
+Marcel Holtmann:
+  o [Bluetooth] Respond to L2CAP info requests
+  o [Bluetooth] Add support for another ALPS module
+  o [Bluetooth] Use a signed integer for the RSSI value
+
+Marcelo Tosatti:
+  o USB: fix endless resubmit in auerswald (Wolfgang Mues)
+  o Changed EXTRAVERSION to -rc4
+
+Masanari Iida:
+  o Fix harmless typo in drivers/char/sysrq.c
+
+Mikael Pettersson:
+  o cardbus.c pointer truncation bug on 64-bitters
+
+Patrick McHardy:
+  o [IPV4/IPV6]: Add myself to MAINTAINERS
+
+Pete Zaitcev:
+  o USB: update unusual_devs.h
+  o USB: GET_ID from nonzero interface (errandir_news@mph.eclipse.co.uk)
+  o USB: add free_len=0 initialization to ipaq.c (Ganesh Varadaraja)
+  o USB: correct dbg() arguments in pl2303 (Phil Dibowitz)
+  o USB: missing rcomplete=0 in printer.c (David Woodhouse)
+
+Petr Vandrovec:
+  o [VLAN]: Do not access released memory
+
+Samuel Thibault:
+  o [UDP]: Return true length if user specifies MSG_TRUNC
+
+Stephen Hemminger:
+  o [PKT_SCHED]: Update to network emulation QOS scheduler
+  o [PKT_SCHED]: One small netem fixes
+  o [BRIDGE]: Fix assertion failure in 2.4.27-rc3
+  o [PKT_SCHED]: netem update for 2.4
+
+Stéphane Eranian:
+  o ia64: fix info in /proc/pal/*/bus_info
+  o ia64: fix perfmon buffer init
+

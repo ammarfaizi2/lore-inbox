@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287752AbSAAFh7>; Tue, 1 Jan 2002 00:37:59 -0500
+	id <S287751AbSAAFn3>; Tue, 1 Jan 2002 00:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287755AbSAAFht>; Tue, 1 Jan 2002 00:37:49 -0500
-Received: from inreach-gw1.idiom.com ([209.209.13.26]:33542 "EHLO
-	smile.idiom.com") by vger.kernel.org with ESMTP id <S287752AbSAAFhg>;
-	Tue, 1 Jan 2002 00:37:36 -0500
-Message-ID: <3C314A73.E94328E9@obviously.com>
-Date: Tue, 01 Jan 2002 00:34:43 -0500
-From: Bryce Nesbitt <bryce@obviously.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S287755AbSAAFnT>; Tue, 1 Jan 2002 00:43:19 -0500
+Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:46761 "EHLO
+	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287751AbSAAFnC>; Tue, 1 Jan 2002 00:43:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Timothy Covell <timothy.covell@ashavan.org>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Date: Mon, 31 Dec 2001 16:41:19 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: cs@zip.com.au
-CC: linux-kernel@vger.kernel.org, Lionel Bouton <Lionel.Bouton@free.fr>,
-        Andries.Brouwer@cwi.nl
-Subject: Re: Why would a valid DVD show zero files on Linux?
-In-Reply-To: <E16L2G8-00050T-00@the-village.bc.nu> <3C307464.2253E26@obviously.com> <20020101103753.A13046@zapff.research.canon.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020101054301.YWGP617.femail27.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cameron Simpson wrote:
-> 
-> On Mon, Dec 31, 2001 at 09:21:24AM -0500, Bryce Nesbitt <bryce@obviously.com> wrote:
-> | Alan Cox wrote:
-> | > The autodetection is working. Your DVD has a UDF file system on it and a
-> | > blank iso9660 one.
-> | Understood.   However, why can't that combination "just work"?  Changing
-> | /etc/fstab every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
-> | Certainly that "other operating system" does not make me do that.
-> 
-> I do this via autofs, and just say /mnt/dvd when I want UDF and /mnt/cdrom
-> when I want a CDROM. It does depend on having my eyes open when I stick
-> the medium in the drive...
-> 
-> Of course, this merely bypasses the autodetection.
+On Sunday 30 December 2001 07:19 pm, Linus Torvalds wrote:
+> On Sun, 30 Dec 2001, Timothy Covell wrote:
+> > 	When X11 locks up, I can still kill it and my box lives.  When
+> > framebuffers crash, their is no recovery save rebooting.  Back in 1995
+> > I thought that linux VTs and X11 implemenation blew Solaris out of the
+> > water, and now we want throw away our progress?  I'm still astounded
+> > by the whole "oooh I can see  a penquin while I boot-up" thing?
+> > Granted, frame buffers have usage in embedded systems, but do they
+> > really have to be so deeply integrated??
+>
+> They aren't.
+>
+> No sane person should use frame buffers if they have the choice.
+>
+> Like your mama told you: "Just say no". Use text-mode and X11, and be
+> happy.
+>
+> Some people don't have the choice, of course.
+>
+> 		Linus
 
-Ok, I admit, I do the same thing.  I manually mount.  But let's get in
-the head of a user, why should they care what type of 5 inch round shiny
-thing they just inserted?
+X11 isn't always an improvement.  I've got an X hang on my laptop (about once 
+a week) that freezes the keyboard and ignores mouse clicks.  Numlock doesn't 
+change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do a thing, and although I 
+can ssh in and run top (and see the CPU-eating loop), kill won't take X down 
+and kill-9 leaves the video display up so the console that thinks it's in 
+text mode, but isn't, is still useless.  (And that's assuming I'm plugged 
+into the network and have another box around to ssh in from...)
 
-Are there any cases where udf filesystems are present on cdrom's that should
-be read as iso9660?  Someone mentioned it's a hard heuristic to figure out
-which fake filename the empty iso9660 filesystem uses.  How about, instead,
-pick the larger of the two filesystems if both are present.
+Compiling a debug version of X to run under gdb via ssh is on my to-do list...
 
-			-Bryce
+A userspace program that takes over your main I/O devices modally and keeps 
+them if it hangs isn't THAT much better than having the kernel ignore you 
+directly...
+
+Rob

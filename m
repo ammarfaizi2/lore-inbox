@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUHaTps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269069AbUHaTqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUHaTps (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269035AbUHaTmy
+	id S269069AbUHaTqM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUHaTqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:42:54 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:59975 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266835AbUHaTjh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:39:37 -0400
-Date: Tue, 31 Aug 2004 21:41:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm2
-Message-ID: <20040831194135.GB19724@mars.ravnborg.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20040830235426.441f5b51.akpm@osdl.org> <200408311454.48673.gene.heskett@verizon.net>
+	Tue, 31 Aug 2004 15:46:11 -0400
+Received: from pD9E0ED8C.dip.t-dialin.net ([217.224.237.140]:36996 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S269062AbUHaTpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:45:33 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Daniel Schmitt <pnambic@unu.nu>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+In-Reply-To: <20040831193029.GA29912@elte.hu>
+References: <1093727453.8611.71.camel@krustophenia.net>
+	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
+	 <1093737080.1385.2.camel@krustophenia.net>
+	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
+	 <20040830090608.GA25443@elte.hu> <1093875939.5534.9.camel@localhost>
+	 <20040830180011.GA7419@elte.hu> <1093980227.8005.14.camel@localhost>
+	 <20040831193029.GA29912@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093981507.8005.20.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408311454.48673.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 31 Aug 2004 21:45:08 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 02:54:48PM -0400, Gene Heskett wrote:
-> make modules_install
-> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> `fs/nls/nls_koi8-r.ko' given more than once in the same rule.
-> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> `fs/nls/nls_koi8-ru.ko' given more than once in the same rule.
-> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> `fs/nls/nls_koi8-u.ko' given more than once in the same rule.
+Ingo Molnar wrote :
+> * Thomas Charbonnel <thomas@undata.org> wrote:
+> 
+> > As you can see ~1ms was probably an accident, and the latency does not
+> > always come from do_timer. The constant is do_IRQ interrupting the
+> > idle thread.
+> 
+> (do you have any sort of powersaving mode (ACPI/APM) enabled? If yes,
+> could you try to tune it down as much as possible - disable any
+> powersaving option in the BIOS and in the .config - kill apmd, etc.)
+> 
+> but i dont think it's powersaving - why would such an overhead show up
+> in those functions. The only common thing seems to be that both
+> mark_offset_tsc() and mask_and_ack_8259A() does port IO, which is slow -
+> but still it shouldnt take ~0.5 msecs!
+> 
+> 	Ingo
 
-Thanks!
-Know issue (reported off-list) - can be fixed with below patch.
+Indeed, I just checked and my xrun every ~8 seconds problem is back. I
+have acpi compiled in but acpi=off, but it doesn't seem to be honoured
+(it was with 2.6.8.1, IIRC).
 
-	Sam
+Thomas
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/31 21:36:26+02:00 sam@mars.ravnborg.org 
-#   kbuild: Fix modules_install
-#   
-#   modules_install failed for modules with 'ko' in their name.
-#   Fixes this.
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# scripts/Makefile.modinst
-#   2004/08/31 21:36:09+02:00 sam@mars.ravnborg.org +1 -1
-#   Fix installing of modules with ko in their name - do not find too many filenames in $(MODVERDIR)
-# 
-diff -Nru a/scripts/Makefile.modinst b/scripts/Makefile.modinst
---- a/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
-+++ b/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
-@@ -9,7 +9,7 @@
- 
- #
- 
--__modules := $(sort $(shell grep -h .ko /dev/null $(wildcard $(MODVERDIR)/*.mod)))
-+__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
- modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
- 
- .PHONY: $(modules)
+
+
+

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266989AbTBCXmO>; Mon, 3 Feb 2003 18:42:14 -0500
+	id <S267049AbTBCXuo>; Mon, 3 Feb 2003 18:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbTBCXmO>; Mon, 3 Feb 2003 18:42:14 -0500
-Received: from web80304.mail.yahoo.com ([66.218.79.20]:11346 "HELO
-	web80304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266989AbTBCXmN>; Mon, 3 Feb 2003 18:42:13 -0500
-Message-ID: <20030203235140.10443.qmail@web80304.mail.yahoo.com>
-Date: Mon, 3 Feb 2003 15:51:40 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Possible bug in arch/i386/kernel/process.c for reloading of debug registers (DRx)?
+	id <S267050AbTBCXuo>; Mon, 3 Feb 2003 18:50:44 -0500
+Received: from mailf.telia.com ([194.22.194.25]:18134 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S267049AbTBCXum> convert rfc822-to-8bit;
+	Mon, 3 Feb 2003 18:50:42 -0500
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
 To: linux-kernel@vger.kernel.org
+Subject: Re: Compactflash cards dying?
+Date: Tue, 4 Feb 2003 00:56:00 +0100
+User-Agent: KMail/1.5.9
+References: <20030202223009.GA344@elf.ucw.cz>
+In-Reply-To: <20030202223009.GA344@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302040056.02287.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was scanning through the source and noticed the lines below.
-Should the code below, be reloading at least the local bits of
-DR7 if the current DR7 value != 0?  From a quick glance, it
-looks like only if the next task's DR7 value is non-zero,
-that DR7 is reloaded.  I'm wondering if this would leave
-a new task to receive "local" debug events for the previous
-task if prev->DR7!=0 && next->DR7==0.
+On Sunday 02 February 2003 23:30, Pavel Machek wrote:
+> Hi!
+> 
+> I had compactflash from Apacer (256MB), and it started corrupting data
+> in few months, eventually becoming useless and being given back for
+> repair. They gave me another one and it is just starting to corrupt
+> data.
+> 
+> First time I repartitioned it; now I only did mke2fs, and data
+> corruption can be seen by something as simple as
+> 
+> cat /mnt/cf/mp3/* > /mnt/cf/delme; md5sum /mnt/cf/delme.
+> 
+> [Fails 1 in 5 tries].
 
--Kevin
+That is very bad... I wonder if you do something that the CF does
+not like - like power off while writing (can actually destroy the
+disk - read in some newsgroup)
 
+> 
+> Anyone seen something similar? Are there some known-good
+> compactflash-es?
+> 
 
-linux-2.5.59: arch/i386/kernel/process.c: line 462+:
+I would recomend SanDisk
 
-  /*
-   * Now maybe reload the debug registers
-   */
-  if (unlikely(next->debugreg[7])) {
-    loaddebug(next, 0);
-    loaddebug(next, 1);
-    loaddebug(next, 2);
-    loaddebug(next, 3);
-    /* no 4 and 5 */
-    loaddebug(next, 6);
-    loaddebug(next, 7);
-  }
+/RogerL
 
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+-- 
+Roger Larsson
+Skellefteå
+Sweden
+

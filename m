@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267365AbTALLKN>; Sun, 12 Jan 2003 06:10:13 -0500
+	id <S267369AbTALLFR>; Sun, 12 Jan 2003 06:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267423AbTALLKN>; Sun, 12 Jan 2003 06:10:13 -0500
-Received: from tag.witbe.net ([81.88.96.48]:33042 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S267365AbTALLKM>;
-	Sun, 12 Jan 2003 06:10:12 -0500
-From: "Paul Rolland" <rol@witbe.net>
-To: <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
-Cc: <rol@as2917.net>
-Subject: [PATCH 2.5.56] net/ipv4/route.c doesn't compile without /proc support
-Date: Sun, 12 Jan 2003 12:18:26 +0100
-Organization: Witbe.net
-Message-ID: <008c01c2ba2c$5452e000$2101a8c0@witbe>
+	id <S267423AbTALLFR>; Sun, 12 Jan 2003 06:05:17 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:44236 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267369AbTALLFQ>; Sun, 12 Jan 2003 06:05:16 -0500
+Date: Mon, 13 Jan 2003 00:13:38 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: robw@optonline.net, Vojtech Pavlik <vojtech@suse.cz>
+cc: Kurt Garloff <kurt@garloff.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <24800000.1042370018@localhost.localdomain>
+In-Reply-To: <1042325870.1034.45.camel@RobsPC.RobertWilkens.com>
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.c
+ om> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
+ <20030111020738.GC9373@work.bitmover.com>
+ <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
+ <20030111021741.GF9373@work.bitmover.com>
+ <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
+ <20030111214437.GD9153@nbkurt.casa-etp.nl>
+ <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
+ <20030111233633.A17042@ucw.cz>
+ <1042325870.1034.45.camel@RobsPC.RobertWilkens.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Here is a quick patch to allow correct compile of net/ipv4/route.c
-when not using /proc support.
 
-Without it, some attempts to create entries in /proc are resulting
-in invoking functions that are protected by #ifdef CONFIG_PROC_FS...
+--On Saturday, January 11, 2003 17:57:50 -0500 Rob Wilkens 
+<robw@optonline.net> wrote:
 
-Regards,
-Paul Rolland, rol@as2917.net
+> [Pushing the NVIDIA thread further because I have one of these damned
+> cards and want support for it in the 2.5+ kernels.]
 
---- linux-2.5.56/net/ipv4/route.c       2003-01-10 21:12:25.000000000
-+0100
-+++ linux-2.5.56-work/net/ipv4/route.c  2003-01-12 12:11:30.000000000
-+0100
-@@ -2672,12 +2672,14 @@
-                                        ip_rt_gc_interval;
-        add_timer(&rt_periodic_timer);
- 
-+#ifdef CONFIG_PROC_FS
-        if (rt_cache_proc_init())
-                goto out_enomem;
-        proc_net_create ("rt_cache_stat", 0, rt_cache_stat_get_info);
- #ifdef CONFIG_NET_CLS_ROUTE
-        create_proc_read_entry("net/rt_acct", 0, 0, ip_rt_acct_read,
-NULL);
- #endif
-+#endif
-        xfrm_init();
- out:
-        return rc;
+The canonical place to look for this is www.minion.de
 
+Andrew

@@ -1,113 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVCPOV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVCPOXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVCPOV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVCPOV1
+	id S262600AbVCPOXG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVCPOXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:21:27 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:57277 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261249AbVCPOVW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:21:22 -0500
-Message-ID: <423840DE.2050509@drzeus.cx>
-Date: Wed, 16 Mar 2005 15:21:18 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
+	Wed, 16 Mar 2005 09:23:05 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:60623 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S262600AbVCPOWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:22:49 -0500
+Date: Wed, 16 Mar 2005 15:22:49 +0100
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm4
+Message-ID: <20050316142248.GI29333@ens-lyon.fr>
+References: <20050316040654.62881834.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-6781-1110982967-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH][MMC] Power cycle (round 2)
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050316040654.62881834.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Wed, Mar 16, 2005 at 04:06:54AM -0800, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/
+> 
+> - fbdev update
+>
+It doesn't compile with gcc-4.0.
 
---=_hades.drzeus.cx-6781-1110982967-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+drivers/video/console/fbcon.c:133: error: static declaration of ‘fb_con’
+follows non-static declaration
+drivers/video/console/fbcon.h:166: error: previous declaration of
+‘fb_con’ was here
 
-I didn't get any response from you the last time I submitted this so I'm
-going to nag you some more ;)
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 
-This patch is vital for one of my MMC cards. The only other way I've
-found to get it working is by changing the OCR. And that would cause
-problems on other controllers so it was not an option.
-
-The patch is rather well tested with over 500 downloads and no reported
-problems. Just to keep everyone happy the default is still 'no' for
-Kconfig but I personally would think a 'yes' would be better.
-
-Rgds
-Pierre
-
---=_hades.drzeus.cx-6781-1110982967-0001-2
-Content-Type: text/x-patch; name="mmc-powercycle.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-powercycle.patch"
-
-Index: linux-wbsd/drivers/mmc/mmc.c
-===================================================================
---- linux-wbsd/drivers/mmc/mmc.c	(revision 72)
-+++ linux-wbsd/drivers/mmc/mmc.c	(working copy)
-@@ -666,13 +666,26 @@
- 		host->ocr = mmc_select_voltage(host, ocr);
+--- linux-test/drivers/video/console/fbcon.h	2005-03-16 15:15:57.000000000 +0100
++++ linux/drivers/video/console/fbcon.h	2005-03-16 15:14:18.000000000 +0100
+@@ -163,6 +163,4 @@ extern void fbcon_set_tileops(struct vc_
+ #endif
+ extern void fbcon_set_bitops(struct fbcon_ops *ops);
  
- 		/*
--		 * Since we're changing the OCR value, we seem to
--		 * need to tell some cards to go back to the idle
--		 * state.  We wait 1ms to give cards time to
--		 * respond.
-+		 * Some cards shut down when receiving an OCR of
-+		 * zero. But since they send their mask before
-+		 * shutting down we can still calculate a correct
-+		 * voltage. To get them back to life we need to
-+		 * cycle power.
-+		 *
-+		 * When changing OCR values we also need to put
-+		 * the cards in idle state.
- 		 */
- 		if (host->ocr)
-+		{
-+
-+#ifdef CONFIG_MMC_POWERCYCLE
-+			mmc_power_off(host);
-+			mmc_delay(100);
-+			mmc_power_up(host);
-+#endif /* CONFIG_MMC_POWERCYCLE */
-+
- 			mmc_idle_cards(host);
-+		}
- 	} else {
- 		host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
- 		host->ios.clock = host->f_min;
-Index: linux-wbsd/drivers/mmc/Kconfig
-===================================================================
---- linux-wbsd/drivers/mmc/Kconfig	(revision 95)
-+++ linux-wbsd/drivers/mmc/Kconfig	(revision 96)
-@@ -19,6 +19,18 @@
- 	  This is an option for use by developers; most people should
- 	  say N here.  This enables MMC core and driver debugging.
- 
-+config MMC_POWERCYCLE
-+	bool "Reboot cards after scan (EXPERIMENTAL)"
-+	depends on MMC != n && EXPERIMENTAL
-+	default n
-+	help
-+	  Some cards to not follow the MMC spec. fully and shut down
-+	  during init. Enable this option to reboot the card after
-+	  the initial scan.
-+	  
-+	  Most people should say N here. If you happen to have a card
-+	  that isn't detected then try enabling this option.
-+
- config MMC_BLOCK
- 	tristate "MMC block device driver"
- 	depends on MMC
+-extern const struct consw fb_con;
+-
+ #endif /* _VIDEO_FBCON_H */
 
---=_hades.drzeus.cx-6781-1110982967-0001-2--

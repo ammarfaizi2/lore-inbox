@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUGOQXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266238AbUGOQeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUGOQXV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 12:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266238AbUGOQXU
+	id S266238AbUGOQeM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 12:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUGOQeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 12:23:20 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:18215 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264633AbUGOQXB (ORCPT
+	Thu, 15 Jul 2004 12:34:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40602 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266238AbUGOQeJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 12:23:01 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: dipankar@in.ibm.com
+	Thu, 15 Jul 2004 12:34:09 -0400
+Date: Thu, 15 Jul 2004 09:34:08 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Chris Wright <chrisw@osdl.org>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Lock free fd lookup
-Date: Thu, 15 Jul 2004 12:22:24 -0400
-User-Agent: KMail/1.6.2
-Cc: Chris Wright <chrisw@osdl.org>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <20040714045345.GA1220@obelix.in.ibm.com> <200407151022.53084.jbarnes@engr.sgi.com> <20040715161054.GB3957@in.ibm.com>
-In-Reply-To: <20040715161054.GB3957@in.ibm.com>
-MIME-Version: 1.0
+Message-ID: <20040715093408.A1924@build.pdx.osdl.net>
+References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714045640.GB1220@obelix.in.ibm.com> <20040714081737.N1973@build.pdx.osdl.net> <200407151022.53084.jbarnes@engr.sgi.com> <20040715161054.GB3957@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407151222.24843.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040715161054.GB3957@in.ibm.com>; from dipankar@in.ibm.com on Thu, Jul 15, 2004 at 09:40:54PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, July 15, 2004 12:10 pm, Dipankar Sarma wrote:
+* Dipankar Sarma (dipankar@in.ibm.com) wrote:
+> On Thu, Jul 15, 2004 at 10:22:53AM -0400, Jesse Barnes wrote:
+> > On Wednesday, July 14, 2004 11:17 am, Chris Wright wrote:
+> > > I'm curious, how much of the performance improvement is from RCU usage
+> > > vs. making the basic syncronization primitive aware of a reader and
+> > > writer distinction?  Do you have benchmark for simply moving to rwlock_t?
+> > 
+> > That's a good point.  Also, even though the implementation may be 'lockless', 
+> > there are still a lot of cachelines bouncing around, whether due to atomic 
+> > counters or cmpxchg (in fact the latter will be worse than simple atomics).
+> 
 > Chris raises an interesting issue. There are two ways we can benefit from
 > lock-free lookup - avoidance of atomic ops in lock acquisition/release
 > and avoidance of contention. The latter can also be provided by
 > rwlocks in read-mostly situations like this, but rwlock still has
 > two atomic ops for acquisition/release. So, in another
 > thread, I have suggested looking into the contention angle. IIUC,
-> tiobench is threaded and shares fd table.
+> tiobench is threaded and shares fd table. 
 
-I must have missed that thread...  Anyway, that's a good idea.
+Given the read heavy assumption that RCU makes (supported by your
+benchmarks), I believe that the comparison with RCU vs. current scheme
+is unfair.  Better comparison is against rwlock_t, which may give a
+similar improvement w/out the added complexity.  But, I haven't a patch
+nor a benchmark, so it's all handwavy at this point.
 
->
-> That said, atomic counters weren't introduced in this patch,
-> they are already there for refcounting. cmpxchg is costly,
-> but if you are replacing read_lock/atomic_inc/read_unlock,
-> lock-free + cmpxchg, it might not be all that bad.
-
-Yeah, I didn't mean to imply that atomics were unique to this patch.
-
-> Atleast, 
-> we can benchmark it and see if it is worth it. And in heavily
-> contended cases, unlike rwlocks, you are not going to have
-> starvation.
-
-Which is good.
-
-> > It seems to me that RCU is basically rwlocks on steroids, which means
-> > that using it requires the same care to avoid starvation and/or other
-> > scalability problems (i.e. we'd better be really sure that a given
-> > codepath really should be using rwlocks before we change it).
->
-> The starvation is a problem with rwlocks in linux, not RCU. The
-> reader's do not impede writers at all with RCU. There are other
-> issues with RCU that one needs to be careful about, but certainly
-> not this one.
-
-That's good, I didn't think that RCU would cause starvation, but based on 
-previous reading of the code it seemed like it would hurt a lot in other 
-ways... but I'm definitely not an expert in that area.
-
-Thanks,
-Jesse
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,107 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269975AbUJNGHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269976AbUJNGpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269975AbUJNGHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 02:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269976AbUJNGHT
+	id S269976AbUJNGpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 02:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269979AbUJNGpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 02:07:19 -0400
-Received: from danga.com ([66.150.15.140]:55961 "EHLO danga.com")
-	by vger.kernel.org with ESMTP id S269975AbUJNGHP (ORCPT
+	Thu, 14 Oct 2004 02:45:51 -0400
+Received: from lugor.de ([217.160.170.124]:52609 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S269976AbUJNGps (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 02:07:15 -0400
-Date: Wed, 13 Oct 2004 23:07:14 -0700 (PDT)
-From: Brad Fitzpatrick <brad@danga.com>
-X-X-Sender: bradfitz@danga.com
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.6.9-rc4, dual Opteron, NUMA, 8GB
-In-Reply-To: <20041013232104.7e8dd97e.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0410132255540.31327@danga.com>
-References: <Pine.LNX.4.58.0410131204580.31327@danga.com> <416D8999.7080102@pobox.com>
- <Pine.LNX.4.58.0410131302190.31327@danga.com> <416D8C33.9080401@osdl.org>
- <Pine.LNX.4.58.0410131328400.31327@danga.com> <416D9139.1060200@osdl.org>
- <20041013232104.7e8dd97e.ak@suse.de>
+	Thu, 14 Oct 2004 02:45:48 -0400
+From: Christian Hesse <christian.hesse@linuxob.de>
+Organization: Linux Oberhausen
+To: linux-kernel@vger.kernel.org
+Subject: Re: Software Suspend with ck
+Date: Thu, 14 Oct 2004 08:45:45 +0200
+User-Agent: KMail/1.7
+References: <200410111348.45497.mail@earthworm.de>
+In-Reply-To: <200410111348.45497.mail@earthworm.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1153455.lpq0hSnmjN";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410140845.45157.christian.hesse@linuxob.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004, Andi Kleen wrote:
+--nextPart1153455.lpq0hSnmjN
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Wed, 13 Oct 2004 13:34:01 -0700 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> >
-> > > Who's responsible for the K8_NUMA stuff?  I'd love to work with them to
-> > > narrow this down.
-> >
-> > Andi Kleen (SUSE).  Copied.
+On Monday 11 October 2004 13:48, Christian Hesse wrote:
+> Hello!
 >
-> It looks like memory corruption somewhere. I suspect not directly related to NUMA,
-> but the different memory layout with NUMA may trigger it.
+> Con Kolivas repoted this to work for him, but he also told me he's
+> clutching at straws since his swsusp knowledge is small and
+> Pavel Machek explained freeing memory is basically vm code he only
+> calls. So I post this here everybody can read it.
 >
-> I would enable CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC and see if that
-> triggers it elsewhere.
+> Trying to suspend an ck-kernel results in the system hanging while freeing
+> memory. This behavior is caused by Staircase scheduler. Sane 2.6.9-rc{3,4}
+> works fine.
 >
-> First suspection would be the device driver. Perhaps you can test it with
-> a different block device?
->
-> -Andi
+> Any chance to get it working? Let me know if you need more inforamtion.
 
-Andi,
+If anybody is interested: Suspend works just fine with 2.6.9-rc4-ck2.
 
-CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC show no corruption.
+=2D-=20
+Christian Hesse
 
-It turns out that NUMA is the culprit and LVM has no effect on any
-configuration.  The machine has 6 memory slots.  If I have 4 sticks of
-2GB in the machine, it makes zone 0 w/ 8GB and zone 1 disabled.  If I
-add two more 2GB sticks (total 12GB, filling all possible 6 slots),
-then I have 8GB in zone 0 and 4GB in zone 1, and then a mke2fs on a
-280GB /dev/sdb1 works fine.
+geek by nature
+linux by choice
 
-In conclusion:
+--nextPart1153455.lpq0hSnmjN
+Content-Type: application/pgp-signature
 
-    NUMA + 12 GB   -> works
-    NUMA + 8 GB    -> OOPS
-    no numa + 8 GB -> works
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.10 (GNU/Linux)
 
-And I suspect that without CONFIG_SMP, 8GB will also work, by virtue
-of there only being one NUMA zone.  I haven't tested that yet, but
-Randy referred me to these posts, where somebody with the same problem
-confirms that disabling NUMA and SMP fixes his problem:
+iD8DBQBBbiCZlZfG2c8gdSURAki+AJ0Wq4qrb9stoL7e6xK0l9N920BRJQCg6ISu
+8dSvH0c51LBPG38wJ4Ko6jM=
+=s/Ja
+-----END PGP SIGNATURE-----
 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=109328505204081&w=2
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=109330259511819&w=2
-
-When I boot NUMA w/ 12GB, I get:
-
-Scanning NUMA topology in Northbridge 24
-Number of nodes 2 (10010)
-Node 0 MemBase 0000000000000000 Limit 00000001ffffffff
-Node 1 MemBase 0000000200000000 Limit 00000002ffffffff
-node 1 shift 24 addr 200000000 conflict 0
-node 1 shift 25 addr 200000000 conflict 0
-Using node hash shift of 26
-Bootmem setup node 0 0000000000000000-00000001ffffffff
-Bootmem setup node 1 0000000200000000-00000002ffffffff
-No mptable found.
-On node 0 totalpages: 2097151
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 2093055 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-On node 1 totalpages: 1048575
-  DMA zone: 0 pages, LIFO batch:1
-  Normal zone: 1048575 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-
-
-When I boot NUMA w/ 8GB, k8topology.c prints out:
-
-...
-Node 0 MemBase 0000000000000000 Limit 00000001ffffffff
-Skipping disabled node 1
-...
-
-I can get you the full dmesg of both configs tomorrow.
-
-Anything else you'd like to see?
-
-- Brad
+--nextPart1153455.lpq0hSnmjN--

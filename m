@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286647AbSANOff>; Mon, 14 Jan 2002 09:35:35 -0500
+	id <S289175AbSANOkf>; Mon, 14 Jan 2002 09:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286934AbSANOf0>; Mon, 14 Jan 2002 09:35:26 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11529 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286647AbSANOfQ>;
-	Mon, 14 Jan 2002 09:35:16 -0500
-Date: Mon, 14 Jan 2002 12:35:05 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
+	id <S289246AbSANOkZ>; Mon, 14 Jan 2002 09:40:25 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:47369 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289175AbSANOkP>; Mon, 14 Jan 2002 09:40:15 -0500
+Date: Mon, 14 Jan 2002 15:40:09 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: <yodaiken@fsmlabs.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
         Arjan van de Ven <arjan@fenrus.demon.nl>,
         <linux-kernel@vger.kernel.org>
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33.0201141330350.29208-100000@serv>
-Message-ID: <Pine.LNX.4.33L.0201141216520.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <20020114063850.C22065@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0201141530450.29505-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Roman Zippel wrote:
+Hi,
 
-> Any ll approach so far only addresses a single type of latency - the
-> time from waking up an important process until it really gets the cpu.
-> What is not handled by any patch are i/o latencies, that means the
-> average time to get access to a specific resource.
+On Mon, 14 Jan 2002 yodaiken@fsmlabs.com wrote:
 
-OK, suppose you have three tasks.
+> > > 	Nobody has answered my question about the conflict between SMP per-cpu caching
+> > > 	and preempt. Since NUMA is apparently the future of MP in the PC world and
+> > > 	the future of Linux servers, it's interesting to consider this tradeoff.
+> >
+> > Preempt is a UP feature so far.
+>
+> I think this is a sufficient summary of your engineering approach.
 
-A is a SCHED_FIFO task
-B is a nice 0 SCHED_OTHER task
-C is a nice +19 SCHED_OTHER task
+Would you please care to explain, what the hell you want?
+Preempt on SMP has more problems than you mention above, so that the scope
+of my arguments only included UP. Sorry, if I missed something, but
+preempt on SMP is an entirely different dicussion.
 
-Task B is your standard CPU hog, running all the time, task C has
-grabbed  an inode semaphore (no spinlock), task A wakes up, preempts
-task C, tries to grab the inode semaphore and goes back to sleep.
+> > More of other FUD deleted, Victor, could you please stop this?
+>
+> I guess that Andrew, Alan, Andrea and I all are raising objections that
+> you ignore because we  have some kind of shared bias.
 
-Now task A has to wait for task B to give up the CPU before task C
-can run again and release the semaphore.
+No, your sparse use of arguments makes the difference.
 
-Without preemption task C would not have been preempted and it would
-have released the lock much sooner, meaning task A could have gotten
-the resource earlier.
-
-Using the low latency patch we'd insert some smart code into the
-algorithm so task A also releases the lock before rescheduling.
-
-Before you say this thing never happens in practice, I ran into
-this thing in real life with the SCHED_IDLE patch. In fact, this
-problem was so severe it convinced me to abandon SCHED_IDLE ;))
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+bye, Roman
 

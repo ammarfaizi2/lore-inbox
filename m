@@ -1,100 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275346AbTHMTkg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275349AbTHMTkf
+	id S275308AbTHMTgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHMTgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:40:35 -0400
-Received: from rosdorff.xs4all.nl ([213.84.29.108]:15373 "EHLO
-	rosdorff.xs4all.nl") by vger.kernel.org with ESMTP id S275346AbTHMTkZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:40:25 -0400
-Date: Wed, 13 Aug 2003 21:40:19 +0200 (CEST)
-From: Coen Rosdorff <coen@rosdorff.dyndns.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VM: killing process amavis
-In-Reply-To: <Pine.LNX.4.44.0308131633420.2029-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0308132119140.4138-100000@rosdorff.dyndns.org>
+	Wed, 13 Aug 2003 15:36:08 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:18584 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S275308AbTHMTgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 15:36:04 -0400
+Message-ID: <3F3A9302.5000806@home.ro>
+Date: Wed, 13 Aug 2003 22:35:30 +0300
+From: Nufarul Alb <nufarul.alb@home.ro>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jim Carter <jimc@math.ucla.edu>, linux-kernel@vger.kernel.org
+Subject: Re: multibooting the linux kernel
+References: <3F396C04.90608@home.ro> <20030813072053.A25803@infradead.org> <3F3A2DB9.7030601@home.ro> <Pine.LNX.4.53.0308130904140.3016@xena.cft.ca.us>
+In-Reply-To: <Pine.LNX.4.53.0308130904140.3016@xena.cft.ca.us>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Hugh Dickins wrote:
+Jim Carter wrote:
 
-> It really would be worth giving memtest86 a good long run.
-> 
-> 02000000 looks very much like a single-bit memory error,
-> and swap_free is exactly where such errors often show up.
+>On Wed, 13 Aug 2003, Nufarul Alb wrote:
+>  
+>
+>>>>There is a patch for the kernel that make it able to preload modules
+>>>>before the acutal booting.
+>>>>        
+>>>>
+>
+>Perhaps I'm misunderstanding the issue, but this sounds like a job for
+>initrd.  Someone jokingly mentioned booting wirelessly through a
+>cipe pipe, so you would stick iwconfig and cipe (and your RAID driver and
+>all the other wierd stuff) in the initrd.  A lot of distros do this for you
+>automatically, including SuSE.
+>
+>So how are the kernel and initrd images read?  Grub has drivers for a fair
+>number of devices, and can read i86 BIOS-supported discs, conventional
+>Ethernet, some RAID (I think), etc.  You can't load modules from your
+>regular filesystem until you can read your filesystem, meaning that the
+>module used to read your filesystem has to be provided by some other means.
+>Like initrd.
+>
+>Hope this helps rather than smokes up the issue.
+>
+>James F. Carter          Voice 310 825 2897    FAX 310 206 6673
+>UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
+>Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+>
+>  
+>
+the use of initrd is a real pain in the butt. with multibooting GRUB 
+loads the modules into memory and the kernel can take them from there. 
+In this way the main kernel can be smaller, you won't need built-in 
+filesystem drivers  (they will be preloaded by GRUB), you will not have 
+to recompile the entire kernel all the time, but only the modules.
 
-I had the same problem before on the previous server. Running memtest for 
-19 days didn't showed any memory problems.
+The MAIN THING  that a multiboot kernel will solve is the problem of 
+module portability. I think that the reason why hardware producers are 
+not making drivers for linux is that they have to make them open source 
+in order to be compiled by every user. With multibooting it become 
+possible to make a standard type of the main image of the kernel and all 
+the modules will be built for it. So, the hardware vendors won't have to 
+make public their sources and they will be encouraged to write drivers.
 
-After replacing the motherboard cpu and ram, now I have the same problem.
-
-Previous motherboard:
-swap_free: Unused swap offset entry 00000100
-
-Apr 26 09:40:05 rosdorff kernel: kernel BUG at dcache.c:345!
-Apr 26 09:40:05 rosdorff kernel: invalid operand: 0000
-Apr 26 09:40:05 rosdorff kernel: CPU:    0
-Apr 26 09:40:05 rosdorff kernel: EIP:    0010:[<c0141764>]    Not tainted
-Apr 26 09:40:05 rosdorff kernel: EFLAGS: 00010206
-Apr 26 09:40:05 rosdorff kernel: eax: 00000100   ebx: c17a8958   ecx: c1127f84   edx: c17a89d8
-Apr 26 09:40:05 rosdorff kernel: esi: c17a8940   edi: 0000064d   ebp: 00000113   esp: c1147f20
-Apr 26 09:40:05 rosdorff kernel: ds: 0018   es: 0018   ss: 0018
-Apr 26 09:40:05 rosdorff kernel: Process kswapd (pid: 4, stackpage=c1147000)
-
-May 11 14:40:05 rosdorff kernel: kernel BUG at dcache.c:345!
-May 11 14:40:05 rosdorff kernel: invalid operand: 0000
-May 11 14:40:05 rosdorff kernel: CPU:    0
-May 11 14:40:05 rosdorff kernel: EIP:    0010:[<c0141b84>]    Not tainted
-May 11 14:40:05 rosdorff kernel: EFLAGS: 00010206
-May 11 14:40:05 rosdorff kernel: eax: 00000100   ebx: c17a8958   ecx: c1127f84   edx: c4d2a6d8
-May 11 14:40:05 rosdorff kernel: esi: c17a8940   edi: 000011aa   ebp: 0000021b   esp: c114bf20
-May 11 14:40:05 rosdorff kernel: ds: 0018   es: 0018   ss: 0018
-May 11 14:40:05 rosdorff kernel: Process kswapd (pid: 4, stackpage=c114b000)
-
-Jun 18 05:00:06 rosdorff kernel: kernel BUG at dcache.c:345!
-Jun 18 05:00:06 rosdorff kernel: invalid operand: 0000
-Jun 18 05:00:06 rosdorff kernel: CPU:    0
-Jun 18 05:00:06 rosdorff kernel: EIP:    0010:[<c0141264>]    Not tainted
-Jun 18 05:00:06 rosdorff kernel: EFLAGS: 00010206
-Jun 18 05:00:06 rosdorff kernel: eax: 00000100   ebx: c17a8958   ecx: c110ff84   edx: c17a89d8
-Jun 18 05:00:06 rosdorff kernel: esi: c17a8940   edi: 000019c1   ebp: 00000393   esp: c1163f20
-Jun 18 05:00:06 rosdorff kernel: ds: 0018   es: 0018   ss: 0018
-Jun 18 05:00:06 rosdorff kernel: Process kswapd (pid: 4, stackpage=c1163000)
-
-
-Current motherboard:
-Jul  8 08:31:53 rosdorff kernel: memory.c:100: bad pmd 02000000
-
-Jul 15 04:05:16 rosdorff kernel: Unable to handle kernel paging request at virtual address 02000000
-Jul 15 04:05:16 rosdorff kernel:  printing eip:
-Jul 15 04:05:16 rosdorff kernel: c0131614
-Jul 15 04:05:16 rosdorff kernel: *pde = 00000000
-Jul 15 04:05:16 rosdorff kernel: Oops: 0002
-Jul 15 04:05:16 rosdorff kernel: CPU:    0
-Jul 15 04:05:16 rosdorff kernel: EIP:    0010:[<c0131614>]    Not tainted
-Jul 15 04:05:16 rosdorff kernel: EFLAGS: 00010256
-Jul 15 04:05:16 rosdorff kernel: eax: 00000000   ebx: c36cf3e0   ecx: c36cf3e0   edx: 02000000
-Jul 15 04:05:16 rosdorff kernel: esi: c36cf3e0   edi: c36cf3e0   ebp: c11b5970   esp: c136df00
-Jul 15 04:05:16 rosdorff kernel: ds: 0018   es: 0018   ss: 0018
-Jul 15 04:05:16 rosdorff kernel: Process kswapd (pid: 4, stackpage=c136d000)
-
-Aug 13 10:12:51 rosdorff kernel: VM: killing process amavis
-Aug 13 10:12:51 rosdorff kernel: swap_free: Unused swap offset entry 02000000
+AND besides all that you can do many operations before mounting the 
+actual root like, for example, make a module that encapsulates a nice 
+boot animation, a progress bar, show the services start in a nice 
+graphical way on top of the framebuffer.Of course this can be done with 
+the current kernel, but you have to rebuild the entire kernel each time, 
+errors will appear all the time.
 
 
-So the problem moved from 00000100 to 02000000
-
-The networkcards and the 3ware raid controler moved form the old to the 
-new box. Could one of them be the problem?
-
-I am running out of options.
-
-
-TIA,
-Coen Rosdorff
 

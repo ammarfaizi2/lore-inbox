@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265465AbUAJVno (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUAJVnn
+	id S265442AbUAJVti (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265443AbUAJVti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:43:43 -0500
-Received: from pop.gmx.net ([213.165.64.20]:5852 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265465AbUAJVnl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:43:41 -0500
-X-Authenticated: #20450766
-Date: Sat, 10 Jan 2004 21:04:03 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-In-Reply-To: <1073745028.1146.13.camel@nidelv.trondhjem.org>
-Message-ID: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=koi8-r
-Content-Transfer-Encoding: 8BIT
+	Sat, 10 Jan 2004 16:49:38 -0500
+Received: from waste.org ([209.173.204.2]:32659 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265442AbUAJVtg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 16:49:36 -0500
+Date: Sat, 10 Jan 2004 15:49:30 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
+Message-ID: <20040110214930.GM18208@waste.org>
+References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com> <20040104084005.GU18208@waste.org> <m1ekufgt72.fsf@ebiederm.dsl.xmission.com> <20040105170938.GY18208@waste.org> <m1wu82i6tm.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wu82i6tm.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jan 2004, Trond Myklebust wrote:
+On Thu, Jan 08, 2004 at 12:22:29PM -0700, Eric W. Biederman wrote:
+> Matt Mackall <mpm@selenic.com> writes:
+> 
+> > On Sun, Jan 04, 2004 at 05:00:49PM -0700, Eric W. Biederman wrote:
+> > > On the side of useless ugly.  But interesting in what I had to touch
+> > > the following patch is a first crude stab at removing block device
+> > > support from the kernel.
+> > 
+> > This looks good. If you can send me a version with
+> > /BLOCK_DEVICE/BLOCK/, etc., I'll put it in.
+> 
+> Ok.  I have just had a chance to clean some things up.  Attached
+> is my latest and hopefully clean set up diffs against 2.6.1-rc1-tiny1
+> 
+> I am bouncing this off of linux-kernel as well since I got such good
+> feedback last time.
+> 
+> - First the compile fixes, so I can compile test this code.
 
-> På lau , 10/01/2004 klokka 06:10, skreiv Guennadi Liakhovetski:
-> > Yes. The reason for the problem seems to be the increased default size of
-> > the transfer unit of NFS from 2.4 to 2.6. 8K under 2.4 was still ok, 16K
-> > is too much - only the first 5 fragments pass fine, then data starts to
-> > get lost. If it is a hardware limitation (not all platforms can manage
-> > 16K), it should be probably set back to 8K. If the reason is that some
-> > buffer size was not increased correspondingly, then this should be done.
->
-> No! People who have problems with the support for large rsize/wsize
-> under UDP due to lost fragments can
->
->   a) Reduce r/wsize themselves using mount
->   b) Use TCP instead
->
-> The correct solution to this problem is (b). I.e. we convert mount to
-> use TCP as the default if it is available. That is consistent with what
-> all other modern implementations do.
->
-> Changing a hard maximum on the server in order to fit the lowest common
-> denominator client is simply wrong.
+Ok, had this stuff in my last release.
 
-Not change - keep (from 2.4). You see, the problem might be - somebody
-updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
-to work with it. Seems a non-obvious fact, that after upgrading the server
-clients' configuration might have to be changed. At the very least this
-must be documented in Kconfig.
+> - Then the CONFIG_BLOCK patch.  
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Merged with some minor tweaks in 2.6.1-tiny1.
 
+> - Then a new patch that was sort of in my tree to make BINFMT_SCRIPT
+>   configurable.
 
+Merged.
+
+> - And another new patch to use cond_syscall instead of explicit
+>   dummies when we don't have the AIO code compiled in.
+
+I went back and cleaned up all my syscall changes to use the
+cond_syscall approach, thanks for pointing it out.
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

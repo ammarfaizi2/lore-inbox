@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVAERcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVAERgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVAERcK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVAER3q
+	id S262520AbVAERgc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVAERgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:29:46 -0500
-Received: from mail.gmx.de ([213.165.64.20]:31897 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262515AbVAER3F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:29:05 -0500
-X-Authenticated: #1425685
-Date: Wed, 5 Jan 2005 18:28:20 +0100
-From: Sebastian <Ostdeutschland@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: /proc/acpi/debug_level broken ?
-Message-Id: <20050105182820.3e28bb86.Ostdeutschland@gmx.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 5 Jan 2005 12:36:31 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:64925 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262520AbVAERgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 12:36:01 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20050105113921.GA31416@infradead.org>
+References: <1104374603.9732.32.camel@krustophenia.net>
+	 <20050103140359.GA19976@infradead.org>
+	 <1104862614.8255.1.camel@krustophenia.net>
+	 <20050104182010.GA15254@infradead.org>
+	 <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de>
+	 <20050105113921.GA31416@infradead.org>
+Content-Type: text/plain
+Date: Wed, 05 Jan 2005 12:35:56 -0500
+Message-Id: <1104946557.8589.32.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2005-01-05 at 11:39 +0000, Christoph Hellwig wrote:
+> I'm not a big fan of LSM, and I've explained the rationale why multiple
+> times.  The doesn't mean everything done using LSM is bad  -  in practice
+> most things are bad though (from the things I've seen everything but lsm)
+                                                                       ^^^
 
-when trying 'cat /proc/acpi/debug_level' i get the following:
+Is this a typo?  Maybe you mean SELinux?
 
-admin@workstation:~$ cat /proc/acpi/debug_level 
-Description                     Hex        SET
-ACPI_LV_ERROR                   0x00000001 [*]
-ACPI_LV_WARN                    0x00000002 [*]
-ACPI_LV_INIT                    0x00000004 [*]
-ACPI_LV_DEBUG_OBJECT            0x00000008 [*]
-ACPI_LV_INFO                    0x00000010 [ ]
-ACPI_LV_INIT_NAMES              0x00000020 [ ]
-ACPI_LV_PARSE                   0x00000040 [ ]
-ACPI_LV_LOAD                    0x00000080 [ ]
-ACPI_LV_DISPATCH                0x00000100 [ ]
-ACPI_LV_EXEC                    0x00000200 [ ]
-ACPI_LV_NAMES                   0x00000400 [ ]
-ACPI_LV_OPREGION                0x00000800 [ ]
-ACPI_LV_BFIELD                  0x00001000 [ ]
-ACPI_LV_TABLES                  0x00002000 [ ]
-ACPI_LV_VALUES                  0x00004000 [ ]
-ACPI_LV_OBJECTS                 0x00008000 [ ]
-ACPI_LV_RESOURCES               0x00010000 [ ]
-ACPI_LV_USER_REQUESTS           0x00020000 [ ]
-ACPI_LV_PACKAGE                 0x00040000 [ ]
-ACPI_LV_ALLOCATIONS             0x00100000 [ ]
-ACPI_LV_FUNCTIONS               0x00200000 [ ]
-ACPI_LV_OPTIMIZATIONS           0x00400000 [ ]
-ACPI_LV_MUTEX                   0x01000000 [ ]
-ACPI_LV_THREADS                 0x02000000 [ ]admin@workstation:~
+Lee
 
-Note the shell prompt directly after [ ].
-
-Looking at driver/acpi/debug.c:129 there should be 6 more entries in
-that file.
-
-Also driver/acpi/debug.c:136,137 does not get printed.
-(debug_level = 0xFFFFFFFF (* = enabled, - = partial))
-
-Kernel version is 2.6.10. I can verify this with 2.6.9, too.
-
-Yours,
-
-sebastian

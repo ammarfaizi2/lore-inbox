@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282483AbRKZUHW>; Mon, 26 Nov 2001 15:07:22 -0500
+	id <S282488AbRKZUHl>; Mon, 26 Nov 2001 15:07:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282463AbRKZUFx>; Mon, 26 Nov 2001 15:05:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51975 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S282480AbRKZUFM>; Mon, 26 Nov 2001 15:05:12 -0500
-Date: Mon, 26 Nov 2001 14:58:49 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Loop.c File !!!!
-In-Reply-To: <EXCH01SMTP011vDfrwV0000fda4@smtp.netcabo.pt>
-Message-ID: <Pine.LNX.3.96.1011126145531.27112D-100000@gatekeeper.tmr.com>
+	id <S282463AbRKZUHZ>; Mon, 26 Nov 2001 15:07:25 -0500
+Received: from [206.196.53.54] ([206.196.53.54]:55985 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S282480AbRKZUGO>;
+	Mon, 26 Nov 2001 15:06:14 -0500
+Date: Mon, 26 Nov 2001 14:08:19 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Subject: Re: Looking for SCSI test harness
+In-Reply-To: <Pine.LNX.4.21.0111261638520.14081-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.40.0111261404380.15983-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, Miguel Maria Godinho de Matos wrote:
+On Mon, 26 Nov 2001, Marcelo Tosatti wrote:
 
-> The problem is the following:
-> 
-> I AM A NEWBIE!!! 
-> 
-> Well i had some questions about the linux kernel compilation and some of you 
-> gave me some real goos answeres, however, there is an issue which keeps 
-> buzzing my head and that i can't understand!
-> 
-> Some one told me i should edit the loop.c file and even tried to explained me 
-> why but i couldn't understand.
-> 
-> He said something about my new kernel wouldn't be able to compile if two or 
-> three lines weren't comented!
-> 
-> I didn't understand this fact so i would like to know why should i edit the 
-> /usr/src/linux/drivers/block/loop.c file!!!!
+> Cerberus (stress tool, you can probably find it at freshmeat.net) you can
+> has a SCSI burn test...
 
-You should edit out those lines because your kernel will not compile
-unless you do so.
+Thanks, I'll take a closer look at that, but I think I'm more interested
+in something that aims for coverage of the SCSI command set.
 
-Those lines are not supposed to be there and need to be removed. They are
-left over from an earlier version of the kernel and are not only not
-required but prevent compilation. 
+> On Mon, 26 Nov 2001, Oliver Xymoron wrote:
+>
+> > Anyone have a tool to put a SCSI disk/driver through its paces?  I'm
+> > looking for something that can be used for regression testing.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

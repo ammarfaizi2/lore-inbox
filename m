@@ -1,121 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUCIFdv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 00:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUCIFdv
+	id S261236AbUCIFhq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 00:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUCIFhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 00:33:51 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:39314 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261210AbUCIFds
+	Tue, 9 Mar 2004 00:37:46 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:25282 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261236AbUCIFhb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 00:33:48 -0500
-Message-ID: <404D5735.1040500@cyberone.com.au>
-Date: Tue, 09 Mar 2004 16:33:41 +1100
+	Tue, 9 Mar 2004 00:37:31 -0500
+Message-ID: <404D56D8.2000008@cyberone.com.au>
+Date: Tue, 09 Mar 2004 16:32:08 +1100
 From: Nick Piggin <piggin@cyberone.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 2/4] vm-nofixed-active-list
-References: <404D56D8.2000008@cyberone.com.au> <404D570D.90608@cyberone.com.au>
-In-Reply-To: <404D570D.90608@cyberone.com.au>
-Content-Type: multipart/mixed;
- boundary="------------030503070709090809080809"
+Subject: [RFC][PATCH 0/4] VM split active lists
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030503070709090809080809
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
+Background: there are a number of problems in the 2.6 page reclaim
+algorithms. Thankfully, most of them were simple oversights or small
+bugs, the worst of which Andrew Morton and myself have fixes for in
+his -mm tree and being mostly simple and obviously correct, they will
+hopefully be included in 2.6.5.
 
+With these fixes, 2.6 swapping performance (the area I'm focusing on)
+is very much improved. Unfortunately there is another more complex
+patch in limbo that improves performance by a additional 10%. It is
+Nikita's dont-rotate-active-list.
 
+The reason for the improvement is that it improves ordering of mapped
+pages on the active list. Now I I'd like to fix this problem and get
+this 10%. However dont-rotate-active-list is pretty ugly to put it
+nicely.
 
---------------030503070709090809080809
-Content-Type: text/x-patch;
- name="vm-nofixed-active-list.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vm-nofixed-active-list.patch"
+OK, the theory is that mapped pagecache pages are worth more than
+unmapped pages. This is a good theory because mapped pages will
+usually have far more random access patterns, so pagein *and* pageout
+will be much less efficient. Also, applications are probably coded to
+be more suited to blocking in read() than a random code / anon memory
+page. So a factor of >= 16 wouldn't be out of the question.
 
+Now the basic problem is that we have these two classes of pages on
+one (the active) list, and we attempt to place different scanning
+semantics on each class. This is done with the reclaim_mapped logic.
+Now I won't be too disparaging of reclaim_mapped because I think
+Andrew crea^W^W^W^W it somehow more or less works, but it has a couple
+of problems.
 
+* Difficult to trace: relies on some saved state from earlier in time.
+* difficult to control: relies on inner workings (eg "priority").
+  mapped vs unmapped scanning behaviour is derived basically by black
+  magic.
+* not-quite-right semantics: mapped pages are infinitely preferable
+  to unmapped pages until something goes click and then they are worth
+  about half as much.
+* These semantics mean that in low memory pressure (before the click),
+  truely inactive mapped pages will never be reclaimed. Probably they
+  should be to increase resident working set.
+* Also, a significant number of mapped pages can be passed over
+  without doing any real work.
+* This causes list position information to be lost (which is where
+  that 10% comes from).
+
+Now I have an alternative which hopefully solves all these problems
+and with less complexity than dont-rotate-active-list which only
+solves the last one: split the active list into active_mapped and
+active_unmapped lists. Pages are moved between them lazily at scan
+time, and they needn't be totally accurate.
+
+You then simply put 16 (or whatever) times the amount of pressure on
+the unmapped list as you do on the mapped list. This number can be the
+tunable (instead of swapiness).
+
+I have an implementation which compiles, boots, and survives a -j8
+kbuild. Probably still has a few problems though. Couple of things: it
+presently just puts even pressure on both lists, so it is swappy
+(trivial to fix). It also gives unmapped pages the full two level
+(active+inactive) system because it was just easier to do it that way.
+Don't know if this would be good or bad.
+
+The patches go like this:
+1/4: vm-lrutopage-cleanup
+Cleanup from Nikita's dont-rotate-active-list patch.
+
+2/4: vm-nofixed-active-list
 Generalise active list scanning to scan different lists.
 
+3/4: vm-no-reclaim_mapped
+Kill reclaim_mapped and its merry men.
 
+4/4: vm-mapped-x-active-lists
+Split the active list into mapped and unmapped pages.
 
- linux-2.6-npiggin/mm/vmscan.c |   21 ++++++++++-----------
- 1 files changed, 10 insertions(+), 11 deletions(-)
-
-diff -puN mm/vmscan.c~vm-nofixed-active-list mm/vmscan.c
---- linux-2.6/mm/vmscan.c~vm-nofixed-active-list	2004-03-09 13:57:23.000000000 +1100
-+++ linux-2.6-npiggin/mm/vmscan.c	2004-03-09 16:31:27.000000000 +1100
-@@ -579,13 +579,12 @@ done:
-  * The downside is that we have to touch page->count against each page.
-  * But we had to alter page->flags anyway.
-  */
--static void
--refill_inactive_zone(struct zone *zone, const int nr_pages_in,
--			struct page_state *ps)
-+static void shrink_active_list(struct zone *zone, struct list_head *list,
-+				const int nr_scan, struct page_state *ps)
- {
- 	int pgmoved;
- 	int pgdeactivate = 0;
--	int nr_pages = nr_pages_in;
-+	int nr_pages = nr_scan;
- 	LIST_HEAD(l_hold);	/* The pages which were snipped off */
- 	LIST_HEAD(l_inactive);	/* Pages to go onto the inactive_list */
- 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
-@@ -599,16 +598,16 @@ refill_inactive_zone(struct zone *zone, 
- 	lru_add_drain();
- 	pgmoved = 0;
- 	spin_lock_irq(&zone->lru_lock);
--	while (nr_pages && !list_empty(&zone->active_list)) {
--		page = lru_to_page(&zone->active_list);
--		prefetchw_prev_lru_page(page, &zone->active_list, flags);
-+	while (nr_pages && !list_empty(list)) {
-+		page = lru_to_page(list);
-+		prefetchw_prev_lru_page(page, list, flags);
- 		if (!TestClearPageLRU(page))
- 			BUG();
- 		list_del(&page->lru);
- 		if (page_count(page) == 0) {
- 			/* It is currently in pagevec_release() */
- 			SetPageLRU(page);
--			list_add(&page->lru, &zone->active_list);
-+			list_add(&page->lru, list);
- 		} else {
- 			page_cache_get(page);
- 			list_add(&page->lru, &l_hold);
-@@ -716,7 +715,7 @@ refill_inactive_zone(struct zone *zone, 
- 		if (TestSetPageLRU(page))
- 			BUG();
- 		BUG_ON(!PageActive(page));
--		list_move(&page->lru, &zone->active_list);
-+		list_move(&page->lru, list);
- 		pgmoved++;
- 		if (!pagevec_add(&pvec, page)) {
- 			zone->nr_active += pgmoved;
-@@ -730,7 +729,7 @@ refill_inactive_zone(struct zone *zone, 
- 	spin_unlock_irq(&zone->lru_lock);
- 	pagevec_release(&pvec);
- 
--	mod_page_state_zone(zone, pgrefill, nr_pages_in - nr_pages);
-+	mod_page_state_zone(zone, pgrefill, nr_scan - nr_pages);
- 	mod_page_state(pgdeactivate, pgdeactivate);
- }
- 
-@@ -762,7 +761,7 @@ shrink_zone(struct zone *zone, int max_s
- 	count = atomic_read(&zone->nr_scan_active);
- 	if (count >= SWAP_CLUSTER_MAX) {
- 		atomic_set(&zone->nr_scan_active, 0);
--		refill_inactive_zone(zone, count, ps);
-+		shrink_active_list(zone, &zone->active_list, count, ps);
- 	}
- 
- 	atomic_add(max_scan, &zone->nr_scan_inactive);
-
-_
-
---------------030503070709090809080809--

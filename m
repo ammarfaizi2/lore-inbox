@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130403AbRBVWz6>; Thu, 22 Feb 2001 17:55:58 -0500
+	id <S130059AbRBVW52>; Thu, 22 Feb 2001 17:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130298AbRBVWzs>; Thu, 22 Feb 2001 17:55:48 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:43307 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130141AbRBVWzh>; Thu, 22 Feb 2001 17:55:37 -0500
-Date: Thu, 22 Feb 2001 23:57:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ll_rw_block/submit_bh and request limits
-Message-ID: <20010222235700.B30330@athlon.random>
-In-Reply-To: <20010222223811.A29372@athlon.random> <Pine.LNX.4.21.0102221832470.2401-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0102221832470.2401-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 22, 2001 at 06:40:48PM -0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131220AbRBVW5S>; Thu, 22 Feb 2001 17:57:18 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:44420 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S130059AbRBVW5I>;
+	Thu, 22 Feb 2001 17:57:08 -0500
+Date: Thu, 22 Feb 2001 14:57:05 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] starfire fix for 2.4.2ac
+Message-ID: <Pine.LNX.4.30.0102221446480.9770-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 06:40:48PM -0200, Marcelo Tosatti wrote:
-> You want to throttle IO if the amount of on flight data is higher than
-> a given percentage of _main memory_. 
-> 
-> As far as I can see, your patch avoids each individual queue from being
-> bigger than the high watermark (which is a percentage of main
-> memory). However, you do not avoid multiple queues together from being
-> bigger than the high watermark.
+Hi Alan,
 
-I of course see what you mean and I considered but I tend to believe that's a
-minor issue and that most machines will be happier without the global unplug
-even if without the global limit.
+This patch fixes a problem doing ifconfig up, down and then up again, and
+getting ENODEV. That broke pump, among other things.
 
-The only reason we added the limit of I/O in flight is to be allowed to have an
-huge number of requests so we can do very large reordering and merges in the
-elevator with seeking I/O (4k large IO request) _but_ still we don't have to
-wait to lock in ram giga of pages before starting the I/O if the I/O was
-contigous. We absolutely need such a sanity limit, it would be absolutely
-unsane to wait kupdate to submit 10G of ram to a single harddisk before
-unplugging on a 30G machine.
+Please apply.
 
-It doesn't need to be exactly "if we unplug not exactly after 1/3 of the global
-ram is locked then performance sucks or the machine crashes or task gets
-killed".  As Jens noticed sync_page_buffers will unplug the queue at some point
-if we're low on ram anyways.
+Thanks,
+Ion
 
-The limit just says "unplug after a rasonable limit, after it doesn't matter
-anymore to try to delay requests for this harddisk, not matter if there are
-still I/O requests available".
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+--------------------------------------
+--- /mnt/3/linux-2.4-ac/drivers/net/starfire.c	Mon Feb 19 14:35:01 2001
++++ linux-2.4/drivers/net/starfire.c	Thu Feb 22 14:19:33 2001
+@@ -52,6 +52,9 @@
+ 	LK1.2.5 (Ion Badulescu)
+ 	- Several fixes from Manfred Spraul
+ 
++	LK1.2.6 (Ion Badulescu)
++	- Fixed ifup/ifdown/ifup problem in 2.4.x
++
+ TODO:
+ 	- implement tx_timeout() properly
+ 	- support ethtool
+@@ -64,7 +67,7 @@
+ " Updates and info at http://www.scyld.com/network/starfire.html\n";
+ 
+ static const char version3[] =
+-" (unofficial 2.4.x kernel port, version 1.2.5, February 15, 2001)\n";
++" (unofficial 2.4.x kernel port, version 1.2.6, February 22, 2001)\n";
+ 
+ /* The user-configurable values.
+    These may be modified when a driver module is loaded.*/
+@@ -486,6 +489,9 @@
+ 			func(dev); \
+ 	}
+ 
++#define netif_start_if(dev)	dev->start = 1
++#define netif_stop_if(dev)	dev->start = 0
++
+ #else  /* LINUX_VERSION_CODE > 0x20300 */
+ 
+ #define COMPAT_MOD_INC_USE_COUNT
+@@ -496,6 +502,8 @@
+ 	dev->watchdog_timeo = timeout;
+ #define kick_tx_timer(dev, func, timeout)
+ 
++#define netif_start_if(dev)
++#define netif_stop_if(dev)
+ 
+ #endif /* LINUX_VERSION_CODE > 0x20300 */
+ /* end of compatibility code */
+@@ -1041,6 +1049,7 @@
+ 	if (dev->if_port == 0)
+ 		dev->if_port = np->default_port;
+ 
++	netif_start_if(dev);
+ 	netif_start_queue(dev);
+ 
+ 	if (debug > 1)
+@@ -1712,7 +1721,8 @@
+ 	struct netdev_private *np = dev->priv;
+ 	int i;
+ 
+-	netif_device_detach(dev);
++	netif_stop_queue(dev);
++	netif_start_if(dev);
+ 
+ 	del_timer_sync(&np->timer);
+ 
 
-However if you have houndred of different queues doing I/O at the same time it
-may make a difference, but probably with tons of harddisks you'll also have
-tons of ram... In theory we could put a global limit on top of the the
-per-queue one. Or we could at least upper bound the total_ram / 3.
-
-Note that 2.4.0 as well doesn't enforce a global limit of packets in flight.
-(while in 2.2 the limit is global as it has a shared pool of I/O requests).
-
-Andrea

@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVBYP2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVBYPgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbVBYP2b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:28:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVBYP2b
+	id S262721AbVBYPgi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVBYPgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:28:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21440 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262720AbVBYP2W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:28:22 -0500
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16927.17446.834879.371263@segfault.boston.redhat.com>
-Date: Fri, 25 Feb 2005 10:28:38 -0500
-To: "shabanip" <shabanip@avapajoohesh.com>
+	Fri, 25 Feb 2005 10:36:37 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:62387 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262721AbVBYPgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:36:36 -0500
+Subject: Re: Invalid module format in Fedora core2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to capture kernel panics
-In-Reply-To: <53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
-References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
-	<200502251517.56254.linux-kernel@borntraeger.net>
-	<16927.14697.76256.482062@segfault.boston.redhat.com>
-	<53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
-X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+In-Reply-To: <Pine.LNX.4.60.0502252056130.17145@lantana.cs.iitm.ernet.in>
+References: <Pine.LNX.4.60.0502252056130.17145@lantana.cs.iitm.ernet.in>
+Content-Type: text/plain
+Date: Fri, 25 Feb 2005 16:36:29 +0100
+Message-Id: <1109345789.6290.74.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: how to capture kernel panics; "shabanip" <shabanip@avapajoohesh.com> adds:
+On Fri, 2005-02-25 at 20:57 +0530, Payasam Manohar wrote:
+>   Hai all,
+>    I tried to insert a sample module into Fedora core 2 , But it is giving 
+> an error message that " no module in the object"
+> The same module was inserted successfully into Redhat linux 9.
+> 
+> Is there any changes from RH 9 to Fedora Core 2 with respect to the module 
+> writing and insertion.
 
-shabanip> as i see netconsole is a kernel module.  so i just need to load
-shabanip> netconsole module with server:port parameters.  am i right?
-
-MODULE_PARM_DESC(netconsole, " netconsole=[src-port]@[src-ip]/[dev],[tgt-port]@<tgt-ip>/[tgt-macaddr]\n");
-
-So, for example:
-
-modprobe netconsole netconsole=6666@192.168.1.1/eth0,6666@192.168.1.100/00:40:95:9A:12:34
-
--Jeff
+yes; 2.6 has a new module system. It sounds like you're not building
+your module correctly, look in the Documentation/ directory for more
+information on how to build modules for 2.6 kernels
 
 
-shabanip> Payam Shabanian shabanip -at- avapajoohesh.com
 
->> ==> Regarding Re: how to capture kernel panics; Christian Borntraeger
->> <linux-kernel@borntraeger.net> adds:
->> 
-linux-kernel> shabanip wrote:
->>>> is there any way to capture and log kernel panics on disk or ...?
->>
-linux-kernel> In former times, the Linux kernel tried to sync in the panic
-linux-kernel> function. (If the panic did not happen in interrupt context)
-linux-kernel> Unfortunately this had severe side effects in cases where
->> the
-linux-kernel> panic was triggered by file system block device code or any
-linux-kernel> other part which is necessary for syncing. In most cases the
-linux-kernel> call trace never made it onto disk anyway. So currently the
-linux-kernel> kernel does not support saving a panic.
->>
-linux-kernel> Apart from using a serial console, you might have a look at
-linux-kernel> several kexec/kdump/lkcd tools where people are working on
-linux-kernel> being able to dump the memory of a paniced kernel.
->> Or netconsole, which will dump printk's do the server:port of your
->> choosing.
->> 
->> -Jeff
->> 
-
-shabanip> - To unsubscribe from this list: send the line "unsubscribe
-shabanip> linux-kernel" in the body of a message to
-shabanip> majordomo@vger.kernel.org More majordomo info at
-shabanip> http://vger.kernel.org/majordomo-info.html Please read the FAQ at
-shabanip> http://www.tux.org/lkml/

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131187AbRCGVBR>; Wed, 7 Mar 2001 16:01:17 -0500
+	id <S131185AbRCGVD0>; Wed, 7 Mar 2001 16:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131186AbRCGVBI>; Wed, 7 Mar 2001 16:01:08 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:22499 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131185AbRCGVAx>;
-	Wed, 7 Mar 2001 16:00:53 -0500
-Date: Wed, 7 Mar 2001 20:56:59 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010307205659.E9080@redhat.com>
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de> <20010307191044.M7453@redhat.com> <20010307211536.G4653@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010307211536.G4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 09:15:36PM +0100
+	id <S131186AbRCGVDQ>; Wed, 7 Mar 2001 16:03:16 -0500
+Received: from servo.isi.edu ([128.9.160.111]:30473 "EHLO servo.isi.edu")
+	by vger.kernel.org with ESMTP id <S131185AbRCGVDJ>;
+	Wed, 7 Mar 2001 16:03:09 -0500
+Message-Id: <200103072102.f27L24w09461@servo.isi.edu>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Abramo Bagnara <abramo@alsa-project.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Mapping a piece of one process' addrspace to another? 
+In-Reply-To: Message from Alexander Viro <viro@math.psu.edu> 
+   of "Wed, 07 Mar 2001 04:49:56 EST." <Pine.GSO.4.21.0103070429140.2127-100000@weyl.math.psu.edu> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <9458.983998924.1@servo.isi.edu>
+Date: Wed, 07 Mar 2001 13:02:04 -0800
+From: Jeremy Elson <jelson@circlemud.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alexander Viro writes:
+>Erm. If ioctls are device-specific - the program is already bound to
+>specific driver. If they are for class of devices (and if I guessed
+>right that's the case you are interested in - sound, isn't it?) we
+>could let the stub driver in kernel open two pipes and redirect
+>read()/write() on device to the first one turn ioctls into read()/write()
+>on the second. That way you can get userland programs serving that
+>stuff with no magic required.
 
-On Wed, Mar 07, 2001 at 09:15:36PM +0100, Jens Axboe wrote:
-> On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> > 
-> > For most fs'es, that's not an issue.  The fs won't start writeback on
-> > the primary disk at all until the journal commit has been acknowledged
-> > as firm on disk.
-> 
-> But do you then force wait on that journal commit?
+One problem, in addition to the points Abramo made, is that there's no
+metadata that goes along with the data you're writing to the pipe.
+This is fine as long as there's only one process reading, but in the
+case of a single driver serving multiple instances of an open file,
+there has to be some way for the userspace driver to communicate to
+the kernel which open file needs to get the data.
 
-It doesn't matter too much --- it's only the writeback which is doing
-this (ext3 uses a separate journal thread for it), so any sleep is
-only there to wait for the moment when writeback can safely begin:
-users of the filesystem won't see any stalls.
+A similar problem is that metadata needs to accompany the read request
+when the userspace driver gets it (i.e., current file position, file
+flags, size of the read that was requested, etc.)  Although, that data
+might be transmitted on the OOB channel.
 
-> A barrier operation is sufficient then. So you're saying don't
-> over design, a simple barrier is all you need?
+Also, even though my framework right now only does character devices,
+it's a pretty simple extension to support userspace block devices and
+network devices as well.  In these cases I think using a pipe gets
+more and more complicated.
 
-Pretty much so.  The simple barrier is the only thing which can be
-effectively optimised at the hardware level with SCSI anyway.
+>From reading all the responses to the thread (thanks, everyone, for
+your useful comments), it sounds like the best thing to do is use
+Manfred's zerocopy pipe code as a model and implement something
+similar in my framework.  It's not really that much code anyway so
+it's not much of a waste reimplementing it.  And, I think
+reimplementing those 30 lines will be much simpler than trying to
+manage 2 parallel channels.  If the zerocopy patch becomes part of the
+kernel anyway, it gets even simpler, since I can probably just call
+pio_copy_to_user instead of copying it.
 
-Cheers,
- Stephen
+Regards,
+Jer

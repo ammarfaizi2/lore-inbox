@@ -1,99 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVBKT7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVBKUEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVBKT7D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 14:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVBKT7D
+	id S262327AbVBKUEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 15:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVBKUE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 14:59:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36512 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262324AbVBKT6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 14:58:53 -0500
-Date: Fri, 11 Feb 2005 19:58:41 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] device-mapper: multipath hardware handler for EMC
-Message-ID: <20050211195841.GA13925@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050211172211.GA10195@agk.surrey.redhat.com>
-Mime-Version: 1.0
+	Fri, 11 Feb 2005 15:04:29 -0500
+Received: from moutng.kundenserver.de ([212.227.126.190]:22493 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262328AbVBKUDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 15:03:37 -0500
+Date: Fri, 11 Feb 2005 21:03:29 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, developers@melware.de
+Subject: [PATCH] 2.6 ISDN Eicon driver: convert to pci_register_driver
+Message-ID: <420D0F91.mail2AH1E341H@phoenix.one.melware.de>
+User-Agent: nail 11.4 8/29/04
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050211172211.GA10195@agk.surrey.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+From: armin@melware.de (Armin Schindler)
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +/* Code borrowed from dm-lsi-rdac by Mike Christie */
+Description:
+convert from pci_module_init to pci_register_driver
 
-Any reason that module isn't submitted?
 
-> +	bio->bi_bdev = path->dev->bdev;
-> +	bio->bi_sector = 0;
-> +	bio->bi_private = path;
-> +	bio->bi_end_io = emc_endio;
-> +
-> +	page = alloc_page(GFP_ATOMIC);
-> +	if (!page) {
-> +		DMERR("dm-emc: get_failover_bio: alloc_page() failed.");
-> +		bio_put(bio);
-> +		return NULL;
-> +	}
-> +
-> +	if (bio_add_page(bio, page, data_size, 0) != data_size) {
-> +		DMERR("dm-emc: get_failover_bio: alloc_page() failed.");
-> +		__free_page(page);
-> +		bio_put(bio);
-> +		return NULL;
-> +	}
-> +
-> +	return bio;
+Signed-off-by: Christophe Lucas <c.lucas@ifrance.com>
+Signed-off-by: Armin Schindler <armin@melware.de>
 
-this would benefit from goto unwinding.
 
-> +	if (h->short_trespass) {
-> +		memcpy(page22, short_trespass_pg, data_size);
-> +	} else {
-> +		memcpy(page22, long_trespass_pg, data_size);
-> +	}
 
-	 memcpy(page22, h->short_trespass ?
-	 	short_trespass_pg : long_trespass_pg, data_size);
-
-?
-
-> +static struct emc_handler *alloc_emc_handler(void)
-> +{
-> +	struct emc_handler *h = kmalloc(sizeof(*h), GFP_KERNEL);
-> +
-> +	if (h) {
-> +		h->lock = SPIN_LOCK_UNLOCKED;
-> +	}
-
-	if (h)
-		spin_lock_init(&h->lock);
-
-> +static unsigned emc_err(struct hw_handler *hwh, struct bio *bio)
-> +{
-> +	/* FIXME: Patch from axboe still missing */
-
-it's in -mm now afaik??
-
-> +#if 0
-> +	int sense;
-> +
-> +	if (bio->bi_error & BIO_SENSE) {
-> +		sense = bio->bi_error & 0xffffff; /* sense key / asc / ascq */
-> +
-> +		if (sense == 0x020403) {
-
-please use the sense handling helpers from Doug Gilbert so you can handle
-the descriptor sense format aswell.  (And make the code a lot clear).
-
-Also please try to use constants instead of magic numbers.
+diff -u linux.orig/drivers/isdn/hardware/eicon/divasmain.c linux/drivers/isdn/hardware/eicon/divasmain.c
+--- linux.orig/drivers/isdn/hardware/eicon/divasmain.c	2005-02-11 17:50:39.000000000 +0100
++++ linux/drivers/isdn/hardware/eicon/divasmain.c	2005-02-11 20:41:25.398402952 +0100
+@@ -1,4 +1,4 @@
+-/* $Id: divasmain.c,v 1.55.4.1 2004/05/21 12:15:00 armin Exp $
++/* $Id: divasmain.c,v 1.55.4.6 2005/02/09 19:28:20 armin Exp $
+  *
+  * Low level driver for Eicon DIVA Server ISDN cards.
+  *
+@@ -41,7 +41,7 @@
+ #include "diva_dma.h"
+ #include "diva_pci.h"
+ 
+-static char *main_revision = "$Revision: 1.55.4.1 $";
++static char *main_revision = "$Revision: 1.55.4.6 $";
+ 
+ static int major;
+ 
+@@ -823,7 +823,7 @@
+ 		goto out;
+ 	}
+ 
+-	if ((ret = pci_module_init(&diva_pci_driver))) {
++	if ((ret = pci_register_driver(&diva_pci_driver))) {
+ #ifdef MODULE
+ 		remove_divas_proc();
+ 		divas_unregister_chrdev();
 

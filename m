@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRHEXo3>; Sun, 5 Aug 2001 19:44:29 -0400
+	id <S264942AbRHEX4v>; Sun, 5 Aug 2001 19:56:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264942AbRHEXoT>; Sun, 5 Aug 2001 19:44:19 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:57870 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265249AbRHEXoH>; Sun, 5 Aug 2001 19:44:07 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sun, 5 Aug 2001 16:41:43 -0700
-Message-Id: <200108052341.f75Nfhx08227@penguin.transmeta.com>
-To: jakob@unthought.net, linux-kernel@vger.kernel.org
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20010806010738.B11372@unthought.net>
-In-Reply-To: <20010805171202.A20716@weta.f00f.org> <E15TNbk-0007pu-00@the-village.bc.nu>
+	id <S265810AbRHEX4n>; Sun, 5 Aug 2001 19:56:43 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:2790 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264942AbRHEX4d>;
+	Sun, 5 Aug 2001 19:56:33 -0400
+Subject: Announcing Journaled File System (JFS)  release 1.0.2 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFEFFFDFEE.7FB171F6-ON86256A9F.0083141F@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Sun, 5 Aug 2001 18:56:32 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/05/2001 07:56:36 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010806010738.B11372@unthought.net> you write:
->> 
->> Linus took itout because it was quite complex and nobody seemed to have
->> cases that triggered it or made it useful
->
->What ??
->
->It was put back in because RH GCC-2.96 triggers this too.  There was a thread
->about this some months ago.
+Release 1.0.2 of JFS was made available on August 3, 2001.
 
-Strictly speaking, it wasn't put back. 
+Drop 40 on August 3, 2001 (jfs-1.0.2-patch.tar.gz) includes fixes to the
+file system and utilities. There is now a patch being provided that will
+make it easier to move from release 1.0.1 to 1.0.2, the patch file
+is call jfs-1_0_1-to-1_0_2.patch.gz.
 
-What recent kernels will do is merge a certain subset of mergeable
-areas: this speeds up anonymous page allocation, whether by
-mmap(MAP_ANONYMOYS) or by brk(). That subset was just made a bit larger
-(and no, the subset hasn't been shrunk).
+Function and Fixes in release 1.0.2
 
-However, it doesn't merge in the generic case (it does not merge
-mappings with backing store, for example), and it also does not merge
-the case of the user actively changing the memory protections, for
-example. 
+  - Fixed mkfs to display the correct error message if device name is
+    not valid or missing (Thanks Evgeni Gechev)
+  - gzip the man pages and place them /usr/share/man/man8 during make
+    install (Thanks Greg Lehey)
+  - Fixed mkfs to properly setup buf_ai (caused Bus error with mkfs on
+    SPARC Linux)
+  - Fixed fsck to display path correctly
+  - Fixed multiple truncate hang (Thanks Anne Milicia)
+  - Fixed hang on unlink a file and sync happening at the same time
+  - Improved handling of kmalloc error conditions
+  - Fixed hang in blk_get_queue and SMP deadlock: bh_end_io call
+    generic_make_request (jitterbug 145 and 146)
+  - stbl was not set correctly in dtDelete
+  - changed trap to printk in dbAllocAG to avoid system hang
 
-So we certainly used to do more aggressive merging.
+For more details about JFS, please see the README or changelog.jfs.
 
-We could merge more, but I'm not interested in working around broken
-applications. Right now we sanely merge the cases of consecutive
-anonymous mmaps, but we do _not_ merge cases where the app plays silly
-games, for example.
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
 
-I'd like to know more than just the app that shows problems - I'd like
-to know what it is doing.
 
-		Linus
+

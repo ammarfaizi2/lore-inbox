@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRBGNaI>; Wed, 7 Feb 2001 08:30:08 -0500
+	id <S129114AbRBGOby>; Wed, 7 Feb 2001 09:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbRBGN3s>; Wed, 7 Feb 2001 08:29:48 -0500
-Received: from r2-pc.dcs.qmw.ac.uk ([138.37.88.145]:46997 "EHLO r2-pc")
-	by vger.kernel.org with ESMTP id <S129242AbRBGN3k>;
-	Wed, 7 Feb 2001 08:29:40 -0500
-Date: Wed, 7 Feb 2001 13:29:04 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: increasing the 512 process limit at run-time?
-In-Reply-To: <Pine.LNX.4.32.0102070439520.15577-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.33.0102071327140.8811-100000@r2-pc>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S129070AbRBGObp>; Wed, 7 Feb 2001 09:31:45 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:31502 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129114AbRBGObf>; Wed, 7 Feb 2001 09:31:35 -0500
+Message-ID: <3A815C42.629E68CB@Hell.WH8.TU-Dresden.De>
+Date: Wed, 07 Feb 2001 15:31:30 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac4 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org, pdh@colonel-panic.com, andre@linux-ide.org
+Subject: Re: VIA silent disk corruption - fixed for me
+In-Reply-To: <14CC8D943BE7@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:43 -0800 Mr. James W. Laferriere wrote:
+Petr Vandrovec wrote:
 
->	Hello Matt ,  At what uptime does one hit this limit ?
->uptime
->  4:40am  up 444 days, 12:58,  1 user,  load average: 0.00, 0.00, 0.00
->uname -a
->Linux filesrv2 2.2.6 #1 SMP Thu Jul 1 20:33:30 PDT 1999 i686 unknown
->
->	Not that that is anything spectacular , just looking for
->	rough idea of uptime before hitting the NR_TASKS limit .
+> After upgrading BIOS (it did not help) I decided to switch my secondary
+> harddisk to master. And voila - hde running UDMA5, hdg running UDMA2
+> (hdf/hdh does not exist), whole night stresstests, no corruption.
 
-up 244 days,  4:38, 57 users,  load average: 0.03, 0.14, 0.16
+Excellent!
 
-Linux version 2.2.16
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
-#1 SMP Thu Jun 8 09:40:14 BST 2000
+> So at least for me it means that Promise Linux driver does not support
+> slave-only configuration. I did not checked whether master-slave pair
+> works, but master alone for sure works for me.
 
+I have a master-slave configuration. Both are IBM DTLA-307030 in UDMA-5
+mode, the master using vfat32, the slave using ext2. Works like a charm.
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

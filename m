@@ -1,198 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbTKUXbN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 18:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKUXbN
+	id S261754AbTKUXdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 18:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbTKUXdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 18:31:13 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:44972 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261732AbTKUXbD (ORCPT
+	Fri, 21 Nov 2003 18:33:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5573 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261754AbTKUXdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 18:31:03 -0500
-Date: Fri, 21 Nov 2003 15:56:06 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.6.0-test9-mjb3
-Message-ID: <944600000.1069458966@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 21 Nov 2003 18:33:14 -0500
+Date: Fri, 21 Nov 2003 15:33:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       <bug-binutils@gnu.org>
+Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io
+ priorities (fwd)]
+In-Reply-To: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0311211529590.13789-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly performance, scalability and NUMA stuff, 
-and anything else that stops things from irritating me. It's meant to be 
-pretty stable, not so much a testing ground for new stuff.
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+On Fri, 21 Nov 2003, Linus Torvalds wrote:
+> 
+> So it definitely _does_ work in some versions, and the bug appears to be 
+> new to binutils 2.14, with 2.13 doing the right thing.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0-test9/patch-2.6.0-test9-mjb3.bz2
+It looks like we can work around it with this silly syntactic sugar.. Does 
+this work for you?
 
-Since 2.6.0-test9-mjb2 (~ = changed, + = added, - = dropped)
+		Linus
 
-Notes: 
-
-Now in Linus' tree:
-
-Dropped:
-
-New:
-
-+ protocol254					Paul Mackerras / Omkhar 
-	Allow protocol 254
-
-+ slabtune					Dave McCracken
-	Take slab in bigger bites on larger machines
-
-+ less_bouncy					Martin J. Bligh
-	Stop bouncing warm tasks cross node
-
-+ topdown					Bill Irwin
-	Turn userspace upside down for fun & profit
-
-+ sysfs_vs_dcache				Maneesh Soni
-	Fix race.
-
-+ imcplicit_large_page				Adam Litke
-	Utilize large pages without application modifciation.
-
-Pending:
-lotsa_sds
-config_numasched
-4/4 split
-list_of_lists
-Hyperthreaded scheduler (Ingo Molnar)
-scheduler callers profiling (Anton or Bill Hartner)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Update the lost timer ticks code
-pidmaps_nodepages (Dave Hansen)
-
-Present in this patch:
-
-kgdb						Various
-	Stolen from akpm's 2.6.0-test9-mm2
-
-early_printk					Dave Hansen / Keith Mannthey
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-spinlock_inlining				Andrew Morton & Martin J. Bligh
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-lockmeter					John Hawkes / Hanna Linder
-	Locking stats.
-
-sched_interactive				Ingo Molnar
-	Bugfix for interactive scheduler
-
-local_balance_exec				Martin J. Bligh
-	Modify balance_exec to use node-local queues when idle
-
-tcp_speedup					Martin J. Bligh
-	Speedup TCP (avoid double copy) as suggested by Linus
-
-disable preempt					Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-
-ppc64 pci fix					Anton Blanchard
-	Fix some ppc64 pci thing or other.
-
-per_node_idt					Zwane Mwaikambo
-	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
-
-aiofix2						Mingming Cao
-	fixed a bug in ioctx_alloc()
-
-config_irqbal					Keith Mannthey
-	Make irqbalance a config option
-
-percpu_real_loadavg				Dave Hansen / Martin J. Bligh
-	Tell me what the real load average is, and tell me per cpu.
-
-nolock						Dave McCracken
-	Nah, we don't like locks.
-
-mbind_part1					Matt Dobson
-	Bind some memory for NUMA.
-
-mbind_part2					Matt Dobson
-	Bind some more memory for NUMA.
-
-per_node_rss					Matt Dobson
-	Track which nodes tasks mem is on, so sched can be sensible.
-
-pfn_to_nid					Martin J. Bligh
-	Dance around the twisted rats nest of crap in i386 include.
-
-gfp_node_strict					Dave Hansen
-	Add a node strict binding as a gfp mask option
-
-page_lock					William Lee Irwin
-	Conditionally convert mapping->page_lock back to an rwlock
-
-irqbal_fast					Adam Litke
-	Balance IRQs more readily
-
-kcg						Adam Litke
-	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
-
-numa_mem_equals 				Dave Hansen
-	mem= command line parameter NUMA awareness.
-
-schedstat					Rick Lindsley
-	Provide lotsa scheduler statistics
-
-autoswap					Con Kolivas
-	Auto-tune swapiness
-
-ext2_fix					Andrew Morton
-	Fix a race in ext2
-
-emulex driver					Emulex
-	Driver for emulex fiberchannel cards
-
-qlogic driver					Qlogic
-	The qlogic driver
-
-protocol254					Paul Mackerras / Omkhar 
-	Allow protocol 254
-
-slabtune					Dave McCracken
-	Take slab in bigger bites on larger machines
-
-less_bouncy					Martin J. Bligh
-	Stop bouncing warm tasks cross node
-
-topdown						Bill Irwin
-	Turn userspace upside down for fun & profit
-
-sysfs_vs_dcache					Maneesh Soni
-	Fix race.
-
-imcplicit_large_page				Adam Litke
-	Utilize large pages without application modifciation.
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
+---
+===== arch/i386/kernel/entry.S 1.69 vs edited =====
+--- 1.69/arch/i386/kernel/entry.S	Wed Oct  1 06:53:17 2003
++++ edited/arch/i386/kernel/entry.S	Fri Nov 21 15:32:00 2003
+@@ -49,6 +49,8 @@
+ #include <asm/page.h>
+ #include "irq_vectors.h"
+ 
++#define nr_syscalls ((syscall_table_size)/4)
++
+ EBX		= 0x00
+ ECX		= 0x04
+ EDX		= 0x08
+@@ -881,4 +883,4 @@
+  	.long sys_fadvise64_64
+ 	.long sys_ni_syscall	/* sys_vserver */
+ 
+-nr_syscalls=(.-sys_call_table)/4
++syscall_table_size=(.-sys_call_table)
 

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVANTtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVANT5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVANTtc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 14:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVANTtc
+	id S261508AbVANT5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 14:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVANT5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 14:49:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46769 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261463AbVANTtT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 14:49:19 -0500
-Date: Fri, 14 Jan 2005 14:49:10 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-Subject: [PATCH] fix xenU kernel crash in dmi_iterate
-Message-ID: <Pine.LNX.4.61.0501141446010.2701@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 14 Jan 2005 14:57:04 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:59915 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261508AbVANT5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 14:57:01 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: short read from /dev/urandom
+Date: Fri, 14 Jan 2005 19:55:19 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <cs9837$qt$1@abraham.cs.berkeley.edu>
+References: <41E7509E.4030802@redhat.com> <cs7mup$hgo$1@abraham.cs.berkeley.edu> <a36005b50501132254155a0d5a@mail.gmail.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1105732519 861 128.32.168.222 (14 Jan 2005 19:55:19 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Fri, 14 Jan 2005 19:55:19 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Ulrich Drepper  wrote:
+>On Fri, 14 Jan 2005 05:56:41 +0000 (UTC), David Wagner
+><daw@taverner.cs.berkeley.edu> wrote:
+>> True.  Arguably, the solution is to fix the documentation.
+>
+>The problem is that no-short-reads behavior has been documented for a
+>long time and so programs might [become insecure]
+>
+>Not breaking the ABI is more important than symmetry.
 
-In unprivileged Xen domains, all that __ioremap() does is a
-"return NULL", which causes dmi_iterate() to crash the kernel
-at boot time.
-
-This trivial check bails dmi_iterate() out of the loop when
-it finds that the ioremap() returned a NULL pointer.
-
-Signed-off-by: Rik van Riel <riel@redhat.com>
-
---- linux/arch/i386/kernel/dmi_scan.c.orig	2005-01-12 14:55:14.000000000 -0500
-+++ linux/arch/i386/kernel/dmi_scan.c	2005-01-12 16:06:27.000000000 -0500
-@@ -105,6 +105,8 @@
-  	char __iomem *p, *q;
-
-  	for (p = q = ioremap(0xF0000, 0x10000); q < p + 0x10000; q += 16) {
-+		if (p == NULL)
-+			return -1;
-  		memcpy_fromio(buf, q, 15);
-  		if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
-  		{
+Ok, I see your point.  I'm persuaded.  Thanks.

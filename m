@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311483AbSCaDf5>; Sat, 30 Mar 2002 22:35:57 -0500
+	id <S311594AbSCaE14>; Sat, 30 Mar 2002 23:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311523AbSCaDfr>; Sat, 30 Mar 2002 22:35:47 -0500
-Received: from mail.cyberus.ca ([216.191.240.111]:1786 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S311483AbSCaDfp>;
-	Sat, 30 Mar 2002 22:35:45 -0500
-Date: Sat, 30 Mar 2002 22:30:37 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Stefan Rompf <srompf@isg.de>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: Patch: Device operative state notification against 2.5.7
-Message-ID: <Pine.GSO.4.30.0203302133110.7012-100000@shell.cyberus.ca>
+	id <S311600AbSCaE1p>; Sat, 30 Mar 2002 23:27:45 -0500
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:55690 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S311594AbSCaE1i>; Sat, 30 Mar 2002 23:27:38 -0500
+Message-ID: <3CA6819F.3090007@wanadoo.fr>
+Date: Sun, 31 Mar 2002 05:25:19 +0200
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.7
+In-Reply-To: <20020330232307.A2673@birdsnest.maths.tcd.ie>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timothy Murphy wrote:
+> I'm sure this has been recognised,
+> but I would point out that sys_nfsservctl is not "undefined"
+> if NFSD is not chosen.
 
+I've noticed 2.5.7 fails to build without tcp/ip enabled :
+sock.c:559: `TCP_LISTEN' undeclared
+sock.c:1192: `TCP_CLOSE' undeclared
+*and* without nfs choosen for the reason you give.
 
-Hi,
-in the future can you please just post to netdev on networking
-related issues? I responded to lk, but feel free to remove it
-from the list.
-
--I am not sure the idea of using a kernel thread is the best. Maybe
-move the checks to both the tx or rx softirqs instead of its own scheduling.
--In particular, it would be a better idea not to just go walking all the
-devices; only walk devices that have raised an netif_carrier_.
--A shared devices bitmask across SMP should be enough (i.e no need for
-per-CPU state)
--Another thing might be to double check that the condition that raised
-the state change is still valid example -
-in between the moment you say a link is down due to some bad hardware
-fault to the moment some device timer recovers it;
--Also IFF_RUNNING seems to have inconsistent semantics in a lot of
-drivers. It should really stand for "operational status" whereas
-IFF_UP should stand for "admin status" -- anyone wanna shed historical
-wisdom here?
-
-cheers,
-jamal
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267811AbUG3Voh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267732AbUG3Vrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267811AbUG3Voh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 17:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUG3Vog
+	id S267732AbUG3Vrg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 17:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUG3Vrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 17:44:36 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:58534 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267701AbUG3VoV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 17:44:21 -0400
-Date: Fri, 30 Jul 2004 23:41:20 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Bart Alewijnse <scarfboy@gmail.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: gigabit trouble
-Message-ID: <20040730234120.A15536@electric-eye.fr.zoreil.com>
-References: <b71082d8040729094537e59a11@mail.gmail.com> <20040729210401.A32456@electric-eye.fr.zoreil.com> <b71082d80407291541f9d6f93@mail.gmail.com> <b71082d804073008157cf1d6c0@mail.gmail.com> <20040730205412.A15669@electric-eye.fr.zoreil.com> <b71082d804073014037bc5dd5a@mail.gmail.com>
+	Fri, 30 Jul 2004 17:47:36 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17317 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267808AbUG3VqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 17:46:18 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
+From: Lee Revell <rlrevell@joe-job.com>
+To: Shane Shrybman <shrybman@aei.ca>
+Cc: mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091223099.2356.17.camel@mars>
+References: <1091196403.2401.10.camel@mars>
+	 <1091210620.800.61.camel@mindpipe>  <1091223099.2356.17.camel@mars>
+Content-Type: text/plain
+Message-Id: <1091223998.800.96.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <b71082d804073014037bc5dd5a@mail.gmail.com>; from scarfboy@gmail.com on Fri, Jul 30, 2004 at 11:03:29PM +0200
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 30 Jul 2004 17:46:38 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart Alewijnse <scarfboy@gmail.com> :
-> You are aware that this is a celeron at 400 mhz, and not whatever 400
-> is or possibly isn't in that annoying new naming scheme? (Just
-> checking...)
-
-Yes. It is good enough to handle some network traffic.
-
-[...]
-> Anyhow, on transmit from the celeron box, under extreme benchy
-> circumstrances, I've seen it around 16Kints/s on transmit and 13k on
-> receive. But under everyday nfs/samba, 6400 is about the best it does
-> either way.
-
-The figures does not seem bad.
-
-I am curious: which chipset does the motherboard include ?
-An 'lspci -vx' sums it quite well.
-
-[...]
-> This may be due to fiddling with said wmem, etc values, I set some of them
-
-It should not.
-
-> considerably larger. I did get a few percent apparent speed increase,
-> incidentally, though that may have been wishful thinking.
+On Fri, 2004-07-30 at 17:31, Shane Shrybman wrote:
+> On Fri, 2004-07-30 at 14:03, Lee Revell wrote:
+> > On Fri, 2004-07-30 at 10:06, Shane Shrybman wrote:
+> > > Twice while using -L2 my IBM PS2 keyboard has become completely
+> > > non-responsive. USB mouse and everything else seems to be fine, but no
+> > > LEDs or anything from the keyboard.
+> > > 
+> > > On both occasions the last key I hit on the keyboard was numlock and the
+> > > numlock did not come on and I had to reboot after that.
+> > > 
+> > > UP, x86, gcc 2.95, scsi + ide, bttv
+> > > 
+> > 
+> > This happened to me, also twice necessitating a reboot.  I am pretty
+> > sure I did *not* hit Num Lock last, though the system was under load -
+> > multiple builds going on, jackd running, and video playback.  I tried to
+> > toggle Num Lock to see if the machine was really locked hard, and it
+> > worked for a while (though it did not go on/off exactly once for each
+> > time I hit it), then stopped responding.
+> > 
 > 
-> I guess I should try >= 2.6.8-rc2-mm1 next?
+> Did this happen with both the rc2-L2 and rc2-M5 kernels for you too?
+> 
 
-Please. Do not compile in preempt/ipv6/smp. SMP is supposed to be safe
-but you do not need it and it will not make your r8169 faster if you have
-only one CPU. I'd welcome a 'vmstat 1' output as it gives the bi/bo.
+Have not tried M5 yet (still building).  An improved fix was posted for
+the PS/2 problem recently which uses a semaphore and work queues rather
+than Ingo's original quick fix of just adding a lock-break.  If the
+problem is indeed keyboard-related, this may help.
 
---
-Ueimor
+I also have not determined whether the system freezes completely or
+whether it is just the input layer that hangs.  Next time this happens I
+will try to ssh in.
+
+Lee
+

@@ -1,30 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129992AbRAAAJ3>; Sun, 31 Dec 2000 19:09:29 -0500
+	id <S130108AbRAAALT>; Sun, 31 Dec 2000 19:11:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130108AbRAAAJT>; Sun, 31 Dec 2000 19:09:19 -0500
-Received: from pop.gmx.net ([194.221.183.20]:47016 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129992AbRAAAJM>;
-	Sun, 31 Dec 2000 19:09:12 -0500
-Date: Mon, 1 Jan 2001 00:29:01 +0100
-From: Michael Mertins <mime@gmx.li>
-To: linux-kernel@vger.kernel.org
-Subject: emu10k1.o not working in monolithic 2.2.18
-Message-Id: <20010101002901.79cbbf4f.mime@gmx.li>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.2.18; i586)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S131022AbRAAALJ>; Sun, 31 Dec 2000 19:11:09 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:3087 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S130108AbRAAAKz>; Sun, 31 Dec 2000 19:10:55 -0500
+Message-ID: <3A4FC3E6.47ECDA64@magenta-netlogic.com>
+Date: Sun, 31 Dec 2000 23:40:22 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: J Sloan <jjs@pobox.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tdfx.o and -test13
+In-Reply-To: <E14CrTQ-0000BD-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-i dunno ifit's very long known bug but i met some people in the debian-chat that had the same problem so i decided it's better to post it.
-Bug description:
-when compiling the SBLive emu101k-support into the kernel as Y (not m) the kernel boots and loads the module okay, but sound doesn't work afterwards; /dev/dsp - device isn't responding (reacts like it's not there at all). Even a makedev audio doesn't revitalize functionality. Only thing that works: compiling it as Module (m) into kernel.
-Is it a bug? will it be fixed soon?
-Happy New Year!
-michael
+Alan Cox wrote:
+> 
+> I see modversions.h being included properly on the command line
+
+Me too..
+
+make[3]: Entering directory `/usr/src/linux/drivers/char/drm'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
+/usr/src/linux/include/linux/modversions.h   -c -o agpsupport.o
+agpsupport.c
+In file included from agpsupport.c:1:
+/usr/src/linux/include/linux/modversions.h:3: warning: ignoring pragma:
+"Modversions included
+
+Modversions *is* being included... putting a message into the header
+file shows it to be correctly included at compile time.  However by the
+time the C file is processed it the symbols it has defined appear to no
+longer exist.  When you put the patch into drmP.h it never re-includes
+modversions (the pragma is not hit, because _LINUX_MODVERSIONS_H is
+already defined) *but* the macros within it suddenly become active.
+
+I'm confused!
+
+Preprocessor bug?  Demon possessed compiler?
+
+Tony (still coding at 20 minutes to midnight --- sad or what?)
+
+-- 
+Can't think of a decent signature...
+
+tmh@magenta-netlogic.com		http://www.nothing-on.tv
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

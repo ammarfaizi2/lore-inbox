@@ -1,57 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267804AbRGQJFX>; Tue, 17 Jul 2001 05:05:23 -0400
+	id <S264976AbRGQJcf>; Tue, 17 Jul 2001 05:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267803AbRGQJFM>; Tue, 17 Jul 2001 05:05:12 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56518 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267801AbRGQJFD>; Tue, 17 Jul 2001 05:05:03 -0400
-Date: Mon, 16 Jul 2001 23:03:49 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Lance Larsh <llarsh@oracle.com>,
-        Brian Strand <bstrand@switchmanagement.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <20010716230349.A31172@redhat.com>
-In-Reply-To: <3B4E7666.EFD7CC89@uow.edu.au> <Pine.LNX.4.33.0107130834080.313-100000@desktop>
+	id <S264910AbRGQJc0>; Tue, 17 Jul 2001 05:32:26 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:50956 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S261561AbRGQJcT>;
+	Tue, 17 Jul 2001 05:32:19 -0400
+Date: Tue, 17 Jul 2001 13:32:08 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] PnP BIOS: bugfixes
+Message-ID: <20010717133208.A28013@orbita1.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0107130834080.313-100000@desktop>; from jwbaker@acm.org on Fri, Jul 13, 2001 at 08:36:01AM -0700
+X-Uptime: 12:55pm  up  3:31,  3 users,  load average: 0.00, 0.04, 0.01
+X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
+From: pazke@orbita1.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, Jul 13, 2001 at 08:36:01AM -0700, Jeffrey W. Baker wrote:
+--TakKZr9L6Hm6aLOc
+Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
 
-> > files O_SYNC.  Journal size was 400 megs, mount options `data=journal'
-> >
-> > ext2: Throughput 2.71849 MB/sec (NB=3.39812 MB/sec  27.1849 MBit/sec)
-> > ext3: Throughput 12.3623 MB/sec (NB=15.4529 MB/sec  123.623 MBit/sec)
-> >
-> > The difference will be less dramatic with large, individual writes.
-> 
-> This is a totally transient effect, right?  The journal acts as a faster
-> buffer, but if programs are writing a lot of data to the disk for a very
-> long time, the throughput will eventually be throttled by writing the
-> journal back into the filesystem.
 
-Not for O_SYNC.  For ext2, *every* O_SYNC append to a file involves
-seeking between inodes and indirect blocks and data blocks.  With ext3
-with data journaling enabled, the synchronous part of the IO is a
-single sequential write to the journal.  The async writeback will
-affect throughput, yes, but since it is done in the background, it can
-do tons of optimisations: if you extend a file a hundred times with
-O_SYNC, then you are forced to journal the inode update a hundred
-times but the writeback which occurs later need only be done once.
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For async traffic, you're quite correct.  For synchronous traffic, the
-writeback later on is still async, and the synchronous costs really do
-often dominate, so the net effect over time is still a big win.
 
-Cheers,
- Stephen
+Hi all,
+
+this patch (2.4.6-ac5) fixed two significant bugs in PnP BIOS enumeration c=
+ode:
+	- pnpbios_build_devlist() doesn't check pnp_bios_get_dev_node() return code
+	and always builds device list with approximately 250 bogus entries;
+	- pnpid32_to_pnpid() function generates bogus strings instead of PNPxxxx.
+
+Patch tested on my machine using parport_pc module.
+
+BTW why pnpid32_to_pnpid() builds device ID using lovercase chars like PNP0=
+c01,
+may be PNP0C01 will be better ?
+
+Best regards.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-pnpBIOS
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/pnp/pnp_bios.c /linux/dri=
+vers/pnp/pnp_bios.c
+--- /linux.vanilla/drivers/pnp/pnp_bios.c	Tue Jul 17 23:11:14 2001
++++ /linux/drivers/pnp/pnp_bios.c	Tue Jul 17 23:40:26 2001
+@@ -695,16 +695,16 @@
+ 	const char *hex =3D "0123456789abcdef";
+         static char str[8];
+ 	id =3D cpu_to_le32(id);
+-	str[0] =3D CHAR(id, 26);
+-	str[1] =3D CHAR(id, 21);
+-	str[2] =3D CHAR(id,16);
+-	str[3] =3D HEX(id, 12);
+-	str[4] =3D HEX(id, 8);
+-	str[5] =3D HEX(id, 4);
+-	str[6] =3D HEX(id, 0);
++	str[0] =3D CHAR(id, 2);
++	str[1] =3D CHAR((((id & 3) << 3) | ((id >> 13) & 7)), 0);
++	str[2] =3D CHAR(id, 8);
++	str[3] =3D HEX(id, 20);
++	str[4] =3D HEX(id, 16);
++	str[5] =3D HEX(id, 28);
++	str[6] =3D HEX(id, 24);
+ 	str[7] =3D '\0';
+ 	return str;
+-}                                             =20
++}
+=20
+ #undef CHAR
+ #undef HEX =20
+@@ -728,7 +728,7 @@
+ =20
+ static void __init pnpbios_build_devlist(void)
+ {
+-	int i;
++	int i, devs =3D 0;
+ 	struct pnp_bios_node *node;
+         struct pnp_dev_node_info node_info;
+ 	struct pci_dev *dev;
+@@ -746,13 +746,15 @@
+         if (!node)
+                 return;
+=20
+-	for(i=3D0;i<0xff;i++)
+-	{
++	for(i=3D0;i<0xff;i++) {
+ 		dev =3D  kmalloc(sizeof (struct pci_dev), GFP_KERNEL);
+ 		if (!dev)
+ 			break;
+ 		=09
+-                pnp_bios_get_dev_node((u8 *)&num, (char )0 , node);
++                if (pnp_bios_get_dev_node((u8 *)&num, (char )0 , node))
++			continue;
++
++		devs++;
+ 		pnpbios_rawdata_2_pci_dev(node,dev);
+ 		dev->devfn=3Dnum;
+ 		pnpid =3D pnpid32_to_pnpid(node->eisa_id);
+@@ -762,6 +764,11 @@
+ 			kfree(dev);
+ 	}
+ 	kfree(node);
++
++	if (devs)
++		printk(KERN_INFO "PnP: %i device%s detected total\n", devs, devs > 1 ? "=
+s" : "");
++	else
++		printk(KERN_INFO "PnP: No devices found\n");
+ }
+=20
+=20
+
+--d6Gm4EdcadzBjdND--
+
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7VAYYBm4rlNOo3YgRAqE5AJ9ze4kNtsFeJwW4dSkcFymYZcXNHACfU3gR
+oC47HLCzhl5jLWVBsyAJi3Y=
+=A5fo
+-----END PGP SIGNATURE-----
+
+--TakKZr9L6Hm6aLOc--

@@ -1,79 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUD3UsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUD3UvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUD3UsC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 16:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUD3UrD
+	id S261162AbUD3UvH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbUD3UpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:47:03 -0400
-Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:30482 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S265244AbUD3UmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:42:05 -0400
-From: "Art Haas" <ahaas@airmail.net>
-Date: Fri, 30 Apr 2004 15:41:57 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with recent changes to fs/dcache.c
-Message-ID: <20040430204157.GD23466@artsapartment.org>
-References: <20040430020525.GI27793@artsapartment.org> <20040429203901.4cd21fdc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Apr 2004 16:45:12 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:22977 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265171AbUD3Uin
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 16:38:43 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: usbcore.ko linkage problem on x86_64
+Date: Fri, 30 Apr 2004 22:38:40 +0200
+User-Agent: KMail/1.5.4
+References: <200404301812.10676.rjwysocki@sisk.pl>
+In-Reply-To: <200404301812.10676.rjwysocki@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040429203901.4cd21fdc.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200404302238.40347.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 08:39:01PM -0700, Andrew Morton wrote:
-> "Art Haas" <ahaas@airmail.net> wrote:
-> >
-> >  [ ... snip boot problem report on Sparc with 2.6.6-rc ... ]
-> > 
-> >  The possiblity of nr_free_pages() being larger than mempages looks like
-> >  a silent bug that was tripped. If not, then another bug in the Sparc
-> >  port may be responsible for values being used in these functions. The
-> >  memory-management gurus can take a peek and see what they find.
-> 
-> Yes, something's bust in the sparc port's calculation of num_physpages. 
-> Clearly it should be larger than nr_free_pages().
+> There seems to be a linkage problem with the usbcore.ko module in the
+> 2.6.6-rc2-mm2 and 2.6.6-rc3-mm1 kernels.  Namely, I get this message:
+>
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.6-rc3-mm1;
+> fi WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/usb/core/usbcore.ko
+> needs unknown symbol destroy_all_async
+>
+> after "make modules_install".  AFAICS, it does not occur for the 2.6.6-rc2
+> kernel.
 
-I'm still trying to debug this, so I've cloned a 2.6.5 tree and added
-some printk() bits to see what it reported. Here's the top of the
-'dmesg' output. Notice the 'num_phspages' is 45829, so the value I was
-getting in the 2.6.6-rc3 bootup of 46073 is very similar, which suggests
-that the problem _might_ be with the nr_free_pages() call - which leads
-down in the the mmzone code. Here's the dmesg output:
+Hi RJW, does this help?  (I also got rid of the unused ld2 while I
+was there).
 
-.......
-Boot time fixup v1.6. 4/Mar/98 Jakub Jelinek (jj@ultra.linux.cz).
-Patching kerne l for srmmu[TI Viking/MXCC]/iommu
-319MB HIGHMEM available.
-On node 0 totalpages: 130409
-  DMA zone: 48666 pages, LIFO batch:11
-  Normal zone: 0 pages, LIFO batch:1
-  HighMem zone: 81743 pages, LIFO batch:16
-Power off control detected.
-Built 1 zonelists
-Kernel command line: root=/dev/sda1
-PID hash table entries: 2048 (order 11: 16384 bytes)
-Console: colour dummy device 80x25
-calling mem_init()
-Memory: 509676k available (1352k kernel code, 312k data, 116k init,
-   326972k high mem) [f0000000,1ff4f000]
-num_physpages: 45829
-Calibrating delay loop... 59.80 BogoMIPS
-calling fork_init(45829)
-calling vfs_caches_init(45829)
-vfs_caches_init(): 45829 mempages
-...
+All the best,
 
-Could one or two of the VM gurus mail me offlist with some suggestions
-for debugging this? I'm still more than a bit lost wandering through the
-code trying to find just where various values are set and where the
-functions are that are doing the setting.
+Duncan.
 
-Art Haas
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
+ devio.c |   35 +++++------------------------------
+ 1 files changed, 5 insertions(+), 30 deletions(-)
 
--Thomas Jefferson to James Smith, 1822
+
+diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+--- a/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
++++ b/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
+@@ -165,31 +165,6 @@
+ 	return ret;
+ }
+ 
+-extern inline unsigned int ld2(unsigned int x)
+-{
+-        unsigned int r = 0;
+-        
+-        if (x >= 0x10000) {
+-                x >>= 16;
+-                r += 16;
+-        }
+-        if (x >= 0x100) {
+-                x >>= 8;
+-                r += 8;
+-        }
+-        if (x >= 0x10) {
+-                x >>= 4;
+-                r += 4;
+-        }
+-        if (x >= 4) {
+-                x >>= 2;
+-                r += 2;
+-        }
+-        if (x >= 2)
+-                r++;
+-        return r;
+-}
+-
+ /*
+  * async list handling
+  */
+@@ -219,7 +194,7 @@
+         kfree(as);
+ }
+ 
+-extern __inline__ void async_newpending(struct async *as)
++static inline void async_newpending(struct async *as)
+ {
+         struct dev_state *ps = as->ps;
+         unsigned long flags;
+@@ -229,7 +204,7 @@
+         spin_unlock_irqrestore(&ps->lock, flags);
+ }
+ 
+-extern __inline__ void async_removepending(struct async *as)
++static inline void async_removepending(struct async *as)
+ {
+         struct dev_state *ps = as->ps;
+         unsigned long flags;
+@@ -239,7 +214,7 @@
+         spin_unlock_irqrestore(&ps->lock, flags);
+ }
+ 
+-extern __inline__ struct async *async_getcompleted(struct dev_state *ps)
++static inline struct async *async_getcompleted(struct dev_state *ps)
+ {
+         unsigned long flags;
+         struct async *as = NULL;
+@@ -253,7 +228,7 @@
+         return as;
+ }
+ 
+-extern __inline__ struct async *async_getpending(struct dev_state *ps, void __user *userurb)
++static inline struct async *async_getpending(struct dev_state *ps, void __user *userurb)
+ {
+         unsigned long flags;
+         struct async *as;
+@@ -321,7 +296,7 @@
+ 	destroy_async(ps, &hitlist);
+ }
+ 
+-extern __inline__ void destroy_all_async(struct dev_state *ps)
++static inline void destroy_all_async(struct dev_state *ps)
+ {
+ 	        destroy_async(ps, &ps->async_pending);
+ }

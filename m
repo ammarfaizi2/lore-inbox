@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279168AbRJWBIb>; Mon, 22 Oct 2001 21:08:31 -0400
+	id <S279180AbRJWB0p>; Mon, 22 Oct 2001 21:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279170AbRJWBIV>; Mon, 22 Oct 2001 21:08:21 -0400
-Received: from adsl-64-161-26-50.dsl.sntc01.pacbell.net ([64.161.26.50]:37811
-	"EHLO linux700") by vger.kernel.org with ESMTP id <S279169AbRJWBIH>;
-	Mon, 22 Oct 2001 21:08:07 -0400
-Date: Mon, 22 Oct 2001 18:08:34 -0700
-From: Craig Dickson <crdic@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	id <S279182AbRJWB0f>; Mon, 22 Oct 2001 21:26:35 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:28679 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S279180AbRJWB0W>; Mon, 22 Oct 2001 21:26:22 -0400
+Message-ID: <002f01c15b62$a5025280$fe01a8c0@federationspace.org>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <stimits@idcomm.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0110221345131.17672-100000@anime.net> <017601c15b3e$51b12b70$2a040a0a@zeusinc.com> <20011023004947.U25701@khan.acc.umu.se> <021a01c15b51$62958810$2a040a0a@zeusinc.com> <3BD4B06D.1A8DD39F@idcomm.com>
 Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022180834.A20938@crdic.ath.cx>
-In-Reply-To: <20011022163536.B19715@crdic.ath.cx> <Pine.LNX.4.33.0110230243470.31211-100000@Expansa.sns.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110230243470.31211-100000@Expansa.sns.it>
-User-Agent: Mutt/1.3.23i
+Date: Mon, 22 Oct 2001 21:32:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luigi Genoni wrote:
-> On Mon, 22 Oct 2001, Craig Dickson wrote:
-> 
-> > There have been a lot of messages from a number of different people
-> > about this "censored changelogs" issue. Rather than reply to various
-> > points separately, I just want to sum up my views in one message.
-> >
-> > I simply don't believe that Alan Cox is at any risk of prosecution, and
-> > what's more, I don't believe that he believes it. He's just making a
-> > dramatic political statement that will have no effect on the law, will
-> > never even be noticed by American legislators, and serves only to annoy
-> > US-based Linux users.
-> your own opinion
+>
+> SSSCA grants all this. SSSCA would have enormous impact here. If SSSCA
+> passes, look out.
+> http://www.newsforge.com/article.pl?sid=01/10/19/1546246&mode=thread
+>
+> D. Stimits, stimits@idcomm.com
+>
 
-If you read carefully, I said twice "I don't believe", which pretty
-clearly indicates that I am expressing my own opinion. So I'm not at
-all sure what you think you're contributing by repeating that fact.
+I understand, but the SSSCA is not law now, only the DMCA.
 
-> Ans so, if a company makes a vulnerable product, I am not free
-> to publish the bug?
-> 
-> ahh, simply nonsense.
+I'm very concerned about the SSSCA, and being from the state of South
+Carolina, which Sen. Hollings claims to represent, I'm hoping my letters and
+pleadings will have at least some effect (maybe he'll read them).  I've
+actually met Sen. Hollings once, and have voted against him on every
+possible occassion.  I don't think he has a clue about the negative effects
+such legislation would have.
 
-Yes, it is nonsense. Where did you come up with it? Nothing I wrote
-suggested any such thing.
+This is partly why I'm so interested in this discussion.  The DMCA was bad
+enough, athough I think Alan's interpretation is an extreme one, but the
+SSSCA is impossible.  The best thing I could say about it is that I'm almost
+sure it would have to be struck down in court.  Anyway, I'm reading up on
+it, and working on a new letter to try to elaborate more.
 
-What I was pointing out was that the RIAA and Adobe at least had some
-reason to be opposed to what Felten and Sklyarov were doing. It is
-unfortunate that the DMCA gave them the appearance of legal backing for
-their revoltingly unethical attempts to prevent public discussion of the
-technical demerits of their technology, but the real point here is that
-there was a plaintiff to initiate DMCA prosecution (in Sklyarov's case)
-or to threaten Felten with a civil action. But who is going to do the
-same to Alan Cox for fixing kernel bugs? Who could conceivably have a
-cause for action?
+Still, even when the SSSCA becomes law, I'll likely be one of the ones in
+jail, because I'm not giving up on Linux, or the US, that easily.  I can
+understand why other outside of the US might think otherwise though.
 
-I hope this clarifies my point for you.
+Later,
+Tom
 
-Craig
+

@@ -1,93 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286871AbSA2Xlq>; Tue, 29 Jan 2002 18:41:46 -0500
+	id <S287212AbSA2Xlp>; Tue, 29 Jan 2002 18:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287109AbSA2Xkf>; Tue, 29 Jan 2002 18:40:35 -0500
-Received: from panther.fit.edu ([163.118.5.1]:58086 "EHLO fit.edu")
-	by vger.kernel.org with ESMTP id <S287307AbSA2Xjk>;
-	Tue, 29 Jan 2002 18:39:40 -0500
-Message-ID: <3C573428.3000404@fit.edu>
-Date: Tue, 29 Jan 2002 18:45:44 -0500
-From: Kervin Pierre <kpierre@fit.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020129
-X-Accept-Language: en-us
+	id <S286871AbSA2Xk1>; Tue, 29 Jan 2002 18:40:27 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:14473 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287283AbSA2XjP>;
+	Tue, 29 Jan 2002 18:39:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 00:43:08 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: torvalds@transmeta.com, lm@bitmover.com, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201282217220.10929-100000@penguin.transmeta.com> <3C568B6A.9090408@evision-ventures.com> <20020129183723.18915729.skraw@ithnet.com>
+In-Reply-To: <20020129183723.18915729.skraw@ithnet.com>
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch tracking system.
-In-Reply-To: <Pine.LNX.4.33L.0201290902100.32617-100000@imladris.surriel.com> <200201291156.g0TBudE28106@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vhu8-0000Ar-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Public patch tracking system/queue, maybe something derived from bugzilla.
-
-(i) patches are sent to the maintainer and entered into the system.
-
-(ii) reviewed patches are update appropriately, eg. ( "reject - untidy, 
-please fix", "accept - expected version 2.4.18pre19" etc. )
-
-(iii) patch versions, updates can be kept, as in mozilla's bugzilla 
-site.  And comments on that patch can also be kept right along side the 
-code.
-
-Regardless of wether the current system is changed or not, the linux 
-kernel would benefit from a central, searchable, public repository of 
-patches.
-
-The code is available, bugzilla has all this functionality today.
-
-So here's hoping for a patchzilla.kernel.org :)
-
---Kervin
-
-
-
-Denis Vlasenko wrote:
-> On 29 January 2002 09:04, Rik van Riel wrote:
+On January 29, 2002 06:37 pm, Stephan von Krawczynski wrote:
+> On Tue, 29 Jan 2002 12:45:46 +0100
+> Martin Dalecki <dalecki@evision-ventures.com> wrote:
+> > Linus Torvalds wrote:
+> > >On Mon, 28 Jan 2002, Larry McVoy wrote:
+> > >>What you didn't do, Linus, is paint a picture which allows development
+> > >>to scale up.
+> > >
+> > >Actually, I thought I did.
+> > >
+> > >Basic premise: development is done by humans.
+> > >
+> > >Now, look at how humans work. I don't know _anybody_ who works with
+> > >hundreds of people. You work with 5-10 people, out of a pool of maybe
+> > >30-50 people. Agreed?
+> > >
+> > Not at all. Please have a look at the ARMY. (A tightly hierarchical 
+> > system...)
 > 
->>On Mon, 28 Jan 2002, John Weber wrote:
->>
->>>I would be happy to serve as patch penguin, as I plan on collecting all
->>>patches anyway in my new duties as maintainer of www.linuxhq.com.
->>>
->>>we have the hardware/network capacity to serve as a limitless queue of
->>>waiting patches for Linus.
->>>
->>Please don't just accumulate stuff.
->>
-> 
-> Right. Accepting any patch is wrong policy. You'll be swamped.
-> Patch must be marked "applies to 2.N.M", patch tracking system must check 
-> that automagically.
-> 
-> Also each patch(set) can be commented by general public and by maintainers.
-> If there is _no_ comment from any of _maintainers_ (i.e. it is not reviewed 
-> or found too ugly to worth commenting) it is automatically dropped from the 
-> system after some time.  This will force patch authors to care about code 
-> quality.
-> 
-> If patch is too old (several releases behind) system can mail author(s):
-> "Warning. Your patchset #3476346 needs rediffing. It will be dropped 
-> otherwise"
-> 
-> These "small" details determine whether system is useful or just turns into 
-> huge pile of patches of questionable value.
-> --
-> vda
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> Shoot me: where the heck is the creative/innovative element inside the ARMY?
+> It just died somewhere down the hierarchy tree...
+> Ants are a very successful species, too, but they will hardly ever write
+> software (personal guess).
 
+Correct, they don't write it, they evolve it.
 
+/me ducks and runs for cover
 
 -- 
-http://linuxquestions.org/ - Ask linux questions, give linux help.
-
+Daniel

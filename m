@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVDBQfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVDBQ7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVDBQfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 11:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDBQfJ
+	id S261658AbVDBQ7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 11:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVDBQ7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 11:35:09 -0500
-Received: from host207-193-149-62.serverdedicati.aruba.it ([62.149.193.207]:5866
-	"EHLO chernobyl.investici.org") by vger.kernel.org with ESMTP
-	id S261640AbVDBQe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 11:34:29 -0500
-Subject: Problem mounting dvd if the drive spin down
-From: Nate Grey <nate@paranoici.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 02 Apr 2005 18:33:56 +0200
-Message-Id: <1112459636.15372.18.camel@maggot.MetalZone.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 Dropline GNOME 
+	Sat, 2 Apr 2005 11:59:10 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:64900 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261658AbVDBQ7G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 11:59:06 -0500
+Message-ID: <424ECF4D.6070800@tiscali.de>
+Date: Sat, 02 Apr 2005 18:58:53 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@gmail.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: make OOM more "user friendly"
+References: <20050402180545.29e10629.diegocg@gmail.com>
+In-Reply-To: <20050402180545.29e10629.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello guys, this is my first post in this list, I'm not a subscriner so
-please CC me for reply and comments. Thank you.
+Diego Calleja schrieb:
 
+>When people gets OOM messages, many of them don't know what is happening or what
+>OOM means. This brief message explains it.
+>
+>--- stable/mm/oom_kill.c.orig	2005-04-02 17:44:14.000000000 +0200
+>+++ stable/mm/oom_kill.c	2005-04-02 18:01:02.000000000 +0200
+>@@ -189,7 +189,8 @@
+> 		return;
+> 	}
+> 	task_unlock(p);
+>-	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n", p->pid, p->comm);
+>+	printk(KERN_ERR "The system has run Out Of Memory (RAM + swap), a process will be killed to free some memory\n");
+>+	printk(KERN_ERR "OOM: Killed process %d (%s).\n", p->pid, p->comm);
+> 
+> 	/*
+> 	 * We give our sacrificial lamb high priority and access to
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+I disagree this is _not_ usefull. If the user don't knows what OOM means 
+he can use google to get this information.
 
-I've got an Acer Aspire 1601LC laptop and I get strange issue when
-mounting dvd (I cannot say the time 'cause firstly I thought to bad
-dvd).
-If I close the try and then mount the dvd everything is ok, but if the
-drive stops, for example if I insert the dvd and go on with reading my
-mail and try to access again the dvd this hangs up.
-
-The drive is a Matshita as dmesg say:
-
-hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-
-Example:
-I put the dvd into the drive, wait some time... the drive spin down
-$ mount /mnt/cdrom
-
-I got this in /var/log/messages
-Apr  2 18:11:58 maggot kernel: hdc: DMA disabled
-
-and dmesg:
-hdc: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdc: cdrom_decode_status: error=0x40 { LastFailedSense=0x04 }
-ide: failed opcode was: unknown
-
-I'm using 2.6.11 kernel, but 2.6.10 wasn't better.
-I notice that if I run
-
-$ hdparm -Y /dec/hdc
-
-output:/dev/hdc:
- issuing sleep command
- HDIO_DRIVE_CMD(sleep) failed: Input/output error
-
-the drive seems to wake up and I can run mount without problems.
-
-This is the output from hdparm -i:/dev/hdc:
-
- Model=UJDA740 DVD/CDRW, FwRev=1.00, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=512kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3: 
-
- * signifies the current active mode
-
-
-Is there any solution to this problem?
-
-Thank in advance, and go on this way.
-
-
-
+Matthias-Christian Ott

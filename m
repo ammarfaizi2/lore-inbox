@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbUKUVRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbUKUVT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbUKUVRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 16:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbUKUVRY
+	id S261810AbUKUVT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 16:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbUKUVRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 16:17:24 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:265 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261811AbUKUVPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 16:15:02 -0500
-Date: Sun, 21 Nov 2004 21:14:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ptb@inv.it.uc3m.es, ptb@it.uc3m.es, linux-kernel@vger.kernel.org
-Subject: Re: can kfree sleep?
-Message-ID: <20041121211451.GA12826@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, ptb@inv.it.uc3m.es, ptb@it.uc3m.es,
-	linux-kernel@vger.kernel.org
-References: <200411211223.iALCNCTL005995@betty.it.uc3m.es> <20041121131038.6c55b91c.akpm@osdl.org>
+	Sun, 21 Nov 2004 16:17:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59554 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261810AbUKUVOx (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 16:14:53 -0500
+Date: Sun, 21 Nov 2004 13:14:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Linux-Kernel@vger.kernel.org, AKPM@osdl.org, linux-mm@kvack.org
+Subject: Re: [PATCH]: 3/4 mm/rmap.c cleanup
+Message-Id: <20041121131437.4c3bcee0.akpm@osdl.org>
+In-Reply-To: <16800.47063.386282.752478@gargle.gargle.HOWL>
+References: <16800.47063.386282.752478@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041121131038.6c55b91c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 01:10:38PM -0800, Andrew Morton wrote:
-> Nope.  All memory freeing codepaths are atomic and may be called from any
-> context except NMI handlers.
+Nikita Danilov <nikita@clusterfs.com> wrote:
+>
+> mm/rmap.c:page_referenced_one() and mm/rmap.c:try_to_unmap_one() contain
+>  identical code that
+> 
+>   - takes mm->page_table_lock;
+> 
+>   - drills through page tables;
+> 
+>   - checks that correct pte is reached.
+> 
+>  Coalesce this into page_check_address()
 
-Not true for vfree()
-
+Looks sane, but it comes at a bad time.  Please rework and resubmit after
+the 4-level pagetable code is merged into Linus's tree, post-2.6.10.

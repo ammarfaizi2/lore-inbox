@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312459AbSDEKQi>; Fri, 5 Apr 2002 05:16:38 -0500
+	id <S312460AbSDEKSi>; Fri, 5 Apr 2002 05:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312464AbSDEKQa>; Fri, 5 Apr 2002 05:16:30 -0500
-Received: from ppp15.atlas-iap.es ([194.224.1.15]:30161 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id <S312459AbSDEKQN>; Fri, 5 Apr 2002 05:16:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: Report: 2.4.18 very high latencies (with lowlat. and pre-empt patches)
-Date: Fri, 5 Apr 2002 12:16:05 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16tEL4-0006fr-00@antoli.gallimedina.net> <3CACD3BC.1EB55BCC@zip.com.au>
+	id <S312464AbSDEKS3>; Fri, 5 Apr 2002 05:18:29 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:59298 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S312460AbSDEKSS>;
+	Fri, 5 Apr 2002 05:18:18 -0500
+Date: Fri, 5 Apr 2002 12:18:02 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Peter Horton <pdh@berserk.demon.co.uk>
+cc: "Jonathan A. Davis" <davis@jdhouse.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: patch-2.4.19-pre5-ac2
+In-Reply-To: <20020405065743.GA751@berserk.demon.co.uk>
+Message-ID: <Pine.GSO.4.21.0204051216190.10408-100000@lisianthus.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16tQlJ-0007ZV-00@antoli.gallimedina.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/04/02 00:29, Andrew Morton wrote:
-> Ricardo Galli wrote:
-> > Hi all (second try),
-> >         Linux becomes somehow unusable when I edited sound files and also
-> > during NFS copy. I've noticed the same effects also during i/o loads, for
-> > example when closing kmail after I deleted some messages.
->
-> It would help if you could come up with a simple test case
-> which exhibits this problem - some sequence of steps which
-> is reproducible by others, and which has repeatable effects.
+On Fri, 5 Apr 2002, Peter Horton wrote:
+> On Thu, Apr 04, 2002 at 08:19:49PM -0600, Jonathan A. Davis wrote:
+> > The radeon updates in pre5-ac2 seem to make a minor mess out of my Radeon
+> > 7500's console fb.  After X starts up -- switching back to a text console
+> > results in artifacts from the X display contents plus borked scrolling.  
+> > No tendency to crash though and switching back to X results in a normal X
+> > display.  I dropped out the patches to:
+> > 
+> 
+> Yep. The accelerator needs resetting on each console switch so that we
+> can cope when X leaves it in a funky state. The new patch I posted
+> yesterday should fix it, or for a quick fix add the lines
+> 
+> 	if(accel)
+> 		radeon_engine_init_var();
+> 
+> after the call to do_install_cmap() in radeon_fb_setvar().
 
-To test computer A, which has installed Linux 2.4.18 + all low latency 
-patches.
+You have to reinit the acceleration engine if FB_ACCELF_TEXT is set again. If
+this is already the case, you may be running an X server that's not fbdev aware
+(or aren't using `option UseFBDev'?)
 
-1. Put ten (10) to twenty (20) files of 64-80 MB each in computer B. For 
-example in /tmp/test.
- 
-2. Mount in B a disk in A via NFS in, for example, /mnt/A
+Gr{oetje,eeting}s,
 
-3. In B, run the following command: 
-cp /tmp/test/* /mnt/A
+						Geert
 
-4. Check in A how you mouse freezes.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-If you are a Debian Sid user, don't do any dist-upgrade for a couple of days 
-and then try it. You will see the same mouse freezes when apt-get is 
-installing/configuring packages.
-
-
-> Is your I/O system performing properly?  Try running
->
-> 	hdparm -t /dev/hdaX
->
-> where /dev/hdaX refers to your root filesystem.  You
-> should get 15-30 megabytes per second.
-
-Yes.
-
-# hdparm -t /dev/hda
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.32 seconds = 27.59 MB/sec
-
-> You also report that your PPC-based laptop has processes
-> unexpectedly terminating when the machine is under VM
-> pressure.  You should check your kernel logs (usually
-> /var/log/messages) to see if the process was killed
-> due to an out-of-memory condition.  If it's not that,
-> and if it's not due to application bugs then the ppc
-> kernel may be dropping modified- or dirty-bits in its
-> PTEs, which is rather unlikely.
-
-
-The PPC hasn't any problem at all, it was the NFS server who has killed 
-kmail. There were not logged messages at all.
-
-Regards,
-
--- 
-  ricardo
-"I just stopped using Windows and now you tell me to use Mirrors?" 
-    - said Aunt Tillie, just before downloading 2.5.3 kernel.

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313911AbSEHNER>; Wed, 8 May 2002 09:04:17 -0400
+	id <S313571AbSEHNK6>; Wed, 8 May 2002 09:10:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313924AbSEHNEQ>; Wed, 8 May 2002 09:04:16 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:4289 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S313911AbSEHNEP>; Wed, 8 May 2002 09:04:15 -0400
-Message-ID: <3CD921F2.5070605@antefacto.com>
-Date: Wed, 08 May 2002 14:02:42 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+	id <S314041AbSEHNK5>; Wed, 8 May 2002 09:10:57 -0400
+Received: from [62.67.195.155] ([62.67.195.155]:22302 "HELO ded9.i-line.net")
+	by vger.kernel.org with SMTP id <S313571AbSEHNK4>;
+	Wed, 8 May 2002 09:10:56 -0400
+Message-ID: <3CDA5025.8040807@erdbeere.net>
+Date: Thu, 09 May 2002 12:32:05 +0200
+From: Patrick Plattes <patrick@erdbeere.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020410
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tomasz Rola <rtomek@cis.com.pl>
-CC: mikeH <mikeH@notnowlewis.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: lost interrupt
-In-Reply-To: <Pine.LNX.3.96.1020508042330.2702K-100000@pioneer>
+To: linux-kernel@vger.kernel.org
+Subject: sis630 framebuffer
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Rola wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Tue, 7 May 2002, mikeH wrote:
-> 
-> 
->>Sorry if this is a repeat, I didn't see my last post come through...
->>
->>I'm being plauged with "hdX: lost interrupt" messages and resultant 
->>system hangs in kernel 2.4.18 on a via 82XXXX chipset.
-> 
-> 
-> I may not be the right person to answer but I had same problem (same via,
-> same kernel, same interrupt). It helped when I turned unmasking off, i.e.
-> try:
-> 
-> hdparm -u0 /dev/hdX  for every X in existing disks you have problems with.
-> 
+hi Ho :-),
 
-unmasking is already off on my drive
+at first, i'm sorry, abaut my terrible english.
 
-Padraig.
+i wan't to use the framebuffer support with the 2.5.x kernel and a 
+sis630 chipset (the integrated notebook-chipset). it only works with 
+kernel >= 2.4.18-ac1. i only want to know: will the patch from the ac 
+kernel added to 2.5.x or must i use vesa ?
+
+thx
+patrick
 

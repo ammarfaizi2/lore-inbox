@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUGOKfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUGOKjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUGOKfO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 06:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUGOKfO
+	id S265230AbUGOKjz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 06:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbUGOKjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 06:35:14 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:47324 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S264726AbUGOKfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 06:35:06 -0400
-Date: Thu, 15 Jul 2004 12:35:04 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	Thu, 15 Jul 2004 06:39:55 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:61152 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S265230AbUGOKjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 06:39:54 -0400
+Message-ID: <40F66021.6000804@tiscali.it>
+Date: Thu, 15 Jul 2004 12:44:49 +0200
+From: pietro canevarolo <pietro.canevarolo@tiscali.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc1-mm1
-Message-ID: <20040715103504.GC16230@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040713182559.7534e46d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040713182559.7534e46d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Subject: cannot ping from a usb-serial device 
+References: <20040714000810.GA7308@fs.tum.de> <20040714090159.GA3821@pclin040.win.tue.nl> <20040715025948.GA19092@fs.tum.de>
+In-Reply-To: <20040715025948.GA19092@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org>:
+Hi all,
+I am developing a portable device that I must connect to Internet via usb.
+I connect to my linux box with pppd on ttyUSB0 and the link layer is 
+working ok. I can ping my device from all the machines connected, but 
+when the device pings some address known reacheable my linux box sees 
+the packets ("ifconfig ppp0" returns the correct number of packets 
+exchanged and "netstat -i" reports the correct number of bytes on the 
+interface), but no echo replies come back to my device.
+I understand that my question may be silly for this forum, but I am 
+really out of resources.
+Can someone out there point me to some info to understand why this is 
+happening?
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6.8-rc1-mm1/
-> 
-> - Lots of little fixes, mainly
-> 
-> - Numerous scheduling latency fixes, mainly in the ext3 area.
-> 
->   This is a first pass - these patches need redoing and a bit of
->   infrastructure consolidation.
-> 
-> - Outta here: I won't be in a position to handle patches until July 26.  Off
->   to http://www.tech-forum.org/upcoming/open_source_software_06-10-04.htm and
->   then Kernel Summit and then OLS.
+many tnx
 
-With gcc-3.4 I get:
-
-make[1]: Entering directory /usr/src/linux-2.6.8-rc1-mm1'
-make[2]: arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-    CC      drivers/net/8139too.o
-    drivers/net/8139too.c: In function rtl8139_open':
-    drivers/net/8139too.c:616: sorry, unimplemented: inlining failed
-in call to 'rtl8139_start_thread': function body not available
-drivers/net/8139too.c:1362: sorry, unimplemented: called from here
-make[3]: *** [drivers/net/8139too.o] Error 1
-make[2]: *** [drivers/net] Error 2
-make[1]: *** [drivers] Error 2
-make[1]: Leaving directory /usr/src/linux-2.6.8-rc1-mm1'
-make: *** [stamp-build] Error 2
-
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix
+pietro canevarolo

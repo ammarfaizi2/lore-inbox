@@ -1,127 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUF0UeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264401AbUF0Ueg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264405AbUF0UeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 16:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUF0UeJ
+	id S264401AbUF0Ueg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 16:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUF0Ueg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 16:34:09 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:52120 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S264405AbUF0Udz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 16:33:55 -0400
-Date: Sun, 27 Jun 2004 22:33:44 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: Martin MOKREJ? <mmokrejs@natur.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb: cannot map FB
-Message-ID: <20040627203344.GA11474@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040626224942.GA13345@dreamland.darkstar.lan> <Pine.OSF.4.51.0406272113190.111358@tao.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.51.0406272113190.111358@tao.natur.cuni.cz>
-User-Agent: Mutt/1.4i
+	Sun, 27 Jun 2004 16:34:36 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:23218 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264401AbUF0Ue1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 16:34:27 -0400
+Message-ID: <40DF2F0D.6030804@colorfullife.com>
+Date: Sun, 27 Jun 2004 22:33:17 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brian Lazara <blazara@nvidia.com>
+CC: linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: [PATCH 2.6.7 and 2.4.27-pre6] new device support for forcedeth.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sun, Jun 27, 2004 at 09:16:34PM +0200, Martin MOKREJ? ha scritto: 
-> Hi,
->   yes, I have one GB and SMP kernel. It's interresting that I don't
-> remember this bug with kernels around 2.4.23 or .24 - just a guess.
+Hi Brian,
 
-Hum, I see a big DRM merge in .23 but it's unrelated to the fb driver.
-Nothing else. Maybe you added another PCI card that used part of the
-available address space?
+could you check the full duplex handling? I'm testing my new nforce-250
+Gb (epox 8KDA3J) with a normal 100 MBit autonegotiation link partner and
+I'm getting bad performance (30 kB/sec) when sending. Half duplex works.
+The nic reports late collisions:
 
-> If someone would be interrwested, and can check when did it appear for
-> the first time. Otherwise, will be happy to get your patch. 
+nv_tx_done: looking at packet 233, Flags 0x28200.
+	-> packet not yet completed
+nv_tx_done: looking at packet 233, Flags 0x1a810.
+	bits 16, 15, 13, 11, 4
+	error, lastpacket, late collision, deferred, retryerror.
+nv_tx_done: looking at packet 234, Flags 0x8000.
+	-> successful
+nv_tx_done: looking at packet 235, Flags 0x28200.
+	-> not yet completed.
 
-Patch follows. Compile with DEBUG 1 if something goes wrong.
+Autonegotiation seems to work correctly: np->linkspeed is set to 65636, 
+np->duplex to 1.
+lspci reports:
 
-> I think the printk() lines could print out more debug info. For
-> example the contents of some variables which were passed to preceeding
-> functions ... ;)
+00:05.0 Bridge: nVidia Corporation: Unknown device 00df (rev a2)
+        Subsystem: Unknown device 1695:100c
+        Flags: bus master, 66Mhz, fast devsel, latency 0, IRQ 11
+        Memory at ec000000 (32-bit, non-prefetchable)
+        I/O ports at b400 [size=8]
+        Capabilities: [44] Power Management version 2
+00: de 10 df 00 07 00 b0 00 a2 00 80 06 00 00 00 00
+10: 00 00 00 ec 01 b4 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 95 16 0c 10
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 01 14
 
-The old driver (ie. the one in 2.4 and the "old" one in 2.6) is not
-developed anymore. The new reference point is the driver by BenH in 2.6.
+Could you give me a hint what's wrong? If you need further register 
+values, just ask.
 
-
---- linux-2.4/drivers/video/radeonfb.c.orig	2004-06-27 22:26:56.000000000 +0200
-+++ linux-2.4/drivers/video/radeonfb.c	2004-06-27 22:29:49.000000000 +0200
-@@ -176,7 +176,8 @@
- #define RTRACE		if(0) printk
- #endif
- 
--
-+#define MAX_MAPPED_VRAM (2048*2048*4)
-+#define MIN_MAPPED_VRAM (1024*768*1)
- 
- enum radeon_chips {
- 	RADEON_QD,
-@@ -499,7 +500,8 @@
- 
- 	short chipset;
- 	unsigned char arch;
--	int video_ram;
-+	unsigned int video_ram;
-+	unsigned int mapped_vram;
- 	u8 rev;
- 	int pitch, bpp, depth;
- 	int xres, yres, pixclock;
-@@ -1823,8 +1825,20 @@
- 		}
- 	}
- 
--	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
--				  		  rinfo->video_ram);
-+	if (rinfo->video_ram < rinfo->mapped_vram)
-+		rinfo->mapped_vram = rinfo->video_ram;
-+	else
-+		rinfo->mapped_vram = MAX_MAPPED_VRAM;
-+	do {
-+		rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-+				  		  rinfo->mapped_vram);
-+		if (rinfo->fb_base)
-+			break;
-+
-+		RTRACE(KERN_INFO "radeonfb: cannot ioremap %dk of videoram\n", rinfo->mapped_vram);
-+		rinfo->mapped_vram /= 2;
-+	} while(rinfo->mapped_vram > MIN_MAPPED_VRAM);
-+	
- 	if (!rinfo->fb_base) {
- 		printk ("radeonfb: cannot map FB\n");
- 		iounmap ((void*)rinfo->mmio_base);
-@@ -1835,6 +1849,7 @@
- 		kfree (rinfo);
- 		return -ENODEV;
- 	}
-+	RTRACE(KERN_INFO "radeonfb: mapped %dk videoram\n", rinfo->mapped_vram/1024);
- 
- 	/* currcon not yet configured, will be set by first switch */
- 	rinfo->currcon = -1;
-@@ -2261,7 +2276,7 @@
- 	sprintf (fix->id, "ATI Radeon %s", rinfo->name);
-         
-         fix->smem_start = rinfo->fb_base_phys;
--        fix->smem_len = rinfo->video_ram;
-+        fix->smem_len = rinfo->mapped_vram;
- 
-         fix->type = disp->type;
-         fix->type_aux = disp->type_aux;
-@@ -2429,6 +2444,9 @@
-                         return -EINVAL;
-         }
- 
-+	if (((v.xres_virtual * v.yres_virtual * nom) / den) > rinfo->mapped_vram)
-+		return -EINVAL;
-+
-         if (radeonfb_do_maximize(rinfo, var, &v, nom, den) < 0)
-                 return -EINVAL;  
-                 
-
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-Carpe diem, quam minimum credula postero. (Q. Horatius Flaccus)
+Thanks,
+--
+	Manfred

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129119AbRBLHYK>; Mon, 12 Feb 2001 02:24:10 -0500
+	id <S129219AbRBLIOm>; Mon, 12 Feb 2001 03:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129122AbRBLHYA>; Mon, 12 Feb 2001 02:24:00 -0500
-Received: from www.lahn.de ([213.61.112.58]:19816 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S129119AbRBLHXs>;
-	Mon, 12 Feb 2001 02:23:48 -0500
-Date: Sun, 11 Feb 2001 21:06:42 +0100 (CET)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: <pmhahn@titan.lahn.de>
-To: Fredrik Falk <freddy@kurd.nu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with irda (irlap, ircomm)
-In-Reply-To: <AOELJLLKKFKGHCDLJFOAAEHPCAAA.freddy@kurd.nu>
-Message-ID: <Pine.LNX.4.33.0102112104080.23666-100000@titan.lahn.de>
+	id <S129289AbRBLIOc>; Mon, 12 Feb 2001 03:14:32 -0500
+Received: from server1.cosmoslink.net ([208.179.167.101]:55155 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S129219AbRBLIOU>; Mon, 12 Feb 2001 03:14:20 -0500
+Message-ID: <000901c094cc$880a75c0$bba6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Subject: Problem with Ramdisk in linux-2.4.1 
+Date: Mon, 12 Feb 2001 00:19:33 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Feb 2001, Fredrik Falk wrote:
+Dear linux-kernel mailing list,
 
-> Version: "Linux version 2.4.2-pre2 (root@gozfand.ze) (gcc version 2.96
-                                ^^^^ Please update to pre3. There ware
-some irda-updated from Dag.
+I am facing this problem in linux-2.4.1 :-
 
-> 20000731 (Red Hat Linux 7.0)) #1 SMP Sat Feb 10 02:26:51 CET 2001"
-  ^^^^^^^^ I hope it's the updated one.
+RAMDISK driver initialized: 16 RAM disks of 8192K size
+1024 blocksize
+RAMDISK: Compressed image found at block 0
+ incomplete distance tree
+invalid compressed format (err=1)Freeing initrd
+memory: 4096k freed
 
-You might better ask on the IrDA-Mailinglist:
-http://www.pasta.cs.UiT.No/pipermail/linux-irda/
+Is any body seen this problem earlier , any hint .
 
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+But this ramdisk works fine with linux-2.2.12 .
+
+Thanks ,
+
+Best Regards,
+
+Jaswinder.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

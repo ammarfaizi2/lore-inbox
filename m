@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284956AbRL2R1r>; Sat, 29 Dec 2001 12:27:47 -0500
+	id <S285073AbRL2RXR>; Sat, 29 Dec 2001 12:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285099AbRL2R1h>; Sat, 29 Dec 2001 12:27:37 -0500
-Received: from bitmover.com ([192.132.92.2]:18599 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S284956AbRL2R1a>;
-	Sat, 29 Dec 2001 12:27:30 -0500
-Date: Sat, 29 Dec 2001 09:27:29 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-Message-ID: <20011229092729.X3727@work.bitmover.com>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112271236120.1167-100000@penguin.transmeta.com> <Pine.LNX.4.43.0112291102330.18183-100000@waste.org>
+	id <S284956AbRL2RXH>; Sat, 29 Dec 2001 12:23:07 -0500
+Received: from [24.243.44.28] ([24.243.44.28]:62225 "EHLO explorer.dummynet")
+	by vger.kernel.org with ESMTP id <S285073AbRL2RWt>;
+	Sat, 29 Dec 2001 12:22:49 -0500
+Date: Sat, 29 Dec 2001 11:22:23 -0600
+From: Dan Hopper <dbhopper@austin.rr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011229112223.A19085@explorer.dummynet>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011227152249.B15022@suse.cz> <E16JdcQ-00061o-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.43.0112291102330.18183-100000@waste.org>; from oxymoron@waste.org on Sat, Dec 29, 2001 at 11:14:18AM -0600
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <E16JdcQ-00061o-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 11:14:18AM -0600, Oliver Xymoron wrote:
-> Other useful tools are things like CVS blame:
-> 
-> http://bonsai.mozilla.org/cvsblame.cgi?file=mozilla/Makefile.in
-> 
-> (not sure how this would be done with single user check-in, but there's
-> probably a way to hack it in)
+Alan Cox <alan@lxorguk.ukuu.org.uk> remarked:
+> Beg to differ. E1 is only 2048000 bits/second if you never send 5
+> consecutive 1 bits. The actual data rate on an E1 is in fact variable
 
-We love the "blame" (aka annotate) feature and took it to a new level.
-As an old coworker once said of SCM: "You can run, but you can't hide" :-)
+To the best of my recollection, the line bit (symbol) rate is fixed
+at, ideally, 2048000 bps.  At least with HDB3 line coding, a
+sequence of 4 consecutive zeroes is replaced with three midscale
+values one the line, and a mark that violates the normal mark
+alternation scheme.  I.e. 1,0,0,0,0 might be replaced with +,0,0,0,+
 
-We give you every possible variation of annotate in BK.  You can see the
-annotated listing of any version of a file, and you construct arbitrary
-versions of files.  The most useful one [1] is "show me the annotated
-listing of all lines that have ever been in any version of this file".
+Thus, the "payload" data rate of 2048000 equals the line symbol
+rate of 2048000 symbols/sec.  (Of course, this isn't really the
+"payload" data, since it includes the framing slots and all that,
+but...)
 
-You can also grep for stuff in the revision history.  From the man page [2]:
-
-       To see if <pattern> occurs anywhere in any version of  any
-       file of your tree:
-
-           $ bk -r grep -R pattern
-
-       To see if it occurs anywhere in the most recent version of
-       of any file of your tree:
-
-           $ bk -r grep pattern
-
-       To see if it was added by the most recent delta made in of
-       any file of your tree:
-
-           $ bk -r grep -R+ pattern
-
-[1] http://www.bitkeeper.com/manpages/bk-annotate-1.html
-[2] http://www.bitkeeper.com/manpages/bk-grep-1.html
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Dan

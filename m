@@ -1,123 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUKBOf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUKBPKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbUKBOf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 09:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUKBOMm
+	id S261233AbUKBPKy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 10:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbUKBPD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 09:12:42 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:28111 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262126AbUKBOBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 09:01:08 -0500
-Message-ID: <41879312.5070009@kolivas.org>
-Date: Wed, 03 Nov 2004 01:00:50 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 2 Nov 2004 10:03:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10683 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262635AbUKBPCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 10:02:16 -0500
+Date: Tue, 2 Nov 2004 10:02:44 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
+To: Krzysztof Taraszka <dzimi@pld-linux.org>
+cc: Sergey Vlasov <vsu@altlinux.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] 2.4.28-pre3 tty/ldisc fixes
+In-Reply-To: <200410311053.34927.dzimi@pld-linux.org>
+Message-ID: <Pine.LNX.4.44.0411020958460.8117-100000@dhcp83-105.boston.redhat.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] add requeue task redo
-References: <418707E5.90705@kolivas.org> <20041102124252.GE15290@elte.hu>
-In-Reply-To: <20041102124252.GE15290@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9580E769ECFE8AAEA436F7B7"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9580E769ECFE8AAEA436F7B7
-Content-Type: multipart/mixed;
- boundary="------------070509080001010306080903"
 
-This is a multi-part message in MIME format.
---------------070509080001010306080903
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 31 Oct 2004, Krzysztof Taraszka wrote:
 
-add requeue task redo
+> Dnia sobota, 30 pa¼dziernika 2004 21:19, napisa³e¶:
+> > On Fri, Oct 29, 2004 at 02:29:43PM -0400, Jason Baron wrote:
+> 
+> > > Here's an updated 2.4 tty patch. I'm not sure if the updated patch would
+> > > fix the above issue, but it has a lot of changes so it might be worth a
+> > > try.
+> >
+> > This looks better - at least the system boots without hang or oops ;)
+> 
+> where is an updated 2.4 tty patch ?
+> 
+> 
 
+hmmm...seems like my e-mails keeping getting dropped, perhaps the patch is
+too large? Here is a link to the patch:
 
+http://people.redhat.com/~jbaron/tty/2.4-tty-V5.patch
 
---------------070509080001010306080903
-Content-Type: text/x-patch;
- name="sched-add_requeue_task-1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-add_requeue_task-1.diff"
+-Jason
 
-We can requeue tasks for cheaper then doing a complete dequeue followed by
-an enqueue. Add the requeue_task function and perform it where possible.
+ linux-2.4.28-rc1-tty/drivers/char/n_r3964.c               |    3 
+ linux-2.4.28-rc1-tty/Documentation/tty.txt                |  194 ++++
+ linux-2.4.28-rc1-tty/drivers/bluetooth/hci_ldisc.c        |    8 
+ linux-2.4.28-rc1-tty/drivers/char/amiserial.c             |   12 
+ linux-2.4.28-rc1-tty/drivers/char/cyclades.c              |   14 
+ linux-2.4.28-rc1-tty/drivers/char/dz.c                    |    4 
+ linux-2.4.28-rc1-tty/drivers/char/epca.c                  |   27 
+ linux-2.4.28-rc1-tty/drivers/char/esp.c                   |   13 
+ linux-2.4.28-rc1-tty/drivers/char/generic_serial.c        |   15 
+ linux-2.4.28-rc1-tty/drivers/char/hvc_console.c           |    5 
+ linux-2.4.28-rc1-tty/drivers/char/isicom.c                |   14 
+ linux-2.4.28-rc1-tty/drivers/char/moxa.c                  |   16 
+ linux-2.4.28-rc1-tty/drivers/char/mxser.c                 |   13 
+ linux-2.4.28-rc1-tty/drivers/char/n_tty.c                 |  331 ++++++-
+ linux-2.4.28-rc1-tty/drivers/char/pcmcia/synclink_cs.c    |   59 -
+ linux-2.4.28-rc1-tty/drivers/char/pcxx.c                  |   36 
+ linux-2.4.28-rc1-tty/drivers/char/pty.c                   |    9 
+ linux-2.4.28-rc1-tty/drivers/char/riscom8.c               |   12 
+ linux-2.4.28-rc1-tty/drivers/char/rocket.c                |   26 
+ linux-2.4.28-rc1-tty/drivers/char/selection.c             |    4 
+ linux-2.4.28-rc1-tty/drivers/char/ser_a2232.c             |    5 
+ linux-2.4.28-rc1-tty/drivers/char/serial.c                |   21 
+ linux-2.4.28-rc1-tty/drivers/char/serial167.c             |   21 
+ linux-2.4.28-rc1-tty/drivers/char/serial_tx3912.c         |    5 
+ linux-2.4.28-rc1-tty/drivers/char/sgiserial.c             |    4 
+ linux-2.4.28-rc1-tty/drivers/char/specialix.c             |   15 
+ linux-2.4.28-rc1-tty/drivers/char/stallion.c              |   13 
+ linux-2.4.28-rc1-tty/drivers/char/sx.c                    |    4 
+ linux-2.4.28-rc1-tty/drivers/char/synclink.c              |   64 -
+ linux-2.4.28-rc1-tty/drivers/char/synclinkmp.c            |   49 -
+ linux-2.4.28-rc1-tty/drivers/char/tty_io.c                |  587 +++++++++++---
+ linux-2.4.28-rc1-tty/drivers/char/tty_ioctl.c             |   60 +
+ linux-2.4.28-rc1-tty/drivers/char/vme_scc.c               |    8 
+ linux-2.4.28-rc1-tty/drivers/char/vt.c                    |    3 
+ linux-2.4.28-rc1-tty/drivers/macintosh/macserial.c        |   11 
+ linux-2.4.28-rc1-tty/drivers/net/ppp_async.c              |   31 
+ linux-2.4.28-rc1-tty/drivers/net/ppp_synctty.c            |   15 
+ linux-2.4.28-rc1-tty/drivers/net/slip.c                   |   20 
+ linux-2.4.28-rc1-tty/drivers/net/wan/pc300_tty.c          |   34 
+ linux-2.4.28-rc1-tty/drivers/net/wan/sdla_chdlc.c         |   19 
+ linux-2.4.28-rc1-tty/drivers/s390/char/con3215.c          |   10 
+ linux-2.4.28-rc1-tty/drivers/sbus/char/aurora.c           |   15 
+ linux-2.4.28-rc1-tty/drivers/sbus/char/zs.c               |    4 
+ linux-2.4.28-rc1-tty/drivers/tc/zs.c                      |   13 
+ linux-2.4.28-rc1-tty/drivers/usb/serial/digi_acceleport.c |   12 
+ linux-2.4.28-rc1-tty/drivers/usb/serial/io_edgeport.c     |    7 
+ linux-2.4.28-rc1-tty/drivers/usb/serial/io_ti.c           |    7 
+ linux-2.4.28-rc1-tty/drivers/usb/serial/keyspan_pda.c     |    8 
+ linux-2.4.28-rc1-tty/drivers/usb/serial/mct_u232.c        |    6 
+ linux-2.4.28-rc1-tty/fs/proc/proc_tty.c                   |   11 
+ linux-2.4.28-rc1-tty/include/linux/tty.h                  |   41 
+ linux-2.4.28-rc1-tty/include/linux/tty_ldisc.h            |    9 
+ 52 files changed, 1368 insertions(+), 579 deletions(-)
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Index: linux-2.6.10-rc1-mm2/kernel/sched.c
-===================================================================
---- linux-2.6.10-rc1-mm2.orig/kernel/sched.c	2004-11-03 00:54:33.157137840 +1100
-+++ linux-2.6.10-rc1-mm2/kernel/sched.c	2004-11-03 00:55:48.638171430 +1100
-@@ -579,6 +579,16 @@ static void enqueue_task(struct task_str
- }
- 
- /*
-+ * Put task to the end of the run list without the overhead of dequeue
-+ * followed by enqueue.
-+ */
-+static void requeue_task(struct task_struct *p, prio_array_t *array)
-+{
-+	list_del(&p->run_list);
-+	list_add_tail(&p->run_list, array->queue + p->prio);
-+}
-+
-+/*
-  * Used by the migration code - we pull tasks from the head of the
-  * remote queue so we want these tasks to show up at the head of the
-  * local queue:
-@@ -2425,8 +2435,7 @@ void scheduler_tick(void)
- 			set_tsk_need_resched(p);
- 
- 			/* put it at the end of the queue: */
--			dequeue_task(p, rq->active);
--			enqueue_task(p, rq->active);
-+			requeue_task(p, rq->active);
- 		}
- 		goto out_unlock;
- 	}
-@@ -3569,8 +3578,14 @@ asmlinkage long sys_sched_yield(void)
- 	} else if (!rq->expired->nr_active)
- 		schedstat_inc(rq, yld_exp_empty);
- 
--	dequeue_task(current, array);
--	enqueue_task(current, target);
-+	if (array != target) {
-+		dequeue_task(current, array);
-+		enqueue_task(current, target);
-+	} else
-+		/*
-+		 * requeue_task is cheaper so perform that if possible.
-+		 */
-+		requeue_task(current, array);
- 
- 	/*
- 	 * Since we are going to call schedule() anyway, there's
-
-
---------------070509080001010306080903--
-
---------------enig9580E769ECFE8AAEA436F7B7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBh5MSZUg7+tp6mRURAts9AKCMeLc3/kXDfjPdYixg3/lg/e89mQCfTB1E
-mbSjmlhRmWkNifiQA76d0KM=
-=eT9v
------END PGP SIGNATURE-----
-
---------------enig9580E769ECFE8AAEA436F7B7--

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266368AbSKUGzs>; Thu, 21 Nov 2002 01:55:48 -0500
+	id <S266369AbSKUHFU>; Thu, 21 Nov 2002 02:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266369AbSKUGzs>; Thu, 21 Nov 2002 01:55:48 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:3456 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S266368AbSKUGzr>; Thu, 21 Nov 2002 01:55:47 -0500
-Date: Thu, 21 Nov 2002 18:01:57 +1100
-From: CaT <cat@zip.com.au>
-To: Jaroslav Kysela <perex@perex.cz>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.48 and ALSA
-Message-ID: <20021121070157.GA696@zip.com.au>
-References: <20021119133959.GA818@zip.com.au> <Pine.LNX.4.33.0211191509540.503-100000@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0211191509540.503-100000@pnote.perex-int.cz>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S266377AbSKUHFU>; Thu, 21 Nov 2002 02:05:20 -0500
+Received: from miranda.axis.se ([193.13.178.2]:39110 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S266369AbSKUHFT>;
+	Thu, 21 Nov 2002 02:05:19 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE3ED@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'jffs-dev@axis.com'" <jffs-dev@axis.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  d_delete in jffs causes oops (2.5.48)
+Date: Thu, 21 Nov 2002 08:12:19 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 03:10:41PM +0100, Jaroslav Kysela wrote:
-> > CONFIG_SND_DUMMY=y
-> 
-> Remove this dummy driver, it does nothing.
+jffs_remove calls d_delete(dentry). vfs_unlink then tries to access dentry->d_inode->i_sem
+and calls d_delete(dentry). 
 
-Gah! I feel silly now. I had that when using modules so that things
-would stop complaining about not having audio when I didn't want it on
-(it usually brings down my laptop in a heap - instant off). Am trying
-now with the new ALSA drivers and 2.5.x to see if they do thesame or
-not. So far so good (ie no shutdowns). :)
+Suggested patch:
 
-BTW. Should having the Mic volume way-up result in a highly piched tone
-being emitted from the speakers? I don't remember this ever being the
-case before. (had this happen this morning when I turned the laptop on -
-nice way to -really- wake up)
+--- inode-v23.c	20 Nov 2002 11:57:45 -0000	1.4
++++ inode-v23.c	20 Nov 2002 19:45:07 -0000
+@@ -1063,8 +1063,6 @@
+ 	inode->i_ctime = dir->i_ctime;
+ 	mark_inode_dirty(inode);
+ 
+-	d_delete(dentry);	/* This also frees the inode */
+-
+ 	result = 0;
+ jffs_remove_end:
+ 	return result;
 
--- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+Can the JFFS guys verify that this doesn't cause a memory leak?
+
+/Mikael

@@ -1,106 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270729AbUJUOxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270629AbUJUO5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270729AbUJUOxz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270756AbUJUOxp
+	id S270629AbUJUO5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270754AbUJUOyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:53:45 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44195
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S270729AbUJUOwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:52:02 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
+	Thu, 21 Oct 2004 10:54:07 -0400
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:51177 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S270736AbUJUOxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:53:10 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
 To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <1098368557.27089.3.camel@thomas>
-References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
-	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
-	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
-	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
-	 <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
-	 <20041021132717.GA29153@elte.hu>  <1098368557.27089.3.camel@thomas>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098369839.27089.5.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 16:43:59 +0200
-Content-Transfer-Encoding: 7bit
+Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFDF180689.447B12FA-ON86256F34.004EF945@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 21 Oct 2004 09:51:04 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 10/21/2004 09:51:07 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 16:22, Thomas Gleixner wrote:
-> On Thu, 2004-10-21 at 15:27, Ingo Molnar wrote:
-> > i have released the -U9 Real-Time Preemption patch, which can be
-> > downloaded from:
-> > 
-> >   http://redhat.com/~mingo/realtime-preempt/
-> > 
-> 
-> impi watchdog conversion to completion api.
+>do you have PREEMPT_REALTIME enabled? The above trace is a direct
+>interrupt - only the timer interrupt is allowed to execute directly in
+>the PREEMPT_REALTIME model - things break badly if it happens for any
+>other interrupt (such as the soundcard IRQ).
+Yes I have PREEMPT_REALTIME enabled.
 
-Sorry, I copied the wrong file to the correct place.
+The thing that comes to mind is I do have a script that does
+  echo 0 > '/proc/irq/10/Esoniq AudioPCI/threaded
+as part of ensuring the all the preemption stuff was set right. I may
+have run that script prior to getting those messages. I thought you
+said before that the non threaded IRQ stuff was disabled. Perhaps this
+interface needs to be disabled as well [unless you really decide to
+fix this limitation...].
 
-tglx
+I was already going into that script to add something like...
+  for N in 1 3 4 6 8 10 11 12 14 15 ; do
+    chrt -p -f 99 `pidof "IRQ $N"`
+  done
+to make all the threaded IRQ's max priority RT fifo tasks. I can
+certainly comment out the IRQ thread disable code while I'm at it.
 
-diff --exclude='*~' -urN
-2.6.9-rc4-mm1-RT-U9/drivers/char/ipmi/ipmi_watchdog.c
-2.6.9-rc4-mm1-U9-E0/drivers/char/ipmi/ipmi_watchdog.c
---- 2.6.9-rc4-mm1-RT-U9/drivers/char/ipmi/ipmi_watchdog.c	2004-10-21
-15:47:23.000000000 +0200
-+++ 2.6.9-rc4-mm1-U9-E0/drivers/char/ipmi/ipmi_watchdog.c	2004-10-21
-16:25:14.000000000 +0200
-@@ -47,6 +47,7 @@
- #include <linux/reboot.h>
- #include <linux/wait.h>
- #include <linux/poll.h>
-+#include <linux/completion.h>
- #ifdef CONFIG_X86_LOCAL_APIC
- #include <asm/apic.h>
- #endif
-@@ -386,16 +387,16 @@
-    when both messages are free. */
- static atomic_t heartbeat_tofree = ATOMIC_INIT(0);
- static DECLARE_MUTEX(heartbeat_lock);
--static DECLARE_MUTEX(heartbeat_wait_lock);
-+static DECLARE_COMPLETION(heartbeat_received);
- static void heartbeat_free_smi(struct ipmi_smi_msg *msg)
- {
-     if (atomic_dec_and_test(&heartbeat_tofree))
--	    up(&heartbeat_wait_lock);
-+	    complete(&heartbeat_received);
- }
- static void heartbeat_free_recv(struct ipmi_recv_msg *msg)
- {
-     if (atomic_dec_and_test(&heartbeat_tofree))
--	    up(&heartbeat_wait_lock);
-+	    complete(&heartbeat_received);
- }
- static struct ipmi_smi_msg heartbeat_smi_msg =
- {
-@@ -473,7 +474,7 @@
- 	}
- 
- 	/* Wait for the heartbeat to be sent. */
--	down(&heartbeat_wait_lock);
-+	wait_for_completion(&heartbeat_received);
- 
- 	if (heartbeat_recv_msg.msg.data[0] != 0) {
- 	    /* Got an error in the heartbeat response.  It was already
-@@ -944,7 +945,6 @@
- {
- 	int rv;
- 
--	init_MUTEX_LOCKED(&heartbeat_wait_lock);
- 	printk(KERN_INFO PFX "driver version "
- 	       IPMI_WATCHDOG_VERSION "\n");
- 
-
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

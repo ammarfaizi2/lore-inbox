@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSEVLni>; Wed, 22 May 2002 07:43:38 -0400
+	id <S311885AbSEVLuD>; Wed, 22 May 2002 07:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312279AbSEVLnh>; Wed, 22 May 2002 07:43:37 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:34565 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S311871AbSEVLng>; Wed, 22 May 2002 07:43:36 -0400
-Message-ID: <3CEB758B.2080304@evision-ventures.com>
-Date: Wed, 22 May 2002 12:40:11 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: "David S. Miller" <davem@redhat.com>, paulus@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com> <3CEB5F75.4000009@evision-ventures.com> <15595.30247.263661.42035@argo.ozlabs.ibm.com> <20020522.035435.68675894.davem@redhat.com> <3CEB6F31.2000301@evision-ventures.com> <20020522122617.B16934@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312279AbSEVLuC>; Wed, 22 May 2002 07:50:02 -0400
+Received: from alfie.demon.co.uk ([158.152.44.128]:3846 "HELO
+	bagpuss.pyrites.org.uk") by vger.kernel.org with SMTP
+	id <S311885AbSEVLuB>; Wed, 22 May 2002 07:50:01 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
+Newsgroups: list.linux-kernel
+Subject: Re: Linux-2.5.17
+Date: 22 May 2002 12:49:59 +0100
+Organization: Alfie's Internet Node
+Message-ID: <acg0l7$klk$1@alfie.demon.co.uk>
+In-Reply-To: <86256BC1.001146A6.00@smtpnotes.altec.com>
+X-Newsreader: NN version 6.5.0 CURRENT #120
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Russell King napisa?:
-> On Wed, May 22, 2002 at 12:13:05PM +0200, Martin Dalecki wrote:
-> 
->>And now I'm just eagerly awaiting the first clueless
->>l^Huser lurking on this list, who will flame me as usuall...
->>But that's no problem - I got already used to it :-).
-> 
-> 
-> I'm waiting on Phil Blundell to notice - I think /dev/port may get used
-> on ARM to emulate inb() and outb() from userspace; I don't look after
-> glibc so shrug.
-> 
-> I agree however that /dev/port is a rotten interface that needs to go.
-> 
+In <86256BC1.001146A6.00@smtpnotes.altec.com> Wayne.Brown@altec.com writes:
+> I can live with not building, crashing, or even eating filesystems.  Those
+> things will be fixed sooner or later.  But breaking userspace programs -- that
+> may well be permanent.
 
-Hmm still not flames? Do they all sleep right now?
+Looking at the source code to libgtop-1.0.6 (the version I have
+easy access to), the parser used to extract the swap information from
+/proc/meminfo is extremely fragile (read: broken).  Rather than looking
+at the tag at the start of each line for the one it requires, it assumes
+that the "Swap:" details are on the 3rd line (and doesn't even verify
+the label).
 
-- Should I perhaps tell what I think about the glibc bloat^W coding style?
+You can't expect the kernel to keep compatability for such poor user-space
+code (especially during a development cycle).
 
-- Should I perhaps tell how "usefull" the GNU extensions to the POSIX
-   standards in question are?
+The change to /proc/meminfo came about in 2.5.1, and this removed
+the first two lines from the old, inflexible layout (that has been
+deprecated for a while, and should probably been removed during the
+2.1.x development cycle).
 
-- Or a side note about RH's slang and popt and other useless "required"
-   shared libraries?
-
-- Is there maybe some Python module using /dev/port for precisely
-   the purpose you mention. (This is actually a good candidate.)
-
-Anyway, dear Russell (plese note the double ll!):
-
-[root@kozaczek glibc-2.2.5]# find ./ -name "*.[ch]" -exec grep \/dev\/port 
-/dev/null {} \;
-[root@kozaczek glibc-2.2.5]#
-
-[root@kozaczek glibc-2.2.5]# find ./ -name "*.[ch]" -exec grep \"port\" 
-/dev/null {} \;
-./hesiod/nss_hesiod/hesiod-service.c:  return lookup (portstr, "port", protocol, 
-serv, buffer, buflen, errnop);
-[root@kozaczek glibc-2.2.5]#
-[root@kozaczek glibc-2.2.5]# find ./ -name "*.[ch]" -exec grep outb\( /dev/null 
-{} \;
-[root@kozaczek glibc-2.2.5]#
-
-So I rather think that glibc may be bloated but it's not idiotic and
-we have nothing to fear from it ;-)... well this time at least...
-As far as I know (and I know little about ARM). It would be anwyay
-unnatural to use /dev/port for the purpose you mention.
-ARM io space is memmory mapped, so if any file you would
-rather use /dev/kmem...
-
-Still no flames? This silence makes me suspicious....
-
+-- 
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/

@@ -1,118 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264285AbTLVBXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLVBVu
+	id S264278AbTLVBXR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 20:23:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTLVBVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:21:50 -0500
-Received: from port-212-202-159-243.reverse.qsc.de ([212.202.159.243]:50059
-	"EHLO mail.onestepahead.de") by vger.kernel.org with ESMTP
-	id S264278AbTLVBUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:20:31 -0500
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-From: Christian Meder <chris@onestepahead.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, gnomemeeting-devel-list@gnome.org
-In-Reply-To: <20031221085716.GA21322@elte.hu>
-References: <200312201355.08116.kernel@kolivas.org>
-	 <1071891168.1044.256.camel@localhost> <3FE3C6FC.7050401@cyberone.com.au>
-	 <1071893802.1363.21.camel@localhost> <3FE3D0CB.603@cyberone.com.au>
-	 <1071897314.1363.43.camel@localhost> <20031220111917.GA18267@elte.hu>
-	 <1071938978.1025.48.camel@localhost> <20031220174232.GA29189@elte.hu>
-	 <1071970825.1025.87.camel@localhost>  <20031221085716.GA21322@elte.hu>
-Content-Type: text/plain
-Message-Id: <1072055962.999.69.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Dec 2003 02:19:23 +0100
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 20:21:35 -0500
+Received: from zero.aec.at ([193.170.194.10]:32523 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264286AbTLVBV0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 20:21:26 -0500
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] loop.c patches, take two
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 22 Dec 2003 02:21:11 +0100
+In-Reply-To: <15kfk-vj-1@gated-at.bofh.it> (Christophe Saout's message of
+ "Sun, 21 Dec 2003 23:30:07 +0100")
+Message-ID: <m31xqx7im0.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <MllE.6qa.7@gated-at.bofh.it> <MpyW.3Ub.9@gated-at.bofh.it>
+	<MsGq.8cN.1@gated-at.bofh.it> <MvO6.47g.7@gated-at.bofh.it>
+	<MEf3.8oB.13@gated-at.bofh.it> <MROA.319.5@gated-at.bofh.it>
+	<NxkP.4kY.17@gated-at.bofh.it> <15hUp-58e-21@gated-at.bofh.it>
+	<15iGH-6hd-17@gated-at.bofh.it> <15kfk-vj-1@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-12-21 at 09:57, Ingo Molnar wrote:
-> * Christian Meder <chris@onestepahead.de> wrote:
-> 
-> > I tried to verify your suggestion and found that the P_RTEMS symbol is
-> > not defined on Linux. It seems to be some other kind of realtime
-> > operating system. So the code in question already uses usleep. Now I'm
-> > still digging for other occurances of sched_yield in the pwlib
-> > sources.
-> 
-> could you try to strace -f gnomemeeting? Maybe there's no sched_yield()
-> at all. Could you also try to run the non-yielding loop code via:
-> 
-> 	nice -19 ./loop &
-> 
-> do a couple of such loops still degrade gnomemeeting?
+Christophe Saout <christophe@saout.de> writes:
 
-I found the culprit. It's sched_yield again. When I straced gnomemeeting
-even without load I saw a lot of sched_yields. So I googled around for
-2.6 and sched_yield and found among others
-http://www.hpl.hp.com/research/linux/kernel/o1-openmp.php by David
-Mosberger. I tried gnomemeeting with the romp hack at the end of the
-article which changes all sched_yields to noops via library preloading.
-The difference was _really_ impressive. No matter how many non-yield
-loops and kernel compiles I ran gnomemeeting didn't even skip once.
+> Am So, den 21.12.2003 schrieb Mika Penttilä um 21:49:
+>
+>> Yet another Big Loop Patch... :)
+>> 
+>> It's not obvious which parts are bug fixes, and which performance 
+>> improvements. What exactly breaks loops on journalling filesystems, and 
+>> how do you solve it?
+>
+> What about dropping block device backed support for the loop driver
+> altogether? We now have a nice device mapper in the 2.6 kernel. I don't
 
-So the questionable code in pwlib is probably: 
+Device Mapper doesn't support cryptographic transformations.
 
-> BOOL PSemaphore::Wait(const PTimeInterval & waitTime)
-> {
->   if (waitTime == PMaxTimeInterval) {
->     Wait();
->     return TRUE;
->   }
->                                                                                 
->   // create absolute finish time
->   PTime finishTime;
->   finishTime += waitTime;
->                                                                                 
-> #ifdef P_HAS_SEMAPHORES
->                                                                                 
->   // loop until timeout, or semaphore becomes available
->   // don't use a PTimer, as this causes the housekeeping
->   // thread to get very busy
->   do {
->     if (sem_trywait(&semId) == 0)
->       return TRUE;
->                                                                                 
->     PThread::Yield(); // One time slice
->   } while (PTime() < finishTime);
->  
->   return FALSE;
-
-Defining Yield to noop and building a new libpt solved the problem
-permanently for me.
-
-It seems that not all people have got problems with gnomemeeting and
-2.6. Damien Sandras (the gnomemeeting maintainer) for example reported
-that he hasn't got any problems with gnomemeeting on 2.6 while compiling
-in parallel. So I guess it's depending on the frequency of sched_yields
-one gets in gnomemeeting. Which is probably depending on the processor
-speed, etc.
-
-That just leaves the question what is the proper fix, to send it
-upstream and to note the phenomenon down in a faq.
-
-Thanks to all who helped me with debugging advice and if anybody needs
-further information just ask.
-
-
-				Christian
-
--- 
-Christian Meder, email: chris@onestepahead.de
- 
-What's the railroad to me ?
-I never go to see
-Where it ends.
-It fills a few hollows,
-And makes banks for the swallows, 
-It sets the sand a-blowing,
-And the blackberries a-growing.
-                      (Henry David Thoreau)
- 
-
-
-
-
+-Andi

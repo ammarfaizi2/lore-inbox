@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272943AbRIHCgp>; Fri, 7 Sep 2001 22:36:45 -0400
+	id <S272941AbRIHDFS>; Fri, 7 Sep 2001 23:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272942AbRIHCge>; Fri, 7 Sep 2001 22:36:34 -0400
-Received: from www.if.itb.ac.id ([167.205.25.6]:48134 "HELO
-	students.if.itb.ac.id") by vger.kernel.org with SMTP
-	id <S272941AbRIHCg2>; Fri, 7 Sep 2001 22:36:28 -0400
-Date: Sat, 8 Sep 2001 09:45:47 +0700 (JAVT)
-From: Julius R Sirait <if16043@students.if.itb.ac.id>
-To: nfs@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: mount source code
-In-Reply-To: <15256.45720.351124.767983@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.10.10109080942390.31003-100000@malabar.if.itb.ac.id>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272946AbRIHDFI>; Fri, 7 Sep 2001 23:05:08 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:26641 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S272941AbRIHDEy>; Fri, 7 Sep 2001 23:04:54 -0400
+Date: Sat, 8 Sep 2001 04:59:52 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.9
+Message-ID: <20010908045952.P7672@emma1.emma.line.org>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"ext3-users@redhat.com" <ext3-users@redhat.com>
+In-Reply-To: <3B991346.7393E7AF@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3B991346.7393E7AF@zip.com.au>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 07 Sep 2001, Andrew Morton wrote:
 
-Where can I find mount source code? specifically nfs mount source code if
-there is available.
+> Patches against 2.4.10-pre4 and 2.4.9-ac9 are at
 
-
-Thanks,
-
-Julius
-
-
+One issue about 0.9.6, 0.9.9 shows no relevant changes: can I mount my
+root partition with data=journal without setting up an initrd?

@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264125AbUDRFUM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 01:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbUDRFUM
+	id S264129AbUDRFcv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 01:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUDRFcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 01:20:12 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:41650 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264125AbUDRFUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 01:20:04 -0400
-Message-ID: <40820FFF.8090906@yahoo.com.au>
-Date: Sun, 18 Apr 2004 15:19:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Singer <elf@buici.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: vmscan.c heuristic adjustment for smaller systems
-References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org> <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org> <20040418002343.GA16025@flea> <4081F809.4030606@yahoo.com.au> <20040418041748.GW743@holomorphy.com> <408206E8.5000600@yahoo.com.au> <20040418051024.GA19595@flea>
-In-Reply-To: <20040418051024.GA19595@flea>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 18 Apr 2004 01:32:51 -0400
+Received: from ozlabs.org ([203.10.76.45]:39892 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264129AbUDRFcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 01:32:48 -0400
+Subject: [PATCH] Fix unix module
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1082266361.14879.27.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 18 Apr 2004 15:32:42 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer wrote:
-> On Sun, Apr 18, 2004 at 02:41:12PM +1000, Nick Piggin wrote:
-> 
->>William Lee Irwin III wrote:
->>
->>>On Sun, Apr 18, 2004 at 01:37:45PM +1000, Nick Piggin wrote:
->>>
->>>
->>>>swappiness is pretty arbitrary and unfortunately it means
->>>>different things to machines with different sized memory.
->>>>Also, once you *have* gone past the reclaim_mapped threshold,
->>>>mapped pages aren't really given any preference above
->>>>unmapped pages.
->>>>I have a small patchset which splits the active list roughly
->>>>into mapped and unmapped pages. It might hopefully solve your
->>>>problem. Would you give it a try? It is pretty stable here.
->>>
->>>
->>>It would be interesting to see the results of this on Marc's system.
->>>It's a more comprehensive solution than tweaking numbers.
->>>
->>
->>Well, here is the current patch against 2.6.5-mm6. -mm is
->>different enough from -linus now that it is not 100% trivial
->>to patch (mainly the rmap and hugepages work).
-> 
-> 
-> Will this work against 2.6.5 without -mm6?
-> 
+Linus, please apply.  I should never have accepted that damn "make
+modpost create the struct module" patch during the stable series: this
+is at least the third fix which had to go on top of it...
 
-Unfortunately it won't patch easily. If this is a big
-problem for you I could make you up a 2.6.5 version.
+Name: Fix name of unix domain sockets module
+Status: Tested on 2.6.6-rc1-bk2
 
-> As an aside, I've been using SVN to manage my kernel sources.  While
-> I'd be thrilled to make it work, it simply doesn't seem to have the
-> heavy lifting capability to handle the kernel work.  I know the
-> rudiments of using BK.  What I'd like is some sort of HOWTO with
-> example of common tasks for kernel development.  Know of any?
->
+# lsmod
+Module                  Size  Used by
+1                      26060  6 
+#
 
-Well I don't do a great deal of coding or merging, but I
-use Andrew Morton's patch scripts which make things very
-easy for me.
+The compiler #define's unix to 1: we use -DKBUILD_MODNAME=unix.  We
+used to #undef unix at the top of af_unix.c, but now the name is
+inserted by modpost, that doesn't help.
 
-Regarding bitkeeper, I have never tried it but there is
-some help in Documentation/BK-usage/ which might be of
-use to you.
+#undef unix in modpost.c's generated C file.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.6-rc1-bk2/net/unix/af_unix.c working-2.6.6-rc1-bk2-usermodehelper-thread/net/unix/af_unix.c
+--- linux-2.6.6-rc1-bk2/net/unix/af_unix.c	2004-04-05 09:04:50.000000000 +1000
++++ working-2.6.6-rc1-bk2-usermodehelper-thread/net/unix/af_unix.c	2004-04-18 15:22:23.000000000 +1000
+@@ -82,8 +82,6 @@
+  *		  with BSD names.
+  */
+ 
+-#undef unix	/* KBUILD_MODNAME */
+-
+ #include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.6-rc1-bk2/scripts/modpost.c working-2.6.6-rc1-bk2-usermodehelper-thread/scripts/modpost.c
+--- linux-2.6.6-rc1-bk2/scripts/modpost.c	2004-04-15 16:06:55.000000000 +1000
++++ working-2.6.6-rc1-bk2-usermodehelper-thread/scripts/modpost.c	2004-04-18 15:22:07.000000000 +1000
+@@ -487,6 +487,7 @@ add_header(struct buffer *b)
+ 	buf_printf(b, "\n");
+ 	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
+ 	buf_printf(b, "\n");
++	buf_printf(b, "#undef unix\n"); /* We have a module called "unix" */
+ 	buf_printf(b, "struct module __this_module\n");
+ 	buf_printf(b, "__attribute__((section(\".gnu.linkonce.this_module\"))) = {\n");
+ 	buf_printf(b, " .name = __stringify(KBUILD_MODNAME),\n");
+
+
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

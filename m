@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTFCHDl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 03:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbTFCHDl
+	id S262366AbTFCH1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 03:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFCH1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 03:03:41 -0400
-Received: from zimail1.unizh.ch ([130.60.128.11]:45506 "EHLO zimail1.unizh.ch")
-	by vger.kernel.org with ESMTP id S262439AbTFCHDk (ORCPT
+	Tue, 3 Jun 2003 03:27:23 -0400
+Received: from verein.lst.de ([212.34.189.10]:43169 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262366AbTFCH1W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 03:03:40 -0400
-Message-ID: <3EDC4B72.7090407@hifo.unizh.ch>
-Date: Tue, 03 Jun 2003 09:17:06 +0200
-From: Marco Tedaldi <mtedaldi@hifo.unizh.ch>
-Organization: Uni Zuerich
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: de-ch, de-de, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: siimage driver status
-References: <Pine.LNX.4.44.0305291025550.11675-100000@bork.hampshire.edu> <1054216464.20725.70.camel@dhcp22.swansea.linux.org.uk> <001801c32631$642ba220$41010101@toshiba>
-In-Reply-To: <001801c32631$642ba220$41010101@toshiba>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 03:27:22 -0400
+Date: Tue, 3 Jun 2003 09:37:53 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kerfnel.org
+Subject: [PATCH] fix signal.h compilation
+Message-ID: <20030603073753.GA21473@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, torvalds@transmeta.com,
+	linux-kernel@vger.kerfnel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -3.2 () PATCH_UNIFIED_DIFF,RESENT_TO,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gutko wrote:
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+signal.h uses spinlock_t now so it needs to include spinlock.h.
+Without this compilation failes on PPC.
 
-> I have Asus A7N8X deluxe too, and I reported this issue with rc4.
-> I'm running one IBM vancouver2 180gxp drive on SIL3112A, and I always have
-> PIO on boot.
-> I can enable DMA manually and it works good, but I can bet if I connect
-> second hdd in RAID
-> with this I already have, I'll get all problems described above!!! My friend
-> also runs succesfully ONE
-> hdd in DMA on the same ASUS on sata, but connecting seconf drive blows
-> everything away..
 
-This issue was reported by at least 3 People here on the list (including 
-me) with different 21-rcX kernels. Seems noone really cared :-(
-
-I hope, this issue now get's addressed.
-btw. I could speed up my Transfer-Rate from 1.7MB/s to 55MB/s by setting
-hdparm -d1 -X66 on my two native SATA-Drives.
-
-bye
-
-Marco
-
+--- 1.12/include/linux/signal.h	Mon Jun  2 14:45:36 2003
++++ edited/include/linux/signal.h	Mon Jun  2 11:13:33 2003
+@@ -1,9 +1,10 @@
+ #ifndef _LINUX_SIGNAL_H
+ #define _LINUX_SIGNAL_H
+ 
++#include <linux/list.h>
++#include <linux/spinlock.h>
+ #include <asm/signal.h>
+ #include <asm/siginfo.h>
+-#include <linux/list.h>
+ 
+ #ifdef __KERNEL__
+ /*

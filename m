@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRBKSVJ>; Sun, 11 Feb 2001 13:21:09 -0500
+	id <S129660AbRBKSXJ>; Sun, 11 Feb 2001 13:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129300AbRBKSU7>; Sun, 11 Feb 2001 13:20:59 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:3844 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129160AbRBKSUw>;
-	Sun, 11 Feb 2001 13:20:52 -0500
-Date: Sun, 11 Feb 2001 16:20:47 -0200
-From: Rogerio Brito <rbrito@iname.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
-Message-ID: <20010211162047.A1003@iname.com>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010205020952.B1276@suse.de> <20010205013424.A15384@iname.com> <20010205144803.B5285@suse.de> <20010210224620.C7877@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010210224620.C7877@bug.ucw.cz>
+	id <S129746AbRBKSW7>; Sun, 11 Feb 2001 13:22:59 -0500
+Received: from www.wen-online.de ([212.223.88.39]:61200 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129660AbRBKSWt>;
+	Sun, 11 Feb 2001 13:22:49 -0500
+Date: Sun, 11 Feb 2001 19:22:13 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.LNX.4.21.0102111243090.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.Linu.4.10.10102111814140.521-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 10 2001, Pavel Machek wrote:
-> Hi!
+On Sun, 11 Feb 2001, Rik van Riel wrote:
+
+> On Sun, 11 Feb 2001, Mike Galbraith wrote:
+> > On Sun, 11 Feb 2001, Mike Galbraith wrote:
+> > 
+> > > Something else I see while watching it run:  MUCH more swapout than
+> > > swapin.  Does that mean we're sending pages to swap only to find out
+> > > that we never need them again?
+> > 
+> > (numbers might be more descriptive)
+> > 
+> > user  :       0:07:21.70  54.3%  page in :   142613
+> > nice  :       0:00:00.00   0.0%  page out:   155454
+> > system:       0:03:40.63  27.1%  swap in :    56334
+> > idle  :       0:02:30.50  18.5%  swap out:   149872
+> > uptime:       0:13:32.83         context :   519726
 > 
-> > 	ioctl(cd_fd, CDROM_SELECT_SPEED, speed);
-> 
-> Does this actually work? I helped my friend with partly broken cdrom
-> (worked only at low speeds) and it did not have much effect. It did
-> not make my cdrom quiet, either, AFAI can remember.
+> Indeed, in this case we send a lot more pages to swap
+> than we read back in from swap, this means that the
+> data is still sitting in swap space and was never needed
+> again.
 
-	Well, I wrote a little program that just makes this call that
-	Jens told me about and it worked perfectly with my hardware --
-	using my CD-ROM drive at speed 1, 2 or 4, it works quietly and
-	I can listen to MP3s at volumes that I couldn't earlier.
+But it looks and feels (box is I/O hyper-saturated) like
+it wrote it all to disk.
 
-	OTOH, it seems that a paradox is happening: this very same
-	drive has some problems (not always reproducible) reading some
-	CD-RW discs when it operates at very slow speeds. In this
-	case, the best that I can do is to let the drive accelerate as
-	much as it wants and then it works ok.
+(btw, ac5 does more disk read.. ie the reduced cache size
+of earlier kernels under heavy pressure does have it's price
+with this workload.. quite visible in agregates.  looks to
+be much cheaper than swap though.. for this workload)
 
-	BTW, Jens, what is the way to set the drive back to its
-	maximum speed, without limits? Where could I read more about
-	the subject (that is, this and other ioctl's) without annoying
-	you? I'm a moderately competent C programmer (only
-	moderately), but I know *nothing* about the kernel.
+	-Mike
 
-
-	[]s, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUCZVql (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 16:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCZVql
+	id S261296AbUCZVpa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 16:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCZVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 16:46:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33013 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261263AbUCZVqg
+	Fri, 26 Mar 2004 16:45:30 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:22443 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S261296AbUCZVpV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 16:46:36 -0500
-Message-ID: <4064A4B7.5030103@mvista.com>
-Date: Fri, 26 Mar 2004 13:46:31 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Praedor Atrebates <praedor@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System clock speed too high - 2.6.3 kernel
-References: <200403261430.18629.praedor@yahoo.com>
-In-Reply-To: <200403261430.18629.praedor@yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Mar 2004 16:45:21 -0500
+Date: Fri, 26 Mar 2004 15:45:19 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: Daniel Forrest <forrest@lmcg.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
+Message-ID: <20040326214519.GA22309@hexapodia.org>
+References: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Praedor Atrebates wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> In doing a web search on system clock speeds being too high, I found entries 
-> describing exactly what I am experiencing in the linux-kernel list archives, 
-> but have not yet found a resolution.
-> 
-> I have Mandrake 10.0, kernel-2.6.3-7mdk installed, on an IBM Thinkpad 1412 
-> laptop, celeron 366, 512MB RAM.  I am finding that my system clock is ticking 
-> away at a rate of about 3:1 vs reality, ie, I count ~3 seconds on the system 
-> clock for every 1 real second.  I am running ntpd but this is unable to keep 
-> up with the rate of system clock passage.  
-> 
-> I had to slow my keyboard repeat rate _way_ down in order to be able to type 
-> at all as well.   The system is limited, in that I have no way to alter the 
-> actual system clock (in bios at any rate).  The CPU is properly identified as 
-> a celeron 366.  
-> 
-> Does anyone have any enlightenment, or a fix, to offer?  The exact same 
-> software setup on a desktop system, Athlon XP2700+, has no such problems.
+linux-kernel isn't the right forum for this, but I'll take a stab
+anyways.
 
-Try this in the boot command line "clock=pmtmr".  If that fails, then try 
-"clock=pit".
-
--g
+On Fri, Mar 26, 2004 at 02:54:31PM -0600, Daniel Forrest wrote:
+[snip: 180 dual Xeon boxes]
+> I am running one of our applications that has been compiled using gcc
+> with the -ffast-math option.  I am finding that the identical program
+> using the same input data files is producing different results on
+> different machines.  However, the differences are all less than the
+> precision of a single-precision floating point number.  By this I mean
+> that if the results (which are written to 15 digits of precision) are
+> only compared to 7 digits then the results are the same.  Also, most
+> of the time the 15 digit values are the same.
 > 
-> praedor
-> - -- 
-> "George W. Bush is a deserter, an election thief, a drunk driver, a WMD 
-> liar and a functional illiterate. And he poops his pants." 
-> - --Barbara Bush, his mother
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> 
-> iD8DBQFAZITKSTapoRk9vv8RAkxyAJ45KBKN7ngdNX6qTOwSBIxEs7rfcACgl8e0
-> 0lKo+bfaSHPcNpA+36WGCrE=
-> =ZdjK
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> My question is this: Why aren't the results always the same?  What is
+> the -ffast-math option doing?  How are the excess bits of precision
+> dealt with during context switches?  Shouldn't the same binary with
+> the same inputs produce the same output on identical hardware?
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+The kernel should be doing the right thing to preserve FPU state during
+context switches.  That doesn't prevent the app from doing things wrong
+and thus getting the wrong answer (perhaps only under certain
+circumstances).  And of course the kernel might have bugs (though it's
+unlikely to be as simple as "doesn't preserve FPU state correctly"; a
+lot of people depend on that codepath being right.)
 
+Likely there is some difference in one of the following areas:
+ - hardware problems
+ - kernel
+ - libraries
+ - CPU microcode
+
+Or, you have a bug in your program which is triggered by some
+environmental factor.  (For example, an inter-thread race condition
+affected by IO interrupts.)
+
+To eliminate them:
+ - first, run memtest86 or a similar program to verify that you are not
+   simply victim of a bad memory stick.
+ - next, check that the kernel, libc, and libm are identical across the
+   machines that display the problem.
+ - next, check /proc/cpuinfo and dmesg(1) output to verify that your
+   CPUs are the same stepping, and running the same microcode.  (The
+   likelihood that this is the problem is so small as to be almost not
+   worth mentioning.)
+
+> I have run the same test with the program compiled without -ffast-math
+> enabled and the results are always identical.
+
+You don't say how many different results you've gotten.  Is there just
+one correct and one incorrect result?  Or do different runs give
+different incorrect results?  What is the software environment?
+(language, libraries, threading, etc.)
+
+Basically, at this point you haven't provided us enough information to
+be able to even point a finger at the kernel.  It's certainly possible
+that there's a bug, but it's pretty unlikely (IMO).  I'd be looking at
+hardware and at threading problems in the apps, first.
+
+-andy

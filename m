@@ -1,112 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUFQBRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266342AbUFQBSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUFQBRL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 21:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266342AbUFQBRL
+	id S266342AbUFQBSS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 21:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUFQBSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 21:17:11 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:22010 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266333AbUFQBRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 21:17:00 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Announce: kdb v4.4 is available for kernel 2.6.7 
-Date: Thu, 17 Jun 2004 11:16:55 +1000
-Message-ID: <3469.1087435015@kao2.melbourne.sgi.com>
+	Wed, 16 Jun 2004 21:18:17 -0400
+Received: from lakermmtao04.cox.net ([68.230.240.35]:46560 "EHLO
+	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S266342AbUFQBSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 21:18:08 -0400
+In-Reply-To: <A06801158AE07847B27A52C1A074BC1D04C910B4@fmsmsx404.amr.corp.intel.com>
+References: <A06801158AE07847B27A52C1A074BC1D04C910B4@fmsmsx404.amr.corp.intel.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2F53409E-BFFC-11D8-8574-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: eric@cisu.net, davids@webmaster.com, linux-kernel@vger.kernel.org,
+       Erik Harrison <erikharrison@gmail.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: more files with licenses that aren't GPL-compatible
+Date: Wed, 16 Jun 2004 21:18:05 -0400
+To: "Wichmann, Mats D" <mats.d.wichmann@intel.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Jun 16, 2004, at 19:47, Wichmann, Mats D wrote:
+> Please keep distinct "ship with" in the sense of /inside/ the
+> kernel and "ship with" in the sense of on the same distribution
+> media.  The GPL also has explicit wording for the latter
+> (you've already been quoted the words on the former):
 
-KDB (Linux Kernel Debugger) has been updated.
+Well the firmware is compiled to bytes within the _same_file_ as
+the rest of the kernel.  That would match the usage of "inside" the
+kernel.  Even if it's just a file with firmware bytes distributed in the
+same tar file it's still very iffy.
 
-ftp://oss.sgi.com/projects/kdb/download/v4.4/
+> "In addition, mere aggregation of another work not based on the
+> Program with the Program (or with a work based on the Program)
+> on a volume of a storage or distribution medium does not bring
+> the other work under the scope of this License. "
 
-Current versions are :-
+But we're not talking about an instance of aggregation here, this
+is a derivative work.
 
-  kdb-v4.4-2.6.7-common-1.bz2
-  kdb-v4.4-2.6.7-i386-1.bz2
-  kdb-v4.4-2.6.7-ia64-1.bz2
-
-Changelog extract since kdb-v4.4-2.6.7-rc2-common-1.
-
-2004-06-16 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-common-1.
-
-2004-06-09 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-rc3-common-1.
-
-2004-06-09 Keith Owens  <kaos@sgi.com>
-
-	* Namespace clean up.  Mark code/variables as static when it is only
-	  used in one file, delete dead code/variables.
-	* Saved interrupt state requires long, not int.
-	* kdb v4.4-2.6.7-rc2-common-3.
-
-2004-06-08 Keith Owens  <kaos@sgi.com>
-
-	* Whitespace clean up, no code changes.
-	* kdb v4.4-2.6.7-rc2-common-2.
-
-
-
-Changelog extract since kdb-v4.4-2.6.7-rc2-i386-1.
-
-2004-06-16 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-i386-1.
-
-2004-06-10 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-rc3-i386-1.
-
-2004-06-09 Keith Owens  <kaos@sgi.com>
-
-	* Namespace clean up.  Mark code/variables as static when it is only
-	  used in one file, delete dead code/variables.
-	* kdb v4.4-2.6.7-rc2-i386-3.
-
-2004-06-08 Keith Owens  <kaos@sgi.com>
-
-	* Whitespace clean up, no code changes.
-	* kdb v4.4-2.6.7-rc2-i386-2.
-
-
-
-Changelog extract since kdb v4.4-2.6.7-rc2-ia64-1.
-
-2004-06-16 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-ia64-1.
-
-2004-06-10 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-rc3-ia64-1.
-
-2004-06-09 Keith Owens  <kaos@sgi.com>
-
-	* Namespace clean up.  Mark code/variables as static when it is only
-	  used in one file, delete dead code/variables.
-	* Saved interrupt state requires long, not int.
-	* kdb v4.4-2.6.7-rc2-ia64-3.
-
-2004-06-08 Keith Owens  <kaos@sgi.com>
-
-	* Whitespace clean up, no code changes.
-	* kdb v4.4-2.6.7-rc2-2.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFA0PEHi4UHNye0ZOoRAlkUAJ451FJCUeyPbtwB+o86LoxRjlg82QCfb219
-eCxmRqs/pT69UudnvN/2pVA=
-=NJMr
------END PGP SIGNATURE-----
+Cheers,
+Kyle Moffett
 

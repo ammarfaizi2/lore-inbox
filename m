@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUAIPZv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 10:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUAIPZu
+	id S262041AbUAIPSy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 10:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUAIPSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 10:25:50 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:59144 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262153AbUAIPZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 10:25:46 -0500
-Date: Fri, 9 Jan 2004 15:25:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Paul Jackson <pj@sgi.com>, Paul Mackerras <paulus@samba.org>,
-       akpm@osdl.org, joe.korty@ccur.com, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-ID: <20040109152533.A25396@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andreas Schwab <schwab@suse.de>, Paul Jackson <pj@sgi.com>,
-	Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-	joe.korty@ccur.com, linux-kernel@vger.kernel.org
-References: <20040107165607.GA11483@rudolph.ccur.com> <20040107113207.3aab64f5.akpm@osdl.org> <20040108051111.4ae36b58.pj@sgi.com> <16381.57040.576175.977969@cargo.ozlabs.ibm.com> <20040109064619.35c487ec.pj@sgi.com> <je1xq9duhc.fsf@sykes.suse.de>
+	Fri, 9 Jan 2004 10:18:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58315 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262041AbUAIPSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 10:18:52 -0500
+Subject: Re: 2.6.1-mm1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
+References: <20040109014003.3d925e54.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1073661847.2709.3.camel@lightning>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <je1xq9duhc.fsf@sykes.suse.de>; from schwab@suse.de on Fri, Jan 09, 2004 at 04:14:55PM +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 09 Jan 2004 07:24:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 04:14:55PM +0100, Andreas Schwab wrote:
-> Paul Jackson <pj@sgi.com> writes:
-> 
-> > This would be defined in the include/asm-sparc64/cpumask.h and
-> > include/asm-ppc64/cpumask.h files, with a no-op default in the
-> > include/asm-generic/cpumask.h file for other architectures that
-> > don't need it. 
-> 
-> S390x is big-endian, too.  IMHO it should rather be in
-> include/linux/byteorder, or derived from the macros in there.
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Yes, we'll need it for mips, too.
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+
+John
+
+
+
 

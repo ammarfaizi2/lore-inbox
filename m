@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbSIZOU0>; Thu, 26 Sep 2002 10:20:26 -0400
+	id <S261296AbSIZOYa>; Thu, 26 Sep 2002 10:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbSIZOU0>; Thu, 26 Sep 2002 10:20:26 -0400
-Received: from thunk.org ([140.239.227.29]:18848 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261294AbSIZOUZ>;
-	Thu, 26 Sep 2002 10:20:25 -0400
-Date: Thu, 26 Sep 2002 10:25:04 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jakob Oestergaard <jakob@unthought.net>,
-       "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: jbd bug(s) (?)
-Message-ID: <20020926142504.GC9400@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Christoph Hellwig <hch@infradead.org>,
-	Jakob Oestergaard <jakob@unthought.net>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@zip.com.au>
-References: <20020924072117.GD2442@unthought.net> <20020925173605.A12911@redhat.com> <20020926122124.GS2442@unthought.net> <20020926132723.D2721@redhat.com> <20020926125647.GT2442@unthought.net> <20020926134435.GA9400@think.thunk.org> <20020926150557.A18323@infradead.org>
+	id <S261300AbSIZOY3>; Thu, 26 Sep 2002 10:24:29 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:10159
+	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S261296AbSIZOY3>; Thu, 26 Sep 2002 10:24:29 -0400
+Date: Thu, 26 Sep 2002 07:29:27 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org, bjorn@haxx.se, greg@kroah.com
+Subject: Re: PPC: unresolved module symbols in 2.4.20-pre7+bk
+Message-ID: <20020926142927.GE5746@opus.bloom.county>
+References: <20020924234815.GE788@opus.bloom.county> <Pine.GSO.4.44.0209261127110.27736-100000@rubiin.physic.ut.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <20020926150557.A18323@infradead.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.44.0209261127110.27736-100000@rubiin.physic.ut.ee>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 03:05:57PM +0100, Christoph Hellwig wrote:
-> On Thu, Sep 26, 2002 at 09:44:35AM -0400, Theodore Ts'o wrote:
-> > block size).  So we could add larger block sizes, but it would mean
-> > adding a huge amount of complexity for minimal gain (and if you really
-> > want that, you can always use XFS, which pays that complexity cost).
-> 
-> XFS does't support blocksize > PAGE_CACHE_SIZE under linux. In fact the
-> latest public XFS/Linux release doesn't even support any blocksize other
-> than PAGE_CACHE_SIZE.  This has changed in the development tree now and
-> the version merged in 2.5 and the next public 2.4 release will have that
-> support.  Doing blocksize > PAGE_CACHE_SIZE will difficult if not
-> impossible due VM locking issues with the 2.4 and 2.5 VM code.
+On Thu, Sep 26, 2002 at 11:31:20AM +0300, Meelis Roos wrote:
 
-My mistake.  At one point I was talking to Mark Lord and I had gotten
-the impression they had some Irix-VM-to-Linux-VM mapping layer which
-would make blocksize > PAGE_SIZE possible.
+> The errors are still there in 2.4.20-pre8 and none of them went away
+> after make mrproper.
 
-						- Ted
+Thanks for the .config, I see most of them now.
+
+[re-ordered slightly]
+> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/macintosh/nvram.o
+> > > depmod: 	pmac_get_partition
+> > > depmod: 	nvram_write_byte_R9ce3f83f
+> > > depmod: 	nvram_read_byte_R0f28cb91
+> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/sound/dmasound/dmasound_pmac.o
+> > > depmod: 	pmac_xpram_read
+
+CONFIG_NVRAM cannot really be =m as you have in your .config on
+CONFIG_ALL_PPC.  I'll send Marcelo a bit more Makefile gunk to work
+around this.  For now just set it to y.
+
+> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/media/video/tda7432.o
+> > > depmod: 	__fixdfsi
+> > > depmod: 	__floatsidf
+> > > depmod: 	__divdf3
+> > > depmod: 	__muldf3
+> > > depmod: 	__subdf3
+
+This driver is doing floating point operations inside the kernel, and is
+therefore broken.
+
+> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/usb/storage/usb-storage.o
+> > > depmod: 	ppc_generic_ide_fix_driveid
+
+Configuration issue.  CONFIG_USB_STORAGE_ISD200 needs to depend on
+CONFIG_IDE, since it calls ide_fixup_driveid().  Greg? Björn?
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,120 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUFSQZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUFSQ3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbUFSQZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 12:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUFSQXr
+	id S264542AbUFSQ3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 12:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbUFSQ0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 12:23:47 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7076 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264355AbUFSQQA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 12:16:00 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] ide-taskfile.c fixups/cleanups [9/11]
-Date: Sat, 19 Jun 2004 18:14:04 +0200
-User-Agent: KMail/1.5.3
+	Sat, 19 Jun 2004 12:26:43 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10129
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264461AbUFSQY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 12:24:57 -0400
+Date: Sat, 19 Jun 2004 18:25:03 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: mincore on anon mappings
+Message-ID: <20040619162503.GC12019@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406191814.04988.bzolnier@elka.pw.edu.pl>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
-[PATCH] ide: don't clear rq->errors for REQ_DRIVE_TASKFILE requests
+here a first (untested) attempt to allow mincore on anon vmas too.
 
-REQ_DRIVE_TASKFILE requests aren't retried so don't clear rq->errors
-in CONFIG_IDE_TASKFILE_IO=n PIO handlers and in CONFIG_IDE_TASKFILE_IO=y
-PIO handlers clear rq->errors only for fs requests, flagged_* PIO
-handlers were already okay.
+I heard you need this from gcc, right?
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+(btw, returning -ENOMEM for anon vmas was pretty bogus, -EINVAL or
+even -ENOSYS would been more correct)
 
- linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c |   17 ++++++-----------
- 1 files changed, 6 insertions(+), 11 deletions(-)
-
-diff -puN drivers/ide/ide-taskfile.c~ide_tf_rq_errors drivers/ide/ide-taskfile.c
---- linux-2.6.7/drivers/ide/ide-taskfile.c~ide_tf_rq_errors	2004-06-19 03:01:41.416931672 +0200
-+++ linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c	2004-06-19 03:01:41.421930912 +0200
-@@ -374,7 +374,6 @@ ide_startstop_t task_mulin_intr (ide_dri
- 			nsect = msect;
- 		pBuf = rq->buffer + task_rq_offset(rq);
- 		taskfile_input_data(drive, pBuf, nsect * SECTOR_WORDS);
--		rq->errors = 0;
- 		rq->current_nr_sectors -= nsect;
- 		msect -= nsect;
+--- sles/mm/mincore.c.~1~	2004-02-04 16:07:06.000000000 +0100
++++ sles/mm/mincore.c	2004-06-15 00:42:52.122127224 +0200
+@@ -11,6 +11,8 @@
+ #include <linux/pagemap.h>
+ #include <linux/mm.h>
+ #include <linux/mman.h>
++#include <linux/swap.h>
++#include <linux/swapops.h>
  
-@@ -439,7 +438,6 @@ ide_startstop_t task_out_intr (ide_drive
- 		rq = HWGROUP(drive)->rq;
- 		pBuf = rq->buffer + task_rq_offset(rq);
- 		taskfile_output_data(drive, pBuf, SECTOR_WORDS);
--		rq->errors = 0;
- 		rq->current_nr_sectors--;
- 	}
- 	ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
-@@ -523,7 +521,6 @@ ide_startstop_t task_mulout_intr (ide_dr
- 		taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
- 		rq->current_nr_sectors -= nsect;
- 	} while (msect);
--	rq->errors = 0;
- 	if (HWGROUP(drive)->handler == NULL)
- 		ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
- 	return ide_started;
-@@ -536,9 +533,10 @@ EXPORT_SYMBOL(task_mulout_intr);
- static void task_sectors(ide_drive_t *drive, struct request *rq,
- 			 unsigned nsect, unsigned rw)
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -22,7 +24,7 @@
+  * and is up to date; i.e. that no page-in operation would be required
+  * at this time if an application were to map and access this page.
+  */
+-static unsigned char mincore_page(struct vm_area_struct * vma,
++static unsigned char mincore_page_inode(struct vm_area_struct * vma,
+ 	unsigned long pgoff)
  {
--	if (rq->cbio)	/* fs request */
-+	if (rq->cbio) {	/* fs request */
-+		rq->errors = 0;
- 		task_bio_sectors(drive, rq, nsect, rw);
--	else		/* task request */
-+	} else		/* task request */
- 		task_buffer_sectors(drive, rq, nsect, rw);
+ 	unsigned char present = 0;
+@@ -38,16 +40,74 @@ static unsigned char mincore_page(struct
+ 	return present;
  }
  
-@@ -547,7 +545,6 @@ static inline void task_bio_multi_sector
++/*
++ * Careful this only works with anon-vma for the vma->vm_pgoff settings.
++ */
++static unsigned char mincore_page_anon(struct vm_area_struct * vma,
++				       unsigned long pgoff)
++{
++	unsigned char present = 0;
++	struct page * page;
++	struct mm_struct *mm = vma->vm_mm;
++	pgd_t *pgd;
++	pmd_t *pmd;
++	pte_t *ptep, pte;
++	unsigned long address;
++
++	address = vma->vm_start + ((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
++	BUG_ON(address < vma->vm_start || address >= vma->vm_end);
++
++	spin_lock(&mm->page_table_lock);
++
++	pgd = pgd_offset(mm, address);
++	if (!pgd_present(*pgd))
++		goto out_unlock;
++
++	pmd = pmd_offset(pgd, address);
++	if (!pmd_present(*pmd))
++		goto out_unlock;
++
++	ptep = pte_offset_map(pmd, address);
++	pte = *ptep;
++	pte_unmap(ptep);
++
++	spin_unlock(&mm->page_table_lock);
++
++	if (pte_none(pte))
++		goto out;
++	if (!pte_present(pte)) {
++		swp_entry_t entry = pte_to_swp_entry(pte);
++		page = lookup_swap_cache(entry);
++		if (page) {
++			present = PageUptodate(page);
++			page_cache_release(page);
++		}
++	} else
++		present = 1;
++
++ out:
++	return present;
++
++ out_unlock:
++	spin_unlock(&mm->page_table_lock);
++	goto out;
++}
++
++static unsigned char mincore_page(struct vm_area_struct * vma,
++				  unsigned long pgoff)
++{
++	if (vma->vm_file)
++		return mincore_page_inode(vma, pgoff);
++	else
++		return mincore_page_anon(vma, pgoff);
++}
++
+ static long mincore_vma(struct vm_area_struct * vma,
+ 	unsigned long start, unsigned long end, unsigned char __user * vec)
  {
- 	unsigned int nsect, msect = drive->mult_count;
+ 	long error, i, remaining;
+ 	unsigned char * tmp;
  
--	rq->errors = 0;
- 	do {
- 		nsect = rq->current_nr_sectors;
- 		if (nsect > msect)
-@@ -565,9 +562,10 @@ static inline void task_bio_multi_sector
- static void task_multi_sectors(ide_drive_t *drive,
- 			       struct request *rq, unsigned rw)
- {
--	if (rq->cbio)	/* fs request */
-+	if (rq->cbio) {	/* fs request */
-+		rq->errors = 0;
- 		task_bio_multi_sectors(drive, rq, rw);
--	else		/* task request */
-+	} else		/* task request */
- 		task_buffer_multi_sectors(drive, rq, rw);
- }
- 
-@@ -620,7 +618,6 @@ finish_rq:
- 		return ide_stopped;
- 	}
- 
--	rq->errors = 0;
- 	task_sectors(drive, rq, 1, IDE_PIO_IN);
- 
- 	/* If it was the last datablock check status and finish transfer. */
-@@ -724,8 +721,6 @@ ide_startstop_t task_out_intr (ide_drive
- 
- 	/* Still data left to transfer. */
- 	ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
+-	error = -ENOMEM;
+-	if (!vma->vm_file)
+-		return error;
 -
--	rq->errors = 0;
- 	task_sectors(drive, rq, 1, IDE_PIO_OUT);
- 
- 	return ide_started;
-
-_
-
+ 	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 	if (end > vma->vm_end)
+ 		end = vma->vm_end;

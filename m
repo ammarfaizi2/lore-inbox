@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317505AbSFEABO>; Tue, 4 Jun 2002 20:01:14 -0400
+	id <S317508AbSFEACt>; Tue, 4 Jun 2002 20:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSFEABN>; Tue, 4 Jun 2002 20:01:13 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:54927 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S317505AbSFEABM>; Tue, 4 Jun 2002 20:01:12 -0400
-From: Chris Rankin <cj.rankin@ntlworld.com>
-Message-Id: <200206050001.g5501CEM000892@twopit.underworld>
-Subject: [OOPS] Memory problem in 2.4.19-pre9-ac3
-To: linux-kernel@vger.kernel.org
-Date: Wed, 5 Jun 2002 01:01:12 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316832AbSFEACs>; Tue, 4 Jun 2002 20:02:48 -0400
+Received: from arsenal.visi.net ([206.246.194.60]:31894 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S316477AbSFEACp>;
+	Tue, 4 Jun 2002 20:02:45 -0400
+X-Virus-Scanner: McAfee Virus Engine
+Date: Tue, 4 Jun 2002 19:54:43 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Shanti Katta <katta@csee.wvu.edu>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Reg. sparc64 linker error
+Message-ID: <20020604235443.GA1250@blimpo.internal.net>
+In-Reply-To: <1023221667.12878.68.camel@indus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jun 04, 2002 at 04:14:26PM -0400, Shanti Katta wrote:
+> Hi,
+> I am trying to port user-mode-linux(uml) to Sparc64 arch. I am running a
+> custom built 2.4.18 kernel on debian (sid), Ultra 1 system. I have also
+> created static links sparc64-linux-ld and sparc64-linux-as. When I build
+> the uml sources, I am getting the following linker error:
+> 
+> gcc-3.0  -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+> -fomit-frame-pointer -fno-strict-aliasing -fno-common -U__sparc64__
+> -Usparc64 -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow
+> -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
+> -Wa,--undeclared-regs -D__arch_um__ -DSUBARCH=\"sparc64\" -DNESTING=0
+> -D_LARGEFILE64_SOURCE  -I/home/shanti/UML/UMLSparc64/arch/um/include
+> -D_GNU_SOURCE -c -o unmap.o unmap.c
+> ld -r -o unmap_fin.o unmap.o -lc -L/usr/lib
+> ld: warning: sparc:v9 architecture of input file `unmap.o' is
+> incompatible with sparc output
+> ld: BFD 2.12.90.0.1 20020307 Debian/GNU Linux assertion fail
+> ../../bfd/elflink.h:2817
+> ld: final link failed: Bad value
+> 
+> I am using gcc-3.0 with binuitls 2.12.90.0.0.1-5. When I tried using gcc
+> with egcs64, it gave me a bunch of parse errors. Hence, I switched to
+> gcc-3.0. But now, I have this linker error. Any pointers in this
+> direction would be appreciated.
 
-I have a dual PIII box with 1.25GB of RAM (SMP kernel, devfs, CVS
-ALSA, lm_sensors 2.6.3), and tonight I discovered this oops in my log:
+gcc-3.0 may not work well. Eitherway, copy the CFLAGS/LDFLAGS from
+arch/sparc64/Makefile. For this example above, you are missing -m64 as
+an option to make it output 64bit executables.
 
-ksymoops 2.4.5 on i686 2.4.19-pre9-ac3.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19-pre9-ac3/ (default)
-     -m /boot/System.map-2.4.19-pre9-ac3 (specified)
-
-Jun  4 23:09:09 twopit kernel: Unable to handle kernel paging request at virtual address 83ec34ea
-Jun  4 23:09:09 twopit kernel: c0212538
-Jun  4 23:09:09 twopit kernel: *pde = 00000000
-Jun  4 23:09:09 twopit kernel: Oops: 0002
-Jun  4 23:09:09 twopit kernel: CPU:    1
-Jun  4 23:09:09 twopit kernel: EIP:    0010:[unix_stream_sendmsg+528/804]    Not tainted
-Jun  4 23:09:09 twopit kernel: EFLAGS: 00010202
-Jun  4 23:09:09 twopit kernel: eax: e1b61a75   ebx: f5a0aa80   ecx: e1b617a0   edx: 0a4c69a8
-Jun  4 23:09:09 twopit kernel: esi: 00000eb0   edi: e1b617f4   ebp: ca7d0000   esp: ccd47e70
-Jun  4 23:09:09 twopit kernel: ds: 0018   es: 0018   ss: 0018
-Jun  4 23:09:09 twopit kernel: Process mozilla-bin (pid: 15755, stackpage=ccd47000)
-Jun  4 23:09:09 twopit kernel: Stack: ccd47eb8 ccd47eec ccd47eb8 d4c78784 e1b617a0 00000000 e1b617a0 ef67eb40 
-Jun  4 23:09:09 twopit kernel:        00000000 c01d3be5 d4c78784 ccd47eec 00000eb0 ccd47eb8 00000000 d4c78784 
-Jun  4 23:09:09 twopit kernel:        d4c78660 00000eb0 00003d8b 000001f4 00000064 00000000 00000000 c01d3f0d 
-Jun  4 23:09:09 twopit kernel: Call Trace: [sock_sendmsg+105/136] [sock_readv_writev+157/168] [sock_writev+55/64] [do_readv_writev+363/636] [sys_poll+724/740] 
-Jun  4 23:09:09 twopit kernel: Code: 81 94 00 00 00 80 c0 75 7f f6 41 27 01 75 79 9c 5a fa f0 fe 
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-
->>eax; e1b61a75 <_end+21841989/38538f14>
->>ebx; f5a0aa80 <_end+356ea994/38538f14>
->>ecx; e1b617a0 <_end+218416b4/38538f14>
->>edx; 0a4c69a8 Before first symbol
->>esi; 00000eb0 Before first symbol
->>edi; e1b617f4 <_end+21841708/38538f14>
->>ebp; ca7d0000 <_end+a4aff14/38538f14>
->>esp; ccd47e70 <_end+ca27d84/38538f14>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   81 94 00 00 00 80 c0      adcl   $0x41f67f75,0xc0800000(%eax,%eax,1)
-Code;  00000007 Before first symbol
-   7:   75 7f f6 41 
-Code;  0000000b Before first symbol
-   b:   27                        daa    
-Code;  0000000c Before first symbol
-   c:   01 75 79                  add    %esi,0x79(%ebp)
-Code;  0000000f Before first symbol
-   f:   9c                        pushf  
-Code;  00000010 Before first symbol
-  10:   5a                        pop    %edx
-Code;  00000011 Before first symbol
-  11:   fa                        cli    
-Code;  00000012 Before first symbol
-  12:   f0 fe 00                  lock incb (%eax)
-
-This oops was preceded 20 minutes earlier by this message:
-
-Jun  4 22:49:52 twopit kernel: Trying to vfree() nonexistent vm area (f8961000)
-
-I think that 2.4.19-pre9-ac3 still has memory problems. Still, at
-least it gave me an oops. 2.4.18 spontaneously reboots itself without
-warning after between 1 and 2 weeks of uptime.
-
-Cheers,
-Chris
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://linux1394.sourceforge.net/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

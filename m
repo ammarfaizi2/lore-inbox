@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277353AbRKABjt>; Wed, 31 Oct 2001 20:39:49 -0500
+	id <S277371AbRKABlt>; Wed, 31 Oct 2001 20:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277371AbRKABjj>; Wed, 31 Oct 2001 20:39:39 -0500
-Received: from firebird.planetinternet.be ([195.95.34.5]:28690 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S277353AbRKABjZ>; Wed, 31 Oct 2001 20:39:25 -0500
-Date: Thu, 1 Nov 2001 02:26:08 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Ian Maclaine-cross <iml@debian.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011101022608.A1468@ping.be>
-In-Reply-To: <20011031125204.A1126@ping.be> <Pine.LNX.4.21.0111010045050.28028-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0111010045050.28028-100000@Consulate.UFP.CX>; from rhw@MemAlpha.cx on Thu, Nov 01, 2001 at 12:52:19AM +0000
+	id <S277514AbRKABlk>; Wed, 31 Oct 2001 20:41:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:58896 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277371AbRKABlY>;
+	Wed, 31 Oct 2001 20:41:24 -0500
+Date: Wed, 31 Oct 2001 23:41:42 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Ben Smith <ben@google.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+In-Reply-To: <3BE0A2C1.70600@google.com>
+Message-ID: <Pine.LNX.4.33L.0110312341030.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 12:52:19AM +0000, Riley Williams wrote:
-> 
-> > Note that hwclock does not adjust the clock if the error is smaller
-> > than 1 second, or it already wrote to the RTC is the past 23 hours.
-> 
-> I knew about the "not less than 1 second" restriction, but not the "only
-> once a day" restriction. Can you confirm that the latter restriction is
-> indeed the case please?
+On Wed, 31 Oct 2001, Ben Smith wrote:
 
-Oh, I made a little mistake.
+> > *Just in case* it's oom-related I've asked Ben to try it with one less than
+> > the maximum number of memory blocks he can allocate.
+>
+> I've run this test with my 3.5G machine, 3 blocks instead of 4 blocks,
+> and it has the same behavior (my app gets killed, 0-order allocation
+> failures, and the system stays up.
 
-It doesn't recalculate the factor if it did in the last 23 hours,
-too make it more accurate.  The calculation isn't really
-accurate, but gets more accurate the longer the period between
-them.
+If you still have swap free at the point where the process
+gets killed, or if the memory is file-backed, then we are
+positive it's a kernel bug.
 
-In adjust_drift_factor():
+regards,
 
-  } else if ((hclocktime - adjtime_p->last_calib_time) < 23 * 60 * 60) {
-    if (debug)
-      printf(_("Not adjusting drift factor because it has been less than a "
-             "day since the last calibration.\n"));
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-Kurt
+http://www.surriel.com/		http://distro.conectiva.com/
 

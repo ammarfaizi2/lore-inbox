@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288322AbSAHUzG>; Tue, 8 Jan 2002 15:55:06 -0500
+	id <S288323AbSAHU4g>; Tue, 8 Jan 2002 15:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288323AbSAHUyu>; Tue, 8 Jan 2002 15:54:50 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:51342
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288322AbSAHUyS>; Tue, 8 Jan 2002 15:54:18 -0500
-Message-Id: <200201082039.g08KdbA28865@snark.thyrsus.com>
+	id <S288333AbSAHU4S>; Tue, 8 Jan 2002 15:56:18 -0500
+Received: from dsl-213-023-038-231.arcor-ip.net ([213.23.38.231]:58890 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288323AbSAHU4E>;
+	Tue, 8 Jan 2002 15:56:04 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org, esr@thyrsus.com
-Subject: Re: ISA slot detection on PCI systems?
-Date: Tue, 8 Jan 2002 07:52:09 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0201042101400.20620-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0201042101400.20620-100000@Appserv.suse.de>
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 8 Jan 2002 21:59:19 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Robert Love <rml@tech9.net>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16Nxjg-00009W-00@starship.berlin> <3C3B4CB7.FEAAF5FC@zip.com.au>
+In-Reply-To: <3C3B4CB7.FEAAF5FC@zip.com.au>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E16O3L5-0000B8-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 January 2002 03:09 pm, Dave Jones wrote:
-> On Fri, 4 Jan 2002, Eric S. Raymond wrote:
-> > X86 and ((not PCI) or (not DMI) or DMI_ISA or BLACKLISTED => ISA_CARDS
->
-> You'd also need (not MCA) (not VLBUS) (not Other arcane non-ISA buses)
+On January 8, 2002 08:47 pm, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > What a preemptible kernel can do that a non-preemptible kernel can't is:
+> > reschedule exactly as often as necessary, instead of having lots of extra
+> > schedule points inserted all over the place, firing when *they* think the
+> > time is right, which may well be earlier than necessary.
+> 
+> Nope.  `if (current->need_resched)' -> the time is right (beyond right,
+> actually).
 
-VLBUS is ISA.  It's a bag on the side of ISA.  You can stick an 8 or 16 bit 
-ISA card into a VLBUS slot.
+Oops, sorry, right.
 
-Rob
+The preemptible kernel can reschedule, on average, sooner than the 
+scheduling-point kernel, which has to wait for a scheduling point to roll 
+around.
+
+And while I'm enumerating differences, the preemptable kernel (in this 
+incarnation) has a slight per-spinlock cost, while the non-preemptable kernel 
+has the fixed cost of checking for rescheduling, at intervals throughout all 
+'interesting' kernel code, essentially all long-running loops.  But by clever 
+coding it's possible to finesse away almost all the overhead of those loop 
+checks, so in the end, the non-preemptible low-latency patch has a slight 
+efficiency advantage here, with emphasis on 'slight'.
+
+--
+Daniel

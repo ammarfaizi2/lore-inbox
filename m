@@ -1,79 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267788AbTBEEN3>; Tue, 4 Feb 2003 23:13:29 -0500
+	id <S267662AbTBEEKT>; Tue, 4 Feb 2003 23:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267792AbTBEEMf>; Tue, 4 Feb 2003 23:12:35 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11022 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267787AbTBEELp>;
-	Tue, 4 Feb 2003 23:11:45 -0500
-Date: Tue, 4 Feb 2003 20:17:07 -0800
+	id <S267672AbTBEEKT>; Tue, 4 Feb 2003 23:10:19 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:7950 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267662AbTBEEKR>;
+	Tue, 4 Feb 2003 23:10:17 -0500
+Date: Tue, 4 Feb 2003 20:15:38 -0800
 From: Greg KH <greg@kroah.com>
-To: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] LSM changes for 2.5.59
-Message-ID: <20030205041707.GE16823@kroah.com>
-References: <20030205041538.GA16823@kroah.com> <20030205041611.GB16823@kroah.com> <20030205041632.GC16823@kroah.com> <20030205041651.GD16823@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030205041538.GA16823@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030205041651.GD16823@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.952.1.4, 2003/01/16 14:54:42-08:00, sds@epoch.ncsc.mil
+Hi,
 
-[PATCH] Restore LSM hook calls to setpriority and setpgid
+These changesets include some new LSM hooks, all of which have been sent
+to lkml with no dissenting comments.  Some of these hooks are the same
+ones I sent for 2.5.58, but were not picked up.  These include hooks for
+syslog and sysctl, restores some previously lost hooks, and reworked the
+hooks for the security structures for private files.
 
-This patch restores the LSM hook calls in setpriority and setpgid to
-2.5.58.  These hooks were previously added as of 2.5.27, but the hook
-calls were subsequently lost as a result of other changes to the code
-as of 2.5.37.
+Please pull from:  bk://lsm.bkbits.net/linus-2.5
 
-Ingo has signed off on this patch, and no one else has objected.
+thanks,
+
+greg k-h
 
 
-diff -Nru a/kernel/sys.c b/kernel/sys.c
---- a/kernel/sys.c	Wed Feb  5 14:58:27 2003
-+++ b/kernel/sys.c	Wed Feb  5 14:58:27 2003
-@@ -212,18 +212,25 @@
- 
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
-+	int no_nice;
-+
- 	if (p->uid != current->euid &&
- 		p->uid != current->uid && !capable(CAP_SYS_NICE)) {
- 		error = -EPERM;
- 		goto out;
- 	}
--
-+	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
-+		error = -EACCES;
-+		goto out;
-+	}
-+	no_nice = security_task_setnice(p, niceval);
-+	if (no_nice) {
-+		error = no_nice;
-+		goto out;
-+	}
- 	if (error == -ESRCH)
- 		error = 0;
--	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE))
--		error = -EACCES;
--	else
--		set_user_nice(p, niceval);
-+	set_user_nice(p, niceval);
- out:
- 	return error;
- }
-@@ -944,6 +951,10 @@
- 	}
- 
- ok_pgid:
-+	err = security_task_setpgid(p, pgid);
-+	if (err)
-+		goto out;
-+
- 	if (p->pgrp != pgid) {
- 		detach_pid(p, PIDTYPE_PGID);
- 		p->pgrp = pgid;
+ fs/dcache.c              |    6 +++
+ fs/exportfs/expfs.c      |    5 +--
+ fs/file_table.c          |   35 +++++++++++++++++------
+ fs/namei.c               |   18 +++--------
+ fs/nfsd/vfs.c            |    9 +----
+ fs/super.c               |   16 ++++++++++
+ include/linux/fs.h       |   10 +++++-
+ include/linux/security.h |   71 +++++++++++++++++++++++++++++++++++++----------
+ kernel/ksyms.c           |    6 ++-
+ kernel/printk.c          |    7 +++-
+ kernel/sys.c             |   21 ++++++++++---
+ kernel/sysctl.c          |    5 +++
+ security/capability.c    |   10 ++++++
+ security/dummy.c         |   33 +++++++++++++++++----
+ 14 files changed, 191 insertions(+), 61 deletions(-)
+-----
+
+ChangeSet@1.984, 2003-02-05 14:37:12+11:00, sds@epoch.ncsc.mil
+  [PATCH] LSM: Add LSM syslog hook to 2.5.59
+  
+  This patch adds the LSM security_syslog hook for controlling the
+  syslog(2) interface relative to 2.5.59 plus the previously posted
+  security_sysctl patch.  In response to earlier comments by Christoph,
+  the existing capability check for syslog(2) is moved into the
+  capability security module hook function, and a corresponding dummy
+  security module hook function is defined that provides traditional
+  superuser behavior.  The LSM hook is placed in do_syslog rather than
+  sys_syslog so that it is called when either the system call interface
+  or the /proc/kmsg interface is used.  SELinux uses this hook to
+  control access to the kernel message ring and to the console log
+  level.
+
+ include/linux/security.h |   18 ++++++++++++++++++
+ kernel/printk.c          |    7 +++++--
+ security/capability.c    |   10 ++++++++++
+ security/dummy.c         |    8 ++++++++
+ 4 files changed, 41 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.983, 2003-02-05 14:32:08+11:00, sds@epoch.ncsc.mil
+  [PATCH] LSM: Add LSM sysctl hook to 2.5.59
+  
+  This patch adds a LSM sysctl hook for controlling access to
+  sysctl variables to 2.5.59, split out from the lsm-2.5 BitKeeper tree.
+  SELinux uses this hook to control such accesses in accordance with the
+  security policy configuration.
+
+ include/linux/security.h |   17 +++++++++++++++++
+ kernel/sysctl.c          |    5 +++++
+ security/dummy.c         |    6 ++++++
+ 3 files changed, 28 insertions(+)
+------
+
+ChangeSet@1.982, 2003-02-04 15:07:23-08:00, gregkh@kernel.bkbits.net
+  Merge bk://lsm.bkbits.net/linus-2.5
+  into kernel.bkbits.net:/home/gregkh/linux/lsm-2.5
+
+ fs/dcache.c        |    3 +++
+ fs/namei.c         |    9 +++------
+ fs/super.c         |    8 ++++++++
+ include/linux/fs.h |    5 ++++-
+ kernel/ksyms.c     |    3 ++-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
+------
+
+ChangeSet@1.952.1.4, 2003-01-16 14:54:42-08:00, sds@epoch.ncsc.mil
+  [PATCH] Restore LSM hook calls to setpriority and setpgid
+  
+  This patch restores the LSM hook calls in setpriority and setpgid to
+  2.5.58.  These hooks were previously added as of 2.5.27, but the hook
+  calls were subsequently lost as a result of other changes to the code
+  as of 2.5.37.
+  
+  Ingo has signed off on this patch, and no one else has objected.
+
+ kernel/sys.c |   21 ++++++++++++++++-----
+ 1 files changed, 16 insertions(+), 5 deletions(-)
+------
+
+ChangeSet@1.952.1.3, 2003-01-16 14:35:24-08:00, sds@epoch.ncsc.mil
+  [PATCH] allocate and free security structures for private files
+  
+  This patch adds a security_file_alloc call to init_private_file and
+  creates a close_private_file function to encapsulate the release of
+  private file structures.  These changes ensure that security
+  structures for private files will be allocated and freed
+  appropriately.  Per Andi Kleen's comments, the patch also renames
+  init_private_file to open_private_file to force updating of all
+  callers, since they will also need to be updated to use
+  close_private_file to avoid a leak of the security structure.  Per
+  Christoph Hellwig's comments, the patch also replaces the 'mode'
+  argument with a 'flags' argument, computing the f_mode from the flags,
+  and it explicitly tests f_op prior to dereferencing, as in
+  dentry_open().
+
+ fs/exportfs/expfs.c |    5 ++---
+ fs/file_table.c     |   35 +++++++++++++++++++++++++++--------
+ fs/nfsd/vfs.c       |    9 +++------
+ include/linux/fs.h  |    5 ++++-
+ kernel/ksyms.c      |    3 ++-
+ 5 files changed, 38 insertions(+), 19 deletions(-)
+------
+
+ChangeSet@1.952.1.2, 2003-01-16 14:23:59-08:00, sds@epoch.ncsc.mil
+  [PATCH] Replace inode_post_lookup hook with d_instantiate hook
+  
+  This patch removes the security_inode_post_lookup hook entirely and
+  adds a security_d_instantiate hook call to the d_instantiate function
+  and the d_splice_alias function.  The inode_post_lookup hook was
+  subject to races since the inode is already accessible through the
+  dcache before it is called, didn't handle filesystems that directly
+  populate the dcache, and wasn't always called in the desired context
+  (e.g. for pipe, shmem, and devpts inodes).  The d_instantiate hook
+  enables initialization of the inode security information.  This hook
+  is used by SELinux and by DTE to setup the inode security state, and
+  eliminated the need for the inode_precondition function in SELinux.
+
+ fs/dcache.c              |    3 +++
+ fs/namei.c               |    9 +++------
+ include/linux/security.h |   25 ++++++++++---------------
+ security/dummy.c         |   13 +++++++------
+ 4 files changed, 23 insertions(+), 27 deletions(-)
+------
+
+ChangeSet@1.952.1.1, 2003-01-16 14:18:05-08:00, sds@epoch.ncsc.mil
+  [PATCH] Add LSM hook to do_kern_mount
+  
+  This patch adds a security_sb_kern_mount hook call to the do_kern_mount
+  function.  This hook enables initialization of the superblock security
+  information of all superblock objects.  Placing a hook in do_kern_mount
+  was originally suggested by Al Viro.  This hook is used by SELinux to
+  setup the superblock security state and eliminated the need for the
+  superblock_precondition function.
+
+ fs/super.c               |    8 ++++++++
+ include/linux/security.h |   11 +++++++++++
+ security/dummy.c         |    6 ++++++
+ 3 files changed, 25 insertions(+)
+------
+

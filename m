@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312219AbSDEHzA>; Fri, 5 Apr 2002 02:55:00 -0500
+	id <S312269AbSDEIAa>; Fri, 5 Apr 2002 03:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312256AbSDEHyu>; Fri, 5 Apr 2002 02:54:50 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:32716 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S312219AbSDEHyp>; Fri, 5 Apr 2002 02:54:45 -0500
-Date: Fri, 5 Apr 2002 09:54:44 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
-Message-ID: <20020405095444.A12558@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020404185232.B27209@bougret.hpl.hp.com> <E16tKGi-0007Sy-00@the-village.bc.nu> <20020404190848.C27209@bougret.hpl.hp.com> <a8jaco$avc$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312256AbSDEIAV>; Fri, 5 Apr 2002 03:00:21 -0500
+Received: from web20510.mail.yahoo.com ([216.136.226.145]:11787 "HELO
+	web20510.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S312269AbSDEIAK>; Fri, 5 Apr 2002 03:00:10 -0500
+Message-ID: <20020405080008.77394.qmail@web20510.mail.yahoo.com>
+Date: Fri, 5 Apr 2002 10:00:08 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: faster boots?
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 04:51:06AM +0000, Linus Torvalds wrote:
+> Ditto. Especially if it spun them down again
+> when idle for a while.
 
-> I wouldn't mind a spring cleaning, but the fact is that right now in
-> 2.5.x I'd rather have driver writers wake up to the fact that we had a
-> spring cleaning in the block layer several months ago, rather than
-> introduce a new one ;)
 
-http://www.ibiblio.org/Dave/Dr-Fun/df200204/df20020402.jpg
+I had a patch for this in my 2.2 kernel tree,
+originally from wingel@ctrl-c.liu.se, but I
+didn't have time to port it to 2.4. I've been
+using it happily for about 2 years on the NFS
+server which is too close to my bedroom. The
+only annoying side of the problem is that when
+you incidentelly do an NFS access and the disks
+are down, you have to wait a few minutes before
+they spin up, especially with raid. I once
+failed a CD burning session from the NFS server
+because doing something else simultaneously
+woke other disks up, which hung the NFS server
+until they were ready.
 
-Couldn't resist :-)
+But it's definitely interesting, and missing
+in 2.4 IMHO.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+If you want to try it for your 2.2 tree, I
+can send you the patch.
+
+Cheers,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271703AbTG2PsT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271712AbTG2PsT
+	id S271712AbTG2Psm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTG2Psm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:48:19 -0400
-Received: from indianer.linux-kernel.at ([212.24.125.53]:665 "EHLO
+	Tue, 29 Jul 2003 11:48:42 -0400
+Received: from indianer.linux-kernel.at ([212.24.125.53]:2457 "EHLO
 	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
-	id S271703AbTG2Pqt convert rfc822-to-8bit (ORCPT
+	id S271712AbTG2Pse convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:46:49 -0400
-Message-Id: <200307291544.h6TFicBV004820@indianer.linux-kernel.at>
+	Tue, 29 Jul 2003 11:48:34 -0400
+Message-Id: <200307291546.h6TFkMBV005386@indianer.linux-kernel.at>
 From: Oliver Pitzeier <oliver@linux-kernel.at>
 To: WHarms@bfs.de, linux-kernel@vger.kernel.org
-Subject: RE: bug alpha configure linux-2.6.0-test1
-Date: Tue, 29 Jul 2003 17:46:05 +0200
+Subject: RE: alpha; gas & linux 2.6.0-test1
+Date: Tue, 29 Jul 2003 17:47:49 +0200
 Organization: Linux Kernel Austria
 X-Mailer: Oracle Outlook Connector 3.4 40812
 MIME-Version: 1.0
@@ -25,20 +25,20 @@ X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Walter!
-
-> i tried the new linux-2.6.0-test1 with my alpha and the
-> config says:
+> i tried to compile linux 2.6.0 unfortunaly the
+> GNU assembler version 2.11.90.0.8 (alpha-redhat-linux) using 
+> BFD version 2.11.90.0.8 has a problem:
 > 
-> ./scripts/kconfig/mconf arch/alpha/Kconfig
-> boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
-> #
-> # using defaults found in arch/alpha/defconfig
-> #
-> arch/alpha/defconfig:244: trying to assign nonexistent symbol 
-> SCSI_NCR53C8XX
+[ ... ]
+> 
+> I solved that with an upgrade to
+> GNU assembler version 2.13 (alphaev56-unknown-linux-gnu) 
+> using BFD version 2.13
+> 
+> there is already a check for as < 2.7 perhaps checking for 
+> <2.13 would be better :)
 
-You are still hanging around with -test1? :) Give -test2 a try! It runs's great for me, but -test1 did also... But we talk about this already...
+as 2.12 runs at my machine. You know, I don't have troubles...
 
 Best regards,
  Oliver

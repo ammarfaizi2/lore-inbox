@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136244AbRD0WPp>; Fri, 27 Apr 2001 18:15:45 -0400
+	id <S136247AbRD0WQq>; Fri, 27 Apr 2001 18:16:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136247AbRD0WPf>; Fri, 27 Apr 2001 18:15:35 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55563 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136244AbRD0WPZ>; Fri, 27 Apr 2001 18:15:25 -0400
-Date: Fri, 27 Apr 2001 15:14:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Pavel Machek <pavel@suse.cz>, Chris Mason <mason@suse.com>,
-        <viro@math.psu.edu>, kernel list <linux-kernel@vger.kernel.org>,
-        <jack@atrey.karlin.mff.cuni.cz>
-Subject: Re: [patch] linux likes to kill bad inodes
-In-Reply-To: <200104272207.QAA06020@lynx.turbolabs.com>
-Message-ID: <Pine.LNX.4.31.0104271513410.25046-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136248AbRD0WQh>; Fri, 27 Apr 2001 18:16:37 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:8464
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S136247AbRD0WQY>; Fri, 27 Apr 2001 18:16:24 -0400
+Date: Fri, 27 Apr 2001 18:22:28 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+Message-ID: <20010427182228.D9778@animx.eu.org>
+In-Reply-To: <988368729.1406.2.camel@nomade> <200104271113.NAA16761@cave.bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <200104271113.NAA16761@cave.bitwizard.nl>; from Rogier Wolff on Fri, Apr 27, 2001 at 01:13:39PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I've always been trying to convice people that 2x RAM remains a good 
+> rule-of-thumb.
 
+IMO this is pointless
 
-On Fri, 27 Apr 2001, Andreas Dilger wrote:
->
-> However, since make_bad_inode() only changes the file methods and not
-> the superblock
+             total       used       free     shared    buffers     cached
+Mem:        517456     505332      12124     111016      97752     236884
+-/+ buffers/cache:     170696     346760
+Swap:       131048      23216     107832
 
-Please just make "make_bad_inode()" just do
+Of course for me, I'm not about to waste 1gb of disk space for swap.
 
-	inode->i_sb = bad_super_block;
+The swap I have is 2 partitions, one on each drive both with a priority of
+0.  Personally, I like the way it's done on my box.
 
-and do everything else too.
-
-It's not acceptable to make low-level filesystems care about these things.
-
-		Linus
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

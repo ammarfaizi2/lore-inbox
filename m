@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130793AbRCTVdy>; Tue, 20 Mar 2001 16:33:54 -0500
+	id <S130831AbRCTVjZ>; Tue, 20 Mar 2001 16:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRCTVdp>; Tue, 20 Mar 2001 16:33:45 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:788 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S130793AbRCTVda>; Tue, 20 Mar 2001 16:33:30 -0500
-Date: Tue, 20 Mar 2001 16:32:48 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+	id <S131020AbRCTVjP>; Tue, 20 Mar 2001 16:39:15 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28167 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130831AbRCTVjL>; Tue, 20 Mar 2001 16:39:11 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: UDMA 100 / PIIX4 question
-In-Reply-To: <20010320202020Z130768-406+2207@vger.kernel.org>
-Message-ID: <Pine.LNX.4.10.10103201628390.8689-100000@coffee.psychology.mcmaster.ca>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux should better cope with power failure
+Date: 20 Mar 2001 13:38:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <998ijs$ord$1@cesium.transmeta.com>
+In-Reply-To: <3FA68C00B3E3A3418373DA6446330DD30328E0@spike.i405.net> <3AB68A91.9785A9D0@bluewin.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <3AB68A91.9785A9D0@bluewin.ch>
+By author:    Otto Wyss <otto.wyss@bluewin.ch>
+In newsgroup: linux.dev.kernel
+> 
+> It was just a simple test machine where it didn't matter what was lost.
+> Still that doesn't justify this behaviour.
+> 
 
->    Device Boot    Start       End    Blocks   Id  System
-> /dev/hda1   *         1       932   7486258+   b  Win95 FAT32
-> /dev/hda2           933      3737  22531162+   5  Extended
-> /dev/hda5           933       935     24066   83  Linux
-> /dev/hda6           936       952    136521   82  Linux swap
-> /dev/hda7           953      3737  22370481   83  Linux
-> 
-> 
-> I also ran hdparm -tT /dev/hda1:
->  
-> Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
->  Timing buffered disk reads:  64 MB in  4.35 seconds = 14.71 MB/sec
-> 
-> Which obviously gives much the same result as my usual hdparm -tT /dev/hda
-> 
-> I then tried hdparm -tT /dev/hda7:
-> 
->  Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
->  Timing buffered disk reads:  64 MB in  2.12 seconds = 30.19 MB/sec
-> 
-> As you would expect, I get almost identical results with several repetitions.
-> 
-> Does this solve the mystery ?
+Then use a journalling filesystem.  If not, give it a few minutes of
+idle time; fsck will complain on boot but it should be able to clean
+up the mess.
 
-no, it's quite odd.  hdparm -t cannot be effected by the filesystem
-that lives in the partition, since hdparm is doing reads that don't
-go through the filesystem.  hmm, I wonder if that's it: if you mount
-the FS that's in hda1, it might change the block driver configuration
-(changing the blocksize, for instance).  that would effect hdparm,
-even though its reads don't go through the FS.
-
-prediction: if you comment out the hda1 line in fstab, and reboot,
-so that vfat never gets mounted on that partition, I predict that 
-hdparm will show >30.19 MB/s on it.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

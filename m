@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132053AbRDAIiv>; Sun, 1 Apr 2001 04:38:51 -0400
+	id <S132117AbRDAJsX>; Sun, 1 Apr 2001 05:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132056AbRDAIil>; Sun, 1 Apr 2001 04:38:41 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:46343 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132053AbRDAIic>; Sun, 1 Apr 2001 04:38:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nikolas Zimmermann <wildfox@kde.org>
-To: A Guy Called Tyketto <tyketto@wizard.com>, linux-kernel@vger.kernel.org
-Subject: Re: New directions for kernel development
-Date: Sun, 1 Apr 2001 10:37:04 +0200
-X-Mailer: KMail [version 1.2.1]
-In-Reply-To: <BFECLKCMHDOFPPMBMMDKAEALCAAA.torvalds@transmeta.com> <20010401002444.A11522@wizard.com>
-In-Reply-To: <20010401002444.A11522@wizard.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <14jdMd-0AogHgC@fmrl02.sul.t-online.com>
+	id <S132112AbRDAJsO>; Sun, 1 Apr 2001 05:48:14 -0400
+Received: from Campbell.cwx.net ([216.17.176.12]:40717 "EHLO campbell.cwx.net")
+	by vger.kernel.org with ESMTP id <S132110AbRDAJr7>;
+	Sun, 1 Apr 2001 05:47:59 -0400
+Date: Sun, 1 Apr 2001 03:47:04 -0600
+From: Allen Campbell <lkml@campbell.cwx.net>
+To: Simon Garner <sgarner@expio.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
+Message-ID: <20010401034704.A97117@const.>
+In-Reply-To: <004801c0ba62$6cd67810$1400a8c0@expio.net.nz> <20010331221319.A95411@const.> <00a401c0ba8c$c54efdd0$1400a8c0@expio.net.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <00a401c0ba8c$c54efdd0$1400a8c0@expio.net.nz>; from sgarner@expio.co.nz on Sun, Apr 01, 2001 at 09:18:25PM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 April 2001 10:24, A Guy Called Tyketto wrote:
->         Heh..
->
->         Not even 5 minutes into the smegging day, and it's already started.
-> ;)
->
->                                                         BL.
+On Sun, Apr 01, 2001 at 09:18:25PM +1200, Simon Garner wrote:
+> From: "Allen Campbell" <lkml@campbell.cwx.net>
+> 
+> > I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
+> > 2.4.2 (debian woody).  In addition, the kernel would sometimes hang
+> > around NMI watchdog enable.  At least, I think it's trying to
+> > `enable'.  The hang would occur around 50% of boot attempts.  Once
+> > booted, everything was stable.  A non-SMP 2.4.2 kernel (no IO-APIC
+> > either, sorry, didn't test that) always booted without hangs.
+> 
+> Yep, sounds like the same problem.
+> 
+> 
+> >
+> > Strangely, (happily for me,) the boot hangs stopped with 2.4.3.
+> > I've booted maybe 10 times (hot and cold) since I built 2.4.3 and
+> > I've had no hangs.  When I get back to the box, I'll try booting
+> > a few dozen more times and see if I can confirm your observation.
+> >
+> 
+> Please do test it. I think you'll find the problem is still very much
+> present.
 
-5 mins?
-In germany ppl fool me since 10 hours :)
-
-;)
-
-Bye
- Bye
-  Niko
-
--- 
-Nikolas Zimmermann
-wildfox@kde.org
+Yeah, still there.  Cold boot only.

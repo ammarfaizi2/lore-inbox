@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUKBLkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKBLo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUKBLkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 06:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbUKBLkS
+	id S261204AbUKBLo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 06:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbUKBLo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 06:40:18 -0500
-Received: from smtp-out-02.utu.fi ([130.232.202.172]:1779 "EHLO
-	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S261197AbUKBLkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 06:40:08 -0500
-Date: Tue, 02 Nov 2004 13:40:01 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: XMMS (or some other audio player) 'hang' issues with intel8x0 and
- dmix plugin [u]
-In-reply-to: <1099385872.21422.10.camel@leto.cs.pocnet.net>
-To: Christophe Saout <christophe@saout.de>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>, alsa-user@lists.sourceforge.net
-Message-id: <200411021340.03164.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <1099284142.11924.17.camel@nosferatu.lan>
- <1099385872.21422.10.camel@leto.cs.pocnet.net>
+	Tue, 2 Nov 2004 06:44:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:29899 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261204AbUKBLoX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 06:44:23 -0500
+Date: Tue, 2 Nov 2004 12:45:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5 (networking problems)
+Message-ID: <20041102114522.GA7874@elte.hu>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com> <20041102085650.GA3973@nietzsche.lynx.com> <20041102093758.GA28014@elte.hu> <20041102110810.GA11393@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041102110810.GA11393@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 November 2004 10:57, Christophe Saout wrote:
 
-> I've tracked this down to what seems to be a bug in the libalsa dmix
-> code with mmap emulation. If the sound output was stopped for some
-> reason (stream paused or underrun) the library will accept more data
-> until the buffer is full but never restart the output.
+* Bill Huey <bhuey@lnxw.com> wrote:
 
-Strangely, I've observed these kinds of "Hangs" with bmp and mplayer,
-without mmap mode enabled in either. Also using dmix as in the other
-reports here. Could of course be some third application using alsa in
-mmap mode, I suppose.
+> On Tue, Nov 02, 2004 at 10:37:58AM +0100, Ingo Molnar wrote:
+> > * Bill Huey <bhuey@lnxw.com> wrote:
+> > > [nasty networking crash trace]
+> ...
+> > which attempts to fix this particular deadlock.
+> 
+> getting closer...
+> 
+> http:590 BUG: lock held at task exit time!
+>  [c03f9e84] {r:0,a:-1,kernel_sem.lock}
+>  .. held by:              http/  590 [dc0508a0, 121]
+>  ... acquired at:  __schedule+0x3ac/0x850
 
-Unfortunately, I have no strace to offer right now as the bug is happening
-randomly and I haven't been able to find any method by which to reproduce
-it.
+hm. Something called do_exit() with the BKL held which is a no-no. Do
+you have a stacktrace, is this sys_exit() or some other code calling
+do_exit()?
 
-What's strange is that almost always when it happens, either mplayer or
-beep-media-player will have an extra forked process. As bmp is threaded
-and I shouldn't see more than one bmp in ps aux on NPTL, this seemed a
-bit strange. Strace on the process that looked more recent makes it usually
-wake up from deep sleep, and then it promptly vanishes after only a few syscalls.
-The strace itself seems to wake it up... After the 'extra' process is gone,
-sound output usually resumes, but not always. Other times strace only reveals
-the app doing nanosleep's and nothing else, and the only solution is to kill
-all apps that might've touched sound.
-
-Another dmix+mplayer issue I have is that mplayer's get_delay for alsa seems
-to return bogus values for alsa+dmix case, but I digress...
+	Ingo

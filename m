@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290565AbSBOSWi>; Fri, 15 Feb 2002 13:22:38 -0500
+	id <S290573AbSBOSWS>; Fri, 15 Feb 2002 13:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290561AbSBOSW3>; Fri, 15 Feb 2002 13:22:29 -0500
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:12804 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S290570AbSBOSWN>; Fri, 15 Feb 2002 13:22:13 -0500
-Message-ID: <3C6D507A.B9A2E28F@ixiacom.com>
-Date: Fri, 15 Feb 2002 10:16:26 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
-X-Accept-Language: en
+	id <S290565AbSBOSWI>; Fri, 15 Feb 2002 13:22:08 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:60547 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S290574AbSBOSV4>;
+	Fri, 15 Feb 2002 13:21:56 -0500
+Date: Fri, 15 Feb 2002 10:22:05 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+        <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+In-Reply-To: <Pine.LNX.4.33.0202150956400.829-100000@segfault.osdlab.org>
+Message-ID: <Pine.LNX.4.33.0202151019590.829-100000@segfault.osdlab.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: re: Disgusted with kbuild developers
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> I would find this pathetic, if it didn't make me so mad.
-> Making an end run around the system, are we, Eric?
-> 
-> Small wonder the message below didn't make it to linux-kernel: 
-> suggestions would have been made that CML2 is DOA.
-> 
-> ESR's message to the kbuild list:
->         http://marc.theaimsgroup.com/?l=kbuild-devel&m=101373619625183&w=2
-> The rest of the thread:
->         http://marc.theaimsgroup.com/?t=101373623000001&r=1&w=2
-> 
-> For an open source "guru", Eric, you sure seem to like to turn to
-> cronyism and secret meetings when the going gets tough.
 
->From my distant and peonic vantage point,
-I don't see what the big deal is; Eric's messages
-look perfectly fine.  Perhaps he should have cc'd linux-kernel,
-but you could also argue that kbuild-devel was
-exactly the right place to post discussions of
-the kernel build system.  Eric is at worst guilty of
-a minor misstep.  Don't pillory him; he really is simply
-trying to do a good job.
+On Fri, 15 Feb 2002, Patrick Mochel wrote:
 
-Besides, it's not smart to insult a man who carries a gun :-)
-- Dan
+> 
+> > no, it doesn't solve the problem. i would like to test it whith 
+> > preemtible kernel not set but it doesn't boot.
+> 
+> While Greg's patch did fix part of the problem, the rest of it was on my 
+> end. Could you try this patch, and see if helps?
+
+Actually, the patch that I sent is against my current tree, which includes 
+some changes that I've already pushed to Linus. If you're using BK, you 
+should be able to pull his current tree (if you're into that kinda thing). 
+Or, wait until -pre2. Sorry about that.
+
+	-pat
+

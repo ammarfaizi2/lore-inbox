@@ -1,87 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAIWNs>; Tue, 9 Jan 2001 17:13:48 -0500
+	id <S130018AbRAIWRj>; Tue, 9 Jan 2001 17:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRAIWNi>; Tue, 9 Jan 2001 17:13:38 -0500
-Received: from macaulay.demon.co.uk ([194.222.190.183]:260 "EHLO
-	macaulay.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129511AbRAIWNa>; Tue, 9 Jan 2001 17:13:30 -0500
-Date: Tue, 9 Jan 2001 17:26:39 GMT
-From: Tony Sumner <solon@macaulay.demon.co.uk>
-Message-Id: <200101091726.f09HQd700480@macaulay.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Ftape bug
+	id <S130130AbRAIWR3>; Tue, 9 Jan 2001 17:17:29 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:22759 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130018AbRAIWRV>; Tue, 9 Jan 2001 17:17:21 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM subsystem bug in 2.4.0 ?
+In-Reply-To: <Pine.LNX.4.10.10101091021280.2070-100000@penguin.transmeta.com>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <Pine.LNX.4.10.10101091021280.2070-100000@penguin.transmeta.com>
+Message-ID: <m3vgroe6qo.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: 09 Jan 2001 23:20:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem with ftape. What happened was that I had a backup on
-QIC80 tape that I made from Red Hat 5.2 and I (foolishly?) installed
-SuSE 7.0. I then found I could not read the tape with the newer version
-of ftape. 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-In the Ftape-HOWTO Claus Heine gives a check list of the things I
-need to tell you about:
+> On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+> > 
+> > But again, how do you clear the bit?  Locking is a per-vma property,
+> > not per-page.  I can mmap a file twice and mlock just one of the
+> > mappings.  If you get a munlock(), how are you to know how many other
+> > locked mappings still exist?
+> 
+> Note that this would be solved very cleanly if the SHM code would use the
+> "VM_LOCKED" flag, and actually lock the pages in the VM, instead of trying
+> to lock them down for writepage().
 
-Kernel version: was 2.0.36, now 2.2.16
+here comes the patch. (lightly tested)
 
-ftape version: 3.04d
+Greetings
+                Christoph
 
-model: Colorado Jumbo DJ-10/DJ-20
 
-bus type: The motherboard has both ISA and PCI slots but I don't 
-          think this is relevant because I wrote and read the tape 
-          with the older kernel so it is not a matter of ftape not working. 
-
-what I did: I copied tob to the SuSE system and ran it. I didn't recompile
-            afio but used the SuSE version. All afio does is call ftape.
-
-what went wrong: tob reported 'No input'. The log in /var/spool/messages
-            had a report from ftape to say that it was looking at a 
-            new cartridge. An extract from the log is below. It was not
-            a new cartridge -- I have been able to read it by reloading
-            kernel 2.0.36 and the corresponding version 2.08 of ftape. 
-
-Current kernel: I still have it, and the file ftape.o
-
-Another point: in Red Hat /dev/ftape is a link to /dev/rft0 while in SuSE
-it is a link to /dev/qft0; Does that make any difference?
-
-Before I try increasing the tracing level maybe you could let me know
-whether this is a new thing or something you know about already. 
-
-Tony Sumner
-
-I am not a subscriber to this mailing list so I was advised to ask
-you to Cc any reply to me at solon@macaulay.demon.co.uk
------------------------------------------------------------------
-Nov 25 20:23:54 macaulay kernel: ftape v3.04d 25/11/97
-Nov 25 20:23:54 macaulay kernel: (c) 1993-1996 Bas Laarhoven (bas@vimec.nl)
-Nov 25 20:23:54 macaulay kernel: (c) 1995-1996 Kai Harrekilde-Petersen (khp@dolphinics.no)
-Nov 25 20:23:54 macaulay kernel: (c) 1996-1997 Claus-Justus Heine (claus@momo.math.rwth-aachen.de)
-Nov 25 20:23:54 macaulay kernel: QIC-117 driver for QIC-40/80/3010/3020 floppy tape drives
-Nov 25 20:23:54 macaulay kernel: Compiled for Linux version 2.2.16
-Nov 25 20:23:54 macaulay kernel: [000] ftape-init.c (ftape_init) - installing QIC-117 floppy tape hardware drive ... .
-Nov 25 20:23:54 macaulay kernel: [001] ftape-init.c (ftape_init) - ftape_init @ 0xc283a054.
-Nov 25 20:23:54 macaulay kernel: [002]   ftape-buffer.c (add_one_buffer) - buffer nr #1 @ c0917220, dma area @ c0ab8000.
-Nov 25 20:23:54 macaulay kernel: [003]   ftape-buffer.c (add_one_buffer) - buffer nr #2 @ c09172c0, dma area @ c0a80000.
-Nov 25 20:23:54 macaulay kernel: [004]   ftape-buffer.c (add_one_buffer) - buffer nr #3 @ c0917040, dma area @ c09f8000.
-Nov 25 20:23:54 macaulay kernel: [005]   ftape-calibr.c (time_inb) - inb() duration: 638 nsec.
-Nov 25 20:23:54 macaulay kernel: [006]  ftape-calibr.c (ftape_calibrate) - TC for `ftape_udelay()' = 840 nsec (at 10239 counts).
-Nov 25 20:23:54 macaulay kernel: [007]  ftape-calibr.c (ftape_calibrate) - TC for `fdc_wait()' = 1784 nsec (at 5119 counts).
-Nov 25 20:23:54 macaulay kernel: zftape for ftape v3.04d 25/11/97
-Nov 25 20:23:54 macaulay kernel: (c) 1996, 1997 Claus-Justus Heine (claus@momo.math.rwth-aachen.de)
-Nov 25 20:23:54 macaulay kernel: vfs interface for ftape floppy tape driver.
-Nov 25 20:23:54 macaulay kernel: Support for QIC-113 compatible volume table, dynamic memory allocation
-Nov 25 20:23:54 macaulay kernel: and builtin compression (lzrw3 algorithm).
-Nov 25 20:23:54 macaulay kernel: Compiled for Linux version 2.2.16
-Nov 25 20:23:54 macaulay kernel: [008] zftape-init.c (zft_init) - zft_init @ 0xc2861538.
-Nov 25 20:23:54 macaulay kernel: [009] zftape-init.c (zft_init) - installing zftape VFS interface for ftape driver ....
-Nov 25 20:23:54 macaulay kernel: [010]     fdc-io.c (fdc_config) - fdc base: 0x3f0, irq: 6, dma: 2.
-Nov 25 20:23:54 macaulay kernel: [011]     fdc-io.c (fdc_probe) - Type 8272A/765A compatible FDC found.
-Nov 25 20:23:56 macaulay kernel: [012]    ftape-ctl.c (ftape_get_drive_status) - status: new cartridge.
-
-etc
-
+diff -uNr 2.4.0/include/linux/shmem_fs.h c/include/linux/shmem_fs.h
+--- 2.4.0/include/linux/shmem_fs.h	Tue Jan  2 21:58:11 2001
++++ c/include/linux/shmem_fs.h	Tue Jan  9 22:01:48 2001
+@@ -22,7 +22,6 @@
+ 	swp_entry_t	i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
+ 	swp_entry_t   **i_indirect; /* doubly indirect blocks */
+ 	unsigned long	swapped;
+-	int		locked;     /* into memory */
+ 	struct list_head	list;
+ };
+ 
+diff -uNr 2.4.0/ipc/shm.c c/ipc/shm.c
+--- 2.4.0/ipc/shm.c	Tue Jan  2 21:58:11 2001
++++ c/ipc/shm.c	Tue Jan  9 22:39:18 2001
+@@ -91,9 +91,10 @@
+ 	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni+1);
+ }
+ 
+-
+-
+-static inline void shm_inc (int id) {
++/* This is called by fork, once for every shm attach. */
++static void shm_open (struct vm_area_struct *shmd)
++{
++	int id = shmd->vm_file->f_dentry->d_inode->i_ino;
+ 	struct shmid_kernel *shp;
+ 
+ 	if(!(shp = shm_lock(id)))
+@@ -104,12 +105,6 @@
+ 	shm_unlock(id);
+ }
+ 
+-/* This is called by fork, once for every shm attach. */
+-static void shm_open (struct vm_area_struct *shmd)
+-{
+-	shm_inc (shmd->vm_file->f_dentry->d_inode->i_ino);
+-}
+-
+ /*
+  * shm_destroy - free the struct shmid_kernel
+  *
+@@ -154,9 +149,20 @@
+ 
+ static int shm_mmap(struct file * file, struct vm_area_struct * vma)
+ {
+-	UPDATE_ATIME(file->f_dentry->d_inode);
++	struct shmid_kernel *shp;
++	struct inode * inode = file->f_dentry->d_inode;
++
++	UPDATE_ATIME(inode);
+ 	vma->vm_ops = &shm_vm_ops;
+-	shm_inc(file->f_dentry->d_inode->i_ino);
++
++	if(!(shp = shm_lock(inode->i_ino)))
++		BUG();
++	shp->shm_atim = CURRENT_TIME;
++	shp->shm_lprid = current->pid;
++	shp->shm_nattch++;
++	if (shp->shm_flags & SHM_LOCKED)
++		vma->vm_flags |= VM_LOCKED;
++	shm_unlock(inode->i_ino);
+ 	return 0;
+ }
+ 
+@@ -365,6 +371,29 @@
+ 	}
+ }
+ 
++static void shm_lockseg (struct shmid_kernel * shp, int cmd)
++{
++	struct address_space *mapping = shp->shm_file->f_dentry->d_inode->i_mapping;
++	struct vm_area_struct *mpnt;
++
++	spin_lock(&mapping->i_shared_lock);
++	if(cmd==SHM_LOCK) {
++		shp->shm_flags |= SHM_LOCKED;
++		for (mpnt = mapping->i_mmap; mpnt; mpnt = mpnt->vm_next_share)
++			mpnt->vm_flags |= VM_LOCKED;
++		for (mpnt = mapping->i_mmap_shared; mpnt; mpnt = mpnt->vm_next_share)
++			mpnt->vm_flags |= VM_LOCKED;
++	} else {
++		shp->shm_flags &= ~SHM_LOCKED;
++		for (mpnt = mapping->i_mmap; mpnt; mpnt = mpnt->vm_next_share)
++			mpnt->vm_flags &= ~VM_LOCKED;
++		for (mpnt = mapping->i_mmap_shared; mpnt; mpnt = mpnt->vm_next_share)
++			mpnt->vm_flags &= ~VM_LOCKED;
++	}
++	spin_unlock(&mapping->i_shared_lock);
++		
++}
++
+ asmlinkage long sys_shmctl (int shmid, int cmd, struct shmid_ds *buf)
+ {
+ 	struct shm_setbuf setbuf;
+@@ -466,13 +495,7 @@
+ 		err = shm_checkid(shp,shmid);
+ 		if(err)
+ 			goto out_unlock;
+-		if(cmd==SHM_LOCK) {
+-			shp->shm_file->f_dentry->d_inode->u.shmem_i.locked = 1;
+-			shp->shm_flags |= SHM_LOCKED;
+-		} else {
+-			shp->shm_file->f_dentry->d_inode->u.shmem_i.locked = 0;
+-			shp->shm_flags &= ~SHM_LOCKED;
+-		}
++		shm_lockseg(shp, cmd);
+ 		shm_unlock(shmid);
+ 		return err;
+ 	}
+diff -uNr 2.4.0/mm/shmem.c c/mm/shmem.c
+--- 2.4.0/mm/shmem.c	Tue Jan  2 21:58:11 2001
++++ c/mm/shmem.c	Tue Jan  9 22:02:18 2001
+@@ -201,8 +201,6 @@
+ 	swp_entry_t *entry, swap;
+ 
+ 	info = &page->mapping->host->u.shmem_i;
+-	if (info->locked)
+-		return 1;
+ 	swap = __get_swap_page(2);
+ 	if (!swap.val)
+ 		return 1;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

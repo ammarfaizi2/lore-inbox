@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVCYGWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVCYGVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVCYGWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 01:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVCYGWJ
+	id S261419AbVCYGVy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCYGTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 01:22:09 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:32955 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261420AbVCYGT3 (ORCPT
+	Fri, 25 Mar 2005 01:19:07 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:30184 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261420AbVCYGKU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 01:19:29 -0500
-Date: Fri, 25 Mar 2005 07:19:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050325061907.GA20242@elte.hu>
-References: <20050324113912.GA20911@elte.hu> <Pine.OSF.4.05.10503242307330.25274-100000@da410.phys.au.dk>
+	Fri, 25 Mar 2005 01:10:20 -0500
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+	(2.6.11)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <4243A86D.6000408@pobox.com>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>
+	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>
+	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>
+	 <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>
+	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>
+	 <4243A86D.6000408@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E8jNKOYoa8NbmaNFSNTn"
+Organization: MIPT
+Date: Fri, 25 Mar 2005 09:16:01 +0300
+Message-Id: <1111731361.20797.5.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10503242307330.25274-100000@da410.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 09:09:33 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+--=-E8jNKOYoa8NbmaNFSNTn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I like the idea of having the scheduler take care of it - it is a very 
-> optimal coded queue-system after all. That will work on UP but not on 
-> SMP. Having the unlock operation to set the mutex in a "partially 
-> owned" state will work better. The only problem I see, relative to 
-> Ingo's implementation, is that then the awoken task have to go in and 
-> change the state of the mutex, i.e. it has to lock the wait_lock 
-> again. Will the extra schedulings being the problem happen offen 
-> enough in practise to have the extra overhead?
+On Fri, 2005-03-25 at 00:58 -0500, Jeff Garzik wrote:
+> Evgeniy Polyakov wrote:
+> > So I still insist on creating ability to contribute entropy directly,
+> > without userspace validation.
+> > It will be turned off by default.
+>=20
+> If its disabled by default, then you and 2-3 other people will use this=20
+> feature.  Not enough justification for a kernel API at that point.
 
-i think this should be covered by the 'unschedule/unwakeup' feature, 
-mentioned in the latest mails.
+It is only because there are only couple of HW crypto devices
+in the tree, with one crypto framework inclusion there will be
+at least redouble.
+Let's return to this discussion after it.
 
-	Ingo
+Thank you.
+
+> 	Jeff
+>=20
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-E8jNKOYoa8NbmaNFSNTn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCQ6yhIKTPhE+8wY0RAu1dAKCKWWfQJ9LFIMzZ+LfoLsmBQQ3mgACfUf7p
+VQEA2bM2Fj/jaU0yEgsK9vw=
+=T4eU
+-----END PGP SIGNATURE-----
+
+--=-E8jNKOYoa8NbmaNFSNTn--
+

@@ -1,39 +1,151 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154180-13684>; Thu, 7 Jan 1999 08:07:19 -0500
-Received: by vger.rutgers.edu id <155196-13684>; Wed, 6 Jan 1999 22:33:50 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:3342 "HELO ms2.inr.ac.ru" ident: "IDENT-NONSENSE") by vger.rutgers.edu with SMTP id <154198-13684>; Wed, 6 Jan 1999 10:59:10 -0500
-Date: Wed, 6 Jan 1999 21:19:14 +0300
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <199901061819.VAA08689@ms2.inr.ac.ru>
-To: vlad@elis.tusur.RU, linux-kernel@vger.rutgers.edu
-Subject: Re: [PATCH] Fixes in ipv4 networking code
-Newsgroups: inr.linux.kernel
-Organization: Institute for Nuclear Research, Moscow, Russia
-X-Newsreader: TIN [version 1.2 PL2]
+Received: by vger.rutgers.edu via listexpand id <155394-13684>; Thu, 7 Jan 1999 08:20:44 -0500
+Received: by vger.rutgers.edu id <155435-13684>; Wed, 6 Jan 1999 23:06:41 -0500
+Received: from mail13.digital.com ([192.208.46.30]:3598 "EHLO mail13.digital.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156069-13684>; Wed, 6 Jan 1999 12:05:25 -0500
+Date: Wed, 6 Jan 1999 14:25:57 -0500 (EST)
+From: Phillip Ezolt <ezolt@perf.zko.dec.com>
+To: linux-kernel@vger.rutgers.edu
+Subject: Iprobe: Alpha performance tool
+Message-ID: <Pine.OSF.3.96.990106140332.11300A-100000@perf.zko.dec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article <199901050932.QAA06101@elis.tusur.ru> you wrote:
-: 1. "ip route get <SOMETHING>" never returns flowid. Fixed.
-: 2.  Flowid setting in rules doesn't work. Fixed.
+Hi all, 
+	This is sort-of off topic, but I thought the kernel developers might
+find it of interest.   This is the package we use to find bottlenecks in 
+Digital Unix (amoung other things).  We have used it internally for 4-5 years 
+on DU/VMS/NT and my job was to port it to Alpha/Linux.  It is released under 
+the GPL. 
 
-These two fixes have been queued. I apologize, they are not very urgent
-and, in any case, anyone using these features needs to patch kernel
-with ftp://ftp.inr.ac.ru/ip-routing/kernel-ss*.dif.gz.
+It can be used to find where system/board cache misses occur, where cycles
+are spent, and more. 
 
-: 3.  Routes with THROW flag doesn't work. Fixed.
+We hope it'll be a boon to kernel performance enhancement. 
 
-Oops... Yes. Only the fix is wrong... Checking for 1 will terminate search,
-when prespecified device is requested, which is certainly wrong.
-Khm... The bug is very unpleasant... I'll think. Can you invent something
-better than returning 2 instead of 1 in the case when fib_semantic_match
-failure not because of throw?
+--Phil
 
-: 4.  Sometimes "ip route get <SOMETHING>" returns an unknown error code,
-: looks like a very big number. Fixed.
+Digital/Compaq: High Performance Servers/Benchmark Performance Engineering
+Phillip.Ezolt@compaq.com                            ezolt@perf.zko.dec.com
 
-Thank you!
 
-Alexey
+
+
+What?
+-----
+Compaq/Digital's High Performance Servers/Benchmark Performance Engineering 
+presents: 
+
+The Iprobe tool suite (4.0) for Alpha/Linux. 
+
+When?
+-----
+Date: 1/6/99
+
+How?
+---
+LICENSE: GPL.
+
+Who?
+----
+Contact: Phillip.Ezolt@compaq.com or ezolt@perf.zko.dec.com
+
+What is iprobe?
+---------------
+It is a little-known fact that the Compaq Alpha processor has some nifty
+on-chip performance hardware that can be used to find bottlenecks in program
+code.  
+
+Iprobe gives the user access to this hardware.  
+
+Iprobe is a low-overhead tool suite that uses the Alpha event counters to find 
+performance bottlenecks in kernel and user space. 
+
+The iprobe suite allows one to pinpoint problem code.  It can not only
+determine where a program is spending its cycles, but it can also
+figure out where caches misses and floating point instructions occur
+as well.  Iprobe can help to answer the following questions: 
+Where is my program missing the cache?  Where is my
+program spending all of its cycles?  Which branch path is taken most often?
+
+Internally, Iprobe has been used to optimize performance in benchmarks
+(SPEC CPU95), operating systems (VMS, Digital Unix, Windows NT) and databases.
+(Oracle, and Informix)
+
+Iprobe has traditionally be a cross-platform alpha tool. It runs on 
+Digital Unix, Open VMS, and Windows NT, and it is now being released under
+GPL for Alpha/Linux.
+
+Who can run it? 
+---------------
+The iprobe suite should run on all Alpha machines created prior to the EV6. 
+
+Currently, it has been tested successfully on all Alpha/Linux machines that 
+boot using the Digital SRM and aboot.  It may NOT run on machines running
+MILO. 
+
+For those that use MILO, iprobe MAY work.  The AlphaStation 250 is known to
+work, but not the AlphaStation 500.  Jay Estabrook (the MILO guru) is looking 
+into this matter, and should have an updated MILO for those that need it RSN 
+(real soon now).
+
+Iprobe also requires a kernel >2.1.132.  Any 2.2.X kernels should work. 
+
+Where do I get it? 
+------------------
+
+Iprobe is availbe at: metalab.unc.edu:/pub/Linux/Incoming
+Soon to be in: metalab.unc.edu:/pub/Linux/devel
+
+The suite consists of two required parts, and a third which is optional:
+
+1) A kernel driver (iprobe_suite-4.0-driver.o.gz)
+	This has been compiled for your convenience.  The source is availbe
+in the rpm/tarball with the source for the rest of the suite, but it
+must be compiled against a kernel with performance counter support, so for 
+ease of use,  a binary driver is provided. 
+
+2) Application Suite (iprobe_suite-4.0-1.alpha.rpm)
+	These are all the applications that actually use the performance
+counters.   Instruction on their use is provided within. 
+
+3) Source (iprobe_suite-4.0-1.src.rpm)
+	This is the source for all of the above. 
+
+
+How do I install?
+-----------------
+You need both the rpm and the kernel module.  One will NOT work without
+the other. 
+
+Get these files: 
+iprobe_suite-4.0-driver.o.gz 
+iprobe_suite-4.0-1.alpha.rpm
+
+Once you get the rpm, simply type
+
+rpm -i iprobe_suite-4.0-1.alpha.rpm
+
+You will also need to unzip and insert the kernel module.  More information
+is available in the INSTALL document. 
+
+*******IMPORTANT************
+
+Documentation will be installed in /usr/doc/iprobe_suite-4.0/  
+Read INSTALL for instructions on installing the suite.
+Read TUTORIAL for instructions on using the suite.
+
+If you don't read this, it will NOT work, and you will be frustrated. 
+
+What else?
+---------
+We are currently looking for an external site to host a web page for to
+host information/howtos and success stories on.  If any one is interested,
+email ezolt@perf.zko.dec.com.
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

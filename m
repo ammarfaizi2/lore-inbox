@@ -1,92 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbTIPIgM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 04:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTIPIgM
+	id S261681AbTIPIpm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 04:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTIPIpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 04:36:12 -0400
-Received: from host251-89.pool80180.interbusiness.it ([80.180.89.251]:62933
-	"EHLO dedasys.com") by vger.kernel.org with ESMTP id S261480AbTIPIgJ
+	Tue, 16 Sep 2003 04:45:42 -0400
+Received: from mail-08.iinet.net.au ([203.59.3.40]:56028 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261681AbTIPIpk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 04:36:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22: repeatable panic with "modprobe ide-scsi"
-From: davidw@dedasys.com (David N. Welton)
-Date: 16 Sep 2003 10:37:03 +0200
-Message-ID: <87smmxku34.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 16 Sep 2003 04:45:40 -0400
+Message-ID: <3F66CDB6.7000601@ii.net>
+Date: Tue, 16 Sep 2003 16:45:42 +0800
+From: Wade <neroz@ii.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Yu Chen <dychen@stanford.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
+In-Reply-To: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
+Content-Type: multipart/mixed;
+ boundary="------------070201080000020604040700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070201080000020604040700
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-[ Please CC replies to me. ]
+David Yu Chen wrote:
+> Hi All,
+> 
+> I'm with the Stanford Meta-level Compilation research group, and I
+> have a set of memory leaks on error paths for the 2.6.0-test5 kernel.
+> (I also have error reports for 2.4.18 and a couple other kernels if
+> anyone is interested).
+> 
+> There may be one or more "GOTO -->" markers showing the different
+> paths of execution that can occur between where the memory is
+> allocated and where the function returns.
+> 
+> My checker identifies error paths with a learning algorithm on
+> features surrounding goto and return statements.  I'd greatly
+> appreciate any comments or confirmation on these bugs.
+> 
+> Thanks!
+> 
+> ---
+> David Yu Chen
+> http://www.stanford.edu/~dychen/
+[snip]
+> 
+> [FILE:  2.6.0-test5/drivers/char/vt_ioctl.c]
+> [FUNC:  do_kdsk_ioctl]
+> [LINES: 133-150]
+> [VAR:   key_map]
+>  128:
+>  129:			if (keymap_count >= MAX_NR_OF_USER_KEYMAPS &&
+>  130:			    !capable(CAP_SYS_RESOURCE))
+>  131:				return -EPERM;
+>  132:
+> START -->
+>  133:			key_map = (ushort *) kmalloc(sizeof(plain_map),
+>  134:						     GFP_KERNEL);
+>  135:			if (!key_map)
+>  136:				return -ENOMEM;
+>  137:			key_maps[s] = key_map;
+>  138:			key_map[0] = U(K_ALLOCATED);
+>         ... DELETED 6 lines ...
+>  145:			break;	/* nothing to do */
+>  146:		/*
+>  147:		 * Attention Key.
+>  148:		 */
+>  149:		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN))
+> END -->
+>  150:			return -EPERM;
+>  151:		key_map[i] = U(v);
+>  152:		if (!s && (KTYP(ov) == KT_SHIFT || KTYP(v) == KT_SHIFT))
+>  153:			compute_shiftstate();
+>  154:		break;
+>  155:	}
+> ---------------------------------------------------------
+> 
 
-Hi,
+Is the attached correct?
 
-On a plain old 2.4.22 system that worked fine as 2.4.21, I get kernel
-panics every time I do 'modprobe ide-scsi'.
 
-I'm not much of a kernel guy, and there is so much related information
-that I'll hold off on pulling it together until someone sends me a
-laundry list.
 
-But just to give you an idea:
+--------------070201080000020604040700
+Content-Type: text/plain;
+ name="vt_ioctl_memleak.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vt_ioctl_memleak.diff"
 
-Sep 16 02:05:02 localhost vmunix: hdc: attached ide-scsi driver.
-Sep 16 02:05:02 localhost vmunix: scsi2 : SCSI host adapter emulation for IDE ATAPI devices
-Sep 16 02:05:02 localhost vmunix: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Sep 16 02:05:02 localhost vmunix:  printing eip:
-Sep 16 02:05:02 localhost vmunix: 00000000
-Sep 16 02:05:02 localhost vmunix: *pde = 00000000
-Sep 16 02:05:02 localhost vmunix: Oops: 0000
-Sep 16 02:05:02 localhost vmunix: CPU:    0
-Sep 16 02:05:02 localhost vmunix: EIP:    0010:[<00000000>]    Not tainted
-Sep 16 02:05:02 localhost vmunix: EFLAGS: 00010202
-Sep 16 02:05:02 localhost vmunix: eax: c02d24d4   ebx: c02d2584   ecx: 00000000   edx: 00000170
-Sep 16 02:05:02 localhost vmunix: esi: caef1260   edi: cbd05e80   ebp: 00000003   esp: cafb7b48
-Sep 16 02:05:02 localhost vmunix: ds: 0018   es: 0018   ss: 0018
-Sep 16 02:05:02 localhost vmunix: ds: 0018   es: 0018   ss: 0018
-Sep 16 02:05:02 localhost vmunix: Process modprobe.moduti (pid: 595, stackpage=cafb7000)
-Sep 16 02:05:02 localhost vmunix: Stack: d0855ab9 c02d2584 caef1260 0000000c 00000000 00000003 c02d2584 c02d2584 
-Sep 16 02:05:02 localhost vmunix:        00000000 cf31a320 c01a197c c02d2584 caef1260 00000000 00000088 00000003 
-Sep 16 02:05:02 localhost vmunix:        00000000 00000000 cbafd6c0 00000000 00000006 c02d2584 c12d0160 cf31a320 
-Sep 16 02:05:02 localhost vmunix: Call Trace:    [<d0855ab9>] [<c01a197c>] [<c01a1add>] [<c01a2221>] [<c01a2152>]
-Sep 16 02:05:02 localhost vmunix:   [<d085671c>] [<c01ae9d0>] [<c01a8de9>] [<c01ae9d0>] [<c01ae720>] [<c01b04a5>]
-Sep 16 02:05:02 localhost vmunix:   [<c01af8f8>] [<c01af978>] [<c01a8f0c>] [<c01a8870>] [<c01b2a58>] [<c01956b3>]
-Sep 16 02:05:02 localhost vmunix:   [<c0197480>] [<c0197600>] [<c0197480>] [<c01b0d70>] [<c01b25e1>] [<c0187482>]
-Sep 16 02:05:02 localhost vmunix:   [<c01d4b67>] [<c018c4cb>] [<c018b7ad>] [<c0116712>] [<c0116805>] [<d0857740>]
-Sep 16 02:05:02 localhost vmunix:   [<c0116a40>] [<d0857740>] [<d0857740>] [<c01a9f9f>] [<d08568ee>] [<d0857740>]
-Sep 16 02:05:02 localhost vmunix:   [<d0857740>] [<c0117932>] [<d0855060>] [<d0855060>] [<c01073cf>]
-Sep 16 02:05:02 localhost vmunix: 
-Sep 16 02:05:02 localhost vmunix: Code:  Bad EIP value.
+--- linux-2.6.0-test5.old/drivers/char/vt_ioctl.c	2003-08-23 07:57:57.000000000 +0800
++++ linux-2.6.0-test5.new/drivers/char/vt_ioctl.c	2003-09-16 16:17:00.000000000 +0800
+@@ -146,8 +146,10 @@
+ 		/*
+ 		 * Attention Key.
+ 		 */
+-		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN))
++		if (((ov == K_SAK) || (v == K_SAK)) && !capable(CAP_SYS_ADMIN)) {
++			kfree(key_map);
+ 			return -EPERM;
++		}
+ 		key_map[i] = U(v);
+ 		if (!s && (KTYP(ov) == KT_SHIFT || KTYP(v) == KT_SHIFT))
+ 			compute_shiftstate();
 
-After that, it waits a little bit, then something appears to time out
-(the SCSI request?) and a second panic occurs which is the point of no
-return.
+--------------070201080000020604040700--
 
-I had a stab at tracking things down, and the last call frame seemed
-to indicate that the code was passing through:
-
-		return (DRIVER(drive)->do_request(drive, rq, block));
-
-on line 660 of ide-io.c
-
-I made the assumption that 'do_request' in this case was ide-cd,
-because the drive is hdc, a cdrom, however, in the associated
-function, I couldn't get it to do a printk before the panic occured,
-so I'm not sure exactly where it wandered off to, and am in over my
-head as far as doing more diagnostics.
-
-I don't have unlimited quantities of time, but if someone were
-interested in trying to figure this out, I would be willing to work
-with them, trying different things.
-
-Thankyou for your time and attention,
--- 
-David N. Welton
-   Consulting: http://www.dedasys.com/
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/

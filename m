@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131130AbRBVWDj>; Thu, 22 Feb 2001 17:03:39 -0500
+	id <S129108AbRBVWTY>; Thu, 22 Feb 2001 17:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131125AbRBVWDa>; Thu, 22 Feb 2001 17:03:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29452 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130609AbRBVWDS>;
-	Thu, 22 Feb 2001 17:03:18 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102222159.f1MLxb031306@flint.arm.linux.org.uk>
-Subject: Re: nfs_refresh_inode: inode number mismatch
-To: samcconn@cotw.com (Scott A McConnell)
-Date: Thu, 22 Feb 2001 21:59:37 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A9592F4.FFCC2236@cotw.com> from "Scott A McConnell" at Feb 22, 2001 02:30:12 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129554AbRBVWTP>; Thu, 22 Feb 2001 17:19:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36613 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129108AbRBVWTM>; Thu, 22 Feb 2001 17:19:12 -0500
+Date: Thu, 22 Feb 2001 18:32:40 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ll_rw_block/submit_bh and request limits
+In-Reply-To: <Pine.LNX.4.10.10102221052000.8403-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0102221824480.2401-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott A McConnell writes:
-> I am running  RedHat Linux version 2.2.16-3 on  my PC and  Hardhat Linux
-> version 2.4.0-test5 on my MIPS board. Any thoughts or suggestions?
+
+On Thu, 22 Feb 2001, Linus Torvalds wrote:
+
 > 
-> I saw a discussion start on the ARM list along these lines but I never
-> saw a solution.
+> 
+> On Thu, 22 Feb 2001, Jens Axboe wrote:
+> 
+> > On Thu, Feb 22 2001, Marcelo Tosatti wrote:
+> > > The following piece of code in ll_rw_block() aims to limit the number of
+> > > locked buffers by making processes throttle on IO if the number of on
+> > > flight requests is bigger than a high watermaker. IO will only start
+> > > again if we're under a low watermark.
+> > > 
+> > >                 if (atomic_read(&queued_sectors) >= high_queued_sectors) {
+> > >                         run_task_queue(&tq_disk);
+> > >                         wait_event(blk_buffers_wait,
+> > >                         	atomic_read(&queued_sectors) < low_queued_sectors);
+> > >                 }
+> > > 
+> > > 
+> > > However, if submit_bh() is used to queue IO (which is used by ->readpage()
+> > > for ext2, for example), no throttling happens.
+> > > 
+> > > It looks like ll_rw_block() users (writes, metadata reads) can be starved
+> > > by submit_bh() (data reads). 
+> > > 
+> > > If I'm not missing something, the watermark check should be moved to
+> > > submit_bh(). 
+> > 
+> > We might as well put it there, the idea was to not lock this one
+> > buffer either but I doubt this would make any different in reality :-)
+> 
+> I'd prefer for this check to be a per-queue one.
+> 
+> Right now a slow device (like a floppy) would artifically throttle a fast
+> one, if I read the above right. So instead of moving it down the
+> call-chain, I'd rather remove the check completely as it looks wrong to
+> me.
+> 
+> Now, if people want throttling, I'd much rather see that done per-queue.
+> 
+> (There's another level of throttling that migth make sense: right now the
+> swap-out code has this "nr_async_pages" throttling which is very different
+> from the queue throttling. It might make sense to move that _VM_-level
+> throttling to writepage too - so that syncing of dirty mmap's will not
+> cause an overload of pages in flight. This was one of the reasons I
+> changed the semantics of write-page - so that shared mappings could do
+> that kind of smoothing too).
 
-The problem is partly caused by the NFS server indefinitely caching NFS
-request XIDs to responses, and the NFS client not having a way to generate
-a random initial XID.  (thus, for each reboot, it starts at the same XID
-number).
+And what about write() and read() if you do throttling with nr_async_pages ?
 
-Upgrade your NFS server to kernel 2.2.18, and don't reboot more than once
-in a 2 minute window.
+The current scheme inside the block-layer throttles write()'s based on the
+number of locked buffers in _main memory_. 
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+
+
+
 

@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVCZNLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVCZNhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbVCZNLh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 08:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVCZNLh
+	id S262053AbVCZNhj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 08:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVCZNhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 08:11:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54290 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262042AbVCZNLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 08:11:35 -0500
-Date: Sat, 26 Mar 2005 14:11:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Urban Widmark <urban@teststation.com>, samba@samba.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [2.6 patch] fs/smbfs/request.c: turn NULL dereference into BUG()
-Message-ID: <20050326131132.GB3237@stusta.de>
-References: <20050325001540.GF3966@stusta.de> <20050326100253.3edbb2fc.khali@linux-fr.org> <20050326125301.GA3237@stusta.de>
+	Sat, 26 Mar 2005 08:37:39 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47377 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262053AbVCZNhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 08:37:32 -0500
+Date: Sat, 26 Mar 2005 13:37:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       akpm@osdl.org, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+Message-ID: <20050326133720.B12809@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
+	tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk> <4244C3B7.4020409@yahoo.com.au> <20050326113530.A12809@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050326125301.GA3237@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050326113530.A12809@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sat, Mar 26, 2005 at 11:35:30AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 01:53:01PM +0100, Adrian Bunk wrote:
->...
-> The problem is actually only in the SMB_RECV_END and SMB_RECV_REQUEST 
-> cases and all code after the NULL pointer dereference is actually dead 
-> code.
->...
+On Sat, Mar 26, 2005 at 11:35:30AM +0000, Russell King wrote:
+> In this case, we have a page which must be kept mapped at virtual address
+> 0, which means the first entry in the L1 page table must always exist.
+> However, user threads start from 0x8000, which is also mapped via the
+> first entry in the L1 page table.
+> 
+> At a guess, I'd imagine that we're freeing the first L1 page table entry,
+> thereby causing mm->nr_ptes to become -1.
+> 
+> I'll do some debugging and try to work out if that (or exactly what's)
+> going on.
 
-OK, this was also wrong...
+Ok.  What's happening is that the ARM pgd_alloc uses pte_alloc_map() to
+allocate the first L1 page table.  This sets mm->nr_ptes to be one.
 
-Third try.
+The ARM free_pgd knows about this, and will free this PTE at the
+appropriate time.  However, exit_mmap() doesn't know about this itself,
+so in the ARM case, it should BUG_ON(mm->nr_ptes != 1) if we're using
+low vectors.
 
-cu
-Adrian
+I guess we could hack it such that the ARM pgd_alloc decrements mm->nr_ptes
+itself to keep things balanced, since free_pte_range() won't be called
+for this pte.  However, I don't like that because its likely to break at
+some point in the future.
 
+Any ideas how to cleanly support this with the new infrastructure?
 
-<--  snip  -->
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core
 
-
-In a case documented as
-
-  We should never be called with any of these states
-
-BUG() in a case that would later result in a NULL pointer dereference.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-rc1-mm3-full/fs/smbfs/request.c.old	2005-03-26 13:19:19.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-full/fs/smbfs/request.c	2005-03-26 13:41:30.000000000 +0100
-@@ -786,8 +642,7 @@ int smb_request_recv(struct smb_sb_info 
- 		/* We should never be called with any of these states */
- 	case SMB_RECV_END:
- 	case SMB_RECV_REQUEST:
--		server->rstate = SMB_RECV_END;
--		break;
-+		BUG();
- 	}
- 
- 	if (result < 0) {

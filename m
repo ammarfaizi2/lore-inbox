@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUJZJLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbUJZJLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbUJZJLE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 05:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUJZJLE
+	id S261884AbUJZJLn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 05:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbUJZJLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 05:11:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14505 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261929AbUJZJKz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 05:10:55 -0400
-Date: Tue, 26 Oct 2004 11:10:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: hddtemp hangs with USB SCSI disks; blk_execute_rq again
-Message-ID: <20041026091027.GC13562@suse.de>
-References: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
+	Tue, 26 Oct 2004 05:11:43 -0400
+Received: from outmx015.isp.belgacom.be ([195.238.2.87]:14237 "EHLO
+	outmx015.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261884AbUJZJLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 05:11:33 -0400
+Date: Tue, 26 Oct 2004 11:11:20 +0200 (CEST)
+From: hans lambrechts <hans.lambrechts@skynet.be>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.10-rc1 doesn't boot
+In-Reply-To: <20041025160924.0adb3d32.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0410261102310.7477@pc.home.lan>
+References: <Pine.LNX.4.58.0410231616120.6852@pc.home.lan>
+ <20041025160924.0adb3d32.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26 2004, Meelis Roos wrote:
-> Hi,
+
+Andrew,
+everthing is OK now.
+I managed to empty my 'usr/initramfs_list'. (I've put the wrong directory 
+into the config option)
+I've noticed this when 'patch - R' was complaining when I removed the 
+2.6.10-rc1 patch. I've tried 2.6.9-mm1 and this also works fine.
+
+My box is running 2.6.10-rc1-bk3 atm and is working as expected.
+
+Greetings,
+Hans
+
+On Mon, 25 Oct 2004, Andrew Morton wrote:
+
+> hans lambrechts <hans.lambrechts@skynet.be> wrote:
+> >
+> > when i'm booting my box with kernel 2.6.10-rc1 i get this message:
+> > 
+> > 	VFS: cannot open root device "sdb7" or unknown-block (8,32)
+> > 
+> > i've tried "root=8:32" w/o any improvement
+> > kernel 2.6.9 is booting w/o complaining with "root=/dev/sdb7"
 > 
-> hddtemp startup script hangs on my machine. Just the hddtemp process is
-> in D state (blk_execute_rq) and unkillable, other processes run fine.
-> The startup script calls hddtemp -wn /dev/sda. /dev/sda
-> is a CF slot in a USB 6-in-1 memory card reader, currently empty.
-> /proc/partitions shows only 2 ide disks.
+> Probably something has gone wrong with the device known as sdb.  Or its
+> driver.  We'd need to see more of the boot messages to tell.  Did the scsi
+> layer say anything nasty when it was probing devices?
 > 
-> Since hddtemp is not converted to SG_IO yet, the kernel logs
-> program hddtemp is using a deprecated SCSI ioctl, please convert it to SG_IO
-> but this should not cause hddtemp to hang.
-
-No, but it's very possible for the issue to be buggy and thus hang the
-device. The old method is more risky since it lacks certain information
-(such as data direction).
-
-> This is another case of process hanging in blk_execute_rq, see the
-> recent thread "readcd hangs in blk_execute_rq" (also reported by me but
-> about a different computer).
-
-Well since most user issued io goes through that path, you haven't
-really discovered much else than that very fact :-)
-
-> I have noticed it some weeks ago but didn't have time then to
-> investigate and disabled hddtemp. Today I looked at it again and now I'm
-> reporting it.
-
-Report it to the hddtemp people and let them diagnose it.
-
--- 
-Jens Axboe
-
+> 

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUIOOLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUIOOLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUIOOLV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUIOOJE
+	id S266296AbUIOOLT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUIOOIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 10:09:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52127 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266236AbUIOOIB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 10:08:01 -0400
-Date: Wed, 15 Sep 2004 09:44:50 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Marcin Ro?ek <marcin.rozek@ios.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c
-Message-ID: <20040915124449.GB2963@logos.cnet>
-References: <414834AA.70602@ios.edu.pl> <20040915112102.GA1992@logos.cnet> <414844C5.6080802@ios.edu.pl>
+	Wed, 15 Sep 2004 10:08:48 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:57472 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S266216AbUIONfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:35:08 -0400
+Date: Wed, 15 Sep 2004 15:34:08 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+Message-ID: <20040915133408.GB6158@wohnheim.fh-wedel.de>
+References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net> <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org> <1094405830.2809.8.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org> <20040915132712.GA6158@wohnheim.fh-wedel.de> <20040915132904.GA30530@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <414844C5.6080802@ios.edu.pl>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040915132904.GA30530@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 03:33:57PM +0200, Marcin Ro?ek wrote:
-> Marcelo Tosatti wrote:
-> >Its the third or fourth report like this I see, all of them with the 
-> >grsecurity patch applied.
-> >
-> >Have you tried a stock 2.4.27?
-> No.
-> Is that bug serious? Should i move to clean 2.4.27?
+On Wed, 15 September 2004 15:29:04 +0200, Arjan van de Ven wrote:
+> 
+> if you haven't pinned those pages then you have lost already.
 
-Yes it is quite serious... the VM is trying to free a page with ->mapping 
-set (probably a pagecache page) which is not valid thing to happen (thus the BUG).
+Bug reports say otherwise.  Could you explain "pinning" to a newbie
+like me?
 
-You can move to v2.4.27 to confirm you see or do not see the problem there.
+Jörn
 
-> Strange is that previously i've been running (for quite long time) Mandrake 
-> 9.1 on the same machine with 2.4.27-grsec (but with enabled 
-> CONFIG_GRKERNSEC_PAX_MPROTECT) and i don't remember seeing such BUG...A
-
-Search the archives for "grsecurity and 2.4.27" and take a look 
-at the other reports.
+-- 
+Homo Sapiens is a goal, not a description.
+-- unknown

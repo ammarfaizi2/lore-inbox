@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273203AbRIYTkw>; Tue, 25 Sep 2001 15:40:52 -0400
+	id <S273237AbRIYTkn>; Tue, 25 Sep 2001 15:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273213AbRIYTkn>; Tue, 25 Sep 2001 15:40:43 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:4356 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273203AbRIYTkc>;
-	Tue, 25 Sep 2001 15:40:32 -0400
-Message-ID: <20010925003416.A151@bug.ucw.cz>
-Date: Tue, 25 Sep 2001 00:34:16 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: riel@conectiva.com.br, kernel list <linux-kernel@vger.kernel.org>
-Subject: Out of memory handling broken
+	id <S273213AbRIYTkc>; Tue, 25 Sep 2001 15:40:32 -0400
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:39622 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S273143AbRIYTkV>; Tue, 25 Sep 2001 15:40:21 -0400
+Date: Tue, 25 Sep 2001 20:40:47 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 problems with X + USB mouse
+Message-ID: <20010925204047.A2818@srcf.ucam.org>
+In-Reply-To: <20010923222036.A1685@taral.net> <20010923233022.A30991@lnuxlab.ath.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010923233022.A30991@lnuxlab.ath.cx>; from khromy@lnuxlab.ath.cx on Sun, Sep 23, 2001 at 11:30:22PM -0400
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Sep 23, 2001 at 11:30:22PM -0400, khromy wrote:
 
-I need to allocate as much memory as possible (but not more). Okay, so
-I use out_of_memory, right?
+> I had this problem too.  I used NetMousePS/2 in XF86Config but changing
+> it to IMPS/2 fixed it.
 
-Does this code look sane?
+Here too. Using IMPS/2 appears to have the disadvantage that the side 
+buttons are only recognised as duplicates of buttons 2 and 3, whereas 
+NetmousePS/2 allowed all of them to be used separately.
 
-static void eat_memory(void)
-{
-        int i = 0;
-        void **c= eaten_memory, *m;
+> 5 button Microsoft IntelliMouse?
 
-        printk("Eating pages ");
-        while ((m = (void *) get_free_page(GFP_USER))) {
-                memset(m, 0, PAGE_SIZE);
-                eaten_memory = m;
-                if (!(i%5000))
-                        printk( "." );
-                *eaten_memory = c;
-                c = eaten_memory;
-                i++;
-                if (out_of_memory())
-                        break;
-        }
-        printk("(%dK)\n", i*4);
-}
+Yes.
 
-[if not, how should I code it?]
-
-But, when I looked into out_of_memory... Of course its
-wrong. out_of_memory() contains
-
-        if (nr_swap_pages > 0)
-                return 0;
-
-...which is obviously wrong. It is well possible to have free swap
-_and_ be out of memory -- eat_memory() loop gets system to this state
-easily.
-								Pavel
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Matthew Garrett | mjg59@srcf.ucam.org

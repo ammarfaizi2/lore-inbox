@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUH0P2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUH0Paq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUH0P2X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 11:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUH0P2W
+	id S266209AbUH0Paq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 11:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUH0P3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 11:28:22 -0400
-Received: from holomorphy.com ([207.189.100.168]:22687 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266155AbUH0PZo (ORCPT
+	Fri, 27 Aug 2004 11:29:09 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:15780 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S266204AbUH0P1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 11:25:44 -0400
-Date: Fri, 27 Aug 2004 08:25:39 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040827152539.GM2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Giuseppe Bilotta <bilotta78@hotpop.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk> <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk> <412CDA68.7050702@namesys.com> <20040825184523.GA15419@lst.de> <412DA725.4040200@namesys.com> <20040826183838.GE2793@holomorphy.com> <Pine.LNX.4.58.0408261147590.2304@ppc970.osdl.org> <20040826185655.GF2793@holomorphy.com> <MPG.1b9926e15d166dfe9896d8@news.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MPG.1b9926e15d166dfe9896d8@news.gmane.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 27 Aug 2004 11:27:20 -0400
+Message-ID: <412F52FA.5060904@linux-user.net>
+Date: Fri, 27 Aug 2004 17:27:54 +0200
+From: Daniel Andersen <anddan@linux-user.net>
+User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040712)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH-NEW] README - Explain new 2.6.xx.x bug-fix release numbering
+ scheme
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> +LINUX KERNEL HAIRSTYLE CRITICISM
+Forget the old patch.
 
-On Fri, Aug 27, 2004 at 12:10:12PM +0200, Giuseppe Bilotta wrote:
-> Hm. He doesn't critic the Linux Kernel hairstyle, but the Linux 
-> Kernel Developers' ...
+Updated the patch to include examples and added a notification about the 
+possibility that a bug-fix release of an older kernel could be released 
+after a new x.y.Z has been released.
 
-Absolutely right.
+Feel free to comment and suggest changes to it, the whole point is to 
+make it readable in a way that normal human beings can make some sense 
+out of it. (Read: Your grandmother)
 
+Daniel Andersen
+--
 
-Index: mm1-2.6.9-rc1/MAINTAINERS
-===================================================================
---- mm1-2.6.9-rc1.orig/MAINTAINERS	2004-08-26 10:38:09.000000000 -0700
-+++ mm1-2.6.9-rc1/MAINTAINERS	2004-08-27 08:27:42.738139199 -0700
-@@ -1352,6 +1352,12 @@
- L:	linuxppc64-dev@lists.linuxppc.org
- S:	Supported
- 
-+LINUX KERNEL DEVELOPER'S HAIRSTYLE CRITICISM
-+P: Hans Reiser
-+M: reiser@namesys.com
-+W: http://www.namesys.com/
-+S: Maintained
+diff -urN linux/README.orig linux/README
+--- linux/README.orig	2004-08-14 07:37:40.000000000 +0200
++++ linux/README	2004-08-27 17:16:55.107413637 +0200
+@@ -76,6 +76,23 @@
+     the backup files (xxx~ or xxx.orig), and make sure that there are no
+     failed patches (xxx# or xxx.rej). If there are, either you or me has
+     made a mistake.
 +
- LINUX SECURITY MODULE (LSM) FRAMEWORK
- P:	Chris Wright
- M:	chrisw@osdl.org
++   As of kernel 2.6.8 there was a bug-fix release numbering scheme
++   introduced. In such cases a fourth number is added to the release
++   version, eg. 2.6.8.1. When patching from a 2.6.xx(.x) release to a
++   newer version, patches are to be applied against the original
++   release, eg. 2.6.8 and not the bug-fix release 2.6.8.1. In case of a
++   bug-fix release such as if eg. 2.6.8.2 is released after 2.6.9 has
++   been released, 2.6.9 is still to be considered the newest kernel
++   release of all current kernels. Old patches can be reversed by
++   adding the "-R" option to the patch tool.
++
++                Example to apply a bugfix release patch:
++                bzip2 -dc ../patch-2.6.8.1.bz2 | patch -p1
++
++                Example to apply a new release on a bugfix tree:
++                bzip2 -dc ../patch-2.6.8.1.bz2 | patch -p1 -R
++                bzip2 -dc ../patch-2.6.9.bz2 | patch -p1
+
+     Alternatively, the script patch-kernel can be used to automate this
+     process.  It determines the current kernel version and applies any

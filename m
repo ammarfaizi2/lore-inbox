@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281647AbRKVCIx>; Wed, 21 Nov 2001 21:08:53 -0500
+	id <S282011AbRKVCX6>; Wed, 21 Nov 2001 21:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282007AbRKVCIo>; Wed, 21 Nov 2001 21:08:44 -0500
-Received: from [203.161.228.202] ([203.161.228.202]:59917 "EHLO
-	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
-	id <S281647AbRKVCIi>; Wed, 21 Nov 2001 21:08:38 -0500
-Date: 22 Nov 2001 02:09:16 -0000
-Message-ID: <20011122020916.9909.qmail@yusufg.portal2.com>
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: linux-kernel@vger.kernel.org
-Subject: Confused about relationship between tcp_max_syn_backlog and TCP_SYNQ_HSIZE
+	id <S282012AbRKVCXs>; Wed, 21 Nov 2001 21:23:48 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:2176 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S282011AbRKVCXc>; Wed, 21 Nov 2001 21:23:32 -0500
+Message-ID: <000701c172fc$90116a30$f5976dcf@nwfs>
+From: "Jeff Merkey" <jmerkey@timpanogas.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] NetWare File System NWFS v4.0.01 released  
+Date: Wed, 21 Nov 2001 19:22:41 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, According to Documentation/networking/ip-sysctl.txt on 2.4.14
 
-tcp_max_syn_backlog - INTEGER
+The Standlone and tools package supporting NWFS v4.0.01 has been posted at
+ftp.utah-nac.org:/nwfs/nwfs1121-01.tar.gz and
+ftp.timpanogas.org:/nwfs/nwfs1121-01.tar.gz .
 
-        Maximal number of remembered connection requests, which are
-        still did not receive an acknowledgement from connecting client.
-        Default value is 1024 for systems with more than 128Mb of memory,
-        and 128 for low memory machines. If server suffers of overload,
-        try to increase this number. Warning! If you make it greater
-        than 1024, it would be better to change TCP_SYNQ_HSIZE in
-        include/net/tcp.h to keep TCP_SYNQ_HSIZE*16<=tcp_max_syn_backlog
-        and to recompile kernel.
+This release corrects problems with the 3Ware RAID Adapter, and Linux
+Software RAID Support.
 
-In include/net/tcp.h. I see the following
+Jeff Merkey
+TRG/Utah NAC
 
-#define TCP_SYNQ_HSIZE          512     /* Size of SYNACK hash table
-#*/
 
-It seems counterintutive to reduce TCP_SYNQ_HSIZE to 128 if I were to
-make tcp_max_syn_backlog to be 2048.
 
-Maybe the documentation is wrong or I haven't figured out the zen in
-this. 
 
-Any assistance would be appreciated
-
-Regards, Yusuf
-
--- 
-Yusuf Goolamabbas
-yusufg@outblaze.com

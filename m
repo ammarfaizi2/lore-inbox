@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282032AbRKVDUx>; Wed, 21 Nov 2001 22:20:53 -0500
+	id <S282034AbRKVDbQ>; Wed, 21 Nov 2001 22:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282033AbRKVDUn>; Wed, 21 Nov 2001 22:20:43 -0500
-Received: from [200.222.195.35] ([200.222.195.35]:21914 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S282032AbRKVDU1>; Wed, 21 Nov 2001 22:20:27 -0500
-Date: Thu, 22 Nov 2001 01:20:28 -0200
-From: =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Documentation/Changes
-Message-ID: <20011122032028.GV11449@pervalidus>
-In-Reply-To: <20011121022049.GR11449@pervalidus> <200111212051.fALKpa7f026767@pincoya.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200111212051.fALKpa7f026767@pincoya.inf.utfsm.cl>
-User-Agent: Mutt/1.3.23.1i
-X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
+	id <S282031AbRKVDbG>; Wed, 21 Nov 2001 22:31:06 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12051
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S282038AbRKVDav>; Wed, 21 Nov 2001 22:30:51 -0500
+Date: Wed, 21 Nov 2001 19:29:42 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: The entertainment has returned ...
+Message-ID: <Pine.LNX.4.10.10111211926040.25031-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 21, 2001 at 05:51:36PM -0300, Horst von Brand wrote:
-> =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net> said:
-> > Hi. I updated several parts of the Documentation/Changes file
-> > (mostly URLs), reformated it to wrap at 72 and also removed all
-> > versions from the URLs, since that usually makes the user
-> > upgrade to a version which isn't the most recent (and
-> > compatible).
-> 
-> The file has always listed the _minimal_ compatible version, not the
-> latest&greatest. If you are reading the file, it is assumed that you can
-> find that one on your own...
 
-I see, but I think it was sufficient to list the minimal in
-"Current Minimal Requirements". Anyway, some URLs don't exist
-anymore. I updated them.
+Greetings LKML !
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)
+For all the folks that were mad at me for leaving lkml for a while,
+I have returned with more great stuff to keep you rolling your eyes and
+adding me back to you mail dump list.  So heads up fix your procmail and
+mutt and anything else to filter me out ...
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+

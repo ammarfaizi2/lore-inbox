@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSJIX0J>; Wed, 9 Oct 2002 19:26:09 -0400
+	id <S263242AbSJIX1S>; Wed, 9 Oct 2002 19:27:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263242AbSJIX0J>; Wed, 9 Oct 2002 19:26:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50868 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262937AbSJIX0J>;
-	Wed, 9 Oct 2002 19:26:09 -0400
-Date: Wed, 09 Oct 2002 16:24:38 -0700 (PDT)
-Message-Id: <20021009.162438.82081593.davem@redhat.com>
-To: dfawcus@cisco.com
-Cc: sekiya@sfc.wide.ad.jp, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021010002902.A3803@edi-view1.cisco.com>
-References: <20021009234421.J29133@edinburgh.cisco.com>
-	<20021009.161414.63434223.davem@redhat.com>
-	<20021010002902.A3803@edi-view1.cisco.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S263249AbSJIX1R>; Wed, 9 Oct 2002 19:27:17 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:57872 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S263242AbSJIX1Q>; Wed, 9 Oct 2002 19:27:16 -0400
+Date: Wed, 9 Oct 2002 16:32:57 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OT (Re: Re: The end of embedded Linux?)
+Message-ID: <20021009233257.GB14644@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <070a200271409a2DTVMAIL5@smtp.cwctv.net> <20021009151427.GB12943@debian>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021009151427.GB12943@debian>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Derek Fawcus <dfawcus@cisco.com>
-   Date: Thu, 10 Oct 2002 00:29:02 +0100
+On Wed, Oct 09, 2002 at 05:14:27PM +0200, Filip Van Raemdonck wrote:
+> On Wed, Oct 09, 2002 at 03:28:32PM +0100, Hell.Surfers@cwctv.net wrote:
+> > With-the-way-your-email-client-doesn't-quote-I've-got-no-clue-who wrote:
+> >> 
+> >> Its called FreeDOS,
+> > 
+> > oops didnt see that..
+> 
+> Pretty useless to reply to such post when you break threading entirely.
+> Only through reordering by author and by date and figuring out what your
+> previous post said I've got an idea what you're meaning to say with this
+> answer.
+> 
+> 
+> Regards,
+> 
+> Filip
+> 
 
-   There are areas where the TAHI tests expect a certain behaviour
-   when more than one behaviour is acceptable.
+We are supposed to blame Liberate TVMail 2.6 for all the bad
+practices of Hell.Surfers.  It isn't his fault he uses a
+product that breaks threads, replies by attachment nor the
+fact that he doesn't press the carriage return (enter key).
+After all this way he can read his email on TV while reclining on
+plush cushions.
+</sarcasm>
 
-Great, that's what I was trying to find out.
+Actually i had no trouble telling that it was Alan he quoted.
+If you turn off header filtering you will see that the
+complete mail header (including delivery routing info) is
+included in the attachment.
 
-Now I just need to know if this link-local prefix case
-is one such issue. :-)
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

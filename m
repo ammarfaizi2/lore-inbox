@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261802AbREPS1S>; Wed, 16 May 2001 14:27:18 -0400
+	id <S261989AbREPSXs>; Wed, 16 May 2001 14:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbREPS06>; Wed, 16 May 2001 14:26:58 -0400
-Received: from [136.159.55.21] ([136.159.55.21]:26783 "EHLO
+	id <S261988AbREPSXj>; Wed, 16 May 2001 14:23:39 -0400
+Received: from [136.159.55.21] ([136.159.55.21]:23967 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261802AbREPS0s>; Wed, 16 May 2001 14:26:48 -0400
-Date: Wed, 16 May 2001 12:25:59 -0600
-Message-Id: <200105161825.f4GIPxN09278@vindaloo.ras.ucalgary.ca>
+	id <S262007AbREPSXY>; Wed, 16 May 2001 14:23:24 -0400
+Date: Wed, 16 May 2001 12:22:50 -0600
+Message-Id: <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org,
-        kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox)
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <200105160710.JAA01305@kufel.dom>
-In-Reply-To: <4CDA8A6D03EFD411A1D300D0B7E83E8F697321@FSKNMD07.hickam.af.mil>
-	<200105160710.JAA01305@kufel.dom>
+In-Reply-To: <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz writes:
-> > 
-> > OK, just correct me if I get this wrong, but this code is taking the LAST 2
-> > characters of the device name and verifying that it is "cd".  Which would
-> > mean that the standard states that "/dev/ginsucd" would be a CD-ROM drive?
-> > 
-> > That is why I feel a "name" of a device handle shouldnt set how a driver
-> > operates in this fashion... if you make a small error in your compare, you
-> > might try to eject a Ginsu Cabbage Dicer instead of a cdrom drive... OOPS!
-> > 
-> > 	Sam Bingner
-> > 
+Geert Uytterhoeven writes:
+> On Tue, 15 May 2001, Richard Gooch wrote:
 > > Alan Cox writes:
 > > > > 	len = readlink ("/proc/self/3", buffer, buflen);
 > > > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
@@ -42,12 +38,12 @@ Andrzej Krzysztofowicz writes:
 > > Actually, no, because it's guaranteed that a trailing "/cd" is a
 > > CD-ROM. That's the standard.
 > 
-> Sure, you no longer support /dev/sdcd (eighty-second SCSI disk)...
+> Then  check for `/cd' at the end instead of `cd' :-)
 
-Then you haven't looked at what devfs actually does. *All* CD-ROMs
-will have a trailing pathname component of "/cd". In other words, the
-name of the leaf node in it's parent directory is "cd".
-The FAQ describes this.
+Argh! What I wrote in text is what I meant to say. The code didn't
+match. No wonder people seemed to be missing the point. So the line of
+code I actually meant was:
+	if (strcmp (buffer + len - 3, "/cd") != 0) {
 
 				Regards,
 

@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUEQP2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUEQPhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUEQP2e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEQP2e
+	id S261661AbUEQPhj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUEQPhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:28:34 -0400
-Received: from mail.gmx.net ([213.165.64.20]:19410 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261648AbUEQP1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:27:08 -0400
-X-Authenticated: #4512188
-Message-ID: <40A8D9C2.7070608@gmx.de>
-Date: Mon, 17 May 2004 17:26:58 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040504)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Allen <the3dfxdude@hotmail.com>
-CC: Ross Dickson <ross@datscreative.com.au>, Len Brown <len.brown@intel.com>,
-       a.verweij@student.tudelft.nl, Craig Bradney <cbradney@zip.com.au>,
-       christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
-       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
- for idle=C1halt, 2.6.5
-References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl> <200404282133.34887.ross@datscreative.com.au> <20040428205938.GA1995@tesore.local> <200404292144.37479.ross@datscreative.com.au> <20040429202413.GA1982@tesore.local> <40916638.2040202@gmx.de> <20040503204520.GA1994@tesore.local>
-In-Reply-To: <20040503204520.GA1994@tesore.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 17 May 2004 11:37:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26342 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261661AbUEQPhi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:37:38 -0400
+Date: Mon, 17 May 2004 16:37:36 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Wayne Scott <wscott@bitmover.com>,
+       akpm@osdl.org, elenstev@mesatop.com, lm@bitmover.com,
+       wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com, scole@lanl.gov,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page?
+Message-ID: <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk>
+References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org> <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, May 17, 2004 at 08:22:10AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 17 May 2004, Theodore Ts'o wrote:
+> > 
+> > Note though that the stdio library uses a writeable mmap to implement
+> > fwrite.
+> 
+> It does? Whee. Then I'll have to agree with Andrew - if there is a path 
+> that is more likely to have bugs, it's trying to do writes with mmap and 
+> ftruncate.
+> 
+> Who came up with that braindead idea? Is it some crazed Mach developer 
+> that infiltrated the glibc development group?
 
-I just made an interesting finding and would like to have comments from 
-NVidia:
+IIRC, that idiocy had been disabled by default (note that it's inherently
+broken, since truncate() between your mmap() and memcpy() will lead to
+a coredump, which is not something fwrite() is allowed to do in such
+situation).
 
-Chip   Current Value   New Value
-C17       1F0FFF01     1F01FF01
-C18D      9F0FFF01     9F01FF01
-
-In fact I have the newer chip revision (lspci says c1), but due to a 
-post at Abit Forums I tried to use the value for the older revision on 
-my board, and guess what: I never had such low idle temps! I am 
-currently even using nvidia binary graphics driver and usually I would 
-be having around 49-51°C idle temp, but now it is around 45°C, and it 
-was not the first boot (then the mobo usually shows 5°C less). Instead 
-the temp steadily fell from >50°C to 45°C.
-
-(esp @nvidia:) Is there anything evil using the old chip's value for the 
-new chip? So far I haven't noticed any bad thing about it. Perhaps some 
-daring nforce2 user with the new revision should try as well.
-
-
-bye,
-
-Prakash
+strace should show if there such mmap calls are made, anyway.  Did they
+show up in the traces?

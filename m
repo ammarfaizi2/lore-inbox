@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbTDKUMi (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTDKUMi (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:12:38 -0400
-Received: from zurich.ai.mit.edu ([18.43.0.244]:53765 "EHLO zurich.ai.mit.edu")
-	by vger.kernel.org with ESMTP id S261711AbTDKUMf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 16:12:35 -0400
-To: mdresser_l@windsormachine.com
-CC: John Bradford <john@grabjohn.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       <linux-kernel@vger.kernel.org>,
-       <linux-hotplug-devel@lists.sourceforge.net>,
-       <message-bus-list@redhat.com>
-In-reply-to: <Pine.LNX.4.33.0304111615440.14943-100000@router.windsormachine.com> (mdresser_l@windsormachine.com)
-Subject: [ANNOUNCE] udev 0.1 release
-User-Agent: IMAIL/1.19; Edwin/3.114; MIT-Scheme/7.7.2.pre
+	id S261682AbTDKURk (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbTDKURk (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:17:40 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:29172 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S261682AbTDKURj (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:17:39 -0400
+Message-ID: <3E9725C5.3090503@mvista.com>
+Date: Fri, 11 Apr 2003 13:29:57 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com, greg@kroah.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net>
+In-Reply-To: <3E970A00.2050204@cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E19453q-0004gk-00@nuwen.ai.mit.edu>
-From: Chris Hanson <cph@zurich.ai.mit.edu>
-Date: Fri, 11 Apr 2003 16:23:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Fri, 11 Apr 2003 16:16:52 -0400 (EDT)
-   From: Mike Dresser <mdresser_l@windsormachine.com>
 
-   On Fri, 11 Apr 2003, John Bradford wrote:
 
-   > Now, assuming a voltage drop of 0.05V across each cable...
-   >
-   > :-)
-   >
-   > John.
-   >
-   Ah yes, I was going to mention that, but didn't know which way would be
-   better.  My instinct tells me the massively parallel, but I could and
-   probably am wrong again. :)
+Kevin P. Fleming wrote:
 
-Using a tree (what you are calling massively parallel) for
-distribution produces a uniform voltage drop for all of the devices,
-and has a better worst-case voltage drop than a serial chaining
-distribution.  The serial chain has different voltage drops for each
-pair of disks, depending on how far down the chain they are, but the
-worst case is very bad.
+>
+> What happens if these secondary hotplug events occur while 
+> /sbin/hotplug has not yet finished processing the first one? Ignoring 
+> locking/race issues for the moment, I'm concerned about memory 
+> consumption as many layers of hotplug/udev/kpartx/etc. are running 
+> processing these events.
 
-The reason is that the tree has O(log N) depth, and the serial chain
-has O(N) depth.
+It gets even worse, because performance of hotswap events on disk adds 
+is critical and spawning processes is incredibly slow compared to the 
+performance required by some telecom applications...
 
-Chris
+A much better solution could be had by select()ing on a filehandle 
+indicating when a new hotswap event is ready to be processed.  No races, 
+no security issues, no performance issues.
+
+>
+

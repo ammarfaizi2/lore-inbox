@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUCMVDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 16:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbUCMVDZ
+	id S263190AbUCMVTg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 16:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUCMVTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 16:03:25 -0500
-Received: from gprs40-159.eurotel.cz ([160.218.40.159]:16328 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263188AbUCMVDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 16:03:23 -0500
-Date: Sat, 13 Mar 2004 22:03:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Sytse Wielinga <s.b.wielinga@student.utwente.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for testing] cow behaviour for hard links
-Message-ID: <20040313210305.GB549@elf.ucw.cz>
-References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <200403121849.03505.s.b.wielinga@student.utwente.nl> <20040312182912.GB7087@wohnheim.fh-wedel.de> <20040313134330.GC3352@openzaurus.ucw.cz> <20040313194827.GA4748@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 13 Mar 2004 16:19:36 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:57782 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263190AbUCMVTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 16:19:34 -0500
+From: tabris <tabris@tabris.net>
+To: arjanv@redhat.com, Micha Feigin <michf@post.tau.ac.il>
+Subject: Re: finding out the value of HZ from userspace
+Date: Sat, 13 Mar 2004 16:19:00 -0500
+User-Agent: KMail/1.5.3
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com>
+In-Reply-To: <1079198671.4446.3.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040313194827.GA4748@wohnheim.fh-wedel.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200403131619.00478.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 13-03-04 20:48:27, Jörn Engel wrote:
-> On Sat, 13 March 2004 14:43:30 +0100, Pavel Machek wrote:
-> > 
-> > I do not know your current design, but...
-> > 
-> > In ideal world there would be no COW links. System would
-> > magically detect that you are doing cp -a, and would link
-> > at individual block level.
-> >
-> > Well, that would be probably too fs-specific. But introducing copyfile()
-> > syscall, which would just link the inodes if underlying fs
-> > supported it might be good start. On first
-> > write into one
-> > of linked files copy
-> > would be done...
-> 
-> Agreed.
-> 
-> > Only disadvantage I see is that such links would not survive
-> > tar-backup...
-> 
-> That's not a problem either.  Have a userspace program that checks all
-> files and hints for identical ones (new syscall, copyfile() cannot do
-> this without races).  Depending on fs size, the necessary data can
-> grow into the gigabytes, but the code is just 200 lines.
+On Saturday 13 March 2004 12:24 pm, Arjan van de Ven wrote:
+> On Thu, 2004-03-11 at 15:17, Micha Feigin wrote:
+> > Is it possible to find out what the kernel's notion of HZ is from user
+> > space?
+> > It seem to change from system to system and between 2.4 (100 on i386)
+> > to 2.6 (1000 on i386).
+>
+> if you can see 1000 from userspace that is a bad kernel bug; can you say
+> where you find something in units of 1000 ?
+2.6.3-rc1-mm1
 
-Hmm, I don't quite like "copyfile if not modified" syscall, but even
-without that it is usefull...
+procinfo gives the timer interrupt counting 1000 ints/sec
+tho procinfo is broken for other stuff like 2.4 showed pages swapped, pages 
+read in and out.
 
-> Or did you mean the problem of tar backups growing *much* larger than
-> the real filesystem?  Yes, tar becomes useless for backups then. :)
+--
+tabris
+-
+"We never make assertions, Miss Taggart," said Hugh Akston.  "That is
+the moral crime peculiar to our enemies.  We do not tell -- we *show*.
+We do not claim -- we *prove*."  
+-- Ayn Rand, _Atlas Shrugged_
 
-Yep, this is what I meant.
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbTIWW5C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 18:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTIWW5C
+	id S263063AbTIWW6o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 18:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTIWW6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 18:57:02 -0400
-Received: from holomorphy.com ([66.224.33.161]:16515 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262021AbTIWW5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 18:57:00 -0400
-Date: Tue, 23 Sep 2003 15:58:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: bug w/ threads-max, pid_max, & /proc
-Message-ID: <20030923225801.GG4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1064352192.740.3063.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064352192.740.3063.camel@cube>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 23 Sep 2003 18:58:44 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:49873 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S262205AbTIWW6k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 18:58:40 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
+Date: Tue, 23 Sep 2003 15:58:29 -0700
+Message-ID: <DD755978BA8283409FB0087C39132BD101B01197@fmsmsx404.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: NS83820 2.6.0-test5 driver seems unstable on IA64
+Thread-Index: AcOCFhnm1mbxS1MzS1qGXHncNbapLgAD2fHA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
+       <davidm@napali.hpl.hp.com>, <peter@chubb.wattle.id.au>,
+       <bcrl@kvack.org>, <ak@suse.de>, <iod00d@hp.com>,
+       <peterc@gelato.unsw.edu.au>, <linux-ns83820@kvack.org>,
+       <linux-ia64@vger.kernel.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Sep 2003 22:58:30.0241 (UTC) FILETIME=[34C83510:01C38226]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 05:23:13PM -0400, Albert Cahalan wrote:
-> Plain 2.6.0-test5 is affected. (so don't blame me)
-> The /proc filesystem gets really messed up when you
-> create more threads than you have PID values. Yes,
-> you can do this. I created 40000 threads on a system
-> with pid_max of 32768 and a threads-max of 98304.
-> This should not be allowed, for obvious reasons, and
-> because it breaks the /proc filesystem. Doing a
-> simple "/bin/ls /proc" would return 0, 1, or 2 of
-> every file. Stuff like /proc/cpuinfo was affected,
-> not just the process directories.
+Alan Cox wrote:
+> On Maw, 2003-09-23 at 19:21, Luck, Tony wrote:
+> > a) the programmer is playing fast and loose with types and/or casts.
+> > b) the end-user is going to be disappointed with the performance.
+> 
+> c) the programmer is being clever and knows the unaligned access is
+> cheaper on average than the cost of making sure it cant happen
 
-There must be a bug; the pid allocator should report exhaustion then
-instead of allowing the threads to be created. ISTR testing this...
+Which is great until the "cleverly written" program is fed a data set
+that pushes into the unaligned case far more frequently than the
+programmer anticipated.
 
+> > Looking at a couple of ia64 build servers here I see zero unaligned
+> > access messages in the logs.
+> 
+> Anyone who can deliver network traffic to your box can soon 
+> fix that...
 
--- wli
+See answer above :-)
+
+-Tony Luck

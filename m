@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVC2OrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVC2Ots@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVC2OrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 09:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVC2OrQ
+	id S262304AbVC2Ots (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 09:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVC2Ots
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 09:47:16 -0500
-Received: from graphe.net ([209.204.138.32]:56078 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262301AbVC2OrO (ORCPT
+	Tue, 29 Mar 2005 09:49:48 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33200 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262304AbVC2Otq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 09:47:14 -0500
-Date: Tue, 29 Mar 2005 06:47:10 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 0/5] timers: description
-In-Reply-To: <42493B88.A481AB1F@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0503290646380.14531@server.graphe.net>
-References: <200503261952.j2QJq1g27569@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0503281111220.26639@server.graphe.net> <42493B88.A481AB1F@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Tue, 29 Mar 2005 09:49:46 -0500
+Date: Tue, 29 Mar 2005 06:47:05 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       johnpol@2ka.mipt.ru, jlan@engr.sgi.com, efocht@hpce.nec.com,
+       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net,
+       dean-list-linux-kernel@arctic.org
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Message-Id: <20050329064705.2b0692ce.pj@engr.sgi.com>
+In-Reply-To: <1112083503.20919.23.camel@frecb000711.frec.bull.fr>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	<20050328134242.4c6f7583.pj@engr.sgi.com>
+	<1112083503.20919.23.camel@frecb000711.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Mar 2005, Oleg Nesterov wrote:
+Guillaume wrote:
+> Yes, dean's suggestion helps. The overhead is now around 4%
 
-> > Same problems here with occasional hangs w/o changes to schedule_timeout.
->
-> Bad. You are runnning 2.6.12-rc1-mm1 ?
+More improvement than I expected (and I see a CBUS result further
+down in my inbox).
 
-Not sure if this is really related to your patches. Its 2.6.11 with your
-patches extracted from mm.
+Does this include a minimal consumer task of the data that writes
+it to disk?
 
+> I think that it can be moved in include/linux/connector.h 
+
+Good.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

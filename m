@@ -1,44 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbUBYPyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 10:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbUBYPyr
+	id S261380AbUBYPzX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 10:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUBYPzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 10:54:47 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:21237 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261381AbUBYPyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 10:54:45 -0500
-Message-ID: <1219.80.196.156.209.1077724480.squirrel@www.teesco.com>
-Date: Wed, 25 Feb 2004 10:54:40 -0500 (EST)
-Subject: Re: (no subject)
-From: "Redeeman" <redeeman@linuxosuser.com>
-To: <joel@linuxmod.co.uk>
-In-Reply-To: <403CBC42.6000104@linuxmod.co.uk>
-References: <403CBC42.6000104@linuxmod.co.uk>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: redeeman@linuxosuser.com
-X-Mailer: SquirrelMail (version 1.2.10)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 25 Feb 2004 10:55:23 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:37267 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S261383AbUBYPy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 10:54:57 -0500
+Date: Wed, 25 Feb 2004 10:44:53 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-ID: <20040225154453.GB4218@certainkey.com>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040225155121.GA7148@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you would want to type:
+Not to be annoying...
 
-subscribe linux-kernel
+Could you make this change against my patch at:
+  http://jlcooke.ca/lkml/crypto_28feb2004.patch
 
-and send to majordomo@vger.kernel.org
+I moved all the scatterwalk stuff into a scatterwalk.c file.
 
-> subscribe
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+JLC
 
+On Wed, Feb 25, 2004 at 04:51:22PM +0100, Christophe Saout wrote:
+> On Wed, Feb 25, 2004 at 04:31:26PM +0100, Christophe Saout wrote:
+> 
+> > It's just a proof of concept though, it would be less complicated if we
+> > would just pass the other walk struct to the functions that take one
+> > and let them do the checking (no need to disable preemption and use
+> > per cpu variables). Hmm.
+> 
+> Ok, this also works. It makes copy_chunks and crypt responsible for
+> tracking the walk struct which might contain a page to reuse:
+> 
+> 
+> --- linux-2.6.3/crypto/cipher.c	2004-02-25 13:49:53.000000000 +0100
+> +++ linux-2.6.3.test/crypto/cipher.c	2004-02-25 16:46:58.430294600 +0100
+> @@ -29,6 +29,7 @@
+>  struct scatter_walk {
+>  	struct scatterlist	*sg;
+>  	struct page		*page;
+> +	int			out;
+>  	void			*data;
+>  	unsigned int		len_this_page;
+>  	unsigned int		len_this_segment;
+> @@ -64,7 +65,7 @@
+>  	return sg + 1;
+>  }
+>  
+> -void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
+> +static void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
+>  {
+>  	if (nbytes <= walk->len_this_page &&
+>  	    (((unsigned long)walk->data) & (PAGE_CACHE_SIZE - 1)) + nbytes <=
+> @@ -96,9 +97,23 @@
+>  	walk->offset = sg->offset;
+>  }
+>  
+> -static void scatterwalk_map(struct scatter_walk *walk, int out)
+> +static void scatterwalk_map(struct scatter_walk *walk,
+> +			    struct scatter_walk *other, int out)
+>  {
+> -	walk->data = crypto_kmap(walk->page, out) + walk->offset;
+> +	if (other && other->page == walk->page) {
+> +		walk->data = (other->data - other->offset) + walk->offset;
+> +		walk->out = other->out;
+> +	} else {
+> +		walk->data = crypto_kmap(walk->page, out) + walk->offset;
+> +		walk->out = out;
+> +	}
+> +}
+> +
+> +static void scatterwalk_unmap(struct scatter_walk *walk,
+> +			      struct scatter_walk *other, int out)
+> +{
+> +	if (!other || other->page != walk->page)
+> +		crypto_kunmap(walk->data, walk->out);
+>  }
+>  
+>  static void scatter_page_done(struct scatter_walk *walk, int out,
+> @@ -125,9 +140,10 @@
+>  	}
+>  }
+>  
+> -static void scatter_done(struct scatter_walk *walk, int out, int more)
+> +static void scatter_done(struct scatter_walk *walk,
+> +			 struct scatter_walk *other, int out, int more)
+>  {
+> -	crypto_kunmap(walk->data, out);
+> +	scatterwalk_unmap(walk, other, out);
+>  	if (walk->len_this_page == 0 || !more)
+>  		scatter_page_done(walk, out, more);
+>  }
+> @@ -137,7 +153,7 @@
+>   * has been verified as multiple of the block size.
+>   */
+>  static int copy_chunks(void *buf, struct scatter_walk *walk,
+> -			size_t nbytes, int out)
+> +		       struct scatter_walk *other, size_t nbytes, int out)
+>  {
+>  	if (buf != walk->data) {
+>  		while (nbytes > walk->len_this_page) {
+> @@ -145,9 +161,9 @@
+>  			buf += walk->len_this_page;
+>  			nbytes -= walk->len_this_page;
+>  
+> -			crypto_kunmap(walk->data, out);
+> +			scatterwalk_unmap(walk, other, out);
+>  			scatter_page_done(walk, out, 1);
+> -			scatterwalk_map(walk, out);
+> +			scatterwalk_map(walk, other, out);
+>  		}
+>  
+>  		memcpy_dir(buf, walk->data, nbytes, out);
+> @@ -189,21 +205,21 @@
+>  	for(;;) {
+>  		u8 *src_p, *dst_p;
+>  
+> -		scatterwalk_map(&walk_in, 0);
+> -		scatterwalk_map(&walk_out, 1);
+> +		scatterwalk_map(&walk_in, NULL, 0);
+> +		scatterwalk_map(&walk_out, &walk_in, 1);
+>  		src_p = which_buf(&walk_in, bsize, tmp_src);
+>  		dst_p = which_buf(&walk_out, bsize, tmp_dst);
+>  
+>  		nbytes -= bsize;
+>  
+> -		copy_chunks(src_p, &walk_in, bsize, 0);
+> +		copy_chunks(src_p, &walk_in, &walk_out, bsize, 0);
+>  
+>  		prfn(tfm, dst_p, src_p, crfn, enc, info);
+>  
+> -		scatter_done(&walk_in, 0, nbytes);
+> +		scatter_done(&walk_in, &walk_out, 0, nbytes);
+>  
+> -		copy_chunks(dst_p, &walk_out, bsize, 1);
+> -		scatter_done(&walk_out, 1, nbytes);
+> +		copy_chunks(dst_p, &walk_out, NULL, bsize, 1);
+> +		scatter_done(&walk_out, NULL, 1, nbytes);
+>  
+>  		if (!nbytes)
+>  			return 0;
 
-
+-- 
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

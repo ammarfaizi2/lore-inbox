@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264478AbTFEFL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 01:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTFEFL4
+	id S264483AbTFEFuR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 01:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTFEFuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 01:11:56 -0400
-Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:37320 "HELO
-	mx100.mysite4now.com") by vger.kernel.org with SMTP id S264478AbTFEFLz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 01:11:55 -0400
-From: Udo Hoerhold <maillists@goodontoast.com>
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc7-ac1
-Date: Thu, 5 Jun 2003 01:24:20 -0400
-User-Agent: KMail/1.5.2
-References: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
-In-Reply-To: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306050124.20603.maillists@goodontoast.com>
+	Thu, 5 Jun 2003 01:50:17 -0400
+Received: from mx03.uni-tuebingen.de ([134.2.3.13]:25547 "EHLO
+	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S264483AbTFEFuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 01:50:16 -0400
+Date: Thu, 5 Jun 2003 08:03:46 +0200
+From: AntiVir@mx03.uni-tuebingen.de
+Message-Id: <200306050603.h5563kEh013010@mx03.uni-tuebingen.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: AntiVir ALARM [Ihre Email: "Re: Screensaver"]
+X-AntiVirus: checked by AntiVir Milter 1.0.2; AVE 6.20.0.0; VDF 6.20.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 June 2003 06:48 pm, Alan Cox wrote:
-> Linux 2.4.21rc7-ac1
-> o	Fix ac97 build on SMP				(Adrian Bunk)
+* * * * * * * * * * * * * * * AntiVir ALERT * * * * * * * * * * * * * * *
+This version of AntiVir is licensed and full featured.
 
-It looks like ac97 on SMP is still broken.  On dual processor machine, boot 
-hangs with the last message displayed:
+AntiVir hat Folgendes in einer von Ihnen adressierten E-Mail gefunden:
 
-Jun  5 01:17:58 frogmorton kernel: ac97_codec: AC97 Audio codec, id: 
-0x8384:0x7609 (SigmaTel STAC9721/23)
+     Worm/Sobig.C
 
-If I build kernel without SMP support, boot doesn't hang.
+Diese E-Mail wurde nicht ausgeliefert und auf dem Server isoliert.
+Ueberpruefen Sie bitte Ihr System unverzueglich auf eventuellen 
+Virenbefall.
 
-Udo Hoerhold
+Bitte entfernen Sie vorhandene Viren, bevor Sie weitere E-Mails mit 
+Dateianhaengen versenden.
+
+
+Mail-Info:
+--8<--
+ From: <linux-kernel@vger.kernel.org>
+ To: <rguenth@tat.physik.uni-tuebingen.de>
+ Date: Thu, 5 Jun 2003 15:03:27 +0900
+ Subject: Re: Screensaver
+--8<--
 

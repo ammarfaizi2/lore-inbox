@@ -1,55 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVCBPE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVCBPPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVCBPE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 10:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVCBPE2
+	id S262305AbVCBPPg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 10:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVCBPPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 10:04:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:23970 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262324AbVCBPEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 10:04:25 -0500
-Subject: Re: investingating kernel :Cnx error
-From: Arjan van de Ven <arjan@infradead.org>
-To: bhamal@wlink.com.np
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000401c51edd$ae348390$0db3fea9@kath.state.gov>
-References: <000401c51edd$ae348390$0db3fea9@kath.state.gov>
-Content-Type: text/plain
-Date: Wed, 02 Mar 2005 16:04:20 +0100
-Message-Id: <1109775860.6291.118.camel@laptopd505.fenrus.org>
+	Wed, 2 Mar 2005 10:15:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31748 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262305AbVCBPPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 10:15:22 -0500
+Date: Wed, 2 Mar 2005 16:15:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kernel/power/pm.c: make pm_send static
+Message-ID: <20050302151520.GE4608@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-02 at 09:52 +0545, bj wrote:
-> Hi !
-> 
-> I am using Red Hat 8 with kernel 2.4.20-30.8.legacy
-> 
-> I am facing the following error some times  .
-> 
-> It hangs my computer when I am doing a make or am using x-windows .
-> 
-> How do I go about investigating the cause of it ?
-> 
-> Thank you for your help.
-which binary module are you using ?
+pm_send is deprecated and has no user except for the deprecated 
+pm_send_all in the same file.
 
+Let's make pm_send static before someone might use it again.
+
+This patch was already ACK'ed by Pavel Machek.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 24 Feb 2005
+
+ Documentation/pm.txt |   17 -----------------
+ include/linux/pm.h   |   10 ----------
+ kernel/power/pm.c    |    2 +-
+ 3 files changed, 1 insertion(+), 28 deletions(-)
+
+--- linux-2.6.11-rc4-mm1-full/Documentation/pm.txt.old	2005-02-24 01:17:43.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/Documentation/pm.txt	2005-02-24 01:17:59.000000000 +0100
+@@ -222,23 +222,6 @@
+ management interface.
+ 
+ /*
+- * Send a request to a single device
+- *
+- * Parameters:
+- *   dev - PM device previously returned from pm_register or pm_find
+- *   rqst - request type
+- *   data - data, if any, associated with the request
+- *
+- * Returns: 0 if the request is successful
+- *          See "pm_callback" return for errors
+- *
+- * Details: Forward request to device callback and, if a suspend
+- *          or resume request, update the pm_dev "state" field
+- *          appropriately
+- */
+-int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data);
+-
+-/*
+  * Send a request to all devices
+  *
+  * Parameters:
+--- linux-2.6.11-rc4-mm1-full/include/linux/pm.h.old	2005-02-24 01:18:17.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/include/linux/pm.h	2005-02-24 01:18:35.000000000 +0100
+@@ -116,11 +116,6 @@
+ void __deprecated pm_unregister_all(pm_callback callback);
+ 
+ /*
+- * Send a request to a single device
+- */
+-int __deprecated pm_send(struct pm_dev *dev, pm_request_t rqst, void *data);
+-
+-/*
+  * Send a request to all devices
+  */
+ int __deprecated pm_send_all(pm_request_t rqst, void *data);
+@@ -140,11 +135,6 @@
+ 
+ static inline void pm_unregister_all(pm_callback callback) {}
+ 
+-static inline int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
+-{
+-	return 0;
+-}
+-
+ static inline int pm_send_all(pm_request_t rqst, void *data)
+ {
+ 	return 0;
+--- linux-2.6.11-rc4-mm1-full/kernel/power/pm.c.old	2005-02-24 01:18:43.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/kernel/power/pm.c	2005-02-24 01:19:04.000000000 +0100
+@@ -151,7 +151,7 @@
+  *	execution and unload yourself.
+  */
+  
+-int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
++static int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
+ {
+ 	int status = 0;
+ 	unsigned long prev_state, next_state;
 

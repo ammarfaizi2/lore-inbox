@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263226AbTCYSYl>; Tue, 25 Mar 2003 13:24:41 -0500
+	id <S263244AbTCYS1R>; Tue, 25 Mar 2003 13:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbTCYSYl>; Tue, 25 Mar 2003 13:24:41 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:63672 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S263226AbTCYSYj>;
-	Tue, 25 Mar 2003 13:24:39 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@infradead.org>
-Date: Tue, 25 Mar 2003 19:35:24 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.6.65 + matrox framebuffer: life is good!
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Jurriaan <thunder7@xs4all.nl>,
-       <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <74B3EA2366@vcnet.vc.cvut.cz>
+	id <S263245AbTCYS1Q>; Tue, 25 Mar 2003 13:27:16 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:20229
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263244AbTCYS1I>; Tue, 25 Mar 2003 13:27:08 -0500
+Subject: Re: Compiling options?
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048621636.28496.32.camel@irongate.swansea.linux.org.uk>
+References: <20030325180334.GH15678@rdlg.net>
+	 <1048621636.28496.32.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048617499.1486.334.camel@phantasy.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 25 Mar 2003 13:38:19 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Mar 03 at 18:16, James Simmons wrote:
-> > > Its for testing and it hasn't been fully ported over yet. Its close. 
-> > > I was busy fixing higher level bugs but now that most are fixed I can work 
-> > > on the matrox driver again.
-> > 
-> > There are still some open problems (text mode, hardware cursor), and I missed 
-> > something somewhere, as czech font works only on VT1 console with mga-2.5.65 
-> > (on other VTs there is some font loaded, but character mapping looks broken). 
-> > I have no idea whether it is my problem or James's...
-> 
-> I have tested font changing. It works. 
+On Tue, 2003-03-25 at 14:47, Alan Cox wrote:
 
-I'll have to look into my changes then :-(
-  
-> > Probably worst problem currently is cursor code: it calls imgblit from interrupt
-> > context, and matroxfb's accelerated procedures are not ready to handle
-> > such thing (patch hooks cursor call much sooner for primary mga head).
+> If your boxes range from PII through to AMD duron build for 686, but the
+> basic theory is the same.
 > 
-> Fixed now. Also I have a patch that properly fixes image.depth = 0 hack. I 
-> will post for people to test. Folks please test the code.
+> A 386 kernel really hurts later CPUs
+> A 486 kernel is generally fine
+> A 686 kernel speeds stuff up a little more
 
-AFAIK you only fixed kmalloc problem. Or is cursor callback disallowed
-while doing imgblit/copyarea/fillrect ?
-                                                            Petr Vandrovec
-                                                            
+Should add that a 586 kernel is horrid on 686 and Athlon machines - the
+scheduling is worlds apart.  Use it only on true 586 machines.
+
+If you need a common denominator, go with 486 as Alan pointed out.  In
+your case 686 seems safe and sane, though.
+
+	Robert Love
 

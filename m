@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312350AbSCYIPc>; Mon, 25 Mar 2002 03:15:32 -0500
+	id <S312330AbSCYIVD>; Mon, 25 Mar 2002 03:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312348AbSCYIPW>; Mon, 25 Mar 2002 03:15:22 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:56287 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S312350AbSCYIPG>; Mon, 25 Mar 2002 03:15:06 -0500
-Date: Mon, 25 Mar 2002 10:04:26 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Robert Love <rml@tech9.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: preempt-related hangs
-In-Reply-To: <3C9E8497.9355C462@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0203251001510.14794-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312348AbSCYIUw>; Mon, 25 Mar 2002 03:20:52 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:39181 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S312330AbSCYIUe>; Mon, 25 Mar 2002 03:20:34 -0500
+Date: Mon, 25 Mar 2002 08:20:30 +0000
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Nice values for kernel modules
+Message-ID: <20020325082029.GA41624@compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet.suse.lists.linux.kernel> <E16mICa-0006mr-00@the-village.bc.nu.suse.lists.linux.kernel> <p73d6y4187b.fsf@oldwotan.suse.de> <m1pu1tum0g.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Mar 2002, Andrew Morton wrote:
+On Mon, Mar 25, 2002 at 12:47:27AM -0700, Eric W. Biederman wrote:
 
-> I sent this email to Ingo last week; seems that he's
-> having some downtime.  It was happening on my dual PIII
-> and I now discover that the quad pIII does the same
-> thing.  Any ideas?
-> 
-> 
-> Kernel is 2.5.7, dual PIII.  When I enable preempt it
-> locks during boot.
+> What is wrong with using ptrace?  That should already give you a hook into
+> every syscall.
 
-same 2.5.7 here with quad ppro emulation, i have preempt disabled.
+it's too slow, and how do you manage to follow every process ?
 
-> I applied the kgdb patch and had a poke.
-> 
-> (gdb) info threads
-> * 6 Thread 6  preempt_schedule () at sched.c:848
->   5 Thread 5  preempt_schedule () at sched.c:848
->   4 Thread 4  context_thread (startup=0xc0395f90) at context.c:101
->   3 Thread 3  migration_thread (unused=0x0) at sched.c:1646
->   2 Thread 2  migration_thread (unused=0x0) at sched.c:1646
->   1 Thread 1  spawn_ksoftirqd () at softirq.c:407
-> 
-> Note that init is stuck in spawn_ksoftirqd.  It's spinning in
-> that function, yielding, waiting for the softirqd threads to
-> come alive.  They're threads 5 and 6.
+regards
+john
 
-I'm locking in the same place i have my last CPU spinning, waiting for its 
-softirqd thread. Then i get a smp_migrate_task IPI from an alive CPU, at 
-which case i'm stuck.
-
-	Zwane
-
-
+-- 
+"Way back at the beginning of time around 1970 the first man page was
+ handed down from on high. Every one since is an edited copy."
+	- John Hasler <john@dhh.gt.org>

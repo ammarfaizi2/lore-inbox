@@ -1,83 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314889AbSECRvH>; Fri, 3 May 2002 13:51:07 -0400
+	id <S314938AbSECSCX>; Fri, 3 May 2002 14:02:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314900AbSECRvF>; Fri, 3 May 2002 13:51:05 -0400
-Received: from beasley.gator.com ([63.197.87.202]:15880 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S314889AbSECRvD>; Fri, 3 May 2002 13:51:03 -0400
-From: "George Bonser" <george@gator.com>
-To: "Russell Leighton" <russ@elegant-software.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4 as a router, when is it appropriate?
-Date: Fri, 3 May 2002 10:51:01 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJIEBJHIAA.george@gator.com>
+	id <S314941AbSECSCW>; Fri, 3 May 2002 14:02:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51976 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314938AbSECSCW>;
+	Fri, 3 May 2002 14:02:22 -0400
+Message-ID: <3CD2D120.4DE377A0@zip.com.au>
+Date: Fri, 03 May 2002 11:04:16 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: what replaces tq_scheduler in 2.4
+In-Reply-To: <20020427.194302.02285733.davem@redhat.com><467685860.avixxmail@nexxnet.epcnet.de> <20020428.204911.63038910.davem@redhat.com> <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu> <005d01c1efcb$561b8c10$e6f7ae80@ad.uiuc.edu> <001a01c1f094$8d572850$e6f7ae80@ad.uiuc.edu> <3CCF1B39.94CF0152@zip.com.au> <20020502174423.L696@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3CD28FB8.40204@elegant-software.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have used Linux/Zebra in production as a route reflector. That
-machine was simply a BGP peer of the others and not directly in the
-traffic path. That configuration had several commercial border routers
-(actually L2/3 switches) collecting full Internet routes from their
-upstream peers. These border routers fed their routing table via BGP
-to the Linux route reflector. The Linux/Zebra box aggregated the
-table, applied various policy to the routes received, and sent the
-resulting table on to the core routers.
+Ingo Oeser wrote:
+> 
+> ...
+> What is the main difference between tq_immediate and the former
+> tq_scheduler?
 
-The reason for using Linux in this case was the large amount of memory
-required for handling all the peers. Zebra handled it just fine and
-you can just keep adding RAM to a PC. To get the same capability in a
-commercial unit you have to get some very expensive iron.  This
-allowed the border units to be relatively inexpensive with only enough
-RAM to handle 1 Internet peer with full routes and kept the core
-router CPU free to handle traffic rather than process routes so it
-could also be a lower cost unit than would otherwise be required.
+tq_immediate looks to be some very old piece of kernel infrastructure
+which is somewhat obsolete but all the users have not been converted
+to yet.  May run in interrupt context.  
 
-The unit was in production for over a year without a single reboot.
+tq_scheduler callbacks run in process context.  Use schedule_task()
+instead.
 
-
-
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
-> Russell Leighton
-> Sent: Friday, May 03, 2002 6:25 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Linux 2.4 as a router, when is it appropriate?
->
->
->
-> Could someone please tell me (or refer me to docs) on when
-> using the Linux on PC hardware as a router is an appropriate
-> solution and when one should consider a "real" router (e.g., Cisco)?
->
-> I have heard that performance wise, if you have a fast CPU,
-> much memory and good NICs that Linux can be as good
-> all but the high end routers. Are there important missing
-> features or realiability issues that make using Linux not
-> suitable for "enterprise" use?
->
-> Thanks.
->
-> Russ
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+These mechanisms are discussed in the Rubini/Corbet bible:
+http://www.xml.com/ldd/chapter/book/

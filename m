@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288559AbSADJJm>; Fri, 4 Jan 2002 04:09:42 -0500
+	id <S288557AbSADJMc>; Fri, 4 Jan 2002 04:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSADJJg>; Fri, 4 Jan 2002 04:09:36 -0500
-Received: from mail.s.netic.de ([212.9.160.11]:13587 "EHLO mail.netic.de")
-	by vger.kernel.org with ESMTP id <S288555AbSADJII>;
-	Fri, 4 Jan 2002 04:08:08 -0500
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Fri, 04 Jan 2002 09:42:55 +0100
-In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
- (Tom Rini's message of "Wed, 2 Jan 2002 12:09:10 -0700")
-Message-ID: <87sn9m33sg.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S288561AbSADJLv>; Fri, 4 Jan 2002 04:11:51 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:9157 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S288557AbSADJKn>;
+	Fri, 4 Jan 2002 04:10:43 -0500
+Date: Fri, 4 Jan 2002 10:09:46 +0100 (MET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Who uses hdx=bswap or hdx=swapdata?
+In-Reply-To: <E16MGPf-0001I3-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0201041009000.12102-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org> writes:
+On Thu, 3 Jan 2002, Alan Cox wrote:
+> > Is the hdx=bswap or hdx=swapdata option actually in use?
+> > When is it needed?
+> 
+> Certain M68K machines
+> 
+> > The current implementation can cause data corruptions on SMP with PIO 
+> > transfers:
+> > 
+> > Is it possible to remove the option entirely, or should it be fixed?
+> 
+> Show me an SMP Atari ST 8)
 
-> 1) Change this particular strcpy to a memcpy
+IIRC it's used to access non-Atari IDE disks on Atari (which has a byte-swapped
+IDE interface) and vice-versa.
 
-That doesn't fix the undefined behavior.
+So yes, you can use it on SMP machines, to access disks that were used before
+on Atari.
 
-> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> optimization comes back on with this flag later on, it would be a
-> compiler bug, yes?)
+Gr{oetje,eeting}s,
 
-That doesn't fix the undefined behavior.
+						Geert
 
-> 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-> optimize anything which touches it [1]. (Franz, again by Jakub)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-That *does* fix the undefined behavior, and it seems that GCC is going
-to stay the same in the future, so this is a feasible workaround.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-> 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-
-That doesn't fix the undefined behavior.
-
-> 5) 'Properly' set things up so that we don't need the RELOC() macros
-> (-mrelocatable or so?), and forget this mess altogether.
-
-This is the clean approach, and thus preferable in the long term.  (3)
-seems to be the best short-time solution.

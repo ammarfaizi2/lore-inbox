@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313536AbSDLLbm>; Fri, 12 Apr 2002 07:31:42 -0400
+	id <S313551AbSDLLlS>; Fri, 12 Apr 2002 07:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313539AbSDLLbl>; Fri, 12 Apr 2002 07:31:41 -0400
-Received: from sark.cc.gatech.edu ([130.207.7.23]:24285 "EHLO
-	sark.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S313536AbSDLLbl>; Fri, 12 Apr 2002 07:31:41 -0400
-Date: Fri, 12 Apr 2002 07:31:36 -0400
-From: Josh Fryman <fryman@cc.gatech.edu>
-To: Abraham vd Merwe <abraham@2d3d.co.za>
-Cc: linux@aerythmic.be, linux-kernel@vger.kernel.org
-Subject: Re: Stolen Memory <- i830M video chip
-Message-Id: <20020412073136.53e533ed.fryman@cc.gatech.edu>
-In-Reply-To: <20020412094323.B8997@crystal.2d3d.co.za>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.8; i686-pc-linux-gnu)
+	id <S313552AbSDLLlR>; Fri, 12 Apr 2002 07:41:17 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:30472 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313551AbSDLLlR>;
+	Fri, 12 Apr 2002 07:41:17 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: KVM Switch bug 
+In-Reply-To: Your message of "Thu, 11 Apr 2002 20:50:36 +0200."
+             <200204112050.37043.sverrept@vub.ac.be> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 Apr 2002 21:41:03 +1000
+Message-ID: <17100.1018611663@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is therefore a OEM BIOS problem. Dell was notified about this a long time
-> ago - I thought they fixed it in the mean time. Try moaning about this to
-> Asus as well...
+On Thu, 11 Apr 2002 20:50:36 +0200, 
+Stijn Verrept <sverrept@vub.ac.be> wrote:
+>When switching using a KVM switch I loose keyboard (only in Linux so it's not 
+>hardware related)
 
-this isn't fixed in the new dell C400 laptops (still).  however, i argue that
-BIOS problem or no, a solution _does_ exist.  there is a 3rd party that
-sells commercial X server drop-ins for new chipsets.  one of the guys here
-bought their X server for $40 or so, and now has full-color & -resolution 
-without getting a BIOS update.
+For flakey KVMs, I define a user (switched) in /etc/passwd with the
+same uid/gid as root and no password.  Instead of a normal shell, its
+login entry is /usr/local/bin/switched which contains
 
-so if it's a BIOS problem that can only be fixed by Dell, how were these guys
-able to do the fix?  and why can't the open source guys (XFree or Linux kernel) 
-seem to do the same?
+#!/bin/sh
+/etc/rc.d/init.d/gpm restart
+/sbin/kbdrate -r 30
 
--josh
-
-ps > company is xig.com : Dell C400 w/generic I830-M support:
-http://www.xig.com/Pages/Atop/LaptopIndividualSupportSpecs/Dell-IndividualLaptops/LatitudeC400.html
+If there are any problems I log in as user switched, either keyboard or
+network.  The script runs to reset mouse and keyboard then the user
+exits.  The lack of password means that anybody can reset the KVM
+devices to fix problems.
 

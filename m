@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUI0NvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUI0OGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUI0NvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 09:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUI0NvN
+	id S266170AbUI0OGy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 10:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUI0OGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 09:51:13 -0400
-Received: from sa3.bezeqint.net ([192.115.104.17]:12169 "EHLO sa3.bezeqint.net")
-	by vger.kernel.org with ESMTP id S265943AbUI0NvI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 09:51:08 -0400
-Date: Mon, 27 Sep 2004 16:52:23 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG: 2.6.9-rc2-bk11] input completely dead in X
-Message-ID: <20040927145223.GA3117@luna.mooo.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040926210450.GA2960@luna.mooo.com> <20040926210045.GA15897@thundrix.ch> <20040927124321.GC7486@luna.mooo.com>
+	Mon, 27 Sep 2004 10:06:54 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:15780 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266117AbUI0OGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 10:06:51 -0400
+Subject: Re: [RFC]transient transport error report for LLD timeout
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Masao Fukuchi <fukuchi.masao@jp.fujitsu.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409232332.AA03619@fukuchi.jp.fujitsu.com>
+References: <200409232332.AA03619@fukuchi.jp.fujitsu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 27 Sep 2004 10:06:41 -0400
+Message-Id: <1096294008.1714.7.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040927124321.GC7486@luna.mooo.com>
-User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 02:43:21PM +0200, Micha Feigin wrote:
-> On Sun, Sep 26, 2004 at 11:00:45PM +0200, Tonnerre wrote:
-> > Salut,
-> > 
-> > On Sun, Sep 26, 2004 at 11:04:51PM +0200, Micha Feigin wrote:
-> > > Just tried kernel 2.6.9-rc2-bk11 and when I start X input is completely
-> > > dead (including num-lock, caps-lock, sysrq and mouse). The computer is
-> > > otherwise functional (I can log in with ssh, kill X and everything is
-> > > functional again).
-> > 
-> > Which X do you use? And which version?
-> > 
-> 
-> xfree 4.3 in debian unstable (I believe its somewhat modified), debian
-> calls it 4.3.0.dfsg.1-7.
-> 
-> The bk-input patch is a bit big for me to search for the problematic
-> change, but anyone has any leads I will happily poke around further.
-> 
+On Thu, 2004-09-23 at 19:32, Masao Fukuchi wrote:
+> Therefore, I newly prepared timer in block layer.
+> When it detects timeout, it responds to upper(RAID/multipath) layer and
+> upper layer begins retry operation using alt-disk/alt-path.
+> Resource using in block and SCSI(LLD) layer is freed when it receives 
+> response from LLD(SCSI) layer.
 
-Did some more testing and apparently its something to do with the alps
-touchpad patch. When using the alps as a touchpad all the input
-completely dies on X startup, when I use it as a GlidePointPS/2 things
-work fine (even with the alps patch), although mouse is a bit slow.
+I really don't think this is the correct thing to do.  The block layer
+has no idea what's actually happened to the command, but it's going to
+complete it anyway.  Depending on what goes on above, this may unpin the
+user pages that the scsi_cmnd is still using.  Also, the two timers
+(scsi command timer and this new block layer timer are critically
+coupled.  Tune them wrongly and nasty things will happen).
 
-Will try and dig further and see if I come up with a fix.
+The right thing to do is to see the no retry flag in error recovery and
+complete the command when we see the host has relinquished it.  Then go
+on to do transport recovery with a new command.
 
-> > 			    Tonnerre
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+James
+
+

@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUJOBAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUJOBGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267770AbUJOBAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJOBAm
+	id S267661AbUJOBGw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 21:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUJOBGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:00:42 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:10393 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S267770AbUJOBAj
+	Thu, 14 Oct 2004 21:06:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27815 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267661AbUJOBGt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:00:39 -0400
-Subject: Re: Fw: signed kernel modules?
-From: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       rusty@ozlabs.au.ibm.com, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097797477.8275.2.camel@localhost.localdomain>
-References: <1096544201.8043.816.camel@localhost.localdomain>
-	 <1096411448.3230.22.camel@localhost.localdomain>
-	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
-	 <20040812092029.GA30255@devserv.devel.redhat.com>
-	 <20040811211719.GD21894@kroah.com>
-	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
-	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
-	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
-	 <30797.1092308768@redhat.com>
-	 <20040812111853.GB25950@devserv.devel.redhat.com>
-	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
-	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
-	 <10345.1097507482@redhat.com>
-	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
-	 <1097534090.16153.7.camel@localhost.localdomain>
-	 <1097570159.5788.1089.camel@baythorne.infradead.org>
-	 <1097626296.4013.34.camel@localhost.localdomain>
-	 <1097664137.4440.5.camel@localhost.localdomain>
-	 <1097707239.14303.22.camel@localhost.localdomain>
-	 <1097797477.8275.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1097802027.22673.34.camel@localhost.localdomain>
+	Thu, 14 Oct 2004 21:06:49 -0400
+Date: Thu, 14 Oct 2004 20:17:21 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: per-process shared information
+Message-ID: <20041014231721.GA9284@logos.cnet>
+References: <20041013231042.GQ17849@dualathlon.random> <20041014214711.GF6899@logos.cnet> <20041014235845.GL17849@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 11:00:27 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014235845.GL17849@dualathlon.random>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 09:44, Alan Cox wrote:
-> On Mer, 2004-10-13 at 23:40, Rusty Russell (IBM) wrote:
-> > > Whoops bang "num 0 elements". That check set isn't safe standalone
+On Fri, Oct 15, 2004 at 01:58:45AM +0200, Andrea Arcangeli wrote:
+> On Thu, Oct 14, 2004 at 06:47:11PM -0300, Marcelo Tosatti wrote:
 > > 
-> > Thanks, Alan.
+> > Hi Andrea!
 > > 
-> > I'd appreciate your opinion on the issue at hand.  Is it worth 600 lines
-> > of ELF verification and canonicalization code so we can strip modules
-> > without altering the signature?
+> > No useful comments on the statm reporting issue.
+> > 
+> > > Ps. if somebody like Hugh volunteers implementing it, you're very
+> > > welcome, just let me know (I'll eventually want to work on the oom
+> > > handling too, which is pretty screwed right now, 
+> > 
+> > Yes, we've got reports of bad OOM killing behaviour (is that what you're
+> > talking about?) 
+> > 
+> > One thing is the removal of "if (nr_swap_pages > 0) goto out" from oom_kill() 
+> > causes problems (spurious oom kill). 
+> > 
+> > We need to throttle more, on page reclaiming progress I think.
+> > 
+> > Take a look at 
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-mm&m=109587921204602&w=2
+> > 
+> > What else you're seeing?
+> > 
+> > > I've plenty of bugs
+> > > open on that area and the lowmem zone protection needs a rewrite too to
+> > > be set to a sane default value no matter the pages_lows etc..).
+> > 
+> > Nick has been working on that lately I think. What is the problem?
 > 
-> I'm unconvinced at the moment, it seems it would be easier to write the
-> neccessary code to do this in userspace, and then sign the canonicalised
-> module so that the kernel interface is small and clean.
+> things went worse with the switch from 2.6.8 to 2.6.9-rc, so that's not
+> the nr_swap_pages > 0, likely the latest changes introduced regressions
+> instead of fixing them.
 
-Well, my original implementation carefully found the signature section,
-copied it out and zeroed it, then checked the whole module.  The two
-objections David Howells had was (1) stripping the module after build
-breaks this, and (2) his scheme uses straight GPG signatures and they
-are of variable length: some wrapper would be needed to handle trailing
-zeroes in the signature.
+Just FYI - removing the "nr_swap_pages > 0" fixes the problem at
+the URL I posted above.
 
-The advantage was the simplicity of the scheme: very short path the
-module verification, and no canonicalization step.
+But having it creates hard locks on Oracle workloads (wli removed 
+that line) due to pinned memory.
 
-Rusty.
+> I'm seeing both hard deadlocks and suprious oom kills, and that all
+> makes sense, I can see the bugs, it's just I need to fix them, my plan
+> is to forward port some code from 2.4 which works fine, objrmap will make
+> it even better.
 
+Ok, very nice!
 

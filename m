@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271137AbRHTJic>; Mon, 20 Aug 2001 05:38:32 -0400
+	id <S271142AbRHTJua>; Mon, 20 Aug 2001 05:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271144AbRHTJiX>; Mon, 20 Aug 2001 05:38:23 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:27346 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S271137AbRHTJiE>;
-	Mon, 20 Aug 2001 05:38:04 -0400
-Message-ID: <3B80DA50.49F43B10@athlon.maya.org>
-Date: Mon, 20 Aug 2001 11:37:21 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: [2.4.8-ac5 and earlier] fatal mount-problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271147AbRHTJuT>; Mon, 20 Aug 2001 05:50:19 -0400
+Received: from mx5.port.ru ([194.67.57.15]:56850 "EHLO mx5.port.ru")
+	by vger.kernel.org with ESMTP id <S271142AbRHTJuH>;
+	Mon, 20 Aug 2001 05:50:07 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8/2.4.8-ac7 sound crashes
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.176]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15YlfQ-000EZS-00@f5.mail.ru>
+Date: Mon, 20 Aug 2001 13:48:20 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+        I do not know if this problem is reported already,
+    since i read lkml thru web-archive, with accompanying
+update delays.
+
+    2.4.8 dies after ~1/2 minute of mpg123 playback,
+    with tty switching freeze, and typing out 
+    continuously (i`d say infinitely) call trace.
+
+        ac7 acts this way too, but before death
+    sound stalls *some* times, i then each time restart
+    the proggie which emits it. This pattern survives
+    4-5 stalls, after which - final trace dump.
+
+    gcc-2.95.3, sb16 - genuine, vanilla ac7, vanilla 
+    2.4.8.
+
+    further information upon request.
+
+---
 
 
-If you mount a device like ide-cdrom with the scsi-emulation turned on
-(as modules) and you do the same mount again on the same (not unmounted)
-device, the mount-programm hangs up and never comes back. It doesn't
-recognize, that the device is allready mounted.
-
-If I do a simple "mount", mount lists the /cdrom - device as mounted.
-
-Problem: if you want to unmount the device, mount tells that the device
-would be bussy and ends. So, you've no chance to unmount the device
-again. The only way to unmount it, is to do a hardware reset (a normal
-reboot doesn't work, because mount hangs at the cdrom-device).
-
-Kernel 2.4.9 is working fine.
-
-> mount --version
-mount: mount-2.11h
+cheers,
 
 
-Regards,
-Andreas Hartmann
+   Samium Gromoff

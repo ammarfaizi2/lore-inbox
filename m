@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130180AbRBBWHH>; Fri, 2 Feb 2001 17:07:07 -0500
+	id <S130194AbRBBWN6>; Fri, 2 Feb 2001 17:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRBBWG5>; Fri, 2 Feb 2001 17:06:57 -0500
-Received: from piawa7.pit.physik.uni-tuebingen.de ([134.2.74.1]:15498 "EHLO
-	piawa7.pit.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S130180AbRBBWGq>; Fri, 2 Feb 2001 17:06:46 -0500
-Date: Fri, 2 Feb 2001 23:06:20 +0100
-From: Arthur Erhardt <erhardt@pit.physik.uni-tuebingen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com, Jan Kasprzak <kas@informatics.muni.cz>
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-Message-ID: <20010202230620.A13943@piawa7.pit.physik.uni-tuebingen.de>
-In-Reply-To: <200102022122.f12LMct11509@moisil.dev.hydraweb.com> <E14OoD8-0007GI-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S130293AbRBBWNs>; Fri, 2 Feb 2001 17:13:48 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:39392 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130194AbRBBWNb>; Fri, 2 Feb 2001 17:13:31 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200102022213.f12MDCR27812@devserv.devel.redhat.com>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 2 Feb 2001 17:13:12 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), mason@suse.com (Chris Mason),
+        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com,
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+In-Reply-To: <3A7B269F.A028388C@namesys.com> from "Hans Reiser" at Feb 03, 2001 12:29:03 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 02, 2001 at 09:57:39PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 09:57:39PM +0000, Alan Cox wrote:
-: > As it stands, there is no way to determine programatically whether
-: > gcc-2.96 is broken or now. The only way to do it is to check the RPM
-: > version -- which, needless to say, is a bit difficult to do from the
-: > C code about to be compiled. So I can't really blame Hans if he decides
-: > to outlaw gcc-2.96[.0] for reiserfs compiles.
-: 
-: Oh I can see why Hans wants to cut down his bug reporting load. I can also
-: say from experience it wont work. If you put #error in then everyone will
-: mail him and complain it doesnt build, if you put #warning in nobody will
-: read it and if you dont put anything in you get the odd bug report anyway.
-: 
-: Basically you can't win and unfortunately a shrink wrap forcing the user
-: to read the README file for the kernel violates the GPL ..
+> my convenience matters as much as that of the users.  I don't want to use
+> #ifdefs, I want it to die explosively and verbosely informatively.  make isn't
+> the most natural language for that, but I am sure Yura can find a way.
 
-Alan, as a user (one of those few that actually read documentation), I
-think it is a good idea to stop people from hurting their data by using
-the wrong compiler and assuming everything is ok until shit happens. 
+Run a small shell check and let it fail if the shell stuff errors.
 
-As you explained, one either gets the bug reports or the complaints 
-that $SOURCE doesn't compile. The work for the developers might be 
-about the same size, the impact on the users' side is less
-destructive, though.
+The fragment you want is
 
-Arthur
+if [ -e /bin/rpm ]; then
+        X=`rpm -q gcc`
+        if [ "$X" = "gcc-2.96-54" ]; then
+                echo "*** GCC 2.96-54 will miscompile Reiserfs. Please update your compiler"
+                echo "See http://www.redhat.com/support/errata/RHBA-2000-132.html"
+                exit 255
+        fi
+fi
 
--- 
-arthur dot erhardt at pit dot physik dot uni dash tuebingen dot de 
-*pgp key available*                                         dg7sea
 
-A physicist is an atom's way of knowing about atoms.
+> Please delay shipping the 3.0 CVS branch on RedHat for a while.:-)  Sorry, I
+> couldn't resist.
+
+Grin. gcc 3.0 is going to be just as much fun Im sure, but finally should give
+everyone a stable C and more importantly C++ base including the LSB standards.
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,114 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSFPVfs>; Sun, 16 Jun 2002 17:35:48 -0400
+	id <S316598AbSFPWCr>; Sun, 16 Jun 2002 18:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSFPVfr>; Sun, 16 Jun 2002 17:35:47 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:6563 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S316592AbSFPVfn>;
-	Sun, 16 Jun 2002 17:35:43 -0400
-Date: Mon, 17 Jun 2002 00:35:42 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Chinese subscribers, and bad firewalls...
-Message-ID: <20020617003542.N19520@mea-ext.zmailer.org>
+	id <S316599AbSFPWCq>; Sun, 16 Jun 2002 18:02:46 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:27401 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S316598AbSFPWCo>; Sun, 16 Jun 2002 18:02:44 -0400
+Message-Id: <200206162202.g5GM2XT02750@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Oliver Neukum <oliver@neukum.name>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
+       garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map 
+In-Reply-To: Message from Oliver Neukum <oliver@neukum.name> 
+   of "Sun, 16 Jun 2002 22:54:42 +0200." <200206162254.42323.oliver@neukum.name> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Sun, 16 Jun 2002 17:02:33 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+oliver@neukum.name said:
+> How would you find out what a device is ? If the kernel has to supply
+> the information anyway, you could just as well pass all information to
+> the script or devfs. 
+
+But the kernel doesn't know this globally unique identifier information today, 
+that's what the discussion is about.
+
+The essence of the problem is that there's no one method that can get a unique 
+identifier for every SCSI device (even though almost every device possesses 
+one in one form or another).  So you have to implement a collection of ad hoc 
+methods depending on what the device actually is.
+
+The idea behind using hotplug to solve the problem is that with scsimon, a 
+hotplug insertion event is generated for every SCSI device as it is added.  
+The script is provided with the information the kernel knows (host, channel, 
+pun lun, model and vendor inquiry strings---see www.torque.net/scsimon.html 
+for details).  The hotplug script then does the remaining processing to 
+extract the ID from the device (by ioctls, sending down SCSI commands etc.) 
+and then binds it into the /dev/volume nodes using the identifier it 
+determines.
+
+The result is that however you move the device around (between controllers or 
+even change its id), it will always show up as its unique /dev/volume name.
+
+The key philosophy is that the code to make the policy decision for assigning 
+a unique name isn't cluttering up the kernel, it's in user land where it can 
+be easily customised.  Once scsimon is part of the kernel, we need no other 
+kernel changes at all to implement this, since /dev/volume could just be done 
+with symbolic links (although having the kernel know the name is useful).
+
+James
 
 
-  Something weird is being deployed in China, which does break SMTP
-protocol  extension called PIPELINING, as specified by RFC 1854/2197.
-(Just carelessly coded firewall, that is..)
-
-
-The problem is visible when destination system MTA software does
-report "PIPELINING" in the SMTP server behaviour capabilities.
-
-Why VGER sees the problem, and most other systems don't, is because
-vger runs with MTA software which does full PIPELINING implementation,
-whereas most other software only report that thing in their smtp
-server's EHLO responses as a cool way to get extra technical credit.
-Some of those do the smtp server side implementation (which is fairly
-easy exercise in buffering.)
-
-
-Originally the SMTP protocol is defined as a half-duplex system where
-a protocol verb+parameters is sent one line at the time, and a response
-is then waited for.   In PIPELINING mode, the protocol exchange is
-speeded up by sending all of MAIL FROM + RCPT TO lines + DATA  all in
-one (or very few as possible) TCP segment(s), then the sending SMTP
-client starts to analyze the responses.  The speedup is so radical
-that one can send 1000 recipients across a long latency connections
-in the same time as it takes to send one recipient's address.
-(Years ago VGER sent most of its outgoing email to few fanout servers,
- tens or hundreds of recipients for each message.  Things got a bit
- slow at one point with that setup before full PIPELINING was
- implemented.  Think of 0.6s roundtrip, and 100 recipients.. )
-
-Most email sending MTAs don't do this full acceleration, as it does
-require rather radical changes in the smtp client internal code.
-Separate code for speeded up mode, in fact.
-
-
-This means that (as VGER sends it) MAIL FROM line follows by more
-commands in the same TCP segment.  When a carelessly written packet
-poking firewall makes presumptions of SMTP still being what RFC 821
-defined 20 years ago (august 1982, by the way), things get to go
-radically wrong...
-
-What I see at VGER tcpdumping is:
-
-C>: (connect to server)
-S<: 220 greeting
-C>: EHLO vger.kernel.org
-S<: 250-jadajada...
-S<: 250 PIPELINING
-   (cool, it supports pipelining!)
-C>: MAIL FROM:<...>
-C>: RCPT TO:<...>
-C>: DATA
-  (tcp PUSH - all in one segment)
-S<: 500  error in command
-  (this in its own TCP segment)
-S<: 250 Ok
-S<: 250 Ok
-S<: 354 End data with <CR><LF>.<CR><LF>
- (this in second TCP segment, with SAME starting TCP
-  sequence number as that error!)
-
-
-It has a strange smell of firewall sending its own error report, but
-the protocol has made it thru, and the remote end (Postfix in this case,
-actually) replies in proper PIPELINING style.
-
-
-It might be, that the firewall is throwing a spanner in the works by
-sending a rejection with same sequence number as the real server would
-send.   However the spanner may occasionally be lost, and the real
-server's reply makes it to vger, and the protocol just works.
-The random success/failure game will again be played with next MAIL FROM
-in same connection, of course..
-
-
-This makes the thing in my opinnion rather weak as an firewall, and
-extremely questionable if it should be used in securing the network
-in any way.   As always, if a firewall is semi-permeable, it is
-very questionable if it secures anything.  If a firewall has a hole
-opened thru it for some protocol, the only way to run secure service
-on that protocol is to have the real server secure.  No firewall can
-do that for you (aside of protocol proxies implementing the service,
-in which case we are in service securing, again..)
-Non-permeable firewalls are cheap to make - unplug...
-
-
-What is this product being used in China, I have no idea.
-Perhaps it has no easy latin alphabet compatible name at all.
-
-Can anybody tell me ?  Or better, raise the attention of the vendor,
-and have this misbehaviour publicly acknowledged, and fixed ?
-
-
-/Matti Aarnio  -- co-postmaster of vger.kernel.org

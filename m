@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261838AbSJIQoC>; Wed, 9 Oct 2002 12:44:02 -0400
+	id <S261799AbSJIQtJ>; Wed, 9 Oct 2002 12:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbSJIQoC>; Wed, 9 Oct 2002 12:44:02 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:34827 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S261838AbSJIQoB> convert rfc822-to-8bit; Wed, 9 Oct 2002 12:44:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] 2.5.41, cciss, add rescan disk ioctl (6 of 5 :-)
-Date: Wed, 9 Oct 2002 11:49:39 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E10640167D05C@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.5.41, cciss, add rescan disk ioctl (6 of 5 :-)
-Thread-Index: AcJvp5ISWFqMU4aGQUCtQ5QRyZeQFAAAnwjg
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <axboe@suse.de>
-X-OriginalArrivalTime: 09 Oct 2002 16:49:39.0474 (UTC) FILETIME=[DBA66720:01C26FB3]
+	id <S261847AbSJIQtJ>; Wed, 9 Oct 2002 12:49:09 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:56584 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261799AbSJIQtI>; Wed, 9 Oct 2002 12:49:08 -0400
+Date: Thu, 10 Oct 2002 01:54:32 +0900 (JST)
+Message-Id: <20021010.015432.63506989.yoshfuji@linux-ipv6.org>
+To: dfawcus@cisco.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20021009170018.H29133@edinburgh.cisco.com>
+References: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>
+	<20021009170018.H29133@edinburgh.cisco.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20021009170018.H29133@edinburgh.cisco.com> (at Wed, 9 Oct 2002 17:00:18 +0100), Derek Fawcus <dfawcus@cisco.com> says:
 
-Alan Cox wrote:
+> All link local's are currently supposed to have those top bits
+> ('tween 10 and 64) zero'd,  however any address within the link local
+> prefix _is_ on link / connected and should go to the interface.
 > 
-> On Wed, 2002-10-09 at 15:46, Stephen Cameron wrote:
-> > This patch adds the CCISS_RESCANDISK ioctl which is meant 
-> to be used in a 
-> > configuration like Steeleye's Lifekeeper.  Two hosts 
-> connect to the storage, 
-> > one reserves disks.  The 2nd will not be able to read the partition 
-> > information because of the reservations.  In the event the 
-> 1st system fails, 
-> > the 2nd can detect this, (via special hardware + software 
-> typically) and then 
-> > take over the storage and rescan he disks via this ioctl.
-> > Applies to 2.5.41 (after applying my prior 4 patches to 2.5.4[01] )
-> 
-> Why not use the existing rescanning ioctls like BLKRRPART - 
-> what else is
-> different to need a custom ioctl?
-> 
+> i.e. it's perfectly valid for me to assign a link local of fe80:1910::10
+>      to an interface and expect it to be work,  likewise for a packet
+>      destined to any link local address to trigger ND.
 
-if i understand correctly, the BLKRRPART just does a rescan_partitions()
-and does not do any INQUIRY and READ_CAPACITY to get the 
-capacity and geometry information again, as normally, this would
-already be done. 
+First of all, please don't use such addresses.
 
-This ioctl is meant for a failover type configuration where two hosts
-have access to the storage.  Host A does a scsi reservation of the storage,
-preventing the Host B from being able to talk to it.  So Host B can't do
-the READ_CAPACITY successfully.  (this is on purpose).
+By spec, auto-configured link-local address is fe80::/64
+and connected route should be /64.
 
-This ioctl is used upon failover.  When Host B detects that Host A is failed,
-Host B would make sure host A is_really_ dead, for example
-by depriving it of power, and break the scsi reservation.  Then it uses
-this ioctl to get the geometry and capacity information and rescan
-the partitions.
+If you do really want to use such addresses (like fe80:1920::10),
+you can put another route by yourself, at your own risk.
 
-Maybe it should use 2 ioctls?  One special one to get the geometry
-and capacity info, and then the BLKRRPART ioctl to rescan partitions?
+We should not configure in such way by default.
+and, we should even have to add "discard" route for them 
+by default for safe.
 
-Hope that makes sense.
-
--- steve
- 
+--yoshfuji

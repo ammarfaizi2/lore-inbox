@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290858AbSARWj6>; Fri, 18 Jan 2002 17:39:58 -0500
+	id <S290860AbSARWm6>; Fri, 18 Jan 2002 17:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290859AbSARWjs>; Fri, 18 Jan 2002 17:39:48 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:56252 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290858AbSARWji>; Fri, 18 Jan 2002 17:39:38 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFC5DE810D.63923974-ON85256B45.007C4216@raleigh.ibm.com>
-From: "Kent E Yoder" <yoder1@us.ibm.com>
-Date: Fri, 18 Jan 2002 16:39:36 -0600
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 01/18/2002 05:39:38 PM,
-	Serialize complete at 01/18/2002 05:39:38 PM
-Content-Type: text/plain; charset="us-ascii"
+	id <S290861AbSARWmu>; Fri, 18 Jan 2002 17:42:50 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62625 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290860AbSARWmf>; Fri, 18 Jan 2002 17:42:35 -0500
+Subject: Re: FC & MULTIPATH !? (any hope?)
+From: Brian Beattie <alchemy@us.ibm.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Mario Mikocevic <mozgy@hinet.hr>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020118080714.I937@marowsky-bree.de>
+In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
+	<1011310615.519.3.camel@w-beattie1>  <20020118080714.I937@marowsky-bree.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 18 Jan 2002 14:30:11 -0800
+Message-Id: <1011393012.466.2.camel@w-beattie1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   actually I should be using spin_lock_irqsave() in open() and close()
-> > since the lock is taken inside the interrupt function, no?
+On Thu, 2002-01-17 at 23:07, Lars Marowsky-Bree wrote:
+> On 2002-01-17T15:36:54,
+>    Brian Beattie <alchemy@us.ibm.com> said:
 > 
-> Correct - which might explain some of your other delays curing lockups
+> > Probable enhancements to this would include, provideing a method to mark
+> > a path to not attempt this crude form of auto recovery and a way to mark
+> > a failed path as good.  Finally a device wide flag to disable
+> > auto-recovery.
+...
+> 
+> Combined with the enhancements this makes a lot of sense.
+> 
+> The enhancements are very much required, especially the way to mark a path as
+> good again manually.
+> 
+> I would also liks easily parseable /proc file to query the status of a
+> multi-path device, including all paths associated with it.
+> 
+> 
+I have some stuff that uses sysctl, which shows in /proc/sys/... that I
+was planning to use.
 
-  Hmmm..  i wish it did.  Unfortunately the only non irq saved calls to 
-spin_lock are in the open and close functions, my lock call in xmit is irq 
-saved.  These should be changed obviously, but I haven't seen the box lock 
-up during open or close...
-
-Kent
 

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUDBA1j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 19:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUDBA1j
+	id S262971AbUDBAaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 19:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbUDBAaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 19:27:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59339 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262499AbUDBA1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 19:27:36 -0500
-Date: Thu, 1 Apr 2004 16:29:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_DEBUG_PAGEALLOC and virt_addr_valid()
-Message-Id: <20040401162943.149ee719.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0404011236200.5095@localhost.localdomain>
-References: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>
-	<20040401204407.A24608@infradead.org>
-	<Pine.LNX.4.58.0404011236200.5095@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 1 Apr 2004 19:30:16 -0500
+Received: from CPE-144-136-178-58.sa.bigpond.net.au ([144.136.178.58]:6418
+	"EHLO bubble.modra.org") by vger.kernel.org with ESMTP
+	id S262971AbUDBAaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 19:30:12 -0500
+Date: Fri, 2 Apr 2004 10:00:09 +0930
+From: Alan Modra <amodra@bigpond.net.au>
+To: Janis Johnson <janis187@us.ibm.com>
+Cc: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>, gcc@gcc.gnu.org,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+Message-ID: <20040402003009.GD6645@bubble.modra.org>
+Mail-Followup-To: Janis Johnson <janis187@us.ibm.com>,
+	Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>,
+	gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
+	schwidefsky@de.ibm.com, ak@suse.de
+References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401211348.GA5739@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040401211348.GA5739@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sridhar Samudrala <sri@us.ibm.com> wrote:
->
-> On Thu, 1 Apr 2004, Christoph Hellwig wrote:
-> 
-> > On Thu, Apr 01, 2004 at 11:11:39AM -0800, Sridhar Samudrala wrote:
-> > > When CONFIG_DEBUG_PAGEALLOC is enabled, i am noticing that virt_addr_valid()
-> > > (called from sctp_is_valid_kaddr()) is returning true even for freed objects.
-> > > Is this a bug or expected behavior?
-> >
-> > Generally every use of virt_addr_valid() is a bug.  What are you trying to
-> > do?
-> 
-> We are trying to validate a kernel address that is passed by the user. Is
-> there a better way to do that?
+On Thu, Apr 01, 2004 at 01:13:48PM -0800, Janis Johnson wrote:
+> We saw lots of parallel build problems when using a 2.6 kernel on
+> an older distribution.  The problems went away when we used 'make'
+> built with a new version of glibc.
 
-yup.  Pass the user an integer.
+Yes, that was a different bug, powerpc glibc specific.
+http://sources.redhat.com/ml/libc-alpha/2004-02/msg00037.html
 
-> When an SCTP association is established, the pointer to the association
-> structure is passed to the user as an identifier of the association. This
-> identifier is used in the later calls by the user.
-
-Please don't do that.  See lib/idr.c.  I expect it does exactly what you
-want.
+-- 
+Alan Modra
+IBM OzLabs - Linux Technology Centre

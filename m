@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263932AbTE3SrN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 14:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTE3SrN
+	id S263914AbTE3St3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 14:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTE3St3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 14:47:13 -0400
-Received: from smtp3.wanadoo.es ([62.37.236.137]:999 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id S263932AbTE3Sqe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 14:46:34 -0400
-Message-ID: <3ED7AA0F.6090308@wanadoo.es>
-Date: Fri, 30 May 2003 20:59:27 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 30 May 2003 14:49:29 -0400
+Received: from us01-fw3-ext.synopsys.com ([204.176.21.196]:7888 "EHLO
+	piper.synopsys.com") by vger.kernel.org with ESMTP id S263914AbTE3St1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 14:49:27 -0400
+Date: Fri, 30 May 2003 12:02:31 -0700
+From: Joe Buck <jbuck@synopsys.com>
+To: Bernd Jendrissek <berndj@prism.co.za>
+Cc: Kendrick Hamilton <hamilton@sedsystems.ca>, gcc@gcc.gnu.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem Installing Linux Kernel Module compiled with gcc-3.2.x
+Message-ID: <20030530120231.A1328@synopsys.com>
+References: <Pine.LNX.4.44.0305300919510.3613-100000@sw-55.sedsystems.ca> <20030530192240.A7564@prism.co.za> <20030530103329.A848@synopsys.com> <20030530204332.C7564@prism.co.za>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030530204332.C7564@prism.co.za>; from berndj@prism.co.za on Fri, May 30, 2003 at 08:43:32PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
-
->>You finally fixed a SEGV that I fixed well
->>over a year ago. Congradulations. You have
->>others to fix, and a minor (?) security
->>issue as well. Have fun.
+On Fri, May 30, 2003 at 08:43:32PM +0200, Bernd Jendrissek wrote:
+> > Is there any reason, other than the above-described bit of evil, for doing
+> > this (forbidding mixing)?  It prevents the bug-finding approach I
+> > described earlier (a binary search for finding miscompiled code) from
+> > working.
 > 
-> Again, you know there is a problem but you
-> don't say anything about it.
-> You do not want to fix it, don't you ?
-> This is fine with me (even if it is hard to 
-> understand the reason), but you are just
-> /wrong/ when you know about a problem and
-> don't provide information about it.
-> Again, this is just my opinion...
+> Between GCC 2.x and 3.x the *major* version changed (duh).  I would
+> imagine that people are/were (justifiably?) concerned that ABI's might
+> have changed.  From your response, I assume there are no ABI changes
+> for C at least?  I suppose a gratuitous ABI change would constitute a
+> bug, though...
 
-the root of the problem is that not all
-packages maintainers of distributions send feedback/fixes
-to _origianl software writer_. And you have cases
-like this. Diferents tastes from same software,
-everyone with its bugs and features.
-
-Without to go too far, there are a lot of stupid
-fixes into distributions kernels not present in 2.4.21-rcX
-
-This is a general problem, and IMHO the distributions maintainers
-should send more feedback to package maintainer more frequently.
-
--thanks-
-
-regards,
--- 
-Software is like sex, it's better when it's bug free.
-
+There are no ABI changes for C.

@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUHBGIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266290AbUHBGNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266287AbUHBGIk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 02:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266290AbUHBGIk
+	id S266290AbUHBGNk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 02:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHBGNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 02:08:40 -0400
-Received: from digitalimplant.org ([64.62.235.95]:22967 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S266287AbUHBGIj
+	Mon, 2 Aug 2004 02:13:40 -0400
+Received: from digitalimplant.org ([64.62.235.95]:27066 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S266290AbUHBGNi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 02:08:39 -0400
-Date: Sun, 1 Aug 2004 23:08:33 -0700 (PDT)
+	Mon, 2 Aug 2004 02:13:38 -0400
+Date: Sun, 1 Aug 2004 23:13:27 -0700 (PDT)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reduce swsusp casting
-In-Reply-To: <1091049624.2871.464.camel@nighthawk>
-Message-ID: <Pine.LNX.4.50.0408012308030.4359-100000@monsoon.he.net>
-References: <1091043436.2871.320.camel@nighthawk> 
- <Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
- <1091049624.2871.464.camel@nighthawk>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: -mm swsusp: fix highmem handling
+In-Reply-To: <20040728222300.GA16671@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0408012308370.4359-100000@monsoon.he.net>
+References: <20040728222300.GA16671@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,15 +25,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 28 Jul 2004, Dave Hansen wrote:
+On Thu, 29 Jul 2004, Pavel Machek wrote:
 
-> It was against 2.6.8-rc1-mm1, but I can patch against whatever.  Do you
-> have those patches consolidated somewhere, or is it best that I look in
-> the archives?
+> Swsusp was not restoring highmem properly. I did not find a nice place
+> where to restore it, through, so it went to swsusp_free.
 
-It should be in the -mm tree now. If you can, please try it out.
+That's too late, and will be called if suspend failed, to clean up any
+allocated memory. The proper place seems to be in swsusp_resume().
 
-Thanks,
+> I'm not sure why you are saving state before save_processor_state.
+> swsusp_arch_resume will overwrite this, anyway. Is it to make something
+> balanced?
+
+Yes, so it matches the calls in swsusp_suspend() - Previously there was a
+hack that did kernel_fpu_end() after calling save_processor_state(), to
+pass in_atomic() checks. By restoring the state after we've snapshotted on
+suspend prevents this from being a problem.
+
+In general, if we assume that save_processor_state() does anything to the
+CPU, besides just benign register saving, we have to make sure that it's
+put into the same state on resume before we restore state..
 
 
 	Pat

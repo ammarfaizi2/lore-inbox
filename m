@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263253AbTDRVTE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 17:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTDRVTE
+	id S263259AbTDRVdE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 17:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTDRVdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 17:19:04 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:16403
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263253AbTDRVTD (ORCPT
+	Fri, 18 Apr 2003 17:33:04 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:32416 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S263259AbTDRVdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 17:19:03 -0400
-Subject: Re: mknod64(1)
-From: Robert Love <rml@tech9.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b7pqf5$kqv$1@cesium.transmeta.com>
-References: <1050700383.745.48.camel@localhost>
-	 <b7pqf5$kqv$1@cesium.transmeta.com>
-Content-Type: text/plain
-Message-Id: <1050701464.745.52.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
-Date: 18 Apr 2003 17:31:04 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Apr 2003 17:33:03 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Dave Jones <davej@codemonkey.org.uk>, Jurriaan <thunder7@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@redhat.com>
+Subject: Re: My P3 runs at.... zero Mhz (bug rpt)
+References: <20030418211147.GA1225@suse.de>
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 18 Apr 2003 23:44:53 +0200
+In-Reply-To: <20030418211147.GA1225@suse.de>
+Message-ID: <qwwvfxb1nvu.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-18 at 17:24, H. Peter Anvin wrote:
+>>>>> Dave Jones (Dave) said:
 
-> Well, actually, once glibc is updated to call SYS_mknod64 and have the
-> right MAJOR() and MINOR() macros, it shouldn't require any changes to
-> mknod(1).
+ Dave> On Fri, Apr 18, 2003 at 06:44:54AM +0200, Jurriaan wrote:
+ >> From: Jeff Garzik <jgarzik@pobox.com>
+ >> Date: Thu, Apr 17, 2003 at 10:10:53PM -0400
+ >> > Just booted into 2.5.67-BK-latest (plus my __builtin_memcpy patch). 
+ >> > Everything seems to be running just fine, so naturally one must nitpick 
+ >> > little things like being told my CPU is running at 0.000 Mhz.  :)
+ >> > 
+ >> fwiw, my Athlon XP2400 does the same in 2.5.67-ac1:
+ >> 
+ >> processor	: 0
+ >> vendor_id	: AuthenticAMD
+ >> cpu family	: 6
+ >> model		: 8
+ >> model name	: AMD Athlon(tm) XP 2400+
+ >> stepping	: 1
+ >> cpu MHz		: 0.000
+ >> cache size	: 256 KB
+ >> bogomips	: 1970.17
 
-Agreed.  Assuming mknod(1) is dev_t-clean, this is obsolete as soon as
-glibc is updated for 64-bit dev_t.  Until then, this is available and
-easy and works.
 
-> What would probably be useful for mknod(1), if it doesn't already, is
-> to allow the major/minor to be specified in any of the standard bases,
-> i.e. using strtoul(...,...,0).
+ Dave> Curious. Do either of you have any cpufreq bits enabled?
+ Dave> If so, does it go away if you disable them?
+ Dave> That frobs with cpu_khz, so it *could* be not initialising
+ Dave> it someplace.  Especially if your hardware turns out to be
+ Dave> unsupported by any of the cpufreq backend drivers..
+It does not help me with 2.5.67-ac2 + pcmcia patch. I get 0.000 MHz,
+589.82 BogoMIPS with or without CPUFreq. It did the same thing with
+2.5.67-ac1 (did not test w/o CPUFreq).
 
-mknod(1) does not, I think.  Actually, maybe it does... it uses some
-coreutils wrapper.
+The box is 600 MHz PIII (Coppermine) in Dell Inspiron 5000. On the plus
+side I kind of like the # of insns per clock cycle ;-)
 
-But my mknod64(1) certainly does :)
+As Jeff said it's almost OK otherwise; it hangs on boot without the
+pcmcia patch and I saw USB Storage oopses.
 
-Hex, decimal, and binary should all work.
-
-	Robert Love
-
+                                                Petr

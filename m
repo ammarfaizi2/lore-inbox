@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316605AbSFZOev>; Wed, 26 Jun 2002 10:34:51 -0400
+	id <S316606AbSFZOiR>; Wed, 26 Jun 2002 10:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316606AbSFZOeu>; Wed, 26 Jun 2002 10:34:50 -0400
-Received: from adsl-66-136-202-174.dsl.austtx.swbell.net ([66.136.202.174]:27273
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S316605AbSFZOet>; Wed, 26 Jun 2002 10:34:49 -0400
-Subject: Re: max_scsi_luns and 2.4.19-pre10.
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Kurt Garloff <garloff@suse.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-In-Reply-To: <20020626123337.GC1217@gum01m.etpnet.phys.tue.nl>
-References: <1025052385.19462.5.camel@UberGeek>
-	  <20020626123337.GC1217@gum01m.etpnet.phys.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 26 Jun 2002 09:32:27 -0500
-Message-Id: <1025101947.19700.15.camel@UberGeek>
+	id <S316609AbSFZOiQ>; Wed, 26 Jun 2002 10:38:16 -0400
+Received: from abricot.axialys.net ([217.146.226.10]:5360 "EHLO kiwi")
+	by vger.kernel.org with ESMTP id <S316606AbSFZOiP>;
+	Wed, 26 Jun 2002 10:38:15 -0400
+Date: Wed, 26 Jun 2002 16:38:08 +0200
+From: Nicolas Bougues <nbougues@axialys.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with wait queues
+Message-ID: <20020626143808.GA6812@kiwi>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org
+References: <20020626140029.GA6310@kiwi> <Pine.LNX.3.95.1020626100928.25416A-100000@chaos.analogic.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1020626100928.25416A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.4i
+Organization: Axialys Interactive http://www.axialys.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-26 at 07:33, Kurt Garloff wrote:
-> Hi Austin,
-> 
-> enough guesses have been there not answering your questions ...
-> 
-> On Tue, Jun 25, 2002 at 07:46:25PM -0500, Austin Gonyou wrote:
-> > This originally was asking for help regarding QLA2200's, but I've since
-> > discovered it's a kernel param problem that I'm not sure how to solve.
-> > 
-> > Using a default RH kernel (from SGI XFS installer) and passing
-> > max_scsi_luns=128 in grub, and for scsi_mod, it seems to work. 
-> 
-> In 2.4.19pre1 a patch was merged into mainline which introduced a flag
-> BLIST_LARGELUN and set it for EMC Symmetrix devices. Some distributors
-> (incl. RH and SuSE) did ship kernels with this patch included.
-> http://van-dijk.net/linuxkernel/200206/0347.html
-> (An older patch for 2.4.16 exists as well.)
+Richard,
 
-Ahh...I see now. I looked for DELL in the scsi_scan.c and saw the
-symmetrix there right above it. I should be able to add LARGELUN, since
-it's #defined above and go for it. I'll see what this does, it's
-starting to make sense now. TIA.
-
-
-
-> The flag does allow a device to use more than 8 LUNs despite it reporting
-> as SCSI Version 2 devices (which can not support more than 8 LUNs normally
-> ...) 
-> The flag also needs to be set for some more devices, look for DGC, DELL, CMD
-> and CNSi/CNSI devices that already have the BLIST_SPARSELUN flag.
+On Wed, Jun 26, 2002 at 10:17:45AM -0400, Richard B. Johnson wrote:
 > 
-> But as you did not post the output of /proc/scsi/scsi nor the syslog
-> meesages from your SCSI subsystem nobody knows what devices you're using or
-> what actually happens. Just speculations ...
+> I am sure that you can have things look correct as well as run
+> properly. However, you didn't show us the code.
+
+It's quite large, and I didn't think I was "syntactically" wrong. But
+the code is available, if somebody wants to have a look.
+
+> You need to do something like:
 > 
-> PS: The better list for such questions is linux-scsi@vger.kernel.org
+>             interruptible_sleep_on(&semaphore);
 > 
-> Regards,
-> -- 
-> Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-> GPG key: See mail header, key servers         Linux kernel development
-> SuSE Linux AG, Nuernberg, DE                            SCSI, Security
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+> while your wake-up occurs with:
+> 
+>             wake_up_interruptible(&semaphore);
+> 
+
+That's what I do, although I use the wait_event_interruptible macro
+instead of interruptible_sleep_on.
+
+>
+> Both ways (and others) will look fine with `top` and will sleep
+> properly.
+> 
+
+If we're talking about %CPU times, right. If we're talking loadavg,
+no. As I said in my previous message, I think it's because my
+wake_up_interruptible() is *always* triggered during the timer
+interrupt, just before the scheduler runs (new data is available every
+100th/sec).
+
+I'm not sure, but I think that the loadavg is computed at the
+beginning of each scheduler run, thus, my task always looks "running"
+at this time, even though it just runs for a few microseconds each
+time.
+
+--
+Nicolas Bougues
+

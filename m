@@ -1,58 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUAGS6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbUAGS6L
+	id S265608AbUAGTG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 14:06:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUAGTG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 13:58:11 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:53109 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264936AbUAGS55 (ORCPT
+	Wed, 7 Jan 2004 14:06:57 -0500
+Received: from pop.gmx.de ([213.165.64.20]:6347 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265608AbUAGTGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 13:57:57 -0500
-Subject: Re: XFS over 7.7TB LVM partition through NFS
-From: Eric Sandeen <sandeen@sgi.com>
-To: Jirka Kosina <jikos@jikos.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.58.0401071824120.31032@twin.jikos.cz>
-References: <Pine.LNX.4.58.0401071824120.31032@twin.jikos.cz>
-Content-Type: text/plain
-Organization: Eric Conspiracy Secret Labs
-Message-Id: <1073501867.23356.5.camel@stout.americas.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Jan 2004 12:57:48 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 14:06:51 -0500
+X-Authenticated: #20450766
+Date: Wed, 7 Jan 2004 20:06:07 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+In-Reply-To: <20040107181920.GN1882@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0401071947270.2922-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to get this out of the way, I assume CONFIG_LBD is turned on?
-I think so, otherwise it should not mount.
+On Wed, 7 Jan 2004, Mike Fedyk wrote:
 
-Also, is below an oops, or an xfs corruption message, or...?  What came
-before the call trace.
+> On Wed, Jan 07, 2004 at 07:13:46PM +0100, Guennadi Liakhovetski wrote:
+> > noticed is that 2.6 is trying to read bigger blocks (32K instead of 8K),
+>
+> You mean it's trying to do 32K nfs block size on the wire?
 
-fsck won't do anything, fsck.xfs is a no-op.
+Emn, no, if I understand it correctly. NFS-client requests 32K of data at
+a time, but that is sent in several fragments. Actually, client is the
+same (2.6 kernel), and it requests 32 or 8K depending on the
+kernel-version of the server...
 
-You could run xfs_repair over the fs to see what it finds.
+> Just post a few samples of the lines that differ.  Any files should be sent
+> off-list.
 
-Also please include xfs_info output for the filesystem, and whether you
-expect that any clients are writing files > 4G...
+Well, I am afraid, I won't be able to identify the important  differring
+packets. I did
+tcpdump -l -i eth0 -exX -vvv -s0
+, so, the log contains complete packet dumps. Ok, I'll try just to quote
+headers. poirot is the server (PC1, 2.4 / 2.6), fast is the client (PC2,
+2.6). Following the first request for data (diff only in length)
 
-And, that stack looks awfully long if it's real, turning on the stack
-overflow check in the kernel might be interesting.
+2.6:
 
--Eric
+18:42:28.374430 0:80:5f:d2:53:f0 0:50:bf:a4:59:71 ip 162:
+fast.grange.462443716 > poirot.grange.nfs: 120 read fh Unknown/1 32768
+bytes @ 0x000008000 (DF) (ttl 64, id 15, len 148)
 
-On Wed, 2004-01-07 at 11:36, Jirka Kosina wrote:
-> Hi,
-> 
-> I am experiencing problems with LVM2 XFS partition in 2.6.0 being accessed 
-> over NFS. After exporting the filesystem clients start writing files to 
-> this partition over NFS, and after a short while we get this call trace, 
-> repeating indefinitely on the screen and the machine stops responding 
-> (keyboard, network):
+2.4:
 
--- 
-Eric Sandeen      [C]XFS for Linux   http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.          651-683-3102
+18:48:57.794687 0:80:5f:d2:53:f0 0:50:bf:a4:59:71 ip 162:
+fast.grange.1972393156 > poirot.grange.nfs: 120 read fh Unknown/1 8192
+bytes @ 0x000002000 (DF) (ttl 64, id 6, len 148)
+
+the server (PC1) sends the following packets:
+
+2.6:
+
+18:42:28.374554 0:50:bf:a4:59:71 0:80:5f:d2:53:f0 ip 1514:
+poirot.grange.nfs > fast.grange.445666500: reply ok 1472 read REG 100644
+ids 0/0 sz 0x00007a120 nlink 1 rdev 0/0 fsid 0x000000000 nodeid
+0x000000000 a/m/ctime 1073497348.374212040 2477.000000 1064093242.000000
+32768 bytes (frag 40553:1480@0+) (ttl 64, len 1500)
+
+18:42:28.374560 0:50:bf:a4:59:71 0:80:5f:d2:53:f0 ip 1514: poirot.grange >
+fast.grange: (frag 40553:1480@1480+) (ttl 64, len 1500)
+
+2.4:
+
+18:48:57.806270 0:50:bf:a4:59:71 0:80:5f:d2:53:f0 ip 962: poirot.grange >
+fast.grange: (frag 39126:928@7400) (ttl 64, len 948)
+
+18:48:57.806291 0:50:bf:a4:59:71 0:80:5f:d2:53:f0 ip 1514: poirot.grange >
+fast.grange: (frag 39126:1480@5920+) (ttl 64, len 1500)
+
+Well, maybe important is this place in 2.6 log - when it got the first
+(2.5s) delay:
+
+18:42:28.414903 1:80:c2:0:0:1 1:80:c2:0:0:1 8808 60:
+
+18:42:31.033837 0:80:5f:d2:53:f0 0:50:bf:a4:59:71 ip 162:
+fast.grange.479220932 > poirot.grange.nfs: 120 read fh Unknown/1 32768
+bytes @ 0x000010000 (DF) (ttl 64, id 18, len 148)
+
+18:42:31.034244 0:50:bf:a4:59:71 0:80:5f:d2:53:f0 ip 1514:
+poirot.grange.nfs > fast.grange.479220932: reply ok 1472 read REG 100644
+ids 0/0 sz 0x00007a120 nlink 1 rdev 0/0 fsid 0x000000000 nodeid
+0x000000000 a/m/ctime 1073497351.33807720 2477.000000 1064093242.000000
+32768 bytes (frag 40557:1480@0+) (ttl 64, len 1500)
+
+So, does it say anything?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+
 

@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266386AbSKLJgT>; Tue, 12 Nov 2002 04:36:19 -0500
+	id <S266353AbSKLJdz>; Tue, 12 Nov 2002 04:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266389AbSKLJgT>; Tue, 12 Nov 2002 04:36:19 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62375 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266386AbSKLJgS>;
-	Tue, 12 Nov 2002 04:36:18 -0500
-Date: Tue, 12 Nov 2002 04:43:06 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Ryan Anderson <ryan@michonline.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] devfs API
-In-Reply-To: <20021112080417.GA11660@think.thunk.org>
-Message-ID: <Pine.GSO.4.21.0211120410130.29617-100000@steklov.math.psu.edu>
+	id <S266363AbSKLJdz>; Tue, 12 Nov 2002 04:33:55 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:6016 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S266353AbSKLJdy> convert rfc822-to-8bit; Tue, 12 Nov 2002 04:33:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Jens Axboe <axboe@suse.de>, Giuliano Pochini <pochini@shiny.it>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+Date: Tue, 12 Nov 2002 20:40:05 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+References: <3DD046BD.799F36D4@digeo.com> <XFMail.20021112095219.pochini@shiny.it> <20021112092045.GB832@suse.de>
+In-Reply-To: <20021112092045.GB832@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211122040.13414.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-On Tue, 12 Nov 2002, Theodore Ts'o wrote:
+>On Tue, Nov 12 2002, Giuliano Pochini wrote:
+>> On 12-Nov-2002 Andrew Morton wrote:
+>> > Con Kolivas wrote:
+>> >> io_load:
+>> >> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+>> >> 2.4.18 [3]              474.1   15      36      10      6.64
+>> >> 2.4.19 [3]              492.6   14      38      10      6.90
+>> >> 2.5.46 [1]              600.5   13      48      12      8.41
+>> >> 2.5.46-mm1 [5]          134.3   58      6       8       1.88
+>> >> 2.5.47 [3]              165.9   46      9       9       2.32
+>> >> 2.5.47-mm1 [5]          126.3   61      5       8       1.77
+>> >
+>> > We've increased the kernel build speed by 3.6x while decreasing the
+>> > speed at which writes are retired by 5.3x.
+>>
+>> Did the elevator change between .46 and .47 ?
+>
+>No, but the fifo_batch count (which controls how many requests are moved
+>sort list to dispatch queue) was halved. This gives lower latency, at
+>the possible cost of dimishing throughput.
 
-> In any case, if there aren't all that many people using devfs, I can
-> think of a really easy way in which we could simplify and clean up its
-> API by slimming it down by 100%......
+Preempt also lowered this value, and ReiserFS changes may have affected it 
+further (test machine running Reiser).
 
-Well.  If Linus decides to remove devfs, I certainly won't weep for it.
-However, I don't see any signs of that happening right now, and cleaned
-interface is less PITA than what we have in the current tree.  Right now
-I'm mostly interested in making the glue in drivers simpler and less
-intrusive.  The fact that it leads to less/simpler code in devfs proper
-is also a Good Thing(tm)...
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE90Mx4F6dfvkL3i1gRAtNhAKCfIDch3dTao94+xTpEUDDYHkZFTQCdEeX9
+280PvEgXnJDt4RxByJX/pnM=
+=ct+I
+-----END PGP SIGNATURE-----
 

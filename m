@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267996AbUBRUV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268001AbUBRUV0
+	id S267904AbUBRTWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267867AbUBRTW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:21:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45282 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267996AbUBRUVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:21:06 -0500
-Date: Wed, 18 Feb 2004 12:22:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brandon Low <blow@rbsys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-Id: <20040218122216.62bb9e82.akpm@osdl.org>
-In-Reply-To: <20040218200439.GB449@lostlogicx.com>
-References: <20040217232130.61667965.akpm@osdl.org>
-	<40338FE8.60809@tmr.com>
-	<20040218200439.GB449@lostlogicx.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 18 Feb 2004 14:22:29 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:60939 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267903AbUBRTW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:22:26 -0500
+Date: Wed, 18 Feb 2004 19:15:59 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: davidm@hpl.hp.com
+Cc: Christoph Hellwig <hch@infradead.org>, Pat Gefre <pfg@sgi.com>,
+       akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 PATCH] Altix update
+Message-ID: <20040218191559.B11957@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, davidm@hpl.hp.com,
+	Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com> <20040218170601.A10490@infradead.org> <16435.45326.877129.189633@napali.hpl.hp.com> <20040218184411.A11714@infradead.org> <16435.46665.488393.913044@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16435.46665.488393.913044@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Wed, Feb 18, 2004 at 11:00:25AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brandon Low <blow@rbsys.com> wrote:
->
-> I must add my voice here in strong opposition of the removal of
->  cryptoloop from the 2.6 series of kernels.  This is no longer a
->  development series kernel, I (and others, I'm sure) have been working on
->  developing technologies which depend on this functionality and which
->  would be _very_ annoying to do with DM (liveCD-on-cryptoloop-on-iso).
+On Wed, Feb 18, 2004 at 11:00:25AM -0800, David Mosberger wrote:
+> Where?  On linux-ia64 or on lkml?  I don't recall these discussions
+> (but then again, I'm admittedly very good at forgetting stuff...).
 
-Why is it problematic?
+Linux-IA64.  I sent a bunch of patches to you and Jesse that you applied
+but large parts of SGI didn't for certain reasons (NIH comes to mind).
 
->  Please do not drop cryptoloop!
-
-ho-hum.  Why should we retain crypto capabilities which have widely
-understood vulnerabilities?
-
-We mainly want to remove the bio remapping stuff from the loop driver
-because it's horrid and deadlocks under heavy memory pressure.  Maybe we
-can leave crytoloop there with big "kindergarten crypto - do not use"
-labels all over it.
-
+We had some discussion on linux-ia64 and on private mail on this, SGI
+promised to look at the patches later.  Small parts now got in without
+any attribution through Pat's patchkits but other parts are still missing
+after many month of waiting.
 

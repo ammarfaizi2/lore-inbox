@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315627AbSGVDZ2>; Sun, 21 Jul 2002 23:25:28 -0400
+	id <S315337AbSGUXv2>; Sun, 21 Jul 2002 19:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315856AbSGVDZ2>; Sun, 21 Jul 2002 23:25:28 -0400
-Received: from maillog.promise.com.tw ([210.244.60.166]:12295 "EHLO
-	maillog.promise.com.tw") by vger.kernel.org with ESMTP
-	id <S315627AbSGVDZ1>; Sun, 21 Jul 2002 23:25:27 -0400
-Message-ID: <01ee01c2312e$22976900$47cba8c0@promise.com.tw>
-From: "support" <support@promise.com.tw>
-To: <romieu@cogenit.fr>, <giro@hades.udg.es>
-Cc: "Hank" <hanky@promise.com.tw>, <linux-kernel@vger.kernel.org>,
-       <marcelo@conectiva.com.br>, <alan@lxorguk.ukuu.org.uk>
-References: <01b801c22f0b$c02cc360$47cba8c0@promise.com.tw>
-Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update
-Date: Mon, 22 Jul 2002 11:16:04 +0800
+	id <S315431AbSGUXuK>; Sun, 21 Jul 2002 19:50:10 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:39585 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S315417AbSGUXuD>;
+	Sun, 21 Jul 2002 19:50:03 -0400
+Date: Mon, 22 Jul 2002 01:52:06 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+In-Reply-To: <1027299841.16818.124.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207220151420.4346-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giro,
 
-Yes, It's 2.4.18 + patch-2.4.19-rc2 + patch-2.4.19-rc2-ac2 +
-promise-patch-2.4.19-rc2-ac2.
+On 22 Jul 2002, Alan Cox wrote:
 
-Sorry, In ide.c (line-918) lack a '{' sign.c
+> > > Actually its to cover the case where you have a floppy drive, and you've
+> > > booted the kernel from a floppy disk, and the kernel doesn't have the
+> > > floppy driver built in.  It turns the floppy drive off, cause there's
+> > > nothing else to do that.
+> > 
+> > this should then be done by the floppy boot code?
+> 
+> Most definitely. On legacy free boxes there may not even be a floppy
+> controller present, and on non x86 your guess is as good as mine at
+> where the fdc lives.
 
-> drivers/ide/idedriver.o(.text+0x3b37): undefined reference to
-> `pdc202xx_marvell_idle'
+non-x86 was covered via an #ifdef, but legacy-free is not covered.
 
-Sorry, You must not enable CONFIG_BLK_DEV_PDC202XX
-Or append follows will be okay.
-ide.c (line-172)
-#ifdef CONFIG_BLK_DEV_PDC202XX
-extern int pdc202xx_marvell_idle (ide_drive_t *);/* needed below -- Promise
-*/
-#endif
-
-ide.c (line-918)
- if (GET_STAT() & (BUSY_STAT|DRQ_STAT)) {
-#ifdef CONFIG_BLK_DEV_PDC202XX
-  /* Give a breath for Idle Immediate by Promise */
-  if (HWIF(drive)->pci_devid.vid == PCI_VENDOR_ID_PROMISE)
-   pdc202xx_marvell_idle(drive);
-  else
-#endif
-   OUT_BYTE(WIN_IDLEIMMEDIATE, IDE_COMMAND_REG); /* force an abort */
- }
-
-
-Alan or Marcelo, Would you please help us to update above issue? Thanks.
-
-
-Francois,
-
-We don't occur Oops you said, Please check your patch rule again.
-
-
---
-Promise Technology, Inc
-
+	Ingo
 

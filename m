@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275503AbTHNUmm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 16:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275504AbTHNUmm
+	id S275497AbTHNUmT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 16:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275503AbTHNUmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 16:42:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11276 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275503AbTHNUmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 16:42:40 -0400
-Date: Thu, 14 Aug 2003 21:42:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Eli Carter <eli.carter@inet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
-Message-ID: <20030814214236.F332@flint.arm.linux.org.uk>
-Mail-Followup-To: Eli Carter <eli.carter@inet.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org> <1060879622.5983.7.camel@dhcp23.swansea.linux.org.uk> <3F3BED30.90904@inet.com>
+	Thu, 14 Aug 2003 16:42:19 -0400
+Received: from guug.org ([168.234.203.30]:16138 "EHLO guug.galileo.edu")
+	by vger.kernel.org with ESMTP id S275497AbTHNUmS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 16:42:18 -0400
+Date: Thu, 14 Aug 2003 14:36:58 -0600
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: FBDEV updates.
+Message-ID: <20030814203658.GE7862@guug.org>
+References: <Pine.LNX.4.44.0308142052440.15200-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F3BED30.90904@inet.com>; from eli.carter@inet.com on Thu, Aug 14, 2003 at 03:12:32PM -0500
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <Pine.LNX.4.44.0308142052440.15200-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 03:12:32PM -0500, Eli Carter wrote:
-> Alan Cox wrote:
-> > Now if you'd agree to merge the kgdb stubs to replace it.... ;)
+On Thu, Aug 14, 2003 at 08:54:21PM +0100, James Simmons wrote:
 > 
-> No, that isn't something I can take on. :/  (Though I did get it 
-> partially working on 2.5 XScale.)
+> Hi folks!!
+> 
+>   Here is the latest fbdev BK drop. It is against 2.6.0-test3. Test it out 
+> and tell me your results. I like to do a code drop soon. 
 
-George Davis did some work in this area.  I'm not sure what state it's
-in though.
+James:
 
-http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=1335/1
+what is the current state of PM in fb drivers?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+does modedb is being used on 2.6 drivers?
+
+Is there an API (or lib) to use framebuffers devices without
+worring about differents visuals?, to quering, setting or
+disabling EDID support? will these drivers export sysfs
+entries instead of control via ioctl's?
+
+thanks for your work on fb.
+
+-solca
 

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTEQSji (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 14:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTEQSjh
+	id S261775AbTEQTDU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 15:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEQTDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 14:39:37 -0400
-Received: from angband.namesys.com ([212.16.7.85]:56961 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S261769AbTEQSjh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 14:39:37 -0400
-Date: Sat, 17 May 2003 22:52:22 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ch@murgatroid.com, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.69-mm6
-Message-ID: <20030517185222.GA2716@namesys.com>
-References: <200305162126_MC3-1-3947-176E@compuserve.com> <1053175888.7505.1.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 17 May 2003 15:03:20 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:34316 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261775AbTEQTDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 15:03:19 -0400
+Date: Sat, 17 May 2003 21:16:11 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove 'strchr' warning from reiserfs
+Message-ID: <20030517191611.GA10417@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1053175888.7505.1.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi Linus, please apply - maintainer cc:ed for info.
 
-On Sat, May 17, 2003 at 01:51:29PM +0100, Alan Cox wrote:
-> >   What else should be disablable?
-[...]
-> swapping
+Reiserfs emits a warning about strchr being defined but not
+used. I finally tracked down the reason for this.
+gcc - when seeing strstr(x, "%") recognized that the second parameter
+is a char, and therefore uses strchr instead of strstr.
+The workaround to avoid the warning is to replace the call
+to strstr with strchr - which is OK.
 
-This one is alreay disablable, I think.
-At least my 2.5.69 from current bk have this
-CONFIG_SWAP in "General setup" section of config ;)
+This hides the warning, and brings us down to 6 warnings for a
+make defconfig bzImage.
 
-Bya,
-    Oleg
+	Sam
+
+===== fs/reiserfs/prints.c 1.21 vs edited =====
+--- 1.21/fs/reiserfs/prints.c	Sun Mar 23 07:14:13 2003
++++ edited/fs/reiserfs/prints.c	Sat May 17 21:08:16 2003
+@@ -164,7 +164,7 @@
+ 
+   *skip = 0;
+   
+-  while ((k = strstr (k, "%")) != NULL)
++  while ((k = strchr (k, '%')) != NULL)
+   {
+     if (k[1] == 'k' || k[1] == 'K' || k[1] == 'h' || k[1] == 't' ||
+ 	      k[1] == 'z' || k[1] == 'b' || k[1] == 'y' || k[1] == 'a' ) {

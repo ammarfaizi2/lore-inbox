@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270814AbRHNUdZ>; Tue, 14 Aug 2001 16:33:25 -0400
+	id <S270823AbRHNUdY>; Tue, 14 Aug 2001 16:33:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270817AbRHNUdF>; Tue, 14 Aug 2001 16:33:05 -0400
-Received: from smtp1.one.net ([216.23.22.220]:62983 "HELO us.net")
-	by vger.kernel.org with SMTP id <S270826AbRHNUcU>;
+	id <S270814AbRHNUdE>; Tue, 14 Aug 2001 16:33:04 -0400
+Received: from smtp1.one.net ([216.23.22.220]:62727 "HELO us.net")
+	by vger.kernel.org with SMTP id <S270827AbRHNUcU>;
 	Tue, 14 Aug 2001 16:32:20 -0400
-Message-ID: <057801c12500$52ebd720$b214860a@amdmb>
-From: "Ryan Shrout" <linux-kernel@amdmb.com>
+Message-ID: <056601c12500$39d9fe60$b214860a@amdmb>
+From: "Ryan Shrout" <rshrout@amdmb.com>
 To: <linux-kernel@vger.kernel.org>
 Subject: Slow SCSI Disk Access on AMI Elite 1600 controller
-Date: Tue, 14 Aug 2001 16:33:06 -0400
+Date: Tue, 14 Aug 2001 16:32:24 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -62,5 +62,4 @@ Ryan Shrout
 Owner - Amdmb.com
 http://www.amdmb.com/
 rshrout@amdmb.com
-
 

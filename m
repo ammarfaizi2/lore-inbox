@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbRAZRo7>; Fri, 26 Jan 2001 12:44:59 -0500
+	id <S131333AbRAZRyM>; Fri, 26 Jan 2001 12:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131648AbRAZRot>; Fri, 26 Jan 2001 12:44:49 -0500
-Received: from adsl-63-204-197-52.dsl.snfc21.pacbell.net ([63.204.197.52]:27657
-	"EHLO mail.topdollargeek.com") by vger.kernel.org with ESMTP
-	id <S131138AbRAZRoe>; Fri, 26 Jan 2001 12:44:34 -0500
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Subject: Re: 2.4.0 APM w/ Compaq 16xx laptop...
-Message-ID: <980531042.3a71b762a10d1@www.sunshinecomputing.com>
-Date: Fri, 26 Jan 2001 09:44:02 -0800 (PST)
-From: Brian Macy <bmacy@macykids.net>
-Cc: Brian Macy <bmacy@macykids.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <978926262.3a593ab671347@www.sunshinecomputing.com> <20010108221544.Z3472@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010108221544.Z3472@arthur.ubicom.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 207.33.153.2
+	id <S135179AbRAZRxx>; Fri, 26 Jan 2001 12:53:53 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:45713 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S131333AbRAZRxv>; Fri, 26 Jan 2001 12:53:51 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 26 Jan 2001 09:53:49 -0800
+Message-Id: <200101261753.JAA11559@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Cc: davem@redhat.com, hpa@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the suggestion. Actually got around to trying it... didn't work. But
-the other thing is that the laptop doesn't support ACPI, just APM.
+	I am surprised that anyone is seriously considering denying
+service to sites that do not implement an _experimental_ facility
+and have firewalls that try to play things safe by dropping packets
+which have 1's in bit positions that in the RFC "must be zero."
 
-Brian Macy
+	If Microsoft were to do this with their favorite experimental
+network extensions for msnbc.com, how do you think the non-Microsoft
+world would feel and react?  Well, that's about how the rest of
+the world is likely to view this.
 
-Quoting Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>:
+	That said, I wonder if some tweak to the Linux networking
+stack is possible whereby it would automatically disable ECN and retry
+on per socket basis if the connection establishment otherwise seems to
+be timing out.  This may be tricky given that the purpose of this
+facility is congestion notification, but, if someone is smart enough
+to be able to implement this, it would provide a much less disruptive
+migration path for adoption across firewalls that drop these packets.
+Far more sites could then safely activate this feature without limiting
+the hosts that they can reach.
 
-> On Sun, Jan 07, 2001 at 07:57:42PM -0800, Brian Macy wrote:
-> > Anyone get this working? If so please tell me the version of you APM
-> utilities
-> > and what Power Management options you have on in the kernel.
-> >
-> > Ever since I started trying 2.3.x, as soon as the box gets a change in
-> it's
-> > power status (even just an update of the % battery) Linux locks solid.
-> It's 100%
-> > repeatable.
->
-> Sounds like the kernel is using ACPI reserved memory, so the first ACPI
-> event corrupts kernel memory and the kernel locks up.
->
-> I've seen similar problems with an IBM ThinkPad 600X, but it was fixed
-> somewhere in 2.4.0-pre12-test7. Try linux-2.4.0, if that doesn't work,
-> boot the kernel with "mem=1MB-less-than-the-machine-actually-has", so
-> for a 128MB machine, try "mem=127M".
->
->
-> Erik
->
-> --
-> J.A.K. (Erik) Mouw, Information and Communication Theory Group,
-> Department
-> of Electrical Engineering, Faculty of Information Technology and
-> Systems,
-> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The
-> Netherlands
-> Phone: +31-15-2783635  Fax: +31-15-2781843  Email:
-> J.A.K.Mouw@its.tudelft.nl
-> WWW: http://www-ict.its.tudelft.nl/~erik/
->
->
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269455AbRGaUxN>; Tue, 31 Jul 2001 16:53:13 -0400
+	id <S269465AbRGaUyd>; Tue, 31 Jul 2001 16:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269462AbRGaUxD>; Tue, 31 Jul 2001 16:53:03 -0400
-Received: from weta.f00f.org ([203.167.249.89]:52358 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269455AbRGaUw4>;
-	Tue, 31 Jul 2001 16:52:56 -0400
-Date: Wed, 1 Aug 2001 08:53:36 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Pekka Savola <pekkas@netcore.fi>
-Cc: kuznet@ms2.inr.ac.ru, therapy@endorphin.org, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: missing icmp errors for udp packets
-Message-ID: <20010801085336.C8400@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.33.0107312249230.20772-100000@netcore.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107312249230.20772-100000@netcore.fi>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S269463AbRGaUyX>; Tue, 31 Jul 2001 16:54:23 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:22150 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S269462AbRGaUyF> convert rfc822-to-8bit;
+	Tue, 31 Jul 2001 16:54:05 -0400
+Message-ID: <3B671CCD.FB1E2FEF@randomlogic.com>
+Date: Tue, 31 Jul 2001 14:02:05 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
+In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com> <20010731140927.A31267@pc8.lineo.fr>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 10:59:39PM +0300, Pekka Savola wrote:
+Sorry for the OT post folks, but...
 
-    bad ping responder == bad PR ;-)
+christophe barbé wrote:
 
-    And anyway, who is anyone to judge what the system should be used
-    for?
+> 
+> Christophe
+> 
+> PS: I don't remember the name but there is a unix tool that provide
+> everything for MsExchange sharing facilities.
+> 
 
-    I want a system to respond to ping without limitations; it's good
-    for debugging, diagnostics, etc.  If I want, I can just filter the
-    requests out, or rate-limit the responses.
+You struck a chord here. I am forced to use Exchange here at work for my company e-mail (which would be pallen@akamai.com). I much prefer to use any Linux/UNIX
+(I have a solaris box here as well) mail client and say off of Outhouse/Windows.
 
-People who want to do strange stuff can tweak via sysctl.
+>From what you say above, and maybe I'm misreading it, there are applications out there that will allow me to do Exchange stuff on Linux? Someone please tell me
+more.
 
-    However, ICMP error messages cannot be effectively filtered; they
-    may happen due to TTL=0 when forwarding, legit or illegit UDP
-    connection etc.; only way to effectively limit them is by
-    rate-limiting.  If rate-limiting with informational and error
-    types are the same, we have an inflexible situation here.
+Thanks,
 
-Networks are lossy, you can spill the odd packet anyhow.
+PGA
 
-It was just a suggestion that we merge all ICMP rate-limiting for
-simplicity, I don't see it being an issue for the majority of users.
-
-Perhaps I am wrong, in which case DaveM and Alexey will ignore me :)
-
-I really don't see the need to continue to discuss this further on the
-list, but by all means flame me in private!
-
-
-
-
-
-  --cw
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

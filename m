@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUF0TRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUF0TSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUF0TRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 15:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUF0TRQ
+	id S261914AbUF0TSk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 15:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUF0TSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 15:17:16 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:16734 "EHLO
-	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S261763AbUF0TRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 15:17:12 -0400
-Message-ID: <40DF1D22.2010406@travellingkiwi.com>
-Date: Sun, 27 Jun 2004 20:16:50 +0100
-From: Hamie <hamish@travellingkiwi.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
-References: <1088160505.3702.4.camel@tyrosine> <40DDBA7A.6010404@travellingkiwi.com> <40DF0A98.9040604@travellingkiwi.com> <200406272052.43326@zodiac.zodiac.dnsalias.org>
-In-Reply-To: <200406272052.43326@zodiac.zodiac.dnsalias.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 27 Jun 2004 15:18:40 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:65029 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261914AbUF0TRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 15:17:18 -0400
+Subject: Re: [PATCH] Staircase scheduler v7.4
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: kernel@kolivas.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Willy Tarreau <willy@w.ods.org>
+In-Reply-To: <200406261929.35950.mbuesch@freenet.de>
+References: <200406251840.46577.mbuesch@freenet.de>
+	 <200406252148.37606.mbuesch@freenet.de>
+	 <1088212304.40dccd5035660@vds.kolivas.org>
+	 <200406261929.35950.mbuesch@freenet.de>
+Content-Type: text/plain
+Date: Sun, 27 Jun 2004 21:17:01 +0200
+Message-Id: <1088363821.1698.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Gran wrote:
+On Sat, 2004-06-26 at 19:29 +0200, Michael Buesch wrote:
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Am Sonntag, 27. Juni 2004 19:57 schrieb Hamie:
->  
->
->>FWIW the sound & networking appear to run fine for a while after
->>resuming. But I just started a DVD. It ran fine for about 30 seconds and
->>then the sound went. About 30 seconds later the video froze and the app
->>(xine) has frozen also. (kill -9 time...).
->>    
->>
-> <>
-> I can confirm that here:
-> after resuming, network completely works (yeah!).
-> Sound doesn't.
-> unloading/reloading the sound driver does not help.
-> USB works jumpy (perhaps 5-10hz)
-> Reloading does the trick for usb.
->
+> Now another "problem":
+> Maybe it's because I'm tired, but it seems like
+> your fix-patch made moving windows in X11 is less smooth.
+> I wanted to mention it, just in case there's some other
+> person, who sees this behaviour, too. In case I'm the
+> only one seeing it, you may forget it. ;)
 
-Since it sounds like a different bug to 2643, (Similiar but the patch 
-that fixes the ethernet doesn't appear to doa  lot for the sound). I've 
-opened a new one... #2965.
+I can see the same with 7.4-1 (that's 2.6.7-ck2 plus the fix-patch): X11
+feels sluggish while moving windows around. Simply by loading a Web page
+into Konqueror and dragging Evolution over it, makes me able to
+reproduce this problem.
+
+Doing the same on 2.6.7-mm3 is totally smooth, however.
 

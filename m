@@ -1,41 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319608AbSIMLrw>; Fri, 13 Sep 2002 07:47:52 -0400
+	id <S319607AbSIMLpm>; Fri, 13 Sep 2002 07:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319609AbSIMLrw>; Fri, 13 Sep 2002 07:47:52 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48138 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S319608AbSIMLrv>; Fri, 13 Sep 2002 07:47:51 -0400
-Date: Fri, 13 Sep 2002 07:44:51 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-cc: Bryan Whitehead <driver@jpl.nasa.gov>, Hans Reiser <reiser@Namesys.COM>,
-       Nick LeRoy <nleroy@cs.wisc.edu>, jw schultz <jw@pegasys.ws>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-In-Reply-To: <15744.56819.247501.512522@laputa.namesys.com>
-Message-ID: <Pine.LNX.3.96.1020913072112.22464A-100000@gatekeeper.tmr.com>
+	id <S319608AbSIMLpm>; Fri, 13 Sep 2002 07:45:42 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:47292 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S319607AbSIMLpj>; Fri, 13 Sep 2002 07:45:39 -0400
+Message-ID: <005a01c25b1b$ac7fb390$3083accf@tabasco>
+From: "Bill Davenport" <dragonpt@rcn.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Can prune_icache safely discard inodes which have only clean pages? (2.4.18)
+Date: Fri, 13 Sep 2002 07:49:53 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Nikita Danilov wrote:
+I've got a system which has a fairly large amount of physical memory (2GB)
+that experiences
+performance problems after a large number of files have been accessed.
 
-> Then you missed "reiserfs inclusion into the kernel" soap opera.
-> 
-> And besides, reiserfs in mainline to no extent means reiser4 in mainline
-> (unfortunately).
+Looking into the slab_info I discovered that a very large number of inodes
+are currently
+present in the system (along with many buffer headers). Digging deeper I was
+able to determine
+that most of the inodes were on the inode_unused chain, but were being
+skipped over during
+the prunce_icache processing because they have a non-zero number of pages
+(i_data.nrpages).
+Looking a bit deeper I discovered that most of the inodes had only pages
+that are on the
+clean_pages list, with these pages also accounting for many of the buffer
+heads.
 
-No, that's probably a good thing. I don't care how good any programming
-team might be, an implementation written from scratch probably should burn
-in for a while before going in anywhere it might be used for production.
+The system wasn't attempting to free these pages (presumably since it still
+had a fair
+amount of physical memory available, so it didn't need to do this).
 
-And with all respect to the group, a 4th rewite from scratch in only a few
-years suggests that the ratio of coding to designing is pretty high.
+Is there any danger in changing prune_icache to also pick an inode for
+pruning if it has
+a non-zero page count where the dirty_list and locked_list are empty?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+In particular, the existing code in fs/inode.c looks somewhat like:
+
+ #define CAN_UNUSE(inode) \
+  ((((inode)->i_state | (inode)->i_data.nrpages) == 0)  && \
+   !inode_has_buffers(inode))
+ void prune_icache(int goal)
+ {
+  ...
+  while (entry != &inode_unused)
+  {
+   ...
+   if (inode->i_state & (I_FREEING|I_CLEAR|I_LOCK))
+    continue;
+   if (!CAN_UNUSE(inode))
+    continue;
+
+   Remove inode from i_hash and add to freeable
+  }
+  ...
+  dispose_list(freeable);
+  ...
+ }
+
+and I'd like to change it to:
+
+ void prune_icache(int goal)
+ {
+  ...
+  while (entry != &inode_unused)
+  {
+   ...
+   if (inode->i_state & (I_FREEING|I_CLEAR|I_LOCK))
+    continue;
+   if ((inode->i_state != 0) || inode_has_buffers(inode))
+    continue;
+   if (inode->i_data.nrpages != 0) {
+    if ((!list_empty(&inode->i_data.dirty_pages)) ||
+        (!list_empty(&inode->i_data.locked_pages))) {
+     /* skip if any dirty or locked pages */
+     continue;
+    }
+   }
+
+   Remove inode from i_hash and add to freeable
+  }
+  ...
+  dispose_list(freeable);
+  ...
+ }
+
 

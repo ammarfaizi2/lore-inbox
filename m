@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279785AbRJ0Gft>; Sat, 27 Oct 2001 02:35:49 -0400
+	id <S279786AbRJ0HAD>; Sat, 27 Oct 2001 03:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279786AbRJ0Gff>; Sat, 27 Oct 2001 02:35:35 -0400
-Received: from zero.tech9.net ([209.61.188.187]:61450 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279785AbRJ0GfY>;
-	Sat, 27 Oct 2001 02:35:24 -0400
-Subject: Re: [PATCH] random.c bugfix
-From: Robert Love <rml@tech9.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>
-In-Reply-To: <20011027002142.D23590@turbolinux.com>
-In-Reply-To: <m15xL0J-007qTxC@smtp.web.de> 
-	<20011027002142.D23590@turbolinux.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
-Date: 27 Oct 2001 02:35:55 -0400
-Message-Id: <1004164556.3274.14.camel@phantasy>
-Mime-Version: 1.0
+	id <S279788AbRJ0G7v>; Sat, 27 Oct 2001 02:59:51 -0400
+Received: from pasuuna.fmi.fi ([193.166.211.17]:50445 "EHLO pasuuna.fmi.fi")
+	by vger.kernel.org with ESMTP id <S279786AbRJ0G7l>;
+	Sat, 27 Oct 2001 02:59:41 -0400
+From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
+Message-Id: <200110270700.f9R70AkT028190@leija.fmi.fi>
+Subject: [off topic?] Re: [PATCH] strtok --> strsep in framebuffer drivers (part
+ 2)
+In-Reply-To: <3BD8154E.24511282@loewe-komp.de>
+To: =?ISO-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>
+Date: Sat, 27 Oct 2001 10:00:10 +0300 (EEST)
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL95a (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+X-Filter: pasuuna: 2 received headers rewritten with id 20011027/08605/01
+X-Filter: pasuuna: ID 3994, 1 parts scanned for known viruses
+X-Filter: leija.fmi.fi: ID 23368, 1 parts scanned for known viruses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-10-27 at 02:21, Andreas Dilger wrote:
-> OK, my bad.  At least the random variable-name cleanups let you SEE where
-> we are supposed to be using word sizes and byte sizes.  Even you were
-> confused about it ;-)
+> René Scharfe wrote:
 
-I went over your original patch good; I am surprised I missed this. :/
-Nonetheless, only with the new cleanups could anyone spot this.
+> NAME
+>        strsep - extract token from string
+> [...]
+> RETURN VALUE
+>        The strsep() function returns a pointer to the  token,  or
+>        NULL if delim is not found in stringp.
+> 
+> If strsep returns NULL, and you dereference it -> Oops.
+> 
+> 
+> ! if (!this_opt)
+> 	continue;
 
-> Well, this is a matter of taste.  With my code, it is correct regardless
-> of how tmp is declared, while with your code you assume tmp is TMP_BUF_SIZE
-> words, and that it is declared with a 4-byte type.  Both ways are resolved
-> at compile time, so using "sizeof(tmp)/4" or "sizeof(tmp)*8" doesn't add
-> any run-time overhead.
+Is that manual page incorrect?
 
-I think I prefer your sizeof() method, if for nothing else but that we
-can keep it consistent -- we can always take the sizeof a variable and
-not everything has its size in a define.
+I would think that 
 
-Furthermore, sizeof(tmp) certainly means "size of the variable temp"
-while TMP_BUF_SIZE could be the size of anything related to tmp -- the
-buffer it points to (if it were a pointer), a buffer in it (if it were a
-struct), etc.  Since it all compiles to the same, it is not a huge
-issue.  Just my two bits...
+	strsep() returns NULL  when *stringp points to '\0' character
+	
+	and that if delim is not found in stringp then stringp
+	is just advanced to '\0' character of string (and original
+	*stringp value is returned)
 
-> I don't have a strong opinion either way, if Linus and/or Alan have a
-> preference to do it one way or the other.
+If that is not true, then these all patches are incorrect.
+Namely last token will be skipped.
 
-...but I'm not Alan or Linus ;)
-
-	Robert Love
-
+-- 
+          /"\                           |  Kari 
+          \ /     ASCII Ribbon Campaign |    Hurtta
+           X      Against HTML Mail     |
+          / \                           |

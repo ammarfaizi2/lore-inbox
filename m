@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263511AbUDBKCR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 05:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUDBKCR
+	id S263568AbUDBKNW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 05:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUDBKNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 05:02:17 -0500
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:34403 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263511AbUDBKCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 05:02:15 -0500
-Message-ID: <406D3985.5000008@yahoo.com.au>
-Date: Fri, 02 Apr 2004 19:59:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: Ingo Molnar <mingo@redhat.com>, John Hawkes <hawkes@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler balancing statistics
-References: <200404020853.i328rQ303262@owlet.beaverton.ibm.com>
-In-Reply-To: <200404020853.i328rQ303262@owlet.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 05:13:21 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:12216 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263573AbUDBKNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 05:13:18 -0500
+Date: Fri, 2 Apr 2004 02:11:08 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+Message-ID: <20040402101108.GA752170@sgi.com>
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <4066191E.4040702@yahoo.com.au> <40662108.40705@pobox.com> <20040328135124.GA32597@mail.shareable.org> <40670A36.3000005@pobox.com> <20040328173623.GA1087@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040328173623.GA1087@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley wrote:
-> 	From an analysis standpoint it would be nice to know which of
-> 	the major features are being activated for a particular load.
-> 	So imbalance-driven moves, power-driven moves, and the number of
-> 	times each domain tried to balance and failed would all be useful.
-> 	I think your output covered those.
+On Sun, Mar 28, 2004 at 06:36:23PM +0100, Jamie Lokier wrote:
 > 
->     It doesn't get into the finer points of how the imbalance is derived,
->     but maybe it should...
-> 
-> It's ok to wait and see if those are useful before implementing them. I
-> suspect they would be relatively easily added if they were needed.
-> One reason there are 6 versions of scheduler statistics is that the
-> information needed kept changing, both due to a better understanding of
-> bottlenecks and due to changing code.
-> 
+> This is what I mean: turn off write cacheing, and performance on PATA
+> drops because of the serialisation and lost inter-command time.
 
-Yep.
+Since you have to write the sectors in order (well, you don't have
+to, but the drives all do this), you lose a rev between each write
+when you don't queue commands or have write cacheing.
 
->     Well, every domain that is reported here will cover the entire system
->     because it simply takes the sum of statistics from all domains.
-> 
-> I would suggest creating an output format that gives you all this
-> information (since we have it anyway) but I think it is quite reasonable
-> for the program which *interprets* this information to summarize it.
-> 
+> With TCQ-on-write, you can turn off write cacheing and in theory
+> performance doesn't have to drop, is that right?
 
-OK, yeah that is a fine idea.
+Correct.  I have proven this to my satisfaction.
 
-> 	Would you say these would be in addition to the schedstats or
-> 	would these replace them?
-> 
->     It will replace some of them, I think.
-> 
-> That's my thought too.	I would suggest that we merge them into one patch.
-> Much as I'd like to see my schedstats hit the mainline, I think it
-> is prudent to separate the major architectural changes sched-domains
-> introduces from statistics both related and unrelated to them --
-> and having two statistics patches for the scheduler, even if they are
-> complementary, makes it harder on Andrew and more confusing for users.
-> 
 
-No, I started with your sources, and the plan has always
-been to merge my changes back to you where possible.
+Regarding request sizes, the main benefit to very large (> 1MB)
+request sizes to disk drives is elimination of the lost revolution
+when write cacheing is disabled and you can't queue back-to-
+back writes.
+
+For hardware RAID, they frequently need 4MB or more to hit
+peak performance.
+
+
+I agree that we don't want a host driver to arbitrarily limit
+I/O size, because it's difficult to predict what may be connected
+to it.  It may be necessary due to deficiencies elsewhere, but
+not desired.
+
+jeremy

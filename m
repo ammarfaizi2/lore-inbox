@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263703AbRFFI6W>; Wed, 6 Jun 2001 04:58:22 -0400
+	id <S261238AbRFFJDN>; Wed, 6 Jun 2001 05:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbRFFI6M>; Wed, 6 Jun 2001 04:58:12 -0400
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:50948 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S263703AbRFFI6G>; Wed, 6 Jun 2001 04:58:06 -0400
-Date: Wed, 6 Jun 2001 09:54:31 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-Message-ID: <20010606095431.C15199@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com> <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com> <991815578.30689.1.camel@nomade>
+	id <S261289AbRFFJDD>; Wed, 6 Jun 2001 05:03:03 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:12292 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261238AbRFFJCu>;
+	Wed, 6 Jun 2001 05:02:50 -0400
+Message-ID: <20010605233258.A147@bug.ucw.cz>
+Date: Tue, 5 Jun 2001 23:32:58 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: NFS-related oops in 2.4.5
+In-Reply-To: <20010605230526.A11485@bug.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <991815578.30689.1.camel@nomade>; from xavier.bestel@free.fr on Wed, Jun 06, 2001 at 10:19:30AM +0200
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010605230526.A11485@bug.ucw.cz>; from Pavel Machek on Tue, Jun 05, 2001 at 11:05:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 06, 2001 at 10:19:30AM +0200, Xavier Bestel wrote:
-> On 05 Jun 2001 23:19:08 -0400, Derek Glidden wrote:
-> > On Wed, Jun 06, 2001 at 12:16:30PM +1000, Andrew Morton wrote:
-> > > "Jeffrey W. Baker" wrote:
-> > > > 
-> > > > Because the 2.4 VM is so broken, and
-> > > > because my machines are frequently deeply swapped,
-> > > 
-> > > The swapoff algorithms in 2.2 and 2.4 are basically identical.
-> > > The problem *appears* worse in 2.4 because it uses lots
-> > > more swap.
-> > 
-> > I disagree with the terminology you're using.  It *is* worse in 2.4,
-> > period.  If it only *appears* worse, then if I encounter a situation
-> > where a 2.2 box has utilized as much swap as a 2.4 box, I should see the
-> > same results.  Yet this happens not to be the case. 
-> 
-> Did you try to put twice as much swap as you have RAM ? (e.g. add a 512M
-> swapfile to your box)
-> This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
-> anything less won't do any good: 2.4 overallocates swap even if it
-> doesn't use it all. So in your case you just have enough swap to map
-> your RAM, and nothing to really swap your apps.
-> 
+Hi!
 
-For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
+> I got this while compiling kernel over NFS.
+> 
+> pavel@bug:/usr/src/linux-acpi$ time make bzImage
+> gcc -D__KERNEL__ -I/elf/big/linux-acpi/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -pipe -mpreferred-stack-boundary=2 -march=i386  -DUTS_MACHINE='"i386"'
+> -c -o init/version.o init/version.c
+> gcc: Internal compiler error: program cpp got fatal signal 11
+> make: *** [init/version.o] Error 1
+> 0.46user 0.23system 6.09 (0m6.092s) elapsed 11.32%CPU
+> pavel@bug:/usr/src/linux-acpi$
+> 
+> And signal 11 was because:
+> 
+> Jun  5 23:00:48 bug kernel: kernel BUG at inode.c:486!
+> Jun  5 23:00:48 bug kernel: invalid operand: 0000
+> Jun  5 23:00:48 bug kernel: CPU:    0
+> Jun  5 23:00:49 bug kernel: EIP:    0010:[clear_inode+51/244]
+> Jun  5 23:00:49 bug kernel: EFLAGS: 00010286
+> Jun  5 23:00:49 bug kernel: eax: 0000001b   ebx: c3c3f480   ecx:
+> c231e000   edx: c2f998a0
+> Jun  5 23:00:49 bug kernel: esi: c0304880   edi: c36a0f90   ebp:
+> c231ff84   esp: c231feb8
+> Jun  5 23:00:49 bug kernel: ds: 0018   es: 0018   ss: 0018
+> Jun  5 23:00:49 bug kernel: Process cpp (pid: 8457,
+> stackpage=c231f000)
+> Jun  5 23:00:49 bug kernel: Stack: c029b986 c029b9c5 000001e6 c3c3f480
+> c0140a37 c3c3f480 c13f6c80 c3c3f480
+> Jun  5 23:00:49 bug kernel:        c016c969 c3c3f480 c013e646 c13f6c80
+> c3c3f480 c13f6c80 00000000 c0136ed9
+> Jun  5 23:00:49 bug kernel:        c13f6c80 c231ff34 c0137619 c36a0f90
+> c231ff34 00000000 c3285000 00000000
+> Jun  5 23:00:49 bug kernel: Call Trace: [iput+327/348]
+> [nfs_dentry_iput+33/40] [dput+214/324] [cached_lookup+69/80]
+> [path_walk+1317/1916] [open_namei+115/1392] [nfs_file_release+28/36]
+> Jun  5 23:00:49 bug kernel:        [dput+81/324] [filp_open+46/76]
+> [sys_open+53/184] [system_call+51/56]
+> Jun  5 23:00:49 bug kernel:
+> Jun  5 23:00:49 bug kernel: Code: 0f 0b 83 c4 0c f6 83 f4 00 00 00 10
+> 75 19 68 e8 01 00 00 68
+> 
+> Retrying compilation, I get exactly same oops.
 
-Sean
+Rebooted, retried, still same oops. Reboot to 2.4.0 and it works fine.
+
+(Notice that it is not exactly oops, but BUG().)
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

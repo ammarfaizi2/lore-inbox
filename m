@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSJCOW0>; Thu, 3 Oct 2002 10:22:26 -0400
+	id <S263317AbSJCOqJ>; Thu, 3 Oct 2002 10:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbSJCOW0>; Thu, 3 Oct 2002 10:22:26 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:10129 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261401AbSJCOWZ>; Thu, 3 Oct 2002 10:22:25 -0400
-Date: Thu, 3 Oct 2002 09:27:49 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: John Levon <levon@movementarian.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RfC: Don't cd into subdirs during kbuild
-In-Reply-To: <20021003140530.GA56233@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.44.0210030922270.24570-100000@chaos.physics.uiowa.edu>
+	id <S263319AbSJCOqJ>; Thu, 3 Oct 2002 10:46:09 -0400
+Received: from isis.lip6.fr ([132.227.60.2]:53773 "EHLO isis.lip6.fr")
+	by vger.kernel.org with ESMTP id <S263317AbSJCOqG>;
+	Thu, 3 Oct 2002 10:46:06 -0400
+X-pt: isis.lip6.fr
+Date: Thu, 3 Oct 2002 16:51:36 +0200 (CEST)
+From: Cedric Roux <Cedric.Roux@lip6.fr>
+Reply-To: Cedric.Roux@lip6.fr
+To: linux-kernel@vger.kernel.org
+Subject: ipc - msg : memory usage too big ?
+Message-ID: <Pine.LNX.4.44.0210031637090.18081-100000@ouessant.lip6.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Oct 2002, John Levon wrote:
+Hi kernel hackers,
 
-> On Wed, Oct 02, 2002 at 09:59:00PM -0500, Kai Germaschewski wrote:
-> 
-> > ChangeSet@1.676, 2002-10-02 14:42:00-05:00, kai@tp1.ruhr-uni-bochum.de
-> >   kbuild: Remove xfs vpath hack
-> 
-> Why is it a hack ?
+While looking into msg.c, I noticed that in
+sys_msgsnd, there is the test :
 
-Since it gives Rules.make the wrong file names in $(obj-[ym]), and relies 
-on implementation details inside of Rules.make in combination with the 
-vpath statement to make things work despite those wrong names. 
+        if(msgsz + msq->q_cbytes > msq->q_qbytes ||
+                1 + msq->q_qnum > msq->q_qbytes) {
 
-> >   xfs.o is built as one modules out of objects distributed into
-> >   multiple subdirs. That is okay with the current kbuild, you just
-> >   have to include the path for objects which reside in a subdir, then.
-> >   
-> >   xfs used vpath instead of explicitly adding the paths, which is
-> >   inconsistent and conflicts e.g. with proper module version generation.
-> 
-> So I must name the full path for each object in drivers/oprofile/ I
-> include from arch/i386/oprofile/ then ?
+so that you can send a message only if ressources won't
+be exhausted.
 
-So did you decide to move things from drivers/oprofile/$(ARCH) to 
-arch/$(ARCH)/oprofile? It's possible to make it work, but not pretty. As I 
-said before, kbuild actually expects to have all parts of a single module 
-to be in a single dir. This can be lifted a little bit as done for xfs, 
-but spreading parts all over the tree is not very desirable IMO.
+The second case means I can send at most MSGMNB messages
+to a queue, which is by default 16384.
 
---Kai
+Now suppose we send messages of length 0 (only type is used).
 
+Knowing that load_msg calls :
+
+        msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
+
+it will result in allocating 36 bytes of memory (suppose we
+are on a ia32) per message.
+
+We have 16 queues by default, so if we use the 16 queues this way,
+we have :
+16 * 36 * 16384 = 9437184, more than 9 MB used.
+
+I hope I am right :-)
+
+Don't you think it is far beyond the 256 KB someone is
+expected to be used at maximum for the msg stuff ?
+
+If it is seen as a problem, a solution might be to add
+the memory overhead usage into the queue size, or add a
+variable that counts the real memory used, and limits it
+to a reasonable amount.
+
+Cédric.
+
+PS: I am not on the kernel mailing list, so CC is welcome. (I know it is 
+bad practice.)
+-- 
+main(){int i,j;{printf("\n      Who did you say ? Sierpinski ?      \n");}
+for(i=0;i<80;i++){for(j=0;j<80;j++)printf("%c",i&j?'.':' ');printf("\n");}
+printf("\n   Life is a beach - George Sand (1804-1876)  \n\n"); return 0;}
 

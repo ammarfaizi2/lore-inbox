@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUGJEOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266105AbUGJEbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUGJEOk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 00:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGJEOk
+	id S266105AbUGJEbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 00:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGJEbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 00:14:40 -0400
-Received: from vivaldi.madbase.net ([81.173.6.10]:13266 "HELO
-	vivaldi.madbase.net") by vger.kernel.org with SMTP id S266127AbUGJEOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 00:14:39 -0400
-Date: Sat, 10 Jul 2004 00:14:35 -0400 (EDT)
-From: Eric Lammerts <eric@lammerts.org>
-X-X-Sender: eric@vivaldi.madbase.net
-To: Martin Ziegler <mz@newyorkcity.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS no longer working ?
-In-Reply-To: <8232A615C6D0B05C09DBF242@soho>
-Message-ID: <Pine.LNX.4.58.0407100008020.19087@vivaldi.madbase.net>
-References: <8232A615C6D0B05C09DBF242@soho>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jul 2004 00:31:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27592 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266105AbUGJEbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 00:31:47 -0400
+Date: Fri, 9 Jul 2004 21:30:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
+Subject: Re: writepage fs corruption fixes
+Message-Id: <20040709213037.7fb1ac8f.akpm@osdl.org>
+In-Reply-To: <20040710010738.GX20947@dualathlon.random>
+References: <20040709040151.GB20947@dualathlon.random>
+	<20040708212923.406135f0.akpm@osdl.org>
+	<20040709044205.GF20947@dualathlon.random>
+	<20040708215645.16d0f227.akpm@osdl.org>
+	<20040710001600.GT20947@dualathlon.random>
+	<20040710010738.GX20947@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Sat, Jul 10, 2004 at 02:16:00AM +0200, Andrea Arcangeli wrote:
+> > I hope this time I'm done with it.
+> 
+> I'm not after more thinking it seems the below is not a bug.
 
-On Fri, 9 Jul 2004, Martin Ziegler wrote:
-> just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no
-> longer able to use NFS. Are there any recent issues ? For a detailed
-> problem description please see below. Any help is appreciated.
+Yes, I was scratching my head.  If that code was wrong, fsx-linux on
+1k-blocksize ext2-nobh with memory pressure wouldn't last long.
 
-I also had problems with NFS on 2.6.x (not the same as yours, though).
-The solution was to do "mount -t nfsd none /proc/fs/nfsd" on the
-server. You might wanna give that a try, maybe it'll help.
+> I'm lost since I can't find bugs anymore in this function but I need to
+> find something.
 
-Eric
+What is the failure scenario?
+

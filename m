@@ -1,63 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263652AbUCUO1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 09:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbUCUO1k
+	id S263656AbUCUOf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 09:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbUCUOf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 09:27:40 -0500
-Received: from mail501.nifty.com ([202.248.37.209]:28346 "EHLO
-	mail501.nifty.com") by vger.kernel.org with ESMTP id S263652AbUCUO1i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 09:27:38 -0500
+	Sun, 21 Mar 2004 09:35:29 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:54993 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263656AbUCUOf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 09:35:27 -0500
+Message-ID: <405DA830.3070801@cwv.tor.istop.com>
+Date: Sun, 21 Mar 2004 09:35:28 -0500
+From: Colin <cwv@cwv.tor.istop.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Can I merge some separated partitions into one using 'mount --bind'?
-From: Tetsuo Handa <a5497108@anet.ne.jp>
-References: <200403192202.GEE75703.892856B1@anet.ne.jp>
-	<200403201027.EAE41828.258196B8@anet.ne.jp>
-In-Reply-To: <200403201027.EAE41828.258196B8@anet.ne.jp>
-Message-Id: <200403212326.CFF44119.9B612588@anet.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Sun, 21 Mar 2004 23:27:12 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Links to Red Hat on www.kernel.org?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since support for the free version Red Hat ends at the end of April, isn't 
+it time to recommend Fedora or some other free distributions?
 
-# Sorry for asking the same question.
-# This time, this is a simplified one.
-
-Hello,
-
-I need to use two writable partitions now.
-
- /                a read-only fs
- /foo/data        a writable fs
- /bar/data        a writable fs
-
-The root partition needs to be read-only to avoid
-tampering.
-These writable partitions need to be separated, for
-I use 'chroot /foo' and 'chroot /bar'.
-
-But, I want to merge them like this.
-
- /                a read-only fs
- /.data           a writable fs
- /foo/data        a mount point to bind with /.data/foo
- /bar/data        a mount point to bind with /.data/bar
-
-To do so, I use 'mount --bind' like this.
-
-mount --bind /.data/foo    /foo/data
-mount --bind /.data/bar    /bar/data
-
-Now, I want to know whether /foo/data and /bar/data are
-separated. That is, a process (whose root is /)
-can access /.data/foo by resolving /foo/data, and
-can't access /.data/bar by resolving /foo/data/../bar .
-
-Regards...
-
-                  Tetsuo Handa

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUIMPjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUIMPk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268846AbUIMPjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268839AbUIMPie
+	id S268838AbUIMPk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbUIMPj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:38:34 -0400
-Received: from [209.88.178.130] ([209.88.178.130]:10230 "EHLO constg.qlusters")
-	by vger.kernel.org with ESMTP id S268565AbUIMP3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 11:29:54 -0400
-Message-ID: <4145BC8A.6070907@qlusters.com>
-Date: Mon, 13 Sep 2004 18:28:10 +0300
-From: Constantine Gavrilov <constg@qlusters.com>
-Reply-To: Constantine Gavrilov <constg@qlusters.com>
-Organization: Qlusters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	Mon, 13 Sep 2004 11:39:56 -0400
+Received: from bay0-pcs1.bay0.hotmail.com ([65.54.241.181]:18582 "EHLO
+	bay0-pcs1.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S268845AbUIMPjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:39:16 -0400
+Date: Mon, 13 Sep 2004 08:39:15 -0700 (PDT)
+Message-Id: <200409131539.i8DFdFko012045@bay0-pcs1.bay0.hotmail.com>
+To: linux-kernel@vger.kernel.org
+From: MSN Hotmail <msn_newsletters@hotmail.com>
+Subject: Nowrap bgcolor
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
-  machines
-References: <2DZQy-7TB-7@gated-at.bofh.it> <m3r7p6gs07.fsf@averell.firstfloor.org>
-In-Reply-To: <m3r7p6gs07.fsf@averell.firstfloor.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Originating-IP: [65.54.241.181]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
->Constantine Gavrilov <constg@qlusters.com> writes:
->
->  
->
->>Can someone explain the reason for the crash? Can you think of a
->>    
->>
->
->syscall/sysret don't support recursive calls. That's the price for
->being fast.
->
-I do not think recursive calls are used here. Do I miss something?
-
--- 
-----------------------------------------
-Constantine Gavrilov
-Kernel Developer
-Qlusters Software Ltd
-1 Azrieli Center, Tel-Aviv
-Phone: +972-3-6081977
-Fax:   +972-3-6081841
-----------------------------------------
-
-
+Dear MSN Newsletter customer,
+ 
+You have received this mail because you have replied to an unmonitored alias.
+For assistance with your newsletter subscription, please select one of the following options:
+ 
+Manage (subscribe or unsubscribe)your newsletter subscriptions via our website.
+http://newsletters.msn.com/
+ 
+OR
+ 
+Visit MSN Newsletter Technical Support to report a problem.
+http://newsletters.msn.com/support.asp
+ 
+OR
+ 
+Visit MSN Newsletter Feedback to provide any additional feedback or ask
+questions about MSN Newsletters.
+http://newsletters.msn.com/feedback.asp
+ 
+Best,
+MSN Newsletter Staff
+http://newsletters.msn.com

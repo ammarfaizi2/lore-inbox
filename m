@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131139AbQK2Lrf>; Wed, 29 Nov 2000 06:47:35 -0500
+        id <S131154AbQK2MMm>; Wed, 29 Nov 2000 07:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130587AbQK2LrZ>; Wed, 29 Nov 2000 06:47:25 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:40919 "EHLO hera.cwi.nl")
-        by vger.kernel.org with ESMTP id <S131143AbQK2LrN>;
-        Wed, 29 Nov 2000 06:47:13 -0500
-Date: Wed, 29 Nov 2000 12:16:43 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200011291116.MAA147726.aeb@aak.cwi.nl>
-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
-Subject: Re: corruption
-Cc: linux-kernel@vger.kernel.org
+        id <S131092AbQK2MMc>; Wed, 29 Nov 2000 07:12:32 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:31237 "EHLO zikova.cvut.cz")
+        by vger.kernel.org with ESMTP id <S131070AbQK2MMV>;
+        Wed, 29 Nov 2000 07:12:21 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jens Axboe <axboe@suse.de>
+Date: Wed, 29 Nov 2000 12:41:28 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.0-test11 ext2 fs corruption
+CC: "David S. Miller" <davem@redhat.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org, tytso@valinux.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <E3B2B45385F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> can you give a rough estimate on when you suspect you started seeing it?
+On 29 Nov 00 at 1:43, Jens Axboe wrote:
 
-I reported both cases. That is, I started seeing it a few days ago.
-(But there is no problem during daily work. Also for example a
-diff between two kernel trees never gave corruption so far.
-It was only with diff between trees several GB in size, and I
-don't do that very often.)
+> Could you try and reproduce with attached patch? If this would trigger
+> I would assume fs corruption as well (which doesn't seem to be the
+> case for you), but it's worth a shot.
 
-Andries
+I'll try, but it is not easily reproducible. Fortunately.
+
+BTW, during night, it came to me that maybe I was biased with original
+diagnostics (thing written twice), as there was (~3 weeks ago) unpacked
+XF4.0.1-0phase?v27 on the same disk. 
+
+As font data did not change between these two versions, it is possible 
+that one 27 blocks chunk (*.c files) was lost (or written somewhere where 
+I did not found it yet), instead of another one (fonts) duplicated.
+                                                Thanks,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

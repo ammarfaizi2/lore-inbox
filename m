@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275435AbTHIXY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 19:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275436AbTHIXY5
+	id S275436AbTHIXxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 19:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275437AbTHIXxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 19:24:57 -0400
-Received: from mail.wlanmail.com ([194.100.155.139]:6662 "HELO
-	mail.wlanmail.com") by vger.kernel.org with SMTP id S275435AbTHIXY4
+	Sat, 9 Aug 2003 19:53:36 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:33440 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S275436AbTHIXxY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 19:24:56 -0400
-From: Joonas Koivunen <rzei@mbnet.fi>
-Reply-To: rzei@mbnet.fi
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Subject: Re: [BUG?] 2.6.0-test3 USB mouse problems
-Date: Sun, 10 Aug 2003 02:24:25 +0300
-User-Agent: KMail/1.5.1
-References: <200308091506.20935.rzei@mbnet.fi> <200308091808.34884.rzei@mbnet.fi> <200308091803.00289.schlicht@uni-mannheim.de>
-In-Reply-To: <200308091803.00289.schlicht@uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 9 Aug 2003 19:53:24 -0400
+Date: Sun, 10 Aug 2003 01:42:57 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH] ia32 irq router detection bug in 2.4.22-rc1-ac1
+Message-ID: <Pine.LNX.4.53.0308100136240.1011@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308100224.28641.rzei@mbnet.fi>
+Content-Type: MULTIPART/MIXED; BOUNDARY="658386544-1604970508-1060472577=:1105"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 August 2003 19:02, Thomas Schlichter wrote:
-> It's not a problem with ACPI, it's more a problem with the interrupt
-> routing based on the ACPI tables. These tables seem to be not correctly
-> implemented in the BIOS and, as the german EPOX support admits, are not
-> really tested. To change this you may contact the EPOX support and describe
-> your problems, too....
-Thanks for letting me know.. I had a image of EPOX being pretty good with 
-motherboards.. Guess not then.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> If you want to use ACPI while this BIOS bug is not fixed you may use the
-> attached patch and boot with pci=noacpi. Without the patch this doesn't
-> work for me here...
-Why isn't this patch in the mainstream kernel? There are many other 
-chipset/bios fixes in the kernel.. This would save many 
-reboot/recompilings/worries until or if ever epox does something with the 
-bios.
+--658386544-1604970508-1060472577=:1105
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-The patch works nicely. Though I did apply it manually to -test3 :) But it 
-works.
+2.4.22-rc1-ac1 can misdetect irq routers because of a typo in the probing 
+code.
 
+Patch attached.
 
-> Best regards
->   Thomas Schlichter
+LLaP
+bero
 
-Thanks again
--rzei
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php
+--658386544-1604970508-1060472577=:1105
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.4.22-rc1-ac1-irq-fix.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0308100142570.1105@dot.kde.org>
+Content-Description: IRQ routing fix
+Content-Disposition: attachment; filename="2.4.22-rc1-ac1-irq-fix.patch"
+
+LS0tIGxpbnV4LTIuNC4yMS9hcmNoL2kzODYva2VybmVsL3BjaS1pcnEuYy5h
+cmsJMjAwMy0wOC0wOSAxNzozODoxMC4wMDAwMDAwMDAgKzAyMDANCisrKyBs
+aW51eC0yLjQuMjEvYXJjaC9pMzg2L2tlcm5lbC9wY2ktaXJxLmMJMjAwMy0w
+OC0wOSAxNzozODo0My4wMDAwMDAwMDAgKzAyMDANCkBAIC04MTksNyArODE5
+LDcgQEANCiAJCWlmIChydC0+cnRyX3ZlbmRvciA9PSBoLT52ZW5kb3IgJiYg
+aC0+cHJvYmUociwgcGlycV9yb3V0ZXJfZGV2LCBydC0+cnRyX2RldmljZSkp
+DQogCQkJYnJlYWs7DQogCQkvKiBGYWxsIGJhY2sgdG8gYSBkZXZpY2UgbWF0
+Y2ggKi8NCi0JCWlmIChwaXJxX3JvdXRlcl9kZXYtPnZlbmRvciA9PSBwaXJx
+X3JvdXRlcl9kZXYtPnZlbmRvciAmJiBoLT5wcm9iZShyLCBwaXJxX3JvdXRl
+cl9kZXYsIHBpcnFfcm91dGVyX2Rldi0+ZGV2aWNlKSkNCisJCWlmIChwaXJx
+X3JvdXRlcl9kZXYtPnZlbmRvciA9PSBoLT52ZW5kb3IgJiYgaC0+cHJvYmUo
+ciwgcGlycV9yb3V0ZXJfZGV2LCBwaXJxX3JvdXRlcl9kZXYtPmRldmljZSkp
+DQogCQkJYnJlYWs7DQogCX0NCiAJcHJpbnRrKEtFUk5fSU5GTyAiUENJOiBV
+c2luZyBJUlEgcm91dGVyICVzIFslMDR4LyUwNHhdIGF0ICVzXG4iLA0K
+
+--658386544-1604970508-1060472577=:1105--

@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUIJAqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUIJAsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUIJAqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUIJAqr
+	id S266566AbUIJAsb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 20:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUIJAsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:46:47 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:23205 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S265795AbUIJAqp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:46:45 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Petr Vandrovec <vandrove@vc.cvut.cz>, adaplas@pol.net
-Subject: Re: [PATCH 7/7] fbdev: Add Tile Blitting support
-Date: Fri, 10 Sep 2004 08:47:55 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200409100534.56680.adaplas@hotpop.com> <20040910001113.GA19132@vana.vc.cvut.cz>
-In-Reply-To: <20040910001113.GA19132@vana.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 20:48:31 -0400
+Received: from open.hands.com ([195.224.53.39]:53727 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S266566AbUIJAsQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 20:48:16 -0400
+Date: Fri, 10 Sep 2004 01:59:32 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
+Message-ID: <20040910005932.GA11160@lkcl.net>
+References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net> <20040910000819.GA7587@lkcl.net> <20040909172134.G1924@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409100847.56034.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <20040909172134.G1924@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 September 2004 08:11, Petr Vandrovec wrote:
-> On Fri, Sep 10, 2004 at 05:34:56AM +0800, Antonino A. Daplas wrote:
-> > In my case at least, the cleanup did produce an unexpected but beneficial
-> > side effect, a little more speedup.  Not much, < 5%.
-> >
-> > Petr, if you have comments, suggestions, or you think this is a bad idea,
-> > let me know.
->
-> It looks like good idea to me.  Though I still do not see benefits
-> 2.6.x fbcon provides over 2.4.x.
+On Thu, Sep 09, 2004 at 05:21:35PM -0700, Chris Wright wrote:
+> >  under such circumstances [file descs passed between programs]...
+> >  you would end up having to create _two_ program-specific rules, like
+> >  above.
+> > 
+> >  one for each of the two programs.
+> 
+> Actually you wouldn't, just one.  It will match, then one of those
+> processes will get woken up and receive the data, regardless of whether
+> you meant to allow it.  
 
-Too late for that :-).  Personally, minus the stability and bugs, I
-prefer 2.6 over 2.4.
+ blehhrrr....
 
->
-> BTW, there is still bad bug with software scrollback and multihead
-> (it is here since I remember): redraw_screen sets redraw to 0 when
-> old_console == new_console, but fbcon uses con_switch() method for
-> deciding whether software scrollback should be reinitialized or not.
-> As software scrollback is per-system and not per-fbdev thing, this
-> has rather nasty consequences - when both fbdevs have different xres,
-> console user can crash system (con2fb /dev/fb1 /dev/tty11; set xres
-> fb0 != xres fb1; chvt 11; chvt 10; chvt 11; hit alt-shift-pgup
-> or force vt11 to scroll; crash, some kernel data structures were
-> overwritten with 0x0720...).
+ oh i get it.  
+ 
+ is that like someone writing really poor quality code where
+ you have two processes reading from the same socket, wot like
+ you're not supposed to do?
 
-I just tried it now, but can't elicit a crash (2.6.9-rc1-mm4 + my patches).
-I'll try to examine this in more detail this weekend.
+ or are there real instances / times where you really _do_ want
+ that sort of thing to happen (xinetd?)
 
-Tony
+ [btw the sk_socket->file thing isn't filled in on input packets,
+  but you still get the packet.  arg.  how the heck does ip_queue
+  get enough info???]
 
+ ta,
+
+ l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 

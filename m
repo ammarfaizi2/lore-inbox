@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290662AbSAYM63>; Fri, 25 Jan 2002 07:58:29 -0500
+	id <S290667AbSAYNSF>; Fri, 25 Jan 2002 08:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290667AbSAYM6T>; Fri, 25 Jan 2002 07:58:19 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:60173 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S290662AbSAYM6G>;
-	Fri, 25 Jan 2002 07:58:06 -0500
-Date: Fri, 25 Jan 2002 13:55:45 +0100
-From: Frank van Maarseveen <fvm@altium.nl>
-To: linux-kernel@vger.kernel.org
-Subject: restoring hard linked files from zisofs/iso9660 w. RR
-Message-ID: <20020125135545.A28897@espoo.tasking.nl>
-Reply-To: frank.van.maarseveen@altium.nl
+	id <S290669AbSAYNRz>; Fri, 25 Jan 2002 08:17:55 -0500
+Received: from ns.suse.de ([213.95.15.193]:15121 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290667AbSAYNRn>;
+	Fri, 25 Jan 2002 08:17:43 -0500
+Date: Fri, 25 Jan 2002 14:17:42 +0100
+From: Dave Jones <davej@suse.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Machine Check Exception ?
+Message-ID: <20020125141742.D28068@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-X-Subliminal-Message: Use Linux!
-Organization: ALTIUM Software BV
+In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>; from skraw@ithnet.com on Fri, Jan 25, 2002 at 11:47:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This doesn't seem to work due to inode number differences. Is
-this a fundamental problem or can it be solved somehow, e.g.
-by an attribute which refers to a sort of "original" inode
-number?
+On Fri, Jan 25, 2002 at 11:47:18AM +0100, Stephan von Krawczynski wrote:
+ > Message from syslogd@diehard at Thu Jan 24 14:44:49 2002 ...
+ > diehard kernel: CPU 0: Machine Check Exception: 0000000000000004
+ > 
+ > and the box is dead.
+ > Can anybody please enlighten me what this means or what a possible
+ > problem behind might be?
 
-or by a more advanced inode number synthesis in fs/isofs?
+ Typically a hardware problem. Some older systems generate them
+ spuriously though, which is why we have a "nomce" boot option.
 
 -- 
-Frank
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVAEEsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVAEFQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVAEEsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 23:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVAEEsL
+	id S262245AbVAEFQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 00:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVAEFQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 23:48:11 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:52664 "EHLO
+	Wed, 5 Jan 2005 00:16:31 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:58552 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262243AbVAEEsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 23:48:03 -0500
-Subject: Re: libata PATA support - work items?
+	id S262245AbVAEFQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 00:16:29 -0500
+Subject: Re: How to write elegant C coding
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Eric Mudama <edmudama@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Albert Lee <albertcc@tw.ibm.com>, IDE Linux <linux-ide@vger.kernel.org>,
-       Doug Maxey <dwm@maxeymade.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <41DB5417.8020608@pobox.com>
-References: <006301c4ee5c$49e6a230$95714109@tw.ibm.com>
-	 <311601c9050101111929aef5ba@mail.gmail.com>  <41DB299C.3030405@pobox.com>
-	 <1104886199.17176.115.camel@localhost.localdomain>
-	 <41DB5417.8020608@pobox.com>
+To: krishna <krishna.c@globaledgesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <lkml@kolivas.org>
+In-Reply-To: <41DB6248.2030003@globaledgesoft.com>
+References: <41DB5E83.4080000@globaledgesoft.com>
+	 <41DB6210.4030007@kolivas.org>  <41DB6248.2030003@globaledgesoft.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104893729.24187.135.camel@localhost.localdomain>
+Message-Id: <1104898308.24896.158.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 05 Jan 2005 03:43:23 +0000
+Date: Wed, 05 Jan 2005 04:11:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-05 at 02:42, Jeff Garzik wrote:
-> > - IORDY timers (not handled well in drivers/ide but needed)
-> I think I know what this is.
+On Mer, 2005-01-05 at 03:43, krishna wrote:
+> What I mean is both elegant and _efficient_ best practices in C coding.
 
-The SII has support for this in the h/w btw (see the docs). Otherwise
-IDE as a protocol can get stuck if the drive enters rotating doorstop
-mode at the wrong moment.
+Documentation/CodingStyle is well worth a read. Also for that matter
+just reading a lot of good code helps you write good code as reading
+helps you learn a language better.
 
-> > - Funky Maxtor "LBA48.. maybe" oddments
-> details?
+Efficiency is a harder subject: Remember that efficient code still must
+be easy to understand so often is about algorithms not language, and in
+part about hardware.
 
-There are a couple of "yes we do LBA48" "no we don't do this command in
-LBA48" cases with maxtors (Cache flush is one, the stroke stuff triggers
-another)
+On the hardware side - the book "Unix systems for modern architectures"
 
-> > - Missing slave detection
-> 
-> Not missing, master/slave has been working for ages.  Needed for 
-> combined mode, where a SATA device can appear as a slave.
-
-No no - some devices have a master and a slave on them when you detect
-but only one disk attached because they forgot to bother decoding it in
-the adapter (eg some pcmcia with microdrives). This causes bad shit
-especially with hal style automounting.
-
-> > - Bandwidth arbiter (not in drivers/ide but needed)
-> interesting
-
-Its effectively serialize I think that is needed but with >1 at a time.
-
-> > - Non PCI shared IRQ mess 8(
-> details?
-
-ISA IRQ lines - two controllers, one IRQ but edge triggered and not
-sharable directly. The core old IDE code actually supports all of this
-and people have run stuff like 6 ISA IDE controllers in a PC.[1]
+But as Tim righly said "practice"
 
 Alan
-[1] Seek medical advice before trying this at home
-
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTLLRfb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 12:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTLLRfb
+	id S261575AbTLLRiX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 12:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTLLRiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 12:35:31 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:65509 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261326AbTLLRf0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 12:35:26 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Daniel Tram Lux <daniel@starbattle.com>
-Subject: Re: [patch] ide.c as a module
-Date: Fri, 12 Dec 2003 18:37:31 +0100
-User-Agent: KMail/1.5.4
-References: <20031211202536.GA10529@starbattle.com> <200312121646.04047.bzolnier@elka.pw.edu.pl> <20031212171711.GA15954@starbattle.com>
-In-Reply-To: <20031212171711.GA15954@starbattle.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 12:38:23 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:42188 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S261575AbTLLRiV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 12:38:21 -0500
+Date: Fri, 12 Dec 2003 18:38:02 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Roger Larsson <roger.larsson@norran.net>
+Cc: "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'David Hinds'" <dahinds@users.sourceforge.net>
+Subject: Re: UPD: "do_IRQ: near stack overflow" when inserting CF disk
+Message-ID: <20031212173802.GK6112@wohnheim.fh-wedel.de>
+References: <200312121652.23036.roger.larsson@norran.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200312121837.31121.bzolnier@elka.pw.edu.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200312121652.23036.roger.larsson@norran.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 of December 2003 18:17, Daniel Tram Lux wrote:
-> Hi Bartlomiej,
->
-> I applied your changes only, reverting all of mine...
->
-> moving the initializing=1 also solves the multiple init problem...thanks
->
-> here is how the patch looks like now:
+On Fri, 12 December 2003 16:52:22 +0100, Roger Larsson wrote:
+> 
+> I get these three printouts when inserting a compact flash disk
+> (SuSE Linux 2.4.21-144-smp) - is the stack intentionally this fit?
+> or is it an unexpected code path?
+> 
+> I have had other interrupt related problems, it usually locks up :-(
+> This time I run with "nosmp noapic"
+> 
+> The ide-cs is now forced to use irq 3 (When running noapic others
+> seems busy... with apic and using irq 6 or 10 computer has
+> locked up...)
+> 
+> I will try irq 3 without one of the options to see if the computer still
+> survives...
+> 
+> - new data -
+> 
+> Easier said than done - they require each other!
+> But I noticed that reducing 'stackwarn' and 'stackdefer'
+> to under the level warned about helps (might be luck)
+> 
+> Summary:
+>   Some routines allocate to much stack: validate_cis?
+> 	several subtypes in the union cisparse_t are quite
+> 	big (>250 bytes)
+>   This eats stack (to much?) or only close enough to
+>   trigger 'stackdefer' which might stress the drivers SMPness?
 
-Thanks.  I noticed that in 2.4 ide_probe_module() has revaldiate parameter
-(I am currently fixing modules in 2.6 so I over-looked it before), so I need
-to check if these changes are sufficient.  If so I will submit to Marcelo.
+Can you send me your .config?  I'd like to run checkstack on it and
+see what other functions in your trace consume too much stack.
+David's patch shoundn't shave off more than 2k, so either my estimate
+is wrong or there are more hungry wolves in your list.
 
-Regards,
---bart
+Jörn
 
+-- 
+Beware of bugs in the above code; I have only proved it correct, but
+not tried it.
+-- Donald Knuth

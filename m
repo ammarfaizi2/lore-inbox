@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129740AbQKSNWU>; Sun, 19 Nov 2000 08:22:20 -0500
+	id <S129473AbQKSN2B>; Sun, 19 Nov 2000 08:28:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130370AbQKSNWL>; Sun, 19 Nov 2000 08:22:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30746 "EHLO
+	id <S129717AbQKSN1v>; Sun, 19 Nov 2000 08:27:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43290 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129740AbQKSNVu>; Sun, 19 Nov 2000 08:21:50 -0500
-Subject: Re: 7-order allocation failed
-To: zinx@microsoftisevil.com (Forever shall I be.)
-Date: Sun, 19 Nov 2000 12:52:04 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001119001750.A27537@bliss.zebra.net> from "Forever shall I be." at Nov 19, 2000 12:17:50 AM
+	id <S129473AbQKSN1d>; Sun, 19 Nov 2000 08:27:33 -0500
+Subject: Re: Linux 2.2.18pre22
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Sun, 19 Nov 2000 12:57:35 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20001119015303.A25697@vger.timpanogas.org> from "Jeff V. Merkey" at Nov 19, 2000 01:53:03 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13xTx0-0002hb-00@the-village.bc.nu>
+Message-Id: <E13xU2L-0002i3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm getting '__alloc_pages: 7-order allocation failed.' every time I
-> play something to my maestro card (using the maestro kernel module,
-> with dsps_order=2)..
-
-Its a debugging message.
-
-> for (order = (dsps_order + (16-PAGE_SHIFT) + 1); order >= (dsps_order + 2 + 1); order--)
->         if((rawbuf = (void *)__get_free_pages(GFP_KERNEL|GFP_DMA, order)))
->                 break;
+> > o	Fix file/block when spacing to tape beginning	(Kai Maiksara)
+> > o	Small ISDN documentation fixes			(Kai Germaschewski)
 > 
-> Of course, it doesn't seem to cause any problems, but the warning is
-> really starting to get on my nerves...
+> Alan, On the ISDN issue, isdn4K-utils seems to be out of sync with=20
+> kernels older than 2.2.16.   Some #define's that used to be in
+> the 2.2.14 patch don't seem to be in 2.2.17 >.  At present, requires
+> an ugly .config patch to work under 2.2.18-21. =20
 
-Order 6 succeeded in this case.
+Shouldn't do. ISDN has changed between 2.2.16 and 2.2.18pre22 but not in any
+way I am aware is bad. 2.2.19 has the merge of the rest of the isdn changes
+queued.
 
-Ignore it
+(ps: please use the delete key to delete un-needed stuff in replies)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

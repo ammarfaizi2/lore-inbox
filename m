@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263906AbRFHHhN>; Fri, 8 Jun 2001 03:37:13 -0400
+	id <S263816AbRFHHiy>; Fri, 8 Jun 2001 03:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263881AbRFHHhE>; Fri, 8 Jun 2001 03:37:04 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57616 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263816AbRFHHg4>;
-	Fri, 8 Jun 2001 03:36:56 -0400
-Date: Fri, 8 Jun 2001 00:35:21 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug PCI driver for 2.4.6-pre1
-Message-ID: <20010608003521.B12982@kroah.com>
+	id <S263881AbRFHHio>; Fri, 8 Jun 2001 03:38:44 -0400
+Received: from 196-41-175-253.citec.net ([196.41.175.253]:41109 "EHLO
+	penguin.wetton.prism.co.za") by vger.kernel.org with ESMTP
+	id <S263816AbRFHHib>; Fri, 8 Jun 2001 03:38:31 -0400
+Date: Fri, 8 Jun 2001 09:37:29 +0200
+From: Bernd Jendrissek <berndj@prism.co.za>
+To: Brian D Heaton <bdheaton@c4i2.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010608093729.A11720@prism.co.za>
+In-Reply-To: <20010607124621.A30328@prism.co.za> <20010607153835.T14203@jessica>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010607153835.T14203@jessica>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've cut another patch for the Compaq Hotplug PCI driver ported to
-2.4.6-pre1.  It should also apply cleanly and run on 2.4.5, but I
-haven't tested it there.  It is available at:
-	http://www.kroah.com/linux/hotplug/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here is a list of the things that have been changed since the last patch
-I sent out:
-	- forward ported to 2.4.6-pre1
-	- reformatted the code to match kernel guidelines
-	- removed most typedefs to match kernel programming style
-	- removed lots of unused #defines
-	- cleaned up almost all complier warnings (including those when
-	  debugging is enabled.)
-	- forced debugging to be enabled (this is easily switched off in
-	  the cpqphpd_linux.h file if you don't like to see all of it.)
-	- removed lots of global symbols, moving those that are
-	  necessary to a clean namespace (hpcd_*).
-	- cleaned up the probing for the hotplug device logic to make
-	  other future devices easier to add.
-	- other stylistic things.
+On Thu, Jun 07, 2001 at 03:38:35PM -0600, Brian D Heaton wrote:
+> 	Maybe i'm missing something.  I just tried this (with the 262144k/1
+> and 128k/2048 params) and my results are within .1s of each other.  This is
+> without any special patches.  Am I doing something wrong????
 
-I've tested this patch on both Compaq and Intel hotplug controllers
-(much thanks to Compaq for providing a machine to test this out on)
-using the Compaq gui tool.
+Oh, I don't mean the time elapsed, It's that nothing _else_ can happen
+while dd is hogging the kernel.
 
-Things left to do:
-	- add kernel-doc style comments
-	- remove more global symbols
-	- incorporate native list types
-	- look into removing some of the native PCI bus probing logic to
-	  use the kernel provided functions where possible.
-	- add support for other archs (ia64)
+> Oh yes -
+> 
+> SMP - dual PIII866/133
 
-If anyone has any problems or questions about this version, please let
-me know.
+Yes, this is what you are doing wrong ;)
 
-thanks,
+My hypothesis is that in your case, one cpu gets pegged copying pages
+from /dev/zero into dd's buffer, while the other cpu can do things like
+updating mouse cursors, run setiathome, etc.
 
-greg k-h
+What happens if you do *two* dd-tortures with huge buffers at the same
+time?  And then, please don't happen to have a quad box!
+
+I don't know if my symptom (loss of interactivity on heavy writing) is
+related to swapoff -a causing the same symptom on deeply-swapped boxes.
+
+BTW keep in mind my 4-liner is based more on voodoo than on analysis.
+
+Bernd Jendrissek
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7IICU/FmLrNfLpjMRAnpTAJ48/jAFxZqfxUf2NXT0O542KDbNOwCfaoZo
+Q2xaNE4GBqnbn/cl2vrRxLc=
+=4sGO
+-----END PGP SIGNATURE-----

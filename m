@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280629AbRKJMmC>; Sat, 10 Nov 2001 07:42:02 -0500
+	id <S280633AbRKJNU6>; Sat, 10 Nov 2001 08:20:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280633AbRKJMlw>; Sat, 10 Nov 2001 07:41:52 -0500
-Received: from host213-121-105-27.in-addr.btopenworld.com ([213.121.105.27]:1015
-	"HELO mail.dark.lan") by vger.kernel.org with SMTP
-	id <S280629AbRKJMli>; Sat, 10 Nov 2001 07:41:38 -0500
-Subject: Re: 2.4.x: AT Keyboard not present?
-From: Greg Sheard <greg@ecsc.co.uk>
-To: Harald Dunkel <harri@synopsys.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200111091931.fA9JVXif001648@bilbo.gr05.synopsys.com>
-In-Reply-To: <200111091931.fA9JVXif001648@bilbo.gr05.synopsys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 10 Nov 2001 12:41:01 +0000
-Message-Id: <1005396061.32176.4.camel@lemsip>
-Mime-Version: 1.0
+	id <S280634AbRKJNUj>; Sat, 10 Nov 2001 08:20:39 -0500
+Received: from [196.31.58.45] ([196.31.58.45]:8584 "EHLO
+	montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S280633AbRKJNUa>; Sat, 10 Nov 2001 08:20:30 -0500
+Message-Id: <200111101322.fAADMht02396@montezuma.mastecende.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Lockup in IDE code
+Date: Sat, 10 Nov 2001 15:22:42 +0200
+X-Mailer: KMail [version 1.2.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-09 at 19:31, root wrote:
-> Hi folks,
-> 
-> From time to time I experience that my mouse pointer blocks for a few 
-> seconds, the stuff that I type is ignored, etc. 'grep keyboard' in my 
-> syslog files returns:
-> 
-> Nov  2 20:27:36 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-<snip>
-> Pretty strange, isn't it? What is the story here?
-> 
+Mark Zealey - 2001-11-09 12:40:41 PST
+>Well, obviously your drive or mobo doesn't support DMA. I noticed that all 
+>the other devices (hd[acd]) were in PIO mode, why not try setting dma mode 
+>on one of them. Most CD's I've come across don't do DMA very well, I believe 
+>that the DMA is mostly only useful for DVD's, where you need a high transfer 
+>rate to watch a movie.
 
-I get this message (a) on boot, and (b) when shutting down X. It pops up
-twice each time -- it seems to be linked to something requiring AT (or
-AT emulation?) keyboard control. I'm using a USB keyboard =]
-
-I suspect it's non-critical, but YMMV. Anyone else?
+He probably doesn't have anything on the primary master and seconday 
+master/slaves. And UDMA has worked very well for most CDROM drives i've come 
+across, but then as always YMMV.
 
 Cheers,
-Greg.
-
-
+	Zwane

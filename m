@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUJLODb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUJLOL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUJLODb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUJLOBx
+	id S263818AbUJLOL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUJLOL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:01:53 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:51603 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263818AbUJLOBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:01:18 -0400
-Subject: Re: [PATCH] PPC64 Replace cmp instructions with cmpw/cmpd
-From: David Woodhouse <dwmw2@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, anton@samba.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-In-Reply-To: <16742.10154.523798.177319@cargo.ozlabs.ibm.com>
-References: <16742.10154.523798.177319@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Message-Id: <1097589670.318.428.camel@hades.cambridge.redhat.com>
+	Tue, 12 Oct 2004 10:11:57 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30987 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263818AbUJLOLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:11:55 -0400
+Date: Tue, 12 Oct 2004 16:11:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephan <support@bbi.co.bw>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling linux-2.6.8.1......
+Message-ID: <20041012141123.GA18579@stusta.de>
+References: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 12 Oct 2004 15:01:10 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 15:37 +1000, Paul Mackerras wrote:
-> This patch replaces cmp{,l}{,i} with cmp{,l}[wd]{,i} as appropriate.
-> The original patch was from Segher Boessenkool, slightly modified by
-> me.  Please apply.
+On Tue, Oct 12, 2004 at 02:51:20PM +0200, Stephan wrote:
 
-And another....
+> I'm trying to compile linux-2.6.8.1 but I'm getting the following error 
+> when doing a make.
+> 
+>  LD      .tmp_vmlinux1
+> ld: cannot open kernel/built-in.o: No such file or directory
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> Any ideas would be apreciated.
 
-Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
+This shouldn't be the first error.
 
-===== arch/ppc64/mm/hash_low.S 1.7 vs edited =====
---- 1.7/arch/ppc64/mm/hash_low.S	Thu Oct  7 22:52:16 2004
-+++ edited/arch/ppc64/mm/hash_low.S	Tue Oct 12 14:01:25 2004
-@@ -263,7 +263,7 @@
- 	/* if we failed because typically the HPTE wasn't really here
- 	 * we try an insertion. 
- 	 */
--	cmpi	0,r3,-1
-+	cmpdi	0,r3,-1
- 	beq-	htab_insert_pte
- 
- 	/* Clear the BUSY bit and Write out the PTE */
+Did you observe any other errors before?
 
+> Kind Regards
+
+cu
+Adrian
 
 -- 
-dwmw2
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

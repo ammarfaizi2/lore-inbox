@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263728AbTKKTyK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 14:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTKKTyK
+	id S263447AbTKKUSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTKKUSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 14:54:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17851 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263728AbTKKTyI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 14:54:08 -0500
-Date: Tue, 11 Nov 2003 11:58:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: steiner@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: hot cache line due to note_interrupt()
-Message-Id: <20031111115804.4aaafd28.akpm@osdl.org>
-In-Reply-To: <20031111082915.GC1130@llm08.in.ibm.com>
-References: <20031110215844.GC21632@sgi.com>
-	<20031111082915.GC1130@llm08.in.ibm.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Nov 2003 15:18:25 -0500
+Received: from ppp-62-245-162-69.mnet-online.de ([62.245.162.69]:38528 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S263447AbTKKUSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:18:24 -0500
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Julien Oster <lkml-20031111@mc.frodoid.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A7N8X (Deluxe) Madness
+From: Julien Oster <lkml-20031111@mc.frodoid.org>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Tue, 11 Nov 2003 21:18:22 +0100
+In-Reply-To: <Pine.LNX.4.44.0311112054020.30654-100000@gaia.cela.pl> (Maciej
+ Zenczykowski's message of "Tue, 11 Nov 2003 20:55:16 +0100 (CET)")
+Message-ID: <frodoid.frodo.87n0b2zmk1.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <Pine.LNX.4.44.0311112054020.30654-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
->
-> On Mon, Nov 10, 2003 at 03:58:44PM -0600, Jack Steiner wrote:
-> > 
-> > I dont know the background on note_interrupt() in arch/ia64/kernel/irq.c, 
-> > but I had to disable the function on our large systems (IA64).
-> > 
-> > The function updates a counter in the irq_desc_t table. An entry in this table
-> > is shared by all cpus that take a specific interrupt #. For most interrupt #'s,
-> > this is a problem but it is prohibitive for the timer tick on big systems.
-> > 
-> > Updating the counter causes a cache line to be bounced between
-> > cpus at a rate of at least HZ*active_cpus. (The number of bus transactions
-> 
-> The answer to this is probably alloc_percpu for the counters.
+Maciej Zenczykowski <maze@cela.pl> writes:
 
-Or just make noirqdebug the default.
+Hello Maciej,
 
-The note_interrupt() stuff is only useful for diagnosing mysterious lockups
-(and hasn't proven useful for that, actually).  It should be disabled for
-production use.
+>> So, things are totally different between 2.6.0-test9 and
+>> 2.4.22-ac4. 2.6.0-test9 doesn't like the slightest IDE load with that
+>> mainboard at all. 2.4.22-ac4 doesn't care, runs for hours or for days
+>> and then locks up when it just gets bored or something similar.
 
+> I'd guess one is locking up due to hard disk load,
+> and the other is locking up due to automatic suspend/standby issues.
+> Can you verify that the ac kernel isn't locking up due to a 'screensaver' 
+> type problem?
 
+Interesting question. I also thought about that one. However,
+regarding X, the machine sometimes crashes before the X Server
+screensaver (nothing special there, just the built in one that turns
+the screen black) is clearing the screen and sometimes afterwards. If
+it crashes afterwards, I can of course not see when it crashed, since
+I don't see the clock on the screen anymore.
+
+And there's nothing else which I could think of. I have resetted the
+spinout time for the harddisks to "never" (for different reasons) and
+I don't think that there's any power saving stuff enabled in BIOS
+setup. I'll check that. However, I'm afraid there really isn't any
+screensaver or powersaving thing within my system, of course for the
+standard X screensaver, which doesn't seem related to it.
+
+Regards,
+Julien

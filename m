@@ -1,86 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261970AbTCZTOX>; Wed, 26 Mar 2003 14:14:23 -0500
+	id <S261958AbTCZTMX>; Wed, 26 Mar 2003 14:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbTCZTOW>; Wed, 26 Mar 2003 14:14:22 -0500
-Received: from marstons.services.quay.plus.net ([212.159.14.223]:61862 "HELO
-	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S261970AbTCZTOQ>; Wed, 26 Mar 2003 14:14:16 -0500
-Date: Wed, 26 Mar 2003 19:25:20 +0000
-From: Chris Sykes <chris@sigsegv.plus.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-ID: <20030326192520.GH2695@spackhandychoptubes.co.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030326162538.GG2695@spackhandychoptubes.co.uk> <20030326185236.GE24689@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="81JctsDUVPekGcy+"
-Content-Disposition: inline
-In-Reply-To: <20030326185236.GE24689@kroah.com>
-User-Agent: Mutt/1.4i
-x-gpg-fingerprint: 1D0A 139D DDA3 F02F 6FC0  B2CA CBC6 5EC0 540A F377
-x-gpg-key: wwwkeys.pgp.net
+	id <S261967AbTCZTMX>; Wed, 26 Mar 2003 14:12:23 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:51926 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id <S261958AbTCZTMV>;
+	Wed, 26 Mar 2003 14:12:21 -0500
+X-Server-Uuid: BB5E7757-34FD-4146-B9CC-0950D472AE87
+Message-ID: <99F2150714F93F448942F9A9F112634CA54B3A@txexmtae.amd.com>
+From: ravikumar.chakaravarthy@amd.com
+To: linux-kernel@vger.kernel.org
+Subject: Unable to turn paging on!!
+Date: Wed, 26 Mar 2003 13:23:17 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 129F21AD1460981-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tweaked the kernel and boot loader to load the kernel at 0xdf000000, physical address. I did the following changes to setup the initial page table.
 
---81JctsDUVPekGcy+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+However during boot, in arch/i386/kernel/head.S when the paging bit is set 
+       movl %eax,%cr0          /* ..and set paging (PG) bit */
 
-On Wed, Mar 26, 2003 at 10:52:36AM -0800, Greg KH wrote:
-> On Wed, Mar 26, 2003 at 04:25:38PM +0000, Chris Sykes wrote:
-> > However it is easy to cause the BUG by simply:
-> >=20
-> > bash # echo "Some string" >/dev/ttyUSB0
->=20
-> The oops happens on close(), right?  To verify this try:
+My computer hangs!!
 
-Yes it would seem so.
+Any idea why??
 
-> 	cat /dev/ttyUSB0
-> no oops should happen until you interrupt this.
->=20
-> Anyway, this is a known usb-serial bug right now.  It should be fixed in
-> the 2.5 tree, but I haven't had enough people test that code out to know
-> if this is really true (I can't duplicate the bug on 2.4 myself.)
-
-I seem to have worked around it for now.  I've jumpered the hardware
-to stop it from echoing what you transmit back locally and all seems
-OK now.
-
-> Can you test 2.5 to see if this is fixed there for you or not?
-
-I can test it yes, but 2.5 may be a bit too unstable for our
-production use ATM.
-Anyway I'll test out a 2.5 kernel when I'm back in the office
-tomorrow, I can devote some time to tracking down the problem if you
-can give me some pointers on where to start.  I'd like to be able to
-feel confident that this will work reliably under 2.4, otherwise I
-guess I need to look for alternate solutions.
-
-Thanks for your help,
-
---=20
-
-(o-  Chris Sykes  -- GPG Key: http://www.sigsegv.plus.com/key.txt
-//\       "Don't worry. Everything is getting nicely out of control ..."
-V_/_                          Douglas Adams - The Salmon of Doubt
+  -Ravi
 
 
---81JctsDUVPekGcy+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+.org 0x1000
+ENTRY(swapper_pg_dir)
+        .fill 0x37c,4,0
+        .long 0xdf002007
+        .long 0xdf003007
+        .fill 0x2,4,0
+        /* default: 766 entries */
+        .long 0xdf002007
+        .long 0xdf003007
+        /* default: 254 entries */
+        .fill 0x7e,4,0
 
-iD8DBQE+gf6gy8ZewFQK83cRAtBYAJ4ssvGTBWu+PMn70+HFVgQb/76D6QCfWOZu
-WQKv6VBL7lapKzCcHTWzYjk=
-=ctTc
------END PGP SIGNATURE-----
+/*
+ * The page tables are initialized to only 8MB here - the final page
+ * tables are set up later depending on memory size.
+ */
+.org 0x2000
+ENTRY(pg0)
 
---81JctsDUVPekGcy+--
+.org 0x3000
+ENTRY(pg1)
+
+
+
+
+Arch/i386/kernel/head.S
+
+/*
+ * Initialize page tables
+ */
+        movl $pg0-__PAGE_OFFSET,%edi /* initialize page tables */
+        movl $007,%eax          /* "007" doesn't mean with right to kill, but
+                                   PRESENT+RW+USER */
+        addl $0xdf000000,%eax
+2:      stosl
+        add $0x1000,%eax
+        cmp $empty_zero_page-__PAGE_OFFSET,%edi
+        jne 2b
+
+/*
+ * Enable paging
+ */
+3:
+        movl $swapper_pg_dir-__PAGE_OFFSET,%eax
+        movl %eax,%cr3          /* set the page table pointer.. */
+        movl %cr0,%eax
+        orl $0x80000000,%eax
+        movl %eax,%cr0          /* ..and set paging (PG) bit */  ----------------  Fails here
+        jmp 1f                  /* flush the prefetch-queue */
+
+
+
+
+

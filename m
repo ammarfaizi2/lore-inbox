@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265375AbUBPGtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 01:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUBPGtQ
+	id S265365AbUBPGlu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 01:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUBPGlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 01:49:16 -0500
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:25618 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S265375AbUBPGtO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 01:49:14 -0500
-Date: Mon, 16 Feb 2004 07:49:13 +0100 (CET)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: der.eremit@email.de
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: IPV4 as module?
-In-Reply-To: <E1ArdRX-00005H-Tf@localhost>
-Message-ID: <Pine.LNX.4.58L.0402160746070.13415@rudy.mif.pg.gda.pl>
-References: <1lBZb-4vn-23@gated-at.bofh.it> <1lQXH-2pY-7@gated-at.bofh.it>
- <1mOhm-27W-31@gated-at.bofh.it> <1n4Fj-La-15@gated-at.bofh.it>
- <1oEQf-2nq-7@gated-at.bofh.it> <E1ArdRX-00005H-Tf@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Mon, 16 Feb 2004 01:41:50 -0500
+Received: from [220.249.10.10] ([220.249.10.10]:44165 "EHLO
+	mail.goldenhope.com.cn") by vger.kernel.org with ESMTP
+	id S265365AbUBPGlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 01:41:49 -0500
+Date: Mon, 16 Feb 2004 14:41:40 +0800
+From: =?gb2312?B?zuLMzg==?= <wutao@mail.goldenhope.com.cn>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG]linux-2.4.24 with k8 numa support panic when init scsi
+Message-ID: <20040216064140.GA12497@lepton.goldenhope.com.cn>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040208143740.GA25010@lepton.goldenhope.com.cn.suse.lists.linux.kernel> <20040210143208.7b1d9940.ak@suse.de> <20040216034909.GA11557@lepton.goldenhope.com.cn> <200402161303.30492.mhf@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402161303.30492.mhf@linuxmail.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 der.eremit@email.de wrote:
+I am using a dual Operron AMD64 box...
+I am building a 64 bit kernel. So I think I can't use gcc295
+or CONFIG_M686
 
-> On Fri, 13 Feb 2004 07:20:07 +0100, you wrote in linux.kernel:
+On Mon, Feb 16, 2004 at 01:22:21PM +0800, Michael Frank wrote:
 > 
-> >> That's not all correct. You can fit 700 MB data on a CD-ROM, but booting
-> >> is still emulated from a 1.44 MB floppy (or some other floppy/HDD
-> >> images, but many BIOSses won't accept those (or handle them correctly)).
-> > Baloney.  Most BIOSes support "no emulation" booting these days; in fact,
-> > there are more that don't do floppy emulation correctly than the few very
-> > old BIOSes which didn't do no emulation.
+> On Monday 16 February 2004 11:49, lepton wrote:
+> > I have do some test on weekend. The result is:
+> > 
+> > 1. Compiling kernel with gcc 3.2:
+> >    2.4.20 2.4.21: can boot, can mount reiserfs filesystem
+> >    2.4.22: can boot, can mount reiserfs filesystem, but will panic
+> >    when reboot. It is perhaps because of "reboot=triple" ? 
+> >    2.4.23: panic when init scsi, like before.
+> >    2.4.24: can boot, can mount reiserfs filesystem, but will panic when
+> >    reboot.
+> > 
+> > 2. Compiling kernel with gcc 3.3
+> >    2.4.20: can not compile.... 
+> >    2.4.21: can boot, can mount reiserfs filesystem
+> >    2.4.22: can boot, can mount reiserfs filesystem, but will panic when
+> >    reboot.
+> >    2.4.23: panic when init scsi, like before
+> >    2.4.24: panic when init scsi, like before
+> > 
+> > 3. when panic, reboot=bios or reboot=triple both can not work.
+> > 
+> >    2.4.24 changes a little from 2.4.23, so it is strange system will
+> >    panic in 2.4.23 and don't panic in 2.4.24 when using gcc 3.2
+> >    Perhaps there is some random error?
 > 
-> Even if wanting to support BIOSes that don't do "no emulation", all it
-> takes is simple initrd to locate and mount the iso9660 filesystem off the
-> real device - and that easily fits on a 2.88 MB floppy image used for
-> emulated floppy boot. Should also fit on an 1.44 MB image, although I've
-> not seen a BIOS yet that didn't like a 2.88 MB image on a CD.
-
-But back to topic .. can someone say something more and detailed about
-things which dissallow now separation IPV4 stack in module ?
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+> Be sure that you have in your .config:
+> 
+> CONFIG_M686=y
+> # CONFIG_FRAME_POINTER is not set
+> 
+> and compile with gcc295.
+> 
+> Regards
+> Michael

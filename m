@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269514AbUHZTp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUHZTtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269514AbUHZTp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269512AbUHZTp2
+	id S269503AbUHZTtM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUHZTq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:45:28 -0400
-Received: from mail.shareable.org ([81.29.64.88]:58566 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269232AbUHZTeO
+	Thu, 26 Aug 2004 15:46:29 -0400
+Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:26348 "EHLO
+	nevaeh-linux.org") by vger.kernel.org with ESMTP id S269501AbUHZTp2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:34:14 -0400
-Date: Thu, 26 Aug 2004 20:29:18 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826192918.GW5733@mail.shareable.org>
-References: <Pine.LNX.4.58.0408261149510.2304@ppc970.osdl.org> <Pine.LNX.4.44.0408261457320.27909-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408261457320.27909-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Aug 2004 15:45:28 -0400
+Date: Thu, 26 Aug 2004 11:44:20 -0800 (AKDT)
+From: Arthur Corliss <corliss@digitalmages.com>
+X-X-Sender: acorliss@bifrost.nevaeh-linux.org
+To: Jay Lan <jlan@engr.sgi.com>
+cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
+       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
+       =?X-UNKNOWN?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
+       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
+In-Reply-To: <412E2B6B.80904@engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0408261130440.22750@bifrost.nevaeh-linux.org>
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
+ <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
+ <412E2B6B.80904@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -1.971 () AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> What do we do with O_CREAT ?
-> 
-> Do we always allow both a directory and a file to be created with
-> the same name ?
+On Thu, 26 Aug 2004, Jay Lan wrote:
 
-I haven't analysed it thoroughly.  I suspect it's fine as long as:
+> The reason for breaking up one CSA patch into four patches was
+> so that the only CSA (http://oss.sgi.com/projects/csa/) specific
+> thing is the csa_module. My intention is to improve the system
+> accounting data collection and make the data available to any
+> clients that can use the data. The three areas of accounting
+> data we try to improve are io, mm, and per-process area.
+>
+> As Tim said the problem of BSD accounting was that it has been
+> inactive for a long time. I do not mind incoporating the
+> three accounting data collection patches i submitted into BSD or
+> others as long as the data made available to modules that plan
+> to make use of the data. :)
 
-(1) O_CREAT creates something with "file-like
-    attributes", meaning stat() says it's a regular file.
+All right, I'm going to shut up now.  I had no idea that SGI had gone behind
+my back and started porting CSA to Linux.  :-P  Before I shut up, though, as a
+user of these tools I'd vote for a unified data collection method, as
+suggested above.  There has to be at least five of us who have volunteered at
+one point or another to help make the GNU utilities conform.  That should make
+everyone happy.
 
-(2) File-like means it can be unlinked, linked and renamed, even if
-    someone has something inside it open.  Nothing that can be created
-    inside it will prevent it from being unlinked (unlike a
-    directory-like object, where rmdir() will refuse if it's not empty).
-
-    File-like also means that programs like "cp from to_my_new_file"
-    won't do anything so silly as to write _inside_, the way that
-    "cp from to_my_new_file/from" would.
-
-    Basic utilities will need to be checked to make sure they don't
-    try appending "/" as their method of deciding if the target object
-    is a directory and should be entered.
-
-> Does this create a new class of "symlink attack" style security
-> holes ?
-
-Yes, but they don't need O_CREAT.
-
-An adversary creates a symlink to metadata inside your file.  You
-write to it: it has interesting effects that weren't anticipated, such
-as either modifying another (virtual) file, or altering permissions or
-other parameters which writing doesn't normally do.
-
-This is very difficult to prevent.
-
-We are creating a way for scripts and classic unix tools to have easy
-access to fancy attributes which may affect the security: things like
-being able to change a file's permissions just by writing to the
-appropriate path, or reading characteristics of files that shouldn't
-be visible.  In Hans Reiser's example of expanded /etc/passwd, atimes
-and mtimes of individual passwd entries is security information that
-perhaps shouldn't be exposed.
-
-In a way, these holes are similar to /proc, in that just writing has
-side effects which might not be acceptable.
-
-The solution is the same as for /proc (I hope): make sure the read
-permissions on all metadata inside a directory branch are restricted
-to the permissions of the file branch, and write permissions even more
-restricted at least by default.
-
-For the paranoid, one way is to make new files "not readable or
-executable as directories".  It's possible for the file and directory
-branches to have different permission bits, though I could see that
-getting a bit annoying.  Other possibilities abound.
-
--- Jamie
+	--Arthur Corliss
+	  Bolverk's Lair -- http://arthur.corlissfamily.org/
+	  Digital Mages -- http://www.digitalmages.com/
+	  "Live Free or Die, the Only Way to Live" -- NH State Motto

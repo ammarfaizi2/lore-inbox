@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbRATRWL>; Sat, 20 Jan 2001 12:22:11 -0500
+	id <S130391AbRATRe5>; Sat, 20 Jan 2001 12:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130391AbRATRWB>; Sat, 20 Jan 2001 12:22:01 -0500
-Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:46015 "EHLO
-	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S129884AbRATRVs>; Sat, 20 Jan 2001 12:21:48 -0500
-Message-ID: <3A69CA51.DE979641@att.net>
-Date: Sat, 20 Jan 2001 12:26:41 -0500
-From: Michael Lindner <mikel@att.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dan Maas <dmaas@dcine.com>
-CC: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  
- available
-In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694357.1A7C6AAC@att.net> <01da01c082c5$2c155e60$0701a8c0@morph>
+	id <S130636AbRATRer>; Sat, 20 Jan 2001 12:34:47 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:61451 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S130391AbRATRem>; Sat, 20 Jan 2001 12:34:42 -0500
+Date: Sat, 20 Jan 2001 12:34:42 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
+Message-ID: <20010120123441.H9156@sventech.com>
+In-Reply-To: <20010120003812.G9156@sventech.com> <200101200828.f0K8SKF00961@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <200101200828.f0K8SKF00961@flint.arm.linux.org.uk>; from Russell King on Sat, Jan 20, 2001 at 08:28:20AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
+On Sat, Jan 20, 2001, Russell King <rmk@arm.linux.org.uk> wrote:
+> Johannes Erdfelt writes:
+> > On Fri, Jan 19, 2001, Miles Lane <miles@megapathdsl.net> wrote:
+> > > Johannes Erdfelt wrote:
+> > > 
+> > > > TODO
+> > > > ----
+> > > > - The PCI DMA architecture is horribly inefficient on x86 and ia64. The
+> > > >   result is a page is allocated for each TD. This is evil. Perhaps a slab
+> > > >   cache internally? Or modify the generic slab cache to handle PCI DMA
+> > > >   pages instead?
+> > > 
+> > > This might be the kind of thing to run past Linus when the 2.5 tree 
+> > > opens up.  Are these inefficiencies necessary evils due to workarounds 
+> > > for whacky bugs in BIOSen or PCI chipsets or are they due to poor 
+> > > design/implementation?
+> > 
+> > Looks like poor design/implementation. Or perhaps it was designed for
+> > another reason than I want to use it for.
 > 
-> What kernel have you been using? I have reproduced your problem on a
-> standard 2.2.18 kernel (elapsed time ~10sec). However, using a 2.4.0 kernel
-> with HZ=1000, I see a 100x improvement (elapsed time ~0.1 sec; note that
-> increasing HZ alone should only give a 10x improvement). Perhaps the
-> scheduler was fixed in 2.4.0?
+> Why?  What are you trying to do?  Allocate one area per small structure?
+> Why not allocate one big area and allocate from that (like the tulip
+> drivers do for their TX and RX rings)?
+> 
+> I don't really know what you're trying to do/what the problem is because
+> there isn't enough context left in the original mail above, and I have
+> no idea whether the original mail appeared here or where I can read it.
 
-Sounds like a good reason for me to upgrade - I am running 2.2.18 now.
-If it's fixed in 2.4.0, then I'm happy (although I'm usually leery of
-installing ANYTHING that ends in ".0", Linux has never been anything
-less than stable). It sounds like there are some other anomalies this
-tickles that might bear looing into, though.
+I was hoping the context from the original TODO up there was sufficient
+and it looked like it was enough.
 
-Thanks for all the help, and again, my apologies for posting a lame-o
-test program with the original report - had I taken the time to make a
-test program that REALLY exercised the problem as described, I would
-have saved you all a lot of time.
+TD's are around 32 bytes big (actually, they may be 48 or even 64 now, I
+haven't checked recently). That's a waste of space for an entire page.
 
---
-Mike Lindner
+However, having every driver implement it's own slab cache seems a
+complete waste of time when we already have the code to do so in
+mm/slab.c. It would be nice if we could extend the generic slab code to
+understand the PCI DMA API for us.
+
+> > I should also check architectures other than x86 and ia64.
+> 
+> This is an absolute must.
+
+Not really. The 2 interesting architectures are x86 and ia64 since
+that's where you commonly see UHCI controllers. While you can add UHCI
+controllers to most any other architecture which has PCI, you usually
+see OHCI on those systems.
+
+I was curious to see if any other architectures implemented it
+differently and I was just expecting too much out of the API. You pretty
+much confirmed my suspicions when you suggested doing what the tulip
+driver does.
+
+JE
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

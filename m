@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292385AbSCLLTK>; Tue, 12 Mar 2002 06:19:10 -0500
+	id <S293531AbSCLLXU>; Tue, 12 Mar 2002 06:23:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293531AbSCLLSw>; Tue, 12 Mar 2002 06:18:52 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:37577 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292385AbSCLLSk>;
-	Tue, 12 Mar 2002 06:18:40 -0500
-Date: Tue, 12 Mar 2002 03:15:09 -0800 (PST)
-Message-Id: <20020312.031509.53067416.davem@redhat.com>
-To: michael@metaparadigm.com
-Cc: bcrl@redhat.com, whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [patch] ns83820 0.17
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <51A3E836-35A8-11D6-A4A8-000393843900@metaparadigm.com>
-In-Reply-To: <20020312004036.A3441@redhat.com>
-	<51A3E836-35A8-11D6-A4A8-000393843900@metaparadigm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310284AbSCLLXK>; Tue, 12 Mar 2002 06:23:10 -0500
+Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:34452 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S293531AbSCLLW7>;
+	Tue, 12 Mar 2002 06:22:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
+Date: Tue, 12 Mar 2002 12:18:01 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C8D9999.83F991DB@zip.com.au>
+In-Reply-To: <3C8D9999.83F991DB@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16kkID-0001qr-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Michael Clark <michael@metaparadigm.com>
-   Date: Tue, 12 Mar 2002 19:00:09 +0800
+On March 12, 2002 07:00 am, Andrew Morton wrote:
+>   Identifies readahead thrashing.
+> 
+>     Currently, it just performs a shrink on the readahead window when thrashing
+>     occurs.  This greatly reduces the amount of pointless I/O which we perform,
+>     and will reduce the CPU load.  The idea is that the readahead window
+>     dynamically adjusts to a sustainable size.  It improves things, but not
+>     hugely, experimentally.
 
-   Dave, what performance do you get with the sk98 using normal size
-   frames? (to compare apples with apples). BTW - i can't try jumbo
-   frames due to my crappy 3com gig switch.
+The question is, does it wipe out a nasty corner case?  If so then the improvement
+for the averge case is just a nice fringe benefit.  A carefully constructed test
+that triggers the corner case would be most interesting.
 
-Use a cross-over cable to play with Jumbo frames, that is
-what I do :-)
-
-Later this week I'll rerun tests on all the cards I have
-(Acenic, Sk98, tigon3, Natsemi etc.) with current drivers
-to see what it looks like with both jumbo and non-jumbo
-mtus over gigabit.
+-- 
+Daniel

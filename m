@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVCNTXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVCNT3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbVCNTXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCNTXy
+	id S261750AbVCNT3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:29:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVCNT3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:23:54 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:31413 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261747AbVCNTXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:23:48 -0500
-Message-ID: <4235E4D5.5070506@didntduck.org>
-Date: Mon, 14 Mar 2005 14:24:05 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Jakob Eriksson <jakov@vmlinux.org>, Andi Kleen <ak@muc.de>,
-       Stas Sergeev <stsp@aknet.ru>, Pavel Machek <pavel@ucw.cz>,
-       Alan Cox <alan@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       wine-devel@winehq.org, torvalds@osdl.org
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org> <423518A7.9030704@aknet.ru> <m14qfey3iz.fsf@muc.de> <4235AC0B.70507@vmlinux.org> <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Mar 2005 14:29:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42147 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261750AbVCNT3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 14:29:22 -0500
+Subject: Re: [PATCH] 2.6.11-mm3 patch for ext3 writeback "nobh" option
+From: Arjan van de Ven <arjan@infradead.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1110827903.24286.275.camel@dyn318077bld.beaverton.ibm.com>
+References: <1110827903.24286.275.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 20:29:13 +0100
+Message-Id: <1110828554.6288.109.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> On Mon, 14 Mar 2005, Jakob Eriksson wrote:
+On Mon, 2005-03-14 at 11:18 -0800, Badari Pulavarty wrote:
+> Hi Andrew,
 > 
->> Andi Kleen wrote:
->>
->>> Stas Sergeev <stsp@aknet.ru> writes:
->>>
->>>>> Another way of saying the same thing: I absolutely hate seeing
->>>>> patches that fix some theoretical issue that no Linux apps will ever
->>>>> care about.
->>>>>
->>>> No, it is not theoretical, but it is mainly
->>>> about a DOS games and an MS linker, as for
->>>> me. The things I'd like to get working, but
->>>> the ones you may not care too much about:)
->>>> The particular game I want to get working,
->>>> is "Master of Orion 2" for DOS.
->>>>
->>>
->>> How about you just run it in dosbox instead of dosemu ?
->>>
->>
->> Yes, that's a solution of course, but it is a bit like saying why
->> not use Open Office instead of MS Word.
->>
->> A long term goal of wine is to support DOS apps to. Of course
->> it's not a priority, but it's there.
->>
->> regards,
->> Jakob
->>
-> 
-> Can you tell me how the invisible high-word (invisible in VM-86, and
-> in real mode) could possibly harm something running in VM-86 or
-> read-mode ???  I don't even think it's a BUG. If the transition
-> into and out of VM-86 doesn't handle the fact that the high-word
-> of the stack hasn't been used in VM-86, then that piece of code
-> is bad (the SP isn't even the same stack, BTW).
+> Here is the 2.6.11-mm3 version of patch for adding "nobh"
+> support for ext3 writeback mode.
 
-Because even in 16-bit mode (real, vm86 or 16-bit protected) you can use 
-32-bit instructions, with an operand and/or address size override 
-prefix.  Of course this only works on 386 or later.
+can you explain why this is an option ? It's not like the on disk layout
+changes or something... is there a reason to ever not want this?
 
---
-				Brian Gerst
+

@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUFEFbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUFEGMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUFEFbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 01:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFEFbJ
+	id S264514AbUFEGMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 02:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264349AbUFEGMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 01:31:09 -0400
-Received: from smtp-out5.xs4all.nl ([194.109.24.6]:21767 "EHLO
-	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S263204AbUFEFbF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 01:31:05 -0400
-Date: Sat, 5 Jun 2004 07:30:52 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: shutdown problem with 2.6.7-rc2 / 2.6.7-rc2-mm2
-Message-ID: <20040605053052.GA7825@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
+	Sat, 5 Jun 2004 02:12:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39837 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264514AbUFEGMa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 02:12:30 -0400
+Date: Fri, 4 Jun 2004 23:11:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, ak@suse.de,
+       tom.l.nguyen@intel.com
+Subject: Re: [PATCH]2.6.7-rc1 Fix and Reenable MSI Support on x86_64
+Message-Id: <20040604231147.16dbc393.akpm@osdl.org>
+In-Reply-To: <200406040120.i541KT53004130@snoqualmie.dp.intel.com>
+References: <200406040120.i541KT53004130@snoqualmie.dp.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both 2.6.7-rc2 and 2.6.7-rc2-mm2 don't shut down my systems anymore.
-They print 'System halted.' but don't switch off.
+long <tlnguyen@snoqualmie.dp.intel.com> wrote:
+>
+> 
+>  MSI support for x86_64 is currently disabled in the kernel 2.6.x.
+>  Below is the patch, which provides a fix and reenable it.
 
-This happens on a P4 (i875 chipset), a dual P3 (BX chipset) and a P3
-Tualatin (830 laptop chipset).
+Could you please fix this up?
 
-I use Debian/Unstable (updated as of yesterday), and this worked on all
-these systems with 2.6.6-mm4, mm3, mm2 and so forth, since a long time.
+arch/x86_64/kernel/i8259.c:118: warning: excess elements in array initializer
+arch/x86_64/kernel/i8259.c:118: warning: (near initialization for `interrupt')
 
-The last thing Debian executes is
-
-halt -d -f -i -p
-
-Compiling with ACPI Debugging on gives no interesting output. I've tried
-searching lkml for similar problems, but I didn't found related reports.
-Since I have it on three systems, I strongly suspect some change in the
-kernel. If nobody pipes up and says 'see this post .....' I'll post my
-.config, dmesg etc. but let's try this small post first.
-
-Thanks,
-Jurriaan
--- 
-Uhm, well, what we are talking about in privy terms, is the very latest
-in front-wall fresh air orifices combined with a wide capacity gutter
-installation below.
-You mean crap out of the window?
-	Blackadder II
-Debian (Unstable) GNU/Linux 2.6.7-rc2-mm2 2x6062 bogomips load 0.12
+.config is at http://www.zip.com.au/~akpm/linux/patches/stuff/config

@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVCVHqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVCVHu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVCVHqW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVCVHqW
+	id S262290AbVCVHu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVCVHu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:46:22 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:58784 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262326AbVCVHqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:46:14 -0500
-Date: Tue, 22 Mar 2005 08:46:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Short sleep precision
-In-Reply-To: <423EF7B5.2030507@nortel.com>
-Message-ID: <Pine.LNX.4.61.0503220845150.2969@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
- <Pine.LNX.4.62.0503201335420.2501@dragon.hyggekrogen.localhost>
- <Pine.LNX.4.61.0503201427010.31416@yvahk01.tjqt.qr> <423EF7B5.2030507@nortel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 22 Mar 2005 02:50:57 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:35510 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262290AbVCVHuy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 02:50:54 -0500
+Date: Tue, 22 Mar 2005 08:51:16 +0100
+From: DervishD <lkml@dervishd.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Voodoo 3 2000 framebuffer problem
+Message-ID: <20050322075116.GC55@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+    Hi all :)
 
->> > You can spin on the gettimeofday() result in userspace.
->> How can I use it?
-> Something like:
->
-> gettimeofday(&curtime,0);
-> add_usecs(&curtime,  time_to_sleep);
-> do {
-> 	gettimeofday(&curtime,0);
-> } while (time_before(&curtime, &expiry);
+    Linux Kernel 2.4.29, in a do-it-yourself linux box, equipped with
+an AGP Voodoo 3 2000 card, tdfx framebuffer support. I boot in vga
+mode 0x0f05, with parameter 'video=tdfx:800x600-32@100' and I get
+(correctly) 100x37 character grid. All of that is correct. What is
+not correct is the characters attributes, namely the 'blink'
+attribute.
 
-That's looks like a lot of CPU consumption, which I would like to avoid 
-because time_to_sleep is nondeterministic in my case.
+    If I use the tdfx framebuffer (I've tested some more
+resolutions), I lose the blinking text (which I use, for example, for
+marking my dangling symlinks in 'ls' or 'zsh'). Is this a bug, a
+feature or just a mistake I'm consistently making?
 
+    In addition to this, at boot time the background in the lines
+around the cute penguin logo is white and not black as it should...
 
-Jan Engelhardt
+    Thanks a lot in advance. Feel free to ask for more details,
+tests, etc.
+
+    Raúl Núñez de Arenas Coronado
+
 -- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

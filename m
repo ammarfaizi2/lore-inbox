@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264851AbTGBItm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 04:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbTGBItm
+	id S264844AbTGBIuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 04:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264861AbTGBIuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 04:49:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:19721 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264851AbTGBItl
+	Wed, 2 Jul 2003 04:50:09 -0400
+Received: from a089197.adsl.hansenet.de ([213.191.89.197]:40883 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S264860AbTGBIuC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 04:49:41 -0400
-Message-ID: <3F02A171.7070200@aitel.hist.no>
-Date: Wed, 02 Jul 2003 11:10:09 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Wed, 2 Jul 2003 04:50:02 -0400
+Message-ID: <3F02A019.3040504@tu-harburg.de>
+Date: Wed, 02 Jul 2003 11:04:25 +0200
+From: Jan Dittmer <jan.dittmer@tu-harburg.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm3 `highmem_start_page' undeclared  with DEBUG_PAGEALLOC
- and no highmem
-References: <20030701203830.19ba9328.akpm@digeo.com>
+To: linux-net@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: pppoe, fix old protocol handler
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This didn't compile.
+Hi,
 
-.
-.
-.
-   CC      arch/i386/mm/fault.o
-   CC      arch/i386/mm/ioremap.o
-   CC      arch/i386/mm/extable.o
-   CC      arch/i386/mm/pageattr.o
-arch/i386/mm/pageattr.c: In function `kernel_map_pages':
-arch/i386/mm/pageattr.c:200: `highmem_start_page' undeclared (first use 
-in this function)
-arch/i386/mm/pageattr.c:200: (Each undeclared identifier is reported 
-only once
-arch/i386/mm/pageattr.c:200: for each function it appears in.)
-make[1]: *** [arch/i386/mm/pageattr.o] Error 1
-make: *** [arch/i386/mm] Error 2
+I'm using 2.5(.73-mm3, but this also applies to earlier versions) and 
+I'm getting tons (~6000/min) of "fix old protocol handler <pppoed>!" in 
+my syslog on a quite loaded adsl line. For the time being I just 
+commented out the annoying code fragment  and I didn't find any 
+regressions yet (uptime ~20days).
+So what's the correct way of getting rid of this message? I tried 
+recompiling pppd and pppoe, but that doesn't solve it. Is there a 
+patched version somewhere.
 
+Thanks,
 
-Configuring highmem support to 4G instead of turning
-it off avoids this, but I have only 512M in
-this machine.
+Jan
 
-Turning off highmem and page allocation debugging
-also compiles.
+pppd version 2.4.2b3
+Roaring Penguin PPPoE Version 3.5
 
-Helge Hafting
+--- a/net/core/dev.c    Sun Jun 15 19:11:37 2003
++++ b/net/core/dev.c    Sun Jun 15 19:11:53 2003
+@@ -1370,8 +1370,8 @@
+  #ifdef CONFIG_SMP
+         /* Old protocols did not depened on BHs different of NET_BH and
+            TIMER_BH - they need to be fixed for the new assumptions.
+-        */
+         print_symbol("fix old protocol handler %s!\n", (unsigned 
+long)pt->func);
++        */
+  #endif
+         ret = pt->func(skb, skb->dev, pt);
+  out:
 

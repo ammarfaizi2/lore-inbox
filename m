@@ -1,127 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265482AbUGCAWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUGCAfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265482AbUGCAWi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 20:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGCAWi
+	id S263664AbUGCAfm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 20:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUGCAfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 20:22:38 -0400
-Received: from av5-1-sn4.m-sp.skanova.net ([81.228.10.112]:58820 "EHLO
-	av5-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S265482AbUGCAWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 20:22:33 -0400
-Date: Sat, 3 Jul 2004 02:22:24 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@best.localdomain
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DVD+RW support for 2.6.7-bk13
-In-Reply-To: <20040702162028.28765ce1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0407030216490.2799@telia.com>
-References: <m2hdsr6du0.fsf@telia.com> <20040701161620.GA2939@animx.eu.org>
- <m2u0wr4f0v.fsf@telia.com> <20040701232955.GA3682@animx.eu.org>
- <m21xju4fsm.fsf@telia.com> <20040702162028.28765ce1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jul 2004 20:35:42 -0400
+Received: from gprs214-65.eurotel.cz ([160.218.214.65]:32653 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263664AbUGCAfl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 20:35:41 -0400
+Date: Sat, 3 Jul 2004 02:35:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Terence Ripperda <tripperda@nvidia.com>,
+       Stefan Seyfried <seife@gmane0305.slipkontur.de>,
+       swsusp-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Swsusp-devel] Re: nvidia's driver and swsusp (need help w/ n forc e2 mobo)
+Message-ID: <20040703003526.GF3889@elf.ucw.cz>
+References: <20040702192044.GO1815@hygelac> <20040702200012.GU1815@hygelac> <20040702232228.GA19080@hell.org.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702232228.GA19080@hell.org.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jul 2004, Andrew Morton wrote:
+Hi!
 
-> It wasn't obvious whether or not I was supposed to apply this, but I
-> did.
+> > I tried hibernating/resuming while in X. but I don't see any acpi
+> > calls coming through to our driver via the pci driver model. is this
+> > expected?
 
-Yes, I wanted you to apply it, thanks.
-
-> What's it do?
-
-It implements packet writing for DVD+RW and DVD-RW discs. Hopefully this
-patch makes it more clear:
-
-
-Added information about packet writing for DVD+RW and DVD-RW media.
-
-Signed-off-by: Peter Osterlund <petero2@telia.com>
-
----
-
- linux-petero/Documentation/cdrom/packet-writing.txt |   66 ++++++++++++++++++++
- 1 files changed, 66 insertions(+)
-
-diff -puN Documentation/cdrom/packet-writing.txt~packet-doc-update Documentation/cdrom/packet-writing.txt
---- linux/Documentation/cdrom/packet-writing.txt~packet-doc-update	2004-07-03 01:37:28.573726096 +0200
-+++ linux-petero/Documentation/cdrom/packet-writing.txt	2004-07-03 02:15:32.680489088 +0200
-@@ -20,3 +20,69 @@ Getting started quick
-
- - Now you can mount /dev/pktcdvd0 and copy files to it. Enjoy!
- 	# mount /dev/pktcdvd0 /cdrom -t udf -o rw,noatime
-+
-+
-+Packet writing for DVD-RW media
-+-------------------------------
-+
-+DVD-RW discs can be written to much like CD-RW discs if they are in
-+the so called "restricted overwrite" mode. To put a disc in restricted
-+overwrite mode, run:
-+
-+	# dvd+rw-format /dev/hdc
-+
-+You can then use the disc the same way you would use a CD-RW disc:
-+
-+	# pktsetup /dev/pktcdvd0 /dev/hdc
-+	# mount /dev/pktcdvd0 /cdrom -t udf -o rw,noatime
-+
-+
-+Packet writing for DVD+RW media
-+-------------------------------
-+
-+According to the DVD+RW specification, a drive supporting DVD+RW discs
-+shall implement "true random writes with 2KB granularity", which means
-+that it should be possible to put any filesystem with a block size >=
-+2KB on such a disc. For example, it should be possible to do:
-+
-+	# mkudffs /dev/hdc
-+	# mount /dev/hdc /cdrom -t udf -o rw,noatime
-+
-+However, some drives don't follow the specification and expect the
-+host to perform aligned writes at 32KB boundaries. Other drives does
-+follow the specification, but suffer bad performance problems if the
-+writes are not 32KB aligned.
-+
-+Both problems can be solved by using the pktcdvd driver, which always
-+generates aligned writes.
-+
-+	# pktsetup /dev/pktcdvd0 /dev/hdc
-+	# mkudffs /dev/pktcdvd0
-+	# mount /dev/pktcdvd0 /cdrom -t udf -o rw,noatime
-+
-+
-+Notes
-+-----
-+
-+- CD-RW media can usually not be overwritten more than about 1000
-+  times, so to avoid unnecessary wear on the media, you should always
-+  use the noatime mount option.
-+
-+- Defect management (ie automatic remapping of bad sectors) has not
-+  been implemented yet, so you are likely to get at least some
-+  filesystem corruption if the disc wears out.
-+
-+- Since the pktcdvd driver makes the disc appear as a regular block
-+  device, you can put any filesystem you like on the disc. For
-+  example, run:
-+
-+	# /sbin/mke2fs /dev/pktcdvd0
-+
-+  to create an ext2 filesystem on the disc.
-+
-+
-+Links
-+-----
-+
-+See http://fy.chalmers.se/~appro/linux/DVD+RW/ for more information
-+about DVD writing.
-_
-
+If you have suspend/resume methods in struct pci_device, those should
+be called. If they are not, something is very wrong... Take a look on
+for example drivers/net/b44.c -- that implements suspend/resume.
+								Pavel
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

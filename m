@@ -1,137 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTFDBSy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 21:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTFDBSy
+	id S262584AbTFDBVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 21:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTFDBVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 21:18:54 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30990
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262568AbTFDBSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 21:18:52 -0400
-Date: Tue, 3 Jun 2003 18:21:12 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Mauk van der Laan <mauk.lists@maatwerk.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: siimage slow on 2.4.21-rc6-ac2
-In-Reply-To: <3EDD49FA.2080407@maatwerk.net>
-Message-ID: <Pine.LNX.4.10.10306031819520.27756-100000@master.linux-ide.org>
+	Tue, 3 Jun 2003 21:21:10 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:50703 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S262569AbTFDBVE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 21:21:04 -0400
+Date: Tue, 03 Jun 2003 19:34:16 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Aic7x_x_x 6.2.36 && Aic79xx 1.3.10 Updates
+Message-ID: <3637050000.1054690456@aslan.scsiguy.com>
+In-Reply-To: <1051920000.1054684267@aslan.btc.adaptec.com>
+References: <1051920000.1054684267@aslan.btc.adaptec.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Resent with a subject this time.  Hit send too soon...]
 
+Folks,
 
+I've just uploaded version 1.3.10 of the aic79xx driver and version 
+6.2.36 of the aic7xxx driver.  Both are available for 2.4.X and
+2.5.X kernels in either bk send format or as a tarball from here:
+ 
+http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-static byte siimage_ratemask (ide_drive_t *drive)
+The change sets relative to the 2.5.X tree are:
 
-or whatever the new name is:
+ChangeSet@1.1275, 2003-06-03 17:35:01-06:00, gibbs@overdrive.btc.adaptec.com
+  Update Aic79xx Readme
 
-        switch(dev->device) {
-                case PCI_DEVICE_ID_CMD_3112:
+ChangeSet@1.1274, 2003-06-03 17:22:05-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Bump version number to 6.2.36
+   o Document recent aic7xxx driver releases
 
-+                       drive->id->hwconfig |= 0x6000;
+ChangeSet@1.1273, 2003-06-03 17:20:14-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic79xx Driver Update
+   o Bump driver version to 1.3.10
+   o Document recent releases in driver readme.
 
-Insert in your drivers/ide/pci/siimage.c
+ChangeSet@1.1272, 2003-05-31 21:12:09-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx and Aic79xx Driver Update
+   o Work around negotiation firmware bug in the Quantum Atlas 10K
+   o Clear stale PCI errors in our register mapping test to avoid
+     false positives from rouge accesses to our registers that occur
+     prior to our driver attach.
 
+ChangeSet@1.1271, 2003-05-31 18:34:01-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic79xx Driver Update
+   o Implement suspend and resume
 
+ChangeSet@1.1270, 2003-05-31 18:32:36-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Fix some suspend and resume bugs
 
-On Wed, 4 Jun 2003, Mauk van der Laan wrote:
+ChangeSet@1.1269, 2003-05-31 18:27:09-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Correct the type of the DV settings array.
 
-> 
-> He is right. I did several tests and it is the max_kb setting
-> that does it, not the fact that I programmed both disks.
-> Sorry to have put you in the wrong direction.
-> 
-> By the way, the autodma code doesnt seem to do anything?
-> 
-> Mauk
-> 
-> 
-> Andre Hedrick wrote:
-> 
-> >NO, it is not irrelevant.
-> >
-> >Seagate and Silicon Image are the only two player (well intel now) who did
-> >their own PHY.  They did not use the Marvel pairs.
-> >
-> >It is a function of possible ECC on the wire and the relation to the
-> >segments in the PIO or SG operations.  It is a FIFO issue based on 512byte
-> >boundaries being breached on corner cases.
-> >
-> >The data on the wire is in 8K units.
-> >
-> >It is a 7.5K + 0.5K corner case.
-> >
-> >max_kb_per_request:15 == 7.5K
-> >
-> >This prevents this corner case until I can code the proper special case SG
-> >table.
-> >
-> >drive->id->hwconfig |= 0x6000;
-> >
-> >Is needed to fake the driver for device side cable detect.
-> >There are several issues and I have not had time to keep up.
-> >
-> >I have to do other business ventures because being an independent
-> >developer/contract no longer can pay the bills.  More proof that free
-> >drivers and free software still has a cost to somebody.
-> >
-> >Cheers,
-> >
-> >On 3 Jun 2003, Alan Cox wrote:
-> >
-> >  
-> >
-> >>On Maw, 2003-06-03 at 23:48, Mauk van der Laan wrote:
-> >>    
-> >>
-> >>>He! I just did
-> >>>
-> >>># hdparm -d1 -X66 /dev/hdX
-> >>># echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
-> >>>
-> >>>on BOTH sata drives and everything works fine!
-> >>>Is it possible that they influence each other?
-> >>>      
-> >>>
-> >>Not as I understand it, but this is rather useful information. The SI
-> >>does have some ties for PIO mode but not UDMA clocking. This is most
-> >>interesting information.
-> >>
-> >>The max_kb_per thing should be irrelevant btw.
-> >>
-> >>-
-> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >>    
-> >>
-> >
-> >Andre Hedrick
-> >LAD Storage Consulting Group
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >  
-> >
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+ChangeSet@1.1268, 2003-05-31 18:25:28-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx and Aic79xx driver Update
+   o Remove unecessary and incorrect use of ~0 as a mask.
 
-Andre Hedrick
-LAD Storage Consulting Group
+ChangeSet@1.1267, 2003-05-30 13:50:00-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx and Aic79xx Driver Update
+   o Adapt to 2.5.X SCSI proc interface change while maitaining
+     compatibility with earlier kernels.
+
+ChangeSet@1.1266, 2003-05-30 11:01:02-06:00, gibbs@overdrive.btc.adaptec.com
+  Merge http://linux.bkbits.net/linux-2.5
+  into overdrive.btc.adaptec.com:/usr/home/gibbs/bk/linux-2.5
+
+ChangeSet@1.1215.4.6, 2003-05-30 10:50:17-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Bring in aic7xxx_reg_print.c update that was missed the
+     last time the firmware was regenerated.  The old file worked
+     fine, so this is mostly a cosmetic change.
+
+ChangeSet@1.1215.4.5, 2003-05-30 10:48:31-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic79xx Driver Update
+   o Correct non-zero lun output on post Rev A4 hardware
+     in packetized mode.
+
+ChangeSet@1.1215.4.4, 2003-05-30 10:46:03-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic79xx Driver Update
+   o Return to using 16byte alignment for th SCB_TAG field in our SCB.
+     The hardware seems to corrupt SCBs on some PCI platforms with the
+     tag field in its old location.
+
+ChangeSet@1.1215.4.3, 2003-05-30 10:43:20-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Adopt 2.5.X EISA framework for probing aic7770 controllers
+
+ChangeSet@1.1215.4.2, 2003-05-30 10:31:04-06:00, gibbs@overdrive.btc.adaptec.com
+  Aic7xxx Driver Update
+   o Correct card identifcation string for the 2920C
 

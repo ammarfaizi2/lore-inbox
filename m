@@ -1,99 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUGXTRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUGXTc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUGXTRq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 15:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGXTRq
+	id S262329AbUGXTc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 15:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGXTc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 15:17:46 -0400
-Received: from [212.100.65.13] ([212.100.65.13]:3601 "HELO system5")
-	by vger.kernel.org with SMTP id S262279AbUGXTRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 15:17:43 -0400
-From: Dr & Mrs Erick <zuluzulu39@latinmail.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Confirm Message
-Date: Sat, 24 Jul 04 19:49:23 W. Central Africa Standard Time
+	Sat, 24 Jul 2004 15:32:59 -0400
+Received: from av2-1-sn3.vrr.skanova.net ([81.228.9.107]:24205 "EHLO
+	av2-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S262329AbUGXTc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 15:32:58 -0400
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with snd_atiixp in 2.6.8-rc2 (and a workaround)
+References: <m37jsv3j6a.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 24 Jul 2004 21:32:54 +0200
+In-Reply-To: <m37jsv3j6a.fsf@telia.com>
+Message-ID: <m3hdrx6w0p.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_006E_43DD329C.457CBA5B"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
-Message-Id: <S262279AbUGXTRn/20040724191743Z+486@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_006E_43DD329C.457CBA5B
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+Peter Osterlund <petero2@telia.com> writes:
 
-RGlyZWN0IFRlbC46Kzg4Mi0xNjQtNjY1NTEyMQ0KRGlyZWN0IFRlbC46Kzg3MS03NjItNTM1
-OTE1DQpEaXJlY3QgRmF4OiArODcxLTc2Mi01MzU5MTYNCkNvcnBvcmF0ZSBUZWwuOisyNy04
-Mzk0OTQyOTENCg0KQWx0ZXJuYXRpdmU6IEUtbWFpbCBhZGRyZXNzOiBtYXJ5enVsdUBsYXRp
-bm1haWwuY29tDQpEZWFyLA0KDQpJIGFtIERyLiBNLiBaLiBFcmljaywgYSBuYXRpdmUgb2Yg
-Q2FwZSBUb3duIGluIFNvdXRoIEFmcmljYSBhbmQgSSBhbSBhbiBFeGVjdXRpdmUgQWNjb3Vu
-dGFudCB3aXRoIHRoZSBTb3V0aCBBZnJpY2EgRGVwYXJ0bWVudCBvZiBNaW5pbmcgJiBOYXR1
-cmFsIFJlc291cmNlcy4gRmlyc3QgYW5kIGZvcmVtb3N0LCBJIGFwb2xvZ2l6ZWQgdXNpbmcg
-dGhpcyBtZWRpdW0gdG8gcmVhY2ggeW91IGZvciBhIHRyYW5zYWN0aW9uL2J1c2luZXNzIG9m
-IHRoaXMgbWFnbml0dWRlLCBidXQgdGhpcyBpcyBkdWUgdG8gQ29uZmlkZW50aWFsaXR5IGFu
-ZCBwcm9tcHQgYWNjZXNzIHJlcG9zZWQgb24gdGhpcyBtZWRpdW0uIEJlIGluZm9ybWVkIHRo
-YXQgYSBtZW1iZXIgb2YgdGhlIFNvdXRoIEFmcmljYSBFeHBvcnQgUHJvbW90aW9uIENvdW5j
-aWwgKFNFUEMpIHdobyB3YXMgYXQgdGhlIEdvdmVybm1lbnQgZGVsZWdhdGlvbiB0byB5b3Vy
-IGNvdW50cnkgZHVyaW5nIGEgdHJhZGUgZXhoaWJpdGlvbiBnYXZlIHlvdXIgZW52aWFibGUg
-Y3JlZGVudGlhbHMvcGFydGljdWxhcnMgdG8gbWUuIEkgaGF2ZSBkZWNpZGVkIHRvIHNlZWsg
-YSBjb25maWRlbnRpYWwgY28tb3BlcmF0aW9uIHdpdGggeW91IGluIHRoZSBleGVjdXRpb24g
-b2YgdGhlIGRlYWwgZGVzY3JpYmVkIGhlcmV1bmRlciBmb3IgdGhlIGJlbmVmaXQgb2YgYWxs
-IHBhcnRpZXMgYW5kIGhvcGUgeW91IHdpbGwga2VlcCBpdCBhcyBhIHRvcCBzZWNyZXQgYmVj
-YXVzZSBvZiB0aGUgbmF0dXJlIG9mIHRoaXMgdHJhbnNhY3Rpb24uDQoNCldpdGhpbiB0aGUg
-RGVwYXJ0bWVudCBvZiBNaW5pbmcgJiBOYXR1cmFsIFJlc291cmNlcyB3aGVyZSBJIHdvcmsg
-YXMgYW4gRXhlY3V0aXZlIEFjY291bnRhbnQgYW5kIHdpdGggdGhlIGNvb3BlcmF0aW9uIG9m
-IGZvdXIgb3RoZXIgdG9wIG9mZmljaWFscywgd2UgaGF2ZSBpbiBvdXIgcG9zc2Vzc2lvbiBh
-cyBvdmVyZHVlIHBheW1lbnQgYmlsbHMgdG90YWxpbmcgVHdlbnR5IC0gU2l4IE1pbGxpb24s
-IEZpdmUgSHVuZHJlZCBUaG91c2FuZCBVLiBTLiBEb2xsYXJzICgkMjYsNTAwLDAwMC4pIHdo
-aWNoIHdlIHdhbnQgdG8gdHJhbnNmZXIgYWJyb2FkIHdpdGggdGhlIGFzc2lzdGFuY2UgYW5k
-IGNvb3BlcmF0aW9uIG9mIGEgZm9yZWlnbiBjb21wYW55L2luZGl2aWR1YWwgdG8gcmVjZWl2
-ZSB0aGUgc2FpZCBmdW5kIG9uIG91ciBiZWhhbGYgb3IgYSByZWxpYWJsZSBmb3JlaWduIG5v
-bi1jb21wYW55IGFjY291bnQgdG8gcmVjZWl2ZSBzdWNoIGZ1bmRzLiBNb3JlIHNvLCB3ZSBh
-cmUgaGFuZGljYXBwZWQgaW4gdGhlIGNpcmN1bXN0YW5jZXMsIGFzIHRoZSBTb3V0aCBBZnJp
-Y2EgQ2l2aWwgU2VydmljZSBDb2RlIG9mIENvbmR1Y3QgZG9lcyBub3QgYWxsb3cgdXMgdG8g
-b3BlcmF0ZSBvZmZzaG9yZSBhY2NvdW50IGhlbmNlIHlvdXIgaW1wb3J0YW5jZSBpbiB0aGUg
-d2hvbGUgdHJhbnNhY3Rpb24uDQoNClRoaXMgYW1vdW50ICQyNi41bSByZXByZXNlbnRzIHRo
-ZSBiYWxhbmNlIG9mIHRoZSB0b3RhbCBjb250cmFjdCB2YWx1ZSBleGVjdXRlZCBvbiBiZWhh
-bGYgb2YgbXkgRGVwYXJ0bWVudCBieSBhIGZvcmVpZ24gY29udHJhY3RpbmcgZmlybSwgd2hp
-Y2ggd2UgdGhlIG9mZmljaWFscyBvdmVyLWludm9pY2VkIGRlbGliZXJhdGVseS4gVGhvdWdo
-IHRoZSBhY3R1YWwgY29udHJhY3QgY29zdCBoYXZlIGJlZW4gcGFpZCB0byB0aGUgb3JpZ2lu
-YWwgY29udHJhY3RvciwgbGVhdmluZyB0aGUgYmFsYW5jZSBpbiB0aGUgdHVuZSBvZiB0aGUg
-c2FpZCBhbW91bnQgd2hpY2ggd2UgaGF2ZSBpbiBwcmluY2lwbGVzIGdvdHRlbiBhcHByb3Zh
-bCB0byByZW1pdCBieSBUZWxlZ3JhcGhpYyBUcmFuc2ZlciAoVC5UKSB0byBhbnkgZm9yZWln
-biBiYW5rIGFjY291bnQgeW91IHdpbGwgcHJvdmlkZSBieSBmaWxpbmcgaW4gYW4gYXBwbGlj
-YXRpb24gdGhyb3VnaCB0aGUgSnVzdGljZSBNaW5pc3RyeSBoZXJlIGluIFNvdXRoIEFmcmlj
-YSBmb3IgdGhlIHRyYW5zZmVyIG9mIHJpZ2h0cyBhbmQgcHJpdmlsZWdlcyBvZiB0aGUgZm9y
-bWVyIGNvbnRyYWN0b3IgdG8geW91LCBoZW5jZSBwcm92aWRlIG1lIHdpdGggeW91ciBwcml2
-YXRlL2RpcmVjdCBmYXggbnVtYmVyIGZvciB0aGUgZm9ybSB0byBiZSBzZW5kIGFjcm9zcyB0
-byB5b3UuDQoNCkkgaGF2ZSB0aGUgYXV0aG9yaXR5IG9mIG15IHBhcnRuZXJzIGludm9sdmVk
-IHRvIHByb3Bvc2UgdGhhdCBzaG91bGQgeW91IGJlIHdpbGxpbmcgdG8gYXNzaXN0IHVzIGlu
-IHRoZSB0cmFuc2FjdGlvbiwgeW91ciBzaGFyZSBvZiB0aGUgc3VtIHdpbGwgYmUgMTUlIG9m
-IHRoZSAkMjYsLjUgbWlsbGlvbiwgODAlIGZvciB1cyBhbmQgNSUgZm9yIHRheGF0aW9uIGFu
-ZCBtaXNjZWxsYW5lb3VzIGV4cGVuc2VzLiBUaGUgYnVzaW5lc3MgaXRzZWxmIGlzIDEwMCUg
-c2FmZSwgb24geW91ciBwYXJ0IHByb3ZpZGVkIHlvdSB0cmVhdCBpdCB3aXRoIHV0bW9zdCBz
-ZWNyZWN5IGFuZCBjb25maWRlbnRpYWxpdHkuIEFsc28geW91ciBhcmVhIG9mIHNwZWNpYWxp
-emF0aW9uIGlzIG5vdCBhIGhpbmRyYW5jZSB0byB0aGUgc3VjY2Vzc2Z1bCBleGVjdXRpb24g
-b2YgdGhpcyB0cmFuc2FjdGlvbi4gSSBoYXZlIHJlcG9zZWQgbXkgY29uZmlkZW5jZSBpbiB5
-b3UgYW5kIGhvcGUgdGhhdCB5b3Ugd2lsbCBub3QgZGlzYXBwb2ludCBtZS4gRW5kZWF2b3Ig
-dG8gY29udGFjdCBtZSBpbW1lZGlhdGVseSB0aHJvdWdoIG15IGFib3ZlIFRlbC9GYXggbnVt
-YmVyIG9yIA0KbXkgZS1tYWlsIGFkZHJlc3MsIHdoZXRoZXIgb3Igbm90IHlvdSBhcmUgaW50
-ZXJlc3RlZCBpbiB0aGlzIGRlYWwuIElmIHlvdSBhcmUgbm90LCBpdCB3aWxsIGVuYWJsZSBt
-ZSBzY291dCBmb3IgYW5vdGhlciBmb3JlaWduIHBhcnRuZXIgdG8gY2Fycnkgb3V0IHRoaXMg
-ZGVhbCBJIHdhbnQgdG8gYXNzdXJlIHlvdSB0aGF0IG15IHBhcnRuZXJzIGFuZCBteXNlbGYg
-YXJlIGluIGEgcG9zaXRpb24gdG8gbWFrZSB0aGUgcGF5bWVudCBvZiB0aGlzIGNsYWltIHBv
-c3NpYmxlIHByb3ZpZGVkIHlvdSBjYW4gZ2l2ZSB1cyBhIHZlcnkgc3Ryb25nIEFzc3VyYW5j
-ZSBhbmQgZ3VhcmFudGVlIHRoYXQgb3VyIHNoYXJlIHdpbGwgYmUgc2VjdXJlZCBhbmQgcGxl
-YXNlIHJlbWVtYmVyIHRvIHRyZWF0IHRoaXMgbWF0dGVyIGFzIHZlcnkgY29uZmlkZW50aWFs
-IG1hdHRlciwgYmVjYXVzZSB3ZSB3aWxsIG5vdCBjb21wcmVoZW5kIHdpdGggYW55IGZvcm0g
-b2YgZXhwb3N1cmUgYXMgd2UgYXJlIHN0aWxsIGluIGFjdGl2ZSBHb3Zlcm5tZW50IFNlcnZp
-Y2UgYW5kIHJlbWVtYmVyIG9uY2UgYWdhaW4gdGhhdCB0aW1lIGlzIG9mIHRoZSBlc3NlbmNl
-IGluIHRoaXMgYnVzaW5lc3MuDQpJIHdhaXQgaW4gYW50aWNpcGF0aW9uIG9mIHlvdXIgZnVs
-bGVzdCBjby1vcGVyYXRpb24uDQoNCllvdXJzIGZhaXRoZnVsbHksDQoNCkRyLiBNLiBaLiBF
-cmljayAgIA0KRS1tYWlsIGFkZHJlc3M6IG1hcnl6dWx1QGxhdGlubWFpbC5jb20NCg0KICAg
-IA==
-------=_NextPart_000_006E_43DD329C.457CBA5B--
+> The snd_atiixp module in the 2.6.8-rc2 kernel doesn't work on my
+> Compaq Presario R3000 (R3057EA) computer. When I load the module,
+> the kernel reports:
+> 
+> ACPI: PCI interrupt 0000:00:14.5[B] -> GSI 5 (level, low) -> IRQ 5
+> ATI IXP AC97 controller: probe of 0000:00:14.5 failed with error -13
+
+I see that this problem has already been fixed in the ALSA CVS, so
+sorry for the noise, and thanks for the fix.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

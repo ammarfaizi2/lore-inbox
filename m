@@ -1,55 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVALWcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVALWh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbVALWcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVALWaV
+	id S261486AbVALWh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVALWhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:30:21 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:38865 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261524AbVALWVZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:21:25 -0500
-Message-ID: <41E5A2F6.8070704@didntduck.org>
-Date: Wed, 12 Jan 2005 17:21:42 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Wed, 12 Jan 2005 17:37:25 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:17282 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S261486AbVALWep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 17:34:45 -0500
+Message-ID: <41E5A5DA.1010301@qualcomm.com>
+Date: Wed, 12 Jan 2005 14:34:02 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Terence Ripperda <tripperda@nvidia.com>
-CC: Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@linux.ie>
-Subject: Re: inter_module_get and __symbol_get
-References: <20050106213225.GJ6184@hygelac> <41DDB465.8000705@didntduck.org> <20050106225140.GO6184@hygelac> <9e4733910501072000491d6c04@mail.gmail.com> <20050112193727.GM1933@hygelac>
-In-Reply-To: <20050112193727.GM1933@hygelac>
+To: davem@davemloft.net, akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [BK] TUN/TAP driver update and fixes for 2.6.BK
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda wrote:
-> it would seem like the old mechanism was preferable, but perhaps I'm
-> missing something. in this particular case, there are times when a user
-> wants to avoid using agp at all for testing purposes, but if I
-> understand correctly, we'll be forced to load agpgart anyways due to
-> unresolved symbols.
+Dave, Andrew,
 
-In 2.6, the "agpgart" module is just the core.  Without a gart driver 
-loaded (via-agp for example), it does nothing.  If you really don't want 
-to have the hard dependency on agpgart, make the code using it 
-conditionally compile on CONFIG_AGP or something.
+Could one of you please pull TUN/TAP driver updates from my tree
+         bk://maxk.bkbits.net/tun-2.6
 
-> but I think Keith Owens was correct in his larger picture view that
-> this mechanism is useful for much more than just agp. I'm just
-> confused why it was regressed from a non-gpl symbol to a gpl symbol
-> (or more appropriately why the non-gpl symbol was regressed in favor
-> of a gpl-only symbol).
+This will update the following files:
 
-symbol_get in it's current form is hard-coded to look for GPL symbols, 
-hence it is exported GPL only.  I have a rough patch that will allow 
-symbol_get to use the license status of its caller to determine which 
-symbols it can find.  However this depends on whether or not 
-symbol_get() is removed like some people want.
+  drivers/net/Kconfig    |    1
+  drivers/net/tun.c      |  145 ++++++++++++++++++++++++++++++++++++++++++-------
+  include/linux/if_tun.h |    2
+  3 files changed, 128 insertions(+), 20 deletions(-)
 
---
-				Brian Gerst
+through these ChangeSets:
+
+<maxk@qualcomm.com> (05/01/12 1.2379)
+    [TUN] Add a missing dependency on enabling the crc32 libraries
+
+    Patch by Steve French <smfltc@us.ibm.com>
+
+    Signed-off-by: Max Krasnyansky <maxk@qualcomm.com>
+
+<maxk@qualcomm.com> (04/12/23 1.1938.458.6)
+    Use random_ether_addr() to generate TAP MAC address.
+
+    Signed-off-by: Mark Smith <markzzzsmith@yahoo.com.au>
+    Signed-off-by: Max Krasnyansky <maxk@qualcomm.com>
+
+<maxk@qualcomm.com> (04/12/23 1.1938.458.5)
+    TUN/TAP driver packet queuing fixes and improvements
+
+    Patch from Harald Roelle <harald.roelle@nm.ifi.lmu.de>
+
+    Fixes for the following issues
+    - "Kicking" packet behavior in case of kernel packet scheduler (! TUN_ONE_QUEUE):
+      When the netif queue is stopped because of an overrun of the driver's queue,
+      no new packets are delivered to the driver until a new packet arrives, not even
+      when in the meantime there's again space in the driver's queue (gained by a
+      reading user process). In short, whenever netif queue was stopped, one needs an
+      additional packet to "kick" packet delivery to the driver.
+      The reason for this is, that the netif queue is started but not woken up, i.e.
+      the rest of the kernel is not signaled to resume packet delivery.
+
+    - Adjustment of tx queue length by ifconfig has only effect when TUN_ONE_QUEUE
+      is set.  Otherwise always constant TUN_READQ_SIZE queue length is used.
+
+    - TX queue default length setting is not consistent:
+      o TAP dev + TUN_ONE_QUEUE: 1000 (by ether_setup())
+      o all other cases: 10
+
+    - Default tx queue length is too short in many cases.
+      IMHO it should be at least twice as long as the number of fragments needed
+      for a maximum sized IP packet at a "typical" MTU size.
+      This would ensure that at least one complete IP packet can be delivered
+      to the attached user space process, even if the packet's fragments
+      are "misaligned" in the buffer and the user process is not scheduled
+      in time to read the queue.
+
+    Additional modifications:
+
+    - To signal that stopping of the queue has occurred, the tx fifo overrun
+      counter is increased.
+
+    - Implemented ethtool api. Primarily added to have a standard method requesting
+      the driver version.
+
+    Signed-off-by: Max Krasnyansky <maxk@qualcomm.com>
+
+
+Thanks
+Max

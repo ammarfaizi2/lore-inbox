@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277708AbRJLO27>; Fri, 12 Oct 2001 10:28:59 -0400
+	id <S277712AbRJLOcJ>; Fri, 12 Oct 2001 10:32:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277712AbRJLO2t>; Fri, 12 Oct 2001 10:28:49 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:28594
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S277708AbRJLO2l>; Fri, 12 Oct 2001 10:28:41 -0400
-Date: Fri, 12 Oct 2001 07:29:10 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.12-ac1
-Message-ID: <20011012072910.N21564@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22i
+	id <S277713AbRJLOb7>; Fri, 12 Oct 2001 10:31:59 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:12039 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S277712AbRJLObv>;
+	Fri, 12 Oct 2001 10:31:51 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110121432.f9CEWDb08849@oboe.it.uc3m.es>
+Subject: Re: kapm-idled Funny in 2.4.10-ac12?
+In-Reply-To: <E15s3CH-0007LG-00@the-village.bc.nu> from "Alan Cox" at "Oct 12,
+ 2001 03:21:57 pm"
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Fri, 12 Oct 2001 16:32:13 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
+"Alan Cox wrote:"
+> One thing I changed in -ac was to do sane things when the apm idle request
+> comes back with "no" from the BIOS
 
-> 2.4.12-ac1
-> o	Merge the majority of 2.4.11/12
-> 	-	Fall back to the Linus reiserfs code set
-[snip]
+HURRAY!!!!
 
-The endian-safe patches will come back tho, right?  I don't think those
-have made it into Linus' tree yet...
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Peter

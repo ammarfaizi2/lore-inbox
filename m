@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265418AbTLHPY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 10:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTLHPY4
+	id S265423AbTLHPaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 10:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265424AbTLHP37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 10:24:56 -0500
-Received: from head.linpro.no ([80.232.36.1]:41117 "EHLO head.linpro.no")
-	by vger.kernel.org with ESMTP id S265418AbTLHPYz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 10:24:55 -0500
-Subject: 2.4: mylex and > 2GB RAM
-From: Per Buer <perbu@linpro.no>
-Reply-To: perbu@linpro.no
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Linpro AS
-Message-Id: <1070897058.25490.56.camel@netstat.linpro.no>
+	Mon, 8 Dec 2003 10:29:59 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:60570 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S265423AbTLHP34
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 10:29:56 -0500
+Date: Mon, 8 Dec 2003 08:29:54 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23+BK: PPC compile error
+Message-ID: <20031208152954.GY912@stop.crashing.org>
+References: <Pine.GSO.4.44.0312081201500.13502-100000@math.ut.ee>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 08 Dec 2003 16:24:19 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.9 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1ATNFj-0001VR-OP*Ttm8pUE7U2k*
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0312081201500.13502-100000@math.ut.ee>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Dec 08, 2003 at 12:02:44PM +0200, Meelis Roos wrote:
 
-I have an Supermicro Superserver (wow!) 8040 or 8060 with a two Intel
-Xeon (p3-based with 1MB cache) and a Mylex AcceleRAID 352. We recently
-upgraded from 2 to 4GB of memory.
+> gcc -D__ASSEMBLY__ -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -I/home/mroos/compile/linux-2.4/arch/ppc   -c -o cpu_setup_6xx.o cpu_setup_6xx.S
+> cpu_setup_6xx.S: Assembler messages:
+> cpu_setup_6xx.S:164: Error: Unrecognized opcode: `andi'
 
-There seems to a problem with IO and high memory. Suddenly IO
-performance will degrade dramatically (throughput of about 50KB/s).
-Booting the machine with "mem=2048" remedies this.
+[ donning brown paper bag ]
+Marcelo, please apply the following:
 
-We have tried replacing the memory with another make - no luck.
+PPC32: Fix a thinko in arch/ppc/kernel/cpu_setup_6xx.S
 
-Any hints?
+--- 1.6/arch/ppc/kernel/cpu_setup_6xx.S	Wed Dec  3 08:48:47 2003
++++ edited/arch/ppc/kernel/cpu_setup_6xx.S	Mon Dec  8 08:26:37 2003
+@@ -161,7 +161,7 @@
+ 	rlwinm	r3,r10,16,16,31
+ 	cmplwi	r3,0x000c
+ 	bne	1f			/* Not a 7400. */
+-	andi	r3,r10,0x0f0f
++	andi.	r3,r10,0x0f0f
+ 	cmpwi	0,r3,0x0200
+ 	bgt	1f			/* Rev >= 2.1 */
+ 	li	r3,HID0_SGE		/* 7400 rev < 2.1, clear SGE. */
 
 -- 
-There are only 10 different kinds of people in the world,
-those who understand binary, and those who don't.
-
-
+Tom Rini
+http://gate.crashing.org/~trini/

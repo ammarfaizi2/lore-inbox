@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288028AbSAMTem>; Sun, 13 Jan 2002 14:34:42 -0500
+	id <S288050AbSAMTxO>; Sun, 13 Jan 2002 14:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288040AbSAMTed>; Sun, 13 Jan 2002 14:34:33 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:45585 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S288028AbSAMTeT>;
-	Sun, 13 Jan 2002 14:34:19 -0500
-Message-ID: <3C41E139.8080603@inet6.fr>
-Date: Sun, 13 Jan 2002 20:34:17 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020111
-X-Accept-Language: en-us
+	id <S288051AbSAMTxF>; Sun, 13 Jan 2002 14:53:05 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:36881 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288050AbSAMTws>; Sun, 13 Jan 2002 14:52:48 -0500
+Message-ID: <3C41E415.9D3DA253@zip.com.au>
+Date: Sun, 13 Jan 2002 11:46:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Nathan <wfilardo@fuse.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 Unable to boot on Cyrix box?
-In-Reply-To: <3C406C21.3050208@fuse.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Robert Love <rml@tech9.net>
+CC: jogi@planetzork.ping.de, Ed Sweetman <ed.sweetman@wmich.edu>,
+        Andrea Arcangeli <andrea@suse.de>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020113184249.A15955@planetzork.spacenet>,
+		<E16P0vl-0007Tu-00@the-village.bc.nu>
+		<1010781207.819.27.camel@phantasy>
+		<20020112121315.B1482@inspiron.school.suse.de>
+		<20020112160714.A10847@planetzork.spacenet>
+		<20020112095209.A5735@hq.fsmlabs.com>
+		<20020112180016.T1482@inspiron.school.suse.de>
+		<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> 
+		<20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan wrote:
+Robert Love wrote:
+> 
+> Again, preempt seems to reign supreme.  Where is all the information
+> correlating preempt is inferior?  To be fair, however, we should bench a
+> mini-ll+s test.
 
-> Hi.
->
-> I have an old recycled box playing firewall for me which stubbornly 
-> refuses to run 2.4.  2.2.17,18,19,20 and a handful of -pre* patches 
-> have run just fine.
->
-> The system just hangs after 2.4 prints out:
-> SIS5513: IDE controller on PCI bus 00 dev 09
-> SIS5513: not 100% native mode: will probe irqs later
->    ide0: BM-DMA at 0x4000-0x4007, BIOS settings: hda:pio, hdb:pio
->    ide1: BM-DMA at 0x4008-0x400f, BIOS settings: hdc:pio, hdd:pio
-> hda: Maxtor 90320D2, ATA DISK drive
-> hdb: CD-ROM CDU76E, ATAPI CDROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14 
+I can't say that I have ever seen any significant change in throughput
+of anything with any of this stuff.
 
+Benchmarks are well and good, but until we have a solid explanation for
+the throughput changes which people are seeing, it's risky to claim
+that there is a general benefit.
 
-- Did you try with ide=nodma ?
-- I've not yet read the full specs of old SiS IDE chips, but there is a 
-bug for ATA66 and 33 chips in the stock kernel. Try copying 
-http://gyver.homeip.net/sis5513/sis5513-limited.c over your 
-linux/drivers/ide/sis5513.c. It fixes the bug above and will output your 
-IDE Config registers and each change it makes. Please send me the 
-"SIS5513: " lines if you can (I'm interested in cases of failure and 
-success).
-
->
-> Relevant system specs:
-> Cyrix 233MHz processor
-> 64M PC-100 RAM (1 dimm)
-> SIS5513 IDE chipset
->    LSPCI reports: 00:01.1 IDE interface: Silicon Integrated Systems 
-> [SiS] 5513 [IDE] (rev d0)
-
-Do you have the motherboard model ?
-
->
->
-> I have the kernel built for a 386, PCI and EISA support enabled (and 
-> their respective PNP) all Y, SIS5513 support included in the kernel... 
-> What am I missing, here?
-
-
-Perhaps correct init code in sis5513.c for your chip. Send me all info 
-requested above and I'll try to sort it out.
-
->
-> More information available if needed.
->
-The more you send me, the better.
-
-LB.
-
+-

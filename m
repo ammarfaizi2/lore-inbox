@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbTDTXoe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 19:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263739AbTDTXoe
+	id S263742AbTDTX5w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 19:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263744AbTDTX5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 19:44:34 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:39151 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263735AbTDTXoe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 19:44:34 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 21 Apr 2003 01:56:34 +0200 (MEST)
-Message-Id: <UTC200304202356.h3KNuYK14756.aeb@smtp.cwi.nl>
-To: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [CFT] more kdev_t-ectomy
+	Sun, 20 Apr 2003 19:57:52 -0400
+Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:25296 "EHLO
+	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263742AbTDTX5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 19:57:51 -0400
+Subject: [ANNOUNCE] Log your dead hard disk drives here
+From: Andrew Clayton <andrew@sol-1.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050883793.1089.16.camel@alpha.digital-domain.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 21 Apr 2003 01:09:54 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > Of course it may be possible to avoid kernel-internal numbers altogether.
-    > Sometimes that is an improvement, sometimes not. Pointers are more
-    > complicated than numbers - they point at something that must be allocated
-    > and freed and reference counted. A number is like a pointer without the
-    > reference counting.
+Hi,
 
-    I guess the question is: is there any point to have three forms --
-    with necessary conversions between them -- or is it simpler to have
-    two forms and just use the more awkward dev_t form everywhere?
+In an earlier message 
 
-It doesnt matter much. I would not have introduced kdev_t just
-for slightly more efficient dev_t handling. But we have it already.
-It seems meaningless to go and replace it by something more awkward
-and less efficient.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0304.2/0765.html
 
-[But should anyone want: globally s/kdev_t/dev_t/ and a small edit
-of kdev_t.h suffices.]
+It was suggested that someone should set up a web page to track all
+these dead hard drives that seem so common today.
 
-    We do need a dev32_t for NFSv2 et al, though.
+Well, goto the link below and you can log your dead drive and view all
+the other submissions. Yep it's all pretty basic just now and the data
+is just stored in a CSV text file.
 
-I don't know why.
+Anyways if you think this is useful head along to 
 
-Andries
+http://digital-domain.net/fscked-disk/
+
+it doesn't really need much explaining ;).
+
+
+Cheers,
+
+Andrew Clayton
+
+

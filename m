@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRDGTwb>; Sat, 7 Apr 2001 15:52:31 -0400
+	id <S131219AbRDGT5C>; Sat, 7 Apr 2001 15:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbRDGTwV>; Sat, 7 Apr 2001 15:52:21 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:48434 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131191AbRDGTwM>; Sat, 7 Apr 2001 15:52:12 -0400
-Date: Sat, 7 Apr 2001 20:52:04 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
-        Michael Reinelt <reinelt@eunet.at>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-Message-ID: <20010407205204.H3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com> <3ACF6D1D.63A2A2FE@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="2xzXx3ruJf7hsAzo"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACF6D1D.63A2A2FE@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 07, 2001 at 03:40:13PM -0400
+	id <S131346AbRDGT4x>; Sat, 7 Apr 2001 15:56:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:24331 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131219AbRDGT4m>;
+	Sat, 7 Apr 2001 15:56:42 -0400
+Date: Sat, 7 Apr 2001 21:56:40 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: <linux-kernel@vger.kernel.org>, <bert@dutepp0.et.tudelft.nl>,
+        <jeanpaul@dutepp0.et.tudelft.nl>
+Subject: Re: P-III Oddity. 
+In-Reply-To: <200104071933.VAA19651@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.30.0104072149510.10936-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 7 Apr 2001, Rogier Wolff wrote:
 
---2xzXx3ruJf7hsAzo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> One machine regularly crashes.
+> Linux version 2.2.16-3 (root@porky.devel.redhat.com) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Jun 19 19:11:44 EDT 2000
 
-On Sat, Apr 07, 2001 at 03:40:13PM -0400, Jeff Garzik wrote:
+Probably unrelated to the issue below. Try a more recent 2.2 ?
 
-> Who said you have to have a separate driver for every single multi-IO
-> card?  A single driver could support all serial+parallel multi-IO cards,
-> for example.
+> cpuid level     : 2
 
-Okay, I misunderstood.	I'll take a look at doing this for 2.4.
+CPU serial number disabled.
 
-First of all, parport_pc will need to export the equivalent of
-register_serial (its equivalent is probably parport_pc_probe_port).
-[It actually already does this (conditionally on parport_cs).]
+> cpuid level     : 3
 
-drivers/parport/parport_serial.c sound okay, or is a different place
-better?
+CPU serial number enabled.
 
-Tim.
-*/
 
---2xzXx3ruJf7hsAzo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+You should be able to confirm this with my x86info tool.
+ftp://ftp.suse.com/pub/people/davej/x86info/x86info-1.0.tgz
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+If this isn't the case, can you send me the output of
+x86info -a on both CPUs ?
 
-iD8DBQE6z2/kONXnILZ4yVIRAuMLAJ9aZUwumYWMW+4eErQRA2prXGq1+QCdFYtv
-hv6wrBt0+JW/HvWPk92qhNk=
-=XR3y
------END PGP SIGNATURE-----
+Note, that 2.4 should be disabling the serial number by
+default.
+(Unless you booted with the `serialnumber' bootarg.)
 
---2xzXx3ruJf7hsAzo--
+regards,
+
+Dave.
+

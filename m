@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbTDNKLz (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 06:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTDNKLz (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 06:11:55 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:24438 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262932AbTDNKLy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 06:11:54 -0400
-Date: Mon, 14 Apr 2003 03:23:39 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-pre7 ide request races
-Message-Id: <20030414032339.27079dd8.akpm@digeo.com>
-In-Reply-To: <20030414101747.GR9776@suse.de>
-References: <20030414093418.GQ9776@suse.de>
-	<20030414030751.7bf17b04.akpm@digeo.com>
-	<20030414101747.GR9776@suse.de>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S262942AbTDNKO3 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 06:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTDNKO2 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 06:14:28 -0400
+Received: from [195.82.114.197] ([195.82.114.197]:58375 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id S262942AbTDNKO1 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 06:14:27 -0400
+Date: Mon, 14 Apr 2003 11:26:13 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Russell Nash <russ@nixhelp.org>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: PROBLEM: mkdir on ext3 creates regular file instead of
+ directory
+Message-ID: <507920461.1050319573@[192.168.100.8]>
+In-Reply-To: <3E9A19D7.6040509@nixhelp.org>
+References: <3E9A19D7.6040509@nixhelp.org>
+X-Mailer: Mulberry/2.2.1 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Apr 2003 10:23:38.0319 (UTC) FILETIME=[E9C5DDF0:01C3026F]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+> [1.] One line summary of the problem:
 >
-> How would that solve the problem? The request could be gone even before
-> end_that_request_last() is run, that is the issue.
+> when using 'mkdir' to create a directory on an ext3 filesystem, a regular
+> file is created instead of the directory.
 
-In that case I didn't understand your description of the bug even the tiniest
-little bit.
+Had you by any chance done something a little like this
+(which can produce similarly odd results - not sure about
+quite the same ones).
 
-That request is sitting in the kernel stack of some process which is sleeping
-in wait_for_completion().  Hence it is safe memory until someone runs
-complete() against the completion struct.
+Shell 1					Shell 2
+=======					=======
+
+cd ~
+					cd ~
+mkdir foo
+cd foo
+					rmdir foo
+mkdir .variable
+
+
+Or more confusingly
+
+
+
+Shell 1					Shell 2
+=======					=======
+
+cd ~
+					cd ~
+mkdir foo
+cd foo
+					rmdir foo
+					mkdir foo
+mkdir .variable
+
+
+
+--
+Alex Bligh

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVCVIIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVCVIRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbVCVIIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 03:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVCVIIu
+	id S262374AbVCVIRX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 03:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVCVIRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 03:08:50 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:36506 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262559AbVCVIIe (ORCPT
+	Tue, 22 Mar 2005 03:17:23 -0500
+Received: from wasp.net.au ([203.190.192.17]:53632 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S262374AbVCVIRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 03:08:34 -0500
-Date: Tue, 22 Mar 2005 09:08:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, rusty@au1.ibm.com,
-       bhuey@lnxw.com, gh@us.ibm.com, tgall@us.ibm.com,
-       jim.houston@comcast.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, paulmck@us.ibm.com,
-       manfred@colorfullife.com, shemminger@osdl.org, dipankar@in.ibm.com
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050322080800.GA9497@elte.hu>
-References: <20050318160229.GC25485@elte.hu> <E1DCPut-0005XI-00@gondolin.me.apana.org.au> <20050319163128.GB28958@elte.hu> <24e1c77a699dcab771a0280df69d44eb@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24e1c77a699dcab771a0280df69d44eb@mac.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 22 Mar 2005 03:17:20 -0500
+Message-ID: <423FD484.2080604@wasp.net.au>
+Date: Tue, 22 Mar 2005 12:17:08 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jniehof@bu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: LBD/filesystems over 2TB: is it safe?
+References: <37550.128.197.73.126.1111445738.squirrel@128.197.73.126>
+In-Reply-To: <37550.128.197.73.126.1111445738.squirrel@128.197.73.126>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jniehof@bu.edu wrote:
 
-* Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> Running x86-32 using kernel 2.6.8 (from Debian sarge), although can always
+> roll my own if necessary. Preferred filesystem would be ext3, and I
+> anticipate no need to grow beyond the initial 2.5TB.
 
-> One solution I can think of, although it bloats memory usage for
-> many-way boxen, is to just have a table in the rwlock with one entry
-> per cpu.  Each CPU would get one concurrent reader, others would need
-> to sleep
+I'm running 2.1TB and 3TB filesystems on ext3 here. It's probably not fast or optimal, however it's 
+been solidly reliable. The 2.1 has been running since May 2004 with a reasonable workload. The 3TB 
+is only 4 weeks old, but has been beaten pretty hard during burn-in testing.
 
-yes, it bloats memory usage, and complicates PI quite significantly. 
-We've been there and have done something similar to that in earlier -RT
-patches - 64 'owner' entries in the lock already caused problems on 8K
-stacks. 32 seemed to work but caused quite some bloat in data structure
-sizes.
+x86-32 with 2.6.[5 6 9 10] on the 2.1 and 2.6.11-bk's on the 3.
 
-i'd rather live with some scalability bottleneck for now, in exchange of
-a wastly easier to handle design. We can still complicate things later
-on for better scalability, once all the other issues have been sorted
-out.
+Both filesystems have been filled to capacity during testing and real use. I unmount them and e2fsck 
+-f them weekly just for a laugh also. Never a hitch.
 
-	Ingo
+Regards,
+Brad
+-- 
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

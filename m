@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265902AbUGECcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUGEChA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbUGECcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 22:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGECcX
+	id S265910AbUGEChA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 22:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGEChA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 22:32:23 -0400
-Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:12929
-	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
-	id S265902AbUGECcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 22:32:17 -0400
-Date: Sun, 4 Jul 2004 19:32:13 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems getting SMP to work with vanilla 2.4.26
-Message-ID: <20040705023213.GA1557@tumblerings.org>
-References: <20040704020543.GA1776@tumblerings.org> <20040704141336.GA18851@logos.cnet> <20040704181438.GB3816@tumblerings.org> <20040705002305.GA20847@logos.cnet>
+	Sun, 4 Jul 2004 22:37:00 -0400
+Received: from almesberger.net ([63.105.73.238]:56585 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S265910AbUGECg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 22:36:57 -0400
+Date: Sun, 4 Jul 2004 23:36:51 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: prio_tree generalization
+Message-ID: <20040704233651.A1453@almesberger.net>
+References: <20040704222438.A11865@almesberger.net> <20040705020740.GA3246@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040705002305.GA20847@logos.cnet>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040705020740.GA3246@dualathlon.random>; from andrea@suse.de on Mon, Jul 05, 2004 at 04:07:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli wrote:
+> that's a nice effort, I agree prio_tree.c is better suited for lib/ than
+> mm/ but the code already looks quite generic and well written.
 
-On Sun, Jul 04, 2004 at 09:23:05PM -0300, Marcelo Tosatti wrote:
-> On Sun, Jul 04, 2004 at 11:14:38AM -0700, Zack Brown wrote:
-> > Hi Marcelo, folks,
-> > 
-> > On Sun, Jul 04, 2004 at 11:13:36AM -0300, Marcelo Tosatti wrote:
-> > > On Sat, Jul 03, 2004 at 07:05:43PM -0700, Zack Brown wrote:
-> > > > Hi folks,
-> > > > 
-> > > > When booting vanilla 2.4.26 with SMP enabled, I get a lockup before the
-> > > > boot sequence is completed. The same kernel with SMP disabled boots and runs
-> > > > just fine. Both CPUs are detected by the system at bootup, before lilo takes
-> > > > over. Here's the error as I wrote it down from the screen, followed by the
-> > > > .config file:
-> > > 
-> > > I can't help much really. Tried CONFIG_ACPI_BOOT=n ? 
-> > > 
-> > I did a 'make dep' and 'make bzImage', and got the following error. It
-> > looks like the kernel really wants that option enabled.
-> 
-> Hi Zack, 
-> 
-> Silly me, its not possible to compile SMP image without CONFIG_ACPI_BOOT (a lot of
-> SMP detection code is linked to basic ACPI infrastructure).
-> 
-> Can you please try the nolapic/noapic boot options? They should disable the APIC, and
-> if APIC is the "root" of your crashes, we will find out that way.
-> 
-> Sorry for the noise.
+The code is great, no problem there. But at some places, it needs
+a macro that extracts the indices from each node. Callbacks are
+likely to be too expensive, and e.g. with VMAs, the indices are
+actually calculated, so just passing offsets wouldn't work
+either.
 
-It turns out I tried 2.6.6 and got it working. Thanks for the help though!
+> why don't you move the shared code to lib/prio_tree.c instead of
+> duplicating it in every object?
 
-I'm assuming the 2.4 thing is probably just a configuration problem at my
-end, and not an actual kernel bug. If you think it might be a real bug,
-I'm happy to keep trying other stuff to root it out.
+Yes, there are some more functions that should be shareable,
+i.e. prio_tree_replace, prio_tree_parent, and prio_tree_next.
+Also prio_tree_expand might be a candidate.
 
-Many thanks!
-Zack
+But this still leaves a few that depend on GET_INDEX.
+
+> I thought prio_tree_next was already the equivalent of rb_next for
+> prio-trees.
+
+Yeah, it kind of is, but I'm looking for something more
+light-weight, that just gives me an adjacent node. Also, I
+want to be able to go back. Here's my prio_tree_prev (minus
+the comments). It should look familiar to you :-)
+
+
+struct prio_tree_node *prio_tree_succ(struct prio_tree_node *node)
+{
+	if (!prio_tree_right_empty(node)) {
+		node = node->right;
+		while (!prio_tree_left_empty(node))
+			node = node->left;
+		return node;
+	}
+
+	while (!prio_tree_no_parent(node) && node == node->parent->right)
+		node = node->parent;
+
+	return prio_tree_no_parent(node) ? NULL : node->parent;
+}
+
+
+Of course, this kind of iteration only makes sense if your tree
+isn't just a bag of random ranges.
+
+- Werner
 
 -- 
-Zack Brown
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

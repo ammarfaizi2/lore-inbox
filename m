@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132241AbRAGNwJ>; Sun, 7 Jan 2001 08:52:09 -0500
+	id <S132221AbRAGNwa>; Sun, 7 Jan 2001 08:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132370AbRAGNv7>; Sun, 7 Jan 2001 08:51:59 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:10631 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S132369AbRAGNvu>; Sun, 7 Jan 2001 08:51:50 -0500
-Date: Sun, 7 Jan 2001 14:52:21 +0100 (CET)
-From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
-Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new bug report script
-In-Reply-To: <3A587261.5B3B99BE@yahoo.com>
-Message-ID: <Pine.LNX.4.30.0101071451390.7104-100000@gandalf.math.uni-mannheim.de>
+	id <S132370AbRAGNwV>; Sun, 7 Jan 2001 08:52:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45838 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132221AbRAGNwK>; Sun, 7 Jan 2001 08:52:10 -0500
+Subject: Re: Patch (repost): cramfs memory corruption fix
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Sun, 7 Jan 2001 13:53:17 +0000 (GMT)
+Cc: parsley@roanoke.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20010106224109.A1601@adam.yggdrasil.com> from "Adam J. Richter" at Jan 06, 2001 10:41:09 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FGG7-0002ff-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Paul Gortmaker wrote:
+> >ramfs croaks with 'kernel BUG in filemap.c line 2559' anytime I make a
+> >file in ac2 and ac3.  Works fine in 2.4.0 vanilla.  Should be quite
+> >repeatable...
 
-> BTW, people have a nasty habit of tacking their entire .config file
-> onto bug reports to linux-kernel.  Can you mention "grep ^C .config"
-> somewhere in there (or have the script do it) since the number of
-> config options isn't going to decrease anytime soon...
+I'll take a look at the ramfs one. I may have broken something else when fixing
+everything else with ramfs (like unlink) crashing
 
-I'll make the script do this.
+> 	This sounds like a bug that I posted a fix for a long time ago.
+> cramfs calls bforget on the superblock area, destroying that block of
+> the ramdisk, even when the ramdisk does not contain a cramfs file system.
+> Normally, bforget is called on block that really can be trashed,
+> such as blocks release by truncate or unlink.  If it worked for
+> you before, you were just getting lucky.  Here is the patch.
+> 
+> 	Linus, please consider applying this.  Thank you.
 
-Matthias
+This isnt the fix. If -ac also fails well it contains this cramfs fix. So
+there must be other problems
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

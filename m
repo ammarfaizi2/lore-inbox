@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270524AbTG1P3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 11:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270510AbTG1P3y
+	id S270066AbTG1PgG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 11:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270069AbTG1PgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 11:29:54 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:7810 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S270524AbTG1P3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 11:29:52 -0400
-Date: Mon, 28 Jul 2003 17:43:36 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNC] linld 0.96 is available
-Message-ID: <20030728154336.GH32673@louise.pinerecords.com>
-References: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua> <200307281125.h6SBPpj24949@Port.imtp.ilyichevsk.odessa.ua>
+	Mon, 28 Jul 2003 11:36:06 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:10244 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S270066AbTG1PgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 11:36:04 -0400
+Date: Mon, 28 Jul 2003 17:51:18 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+       Chris Heath <chris@heathens.co.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i8042 problem
+Message-ID: <20030728155118.GA1761@win.tue.nl>
+References: <20030728145452.GA1753@win.tue.nl> <Pine.GSO.3.96.1030728173054.15233C-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307281125.h6SBPpj24949@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.GSO.3.96.1030728173054.15233C-100000@delta.ds2.pg.gda.pl>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [vda@port.imtp.ilyichevsk.odessa.ua]
+On Mon, Jul 28, 2003 at 05:43:51PM +0200, Maciej W. Rozycki wrote:
+> On Mon, 28 Jul 2003, Andries Brouwer wrote:
 > 
-> On 28 July 2003 13:37, Denis Vlasenko wrote:
-> > linld 0.96 is available at
+> > > Well, are timeouts needed at all?
 > > 
-> > http://sort.imtp.ilyichevsk.odessa.ua/linux/linld/
+> > Yes. We send a command to the keyboard. It may react, or it may not.
 > 
-> Doh. http://port.imtp.ilyichevsk.odessa.ua/linux/linld/
+>  But we need not wait for that actively.  If we are unsure about a result
+> of a command, then we may send a command in question followed with an echo
+> request.  This assures an IRQ will finally arrive and if no command
+> response arrives before an echo response, then the keyboard ignored the
+> command.  I used this approach many years ago to differ between PS/2
+> keyboards (which respond with 0xfa,0xab,0x83 to a request for ID) and
+> genuine PC/AT ones (which respond with lone 0xfa).  It worked. 
 
-Unreachable.
+And what did you do for XT? :-)
 
-...
- 6. hbg-bb2-pos1-3-2.telia.net             0%   15   15    33   29   31     33
- 7. ffm-bb2-pos0-2-0.telia.net             0%   15   15    43   38   41     45
- 8. 213.248.65.58                          0%   15   15    40   38   40     42
- 9. ixp1.de-fra.eu.ignite.net              0%   15   15    40   39   41     45
-10. t2a5-p8-0.de-fra.concert.net           0%   15   15    41   40   42     47
-11. t2c1-ge7-0.de-fra.concert.net          0%   15   15    40   39   41     47
-12. t2c2-p1-0.uk-lon2.concert.net          0%   15   15    54   53   56     65
-13. t2c2-p8-3.se-sto.concert.net           0%   15   15   101  100  103    107
-14. t2a4-ge6-0.se-sto.concert.net          0%   14   15    87   86   88     95
-15. 166-49-152-134.concert.net             0%   14   15    86   86   88     93
-16. bti-ssth1-rn01-ge6-0.btignite.se       0%   14   14    93   92   94    100
-17. tn-int-lan-e00.btignite.se             0%   14   14   243   87  101    243
-18. sw-311-demark.esico.net                0%   14   14   617  518  638    788
-19. sw-311-cpe.esico.net                   8%   13   14   669  531  656    793
-20. ???
-
--- 
-Tomas Szepe <szepe@pinerecords.com>

@@ -1,116 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUIFSFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUIFSFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268325AbUIFSFc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 14:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbUIFSFb
+	id S268381AbUIFSFi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbUIFSFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 14:05:31 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:46039 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S268325AbUIFSFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 14:05:13 -0400
-Subject: [patch 1/1] uml-mark_broken_configs
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Mon, 06 Sep 2004 20:00:33 +0200
-Message-Id: <20040906180033.7463E8D1E@zion.localdomain>
+	Mon, 6 Sep 2004 14:05:37 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:19106 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268381AbUIFSFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 14:05:19 -0400
+Subject: Re: x86 - Realmode BIOS and Code calling module
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jozef Vesely <vesely@gjh.sk>
+Cc: Jakub Vana <gugux@centrum.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0409061703510.31771-100000@eloth.gjh.sk>
+References: <Pine.LNX.4.44.0409061703510.31771-100000@eloth.gjh.sk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094490175.4309.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 06 Sep 2004 18:03:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-09-06 at 16:27, Jozef Vesely wrote:
+> In-kernel BIOS calls are useful:
+> I (and many others) have experienced problems with resuming from ACPI S3
+> state. Some graphic cards need to have their state saved before suspend
+> and restored after resume, otherwise the screen stays blank. VESA BIOS
+> call 0x4f04, does exactly that.
 
-Some configuration options are known not to compile. So then make them
-depend on CONFIG_BROKEN.
+As I understand it VESA 0x4F04 is for saving/restoring mode state, not
+restoring the video card from poweroff. Correct me if I'm wrong here.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Secondly if you wanted to do this cleanly you could still do the save
+from vm86 in user space and the restore on the 16bit return path having
+checked a save was made and that the video bios hasn't gone for a walk.
 
- uml-linux-2.6.8.1-paolo/arch/um/Kconfig       |   27 +++++++++++++++-----------
- uml-linux-2.6.8.1-paolo/arch/um/Kconfig_block |    1 
- uml-linux-2.6.8.1-paolo/arch/um/Kconfig_net   |    2 -
- 3 files changed, 18 insertions(+), 12 deletions(-)
 
-diff -puN arch/um/Kconfig~uml-mark_broken_configs arch/um/Kconfig
---- uml-linux-2.6.8.1/arch/um/Kconfig~uml-mark_broken_configs	2004-08-29 14:40:49.316714496 +0200
-+++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig	2004-08-29 14:40:49.320713888 +0200
-@@ -155,6 +155,7 @@ config HOST_2G_2G
- 
- config UML_SMP
- 	bool "Symmetric multi-processing support"
-+	depends on BROKEN
- 	help
-         This option enables UML SMP support.  UML implements virtual SMP by
-         allowing as many processes to run simultaneously on the host as
-@@ -203,6 +204,7 @@ config KERNEL_HALF_GIGS
- 
- config HIGHMEM
- 	bool "Highmem support"
-+	depends on BROKEN
- 
- config KERNEL_STACK_ORDER
- 	int "Kernel stack size order"
-@@ -249,25 +251,28 @@ source "crypto/Kconfig"
- 
- source "lib/Kconfig"
- 
--menu "SCSI support"
-+if BROKEN
-+	menu "SCSI support"
- 
--config SCSI
--	tristate "SCSI support"
-+	config SCSI
-+		tristate "SCSI support"
- 
- # This gives us free_dma, which scsi.c wants.
--config GENERIC_ISA_DMA
--	bool
--	depends on SCSI
--	default y
-+	config GENERIC_ISA_DMA
-+		bool
-+		depends on SCSI
-+		default y
- 
--source "arch/um/Kconfig_scsi"
-+	source "arch/um/Kconfig_scsi"
- 
--endmenu
-+	endmenu
-+endif
- 
- source "drivers/md/Kconfig"
- 
--source "drivers/mtd/Kconfig"
--
-+if BROKEN
-+	source "drivers/mtd/Kconfig"
-+endif
- 
- menu "Kernel hacking"
- 
-diff -puN arch/um/Kconfig_block~uml-mark_broken_configs arch/um/Kconfig_block
---- uml-linux-2.6.8.1/arch/um/Kconfig_block~uml-mark_broken_configs	2004-08-29 14:40:49.317714344 +0200
-+++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_block	2004-08-29 14:40:49.320713888 +0200
-@@ -64,6 +64,7 @@ config BLK_DEV_INITRD
- 
- config MMAPPER
- 	tristate "Example IO memory driver"
-+	depends on BROKEN
- 	help
-         The User-Mode Linux port can provide support for IO Memory
-         emulation with this option.  This allows a host file to be
-diff -puN arch/um/Kconfig_net~uml-mark_broken_configs arch/um/Kconfig_net
---- uml-linux-2.6.8.1/arch/um/Kconfig_net~uml-mark_broken_configs	2004-08-29 14:40:49.318714192 +0200
-+++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_net	2004-08-29 14:40:49.321713736 +0200
-@@ -135,7 +135,7 @@ config UML_NET_MCAST
- 
- config UML_NET_PCAP
- 	bool "pcap transport"
--	depends on UML_NET
-+	depends on UML_NET && BROKEN
- 	help
- 	The pcap transport makes a pcap packet stream on the host look
- 	like an ethernet device inside UML.  This is useful for making 
-_

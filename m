@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSHBTqE>; Fri, 2 Aug 2002 15:46:04 -0400
+	id <S317194AbSHBTnq>; Fri, 2 Aug 2002 15:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSHBTqE>; Fri, 2 Aug 2002 15:46:04 -0400
-Received: from quark.didntduck.org ([216.43.55.190]:269 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S317215AbSHBTqD>; Fri, 2 Aug 2002 15:46:03 -0400
-Message-ID: <3D4AE232.6010000@didntduck.org>
-Date: Fri, 02 Aug 2002 15:49:06 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jonathan Buzzard <jonathan@buzzard.org.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Weber <john.weber@linux.org>,
+	id <S317171AbSHBTnq>; Fri, 2 Aug 2002 15:43:46 -0400
+Received: from barbados.bluemug.com ([63.195.182.101]:61452 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S317152AbSHBTnm>; Fri, 2 Aug 2002 15:43:42 -0400
+Date: Fri, 2 Aug 2002 12:47:01 -0700
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Alexander Viro <viro@math.psu.edu>,
+       Thunder from the hill <thunder@ngforever.de>,
+       Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
+       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks
-References: <3D4AAD53.7010008@linux.org>  <1028310939.18309.93.camel@irongate.swansea.linux.org.uk> <E17aiHh-00034N-00@jelly.buzzard.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.5.28 and partitions
+Message-ID: <20020802194701.GB4528@bluemug.com>
+Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	Alexander Viro <viro@math.psu.edu>,
+	Thunder from the hill <thunder@ngforever.de>,
+	Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
+	Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0208011610020.12627-100000@weyl.math.psu.edu> <200208012124.g71LObi394284@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208012124.g71LObi394284@saturn.cs.uml.edu>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Buzzard wrote:
-> alan@lxorguk.ukuu.org.uk said:
+On Thu, Aug 01, 2002 at 05:24:37PM -0400, Albert D. Cahalan wrote:
+> Alexander Viro writes:
+> > [...]
+> >> On Wed, 31 Jul 2002, Alexander Viro wrote:
 > 
->>Hi,
->>
->>Toshiba laptop support is broken.  Here's my rookie attempt at fixing
->>it.
+> >>> What the bleedin' hell is wrong with <name> <start> <len>\n
+> >>> - all in ASCII? Terminated by \0. No need for flags, no need
+> >>> for endianness crap, no need to worry about field becoming too
+> >>> narrow...
 > 
-> 
-> Whats broken? I have not seen the patch, though I don't track the latest
-> 2.5 kernels either.
-> 
-> 
->>Looks basically sound. You probably want to use spinlock_irqsave - the
->>spin locks are less overhead than the reader/writer locks and you
->>don't really seem to be using it for anything else. I'm assuming we
->>want the irqsave to block interrupts because the I/O cycles might have
->>to happen one after another - if not they could be relaxed - perhaps
->>Jonathan knows ?
-> 
-> 
-> Someone show me the patch and I can say for sure.
-> 
-> Two things to bare in mind, Toshiba have yet to do any sort of
-> multi processor laptop, are extremely unlikely to ever manufacture
-> one, and to the best of my knowledge the module only loads on Toshiba
-> laptops. If it loads on anything else it is broken and needs fixing
-> so it does not.
+> There's just that little overflow problem to worry about,
 
-What about P4 Hyperthreading?
+Ummm:
 
---
-				Brian Gerst
+-- stuff ASCII digits into u64 (or u32, or whatever)
+-- if (still more digits)
+   -- printk("partition too big to mount!\n")
+   -- return error
 
+How hard is that?
+
+> trailing garbage,
+
+Don't write garbage into your partition table.
+
+> encouragement of assumptions about the maximum size...
+> is that a %d or a %llu or what?
+
+See above.  Use leading '-' for negative numbers.  ASCII has no
+2's complement ambiguity issues.
+
+miket

@@ -1,96 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264695AbTFASRB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 14:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264696AbTFASRB
+	id S264696AbTFAS1I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 14:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264698AbTFAS1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 14:17:01 -0400
-Received: from platane.lps.ens.fr ([129.199.121.28]:24977 "EHLO
-	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S264695AbTFASQ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 14:16:58 -0400
-Date: Sun, 1 Jun 2003 20:30:22 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Oops on a 2.5.70 boot
-Message-ID: <20030601183022.GA27265@lps.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.25i
+	Sun, 1 Jun 2003 14:27:08 -0400
+Received: from populo.vip.fi ([213.173.130.25]:51284 "EHLO populo.vip.fi")
+	by vger.kernel.org with ESMTP id S264696AbTFAS1E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 14:27:04 -0400
+Message-ID: <000e01c3286d$45c26560$0a9fadd5@vortex>
+From: "Jouni Viikari" <jouni.viikari@vip.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: serial line and kernel hang (RH 2.4.20-13.9)
+Date: Sun, 1 Jun 2003 21:40:27 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, all,
+I am experiencing kernel hangs on my linux box which seem to be serial line
+related.  Previously stable server started to have 3-5 hangs per 24h after I
+added another daemon which reads serial lines.  Currently I have
+continuously six serial lines opened on my box..
 
-While booting a 2.5.70 kernel, I got:
+The hangs seemed to stop when I started to use BLOCKING read(2) from serial
+line instead of my previous strategy of opening serial line NONBLOCKing and
+using select(2) to inform when line is readable and then using read in a
+loop until '\n' is read or errno == EWOULDBLOCK.   This program receives
+about 120 bytes every minute.
 
-------------------------------------------------------------------------
-hdc: SAMSUNG CDRW/DVD SM-348B, ATAPI CD/DVD-ROM drive
- evevent-0286: *** Error: No installed handler for fixed event [00000000]
-irq 9: nobody cared!
-Call Trace: [<c010a77b>]  [<c010a927>]  [<c010914c>]  [<c01f007b>]  [<c0112b32>]  [<c01a6492>]  [<c020c94b>]  [<c02052b4>]  [<c020583a>]  [<c0205bab>]  [<c020dfa3>]  [<c020ca97>]  [<c0205d03>]  [<c02119fe>]  [<c0203544>]  [<c034abba>]  [<c034abf8>]  [<c034a986>]  [<c034a98d>]  [<c034a9c3>]  [<c033c6b3>]  [<c0126b09>]  [<c0105051>]  [<c010502c>]  [<c01071fd>]
-handlers:
-[<c01ace22>]
-ide1 at 0x170-0x177,0x376 on irq 15
--------------------------------------------------------------------------
+Hangs are total.  Nothing happens on server - even alt-sysrq-what_ever does
+not do anything.
 
-After decoding, it reads:
+Today I got a hang again when restarting my program (named ekowell below).
+This time I was able to use sysrq for a while and to write following down
+from the console:
 
--------------------------------------------------------------------------
-Trace; c010a77b <handle_IRQ_event+87/e5>
-Trace; c010a927 <do_IRQ+72/c8>
-Trace; c010914c <common_interrupt+18/20>
-Trace; c01f007b <complement_pos+28/13a>
-Trace; c0112b32 <delay_tsc+d/15>
-Trace; c01a6492 <__delay+12/16>
-Trace; c020c94b <ide_delay_50ms+18/22>
-Trace; c02052b4 <do_probe+47/25c>
-Trace; c020583a <hwif_register+133/180>
-Trace; c0205bab <probe_hwif+324/457>
-Trace; c020dfa3 <idedefault_attach+23/48>
-Trace; c020ca97 <ata_attach+69/104>
-Trace; c0205d03 <probe_hwif_init+25/7c>
-Trace; c02119fe <ide_setup_pci_device+6f/77>
-Trace; c0203544 <piix_init_one+31/37>
-Trace; c034abba <ide_scan_pcidev+59/6b>
-Trace; c034abf8 <ide_scan_pcibus+2c/8b>
-Trace; c034a986 <probe_for_hwifs+20/22>
-Trace; c034a98d <ide_init_builtin_drivers+5/f>
-Trace; c034a9c3 <ide_init+2c/5b>
-Trace; c033c6b3 <do_initcalls+27/93>
-Trace; c0126b09 <init_workqueues+f/26>
-Trace; c0105051 <init+25/140>
-Trace; c010502c <init+0/140>
-Trace; c01071fd <kernel_thread_helper+5/b>
-handlers:
-Trace; c01ace22 <acpi_irq+0/16>
---------------------------------------------------------------------------
+(I started two processes called 'ekowell' which daemonize themselves by
+'forking and exiting'...)
 
-Computer is a shuttle SB51G PC with an intel i845G/GL chipset.
+alt-sysrq-t
+===========
+ekowell S D7927000 4 2765 1 2769 19142 (NOTLB)
+Call Trace [<c0125e1d>] schedule timeout [kernel] 0xad (0xcfa05ee0))
+[<c018782d>] read_chan [kernel] 0x28d (0xcfa05f18))
+[<c0183885>] tty_read [kernel] 0xd5 (0xcfa05f74))
+[<c0146f83>] sys_read [kernel] 0xa3 (0xcfa05f94))
+[<c010953f>] system_call [kernel] 0x33 (0xcfa05fc0))
 
------------- /proc/interrupts -------------------------
-           CPU0
-  0:     831798          XT-PIC  timer
-  1:       1428          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  5:          0          XT-PIC  Intel 82801DB-ICH4
-  8:          0          XT-PIC  rtc
-  9:          1          XT-PIC  acpi, uhci-hcd
- 10:       4482          XT-PIC  eth1
- 11:          4          XT-PIC  uhci-hcd, ehci-hcd, eth0
- 12:      35570          XT-PIC  uhci-hcd
- 14:      10816          XT-PIC  ide0
- 15:          4          XT-PIC  ide1
-NMI:          0
-ERR:          0
------------------------------------------------------------
+initlog S 00000292 8 2767 2759 2768  (NOTLB)
+Call Trace: [<c0125dcd>] schedule_timeput [kernel] 0x5d (oxd89ebf64))
+[<c0125d60>] process_timeout [kernel] 0x0 (0xd89ebf64))
+[<c0125f03>] sys_nanosleep [kernel] 0xd3 (0xd89ebf84))
+[<c010953f>] system_call [kernel] 0x33 (0xd89ebfc0))
 
-The only usb device currently plugged in is a mouse, and it uses irq 12.
+ekowell 2 00000000 1360 2768 2767 (L-TLB)
+Call Trace: [<c011fa2e>] do_exit [kernel] 0x26e (oxde943f94))
+[<c011fb54>] do_group_exit [kernel] 0x54 (0xde943fb0))
+[<c010953f>] system_call [kernel] 0x33 (0xde943fc0))
 
-Don't hesitate to ask if you need more info.
+ekowell R CAE87FC4 0 2769 1 2770 2765 (NOTLB)
+Call Trace: [<c01095ed>] reschedule [kernel] 0x5 (0xcae87fc0))
 
-Regards,
+ekowell R current 0 2770 2769 (NOTLB)
+Call Trace:
 
-	Éric Brunet
+***********************************************************
+
+
+Alt-SysRq-P
+===========
+Call Trace [<c0197364>] rs_interrupt [kernel] 0xc4 (0xd3c53ce8))
+[<c010aac5>] handle_IRQ_event [kernel] 0x45 (0xd3c53d14))
+[<c010aa64>] do_IRQ [kernel] 0x84 (0xd3c53d34))
+[<c010d778>] call_do_IRQ [kernel] 0x5 (0xd3c53d54))
+[<c010aab0>] handle_IRQ_event [kernel] 0x30 (0xd3c53d80))
+[<c010ac64>] do_IRQ [kernel] 0x84 (0xd3c53da8))
+[<c010d778>] call_do_IRQ [kernel] 0x5 (0xd3c53dc8))
+[<c01217ee>] do_softirq [kernel] 0x3e (0xd3c53df4))
+[<c010ac9e>] do_IRQ [kernel] 0xbe (0xd3c53e14))
+[<c010d778>] call_do_IRQ [kernel] 0x5 (0xd3c53e34))
+[<c0190068>] con_clear_unimap [kernel] 0x78 (0xd3c53e58))
+[<c0196b2e>] serial_out [kernel] 0x1e (0xd3c53e60))
+[<c0198769>] change_speed [kernel] 0x2c9 (0xd3c53e70))
+[<c019a12f>] rs_set_termios [kernel] 0x3f (0xd3c53ea4))
+[<c0188be9>] change_termios [kernel] 0x1a9 (0xd3c53ec8))
+[<c0188d62>] set_termios [kernel] 0x112 (0xd3c53f14))
+[<c0189172>] n_tty_ioctl [kernel] 0x1e2 (0xd3c53f48))
+[<c0185597>] tty_ioctl [kernel] 0x2e7 (0xd3c53f64))
+[<c0156919>] sys_ioctl [kernel] 0xc9 (0xd3c53f94))
+[<c010953f>] system_call [kernel] 0x33 (0xd3c53fc0))
+
+After typing the above, the system did not respond to magic keys anymore...
+
+I have filed this bug on:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=91307
+
+Server is UP, 2.8 GHz P4, 512 MB, average load maybe 0.1 and CPU 95% idle.
+Asus P4PE, and LavaPort-Quad PCI card for the extra serial lines.  Kernel
+2.4.20-13.9
+
+Best regards,
+
+Jouni
+

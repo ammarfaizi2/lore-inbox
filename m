@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313666AbSDHUCY>; Mon, 8 Apr 2002 16:02:24 -0400
+	id <S313676AbSDHUDD>; Mon, 8 Apr 2002 16:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313676AbSDHUCX>; Mon, 8 Apr 2002 16:02:23 -0400
-Received: from generic.whogotit.com ([216.4.73.9]:14861 "HELO clausfischer.com")
-	by vger.kernel.org with SMTP id <S313666AbSDHUCX>;
-	Mon, 8 Apr 2002 16:02:23 -0400
-Date: Mon, 8 Apr 2002 22:02:15 +0200
-From: Claus Fischer <claus.fischer@clausfischer.com>
-To: linux-kernel@vger.kernel.org
-Subject: Spoof protection with redundant routes
-Message-ID: <20020408220215.A1987@clausfischer.com>
+	id <S313680AbSDHUDB>; Mon, 8 Apr 2002 16:03:01 -0400
+Received: from zero.tech9.net ([209.61.188.187]:52752 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313676AbSDHUCz>;
+	Mon, 8 Apr 2002 16:02:55 -0400
+Subject: Re: user-mode port 0.56-2.4.18-15
+From: Robert Love <rml@tech9.net>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200204082056.PAA03749@ccure.karaya.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 08 Apr 2002 16:02:48 -0400
+Message-Id: <1018296173.913.162.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-04-08 at 16:56, Jeff Dike wrote:
 
-I have a box with two redundant CIPE tunnels to a
-remote network 10.36.x.x.
+> Added SA_SAMPLE_RANDOM to the irq registration flags of some drivers.  This
+> makes apps which read /dev/random work a lot better.  Randomness in UML is
+> more problematic than on the host, but I chose a set of drivers whose
+> interrupts shouldn't be too predictable.
+
+If these drivers truly are sufficient candidates for feeding
+/dev/random, perhaps you could pull these bits and submit them to Linus
+and Marcelo?
+
+I for one think this is a good idea.
+
+	Robert Love
 
 
-Routing table:
-
-Destination  Gateway      Genmask           ...      Iface
-...	     		  		    
-10.36.1.12   0.0.0.0      255.255.255.255   UH 0 0 0 cipcb3
-10.36.1.11   0.0.0.0      255.255.255.255   UH 0 0 0 cipcb1
-10.36.0.0    10.36.1.12   255.255.0.0       UG 0 0 0 cipcb3
-10.36.0.0    10.36.1.11   255.255.0.0       UG 0 0 0 cipcb1
-...
-
-
-Now when a packet comes in from 10.36.2.2 on cipcb1, the
-spoof protection kills it, since the outgoing packet would
-take the route via cipcb3 which is first. I didn't quite
-expect that initially.
-
-- Is that known and by design?
-- Is that the desired behaviour?
-- Is there some possibility to change that?
-- Do I have a choice other than to turn off rp_filter?
-
-Claus
-
--- 
-Claus Fischer <claus.fischer@clausfischer.com>
-http://www.clausfischer.com/

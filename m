@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313767AbSDPQuY>; Tue, 16 Apr 2002 12:50:24 -0400
+	id <S313769AbSDPQyS>; Tue, 16 Apr 2002 12:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313768AbSDPQuX>; Tue, 16 Apr 2002 12:50:23 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:34268 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313767AbSDPQuW>;
-	Tue, 16 Apr 2002 12:50:22 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S313770AbSDPQyR>; Tue, 16 Apr 2002 12:54:17 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:16399 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313769AbSDPQyR>;
+	Tue, 16 Apr 2002 12:54:17 -0400
+Date: Tue, 16 Apr 2002 08:53:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        sailer@ife.ee.ethz.ch, bhards@bigpond.net.au, torvalds@transmeta.com
+Subject: Re: [PATCH] USB set-bit takes a long tweaks
+Message-ID: <20020416155334.GD27287@kroah.com>
+In-Reply-To: <E16xP4X-0005OC-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15548.22093.57788.557129@napali.hpl.hp.com>
-Date: Tue, 16 Apr 2002 09:50:21 -0700
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <a9hjd0$16s$1@penguin.transmeta.com>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 19 Mar 2002 13:17:16 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 16 Apr 2002 16:27:12 +0000 (UTC), torvalds@transmeta.com (Linus Torvalds) said:
+On Tue, Apr 16, 2002 at 07:16:01PM +1000, Rusty Russell wrote:
+> This removes gratuitous & operators in front of USB's
+> dev->bus->devmap.devicemap and state->unitbitmap, for bitops.
+> 
+> This just makes it so it doesn't warn when set_bit et. al take a
+> long...
+> 
+> No object code changes,
 
-  Linus> And I've had some Intel people grumble about it, because it
-  Linus> apparently means that the timer tick takes anything from 2%
-  Linus> to an extreme of 10% (!!) of the CPU time under certain
-  Linus> loads.
+Thanks, I've applied this to my trees, and will include it in the next
+round of changesets to Linus.
 
-I'm not sure I believe this.  I have had occasional cases where I
-wondered whether the timer tick caused significant overhead, but it
-always turned out to be something else.  In my measurements,
-*user-level* profiling has the 2-10% overhead you're mentioning, but
-that's with a signal delivered to user level on each tick.
 
-	--david
+greg k-h

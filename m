@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291280AbSAaUhD>; Thu, 31 Jan 2002 15:37:03 -0500
+	id <S291288AbSAaUpC>; Thu, 31 Jan 2002 15:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291282AbSAaUgv>; Thu, 31 Jan 2002 15:36:51 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:6149 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S291280AbSAaUgm>;
-	Thu, 31 Jan 2002 15:36:42 -0500
-Date: Tue, 29 Jan 2002 12:54:08 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall latency improvement #1
-Message-ID: <20020129125408.A47@toy.ucw.cz>
-In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com> <3C51FF0C.D3B1E2F7@zip.com.au>, <3C51FF0C.D3B1E2F7@zip.com.au> <200201281018.g0SAIIE22462@Port.imtp.ilyichevsk.odessa.ua> <3C55282C.7D607CFB@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3C55282C.7D607CFB@zip.com.au>; from akpm@zip.com.au on Mon, Jan 28, 2002 at 02:30:04AM -0800
+	id <S291287AbSAaUov>; Thu, 31 Jan 2002 15:44:51 -0500
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:52752 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id <S291285AbSAaUog>; Thu, 31 Jan 2002 15:44:36 -0500
+Date: Thu, 31 Jan 2002 21:44:32 +0100 (CET)
+From: Martin Bahlinger <ry42@rz.uni-karlsruhe.de>
+X-X-Sender: <ry42@hek411.hek.uni-karlsruhe.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+In-Reply-To: <1012499057.704.0.camel@hek411>
+Message-ID: <Pine.LNX.4.31.0201312133490.652-100000@hek411.hek.uni-karlsruhe.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 31 Jan 2002, Martin Bahlinger wrote:
+> After applying those patches to 2.5.3 I still got an Oops after a
+> PAP-14030 message. I will try to catch the Oops (have never done this
+> before, may take some time) and feed it to ksymoops.
 
-> The first patch should be against Documentation/CodingStyle.
-> What are we trying to achieve here?  What are the guidelines
-> for when-to and when-to-not?  I'd say:
-> 
-> - If a function has a single call site and is static then it
->   is always correct to inline.
+I actually had PAP-5760. And after applying the patches it was the
+PAP-14030. During all the tests today my reiserfs got currupted. A
+reiserfsck ran into a segfault when checking the semantic tree. And this
+happened exactly while checking /var/log/ksymoops/20020131.log ;-) After
+deleting this file reiserfsck did it's job and my 2.5.3 works now.
 
-Yep, but gcc should figure this out itself. No point helping it.
+bye and thanks for the fix,
+  Martin
 
-								Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Martin Bahlinger <bahlinger@rz.uni-karlsruhe.de>   (PGP-ID: 0x98C32AC5)
+
+
 

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262528AbSI0Qaj>; Fri, 27 Sep 2002 12:30:39 -0400
+	id <S262523AbSI0Qew>; Fri, 27 Sep 2002 12:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262529AbSI0Qaj>; Fri, 27 Sep 2002 12:30:39 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:37389 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262528AbSI0Qai>;
-	Fri, 27 Sep 2002 12:30:38 -0400
-Date: Fri, 27 Sep 2002 09:34:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20020927163419.GA11530@kroah.com>
-References: <20020927003210.A2476@sgi.com> <Pine.GSO.4.33.0209270743170.22771-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0209270743170.22771-100000@raven>
-User-Agent: Mutt/1.4i
+	id <S262532AbSI0Qew>; Fri, 27 Sep 2002 12:34:52 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:53955 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S262523AbSI0Qev>;
+	Fri, 27 Sep 2002 12:34:51 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209271639.UAA21514@sex.inr.ac.ru>
+Subject: Re: [PATCH] IPv6: Refine IPv6 Address Validation Timer
+To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki /
+	=?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=)
+Date: Fri, 27 Sep 2002 20:39:45 +0400 (MSD)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       usagi@linux-ipv6.org
+In-Reply-To: <20020928.011439.108856769.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=" at Sep 28, 2 01:14:39 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 08:09:50AM -0400, Stephen Smalley wrote:
-> 
-> > Also is there a _real_ need to pass in all the arguments?
-> 
-> Define _real_.  It is true that none of the existing open source security
-> modules presently use this particular hook.  SELinux doesn't presently use
-> it, but it seems reasonable to support finer-grained control over ioperm()
-> than the all-or-nothing CAP_SYS_RAWIO.  Is the criteria that every hook
-> and every parameter to every hook must be used by an existing open source
-> security module?  If so, then yes, this hook can be dropped.
+Hello!
 
-Yes, I think that is the criteria for any security hook.  So it (and
-others) should be dropped.
+> (*) Oops, I slipped at (almost) end of the patch when making patch... sorry;
+> I inteded to refine timing into ~0.5 sec at worst;
 
-thanks,
+Does this matter? What is special about 0.5sec comparing to 1?
 
-greg k-h
+> (do I need to resend complete patch?)
+
+No, I think. Deletion of bad debugging is easier to make after patching.
+
+Alexey

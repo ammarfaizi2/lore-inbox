@@ -1,78 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKNVCO>; Tue, 14 Nov 2000 16:02:14 -0500
+	id <S131315AbQKNVDy>; Tue, 14 Nov 2000 16:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129455AbQKNVCG>; Tue, 14 Nov 2000 16:02:06 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:51123 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129097AbQKNVBv>; Tue, 14 Nov 2000 16:01:51 -0500
-Date: Tue, 14 Nov 2000 12:31:41 -0800
-From: "Adam J. Richter" <adam@freya.yggdrasil.com>
-Message-Id: <200011142031.MAA07179@freya.yggdrasil.com>
-To: kaos@ocs.com.au
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121
-Cc: linux-kernel@vger.kernel.org, vendor-sec@lst.de
+	id <S131340AbQKNVDo>; Tue, 14 Nov 2000 16:03:44 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:22022 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131315AbQKNVDe>; Tue, 14 Nov 2000 16:03:34 -0500
+Message-ID: <3A11A0AB.92B1109D@timpanogas.org>
+Date: Tue, 14 Nov 2000 13:29:31 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org, linware@sh.cvut.cz
+Subject: Re: NetWare Changing IP Port 524
+In-Reply-To: <CDB246E6CB3@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The only secure fix I can see is to add SAFEMODE=1 to modprobe's
->environment and change exec_modprobe.
 
-	SAFEMODE may mean other things to other programs, so that
-an ordinary user might set that environment variable for some
-other reason, and then get weird behavior if he or she has occasion
-to su to root.  In general, you only want to use environment variables
-if either it is a user interface issue to keep the commands short
-(not an issue here, since nobody is typing in the command that
-requrest_module generates) or there is some well established
-convention that will handled in a particular way by subordinate
-child processes (e.g., PATH=....).
 
-	It would be much better to just add a command line option
-to modprobe that request_module() would cause it treat the following
-argument as the module to load (you do not ever have to force
-argument processing to stop at that point, since module will be
-fully contained in the next argument, even if it contains space or
-linefeed).
+Petr Vandrovec wrote:
+> 
+> On 14 Nov 00 at 12:11, Jeff V. Merkey wrote:
+> 
+> > If you are relying on port 524 to get SAP information for NCPFS over
+> > TCPIP, you may want to track this since it appears Novell will be
+> > patching this port to close a security flaw.  I
+> > added the tracking URL so you can review what changes they are
+> > proposing.  I think what they
+> > are proposing as an immediate patch may break NCPFS -- you will need to
+> > check.
+> 
+> I think that it is unavoidable. Either you can browse network resources,
+> through SAP, NDS, DNS, SLP, bindery - and you also disclose
+> informations - or you cannot browse network and users will get angry
+> from typing 80 characters FQDN names...
+> 
+> You can limit it by removing [Search] right for [Public] from your NDS -
+> and I believe that it is only correct solution. Of course every NDS server
+> must be able to tell to [public] address of at least one other server
+> nearest to [root], as client must be able to find where r/w replica
+> resides - and because of you know that there is [root] object in every
+> tree, you can find also [root] owner IP/IPX address. But if even knowing
+> of address of server can kill your network, you should already firewall
+> everything out.
+> 
+> > Novell's NetWare operating system contains a flaw that allows
+> > system information to be leaked via TCP port 524 in pure IP
+> > configurations. When NetWare is used in a mix Microsoft
+> > environment, the Novell operating system leaks data via Service
+> > Advertising Protocol (SAP). Other third-party applications
+> > compound the problem as well. A hacker can use the data to gain
+> > knowledge on the inner workings of the affected system. It is
+> > recommended that port 524 be blocked to prevent any leaks.
+> 
+> Yeah. They forgot to note that after blocking port 524 nobody
+> can connect to server from outer world. They could say in less
+> words that Netware and IP are not on same boat ;-) I think they
+> should fix buffer overflows and possible abends in their NCP engine,
+> and issue warnings about not giving [Search] rights to [Public]
+> instead of blocking whole world from Netware servers.
 
-	Another possible approach would be to create a separate
-/sbin/safe_modprobe.  modprobe already behaves differently
-based on whether argv[0] ends in "modprobe", "insmod", "depmod",
-or "rmmod".  So this would be in keeping with that convention.
-It would also be trivial to retrofit old systems.  Just have
-some system boot script do:
 
-		echo /sbin/safe_modprobe > /proc/sys/kernel/modprobe
+Hopefully, sanity will rule out here.  I information being leaked from
+what I reviewed was the ability for a hacker to exploit port 524 and use
+it
+to obtain a local copy of the entire routing table for other IP servers
+INSIDE an organization (which is a huge hole). 
 
-	The issue of the kernel doing request_module() on arbitrary
-strings is not just a security problem.  It is also a namespace
-collision problem, which this security concern will give us the
-opportunity to fix.  I have just been glad that no company has
-shipped a networking device called, say, "ext2".  The non-constant
-module names that are loaded by request_module should have names like:
+Jeff 
 
-		fs-msdos
-		fs-ext2
-		netif-eth0
-		netif-wvlan0
-		etc.
-
-	That way, a malicious user cannot cause a denial of service
-by identifying one module with a loading bug (our kernels have 774 modules)
-and doing, "ifconfig <modulename>".
-
-	The extra work of doing the snprintf() into a buffer
-before invoking request_module will resolve the buffer overrun
-issues too.
-
-	I would be happy to assist in coding this up.  The 50 lines of
-text that I have written in this email probably only translate into
-20 lines of code.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> 
+> BTW, in our tree not-logged-in object does not see anything, except
+> few objects which have explicitly granted visibility for [public].
+> But maybe that I misunderstood their information... If they are
+> talking about that information learned through SLP/SAP/NDS are
+> available through SLP/SAP/NDS, I do not see anything wrong with it.
+> If hacker can ask this server, it could also ask directly to source
+> of that information, unless your server is also serving as firewall
+> (and if it is, you should visit filtering section in FILTCFG.NLM...)
+>                                             Best regards,
+>                                                 Petr Vandrovec
+>                                                 vandrove@vc.cvut.cz
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

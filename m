@@ -1,88 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289981AbSAWTLE>; Wed, 23 Jan 2002 14:11:04 -0500
+	id <S289982AbSAWTNQ>; Wed, 23 Jan 2002 14:13:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289979AbSAWTKp>; Wed, 23 Jan 2002 14:10:45 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:5572 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289974AbSAWTKl>;
-	Wed, 23 Jan 2002 14:10:41 -0500
-Subject: Re: [PATCH *] rmap VM, version 12
+	id <S289979AbSAWTNE>; Wed, 23 Jan 2002 14:13:04 -0500
+Received: from ns.suse.de ([213.95.15.193]:275 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289982AbSAWTMu>;
+	Wed, 23 Jan 2002 14:12:50 -0500
+Date: Wed, 23 Jan 2002 20:12:48 +0100
+From: Andi Kleen <ak@suse.de>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, owner-linux-mm@kvack.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFD53A5C76.36FD7F7A-ON88256B4A.0069B25C@boulder.ibm.com>
-From: "Badari Pulavarty" <badari@us.ibm.com>
-Date: Wed, 23 Jan 2002 11:11:35 -0800
-X-MIMETrack: Serialize by Router on D03NM044/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 01/23/2002 12:10:38 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Cc: Badari Pulavarty <badari@us.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH *] rmap VM, version 12
+Message-ID: <20020123201248.A27249@wotan.suse.de>
+In-Reply-To: <OFB07135FF.E6C5BE7E-ON88256B4A.0068CB3F@boulder.ibm.com> <Pine.LNX.4.33L.0201231704430.32617-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0201231704430.32617-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 23, 2002 at 05:05:13PM -0200, Rik van Riel wrote:
+> > uncompressing linux ...
+> > booting ..
+> 
+> At this point we're not even near using pagetables yet,
+> so I guess this is something else ...
+> 
+> (I'm not 100% sure, though)
 
-Rik,
+It happens when you crash before console initialization.  VM is already
+low level initialized there, but other CPUs should not have been booted yet.
 
-I just tried to boot 2.4.17+rmap12 turning off HIGHMEM and it booted just
-fine.
-So it has to do with some HIGHMEM change happend between  rmap11c and
-rmap12.
+Usual way to debug is to link with one of the patches that replace printk
+with an "early_printk" that writes directly into the vga text buffer and
+works without the console subsystem. 
 
-Does this help ?
-
-Thanks,
-Badari
-
-
-
-                                                                                                         
-                    Rik van Riel                                                                         
-                    <riel@conectiv       To:     Badari Pulavarty/Beaverton/IBM@IBMUS                    
-                    a.com.br>            cc:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>    
-                    Sent by:             Subject:     Re: [PATCH *] rmap VM, version 12                  
-                    owner-linux-mm                                                                       
-                    @kvack.org                                                                           
-                                                                                                         
-                                                                                                         
-                    01/23/02 11:05                                                                       
-                    AM                                                                                   
-                                                                                                         
-                                                                                                         
-
-
-
-On Wed, 23 Jan 2002, Badari Pulavarty wrote:
-
-> Does this explain why my SMP box does not boot with rmap12 ? It works
-fine
-> with rmap11c.
->
-> Machine: 4x  500MHz Pentium Pro with 3GB RAM
->
-> When I tried to boot 2.4.17+rmap12, last message I see is
->
-> uncompressing linux ...
-> booting ..
-
-At this point we're not even near using pagetables yet,
-so I guess this is something else ...
-
-(I'm not 100% sure, though)
-
-kind regards,
-
-Rik
---
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/                   http://distro.conectiva.com/
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/
-
-
-
-
+-andi

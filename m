@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbTBOU7a>; Sat, 15 Feb 2003 15:59:30 -0500
+	id <S265880AbTBOVEd>; Sat, 15 Feb 2003 16:04:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbTBOU7a>; Sat, 15 Feb 2003 15:59:30 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:43275 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265786AbTBOU73>; Sat, 15 Feb 2003 15:59:29 -0500
-Date: Sat, 15 Feb 2003 21:09:22 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       "Theodore T'so" <tytso@mit.edu>
-Subject: Re: [PATCH] Extended attribute fixes, etc.
-Message-ID: <20030215210922.A24685@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andreas Gruenbacher <agruen@suse.de>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	Theodore T'so <tytso@mit.edu>
-References: <200302112018.58862.agruen@suse.de> <200302151859.11370.agruen@suse.de> <20030215183959.B22045@infradead.org> <200302152017.03259.agruen@suse.de>
-Mime-Version: 1.0
+	id <S266100AbTBOVEd>; Sat, 15 Feb 2003 16:04:33 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:18573 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265880AbTBOVEb>; Sat, 15 Feb 2003 16:04:31 -0500
+Date: Sat, 15 Feb 2003 13:14:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 361] New: system hangs until keyrpress
+Message-ID: <6930000.1045343660@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302152017.03259.agruen@suse.de>; from agruen@suse.de on Sat, Feb 15, 2003 at 08:17:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 15, 2003 at 08:17:03PM +0100, Andreas Gruenbacher wrote:
-> That sounds quite reasonable. I would have to raise CAP_SYS_ADMIN for 
-> trusted EA's, though. Do you see any potential side effects while a 
-> pretty powerful capability like CAP_SYS_ADMIN is temporarily raised?
 
-Okay, something I missed when looking over your patches, otherwise I'd
-have shutde earlier :)  Do you really think you want CAP_SYS_ADMIN for
-trusted EAs?  Soon we'll get CAP_SYS_ADMIN as catchall like old suser()..
+http://bugme.osdl.org/show_bug.cgi?id=361
 
-Let me check what XFS uses for that purpose as soon as I'm back in the
-office.
+           Summary: system hangs until keyrpress
+    Kernel Version: 2.5.61
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: albertogonzales@hot.ee
+
+
+Distribution: debian unstable/custom
+Hardware Environment: 
+compaq armada m700 mobile p3 with maestro 2e, 64 megs of ram.
+Software Environment:
+kernel 2.5.61 (having the same problem since 2.5.56+), gcc 3.2 and other
+utils from debian/unstable.
+
+Problem Description:
+The machine locks up until an interrupt is received from keyboard.. the
+mouse moves, display is frozen (xmms title stops rotating).network traffic
+is received (i get a bunch of text after i press a key from irc). this
+problem exists only when xmms is playing (oss emulation with alsa). after i
+close xmms the hangup never occures. if playing mp3s with mpg123 everything
+works.
+
+Nasty bugs.. contact me for more information
+Steps to reproduce:
+have no idea.
+
 

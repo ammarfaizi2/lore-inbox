@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282084AbRKWJMN>; Fri, 23 Nov 2001 04:12:13 -0500
+	id <S282090AbRKWJOO>; Fri, 23 Nov 2001 04:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281823AbRKWJMD>; Fri, 23 Nov 2001 04:12:03 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:16909 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S282084AbRKWJLn>; Fri, 23 Nov 2001 04:11:43 -0500
-Message-ID: <3BFE1245.1030300@namesys.com>
-Date: Fri, 23 Nov 2001 12:09:25 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S282089AbRKWJOE>; Fri, 23 Nov 2001 04:14:04 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:40641 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281823AbRKWJNt>; Fri, 23 Nov 2001 04:13:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <jas88@cam.ac.uk>
+To: Charles Marslett <cmarslett9@cs.com>
+Subject: Re: Swap vs No Swap.
+Date: Fri, 23 Nov 2001 09:13:49 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166wPI-0005yT-00@mauve.csi.cam.ac.uk> <3BFDECF2.CAE1ECC7@cs.com>
+In-Reply-To: <3BFDECF2.CAE1ECC7@cs.com>
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Joel Beach <joelbeach@optushome.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maximum (efficient) partition sizes for various filesystem types...
-In-Reply-To: <001401c170d3$ea40cc10$1e50a8c0@kinslayer> <E165lCN-00061N-00@the-village.bc.nu> <20011122203000.B11821@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E167CP4-00049I-00@mauve.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
+On Friday 23 November 2001 6:30 am, Charles Marslett wrote:
+> James A Sutherland wrote:
+> > On Thursday 22 November 2001 4:00 pm, war wrote:
+> > > Incorrect, my point is I have enough ram where I am not going to run
+> > > out for the things I do.
+> >
+> > There's more to it than "not run out". You have some fixed amount of RAM;
+> > if the VM is working properly, adding swap will IMPROVE performance,
+> > because that fixed amount of RAM is used more efficiently.
+> >
+> > Obviously, there are cases where removing swap breaks the system
+> > entirely, but even in other cases, adding swap should *never* degrade
+> > performance. (In theory, anyway; in practice, it still needs tuning...)
+> >
+> > > Using swap simply slows the system down!
+> >
+> > In which case, the VM isn't working properly; it SHOULD page out
+> > infrequently used data to make more room for caching frequently used
+> > files.
+> >
+> > James.
+>
+> I disagree.  It is true that a VM could be designed sufficiently complex
+> that it would properly analyze every possible sequence of execution and
+> have perfect prescience.  It would probably take a few hundred gigabytes of
+> table structure to do that and that in itself will slow down the VM just
+> scanning those tables, I dare say.
 
->Hi,
->
->On Mon, Nov 19, 2001 at 09:58:43AM +0000, Alan Cox wrote:
->
->>>For instance, the Debian guide says that, due to Ext2 efficiency, partitions
->>>greater than 6-7GB shouldn't be created. Is this true for Ext3/ReiserFS.
->>>
->>I've run several 45-200Gb ext2 and ext3 partitions with no problem. I'm not
->>sure what the origin of the Debian guide comemnt is but I've never heard
->>it from an ext2 developer
->>
->
->The largest filesystem I use with ext3 at the moment is 40GB, and it
->is 98% full and is used *constantly* (it contains my main build
->trees).  I'm not sure where the 6-7GB limit idea comes from but I've
->got very few filesystems smaller than that, and they are still all
->ext3.
->
->Cheers,
-> Stephen
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
+That wasn't quite what I had in mind :)
 
-I bet the origin is the time it takes to run fsck.  If so, run any 
-journaling filesystem and you'll be okay.  We have 2 terabyte systems 
-out there, I bet ext3 does also.
+> In short, no VM is going to work perfectly -- it is extrapolating a model
+> of behavior to a real world sequence of events and as such there will
+> always be some real world set of programs and events that will make it
+> worse than some other model of behavior (VM), including the one that never
+> pages at all.  We just want that to happen rarely (whatever that means).
 
-hans
+Yes, sometimes you'll get better behaviour in a specific case by "disabling" 
+swap (i.e. forcing the kernel to page code instead), which in other cases 
+causes nasty disk thrashing. In this case, though, I think the VM could do a 
+much better job than it does presently; I've a feeling Rik's would perform 
+better in this case, for example...
 
+> A VM that is working properly is one that satisfies the beholder (sort of
+> like beauty).  And in fact, if you look at the various similar discussions
+> on Microsoft newsgroups (sorry ;-), you may notice they don't seem to be
+> able to come up with a mechanism that handles large uniform access working
+> sets and still works well with "normal" (highly peaked) working sets.  So I
+> doubt it is an easy problem.
+
+Nobody said VM coding was easy - or that Microsoft had got it right :)
+
+
+James.

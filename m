@@ -1,83 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUFIQ24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265810AbUFIQaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265828AbUFIQ24 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 12:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUFIQ2z
+	id S265810AbUFIQaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 12:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbUFIQaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 12:28:55 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:9344 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265828AbUFIQ2l (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 12:28:41 -0400
-Message-Id: <200406091628.i59GSj5q019193@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dev@grsecurity.net
-Subject: Re: security patches / lsm 
-In-Reply-To: Your message of "Wed, 09 Jun 2004 13:46:15 +0200."
-             <20040609114615.GK601@schottelius.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609112235.GA1088@pooh>
-            <20040609114615.GK601@schottelius.org>
+	Wed, 9 Jun 2004 12:30:16 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:54447 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265810AbUFIQaD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 12:30:03 -0400
+Date: Wed, 9 Jun 2004 18:29:49 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [STACK] >3k call path in ide
+Message-ID: <20040609162949.GC29531@wohnheim.fh-wedel.de>
+References: <20040609122921.GG21168@wohnheim.fh-wedel.de> <40C72B68.1030404@metaparadigm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_677664529P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Jun 2004 12:28:45 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40C72B68.1030404@metaparadigm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_677664529P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 9 June 2004 23:23:20 +0800, Michael Clark wrote:
+> 
+> Noticed that try_to_free_pages, sync_inodes_sb and wakeup_bdflush features
+> in almost all of these traces and although at 284, 308 and 256 respectively
+> their not huge but together their neither that small (considering they
+> occur all in the same stack trace).
+> 
+> This is consumed mostly by a struct page_state which is 148 bytes big
+> although looking at the code get_page_state(struct page_state *ret)
+> only populates the first 6 fields or 24 bytes. get_full_page_state
+> which is hardly used updates these other fields.
+> 
+> Is this a candidate for splitting into 2 structs? 1 containing just the
+> first 6 fields needed by the majority of users: try_to_free_pages,
+> shrink_all_memory, kswapd, get_dirty_limits, wakeup_bdflush, sync_inodes_sb
 
-On Wed, 09 Jun 2004 13:46:15 +0200, Nico Schottelius said:
+Well noticed, although Hugh and Andrew have already exchanged some
+patches, see
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0406.1/0134.html
 
-> I heard about that, but I wanted to know whether this statement is still
-> true. I think with grsecurity you get a great security enhanced kernel.
+For the moment I consider try_to_free_pages() fixed.
 
-grsecurity is also an incredibly intrusive patch, and as of last week Brad
-Spendler was dropping continuing support due to time/financial issues.
+Andrew, what do you thing about the patch below for sync_inodes_sb()?
+It's stack consumption is reduced from 308 to 64, at the cost of one
+more function call.
 
-The Grsecurity stuff breaks down into several pieces:
+Jörn
 
-1) The PaX stuff, which is more intrusive than the RedHat exec-shield patch
-and doesn't buy us an obviously higher level of security - the major thing that
-PaX does that exec-shield doesn't is prevent calling mprotect() on a previously
-writable page to make it executable.  Note that mprotect() can be handled via
-an LSM exit as well, so that's an alternate route to take.  Note that the PaX
-stuff requires a patch to binutils and recompiling/relinking everything to take
-full advantage of it (OK, exec-shield does as well, but has the advantage that
-the GNU_PT_STACK stuff has already been pushed upstream).  Either way,
-we still have the Wine problem... ;)
+-- 
+Premature optimization is the root of all evil.
+-- Donald Knuth
 
-2) For better or worse, SELinux and LSM are already in the base kernel, so
-Brad's ACL stuff is a duplication of effort.  Feel free to drag that along
-yourself, but any percieved benefit of Brad's ACL system is outweighted (in
-my book at least) by the fact that SELinux is being actively worked into
-things like Fedora, Suse, and Debian.
+Move a struct page_state into it's own function.  This reduces the stack
+consumption for sync_inodes_sb(), as the stack is already partially rolled
+back before other functions get called.
 
-3) A bunch of things like hardening /tmp symlinks and chroot jails, which
-are just as doable via an LSM module - I posted a "first cut" a while back,
-and I'll probably put out another one very shortly that incorporates all the
-helpful feedback I got over on the SELinux and LSM lists (Thanks, guys! ;)
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
 
-4) When I looked at it, the remainder was basically just PID randomization
-and some network randomization tweaks (again, I posted a first-cut, and will
-probably post another shortly incorporating suggestions I got).
+ fs-writeback.c |   15 ++++++++++-----
+ 1 files changed, 10 insertions(+), 5 deletions(-)
 
-That's my take on it, for what it's worth...
-
---==_Exmh_677664529P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAxzq9cC3lWbTT17ARApGcAJ91L7dg99eIy0I4m2B/cQhVn7aFdQCgq2cD
-rCTiZIrh8qYab7Hn0qqjMvA=
-=nVXu
------END PGP SIGNATURE-----
-
---==_Exmh_677664529P--
+--- linux-2.6.6cow/fs/fs-writeback.c~sync_inodes_sb	2004-06-09 18:19:25.000000000 +0200
++++ linux-2.6.6cow/fs/fs-writeback.c	2004-06-09 18:23:44.000000000 +0200
+@@ -396,6 +396,15 @@
+ 	spin_unlock(&inode_lock);
+ }
+ 
++static long get_nr_to_write(void)
++{
++	struct page_state ps;
++
++	get_page_state(&ps);
++	return ps.nr_dirty + ps.nr_unstable + ps.nr_dirty + ps.nr_unstable +
++			(inodes_stat.nr_inodes - inodes_stat.nr_unused);
++}
++
+ /*
+  * writeback and wait upon the filesystem's dirty inodes.  The caller will
+  * do this in two passes - one to write, and one to wait.  WB_SYNC_HOLD is
+@@ -409,7 +418,6 @@
+  */
+ void sync_inodes_sb(struct super_block *sb, int wait)
+ {
+-	struct page_state ps;
+ 	struct writeback_control wbc = {
+ 		.bdi		= NULL,
+ 		.sync_mode	= wait ? WB_SYNC_ALL : WB_SYNC_HOLD,
+@@ -417,10 +425,7 @@
+ 		.nr_to_write	= 0,
+ 	};
+ 
+-	get_page_state(&ps);
+-	wbc.nr_to_write = ps.nr_dirty + ps.nr_unstable +
+-			(inodes_stat.nr_inodes - inodes_stat.nr_unused) +
+-			ps.nr_dirty + ps.nr_unstable;
++	wbc.nr_to_write = get_nr_to_write();
+ 	wbc.nr_to_write += wbc.nr_to_write / 2;		/* Bit more for luck */
+ 	spin_lock(&inode_lock);
+ 	sync_sb_inodes(sb, &wbc);

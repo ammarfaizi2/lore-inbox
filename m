@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263445AbTEMUbv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTEMUbv
+	id S263449AbTEMUdw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263465AbTEMUds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:31:51 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:31401 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263445AbTEMUbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:31:41 -0400
-Date: Tue, 13 May 2003 22:43:59 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Steven Cole <elenstev@mesatop.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ian Molton <spyro@f2s.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ARM26 [NEW ARCHITECTURE]
-In-Reply-To: <1052858148.8088.37.camel@spc9.esa.lanl.gov>
-Message-ID: <Pine.GSO.4.21.0305132241420.13355-100000@vervain.sonytel.be>
+	Tue, 13 May 2003 16:33:48 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:22635 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S263449AbTEMUcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:32:03 -0400
+Date: Tue, 13 May 2003 15:44:45 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Race between vmtruncate and mapped areas?
+Message-ID: <154080000.1052858685@baldur.austin.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 May 2003, Steven Cole wrote:
-> On Tue, 2003-05-13 at 13:35, Geert Uytterhoeven wrote:
-> > On 13 May 2003, Alan Cox wrote:
-> > > I guess its no crazier than the MacII port. What does Russell think
-> > 
-> > Wait until we're gonna submit the TekExpress port for 2.4.22... ;-)
-> 
-> That's hilarious and ironic.  It was because of the hefty price of
-> things like the TekXpress XP15 that I first got interested in Linux
-> (Slackware 1.0.2) as a relatively cheap and effective X-terminal for our
-> clients running on a DECstation 5000 (MIPS R3000).
-> 
-> The name TekExpress or TekXpress could be confusing since some had 68020
-> or 68030 CPUs and some had the MIPS R3000 if I remember correctly. 
-> Googling shows quite a few variants of name/CPU type.
 
-I was talking about the m68k variants.
+As part of chasing the BUG() we've been seeing in objrmap I took a good
+look at vmtruncate().  I believe I've identified a race condition that no
+only  triggers that BUG(), but also could cause some strange behavior
+without the objrmap patch.
 
-Gr{oetje,eeting}s,
+Basically vmtruncate() does the following steps:  first, it unmaps the
+truncated pages from all page tables using zap_page_range().  Then it
+removes those pages from the page cache using truncate_inode_pages().
+These steps are done without any lock that I can find, so it's possible for
+another task to get in between the unmap and the remove, and remap one or
+more pages back into its page tables.
 
-						Geert
+The result of this is a page that has been disconnected from the file but
+is mapped in a task's address space as if it were still part of that file.
+Any further modifications to this page will be lost.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I can easily detect this condition by adding a bugcheck for page_mapped()
+in truncate_complete_page(), then running Andrew's bash-shared-mapping test
+case.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Please feel free to poke holes in my analysis.  I'm not at all sure I
+haven't missed some subtlety here.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

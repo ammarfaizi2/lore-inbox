@@ -1,260 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVBKPOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVBKPOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262255AbVBKPOf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 10:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVBKPOe
+	id S262256AbVBKPOv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 10:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVBKPOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 10:14:34 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:1774 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262255AbVBKPOM
+	Fri, 11 Feb 2005 10:14:51 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:19331 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262256AbVBKPOs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 10:14:12 -0500
-Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>,
-       Jay Lan <jlan@engr.sgi.com>
-In-Reply-To: <20050211005446.081aa075.akpm@osdl.org>
-References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr>
-	 <20050207154623.33333cda.akpm@osdl.org>
-	 <1108109504.30559.43.camel@frecb000711.frec.bull.fr>
-	 <20050211005446.081aa075.akpm@osdl.org>
-Date: Fri, 11 Feb 2005 16:08:40 +0100
-Message-Id: <1108134520.14068.66.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/02/2005 16:17:21,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/02/2005 16:22:51,
-	Serialize complete at 11/02/2005 16:22:51
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+	Fri, 11 Feb 2005 10:14:48 -0500
+To: "Simon White" <s_a_white@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Detecting kernel shutdown in a kernel driver
+References: <20050210200537.AD4754BE65@ws1-1.us4.outblaze.com>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 11 Feb 2005 16:14:47 +0100
+In-Reply-To: <20050210200537.AD4754BE65@ws1-1.us4.outblaze.com> (Simon
+ White's message of "Thu, 10 Feb 2005 15:05:37 -0500")
+Message-ID: <m1fz03uo0o.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 00:54 -0800, Andrew Morton wrote:
+"Simon White" <s_a_white@email.com> writes:
 
-> >   I tested this patch on a 2.6.11-rc3-mm2 kernel and there is a little
-> > overhead when I compile a Linux kernel:
-> > 
-> >    #time sh -c 'make O=/home/guill/build/k2610 bzImage && 
-> >    make O=/home/guill/build/k2610 modules'
-> > 
-> >    with a vanilla kernel: real    8m10.797s
-> > 	                  user    7m29.652s
-> > 			  sys     0m49.275s
-> >    
-> >    with the forkuevent patch : real    8m16.189s
-> >                     	       user    7m28.841s
-> > 		    	       sys     0m49.155s
-> 
-> Was that when some process was monitoring the netlink socket?
+> Hi,
+>
+> I've been writing a device driver for a piece of hardware that we recently found the pci bridge has an issue on software reset (kernel 2.6.8.1, hardware reset is fine).  The bridge appears to corrupt the subvendor/device ids on next boot.  We have found a software work around in that I can write to the bridge on module exit and it will always detect correctly next boot (through module_exit when rmmod'd).
+>
+> However on shutting down a machine with the module loaded it never works next time, so is module_exit actually called?
 
-I used another patch for running those tests and here are the changes:
+It's only called when the module is explicitely unloaded.
 
-    - struct kobject fork_kobjet is now static
-    - add a test that drop the construction of the message nobody is 
-      listening on the netlink. 
-    - put the code in a #ifdef CONFIG_KOBJECT_UEVENT section but I 
-      directly add the #ifdef in the code instead of moving the code in 
-      the existing #ifdef CONFIG_KOBJECT_UEVENT section.
+You can use register_reboot_notifier() though.
 
-  There are still some open discussions like the duplicate code and the
-use of the kobject here. I continue to work on that.
-    
-  Here are results about performance impact. The test is the compilation
-of 2.6.10 kernel. For monitoring the KOBJ_FORK event I'm using the
-uevent_listen.c written by Kay Sievers. Three situation was tested:
-
-     1) Vanilla 2.6.11-rc3-mm2 kernel
-     2) 2.6.11-rc3-mm2 + patch (without monitoring)
-     3) 2.6.11-rc3-mm2 + patch + monitoring
-
-command used : 
-# time sh -c 'make O=/home/guill/build/k2610 oldconfig &&  \
-              make O=/home/guill/build/k2610 bzImage   &&  \
-              make O=/home/guill/build/k2610 modules'
-
-  Between each test the directory /home/guill/build/k2610 was destroyed,
-a new one was created, a .config file was copied in the directory and
-file system buffers are flushed with 'sync'. Here are the results:
-
-               |    Real        User        Sys    |          
-    -----------|-----------------------------------|
-    Vanilla    | 8m06.808s   7m32.044s   0m51.647s |
-               | 8m07.144s   7m32.804s   0m51.308s |
-               | 8m06.856s   7m31.414s   0m51.711s | 
-               | 8m06.875s   7m32.082s   0m51.885s | 
-               | 8m07.205s   7m32.140s   0m51.766s | 
-    -----------|-----------------------------------|
-    Kernel +   | 8m15.884s   7m31.838s   0m50.616s |
-    Patch      | 8m08.506s   7m34.154s   0m51.005s |
-               | 8m07.972s   7m33.761s   0m51.416s |
-               | 8m08.006s   7m33.683s   0m51.206s |
-               | 8m09.138s   7m34.212s   0m51.087s | 
-    -----------|-----------------------------------|
-    Kernel +   | 8m08.149s   7m33.590s   0m51.527s |
-    Patch +    | 8m08.595s   7m33.674s   0m51.380s |
-    Monitoring | 8m08.374s   7m34.011s   0m51.282s |
-               | 8m09.317s   7m34.563s   0m51.259s |
-               | 8m08.121s   7m35.412s   0m51.069s |
-    -----------------------------------------------/
-
-
-Regards,
-Guillaume
-
-Signed-off-by: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/include/linux/kobject.h linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject.h
---- linux-2.6.11-rc3-mm2/include/linux/kobject.h	2005-02-03 02:54:59.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject.h	2005-02-11 11:03:13.000000000 +0100
-@@ -253,5 +253,7 @@ static inline int add_hotplug_env_var(ch
- { return 0; }
- #endif
- 
-+extern void kobject_fork(struct kobject *, pid_t, pid_t);
-+
- #endif /* __KERNEL__ */
- #endif /* _KOBJECT_H_ */
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/include/linux/kobject_uevent.h linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject_uevent.h
---- linux-2.6.11-rc3-mm2/include/linux/kobject_uevent.h	2005-02-03 02:54:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject_uevent.h	2005-02-11 11:03:44.000000000 +0100
-@@ -29,6 +29,7 @@ enum kobject_action {
- 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
- 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
- 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
-+	KOBJ_FORK	= (__force kobject_action_t) 0x08,	/* a child process has been created */
- };
- 
- 
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/kernel/fork.c linux-2.6.11-rc3-mm2-forkuevent/kernel/fork.c
---- linux-2.6.11-rc3-mm2/kernel/fork.c	2005-02-11 11:00:18.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/kernel/fork.c	2005-02-11 11:05:43.000000000 +0100
-@@ -41,6 +41,7 @@
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
-+#include <linux/kobject.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -57,6 +58,9 @@ int nr_threads; 		/* The idle threads do
- 
- int max_threads;		/* tunable limit on nr_threads */
- 
-+/* kobject used to notify user space application when a fork occurs */
-+static struct kobject fork_kobj;
-+
- DEFINE_PER_CPU(unsigned long, process_counts) = 0;
- 
-  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
-@@ -148,6 +152,13 @@ void __init fork_init(unsigned long memp
- 
- 	init_task.signal->rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
- 	init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
-+
-+	/*
-+ 	 * We init the fork_kobj which is the event sends when a fork
-+	 * occurs.
-+	 */
-+	kobject_init(&fork_kobj);
-+	kobject_set_name(&fork_kobj, "fork_kobj");
- }
- 
- static struct task_struct *dup_task_struct(struct task_struct *orig)
-@@ -1238,6 +1249,8 @@ long do_fork(unsigned long clone_flags,
- 			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
- 				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
- 		}
-+
-+		kobject_fork(&fork_kobj, current->pid, p->pid);
- 	} else {
- 		free_pidmap(pid);
- 		pid = PTR_ERR(p);
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/lib/kobject_uevent.c linux-2.6.11-rc3-mm2-forkuevent/lib/kobject_uevent.c
---- linux-2.6.11-rc3-mm2/lib/kobject_uevent.c	2005-02-11 11:00:18.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/lib/kobject_uevent.c	2005-02-11 11:08:23.000000000 +0100
-@@ -46,6 +46,8 @@ static char *action_to_string(enum kobje
- 		return "offline";
- 	case KOBJ_ONLINE:
- 		return "online";
-+	case KOBJ_FORK:
-+		return "fork";
- 	default:
- 		return NULL;
- 	}
-@@ -433,3 +435,69 @@ int add_hotplug_env_var(char **envp, int
- EXPORT_SYMBOL(add_hotplug_env_var);
- 
- #endif /* CONFIG_HOTPLUG */
-+
-+/* 
-+ * The buffer will contain 1 integer which has 20 digits for
-+ * 64 bits integer. So a size of 32 is large enough...
-+ */
-+#define FORK_BUFFER_SIZE	32
-+
-+/* 
-+ * number of env pointers is set to FORK_BUFFER_NB 
-+ *	env[0] - Not used
-+ *	env[1] - Not used
-+ *	env[2] - parent pid
-+ *	env[3] - child pid
-+ *	env[4] - NULL
-+ */
-+#define FORK_BUFFER_NB		5
-+
-+/**
-+ * kobject_fork - notify userspace when forking
-+ *
-+ * @kobj: struct kobject that the action is happening to
-+ */
-+void kobject_fork(struct kobject *kobj, pid_t parent, pid_t child)
-+{
-+#ifdef CONFIG_KOBJECT_UEVENT
-+	char *kobj_path = NULL;
-+	char *action_string = NULL;
-+	char **envp = NULL;
-+	char ppid_string[FORK_BUFFER_SIZE];
-+	char cpid_string[FORK_BUFFER_SIZE];
-+
-+	if (!uevent_sock)
-+		return;
-+	
-+	action_string = action_to_string(KOBJ_FORK);
-+	if (!action_string)
-+		return;
-+	
-+	kobj_path = kobject_get_path(kobj, GFP_KERNEL);
-+	if (!kobj_path)
-+		return;
-+
-+	envp = kmalloc(FORK_BUFFER_NB * sizeof (char *), GFP_KERNEL);
-+	if (!envp) {
-+		kfree(kobj_path);
-+		return;
-+	}
-+	memset (envp, 0x0, FORK_BUFFER_NB * sizeof (char *));
-+
-+	snprintf(ppid_string, FORK_BUFFER_SIZE, "%i", parent);
-+	snprintf(cpid_string, FORK_BUFFER_SIZE, "%i", child);
-+	
-+	envp[0] = "Not used";
-+	envp[1] = "Not used";
-+	envp[2] = ppid_string;
-+	envp[3] = cpid_string;
-+	envp[4] = NULL;
-+	
-+	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
-+
-+	kfree(envp);
-+	kfree(kobj_path);
-+#endif /* CONFIG_KOBJECT_UEVENT */
-+	return;
-+}
-+EXPORT_SYMBOL(kobject_fork);
-
-
+-Andi

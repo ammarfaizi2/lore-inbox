@@ -1,80 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312792AbSCVSbc>; Fri, 22 Mar 2002 13:31:32 -0500
+	id <S312802AbSCVTBZ>; Fri, 22 Mar 2002 14:01:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312790AbSCVSbP>; Fri, 22 Mar 2002 13:31:15 -0500
-Received: from relay.softcomca.com ([168.144.1.70]:63237 "EHLO
-	relay3.softcomca.com") by vger.kernel.org with ESMTP
-	id <S312792AbSCVSbK> convert rfc822-to-8bit; Fri, 22 Mar 2002 13:31:10 -0500
-X-Originating-IP: 4.20.162.6
-X-URL: http://www.mail2web.com/
-Subject: RE: Re: max number of threads on a system
-From: "joeja@mindspring.com" <joeja@mindspring.com>
-Date: Fri, 22 Mar 2002 13:36:04 -0500
-To: "davidel@xmailserver.org" <davidel@xmailserver.org>,
-        "davidsen@tmr.com" <davidsen@tmr.com>,
-        "davids@webmaster.com" <davids@webmaster.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-To: joeja@mindspring.com
-X-Priority: 3
-X-MSMail-Priority: Normal
-Content-Transfer-Encoding: 7BIT
+	id <S312803AbSCVTBQ>; Fri, 22 Mar 2002 14:01:16 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:43840 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S312802AbSCVTBA>;
+	Fri, 22 Mar 2002 14:01:00 -0500
+Date: Fri, 22 Mar 2002 19:05:17 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] fix two panics in microcode driver
+In-Reply-To: <Pine.LNX.4.33.0202281653410.1220-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0203221842000.1089-200000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Mailer: JMail 3.7.0 by Dimac (www.dimac.net)
-Message-ID: <RELAY3vnamiODNFYHpZ00003e73@relay3.softcomca.com>
-X-OriginalArrivalTime: 22 Mar 2002 18:31:11.0768 (UTC) FILETIME=[BDE8F180:01C1D1CF]
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811838-856038803-1016822684=:1089"
+Content-ID: <Pine.LNX.4.33.0203221845150.1089@einstein.homenet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
-> > > >What limits the number of threads one can have on a Linux system?
-> > >
-> > > 	Common sense, one would hope.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I have none of that ;-).  No this is actually a test.  The only reason I'm even looking into pthreads is portability.  While this may be an excessive amount of threads if the box has he capacity then I'd want to take advantage of that for batch jobs. 
+---1463811838-856038803-1016822684=:1089
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0203221845151.1089@einstein.homenet>
 
-> > $ ulimit -u
+Hi Marcelo,
 
-unlimited
+When writing too little (0) or too much (>num_physpages) of microcode data
+to the driver it will panic because of passing illegal size request to
+vmalloc() (which has an explicit BUG() on these).
 
-> /proc/sys/kernel/threads-max is the system limit. And "locks up" is odd
-> unless the application is really poorly written to handle errors. Should
-> time out and whine ;-)
+Fix is attached.
 
-This file shows 8192.  
-
->Around 250 was the old limit for max user processes ( non root ), if i
->remember well.
-
-In 2.4.17 that seems to be what I'm hitting.  Actually it is 254.
-
-How long before it times out?
-
-thread number = 254  rc = 0
-
-On thread 255 it does error out, however if I call exit then the program hangs.
-
-This hangs:
-if (rc > 0) { return -1;}
-
-This hangs:
-if (rc > 0) { exit(-1);}
-
-This works:
-if (rc > 0) { goto EXIT ;}
-
-where exit is:
-
-EXIT:
-    calls pthread_join();
-
-It would seem that the functionality and behavior of threads on Sun is different from that of Linux.   
-
-Joe
+Regards,
+Tigran
 
 
---------------------------------------------------------------------
-mail2web - Check your email from the web at
-http://mail2web.com/ .
 
+---1463811838-856038803-1016822684=:1089
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="mc.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203221844440.1089@einstein.homenet>
+Content-Description: mc.patch
+Content-Disposition: ATTACHMENT; FILENAME="mc.patch"
+
+LS0tIGFyY2gvaTM4Ni9rZXJuZWwvbWljcm9jb2RlLmMuMAlGcmkgTWFyIDIy
+IDE4OjIyOjEyIDIwMDINCisrKyBhcmNoL2kzODYva2VybmVsL21pY3JvY29k
+ZS5jCUZyaSBNYXIgMjIgMTg6Mjc6MDMgMjAwMg0KQEAgLTU1LDYgKzU1LDgg
+QEANCiAgKgkJVGlncmFuIEFpdmF6aWFuIDx0aWdyYW5AdmVyaXRhcy5jb20+
+LA0KICAqCQlTZXJpYWxpemUgdXBkYXRlcyBhcyByZXF1aXJlZCBvbiBIVCBw
+cm9jZXNzb3JzIGR1ZSB0byBzcGVjdWxhdGl2ZQ0KICAqCQluYXR1cmUgb2Yg
+aW1wbGVtZW50YXRpb24uDQorICoJMS4xMQkyMiBNYXIgMjAwMSBUaWdyYW4g
+QWl2YXppYW4gPHRpZ3JhbkB2ZXJpdGFzLmNvbT4NCisgKgkJRml4IHRoZSBw
+YW5pYyB3aGVuIHdyaXRpbmcgemVyby1sZW5ndGggbWljcm9jb2RlIGNodW5r
+Lg0KICAqLw0KIA0KICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQpAQCAtNzMs
+NyArNzUsNyBAQA0KIA0KIHN0YXRpYyBzcGlubG9ja190IG1pY3JvY29kZV91
+cGRhdGVfbG9jayA9IFNQSU5fTE9DS19VTkxPQ0tFRDsNCiANCi0jZGVmaW5l
+IE1JQ1JPQ09ERV9WRVJTSU9OIAkiMS4xMCINCisjZGVmaW5lIE1JQ1JPQ09E
+RV9WRVJTSU9OIAkiMS4xMSINCiANCiBNT0RVTEVfREVTQ1JJUFRJT04oIklu
+dGVsIENQVSAoSUEtMzIpIG1pY3JvY29kZSB1cGRhdGUgZHJpdmVyIik7DQog
+TU9EVUxFX0FVVEhPUigiVGlncmFuIEFpdmF6aWFuIDx0aWdyYW5AdmVyaXRh
+cy5jb20+Iik7DQpAQCAtMzMwLDkgKzMzMiwxMyBAQA0KIHsNCiAJc3NpemVf
+dCByZXQ7DQogDQotCWlmIChsZW4gJSBzaXplb2Yoc3RydWN0IG1pY3JvY29k
+ZSkgIT0gMCkgew0KKwlpZiAoIWxlbiB8fCBsZW4gJSBzaXplb2Yoc3RydWN0
+IG1pY3JvY29kZSkgIT0gMCkgew0KIAkJcHJpbnRrKEtFUk5fRVJSICJtaWNy
+b2NvZGU6IGNhbiBvbmx5IHdyaXRlIGluIE4qJWQgYnl0ZXMgdW5pdHNcbiIs
+IA0KIAkJCXNpemVvZihzdHJ1Y3QgbWljcm9jb2RlKSk7DQorCQlyZXR1cm4g
+LUVJTlZBTDsNCisJfQ0KKwlpZiAoKGxlbiA+PiBQQUdFX1NISUZUKSA+IG51
+bV9waHlzcGFnZXMpIHsNCisJCXByaW50ayhLRVJOX0VSUiAibWljcm9jb2Rl
+OiB0b28gbXVjaCBkYXRhIChtYXggJWQgcGFnZXMpXG4iLCBudW1fcGh5c3Bh
+Z2VzKTsNCiAJCXJldHVybiAtRUlOVkFMOw0KIAl9DQogCWRvd25fd3JpdGUo
+Jm1pY3JvY29kZV9yd3NlbSk7DQo=
+---1463811838-856038803-1016822684=:1089--

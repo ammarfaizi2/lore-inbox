@@ -1,182 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267393AbUG2BFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUG2BGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267393AbUG2BFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 21:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUG2BFE
+	id S266476AbUG2BGa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 21:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUG2BG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 21:05:04 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:52884 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S267398AbUG2BEV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 21:04:21 -0400
-Date: Thu, 29 Jul 2004 03:46:10 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16647.61953.158512.433946@robur.slu.se>
-Message-ID: <Pine.LNX.4.44.0407290315240.5763-100000@silmu.st.jyu.fi>
+	Wed, 28 Jul 2004 21:06:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60344 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S266476AbUG2BGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 21:06:19 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       mbligh@aracnet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jbarnes@engr.sgi.com
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<1091055311.31923.3.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jul 2004 19:05:36 -0600
+In-Reply-To: <1091055311.31923.3.camel@localhost.localdomain>
+Message-ID: <m18yd362sf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Thu, 29 Jul 2004 03:46:14 +0300
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004, Robert Olsson wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->> It would be nice that one could use the full capacity of his/her computer.
->> This is not a big problem for everyday use for a workstation but prevents 
->> 2.6-series to be used in production-enviroments in the servers.
->> But hey.. we need to do some work and maybe we will resolve this. =)
-> this now. But it does not address userland starvation so if you your workload 
-> can give reproduceably results wrt starvation (Alexey's app) we can do some
-> tests. First I think should be collect data from current system and check 
-> that results a reproduceable. 
+> On Iau, 2004-07-29 at 00:17, Eric W. Biederman wrote:
+> > What is your concern with stopping DMA?
+> > - Not smashing the recovery routine.
+> > - Getting a corrupted core dump because of on-going DMA?
+> 
+> Completely random happenings occurring when they are trivial to avoid.
+> Given all the worries about SHA signed in kernel standalone objects I
+> find it farcical that the same people don't even care about ensuring
+> something isnt DMAing over their dump partition description.
 
-It takes about 2 minutes to reproduce the symptoms so it's not a problem 
-anymore when I know exactly what I have to do.
- 
-> Below is a patch to monitor softirq's it uses fastroute stats in softnet_stat
-> you may have to hack it.
+I was asking so I could give a better answer.
 
-Ok, I had to do some modifications but here are the results:
+As far as I can tell the long term solution is to simply run the
+dumper from memory that reserved in the kernel that called panic().
 
-while true; cat /proc/net/softnet_stat | tee -a log.txt; sleep 5; done
+At that point you might get a corrupt DUMP. But it is extremely
+unlikely any DMA transactions will touch your reserved memory.
+Only the most buggy drivers or hardware will be running
+DMA to the invalid addresses.  At which point there is
+very little you can do in any event.
 
-The first log is when running exact same patch you sent.
-
---
-000401f1 00000000 00000000 00000000 000002ec 000000d8 00084026
-0004495c 00000000 00000000 00000000 00000326 000000d8 0008ae93
-0004820b 00000000 00000000 00000000 0000034a 000000d8 00090755
-0004a613 00000000 00000000 00000000 00000358 000000d8 00093f0f
-0004ca12 00000000 00000000 00000000 00000370 000000da 000976c9
-000500f2 00000000 00000000 00000000 0000045e 000000da 0009cf4b
-0005417b 00000000 00000000 00000000 000005f8 000000da 000a36b5
-00056a66 00000000 00000000 00000000 0000064c 000000da 000a7619
-0005a94b 00000000 00000000 00000000 000007bf 000000da 000ad9da
-0005d9b7 00000000 00000000 00000000 00000816 000000db 000b1fff
-00060286 00000000 00000000 00000000 00000834 000000db 000b5dee
-00064ffb 00000000 00000000 00000000 00000a0c 000000db 000bd33c
-00069498 00000000 00000000 00000000 00000b97 000000db 000c3d62
-0006cdf1 00000000 00000000 00000000 00000cc5 000000db 000c972b
-0006f9cc 00000000 00000000 00000000 00000d43 000000db 000cde12
-0007280d 00000000 00000000 00000000 00000dea 000000db 000d268d
-00074f33 00000000 00000000 00000000 00000e3e 000000db 000d655b
-00078271 00000000 00000000 00000000 00000f45 000000db 000db849
-0007beee 00000000 00000000 00000000 0000106e 000000db 000e18ae
-0007e402 00000000 00000000 00000000 00001086 000000db 000e513b
-000815c4 00000000 00000000 00000000 0000114d 000000db 000e9d33
-00082abc 00000000 0000076c 00000000 000011f0 000001ad 000ec552
-00082abc 00000000 00001180 00000000 000014e8 00000207 000ecc14
-00082abc 00000000 00001b44 00000000 000014e8 00000257 000ed588
-00082abc 00000000 0000251c 00000000 000018bc 000002bb 000edb28
-00082abc 00000000 00002ee0 00000000 00001970 0000033d 000ee3b6
-00082abc 00000000 000038e0 00000000 00001eac 0000038d 000ee82a
-00082abc 00000000 0000443e 00000000 00002244 00000405 000eef78
-00082abc 00000000 00004e02 00000000 000024c4 00000469 000ef658
-00082abc 00000000 000057c6 00000000 000026cc 000004c3 000efdba
-00082abc 00000000 000061da 00000000 00002910 00000513 000f053a
-00082abc 00000000 00006bbc 00000000 00002b2c 0000056d 000f0ca6
-00082abe 00000000 000075c6 00000000 00002e10 000005d1 000f1368
-00082abe 00000000 00007f9e 00000000 000030a4 00000635 000f1a48
-00082abe 00000000 000089da 00000000 00003338 000006a3 000f2182
-00082abe 00000000 00009420 00000000 00003554 000006fd 000f2952
-00082abe 00000000 00009e70 00000000 00003c34 00000829 000f2b96
-00082ac0 00000000 0000a8c0 00000000 000044cc 00000991 000f2be6
-00082ac0 00000000 0000b2e8 00000000 00004814 00000fd1 000f2c86
-00082ac0 00000000 0000bcfc 00000000 00004814 0000199f 000f2ccc
-00082ac0 00000000 0000c72e 00000000 00004814 00002377 000f2d26
-00082ac2 00000000 0000d142 00000000 00004864 00002c19 000f2e48
-00082ac2 00000000 0000db56 00000000 00004864 0000358d 000f2ee8
-00082ac2 00000000 0000e574 00000000 00004864 00003f33 000f2f60
-00082ac2 00000000 0000ef9c 00000000 0000497c 000047e9 000f2fba
-00082ac2 00000000 0000f9b0 00000000 0000497c 000051ad 000f300a
-00082ac2 00000000 000103ce 00000000 0000497c 00005b7b 000f305a
-00082ac4 00000000 00010dec 00000000 0000497c 00006549 000f30aa
-00082ac4 00000000 0001180a 00000000 0000497c 00006f17 000f30fa
-00082ac4 00000000 0001225a 00000000 00004a94 00007809 000f3140
---
-
-and the second one is when that if-condition is true (just wanted to try 
-if that would make any difference):
-
-#if 1
-        /* Avoid softirq's from DoS'ing user apps incl. RCU's etc */
-
---
-00000082 00000000 00000000 00000000 00000010 00000116 0001fe40
-00000082 00000000 00000000 00000000 00000010 00000119 000211f9
-0000094d 00000000 00000000 00000000 00000014 0000011b 00022e69
-00004ab8 00000000 00000000 00000000 00000032 0000011d 0002877e
-00006b19 00000000 00000000 00000000 0000003f 0000011f 0002cb8e
-0000c7a0 00000000 00000000 00000000 00000073 00000122 0003409e
-0001334a 00000000 00000000 00000000 000000d6 00000124 0003dd4e
-00017537 00000000 00000000 00000000 00000113 00000127 00044598
-0001b528 00000000 00000000 00000000 0000015a 00000129 0004acb5
-0001ec8f 00000000 00000000 00000000 000001ae 0000012b 0005024a
-00021186 00000000 00000000 00000000 000001c1 0000012e 00053ace
-000236f1 00000000 00000000 00000000 00000205 0000012e 000575c7
-00026980 00000000 00000000 00000000 0000032b 0000012e 0005c601
-0002a70a 00000000 00000000 00000000 000004aa 0000012e 0006258f
-0002e715 00000000 00000000 00000000 00000664 0000012e 00068ddc
-00030c8b 00000000 00000000 00000000 00000690 0000012e 0006c872
-0003303e 00000000 00000000 00000000 000006a3 0000012e 0006ffc6
-00036172 00000000 00000000 00000000 00000786 0000012e 00074e6d
-0003a3c8 00000000 00000000 00000000 0000096a 0000012e 0007b998
-0003d62b 00000000 00000000 00000000 00000a85 0000012e 000808b0
-000401ab 00000000 00000000 00000000 00000aa4 0000012e 000847bf
-000426ba 00000000 00000000 00000000 00000ab5 0000012e 0008807b
-00046099 00000000 00000000 00000000 00000c57 0000012e 0008dd31
-0004a27a 00000000 00000000 00000000 00000e0b 0000012e 00094686
-0004c2dc 00000000 00000122 00000000 00000e2c 000001b0 000979c8
-0004c2dc 00000000 00000bae 00000000 00000e2c 00000228 000983dc
-0004c2dc 00000000 00001568 00000000 00001084 00000282 00098ae4
-0004c2dc 00000000 00001f0e 00000000 00001084 000002f0 0009941c
-0004c2dc 00000000 00002968 00000000 00001084 00000368 00099dfe
-0004c2dc 00000000 00003354 00000000 00001426 000003ae 0009a402
-0004c2dc 00000000 00003d04 00000000 0000150c 0000041c 0009ac5e
-0004c2dc 00000000 00004790 00000000 00001548 00000494 0009b636
-0004c2dc 00000000 00005140 00000000 00001548 00000502 0009bf78
-0004c2de 00000000 00005b68 00000000 00001548 0000057a 0009c928
-0004c2e0 00000000 000065ae 00000000 00001598 000005e8 0009d2b0
-0004c2e2 00000000 00006f4a 00000000 00001598 00000660 0009dbd4
-0004c2e2 00000000 000079a4 00000000 00001660 000006ce 0009e4f8
-0004c2e2 00000000 000083d6 00000000 00001660 00000746 0009eeb2
-0004c2e2 00000000 00008e08 00000000 00001764 000007b4 0009f772
-0004c2ee 00000000 00009858 00000000 00001764 0000082c 000a014a
-0004c2f6 00000000 0000a1fe 00000000 00001764 0000089a 000a0a82
-0004c2fc 00000000 0000abcc 00000000 0000182c 000008f4 000a132e
-0004c2fc 00000000 0000b626 00000000 0000182c 000011aa 000a14d2
-0004c302 00000000 0000c03a 00000000 00001872 00001aec 000a155e
---
-
-and it did not make any difference. I have cut out the output of "cat 
-softnet_stat to show columns from 1 to 7. 
-
-- When the ksoftirqd starts to eat cpu-time time_squeeze-value (3rd 
-column) starts growing (in both cases it's same thing). 
-
-- We are also getting more hits from SIRQ_FROM_KSOFTIRQD 
-immediately after that. (6th column)
-
-- Total-column's value stops growing although network file transfers 
-are still on. (1st column)
- 
-> And maybe we should take the experiment disussions off the list.
-
-I think that we should leave netdev as Francois requested it in first 
-place but we can drop the lkml if you want to.
-
---
-Pasi Sjöholm
-
-
-
+Eric

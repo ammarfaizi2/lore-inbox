@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271288AbRHZFg2>; Sun, 26 Aug 2001 01:36:28 -0400
+	id <S271295AbRHZIBu>; Sun, 26 Aug 2001 04:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271286AbRHZFgI>; Sun, 26 Aug 2001 01:36:08 -0400
-Received: from apakabar.cc.columbia.edu ([128.59.59.159]:50068 "EHLO
-	apakabar.cc.columbia.edu") by vger.kernel.org with ESMTP
-	id <S271275AbRHZFgE>; Sun, 26 Aug 2001 01:36:04 -0400
-Message-ID: <3B888AAB.53B328E5@columbia.edu>
-Date: Sun, 26 Aug 2001 01:35:39 -0400
-From: Jeffrey Altman <jaltman@columbia.edu>
-Reply-To: jaltman@columbia.edu
-Organization: Kermit Development Group - Columbia University
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S271297AbRHZIBk>; Sun, 26 Aug 2001 04:01:40 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:2287 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S271295AbRHZIBV>; Sun, 26 Aug 2001 04:01:21 -0400
+Date: Sun, 26 Aug 2001 09:00:27 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Gregory Ade <gkade@unnerving.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8-ac11 compile error on sparc
+In-Reply-To: <Pine.LNX.4.33.0108251424210.15717-100000@tigger.unnerving.org>
+Message-ID: <Pine.LNX.4.33.0108260859190.22074-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: No IRQ known for interrupt pin A of device 00:0f.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks.  I'm sorry to disturb you but I need your help.
-I've just installed the Red Hat 7.1 distribution on to a IBM Thinkpad
-765D
-and I am receiving the message:
+On Sat, 25 Aug 2001, Gregory Ade wrote:
 
-  PCI: No IRQ known for interrupt pin A of device 00:02.0 Please try
-using pci=biosirq
-  PCI: No IRQ known for interrupt pin B of device 00:02.1 Please try
-using pci=biosirq
+> as an aside, is there a version of 2.4 that *does* build on a sparc?
 
-  Yenta IRQ list 0eb8, PCI irq0
-  Socket status: 30000020
-  Yenta IRQ list 0eb8, PCI irq0
-  Socket status: 30000006
-  
-The PCMCIA controller is the TI chipset.  I've done a search on google
-and have found 
-numerous queries with similar reports, but no solutions.  I'm sure there
-is a config
-file which allows IRQ values to be set.  There is no mechanism that I
-can see in the
-Thinkpad configuration to allow the setting of a fixed IRQ for the
-PCMCIA devices.
-Clearly IRQ0 can't possibly work.  I believe OS/2 and various microsoft
-operating 
-systems use IRQ9 with the PCMCIA controllers.  
+2.4.1 was the last one known to build and boot. There are a few problems
+with modules in that though, in that these modules won't properly load
+because of unresolved externals such as .udiv etc.
 
-If someone can point me in the right direction I would appreciate it.
+-- 
+Be careful out there.
 
-Thanks in advance.
+http://www.tahallah.demon.co.uk
 
- - Jeff

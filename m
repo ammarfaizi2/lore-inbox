@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268940AbRHLDue>; Sat, 11 Aug 2001 23:50:34 -0400
+	id <S268941AbRHLDxd>; Sat, 11 Aug 2001 23:53:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268941AbRHLDuX>; Sat, 11 Aug 2001 23:50:23 -0400
-Received: from dc-mx04.cluster0.hsacorp.net ([209.225.8.14]:55687 "EHLO
-	dc-mx04.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S268940AbRHLDuQ>; Sat, 11 Aug 2001 23:50:16 -0400
-Date: Sat, 11 Aug 2001 23:48:24 -0400
+	id <S268949AbRHLDxX>; Sat, 11 Aug 2001 23:53:23 -0400
+Received: from s2.org ([195.197.64.39]:45063 "EHLO kalahari.s2.org")
+	by vger.kernel.org with ESMTP id <S268941AbRHLDxI>;
+	Sat, 11 Aug 2001 23:53:08 -0400
 To: linux-kernel@vger.kernel.org
-Subject: VM working much better in 2.4.8 than before
-Message-ID: <20010811234822.A422@debian>
-Mime-Version: 1.0
+Subject: "scsi0:0:6:0: Attempting to queue an ABORT message" and friends hang
+From: Jarno Paananen <jpaana@s2.org>
+Date: 12 Aug 2001 06:53:19 +0300
+Message-ID: <m3d762c4sw.fsf@kalahari.s2.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-From: <misty-@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I've said it before, I'll say it again - you guys deserve a
-'this is a great thing' report once in a while. This is such a report :)
->From 2.4.7 to 2.4.8 the greatest effect I've seen so far is that my swap
-use is quite minimal - This affects my 486 quite noticably, I don't have
-exact figures but I'm guessing it's startup time is 1/3 of normal.
-Shocked the heck out of me, and it's using only 10MB of swap when
-idle where it used to use at least 15-20MB. Also I've noticed much less
-swap activity during heavy use, which is really helping both my old 486
-in a extremely noticable way (hard disk is a huge bottleneck on that
-poor demented trashcan :) and my K6-III which has a udma 66 disk... When
-it doesn't have to pay attention to writing to the swap partition, it
-obviously can be doing other things. Which helps. Really! :)
+Hi,
 
-Thanks for the improvements, all of you,
 
-Tim McGrath
+I've lately come across these messages a bit too many times:
 
-(formerly at tcm@nac.net)
+scsi0:0:6:0: Attempting to queue an ABORT message
+scsi0:0:6:0: Cmd aborted from QINFIFO
+aic7xxx_abort returns 8194
+scsi0:0:6:0: Attempting to queue an ABORT message
+scsi0:0:6:0: Cmd aborted from QINFIFO
+aic7xxx_abort returns 8194
+
+[repeat ad infinitum]
+
+and then all disk activity hangs. Is this a bug in the driver or a
+symptom from failing disks/cable or something? It happens on both
+my disks (sometimes the 0:6:0 is 0:5:0) so I hope it isn't the
+disks. I'm running 2.4.8-ac1 now, but it has come up every now and
+then since 2.4.6 kernels at least.
+
+// Jarno

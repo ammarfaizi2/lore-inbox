@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268751AbUILRKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268757AbUILRNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268751AbUILRKO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 13:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUILRKO
+	id S268757AbUILRNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 13:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268759AbUILRNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 13:10:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268751AbUILRKJ (ORCPT
+	Sun, 12 Sep 2004 13:13:15 -0400
+Received: from users.linvision.com ([62.58.92.114]:41603 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S268757AbUILRNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 13:10:09 -0400
-Date: Sun, 12 Sep 2004 09:58:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev: udevd shall inform us abot trouble
-Message-ID: <20040912165832.GA1161@kroah.com>
-References: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua> <200409111943.21225.vda@port.imtp.ilyichevsk.odessa.ua> <41433A68.7090403@backtobasicsmgmt.com> <200409112122.36068.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sun, 12 Sep 2004 13:13:04 -0400
+Date: Sun, 12 Sep 2004 19:13:00 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
+       Christoph Hellwig <hch@lst.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bug in md write barrier support?
+Message-ID: <20040912171300.GA14369@bitwizard.nl>
+References: <20040903172414.GA6771@lst.de> <16697.4817.621088.474648@cse.unsw.edu.au> <20040904082121.GB2343@suse.de> <16699.48946.29579.495180@cse.unsw.edu.au> <20040908092309.GD2258@suse.de> <1094650500.11723.32.camel@localhost.localdomain> <20040908154608.GN2258@suse.de> <1094682098.12280.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409112122.36068.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1094682098.12280.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 09:22:36PM +0300, Denis Vlasenko wrote:
-> > The real solution here is for people to re-think their system startup
-> > processes; if you need mixer settings applied at startup, then build a
-> > small script somewhere in /etc/hotplug.d or /etc/dev.d that applies them
-> > to the mixer _when it appears_.
-> 
-> As a user, I prefer to be able to use device right away after
-> modprobe. Imagine ethN appearing "sometime after" modprobe.
-> Would you like such behavior?
+On Wed, Sep 08, 2004 at 11:21:39PM +0100, Alan Cox wrote:
+> I2O defines cache flush very losely. It flushes the cache and returns
+[...]
+> write 1, 2, 3, 4 , 40, 41, flush cache, write 5, 6, 100
 
-That happens today without udev with my usb wireless and ethernet
-devices all the time.
+> it'll write 1,2,3,4,5,6, 40, 41, report flush cache complete. 
 
-See Kay's message for how this should be fixed up in userspace to work
-properly.  It's what gentoo has switched over too, with much success.
+which, if 5,6 are the metadata updates beloging to logfile writes
+40,41 and the system powers down between 5 and 41 spells trouble. 
 
-thanks,
+	Roger. 
 
-greg k-h
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

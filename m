@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVBNQSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVBNQYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVBNQSo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 11:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVBNQSo
+	id S261464AbVBNQYM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 11:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVBNQYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 11:18:44 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:20935 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261461AbVBNQSm
+	Mon, 14 Feb 2005 11:24:12 -0500
+Received: from alog0087.analogic.com ([208.224.220.102]:45696 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261464AbVBNQVt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 11:18:42 -0500
-Date: Mon, 14 Feb 2005 17:19:50 +0100
-From: DervishD <lkml@dervishd.net>
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-Cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: How to get the maximum output from dmesg command
-Message-ID: <20050214161950.GA10253@DervishD>
-Mail-Followup-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-References: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 14 Feb 2005 11:21:49 -0500
+Date: Mon, 14 Feb 2005 11:21:04 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: lm@bitmover.com
+cc: Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+In-Reply-To: <20050214154015.GA8075@bitmover.com>
+Message-ID: <Pine.LNX.4.61.0502141113200.4019@chaos.analogic.com>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com>
+ <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Srinivas :)
+On Mon, 14 Feb 2005 lm@bitmover.com wrote:
 
- * Srinivas G. <srinivasg@esntechnologies.co.in> dixit:
-> How to get maximum output from dmesg command? 
-> I am unable to see all my debug messages after loading my driver. 
-> I think there is a restriction in displaying the dmesg output. 
-> I saw in printk.c file under source directory. There I found LOG_BUF_LEN
-> is 16384.
+> On Mon, Feb 14, 2005 at 10:08:20AM -0500, Jeff Sipek wrote:
+>> On Mon, Feb 14, 2005 at 01:08:58PM +0100, Bartlomiej Zolnierkiewicz wrote:
+>>> On Sun, 13 Feb 2005 18:08:02 -0800, Larry McVoy <lm@bitmover.com> wrote:
+>>>> is to clarify the non-compete stuff.  We've had some people who have
+>>>> indicated that they believed that if they used BK they were agreeing
+>>>> that they would never work on another SCM system.  We can see how it
+>>>> is possible that people would interpret the license that way but that
+>>>> wasn't our intent.  What we would like to do is change the language to
+>>>> say that if you use BK you are agreeing that you won't work on another
+>>>> SCM for 1 year after you stop using BK.  But after that you would be
+>>>
+>>> I don't even plan working on some SCM system, but being
+>>> tainted for 1 year for just *using* BK is not worth the price IMHO.
+>>
+>> I agree, the price is just too high. No matter how much I like BK, I
+>> would give it up.
+>
+> The way some people are reading the license the price is even higher,
+> they think it is a forever tainted license as it stands today.  I've had
+> specific requests to clarify this part of the license.
+>
+> So how would you suggest that we resolve it?  The protection we need is
+> that people don't get to
+>
+>    - use BK
+>    - stop using BK so they can go work on another system
+>    - start using BK again
+>    - stop using BK so they can go work on another system
+>    ...
 
-    You can change this value using the configuration, namely
-CONFIG_LOG_BUF_SHIFT. The value you store here is used to determine
-LOG_BUF_LEN=2^CONFIG_LOG_BUF_SHIFT. You seem to have '14' as the
-value of CONFIG_LOG_BUF_SHIFT. Increase it to 16 and you will have 4
-times the current length for the dmesg buffer.
 
-    I'm assuming you're using a more or less recent 2.4.x kernel. I
-suppose that the same is applicable to 2.6.x kernels.
+What??? Why not? BK is a PROGRAM. You can't tell somebody
+that once they use some program in one job, they can't
+use it again. What kind of "protection" are you claiming?
 
-    Raúl Núñez de Arenas Coronado
+Would you think that IBM could restrict persons who
+learned FORTRAN to never use FORTRAN again should they
+change jobs? Or that they need to wait some time-limit?
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

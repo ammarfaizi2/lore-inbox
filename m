@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318649AbSHPScs>; Fri, 16 Aug 2002 14:32:48 -0400
+	id <S316621AbSHPSzL>; Fri, 16 Aug 2002 14:55:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318652AbSHPScs>; Fri, 16 Aug 2002 14:32:48 -0400
-Received: from atlas015.atlas-iap.es ([194.224.1.15]:60616 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id <S318649AbSHPScr>; Fri, 16 Aug 2002 14:32:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: BUG: 2.4.19 and Promise 20267 doesn't recognise ide raid
-Date: Fri, 16 Aug 2002 20:36:38 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S317022AbSHPSzL>; Fri, 16 Aug 2002 14:55:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:2688 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316621AbSHPSzK>;
+	Fri, 16 Aug 2002 14:55:10 -0400
+Date: Fri, 16 Aug 2002 12:03:49 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [PATCH] add buddyinfo /proc entry
+In-Reply-To: <3D5D25FE.8010002@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208161158270.1048-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17flxe-0007iH-00@antoli.gallimedina.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just upgraded a server from 2.4.17 to 2.4.19, had to go down to 2.4.18. 
 
-It doesn't boot with 2.4.19, the error is (ish, messages are not logged 
-because the disk cannot be mounted, neither the root filesystem):
+On Fri, 16 Aug 2002, Dave Hansen wrote:
 
-- RAID cannot be found.
-- Cannot mount root FS.
+> Greg KH wrote:
+> > All it takes is one line added to /etc/fstab mounting driverfs at /sys.
+> > As the code is not a .config option, you are using it if you mount it or
+> > not :)  The fact that no one else will look at that mount point,
+> > shouldn't matter to you.
+> > 
+> > And yes, for just one thing (hey, why don't you move _all_ the vm stats
+> > over to it), it is worth adding that one line.  And you'll eventually
+> > have to do it anyway, as these things _will_ be moving there.
+> > 
+> > Hell, tell me which machine you are using, and I'll go add it.
+> 
+> How long has it been in the tree (2.4 and 2.5)?  I'll add it to my 
+> machine, but I am anticipating a 3 hour conversation as I explain to 
+> the other users why they got dropped to a root prompt because driverfs 
+> isn't supported when they boot.
 
-I checked that drivers/ide/pdc202xx.c has been changed extensively from 
-2.4.18 to 2.4.19.
+You're making things up and spreading FUD. Why would you want to do that? 
 
-I believes the config is the right one (at least similar to the working 
-2.4.17 and 2.4.18):
+Oh right, it's because most "kernel developers" would rather bitch about 
+that which they do not understand and cut down other developers than suck 
+it up and actually try to learn something from someone else. 
 
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_PDC202XX_BURST=y
-CONFIG_PDC202XX_FORCE=y
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_BLK_DEV_ATARAID=y
-CONFIG_BLK_DEV_ATARAID_PDC=y
-CONFIG_BLK_DEV_ATARAID_HPT=y
+Get over it.
 
 
-Hope this helps.
+	-pat
 
--- 
-  ricardo
-       A paperless office has about as much a chance as a paperless bathroom

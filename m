@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280095AbRKEBpm>; Sun, 4 Nov 2001 20:45:42 -0500
+	id <S280104AbRKEBuC>; Sun, 4 Nov 2001 20:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280101AbRKEBpc>; Sun, 4 Nov 2001 20:45:32 -0500
-Received: from fisica.ufpr.br ([200.17.209.129]:63986 "EHLO
-	hoggar.fisica.ufpr.br") by vger.kernel.org with ESMTP
-	id <S280095AbRKEBpM>; Sun, 4 Nov 2001 20:45:12 -0500
-From: Carlos Carvalho <carlos@fisica.ufpr.br>
+	id <S280106AbRKEBtw>; Sun, 4 Nov 2001 20:49:52 -0500
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:34234 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S280104AbRKEBtq>; Sun, 4 Nov 2001 20:49:46 -0500
+Message-ID: <3BE5F0B5.52274D07@kegel.com>
+Date: Sun, 04 Nov 2001 17:51:49 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Luigi Genoni <kernel@Expansa.sns.it>
+CC: Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdlab.org
+Subject: Re: Regression testing of 2.4.x before release?
+In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15333.61209.654717.854764@hoggar.fisica.ufpr.br>
-Date: Sun, 4 Nov 2001 23:44:57 -0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13-ac7: INSTANT DEATH with ServerWorks
-X-Mailer: VM 6.90 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+Luigi Genoni wrote:
+> Problem is:
+> there is a lot of HW out there, and we should ALL do stress tests, to have
+> a wide basis for HWs and test cases.  Basically it is very hard to agree
+> about a set of stress tests, because we all have different needs, and our
+> tests are based on our needs. That is a streght, because they tend to be
+> real life tests.
 
-2.4.13-ac7, and 2.4.12-ac10, lock hard without a trace with the
-SuperMicro DE6 motherboard, which uses the ServerWorks chipset. The
-problem seems to be triggered by intense IO simultaneously in both IDE
-and SCSI. It's a total freeze, no answers to the net nor SysRq.
+Sure, no argument there.
 
-Details: The problem is easily reproducible with raid. I built several
-two-disk raid0 arrays, all of them consisting of SCSI and one of them
-IDE. The SCSI arrays use both the motherboard AIC chips and a
-symbios/ethernet combo. Then I made a raid5 assembly of the several
-raid0 arrays plus some extra SCSI partitions. The machine freezes as
-soon as it starts to calculate the parity of the raid5.
+> In my esperience, if some default set of tests comes out, then software
+> tend to be optimized for this set. And that is badly wrong.
 
-I then joined all the SCSI disks in the raid5 array, but excluded the
-IDE raid0, and it works fine after copying some 4GB. I copied about
-1.6GB to the IDE raid0 array alone also without problems. However,
-copying simultaneously to the SCSI raid5 and IDE raid0 locks the
-machine after some 700MB transfered. All copies come from NFS using
-the motherboard eepro100 chip.
+My post was motivated by two observations:
 
-So it seems the lock comes from using both IDE and SCSI at the same
-time.
+1. Alan Cox complains occasionally that Linus' trees are not well tested,
+   and can't survive the torture tests that the ac tree goes through before
+   release.  (e.g.
+"2.4.8-ac12
+        I'm trying to make sure I can keep this testable
+        as 2.4.9 vanilla isnt being stable on my test sets "
 
-Suggestions?
+2. The STP at OSDLab seems like a great resource that we might be able
+to leverage to solve the problem Alan points out.
+
+I'm not suggesting anyone do any less testing.  Just the opposite;
+if we set things up properly with the STP, we might be able to run
+many more tests before each final release.
+
+- Dan

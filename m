@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTD2Sl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 14:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTD2Sl7
+	id S262131AbTD2SyN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 14:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD2SyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 14:41:59 -0400
-Received: from adsl-68-74-104-142.dsl.klmzmi.ameritech.net ([68.74.104.142]:53511
-	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
-	id S262128AbTD2Sl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 14:41:57 -0400
-From: Tabris <tabris@sbcglobal.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
-Date: Tue, 29 Apr 2003 14:48:07 -0400
-User-Agent: KMail/1.5
-Cc: Thomas Backlund <tmb@iki.fi>
-References: <200304282112.47061.tabris@sbcglobal.net>
-In-Reply-To: <200304282112.47061.tabris@sbcglobal.net>
+	Tue, 29 Apr 2003 14:54:13 -0400
+Received: from lakemtao02.cox.net ([68.1.17.243]:35525 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S262131AbTD2SyM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 14:54:12 -0400
+Message-ID: <3EAECD2B.3080509@cox.net>
+Date: Tue, 29 Apr 2003 14:06:19 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Question regarding inactive memory
+References: <3EAEC5BC.3070008@cox.net> <Pine.LNX.4.53.0304291444240.5847@chaos>
+In-Reply-To: <Pine.LNX.4.53.0304291444240.5847@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304291448.07909.tabris@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Monday 28 April 2003 09:58 pm, Andre Hedrick wrote:
->> NO ATAPI DMA!
+Richard B. Johnson wrote:
+> On Tue, 29 Apr 2003, David van Hoose wrote:
+> 
+> 
+>>This may be a bit of a newbie'ish question, and maybe a bit off-topic,
+>>but is there any way for me to remove inactive memory, either explicitly
+>>or implicitly? I have 512MB of PC2700 SDRAM, but my system is constantly
+>>eating into the swap I have on my system since I have usually about
+>>140-300MB of inactive (and dirty) RAM and usually about only 250MB in
+>>active memory. Is there a way for me to correct this bad memory usage
+>>without having to reboot? If patching the kernel would be a possible
+>>route to venture to, I'm game.
 >>
->> I will not write the driver core to attempt to support the various
->> combinations.  The ATAPI DMA engine space is used support 48bit.
->> Use the onboard controller for ATAPI.
->> Andre Hedrick
->> LAD Storage Consulting Group
+>>Any suggestions or comments are welcome.
 > 
-> Can I object that it came built onto the board? okok... i'll take that
-> as a no for now...
+> Assuming you are not using a development kernel, the memory
+> manager will try to use most all available RAM. This is
+> normal. During most usage, many of the daemons get swapped out,
+> and unless they are awakened, they don't get swapped back in.
+> This is normal because one does not want to waste the CPU
+> cycles necessary to swap back in RAM data that will not be
+> used.
 > 
->> Tho i'm still not quite sure how it makes a diff to be honest, unless
->> you mean that the Promise and HPT will never be supported for DMA?
->> 
->> and the only other thing i should say is that altho i'm not exactly a
->> n00b, the average user WILL expect it to work.
->> 
->> can i expect this to be fixed by 2.6? (yeah, i know... 2.4-ac-ide 
->>code is similar to 2.5-ide code)
->> --
->> tabris
+> The purpose of using most all available RAM is to save CPU
+> cycles and make the machine responsive. If you have a program
+> that needs RAM, it is grabbed from those buffers you see if
+> you do `cat /proc/meminfo`. The idea is to nat waste any
+> RAM.
+> 
+> If you want to just write the stuff on your swap device(s)
+> back to RAM, to see that it "really works", just execute,
+> `swapoff -a` as root. You can then execute `swapon -a` and
+> you are back to "normal".
+> 
+> The 'dirty' buffers are kept around, even after being written
+> to disk, so they don't have to be re-read the next time you
+> execute `ls` or run a program.
 
->The point is that you should put your ATAPI device (in this case the 
->cd-rom)
->on the VIA controllers, and place the hdd's on the promise controller,
->since dma is supported for hdd's...
+I am currently using kernel 2.4.21-rc1.
+Problem I am having is that my swap is used only after all of my 
+physical ram is used. My system then starts to run a lot slower. 
+Especially processes that allocate lots of memory. If the kernel knows 
+that memory is inactive, why doesn't it swap it to disk so that memory 
+doesn't have to be shuffled around when a new process needs memory? It 
+would also make me happy to be able to swap dirty memory to disk.
 
->This is also their intended primary functions by the manufacturers...,
->for example the HPT370 controller with bios version >1.1.x.xxx does
->not have ATAPI support (atleast officially, I haven't tried it)
->
->
->Thomas
-
-So, are you telling me that DMA for both my hard drives, and my CD-R/Ws 
-will work, if i put my HDs on the PDC20265 controller, and my CD-R/W on 
-the VIA?
-
-or will i lose DMA on the hard drives in this way, losing performance?
-
-the second solution, tho one _I_ could probably live with, is still a 
-problem, especially for those of us who want to sell GNU/Linux to our 
-customers as a 'better' solution.
-
-btw, please cc: me in your replies, as I no longer am able to subscribe 
-to the linux-kernel list. this reply i had to hack by hand from 
-marc.theaimsgroup
-
---
-tabris
--
-Why don't you fix your little problem... and light this candle?
-		-- Alan Shepherd, the first man into space, Gemini program
+Thanks,
+David
 

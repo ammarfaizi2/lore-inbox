@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbSLLATx>; Wed, 11 Dec 2002 19:19:53 -0500
+	id <S267371AbSLLAYO>; Wed, 11 Dec 2002 19:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267364AbSLLATx>; Wed, 11 Dec 2002 19:19:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:55784 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267351AbSLLATw>;
-	Wed, 11 Dec 2002 19:19:52 -0500
-Message-ID: <3DF7D7F4.4347430E@digeo.com>
-Date: Wed, 11 Dec 2002 16:27:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S267375AbSLLAYO>; Wed, 11 Dec 2002 19:24:14 -0500
+Received: from [209.223.116.56] ([209.223.116.56]:2693 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267371AbSLLAYN> convert rfc822-to-8bit; Wed, 11 Dec 2002 19:24:13 -0500
+From: "Steven Roussey" <sroussey@network54.com>
+To: <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Strange load spikes on 2.4.19 kernel
+Date: Wed, 11 Dec 2002 16:31:39 -0800
+Message-ID: <001f01c2a175$d9764e90$026fa8c0@wehohome>
 MIME-Version: 1.0
-To: "Patrick R. McManus" <mcmanus@ducksong.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory Measurements and Lots of Files and Inodes
-References: <20021211235258.GA10857@ducksong.com> <3DF7D3BE.59F4B212@digeo.com> <20021212002110.GA27532@ducksong.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Dec 2002 00:27:33.0225 (UTC) FILETIME=[434E5D90:01C2A175]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <3DF7D4A9.C93316D8@digeo.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Patrick R. McManus" wrote:
-> 
-> ...
-> > If you could share your test apps that would help a lot.
-> 
-> sure! this is the "lots of files" program.
+> Looks like all your apache instances woke up and started doing something.
+> What makes you think it's a kernel or ext3 thing?
 
-Yep, negative dentries:
+Google. ;) My search led to this particular thread, but I could not find a
+final determination. I did just get a message from Rob saying that his
+problem was a simultaneous wakeup as well:
 
-      dentry_cache:   149092KB   149092KB  100.0 
-  ext3_inode_cache:     3425KB    10102KB   33.90
-   radix_tree_node:      594KB     1612KB   36.88
-       buffer_head:      543KB     1264KB   42.99
+http://groups.google.com/groups?q=strange+load+spikes+solved&hl=en&lr=&ie=UT
+F-8&oe=UTF-8&selm=06fa01c294cc%24bcf46e10%241900a8c0%40lifebook&rnum=1
 
+I'll move this to an apache list. Thank you for your time. I know it is
+limited.
 
-You can monitor these via /proc/slabinfo, or using Bill's bloatmeter
-script from http://www.zip.com.au/~akpm/linux/patches/stuff/
+Sincerely,
+Steven Roussey
+http://Network54.com/ 
 
-> ...
-> 
-> > On your machine it'll be "all of swap plus all of physical memory
-> > minus whatever malloc'ed memory you're using now minus 8-12 megabytes".
-> > There isn't much memory which cannot be reclaimed unless you have a
-> > huge machine or you're doing odd things.
-> 
-> this is useful advice, thanks. Basically what the new procps does?
-
-I don't know what procps does.
-
-But your fill-up-all-memory program will certainly do the trick.
-Run it, create a huge swapstorm (or get oom-killed if there's no
-swap) and then see what `free' says.  That's as much memory as the
-kernel will ever give you.

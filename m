@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263093AbTCLISM>; Wed, 12 Mar 2003 03:18:12 -0500
+	id <S263088AbTCLIUP>; Wed, 12 Mar 2003 03:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263094AbTCLISM>; Wed, 12 Mar 2003 03:18:12 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:34699 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S263093AbTCLISK>;
-	Wed, 12 Mar 2003 03:18:10 -0500
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303120828.h2C8SkY17826@csl.stanford.edu>
-Subject: Re: [CHECKER] more potential deadlocks
-To: jmorris@intercode.com.au (James Morris)
-Date: Wed, 12 Mar 2003 00:28:46 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-In-Reply-To: <Pine.LNX.4.44.0303121910090.5320-100000@blackbird.intercode.com.au> from "James Morris" at Mar 12, 2003 07:22:53 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S263090AbTCLIUP>; Wed, 12 Mar 2003 03:20:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:920 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263088AbTCLIUO>;
+	Wed, 12 Mar 2003 03:20:14 -0500
+Date: Wed, 12 Mar 2003 09:30:47 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: scott-kernel@thomasons.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bio too big device
+Message-ID: <20030312083047.GH811@suse.de>
+References: <200303112055.31854.scott-kernel@thomasons.org> <15982.43897.703221.456961@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15982.43897.703221.456961@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> James Morris writes:
-> > BUG: seems like it, if they can point to the same thing.  ERROR: 1 thread deadlock.
-> >    <struct in_device.lock (<local>:0)>-><struct ip_mc_list.lock (<local>:0)> occurred 5 times
-> >    <struct ip_mc_list.lock (<local>:0)>-><struct in_device.lock (<local>:0)> occurred 5 times
-> 
-> See below.
-> 
-> > BUG? very hard to follow, but interesting if a real bug.  unfortunately,
-> > could also be a false positive because of 
-> > 	1. infeasible callchain path or 
+On Wed, Mar 12 2003, Neil Brown wrote:
+> On Tuesday March 11, scott-kernel@thomasons.org wrote:
+> > I frequently receive this message in my syslog, apparently 
+> > whenever there are periods of significant write activity:
 > > 
-> > 	2. the various in_dev and im pointers never actually point to
-> > 	   the same object.
+> >     bio too big device ide0(3,7) (256 > 255)
+> >     bio too big device ide1(22,6) (256 > 255)
 > > 
-> > requires three threads: 
-> > 	thread 1: acquires im->lock then tries to get inetdev_lock
-> > 	thread 2: acquires inetdev_lock and tries to get in_dev->lock.
-> > 	thread 3: acquires in_dev->lock and tries to get im->lock.
+> > It's worth noting that on this system I have had ongoing trouble 
+> > with system stability during write activity as well, using a 
+> > wide variety of 2.5.x kernels, even though at the time of this 
+> > symptom things are apparently running fine.
 > > 
-> > ERROR: 2 thread deadlock.
-> >    <struct ip_mc_list.lock (<local>:0)>-><&inetdev_lock> occurred 5 times
-> >    <&inetdev_lock>-><struct ip_mc_list.lock (<local>:0)> occurred 4 times
+> > Filesystems are all ext3 on top soft raid0 devices. This happens 
+> > to be 2.5.64, but it has been happening for at least the last 
+> > 5-6 versions.
+> > 
+> > Ideas? Any further debugging output I can provide?
 > 
-> These are indeed potential deadlock cases, caused by holding im->lock for
-> too long, now fixed by Alexey (in 2.5 bk at least).
+> 
+> raid0 doesn't really work well in 2.5 yet.... as you have noticed.
+> 
+> We really need to grab the bio splitting code out of md/dm.c and use
+> it to split bios that are too big or that cross device boundaries.
+> 
+> any volunteers??
 
-great!  Thanks very much for the feedback.  I'd given up on anyone
-looking at these.
+I can give it a shot
 
-If people are interested, I can release more deadlock bugs pretty easily.
+-- 
+Jens Axboe
 
-Dawson

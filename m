@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262870AbSJaQIo>; Thu, 31 Oct 2002 11:08:44 -0500
+	id <S262795AbSJaQQf>; Thu, 31 Oct 2002 11:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262791AbSJaQH5>; Thu, 31 Oct 2002 11:07:57 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:50443 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262859AbSJaQGj>; Thu, 31 Oct 2002 11:06:39 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262791AbSJaQQf>; Thu, 31 Oct 2002 11:16:35 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:18822 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262795AbSJaQQ3>; Thu, 31 Oct 2002 11:16:29 -0500
+Subject: RE: Kernel bug in 2.4.7-10smp...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adriano Galano <adriano@satec.es>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <002101c280f4$1e91c380$6f20a4d5@adriano>
+References: <002101c280f4$1e91c380$6f20a4d5@adriano>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15809.22155.408140.213679@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 19:12:59 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [PATCH]: reiser4 [8/8] reiser4 code
-In-Reply-To: <Pine.GSO.4.21.0210311107230.16688-100000@weyl.math.psu.edu>
-References: <15809.21549.198584.599023@laputa.namesys.com>
-	<Pine.GSO.4.21.0210311107230.16688-100000@weyl.math.psu.edu>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Tom-Swifty: "I only like black and white," Tom said monotonously.
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 16:42:57 +0000
+Message-Id: <1036082577.8575.77.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
- > 
- > 
- > On Thu, 31 Oct 2002, Nikita Danilov wrote:
- > 
- > > Hello, Linus, hyva poika,
- > > 
- > > Reiser4 code proper is 2M. Patch is available at
- > > 
- > > http://namesys.com/snapshots/2002.10.31/fs_reiser4.diff
- > > 
- > > If you want, we can send it to you as source tar ball.
- > 
- > And you want that to be reviewed until tonight?
- > 
+On Thu, 2002-10-31 at 15:42, Adriano Galano wrote:
+> I don't apply the patches for possible incompatibility with Compaq Remote
+> Insight Manager card, the drivers of this card are for 2.4.7
+> (http://www.compaq.com/support/files/server/us/download/15084.html). Now I'm
+> trying to make one upgrade to 2.4.18 recompiling the drivers source...  Why
+> happen this errors in 2.4.7?
 
-No. But changes to the core are not very complicated. If Linus "reviews"
-and accepts them life of reiser4 would be much simpler.
+2.4.7 had various bugs that got fixed, like any other software. The old
+kernel you are running also has security holes fixed which is a very
+good reason to upgrade
 
-Nikita.

@@ -1,39 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUIWJDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268326AbUIWJKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268335AbUIWJDz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 05:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268333AbUIWJDz
+	id S268326AbUIWJKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 05:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268339AbUIWJKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 05:03:55 -0400
-Received: from cantor.suse.de ([195.135.220.2]:45994 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268326AbUIWJDx (ORCPT
+	Thu, 23 Sep 2004 05:10:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:36015 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268326AbUIWJKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 05:03:53 -0400
-Date: Thu, 23 Sep 2004 11:03:45 +0200
+	Thu, 23 Sep 2004 05:10:00 -0400
+Date: Thu, 23 Sep 2004 11:09:58 +0200
 From: Andi Kleen <ak@suse.de>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, wli@holomorphy.com, davem@redhat.com,
-       raybry@sgi.com, ak@muc.de, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch V8: [4/7] universally available cmpxchg on i386
-Message-ID: <20040923090345.GA6146@wotan.suse.de>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0409201348070.4628@schroedinger.engr.sgi.com> <20040920205752.GH4242@wotan.suse.de> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua> <20040921154542.GB12132@wotan.suse.de> <41527885.8020402@myrealbox.com>
+To: Ray Bryant <raybry@austin.rr.com>
+Cc: Andi Kleen <ak@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
+       linux-mm <linux-mm@kvack.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Dan Higgins <djh@sgi.com>, lse-tech <lse-tech@lists.sourceforge.net>,
+       Brent Casavant <bcasavan@sgi.com>, Nick Piggin <piggin@cyberone.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ray Bryant <raybry@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Paul Jackson <pj@sgi.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH 0/2] mm: memory policy for page cache allocation
+Message-ID: <20040923090957.GB6146@wotan.suse.de>
+References: <20040923043236.2132.2385.23158@raybryhome.rayhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41527885.8020402@myrealbox.com>
+In-Reply-To: <20040923043236.2132.2385.23158@raybryhome.rayhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wouldn't alternative_input() choosing between a cmpxchg and a call be 
-> the way to go here?  Or is the overhead too high in an inline function?
+> (1)  We dropped the MPOL_ROUNDROBIN patch.  Instead, we
+>      use MPOL_INTERLEAVE to spread pages across nodes.
+>      However, rather than use the file offset etc to 
+>      calculate the node to allocate the page on, I used
+>      the same mechanism you used in alloc_pages_current()
+>      to calculate the node number (interleave_node()).
+>      That eliminates the need to generate an offset etc
+>      in the routines that call page_cache_alloc() and to
+>      me appears to be a simpler change that still fits
+>      within your design.
 
-It would if you want the absolute micro optimization yes. Disadvantage
-is that you would waste some more space for nops in the !CONFIG_I386 case.
-I personally don't think it matters much and that Christian's original
-code was just fine.
 
--Andi (last post on the thread) 
+Hmm, that may lead to uneven balancing because the counter is 
+per thread. But if it works for you it's ok I guess.
+
+I still think changing the callers and use the offset for
+static interleaving would be better. Maybe that could be
+done as a followon patch. 
+> 
+> (2)  I implemented the sys_set_mempolicy() changes as
+>      suggested -- higher order bits in the mode (first)
+>      argument specify whether or not this request is for
+>      the page allocation policy (your existing policy)
+>      or for the page cache allocation policy.  Similarly,
+>      a bit there indicates whether or not we want to set
+>      the process level policy or the system level policy.
+> 
+>      These bits are to be set in the flags argument of
+>      sys_mbind().
+
+Ok.  If that gets in I would suggest you also document it 
+in the manpages and send me a patch. 
+
+Comments to the patches in other mail.
+
+-Andi
+
+

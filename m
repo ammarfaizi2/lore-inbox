@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVCFOej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVCFOgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbVCFOej (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 09:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVCFOei
+	id S261406AbVCFOgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 09:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVCFOgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 09:34:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4798 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261405AbVCFOeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 09:34:24 -0500
-Date: Sun, 6 Mar 2005 06:44:51 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-Message-ID: <20050306094451.GA21907@logos.cnet>
-References: <20050304222146.GA1686@kroah.com>
+	Sun, 6 Mar 2005 09:36:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:20240 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261406AbVCFOf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 09:35:59 -0500
+Date: Sun, 6 Mar 2005 15:35:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mm/filemap.c: make sync_page_range_nolock static
+Message-ID: <20050306143558.GD5070@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050304222146.GA1686@kroah.com>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 02:21:46PM -0800, Greg KH wrote:
-> Anything else anyone can think of?  Any objections to any of these?
-> I based them off of Linus's original list.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------
-> 
-> Rules on what kind of patches are accepted, and what ones are not, into
-> the "linux-release" tree.
-> 
->  - It can not bigger than 100 lines, with context.
->  - It must fix only one thing.
->  - It must fix a real bug that bothers people (not a, "This could be a
->    problem..." type thing.)
->  - It must fix a problem that causes a build error (but not for things
->    marked CONFIG_BROKEN), an oops, a hang, or a real security issue. 
+sync_page_range_nolock isn't used outside of this file.
 
-"and breakage of previously working functionality" ? 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
->  - No "theoretical race condition" issues, unless an explanation of how
->    the race can be exploited.
->  - It can not contain any "trivial" fixes in it (spelling changes,
->    whitespace cleanups, etc.)
+---
+
+ include/linux/writeback.h |    2 --
+ mm/filemap.c              |    6 +++---
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+--- linux-2.6.11-mm1-full/include/linux/writeback.h.old	2005-03-04 15:40:45.000000000 +0100
++++ linux-2.6.11-mm1-full/include/linux/writeback.h	2005-03-04 15:40:55.000000000 +0100
+@@ -107,8 +107,6 @@
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
+ int sync_page_range(struct inode *inode, struct address_space *mapping,
+ 			loff_t pos, size_t count);
+-int sync_page_range_nolock(struct inode *inode, struct address_space
+-		*mapping, loff_t pos, size_t count);
+ 
+ /* pdflush.c */
+ extern int nr_pdflush_threads;	/* Global so it can be exported to sysctl
+--- linux-2.6.11-mm1-full/mm/filemap.c.old	2005-03-04 15:41:05.000000000 +0100
++++ linux-2.6.11-mm1-full/mm/filemap.c	2005-03-04 15:41:29.000000000 +0100
+@@ -290,8 +290,9 @@
+  * as it forces O_SYNC writers to different parts of the same file
+  * to be serialised right until io completion.
+  */
+-int sync_page_range_nolock(struct inode *inode, struct address_space *mapping,
+-			loff_t pos, size_t count)
++static int sync_page_range_nolock(struct inode *inode,
++				  struct address_space *mapping,
++				  loff_t pos, size_t count)
+ {
+ 	pgoff_t start = pos >> PAGE_CACHE_SHIFT;
+ 	pgoff_t end = (pos + count - 1) >> PAGE_CACHE_SHIFT;
+@@ -306,7 +307,6 @@
+ 		ret = wait_on_page_writeback_range(mapping, start, end);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(sync_page_range_nolock);
+ 
+ /**
+  * filemap_fdatawait - walk the list of under-writeback pages of the given
+

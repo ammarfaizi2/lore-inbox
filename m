@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284370AbRLCIvr>; Mon, 3 Dec 2001 03:51:47 -0500
+	id <S284448AbRLCIvi>; Mon, 3 Dec 2001 03:51:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284383AbRLCIty>; Mon, 3 Dec 2001 03:49:54 -0500
-Received: from imap.digitalme.com ([193.97.97.75]:47740 "EHLO digitalme.com")
-	by vger.kernel.org with ESMTP id <S284667AbRLCCqK>;
-	Sun, 2 Dec 2001 21:46:10 -0500
-Subject: Re: Coding style - a non-issue
-From: "Trever L. Adams" <vichu@digitalme.com>
-To: Brandon McCombs <brandon@ovnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011202164344.637cef83.brandon@ovnet.com>
-In-Reply-To: <RELAY1LpTVzF25mIaCG00000ed2@relay1.softcomca.com> 
-	<20011202164344.637cef83.brandon@ovnet.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 02 Dec 2001 21:46:07 -0500
-Message-Id: <1007347572.9110.0.camel@aurora>
-Mime-Version: 1.0
+	id <S284446AbRLCIuZ>; Mon, 3 Dec 2001 03:50:25 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:14863 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S284896AbRLCI2Q>;
+	Mon, 3 Dec 2001 03:28:16 -0500
+Message-Id: <200112030253.fB32r8In024135@sleipnir.valparaiso.cl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.4.17.2: make ext2 smaller 
+In-Reply-To: Your message of "Sun, 02 Dec 2001 06:31:17 CDT."
+             <3C0A1105.18B76D64@mandrakesoft.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 02 Dec 2001 23:53:08 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik <jgarzik@mandrakesoft.com> said:
+> This patch applies an obvious technique to the kernel:  increase the
+> amount of code compiled in a single compilation unit, to increase the
+> overall knowledge the compiler has of the code, to allow for better
+> optimization and dead code removal.  KDE does this, with definite
+> success, though they definitely are not the first to do this.
 
-> *finally* someone who doesn't believe in evolution of the human race.  As a side note, i've heard some people say that a bolt of lightning triggered some proteins to start growing into single celled organisms and then into what we now call today human beings.  I take offense that I came from a single celled organism.  I believe the more complex an object or system is the less randomness can be added in order to arrive at the current/final version. I think we all agree the human body is the most complex object in the universe so how can we say that our existence was an accident?
->
+[...]
 
-I personally will stay out of the religious side of this argument,
-having been flamed for standing up for any religious stand point on this
-list.
+> Results from 2.4.17-pre2 plus the attached patch:  1135 bytes saved in
+> vmlinux, simply from making all the functions static.
 
-However, I just finished my two bio classes for my CS degree.  It is
-interesting that you mention this lightening theory.  My bio book (sorry
-no references and no quotes, maybe later) stated that many people
-(60's-80's) have tried very hard to duplicate and find conditions
-whereby simple molecules could even form basic RNA or other such
-biological/organic compounds.  They had some very minimal success.  In
-the end it was concluded that the methods they were trying probably
-would never have created RNA and other such things that may have
-assembled a cell.  Some of these tests were based on this lightening
-theory.
+File size tells you nothing, it is influenced by symbol tables and
+whatnot. What does size(1) say?
 
-Maybe such spontaneous life could have happened another way... I don't
-really know.
-
-As for software evolution.  I would have to weigh in with my opinion
-being somewhere between Linus and many others.  Software does evolve. 
-Just about any human project does.  This is one reason why there are
-"versions", "editions", etc.  You can only design so much.  Then you go
-back and evolve it.  Is Linus right that there was nearly no design??  I
-think he would know best about the earliest roots of Linux.  However, I
-think he is wrong that now there is no design (though there may be no
-master plan, which would mean it is controlled evolution more than
-engineered/designed).
-
-Anyway, I will sink back into silence for now.
-
-Trever Adams
-
-
+In any case, 1Kb out of 2Mb is 0.05%...
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 

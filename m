@@ -1,792 +1,638 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSGQMFb>; Wed, 17 Jul 2002 08:05:31 -0400
+	id <S293680AbSGQMB6>; Wed, 17 Jul 2002 08:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSGQMFa>; Wed, 17 Jul 2002 08:05:30 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:54695 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312254AbSGQMFX>;
-	Wed, 17 Jul 2002 08:05:23 -0400
-Date: Wed, 17 Jul 2002 14:08:04 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stelian Pop <stelian.pop@fr.alcove.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: input subsystem config ?
-Message-ID: <20020717140804.B12529@ucw.cz>
-References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020717101001.GE14581@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Wed, Jul 17, 2002 at 12:10:01PM +0200
+	id <S312254AbSGQMB5>; Wed, 17 Jul 2002 08:01:57 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:53131 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S293680AbSGQMBw>; Wed, 17 Jul 2002 08:01:52 -0400
+Date: Wed, 17 Jul 2002 07:04:44 -0500 (CDT)
+From: "Justin M. Forbes" <kernelmail@attbi.com>
+X-X-Sender: jmforbes@leaper.linuxtx.org
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: "Justin M. Forbes" <kernelmail@attbi.com>, <marcelo@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc2 compile fail
+In-Reply-To: <Pine.NEB.4.44.0207171023470.16056-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0207170701590.30348-200000@leaper.linuxtx.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="218760002-1857537615-1026907484=:30348"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--218760002-1857537615-1026907484=:30348
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-On Wed, Jul 17, 2002 at 12:10:01PM +0200, Stelian Pop wrote:
-> On Wed, Jul 17, 2002 at 12:01:35PM +0200, Vojtech Pavlik wrote:
+On Wed, 17 Jul 2002, Adrian Bunk wrote:
+
+> On Tue, 16 Jul 2002, Justin M. Forbes wrote:
 > 
-> > > Should I enable some extra debug somewhere ?
-> > 
-> > Yes, please, in drivers/input/serio/i8042.h
+> > I get this failure when trying to compile 2.4.19-rc2
+> >
+> >
+> > gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2/include -traditional
+> > -DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr7x0_family
+> > script_asm.pl : Illegal combination of registers in line 72 : 	MOVE
+> > CTEST7 & 0xef TO CTEST7
+> > 	Either source and destination registers must be the same,
+> > 	or either source or destination register must be SFBR.
+> > make[2]: *** [sim710_d.h] Error 255
+> > make[2]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers/scsi'
+> > make[1]: *** [_modsubdir_scsi] Error 2
+> > make[1]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers'
+> > make: *** [_mod_drivers] Error
 > 
-> Here it comes:
 > 
-> i8042.c: 60 -> i8042 (command) [65]
-> i8042.c: 77 -> i8042 (parameter) [65]
-> i8042.c: d4 -> i8042 (command) [65]
-> i8042.c: f6 -> i8042 (parameter) [65]
-
-This is the bug. :) It tries to talk to the mouse before enabling the
-mouse interface. I wonder how it could work ... probably many chipsets
-ignore the disable bit altogether.
-
-Please try with the attached i8042.c.
-
--- 
-Vojtech Pavlik
-SuSE Labs
-
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="i8042.c"
-
-/*
- *  i8042 keyboard and mouse controller driver for Linux
- *
- *  Copyright (c) 1999-2002 Vojtech Pavlik
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
- */
-
-#include <asm/io.h>
-
-#include <linux/delay.h>
-#include <linux/module.h>
-#include <linux/ioport.h>
-#include <linux/config.h>
-#include <linux/reboot.h>
-#include <linux/init.h>
-#include <linux/serio.h>
-#include <linux/sched.h>	/* request/free_irq */
-
-#include "i8042.h"
-
-MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
-MODULE_DESCRIPTION("i8042 keyboard and mouse controller driver");
-MODULE_LICENSE("GPL");
-
-MODULE_PARM(i8042_noaux, "1i");
-MODULE_PARM(i8042_unlock, "1i");
-MODULE_PARM(i8042_reset, "1i");
-MODULE_PARM(i8042_direct, "1i");
-
-static int i8042_noaux;
-static int i8042_unlock;
-static int i8042_reset;
-static int i8042_direct;
-
-spinlock_t i8042_lock = SPIN_LOCK_UNLOCKED;
-
-struct i8042_values {
-	int irq;
-	unsigned char disable;
-	unsigned char irqen;
-	unsigned char exists;
-	unsigned char *name;
-	unsigned char *phys;
-};
-
-static struct serio i8042_kbd_port;
-static struct serio i8042_aux_port;
-static unsigned char i8042_initial_ctr;
-static unsigned char i8042_ctr;
-struct timer_list i8042_timer;
-
-#ifdef I8042_DEBUG_IO
-static unsigned long i8042_start;
-#endif
-
-static unsigned long i8042_unxlate_seen[128 / BITS_PER_LONG];
-static unsigned char i8042_unxlate_table[128] = {
-	  0,118, 22, 30, 38, 37, 46, 54, 61, 62, 70, 69, 78, 85,102, 13,
-	 21, 29, 36, 45, 44, 53, 60, 67, 68, 77, 84, 91, 90, 20, 28, 27,
-	 35, 43, 52, 51, 59, 66, 75, 76, 82, 14, 18, 93, 26, 34, 33, 42,
-	 50, 49, 58, 65, 73, 74, 89,124, 17, 41, 88,  5,  6,  4, 12,  3,
-	 11,  2, 10,  1,  9,119,126,108,117,125,123,107,115,116,121,105,
-	114,122,112,113,127, 96, 97,120,  7, 15, 23, 31, 39, 47, 55, 63,
-	 71, 79, 86, 94,  8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 87,111,
-	 19, 25, 57, 81, 83, 92, 95, 98, 99,100,101,103,104,106,109,110
-};
-
-static void i8042_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-
-/*
- * The i8042_wait_read() and i8042_wait_write functions wait for the i8042 to
- * be ready for reading values from it / writing values to it.
- */
-
-static int i8042_wait_read(void)
-{
-	int i = 0;
-	while ((~i8042_read_status() & I8042_STR_OBF) && (i < I8042_CTL_TIMEOUT)) {
-		udelay(50);
-		i++;
-	}
-	return -(i == I8042_CTL_TIMEOUT);
-}
-
-static int i8042_wait_write(void)
-{
-	int i = 0;
-	while ((i8042_read_status() & I8042_STR_IBF) && (i < I8042_CTL_TIMEOUT)) {
-		udelay(50);
-		i++;
-	}
-	return -(i == I8042_CTL_TIMEOUT);
-}
-
-/*
- * i8042_flush() flushes all data that may be in the keyboard and mouse buffers
- * of the i8042 down the toilet.
- */
-
-static int i8042_flush(void)
-{
-	unsigned long flags;
-	int i = 0;
-
-	spin_lock_irqsave(&i8042_lock, flags);
-
-	while ((i8042_read_status() & I8042_STR_OBF) && (i++ < I8042_BUFFER_SIZE))
-#ifdef I8042_DEBUG_IO
-		printk(KERN_DEBUG "i8042.c: %02x <- i8042 (flush, %s) [%d]\n",
-			i8042_read_data(), i8042_read_status() & I8042_STR_AUXDATA ? "aux" : "kbd",
-			(int) (jiffies - i8042_start));
-#else
-		i8042_read_data();
-#endif
-
-	spin_unlock_irqrestore(&i8042_lock, flags);
-
-	return i;
-}
-
-/*
- * i8042_command() executes a command on the i8042. It also sends the input parameter(s)
- * of the commands to it, and receives the output value(s). The parameters are to be
- * stored in the param array, and the output is placed into the same array. The number
- * of the parameters and output values is encoded in bits 8-11 of the command
- * number.
- */
-
-static int i8042_command(unsigned char *param, int command)
-{ 
-	unsigned long flags;
-	int retval = 0, i = 0;
-
-	spin_lock_irqsave(&i8042_lock, flags);
-
-	retval = i8042_wait_write();
-	if (!retval) {
-#ifdef I8042_DEBUG_IO
-		printk(KERN_DEBUG "i8042.c: %02x -> i8042 (command) [%d]\n",
-			command & 0xff, (int) (jiffies - i8042_start));
-#endif
-		i8042_write_command(command & 0xff);
-	}
-	
-	if (!retval)
-		for (i = 0; i < ((command >> 12) & 0xf); i++) {
-			if ((retval = i8042_wait_write())) break;
-#ifdef I8042_DEBUG_IO
-			printk(KERN_DEBUG "i8042.c: %02x -> i8042 (parameter) [%d]\n",
-				param[i], (int) (jiffies - i8042_start));
-#endif
-			i8042_write_data(param[i]);
-		}
-
-	if (!retval)
-		for (i = 0; i < ((command >> 8) & 0xf); i++) {
-			if ((retval = i8042_wait_read())) break;
-			if (i8042_read_status() & I8042_STR_AUXDATA) 
-				param[i] = ~i8042_read_data();
-			else
-				param[i] = i8042_read_data();
-#ifdef I8042_DEBUG_IO
-			printk(KERN_DEBUG "i8042.c: %02x <- i8042 (return) [%d]\n",
-				param[i], (int) (jiffies - i8042_start));
-#endif
-		}
-
-	spin_unlock_irqrestore(&i8042_lock, flags);
-
-#ifdef I8042_DEBUG_IO
-	if (retval)
-		printk(KERN_DEBUG "i8042.c:      -- i8042 (timeout) [%d]\n",
-			(int) (jiffies - i8042_start));
-#endif
-
-	return retval;
-}
-
-/*
- * i8042_kbd_write() sends a byte out through the keyboard interface.
- * It also automatically refreshes the CTR value, since some i8042's
- * trash their CTR after attempting to send data to an nonexistent
- * device.
- */
-
-static int i8042_kbd_write(struct serio *port, unsigned char c)
-{
-	unsigned long flags;
-	int retval = 0;
-
-	spin_lock_irqsave(&i8042_lock, flags);
-
-	if(!(retval = i8042_wait_write())) {
-#ifdef I8042_DEBUG_IO
-		printk(KERN_DEBUG "i8042.c: %02x -> i8042 (kbd-data) [%d]\n",
-			c, (int) (jiffies - i8042_start));
-#endif
-		i8042_write_data(c);
-	}
-
-	spin_unlock_irqrestore(&i8042_lock, flags);
-
-	return retval;
-}
-
-/*
- * i8042_aux_write() sends a byte out through the aux interface.
- */
-
-static int i8042_aux_write(struct serio *port, unsigned char c)
-{
-	int retval;
-
-/*
- * Send the byte out.
- */
-
-	retval  = i8042_command(&c, I8042_CMD_AUX_SEND);
-
-/*
- * Here we restore the CTR value. I don't know why, but i8042's in half-AT
- * mode tend to trash their CTR when doing the AUX_SEND command.
- */
-
-	retval |= i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
-
-/*
- * Make sure the interrupt happens and the character is received even
- * in the case the IRQ isn't wired, so that we can receive further
- * characters later.
- */
-
-	i8042_interrupt(0, NULL, NULL);
-	return retval;
-}
-
-/*
- * i8042_open() is called when a port is open by the higher layer.
- * It allocates an interrupt and enables the port.
- */
-
-static int i8042_open(struct serio *port)
-{
-	struct i8042_values *values = port->driver;
-
-/*
- * Allocate the interrupt
- */
-
-	if (request_irq(values->irq, i8042_interrupt, 0, "i8042", NULL)) {
-		printk(KERN_ERR "i8042.c: Can't get irq %d for %s, unregistering the port.\n", values->irq, values->name);
-		values->exists = 0;
-		serio_unregister_port(port);
-		return -1;
-	}
-
-/*
- * Enable the interrupt.
- */
-
-	i8042_ctr |= values->irqen;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_ERR "i8042.c: Can't write CTR while opening %s.\n", values->name);
-		return -1;
-	}
-
-	return 0;
-}
-
-/*
- * i8042_close() frees the interrupt, and disables the interface when the
- * upper layer doesn't need it anymore.
- */
-
-static void i8042_close(struct serio *port)
-{
-	struct i8042_values *values = port->driver;
-
-/*
- * Disable the interrupt.
- */
-
-	i8042_ctr &= ~values->irqen;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_ERR "i8042.c: Can't write CTR while closing %s.\n", values->name);
-		return;
-	}
-
-/*
- * Free the interrupt
- */
-
-	free_irq(values->irq, NULL);
-
-/*
- * Flush the interface
- */
-
-	i8042_flush();
-}
-
-/*
- * Structures for registering the devices in the serio.c module.
- */
-
-static struct i8042_values i8042_kbd_values = {
-	irq:		I8042_KBD_IRQ,
-	irqen:		I8042_CTR_KBDINT,
-	disable:	I8042_CTR_KBDDIS,
-	name:		"KBD",
-	exists:		0,
-};
-
-static struct serio i8042_kbd_port =
-{
-	type:		SERIO_8042,
-	write:		i8042_kbd_write,
-	open:		i8042_open,
-	close:		i8042_close,
-	driver:		&i8042_kbd_values,
-	name:		"i8042 Kbd Port",
-	phys:		I8042_KBD_PHYS_DESC,
-};
-
-static struct i8042_values i8042_aux_values = {
-	irq:		I8042_AUX_IRQ,
-	irqen:		I8042_CTR_AUXINT,
-	disable:	I8042_CTR_AUXDIS,
-	name:		"AUX",
-	exists:		0,
-};
-
-static struct serio i8042_aux_port =
-{
-	type:		SERIO_8042,
-	write:		i8042_aux_write,
-	open:		i8042_open,
-	close:		i8042_close,
-	driver:		&i8042_aux_values,
-	name:		"i8042 Aux Port",
-	phys:		I8042_AUX_PHYS_DESC,
-};
-
-/*
- * i8042_interrupt() is the most important function in this driver -
- * it handles the interrupts from the i8042, and sends incoming bytes
- * to the upper layers.
- */
-
-static void i8042_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-{
-	unsigned long flags;
-	unsigned char str, data;
-	unsigned int dfl;
-
-	spin_lock_irqsave(&i8042_lock, flags);
-
-	while ((str = i8042_read_status()) & I8042_STR_OBF) {
-
-		data = i8042_read_data();
-		dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
-		      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
-
-#ifdef I8042_DEBUG_IO
-		printk(KERN_DEBUG "i8042.c: %02x <- i8042 (interrupt, %s, %d) [%d]\n",
-			data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq, (int) (jiffies - i8042_start));
-#endif
-
-		if (i8042_aux_values.exists && (str & I8042_STR_AUXDATA)) {
-			serio_interrupt(&i8042_aux_port, data, dfl);
-		} else {
-			if (i8042_kbd_values.exists) {
-				if (!i8042_direct) {
-					if (data > 0x7f) {
-						if (test_and_clear_bit(data & 0x7f, i8042_unxlate_seen)) {
-							serio_interrupt(&i8042_kbd_port, 0xf0, dfl);
-							data = i8042_unxlate_table[data & 0x7f];
-						}
-					} else {
-						set_bit(data, i8042_unxlate_seen);
-						data = i8042_unxlate_table[data];
-					}
-				}
-				serio_interrupt(&i8042_kbd_port, data, dfl);
-			}
-		}
-	}
-
-	spin_unlock_irqrestore(&i8042_lock, flags);
-}
-
-/*
- * i8042_controller init initializes the i8042 controller, and,
- * most importantly, sets it into non-xlated mode.
- */
-	
-static int __init i8042_controller_init(void)
-{
-
-/*
- * Check the i/o region before we touch it.
- */
-#if !defined(__i386__) && !defined(__sh__) && !defined(__alpha__) 	
-	if (check_region(I8042_DATA_REG, 16)) {
-		printk(KERN_ERR "i8042.c: %#x port already in use!\n", I8042_DATA_REG);
-		return -1;
-	}
-#endif
-
-/*
- * Test the i8042. We need to know if it thinks it's working correctly
- * before doing anything else.
- */
-
-	i8042_flush();
-
-	if (i8042_reset) {
-
-		unsigned char param;
-
-		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-			return -1;
-		}
-
-		if (param != I8042_RET_CTL_TEST) {
-			printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
-				 param, I8042_RET_CTL_TEST);
-			return -1;
-		}
-	}
-
-/*
- * Read the CTR.
- */
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_RCTR)) {
-		printk(KERN_ERR "i8042.c: Can't read CTR while initializing i8042.\n");
-		return -1;
-	}
-
-/*
- * Save the CTR for restoral on unload / reboot.
- */
-
-	i8042_initial_ctr = i8042_ctr;
-
-/*
- * Disable the keyboard interface and interrupt. 
- */
-
-	i8042_ctr |= I8042_CTR_KBDDIS;
-	i8042_ctr &= ~I8042_CTR_KBDINT;
-
-/*
- * Handle keylock.
- */
-
-	if (~i8042_read_status() & I8042_STR_KEYLOCK) {
-
-		if (i8042_unlock) {
-			i8042_ctr |= I8042_CTR_IGNKEYLOCK;
-		} else {
-			printk(KERN_WARNING "i8042.c: Warning: Keylock active.\n");
-		}
-	}
-
-/*
- * If the chip is configured into nontranslated mode by the BIOS, don't
- * bother enabling translating and just use that happily.
- */
-
-	if (~i8042_ctr & I8042_CTR_XLATE)
-		i8042_direct = 1;
-
-/*
- * Set nontranslated mode for the kbd interface if requested by an option.
- * This is vital for a working scancode set 3 support. After this the kbd
- * interface becomes a simple serial in/out, like the aux interface is. If
- * the user doesn't wish this, the driver tries to untranslate the values
- * after the i8042 translates them.
- */
-
-	if (i8042_direct)
-		i8042_ctr &= ~I8042_CTR_XLATE;
-
-/*
- * Write CTR back.
- */
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_ERR "i8042.c: Can't write CTR while initializing i8042.\n");
-		return -1;
-	}
-
-	return 0;
-}
-
-/*
- * Here we try to reset everything back to a state in which the BIOS will be
- * able to talk to the hardware when rebooting.
- */
-
-void i8042_controller_cleanup(void)
-{
-
-	i8042_flush();
-
-/*
- * Reset the controller.
- */
-
-	if (i8042_reset) {
-		unsigned char param;
-
-		if (i8042_command(&param, I8042_CMD_CTL_TEST))
-			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
-	}
-
-/*
- * Restore the original control register setting.
- */
-
-	i8042_ctr = i8042_initial_ctr;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
-
-/*
- * Reset anything that is connected to the ports if the ports
- * are enabled in the original config.
- */
-
-	if (i8042_kbd_values.exists)
-		i8042_kbd_write(&i8042_kbd_port, 0xff);
-
-	if (i8042_aux_values.exists)
-		i8042_aux_write(&i8042_aux_port, 0xff);
-}
-
-/*
- * i8042_check_aux() applies as much paranoia as it can at detecting
- * the presence of an AUX interface.
- */
-
-static int __init i8042_check_aux(struct i8042_values *values, struct serio *port)
-{
-	unsigned char param;
-
-/*
- * Check if AUX irq is available. If it isn't, then there is no point
- * in trying to detect AUX presence.
- */
-
-	if (request_irq(values->irq, i8042_interrupt, 0, "i8042", NULL))
-                return -1;
-	free_irq(values->irq, NULL);
-
-/*
- * Get rid of bytes in the queue.
- */
-
-	i8042_flush();
-
-/*
- * Internal loopback test - filters out AT-type i8042's
- */
-
-	param = 0x5a;
-
-	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa5)
-		return -1;
-
-/*
- * External connection test - filters out AT-soldered PS/2 i8042's
- */
-
-	if (i8042_command(&param, I8042_CMD_AUX_TEST) || param)
-		return -1;
-
-/*
- * Bit assignment test - filters out PS/2 i8042's in AT mode
- */
-	
-	if (i8042_command(&param, I8042_CMD_AUX_DISABLE))
-		return -1;
-
-	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS))
-		return -1;	
-
-	if (i8042_command(&param, I8042_CMD_AUX_TEST) || param) {
-
-/*
- * We've got an old AMI i8042 with 'Bad Cache' commands.
- */
-
-		i8042_command(&param, I8042_CMD_AUX_ENABLE);
-		return -1;
-	}
-
-	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
-		return -1;
-
-	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (param & I8042_CTR_AUXDIS))
-		return -1;	
-
-/*
- * Disable the interface.
- */
-
-	i8042_ctr |= I8042_CTR_AUXDIS;
-	i8042_ctr &= ~I8042_CTR_AUXINT;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-		return -1;
-
-	return 0;
-}
-
-/*
- * i8042_port_register() marks the device as existing,
- * registers it, and reports to the user.
- */
-
-static int __init i8042_port_register(struct i8042_values *values, struct serio *port)
-{
-	values->exists = 1;
-
-	i8042_ctr &= ~values->disable;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_WARNING "i8042.c: Can't write CTR while registering.\n");
-		return; 
-	}
-
-	serio_register_port(port);
-
-	printk(KERN_INFO "serio: i8042 %s port at %#x,%#x irq %d\n",
-		values->name, I8042_DATA_REG, I8042_COMMAND_REG, values->irq);
-
-	return 0;
-}
-
-static void i8042_timer_func(unsigned long data)
-{
-	i8042_interrupt(0, NULL, NULL);
-	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-}
-
-/*
- * Module init and cleanup functions.
- */
-
-void __init i8042_setup(char *str, int *ints)
-{
-	if (!strcmp(str, "i8042_reset=1"))
-		i8042_reset = 1;
-	if (!strcmp(str, "i8042_noaux=1"))
-		i8042_noaux = 1;
-	if (!strcmp(str, "i8042_unlock=1"))
-		i8042_unlock = 1;
-	if (!strcmp(str, "i8042_direct=1"))
-		i8042_direct = 1;
-}
-
-/*
- * Reset the 8042 back to original mode.
- */
-static int i8042_notify_sys(struct notifier_block *this, unsigned long code,
-        		    void *unused)
-{
-        if (code==SYS_DOWN || code==SYS_HALT) 
-        	i8042_controller_cleanup();
-        return NOTIFY_DONE;
-}
-
-static struct notifier_block i8042_notifier=
-{
-        i8042_notify_sys,
-        NULL,
-        0
-};
-
-int __init i8042_init(void)
-{
-#ifdef I8042_DEBUG_IO
-	i8042_start = jiffies;
-#endif
-
-	if (!i8042_platform_init())
-		return -EBUSY;
-
-	if (i8042_controller_init())
-		return -ENODEV;
-		
-	if (!i8042_noaux && !i8042_check_aux(&i8042_aux_values, &i8042_aux_port))
-		i8042_port_register(&i8042_aux_values, &i8042_aux_port);
-
-	i8042_port_register(&i8042_kbd_values, &i8042_kbd_port);
-
-	i8042_timer.function = i8042_timer_func;
-	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-
-	register_reboot_notifier(&i8042_notifier);
-
-	return 0;
-}
-
-void __exit i8042_exit(void)
-{
-	unregister_reboot_notifier(&i8042_notifier);
-
-	del_timer(&i8042_timer);
-	
-	if (i8042_kbd_values.exists)
-		serio_unregister_port(&i8042_kbd_port);
-
-	if (i8042_aux_values.exists)
-		serio_unregister_port(&i8042_aux_port);
-
-	i8042_controller_cleanup();
-
-	i8042_platform_exit();
-}
-
-module_init(i8042_init);
-module_exit(i8042_exit);
-
---BXVAT5kNtrzKuDFl--
+> Which version of gcc do you use?
+> Could you send your .config?
+> 
+> 
+> > Justin M. Forbes
+> 
+> TIA
+> Adrian
+> 
+ GCC version is 3.1 .config is attached, fairly large as I base it off of 
+the original Red Hat one to make sure everything compiles, even though I 
+am not using most of it. Strangely no compile problems on my base 7.2 box 
+(gcc 2.96).  .config is attached.
+
+Justin M. Forbes
+
+
+
+--218760002-1857537615-1026907484=:30348
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=config
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0207170704440.30348@leaper.linuxtx.org>
+Content-Description: 
+Content-Disposition: attachment; filename=config
+
+Q09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCkNPTkZJR19VSUQxNj15DQpD
+T05GSUdfRVhQRVJJTUVOVEFMPXkNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJ
+R19NT0RWRVJTSU9OUz15DQpDT05GSUdfS01PRD15DQpDT05GSUdfTVBFTlRJ
+VU1JSUk9eQ0KQ09ORklHX1g4Nl9XUF9XT1JLU19PSz15DQpDT05GSUdfWDg2
+X0lOVkxQRz15DQpDT05GSUdfWDg2X0NNUFhDSEc9eQ0KQ09ORklHX1g4Nl9Y
+QUREPXkNCkNPTkZJR19YODZfQlNXQVA9eQ0KQ09ORklHX1g4Nl9QT1BBRF9P
+Sz15DQpDT05GSUdfUldTRU1fWENIR0FERF9BTEdPUklUSE09eQ0KQ09ORklH
+X1g4Nl9MMV9DQUNIRV9TSElGVD01DQpDT05GSUdfWDg2X1RTQz15DQpDT05G
+SUdfWDg2X0dPT0RfQVBJQz15DQpDT05GSUdfWDg2X1BHRT15DQpDT05GSUdf
+WDg2X1VTRV9QUFJPX0NIRUNLU1VNPXkNCkNPTkZJR19YODZfTUNFPXkNCkNP
+TkZJR19UT1NISUJBPW0NCkNPTkZJR19JOEs9bQ0KQ09ORklHX01JQ1JPQ09E
+RT1tDQpDT05GSUdfWDg2X01TUj1tDQpDT05GSUdfWDg2X0NQVUlEPW0NCkNP
+TkZJR19ISUdITUVNNEc9eQ0KQ09ORklHX0hJR0hNRU09eQ0KQ09ORklHX01U
+UlI9eQ0KQ09ORklHX1NNUD15DQpDT05GSUdfSEFWRV9ERUNfTE9DSz15DQpD
+T05GSUdfTkVUPXkNCkNPTkZJR19YODZfSU9fQVBJQz15DQpDT05GSUdfWDg2
+X0xPQ0FMX0FQSUM9eQ0KQ09ORklHX1BDST15DQpDT05GSUdfUENJX0dPQU5Z
+PXkNCkNPTkZJR19QQ0lfQklPUz15DQpDT05GSUdfUENJX0RJUkVDVD15DQpD
+T05GSUdfUENJX05BTUVTPXkNCkNPTkZJR19FSVNBPXkNCkNPTkZJR19IT1RQ
+TFVHPXkNCkNPTkZJR19QQ01DSUE9bQ0KQ09ORklHX0NBUkRCVVM9eQ0KQ09O
+RklHX1RDSUM9eQ0KQ09ORklHX0k4MjA5Mj15DQpDT05GSUdfSTgyMzY1PXkN
+CkNPTkZJR19TWVNWSVBDPXkNCkNPTkZJR19CU0RfUFJPQ0VTU19BQ0NUPXkN
+CkNPTkZJR19TWVNDVEw9eQ0KQ09ORklHX0tDT1JFX0VMRj15DQpDT05GSUdf
+QklORk1UX0FPVVQ9bQ0KQ09ORklHX0JJTkZNVF9FTEY9eQ0KQ09ORklHX0JJ
+TkZNVF9NSVNDPW0NCkNPTkZJR19QTT15DQpDT05GSUdfQVBNPXkNCkNPTkZJ
+R19BUE1fUlRDX0lTX0dNVD15DQpDT05GSUdfUEFSUE9SVD1tDQpDT05GSUdf
+UEFSUE9SVF9QQz1tDQpDT05GSUdfUEFSUE9SVF9QQ19DTUwxPW0NCkNPTkZJ
+R19QQVJQT1JUX1NFUklBTD1tDQpDT05GSUdfUEFSUE9SVF9QQ19QQ01DSUE9
+bQ0KQ09ORklHX1BBUlBPUlRfMTI4ND15DQpDT05GSUdfUE5QPXkNCkNPTkZJ
+R19JU0FQTlA9eQ0KQ09ORklHX0JMS19ERVZfRkQ9eQ0KQ09ORklHX0JMS19E
+RVZfWEQ9bQ0KQ09ORklHX1BBUklERT1tDQpDT05GSUdfUEFSSURFX1BBUlBP
+UlQ9bQ0KQ09ORklHX1BBUklERV9QRD1tDQpDT05GSUdfUEFSSURFX1BDRD1t
+DQpDT05GSUdfUEFSSURFX1BGPW0NCkNPTkZJR19QQVJJREVfUFQ9bQ0KQ09O
+RklHX1BBUklERV9QRz1tDQpDT05GSUdfUEFSSURFX0FURU49bQ0KQ09ORklH
+X1BBUklERV9CUENLPW0NCkNPTkZJR19QQVJJREVfQlBDSzY9bQ0KQ09ORklH
+X1BBUklERV9DT01NPW0NCkNPTkZJR19QQVJJREVfRFNUUj1tDQpDT05GSUdf
+UEFSSURFX0ZJVDI9bQ0KQ09ORklHX1BBUklERV9GSVQzPW0NCkNPTkZJR19Q
+QVJJREVfRVBBVD1tDQpDT05GSUdfUEFSSURFX0VQQVRDOD15DQpDT05GSUdf
+UEFSSURFX0VQSUE9bQ0KQ09ORklHX1BBUklERV9GUklRPW0NCkNPTkZJR19Q
+QVJJREVfRlJQVz1tDQpDT05GSUdfUEFSSURFX0tCSUM9bQ0KQ09ORklHX1BB
+UklERV9LVFRJPW0NCkNPTkZJR19QQVJJREVfT04yMD1tDQpDT05GSUdfUEFS
+SURFX09OMjY9bQ0KQ09ORklHX0JMS19DUFFfREE9bQ0KQ09ORklHX0JMS19D
+UFFfQ0lTU19EQT1tDQpDT05GSUdfQ0lTU19TQ1NJX1RBUEU9eQ0KQ09ORklH
+X0JMS19ERVZfREFDOTYwPW0NCkNPTkZJR19CTEtfREVWX1VNRU09bQ0KQ09O
+RklHX0JMS19ERVZfTE9PUD1tDQpDT05GSUdfQkxLX0RFVl9OQkQ9bQ0KQ09O
+RklHX0JMS19ERVZfUkFNPXkNCkNPTkZJR19CTEtfREVWX1JBTV9TSVpFPTQw
+OTYNCkNPTkZJR19CTEtfREVWX0lOSVRSRD15DQpDT05GSUdfTUQ9eQ0KQ09O
+RklHX0JMS19ERVZfTUQ9eQ0KQ09ORklHX01EX0xJTkVBUj1tDQpDT05GSUdf
+TURfUkFJRDA9bQ0KQ09ORklHX01EX1JBSUQxPW0NCkNPTkZJR19NRF9SQUlE
+NT1tDQpDT05GSUdfTURfTVVMVElQQVRIPW0NCkNPTkZJR19CTEtfREVWX0xW
+TT1tDQpDT05GSUdfUEFDS0VUPXkNCkNPTkZJR19QQUNLRVRfTU1BUD15DQpD
+T05GSUdfTkVUTElOS19ERVY9eQ0KQ09ORklHX05FVEZJTFRFUj15DQpDT05G
+SUdfRklMVEVSPXkNCkNPTkZJR19VTklYPXkNCkNPTkZJR19JTkVUPXkNCkNP
+TkZJR19JUF9NVUxUSUNBU1Q9eQ0KQ09ORklHX0lQX0FEVkFOQ0VEX1JPVVRF
+Uj15DQpDT05GSUdfSVBfTVVMVElQTEVfVEFCTEVTPXkNCkNPTkZJR19JUF9S
+T1VURV9GV01BUks9eQ0KQ09ORklHX0lQX1JPVVRFX05BVD15DQpDT05GSUdf
+SVBfUk9VVEVfTVVMVElQQVRIPXkNCkNPTkZJR19JUF9ST1VURV9UT1M9eQ0K
+Q09ORklHX0lQX1JPVVRFX1ZFUkJPU0U9eQ0KQ09ORklHX0lQX1JPVVRFX0xB
+UkdFX1RBQkxFUz15DQpDT05GSUdfTkVUX0lQSVA9bQ0KQ09ORklHX05FVF9J
+UEdSRT1tDQpDT05GSUdfTkVUX0lQR1JFX0JST0FEQ0FTVD15DQpDT05GSUdf
+SVBfTVJPVVRFPXkNCkNPTkZJR19JUF9QSU1TTV9WMT15DQpDT05GSUdfSVBf
+UElNU01fVjI9eQ0KQ09ORklHX1NZTl9DT09LSUVTPXkNCkNPTkZJR19JUF9O
+Rl9DT05OVFJBQ0s9bQ0KQ09ORklHX0lQX05GX0ZUUD1tDQpDT05GSUdfSVBf
+TkZfSVJDPW0NCkNPTkZJR19JUF9ORl9RVUVVRT1tDQpDT05GSUdfSVBfTkZf
+SVBUQUJMRVM9bQ0KQ09ORklHX0lQX05GX01BVENIX0xJTUlUPW0NCkNPTkZJ
+R19JUF9ORl9NQVRDSF9NQUM9bQ0KQ09ORklHX0lQX05GX01BVENIX01BUks9
+bQ0KQ09ORklHX0lQX05GX01BVENIX01VTFRJUE9SVD1tDQpDT05GSUdfSVBf
+TkZfTUFUQ0hfVE9TPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9MRU5HVEg9bQ0K
+Q09ORklHX0lQX05GX01BVENIX1RUTD1tDQpDT05GSUdfSVBfTkZfTUFUQ0hf
+VENQTVNTPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9TVEFURT1tDQpDT05GSUdf
+SVBfTkZfTUFUQ0hfVU5DTEVBTj1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfT1dO
+RVI9bQ0KQ09ORklHX0lQX05GX0ZJTFRFUj1tDQpDT05GSUdfSVBfTkZfVEFS
+R0VUX1JFSkVDVD1tDQpDT05GSUdfSVBfTkZfVEFSR0VUX01JUlJPUj1tDQpD
+T05GSUdfSVBfTkZfTkFUPW0NCkNPTkZJR19JUF9ORl9OQVRfTkVFREVEPXkN
+CkNPTkZJR19JUF9ORl9UQVJHRVRfTUFTUVVFUkFERT1tDQpDT05GSUdfSVBf
+TkZfVEFSR0VUX1JFRElSRUNUPW0NCkNPTkZJR19JUF9ORl9OQVRfU05NUF9C
+QVNJQz1tDQpDT05GSUdfSVBfTkZfTkFUX0lSQz1tDQpDT05GSUdfSVBfTkZf
+TkFUX0ZUUD1tDQpDT05GSUdfSVBfTkZfTUFOR0xFPW0NCkNPTkZJR19JUF9O
+Rl9UQVJHRVRfVE9TPW0NCkNPTkZJR19JUF9ORl9UQVJHRVRfTUFSSz1tDQpD
+T05GSUdfSVBfTkZfVEFSR0VUX0xPRz1tDQpDT05GSUdfSVBfTkZfVEFSR0VU
+X1RDUE1TUz1tDQpDT05GSUdfSVBfTkZfQVJQVEFCTEVTPW0NCkNPTkZJR19J
+UF9ORl9BUlBGSUxURVI9bQ0KQ09ORklHX0lQX05GX0NPTVBBVF9JUENIQUlO
+Uz1tDQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15DQpDT05GSUdfSVBfTkZf
+Q09NUEFUX0lQRldBRE09bQ0KQ09ORklHX0lQX05GX05BVF9ORUVERUQ9eQ0K
+Q09ORklHX0lQVjY9bQ0KQ09ORklHX0lQNl9ORl9JUFRBQkxFUz1tDQpDT05G
+SUdfSVA2X05GX01BVENIX0xJTUlUPW0NCkNPTkZJR19JUDZfTkZfTUFUQ0hf
+TUFDPW0NCkNPTkZJR19JUDZfTkZfTUFUQ0hfTVVMVElQT1JUPW0NCkNPTkZJ
+R19JUDZfTkZfTUFUQ0hfT1dORVI9bQ0KQ09ORklHX0lQNl9ORl9NQVRDSF9N
+QVJLPW0NCkNPTkZJR19JUDZfTkZfRklMVEVSPW0NCkNPTkZJR19JUDZfTkZf
+VEFSR0VUX0xPRz1tDQpDT05GSUdfSVA2X05GX01BTkdMRT1tDQpDT05GSUdf
+SVA2X05GX1RBUkdFVF9NQVJLPW0NCkNPTkZJR19BVE09eQ0KQ09ORklHX0FU
+TV9DTElQPXkNCkNPTkZJR19BVE1fTEFORT1tDQpDT05GSUdfQVRNX01QT0E9
+bQ0KQ09ORklHX0FUTV9CUjI2ODQ9bQ0KQ09ORklHX0FUTV9CUjI2ODRfSVBG
+SUxURVI9eQ0KQ09ORklHX1ZMQU5fODAyMVE9bQ0KQ09ORklHX0lQWD1tDQpD
+T05GSUdfQVRBTEs9bQ0KQ09ORklHX0RFVl9BUFBMRVRBTEs9eQ0KQ09ORklH
+X0xUUEM9bQ0KQ09ORklHX0NPUFM9bQ0KQ09ORklHX0NPUFNfREFZTkE9eQ0K
+Q09ORklHX0NPUFNfVEFOR0VOVD15DQpDT05GSUdfSVBERFA9bQ0KQ09ORklH
+X0lQRERQX0VOQ0FQPXkNCkNPTkZJR19JUEREUF9ERUNBUD15DQpDT05GSUdf
+REVDTkVUPW0NCkNPTkZJR19ERUNORVRfU0lPQ0dJRkNPTkY9eQ0KQ09ORklH
+X0RFQ05FVF9ST1VURVI9eQ0KQ09ORklHX0RFQ05FVF9ST1VURV9GV01BUks9
+eQ0KQ09ORklHX0JSSURHRT1tDQpDT05GSUdfV0FOX1JPVVRFUj1tDQpDT05G
+SUdfTkVUX1NDSEVEPXkNCkNPTkZJR19ORVRfU0NIX0NCUT1tDQpDT05GSUdf
+TkVUX1NDSF9DU1o9bQ0KQ09ORklHX05FVF9TQ0hfUFJJTz1tDQpDT05GSUdf
+TkVUX1NDSF9SRUQ9bQ0KQ09ORklHX05FVF9TQ0hfU0ZRPW0NCkNPTkZJR19O
+RVRfU0NIX1RFUUw9bQ0KQ09ORklHX05FVF9TQ0hfVEJGPW0NCkNPTkZJR19O
+RVRfU0NIX0dSRUQ9bQ0KQ09ORklHX05FVF9TQ0hfRFNNQVJLPW0NCkNPTkZJ
+R19ORVRfU0NIX0lOR1JFU1M9bQ0KQ09ORklHX05FVF9RT1M9eQ0KQ09ORklH
+X05FVF9FU1RJTUFUT1I9eQ0KQ09ORklHX05FVF9DTFM9eQ0KQ09ORklHX05F
+VF9DTFNfVENJTkRFWD1tDQpDT05GSUdfTkVUX0NMU19ST1VURTQ9bQ0KQ09O
+RklHX05FVF9DTFNfUk9VVEU9eQ0KQ09ORklHX05FVF9DTFNfRlc9bQ0KQ09O
+RklHX05FVF9DTFNfVTMyPW0NCkNPTkZJR19ORVRfQ0xTX1JTVlA9bQ0KQ09O
+RklHX05FVF9DTFNfUlNWUDY9bQ0KQ09ORklHX05FVF9DTFNfUE9MSUNFPXkN
+CkNPTkZJR19QSE9ORT1tDQpDT05GSUdfUEhPTkVfSVhKPW0NCkNPTkZJR19Q
+SE9ORV9JWEpfUENNQ0lBPW0NCkNPTkZJR19JREU9eQ0KQ09ORklHX0JMS19E
+RVZfSURFPXkNCkNPTkZJR19CTEtfREVWX0lERURJU0s9eQ0KQ09ORklHX0lE
+RURJU0tfTVVMVElfTU9ERT15DQpDT05GSUdfQkxLX0RFVl9JREVDUz1tDQpD
+T05GSUdfQkxLX0RFVl9JREVDRD1tDQpDT05GSUdfQkxLX0RFVl9JREVUQVBF
+PW0NCkNPTkZJR19CTEtfREVWX0lERUZMT1BQWT15DQpDT05GSUdfQkxLX0RF
+Vl9JREVTQ1NJPW0NCkNPTkZJR19CTEtfREVWX0NNRDY0MD15DQpDT05GSUdf
+QkxLX0RFVl9JU0FQTlA9eQ0KQ09ORklHX0JMS19ERVZfUloxMDAwPXkNCkNP
+TkZJR19CTEtfREVWX0lERVBDST15DQpDT05GSUdfSURFUENJX1NIQVJFX0lS
+UT15DQpDT05GSUdfQkxLX0RFVl9JREVETUFfUENJPXkNCkNPTkZJR19JREVE
+TUFfUENJX0FVVE89eQ0KQ09ORklHX0JMS19ERVZfSURFRE1BPXkNCkNPTkZJ
+R19CTEtfREVWX0FETUE9eQ0KQ09ORklHX0JMS19ERVZfQUVDNjJYWD15DQpD
+T05GSUdfQUVDNjJYWF9UVU5JTkc9eQ0KQ09ORklHX0JMS19ERVZfQUxJMTVY
+Mz15DQpDT05GSUdfQkxLX0RFVl9BTUQ3NFhYPXkNCkNPTkZJR19CTEtfREVW
+X0NNRDY0WD15DQpDT05GSUdfQkxLX0RFVl9DTUQ2ODA9eQ0KQ09ORklHX0JM
+S19ERVZfQ1k4MkM2OTM9eQ0KQ09ORklHX0JMS19ERVZfQ1M1NTMwPXkNCkNP
+TkZJR19CTEtfREVWX0hQVDM0WD15DQpDT05GSUdfQkxLX0RFVl9IUFQzNjY9
+eQ0KQ09ORklHX0JMS19ERVZfUElJWD15DQpDT05GSUdfUElJWF9UVU5JTkc9
+eQ0KQ09ORklHX0JMS19ERVZfUERDMjAyWFg9eQ0KQ09ORklHX0JMS19ERVZf
+U1ZXS1M9eQ0KQ09ORklHX0JMS19ERVZfU0lTNTUxMz15DQpDT05GSUdfQkxL
+X0RFVl9TTEM5MEU2Nj15DQpDT05GSUdfQkxLX0RFVl9WSUE4MkNYWFg9eQ0K
+Q09ORklHX0lERURNQV9BVVRPPXkNCkNPTkZJR19CTEtfREVWX0lERV9NT0RF
+Uz15DQpDT05GSUdfQkxLX0RFVl9BVEFSQUlEPW0NCkNPTkZJR19CTEtfREVW
+X0FUQVJBSURfUERDPW0NCkNPTkZJR19CTEtfREVWX0FUQVJBSURfSFBUPW0N
+CkNPTkZJR19TQ1NJPW0NCkNPTkZJR19CTEtfREVWX1NEPW0NCkNPTkZJR19T
+RF9FWFRSQV9ERVZTPTQwDQpDT05GSUdfQ0hSX0RFVl9TVD1tDQpDT05GSUdf
+Q0hSX0RFVl9PU1NUPW0NCkNPTkZJR19CTEtfREVWX1NSPW0NCkNPTkZJR19C
+TEtfREVWX1NSX1ZFTkRPUj15DQpDT05GSUdfU1JfRVhUUkFfREVWUz00DQpD
+T05GSUdfQ0hSX0RFVl9TRz1tDQpDT05GSUdfU0NTSV9DT05TVEFOVFM9eQ0K
+Q09ORklHX1NDU0lfTE9HR0lORz15DQpDT05GSUdfQkxLX0RFVl8zV19YWFhY
+X1JBSUQ9bQ0KQ09ORklHX1NDU0lfNzAwMEZBU1NUPW0NCkNPTkZJR19TQ1NJ
+X0FDQVJEPW0NCkNPTkZJR19TQ1NJX0FIQTE1Mlg9bQ0KQ09ORklHX1NDU0lf
+QUhBMTU0Mj1tDQpDT05GSUdfU0NTSV9BSEExNzQwPW0NCkNPTkZJR19TQ1NJ
+X0FBQ1JBSUQ9bQ0KQ09ORklHX1NDU0lfQUlDN1hYWD1tDQpDT05GSUdfQUlD
+N1hYWF9DTURTX1BFUl9ERVZJQ0U9MjUzDQpDT05GSUdfQUlDN1hYWF9SRVNF
+VF9ERUxBWV9NUz0xNTAwMA0KQ09ORklHX1NDU0lfQUlDN1hYWF9PTEQ9bQ0K
+Q09ORklHX0FJQzdYWFhfT0xEX1RDUV9PTl9CWV9ERUZBVUxUPXkNCkNPTkZJ
+R19BSUM3WFhYX09MRF9DTURTX1BFUl9ERVZJQ0U9MzINCkNPTkZJR19BSUM3
+WFhYX09MRF9QUk9DX1NUQVRTPXkNCkNPTkZJR19TQ1NJX0RQVF9JMk89bQ0K
+Q09ORklHX1NDU0lfQURWQU5TWVM9bQ0KQ09ORklHX1NDU0lfSU4yMDAwPW0N
+CkNPTkZJR19TQ1NJX0FNNTNDOTc0PW0NCkNPTkZJR19TQ1NJX01FR0FSQUlE
+PW0NCkNPTkZJR19TQ1NJX0JVU0xPR0lDPW0NCkNPTkZJR19TQ1NJX0NQUUZD
+VFM9bQ0KQ09ORklHX1NDU0lfRE1YMzE5MUQ9bQ0KQ09ORklHX1NDU0lfRFRD
+MzI4MD1tDQpDT05GSUdfU0NTSV9FQVRBPW0NCkNPTkZJR19TQ1NJX0VBVEFf
+VEFHR0VEX1FVRVVFPXkNCkNPTkZJR19TQ1NJX0VBVEFfTUFYX1RBR1M9MTYN
+CkNPTkZJR19TQ1NJX0VBVEFfRE1BPW0NCkNPTkZJR19TQ1NJX0VBVEFfUElP
+PW0NCkNPTkZJR19TQ1NJX0ZVVFVSRV9ET01BSU49bQ0KQ09ORklHX1NDU0lf
+R0RUSD1tDQpDT05GSUdfU0NTSV9HRU5FUklDX05DUjUzODA9bQ0KQ09ORklH
+X1NDU0lfR19OQ1I1MzgwX1BPUlQ9eQ0KQ09ORklHX1NDU0lfSVBTPW0NCkNP
+TkZJR19TQ1NJX0lOSVRJTz1tDQpDT05GSUdfU0NTSV9JTklBMTAwPW0NCkNP
+TkZJR19TQ1NJX1BQQT1tDQpDT05GSUdfU0NTSV9JTU09bQ0KQ09ORklHX1ND
+U0lfTkNSNTNDNDA2QT1tDQpDT05GSUdfU0NTSV9OQ1I1M0M3eHg9bQ0KQ09O
+RklHX1NDU0lfTkNSNTNDN3h4X0ZBU1Q9eQ0KQ09ORklHX1NDU0lfTkNSNTND
+N3h4X0RJU0NPTk5FQ1Q9eQ0KQ09ORklHX1NDU0lfU1lNNTNDOFhYXzI9bQ0K
+Q09ORklHX1NDU0lfU1lNNTNDOFhYX0RNQV9BRERSRVNTSU5HX01PREU9MQ0K
+Q09ORklHX1NDU0lfU1lNNTNDOFhYX0RFRkFVTFRfVEFHUz0xNg0KQ09ORklH
+X1NDU0lfU1lNNTNDOFhYX01BWF9UQUdTPTY0DQpDT05GSUdfU0NTSV9OQ1I1
+M0M4WFg9bQ0KQ09ORklHX1NDU0lfU1lNNTNDOFhYPW0NCkNPTkZJR19TQ1NJ
+X05DUjUzQzhYWF9ERUZBVUxUX1RBR1M9OA0KQ09ORklHX1NDU0lfTkNSNTND
+OFhYX01BWF9UQUdTPTMyDQpDT05GSUdfU0NTSV9OQ1I1M0M4WFhfU1lOQz00
+MA0KQ09ORklHX1NDU0lfUEFTMTY9bQ0KQ09ORklHX1NDU0lfUENJMjAwMD1t
+DQpDT05GSUdfU0NTSV9QQ0kyMjIwST1tDQpDT05GSUdfU0NTSV9QU0kyNDBJ
+PW0NCkNPTkZJR19TQ1NJX1FMT0dJQ19GQVM9bQ0KQ09ORklHX1NDU0lfUUxP
+R0lDX0lTUD1tDQpDT05GSUdfU0NTSV9RTE9HSUNfRkM9bQ0KQ09ORklHX1ND
+U0lfUUxPR0lDXzEyODA9bQ0KQ09ORklHX1NDU0lfU0VBR0FURT1tDQpDT05G
+SUdfU0NTSV9TSU03MTA9bQ0KQ09ORklHX1NDU0lfU1lNNTNDNDE2PW0NCkNP
+TkZJR19TQ1NJX0RDMzkwVD1tDQpDT05GSUdfU0NTSV9UMTI4PW0NCkNPTkZJ
+R19TQ1NJX1UxNF8zNEY9bQ0KQ09ORklHX1NDU0lfVTE0XzM0Rl9NQVhfVEFH
+Uz04DQpDT05GSUdfU0NTSV9VTFRSQVNUT1I9bQ0KQ09ORklHX1NDU0lfREVC
+VUc9bQ0KQ09ORklHX1NDU0lfUENNQ0lBPXkNCkNPTkZJR19QQ01DSUFfQUhB
+MTUyWD1tDQpDT05GSUdfUENNQ0lBX0ZET01BSU49bQ0KQ09ORklHX1BDTUNJ
+QV9OSU5KQV9TQ1NJPW0NCkNPTkZJR19QQ01DSUFfUUxPR0lDPW0NCkNPTkZJ
+R19GVVNJT049bQ0KQ09ORklHX0ZVU0lPTl9DVEw9bQ0KQ09ORklHX0ZVU0lP
+Tl9MQU49bQ0KQ09ORklHX05FVF9GQz15DQpDT05GSUdfSUVFRTEzOTQ9bQ0K
+Q09ORklHX0lFRUUxMzk0X1BDSUxZTlg9bQ0KQ09ORklHX0lFRUUxMzk0X09I
+Q0kxMzk0PW0NCkNPTkZJR19JRUVFMTM5NF9WSURFTzEzOTQ9bQ0KQ09ORklH
+X0lFRUUxMzk0X1NCUDI9bQ0KQ09ORklHX0lFRUUxMzk0X1NCUDJfUEhZU19E
+TUE9eQ0KQ09ORklHX0lFRUUxMzk0X1JBV0lPPW0NCkNPTkZJR19JMk89bQ0K
+Q09ORklHX0kyT19QQ0k9bQ0KQ09ORklHX0kyT19CTE9DSz1tDQpDT05GSUdf
+STJPX0xBTj1tDQpDT05GSUdfSTJPX1NDU0k9bQ0KQ09ORklHX0kyT19QUk9D
+PW0NCkNPTkZJR19ORVRERVZJQ0VTPXkNCkNPTkZJR19EVU1NWT1tDQpDT05G
+SUdfQk9ORElORz1tDQpDT05GSUdfRVFVQUxJWkVSPW0NCkNPTkZJR19UVU49
+bQ0KQ09ORklHX0VUSEVSVEFQPW0NCkNPTkZJR19ORVRfU0IxMDAwPW0NCkNP
+TkZJR19ORVRfRVRIRVJORVQ9eQ0KQ09ORklHX0hBUFBZTUVBTD1tDQpDT05G
+SUdfU1VOR0VNPW0NCkNPTkZJR19ORVRfVkVORE9SXzNDT009eQ0KQ09ORklH
+X0VMMT1tDQpDT05GSUdfRUwyPW0NCkNPTkZJR19FTFBMVVM9bQ0KQ09ORklH
+X0VMMTY9bQ0KQ09ORklHX0VMMz1tDQpDT05GSUdfM0M1MTU9bQ0KQ09ORklH
+X1ZPUlRFWD1tDQpDT05GSUdfTEFOQ0U9bQ0KQ09ORklHX05FVF9WRU5ET1Jf
+U01DPXkNCkNPTkZJR19XRDgweDM9bQ0KQ09ORklHX1VMVFJBPW0NCkNPTkZJ
+R19VTFRSQTMyPW0NCkNPTkZJR19TTUM5MTk0PW0NCkNPTkZJR19ORVRfVkVO
+RE9SX1JBQ0FMPXkNCkNPTkZJR19OSTUwMTA9bQ0KQ09ORklHX05JNTI9bQ0K
+Q09ORklHX05JNjU9bQ0KQ09ORklHX0FUMTcwMD1tDQpDT05GSUdfREVQQ0E9
+bQ0KQ09ORklHX0hQMTAwPW0NCkNPTkZJR19ORVRfSVNBPXkNCkNPTkZJR19F
+MjEwMD1tDQpDT05GSUdfRVdSSzM9bQ0KQ09ORklHX0VFWFBSRVNTPW0NCkNP
+TkZJR19FRVhQUkVTU19QUk89bQ0KQ09ORklHX0hQTEFOX1BMVVM9bQ0KQ09O
+RklHX0hQTEFOPW0NCkNPTkZJR19MUDQ4NkU9bQ0KQ09ORklHX0VUSDE2ST1t
+DQpDT05GSUdfTkUyMDAwPW0NCkNPTkZJR19ORVRfUENJPXkNCkNPTkZJR19Q
+Q05FVDMyPW0NCkNPTkZJR19BREFQVEVDX1NUQVJGSVJFPW0NCkNPTkZJR19B
+QzMyMDA9bQ0KQ09ORklHX0FQUklDT1Q9bQ0KQ09ORklHX0NTODl4MD1tDQpD
+T05GSUdfVFVMSVA9bQ0KQ09ORklHX1RDMzU4MTU9bQ0KQ09ORklHX1RVTElQ
+X01NSU89eQ0KQ09ORklHX0RFNFg1PW0NCkNPTkZJR19ER1JTPW0NCkNPTkZJ
+R19ETTkxMDI9bQ0KQ09ORklHX0VFUFJPMTAwPW0NCkNPTkZJR19MTkUzOTA9
+bQ0KQ09ORklHX05BVFNFTUk9bQ0KQ09ORklHX05FMktfUENJPW0NCkNPTkZJ
+R19ORTMyMTA9bQ0KQ09ORklHX0VTMzIxMD1tDQpDT05GSUdfODEzOUNQPW0N
+CkNPTkZJR184MTM5VE9PPW0NCkNPTkZJR184MTM5VE9PXzgxMjk9eQ0KQ09O
+RklHX1NJUzkwMD1tDQpDT05GSUdfRVBJQzEwMD1tDQpDT05GSUdfU1VOREFO
+Q0U9bQ0KQ09ORklHX1RMQU49bQ0KQ09ORklHX1ZJQV9SSElORT1tDQpDT05G
+SUdfV0lOQk9ORF84NDA9bQ0KQ09ORklHX05FVF9QT0NLRVQ9eQ0KQ09ORklH
+X0FUUD1tDQpDT05GSUdfREU2MDA9bQ0KQ09ORklHX0RFNjIwPW0NCkNPTkZJ
+R19BQ0VOSUM9bQ0KQ09ORklHX0RMMks9bQ0KQ09ORklHX05TODM4MjA9bQ0K
+Q09ORklHX0hBTUFDSEk9bQ0KQ09ORklHX1lFTExPV0ZJTj1tDQpDT05GSUdf
+U0s5OExJTj1tDQpDT05GSUdfVElHT04zPW0NCkNPTkZJR19GRERJPXkNCkNP
+TkZJR19ERUZYWD1tDQpDT05GSUdfU0tGUD1tDQpDT05GSUdfUExJUD1tDQpD
+T05GSUdfUFBQPW0NCkNPTkZJR19QUFBfTVVMVElMSU5LPXkNCkNPTkZJR19Q
+UFBfRklMVEVSPXkNCkNPTkZJR19QUFBfQVNZTkM9bQ0KQ09ORklHX1BQUF9T
+WU5DX1RUWT1tDQpDT05GSUdfUFBQX0RFRkxBVEU9bQ0KQ09ORklHX1BQUE9B
+VE09bQ0KQ09ORklHX1NMSVA9bQ0KQ09ORklHX1NMSVBfQ09NUFJFU1NFRD15
+DQpDT05GSUdfU0xJUF9TTUFSVD15DQpDT05GSUdfU0xJUF9NT0RFX1NMSVA2
+PXkNCkNPTkZJR19ORVRfUkFESU89eQ0KQ09ORklHX1NUUklQPW0NCkNPTkZJ
+R19XQVZFTEFOPW0NCkNPTkZJR19BUkxBTj1tDQpDT05GSUdfQUlST05FVDQ1
+MDA9bQ0KQ09ORklHX0FJUk9ORVQ0NTAwX05PTkNTPW0NCkNPTkZJR19BSVJP
+TkVUNDUwMF9QTlA9eQ0KQ09ORklHX0FJUk9ORVQ0NTAwX1BDST15DQpDT05G
+SUdfQUlST05FVDQ1MDBfSVNBPXkNCkNPTkZJR19BSVJPTkVUNDUwMF9JMzY1
+PXkNCkNPTkZJR19BSVJPTkVUNDUwMF9QUk9DPW0NCkNPTkZJR19BSVJPPW0N
+CkNPTkZJR19IRVJNRVM9bQ0KQ09ORklHX1BMWF9IRVJNRVM9bQ0KQ09ORklH
+X1BDSV9IRVJNRVM9bQ0KQ09ORklHX1BDTUNJQV9IRVJNRVM9bQ0KQ09ORklH
+X0FJUk9fQ1M9bQ0KQ09ORklHX05FVF9XSVJFTEVTUz15DQpDT05GSUdfVFI9
+eQ0KQ09ORklHX0lCTVRSPW0NCkNPTkZJR19JQk1PTD1tDQpDT05GSUdfSUJN
+TFM9bQ0KQ09ORklHXzNDMzU5PW0NCkNPTkZJR19UTVMzODBUUj1tDQpDT05G
+SUdfVE1TUENJPW0NCkNPTkZJR19UTVNJU0E9bQ0KQ09ORklHX0FCWVNTPW0N
+CkNPTkZJR19TTUNUUj1tDQpDT05GSUdfTkVUX0ZDPXkNCkNPTkZJR19JUEhB
+U0U1NTI2PW0NCkNPTkZJR19SQ1BDST1tDQpDT05GSUdfU0hBUEVSPW0NCkNP
+TkZJR19XQU49eQ0KQ09ORklHX0hPU1RFU1NfU1YxMT1tDQpDT05GSUdfQ09T
+QT1tDQpDT05GSUdfRkFSU1lOQz1tDQpDT05GSUdfQVRJX1hYMjA9bQ0KQ09O
+RklHX1NFQUxFVkVMXzQwMjE9bQ0KQ09ORklHX0RMQ0k9bQ0KQ09ORklHX0RM
+Q0lfQ09VTlQ9MjQNCkNPTkZJR19ETENJX01BWD04DQpDT05GSUdfU0RMQT1t
+DQpDT05GSUdfV0FOX1JPVVRFUl9EUklWRVJTPXkNCkNPTkZJR19WRU5ET1Jf
+U0FOR09NQT1tDQpDT05GSUdfV0FOUElQRV9DSERMQz15DQpDT05GSUdfV0FO
+UElQRV9GUj15DQpDT05GSUdfV0FOUElQRV9YMjU9eQ0KQ09ORklHX1dBTlBJ
+UEVfUFBQPXkNCkNPTkZJR19XQU5QSVBFX01VTFRQUFA9eQ0KQ09ORklHX0NZ
+Q0xBREVTX1NZTkM9bQ0KQ09ORklHX0NZQ0xPTVhfWDI1PXkNCkNPTkZJR19T
+Qk5JPW0NCkNPTkZJR19TQk5JX01VTFRJTElORT15DQpDT05GSUdfTkVUX1BD
+TUNJQT15DQpDT05GSUdfUENNQ0lBXzNDNTg5PW0NCkNPTkZJR19QQ01DSUFf
+M0M1NzQ9bQ0KQ09ORklHX1BDTUNJQV9GTVZKMThYPW0NCkNPTkZJR19QQ01D
+SUFfUENORVQ9bQ0KQ09ORklHX1BDTUNJQV9BWE5FVD1tDQpDT05GSUdfUENN
+Q0lBX05NQ0xBTj1tDQpDT05GSUdfUENNQ0lBX1NNQzkxQzkyPW0NCkNPTkZJ
+R19QQ01DSUFfWElSQzJQUz1tDQpDT05GSUdfUENNQ0lBX0lCTVRSPW0NCkNP
+TkZJR19QQ01DSUFfWElSQ09NPW0NCkNPTkZJR19QQ01DSUFfWElSVFVMSVA9
+bQ0KQ09ORklHX05FVF9QQ01DSUFfUkFESU89eQ0KQ09ORklHX1BDTUNJQV9S
+QVlDUz1tDQpDT05GSUdfUENNQ0lBX05FVFdBVkU9bQ0KQ09ORklHX1BDTUNJ
+QV9XQVZFTEFOPW0NCkNPTkZJR19BSVJPTkVUNDUwMF9DUz1tDQpDT05GSUdf
+QVRNX1RDUD1tDQpDT05GSUdfQVRNX0xBTkFJPW0NCkNPTkZJR19BVE1fRU5J
+PW0NCkNPTkZJR19BVE1fRklSRVNUUkVBTT1tDQpDT05GSUdfQVRNX1pBVE09
+bQ0KQ09ORklHX0FUTV9aQVRNX0VYQUNUX1RTPXkNCkNPTkZJR19BVE1fTklD
+U1RBUj1tDQpDT05GSUdfQVRNX05JQ1NUQVJfVVNFX1NVTkk9eQ0KQ09ORklH
+X0FUTV9OSUNTVEFSX1VTRV9JRFQ3NzEwNT15DQpDT05GSUdfQVRNX0lEVDc3
+MjUyPW0NCkNPTkZJR19BVE1fSURUNzcyNTJfVVNFX1NVTkk9eQ0KQ09ORklH
+X0FUTV9BTUJBU1NBRE9SPW0NCkNPTkZJR19BVE1fSE9SSVpPTj1tDQpDT05G
+SUdfQVRNX0lBPW0NCkNPTkZJR19BVE1fRk9SRTIwMEVfTUFZQkU9bQ0KQ09O
+RklHX0FUTV9GT1JFMjAwRV9QQ0E9eQ0KQ09ORklHX0FUTV9GT1JFMjAwRV9Q
+Q0FfREVGQVVMVF9GVz15DQpDT05GSUdfQVRNX0ZPUkUyMDBFX1RYX1JFVFJZ
+PTE2DQpDT05GSUdfQVRNX0ZPUkUyMDBFX0RFQlVHPTANCkNPTkZJR19BVE1f
+Rk9SRTIwMEU9bQ0KQ09ORklHX0hBTVJBRElPPXkNCkNPTkZJR19BWDI1PW0N
+CkNPTkZJR19ORVRST009bQ0KQ09ORklHX1JPU0U9bQ0KQ09ORklHX1NPVU5E
+TU9ERU09bQ0KQ09ORklHX1NPVU5ETU9ERU1fU0JDPXkNCkNPTkZJR19TT1VO
+RE1PREVNX1dTUz15DQpDT05GSUdfU09VTkRNT0RFTV9BRlNLMTIwMD15DQpD
+T05GSUdfU09VTkRNT0RFTV9BRlNLMjQwMF83PXkNCkNPTkZJR19TT1VORE1P
+REVNX0FGU0syNDAwXzg9eQ0KQ09ORklHX1NPVU5ETU9ERU1fQUZTSzI2NjY9
+eQ0KQ09ORklHX1NPVU5ETU9ERU1fSEFQTjQ4MDA9eQ0KQ09ORklHX1NPVU5E
+TU9ERU1fUFNLNDgwMD15DQpDT05GSUdfU09VTkRNT0RFTV9GU0s5NjAwPXkN
+CkNPTkZJR19JUkRBPW0NCkNPTkZJR19JUkxBTj1tDQpDT05GSUdfSVJORVQ9
+bQ0KQ09ORklHX0lSQ09NTT1tDQpDT05GSUdfSVJEQV9VTFRSQT15DQpDT05G
+SUdfSVJEQV9DQUNIRV9MQVNUX0xTQVA9eQ0KQ09ORklHX0lSREFfRkFTVF9S
+Uj15DQpDT05GSUdfSVJUVFlfU0lSPW0NCkNPTkZJR19JUlBPUlRfU0lSPW0N
+CkNPTkZJR19ET05HTEU9eQ0KQ09ORklHX0VTSV9ET05HTEU9bQ0KQ09ORklH
+X0FDVElTWVNfRE9OR0xFPW0NCkNPTkZJR19URUtSQU1fRE9OR0xFPW0NCkNP
+TkZJR19HSVJCSUxfRE9OR0xFPW0NCkNPTkZJR19MSVRFTElOS19ET05HTEU9
+bQ0KQ09ORklHX09MRF9CRUxLSU5fRE9OR0xFPW0NCkNPTkZJR19VU0JfSVJE
+QT1tDQpDT05GSUdfTlNDX0ZJUj1tDQpDT05GSUdfV0lOQk9ORF9GSVI9bQ0K
+Q09ORklHX1RPU0hJQkFfRklSPW0NCkNPTkZJR19TTUNfSVJDQ19GSVI9bQ0K
+Q09ORklHX0FMSV9GSVI9bQ0KQ09ORklHX1ZMU0lfRklSPW0NCkNPTkZJR19J
+U0ROPW0NCkNPTkZJR19JU0ROX0JPT0w9eQ0KQ09ORklHX0lTRE5fUFBQPXkN
+CkNPTkZJR19JU0ROX1BQUF9WSj15DQpDT05GSUdfSVNETl9NUFA9eQ0KQ09O
+RklHX0lTRE5fUFBQX0JTRENPTVA9bQ0KQ09ORklHX0lTRE5fQVVESU89eQ0K
+Q09ORklHX0lTRE5fVFRZX0ZBWD15DQpDT05GSUdfSVNETl9EUlZfTE9PUD1t
+DQpDT05GSUdfSVNETl9EUlZfSElTQVg9bQ0KQ09ORklHX0lTRE5fSElTQVg9
+eQ0KQ09ORklHX0hJU0FYX0VVUk89eQ0KQ09ORklHX0RFX0FPQz15DQpDT05G
+SUdfSElTQVhfMVRSNj15DQpDT05GSUdfSElTQVhfTkkxPXkNCkNPTkZJR19I
+SVNBWF9NQVhfQ0FSRFM9OA0KQ09ORklHX0hJU0FYXzE2XzA9eQ0KQ09ORklH
+X0hJU0FYXzE2XzM9eQ0KQ09ORklHX0hJU0FYX1RFTEVTUENJPXkNCkNPTkZJ
+R19ISVNBWF9TMEJPWD15DQpDT05GSUdfSElTQVhfQVZNX0ExPXkNCkNPTkZJ
+R19ISVNBWF9GUklUWlBDST15DQpDT05GSUdfSElTQVhfQVZNX0ExX1BDTUNJ
+QT15DQpDT05GSUdfSElTQVhfRUxTQT15DQpDT05GSUdfSElTQVhfSVgxTUlD
+Uk9SMj15DQpDT05GSUdfSElTQVhfRElFSExESVZBPXkNCkNPTkZJR19ISVNB
+WF9BU1VTQ09NPXkNCkNPTkZJR19ISVNBWF9URUxFSU5UPXkNCkNPTkZJR19I
+SVNBWF9IRkNTPXkNCkNPTkZJR19ISVNBWF9TRURMQkFVRVI9eQ0KQ09ORklH
+X0hJU0FYX1NQT1JUU1RFUj15DQpDT05GSUdfSElTQVhfTUlDPXkNCkNPTkZJ
+R19ISVNBWF9ORVRKRVQ9eQ0KQ09ORklHX0hJU0FYX05FVEpFVF9VPXkNCkNP
+TkZJR19ISVNBWF9OSUNDWT15DQpDT05GSUdfSElTQVhfSVNVUkY9eQ0KQ09O
+RklHX0hJU0FYX0hTVFNBUEhJUj15DQpDT05GSUdfSElTQVhfQktNX0E0VD15
+DQpDT05GSUdfSElTQVhfU0NUX1FVQURSTz15DQpDT05GSUdfSElTQVhfR0Fa
+RUw9eQ0KQ09ORklHX0hJU0FYX0hGQ19QQ0k9eQ0KQ09ORklHX0hJU0FYX1c2
+NjkyPXkNCkNPTkZJR19ISVNBWF9IRkNfU1g9eQ0KQ09ORklHX0hJU0FYX0RF
+QlVHPXkNCkNPTkZJR19ISVNBWF9TRURMQkFVRVJfQ1M9bQ0KQ09ORklHX0hJ
+U0FYX0VMU0FfQ1M9bQ0KQ09ORklHX0hJU0FYX0FWTV9BMV9DUz1tDQpDT05G
+SUdfSElTQVhfU1Q1NDgxPW0NCkNPTkZJR19ISVNBWF9GUklUWl9QQ0lQTlA9
+bQ0KQ09ORklHX0lTRE5fRFJWX0lDTj1tDQpDT05GSUdfSVNETl9EUlZfUENC
+SVQ9bQ0KQ09ORklHX0lTRE5fRFJWX0VJQ09OPXkNCkNPTkZJR19JU0ROX0RS
+Vl9FSUNPTl9ESVZBUz1tDQpDT05GSUdfSVNETl9EUlZfVFBBTT1tDQpDT05G
+SUdfSVNETl9DQVBJPW0NCkNPTkZJR19JU0ROX0RSVl9BVk1CMV9WRVJCT1NF
+X1JFQVNPTj15DQpDT05GSUdfSVNETl9DQVBJX01JRERMRVdBUkU9eQ0KQ09O
+RklHX0lTRE5fQ0FQSV9DQVBJMjA9bQ0KQ09ORklHX0lTRE5fQ0FQSV9DQVBJ
+RlNfQk9PTD15DQpDT05GSUdfSVNETl9DQVBJX0NBUElGUz1tDQpDT05GSUdf
+SVNETl9DQVBJX0NBUElEUlY9bQ0KQ09ORklHX0lTRE5fRFJWX0FWTUIxX0Ix
+SVNBPW0NCkNPTkZJR19JU0ROX0RSVl9BVk1CMV9CMVBDST1tDQpDT05GSUdf
+SVNETl9EUlZfQVZNQjFfQjFQQ0lWND15DQpDT05GSUdfSVNETl9EUlZfQVZN
+QjFfVDFJU0E9bQ0KQ09ORklHX0lTRE5fRFJWX0FWTUIxX0IxUENNQ0lBPW0N
+CkNPTkZJR19JU0ROX0RSVl9BVk1CMV9BVk1fQ1M9bQ0KQ09ORklHX0lTRE5f
+RFJWX0FWTUIxX1QxUENJPW0NCkNPTkZJR19JU0ROX0RSVl9BVk1CMV9DND1t
+DQpDT05GSUdfSFlTRE49bQ0KQ09ORklHX0hZU0ROX0NBUEk9eQ0KQ09ORklH
+X0lOUFVUPW0NCkNPTkZJR19JTlBVVF9LRVlCREVWPW0NCkNPTkZJR19JTlBV
+VF9NT1VTRURFVj1tDQpDT05GSUdfSU5QVVRfTU9VU0VERVZfU0NSRUVOX1g9
+MTAyNA0KQ09ORklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9ZPTc2OA0KQ09O
+RklHX0lOUFVUX0pPWURFVj1tDQpDT05GSUdfSU5QVVRfRVZERVY9bQ0KQ09O
+RklHX1ZUPXkNCkNPTkZJR19WVF9DT05TT0xFPXkNCkNPTkZJR19TRVJJQUw9
+eQ0KQ09ORklHX1NFUklBTF9DT05TT0xFPXkNCkNPTkZJR19TRVJJQUxfRVhU
+RU5ERUQ9eQ0KQ09ORklHX1NFUklBTF9NQU5ZX1BPUlRTPXkNCkNPTkZJR19T
+RVJJQUxfU0hBUkVfSVJRPXkNCkNPTkZJR19TRVJJQUxfTVVMVElQT1JUPXkN
+CkNPTkZJR19TRVJJQUxfTk9OU1RBTkRBUkQ9eQ0KQ09ORklHX0NPTVBVVE9O
+RT1tDQpDT05GSUdfUk9DS0VUUE9SVD1tDQpDT05GSUdfQ1lDTEFERVM9bQ0K
+Q09ORklHX0RJR0lFUENBPW0NCkNPTkZJR19FU1BTRVJJQUw9bQ0KQ09ORklH
+X01PWEFfSU5URUxMSU89bQ0KQ09ORklHX01PWEFfU01BUlRJTz1tDQpDT05G
+SUdfSVNJPW0NCkNPTkZJR19TWU5DTElOSz1tDQpDT05GSUdfTl9IRExDPW0N
+CkNPTkZJR19SSVNDT004PW0NCkNPTkZJR19TUEVDSUFMSVg9bQ0KQ09ORklH
+X1NQRUNJQUxJWF9SVFNDVFM9eQ0KQ09ORklHX1NYPW0NCkNPTkZJR19TVEFM
+RFJWPXkNCkNPTkZJR19TVEFMTElPTj1tDQpDT05GSUdfSVNUQUxMSU9OPW0N
+CkNPTkZJR19VTklYOThfUFRZUz15DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VO
+VD0yMDQ4DQpDT05GSUdfUFJJTlRFUj1tDQpDT05GSUdfTFBfQ09OU09MRT15
+DQpDT05GSUdfUFBERVY9bQ0KQ09ORklHX0kyQz1tDQpDT05GSUdfSTJDX0FM
+R09CSVQ9bQ0KQ09ORklHX0kyQ19QSElMSVBTUEFSPW0NCkNPTkZJR19JMkNf
+RUxWPW0NCkNPTkZJR19JMkNfVkVMTEVNQU49bQ0KQ09ORklHX0kyQ19BTEdP
+UENGPW0NCkNPTkZJR19JMkNfRUxFS1RPUj1tDQpDT05GSUdfSTJDX0NIQVJE
+RVY9bQ0KQ09ORklHX0kyQ19QUk9DPW0NCkNPTkZJR19CVVNNT1VTRT1tDQpD
+T05GSUdfQVRJWExfQlVTTU9VU0U9bQ0KQ09ORklHX0xPR0lCVVNNT1VTRT1t
+DQpDT05GSUdfTVNfQlVTTU9VU0U9bQ0KQ09ORklHX01PVVNFPXkNCkNPTkZJ
+R19QU01PVVNFPXkNCkNPTkZJR184MkM3MTBfTU9VU0U9bQ0KQ09ORklHX1BD
+MTEwX1BBRD1tDQpDT05GSUdfTUs3MTJfTU9VU0U9bQ0KQ09ORklHX0lOUFVU
+X0dBTUVQT1JUPW0NCkNPTkZJR19JTlBVVF9OUzU1OD1tDQpDT05GSUdfSU5Q
+VVRfTElHSFROSU5HPW0NCkNPTkZJR19JTlBVVF9QQ0lHQU1FPW0NCkNPTkZJ
+R19JTlBVVF9DUzQ2MVg9bQ0KQ09ORklHX0lOUFVUX0VNVTEwSzE9bQ0KQ09O
+RklHX0lOUFVUX1NFUklPPW0NCkNPTkZJR19JTlBVVF9TRVJQT1JUPW0NCkNP
+TkZJR19JTlBVVF9BTkFMT0c9bQ0KQ09ORklHX0lOUFVUX0EzRD1tDQpDT05G
+SUdfSU5QVVRfQURJPW0NCkNPTkZJR19JTlBVVF9DT0JSQT1tDQpDT05GSUdf
+SU5QVVRfR0YySz1tDQpDT05GSUdfSU5QVVRfR1JJUD1tDQpDT05GSUdfSU5Q
+VVRfSU5URVJBQ1Q9bQ0KQ09ORklHX0lOUFVUX1RNREM9bQ0KQ09ORklHX0lO
+UFVUX1NJREVXSU5ERVI9bQ0KQ09ORklHX0lOUFVUX0lGT1JDRV9VU0I9bQ0K
+Q09ORklHX0lOUFVUX0lGT1JDRV8yMzI9bQ0KQ09ORklHX0lOUFVUX1dBUlJJ
+T1I9bQ0KQ09ORklHX0lOUFVUX01BR0VMTEFOPW0NCkNPTkZJR19JTlBVVF9T
+UEFDRU9SQj1tDQpDT05GSUdfSU5QVVRfU1BBQ0VCQUxMPW0NCkNPTkZJR19J
+TlBVVF9TVElOR0VSPW0NCkNPTkZJR19JTlBVVF9EQjk9bQ0KQ09ORklHX0lO
+UFVUX0dBTUVDT049bQ0KQ09ORklHX0lOUFVUX1RVUkJPR1JBRlg9bQ0KQ09O
+RklHX1dBVENIRE9HPXkNCkNPTkZJR19BQ1FVSVJFX1dEVD1tDQpDT05GSUdf
+QURWQU5URUNIX1dEVD1tDQpDT05GSUdfQUxJTTcxMDFfV0RUPW0NCkNPTkZJ
+R19TQzUyMF9XRFQ9bQ0KQ09ORklHX1BDV0FUQ0hET0c9bQ0KQ09ORklHX0VV
+Uk9URUNIX1dEVD1tDQpDT05GSUdfSUI3MDBfV0RUPW0NCkNPTkZJR19XQUZF
+Ul9XRFQ9bQ0KQ09ORklHX0k4MTBfVENPPW0NCkNPTkZJR19TQzEyMDBfV0RU
+PW0NCkNPTkZJR19TT0ZUX1dBVENIRE9HPW0NCkNPTkZJR19XODM4NzdGX1dE
+VD1tDQpDT05GSUdfV0RUPW0NCkNPTkZJR19XRFRQQ0k9bQ0KQ09ORklHX01B
+Q0haX1dEVD1tDQpDT05GSUdfQU1EX1JORz1tDQpDT05GSUdfSU5URUxfUk5H
+PW0NCkNPTkZJR19OVlJBTT1tDQpDT05GSUdfUlRDPXkNCkNPTkZJR19EVExL
+PW0NCkNPTkZJR19SMzk2ND1tDQpDT05GSUdfU09OWVBJPW0NCkNPTkZJR19G
+VEFQRT1tDQpDT05GSUdfWkZUQVBFPW0NCkNPTkZJR19aRlRfREZMVF9CTEtf
+U1o9MTAyNDANCkNPTkZJR19aRlRfQ09NUFJFU1NPUj1tDQpDT05GSUdfRlRf
+TlJfQlVGRkVSUz0zDQpDT05GSUdfRlRfTk9STUFMX0RFQlVHPXkNCkNPTkZJ
+R19GVF9TVERfRkRDPXkNCkNPTkZJR19GVF9GRENfVEhSPTgNCkNPTkZJR19G
+VF9GRENfTUFYX1JBVEU9MjAwMA0KQ09ORklHX0ZUX0FMUEhBX0NMT0NLPTAN
+CkNPTkZJR19BR1A9bQ0KQ09ORklHX0FHUF9JTlRFTD15DQpDT05GSUdfQUdQ
+X0k4MTA9eQ0KQ09ORklHX0FHUF9WSUE9eQ0KQ09ORklHX0FHUF9BTUQ9eQ0K
+Q09ORklHX0FHUF9TSVM9eQ0KQ09ORklHX0FHUF9BTEk9eQ0KQ09ORklHX0FH
+UF9TV09SS1M9eQ0KQ09ORklHX0RSTT15DQpDT05GSUdfRFJNX05FVz15DQpD
+T05GSUdfRFJNX1RERlg9bQ0KQ09ORklHX0RSTV9SMTI4PW0NCkNPTkZJR19E
+Uk1fUkFERU9OPW0NCkNPTkZJR19EUk1fSTgxMD1tDQpDT05GSUdfRFJNX01H
+QT1tDQpDT05GSUdfRFJNX1NJUz1tDQpDT05GSUdfUENNQ0lBX1NFUklBTF9D
+Uz1tDQpDT05GSUdfTVdBVkU9bQ0KQ09ORklHX1ZJREVPX0RFVj1tDQpDT05G
+SUdfVklERU9fUFJPQ19GUz15DQpDT05GSUdfSTJDX1BBUlBPUlQ9bQ0KQ09O
+RklHX1ZJREVPX0JUODQ4PW0NCkNPTkZJR19WSURFT19QTVM9bQ0KQ09ORklH
+X1ZJREVPX0JXUUNBTT1tDQpDT05GSUdfVklERU9fQ1FDQU09bQ0KQ09ORklH
+X1ZJREVPX1c5OTY2PW0NCkNPTkZJR19WSURFT19DUElBPW0NCkNPTkZJR19W
+SURFT19DUElBX1BQPW0NCkNPTkZJR19WSURFT19DUElBX1VTQj1tDQpDT05G
+SUdfVklERU9fU0FBNTI0OT1tDQpDT05GSUdfVFVORVJfMzAzNj1tDQpDT05G
+SUdfVklERU9fU1RSQURJUz1tDQpDT05GSUdfVklERU9fWk9SQU49bQ0KQ09O
+RklHX1ZJREVPX1pPUkFOX0JVWj1tDQpDT05GSUdfVklERU9fWk9SQU5fREMx
+MD1tDQpDT05GSUdfVklERU9fWk9SQU5fTE1MMzM9bQ0KQ09ORklHX1ZJREVP
+X1pSMzYxMjA9bQ0KQ09ORklHX1ZJREVPX01FWUU9bQ0KQ09ORklHX1JBRElP
+X0NBREVUPW0NCkNPTkZJR19SQURJT19SVFJBQ0s9bQ0KQ09ORklHX1JBRElP
+X1JUUkFDSzI9bQ0KQ09ORklHX1JBRElPX0FaVEVDSD1tDQpDT05GSUdfUkFE
+SU9fR0VNVEVLPW0NCkNPTkZJR19SQURJT19HRU1URUtfUENJPW0NCkNPTkZJ
+R19SQURJT19NQVhJUkFESU89bQ0KQ09ORklHX1JBRElPX01BRVNUUk89bQ0K
+Q09ORklHX1JBRElPX01JUk9QQ00yMD1tDQpDT05GSUdfUkFESU9fTUlST1BD
+TTIwX1JEUz1tDQpDT05GSUdfUkFESU9fU0YxNkZNST1tDQpDT05GSUdfUkFE
+SU9fVEVSUkFURUM9bQ0KQ09ORklHX1JBRElPX1RSVVNUPW0NCkNPTkZJR19S
+QURJT19UWVBIT09OPW0NCkNPTkZJR19SQURJT19UWVBIT09OX1BST0NfRlM9
+eQ0KQ09ORklHX1JBRElPX1pPTFRSSVg9bQ0KQ09ORklHX1FVT1RBPXkNCkNP
+TkZJR19BVVRPRlNfRlM9bQ0KQ09ORklHX0FVVE9GUzRfRlM9bQ0KQ09ORklH
+X1JFSVNFUkZTX0ZTPW0NCkNPTkZJR19SRUlTRVJGU19QUk9DX0lORk89eQ0K
+Q09ORklHX0hGU19GUz1tDQpDT05GSUdfQkZTX0ZTPW0NCkNPTkZJR19FWFQz
+X0ZTPW0NCkNPTkZJR19KQkQ9bQ0KQ09ORklHX0ZBVF9GUz1tDQpDT05GSUdf
+TVNET1NfRlM9bQ0KQ09ORklHX1VNU0RPU19GUz1tDQpDT05GSUdfVkZBVF9G
+Uz1tDQpDT05GSUdfQ1JBTUZTPW0NCkNPTkZJR19UTVBGUz15DQpDT05GSUdf
+UkFNRlM9eQ0KQ09ORklHX0lTTzk2NjBfRlM9eQ0KQ09ORklHX0pPTElFVD15
+DQpDT05GSUdfWklTT0ZTPXkNCkNPTkZJR19NSU5JWF9GUz1tDQpDT05GSUdf
+VlhGU19GUz1tDQpDT05GSUdfUFJPQ19GUz15DQpDT05GSUdfREVWUFRTX0ZT
+PXkNCkNPTkZJR19ST01GU19GUz1tDQpDT05GSUdfRVhUMl9GUz15DQpDT05G
+SUdfU1lTVl9GUz1tDQpDT05GSUdfVURGX0ZTPW0NCkNPTkZJR19VREZfUlc9
+eQ0KQ09ORklHX1VGU19GUz1tDQpDT05GSUdfQ09EQV9GUz1tDQpDT05GSUdf
+SU5URVJNRVpaT19GUz1tDQpDT05GSUdfTkZTX0ZTPW0NCkNPTkZJR19ORlNf
+VjM9eQ0KQ09ORklHX05GU0Q9bQ0KQ09ORklHX05GU0RfVjM9eQ0KQ09ORklH
+X1NVTlJQQz1tDQpDT05GSUdfTE9DS0Q9bQ0KQ09ORklHX0xPQ0tEX1Y0PXkN
+CkNPTkZJR19TTUJfRlM9bQ0KQ09ORklHX05DUF9GUz1tDQpDT05GSUdfTkNQ
+RlNfUEFDS0VUX1NJR05JTkc9eQ0KQ09ORklHX05DUEZTX0lPQ1RMX0xPQ0tJ
+Tkc9eQ0KQ09ORklHX05DUEZTX1NUUk9ORz15DQpDT05GSUdfTkNQRlNfTkZT
+X05TPXkNCkNPTkZJR19OQ1BGU19PUzJfTlM9eQ0KQ09ORklHX05DUEZTX1NN
+QUxMRE9TPXkNCkNPTkZJR19OQ1BGU19OTFM9eQ0KQ09ORklHX05DUEZTX0VY
+VFJBUz15DQpDT05GSUdfWklTT0ZTX0ZTPXkNCkNPTkZJR19aTElCX0ZTX0lO
+RkxBVEU9eQ0KQ09ORklHX1BBUlRJVElPTl9BRFZBTkNFRD15DQpDT05GSUdf
+T1NGX1BBUlRJVElPTj15DQpDT05GSUdfTUFDX1BBUlRJVElPTj15DQpDT05G
+SUdfTVNET1NfUEFSVElUSU9OPXkNCkNPTkZJR19CU0RfRElTS0xBQkVMPXkN
+CkNPTkZJR19NSU5JWF9TVUJQQVJUSVRJT049eQ0KQ09ORklHX1NPTEFSSVNf
+WDg2X1BBUlRJVElPTj15DQpDT05GSUdfVU5JWFdBUkVfRElTS0xBQkVMPXkN
+CkNPTkZJR19TR0lfUEFSVElUSU9OPXkNCkNPTkZJR19TVU5fUEFSVElUSU9O
+PXkNCkNPTkZJR19TTUJfTkxTPXkNCkNPTkZJR19OTFM9eQ0KQ09ORklHX05M
+U19ERUZBVUxUPSJpc284ODU5LTEiDQpDT05GSUdfTkxTX0NPREVQQUdFXzQz
+Nz1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzczNz1tDQpDT05GSUdfTkxTX0NP
+REVQQUdFXzc3NT1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg1MD1tDQpDT05G
+SUdfTkxTX0NPREVQQUdFXzg1Mj1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg1
+NT1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg1Nz1tDQpDT05GSUdfTkxTX0NP
+REVQQUdFXzg2MD1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg2MT1tDQpDT05G
+SUdfTkxTX0NPREVQQUdFXzg2Mj1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg2
+Mz1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg2ND1tDQpDT05GSUdfTkxTX0NP
+REVQQUdFXzg2NT1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzg2Nj1tDQpDT05G
+SUdfTkxTX0NPREVQQUdFXzg2OT1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzkz
+Nj1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzk1MD1tDQpDT05GSUdfTkxTX0NP
+REVQQUdFXzkzMj1tDQpDT05GSUdfTkxTX0NPREVQQUdFXzk0OT1tDQpDT05G
+SUdfTkxTX0NPREVQQUdFXzg3ND1tDQpDT05GSUdfTkxTX0lTTzg4NTlfOD1t
+DQpDT05GSUdfTkxTX0NPREVQQUdFXzEyNTA9bQ0KQ09ORklHX05MU19DT0RF
+UEFHRV8xMjUxPW0NCkNPTkZJR19OTFNfSVNPODg1OV8xPW0NCkNPTkZJR19O
+TFNfSVNPODg1OV8yPW0NCkNPTkZJR19OTFNfSVNPODg1OV8zPW0NCkNPTkZJ
+R19OTFNfSVNPODg1OV80PW0NCkNPTkZJR19OTFNfSVNPODg1OV81PW0NCkNP
+TkZJR19OTFNfSVNPODg1OV82PW0NCkNPTkZJR19OTFNfSVNPODg1OV83PW0N
+CkNPTkZJR19OTFNfSVNPODg1OV85PW0NCkNPTkZJR19OTFNfSVNPODg1OV8x
+Mz1tDQpDT05GSUdfTkxTX0lTTzg4NTlfMTQ9bQ0KQ09ORklHX05MU19JU084
+ODU5XzE1PW0NCkNPTkZJR19OTFNfS09JOF9SPW0NCkNPTkZJR19OTFNfS09J
+OF9VPW0NCkNPTkZJR19OTFNfVVRGOD1tDQpDT05GSUdfVkdBX0NPTlNPTEU9
+eQ0KQ09ORklHX1ZJREVPX1NFTEVDVD15DQpDT05GSUdfTURBX0NPTlNPTEU9
+bQ0KQ09ORklHX0ZCPXkNCkNPTkZJR19EVU1NWV9DT05TT0xFPXkNCkNPTkZJ
+R19GQl9SSVZBPW0NCkNPTkZJR19GQl9DTEdFTj1tDQpDT05GSUdfRkJfUE0y
+PW0NCkNPTkZJR19GQl9QTTJfUENJPXkNCkNPTkZJR19GQl9QTTM9bQ0KQ09O
+RklHX0ZCX1ZFU0E9eQ0KQ09ORklHX0ZCX0hHQT1tDQpDT05GSUdfVklERU9f
+U0VMRUNUPXkNCkNPTkZJR19GQl9NQVRST1g9bQ0KQ09ORklHX0ZCX01BVFJP
+WF9NSUxMRU5JVU09eQ0KQ09ORklHX0ZCX01BVFJPWF9NWVNUSVFVRT15DQpD
+T05GSUdfRkJfTUFUUk9YX0cxMDA9eQ0KQ09ORklHX0ZCX01BVFJPWF9JMkM9
+bQ0KQ09ORklHX0ZCX01BVFJPWF9NQVZFTj1tDQpDT05GSUdfRkJfTUFUUk9Y
+X01VTFRJSEVBRD15DQpDT05GSUdfRkJfQVRZPW0NCkNPTkZJR19GQl9BVFlf
+R1g9eQ0KQ09ORklHX0ZCX0FUWV9DVD15DQpDT05GSUdfRkJfUkFERU9OPW0N
+CkNPTkZJR19GQl9BVFkxMjg9bQ0KQ09ORklHX0ZCX1NJUz1tDQpDT05GSUdf
+RkJfU0lTXzMwMD15DQpDT05GSUdfRkJfU0lTXzMxNT15DQpDT05GSUdfRkJf
+TkVPTUFHSUM9bQ0KQ09ORklHX0ZCXzNERlg9bQ0KQ09ORklHX0ZCX1ZPT0RP
+TzE9bQ0KQ09ORklHX0ZCQ09OX01GQj1tDQpDT05GSUdfRkJDT05fQ0ZCOD15
+DQpDT05GSUdfRkJDT05fQ0ZCMTY9eQ0KQ09ORklHX0ZCQ09OX0NGQjI0PXkN
+CkNPTkZJR19GQkNPTl9DRkIzMj15DQpDT05GSUdfRkJDT05fSEdBPW0NCkNP
+TkZJR19GT05UXzh4OD15DQpDT05GSUdfRk9OVF84eDE2PXkNCkNPTkZJR19T
+T1VORD1tDQpDT05GSUdfU09VTkRfQlQ4Nzg9bQ0KQ09ORklHX1NPVU5EX0NN
+UENJPW0NCkNPTkZJR19TT1VORF9DTVBDSV9GTT15DQpDT05GSUdfU09VTkRf
+Q01QQ0lfRk1JTz0zODgNCkNPTkZJR19TT1VORF9DTVBDSV9GTUlPPTM4OA0K
+Q09ORklHX1NPVU5EX0NNUENJX01JREk9eQ0KQ09ORklHX1NPVU5EX0NNUENJ
+X01QVUlPPTMzMA0KQ09ORklHX1NPVU5EX0NNUENJX0pPWVNUSUNLPXkNCkNP
+TkZJR19TT1VORF9DTVBDSV9DTTg3Mzg9eQ0KQ09ORklHX1NPVU5EX0NNUENJ
+X1NQRElGTE9PUD15DQpDT05GSUdfU09VTkRfQ01QQ0lfU1BFQUtFUlM9Mg0K
+Q09ORklHX1NPVU5EX0VNVTEwSzE9bQ0KQ09ORklHX01JRElfRU1VMTBLMT15
+DQpDT05GSUdfU09VTkRfRlVTSU9OPW0NCkNPTkZJR19TT1VORF9DUzQyODE9
+bQ0KQ09ORklHX1NPVU5EX0VTMTM3MD1tDQpDT05GSUdfU09VTkRfRVMxMzcx
+PW0NCkNPTkZJR19TT1VORF9FU1NTT0xPMT1tDQpDT05GSUdfU09VTkRfTUFF
+U1RSTz1tDQpDT05GSUdfU09VTkRfTUFFU1RSTzM9bQ0KQ09ORklHX1NPVU5E
+X0lDSD1tDQpDT05GSUdfU09VTkRfUk1FOTZYWD1tDQpDT05GSUdfU09VTkRf
+U09OSUNWSUJFUz1tDQpDT05GSUdfU09VTkRfVFJJREVOVD1tDQpDT05GSUdf
+U09VTkRfTVNORENMQVM9bQ0KQ09ORklHX01TTkRDTEFTX0lOSVRfRklMRT0i
+L2V0Yy9zb3VuZC9tc25kaW5pdC5iaW4iDQpDT05GSUdfTVNORENMQVNfUEVS
+TV9GSUxFPSIvZXRjL3NvdW5kL21zbmRwZXJtLmJpbiINCkNPTkZJR19TT1VO
+RF9NU05EUElOPW0NCkNPTkZJR19NU05EUElOX0lOSVRfRklMRT0iL2V0Yy9z
+b3VuZC9wbmRzcGluaS5iaW4iDQpDT05GSUdfTVNORFBJTl9QRVJNX0ZJTEU9
+Ii9ldGMvc291bmQvcG5kc3Blcm0uYmluIg0KQ09ORklHX1NPVU5EX1ZJQTgy
+Q1hYWD1tDQpDT05GSUdfTUlESV9WSUE4MkNYWFg9eQ0KQ09ORklHX1NPVU5E
+X09TUz1tDQpDT05GSUdfU09VTkRfRE1BUD15DQpDT05GSUdfU09VTkRfQUQx
+ODE2PW0NCkNPTkZJR19TT1VORF9TR0FMQVhZPW0NCkNPTkZJR19TT1VORF9B
+RExJQj1tDQpDT05GSUdfU09VTkRfQUNJX01JWEVSPW0NCkNPTkZJR19TT1VO
+RF9DUzQyMzI9bQ0KQ09ORklHX1NPVU5EX1NTQ0FQRT1tDQpDT05GSUdfU09V
+TkRfR1VTPW0NCkNPTkZJR19TT1VORF9HVVMxNj15DQpDT05GSUdfU09VTkRf
+R1VTTUFYPXkNCkNPTkZJR19TT1VORF9WTUlEST1tDQpDT05GSUdfU09VTkRf
+VFJJWD1tDQpDT05GSUdfU09VTkRfTVNTPW0NCkNPTkZJR19TT1VORF9NUFU0
+MDE9bQ0KQ09ORklHX1NPVU5EX05NMjU2PW0NCkNPTkZJR19TT1VORF9NQUQx
+Nj1tDQpDT05GSUdfTUFEMTZfT0xEQ0FSRD15DQpDT05GSUdfU09VTkRfUEFT
+PW0NCkNPTkZJR19TT1VORF9QU1M9bQ0KQ09ORklHX1NPVU5EX1NCPW0NCkNP
+TkZJR19TT1VORF9BV0UzMl9TWU5USD1tDQpDT05GSUdfU09VTkRfV0FWRUZS
+T05UPW0NCkNPTkZJR19TT1VORF9NQVVJPW0NCkNPTkZJR19TT1VORF9ZTTM4
+MTI9bQ0KQ09ORklHX1NPVU5EX09QTDNTQTE9bQ0KQ09ORklHX1NPVU5EX09Q
+TDNTQTI9bQ0KQ09ORklHX1NPVU5EX1lNRlBDST1tDQpDT05GSUdfU09VTkRf
+WU1GUENJX0xFR0FDWT15DQpDT05GSUdfU09VTkRfVUFSVDY4NTA9bQ0KQ09O
+RklHX1NPVU5EX0FFRFNQMTY9bQ0KQ09ORklHX1NDNjYwMD15DQpDT05GSUdf
+U0M2NjAwX0pPWT15DQpDT05GSUdfU0M2NjAwX0NEUk9NPTQNCkNPTkZJR19T
+QzY2MDBfQ0RST01CQVNFPTANCkNPTkZJR19BRURTUDE2X1NCUFJPPXkNCkNP
+TkZJR19BRURTUDE2X01QVTQwMT15DQpDT05GSUdfU09VTkRfVFZNSVhFUj1t
+DQpDT05GSUdfVVNCPW0NCkNPTkZJR19VU0JfREVWSUNFRlM9eQ0KQ09ORklH
+X1VTQl9MT05HX1RJTUVPVVQ9eQ0KQ09ORklHX1VTQl9FSENJX0hDRD1tDQpD
+T05GSUdfVVNCX1VIQ0k9bQ0KQ09ORklHX1VTQl9VSENJX0FMVD1tDQpDT05G
+SUdfVVNCX09IQ0k9bQ0KQ09ORklHX1VTQl9BVURJTz1tDQpDT05GSUdfVVNC
+X0VNSTI2PW0NCkNPTkZJR19VU0JfQkxVRVRPT1RIPW0NCkNPTkZJR19VU0Jf
+U1RPUkFHRT1tDQpDT05GSUdfVVNCX1NUT1JBR0VfREFUQUZBQj15DQpDT05G
+SUdfVVNCX1NUT1JBR0VfRlJFRUNPTT15DQpDT05GSUdfVVNCX1NUT1JBR0Vf
+SVNEMjAwPXkNCkNPTkZJR19VU0JfU1RPUkFHRV9EUENNPXkNCkNPTkZJR19V
+U0JfU1RPUkFHRV9IUDgyMDBlPXkNCkNPTkZJR19VU0JfU1RPUkFHRV9TRERS
+MDk9eQ0KQ09ORklHX1VTQl9TVE9SQUdFX0pVTVBTSE9UPXkNCkNPTkZJR19V
+U0JfQUNNPW0NCkNPTkZJR19VU0JfUFJJTlRFUj1tDQpDT05GSUdfVVNCX0hJ
+RD1tDQpDT05GSUdfVVNCX0hJRElOUFVUPXkNCkNPTkZJR19VU0JfSElEREVW
+PXkNCkNPTkZJR19VU0JfV0FDT009bQ0KQ09ORklHX1VTQl9EQzJYWD1tDQpD
+T05GSUdfVVNCX01EQzgwMD1tDQpDT05GSUdfVVNCX1NDQU5ORVI9bQ0KQ09O
+RklHX1VTQl9NSUNST1RFSz1tDQpDT05GSUdfVVNCX0hQVVNCU0NTST1tDQpD
+T05GSUdfVVNCX0lCTUNBTT1tDQpDT05GSUdfVVNCX09WNTExPW0NCkNPTkZJ
+R19VU0JfUFdDPW0NCkNPTkZJR19VU0JfU0U0MDE9bQ0KQ09ORklHX1VTQl9T
+VFY2ODA9bQ0KQ09ORklHX1VTQl9WSUNBTT1tDQpDT05GSUdfVVNCX0RTQlI9
+bQ0KQ09ORklHX1VTQl9EQUJVU0I9bQ0KQ09ORklHX1VTQl9QRUdBU1VTPW0N
+CkNPTkZJR19VU0JfUlRMODE1MD1tDQpDT05GSUdfVVNCX0tBV0VUSD1tDQpD
+T05GSUdfVVNCX0NBVEM9bQ0KQ09ORklHX1VTQl9DRENFVEhFUj1tDQpDT05G
+SUdfVVNCX1VTQk5FVD1tDQpDT05GSUdfVVNCX1VTUzcyMD1tDQpDT05GSUdf
+VVNCX1NFUklBTD1tDQpDT05GSUdfVVNCX1NFUklBTF9HRU5FUklDPXkNCkNP
+TkZJR19VU0JfU0VSSUFMX0JFTEtJTj1tDQpDT05GSUdfVVNCX1NFUklBTF9X
+SElURUhFQVQ9bQ0KQ09ORklHX1VTQl9TRVJJQUxfRElHSV9BQ0NFTEVQT1JU
+PW0NCkNPTkZJR19VU0JfU0VSSUFMX0VNUEVHPW0NCkNPTkZJR19VU0JfU0VS
+SUFMX0ZURElfU0lPPW0NCkNPTkZJR19VU0JfU0VSSUFMX1ZJU09SPW0NCkNP
+TkZJR19VU0JfU0VSSUFMX0lQQVE9bQ0KQ09ORklHX1VTQl9TRVJJQUxfSVI9
+bQ0KQ09ORklHX1VTQl9TRVJJQUxfRURHRVBPUlQ9bQ0KQ09ORklHX1VTQl9T
+RVJJQUxfS0VZU1BBTl9QREE9bQ0KQ09ORklHX1VTQl9TRVJJQUxfS0VZU1BB
+Tj1tDQpDT05GSUdfVVNCX1NFUklBTF9LRVlTUEFOX1VTQTI4WEE9eQ0KQ09O
+RklHX1VTQl9TRVJJQUxfS0VZU1BBTl9VU0EyOFhCPXkNCkNPTkZJR19VU0Jf
+U0VSSUFMX01DVF9VMjMyPW0NCkNPTkZJR19VU0JfU0VSSUFMX0tMU0k9bQ0K
+Q09ORklHX1VTQl9TRVJJQUxfUEwyMzAzPW0NCkNPTkZJR19VU0JfU0VSSUFM
+X0NZQkVSSkFDSz1tDQpDT05GSUdfVVNCX1NFUklBTF9YSVJDT009bQ0KQ09O
+RklHX1VTQl9TRVJJQUxfT01OSU5FVD1tDQpDT05GSUdfVVNCX1JJTzUwMD1t
+DQpDT05GSUdfVVNCX0FVRVJTV0FMRD1tDQpDT05GSUdfQkxVRVo9bQ0KQ09O
+RklHX0JMVUVaX0wyQ0FQPW0NCkNPTkZJR19CTFVFWl9IQ0lVU0I9bQ0KQ09O
+RklHX0JMVUVaX0hDSVVBUlQ9bQ0KQ09ORklHX0JMVUVaX0hDSVZIQ0k9bQ0K
+Q09ORklHX0RFQlVHX0tFUk5FTD15DQpDT05GSUdfTUFHSUNfU1lTUlE9eQ0K
+
+--218760002-1857537615-1026907484=:30348--

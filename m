@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132037AbRDJT5N>; Tue, 10 Apr 2001 15:57:13 -0400
+	id <S132042AbRDJT7x>; Tue, 10 Apr 2001 15:59:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132038AbRDJT4x>; Tue, 10 Apr 2001 15:56:53 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:53121 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132037AbRDJT4q>;
-	Tue, 10 Apr 2001 15:56:46 -0400
-Message-ID: <3AD3657C.687DA9F7@mandrakesoft.com>
-Date: Tue, 10 Apr 2001 15:56:44 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: x86 cpu configuration (was: Re: [PATCH] i386 rw_semaphores fix)
-In-Reply-To: <Pine.LNX.4.31.0104101229150.13071-100000@penguin.transmeta.com>
+	id <S132044AbRDJT7p>; Tue, 10 Apr 2001 15:59:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:60424 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132042AbRDJT70>;
+	Tue, 10 Apr 2001 15:59:26 -0400
+Date: Tue, 10 Apr 2001 21:59:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Stephen D. Williams" <sdw@lig.net>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410215924.A24197@gruyere.muc.suse.de>
+In-Reply-To: <20010410140202.A15114@gruyere.muc.suse.de> <E14mx0K-00049P-00@the-village.bc.nu> <20010410143216.A15880@gruyere.muc.suse.de> <3AD354BB.20F1CE33@lig.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AD354BB.20F1CE33@lig.net>; from sdw@lig.net on Tue, Apr 10, 2001 at 02:45:15PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> That's no problem if we make this SMP-specific - I doubt anybody actually
-> uses SMP on i486's even if the machines exist, as I think they all had
-> special glue logic that Linux would have trouble with anyway. But the
-> advantages of being able to use one generic kernel that works on plain UP
-> i386 machines as well as SMP P6+ machines is big enough that I would want
-> to be able to say "CONFIG_X86_GENERIC" + "CONFIG_SMP".
+On Tue, Apr 10, 2001 at 02:45:15PM -0400, Stephen D. Williams wrote:
+> When this is rewritten, I would strongly suggest that we find a way to
+> make 'gettimeofday' nearly free.  Certain applications need to use this
+> frequently while still being portable.  One solution when you do have
+> clock ticks is a read-only mapped Int.  Another cheap solution is
+> library assembly that adds a cycle clock delta since last system call to
+> a 'gettimeofday' value set on every system call return.
 
-(slight tangent)
-FWIW I think the i386 CPU selection logic in make config should be
-reconsidered in 2.5+...
+The upcoming x86-64 port supports vsyscalls for just that purpose.
 
-The alpha presents you with a list of platforms, and allows you to
-select a specific one, or a generic option that includes all platforms. 
-The current way of doing things on x86 -- essentially selecting a
-minimal level of CPU support -- is nice for vendors like Mandrake who
-drops support for older CPUs.  But it isn't nice for the case where a
-user wants support for their specific processor and no other.  I have a
-P-II, why include code that only works on K7 or P-III?  The embedded
-people, I think, would find such a change useful too.
 
-The only problem with an alpha-like configuration is that Mandrake
-cannot select a minimum CPU level of support anymore... I guess that
-could be solved by an "advanced" sub-menu, similar to that which is
-found in drivers/video/Config.in, which allows fine-grained Y/N
-selections of CPU support.
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+-Andi

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266927AbSK2Biz>; Thu, 28 Nov 2002 20:38:55 -0500
+	id <S266929AbSK2Byo>; Thu, 28 Nov 2002 20:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266928AbSK2Biz>; Thu, 28 Nov 2002 20:38:55 -0500
-Received: from zok.sgi.com ([204.94.215.101]:43708 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S266927AbSK2Biy>;
-	Thu, 28 Nov 2002 20:38:54 -0500
-Date: Fri, 29 Nov 2002 12:45:00 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Thomas Molina <tmolina@copper.net>, linux-kernel@vger.kernel.org,
-       Anders Gustafsson <andersg@0x63.nu>, Steve Lord <lord@sgi.com>
-Subject: Re: [RELEASE] module-init-tools 0.8
-Message-ID: <20021129014500.GB546@frodo.melbourne.sgi.com>
-References: <Pine.LNX.4.44.0211272325370.924-100000@lap.molina> <20021129013010.38C262C2BA@lists.samba.org>
-Mime-Version: 1.0
+	id <S266930AbSK2Byo>; Thu, 28 Nov 2002 20:54:44 -0500
+Received: from zork.zork.net ([66.92.188.166]:64235 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S266929AbSK2Byn>;
+	Thu, 28 Nov 2002 20:54:43 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] [2.5.49] symbol_get doesn't work
+References: <20021128234536.DC53A2C113@lists.samba.org>
+	<buohee16u19.fsf@mcspd15.ucom.lsi.nec.co.jp>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: DISHONOURABLE INTENTIONS, STARKISM(S)
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Nov 2002 02:02:05 +0000
+In-Reply-To: <buohee16u19.fsf@mcspd15.ucom.lsi.nec.co.jp> (Miles Bader's
+ message of "29 Nov 2002 10:31:30 +0900")
+Message-ID: <6uel955e1u.fsf@zork.zork.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021129013010.38C262C2BA@lists.samba.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 29, 2002 at 11:59:49AM +1100, Rusty Russell wrote:
-> In message <Pine.LNX.4.44.0211272325370.924-100000@lap.molina> you write:
-> > With the patch you included, I get the following:
-> > 
-> > In file included from include/linux/raid/md.h:27,
-> >                  from init/do_mounts.c:25:
-> > include/linux/module.h:159: parse error before "Elf32_Sym"
-> 
-> Argh.... Put back the #include <linux/elf.h> at the top of the file.
-> It's required for CONFIG_KALLSYMS=y.
-> 
-> The main reason for separating out moduleloader.h was so modules.h
-> didn't include elf.h, because xfs defines AT_GID and AT_UID itself.
-> The kallsyms patch put that back.
-> 
-> We could make module.symtab a void*, but that's just wrong.  I think
-> we actually have to solve this clash, rather than hack around it,
-> since this is going to be a recurring problem.
-> 
-> Steve?  Changing the prefix on xfs or elf seems equally painful (xfs
-> because it'll be a big patch, elf because it's standardized and been
-> like that forever).
+commence  Miles Bader quotation:
 
-We changed XFS when this problem first came up.  Linus hasn't yet
-pulled from Christoph's bitkeeper tree though, so we're a bit out
-of sync at the moment.
+> Rusty Russell <rusty@rustcorp.com.au> writes:
+>> > > int *ptr = symbol_get(their_integer);
+>> > > if (!ptr) ...
+>>
+>> That's because it's a new primitive.  Very few places really want to
+>> use it, they usually just want to use the symbol directly.  However,
+>> there are some places where such a dependency is too harsh: it's more
+>> "if I can get this, great, otherwise I'll do something else".
+>
+> I find the name a bit wierd, BTW -- it sounds like it's going to return
+> the _value_ of the symbol.  How about something like `symbol_addr' instead?
 
-cheers.
+Surely the value of a symbol is precisely that: an address.
 
 -- 
-Nathan
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUGHSwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264941AbUGHTLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264904AbUGHSwg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 14:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbUGHSwg
+	id S264941AbUGHTLi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 15:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUGHTLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 14:52:36 -0400
-Received: from gate.crashing.org ([63.228.1.57]:954 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264904AbUGHSwf (ORCPT
+	Thu, 8 Jul 2004 15:11:38 -0400
+Received: from mail.scs.ch ([212.254.229.5]:29675 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id S264941AbUGHTLh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 14:52:35 -0400
-Subject: Re: ethernet support on ibook G4 differs from 2.4 to 2.6
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: axel.azerty@netcourrier.com
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <mnet3.1089300645.12400.axel.azerty@netcourrier.com>
-References: <mnet3.1089300645.12400.axel.azerty@netcourrier.com>
+	Thu, 8 Jul 2004 15:11:37 -0400
+Subject: Re: [PATCH 0/5] 2.6.7-mm6, fix CRC16 misnaming
+From: Thomas Sailer <sailer@scs.ch>
+To: David Weinehall <tao@acc.umu.se>
+Cc: Andrey Panin <pazke@donpac.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040708131007.GC10540@khan.acc.umu.se>
+References: <10892916781086@donpac.ru>
+	 <20040708131007.GC10540@khan.acc.umu.se>
 Content-Type: text/plain
-Message-Id: <1089312572.5355.55.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 08 Jul 2004 13:49:33 -0500
 Content-Transfer-Encoding: 7bit
+Organization: SCS
+Message-Id: <1089313871.4382.188.camel@kronenbourg.scs.ch>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 08 Jul 2004 21:11:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-08 at 12:30, axel.azerty@netcourrier.com wrote:
-> Hello
-> I have a little problem with ethernet support on an Apple ibook G4 and I m not sure it s a bug.
-> Using linux 2.6 with the driver Sun GEM works fine without problem.
-> Using the same driver (as the old is mentionned "OBSOLETE") in 2.4 doesn't work. dmesg doesn't mention it at all.
-> Only the old "GMAC (G4/iBook ethernet) support (OBSOLETE, use Sun GEM)" works.
+On Thu, 2004-07-08 at 15:10, David Weinehall wrote:
+
+> Wouldn't it be better to keep the size here too?
 > 
-> I ve attached my .config.
-> 
-> Please CC me, if someone answers, since I m not subscribed to the list.
+> CRC16-CCITT instead of just CRC-CCITT.
 
-The 2.4 version has not been updated for the new PCI IDs I suppose... the "old"
-driver use a different probing mecanism based on open firmware that happen to
-still work.
+IMO not necessary, the size is clear from the return type, and CCITT
+AFAIK never defined a 32bit CRC Poly
 
-Ben.
-
+Tom
 

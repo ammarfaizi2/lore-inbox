@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUAINy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 08:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUAINy4
+	id S261799AbUAINze (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 08:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUAINze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 08:54:56 -0500
-Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:56847 "EHLO
-	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261784AbUAINyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 08:54:55 -0500
-Date: Fri, 9 Jan 2004 15:53:22 +0100 (CET)
-From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm1
-In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58L.0401091550150.6458@alpha.zarz.agh.edu.pl>
-References: <20040109014003.3d925e54.akpm@osdl.org>
+	Fri, 9 Jan 2004 08:55:34 -0500
+Received: from artahost.net ([69.44.60.236]:24499 "EHLO artahost.net")
+	by vger.kernel.org with ESMTP id S261799AbUAINzb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 08:55:31 -0500
+From: Armin <Zoup@zoup.org>
+Organization: Zoup
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0 and touchpad .
+Date: Fri, 9 Jan 2004 17:21:18 -0900
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401091721.18461.Zoup@zoup.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - artahost.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - zoup.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Andrew Morton wrote:
+hi list ;)
 
-[...]
-> 
-> - The PCI IDE drivers should work as modules now.
+i've got two problem with my touchpad in 2.6.0 -rc2 , and i guess you guys can 
+help me ;) on my ze4200 HP laptop : 
 
-shouldn't ..
-returned warnings like I've posted
+1 > double finger ( double click on touch pad!!! ) are not working .
+2 > sometimes , pointer goes crazy move and and click all over the screen .
 
-Sorry.
+got this problem with 2.6.0 and 2.6.0-rc1 too , many thanks .
 
-					Sas.
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
+Never call a man a fool; borrow from him.
+

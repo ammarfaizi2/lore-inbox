@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbTHaFKj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 01:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTHaFKj
+	id S262507AbTHaFWB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 01:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTHaFWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 01:10:39 -0400
-Received: from rth.ninka.net ([216.101.162.244]:49597 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261241AbTHaFKi (ORCPT
+	Sun, 31 Aug 2003 01:22:01 -0400
+Received: from newmx2.fast.net ([209.92.1.32]:960 "HELO newmx2.fast.net")
+	by vger.kernel.org with SMTP id S262507AbTHaFV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 01:10:38 -0400
-Date: Sat, 30 Aug 2003 22:10:32 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: lm@bitmover.com, jamie@shareable.org, linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-Id: <20030830221032.1edf71d0.davem@redhat.com>
-In-Reply-To: <20030829230521.GD3846@matchmail.com>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-	<20030829154101.GB16319@work.bitmover.com>
-	<20030829230521.GD3846@matchmail.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 31 Aug 2003 01:21:27 -0400
+Subject: Re: PROBLEM: keyboard shift not registered under fast typing or
+	auto-repeat
+From: Carl Nygard <cjnygard@fast.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030830221548.A3654@pclin040.win.tue.nl>
+References: <1061944729.14320.74.camel@finland>
+	 <20030827125056.A1854@pclin040.win.tue.nl>
+	 <1062201326.14320.117.camel@finland>
+	 <20030830221548.A3654@pclin040.win.tue.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062306217.23441.1.camel@finland>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 31 Aug 2003 01:03:39 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Aug 2003 16:05:21 -0700
-Mike Fedyk <mfedyk@matchmail.com> wrote:
+On Sat, 2003-08-30 at 16:15, Andries Brouwer wrote:
+> On Fri, Aug 29, 2003 at 07:56:22PM -0400, Carl Nygard wrote:
+> 
+> > > > Kernel doesn't register shift state when typing quickly.
+> > > > Example, 'ls *' shows up as 'ls 8' when typed fast.
+> > 
+> > Typing quickly: 
+> > 
+> >      ## ^--- Shift-up event
+> > (and the Shift-down event was never seen)
+> >
+> > typing slower,
+> > 
+> >     ## ^---- Shift-down event
+> >     ## ^---- Shift-up event
+> >
+> > Is this potentially a hardware problem
+> > (i.e. should I return my laptop, because this is too d*mn annoying)?
+> 
+> You can try to decide by running a 2.4 kernel on this laptop.
+> If also 2.4 fails it may be hardware. If not, we must fix 2.6.
 
-> Does this mean that userspace has to take into consideration that the isn't
-> coherent for adjacent small memory accesses on sparc?  What could happen if
-> it doesn't, or does it need to at all?
+It was the same behavior on 2.4.20, 2.4.21, 2.6.0-test3/4, and also XP. 
+It's a hardware problem, I'm sending the thing in for repair.
 
-For shared memory, we enforce the correct mapping alignment
-so that coherency issues don't crop up.
+Sorry for the false alarm, but it helped to narrow down what was
+happening, so thanks for the pointers.
 
-How does this program work?  I haven't taken a close look
-at it.  Does it use MAP_SHARED or IPC shm?
+-- 
+Carl Nygard <cjnygard@fast.net>
 

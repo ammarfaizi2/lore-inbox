@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130750AbRBVDdL>; Wed, 21 Feb 2001 22:33:11 -0500
+	id <S131215AbRBVDel>; Wed, 21 Feb 2001 22:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130988AbRBVDcv>; Wed, 21 Feb 2001 22:32:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7431 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130750AbRBVDcn>; Wed, 21 Feb 2001 22:32:43 -0500
-Date: Wed, 21 Feb 2001 19:32:18 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Heil <kerndev@sc-software.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.2
-In-Reply-To: <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
-Message-ID: <Pine.LNX.4.10.10102211931050.1129-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131217AbRBVDeb>; Wed, 21 Feb 2001 22:34:31 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:24105 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S131215AbRBVDeT>; Wed, 21 Feb 2001 22:34:19 -0500
+Date: Wed, 21 Feb 2001 22:33:28 -0500
+From: Richard A Nelson <kenpocowboy@mindspring.com>
+Message-Id: <200102220333.f1M3XSe6007701@back40.badlands.mindspring.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1[w,w/o -acx] and XF86 4.0.2 Matrox (Mystique) driver pblm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Has anyone else seen SEGVs from this combination ?
 
-On Wed, 21 Feb 2001, John Heil wrote:
-> 
-> Which -ac series patch does this match up with or superceed
-> ie should this be considered superior to -ac19 ?
+/var/log/xdm.log is less than helpfull, only mentioning that VC7 (I run
+X on 3 VCs) had a Signal 11.
 
-There is no 1:1 comparison to _any_ of the -ac patches, I'm afraid. The
-two series are fairly disparate, as they have different intentions. Alan
-accepts some stuff that I would be nervous about, and sometimes I say "to
-hell with it, we need to fix this" and make Alan nervous.
+I've not yet identified whats running on VC7, and not on VC8-9 that might
+be causing this...  Wish xdm gave a little more information...
 
-		Linus
+Sigh, back to 2.2.19prex on this box (the rest of my boxen are running
+2.4.1-ac20 w/o problem (ok, except for the olympic.c nit)
 
+Thanks,
+-- 
+Rick Nelson

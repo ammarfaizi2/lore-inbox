@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136715AbREAU7D>; Tue, 1 May 2001 16:59:03 -0400
+	id <S136721AbREAVAD>; Tue, 1 May 2001 17:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136719AbREAU6x>; Tue, 1 May 2001 16:58:53 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55314 "EHLO
+	id <S136722AbREAU7x>; Tue, 1 May 2001 16:59:53 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:58130 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136715AbREAU6m>; Tue, 1 May 2001 16:58:42 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Maximum files per Directory
-Date: 1 May 2001 13:58:06 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9cn80u$u19$1@cesium.transmeta.com>
-In-Reply-To: <272800000.988750082@hades>
+	id <S136721AbREAU7n>; Tue, 1 May 2001 16:59:43 -0400
+Date: Tue, 1 May 2001 13:59:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>, <Andries.Brouwer@cwi.nl>
+Subject: Re: iso9660 endianness cleanup patch
+In-Reply-To: <3AEEFD7F.3E7C6B3@transmeta.com>
+Message-ID: <Pine.LNX.4.31.0105011358220.2667-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <272800000.988750082@hades>
-By author:    Andreas Rogge <lu01@rogge.yi.org>
-In newsgroup: linux.dev.kernel
+
+
+On Tue, 1 May 2001, H. Peter Anvin wrote:
 >
-> While trying to create 100.000 (in words: one hundred thousand) Mailboxes 
-> with
-> cyrus-imapd i ran into problems.
-> At about 2^15 files the filesystem gave up, telling me that there cannot be
-> more files in a directory.
-> 
-> Is this a vfs-Issue or an ext2-issue?
-> 
+> Oh bother, you're right of course.  We need some kind of standardized
+> macro for indirecting through a potentially unaligned pointer.
 
-Not correct, there can't be more than 2^15 *directories* in a single
-directory.  I belive this is an ext2 limitation.
+No we don't - because it already exists.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+It's called "get_unaligned()".
+
+		Linus
+

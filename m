@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbTADUQX>; Sat, 4 Jan 2003 15:16:23 -0500
+	id <S261371AbTADUPi>; Sat, 4 Jan 2003 15:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbTADUQX>; Sat, 4 Jan 2003 15:16:23 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:16095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261376AbTADUQT>;
-	Sat, 4 Jan 2003 15:16:19 -0500
-Date: Sat, 4 Jan 2003 13:45:10 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Matt Domsch <Matt_Domsch@Dell.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kobject_init() sets kobj->subsys wrong?
-In-Reply-To: <Pine.LNX.4.44.0301041400570.17248-100000@humbolt.us.dell.com>
-Message-ID: <Pine.LNX.4.33.0301041340001.998-100000@localhost.localdomain>
+	id <S261376AbTADUPi>; Sat, 4 Jan 2003 15:15:38 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:35312 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261371AbTADUPh>;
+	Sat, 4 Jan 2003 15:15:37 -0500
+Date: Sat, 4 Jan 2003 21:24:00 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: [PATCHSET] Multiarch kconfig cleanup
+In-Reply-To: <3E14C6D4.1040506@pobox.com>
+Message-ID: <Pine.GSO.4.21.0301042122590.10261-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi Matt.
-
-
-On Sat, 4 Jan 2003, Matt Domsch wrote:
-
-> > Your recent patch creating find_bus("scsi") always returns NULL.  I see
-> > that's because bus_subsys.list is empty.
+On Thu, 2 Jan 2003, Jeff Garzik wrote:
+> Geert Uytterhoeven wrote:
+> > linux-m68k: Should we kill CONFIG_NE2K_ZORRO, or kill CONFIG_ARIADNE2 and
+> > rename the driver to ne2k-zorro.c?
 > 
-> In kobject_add(), with kobj->subsys = NULL, this kobject (embedded inside 
-> struct subsystem embedded inside struct bus_type) never gets added to 
-> either it's parent's list, nor to the (NULL) subsystem's list.  It appears 
-> that the object can be on either a parent's list or a subsystem's list, 
-> but not both, by virtue of there being only one struct list_head entry in 
-> struct kobject.
+> I'm not linux-m68k, but let me add my small voice in preference to the 
+> latter, using ne2k-zorro as the name across the board.
+> 
+> If I had my druthers, I would s/pcnet_cs/ne2k_cs/ too...  hmmmmmm  :)
 
-Actually, the objects are always placed on their subsystem's list, never 
-their parent's. An object's parent is only used to determine the location 
-to insert the object. This gives the subsystem the ability to maintain an 
-ordered list of all objects registered with it, even when the objects 
-compose an arbitrarily deep hierarchy. 
+And I guess you want to rename mac8390 (which just got renamed from daynaport
+:-) to ne2k-nubus, too?
 
-This is docuemented somewhere, but I'll be sure to add a comment to 
-kobject_add() explaining this. 
+Gr{oetje,eeting}s,
 
-> 1) in bus_register(), don't set bus->subsys.parent = &bus_subsys, instead 
-> set bus->subsys.kobj.subsys = &bus_subsys.  I did this, and now find_bus() 
-> works as expected, but now the busses created don't have parents unless 
-> they're specified prior to calling bus_register(), so this doesn't seem 
-> quite right.
+						Geert
 
-This is correct. Also in kobject_add(), orphan objects are adopted by 
-the subsystem they belong to. 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-	-pat
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

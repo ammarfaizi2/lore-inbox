@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271657AbRHUN2Q>; Tue, 21 Aug 2001 09:28:16 -0400
+	id <S271658AbRHUNbQ>; Tue, 21 Aug 2001 09:31:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271658AbRHUN15>; Tue, 21 Aug 2001 09:27:57 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:56211 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S271657AbRHUN1n>;
-	Tue, 21 Aug 2001 09:27:43 -0400
-Date: Tue, 21 Aug 2001 16:22:21 +0300
-From: =?iso-8859-1?Q?Pekka_Pietik=E4inen?= <pp@netppl.fi>
-To: linux-kernel@vger.kernel.org
-Cc: Christian Widmer <cwidmer@iiic.ethz.ch>
-Subject: Re: SOCK_SEQPACKET
-Message-ID: <20010821162221.A23999@netppl.fi>
-In-Reply-To: <200108211153.f7LBrpk08803@mail.swissonline.ch>
-Mime-Version: 1.0
+	id <S271659AbRHUNbG>; Tue, 21 Aug 2001 09:31:06 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:54246 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S271658AbRHUNa5>;
+	Tue, 21 Aug 2001 09:30:57 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Qlogic/FC firmware
+In-Reply-To: <20010821.055856.08326920.davem@redhat.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 21 Aug 2001 15:31:05 +0200
+In-Reply-To: "David S. Miller"'s message of "Tue, 21 Aug 2001 05:58:56 -0700 (PDT)"
+Message-ID: <d3elq5a6au.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108211153.f7LBrpk08803@mail.swissonline.ch>; from cwidmer@iiic.ethz.ch on Tue, Aug 21, 2001 at 01:53:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 21, 2001 at 01:53:45PM +0200, Christian Widmer wrote:
-> hi,
-> 
-> when reading the man page for sockets i saw the socket SOCK_SEQPACKET
-> which meets my requirements quite good. unfortunatly the man page also sais 
-> that SOCK_SEQPACKET is not implementet by the protocol famaly PF_INET
-> (misleadingly calld AF_INET in the man page). whats about PF_INET6?
-Actually SOCK_SEQPACKET works just fine even with PF_INET,
-you just need a protocol that uses it :)
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-For an example implementation that uses it, see STP for Linux
-(http://oss.sgi.com/projects/stp).
+David> Who removed it from the 2.4.x driver recently, and why?
 
--- 
-Pekka Pietikainen
+David> I've been playing around, accidently corrupting my firmware a
+David> few times, and had to grab the firmware back from older trees
+David> to make my qlogic,FC card usable again.
+
+David> Removing the firmware makes no sense, if the firmware was
+David> incorrect for some reason, simply correct it.
+
+Alan did after I pointed out to him that it was incompatible with the
+GPL (BSD license with advertisement clause). Really hard to fix unless
+you get QLogic to change the license for you.
+
+Jes

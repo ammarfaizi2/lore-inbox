@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287279AbSA1Wj1>; Mon, 28 Jan 2002 17:39:27 -0500
+	id <S287317AbSA1Wza>; Mon, 28 Jan 2002 17:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287317AbSA1WjR>; Mon, 28 Jan 2002 17:39:17 -0500
-Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:5255 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287279AbSA1WjF>;
-	Mon, 28 Jan 2002 17:39:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rick Stevens <rstevens@vitalstream.com>, linux-kernel@vger.kernel.org
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Date: Mon, 28 Jan 2002 23:43:59 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33L.0201281940580.32617-100000@imladris.surriel.com> <3C55C9F7.6010106@vitalstream.com>
-In-Reply-To: <3C55C9F7.6010106@vitalstream.com>
+	id <S287333AbSA1WzT>; Mon, 28 Jan 2002 17:55:19 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:41377 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S287317AbSA1WzC>;
+	Mon, 28 Jan 2002 17:55:02 -0500
+Date: Mon, 28 Jan 2002 22:46:33 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        reiserfs-dev@namesys.com,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Note describing poor dcache utilization under high memory
+ pressure
+Message-ID: <1320036695.1012257992@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VKVM-0000DL-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 28, 2002 11:00 pm, Rick Stevens wrote:
-> I've gotta read up on the kernel's VM system.  I use to write them
-> for a certain three-letter-acronymed company--many, many moons ago.
-> Maybe I'd have some ideas.  Then again, perhaps not.
 
-Well, you really want to take a trip over to irc.openprojects.net, 
-#kernelnewbies, and there you'll find a number of still-current IBM people 
-happily helping cook up plots to take over Linu^H^H^H^H the world ;-)
 
--- 
-Daniel
+--On Monday, 28 January, 2002 9:39 AM -0800 Linus Torvalds 
+<torvalds@transmeta.com> wrote:
+
+> Thus any slab user that wants to, could just register their own per-page
+> memory pressure logic.
+
+It might be useful to use a similar type interface to aid
+in defragmentation - i.e. 'relocate the stuff on this
+(physical) page please, I want it back'. If nothing is
+registered, the default mechanism could be just to free it
+a la writepage().
+
+--
+Alex Bligh

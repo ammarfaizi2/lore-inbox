@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270724AbRHWXda>; Thu, 23 Aug 2001 19:33:30 -0400
+	id <S270748AbRHWXgA>; Thu, 23 Aug 2001 19:36:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270746AbRHWXdL>; Thu, 23 Aug 2001 19:33:11 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59148 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270724AbRHWXdJ>; Thu, 23 Aug 2001 19:33:09 -0400
-Subject: Re: assembler -> linux system calls
-To: Bart.Vandewoestyne@pandora.be (Bart Vandewoestyne)
-Date: Fri, 24 Aug 2001 00:36:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B856E09.EAAE6564@pandora.be> from "Bart Vandewoestyne" at Aug 23, 2001 10:56:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S270772AbRHWXfv>; Thu, 23 Aug 2001 19:35:51 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:21010 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S270746AbRHWXfj>;
+	Thu, 23 Aug 2001 19:35:39 -0400
+Message-ID: <3B859349.95F09EB1@linux-m68k.org>
+Date: Fri, 24 Aug 2001 01:35:38 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Magnus Naeslund(f)" <mag@fbab.net>
+CC: raybry@timesn.com, Tim Walberg <twalberg@mindspring.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: macro conflict
+In-Reply-To: <20010823143440.G20693@mindspring.com> <3B85615A.58920036@timesn.com> <03fc01c12c10$8155b060$020a0a0a@totalmef>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15a41X-0004t1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could somebody tell me what function to use where the question marks
-> are written?  Are the other mappings from inpl and outpl also correct?
+Hi,
 
-The look like the inb/inw/outb/outw functions. Im not sure how DOS asm
-maps byte and word sized in and out
+"Magnus Naeslund(f)" wrote:
 
-swmem is a byte swap. There isnt a trivial equivalent because its almost
-never the case you want to byteswap but you want to convert endiannesses
-htons() will probably do the right thing while you figure it out
+> > min(x,y) = ({typeof((x)) __x=(x), __y=(y); (__x < __y) ? __x : __y})
+> >
+> > That gets you the correct "evaluate the args once" semantics and gives
+> > you control over typing (the comparison is done in the type of the
+> > first argument) and we don't have to change a zillion drivers.
+> >
+> > (typeof() is a gcc extension.)
+
+({...}) is also gcc extension.
+
+> But then again, how do you know it's the type of x we want, maybe we want
+> type of y, that is and signed char (not an int like x).
+> Talk about hidden buffer overflow stuff :)
+
+That's the reason I'm using this macro for affs:
+
+#define MIN(a, b) ({            \
+        typeof(a) _a = (a);     \
+        typeof(b) _b = (b);     \
+        _a < _b ? _a : _b;      \
+})
+
+I need a very good reason to use something else, so far I'm unconvinced.
+
+bye, Roman

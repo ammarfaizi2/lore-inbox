@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131784AbQJ2QL5>; Sun, 29 Oct 2000 11:11:57 -0500
+	id <S131802AbQJ2QS2>; Sun, 29 Oct 2000 11:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131802AbQJ2QLs>; Sun, 29 Oct 2000 11:11:48 -0500
-Received: from twingo.tiscalinet.it ([195.130.224.85]:3998 "EHLO
-	twingo.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S131784AbQJ2QLk>; Sun, 29 Oct 2000 11:11:40 -0500
-Message-Id: <3.0.1.32.20001029171329.00988420@pop.tiscalinet.it>
-X-Mailer: Windows Eudora Light Version 3.0.1 (32)
-Date: Sun, 29 Oct 2000 17:13:29 +0100
-To: Jens Axboe <axboe@suse.de>
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: 2.2.17 & ASUS CD-S500/A (again)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001028134040.I3919@suse.de>
-In-Reply-To: <3.0.1.32.20001028221127.008b6460@pop.tiscalinet.it>
- <3.0.1.32.20001028221127.008b6460@pop.tiscalinet.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S131872AbQJ2QST>; Sun, 29 Oct 2000 11:18:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49449 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131802AbQJ2QSB>; Sun, 29 Oct 2000 11:18:01 -0500
+Subject: Re: gcc question (off topic)
+To: jkelley@iei.net (Jerry Kelley)
+Date: Sun, 29 Oct 2000 16:18:55 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux kernel)
+In-Reply-To: <001801c041bb$5e894c80$0a00a8c0@gamma> from "Jerry Kelley" at Oct 29, 2000 10:17:36 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13pvAf-0006AN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13.40 28/10/00 -0700, you wrote:
->On Sat, Oct 28 2000, Lorenzo Allegrucci wrote:
->> I've got this while trying to play an audio CD by cdplay.
->
->[snip]
->
->> NOTE:
->> 2.4.0-test9 works without problems.
->
->2.2.18-pre-latest will do then, could you try that?
+> Can gcc generate ASM output with the source lines from the C file
+> interspersed as comments?
 
-Yes, I've tried 2.2.18pre17, problem disappeared.
-Thanks for your help!
+Not afak directly. The makelst stuff in 2.2.18pre IBM contributed claims to
+do the job though
 
---
-Lorenzo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTEGOw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 10:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTEGOw3
+	id S263764AbTEGO7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTEGO7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 10:52:29 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:39642 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263539AbTEGOw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 10:52:27 -0400
-Date: Wed, 7 May 2003 17:04:29 +0200
-From: Torsten Landschoff <torsten@debian.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-Message-ID: <20030507150429.GA7248@stargate.galaxy>
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com>
+	Wed, 7 May 2003 10:59:30 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:30111 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263764AbTEGO73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 10:59:29 -0400
+Date: Wed, 7 May 2003 11:12:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
+       Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Message-ID: <20030507151203.GC3583@gtf.org>
+References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030507144736.GE8978@holomorphy.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1052318339.9817.8.camel@rth.ninka.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 07:47:36AM -0700, William Lee Irwin III wrote:
-> The kernel stack is (in Linux) unswappable memory that persists
-> throughout the lifetime of a thread. It's basically how many threads
-> you want to be able to cram into a system, and it matters a lot for
-> 32-bit.
+On Wed, May 07, 2003 at 07:39:00AM -0700, David S. Miller wrote:
+> On Wed, 2003-05-07 at 05:56, Christoph Hellwig wrote:
+> > Btw, if you really want to move all the 32bit ioctl compat code to the
+> > drivers a ->ioctl32 file operation might be the better choice..
+> 
+> I can't believe I never thought of that. :-)
 
-Okay, that makes sense. BTW: Why not go a step further and have just 
-one kernel stack (probably better one per CPU)?
+Likewise.  That's a good idea...
 
-Greetings
+	Jeff
 
-	Torsten
+
+

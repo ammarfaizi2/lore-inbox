@@ -1,171 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267229AbTAOTbx>; Wed, 15 Jan 2003 14:31:53 -0500
+	id <S266933AbTAOTly>; Wed, 15 Jan 2003 14:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267236AbTAOTbx>; Wed, 15 Jan 2003 14:31:53 -0500
-Received: from are.twiddle.net ([64.81.246.98]:42889 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S267229AbTAOTbt>;
-	Wed, 15 Jan 2003 14:31:49 -0500
-Date: Wed, 15 Jan 2003 11:40:43 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK] alpha update
-Message-ID: <20030115114043.A11360@twiddle.net>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S266971AbTAOTly>; Wed, 15 Jan 2003 14:41:54 -0500
+Received: from pop-be-13-1-dialup-280.freesurf.ch ([194.230.234.24]:6016 "EHLO
+	valsheda.taprogge.wh") by vger.kernel.org with ESMTP
+	id <S266933AbTAOTlv>; Wed, 15 Jan 2003 14:41:51 -0500
+Date: Wed, 15 Jan 2003 20:47:38 +0100
+To: Yaacov Akiba Slama <ya@slamail.org>
+Cc: linux-kernel@vger.kernel.org, Mikael Pettersson <mikpe@csd.uu.se>,
+       zwane@holomorphy.com, bvermeul@blackstar.nl, dave@codemonkey.org.uk
+Subject: Re: [PATCH] Re: [BUG] cardbus/hotplugging still broken in 2.5.56
+Message-ID: <20030115194738.GA2377@valsheda.taprogge.wh>
+Mail-Followup-To: Jens Taprogge <jens.taprogge@rwth-aachen.de>,
+	Yaacov Akiba Slama <ya@slamail.org>, linux-kernel@vger.kernel.org,
+	Mikael Pettersson <mikpe@csd.uu.se>, zwane@holomorphy.com,
+	bvermeul@blackstar.nl, dave@codemonkey.org.uk
+References: <20030115081109.GA3839@valsheda.taprogge.wh> <15909.9796.157927.447889@harpo.it.uu.se> <3E258BBC.7010902@slamail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E258BBC.7010902@slamail.org>
+User-Agent: Mutt/1.5.3i
+From: Jens Taprogge <jens.taprogge@rwth-aachen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from
+You are not freeing the possibly already allocated resources in case of
+a failure of either pci_assign_resource() or pca_enable_device(). In
+fact you are not even checking if pci_assign_resource() fails. That
+seems wrong to me.
 
-	bk://are.twiddle.net/axp-2.5
+Btw.: who is in charge of this file? Dave Jones? Is someone working on
+integrating it with PCI Hotplug?
+
+Best Regards 
+Jens
 
 
-r~
+On Wed, Jan 15, 2003 at 06:26:36PM +0200, Yaacov Akiba Slama wrote:
+> Can you test the enclosed patch. It seems to be both simple and to 
+> resolve the resource collisions and the "No IRQ known" problem.
+> I added a smal comment (and modified another) so future janitors won't 
+> move pci_enable above pci_assign_resource again.
+> If everyone is ok, I can send it to Linus for inclusion in BK (I have 
+> the green light of Dave Jones).
+> 
+> Thanks,
+> Yaacov Akiba Slama
+> 
+> Mikael Pettersson wrote:
+> 
+> >Jens Taprogge writes:
+> >> The cardbus problems are caused by 
+> >> 
+> >> ChangeSet@1.797.145.6  2002-11-25 18:31:10-08:00 davej@codemonkey.org.uk
+> >> 
+> >> as far as I can tell. 
+> >> 
+> >> pci_enable_device() will fail at least on i386 (see
+> >> arch/i386/pci/i386.c: pcibios_enable_resource (line 260)) if the
+> >> resources have not been assigned previously. Hence the ostensible
+> >> resource collisions.
+> >> 
+> >> The attached patch should fix the problem.
+> >> 
+> >> I have send the patch to Dave Jones some time ago but did not hear from
+> >> him yet.
+> >> 
+> >> I am not subscribed to the list so please cc me on replys. 
+> >
+> >Thanks. Your patch fixed the cardbus hotplug issue perfectly on my laptop.
+> >It survives multiple insert/eject cycles without any problems.
+> >
+> >The patch posted by Yaacov Akiba Slama today also fixed cardbus hotplug
+> >for me, but with his patch the kernel still prints "PCI: No IRQ known for
+> >interrupt pin A of device xx:xx.x. Please try using pci=biosirq" when the
+> >cardbus NIC is inserted; Jens Taprogge's patch silenced that warning.
+> >
+> >/Mikael
+> >
+> > 
+> >
+
+> --- drivers/pcmcia/cardbus.c.original	2003-01-14 19:38:49.000000000 +0200
+> +++ drivers/pcmcia/cardbus.c	2003-01-15 18:21:40.000000000 +0200
+> @@ -285,25 +285,29 @@
+>  		dev->dev.dma_mask = &dev->dma_mask;
+>  
+>  		pci_setup_device(dev);
+> -		if (pci_enable_device(dev))
+> -			continue;
+>  
+>  		strcpy(dev->dev.bus_id, dev->slot_name);
+>  
+> -		/* FIXME: Do we need to enable the expansion ROM? */
+> +		/* We need to assign resources for expansion ROM. */
+>  		for (r = 0; r < 7; r++) {
+>  			struct resource *res = dev->resource + r;
+> -			if (res->flags)
+> +			if (!res->start && res->end)
+>  				pci_assign_resource(dev, r);
+>  		}
+>  
+>  		/* Does this function have an interrupt at all? */
+>  		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
+> -		if (irq_pin) {
+> +		if (irq_pin)
+>  			dev->irq = irq;
+> -			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
+> -		}
+> +		
+> +		/* pci_enable_device needs to be called after pci_assign_resource */
+> +		/* because it returns an error if (!res->start && res->end).      */
+> +		if (pci_enable_device(dev))
+> +			continue;
+>  
+> +		if (irq_pin)
+> +			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
+> +		
+>  		device_register(&dev->dev);
+>  		pci_insert_device(dev, bus);
+>  	}
 
 
-
- arch/alpha/Kconfig                |    9 +
- arch/alpha/Makefile               |    4 
- arch/alpha/boot/Makefile          |    7 +
- arch/alpha/kernel/alpha_ksyms.c   |   13 ++
- arch/alpha/kernel/core_wildfire.c |   27 +++++
- arch/alpha/kernel/osf_sys.c       |    9 -
- arch/alpha/kernel/pci_impl.h      |    4 
- arch/alpha/kernel/pci_iommu.c     |   38 +++++++
- arch/alpha/kernel/proto.h         |    4 
- arch/alpha/kernel/setup.c         |   18 +++
- arch/alpha/kernel/smp.c           |  113 +++++++++++------------
- arch/alpha/kernel/sys_wildfire.c  |    5 +
- arch/alpha/lib/callback_srm.S     |    2 
- arch/alpha/mm/numa.c              |  101 ++++++---------------
- arch/alpha/vmlinux.lds.S          |  181 ++++++++++++++++++--------------------
- include/asm-alpha/console.h       |    5 +
- include/asm-alpha/hardirq.h       |    8 +
- include/asm-alpha/ide.h           |    2 
- include/asm-alpha/io.h            |   34 +++++--
- include/asm-alpha/machvec.h       |    6 +
- include/asm-alpha/mmzone.h        |  137 ++++++++++++++++------------
- include/asm-alpha/numnodes.h      |    8 -
- include/asm-alpha/pgalloc.h       |    3 
- include/asm-alpha/pgtable.h       |   32 ------
- include/asm-alpha/smp.h           |   15 ++-
- include/asm-alpha/system.h        |    2 
- include/asm-alpha/topology.h      |   47 ++++++++-
- 27 files changed, 482 insertions, 352 deletions
-
-through these ChangeSets:
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.935)
-   [PATCH] alpha kernel start address
-   From Jeff.Wiedemeier@hp.com:
-   
-   Bump non-legacy start addr to 16mb to accomodate new larger
-   SRM console footprint.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.934)
-   [PATCH] alpha smp fixes
-   From Jeff.Wiedemeier@hp.com:
-   
-   Misc alpha smp updates for 2.5 tree.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.933)
-   [PATCH] alpha numa update
-   From Jeff.Wiedemeier@hp.com:
-   
-   numa mm update including moving alpha numa support into 
-   machine vector so a generic numa kernel can be used.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.932)
-   [PATCH] alpha numa iommu
-   From Jeff.Wiedemeier@hp.com:
-   
-   On NUMA alpha systems, attempt to allocate scatter-gather
-   tables local to IO processor.  If that doesn't work, then
-   allocate anywhere in the system.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.931)
-   [PATCH] alpha mem_size_limit
-   From Jeff.Wiedemeier@hp.com:
-   
-   This adds the 32GB limit to setup.c.  (It actually hits the first
-   2 nodes on Marvel, but that's ok, where we really run into a big
-   problem is if we go past 4, then we hit a much larger hole.)
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.930)
-   [PATCH] alpha ide hwifs
-   From Jeff.Wiedemeier@hp.com:
-   
-   Make the max IDE HWIFS configurable on alpha (default to
-   previous hardwired value of 4).
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.929)
-   [PATCH] alpha console callbacks
-   From Jeff.Wiedemeier@hp.com:
-   
-   Add open_console / close_console callback definitions.
-
-<rth@are.twiddle.net> (03/01/15 1.928)
-   [ALPHA] Expose shifts in virt_to_phys to the compiler.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.927)
-   [PATCH] alpha ev6/ev7 virt_to_phys
-   From Jeff.Wiedemeier@hp.com:
-   
-   Adjust virt_to_phys / phys_to_virt functions to follow
-   EV6/7 PA sign extension to properly convert between 43-bit
-   superpage I/O addresses and physical addresses.
-   This change is backwards compatible with all previous Alphas
-   as they implemented fewer than 41 bits of physical address.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.926)
-   [PATCH] alpha osf_shmat lock
-   From Jeff.Wiedemeier@hp.com:
-   
-   Remove redundant lock in osf_shmat (sys_shmat locks already);
-   redundant lock has been seen to cause livelock in some workloads.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.925)
-   [PATCH] alpha kernel layout
-   From Jeff.Wiedemeier@hp.com:
-   
-   Adjust kernel layout format to match other architectures and
-   prevent reording of the first entry in a section with the
-   section start label.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.924)
-   [PATCH] alpha HARDIRQ_BITS
-   From Jeff.Wiedemeier@hp.com:
-   
-   Adjust Alpha HARDIRQ_BITS check to make sure there is enough
-   room for each IPL, not each interrupt (Marvel can have
-   too many unique device interrupts for that, and it really
-   only needs to cover potential nesting of interrupts, which covering
-   the IPLs does)
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.923)
-   [PATCH] alpha ipi timeout
-   From Jeff.Wiedemeier@hp.com:
-   
-   Two stage timeout in alpha call_function_on_cpu. If the
-   primary timeout expires with no response, log a message and
-   start secondary timeout. If reponse is received log how
-   far into secondary timeout. If no response is received,
-   crash.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.922)
-   [PATCH] alpha bootp target
-   From Jeff.Wiedemeier@hp.com:
-   
-   Fix alpha Makefiles for bootpfile target.
-
-<ink@jurassic.park.msu.ru> (03/01/15 1.921)
-   [PATCH] alpha ksyms
-   From Jeff.Wiedemeier@hp.com:
-   
-   Export proper functions when debugging is enabled.
+-- 
+Jens Taprogge
 

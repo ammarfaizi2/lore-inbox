@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUJCVWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268163AbUJCV0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268158AbUJCVWw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 17:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUJCVWw
+	id S268163AbUJCV0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 17:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268164AbUJCV0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 17:22:52 -0400
-Received: from compunauta.com ([69.36.170.169]:36747 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S268158AbUJCVWt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 17:22:49 -0400
-From: Gustavo Guillermo Perez <gustavo@compunauta.com>
-Subject: Possible GPL Violation of Linux in Amstrad's E3 Videophone (me too???)
-Date: Sun, 3 Oct 2004 19:48:30 +0600
-User-Agent: KMail/1.5.4
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 3 Oct 2004 17:26:13 -0400
+Received: from mail.dif.dk ([193.138.115.101]:21902 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268163AbUJCV0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 17:26:11 -0400
+Date: Sun, 3 Oct 2004 23:33:33 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Chas Williams <chas@cmf.nrl.navy.mil>,
+       linux-atm-general <linux-atm-general@lists.sourceforge.net>
+Subject: [PATCH] fix warning about wrong format in drivers/atm/ambassador.c::do_pci_device
+Message-ID: <Pine.LNX.4.61.0410032325010.2954@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200410031905.25980.gustavo@compunauta.com>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops then may be I'm violating GPL too, cause I'm using Linux 2.4.xx, uClibc 
-and CUPS and, and, in my small distro, and I'm not putting to download the 
-sources of the whole scripts to made the bootable ISO, and control the 
-system.
-I'm distributing a uClibc Linux Based distro, just live, to shell personalized 
-copies to my customers (disconfiguration-proof), I put a ligth version to 
-download and sources of everything I can on two DSL servers. But cause I'm 
-alone in developing I've a little disorder to understand some stuffs about 
-GPL and I've a couple of peoples that knows my work and they wants to shell
-it without say tanks, I decide to not upload the whole sources of remote panel 
-and scripts and full version until I shell 50 or 100 copies.
 
-But in other side, cause I get the whole Linux Development Box as almost GPL, 
-I made some contributions in GPL too (to feel I'm part of the GPL team), like 
-add2cd script to make console multisession disks (perl) may be helps someone 
-to make sources backup:
-http://www.compunauta.com/forums/linux/grabarcds/img/add2cd
-and subfixer to blah blah (Java, I can't understand Sun's license if I compile 
-it without kaffe or GNU classpath). and and and...
+gcc spits the following at me when building drivers/atm/ambassador.c :
 
-I take GPL as a flag, I take it since Richard M. Stallman do a conference 
-about free Software on Rosario/Argentina, every Program I made for my 
-customers, I tell they this is a free software, you pay for get them running 
-not for rights and life warranties, and you have the whole sources if you 
-don't want my services anymore. They call us as a last option cause we can do 
-whatever they can imagine with Linux. On this cases, is a personalized 
-software, we do not publish everything until we have a customer, and only 
-publish the sources to our customers (they pay for the software get born). 
-When my small company shell computers we install and promote Linux on them as 
-a primary boot option over Micro$ofs popular Os, and enforce Free OpenSource 
-Software usage over Comercial one. People loves the Linux robustness when 
-they know them. Thanks to the Linux Kernel Team I can install almost 
-everything on a Linux box. But we don't provide to our customers the whole 
-sources of every program, just kernel's one cause is needed to build third 
-party drivers and normal users use disk space for multimedia and they never 
-need to see or modify the sources...
+  CC      drivers/atm/ambassador.o
+drivers/atm/ambassador.c: In function `do_pci_device':
+drivers/atm/ambassador.c:2295: warning: unsigned int format, long unsigned int arg (arg 2)
+drivers/atm/ambassador.c:2295: warning: unsigned int format, long unsigned int arg (arg 2)
 
-Then I think I'm not evil, I'm wondering to ear that one DVD Player supports 
-DIVX thanks to Linux/MPlayer or a Phone or a Government is using Linux on 
-their offices, or... but I hate to profit without say just Tanks Guys.
-
-¿I'm wrong, to hide for a while some sources????????
-
-Thanks Kernel Suff!
-
---
--------
-Gustavo Guillermo Perez
-Compunauta uLinux
-www.userver.tk
+Here's a trivial fix.
 
 
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.9-rc3-bk3-orig/drivers/atm/ambassador.c linux-2.6.9-rc3-bk3/drivers/atm/ambassador.c
+--- linux-2.6.9-rc3-bk3-orig/drivers/atm/ambassador.c	2004-09-30 05:03:55.000000000 +0200
++++ linux-2.6.9-rc3-bk3/drivers/atm/ambassador.c	2004-10-03 23:23:19.000000000 +0200
+@@ -2293,7 +2293,7 @@ static int __init do_pci_device(struct p
+ 	u8 irq = pci_dev->irq;
+ 
+ 	PRINTD (DBG_INFO, "found Madge ATM adapter (amb) at"
+-		" IO %x, IRQ %u, MEM %p", pci_resource_start(pci_dev, 1),
++		" IO %lx, IRQ %u, MEM %p", pci_resource_start(pci_dev, 1),
+ 		irq, bus_to_virt(pci_resource_start(pci_dev, 0)));
+ 
+ 	// check IO region
 
 

@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264072AbRF2VYL>; Fri, 29 Jun 2001 17:24:11 -0400
+	id <S261425AbRF2VbD>; Fri, 29 Jun 2001 17:31:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264652AbRF2VYB>; Fri, 29 Jun 2001 17:24:01 -0400
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:49312 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S264072AbRF2VXs>; Fri, 29 Jun 2001 17:23:48 -0400
-Date: Fri, 29 Jun 2001 22:23:43 +0100 (BST)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-X-X-Sender: <ap1gvl@erdos.shef.ac.uk>
-To: <reiserfs-dev@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: 2.4.6-pre3 + reiserfs + NFS peculiarities
-In-Reply-To: <3AFBC643.42631F5C@namesys.com>
-Message-ID: <Pine.LNX.4.31.0106292129450.13659-100000@erdos.shef.ac.uk>
+	id <S261558AbRF2Vay>; Fri, 29 Jun 2001 17:30:54 -0400
+Received: from cpe-66-1-45-23.az.sprintbbd.net ([66.1.45.23]:10257 "EHLO
+	deming-os.org") by vger.kernel.org with ESMTP id <S261425AbRF2Vaf>;
+	Fri, 29 Jun 2001 17:30:35 -0400
+Message-ID: <3B3CF50E.65D24882@deming-os.org>
+Date: Fri, 29 Jun 2001 14:37:18 -0700
+From: Tom spaziani <digiphaze@deming-os.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Module tracing.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+I've recently been laboring over a kernel module that allows other
+kernel modules to send messages
+and tracing statements.  If anyone has any input on whether this would
+be a usefull thing or not
+please let me know. Here is a quick breakdown on how it works.
 
-We've installed reiserfs on a logical volume, consisting of 2 60GB hard
-drives, and exported it over NFS. Kernel 2.4.6-pre3. In the beginning
-everything seemed to be fine. But then a few strange things have happened:
+Beware, this is only a BRIEF explaination.. I'll follow up with more
+details if anyone is intereasted.
 
-1. I tried running a program on a host, importing the filesystem in
-question, and sending its output to it.  The program uses fwrite function,
-and checks the number of items written, so, it didn't match. On the second
-run yet another (similar writing)  problem occured, but since then this
-program has been running for a few hours already without any noticeable
-errors. The remote host is Solaris-2.7 on a Sparc.
+trace.o  <- Tracing module
+mymodule .o  <-  Client module
 
-2. Another strangeness - this filesystem is also mounted on yet another
-Linux machine, running 2.4.5. Actually, the situation is slightly more
-complicated: on host a we've got 2 logical volumes with reiserfs: a1 and
-a2, mounted in /mnt/lvm/a1 and /mnt/lvm/a2.  And the whole directory
-/mnt/lvm is exported over NFS. So, when on a remote host you do df -k on
-that mounted filesystem, all 3 values (total, occupied, free) are wrong.
+1: Load tracing module
+2: Load a module that uses the tracing modules for reporting.
+    a. the client module requests a certain number of reporting levels.
+    b. the trace module creates a devFS entry for each of the requested
+reporting levels.
+                    ( /dev/trace/mymodule/mymodule0
+                                                          mymodule1 ...
+)
+3. Now the client module can send messages with a specific severity
+rating and have it set
+    to the appropriate character file.
+4. User space programs listening on each of the character files can do
+whatever, log the messages
+    or perform tasks depending on the message.
+5. When a client module is unloaded the devFS entries are removed and
+the user programs are also
+    told to close the file.
 
-3. All (except ext2, which is used for /) filesystems are compiled as
-modules. reiserfs is loaded on boot, when lvols are mounted. I tried
-mounting a fat-diskette, and got the following mesage:
-
-read_old_super_block: try to find super block in old location
-read_old_super_block: can't find a reiserfs filesystem on dev 02:00.
-
-If all the problems, mentioned above are known and have known solutions
-(patches, etc, however, I checked the reiserfs ftp-site - no patches for
-2.4.6 yet), please let me know. Shall I use an earlier kernel version? If
-they are new, I'll gladly provide any necessary additional information.
-Below is lspci output:
-
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 03)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 40)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
-00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 50)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC AGP (rev 7a)
-
-Thanks
-Guennadi
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, Sheffield, U.K.
-email: g.liakhovetski@sheffield.ac.uk
-
+I am using the devFS filesystem because of the abilities to easily
+dynamically create new entries and
+remove them..  Currently devFS does not recycle Major and Minor numbers,
+but a co-worker of mine
+has created a patch to fix that.
 

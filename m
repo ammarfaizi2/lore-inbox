@@ -1,32 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270343AbRHMR6r>; Mon, 13 Aug 2001 13:58:47 -0400
+	id <S270354AbRHMSHH>; Mon, 13 Aug 2001 14:07:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270354AbRHMR6h>; Mon, 13 Aug 2001 13:58:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61191 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270343AbRHMR62>; Mon, 13 Aug 2001 13:58:28 -0400
-Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
-To: braam@clusterfilesystem.com (Peter J. Braam)
-Date: Mon, 13 Aug 2001 19:01:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        johannes@erdfelt.com (Johannes Erdfelt), linux-kernel@vger.kernel.org
-In-Reply-To: <20010813115535.B1958@lustre.dyn.ca.clusterfilesystem.com> from "Peter J. Braam" at Aug 13, 2001 11:55:35 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270359AbRHMSG5>; Mon, 13 Aug 2001 14:06:57 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15746 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S270354AbRHMSGs>; Mon, 13 Aug 2001 14:06:48 -0400
+Date: Mon, 13 Aug 2001 14:06:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Serial I/O error
+Message-ID: <Pine.LNX.3.95.1010813140119.2631A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WM1P-0007uJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
-> 
-> > Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
-> > in the USB and input updates in -ac
-> It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
 
-It would be useful to know if 2.4.7ac3 say works and if so which one after
-that it broke at
+Greetings,
+
+I have a simple `getty` for monitoring a modem. It is designed
+for access like the old Digital terminal servers so it can't
+get confused with "CONNECT NNN" messages, etc.
+
+A thumbnail sketch of the code is:
+
+Parent getty opens /dev/ttySn using flags O_NDELAY. It then sets
+flags back.
+
+Parent waits for activity on modem, then forks to execute /bin/login.
+
+Parent waits for the child to expire either because of a login-failure
+or because of normal process termination.
+
+The parent keeps the child's fd open because it wants to hang up the
+modem when the child is through.
+
+After the child exits, the parent attempts to hang-up the modem by
+setting the baud-rate to B0, waiting 2 seconds, then setting the
+band-rate back. The modem DOES get hung up, however `tcsetattrib()`
+returns -1 and errno is set to EIO.
+
+If the parent, instead of using the original fd, keeps that open and
+opens another fd for the serial link, everything works okay.
+
+So, it __seems__ as though the fd that was duped in the child to
+0, 1, and 2, is corrupted once the child expires. If the parent uses
+the file descriptor before the child expires, everything is fine.
+
+The code is available if anyone wants to see it. I don't like
+to have to use a work-around, like the second open(), in what
+should be simple code.
+
+Anybody have any ideas? Is it a serial bug?  FYI, the code works
+both on my Sun and on Linux 2.4.1. However, it reports an error
+on Linux and does not report an error on the Sun, SunOS 5.5.1.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,68 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbSKHCDt>; Thu, 7 Nov 2002 21:03:49 -0500
+	id <S266708AbSKHCCU>; Thu, 7 Nov 2002 21:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266713AbSKHCDs>; Thu, 7 Nov 2002 21:03:48 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57338 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266712AbSKHCDo>;
-	Thu, 7 Nov 2002 21:03:44 -0500
-Message-ID: <3DCB1D09.EE25507D@digeo.com>
-Date: Thu, 07 Nov 2002 18:10:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adam Kropelin <akropel1@rochester.rr.com>
-CC: MdkDev <mdkdev@starman.ee>, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: ide-cd cdrecord success report
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee> <20021108015316.GA1041@www.kroptech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2002 02:10:18.0155 (UTC) FILETIME=[FBD887B0:01C286CB]
+	id <S266712AbSKHCCU>; Thu, 7 Nov 2002 21:02:20 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:11712 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266708AbSKHCCQ>;
+	Thu, 7 Nov 2002 21:02:16 -0500
+Message-Id: <200211080208.gA828nD24150@eng4.beaverton.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.46: duplicate statistics being gathered
+Date: Thu, 07 Nov 2002 18:08:48 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin wrote:
-> 
-> ..
-> dd if=/dev/hda1 of=/dev/null bs=1M
-> 
-> ...in parallel with...
-> 
-> dd if=/dev/zero of=/mnt/foo bs=1M
-> 
-> When you kick in the write load, the read throughput drops to < 1
-> MB/sec. `vmstat 1` output below shows the transition...
-> 
-> --Adam
-> 
->    procs                      memory      swap          io     system      cpu
->  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
->  2  0  0   4272 112684  20356  36856    0    0     0    16 1016    72  5  0 95
->  0  1  1   4272 108476  23676  36856    0    0  3320     0 1067   224 13  4 83
->  1  0  1   4272  96656  35580  36856    0    0 11904     0 1192   474 30 39 30
->  0  1  0   4272  84836  47356  36856    0    0 11776     0 1192   463 30 42 27
->  0  1  1   4272  72956  59268  36856    0    0 11904    40 1313  1139 44 38 18
->  0  1  0   4272  61076  71044  36856    0    0 11776     0 1200   478 29 43 29
->  0  1  0   4272  49256  82828  36856    0    0 11784     0 1199   522 39 37 24
->  0  1  0   4272  37196  94732  36856    0    0 11904     0 1199   497 35 38 26
->  0  1  0   4272  25256 106508  36856    0    0 11776     0 1199   512 32 43 24
->  1  2  3   4692   2468  75604  90132    0  420  9608 10888 1189   721 19 75  6
->  0  2  3   4692   3540  46932 117580    0    0   808 10428 1093   287 30 70  0
->  0  2  3   4692   3448  42916 121624    0    0  1024  8824 1099   266 65 35  0
->  0  2  3   4692   3200  35152 129692    0    0  1024  6512 1088   294 55 45  0
->  0  2  4   4692   1564  24640 141696    0    0   768  7688 1091   277 44 56  0
->  1  1  2   4692   3492  19044 145484    0    0  1024  5956 1084   285 69 31  0
+In 2.5.46, there are now disk statistics being collected twice: once
+for gendisk/hd_struct, and once for dkstat.  They are collecting the
+same thing.  This patch removes dkstat, which also had the disadvantage
+of being limited by DK_MAX_MAJOR and DK_MAX_DISK. (Those #defines are
+removed too.)
 
-Your bandwidth there fell from 12 megs/sec to around 8.  That is
-reasonable, I think.  It's just that the read-vs-write balance is
-wrong for you.
+In addition, this patch removes disk statistics from /proc/stat since
+they are now available via sysfs and there seems to have been a general
+preference in previous discussions to "clean up" /proc/stat.  Too many
+disks being reported in /proc/stat also caused buffer overflows when
+trying to print out the data.
 
-Try changing drivers/block/deadline-iosched.c:fifo_batch to 16.
+The code in led.c from the parisc architecture has not apparently been
+recompiled under recent versions of 2.5, since it references
+kstat.dk_drive which doesn't exist in later versions.  Accordingly,
+I've added an #ifdef 0 and a comment to that code so that it may at
+least compile, albeit without one feature -- a step up from its state
+now.  If it is preferable to keep the broken code in, that patch may
+easily be excised from below.
 
-And the application isn't performing enough caching, perhaps.
+Rick
 
-The VM could be fairly easily changed to defer writeback if there is
-read activity happening on the same spindle.  Been thinking about
-that (and its relative, early flush) a bit.  But that write has
-to go to disk sometime.
+diff -ru stat-2.5.46/drivers/block/ll_rw_blk.c stat-2.5.46-rl1/drivers/block/ll_rw_blk.c
+--- stat-2.5.46/drivers/block/ll_rw_blk.c	Mon Nov  4 14:30:06 2002
++++ stat-2.5.46-rl1/drivers/block/ll_rw_blk.c	Thu Nov  7 16:52:12 2002
+@@ -28,11 +28,6 @@
+ #include <linux/slab.h>
+ 
+ /*
+- * Disk stats 
+- */
+-struct disk_stat dkstat;
+-
+-/*
+  * For the allocated request tables
+  */
+ static kmem_cache_t *request_cachep;
+@@ -1433,19 +1428,6 @@
+ 
+ 	major = rq->rq_disk->major;
+ 	index = rq->rq_disk->first_minor >> rq->rq_disk->minor_shift;
+-
+-	if ((index >= DK_MAX_DISK) || (major >= DK_MAX_MAJOR))
+-		return;
+-
+-	dkstat.drive[major][index] += new_io;
+-	if (rw == READ) {
+-		dkstat.drive_rio[major][index] += new_io;
+-		dkstat.drive_rblk[major][index] += nr_sectors;
+-	} else if (rw == WRITE) {
+-		dkstat.drive_wio[major][index] += new_io;
+-		dkstat.drive_wblk[major][index] += nr_sectors;
+-	} else
+-		printk(KERN_ERR "drive_stat_acct: cmd not R/W?\n");
+ }
+ 
+ /*
+diff -ru stat-2.5.46/drivers/parisc/led.c stat-2.5.46-rl1/drivers/parisc/led.c
+--- stat-2.5.46/drivers/parisc/led.c	Mon Nov  4 14:30:17 2002
++++ stat-2.5.46-rl1/drivers/parisc/led.c	Thu Nov  7 17:29:09 2002
+@@ -403,6 +403,14 @@
+ 	int major, disk, total;
+ 	
+ 	total = 0;
++#ifdef 0
++	/*
++	 * this section will no longer work in 2.5, as we no longer
++	 * have either kstat.dk_drive nor DK_MAX_*.  It can probably
++	 * be rewritten to use the per-disk statistics now kept in the
++	 * gendisk, but since I have no HP machines to test it on, I'm
++	 * not really up to that.  ricklind@us.ibm.com 11/7/02
++	 */
+ 	for (major = 0; major < DK_MAX_MAJOR; major++) {
+ 	    for (disk = 0; disk < DK_MAX_DISK; disk++)
+ 		total += kstat.dk_drive[major][disk];
+@@ -416,6 +424,7 @@
+ 	    } else
+ 		led_diskio_counter += CALC_ADD(total, diskio_max, addvalue);
+ 	}
++#endif
+ 	
+ 	diskio_total_last += total; 
+ }
+diff -ru stat-2.5.46/fs/proc/proc_misc.c stat-2.5.46-rl1/fs/proc/proc_misc.c
+--- stat-2.5.46/fs/proc/proc_misc.c	Mon Nov  4 14:30:07 2002
++++ stat-2.5.46-rl1/fs/proc/proc_misc.c	Thu Nov  7 16:52:38 2002
+@@ -381,26 +381,6 @@
+ 		len += sprintf(page + len, " %u", kstat_irqs(i));
+ #endif
+ 
+-	len += sprintf(page + len, "\ndisk_io: ");
+-
+-	for (major = 0; major < DK_MAX_MAJOR; major++) {
+-		for (disk = 0; disk < DK_MAX_DISK; disk++) {
+-			int active = dkstat.drive[major][disk] +
+-				dkstat.drive_rblk[major][disk] +
+-				dkstat.drive_wblk[major][disk];
+-			if (active)
+-				len += sprintf(page + len,
+-					"(%u,%u):(%u,%u,%u,%u,%u) ",
+-					major, disk,
+-					dkstat.drive[major][disk],
+-					dkstat.drive_rio[major][disk],
+-					dkstat.drive_rblk[major][disk],
+-					dkstat.drive_wio[major][disk],
+-					dkstat.drive_wblk[major][disk]
+-			);
+-		}
+-	}
+-
+ 	len += sprintf(page + len,
+ 		"\nctxt %lu\n"
+ 		"btime %lu\n"
+diff -ru stat-2.5.46/include/linux/blkdev.h stat-2.5.46-rl1/include/linux/blkdev.h
+--- stat-2.5.46/include/linux/blkdev.h	Mon Nov  4 14:30:14 2002
++++ stat-2.5.46-rl1/include/linux/blkdev.h	Thu Nov  7 16:54:42 2002
+@@ -11,22 +11,6 @@
+ 
+ #include <asm/scatterlist.h>
+ 
+-/*
+- * Disk stats ...
+- */
+-
+-#define DK_MAX_MAJOR 16
+-#define DK_MAX_DISK 16
+- 
+-struct disk_stat {
+-        unsigned int drive[DK_MAX_MAJOR][DK_MAX_DISK];
+-        unsigned int drive_rio[DK_MAX_MAJOR][DK_MAX_DISK];
+-        unsigned int drive_wio[DK_MAX_MAJOR][DK_MAX_DISK];
+-        unsigned int drive_rblk[DK_MAX_MAJOR][DK_MAX_DISK];
+-        unsigned int drive_wblk[DK_MAX_MAJOR][DK_MAX_DISK];
+-};
+-extern struct disk_stat dkstat;
+-
+ struct request_queue;
+ typedef struct request_queue request_queue_t;
+ struct elevator_s;

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315204AbSFIVEo>; Sun, 9 Jun 2002 17:04:44 -0400
+	id <S315210AbSFIVFp>; Sun, 9 Jun 2002 17:05:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSFIVEn>; Sun, 9 Jun 2002 17:04:43 -0400
-Received: from mail.libertysurf.net ([213.36.80.91]:4385 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S315204AbSFIVEm>; Sun, 9 Jun 2002 17:04:42 -0400
-Date: Sun, 9 Jun 2002 23:03:56 +0200 (CEST)
-From: Rui Sousa <rui.sousa@laposte.net>
-X-X-Sender: rsousa@localhost.localdomain
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: About new list commands and emu10k1
-In-Reply-To: <Pine.LNX.4.44.0206091315290.8715-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206092301550.9249-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315214AbSFIVFm>; Sun, 9 Jun 2002 17:05:42 -0400
+Received: from holomorphy.com ([66.224.33.161]:22421 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315210AbSFIVFI>;
+	Sun, 9 Jun 2002 17:05:08 -0400
+Date: Sun, 9 Jun 2002 14:04:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: comments on adding slist.h
+Message-ID: <20020609210452.GC22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Thomas 'Dent' Mirlacher <dent@cosy.sbg.ac.at>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.05.10206091405450.16324-100000@mausmaki.cosy.sbg.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jun 2002, Thunder from the hill wrote:
+On Sun, Jun 09, 2002 at 02:09:57PM +0200, Thomas 'Dent' Mirlacher wrote:
+> since we've already list.h, what about adding slist.h for
+> single linked lists?
+> single linked list are often used within the kernel,
+> specifically slist_for_each() could be useful, since we can use
+> prefetch() there.  (slist_for_each could be used 42 times alone net/core)
+> any comments, (like, single linked lists are so trivial, there is no
+> need for a header file. or, the programmer has to take care of using
+> prefetch() when traversing single linked lists ...) are welcome.
+> thanks,
+> 	tm
+
+This would be a valuable contribution.
 
 
-> Hi,
-> 
-> I couldn't reach the emu10k1 guys for some obscure reason.
-
-The maintainer file for OSS emu10k1 needs to be updated (as well as the 
-driver)... However _this_ emu10k1 driver is from ALSA.
-
-Rui Sousa
-
-> I had a patch
-> which sounded like this:
-> 
-> --- linus-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 04:18:03 2002
-> +++ thunder-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 07:47:37 2002
-> @@ -259,8 +259,7 @@
->  	spin_lock_irqsave(&emu->memblk_lock, flags);
->  	if (blk->mapped_page >= 0) {
->  		/* update order link */
-> -		list_del(&blk->mapped_order_link);
-> -		list_add_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
-> +		list_move_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
->  		spin_unlock_irqrestore(&emu->memblk_lock, flags);
->  		return 0;
->  	}
-> 
-> Regards,
-> Thunder
-> 
-
+Thanks,
+Bill

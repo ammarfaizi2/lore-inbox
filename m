@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267690AbRGUPyA>; Sat, 21 Jul 2001 11:54:00 -0400
+	id <S267695AbRGUQJS>; Sat, 21 Jul 2001 12:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbRGUPxu>; Sat, 21 Jul 2001 11:53:50 -0400
-Received: from jdi.jdimedia.nl ([212.204.192.51]:1746 "EHLO jdi.jdimedia.nl")
-	by vger.kernel.org with ESMTP id <S267692AbRGUPxg>;
-	Sat, 21 Jul 2001 11:53:36 -0400
-Date: Sat, 21 Jul 2001 17:53:10 +0200 (CEST)
-From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-X-X-Sender: <igmar@jdi.jdimedia.nl>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.6] USB thinks I've got 2 keyboards
-In-Reply-To: <Pine.LNX.4.10.10107210848220.29725-100000@transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0107211751480.28106-100000@jdi.jdimedia.nl>
+	id <S267697AbRGUQJI>; Sat, 21 Jul 2001 12:09:08 -0400
+Received: from pop.gmx.net ([194.221.183.20]:42963 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267695AbRGUQI7>;
+	Sat, 21 Jul 2001 12:08:59 -0400
+Message-ID: <000f01c111ff$73602ce0$c20e9c3e@host1>
+From: "peter k." <spam-goes-to-dev-null@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.7: wtf is "ksoftirqd_CPU0"
+Date: Sat, 21 Jul 2001 18:08:42 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is started
+automatically when booting (by the kernel obviously)? why? what does it do?
+i didnt find any useful information on it in linuxdoc / linux-kernel
+archives
 
-> I have seen this. Look for a USB port on your keyboard. Some keyboards
-> come with a port to plug a USB mouse into. The USB detects this other port
-> and the HID layer reports it as a USB mouse. It is very normal.
-
-The keyboard indeed does have 2 USB ports. The reported mouse is actually
-there, and not connected to the keyboard.
-
-	Igmar
-
--- 
-
-Igmar Palsenberg
-JDI Media Solutions
-
-Boulevard Heuvelink 102
-6828 KT Arnhem
-The Netherlands
-
-mailto: i.palsenberg@jdimedia.nl
-PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 

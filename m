@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSFJVXv>; Mon, 10 Jun 2002 17:23:51 -0400
+	id <S316339AbSFJV0y>; Mon, 10 Jun 2002 17:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316339AbSFJVXu>; Mon, 10 Jun 2002 17:23:50 -0400
-Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:25691 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S316309AbSFJVXs>; Mon, 10 Jun 2002 17:23:48 -0400
-Message-ID: <3D0518BF.4090404@blue-labs.org>
-Date: Mon, 10 Jun 2002 17:23:11 -0400
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020501
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre10-ac2, compile warnings/failures
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bmilter: Processing completed, Bmilter version 0.1.0 build 565; timestamp 2002-06-10 17:23:12, message serial number 4850
+	id <S316309AbSFJV0x>; Mon, 10 Jun 2002 17:26:53 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:12742 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316339AbSFJV0v>;
+	Mon, 10 Jun 2002 17:26:51 -0400
+Date: Mon, 10 Jun 2002 23:26:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Chris Faherty <rallymonkey@bellsouth.net>, linux-kernel@vger.kernel.org
+Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
+Message-ID: <20020610232637.A4589@ucw.cz>
+In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <200206091807.11524.bhards@bigpond.net.au> <20020609151922Z317623-22020+1197@vger.kernel.org> <200206101057.20259.bhards@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpqphp.h: In function `cpq_get_latch_status':
-cpqphp.h:698: warning: concatenation of string literals with 
-__FUNCTION__ is deprecated
-cpqphp.h: In function `wait_for_ctrl_irq':
-cpqphp.h:736: warning: concatenation of string literals with 
-__FUNCTION__ is deprecated
-cpqphp.h:746: warning: concatenation of string literals with 
-__FUNCTION__ is deprecated
+On Mon, Jun 10, 2002 at 10:57:20AM +1000, Brad Hards wrote:
+> On Mon, 10 Jun 2002 01:19, Chris Faherty wrote:
+> > On Sunday 09 June 2002 04:07 am, Brad Hards wrote:
+> > > Was that using Snoopy?
+> >
+> > I believe that's what it was called.  The program was sniffusb 0.13.  I had
+> > problems get later versions to work.  Then I found a nice treatise on
+> > interpreting the log:
+> >
+> > http://www.toth.demon.co.uk/usb/reverse-0.2.txt
+> I'll have to check it out. There are a number of resources (including a nice 
+> Perl script that gets rid of much of the verbosity).
+> Later versions may be W2K, rather than for 98: 
+> http://sourceforge.net/projects/usbsnoop/
+> 
+> > > Any objections to me taking this to 2.4 and 2.5?
+> >
+> > Feel free.  I wonder if MS Intellimouse 3.0 has the same resolution
+> > problem. AFAIK they use the same sensor.
+> Probably not, because only low end manufacturers use reference designs 
+> directly. I have an intellimouse around here somewhere. Don't know anything 
+> about it, because it wouldn't have occurred to me to read the manual or 
+> install the windows drivers. Might have to check it out.
 
-cpqphp_nvram.c:163: warning: concatenation of string literals with 
-__FUNCTION__ is deprecated
+Intellimouse 1.0 uses Agilent HDNS-2000, 2.0 uses ADNS-2001, and 3.0
+uses a chip made by SGS Thompson, under a secret contract with Microsoft
+that has only 400 dpi, but up to one meter per second maximal tracking
+speed.
 
-cpqphp_nvram.c:179:17: missing terminating " character
-cpqphp_nvram.c: In function `access_EV':
-cpqphp_nvram.c:180: parse error before "xorl"
-cpqphp_nvram.c:184:28: missing terminating " character
+> > > This could have been handled by a blacklist table quirk. Any reason why
+> > > you chose to do it this way?
+> >
+> > How does the blacklist work?  Originally I wanted to put the setting in
+> > mousedev but I wasn't sure how to access the usb_device from there.
+> Basically we declare a quirk (in drivers/usb/hid.h)
+> #define HID_QUIRK_LOGITECH_HIRES
+> 
+> and then associate the manufacturer and product IDs for the device with the 
+> quirk in hid-core.c (in hid_blacklist[])
+> { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DOPTICAL, 
+> HID_QUIRK_LOGITECH_HIRES },
+> 
+> And then use (hid->quirk & HID_QUIRK_LOGITECH_HIRES) as the test instead of 
+> ((hid->dev->descriptor.idVendor == USB_VENDOR_ID_LOGITECH) &&
+> (hid->dev->descriptor.idProduct == USB_DEVICE_ID_LOGITECH_DOPTICAL)) in the 
+> routine you actually want to vary.
+> 
+> The advantage is really apparent when Logitech brings out another device with 
+> different product ID (eg a different colour plastic) that has the same 
+> firmware and needs the same change. Much easier to add to the (now badly 
+> misnamed) blacklist than to add more and more conditions to the if().
+> 
+> I'll try for a patch later, that might make this a bit clearer.
+> 
+> Brad
+> 
+> 
+> -- 
+> http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-People, please don't do things like:
-
-   spin_lock_irqsave(&int15_lock, flags);
-   __asm__ (
-      "xorl   %%ebx,%%ebx
-      xorl    %%edx,%%edx
-      pushf
-      push    %%cs
-      cli
-      call    *%6"
-
-Patches keep going in to fix this.
-
-Please do something like:
-
-   spin_lock_irqsave(&int15_lock, flags);
-   __asm__ (
-      "xorl   %%ebx,%%ebx  \n"
-      "xorl    %%edx,%%edx \n"
-      "pushf               \n"
-      "push    %%cs        \n"
-      "cli                 \n"
-      "call    *%6         \n"
-
-
-i2o_core.c:3393:75: missing terminating " character
-         printk(KERN_WARNING "i2o: Could not quiesce %s."  "
-            Verify setup on next system power up.\n", c->name); 
-
-Please write it like:
-
-         printk(KERN_WARNING "i2o: Could not quiesce %s."  
-            "Verify setup on next system power up.\n", c->name);
-
--d
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

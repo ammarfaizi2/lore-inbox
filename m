@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUIIO5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUIIPEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUIIO5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbUIIO5y
+	id S265410AbUIIPEg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 11:04:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUIIPEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:57:54 -0400
-Received: from fire.osdl.org ([65.172.181.4]:29642 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S265489AbUIIO5Y (ORCPT
+	Thu, 9 Sep 2004 11:04:36 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:21479 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S265410AbUIIPEd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:57:24 -0400
-Subject: 10 New compile/sparse warnings (overnight build)
-From: John Cherry <cherry@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1094741838.4142.6.camel@cherrybomb.pdx.osdl.net>
+	Thu, 9 Sep 2004 11:04:33 -0400
+Date: Thu, 9 Sep 2004 17:04:33 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Steve French <smfltc@us.ibm.com>
+Subject: Re: [PATCH 4/4] copyfile: copyfile
+Message-ID: <20040909150432.GA15888@MAIL.13thfloor.at>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Steve French <smfltc@us.ibm.com>
+References: <20040907120908.GB26630@wohnheim.fh-wedel.de> <20040907121118.GA27297@wohnheim.fh-wedel.de> <20040907121235.GB27297@wohnheim.fh-wedel.de> <20040907121520.GC27297@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org> <20040907145118.GA29993@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0409070756410.2299@ppc970.osdl.org> <20040907152118.GA30396@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 09 Sep 2004 07:57:19 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040907152118.GA30396@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 07, 2004 at 05:21:18PM +0200, Jörn Engel wrote:
+> On Tue, 7 September 2004 07:59:11 -0700, Linus Torvalds wrote:
+> > On Tue, 7 Sep 2004, Jörn Engel wrote:
+> > > 
+> > > Does that mean that you're ok with the first three patches?
+> > 
+> > No, it means that they weren't fundamentally flawed..
+> 
+> It's a start...
+> 
+> > Actually, the 4kB batching one was - if you only max out to using 4kB at a 
+> > time, sendfile() is kind of pointless, because then it will never do 
+> > multi-page copies in the first place, and all the complexity at a lower 
+> > level is worthless..
+> 
+> Give me a better number.  16k?  1M?  Or would it not be fundamentally
+> flawed if the unit was seconds, instead of bytes?  That makes a lot
+> more sense, since a floppy and a Ultra320 RAID array differ slightly
+> in speed and it's response time the users actually care about.
 
-Summary:
-   New warnings = 10
-   Fixed warnings = 2
+maybe the 'block/buffer' size could be passed with the
+syscall (maybe with a kernel default), allowing dumb tools 
+to use a fixed value and smart ones, exactly what the user 
+desires ...
 
-New warnings:
--------------
-net/ipv4/ipconfig.c:969:10: warning: undefined identifier 'i'
-net/ipv4/ipconfig.c:969:10: warning: generating address of non-lvalue
+best,
+Herbert
 
-net/ipv4/ipconfig.c:969:10: warning: undefined identifier 'i'
-net/ipv4/ipconfig.c:969:10: warning: generating address of non-lvalue
-
-net/ipv4/ipconfig.c:969:32: warning: undefined identifier 'i'
-
-net/ipv4/ipconfig.c:969:39: warning: unknown expression (7 46)
-
-net/ipv4/ipconfig.c:970:18: warning: unknown expression (7 46)
-
-net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
-net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
-net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
-
-net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
-net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
-net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
-
-net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
-net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
-net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
-
-net/ipv4/ipconfig.c:971:16: warning: unknown expression (7 46)
-
-net/ipv4/ipconfig.c:971:9: warning: undefined identifier 'i'
-
-
-Fixed warnings:
----------------
-fs/coda/file.c:298:14: warning: incorrect type in initializer
-(incompatible argument 5 (different address spaces))
-fs/coda/file.c:298:14:    expected int [usertype] ( *sendfile )( ... )
-fs/coda/file.c:298:14:    got int [usertype] ( static [addressable]
-[toplevel] *<noident> )( ... )
-
-fs/coda/file.c:61:66: warning: incorrect type in argument 5 (different
-address spaces)
-fs/coda/file.c:61:66:    expected void *<noident>
-fs/coda/file.c:61:66:    got void [noderef] *target<asn:1>
-
-
-
+> Jörn
+> 
+> -- 
+> /* Keep these two variables together */
+> int bar;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

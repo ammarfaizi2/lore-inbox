@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbUKFT4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbUKFT5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbUKFT4m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 14:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUKFT4m
+	id S261456AbUKFT5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 14:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUKFT5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 14:56:42 -0500
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:35037 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261454AbUKFT4l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 14:56:41 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: shmem_file_setup not exported
-References: <Pine.LNX.4.44.0411061937370.4000-100000@localhost.localdomain>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Sat, 06 Nov 2004 20:56:40 +0100
-In-Reply-To: <Pine.LNX.4.44.0411061937370.4000-100000@localhost.localdomain> (Hugh
- Dickins's message of "Sat, 6 Nov 2004 19:42:55 +0000 (GMT)")
-Message-ID: <yw1x1xf6oio7.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 6 Nov 2004 14:57:53 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:4992 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261456AbUKFT5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 14:57:36 -0500
+Date: Sat, 6 Nov 2004 20:57:24 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add argument-less ppdev ioctls to compat_ioctl.h
+Message-ID: <20041106195724.GA9137@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> writes:
+Hello Andrew,
+  ppdev's ioctls are not available for 32bit apps on 64bit systems.  There are
+four ioctls which take no argument at all (so they are compatible between
+32bit and 64bit), these numbers do not clash with any other ioctl code, and
+so I see no reason why not applying patch below.
 
-> On Sat, 6 Nov 2004, Måns Rullgård wrote:
->> I noticed this change in mm/shmem.c:
->> 
->> -EXPORT_SYMBOL(shmem_file_setup);
->> 
->> Is there a reason for this, other than nobody using it?
->
-> That's the reason hch rightly removed the export, yes.
-> ipc/shm.c does use it, but it's never a module, so doesn't need export.
-> No other reason, beyond that it's appropriate to minimize exports.
-> If you want to use it from your module, just patch the export back.
+  It solves problem VMware users are faced on 64bit systems if they want to
+use direct access to the parallel port.
+						Thanks,
+							Petr Vandrovec
 
-That makes using the module more complicated.  I don't really care
-much, I'm not actively using the module.  I was just wondering whether
-using it was incredibly silly for some reason.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+Signed-off-by: Petr Vandrovec <vandrove@vc.cvut.cz>
+
+diff -urdN linux/fs/compat_ioctl.c linux/fs/compat_ioctl.c
+--- linux/fs/compat_ioctl.c	2004-11-05 23:39:48.000000000 +0100
++++ linux/fs/compat_ioctl.c	2004-11-06 16:14:15.000000000 +0100
+@@ -96,6 +96,7 @@
+ #include <asm/module.h>
+ #include <linux/soundcard.h>
+ #include <linux/lp.h>
++#include <linux/ppdev.h>
+ 
+ #include <linux/atm.h>
+ #include <linux/atmarp.h>
+diff -urdN linux/include/linux/compat_ioctl.h linux/include/linux/compat_ioctl.h
+--- linux/include/linux/compat_ioctl.h	2004-11-05 23:39:16.000000000 +0100
++++ linux/include/linux/compat_ioctl.h	2004-11-06 14:55:55.000000000 +0100
+@@ -340,6 +340,11 @@
+ COMPATIBLE_IOCTL(PPPOEIOCDFWD)
+ /* LP */
+ COMPATIBLE_IOCTL(LPGETSTATUS)
++/* ppdev */
++COMPATIBLE_IOCTL(PPCLAIM)
++COMPATIBLE_IOCTL(PPRELEASE)
++COMPATIBLE_IOCTL(PPEXCL)
++COMPATIBLE_IOCTL(PPYIELD)
+ /* CDROM stuff */
+ COMPATIBLE_IOCTL(CDROMPAUSE)
+ COMPATIBLE_IOCTL(CDROMRESUME)

@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264365AbUEDNff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUEDNlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbUEDNff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 09:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbUEDNff
+	id S264367AbUEDNlu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 09:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbUEDNlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 09:35:35 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:24517 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S264365AbUEDNfc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 09:35:32 -0400
-Message-ID: <40979C71.8060608@cs.auc.dk>
-Date: Tue, 04 May 2004 15:36:49 +0200
-From: Mikkel Christiansen <mixxel@cs.auc.dk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: workqueue and pending
-References: <40962F75.8000200@cs.auc.dk>	<20040503162719.54fb7020.akpm@osdl.org>	<1083639081.20092.294.camel@gaston> <20040503201616.6f3b8700.akpm@osdl.org>
-In-Reply-To: <20040503201616.6f3b8700.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 May 2004 09:41:50 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:22539 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S264367AbUEDNlp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 09:41:45 -0400
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+From: spam@altium.nl (Dick Streefland)
+Subject: [PATCH] update Documentation/md.txt
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <4769.40979d55.46f00@altium.nl>
+Date: Tue, 04 May 2004 13:40:37 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried the patch and it works fine
+The following patch documents the currently undocumented raid= kernel
+parameter:
 
--Mikkel
+--- linux-2.6.5/Documentation/md.txt.orig	2003-12-18 03:59:05.000000000 +0100
++++ linux-2.6.5/Documentation/md.txt	2004-05-04 15:35:34.000000000 +0200
+@@ -2,6 +2,8 @@ Tools that manage md devices can be foun
+    http://www.<country>.kernel.org/pub/linux/utils/raid/....
+ 
+ 
++Boot time assembly of RAID arrays
++---------------------------------
+ 
+ You can boot with your md device with the following kernel command
+ lines:
+@@ -11,6 +13,8 @@ for old raid arrays without persistent s
+ 
+ for raid arrays with persistent superblocks
+   md=<md device no.>,dev0,dev1,...,devn
++or, to assemble a partitionable array:
++  md=d<md device no.>,dev0,dev1,...,devn
+   
+ md device no. = the number of the md device ... 
+               0 means md0, 
+@@ -34,7 +38,22 @@ A possible loadlin line (Harald Hoyer <H
+ 
+ e:\loadlin\loadlin e:\zimage root=/dev/md0 md=0,0,4,0,/dev/hdb2,/dev/hdc3 ro
+ 
+--------------------------------
++
++Boot time autodetection of RAID arrays
++--------------------------------------
++
++When md is compiled into the kernel (not as module), partitions of
++type 0xfd are scanned and automatically assembled into RAID arrays.
++This autodetection may be suppressed with the kernel parameter
++"raid=noautodetect".
++
++The kernel parameter "raid=partitionable" (or "raid=part") means
++that all auto-detected arrays are assembled as partitionable.
++
++
++Superblock formats
++------------------
++
+ The md driver can support a variety of different superblock formats.
+ (It doesn't yet, but it can)
+ 
+@@ -82,7 +101,7 @@ array using HOT_REMOVE_DISK.
+ 
+ 
+ Specific Rules that apply to format-0 super block arrays, and
+-       arrays with no superblock (non-presistant).
++       arrays with no superblock (non-persistant).
+ -------------------------------------------------------------
+ 
+ An array can be 'created' by describing the array (level, chunksize
 
-Andrew Morton wrote:
-
->Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->  
->
->>    
->>
->>> 
->>>@@ -75,8 +76,11 @@ extern void init_workqueues(void);
->>>  */
->>> static inline int cancel_delayed_work(struct work_struct *work)
->>> {
->>>-	return del_timer_sync(&work->timer);
->>>+	int ret;
->>>+
->>>+	ret = del_timer_sync(&work->timer);
->>>+	clear_bit(0, &work->pending);
->>>+	return ret;
->>> }
->>> 
->>>      
->>>
->>Looks wrong to me. The time may have fired already and queued the
->>work. Clearing pending is an error in this case since the work is
->>indeed pending for execution.... 
->>    
->>
->
->OK...
->
->--- 25/include/linux/workqueue.h~cancel_delayed_work-fix	2004-05-03 20:14:26.796321416 -0700
->+++ 25-akpm/include/linux/workqueue.h	2004-05-03 20:15:41.010039216 -0700
->@@ -7,6 +7,7 @@
-> 
-> #include <linux/timer.h>
-> #include <linux/linkage.h>
->+#include <linux/bitops.h>
-> 
-> struct workqueue_struct;
-> 
->@@ -75,8 +76,12 @@ extern void init_workqueues(void);
->  */
-> static inline int cancel_delayed_work(struct work_struct *work)
-> {
->-	return del_timer_sync(&work->timer);
->+	int ret;
->+
->+	ret = del_timer_sync(&work->timer);
->+	if (ret)
->+		clear_bit(0, &work->pending);
->+	return ret;
-> }
-> 
-> #endif
->-
->
->_
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267028AbSKLXUf>; Tue, 12 Nov 2002 18:20:35 -0500
+	id <S267010AbSKLXPf>; Tue, 12 Nov 2002 18:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbSKLXUe>; Tue, 12 Nov 2002 18:20:34 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:13039 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S267028AbSKLXUd>; Tue, 12 Nov 2002 18:20:33 -0500
-Message-ID: <3DD19332.1050703@kegel.com>
-Date: Tue, 12 Nov 2002 15:48:02 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: re: [PATCH] new timeout behavior for RPC requests on TCP sockets
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267012AbSKLXPf>; Tue, 12 Nov 2002 18:15:35 -0500
+Received: from holomorphy.com ([66.224.33.161]:29373 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267010AbSKLXPe>;
+	Tue, 12 Nov 2002 18:15:34 -0500
+Date: Tue, 12 Nov 2002 15:19:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hohnbaum@us.ibm.com
+Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
+Message-ID: <20021112231937.GB23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+	hohnbaum@us.ibm.com
+References: <E18BaIc-0006Zs-00@holomorphy> <20021112205241.GS23425@holomorphy.com> <3DD172B8.8040802@us.ibm.com> <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021112225937.GA23425@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck wrote:
-> make RPC timeout behavior over TCP sockets behave more like reference
-> client implementations.  reference behavior is to transmit the same
-> request three times at 60 second intervals; if there is no response, close
-> and reestablish the socket connection.  we modify the Linux RPC client as
-> follows:
-> 
-> +  after a minor retransmit timeout, use the same timeout value when
->    retrying on a TCP socket rather than doubling the value
-> +  after a major retransmit timeout, close the socket and attempt
->    to reestablish a fresh TCP connection
-> 
-> note that today mount uses a 6 second timeout with 5 retries for NFS over
-> TCP by default; proper default behavior is 2 retries each with 60 second
-> timeouts.  a separate patch for mount is pending.
+On Tue, Nov 12, 2002 at 03:53:49PM -0800, Martin J. Bligh wrote:
+>> Right, I'm not against the sysdata thing, seems like a much better way
+>> to do it in general (what I did was a quick hack). Was just confused
+>> by the global bus number assertion, but if we use the sysdata stuff,
+>> it's all a non-issue ;-)
 
-Chuck, can you briefly explain why RPC does any minor
-retransmits at all over TCP?
-Shouldn't TCP's natural retransmit take care of that?
-- Dan
+On Tue, Nov 12, 2002 at 02:59:37PM -0800, William Lee Irwin III wrote:
+> Non-issue for merging...
+> The pain isn't over yet. =(
+> Core PCI code is assuming unique bus numbers in several places.
+> Fixing now,
+> Bill
 
+... and resource/region stuff is not being dealt with properly either.
+
+Found that after dealing with pci_bus_exists() in pci_alloc_primary_bus().
+
+
+Fixing that too,
+Bill

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283311AbRL1AYy>; Thu, 27 Dec 2001 19:24:54 -0500
+	id <S283594AbRL1AZf>; Thu, 27 Dec 2001 19:25:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283591AbRL1AYf>; Thu, 27 Dec 2001 19:24:35 -0500
-Received: from mail.gmx.net ([213.165.64.20]:24534 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283311AbRL1AY0>;
-	Thu, 27 Dec 2001 19:24:26 -0500
-Date: Fri, 28 Dec 2001 01:24:12 +0100
-From: Christian Ohm <chr.ohm@gmx.net>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: file corruption in 2.4.16/17
-Message-ID: <20011228002412.GA691@moongate.thevoid.net>
-In-Reply-To: <20011222220223.GA537@moongate.thevoid.net> <3C26F2AC.1050809@namesys.com> <20011225004459.GB3752@moongate.thevoid.net> <3C285384.3020302@namesys.com> <20011226005327.GA3970@moongate.thevoid.net> <20011226092024.A871@namesys.com> <20011227030946.GA472@moongate.thevoid.net> <3C2B00B3.4040505@namesys.com>
+	id <S283603AbRL1AZZ>; Thu, 27 Dec 2001 19:25:25 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:8715 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283594AbRL1AZM>;
+	Thu, 27 Dec 2001 19:25:12 -0500
+Date: Thu, 27 Dec 2001 22:25:53 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+Message-ID: <20011227222553.G30930@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011227202345.B30930@conectiva.com.br> <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de> <20011227163130.N12868@lynx.no> <20011227214047.D30930@conectiva.com.br> <20011227171130.O12868@lynx.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C2B00B3.4040505@namesys.com>
-User-Agent: Mutt/1.3.24i
-Organization: theVoid
-X-Operating-System: Linux moongate 2.4.17 
+In-Reply-To: <20011227171130.O12868@lynx.no>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 02:06:27PM +0300, Hans Reiser wrote:
-> It sounds like you get reiserfs corruptions easily, without crashing the 
-> machine or anythin unusual, and in that case you surely have hardware 
-> problems.  Please note in our FAQ the discussion of how reiserfs runs 
-> hotter than ext2, and it is common for improperly cooled CPUs to work 
-> well for ext2 and not reiserfs (tail combining heats the CPU).
+Em Thu, Dec 27, 2001 at 05:11:30PM -0700, Andreas Dilger escreveu:
+> On Dec 27, 2001  21:40 -0200, Arnaldo Carvalho de Melo wrote:
+> > this already happens for the net/ directory to some degree, look at
+> > net/README, the problem, as with MAINTAINERS, is that is way outdated,
+> > listing Alan, for example, as the maintainer for net/core...
+> 
+> Well, if the MAINTAINERS file isn't up-to-date (which I know it isn't,
+> see "Remy Card" as ext2 maintainer) then there isn't much that can be
+> done by users/developers to submit patches to the right people at all.
+> I think part of the problem is Linus' hesitance to be authoritarian and
+> add/remove people from the MAINTAINERS list if they don't specifically
+> ask for the change (and submit a patch to that effect).
 
-not likely; its a duron 700 and lm-sensors says < 37 degree celsius with
-open case (as it is now) and about 45 with closed case.
+Yup, Linus told this in a recent thread (this one?), and Al seems still not
+interested in having his name there, its his right, but the fact is that he
+_is_ the one doing maintainance for the VFS, so I don't think that putting
+his name there would be something bad for him or whatever, but hey, if
+Linus isn't authoritarian wrt this and Al doesn't want to have his name
+listed there, what can we do? Ditto for other de-facto maintainers that are
+not listed there.
 
-anyway, i've created a new fat32 partition where the old reiserfs one was,
-copied lots of files to it and diffed them. no difference. i copied the same
-files as earlier to the new reiserfs partition and diffed them. no
-difference. no other corrupted files elsewhere, as far as i have seen now.
-so whatever was the cause of this seems to have gone now (always the same
-kernel, nothing changed with the hardware). perhaps the reiserfs file system
-structure got corrupted somehow and thus caused this. don't know. if i have
-nothing else to do, i'll create another reiserfs partition where the old one
-was and try to corrupt some files.
+And BTW, a janitor did something like: look at maintainers? nothing there?
+send a message to all the addresses in the source file touched, what did he
+got? some responses, yes, but _tons_ of bounces...
 
-i'll report back if i get corrupted files again. until then, thanks to
-everyone trying to help me and sorry for taking your time.
-
-bye
-christian ohm
+- Arnaldo

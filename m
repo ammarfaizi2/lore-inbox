@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUGUTkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266549AbUGUToO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbUGUTkw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 15:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUGUTkw
+	id S266549AbUGUToO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 15:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUGUToO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 15:40:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57759 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263979AbUGUTku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 15:40:50 -0400
-To: Mike Snitzer <snitzer@gmail.com>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [Fastboot] [ANNOUNCE] [PATCH] 2.6.8-rc1-kexec1 (ppc & x86)
-References: <20040719181115.86378.qmail@web52302.mail.yahoo.com>
-	<m1y8le3cto.fsf@ebiederm.dsl.xmission.com>
-	<170fa0d2040720180741cfa783@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Jul 2004 13:40:18 -0600
-In-Reply-To: <170fa0d2040720180741cfa783@mail.gmail.com>
-Message-ID: <m1d62p2lp9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 21 Jul 2004 15:44:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:58299 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266549AbUGUToM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 15:44:12 -0400
+Date: Wed, 21 Jul 2004 14:25:35 -0400
+From: Greg KH <greg@kroah.com>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] delete devfs
+Message-ID: <20040721182535.GC16838@kroah.com>
+References: <20040721141524.GA12564@kroah.com> <E1BnIHx-0003Py-00@chiark.greenend.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1BnIHx-0003Py-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Snitzer <snitzer@gmail.com> writes:
+On Wed, Jul 21, 2004 at 03:41:45PM +0100, Matthew Garrett wrote:
+> Greg KH <greg@kroah.com> wrote:
+> 
+> >Ok, to test out the new development model, here's a nice patch that
+> >simply removes the devfs code.  No commercial distro supports this for
+> >2.6, and both Gentoo and Debian have full udev support for 2.6, so it is
+> >not needed there either.  Combine this with the fact that Richard has
+> >sent me a number of good udev patches to fix up some "emulate devfs with
+> >udev" minor issues, I think we can successfully do this now.
+> 
+> The new Debian installer requires devfs on several architectures, even
+> for 2.6 installs. That's unlikely to get changed before release.
 
+Great, if you want to rely on this, and you get around to using a kernel
+that doesn't have it in it, just add it to the other patches you apply
+to your kernel.
 
-> In preparation for kexec to be viable for 2.6 inclusion it would
-> appear that some effort will need to go in to making sure all drivers
-> in the kernel actually let go of their resources.  Should there be an
-> audit to verify all device drivers have a shutdown()?
+thanks,
 
-Right this is a janitorial type task that needs to done.
-
-- First there are a lot of devices that don't need a shutdown
-  method.  Mostly either because they are not stateful or
-  their initialization method can bring them out of whatever
-  state they are in.
-
-Although if the kexec stuff gets in this might just happen
-with a pile of bug reports like yours.
-
-> Another option is to call each module's remove() iff the module
-> doesn't have shutdown().  This would require changing
-> drivers/base/power/shutdown.c device_shutdown() to include ... else if
-> (dev->driver && dev->driver->remove) ... As a side-effect it would
-> make drivers like the e1000 safe for use with kexec.
-
-Last time I had this conversation it was not wanted to merge
-shutdown() and remove() because shutdown is just required to touch
-the hardware and not to clean up the kernel data structures.  Which
-if you machine is in an unstable state already could be an advantage.
-
-But calling shutdown on device remove is perfectly legitimate.
-And it should help ensure the code path gets tested.
-
-Ah... Looking more closely there is a method for testing
-the shutdown method and the related power management states.
-Details are in documentation/power/devices.txt
-But in short there is a "detach_state" file for each file
-in sysfs.  If you do "echo 4 > detach_state" it the shutdown
-method should be called on device removal.  Other low power
-states can be handles the same way.
-
-I still think drivers will want to call their shutdown method
-from their remove method if there is any work to do.  But at
-least there is now a way to test the code path.  
-
-Eric
-
-
-
-
-
+greg k-h

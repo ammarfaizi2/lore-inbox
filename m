@@ -1,52 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289761AbSAJWva>; Thu, 10 Jan 2002 17:51:30 -0500
+	id <S289759AbSAJWyA>; Thu, 10 Jan 2002 17:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289758AbSAJWvU>; Thu, 10 Jan 2002 17:51:20 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:48846 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289761AbSAJWvM>;
-	Thu, 10 Jan 2002 17:51:12 -0500
-Date: Fri, 11 Jan 2002 01:48:36 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <20020110135758.C15171@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
+	id <S289760AbSAJWxu>; Thu, 10 Jan 2002 17:53:50 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46094 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289759AbSAJWxh>; Thu, 10 Jan 2002 17:53:37 -0500
+Subject: Re: memory-mapped i/o barrier
+To: jbarnes@sgi.com (Jesse Barnes)
+Date: Thu, 10 Jan 2002 23:05:04 +0000 (GMT)
+Cc: davem@redhat.com, ralf@uni-koblenz.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20020110134859.A729245@sgi.com> from "Jesse Barnes" at Jan 10, 2002 01:48:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16OoFt-0005pt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ia64, and I'm wondering if you guys will accept something similar.  On
+> mips64, mmiob() could just be implemented as a 'sync', but I'm not
+> sure how to do it (or if it's even necessary) on other platforms.
 
-On Thu, 10 Jan 2002, Mike Kravetz wrote:
-
-> If I run 3 cpu-hog tasks on a 2 CPU system, then 1 task will get an
-> entire CPU while the other 2 tasks share the other CPU (easily
-> verified by a simple test program). On previous versions of the
-> scheduler 'balancing' this load was achieved by the global nature of
-> time slices. No task was given a new time slice until the time slices
-> of all runnable tasks had expired.  In the current scheduler, the
-> decision to replenish time slices is made at a local (pre-CPU) level.
-> I assume the load balancing code should take care of the above
-> workload?  OR is this the behavior we desire? [...]
-
-Arguably this is the most extreme situation - every other distribution
-(2:3, 3:4) is much less problematic. Will this cause problems? We could
-make the fairness-balancer more 'sharp' so that it will oscillate the
-length of the two runqueues at a slow pace, but it's still caching loss.
-
-> We certainly have optimal cache use.
-
-indeed. The question is, should we migrate processes around just to get
-100% fairness in 'top' output? The (implicit) cost of a task migration
-(caused by the destruction & rebuilding of cache state) can be 10
-milliseconds easily on a system with big caches.
-
-	Ingo
-
+Wouldn't it be wise to pass the device to this. Someone somewhere is going
+to have to read a bus dependant chipset register and need to know which
+pci_device * is involved ?

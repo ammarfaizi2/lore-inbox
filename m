@@ -1,204 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUGIXBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUGIXGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265920AbUGIXBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 19:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUGIXBp
+	id S266014AbUGIXGx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 19:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGIXGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 19:01:45 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:4087 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S265920AbUGIXBi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 19:01:38 -0400
-Date: Fri, 9 Jul 2004 19:35:28 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-Message-ID: <20040709193528.A23508@mail.kroptech.com>
-References: <40EEF10F.1030404@am.sony.com>
+	Fri, 9 Jul 2004 19:06:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37315 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266014AbUGIXGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 19:06:50 -0400
+Subject: Re: [LTP] Re: Recent changes in LTP test results
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bryce Harrington <bryce@osdl.org>, wli@holomorphy.com,
+       ltp-list@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "testdev@osdl.org" <testdev@osdl.org>, Mark Haverkamp <markh@osdl.org>
+In-Reply-To: <20040707230715.7a25c95c.akpm@osdl.org>
+References: <20040706191009.279aed14.akpm@osdl.org>
+	 <Pine.LNX.4.33.0407071334460.22452-100000@osdlab.pdx.osdl.net>
+	 <20040707230715.7a25c95c.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089416583.2265.47.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40EEF10F.1030404@am.sony.com>; from tim.bird@am.sony.com on Fri, Jul 09, 2004 at 12:25:03PM -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 09 Jul 2004 16:43:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 12:25:03PM -0700, Tim Bird wrote:
-> Here is a patch which allows developers or users to preset the
-> value for loops per jiffy.  This avoids the overhead of
-> performing the calibration at boot time.  This saves about
-> 250 milliseconds on many non-x86 architectures, and about
-> 25 milliseconds on x86.  (The amount of time saved depends
-> on the value of HZ, and NOT on the processor speed.)
-
-Here's an alternate patch (compile tested only) which is slightly
-simpler, slightly more flexible, and fixes a small bug in the original.
-
-The simplification centers around removing USE_PRESET_LPJ and
-interpeting a preset value of 0 as a signal to autodetect. This 
-eliminates ifdefs in the code and avoids giving magic significance 
-to the loops_per_jiffy LSb. Additionally, the user can always disable
-the preset by using "lpj=0" which would allow booting a kernel that
-crashes due to a bogus preset. The only problem I can think of with
-this approach is if there is a system out there so slow that lpj=0 is
-actually a valid setting.
-
-The final change is to fix a small bug in the original patch:
-loops_per_jiffy was no longer initialized each time calibrate_delay()
-was invoked. This is potentially an issue on SMP systems since
-calibrate_delay() will be invoked for each CPU. One related thing to
-keep in mind is that on an SMP system, using an lpj preset will result
-in the same lpj setting on each CPU. On sane systems this shouldn't be
-a problem, but if there's a machine out there with unequal CPUs it will
-be a problem. Perhaps this is worth mentioning in the help text as well.
-
-While we're on the topic: Should FASTBOOT perhaps depend on EMBEDDED? I
-can imagine a user with a massively MP system perhaps finding this
-option useful, so maybe not.
-
---Adam
+On Wed, 2004-07-07 at 23:07, Andrew Morton wrote:
+> Bryce Harrington <bryce@osdl.org> wrote:
+> >
+> > I have retested with ltp-full-20040603.  This version of LTP hangs on
+> >  our system but fortunately completes most of the tests before doing so.
+> >  It indicates that it still encounters the same errors, e.g.:
+> > 
+> >  access03       1   FAIL : access((char *)-1,R_OK) failed with errno 2 : No such file or directory but expected 14 (EFAULT)
+> >  access03       2   FAIL : access((char *)-1,W_OK) failed with errno 2 : No such file or directory but expected 14 (EFAULT)
+> 
+> Nope, sorry, still cannot reproduce it - you'll need to debug it at your end.
 
 
---- linux-2.6.7/init/main.c.orig	Mon Jun 21 17:55:09 2004
-+++ linux-2.6.7/init/main.c	Fri Jul  9 18:31:50 2004
-@@ -167,6 +167,15 @@
- 	return 0;
- }
- 
-+static unsigned long preset_lpj = CONFIG_PRESET_LPJ;
-+static int __init lpj_setup(char *str)
-+{
-+	preset_lpj = simple_strtoul(str,NULL,10);
-+	return 1;
-+}
-+
-+__setup("lpj=", lpj_setup);
-+
- /* this should be approx 2 Bo*oMips to start (note initial shift), and will
-    still work even if initially too large, it will just take slightly longer */
- unsigned long loops_per_jiffy = (1<<12);
-@@ -183,40 +192,48 @@
- 	unsigned long ticks, loopbit;
- 	int lps_precision = LPS_PREC;
- 
--	loops_per_jiffy = (1<<12);
-+	if (preset_lpj) {
-+		loops_per_jiffy = preset_lpj;
-+		printk("Calibrating delay loop (skipped)... \n");
-+	} else {
-+		loops_per_jiffy = (1<<12);
-+
-+		printk("Calibrating delay loop... ");
-+		while ((loops_per_jiffy <<= 1) != 0) {
-+			/* wait for "start of" clock tick */
-+			ticks = jiffies;
-+			while (ticks == jiffies)
-+				/* nothing */;
-+			/* Go .. */
-+			ticks = jiffies;
-+			__delay(loops_per_jiffy);
-+			ticks = jiffies - ticks;
-+			if (ticks)
-+				break;
-+		}
-+
-+	/* Do a binary approximation to get loops_per_jiffy set to equal one clock
-+	   (up to lps_precision bits) */
-+		loops_per_jiffy >>= 1;
-+		loopbit = loops_per_jiffy;
-+		while ( lps_precision-- && (loopbit >>= 1) ) {
-+			loops_per_jiffy |= loopbit;
-+			ticks = jiffies;
-+			while (ticks == jiffies);
-+			ticks = jiffies;
-+			__delay(loops_per_jiffy);
-+			if (jiffies != ticks)	/* longer than 1 tick */
-+				loops_per_jiffy &= ~loopbit;
-+		}
-+
-+	/* Round the value and print it */	
-+		printk("%lu.%02lu BogoMIPS\n",
-+			loops_per_jiffy/(500000/HZ),
-+			(loops_per_jiffy/(5000/HZ)) % 100);
-+		printk("Set 'Preset loops_per_jiffy'=%lu for preset lpj.\n",
-+			loops_per_jiffy);
- 
--	printk("Calibrating delay loop... ");
--	while ((loops_per_jiffy <<= 1) != 0) {
--		/* wait for "start of" clock tick */
--		ticks = jiffies;
--		while (ticks == jiffies)
--			/* nothing */;
--		/* Go .. */
--		ticks = jiffies;
--		__delay(loops_per_jiffy);
--		ticks = jiffies - ticks;
--		if (ticks)
--			break;
- 	}
--
--/* Do a binary approximation to get loops_per_jiffy set to equal one clock
--   (up to lps_precision bits) */
--	loops_per_jiffy >>= 1;
--	loopbit = loops_per_jiffy;
--	while ( lps_precision-- && (loopbit >>= 1) ) {
--		loops_per_jiffy |= loopbit;
--		ticks = jiffies;
--		while (ticks == jiffies);
--		ticks = jiffies;
--		__delay(loops_per_jiffy);
--		if (jiffies != ticks)	/* longer than 1 tick */
--			loops_per_jiffy &= ~loopbit;
--	}
--
--/* Round the value and print it */	
--	printk("%lu.%02lu BogoMIPS\n",
--		loops_per_jiffy/(500000/HZ),
--		(loops_per_jiffy/(5000/HZ)) % 100);
- }
- 
- static int __init debug_kernel(char *str)
---- linux-2.6.7/init/Kconfig.orig	Mon Jun 21 17:55:09 2004
-+++ linux-2.6.7/init/Kconfig	Fri Jul  9 18:41:02 2004
-@@ -218,6 +218,40 @@
- 	  This option enables access to kernel configuration file and build
- 	  information through /proc/config.gz.
- 
-+menuconfig FASTBOOT
-+	bool "Fast boot options"
-+	help
-+	  Say Y here to select among various options that can decrease
-+	  kernel boot time. These options commonly involve providing
-+	  hardcoded values for some parameters that the kernel usually
-+	  determines automatically.
-+	
-+	  This option is useful primarily on embedded systems.
-+	
-+	  If unsure, say N.
-+
-+config PRESET_LPJ
-+	int "Preset loops_per_jiffy" if FASTBOOT
-+	default 0
-+	help
-+	  This is the number of loops used by delay() to achieve a single
-+	  jiffy of delay inside the kernel.  It is normally calculated at
-+	  boot time, but that calculation can take up to 250 ms per CPU.
-+	  Specifying a constant value here will eliminate that delay.
-+	  
-+	  loops_per_jiffy is roughly BogoMips * 5000. To determine the correct
-+	  value for your kernel, first turn off the fast booting option,
-+	  compile and boot the kernel on your target hardware, then see what
-+	  value is printed during the kernel boot.  Use that value here.
-+
-+	  A value of 0 results in the normal autodetect behavior at boot.
-+	  
-+	  The kernel command line parameter "lpj=" can be used to override
-+	  the value configured here.
-+
-+	  If unsure, set this to 0.  An incorrect value will cause delays in
-+	  the kernel to be incorrect.  Although unlikely, in the extreme case
-+	  this might damage your hardware.
- 
- menuconfig EMBEDDED
- 	bool "Configure standard kernel features (for small systems)"
+Andrew,
+
+Mark and I are able to reproduce this with the simple
+program below.  The mmap() PROT_NONE is not giving a EFAULT
+on read.  The test was mmap a PROT_NONE address and passing
+that into the access() syscall and then looking for a
+EFAULT.  Instead it was getting ENOENT.  We found that
+by backing out the nx-update.patch from -mm1 patches
+the problem went away.
+
+The /proc/pid/maps looked like this:
+
+without nx-update patch:
+40017000-40018000 ---p 40017000 00:00 0
+=====
+with -mm1:
+40017000-40018000 --xp 40017000 00:00 0
+
+So it looks like the page being executable allows read
+access.
+
+Not sure why you do not see this on your machine.  This
+fails on my 2-proc xeon box (and all the STP machines).
+
+I can send more info if you need it.
+
+Daniel (and Mark)
+
+#include <unistd.h>
+#include <errno.h>
+#include <sys/mman.h>
+
+
+main()
+{
+	char *p0 = 0;
+	char *p1 = (char *)-1;
+	char *p2;
+	int err;
+
+	p2 = mmap(0, 4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+
+	errno = 0;
+	err = access(p0, R_OK);
+	printf("access 0 ptr %p return code %d errno %d\n", p0, err, errno);
+	perror("access result:");
+	errno = 0;
+	err = access(p1, R_OK);
+	printf("access 1 ptr %p return code %d errno %d\n", p1, err, errno);
+	perror("access result:");
+	errno = 0;
+	err = access(p2, R_OK);
+	printf("access 2 ptr %p return code %d errno %d\n", p2, err, errno);
+	perror("access result:");
+}
+
+

@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTFUF0B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 01:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTFUF0A
+	id S261561AbTFUFZA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 01:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTFUFZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 01:26:00 -0400
-Received: from web10704.mail.yahoo.com ([216.136.130.212]:4207 "HELO
-	web10704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262033AbTFUFZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 01:25:58 -0400
-Message-ID: <20030621054000.66503.qmail@web10704.mail.yahoo.com>
-Date: Fri, 20 Jun 2003 22:40:00 -0700 (PDT)
+	Sat, 21 Jun 2003 01:25:00 -0400
+Received: from web10701.mail.yahoo.com ([216.136.130.209]:8273 "HELO
+	web10701.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261561AbTFUFY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 01:24:59 -0400
+Message-ID: <20030621053901.6610.qmail@web10701.mail.yahoo.com>
+Date: Fri, 20 Jun 2003 22:39:01 -0700 (PDT)
 From: BalaKrishna Mallipeddi <bkmallipeddi@yahoo.com>
-Subject: Bad address problem while reading from hard disk(using sys_read).
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

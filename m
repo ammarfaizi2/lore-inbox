@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286712AbRLVIOY>; Sat, 22 Dec 2001 03:14:24 -0500
+	id <S286717AbRLVIOo>; Sat, 22 Dec 2001 03:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286713AbRLVIOH>; Sat, 22 Dec 2001 03:14:07 -0500
-Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:15353 "EHLO
-	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S286712AbRLVINq>; Sat, 22 Dec 2001 03:13:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: esr@thyrsus.com, David Garfield <garfield@irving.iisd.sra.com>
-Subject: Re: Configure.help editorial policy
-Date: Fri, 21 Dec 2001 19:12:13 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com>
-In-Reply-To: <20011221134034.B11147@thyrsus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there>
+	id <S286716AbRLVIOf>; Sat, 22 Dec 2001 03:14:35 -0500
+Received: from bwbohh.net ([66.96.192.22]:54406 "EHLO garcia.hostnoc.net")
+	by vger.kernel.org with ESMTP id <S286714AbRLVIO2>;
+	Sat, 22 Dec 2001 03:14:28 -0500
+Date: Sat, 22 Dec 2001 03:14:42 -0500
+From: Eric Windisch <ericw@grokthis.net>
+To: linux-kernel@vger.kernel.org
+Subject: Hello. Patch time (drivers/block/loop.c)
+Message-ID: <20011222031442.A25275@grokthis.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 01:40 pm, Eric S. Raymond wrote:
-> David Garfield <garfield@irving.iisd.sra.com>:
-> > Eric S. Raymond writes:
 
-> > Choice of kB vs KB vs KiB vs KKB could also be used in some places in
-> > the kernel.  For instance, /proc/meminfo currently shows "kB".
->
-> What, and *encourage* non-uniform terminology?  No, I won't do that.
-> Better to have a single standard set of abbreviations, no matter how
-> ugly, than this.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- find . -name "*.?" | xargs grep MiB | wc
-     46 lines, half of which seem to live in "jedec_probe.c".
 
- find . -name "*.?" | xargs grep -w MB | wc
-    302 lines.  And that's just upper case, whole word, not "MBs" or "Mb" or 
-any other fun little variation...
+Hello. I would like to formally introduce myself to this list, as this is my first post. Of course, I would not come to the table empty handed.. I bring to you a patch ;)
 
- find . -name "*.?" | xargs grep -i MEGABYTE | wc
-     31 lines.
+I was digging around the loopback block device driver and it wasn't long before I realized that it assumes you are writing if you are not reading.. which I assume could be hazardous if there is an overflow, bad memory, or someone modifies some other code without knowledge :)
 
- find . -name "*.?" | xargs grep -i MEBIBYTE | wc
-      1 line, and it's a comment saying it's NOT being used (along with one 
-of the MiB hits).
+Patch attached.
 
-If you're going with a uniform terminology argument, you should drop MiB 
-altogether.  Unless you want to submit a patch to the kernel to standardize 
-all the other occurences everywhere else? :)
+I may be looking at this and the multi-device drivers in the near future as I have a need for support for partitions on these devices; I think it would be really neat if the software-raid could eventually become compatable with hardware raid.. although much slower, it may be a nice thing to have for testing purposes or a last resort for those who fry their hardware raid-controllers ;)
 
-Rob
+--
+Eric Windisch
+http://bwbohh.net
+
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="loop-badmem.diff"
+
+--- linux/drivers/block/loop.c	Fri Dec 21 12:41:53 2001
++++ linux-2.4.17-ericw/drivers/block/loop.c	Sat Dec 22 02:35:17 2001
+@@ -90,8 +90,10 @@
+ 	if (raw_buf != loop_buf) {
+ 		if (cmd == READ)
+ 			memcpy(loop_buf, raw_buf, size);
+-		else
++		else if (cmd == WRITE) 
+ 			memcpy(raw_buf, loop_buf, size);
++		else
++			printk(KERN_ERR "loop: Illegal command, %d", cmd);
+ 	}
+ 
+ 	return 0;
+@@ -106,9 +108,11 @@
+ 	if (cmd == READ) {
+ 		in = raw_buf;
+ 		out = loop_buf;
+-	} else {
++	} else if (cmd == WRITE) {
+ 		in = loop_buf;
+ 		out = raw_buf;
++	} else {
++		printk(KERN_ERR "loop: Illegal command, %d", cmd);
+ 	}
+ 
+ 	key = lo->lo_encrypt_key;
+
+--0F1p//8PRICkK4MW--

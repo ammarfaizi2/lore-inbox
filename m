@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271660AbRH0G4J>; Mon, 27 Aug 2001 02:56:09 -0400
+	id <S271661AbRH0HCt>; Mon, 27 Aug 2001 03:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271661AbRH0Gzu>; Mon, 27 Aug 2001 02:55:50 -0400
-Received: from ns.suse.de ([213.95.15.193]:24069 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271660AbRH0Gzl>;
-	Mon, 27 Aug 2001 02:55:41 -0400
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: VCool - cool your Athlon/Duron during idle
-In-Reply-To: <87pu9i7frm.fsf@psyche.kn-bremen.de.suse.lists.linux.kernel> <E15b6Rz-0002hM-00@the-village.bc.nu.suse.lists.linux.kernel>
-From: Andi Kleen <freitag@alancoxonachip.com>
-Date: 27 Aug 2001 08:55:51 +0200
-In-Reply-To: Alan Cox's message of "26 Aug 2001 22:27:56 +0200"
-Message-ID: <oupk7zqkn48.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S271658AbRH0HCj>; Mon, 27 Aug 2001 03:02:39 -0400
+Received: from mail.gmx.de ([213.165.64.20]:17250 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S271661AbRH0HCf>;
+	Mon, 27 Aug 2001 03:02:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Helge Deller <deller@gmx.de>
+To: Hollis Blanchard <hollis@austin.ibm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: scr_*() audit
+Date: Mon, 27 Aug 2001 09:02:15 +0200
+X-Mailer: KMail [version 1.3.5]
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Olaf Hering <olh@suse.de>
+In-Reply-To: <Pine.LNX.4.05.10108221846140.6842-100000@callisto.of.borg> <20010826173058.A1418@austin.ibm.com>
+In-Reply-To: <20010826173058.A1418@austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827070236Z271661-760+6343@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Monday 27 August 2001 00:30, Hollis Blanchard wrote:
+> On Wed, Aug 22, 2001 at 07:06:12PM +0200, Geert Uytterhoeven wrote:
+> > Since there are still some issues left with the scr_*() functions on
+> > big-endian platforms that can have both VGA and frame buffer consoles, I
+> > decided to spent some precious time on auditing the usage of these
+> > functions.
+>
+> Much appreciated.
+>
+> For the record, this resolves my problems with VGA console (only; no fb) on
+> PPC. Previously text written to non-active consoles was endian-reversed.
+>
+> If no one has any problems (anyone else tested it?), could this patch
+> please be committed?
 
-> Streaming video is not really different to most bus mastering IDE. Its
-> just pci card initiated memory writes with timing constraints. For some
-> reason having my disk do that makes me very nervous
+For me it looks good too. I just tested it on HP parisc in text- and fb-mode and 
+it worked without any problems. I only had to add a missing semicolon to the
+patch:
+linux-2.4.8-ac9/drivers/char/console.c:
+                        while (cnt--) {
+-                               u16 a = *q;
++                               a = scr_readw(q);
+                                a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) | (((a) & 0x0700) << 4);
+-                               *q++ = a;
++                               scr_writew(a, q);
++                               q++
+                                     ^^^ here
 
-The bus shutdown is clearly something which shouldn't be done in the normal
-idle loop, but only when explicit sleep mode is requested and when the
-kernel makes sure that all IO is quiescied [similar to what the sleep code
-on the ppc/mac port does; see e.g. 
-drivers/macintosh/via-pmu.c:powerbook_sleep_G3]. Such a thing could be 
-e.g. controlled from apmd.
-
--Andi
+Greetings,
+Helge

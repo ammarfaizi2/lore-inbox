@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269780AbUJUFSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270430AbUJUFSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269780AbUJUFSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbUJUFPx
+	id S270430AbUJUFSu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270627AbUJUFPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:15:53 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:26019
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270600AbUJUFEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:04:33 -0400
-Date: Wed, 20 Oct 2004 21:58:40 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, rlrevell@joe-job.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-kernel@gondor.apana.org.au,
-       maxk@qualcomm.com, irda-users@lists.sourceforge.net, netdev@oss.sgi.com,
-       alain@parkautomat.net
-Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-Message-Id: <20041020215840.40f0bacc.davem@davemloft.net>
-In-Reply-To: <20041021003503.GA10391@gondor.apana.org.au>
-References: <1098230132.23628.28.camel@krustophenia.net>
-	<200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
-	<1098303951.2268.8.camel@krustophenia.net>
-	<200410202332.33583.vda@port.imtp.ilyichevsk.odessa.ua>
-	<20041020171508.0e947d08.davem@davemloft.net>
-	<20041021003503.GA10391@gondor.apana.org.au>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Oct 2004 01:15:11 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:11675 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S270637AbUJUFL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 01:11:28 -0400
+Message-ID: <417744FD.1000008@zytor.com>
+Date: Wed, 20 Oct 2004 22:11:25 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com> <417736C0.8040102@zytor.com> <417743EF.90604@nortelnetworks.com>
+In-Reply-To: <417743EF.90604@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 10:35:03 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
-> On Wed, Oct 20, 2004 at 05:15:08PM -0700, David S. Miller wrote:
-> >  
-> > +int netif_rx_ni(struct sk_buff *skb)
-> > +{
-> > +       int err = netif_rx(skb);
-> > +
-> > +       preempt_disable();
-> > +       if (softirq_pending(smp_processor_id()))
-> > +               do_softirq();
+Chris Friesen wrote:
+> H. Peter Anvin wrote:
 > 
-> You need to move the netif_rx call inside the disable as otherwise
-> you might be checking the pending flag on the wrong CPU.
+>> The whole point is that it doesn't break the *documented* interface.
+> 
+> 
+> In my view (and apparently others, as has been verified in current apps 
+> using blocking sockets), current behaviour *does* break the documented 
+> interface.
+> 
+> The man page for select says:
+> 
+> "Those  listed  in  readfds  will  be watched  to  see if characters 
+> become available for reading (more precisely, to see if a read will not 
+> block..."
+> 
+> If I'm the only one touching the socket, select returns with it 
+> readable, and I block when calling recvmsg, then by definition that 
+> behaviour does not match the documented interface.
+> 
 
-Good catch, I've made that fix in my tree.
+I'm talking about returning -1, EIO.
 
-Thanks.
+	-hpa

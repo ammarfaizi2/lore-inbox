@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264817AbSJVRdT>; Tue, 22 Oct 2002 13:33:19 -0400
+	id <S264815AbSJVRcr>; Tue, 22 Oct 2002 13:32:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264818AbSJVRdT>; Tue, 22 Oct 2002 13:33:19 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:55684 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S264817AbSJVRdS>;
-	Tue, 22 Oct 2002 13:33:18 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: PCI: Failed to allocate resource in 2.4.20pre10 and 11 - broken	IRQ-router?
-Date: Tue, 22 Oct 2002 19:43:33 +0200
-Organization: privat
-Message-ID: <ap42o5$32s$1@ID-44327.news.dfncis.de>
-References: <fa.mq6dl3v.5lgkh3@ifi.uio.no> <fa.j9607mv.185k5hc@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: susi.maya.org 1035308613 3164 192.168.1.3 (22 Oct 2002 17:43:33 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.1
-To: linux-kernel@vger.kernel.org
+	id <S264816AbSJVRcr>; Tue, 22 Oct 2002 13:32:47 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:24472 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264815AbSJVRcq>; Tue, 22 Oct 2002 13:32:46 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 22 Oct 2002 10:47:43 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: "Charles 'Buck' Krasic" <krasic@acm.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <20021022172244.GA1314@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0210221043420.1563-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
+On Tue, 22 Oct 2002, Mark Mielke wrote:
 
-> On Tue, Oct 22, 2002 at 01:48:45PM +0100, Andreas Hartmann wrote:
->> CMD64x is switched off in *both* config-files of the kernel. I switched
->> it on in the 2.4.20pre10 kernel, but the result is the same.
-> 
-> Ugh. It's a silly typo in the "transparent bridges" patch.
+> On Sat, Oct 19, 2002 at 09:10:52AM -0700, Charles 'Buck' Krasic wrote:
+> > Mark Mielke <mark@mark.mielke.cc> writes:
+> > > They still represent an excessive complicated model that attempts to
+> > > implement /dev/epoll the same way that one would implement poll()/select().
+> > epoll is about fixing one aspect of an otherwise well established api.
+> > That is, fixing the scalability of poll()/select() for applications
+> > based on non-blocking sockets.
+>
+> epoll is not a poll()/select() enhancement (unless it is used in
+> conjuction with poll()/select()). It is a poll()/select()
+> replacement.
+>
+> Meaning... purposefully creating an API that is designed the way one
+> would design a poll()/select() loop is purposefully limiting the benefits
+> of /dev/epoll.
+>
+> It's like inventing a power drill to replace the common screw driver,
+> but rather than plugging the power drill in, manually turning the
+> drill as if it was a socket wrench for the drill bit.
+>
+> I find it an excercise in self defeat... except that /dev/epoll used the
+> same way one would use poll()/select() happens to perform better even
+> when it is crippled.
 
-The patch is working fine :-)!
+Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
+can mix sys_epoll handling with other methods like poll() and the AIO's
+POLL function when it'll be ready. For example, for devices that sys_epoll
+intentionally does not support, you can use a method like :
+
+	put_sys_epoll_fd_inside_XXX();
+	...
+	wait_for_XXX_events();
+	...
+	if (XXX_event_fd() == sys_epoll_fd) {
+		sys_epoll_wait();
+		for_each_sys_epoll_event {
+			handle_fd_event();
+		}
+	}
 
 
-Thank you Ivan,
-regards,
-Andreas Hartmann
+
+- Davide
+
+

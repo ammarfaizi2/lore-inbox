@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUFSLKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265495AbUFSLS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUFSLKf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 07:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUFSLKe
+	id S265495AbUFSLS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 07:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUFSLS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 07:10:34 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:43201 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265487AbUFSLKd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 07:10:33 -0400
-Date: Sat, 19 Jun 2004 13:09:58 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Margit Schubert-While <margitsw@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wmb versus smp_wmb
-Message-ID: <20040619130958.A32669@electric-eye.fr.zoreil.com>
-References: <5.1.0.14.2.20040619122933.00afee60@pop.t-online.de>
+	Sat, 19 Jun 2004 07:18:28 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:6273 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S265495AbUFSLS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 07:18:26 -0400
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+From: David Woodhouse <dwmw2@infradead.org>
+To: matthew-lkml@newtoncomputing.co.uk
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <20040618205355.GA5286@newtoncomputing.co.uk>
+References: <20040618205355.GA5286@newtoncomputing.co.uk>
+Content-Type: text/plain
+Message-Id: <1087643904.5494.7.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20040619122933.00afee60@pop.t-online.de>; from margitsw@t-online.de on Sat, Jun 19, 2004 at 12:32:32PM +0200
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 19 Jun 2004 12:18:24 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Margit Schubert-While <margitsw@t-online.de> :
-> As the $SUBJECT implies, when should one use
-> wmb() versus smp_wmb() ?
+On Fri, 2004-06-18 at 21:53 +0100, matthew-lkml@newtoncomputing.co.uk
+wrote:
+> The main problem seems to be in ACPI, but I don't see any reason for
+> printk to even consider printing _any_ non-printable characters at all.
+> It makes all characters out of the range 32..126 (except for newline)
+> print as a '?'.
 
-If the code which must see the variable(s) modified before the
-wmb() can run on a separate CPU, then it should be a smp_wmb().
+Please don't do that -- it makes printing UTF-8 impossible. While I'd
+not argue that now is the time to start outputting UTF-8 all over the
+place, I wouldn't accept that it's a good time to _prevent_ it either,
+as your patch would do.
 
-For instance host H1 wants to update A then B and host H2 needs to
-be sure that if it reads the updated value of B, then it reads
-the updated value of A as well. B could be an event that uses a
-different channel instead of a memory update.
+If you want to post-process printk output, don't do it in the kernel. 
 
-Usually (for me :o) ), the issue between the two (or more) CPUs is
-complicated by the fact that there is some device behind a PCI bus
-whose behavior depends on the same data as well.
+I'd suggest that in this instance you should be fixing the ACPI code
+instead, so it doesn't print the characters to which you object.
 
-Suggested reading: Schimmel + Aspirin recommended use.
+-- 
+dwmw2
 
---
-Ueimor
+

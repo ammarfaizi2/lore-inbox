@@ -1,74 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVBUIFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVBUIIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVBUIFl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 03:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVBUIFk
+	id S261917AbVBUIIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 03:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVBUIIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 03:05:40 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:47253 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261857AbVBUIFc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 03:05:32 -0500
-Subject: Re: [Elsa-devel] Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork
-	connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>
-In-Reply-To: <1108655454.14089.105.camel@uganda>
-References: <1108652114.21392.144.camel@frecb000711.frec.bull.fr>
-	 <1108655454.14089.105.camel@uganda>
-Date: Mon, 21 Feb 2005 09:05:30 +0100
-Message-Id: <1108973130.8418.76.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/02/2005 09:14:22,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/02/2005 09:14:24,
-	Serialize complete at 21/02/2005 09:14:24
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Feb 2005 03:08:36 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:993 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S261915AbVBUIH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 03:07:57 -0500
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+From: Kenan Esau <kenan.esau@conan.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20050219131639.GA4922@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz>
+	 <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz>
+	 <1108578892.2994.2.camel@localhost> <20050216213508.GD3001@ucw.cz>
+	 <1108649993.2994.18.camel@localhost> <20050217150455.GA1723@ucw.cz>
+	 <20050217194217.GA2458@ucw.cz> <1108817681.5774.44.camel@localhost>
+	 <20050219131639.GA4922@ucw.cz>
 Content-Type: text/plain
+Date: Mon, 21 Feb 2005 09:06:55 +0100
+Message-Id: <1108973216.5774.72.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 18:50 +0300, Evgeniy Polyakov wrote:
-> >  
-> > +#if defined(CONFIG_CONNECTOR) && defined(CONFIG_FORK_CONNECTOR)
+Am Samstag, den 19.02.2005, 14:16 +0100 schrieb Vojtech Pavlik:
+
+[...]
+
 > 
-> I suspect CONFIG_FORK_CONNECTOR is enough.
-
-The problem here is that if connector is compiled as a module and
-fork_connector as builtin there will be undefined reference to symbol
-like 'cn_already_initialized' or 'cn_netlink_send'. That's why the
-fork_connector() must be enable if CONFIG_CONNECTOR and
-CONFIG_FORK_CONNECTOR are selected as builtin and not as a module. I
-agree that it's not very elegant...
-
-> > +			cn_netlink_send(msg, 1);
+> > I also checked my original standalone-driver: Because of this behaviour
+> > I always retried the last command 3 times if the responce from the
+> > device was 0xfe or 0xfc.
 > 
-> "1" here means that this message will be delivered to any group
-> which has it's first bit set(1, 3, and so on) in given socket queue.
-> I suspect it is not what you want.
-> By design connector's users should send messages to the group it was
-> registered with
-> (which is obtained from idx field of the struct cb_id), in your case it
-> is CN_IDX_FORK,
-> and connector userspace consumers should bind to the same group (idx
-> value).
-> It is of course not requirement, but a fair path(hmm, I can add more
-> strict checks into connector).
-> By setting 0 as second parameter for cn_netlink_send() you will force
-> connector's core
-> to select proper group for you.
+> And did it actually help? Did the touchscreen ever respond with a 0xfa
+> "ACK, OK" response to these commands?
 
-Yes but cn_netlink_send() is looking for a callback with the same idx.
-As I don't use any callback, found == 0 and I have an error "Failed to
-find multicast netlink group for callback[0xfeed.0xbeef]". So the good
-call is: cn_netlink_send(msg, CN_IDX_FORK);
+I played around a little bit last weekend. And obviously the touchscreen
+always responds 0xfe to the 0xe8 0x07 command. Also repeating the
+command does not really help. After the firxt 0x07 you get back the 0xfe
+and the next byte you send to the device is ALWAYS answered by a
+0xfc!?!?
 
-Thanks for your help,
-Guillaume
+At the end of this mail you'll find some traces I did.
+
+I also wonder if it is possible at all to probe this device. I think
+not. IMHO we should go for a module-parameter which enforces the
+lifebook-protokoll. Something like "force_lb=1". Any Ideas /
+suggestions? How does this work out with a second/external mouse?
+
+##################################################
+
+Without e8 07
+input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082637]
+drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [195082637]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082645]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082804]
+drivers/input/serio/i8042.c: ff -> i8042 (parameter) [195082804]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082807]
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[195082869]
+drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[195082871]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082871]
+drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [195082871]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082874]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082874]
+drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [195082874]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082878]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082879]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195082879]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082884]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082884]
+drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [195082884]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082888]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082889]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195082889]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082894]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195082894]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195082894]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195082899]
+
+Repeating: e8 07 e8 07
+input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781502]
+drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [195781502]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781506]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781506]
+drivers/input/serio/i8042.c: ff -> i8042 (parameter) [195781506]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781511]
+drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [195781569]
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[195781575]
+drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[195781577]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781595]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781595]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781601]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781602]
+drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [195781602]
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[195781606]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781607]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781607]
+drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[195781611]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781809]
+drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [195781809]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781813]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781813]
+drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [195781813]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781817]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781818]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [195781818]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781822]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781823]
+drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [195781823]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781827]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781828]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195781828]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[195781832]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [195781833]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [195781833]
+
+Repeating: e8 07 e8 07 e8 07
+input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875239]
+drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [196875239]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875241]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875242]
+drivers/input/serio/i8042.c: ff -> i8042 (parameter) [196875242]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875246]
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12)[196875311]
+drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12)[196875312]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875319]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875319]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875327]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875327]
+drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [196875327]
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[196875332]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875332]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875332]
+drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[196875336]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875534]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875534]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875538]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875538]
+drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [196875538]
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12)[196875543]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875543]
+drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [196875543]
+drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12)[196875547]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875746]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [196875746]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875754]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875755]
+drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [196875755]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875759]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875759]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [196875759]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875764]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [196875765]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [196875765]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12)[196875770]
+
 

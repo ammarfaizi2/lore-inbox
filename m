@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVA0AMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVA0AHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVA0AMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVA0AHR
+	id S262437AbVA0AHH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVA0AGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:07:17 -0500
-Received: from outmx001.isp.belgacom.be ([195.238.3.51]:57529 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S262463AbVAZVdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 16:33:16 -0500
-Message-ID: <41F80CA2.2080603@246tNt.com>
-Date: Wed, 26 Jan 2005 22:33:22 +0100
-From: Sylvain Munaut <tnt@246tNt.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
-References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>	<1106441036.5387.41.camel@gaston> <1106529935.5587.9.camel@gaston>
-In-Reply-To: <1106529935.5587.9.camel@gaston>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 26 Jan 2005 19:06:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262437AbVAZVZE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 16:25:04 -0500
+Date: Wed, 26 Jan 2005 13:25:04 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a  
+ threading error
+Message-ID: <20050126132504.3295e07d@dxpl.pdx.osdl.net>
+In-Reply-To: <1106482954.1256.2.camel@tux.rsn.bth.se>
+References: <217740000.1106412985@[10.10.2.4]>
+	<41F30E0A.9000100@osdl.org>
+	<1106482954.1256.2.camel@tux.rsn.bth.se>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+On my laptop with Fedora Core 3, OpenOffice 1.0.1, 1.0.4 and the pre 2.0 version
+all work fine running 2.6.10-FCxx kernel but get a SEGV when running on 2.6.11-rc1 or 2.6.11-rc2
 
->On Sun, 2005-01-23 at 11:43 +1100, Benjamin Herrenschmidt wrote:
->
->  
->
->>I know about this problem, I'm working on a proper fix. Thanks for your
->>report.
->>    
->>
->
->Can you send me the PVR value for both of these CPUs
->(cat /proc/cpuinfo) ? I can't find right now why they would lock up
->unless the default idle loop is _not_ run properly, that is for some
->reason, NAP or DOZE mode end up not beeing enabled. Can you send me
->your .config as well ?
->  
->
-Note that when CONFIG_BDI_SWITCH is set, they both end up disabled
-because nap & doze seems to perturb the BDI on some cores.
-
-So there is a problem in that case ....
-
->Finally, try that patch and tell me if it makes a difference. 
->
-Yup
- - Without it hangs (not really, it's still half running but serial 
-output is stuck
-due to no interrupts)
- - With it it works
+Any hints?
 
 
-    Sylvain
-
+-- 
+Stephen Hemminger	<shemminger@osdl.org>

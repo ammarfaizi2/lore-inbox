@@ -1,101 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262873AbSJBAQA>; Tue, 1 Oct 2002 20:16:00 -0400
+	id <S262904AbSJBAUj>; Tue, 1 Oct 2002 20:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbSJBAQA>; Tue, 1 Oct 2002 20:16:00 -0400
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:16784 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S262873AbSJBAP6>; Tue, 1 Oct 2002 20:15:58 -0400
-From: caligula@cam029208.student.utwente.nl
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Molina <tmolina@cox.net>
-Subject: 2.5.40 : loadlin failure + analysys WAS : 2.5.32 bootfailure for nfsroot
-Date: Wed, 02 Oct 2002 00:22:58 GMT
-Reply-To: caligula@cam029208.student.utwente.nl
-Message-ID: <3d9a3be8.17342037@cam029208.student.utwente.nl>
-References: <200209271239.g8RCdIp09188@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0209271729230.26871-100000@cam029208.student.utwente.nl>
-In-Reply-To: <Pine.LNX.4.44.0209271729230.26871-100000@cam029208.student.utwente.nl>
-X-Mailer: Forte Free Agent 1.21/32.243
+	id <S262906AbSJBAUj>; Tue, 1 Oct 2002 20:20:39 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:64421 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S262904AbSJBAUi>;
+	Tue, 1 Oct 2002 20:20:38 -0400
+Date: Tue, 1 Oct 2002 17:26:06 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+Message-ID: <20021002002606.GB27122@tapu.f00f.org>
+References: <96096729@toto.iv> <15770.10847.884743.30282@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15770.10847.884743.30282@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002 17:50:06 +0200, in linux.kernel you wrote:
+On Wed, Oct 02, 2002 at 09:06:07AM +1000, Peter Chubb wrote:
 
->On Fri, 27 Sep 2002, Denis Vlasenko wrote:
->
->> > > The subject says it all.
->> > > 2.5.32 doesn't boot when using nfsroot.
->> > > same systems running fine with 2.4.19/2.5.31
->> > >
->> > > SYSTEMS:
->> > >    athlon with/without preempt. (flatbak)
->> > >    i586 with preempt.           (cam029205)
->> > >
->> > > The relevant configs/dmesg/lspci are on
->> > > cam029208.student.utwente.nl/~caligula.
->> > >
->> > > SYMPTOMS:
->> > > I'm using loadlin to load the kernels. I see the kernel loading,unzipping
->> > > and then...black screen followed by reboot.
->> >
->> > Small update.
->> > Still no joy with 2.5.33. Same results,same symptoms :(
->> 
->> Why do you think it is nfsroot related?
->> Does it boot off local filesystem?
->> --
->> vda
->> 
->
->
->Well, it was a guess. And a very wrong one too,it appeard later on.
->
->After I posted the message and got no reaction,I tried some different 
->kernel configs,and finally a very lean one.  No preempt,i386 only,no 
->mtrr,no ide,no nfsroot. The idea was let the kernel boot,and then 
->let it complain  it can't find a rootsystem. Even that wouldn't work.
->Same symptoms. Loadlin unzapping kernel and than whush...black screen 
->followed by reboot.
->
->A very lean kernel >2.5.32 won't boot with loadlin on my system.
->So no relation to nfsroot (my mistake).
->
->So my GUESS is,it has something to do with the interaction between loadlin 
->and the kernel.
->
->Greetz Mu
->
+> Indeed...  And I'm trying to merge it all now into 2.5.40.  Sorry
+> I've been a bit slow --- testing, especially error testing when
+> disks fill up, takes a long time (How long does it take to write 4
+> TB to a disk?  About a day with the machines I have here.  Multiply
+> that by three (now four with XFS) filesystems to test...)
 
-Ave kernel people.
+With XFS, if you don't care about the file contents, you can create
+very larges (multi-TB) non-sparse files more or less instantly.
 
-I did a little bit further testing with kernel 2.5.40.  I made a very
-very lean kernelconfig. No ide/scsci/preemp/nfsroot/ etc etc. With
-that config the kernel can only boot,setup basic stuff   and than
-complain it can't find a root filesys :) The configfile can be found
-at cam029208.student.utwente.nl/~caligula/kernel along with a
-lspci.txt of the test pc and a dmesg of the last working 2.5 kernel
-(2.5.31) wich works with lloadlin on that test pc.
+If you want code for this, let me know and I'll hack something
+together.
 
-I build 3 kernels:zdisk,zImage and bzImge. All with gcc 2.95.3 and 
-all with the same lean kernelconfig.
 
-Results:
-1) zdisk -->booting fine from floppy,stops when it can't find a
-rootfilesystem. which is obvious since no ide/scsci
-/nfsroot/ramdisk/initrd  is compiled in. So thumbs up with this setup.
-
-2)loadin + zImage --> loadlin loads kernel from hard disk,starts
-unzipping . The dots which indicate the progress keeps going,until ...
-whush,black screen followed by soft reboot.
-
-3)loadlin +bzImage -->same symptoms as loadlin+zimage.
-
-The same setup works flawless with 2.4.x and 2.5.x <=2.5.31
-
-So now the questions. What did change from .31 to .32 wich could have
-influenced the interaction of loadin with the kernel? And how can I
-debug this?  I'm no coder but turning on debugging code with #defines
-is in my reach.
-
-Greetz Mu
-
+  --cw

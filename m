@@ -1,69 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbULDMm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbULDMwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbULDMm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 07:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbULDMm5
+	id S262540AbULDMwa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 07:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbULDMwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 07:42:57 -0500
-Received: from av7-1-sn2.hy.skanova.net ([81.228.8.108]:6021 "EHLO
-	av7-1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262539AbULDMmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 07:42:55 -0500
-Date: Sat, 4 Dec 2004 13:42:54 +0100 (CET)
-Message-Id: <200412041242.iB4CgsN07246@d1o408.telia.com>
-From: "Voluspa" <lista4@comhem.se>
-Reply-To: "Voluspa" <lista4@comhem.se>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom killer (Core)
-X-Mailer: SF Webmail
-X-SF-webmail-clientstamp: [213.64.150.229] 2004-12-04 13:42:53
+	Sat, 4 Dec 2004 07:52:30 -0500
+Received: from king.bitgnome.net ([66.207.162.30]:55509 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S262540AbULDMwW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 07:52:22 -0500
+Date: Sat, 4 Dec 2004 06:52:05 -0600
+From: Mark Nipper <nipsy@bitgnome.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiser4 crash
+Message-ID: <20041204125205.GA56863@king.bitgnome.net>
+References: <41B1A3AA.5060703@benton987.fsnet.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+In-Reply-To: <41B1A3AA.5060703@benton987.fsnet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2004-12-04 8:08:40 Andrea Arcangeli wrote:
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> You can try to put back a might_slee_if(wait), but if it deadlocks 
-with
-> that change sure it's not a bug in my patch, it's instead a bug
-> somewhere else that calls alloc_pages w/o GFP_ATOMIC. Ingo's
-> lowlatency patch would expose the same bug too since they're aliasing
-> the might_sleep to cond_resched.
+On 04 Dec 2004, Andrew Benton wrote:
+> I've been using reiser4 for a couple of months. A couple of days ago I
+> did something stupid with Abiword, the disk started thrashing and as the
+> system crashed it left this on the screen
+<snipped>
 
-Putting it back doesn't alter the outcome - hanging. And the original 
-patch, (hope it was the right one) from:
+	Which if you are trying to patch this against the current
+Namesys 2.6.10-rc1 patches requires Saveliev's previous patch
+from a couple of weeks ago which I've also attached to this
+thread now as I'm in the middle of upgrading to 2.6.10-rc3 and
+had to go looking for the previous patch myself.  :)
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110204117506557&w=2
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
-root:loke:/usr/src/linux-2.6.9-oomkill# patch -Np1 -i ../oomkill.patch 
-patching file mm/oom_kill.c
-patching file mm/page_alloc.c
-Hunk #1 succeeded at 608 (offset -3 lines).
-Hunk #3 succeeded at 681 (offset -3 lines).
-patching file mm/swap_state.c
-patching file mm/vmscan.c
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
 
-has been tried with the following variations. With and without 
-optimizing for size, with and without preempt, with and without kernel 
-boot params (cfq, lapic), cold and hot starts, and then I threw in a smp 
-compile for measure. All have the same behaviour:
+---begin random quote of the moment---
+"I know the forces of spontaneous, emergent life are stronger
+than the forces of evil, repression and death, and the forces of
+death will destroy themselves."
+ -- William S. Burroughs
+----end random quote of the moment----
 
-[...]
-Checking 'hlt' instruction... OK.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1.1755"
 
-[10 minutes wait. Then a long callback trace
- scrolls off the screen ending like Thomas']
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/15 16:23:47+03:00 vs@tribesman.namesys.com 
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+# plugin/file/file.c
+#   2004/11/15 16:23:45+03:00 vs@tribesman.namesys.com +5 -1
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+diff -Nru a/plugin/file/file.c b/plugin/file/file.c
+--- a/plugin/file/file.c	2004-11-17 09:36:11 +03:00
++++ b/plugin/file/file.c	2004-11-17 09:36:11 +03:00
+@@ -1961,8 +1961,10 @@
+ {
+ 	struct page *page;
+ 	struct inode *inode;
+-
++	reiser4_context ctx;
++	
+ 	inode = area->vm_file->f_dentry->d_inode;
++	init_context(&ctx, inode->i_sb);
+ 
+ 	/* block filemap_nopage if copy on capture is processing with a node of this file */
+ 	down_read(&reiser4_inode_data(inode)->coc_sem);
+@@ -1972,6 +1974,8 @@
+ 
+ 	drop_nonexclusive_access(unix_file_inode_data(inode));
+ 	up_read(&reiser4_inode_data(inode)->coc_sem);
++
++	reiser4_exit_context(&ctx);
+ 	return page;
+ }
+ 
 
-<0>Kernel panic - not syncing: Fatal exception in interrupt
-
-My toolchain (well, the whole software system) is quite contemporary 
-within the stable branches. Built from scratch with gcc-3.4.3, glibc-
-20041011 (nptl) and binutils-2.15.92.0.2
-
-No energy control, acpi-pm or whatever it's called, is used here. The 
-machine is extremely stable. Running with 100 percent utilization 24/7.
-
-Don't shoot the messenger ;)
-Mats Johannesson
-
+--PNTmBPCT7hxwcZjr--

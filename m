@@ -1,102 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264394AbTEPJ0h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 05:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTEPJ0h
+	id S264387AbTEPJni (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 05:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTEPJnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 05:26:37 -0400
-Received: from mail.ipc-fabautomation.com ([195.145.106.210]:18308 "EHLO
-	fw-blf2.ipc-kallmuenz.de") by vger.kernel.org with ESMTP
-	id S264394AbTEPJ0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 05:26:35 -0400
-Message-ID: <3EC4B1E8.67AFAFEE@ipc-fabautomation.com>
-Date: Fri, 16 May 2003 11:39:52 +0200
-From: np <np@ipc-fabautomation.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: masud@googgun.com
-CC: linux-kernel@vger.kernel.org
-Subject: RE:2.4.20 freeze problem
+	Fri, 16 May 2003 05:43:37 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:3026 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S264387AbTEPJnf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 05:43:35 -0400
+Date: Fri, 16 May 2003 11:56:24 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
+       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030516095624.GA30397@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <20030515200324.GB12949@ranty.ddts.net> <200305161007.31335.oliver@neukum.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200305161007.31335.oliver@neukum.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, May 16, 2003 at 10:07:31AM +0200, Oliver Neukum wrote:
+> 
+> >  How it works:
+> > 	- Driver calls request_firmware()
+> > 	- 'hotplug firmware' gets called with ACCTION=add
+> > 	- /sysfs/class/firmware/dev_name/{data,loading} show up.
+> >
+> > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
+> >
+> > 	- The call to request_firmware() returns with the firmware in a
+> > 	  memory buffer and the driver can finish loading.
+> > 	- Driver loads the firmware.
+> > 	- Driver calls release_firmware().
+> 
+> So, if I understand you correctly, RAM is only saved if a device
+> is hotpluggable and needs firmware only upon intial connection.
+> Which, if you do suspend to disk correctly, is no device.
 
-  The machine does not respond to ping either. I was not able until know
-to hookup a serial console but I will try also that. 
-I do not suspect a heating issue because I have another machine which
-dies 
-randomnessly( not always after 2 hours --- was my mistake ). I also
-tried with 2.4.21-rc2 and I have the same behaviour. Complete stall.
-Maybe some other ideeas ?
+ Hotpluggability is not required, it is the same for any module, which
+ gets loaded while the system is running. Drivers don't even need to be
+ aware of hotplug.
+ 
+ And adding some kind of persistence in the mixture so firmware can be
+ included in the kernel image and later discarded/reconsidered even
+ in-kernel drivers (meaning non modules) can benefit. Coordinating with
+ initramfs as Pavel suggested should bring best results in this case.
 
-Cheers,
-Nicu
+ Also, the hotplug event happens every time you call request_firmware(),
+ not just on device load or upon initial connection. It is not the
+ regular "device plug event" it is an special 'firmware' event. For
+ example, on usb devices you would get two invocations of hotplug, one
+ 'hotplug usb' and one 'hotplug firmware'.
 
-On Wed, 14 May 2003 Nicolae_Popovici@mksinst.com wrote:
+ In the case of suspending to disk, you would have to make sure that the
+ firmware for the device that holds the rest of the firmware is already
+ in fwfs or whatever persistence method gets finally implemented.
+ 
+> And do I understand you correctly, you propose that request_firmware()
+> wait for the hotplug script to write the firmware to sysfs?
 
-> Hi  guys,
->
->  Here are the facts.
-> I have a small user program and the latest 2.4.20 stable kernel.
-> It is running on a board from IEI ( Wafer-5823 ) with a Cyrix 300 CPU.
+ Yes.
 
+> That means that request_firmware() is unusuable from the usual
+> probe() methods.
 
->  What happens is that after 2 hours of running this user program the
-> computer
-> freezes. I have the linux crash dump compiled inside the kernel and
-> activated
+ At least usb's probe() can sleep, but that is a good point. How about:
 
-> along with the magic sysrq key. Nothing works. I get only some messages
-> inside
-> the /var/log/messages but none of them are related to the crash ( modprobe
-> says it
-> can not load some module ). I also get the kcore file but I am using a
-> bzImage  jkernel and I am not able to
-> load it in the gdb. Should I switch to a vmlinux image ?
->
+ int request_firmware_nowait (
+		const char *name, const char *device, void *context, 
+		void (*cont)(const struct firmware *fw, void context)
+ );
 
-bzImage will be the booted kernel but there is a corrosponding vmlinux
-in
-the main source directory. bzImage is simply a compressed version of
-that,
-you can use the vmlinux that was produced to look at the debug Info but
-i
-doubt you will get anything useful in the first glance.
+ Then you can call request_firmware_nowait providing an appropriate
+ 'cont' callback and 'context' pointer. Then when your callback gets
+ called with the firmware you finish device setup.
 
-> Any ideeas of how to move forward with this will be greatly appreciated.
-> Cheers,
-> Nicu
+> You cannot kill a part of the kernel if a script fails to perform
+> correctly for some reason.
 
-Is the userspace program interacting with the kernel in any way?
+ Good point. Since it is easily solvable by hand:
 
-How is ram usage around say 1:45 minutes into the run?
+ echo 1 > /sysfs/class/firmware/dev_name/loading
+ echo 0 > /sysfs/class/firmware/dev_name/loading
 
-Have you looked at heating issues? If this happens almost always around
-2
-hours later it could very well be that the problem may be heat related.
-Or
-that around that time you end up accessing a part of RAM that doesn't
-get
-accessed for a while and you have bad ram. If it were a kernel related
-issue, i would expect more randomness in death.
+ I thought that it was OK. (I'll do the timeout)
 
-Do you have network access to this system? Can you perhaps try to ping
-it
-when it is dead and see if you get a response back? That may indicate
-whether it is actually the kernel dying or some thing that SEEMs as as
-if
-the kernel died.
+> Even worse, you cannot detect the script terminating abnormally in
+> that design.
 
-Just because sysreq isn't working doesn't mean that the kernel has
-frozen,
-it could mean that your interaction with the bus may be a bit out of
-whack, can you hook up a serial console to this thing and try from there
-too?
+ Well, the device model doesn't provide that information :(
 
-Just a few thoughts :)
+ It would be great if it did.
+ 
+ Would a patch to wait for hotplug termination and provide termination
+ status be accepted?
 
-Ahmed.
+ Adding an 'struct completion' and 'int status' to the right place
+ should be just about it.
+
+> You'd have to introduce some arbitrary timeout.
+
+ OK, I'll do that for now.
+ 
+> It seems to me that you introduce three new problems to get rid of
+> one old problem.
+
+ This is the kind of feedback I wanted, thanks a lot.
+ 
+ Let's see if I can remove all four problems now :)
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313756AbSDZJWB>; Fri, 26 Apr 2002 05:22:01 -0400
+	id <S313747AbSDZJRp>; Fri, 26 Apr 2002 05:17:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313751AbSDZJWA>; Fri, 26 Apr 2002 05:22:00 -0400
-Received: from [193.231.212.86] ([193.231.212.86]:15366 "HELO fm.radiototal.ro")
-	by vger.kernel.org with SMTP id <S313756AbSDZJV7>;
-	Fri, 26 Apr 2002 05:21:59 -0400
-From: <RAV@fm.radiototal.ro>
-To: alex@radiototal.ro
-Cc: linux-kernel@vger.kernel.org
-Subject: RAV AntiVirus scan results
-Date: Fri, 26 Apr 2002 12:21:50 +0300
-Importance: high
-X-Priority: 1
-X-Mailer: ravmd/8.3.2
-Message-Id: <20020426092150.68F5F145AA@fm.radiototal.ro>
+	id <S313751AbSDZJRo>; Fri, 26 Apr 2002 05:17:44 -0400
+Received: from gate.perex.cz ([194.212.165.105]:54536 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S313747AbSDZJRn>;
+	Fri, 26 Apr 2002 05:17:43 -0400
+Date: Fri, 26 Apr 2002 11:17:23 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Jurriaan on Alpha <thunder7@xs4all.nl>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: compiling cmipci in 2.5.10 on Alpha doesn't work
+In-Reply-To: <20020426130514.A20345@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.33.0204261113230.487-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Apr 2002, Ivan Kokshaysky wrote:
 
-RAV AntiVirus for Linux i686 version: 8.3.2 (snapshot-20020108)
-Copyright (c) 1996-2001 GeCAD The Software Company. All rights reserved.
-58 more days to evaluate.
-Running on host: fm.radiototal.ro
+> On Fri, Apr 26, 2002 at 09:44:16AM +0200, Jurriaan on Alpha wrote:
+> > -#if defined(__i386__) || defined(__ppc__)
+> > +#if defined(__i386__) || defined(__ppc__) || defined(__alpha__)
+> >  /*
+> >   * Here a dirty hack for 2.4 kernels.. See kernel/memory.c.
+> >   */
+> 
+> No, alpha doesn't need any kind of "dirty hacks". :-)
+> We only need to get <linux/pci.h> included properly.
 
------------------------
- RAV Antivirus results
------------------------
+The real fix is to add '#include <linux/pci.h>' line to all necessary 
+source files (sound/pci/cmipci.c in this example). Not all source files 
+need pci.h for compilation.
 
-The infected file was saved to quarantine with name: 1019812910-RAV8942.
-The file (part0001:bgcolor.exe) attached to mail (with subject:Some questions) sent by alex@radiototal.ro to linux-kernel@vger.kernel.org, 
-is infected with virus: Win32/Klez.H@mm.
-Cannot clean this file.
-The file was successfully deleted by RAV AntiVirus.
-------------------------
-this is a copy of the e-mail header:
+						Jaroslav
 
-Received: from Pbrbnxye (unknown [192.168.1.5])
+> --- 2.5.10/include/sound/driver.h	Mon Mar 18 23:37:12 2002
+> +++ linux/include/sound/driver.h	Tue Mar 26 23:47:32 2002
+> @@ -50,12 +50,12 @@
+>   */
+>  
+>  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
+> +#include <linux/pci.h>
+>  #if defined(__i386__) || defined(__ppc__)
+>  /*
+>   * Here a dirty hack for 2.4 kernels.. See kernel/memory.c.
+>   */
+>  #define HACK_PCI_ALLOC_CONSISTENT
+> -#include <linux/pci.h>
+>  void *snd_pci_hack_alloc_consistent(struct pci_dev *hwdev, size_t size,
+>  				    dma_addr_t *dma_handle);
+>  #undef pci_alloc_consistent
 
-
-
-Scan engine 8.5 (Standard) for i386.
-Last update: Wed Apr 24 10:42:51 2002
-Scanning for 66310 malwares (viruses, trojans and worms).
-
-To get a free 60-days evaluation version of RAV AntiVirus v8
-(yet fully functional) please visit:
-
-   http://www.ravantivirus.com
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

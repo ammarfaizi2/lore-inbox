@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263989AbTCWXQ3>; Sun, 23 Mar 2003 18:16:29 -0500
+	id <S263990AbTCWXRO>; Sun, 23 Mar 2003 18:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263990AbTCWXQ3>; Sun, 23 Mar 2003 18:16:29 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:17423 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263989AbTCWXQT>; Sun, 23 Mar 2003 18:16:19 -0500
-Date: Mon, 24 Mar 2003 00:27:20 +0100 (CET)
+	id <S263994AbTCWXRO>; Sun, 23 Mar 2003 18:17:14 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:12051 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263990AbTCWXQ4>; Sun, 23 Mar 2003 18:16:56 -0500
+Date: Mon, 24 Mar 2003 00:27:52 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@serv
 To: linux-kernel@vger.kernel.org, <aebr@win.tue.nl>,
        Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH 2/3] restore character device hash
-Message-ID: <Pine.LNX.4.44.0303240026010.9059-100000@serv>
+Subject: [PATCH 3/3] remove character device array
+Message-ID: <Pine.LNX.4.44.0303240027230.9065-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,296 +20,403 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch restores the character device hash, which will is more
-suitable to manage a large number of character devices.
-I used the chance to add a grep-friendly prefix to the char_device
-members.
+This patch removes the character device array, so that we can handle
+now an arbitrary number of character devices.
+The tty hack was moved where it belongs to.
+Note that this makes device (major,0) special, as any other minor device
+can be opened directly (via cd_fops), but minor 0 will use the fops
+registered with the major number.
+This won't be a problem for dynamically allocated devices, but it's
+something to keep in mind for existing drivers.
 
 bye, Roman
 
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/char_dev.c linux-2.5-dev3/fs/char_dev.c
---- linux-2.5-dev2/fs/char_dev.c	2003-03-23 18:28:37.000000000 +0100
-+++ linux-2.5-dev3/fs/char_dev.c	2003-03-23 19:09:13.000000000 +0100
-@@ -23,10 +23,114 @@
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev3/drivers/char/tty_io.c linux-2.5-dev4/drivers/char/tty_io.c
+--- linux-2.5-dev3/drivers/char/tty_io.c	2003-03-23 18:29:44.000000000 +0100
++++ linux-2.5-dev4/drivers/char/tty_io.c	2003-03-23 22:32:27.000000000 +0100
+@@ -327,11 +327,15 @@
+ /*
+  * This routine returns a tty driver structure, given a device number
+  */
+-struct tty_driver *get_tty_driver(kdev_t device)
++static struct tty_driver *get_tty_driver(kdev_t device)
+ {
+ 	int	major, minor;
+ 	struct tty_driver *p;
+-	
++#ifdef CONFIG_KMOD
++	char name[20] = "";
++again:
++#endif
++
+ 	minor = minor(device);
+ 	major = major(device);
  
- /* serial module kmod load support */
- struct tty_driver *get_tty_driver(kdev_t device);
--#define is_a_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
-+#define isa_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
- #define need_serial(ma,mi) (get_tty_driver(mk_kdev(ma,mi)) == NULL)
- #endif
- 
-+#define HASH_BITS	6
-+#define HASH_SIZE	(1UL << HASH_BITS)
-+#define HASH_MASK	(HASH_SIZE-1)
-+static struct list_head cdev_hashtable[HASH_SIZE];
-+static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
-+static kmem_cache_t *cdev_cachep;
-+
-+#define alloc_cdev() \
-+	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
-+#define destroy_cdev(cdev) kmem_cache_free(cdev_cachep, (cdev))
-+
-+static void init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
-+{
-+	struct char_device *cdev = (struct char_device *) foo;
-+
-+	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
-+	    SLAB_CTOR_CONSTRUCTOR)
-+		memset(cdev, 0, sizeof(*cdev));
-+}
-+
-+void __init cdev_cache_init(void)
-+{
-+	int i;
-+	struct list_head *head = cdev_hashtable;
-+
-+	i = HASH_SIZE;
-+	do {
-+		INIT_LIST_HEAD(head);
-+		head++;
-+		i--;
-+	} while (i);
-+
-+	cdev_cachep = kmem_cache_create("cdev_cache",
-+					 sizeof(struct char_device),
-+					 0, SLAB_HWCACHE_ALIGN, init_once,
-+					 NULL);
-+	if (!cdev_cachep)
-+		panic("Cannot create cdev_cache SLAB cache");
-+}
-+
-+/*
-+ * Most likely _very_ bad one - but then it's hardly critical for small
-+ * /dev and can be fixed when somebody will need really large one.
-+ */
-+static inline unsigned long hash(dev_t dev)
-+{
-+	unsigned long tmp = dev;
-+	tmp = tmp + (tmp >> HASH_BITS) + (tmp >> HASH_BITS*2);
-+	return tmp & HASH_MASK;
-+}
-+
-+static struct char_device *cdfind(dev_t dev, struct list_head *head)
-+{
-+	struct list_head *p;
-+	struct char_device *cdev;
-+
-+	list_for_each(p, head) {
-+		cdev = list_entry(p, struct char_device, cd_hash);
-+		if (cdev->cd_dev == dev) {
-+			atomic_inc(&cdev->cd_count);
-+			return cdev;
-+		}
-+	}
-+	return NULL;
-+}
-+
-+struct char_device *cdget(dev_t dev)
-+{
-+	struct list_head * head = cdev_hashtable + hash(dev);
-+	struct char_device *cdev, *new_cdev;
-+
-+	spin_lock(&cdev_lock);
-+	cdev = cdfind(dev, head);
-+	spin_unlock(&cdev_lock);
-+	if (cdev)
-+		return cdev;
-+
-+	new_cdev = alloc_cdev();
-+	if (!new_cdev)
-+		return NULL;
-+	atomic_set(&new_cdev->cd_count, 1);
-+	new_cdev->cd_dev = dev;
-+
-+	spin_lock(&cdev_lock);
-+	cdev = cdfind(dev, head);
-+	if (!cdev) {
-+		list_add(&new_cdev->cd_hash, head);
-+		spin_unlock(&cdev_lock);
-+		return new_cdev;
-+	}
-+	spin_unlock(&cdev_lock);
-+	destroy_cdev(new_cdev);
-+	return cdev;
-+}
-+
-+void cdput(struct char_device *cdev)
-+{
-+	if (atomic_dec_and_lock(&cdev->cd_count, &cdev_lock)) {
-+		list_del(&cdev->cd_hash);
-+		spin_unlock(&cdev_lock);
-+		destroy_cdev(cdev);
-+	}
-+}
-+
- struct device_struct {
- 	const char * name;
- 	struct file_operations * fops;
-@@ -44,8 +148,7 @@
- 	read_lock(&chrdevs_lock);
- 	for (i = 0; i < MAX_CHRDEV ; i++) {
- 		if (chrdevs[i].fops) {
--			len += sprintf(page+len, "%3d %s\n",
--				       i, chrdevs[i].name);
-+			len += sprintf(page+len, "%3d %s\n", i, chrdevs[i].name);
- 		}
+@@ -344,6 +348,13 @@
+ 			continue;
+ 		return p;
  	}
- 	read_unlock(&chrdevs_lock);
-@@ -53,14 +156,13 @@
++#ifdef CONFIG_KMOD
++	if (!name[0]) {
++		sprintf(name, "char-major-%d", MAJOR(major));
++		request_module(name);
++		goto again;
++	}
++#endif
+ 	return NULL;
+ }
+ 
+@@ -2113,21 +2124,33 @@
+ int tty_register_driver(struct tty_driver *driver)
+ {
+ 	int error;
+-        int i;
++	int i;
+ 
+ 	if (driver->flags & TTY_DRIVER_INSTALLED)
+ 		return 0;
+ 
++	down_tty_sem(0);
++	if (driver->major) {
++		struct char_device *cdev = cdget(MKDEV(driver->major, 0));
++		struct file_operations *fops = cdev->cd_fops;
++		cdput(cdev);
++		error = 0;
++		if (fops == &tty_fops)
++			goto skip;
++	}
+ 	error = register_chrdev(driver->major, driver->name, &tty_fops);
+-	if (error < 0)
++	if (error < 0) {
++		up_tty_sem(0);
+ 		return error;
+-	else if(driver->major == 0)
++	} else if (driver->major == 0)
+ 		driver->major = error;
++skip:
+ 
+ 	if (!driver->put_char)
+ 		driver->put_char = tty_default_put_char;
+ 	
+ 	list_add(&driver->tty_drivers, &tty_drivers);
++	up_tty_sem(0);
+ 	
+ 	if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
+ 		for(i = 0; i < driver->num; i++)
+@@ -2151,24 +2174,30 @@
+ 	if (*driver->refcount)
+ 		return -EBUSY;
+ 
++	down_tty_sem(0);
+ 	list_for_each_entry(p, &tty_drivers, tty_drivers) {
+ 		if (p == driver)
+ 			found++;
+ 		else if (p->major == driver->major)
+ 			othername = p->name;
+ 	}
+-	
+-	if (!found)
+-		return -ENOENT;
+ 
+-	if (othername == NULL) {
+-		retval = unregister_chrdev(driver->major, driver->name);
+-		if (retval)
+-			return retval;
++	if (found) {
++		if (othername) {
++			struct char_device *cdev = cdget(MKDEV(driver->major, 0));
++			cdev->cd_name = othername;
++			cdput(cdev);
++			retval = 0;
++		} else
++			retval = unregister_chrdev(driver->major, driver->name);
+ 	} else
+-		register_chrdev(driver->major, othername, &tty_fops);
++		retval = -ENOENT;
+ 
+-	list_del(&driver->tty_drivers);
++	if (!retval)
++		list_del(&driver->tty_drivers);
++	up_tty_sem(0);
++	if (retval)
++		return retval;
+ 
+ 	/*
+ 	 * Free the termios and termios_locked structures because
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev3/fs/char_dev.c linux-2.5-dev4/fs/char_dev.c
+--- linux-2.5-dev3/fs/char_dev.c	2003-03-23 19:09:13.000000000 +0100
++++ linux-2.5-dev4/fs/char_dev.c	2003-03-23 19:19:14.000000000 +0100
+@@ -15,17 +15,8 @@
+ #include <linux/errno.h>
+ #include <linux/module.h>
+ #include <linux/smp_lock.h>
+-#include <linux/devfs_fs_kernel.h>
+ 
+-#ifdef CONFIG_KMOD
+ #include <linux/kmod.h>
+-#include <linux/tty.h>
+-
+-/* serial module kmod load support */
+-struct tty_driver *get_tty_driver(kdev_t device);
+-#define isa_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
+-#define need_serial(ma,mi) (get_tty_driver(mk_kdev(ma,mi)) == NULL)
+-#endif
+ 
+ #define HASH_BITS	6
+ #define HASH_SIZE	(1UL << HASH_BITS)
+@@ -33,6 +24,7 @@
+ static struct list_head cdev_hashtable[HASH_SIZE];
+ static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
+ static kmem_cache_t *cdev_cachep;
++static LIST_HEAD(cdev_list);
+ 
+ #define alloc_cdev() \
+ 	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
+@@ -43,8 +35,10 @@
+ 	struct char_device *cdev = (struct char_device *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+-	    SLAB_CTOR_CONSTRUCTOR)
++	    SLAB_CTOR_CONSTRUCTOR) {
+ 		memset(cdev, 0, sizeof(*cdev));
++		sema_init(&cdev->cd_sem, 1);
++	}
+ }
+ 
+ void __init cdev_cache_init(void)
+@@ -131,27 +125,19 @@
+ 	}
+ }
+ 
+-struct device_struct {
+-	const char * name;
+-	struct file_operations * fops;
+-};
+-
+-static rwlock_t chrdevs_lock = RW_LOCK_UNLOCKED;
+-static struct device_struct chrdevs[MAX_CHRDEV];
+-
+ int get_chrdev_list(char *page)
+ {
+-	int i;
++	struct char_device *cdev;
+ 	int len;
+ 
+ 	len = sprintf(page, "Character devices:\n");
+-	read_lock(&chrdevs_lock);
+-	for (i = 0; i < MAX_CHRDEV ; i++) {
+-		if (chrdevs[i].fops) {
+-			len += sprintf(page+len, "%3d %s\n", i, chrdevs[i].name);
+-		}
++	spin_lock(&cdev_lock);
++	list_for_each_entry(cdev, &cdev_list, cd_list) {
++		if (cdev->cd_name)
++			len += sprintf(page+len, "%3d %s\n",
++				       MAJOR(cdev->cd_dev), cdev->cd_name);
+ 	}
+-	read_unlock(&chrdevs_lock);
++	spin_unlock(&cdev_lock);
+ 	return len;
+ }
+ 
+@@ -160,80 +146,95 @@
+ 	Load the driver if needed.
+ 	Increment the reference count of module in question.
+ */
+-static struct file_operations * get_chrfops(unsigned int major, unsigned int minor)
++static struct file_operations *get_chrfops(struct char_device *cdev)
+ {
+-	struct file_operations *ret = NULL;
++	struct file_operations *fops;
+ 
+-	if (!major || major >= MAX_CHRDEV)
+-		return NULL;
+-
+-	read_lock(&chrdevs_lock);
+-	ret = fops_get(chrdevs[major].fops);
+-	read_unlock(&chrdevs_lock);
++	down(&cdev->cd_sem);
++	fops = fops_get(cdev->cd_fops);
++	up(&cdev->cd_sem);
++	if (fops || !MINOR(cdev->cd_dev))
++		return fops;
++
++	cdev = cdget(MKDEV(MAJOR(cdev->cd_dev), 0));
++	down(&cdev->cd_sem);
++	fops = fops_get(cdev->cd_fops);
++	up(&cdev->cd_sem);
+ #ifdef CONFIG_KMOD
+-	if (ret && isa_tty_dev(major)) {
+-		lock_kernel();
+-		if (need_serial(major,minor)) {
+-			/* Force request_module anyway, but what for? */
+-			fops_put(ret);
+-			ret = NULL;
+-		}
+-		unlock_kernel();
+-	}
+-	if (!ret) {
+-		char name[20];
+-		sprintf(name, "char-major-%d", major);
+-		request_module(name);
++	if (!fops) {
++		char name[32];
+ 
+-		read_lock(&chrdevs_lock);
+-		ret = fops_get(chrdevs[major].fops);
+-		read_unlock(&chrdevs_lock);
++		sprintf(name, "char-major-%d", MAJOR(cdev->cd_dev));
++		request_module(name);
++		down(&cdev->cd_sem);
++		fops = fops_get(cdev->cd_fops);
++		up(&cdev->cd_sem);
+ 	}
+ #endif
+-	return ret;
++	cdput(cdev);
++	return fops;
+ }
+-
++						
+ int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
+ {
++	struct char_device *cdev;
++	int res;
++
+ 	if (major == 0) {
+-		write_lock(&chrdevs_lock);
+ 		for (major = MAX_CHRDEV-1; major > 0; major--) {
+-			if (chrdevs[major].fops == NULL) {
+-				chrdevs[major].name = name;
+-				chrdevs[major].fops = fops;
+-				write_unlock(&chrdevs_lock);
+-				return major;
++			cdev = cdget(MKDEV(major, 0));
++			down(&cdev->cd_sem);
++			if (!cdev->cd_fops) {
++				res = major;
++				goto found;
+ 			}
++			up(&cdev->cd_sem); 
++			cdput(cdev);
+ 		}
+-		write_unlock(&chrdevs_lock);
+ 		return -EBUSY;
+ 	}
++
+ 	if (major >= MAX_CHRDEV)
+ 		return -EINVAL;
+-	write_lock(&chrdevs_lock);
+-	if (chrdevs[major].fops && chrdevs[major].fops != fops) {
+-		write_unlock(&chrdevs_lock);
++
++	cdev = cdget(MKDEV(major, 0));
++	down(&cdev->cd_sem);
++	if (cdev->cd_fops) {
++		up(&cdev->cd_sem);
++		cdput(cdev);
+ 		return -EBUSY;
+ 	}
+-	chrdevs[major].name = name;
+-	chrdevs[major].fops = fops;
+-	write_unlock(&chrdevs_lock);
++	res = 0;
++found:
++	cdev->cd_fops = fops;
++	cdev->cd_name = name;
++	list_add_tail(&cdev->cd_list, &cdev_list);
++	up(&cdev->cd_sem);
+ 	return 0;
+ }
+ 
+ int unregister_chrdev(unsigned int major, const char * name)
+ {
++	struct char_device *cdev;
++	int res;
++
+ 	if (major >= MAX_CHRDEV)
+ 		return -EINVAL;
+-	write_lock(&chrdevs_lock);
+-	if (!chrdevs[major].fops || strcmp(chrdevs[major].name, name)) {
+-		write_unlock(&chrdevs_lock);
+-		return -EINVAL;
++
++	cdev = cdget(MKDEV(major, 0));
++	down(&cdev->cd_sem);
++	res = -EINVAL;
++	if (cdev->cd_fops && !strcmp(cdev->cd_name, name)) {
++		list_del(&cdev->cd_list);
++		cdev->cd_fops = NULL;
++		cdev->cd_name = NULL;
++		cdput(cdev);
++		res = 0;
+ 	}
+-	chrdevs[major].name = NULL;
+-	chrdevs[major].fops = NULL;
+-	write_unlock(&chrdevs_lock);
+-	return 0;
++	up(&cdev->cd_sem);
++
++	cdput(cdev);
++	return res;
  }
  
  /*
-- *	Return the function table of a device.
-- *	Load the driver if needed.
-- *	Increment the reference count of module in question.
-- */
--static struct file_operations *
--get_chrfops(unsigned int major, unsigned int minor)
-+	Return the function table of a device.
-+	Load the driver if needed.
-+	Increment the reference count of module in question.
-+*/
-+static struct file_operations * get_chrfops(unsigned int major, unsigned int minor)
+@@ -241,14 +242,16 @@
+  */
+ int chrdev_open(struct inode * inode, struct file * filp)
  {
--	struct file_operations *ret;
-+	struct file_operations *ret = NULL;
++	struct file_operations *fops;
+ 	int ret = -ENODEV;
  
- 	if (!major || major >= MAX_CHRDEV)
- 		return NULL;
-@@ -69,12 +171,10 @@
- 	ret = fops_get(chrdevs[major].fops);
- 	read_unlock(&chrdevs_lock);
- #ifdef CONFIG_KMOD
--	if (ret && is_a_tty_dev(major)) {
-+	if (ret && isa_tty_dev(major)) {
- 		lock_kernel();
- 		if (need_serial(major,minor)) {
- 			/* Force request_module anyway, but what for? */
--			/* The reason is that we may have a driver for
--			   /dev/tty1 already, but need one for /dev/ttyS1. */
- 			fops_put(ret);
- 			ret = NULL;
+-	filp->f_op = get_chrfops(major(inode->i_rdev), minor(inode->i_rdev));
+-	if (filp->f_op) {
++	fops = get_chrfops(inode->i_cdev);
++	if (fops) {
+ 		ret = 0;
+-		if (filp->f_op->open != NULL) {
++		filp->f_op = fops;
++		if (fops->open) {
+ 			lock_kernel();
+-			ret = filp->f_op->open(inode,filp);
++			ret = fops->open(inode, filp);
+ 			unlock_kernel();
  		}
-@@ -93,8 +193,7 @@
- 	return ret;
- }
+ 	}
+@@ -266,11 +269,13 @@
  
--int register_chrdev(unsigned int major, const char *name,
--		    struct file_operations *fops)
-+int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
+ const char *cdevname(kdev_t dev)
  {
- 	if (major == 0) {
- 		write_lock(&chrdevs_lock);
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/dcache.c linux-2.5-dev3/fs/dcache.c
---- linux-2.5-dev2/fs/dcache.c	2003-03-23 18:08:54.000000000 +0100
-+++ linux-2.5-dev3/fs/dcache.c	2003-03-23 18:30:01.000000000 +0100
-@@ -1563,6 +1563,7 @@
- EXPORT_SYMBOL(d_genocide);
+-	static char buffer[40];
+-	const char * name = chrdevs[major(dev)].name;
++	static char buffer[64];
++	struct char_device *cdev;
++
++	cdev = cdget(kdev_t_to_nr(dev));
++	down(&cdev->cd_sem);
++	sprintf(buffer, "%s(%d,%d)", cdev->cd_name ? cdev->cd_name : "unknown-char", major(dev), minor(dev));
++	up(&cdev->cd_sem);
  
- extern void bdev_cache_init(void);
-+extern void cdev_cache_init(void);
+-	if (!name)
+-		name = "unknown-char";
+-	sprintf(buffer, "%s(%d,%d)", name, major(dev), minor(dev));
+ 	return buffer;
+ }
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev3/include/linux/fs.h linux-2.5-dev4/include/linux/fs.h
+--- linux-2.5-dev3/include/linux/fs.h	2003-03-23 19:01:56.000000000 +0100
++++ linux-2.5-dev4/include/linux/fs.h	2003-03-23 18:41:34.000000000 +0100
+@@ -333,8 +333,13 @@
  
- void __init vfs_caches_init(unsigned long mempages)
- {
-@@ -1583,4 +1584,5 @@
- 	files_init(mempages); 
- 	mnt_init(mempages);
- 	bdev_cache_init();
-+	cdev_cache_init();
- }
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/devfs/base.c linux-2.5-dev3/fs/devfs/base.c
---- linux-2.5-dev2/fs/devfs/base.c	2003-03-23 18:08:54.000000000 +0100
-+++ linux-2.5-dev3/fs/devfs/base.c	2003-03-23 18:30:01.000000000 +0100
-@@ -2016,6 +2016,7 @@
-     if ( S_ISCHR (de->mode) )
-     {
- 	inode->i_rdev = to_kdev_t(de->u.cdev.dev);
-+	inode->i_cdev = cdget(de->u.cdev.dev);
-     }
-     else if ( S_ISBLK (de->mode) )
-     {
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/inode.c linux-2.5-dev3/fs/inode.c
---- linux-2.5-dev2/fs/inode.c	2003-03-23 18:20:14.000000000 +0100
-+++ linux-2.5-dev3/fs/inode.c	2003-03-23 18:30:01.000000000 +0100
-@@ -128,6 +128,7 @@
- 		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
- 		inode->i_pipe = NULL;
- 		inode->i_bdev = NULL;
-+		inode->i_cdev = NULL;
- 		inode->i_rdev = to_kdev_t(0);
- 		inode->i_security = NULL;
- 		if (security_inode_alloc(inode)) {
-@@ -241,6 +242,10 @@
- 		inode->i_sb->s_op->clear_inode(inode);
- 	if (inode->i_bdev)
- 		bd_forget(inode);
-+	else if (inode->i_cdev) {
-+		cdput(inode->i_cdev);
-+		inode->i_cdev = NULL;
-+	}
- 	inode->i_state = I_CLEAR;
- }
- 
-@@ -1310,6 +1315,7 @@
- 	if (S_ISCHR(mode)) {
- 		inode->i_fop = &def_chr_fops;
- 		inode->i_rdev = to_kdev_t(rdev);
-+		inode->i_cdev = cdget(rdev);
- 	} else if (S_ISBLK(mode)) {
- 		inode->i_fop = &def_blk_fops;
- 		inode->i_rdev = to_kdev_t(rdev);
-@@ -1318,6 +1324,5 @@
- 	else if (S_ISSOCK(mode))
- 		inode->i_fop = &bad_sock_fops;
- 	else
--		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n",
--		       mode);
-+		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n", mode);
- }
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/include/linux/fs.h linux-2.5-dev3/include/linux/fs.h
---- linux-2.5-dev2/include/linux/fs.h	2003-03-23 18:20:14.000000000 +0100
-+++ linux-2.5-dev3/include/linux/fs.h	2003-03-23 19:01:56.000000000 +0100
-@@ -331,6 +331,12 @@
- 	struct address_space	*assoc_mapping;	/* ditto */
+ struct char_device {
+ 	struct list_head	cd_hash;
++	struct list_head	cd_list;
++	struct file_operations *cd_fops;
++	const char *		cd_name;
+ 	atomic_t		cd_count;
+ 	dev_t			cd_dev;
++	struct semaphore	cd_sem;
++	void *			cd_data;
  };
  
-+struct char_device {
-+	struct list_head	cd_hash;
-+	atomic_t		cd_count;
-+	dev_t			cd_dev;
-+};
-+
  struct block_device {
- 	struct list_head	bd_hash;
- 	atomic_t		bd_count;
-@@ -382,6 +388,7 @@
- 	struct list_head	i_devices;
- 	struct pipe_inode_info	*i_pipe;
- 	struct block_device	*i_bdev;
-+	struct char_device	*i_cdev;
- 
- 	unsigned long		i_dnotify_mask; /* Directory notify events */
- 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
-@@ -1039,6 +1046,8 @@
- extern int bd_acquire(struct inode *inode);
- extern void bd_forget(struct inode *inode);
- extern void bdput(struct block_device *);
-+extern struct char_device *cdget(dev_t);
-+extern void cdput(struct char_device *);
- extern int blkdev_open(struct inode *, struct file *);
- extern int blkdev_close(struct inode *, struct file *);
- extern struct file_operations def_blk_fops;
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/kernel/ksyms.c linux-2.5-dev3/kernel/ksyms.c
---- linux-2.5-dev2/kernel/ksyms.c	2003-03-23 18:08:56.000000000 +0100
-+++ linux-2.5-dev3/kernel/ksyms.c	2003-03-23 18:30:01.000000000 +0100
-@@ -203,6 +203,8 @@
- EXPORT_SYMBOL(set_blocksize);
- EXPORT_SYMBOL(sb_set_blocksize);
- EXPORT_SYMBOL(sb_min_blocksize);
-+EXPORT_SYMBOL(cdget);
-+EXPORT_SYMBOL(cdput);
- EXPORT_SYMBOL(bdget);
- EXPORT_SYMBOL(bdput);
- EXPORT_SYMBOL(bd_claim);
 

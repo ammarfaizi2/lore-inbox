@@ -1,113 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbUDQXtR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 19:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDQXtR
+	id S264076AbUDQXwU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 19:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUDQXwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 19:49:17 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:6538 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S264075AbUDQXtN (ORCPT
+	Sat, 17 Apr 2004 19:52:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42144 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264076AbUDQXwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 19:49:13 -0400
-Date: Sat, 17 Apr 2004 19:49:01 -0400 (EDT)
-From: Ian Morgan <imorgan@webcon.ca>
-To: Jean Delvare <khali@linux-fr.org>
-cc: Ben Castricum <helpdeskie@bencastricum.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 Sensors & USB problems
-In-Reply-To: <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
-Message-ID: <Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca>
-References: <1081349796.407416a4c3739@imp.gcu.info>
- <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Apr 2004 19:52:18 -0400
+Date: Sat, 17 Apr 2004 16:51:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marc Singer <elf@buici.com>
+Cc: elf@buici.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+Message-Id: <20040417165151.24b1fed5.akpm@osdl.org>
+In-Reply-To: <20040417233037.GA15576@flea>
+References: <20040417193855.GP743@holomorphy.com>
+	<20040417212958.GA8722@flea>
+	<20040417162125.3296430a.akpm@osdl.org>
+	<20040417233037.GA15576@flea>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, bad form to reply to one's self, but someone may appreciate this info:
-
-Seems that the w83781d driver no longer detects whatever the sensor chip on
-the P4PE is, but I see there is now a new driver called asb100 which does
-work. An old conflicting lm_sensors install was breaking the sensors-detect
-script, but once resolved it nicely detected the asb100.
-
-Can anyone explain, however, why my i2c bus showed up as number 0 under
-linux <= 2.6.4, and now always as number 1 under linux 2.6.5? The is no
-number 0 any more.
-
-Regards,
-Ian Morgan
-
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
-    *  Customized Linux network solutions for your business  *
--------------------------------------------------------------------
-
-
-On Sat, 17 Apr 2004, Ian Morgan wrote:
-
-> On Wed, 7 Apr 2004, Jean Delvare wrote:
-> 
-> > Hi Ben,
+Marc Singer <elf@buici.com> wrote:
+>
+> On Sat, Apr 17, 2004 at 04:21:25PM -0700, Andrew Morton wrote:
+> > Marc Singer <elf@buici.com> wrote:
+> > >
+> > >  I'd say that there is no statistically significant difference between
+> > >  these sets of times.  However, after I've run the test program, I run
+> > >  the command "ls -l /proc"
+> > > 
+> > >  				 swappiness
+> > >  			60 (default)		0
+> > >  			------------		--------
+> > >  elapsed time(s)		18			1
+> > >  			30			1
+> > >  			33			1
 > > 
-> > > 2.6.5-rc1 -> sensors broke (ERROR: Can't get <sensor> data!)
-> > 
-> > Your sensors problem will be resolved as soon as you switch to the just
-> > released lm_sensors 2.8.6.
+> > How on earth can it take half a minute to list /proc?
 > 
-> I use the same w83781d and i2c_i801 drivers on my Asus P4PE box, and they
-> too went belly up with 2.6.5. However, I HAVE tried lm_sensors 2.8.6 and
-> that made no difference. They're just user-space tools that don't touch the
-> kernel any more in 2.6.x (right?).
-> 
-> The problem I am seeing now in 2.6.5 is that after loading the w83781d
-> module, nothing shows up in /sys or /proc, as though the module had not
-> loaded but lsmod says it is loaded.
-> 
-> In 2.6.4, my sensors showed up hare:
-> /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/* (w83781d)
-> /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/1-0050/* (eeprom)
-> 
-> Now in 2.6.5, with both eeprom and w83781d modules loaded, I only get the
-> eeprom, and the w83781d is nowhere to be found:
-> /sys/devices/pci0000:00/0000:00:1f.3/i2c-1/1-0050/* (eeprom)
-> 
-> # find /sys/bus/i2c/drivers/
-> /sys/bus/i2c/drivers/
-> /sys/bus/i2c/drivers/w83781d
-> /sys/bus/i2c/drivers/eeprom
-> /sys/bus/i2c/drivers/eeprom/1-0050
-> /sys/bus/i2c/drivers/dev_driver
-> /sys/bus/i2c/drivers/i2c_adapter
-> 
-> This certainly shows that the driver is loaded, but has not found/registered
-> any devices?
-> 
-> Regards,
-> Ian Morgan
-> 
-> -- 
-> -------------------------------------------------------------------
->  Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
->  imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
->     *  Customized Linux network solutions for your business  *
-> -------------------------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> I've watched the vmscan code at work.  The memory pressure is so high
+> that it reclaims mapped pages zealously.  The program's code pages are
+> being evicted frequently.
 
+Which tends to imply that the VM is not reclaiming any of that nfs-backed
+pagecache.
 
-Regards,
-Ian Morgan
+> I've been wondering if the swappiness isn't a red herring.  Is it
+> reasonable that the distress value (in refill_inactive_zones ()) be
+> 50?
 
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
-    *  Customized Linux network solutions for your business  *
--------------------------------------------------------------------
+I'd assume that setting swappiness to zero simply means that you still have
+all of your libc in pagecache when running ls.
+
+What happens if you do the big file copy, then run `sync', then do the ls?
+
+Have you experimented with the NFS mount options?  v2? UDP?

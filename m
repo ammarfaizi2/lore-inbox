@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSJEBVv>; Fri, 4 Oct 2002 21:21:51 -0400
+	id <S261927AbSJEBWK>; Fri, 4 Oct 2002 21:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261926AbSJEBVv>; Fri, 4 Oct 2002 21:21:51 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41921 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261900AbSJEBVu>;
-	Fri, 4 Oct 2002 21:21:50 -0400
-Date: Fri, 4 Oct 2002 21:27:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: oops in bk pull (oct 03)
-In-Reply-To: <20021004.181311.31550114.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0210042122400.21250-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261932AbSJEBWK>; Fri, 4 Oct 2002 21:22:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:44419 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261926AbSJEBWG>;
+	Fri, 4 Oct 2002 21:22:06 -0400
+Date: Sat, 5 Oct 2002 10:14:34 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] patch-slab-split-03-tail
+Message-ID: <20021005001434.GA15031@krispykreme>
+References: <Pine.LNX.4.33L2.0210041321370.20655-100000@dragon.pdx.osdl.net> <3D9E0760.8040507@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D9E0760.8040507@colorfullife.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Fri, 4 Oct 2002, David S. Miller wrote:
-
-> The people seeing this don't happen to be on Serverworks chipsets
-> are they?
+> <<<<<<<
+> An object cache's CPU layer contains per-CPU state that must be 
+> protected either by per-CPU locking or by disabling interrupts. We 
+> selected per-CPU locking for several reasons:
+> [...]
+>  x    Performance. On most modern processors, grabbing an uncontended 
+> lock is cheaper than modifying the processor interrupt level.
+> <<<<<<<<
 > 
-> I've seen a bug on serverworks where back to back PCI config
-> space operations can cause some to be lost or corrupted.
+> Which cpus have slow local_irq_disable() implementations? At least for 
+> my Duron, this doesn't seem to be the case [~ 4 cpu cycles for cli]
 
-No serverwanks here.  Abit-KT7 (no RAID), VIA chipset.
- 
-> Another theory is that some device just dislikes being given
-> a 0 in one of it's base registers, but somehow ~0 is ok :-)
+Rusty did some tests and found on the intel chips he tested
+local_irq_disable was slower. He posted the results to lkml a few weeks
+ago.
 
-... FVO some device equal to host bridge, I'm afraid.
+On ppc64 it varies between chips.
 
+Anton

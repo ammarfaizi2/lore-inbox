@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVCWCU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVCWCeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVCWCU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 21:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVCWCTT
+	id S262719AbVCWCeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 21:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVCWCeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 21:19:19 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:51587 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262712AbVCWCOo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 21:14:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=jM2EO3y3+5DrBtwfnGmKdXHme5WdPJTT475uXrTpsMKoSqA6tfZWMO9Dw2/NlULXswivvKeMiMcUPkv4eLiGYDbAT+egniDsuX6mYFwXn8WPkBAZk3Y8gTY/lx417g5ByeC0jffTDANeiskVQw2s1QVulg7ACdKV2w9u9o4GXM8=
-From: Tejun Heo <htejun@gmail.com>
-To: James.Bottomley@steeleye.com, axboe@suse.de
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050323021335.960F95F8@htj.dyndns.org>
-In-Reply-To: <20050323021335.960F95F8@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 04/08] scsi: remove meaningless volatile qualifiers from structure definitions
-Message-ID: <20050323021335.2655518E@htj.dyndns.org>
-Date: Wed, 23 Mar 2005 11:14:39 +0900 (KST)
+	Tue, 22 Mar 2005 21:34:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3818 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262719AbVCWC3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 21:29:33 -0500
+Message-ID: <4240D47C.8090707@pobox.com>
+Date: Tue, 22 Mar 2005 21:29:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Netdev <netdev@oss.sgi.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Note on wireless development process
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_scsi_remove_volatile.patch
 
-	scsi_device->device_busy, Scsi_Host->host_busy and
-	->host_failed have volatile qualifiers, but the qualifiers
-	don't serve any purpose.  Kill them.  While at it, protect
-	->host_failed update in scsi_error for consistency and clarity.
+Just a general note...  like many other areas of the kernel, there is no 
+wireless roadmap.  There is a set of technical criteria (see '2.6.x 
+wireless update and status' post), but there is no One True Path to 
+follow to get there.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+People interested in working on wireless need to be their own guides, 
+and find their own path.  There has been endless discussion on wireless, 
+and not much movement.  So asking questions without attaching a patch 
+won't get very far.  The general process is just like any other kernel 
+development process:  post a patch, get feedback, revise patch, lather 
+rinse repeat.
 
- drivers/scsi/scsi_error.c  |    6 +++++-
- include/scsi/scsi_device.h |    2 +-
- include/scsi/scsi_host.h   |    4 ++--
- 3 files changed, 8 insertions(+), 4 deletions(-)
+Don't wait for DaveM or me to suddenly post reams of wireless code.  I'm 
+speculating about David's time, but I'm just too darned busy.  David and 
+I play the roles of reviewer and advisor.  It's up to YOU to "scratch 
+the itch" and get world-class wireless support into Linux.
 
-Index: scsi-export/drivers/scsi/scsi_error.c
-===================================================================
---- scsi-export.orig/drivers/scsi/scsi_error.c	2005-03-23 09:40:09.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi_error.c	2005-03-23 09:40:10.000000000 +0900
-@@ -652,9 +652,13 @@ static int scsi_request_sense(struct scs
- static void scsi_eh_finish_cmd(struct scsi_cmnd *scmd,
- 			       struct list_head *done_q)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(scmd->device->host->host_lock, flags);
- 	scmd->device->host->host_failed--;
--	scmd->state = SCSI_STATE_BHQUEUE;
-+	spin_unlock_irqrestore(scmd->device->host->host_lock, flags);
- 
-+	scmd->state = SCSI_STATE_BHQUEUE;
- 	scsi_eh_eflags_clr_all(scmd);
- 
- 	/*
-Index: scsi-export/include/scsi/scsi_device.h
-===================================================================
---- scsi-export.orig/include/scsi/scsi_device.h	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/include/scsi/scsi_device.h	2005-03-23 09:40:10.000000000 +0900
-@@ -43,7 +43,7 @@ struct scsi_device {
- 	struct list_head    siblings;   /* list of all devices on this host */
- 	struct list_head    same_target_siblings; /* just the devices sharing same target id */
- 
--	volatile unsigned short device_busy;	/* commands actually active on low-level */
-+	unsigned short device_busy;	/* commands actually active on low-level */
- 	spinlock_t sdev_lock;           /* also the request queue_lock */
- 	spinlock_t list_lock;
- 	struct list_head cmd_list;	/* queue of in use SCSI Command structures */
-Index: scsi-export/include/scsi/scsi_host.h
-===================================================================
---- scsi-export.orig/include/scsi/scsi_host.h	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/include/scsi/scsi_host.h	2005-03-23 09:40:10.000000000 +0900
-@@ -448,8 +448,8 @@ struct Scsi_Host {
- 	wait_queue_head_t       host_wait;
- 	struct scsi_host_template *hostt;
- 	struct scsi_transport_template *transportt;
--	volatile unsigned short host_busy;   /* commands actually active on low-level */
--	volatile unsigned short host_failed; /* commands that failed. */
-+	unsigned short host_busy;	   /* commands actually active on low-level */
-+	unsigned short host_failed;	   /* commands that failed. */
-     
- 	unsigned short host_no;  /* Used for IOCTL_GET_IDLUN, /proc/scsi et al. */
- 	int resetting; /* if set, it means that last_reset is a valid value */
+With regards to development process, the main point of coordination is 
+the wireless-2.6 queue itself, not a human.  Look at the wireless-2.6 
+tree, consider what your next step is, and go there.  Don't bother 
+thinking too much about code outside that tree (and upstream).
+
+Please direct questions and comments to the netdev@oss.sgi.com mailing 
+list, rather than privately emailing me or DaveM.  That way knowledge is 
+shared, debated, and archived.
+
+	Jeff
+
+
 

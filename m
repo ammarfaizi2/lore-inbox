@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131525AbRCXA4R>; Fri, 23 Mar 2001 19:56:17 -0500
+	id <S131535AbRCXBKR>; Fri, 23 Mar 2001 20:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131526AbRCXA4I>; Fri, 23 Mar 2001 19:56:08 -0500
-Received: from jalon.able.es ([212.97.163.2]:61131 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131525AbRCXA4E>;
-	Fri, 23 Mar 2001 19:56:04 -0500
-Date: Sat, 24 Mar 2001 01:55:15 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] gcc-3.0 warnings
-Message-ID: <20010324015515.C10781@werewolf.able.es>
-In-Reply-To: <20010323162956.A27066@ganymede.isdn.uiuc.edu> <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>, <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>; <20010323235909.C3098@werewolf.able.es> <3ABBED86.3B7ED60B@uow.edu.au>
+	id <S131533AbRCXBKI>; Fri, 23 Mar 2001 20:10:08 -0500
+Received: from monza.monza.org ([209.102.105.34]:54788 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131526AbRCXBKB>;
+	Fri, 23 Mar 2001 20:10:01 -0500
+Date: Fri, 23 Mar 2001 17:09:01 -0800
+From: Tim Wright <timw@splhi.com>
+To: dhar <dhar@sawaal.com>
+Cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20010323170901.E2534@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: dhar <dhar@sawaal.com>, linux-smp@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200103240004.FAA15257@email.sawaal.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3ABBED86.3B7ED60B@uow.edu.au>; from andrewm@uow.edu.au on Sat, Mar 24, 2001 at 01:42:46 +0100
-X-Mailer: Balsa 1.1.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103240004.FAA15257@email.sawaal.com>; from dhar@sawaal.com on Sat, Mar 24, 2001 at 05:34:39AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmmm...
+you don't really give enough information to make much of a guess.
+I'd do the following:
+Grab at least 2.2.18, or even better, get Alan's 2.2.19pre (which is almost
+2.2.19 now, I believe), and build and install that kernel.
 
-On 03.24 Andrew Morton wrote:
-> "J . A . Magallon" wrote:
-> > 
-> >  The same is with that ugly out: at the end
-> > of the function. Just change all that 'goto out' for a return.
+Now, if you run into the same problems, record the crash details, especially
+if the kernels oopses, and then send the information (kernel version, output
+of ksymoops if there is an oops, kernel .config used etc.) to the mailing list.
+
+Tim
+
+On Sat, Mar 24, 2001 at 05:34:39AM +0530, dhar wrote:
+> Hi,
 > 
-> Oh no, no, no.  Please, no.
+> I am not a member of either of these lists and would appreciate if you could send your replies to me personally.
 > 
-> Multiple return statements are a maintenance nightmare.
+> Now the problem:
 > 
-
-Well, I do not want this to restart a religion war.
-
-The real thing is: gcc 3.0 (ISO C 99) does not like that practice
-(let useless things there for someday using them ?). And there can be
-other languaje issues also (I'm just thinkin of some issues with case and
-no default:) And gcc-3 is what we will
-have to live with. I suppose people will like to see a kernel build
-without tons of wanings. They hide real errors.
-
-I think its a good thing to decide what to do (and start doing), than wait
-until gcc2.95 is buried.
+> I have an IBM Netfinity X330 server. Dual Processor (PIII 800). I compiled kernel 2.2.14 with SMP support. NFS was however compiled as a module. 
+> 
+> Now the problem is as follows:
+> 
+> Most of the times the machine just works fine. 
+> But whenever there is heavy disk write activity it just hangs/crashes. Also this is when the SMP kernel is used. If I use the normal kernel then there is no problem. 
+> 
+> Could any one tell me what has to be done to prevent this from happening? 
+> 
+> Any help in this regard will be very much appreciated.
+> 
+> Once again, kindly reply to me personally as I am not a member of either of these lists.
+>  
+> Regards
+> Dhar 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.2-ac22 #3 SMP Fri Mar 23 02:06:00 CET 2001 i686
-
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

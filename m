@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUJWD57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUJWDpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267810AbUJWD57 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 23:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269183AbUJWD5Y
+	id S268295AbUJWDpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 23:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUJVTir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 23:57:24 -0400
-Received: from kelvin.pobox.com ([207.8.226.2]:59865 "EHLO kelvin.pobox.com")
-	by vger.kernel.org with ESMTP id S267810AbUJWDyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 23:54:44 -0400
-Date: Fri, 22 Oct 2004 20:54:42 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       roland@redhat.com, jdewand@redhat.com
-Subject: [PATCH][2.4] ELF fixes for executables with huge BSS (2/2)
-Message-ID: <20041023035442.GB3445@ip68-4-98-123.oc.oc.cox.net>
-References: <20041023034127.GA26813@ip68-4-98-123.oc.oc.cox.net>
+	Fri, 22 Oct 2004 15:38:47 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:24290 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267251AbUJVThf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:37:35 -0400
+Subject: Re: [PATCH] Shift key-related error codes up and insert ECANCELED
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, jakub@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20498.1098464262@redhat.com>
+References: <20498.1098464262@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098470076.19458.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041023034127.GA26813@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 22 Oct 2004 19:34:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a 2.4.27-2.4.28 port of this patch:
-
-> [PATCH] binfmt_elf.c fix for 32-bit apps with large bss
+On Gwe, 2004-10-22 at 17:57, David Howells wrote:
+> This patch shifts the key-related error codes up by one and inserts an
+> ECANCELED error code where not already defined. It seems that has been defined
+> in glibc without passing it back to the kernel:-/
 > 
-> From: Julie DeWandel <jdewand@redhat.com>
-> 
-> A problem exists where a 32-bit application can have a huge bss, one that
-> is so large that an overflow of the TASK_SIZE happens.  But in this case,
-> the overflow is not detected in load_elf_binary().  Instead, because
-> arithmetic is being done using 32-bit containers, a truncation occurs and
-> the program gets loaded when it shouldn't have been.  Subsequent execution
-> yields unpredictable results.
-> 
-> The attached patch fixes this problem by checking for the overflow
-> condition and sending a SIGKILL to the application if the overflow is
-> detected.  This problem can in theory exist when loading the elf
-> interpreter as well, so a similar check was added there.
+> Who arbitrates error number allocations anyway?
 
-Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+Generally nobody because new error codes are almost always a mistake in
+the first place especially when they don't appear in standards so no
+application will correctly or sanely handle them.
+
+You should use existing codes IMHO. Lets see
+
+EKEYEXPIRED		-	ETIME (ETIMEDOUT ? ENOLINK ?)
+ENOKEY			-	ENOENT
+EKEYREJECTED		-	EILSEQ / EMSGSIZE / EPROTOTYPE ..
+EKEYREVOKED		-	EREMCHG / ESHUTDOWN
+
+And now I can use your key stuff with an existing C library and in LSB
+compliant or cross platform code and give more information. If you look
+through the kernel history we've almost never ever added an error code,
+adding them just causes compatibility pain for everyone
 
 
-diff -ruN linux-2.4.28-pre4-bk2-bkn1/fs/binfmt_elf.c linux-2.4.28-pre4-bk2-bkn2/fs/binfmt_elf.c
---- linux-2.4.28-pre4-bk2-bkn1/fs/binfmt_elf.c	2004-10-16 03:44:41.000000000 -0700
-+++ linux-2.4.28-pre4-bk2-bkn2/fs/binfmt_elf.c	2004-10-16 04:16:38.000000000 -0700
-@@ -332,6 +332,18 @@
- 	    }
- 
- 	    /*
-+	     * Check to see if the section's size will overflow the
-+	     * allowed task size. Note that p_filesz must always be
-+	     * <= p_memsize so it is only necessary to check p_memsz.
-+	     */
-+	    k = load_addr + eppnt->p_vaddr;
-+	    if (k > TASK_SIZE || eppnt->p_filesz > eppnt->p_memsz ||
-+		eppnt->p_memsz > TASK_SIZE || TASK_SIZE - eppnt->p_memsz < k) {
-+	        error = -ENOMEM;
-+		goto out_close;
-+	    }
-+
-+	    /*
- 	     * Find the end of the file mapping for this phdr, and keep
- 	     * track of the largest address we see for this.
- 	     */
-@@ -711,6 +723,19 @@
- 		if (k < start_code) start_code = k;
- 		if (start_data < k) start_data = k;
- 
-+		/*
-+		 * Check to see if the section's size will overflow the
-+		 * allowed task size. Note that p_filesz must always be
-+		 * <= p_memsz so it is only necessary to check p_memsz.
-+		 */
-+		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
-+		    elf_ppnt->p_memsz > TASK_SIZE ||
-+		    TASK_SIZE - elf_ppnt->p_memsz < k) {
-+			/* set_brk can never work.  Avoid overflows.  */
-+			send_sig(SIGKILL, current, 0);
-+			goto out_free_dentry;
-+		}
-+
- 		k = elf_ppnt->p_vaddr + elf_ppnt->p_filesz;
- 
- 		if (k > elf_bss)
+Alan
+

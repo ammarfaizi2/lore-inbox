@@ -1,108 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267194AbUBSEqr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 23:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267213AbUBSEqr
+	id S264506AbUBSFRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 00:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbUBSFRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 23:46:47 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:6064 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S267194AbUBSEqn
+	Thu, 19 Feb 2004 00:17:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26076 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264506AbUBSFRO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 23:46:43 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [PATCH][0/6] A different KGDB stub
-Date: Thu, 19 Feb 2004 10:16:29 +0530
-User-Agent: KMail/1.5
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Andi Kleen <ak@suse.de>, George Anzinger <george@mvista.com>,
-       Jim Houston <jim.houston@ccur.com>, Matt Mackall <mpm@selenic.com>
-References: <20040217220236.GA16881@smtp.west.cox.net> <200402181026.29813.amitkale@emsyssoft.com> <20040218182100.GR16881@smtp.west.cox.net>
-In-Reply-To: <20040218182100.GR16881@smtp.west.cox.net>
+	Thu, 19 Feb 2004 00:17:14 -0500
+Message-ID: <403446C9.7070803@pobox.com>
+Date: Thu, 19 Feb 2004 00:16:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix microcode change for i386
+References: <20040219011159.6f60aa69.ak@suse.de>
+In-Reply-To: <20040219011159.6f60aa69.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402191016.29107.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 Feb 2004 11:51 pm, Tom Rini wrote:
-> On Wed, Feb 18, 2004 at 10:26:29AM +0530, Amit S. Kale wrote:
-> > On Wednesday 18 Feb 2004 4:22 am, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > > The following is my next attempt at a different KGDB stub
-> > > > > for your tree
-> > > >
-> > > > Is this the patch which everyone agrees on?
-> > >
-> > > It is based on Amit's version, so I think answer is "yes". I certainly
-> > > like this one.
-> >
-> > I don't agree. I did a few more cleanups after Andi expressed concerns
-> > over globals kgdb_memerr and debugger_memerr_expected.
-> >
-> > I liked Pavel's approach. Let's first get a minimal kgdb stub into
-> > mainline kernel. Even this much is going to involve some effort. We can
-> > merge other features later.
-> >
-> > Let's create a cvs tree at kgdb.sourceforge.net for kgdb components to be
-> > pushed int mainline kernel. This split is to keep current kgdb
-> > unaffected. People who are already using it won't be affected.
-> >
-> > May I suggest we breakup this task into following tasklets. I have
-> > expanded item 1 because Pavel has something that's already close. The
-> > rest of the items can be discussed in detail later. These need not be
-> > done in this order except for first 2 whose sequence is fixed.
-> >
-> > 1. A minimal kgdb stub
-> >   core.patch:
-> >     kgdbstub.c full.
-> >     No changes to module.c
-> >     No changes for CONFIG_KGDB_THREAD
-> >     No changes to calling convention of do_IRQ (Needs to be done)
-> >     CONFIG_KGDB_CONSOLE removed
-> >   i386.patch
-> >     No changes for CONFIG_KGDB_THREAD
-> >     No manipulation of kernel stack before entry into do_IRQ
-> >     No non-source level CFI directives.
->
-> My question is now, is there anything in CVS other than patches?
+Andi Kleen wrote:
+> This patch should fix the i386 compile problem in the microcode driver I caused with
+> the IA32e updates.
+> 
+> diff -u linux-2.6.3-amd64/arch/i386/kernel/microcode.c-o linux-2.6.3-amd64/arch/i386/kernel/microcode.c
+> --- linux-2.6.3-amd64/arch/i386/kernel/microcode.c-o	2004-02-19 00:19:32.000000000 +0100
+> +++ linux-2.6.3-amd64/arch/i386/kernel/microcode.c	2004-02-19 00:56:41.000000000 +0100
+> @@ -371,8 +371,8 @@
+>  	spin_lock_irqsave(&microcode_update_lock, flags);          
+>  
+>  	/* write microcode via MSR 0x79 */
+> -	wrmsr(MSR_IA32_UCODE_WRITE, (u64)(uci->mc->bits), 
+> -	      (u64)(uci->mc->bits) >> 32);
+> +	wrmsr(MSR_IA32_UCODE_WRITE, (u32)(unsigned long)(uci->mc->bits), 
+> +	      (u32)(((unsigned long)uci->mc->bits) >> 32));
 
-No.
-The CVS tree contains patches only.
-What I have described above are features of two patches: core.patch and 
-i386.patch.
 
-> There's still a whole host of cleanups that need to be done to your
-> version that I've got around here.
+You still want to do two 16-bit shifts instead of a single 32-bit shift.
 
-You are welcome to bring them into the cvs tree.
-Thanks.
--Amit
+	Jeff
 
->
-> > 4. Patch to sync other architecture kgdbs with arch independent stub on
-> > help from maintainers of those architectures.
-> > 5. KGDB_CONSOLE patch
-> >    This is a must for embedded boards that have only one serial port
-> > 6. gdb automatic module loading
-> > 7. CONFIG_KGDB_THREAD patch
-> >    This may or may not be a separate config option. This patch will
-> > include x86_64 support required to enable threads.
-> > 8. i386 thread support
-> > 9. Ethernet interface based on netconsole
-> > 10. ... Any other features
->
-> Personally, I'd swap 6 and 9.
+
 

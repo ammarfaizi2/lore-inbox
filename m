@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280024AbRKSCdI>; Sun, 18 Nov 2001 21:33:08 -0500
+	id <S279988AbRKSCch>; Sun, 18 Nov 2001 21:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281883AbRKSCc7>; Sun, 18 Nov 2001 21:32:59 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:49936 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S280024AbRKSCcw>;
-	Sun, 18 Nov 2001 21:32:52 -0500
-Subject: Re: replacing the page replacement algo.
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Shaya Potter <spotter@opus.cs.columbia.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0111182344150.4079-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0111182344150.4079-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1 (Preview Release)
-Date: 18 Nov 2001 21:31:15 -0500
-Message-Id: <1006137133.604.8.camel@zaphod>
-Mime-Version: 1.0
+	id <S280024AbRKSCc1>; Sun, 18 Nov 2001 21:32:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5640 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279988AbRKSCcR>; Sun, 18 Nov 2001 21:32:17 -0500
+Date: Sun, 18 Nov 2001 18:27:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <Pine.LNX.4.33.0111181756260.7482-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0111181820040.7500-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-11-18 at 20:44, Rik van Riel wrote:
-> On 18 Nov 2001, Shaya Potter wrote:
-> 
-> > If I wanted to experiment with different algorithms that chose which
-> > page to replace (say on a page fault) what functions would I have to
-> > replace?
-> 
-> try_to_free_pages() and all the functions it calls.
 
-I was looking at vmscan.c and it appears that swap_out() is what I
-want.  If instead of having it step through the mmlist, I give it the
-explicit mm of the processes that I want a page swapped out from? so I
-could implement my algorithm either inside that func or as function
-calls from it and have it pass onto swap_out_mm() the mm of the
-processes I choose to swap out.
+On Sun, 18 Nov 2001, Linus Torvalds wrote:
+>
+> And a signal comes in. Even without the volatile, if gcc has written
+> _anything_ else than 1 or 2 into the variable, gcc is BROKEN.
 
-or am I totally misunderstanding something here? (likely, as this is my
-first time digging into the vm and trying to learn about it)
+Side note: the Linux kernel depends on these kinds of quality-of-
+implementation issues in several places. Thge "page->flags" thing is just
+one small (and rather localized) case.
 
-thanks,
+If you look at all the stuff that enforces memory ordering, they all
+absolutely _require_ that gcc write exactly the value that we specify and
+no other. This includes things like "policy" and "has_cpu" in the process
+data structures, and "dumpable" in the "mm" structure.
 
-shaya potter
+If the compiler were to write random internal values to these variables
+before writing the one we ask for, you'd get kernel crashes (has_cpu) or
+strange and subtle security races (dumpable).
+
+Oh, and I bet TCP would break horribly if gcc wrote internal temporary
+values to the socket sequence numbers.
+
+		Linus
 

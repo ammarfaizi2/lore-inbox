@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUEKPOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUEKPTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUEKPOl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEKPOl
+	id S264782AbUEKPTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264785AbUEKPTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:14:41 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.117.40]:384 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262380AbUEKPOj (ORCPT
+	Tue, 11 May 2004 11:19:16 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:47904 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264782AbUEKPTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:14:39 -0400
-Date: Tue, 11 May 2004 04:51:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp documentation updates
-Message-ID: <20040511025157.GA3752@elf.ucw.cz>
-References: <20040505094719.GA4259@elf.ucw.cz> <1083750907.17294.27.camel@laptop-linux.wpcb.org.au> <20040505101158.GC1361@elf.ucw.cz> <1083798626.17294.79.camel@laptop-linux.wpcb.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083798626.17294.79.camel@laptop-linux.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 11 May 2004 11:19:14 -0400
+Message-ID: <40A0EFC0.1040609@sgi.com>
+Date: Tue, 11 May 2004 10:22:40 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Newsgroups: fa.linux.kernel
+To: Silviu Marin-Caea <silviu@genesys.ro>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: dynamic allocation of swap disk space
+References: <fa.n6pggn5.84en31@ifi.uio.no>
+In-Reply-To: <fa.n6pggn5.84en31@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > And perhaps you want to write "What is swsusp2?" question/answer?
+
+Silviu Marin-Caea wrote:
+>
 > 
-> How does this sound?...
+> My desktop has been thrashing the disk for a couple of hours because
+> the swap space was exhausted.  And I have the ambition to leave it alone
+> to see if it ever comes out of the thrashing.  Of course, it's not usable
+> at all during this time, I'm writing this on the laptop.
 > 
-> What is 'swsusp2'?
-> 
-> swsusp2 is Software Suspend 2, forked implementation of suspend-to-disk
-> which is available as separate patches for 2.4 and 2.6 kernels from
-> swsusp.sourceforge.net. It includes support for SMP, 4GB Highmem and
-> preemption. It also has a extensible architecture that allows for
-> arbitrary transformations on the image (compression, encryption) and
-> arbitrary backends for writing the image (eg to swap or an NFS
-> share[Work In Progress]). Questions regarding suspend2 should be sent to
-> the mailing list available through the Suspend2 website, and not to the
-> Linux Kernel Mailing List. We are working toward merging Suspend2 into
-> the mainline kernel.
+>
 
-You are using swsusp2, suspend2 and Suspend2. I figured out you mean
-suspend2 and applied this: (it will eventually propagate).
-								Pavel
+You've got a couple problems mixed together here.
 
-Q: What is 'suspend2'?
+(1)  Swap space fills up because you have overcommitted memory.  In principle, 
+filling up swap space has nothing to do with "thrashing".
+(2)  "thrashing" is a characteristic of a poorly performing program in a
+demand paging virtual memory system typically caused by trying to run a 
+program with a resident size that is smaller than required.  Systems can 
+thrash without filling up swap space.  It is true that systems can thrash AND 
+fill up swap space, but it is not always so.
 
-A: suspend2 is 'Software Suspend 2', forked implementation of
-suspend-to-disk which is available as separate patches for 2.4 and 2.6
-kernels from swsusp.sourceforge.net. It includes support for SMP, 4GB
-highmem and preemption. It also has a extensible architecture that
-allows for arbitrary transformations on the image (compression,
-encryption) and arbitrary backends for writing the image (eg to swap
-or an NFS share[Work In Progress]). Questions regarding suspend2
-should be sent to the mailing list available through the suspend2
-website, and not to the Linux Kernel Mailing List. We are working
-toward merging suspend2 into the mainline kernel.
+You either need (1)  more main memory, (2) reduce the number of programs you 
+are running simultaneously, or (3) better behaving programs, or all three. 
+Increasing the amount of swap space will just use more disk.  It won't cause 
+your system to stop thrashing since that is driven by what is going on in 
+memory, not what is going on on the disk.
 
+Anyway, if swap space is full, then main memory is (nearly) full, and this is 
+not a good time to do major surgery to your file system (e. g. increase the 
+size of the swap space).  You may not be able to allocate the required memory 
+to complete that job and then your system will crash.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-When do you have heart between your knees?

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267791AbTAHJtE>; Wed, 8 Jan 2003 04:49:04 -0500
+	id <S267783AbTAHJqC>; Wed, 8 Jan 2003 04:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267792AbTAHJs6>; Wed, 8 Jan 2003 04:48:58 -0500
-Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:44041 "EHLO
-	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267791AbTAHJsz>; Wed, 8 Jan 2003 04:48:55 -0500
-Date: Wed, 8 Jan 2003 09:57:06 +0000
+	id <S267785AbTAHJqC>; Wed, 8 Jan 2003 04:46:02 -0500
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:20240 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267783AbTAHJqA>; Wed, 8 Jan 2003 04:46:00 -0500
+Date: Wed, 8 Jan 2003 09:54:10 +0000
 To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
        Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/10] dm: Call dm_put_target_type() *after* calling the destructor
-Message-ID: <20030108095706.GF2063@reti>
+Subject: [PATCH 1/10] dm: Don't let the ioctl interface drop a suspended device
+Message-ID: <20030108095410.GB2063@reti>
 References: <20030108095221.GA2063@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,22 +22,31 @@ From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call dm_put_target_type() *after* calling the destructor.
---- diff/drivers/md/dm-table.c	2002-12-30 10:17:13.000000000 +0000
-+++ source/drivers/md/dm-table.c	2003-01-02 11:26:35.000000000 +0000
-@@ -250,12 +250,12 @@
- 
- 	/* free the targets */
- 	for (i = 0; i < t->num_targets; i++) {
--		struct dm_target *tgt = &t->targets[i];
--
--		dm_put_target_type(t->targets[i].type);
-+		struct dm_target *tgt = t->targets + i;
- 
- 		if (tgt->type->dtr)
- 			tgt->type->dtr(tgt);
-+
-+		dm_put_target_type(tgt->type);
+Don't let the ioctl interface drop a suspended device.
+--- diff/drivers/md/dm-ioctl.c	2002-12-30 10:17:13.000000000 +0000
++++ source/drivers/md/dm-ioctl.c	2003-01-02 11:10:14.000000000 +0000
+@@ -812,6 +812,24 @@
+ 		return -EINVAL;
  	}
  
- 	vfree(t->highs);
++	/*
++	 * You may ask the interface to drop its reference to an
++	 * in use device.  This is no different to unlinking a
++	 * file that someone still has open.  The device will not
++	 * actually be destroyed until the last opener closes it.
++	 * The name and uuid of the device (both are interface
++	 * properties) will be available for reuse immediately.
++	 *
++	 * You don't want to drop a _suspended_ device from the
++	 * interface, since that will leave you with no way of
++	 * resuming it.
++	 */
++	if (dm_suspended(hc->md)) {
++		DMWARN("refusing to remove a suspended device.");
++		up_write(&_hash_lock);
++		return -EPERM;
++	}
++
+ 	__hash_remove(hc);
+ 	up_write(&_hash_lock);
+ 	return 0;

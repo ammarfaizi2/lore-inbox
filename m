@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265451AbTLHQWb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 11:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbTLHQWa
+	id S265467AbTLHQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 11:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbTLHQ02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 11:22:30 -0500
-Received: from holomorphy.com ([199.26.172.102]:50907 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265451AbTLHQWU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 11:22:20 -0500
-Date: Mon, 8 Dec 2003 08:22:14 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Per Buer <perbu@linpro.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4: mylex and > 2GB RAM
-Message-ID: <20031208162214.GW19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Per Buer <perbu@linpro.no>, linux-kernel@vger.kernel.org
-References: <1070897058.25490.56.camel@netstat.linpro.no> <20031208153641.GJ8039@holomorphy.com> <1070898870.25490.76.camel@netstat.linpro.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1070898870.25490.76.camel@netstat.linpro.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 8 Dec 2003 11:26:28 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54533 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265464AbTLHQYl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 11:24:41 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: cdrecord hangs my computer
+Date: 8 Dec 2003 16:13:22 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br27v2$fdh$1@gatekeeper.tmr.com>
+References: <20031206084032.A3438@animx.eu.org> <Pine.LNX.4.58.0312061044450.2092@home.osdl.org>
+X-Trace: gatekeeper.tmr.com 1070900002 15793 192.168.12.62 (8 Dec 2003 16:13:22 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-08 at 16:36, William Lee Irwin III wrote:
->> Could you send out a dmesg and a config file?
+In article <Pine.LNX.4.58.0312061044450.2092@home.osdl.org>,
+Linus Torvalds  <torvalds@osdl.org> wrote:
 
-On Mon, Dec 08, 2003 at 04:54:31PM +0100, Per Buer wrote:
-> Sure.
-> We have tried two kernels on this server. A plain 2.4.18 (no patches)
-> and 2.4.22 with the RMAP VM (we thought this might be related to the VM)
-> and the brk()-fixes. No such luck. :(
+| >		 On every PC I have that has an ide cd drive, I use
+| > ide-scsi.  I like the fact that scd0 is the cdrom drive.
+| 
+| And you liked the fact that you were supposed to write "dev=0,0,0" or
+| something strange like that? What a piece of crap it was.
 
-The most common issue of this kind is where the device has addressibility
-constraints that are automatically satisfied due to limited memory, but
-once that's exceeded, the kernel resorts to overly-strict allocation
-constraints because it has no other way of representing the constraint.
+  Actually, dev=0,0,0 or dev=/dev/hdc are neither particularly portable;
+each can be something else on another machine. At least /dev/sr0 (or
+scd0 if you go to that church) are a bit less likely to change.
 
-Specifically, the areas to which allocations may be constrained are:
+  Joerg made the point at one time that the 0,0,0 notation will allow
+use of devices with no inode. That's not been useful to me, but it's
+probably true ;-)
 
-ZONE_HIGHMEM:	no constraint
-ZONE_NORMAL:	<= 896MB
-ZONE_DMA:	<= 16MB
+  If I were going to do that at all, I would have used controller, bus,
+device, LUN notation, (0,0,0,0) and been done with it. Joerg marches to
+the beat of another drummer, however, maybe even a whole other brass
+band. He wrote it, he invites people to not use it if they don't like
+it, which I've heard in other contexts. ;-)
 
-If your memory ended at 2GB and the driver had 31-bit DMA, it may have
-decided to use unconstrained allocations. Then, when you added more RAM,
-it was forced to ask for <= 896MB, which made it copy to buffers that are
-actually below 896MB most of the time.
-
-However, what I can see in the driver is very inconsistent with this
-theory: it rather suggests it has 32-bit PCI and is otherwise not
-constrainted.
-
-So it's more likely that you have an unfriendly dma mask inherited from
-upper levels (e.g. default bounce_pfn values in scsi template bits) or
-bus' constraints (pci_set_dma_mask() etc. bits) than anything per-driver.
-
-
--- wli
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

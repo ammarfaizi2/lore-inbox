@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289315AbSAVO2e>; Tue, 22 Jan 2002 09:28:34 -0500
+	id <S289319AbSAVOjt>; Tue, 22 Jan 2002 09:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289316AbSAVO2Y>; Tue, 22 Jan 2002 09:28:24 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:29094
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289315AbSAVO2M>; Tue, 22 Jan 2002 09:28:12 -0500
-Date: Tue, 22 Jan 2002 09:10:32 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.1.7 is available
-Message-ID: <20020122091032.A25112@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289320AbSAVOjf>; Tue, 22 Jan 2002 09:39:35 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1555 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289319AbSAVOjV>;
+	Tue, 22 Jan 2002 09:39:21 -0500
+Date: Tue, 22 Jan 2002 12:39:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Chris Mason <mason@suse.com>
+Cc: Andreas Dilger <adilger@turbolabs.com>, Hans Reiser <reiser@namesys.com>,
+        Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
+        <ext2-devel@lists.sourceforge.net>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <1965690000.1011708208@tiny>
+Message-ID: <Pine.LNX.4.33L.0201221234470.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
+On Tue, 22 Jan 2002, Chris Mason wrote:
 
-Release 2.1.7: Tue Jan 22 09:04:22 EST 2002
-	* Resync with 2.5.3-pre3.
-	* Complete hardware probes for MCA by David Weinehall (untested).
-	* By popular demand, `make autoconfigure' is now `make autoconfig'.
+> It seems like the basic features we are suggesting are very close, I'll try
+> one last time to make a case against the 'free_some_pages' call ;-)
 
-I'm back from ConFusion.  Ordinary checkpoint release.
+> The FS doesn't know how long a page has been dirty, or how often it
+> gets used,
+
+In an efficient system, the FS will never get to know this, either.
+
+The whole idea behind the VFS and the VM is that calls to the FS
+are avoided as much as possible, in order to keep the system fast.
+
+regards,
+
+Rik
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-During waves of terror attacks, Israel's national police chief will
-call on all concealed-handgun permit holders to make sure they carry
-firearms at all times, and Israelis have many examples where
-concealed permit holders have saved lives.
-	-- John R. Lott
-Conservatism is the blind and fear-filled worship of dead radicals.
+http://www.surriel.com/		http://distro.conectiva.com/
+

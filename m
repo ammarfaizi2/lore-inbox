@@ -1,135 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316136AbSETRB5>; Mon, 20 May 2002 13:01:57 -0400
+	id <S316134AbSETRBG>; Mon, 20 May 2002 13:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316143AbSETRB4>; Mon, 20 May 2002 13:01:56 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:18838 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S316136AbSETRBx>;
-	Mon, 20 May 2002 13:01:53 -0400
-Date: Mon, 20 May 2002 19:01:52 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200205201701.TAA04143@harpo.it.uu.se>
-To: viro@math.psu.edu
-Subject: [RFC] possible fix for broken floppy driver since 2.5.13
+	id <S316136AbSETRBF>; Mon, 20 May 2002 13:01:05 -0400
+Received: from holomorphy.com ([66.224.33.161]:43143 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316134AbSETRBF>;
+	Mon, 20 May 2002 13:01:05 -0400
+Date: Mon, 20 May 2002 10:00:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Todd R. Eigenschink" <todd@tekinteractive.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: kswapd OOPS under 2.4.19-pre8 (ext3, Reiserfs + (soft)raid0)
+Message-ID: <20020520170059.GA2046@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Todd R. Eigenschink" <todd@tekinteractive.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205160528.g4G5S631019167@sol.mixi.net> <15587.42492.25950.446607@rtfm.ofc.tekinteractive.com> <15592.62193.715212.569689@rtfm.ofc.tekinteractive.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since 2.5.13 I've been unable to use drivers/block/floppy.c.
-There were two symptoms: /dev/fd0 was read-only until after
-the first read, and writes wrote currupt data to the media.
+On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
+> Since the particular snippet of code at the point of oops in the last
+> one I posted was P3-specified, I recompiled for 586.  The oops remains
+> the same, although the call stack happens to be a lot longer this
+> time.
 
-The patch below against 2.5.16 fixes these problems for me:
+I suspect the lowest parts of the call chain are being handed bad data.
 
-- The read-only problem was caused by a getblk() call in
-  floppy_revalidate() which had been commented out (2.5.13
-  did away with getblk() altogether.) This call is necessary,
-  so the patch reintroduces a private getblk() in floppy.c.
 
-- The data corruption on writes was caused by new code in
-  fs/block_dev.c:do_open() which changed the block size after
-  the call to bdev->bd_op->open().
-  Disabling this change to bdev->bd_block_size fixed the
-  data corruption. I don't know what this code was trying to do,
-  but my system works fine without it.
+On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
+> I'm going to run memtest86 on it for a while after it gets done with
+> its morning processing, although this failure seems a little too
+> consistent to be memory related.
 
-  I did some tracing of the "struct request*"'s delivered to
-  the floppy driver, and with vanilla 2.5.16 the parameters
-  (all the '*sectors*' fields) looked very very different from
-  what 2.5.12 passed to the driver.
+I hope I didn't say that.
 
-Al: You did the block dev changes for 2.5.13 -- care to comment?
 
-/Mikael
+On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
+> Trace; c0129b39 <unlock_page+81/88>
+> Trace; c0139179 <end_buffer_io_async+8d/a8>
+> Trace; c01b6f45 <end_that_request_first+65/c8>
+> Trace; c01c1c3c <ide_end_request+68/a8>
+> Trace; c01c806a <ide_dma_intr+6a/ac>
+> Trace; c01c38ad <ide_intr+f9/164>
+> Trace; c01c8000 <ide_dma_intr+0/ac>
+> Trace; c010a1e1 <handle_IRQ_event+59/84>
+> Trace; c010a3d9 <do_IRQ+a9/f4>
+> Trace; c010c568 <call_do_IRQ+5/d>
+> Trace; c0154b07 <statm_pgd_range+133/1a8>
+> Trace; c0154c43 <proc_pid_statm+c7/16c>
+> Trace; c015279e <proc_info_read+5a/118>
+> Trace; c0137497 <sys_read+8f/104>
+> Trace; c0108a43 <system_call+33/40>
 
-diff -ruN linux-2.5.16/drivers/block/floppy.c linux-2.5.16.fix-floppy/drivers/block/floppy.c
---- linux-2.5.16/drivers/block/floppy.c	Fri May 10 01:50:08 2002
-+++ linux-2.5.16.fix-floppy/drivers/block/floppy.c	Mon May 20 17:36:20 2002
-@@ -3852,6 +3852,25 @@
- 	return 0;
- }
- 
-+static struct buffer_head *floppy_getblk0(kdev_t dev)
-+{
-+	struct block_device *bdev;
-+	struct buffer_head *bh;
-+	int size;
-+
-+	bdev = bdget(kdev_t_to_nr(dev));
-+	if (!bdev) {
-+		printk("No block device for %s\n", __bdevname(dev));
-+		BUG();
-+	}
-+	size = bdev->bd_block_size;
-+	if (!size)
-+		size = 1024;
-+	bh = __getblk(bdev, 0, size);
-+	atomic_dec(&bdev->bd_count);
-+	return bh;
-+}
-+
- /* revalidate the floppy disk, i.e. trigger format autodetection by reading
-  * the bootblock (block 0). "Autodetection" is also needed to check whether
-  * there is a disk in the drive at all... Thus we also do it for fixed
-@@ -3859,7 +3878,6 @@
- static int floppy_revalidate(kdev_t dev)
- {
- #define NO_GEOM (!current_type[drive] && !TYPE(dev))
--	struct buffer_head * bh;
- 	int drive=DRIVE(dev);
- 	int cf;
- 
-@@ -3886,29 +3904,18 @@
- 		if (cf)
- 			UDRS->generation++;
- 		if (NO_GEOM){
--#if 0
--	/*
--	 * What the devil is going on here?  We are not guaranteed to do
--	 * any IO and ENXIO case is nothing but ENOMEM in disguise - it
--	 * happens if and only if buffer cache is out of memory.  WTF?
--	 */
- 			/* auto-sensing */
--			int size = floppy_blocksizes[minor(dev)];
--			if (!size)
--				size = 1024;
--			if (!(bh = getblk(dev,0,size))){
-+			struct buffer_head *bh = floppy_getblk0(dev);
-+			if (!bh) {
- 				process_fd_request();
- 				return -ENXIO;
- 			}
--			if (bh && !buffer_uptodate(bh))
-+			if (!buffer_uptodate(bh))
- 				ll_rw_block(READ, 1, &bh);
- 			process_fd_request();
- 			wait_on_buffer(bh);
- 			brelse(bh);
- 			return 0;
--#endif
--			process_fd_request();
--			return 0;
- 		}
- 		if (cf)
- 			poll_drive(0, FD_RAW_NEED_DISK);
-diff -ruN linux-2.5.16/fs/block_dev.c linux-2.5.16.fix-floppy/fs/block_dev.c
---- linux-2.5.16/fs/block_dev.c	Mon May  6 13:05:05 2002
-+++ linux-2.5.16.fix-floppy/fs/block_dev.c	Mon May 20 17:27:55 2002
-@@ -606,16 +606,7 @@
- 			goto out2;
- 	}
- 	bdev->bd_inode->i_size = blkdev_size(dev);
--	if (!bdev->bd_openers) {
--		unsigned bsize = bdev_hardsect_size(bdev);
--		while (bsize < PAGE_CACHE_SIZE) {
--			if (bdev->bd_inode->i_size & bsize)
--				break;
--			bsize <<= 1;
--		}
--		bdev->bd_block_size = bsize;
--		bdev->bd_inode->i_blkbits = blksize_bits(bsize);
--	}
-+	bdev->bd_inode->i_blkbits = blksize_bits(block_size(bdev));
- 	bdev->bd_openers++;
- 	unlock_kernel();
- 	up(&bdev->bd_sem);
+The __wake_up()/unlock_page() isn't the interesting part of the call
+chain, the parts from end_buffer_io_async() to ide_dma_intr() are.
+
+Any chance you can list them in gdb?
+
+
+Cheers,
+Bill

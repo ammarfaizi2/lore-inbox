@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVBCVdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263362AbVBCVdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVBCVdr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 16:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263283AbVBCVcw
+	id S263362AbVBCVdn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 16:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVBCV3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 16:32:52 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:33754 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S262777AbVBCV3j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 16:29:39 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, jgarzik@redhat.com, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050203212938.4546.3768.35836@localhost.localdomain>
-Subject: [PATCH] hw_random: provide more information when driver loads
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [70.16.225.90] at Thu, 3 Feb 2005 15:29:38 -0600
-Date: Thu, 3 Feb 2005 15:29:39 -0600
+	Thu, 3 Feb 2005 16:29:00 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:11984 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262962AbVBCV2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 16:28:22 -0500
+Date: Thu, 3 Feb 2005 22:28:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Con Kolivas <kernel@kolivas.org>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050203212805.GA27255@elte.hu>
+References: <20050203204711.GB25018@elte.hu> <200502032115.j13LFWFY009703@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502032115.j13LFWFY009703@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the hw_random driver a little more informative when it is starting up -
-currently, there is no easy way to tell if the driver detected any hardware.
 
-The AMD driver does mention that it found the chip - this adds the same for the VIA
-and Intel sections of the driver.
+* Paul Davis <paul@linuxaudiosystems.com> wrote:
 
-Tested with an i810-equipped system.
+> however, i don't agree that futexes are conceptually superior. they
+> don't express the intended operation nearly as accurately as
+> yield_to(tid) would. the operation is "i have nothing else to do, and
+> i want <tid> to run next". a futex says "this particular condition is
+> satisfied, which might wake one or more tasks". [...]
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+what i suggested was to use one of the pthread APIs - not to use raw
+futexes.
 
-diff -urpN -X /home/jim/kernel_sources/dontdiff-osdl linux-2.6.11-rc2-mm2-original/drivers/char/hw_random.c linux-2.6.11-rc2-mm2/drivers/char/hw_random.c
---- linux-2.6.11-rc2-mm2-original/drivers/char/hw_random.c	2005-01-29 19:02:41.000000000 -0500
-+++ linux-2.6.11-rc2-mm2/drivers/char/hw_random.c	2005-02-02 19:53:50.000000000 -0500
-@@ -248,6 +249,7 @@ static int __init intel_init (struct pci
- 		goto err_out_free_map;
- 	}
- 
-+	pr_info (PFX "Intel i810 RNG enabled\n");
- 	DPRINTK ("EXIT, returning 0\n");
- 	return 0;
- 
-@@ -451,6 +453,8 @@ static int __init via_init(struct pci_de
- 		return -ENODEV;
- 	}
- 
-+	pr_info(PFX "VIA C3 RNG enabled\n");
-+
- 	return 0;
- }
- 
-@@ -577,6 +581,8 @@ static int __init rng_init (void)
- 
- 	DPRINTK ("ENTER\n");
- 
-+	pr_info( RNG_DRIVER_NAME "\n");
-+
- 	/* Probe for Intel, AMD RNGs */
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_device (rng_pci_tbl, pdev);
-@@ -595,6 +601,7 @@ static int __init rng_init (void)
- 	}
- #endif
- 
-+	printk (KERN_ERR PFX "no supported hardware RNGs found\n");
- 	DPRINTK ("EXIT, returning -ENODEV\n");
- 	return -ENODEV;
- 
-@@ -603,8 +610,6 @@ match:
- 	if (rc)
- 		return rc;
- 
--	pr_info( RNG_DRIVER_NAME " loaded\n");
--
- 	DPRINTK ("EXIT, returning 0\n");
- 	return 0;
- }
+so the basic model is that you have a processing dependency between
+threads, correct? If one thread finishes, you know which one should come
+next - based on the graph. The first thread is triggered by some
+external event. (timer or audio event.)
+
+this can be cleanly implemented by attaching a pthread spinlock to each
+node of the graph, and initializing the lock to a locked state. The
+threads go sleeping by 'taking the lock'. The one that does processing,
+wakes up the next one by unlocking that graph node, and then it goes to
+sleep by locking its own node.
+
+(it would be cleaner to use POSIX semaphores for this, but you mentioned
+the requirement for the mechanism to work on 2.4 kernels too - pthread
+spinlocks will work inter-process on 2.4 too, and will schedule nicely.)
+
+> [...] its still necessary for the caller to go to sleep explicitly,
+> its still necessary for the tasks involved to know about the futexes,
+> which actually are really irrelevant - there are no conditions to
+> satisfy, just a series of tasks we want to run.
+
+well, no. Unless i misunderstood your application model, you want
+threads to sleep until they are woken up. So you want a very basic
+sleep/wake mechanism. But yield_to() does not achieve that! yield_to()
+will yield to _already running_ (i.e. in the runqueue) threads. Using
+yield() (or yield_to()) for this is really suboptimal. By using a futex
+based mechanism you get a very nice schedule/sleep pattern.
+
+(you could also use kill()/sigwait(), but that is slower than futexes.)
+
+	Ingo

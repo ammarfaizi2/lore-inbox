@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUG0G6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266290AbUG0HAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266258AbUG0G6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 02:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUG0G6A
+	id S266290AbUG0HAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 03:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUG0HAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 02:58:00 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46533 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266258AbUG0G54 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 02:57:56 -0400
-Date: Tue, 27 Jul 2004 08:43:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rudo Thomas <rudo@matfyz.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
-Message-ID: <20040727064345.GA5594@elte.hu>
-References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu> <20040726204228.GA1231@ss1000.ms.mff.cuni.cz> <20040726205741.GA27527@elte.hu> <20040726225009.GA2369@ss1000.ms.mff.cuni.cz>
+	Tue, 27 Jul 2004 03:00:45 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:57276 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266262AbUG0HAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 03:00:30 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 27 Jul 2004 08:48:25 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Frederik <frederik@padjen.de>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Oops when modprobing cx8800
+Message-ID: <20040727064824.GB16853@bytesex>
+References: <20040725183038.108ffd7c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040726225009.GA2369@ss1000.ms.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040725183038.108ffd7c.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rudo Thomas <rudo@matfyz.cz> wrote:
-
-> > does the patch below, ontop of -J7, help?
+On Sun, Jul 25, 2004 at 06:30:38PM -0700, Andrew Morton wrote:
 > 
-> I tried it, but did not test tuning the value, as the patch has
-> problems of its own: with device-mapper.
-> 
-> bio too big device dm-0 (256 > 255)
-> 
-> Again, some files cannot be read on the device.
+> hm, odd.
 
-ok, dm (and some other layered block drivers) set q->max_sectors
-directly instead of using blk_queue_max_sectors().
+> Jul 21 15:30:21 athene kernel:  [<c020a377>] vsprintf+0x27/0x30
+> Jul 21 15:30:21 athene kernel:  [<c020a39f>] sprintf+0x1f/0x30
+> Jul 21 15:30:21 athene kernel:  [<d0cc1078>] cx8800_initdev+0x78/0x7a0 
 
-	Ingo
+The only bug I'm aware of which is still in 2.6.8-rc1+ and might be this
+is that the card= insmod option lacks a range check (patch below), so
+passing some insane high value might kill the driver.  It shouldn't
+happen with a simple "insmod cx88" + card autodetect through.
+
+If it is something else -- no idea.
+
+> (This driver should be using kthread for the kernel thread management btw)
+
+Yup, and some other v4l drivers as well ...
+Just didn't know kthread exists before OLS ;)
+
+  Gerd
+
+diff -u -p -r1.27 -r1.28
+--- cx88-video.c	22 Jul 2004 13:54:28 -0000	1.27
++++ cx88-video.c	23 Jul 2004 01:06:12 -0000	1.28
+@@ -2382,7 +2382,9 @@ static int __devinit cx8800_initdev(stru
+ 	}
+ 
+ 	/* board config */
+-	dev->board = card[cx8800_devcount];
++	dev->board = UNSET;
++	if (card[cx8800_devcount] < cx88_bcount)
++		dev->board = card[cx8800_devcount];
+ 	for (i = 0; UNSET == dev->board  &&  i < cx88_idcount; i++) 
+ 		if (pci_dev->subsystem_vendor == cx88_subids[i].subvendor &&
+ 		    pci_dev->subsystem_device == cx88_subids[i].subdevice)

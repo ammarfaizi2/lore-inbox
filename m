@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbULEXTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbULEXZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbULEXTX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 18:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbULEXTX
+	id S261410AbULEXZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 18:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbULEXZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 18:19:23 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:26812 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261246AbULEXTI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 18:19:08 -0500
-Date: Mon, 6 Dec 2004 00:14:24 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
-In-Reply-To: <20041203205807.GA25578@elte.hu>
-Message-Id: <Pine.OSF.4.05.10412052342380.12234-100000@da410.ifa.au.dk>
+	Sun, 5 Dec 2004 18:25:06 -0500
+Received: from gprs215-105.eurotel.cz ([160.218.215.105]:38529 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261305AbULEXZA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 18:25:00 -0500
+Date: Mon, 6 Dec 2004 00:24:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, mjg59@srcf.ucam.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] swsusp-bigdiff: power-managment changes that are waiting in my tree
+Message-ID: <20041205232440.GA1490@elf.ucw.cz>
+References: <20041205214910.GA1293@elf.ucw.cz> <1102284611.11763.97.camel@gaston>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102284611.11763.97.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Dec 2004, Ingo Molnar wrote:
+Hi!
 
+> > +#These are not really events sent:
+> > +#
+> > +#System fully on -- device is working normally; this is probably never
+> > +#passed to suspend() method... event = ON, flags = 0
+> > +#
+> > +#Ready after resume -- userland is now running, again. Time to free any
+> > +#memory you ate during prepare to suspend... event = ON, flags =
+> > +#READY_AFTER_RESUME
 > 
-> [...] 
-> on low RT load (the common case) 
+> I think we need to add the pm_message_t to resume. You are already
+> "fixing" everybody to change u32 -> pm_message_t, so it  shouldn't be
+> that bad to add this too.
 
-In the system I deal with on my day job, 50% of the CPU load is from
-RT tasks!
+We need to add pm_message_t to resume, I agree about that, but yes, it
+would be quite bad if I added this, too.
 
-In fact, I think that is quite normal for industrial applications. Those
-tend to be PLC-like: You run your scan every 10 ms. First you read your
-input, then you do your calculations then you set your output. You do
-the same thing every time. You can thus safely tick around at a CPU
-load close to 100%!!
+All changes I'm doing are "break nothing", because pm_message_t is
+typedefed to u32 for now. Therefore they can be safely merged in any
+order etc...
 
-This is quite opposit to how telecom real-time systems works: Those are
-usually event based. I.e. they process things when they occur. The load
-can vary a lot depending on how much traffic has to go through the device.
-
-Esben
-
+For the documentation changes... I already rewrote that twice. I'm not
+native english speaker and I need some sleep now. If you send me
+nicely-looking diff, I'm likely to accept it :-).
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

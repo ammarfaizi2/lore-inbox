@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263345AbTLBSXz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTLBSXy
+	id S263303AbTLBS1x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLBS1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:23:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263345AbTLBSX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:23:29 -0500
-Date: Tue, 2 Dec 2003 10:23:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>
-cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Linux-raid maillist <linux-raid@vger.kernel.org>, linux-lvm@sistina.com
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-In-Reply-To: <20031202082713.GN12211@suse.de>
-Message-ID: <Pine.LNX.4.58.0312021009070.1519@home.osdl.org>
-References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de>
- <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de>
- <3FCC0EE0.9010207@backtobasicsmgmt.com> <20031202082713.GN12211@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Dec 2003 13:27:52 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:31492 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263303AbTLBS1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:27:51 -0500
+Date: Tue, 2 Dec 2003 18:27:46 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
+       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: XFS for 2.4
+Message-ID: <20031202182746.A27964@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
+	'Marcelo Tosatti' <marcelo.tosatti@cyclades.com>,
+	Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
+	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+	Andrew Morton <akpm@osdl.org>
+References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com> <20031202180251.GB17045@work.bitmover.com> <20031202181146.A27567@infradead.org> <20031202182037.GD17045@work.bitmover.com> <20031202182346.A27914@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031202182346.A27914@infradead.org>; from hch@infradead.org on Tue, Dec 02, 2003 at 06:23:46PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 02, 2003 at 06:23:46PM +0000, Christoph Hellwig wrote:
+> On Tue, Dec 02, 2003 at 10:20:37AM -0800, Larry McVoy wrote:
+> > So what's wrong with asking $VFS_MAINTAINER to refresh Marcelo's memory
+> > about that?
+> 
+> There is no such thing as a VFS maintainer.  At least Al doesn't want
+> to be in that position and I guess no one else would qualify (maybe
+> akpm)
 
+And akpm queued up most of these patches in -mm and revieved them
+before they went into 2.5, but he is (fortunately for him :))  on
+vacation so you shouldn't expect any respone from him here.
 
-On Tue, 2 Dec 2003, Jens Axboe wrote:
->
-> Smells like a bio stacking problem in raid/dm then. I'll take a quick
-> look and see if anything obvious pops up, otherwise the maintainers of
-> those areas should take a closer look.
-
-There are several other problem reports which start to smell like md/raid.
-
-> That might be a good idea, although it's not very likely to be an XFS
-> problem as it happens further down the io stack. It should trigger just
-> as happily on IDE or SCSI if that was the case.
-
-There's one (by Alan Buxey) that I attributed to PREEMPT which happens on
-UP with ext3 and raid0:
-
-	md: Autodetecting RAID arrays.
-	md: autorun ...
-	md: considering hdd1 ...
-	md:  adding hdd1 ...
-	md:  adding hda1 ...
-	md: created md0
-	md: bind<hda1>
-	md: bind<hdd1>
-	md: running: <hdd1><hda1>
-	raid1: raid set md0 active with 2 out of 2 mirrors
-	md: ... autorun DONE.
-
-and that one shows strange memory corruption problems too.
-
-NOTE! The fact that it only happens with PREEMPT for some people is not
-necessarily a sign of preempt-only trouble: while PREEMPT should really be
-equivalent to SMP-safe, but there are some things that are much more
-likely with preemption than with normal SMP.
-
-In particular, preempt will cause every single (final) unlock to check
-whether there is something else runnable with a higher priority, so it
-opens up races a lot - if you touch something just outside (in particular:
-_after_) the locked region, preempt is much more likely to show a race
-that on SMP might be just a few instructions long.
-
-		Linus

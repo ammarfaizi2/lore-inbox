@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266523AbRGGSML>; Sat, 7 Jul 2001 14:12:11 -0400
+	id <S265364AbRGGSPV>; Sat, 7 Jul 2001 14:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266519AbRGGSMB>; Sat, 7 Jul 2001 14:12:01 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32779 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266523AbRGGSLr>; Sat, 7 Jul 2001 14:11:47 -0400
-Date: Sat, 7 Jul 2001 15:11:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <3B47503A.6BC6A9B6@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33L.0107071510570.17825-100000@duckman.distro.conectiva>
+	id <S266525AbRGGSPL>; Sat, 7 Jul 2001 14:15:11 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:43282 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265364AbRGGSPD>; Sat, 7 Jul 2001 14:15:03 -0400
+Date: Sat, 7 Jul 2001 11:13:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: <linux-kernel@vger.kernel.org>, <dhinds@zen.stanford.edu>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Memory region check in drivers/pcmcia/rsrc_mgr.c
+In-Reply-To: <15174.62880.772230.734585@tango.paulus.ozlabs.org>
+Message-ID: <Pine.LNX.4.33.0107071103070.31249-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jul 2001, Jeff Garzik wrote:
 
-> Sigh.  since I am a VM ignoramus I doubt my opinion matters much
-> at all here... but it would be nice if oddball configurations
-> like 384MB with 50MB swap could be supported.
+On Sat, 7 Jul 2001, Paul Mackerras wrote:
+>
+> The patch below does this (and makes a similar correction for I/O
+> space).  With this patch applied, the pcmcia stuff works fine on my
+> powerbook, and I end up with something like this in /proc/iomem:
 
-It would be fun if we had 48 hours in a day, too ;)
+This is wrong.
 
-This particular thing has been on the TODO list of the
-VM developers for a while, but we just haven't gotten
-around to it.
+The reason it currently uses the rather fascist check_resource() is that
+the thing needs a completely _unallocated_ region.
 
-regards,
+By changing it to use "check_region" instead of "check_resource()", you
+allow the PCMCIA code to use an already allocated (but not in use) PCI
+region. That is not what the code is meant to do - you might find that the
+yenta code suddenly starts allocating the PCMCIA resources inside another
+PCI device that just hasn't marked its resources busy yet.
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+This is, in fact, exactly what happens for you: it allocates the resources
+inside your PCI bridge mappings. Which happens to be what you want in this
+case, but it's not right in general.
 
+> Linus, would you apply this patch to your tree?
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+I don't think so.
+
+HOWEVER, you can change the resource checking to use the proper "parent
+resource" instead of using the root resource. I absolutely agree that
+using the root resource is wrong per se - it depends (incorrectly) on the
+fact that on all laptops the PCMCIA controller tends to be on the root
+bus.
+
+Note that the CardBus side gets this all right - I assume that a 32-bit
+CardBus card with a PCI driver should work on your powerbook even without
+this patch, no?
+
+It's only the old-style PCMCIA resource management that is fairly broken.
+It may be that you rpatch might be an acceptable band-aid, but I really
+think that the problem should be solved differently.
+
+		Linus
 

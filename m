@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUG0GoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUG0G4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbUG0GoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 02:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUG0GoW
+	id S265410AbUG0G4i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 02:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUG0G4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 02:44:22 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2052 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266281AbUG0GoJ convert rfc822-to-8bit (ORCPT
+	Tue, 27 Jul 2004 02:56:38 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:36343 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265410AbUG0G4h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 02:44:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Paul Jackson <pj@sgi.com>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-Date: Tue, 27 Jul 2004 09:43:23 +0300
-X-Mailer: KMail [version 1.4]
-Cc: akpm@osdl.org, achew@nvidia.com, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com> <1090902426.1094.33.camel@mindpipe> <20040726215738.5c4a8b42.pj@sgi.com>
-In-Reply-To: <20040726215738.5c4a8b42.pj@sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407270943.23292.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 27 Jul 2004 02:56:37 -0400
+Date: Tue, 27 Jul 2004 12:25:29 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, dipankar@in.ibm.com
+Subject: Re: [patch] Use kref for struct file.f_count refcounter
+Message-ID: <20040727065528.GB1270@obelix.in.ibm.com>
+References: <20040726150312.GJ1231@obelix.in.ibm.com> <20040726223036.281106c5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040726223036.281106c5.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 July 2004 07:57, Paul Jackson wrote:
-> > For now the only fix for people using an X environment ... insert file
-> > ...
->
-> Another fix is to copy from a non-brain damaged window, such as a gui
-> text editor window (nedit, for example).
->
-> I'm guessing that the tabs are lost in the cut or copy operation, not in
-> the paste operation.
+On Mon, Jul 26, 2004 at 10:30:36PM -0700, Andrew Morton wrote:
+> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
+> >
+> > This patch makes use of the kref api for the 
+> >  struct file.f_count refcounter.  This depends
+> >  on the new kref apis kref_read and kref_put_last
+> >  added by means of my earlier patch today.
+> 
+> Sorry, but I can't really see how this improves anything.  It'll slow
+> things down infinitesimally and it forces the reader to look elsewhere in
+> the tree to see what's going on.
+> 
 
-because 'cut' in a xterm cannot know that those eight spaces
-once were a tab. xterm is probably storing screen as a char+attr
-two-dimensional array. There are no tabs, only spaces.
+It doesn't improve anything in terms of performance or anything.  It just
+makes use of the kref api for refcounting.  My next patchset will be to
+extend the kref api to do lockfree refcounting, and eliminate
+use of files_struct.file_lock on the reader side (lock free fd lookup) .  
+That improves performance for fd lookups -- for threaded workloads which 
+do lot of io.  This was the step by step approach I am following to do 
+lockfree refcounting as was agreed earlier.
 
-> But file insertion is, in general, a sufficiently winning choice that I
-> think it's better just to get in the habit of always inserting patches
-> that way, at least on email clients that support it.
+I can do a patch to just extend kref api for lockfree refcounting and
+use them for for the lock free fd lookup patch directly if you like to see
+it that way.
 
-I do it all the time.
--- 
-vda
+Thanks,
+Kiran
+

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312970AbSDOQ36>; Mon, 15 Apr 2002 12:29:58 -0400
+	id <S312972AbSDOQoC>; Mon, 15 Apr 2002 12:44:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312971AbSDOQ35>; Mon, 15 Apr 2002 12:29:57 -0400
-Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:20125 "EHLO
-	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S312970AbSDOQ34>; Mon, 15 Apr 2002 12:29:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>, greg@kroah.com
-Subject: Re: 2.5.8 OOPS usb-uhci
-Date: Mon, 15 Apr 2002 18:29:29 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CBABB92.8000307@wanadoo.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16x9MA-0007RS-00@baldrick>
+	id <S312973AbSDOQoB>; Mon, 15 Apr 2002 12:44:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43018 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312972AbSDOQoA>;
+	Mon, 15 Apr 2002 12:44:00 -0400
+Date: Mon, 15 Apr 2002 18:44:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Aaron Tiensivu <mojomofo@mojomofo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE TCQ #4
+Message-ID: <20020415164404.GW12608@suse.de>
+In-Reply-To: <20020415125606.GR12608@suse.de> <02db01c1e498$7180c170$58dc703f@bnscorp.com> <20020415161833.GV12608@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 April 2002 1:37 pm, Pierre Rousselet wrote:
-> PIII 650 UP. kernel tainted by speedtch.o (usb Speedtouch Alcatel driver).
-> OOPS logged in /var/log/messages during shutdown (the 2 oops come
-> together). *It is not repeatable*. I haven't catched such oops with
-> 2.5.8-pre3.
+On Mon, Apr 15 2002, Jens Axboe wrote:
+> On Mon, Apr 15 2002, Aaron Tiensivu wrote:
+> > Simple question but hopefully it has a simple answer.. is there a command
+> > you can issue or flag you can look for from the output of hdparm to tell if
+> > your hard drive is capable of TCQ before installing the patch? I have a few
+> > IBM drives that I'm sure have TCQ abilities but I don't trust them as far as
+> > I can throw them (being Hungarian and cursed) but I'd like to give TCQ a
+> > whirl on my WD 120GB drives that should work OK, if they support TCQ..
+> > 
+> > Sorry if it's already been asked.. :)
+> 
+> It has not been asked :-)
+> 
+> You can run a IDENTIFY_DEVICE from user space with the task ioctls and
+> look at word 83 -- bit 1 and 14 must be set for TCQ to be supported. If
+> you give me the model identifier from the IBM drive, I can tell you if
+> it has tcq or not...
+> 
+> I'll write a small util to detect this tomorrow and send it to you + the
+> list.
 
-This speedtouch kernel mode driver has problems with preemption.
-Perhaps this is the source of your problem.  This is one reason I moved
-to the user space driver, see http://speedtouch.sourceforge.net
+Duh, you can of course just look at /proc/ide/ideX/hdY/identify and
+parse that. The info above is still valid for that, of course :-)
 
-Duncan.
+-- 
+Jens Axboe
+

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUJSWS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270105AbUJTM7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269645AbUJSWS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 18:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbUJSWSW
+	id S270105AbUJTM7o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270045AbUJTM63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:18:22 -0400
-Received: from gprs214-24.eurotel.cz ([160.218.214.24]:6272 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S269645AbUJSVsf (ORCPT
+	Wed, 20 Oct 2004 08:58:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:59543 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S270082AbUJTK01 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:48:35 -0400
-Date: Tue, 19 Oct 2004 23:48:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: Richard Smith <rsmith@bitworks.com>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041019214818.GF1142@elf.ucw.cz>
-References: <9e47339104101814166bf4cfe5@mail.gmail.com> <41740384.5783.12A07B14@localhost>
+	Wed, 20 Oct 2004 06:26:27 -0400
+Date: Wed, 20 Oct 2004 12:27:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
+Message-ID: <20041020102722.GA964@elte.hu>
+References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <1098229098.26927.40.camel@cmn37.stanford.edu> <1098229166.12223.1153.camel@thomas> <1098248541.12223.1450.camel@thomas> <20041020074049.GA20963@elte.hu> <1098266273.12223.1511.camel@thomas>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41740384.5783.12A07B14@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1098266273.12223.1511.camel@thomas>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Its a sad fact though that we are (x86 anyway) dependant on some
-> > amazingly fragile, stupid, usually binary only, legacy bloated, and
-> > quite often buggy, 16-bit realmode video init code that should have
-> > been put to pasture many years ago. 
-> 
-> Actually there is nothing wrong with the x86 BIOS from the perspective of 
-> functionality and useability (or bloat for that matter). It contains all 
-> the functionality we need and armed with something like the x86 emulator 
-> we can use it for what we need on any platform.
-> 
-> Open Firmware may be a 'nicer' solution, but I guarantee that if the 
-> vendors started supporting that it would be just a bug ridden as any 16-
-> bit real mode BIOS code. For the Video BIOS the code always works for 
-> what it is tested for. Some vendors spend more time testing the VBE BIOS 
-> side of things fully (if they are smart they have licensed our VBETest 
-> tools for this purpose). Unfortunatley some vendors do not test this 
-> stuff thoroughly and it has problems. But the same testing issues would 
-> exist whether the firmware was written as a 16-bit x86 blob or as an Open 
-> Firmware blob.
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-Actually that 16-bit x86 blob can access any PC hardware, and that's
-where the stuff gets hard.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> Yep, it's all the same scheme. Most of the offending code uses
+> MUTEX_LOCKED in an init function and plays the down, and up from a
+> different context game, which triggers the deadlock/owner verify. Not
+> hard to fix, but at some places it takes a bit, until you see the
+> intention of the driver hacker. 
+
+the NFS ones seemed to be the least clear ones. I'm glad you converted
+those already :-)
+
+> The most surprising one was in driver/base. I did not expect that new
+> 2.5/6 code uses those tricks too.
+
+it is not strictly a bug, but that technique was discouraged for years -
+completions are cleaner and faster for that purpose anyway. (they were
+designed for what in the semaphore case is the slowpath.)
+
+> Fixes for aic7xxx and sym53c8xx_2 attached.
+
+Applied. The sym53c8xx_2 looks good. aic7xxx is good too except for a
+minor cleanup issue: i've changed all _sem symbols to be _done symbols.
+It's not a semaphore anymore, lets avoid the namespace-rotting effect. 
+I've put these into -U8 so anyone hitting aic7xxx or sym53c8xx_2 should
+re-download the -U8 patch. (others who have already downloaded it should
+not bother.)
+
+	Ingo

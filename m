@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271784AbRHUS3L>; Tue, 21 Aug 2001 14:29:11 -0400
+	id <S271782AbRHUS3k>; Tue, 21 Aug 2001 14:29:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271783AbRHUS3B>; Tue, 21 Aug 2001 14:29:01 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:52497 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S271782AbRHUS24>; Tue, 21 Aug 2001 14:28:56 -0400
-Date: Tue, 21 Aug 2001 11:28:57 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Stephen Satchell <satch@fluent-access.com>, linux-kernel@vger.kernel.org
-Subject: Re: FYI  PS/2 Mouse problems -- userland issue
-In-Reply-To: <Pine.LNX.4.33.0108211413080.14374-100000@touchme.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.10.10108211126380.20205-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271787AbRHUS3a>; Tue, 21 Aug 2001 14:29:30 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:49926 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S271782AbRHUS3K>;
+	Tue, 21 Aug 2001 14:29:10 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: /dev/random in 2.4.6
+Date: 21 Aug 2001 18:25:56 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9lu93k$n5v$4@abraham.cs.berkeley.edu>
+In-Reply-To: <9lrc6u$6pv$1@abraham.cs.berkeley.edu> <605512235.998386789@[169.254.45.213]>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 998418356 23743 128.32.45.153 (21 Aug 2001 18:25:56 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 21 Aug 2001 18:25:56 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Bligh - linux-kernel  wrote:
+>Things like (from the manpage):
 
-> As for the kernel, it needs a few improvements during 2.5: I plan to submit a
-> patch that replaces much of the existing pc keyboard/mouse code with state
-> machine driven code that doesn't block interrupts out for long periods of
-> time, as well as fixing a few of the lockup issues the current driver has.
-
-Their already is a replacement driver using the input api avaliable that I
-was planning to intergrate into 2.5. It fixed alot of the issues people
-are having now.  
-
+Yes.  The manpage should be changed.  No argument there.

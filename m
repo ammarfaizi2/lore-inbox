@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbSJUWDH>; Mon, 21 Oct 2002 18:03:07 -0400
+	id <S261718AbSJUWU6>; Mon, 21 Oct 2002 18:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbSJUWDH>; Mon, 21 Oct 2002 18:03:07 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:26888 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S261718AbSJUWDG>; Mon, 21 Oct 2002 18:03:06 -0400
-Date: Mon, 21 Oct 2002 23:51:00 +0200
-From: DervishD <raul@pleyades.net>
-To: Christoph Hellwig <hch@infradead.org>, webmaster@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Listmaster request: Blacklist rms@gnu.org
-Message-ID: <20021021215100.GC562@DervishD>
-References: <20021021182737.A23371@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021021182737.A23371@infradead.org>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+	id <S261737AbSJUWU6>; Mon, 21 Oct 2002 18:20:58 -0400
+Received: from h-64-105-137-32.SNVACAID.covad.net ([64.105.137.32]:14504 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261718AbSJUWU5>; Mon, 21 Oct 2002 18:20:57 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 21 Oct 2002 15:26:31 -0700
+Message-Id: <200210212226.PAA01409@adam.yggdrasil.com>
+To: ebiederm@xmission.com, mochel@osdl.org
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've adjusted my procmail filters now, still people using web archives
-> suffer from Richard's ignorance of the technical charta, his bad
-> trolling and offending everyone on the list.  As his previous posts
-> have been of a similar "quality" I'd like to request blacklisting him
-> from the vger list.
+I wrote to Eric Biederman:
+>        kmonte and sys_kexec skip the BIOS reset code and therefore
+>may need to do more elaborate shutdown, but please do not saddle the
+>normal reboot case with [that].
 
-    Oh, yes, get the reason through censorship :))) That's a very
-ethic way of doing things. Hey, how about blacklisting all people you
-don't like from vger? If you don't like RMS posts, you have ALL right
-to blacklist him from YOUR system. Censorship on vger will do no good
-to Linux. Freedom doesn't get its way through censorship. Fascism do.
+	Let me add that I would be quite happy to see the common code
+in sys_reboot moved into a shared exported routine that sys_kexec and
+kmonte could use, so that they would automatically track changes to
+that procedure rather than requiring maintenance of a duplicate copy
+of that code.
 
-    Raúl
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+

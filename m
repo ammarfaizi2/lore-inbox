@@ -1,76 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274963AbTHACuk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 22:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274964AbTHACuj
+	id S274956AbTHACzY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 22:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274957AbTHACzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 22:50:39 -0400
-Received: from user-10cm126.cable.mindspring.com ([64.203.4.70]:12039 "HELO
-	cia.zemos.net") by vger.kernel.org with SMTP id S274963AbTHACui
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 22:50:38 -0400
-Date: Thu, 31 Jul 2003 19:51:37 -0700 (PDT)
-From: Gorik Van Steenberge <gvs@cia.zemos.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2 usb-storage problem
-Message-ID: <Pine.LNX.4.50L0.0307311948100.2728-100000@cia.zemos.net>
+	Thu, 31 Jul 2003 22:55:24 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:1752 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S274956AbTHACzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 22:55:20 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Steve Dickson <SteveD@redhat.com>
+Date: Fri, 1 Aug 2003 12:55:02 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16169.54918.472349.928145@gargle.gargle.HOWL>
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>,
+       Chip Salzenberg <chip@pobox.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: nfs-utils-1.0.5 is not backwards compatible with 2.4
+In-Reply-To: message from Steve Dickson on Thursday July 31
+References: <3F294DE3.9020304@RedHat.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday July 31, SteveD@redhat.com wrote:
+> 
+> 
+> Hey Neil,
+> 
+> It seems in nfs-utils-1.05 (actually it happen in 1.0.4)
+> the NFSEXP_CROSSMNT define was changed to 0x4000 and the
+> NFSEXP_NOHIDE define (which is not supported in 2.4) took
+> over the 0x0200 bit.. This breaks backwards compatibly with
+> 1.0.3 and the 2.4 kernels...
+> 
+> So could please add this patch that simply switchs the bits
+> so NFSEXP_CROSSMNT stays the same and the new NFSEXP_NOHIDE define
+> gets the higher bit?
+
+I'll tell you the full story and let you suggest what, if any, source
+code changes are really needed.
+
+Once upon a time (2.2 era) there was this export flag called
+NFSEXP_CROSSMNT and "crossmnt" which was un-implemented.  I guess it
+was a hang over from the user-space nfsd and was probably meant to say
+"mount points in this filesystem can be crossed".   But as there was
+no code and no documentation, one couldn't be sure. 
+
+In the kernel nfs server at the time, the concept of "crossmnt" was
+effectively unimplementable (due the the way the export table was set
+up and the way file handles were managed).
+A closely related concept was implementable.  This concept is given
+the name "nohide" in Irix and possibly others.  This is a flag set on
+the child filesystem (rather than the parent) and says that the child
+should not be 'hiden' when the mountpoint in the parent is accessed.
+
+So, I used the NFSEXP_CROSSMNT flag to implement nohide (it was one of
+my earliest nfsd patches I think) and told nfs-utils that it could use
+the name "nohide" to refer to this new flag.
+
+So for sometime, NFSEXP_CROSSMNT, "nohide", 0x0200 meant
+"this child filesystem should be visible from the parent".
+
+Possibly this was a mistake.  Possibly I should have used a different
+flag or at least changed the name, but I didn't.
+
+As part of the substatial rewrite that went into 2.6, it is possible
+to implement "crossmnt" type semantics sensibly.  When a mountpoint is
+'crossed' (by a LOOKUP operation) the kernel can ask user-space to
+provide export information for that filesystem and act according to
+the response. (This is not completely implemented in nfs-utils 1.0.5,
+though it should work to some extent.  I hope to figure out the
+remaining details and get it working before 1.1.0).
+
+So I needed a new flag, and chose 0x4000.  This flag can be set on the
+parent and says that all mount points should be crossed (if possible).
+
+The most obvious name for this flag was NFSEXP_CROSSMNT which was
+currently inuse as a misnomer for the nohide option.
+So I renamed the old NFSEXP_CROSSMNT to NFSEXP_NOHIDE, both in
+nfs-utils and in the kernel.
+I then added the new flags 0x4000 named NFSEXP_CROSSMNT with the
+textual representation "crossmnt".
+
+As far as I can tell, the only incompatability that this will cause is
+if some code outside of the kernel and outside of nfs-utils uses the
+header files from either the kernel or nfs-utils.  Such code will get
+a new value for NFSEXP_CROSSMNT if it changes it's header files.   I
+don't know if there is any such code, but if there is  I apoligise for
+breaking it and suggest that the best fix is to not use the header
+file it was using but it explicitly include the values for NFSEXP_* in
+that code.
+
+Let me know if there is some issue that this does not sufficiently
+clear up.
+
+NeilBrown
 
 
-Hello,
-
-I'm running 2.6.0-test2, this happened right after doing rmmod usb-storage.
-If any further info is needed, please send me a mail back.
-
-[root@aeolus:/proc/scsi]# ls
-device_info  scsi  usb-storage  usb-storage
-[root@aeolus:/proc/scsi]# ll
-Segmentation fault
-Aug  1 04:42:30 aeolus kernel: drivers/usb/core/usb.c: deregistering driver usb-storage
-Aug  1 04:42:36 aeolus kernel: Unable to handle kernel paging request at virtual address d099f800
-Aug  1 04:42:36 aeolus kernel:  printing eip:
-Aug  1 04:42:36 aeolus kernel: c0179d4c
-Aug  1 04:42:36 aeolus kernel: *pde = 012f6067
-Aug  1 04:42:36 aeolus kernel: *pte = 00000000
-Aug  1 04:42:36 aeolus kernel: Oops: 0000 [#1]
-Aug  1 04:42:36 aeolus kernel: CPU:    0
-Aug  1 04:42:36 aeolus kernel: EIP:    0060:[<c0179d4c>]    Not tainted
-Aug  1 04:42:36 aeolus kernel: EFLAGS: 00010202
-Aug  1 04:42:36 aeolus kernel: EIP is at proc_get_inode+0xac/0x140
-Aug  1 04:42:36 aeolus kernel: eax: c6b98000   ebx: c712d0d0   ecx: 00000000   edx: d099f800
-Aug  1 04:42:36 aeolus kernel: esi: cf633bc0   edi: 00000001   ebp: c76fc2c0   esp: c6b99e24
-Aug  1 04:42:36 aeolus kernel: ds: 007b   es: 007b   ss: 0068
-Aug  1 04:42:36 aeolus kernel: Process ls (pid: 463, threadinfo=c6b98000 task=c7
-77b980)
-Aug  1 04:42:36 aeolus kernel: Stack: c712d0d0 00001244 00000000 0000000b c76fc347 cf633c13 c017c932 cffeae00
-Aug  1 04:42:36 aeolus kernel:        00001244 cf633bc0 cf633bc0 ffffffea 00000000 fffffff4 c712dbb8 c712db50
-Aug  1 04:42:36 aeolus kernel:        c76fc2c0 c015bb5c c712db50 c76fc2c0 c6b99f38 00000000 c6b99f38 cfff0f00
-Aug  1 04:42:36 aeolus kernel: Call Trace:
-Aug  1 04:42:36 aeolus kernel:  [<c017c932>] proc_lookup+0x112/0x120
-Aug  1 04:42:36 aeolus kernel:  [<c015bb5c>] real_lookup+0xcc/0xf0
-Aug  1 04:42:36 aeolus kernel:  [<c015bde6>] do_lookup+0x96/0xb0
-Aug  1 04:42:36 aeolus kernel:  [<c015c29d>] link_path_walk+0x49d/0x8e0
-Aug  1 04:42:36 aeolus kernel:  [<c015b9d5>] path_release+0x15/0x40
-Aug  1 04:42:36 aeolus kernel:  [<c015cbb9>] __user_walk+0x49/0x60
-Aug  1 04:42:36 aeolus kernel:  [<c0157c1c>] vfs_lstat+0x1c/0x60
-Aug  1 04:42:36 aeolus kernel:  [<c01582db>] sys_lstat64+0x1b/0x40
-Aug  1 04:42:36 aeolus kernel:  [<c0109177>] syscall_call+0x7/0xb
-Aug  1 04:42:36 aeolus kernel:
-Aug  1 04:42:36 aeolus kernel: Code: 83 3a 02 74 4a ff 82 c0 00 00 00 b8 00 e0 ff ff 21 e0 ff 48
-Aug  1 04:42:36 aeolus kernel:  <6>note: ls[463] exited with preempt_count 2
-Aug  1 04:43:23 aeolus kernel: SysRq : Emergency Sync
-Aug  1 04:43:23 aeolus kernel: Emergency Sync complete
-
-After this happened, I did rmmod sd_mod and then scsi_mod:
-
-Aug  1 04:44:55 aeolus kernel: remove_proc_entry: /proc/scsi busy, count=1
-
-
-Cheers,
-
-Gorik
-
+> 
+> --- support/include/nfs/export.h.diff   Mon Jul 14 18:14:01 2003
+> +++ support/include/nfs/export.h        Thu Jul 31 11:58:05 2003
+> @@ -20,11 +20,11 @@
+> #define NFSEXP_UIDMAP          0x0040
+> #define NFSEXP_KERBEROS                0x0080          /* not available */
+> #define NFSEXP_SUNSECURE       0x0100
+> -#define NFSEXP_NOHIDE          0x0200
+> +#define NFSEXP_CROSSMNT                0x0200
+> #define NFSEXP_NOSUBTREECHECK  0x0400
+> #define NFSEXP_NOAUTHNLM       0x0800
+> #define NFSEXP_FSID            0x2000
+> -#define        NFSEXP_CROSSMNT         0x4000
+> +#define        NFSEXP_NOHIDE           0x4000
+> #define NFSEXP_NOACL           0x8000 /* reserved for possible ACL
+> related use */
+> #define NFSEXP_ALLFLAGS                0xFFFF
+> 
+> 
+> SteveD.
+> 
+> 

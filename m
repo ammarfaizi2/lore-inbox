@@ -1,36 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315422AbSEBVII>; Thu, 2 May 2002 17:08:08 -0400
+	id <S315424AbSEBVOC>; Thu, 2 May 2002 17:14:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315423AbSEBVIH>; Thu, 2 May 2002 17:08:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57104 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315422AbSEBVIH>; Thu, 2 May 2002 17:08:07 -0400
-Subject: Re: Re[2]: Support of AMD 762?
-To: ekuznetsov@divxnetworks.com
-Date: Thu, 2 May 2002 22:27:11 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <732555515.20020502133225@divxnetworks.com> from "Eugene Kuznetsov" at May 02, 2002 01:32:25 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E173O6Z-0004tr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S315425AbSEBVOB>; Thu, 2 May 2002 17:14:01 -0400
+Received: from unthought.net ([212.97.129.24]:42133 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S315424AbSEBVOA>;
+	Thu, 2 May 2002 17:14:00 -0400
+Date: Thu, 2 May 2002 23:13:59 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IDE hotplug support?
+Message-ID: <20020502231359.W31556@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Pavel Machek <pavel@suse.cz>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020502215833.V31556@unthought.net> <E173N9y-0004k1-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AC> When someone volunteers to test it
-> I do!
+On Thu, May 02, 2002 at 09:26:38PM +0100, Alan Cox wrote:
+> > >=20
+> > > 8 x 130MBy/s >>>> PCI bus throughput... I would rather recommend
+> > > a classical RAID controller card for this kind of
+> > > setup.
+> > 
+> > Because RAID controllers do not use the PCI bus ???    ;)
+> 
+> The raid card transfers the data once, software raid once per device for
+> Raid 1/5 - thats a killer.
 
---- arch/i386/kernel/pci-irq.c~	Thu May  2 21:00:46 2002
-+++ arch/i386/kernel/pci-irq.c	Thu May  2 21:00:46 2002
-@@ -489,6 +489,8 @@
- 	  pirq_serverworks_get, pirq_serverworks_set },
- 	{ "AMD756 VIPER", PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_740B,
- 		pirq_amd756_get, pirq_amd756_set },
-+	{ "AMD768", PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7443,
-+		pirq_amd756_get, pirq_amd756_set },
- 
- 	{ "default", 0, 0, NULL, NULL }
- };
+For RAID-1 it's a killer (for writes), I agree.
+
+But I really doubt it would be so horrible for RAID-5 - after all, it's only
+one extra block (the parity block) for each N-1 blocks written (for an N disk
+RAID-5).  The penalty should be less, the more disks you have in the array.
+
+But seriously, has anyone out there ever seen a hardware RAID controller with
+a *sustained* RAID-5 thoughput of more than 60 MB/sec ?   Not that I think it
+is impossible, but I've never heard about it.  Enlighten me, please, and not
+with marketing numbers...
+
+> 
+> > By the way, has anyone tried such larger multi-controller setups, and t=
+> > ested
+> > the bandwidth in configurations with multiple PCI busses on the board, =
+> > versus a
+> > single PCI bus ?
+> 
+> With 2.4 yes. With all the 2.5 changes no.
+
+Did you get any speedup ?  Were you close to PCI bus saturation in the one-bus
+scenario ?
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

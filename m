@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbUBILiN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 06:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUBILiN
+	id S264933AbUBILaa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 06:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbUBILaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 06:38:13 -0500
-Received: from pong.topalis.com ([195.243.109.5]:31921 "EHLO pong.topalis.com")
-	by vger.kernel.org with ESMTP id S264981AbUBILiD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 06:38:03 -0500
-Subject: Re: PATCH - NGROUPS 2.6.2rc2 + fixups
-From: Stefan Voelkel <Stefan.Voelkel@millenux.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Tim Hockin <thockin@sun.com>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       akpm@osld.org.sun.com, Daniel Riek <riek@redhat.com>
-In-Reply-To: <20040130021802.AA5BC2C0BF@lists.samba.org>
-References: <20040130021802.AA5BC2C0BF@lists.samba.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YQnxIzVnR+/uGjLrbvQ3"
-Organization: Millenux GmbH
-Message-Id: <1076326687.15404.72.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 09 Feb 2004 12:38:07 +0100
+	Mon, 9 Feb 2004 06:30:30 -0500
+Received: from dsl-213-023-011-014.arcor-ip.net ([213.23.11.14]:58341 "EHLO
+	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S264933AbUBILa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 06:30:27 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Matthias Hentges <mailinglisten@hentges.net>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [PROBLEM] 2.6.3-rc1: still no suspend/resume on Centrino
+From: "Georg C. F. Greve" <greve@gnu.org>
+Organisation: Free Software Foundation Europe - GNU Project
+X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
+X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
+X-Home-Page: http://gnuhh.org
+X-Accept-Language: en, de
+In-Reply-To: <1076282567.6594.3.camel@mhcln03>
+References: <1076282567.6594.3.camel@mhcln03>
+Date: Mon, 09 Feb 2004 12:30:08 +0100
+Message-ID: <m3n07s4hj3.fsf@reason.gnu-hamburg>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-YQnxIzVnR+/uGjLrbvQ3
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+ > Well my laptop uses the 855PM chipset and it does *not*
+ > work. Suspend works but the machine won't wake up (drives power up
+ > but the screen stays blank and the machine is not pingable.
 
-Hi,
+Thanks for pointing that out, it sounds a lot like the problem
+description of the 855GM machines.
 
-anything new about this patch?
+So according to the data posted on the net/in the lists, the status of
+kernel 2.6.x advanced power management (suspend/resume) on Centrino
+notebooks depending on the chipset currently looks like
 
-I'd like to see this problem solved too, also because of a samba, mad
-integration with the need of > 256 groups per user.
+ Intel 855GM:  no success story so far
 
-regards
-	Stefan
---=20
---------------------------------------------------------------------
-Stefan V=F6lkel                            stefan.voelkel@millenux.com
-Millenux GmbH                              mobile: +49.170.79177.17
-Lilienthalstra=DFe 2                          phone: +49.711.88770.300
-70825 Stuttgart-Korntal                       fax: +49.711.88770.349
-     -=3D linux without limits -=3D- http://linux.zSeries.org/ =3D-
+ Intel 855PM:  a few successes reported, definitely not true for all
 
---=-YQnxIzVnR+/uGjLrbvQ3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+ Intel 855GME: ??? (no data)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Regards,
+Georg
 
-iD8DBQBAJ3EftWF28C4HGsQRAnzVAKCs+J5NqMVY8sfNUAp31ZF+Fp2G+QCguh5b
-qGKezBbG6jeSpU+QibPg87w=
-=NvCb
------END PGP SIGNATURE-----
 
---=-YQnxIzVnR+/uGjLrbvQ3--
+P.S. I'm curious: I know some Intel employees are working on the Linux
+ACPI code, is this merely tolerated or officially during paid time?
+Are you given any preferences what to work on or are you entirely free
+in your prioritizing?
 
+-- 
+Georg C. F. Greve                                       <greve@gnu.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+Brave GNU World	                           (http://brave-gnu-world.org)

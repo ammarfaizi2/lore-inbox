@@ -1,73 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317977AbSGPUsU>; Tue, 16 Jul 2002 16:48:20 -0400
+	id <S317979AbSGPUvB>; Tue, 16 Jul 2002 16:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317979AbSGPUsT>; Tue, 16 Jul 2002 16:48:19 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:57665 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S317977AbSGPUsS>; Tue, 16 Jul 2002 16:48:18 -0400
-Date: Tue, 16 Jul 2002 22:51:13 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan s2466 stability
-Message-ID: <20020716205113.GC23954@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0207161020280.2603-100000@tyan.doghouse.com> <1026834468.2119.61.camel@irongate.swansea.linux.org.uk>
+	id <S317980AbSGPUvA>; Tue, 16 Jul 2002 16:51:00 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:46036 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317979AbSGPUu7>;
+	Tue, 16 Jul 2002 16:50:59 -0400
+Date: Tue, 16 Jul 2002 13:53:49 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: IrDA patches on the way...
+Message-ID: <20020716135349.A28412@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Izn7cH1Com+I3R9J"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1026834468.2119.61.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi Jeff,
 
---Izn7cH1Com+I3R9J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	I was fortunate enough to receive some very important driver
+updates that I had been waiting for a while, so I'm sending you the
+current content of my patch queue.
+	Also included is patch for bugs found by the Stanford checker
+and an update of MAINTAINERS to point to to proper mailing list. Also,
+now the non-modular init is 100% proper.
+	Patches tested on 2.5.25.
 
-On Tue, Jul 16, 2002 at 04:47:48PM +0100, Alan Cox wrote:
-> On Tue, 2002-07-16 at 15:26, maxwax@speakeasy.net wrote:
-> > > That one isn a unique report. MPX boards seem to have problems burning
-> > > CD-R's. I have no idea why
-> >=20
-> > I thought my SCSI problems were only showing up with my cd-rw drive bec=
-ause=20
-> > that's all I currently have online.
->=20
-> I've seen it with IDE burners too. I don't know what the cause is
+	Have fun...
 
-Strange SMI stuff, maybe?
-Bugs with PCI arbitration that are recovered from but take time?
+	Jean
 
-You've probably already looked into those, though.
+-----------------------------------------------------------
 
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations    <K.Garloff@TUE.NL>     [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
 
---Izn7cH1Com+I3R9J
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ir255_hashbin_fixes-2.diff :
+--------------------------
+	o [CRITICA] Remove correct IAS Attribute/Object even if name is dup'ed
+	o [CORRECT] Make irqueue 64 bit compliant (__u32 -> long)
+	o [FEATURE] Don't use random handle for IrLMP handle, use self
+		Remove dependancy on random generator in stack init
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+vlsi_ir-2.5.24-v0.4-patch :
+-------------------------
+	        <Following patch from Martin Diehl>
+        * merge+sync with changes from recent kernels: pci_[sg]et_drvdata,
+          __devexit_p, netdev->last_rx, irda header cleanup
+        * add netdev tx_timeout which re-initializes the whole thing
+        * add power management support consistent with pci driver api
+        * major rework of the ring descriptor operations
+        * make correct usage of consistent and streaming pci dma api
+        * nuke last virt_to_bus() and friends
+        * support MIR/FIR highspeed interaction pulse (SIP)
+        * review all paths for packet-size issues (rx and tx)
+        * fix an old issue requiring hw powercycle caused by a race
+          between IrLAP and hardware when switching _back_ to default
+          speed at LAP disconnect. This was opened by the complete async
+          behaviour of netdev->xmit but didn't happen before your latency
+          improvements went into the stack.
+        * add driver status readout under /proc/driver/vlsi_ir/irda%
+          For 2.5, this will probably go into driverfs once things have
+          stabilized.
+        * fix potential deadlock in speed changing code
+        * make identical driver working for both 2.4 and 2.5
+        * add __attribute__((packed)) to hardware-exposed struct
+        * add suggested pci_dma_prep_single() to flush cpu cache before
+          streaming dma buffer gets reused for busmastering
 
-iD8DBQE9NIdAxmLh6hyYd04RAu9BAJ0Vwnu/HRb/rEFlTyjJMVbZ/vu3XgCeKqZ0
-XqLCL82wrGVx6zVKr3pZP+k=
-=qD9e
------END PGP SIGNATURE-----
+ir255_donauboe.diff :
+-------------------
+	        <Following patch from Martin Lucina & Christian Gennerat>
+	o [FEATURE] Rewrite of the toshoboe driver using documentation
+	o [FEATURE] Support Donau oboe chipsets.
+	o [FEATURE] FIR support
+	o [CORRECT] Probe chip before opening
+	o [FEATURE] suspend/resume support
+	o [FEATURE] Numerous other improvements/cleanups
+		<Currently, we keep the old toshoboe driver around>
+	o [FEATURE] Config.help for ma600 driver (unrelated ;-)
 
---Izn7cH1Com+I3R9J--
+ir255_checker.diff-2 :
+--------------------
+	o [CORRECT] Fix two bugs found by the Stanford checker
+
+ir255_nsc_speed-4.diff :
+----------------------
+	o [FEATURE] Cleanly change speed back to 9600bps
+	o [CORRECT] Change speed under spinlock/irq disabled
+
+ir255_comments.diff :
+-------------------
+	o [FEATURE] Update MAINTAINERS file
+	o [FEATURE] Update OHCI comment in irda-usb

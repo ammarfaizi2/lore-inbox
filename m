@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314094AbSDQOmY>; Wed, 17 Apr 2002 10:42:24 -0400
+	id <S314097AbSDQOpr>; Wed, 17 Apr 2002 10:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314095AbSDQOmX>; Wed, 17 Apr 2002 10:42:23 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:31749 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S314094AbSDQOmW>; Wed, 17 Apr 2002 10:42:22 -0400
-Date: Wed, 17 Apr 2002 08:41:41 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <Pine.LNX.4.44.0204162244420.9280-100000@skuld.mtroyal.ab.ca>
-To: linux-kernel@vger.kernel.org
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Jeff Nguyen <jeff@aslab.com>,
-        Ingo Molnar <mingo@elte.hu>
-Message-id: <Pine.LNX.4.44.0204170808160.17511-100000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S314098AbSDQOpr>; Wed, 17 Apr 2002 10:45:47 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:61968 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314097AbSDQOpp>;
+	Wed, 17 Apr 2002 10:45:45 -0400
+Date: Wed, 17 Apr 2002 06:44:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB device support for 2.5.8 (take 2)
+Message-ID: <20020417134453.GE32370@kroah.com>
+In-Reply-To: <20020417035236.GC29897@kroah.com> <Pine.LNX.4.33.0204162203510.15675-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 20 Mar 2002 11:34:51 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok,
-After Ingo forwarded me his original patch (I found his patch via a web
-based medium, which had converted all of the left shifts to compares, and
-now I'm very glad it didn't boot...) and the system is booted and is
-balancing most of the interrupts at least.  Here's the current output
-of /proc/interrupts
+On Tue, Apr 16, 2002 at 10:08:48PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 16 Apr 2002, Greg KH wrote:
+> >
+> > It's code to be a USB client device, not a USB host device, which is
+> > what we currently have.  It is used in embedded devices that run Linux,
+> > like the new Sharp device (can't remember the name right now...)
+> 
+> Ahhh.. A dim light goes on.
+> 
+> It would have made more sense (I think) to call it "usb/client" instead of
+> "usb/device", but maybe that's just because I didn't understand what the
+> thing was all about.
 
-brynhild:bash$ cat /proc/interrupts 
-           CPU0       CPU1       
-  0:     171414          0    IO-APIC-edge  timer
-  1:          3          2    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 18:          8          7   IO-APIC-level  aic7xxx
- 19:      13566      12799   IO-APIC-level  eth0
- 20:          9          7   IO-APIC-level  aic7xxx
- 21:          9          7   IO-APIC-level  aic7xxx
- 27:       1572       5371   IO-APIC-level  megaraid
-NMI:          0          0 
-LOC:     171315     171251 
-ERR:          0
-MIS:          0
+We (the linux-usb-devel list) talked about different names for this
+stuff, and tried to follow the naming convention used in the USB spec.
+However 99% of kernel developers will never read that spec, and 100% of
+users never will, and the name "devices" failed to convey any good
+meaning to the first person that saw the tree outside of the USB
+developers, so changing the name to "client" makes a lot more sense :)
 
-So, the timer isn't being balanced still, others are (is there a
-specific case in your patch for irq 0 (< 1)?  I couldn't see it but
-it almost looks as though it's being missed..)
+thanks,
 
-Thanks to all that replied.
-
-Regards
-James 
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
-
+greg k-h

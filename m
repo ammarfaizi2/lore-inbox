@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265259AbSKFBG7>; Tue, 5 Nov 2002 20:06:59 -0500
+	id <S265277AbSKFBTw>; Tue, 5 Nov 2002 20:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265260AbSKFBG7>; Tue, 5 Nov 2002 20:06:59 -0500
-Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:6323 "EHLO
-	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S265259AbSKFBG6>; Tue, 5 Nov 2002 20:06:58 -0500
-Date: Tue, 5 Nov 2002 23:13:18 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Eff Norwood <enorwood@effrem.com>
-cc: linux-kernel@vger.kernel.org, Kevin Corry <corryk@us.ibm.com>,
-       <evms-devel@lists.sourceforge.net>,
-       <evms-announce@lists.sourceforge.net>
-Subject: RE: [Evms-devel] EVMS announcement
-In-Reply-To: <CFEAJJEGMGECBCJFLGDBMEDHCHAA.enorwood@effrem.com>
-Message-ID: <Pine.LNX.4.44L.0211052312370.3411-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265279AbSKFBTw>; Tue, 5 Nov 2002 20:19:52 -0500
+Received: from mail.wp-sa.pl ([212.77.102.105]:47568 "EHLO mail.wp-sa.pl")
+	by vger.kernel.org with ESMTP id <S265277AbSKFBTu>;
+	Tue, 5 Nov 2002 20:19:50 -0500
+Date: Wed, 06 Nov 2002 02:25:11 +0100
+From: Mariusz Zielinski <mzielinski@wp-sa.pl>
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+In-reply-to: <Pine.LNX.3.96.1021105193917.20035G-100000@gatekeeper.tmr.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200211060225.11574.mzielinski@wp-sa.pl>
+Organization: Wirtualna Polska S.A.
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5
+References: <Pine.LNX.3.96.1021105193917.20035G-100000@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, Eff Norwood wrote:
+On Wednesday 06 of November 2002 01:45, Bill Davidsen wrote:
+> On Sat, 2 Nov 2002, Patrick Finnegan wrote:
+> > > Lota of installations have gtk but don't have qt.
+> >
+> > And a lot of installations have QT but not GTK... This feels like a vi vs
+> > emacs discussion.
+>
+> Was this just to cover the possibilities or do you know of such? I guess
+> all system which build kernels have QT, it won't build without it :-( I
+> know that's going to be fixed RSN.
+>
+> > Personally, it makes no difference to me which library is used.  I'm
+> > doubtful I'll use anything other than menuconfig unless it makes my life
+> > a *whole* lot easier. I'd say 'choose one and get on with it.'
+>
+> That's not likely, but perhaps all the groups which have or want a GUI
+> could define a standard interface which could go in the kernel, and then
+> any GIU could interpret the metadata from that and display it any way they
+> want.
+>
+> Just a thought, I have no axe to grind, menuconfig is the only thing
+> reasonable to config remote machines. Any GUI over ssh over somewhat slow
+> open net connections is vastly unproductive.
 
-> A clean and reasonable design now has to be reworked and the results
-> will be reduced functionality and costs to the user. Costs in
-> installation, functionality, usability, and manageability.
+You have to forgive me this joke. - Let's hang the guy who introduced QT into 
+kernel and be friends again.
 
-So, you're volunteering to maintain the EVMS subsystem for 2.5 ?
-
-If not, I propose you let Kevin and the other EVMS developers
-make the decision.
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Mariusz Zielinski
 

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265158AbRFUTqO>; Thu, 21 Jun 2001 15:46:14 -0400
+	id <S265161AbRFUTrb>; Thu, 21 Jun 2001 15:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265163AbRFUTqC>; Thu, 21 Jun 2001 15:46:02 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:8466 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S265158AbRFUTpu>;
-	Thu, 21 Jun 2001 15:45:50 -0400
-Date: Thu, 21 Jun 2001 15:49:34 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Missing help entries in 2.4.6pre5
-Message-ID: <20010621154934.A6582@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S265162AbRFUTrL>; Thu, 21 Jun 2001 15:47:11 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:62855 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S265161AbRFUTrJ>; Thu, 21 Jun 2001 15:47:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: stimits@idcomm.com
+Subject: Idea: Patches-from-linus mailing list?  (Was Re: Alan Cox quote? (was: Re: accounting for threads))
+Date: Thu, 21 Jun 2001 10:46:06 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu> <0106201618550H.00776@localhost.localdomain> <3B31548A.5CD51796@idcomm.com>
+In-Reply-To: <3B31548A.5CD51796@idcomm.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01062110460607.00845@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following configuration symbols in 2.4.6pre5 do not have 
-Congfgure.help entries,:
+On Wednesday 20 June 2001 21:57, D. Stimits wrote:
 
-CONFIG_ACPI_AC
-CONFIG_ACPI_BUSMGR
-CONFIG_ACPI_BUTTON
-CONFIG_ACPI_CMBATT
-CONFIG_ACPI_CPU
-CONFIG_ACPI_DEBUG
-CONFIG_ACPI_EC
-CONFIG_ACPI_SYS
-CONFIG_ACPI_THERMAL
-CONFIG_MOMENCO_OCELOT
-CONFIG_MTD_CFI_VIRTUAL_ER
-CONFIG_XSCALE_IQ80310
+> MySQL is just a sample. I mention it because it is quite easy to link a
+> web server to. Imagine patch running on a large file that is a
+> conglomeration of 50 small patches; it could easily summarize this, and
+> storing it through MySQL adds a lot of increased web flexibility (such
+> as searching and sorting). It is, however, just one example of a way to
+> make "patch" become autodocumenting.
 
-Would the responsible parties please send me doocumentation for the 
-Configure.help masters?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Not so much patch as a wrapper around patch.  That's a good idea.  A small 
+perl script would do it...
 
-Before a standing army can rule, the people must be disarmed, as they
-are in almost every kingdom in Europe. The supreme power in America
-cannot enforce unjust laws by the sword, because the people are armed,
-and constitute a force superior to any band of regular troops.
-	-- Noah Webster
+Right now, Linus makes a big file by appending mail messages to it.  His 
+mailer is, in theory, putting mail headers at the start of each of these 
+messages (from, to, subject, and all that).  At the end of the day, he feeds 
+that big file to patch and it applies all the patches he's read through and 
+decided he likes.
+
+It should  be fairly easy to make a wrapper around patch that splits out a 
+single mail message, feeds it to patch, and on some measurement of "success" 
+forwards it to an otherwise read-only mailing list.  (Which can then have a 
+database based archiver subscribed to that list, if necessary.)
+
+If Linus used such a beast, we could get the actual mail messages Linus is 
+applying patches from, as they're applied.  Including any human readable 
+documentation in them that patch itself would discard.  No more asking "did 
+patch such and such get applied, when, who was it from"...
+
+And we get the extra patch granularity Linus himself is so keen on.  Instead 
+of waiting for our weekly pre2-pre3 100k patch, we could follow the 
+individual ones as logically grouped changes, with subject lines saying what 
+the patch is about and everything.
+
+And the people hankering to make a CVS tree out of LInux kernel development 
+would then have a much better checkin granularity to work with. :)
+
+The main thing, though, is that done right, it's no extra burden on Linus.  
+(Which is kind of important if we ever hope to get him to use it. :)
+
+Sound like an idea to anybody else?
+
+Rob

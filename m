@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbTL3Xre (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 18:47:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTL3Xre
+	id S264394AbTL3XwA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 18:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbTL3Xv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 18:47:34 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:2509 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264389AbTL3Xrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 18:47:33 -0500
-Date: Wed, 31 Dec 2003 00:46:43 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-Message-ID: <20031230234643.GB8412@k3.hellgate.ch>
-Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain> <Pine.LNX.4.58.0312291502210.1586@home.osdl.org> <Pine.LNX.4.58.0312300903170.2825@localhost.localdomain> <20031230143929.GN27687@holomorphy.com> <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+	Tue, 30 Dec 2003 18:51:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53435 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264394AbTL3Xv5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 18:51:57 -0500
+Message-ID: <3FF20F8A.20408@pobox.com>
+Date: Tue, 30 Dec 2003 18:51:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mickael Marchand <marchand@kde.org>
+CC: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] adaptec 1210sa
+References: <200312220305.29955.marchand@kde.org>
+In-Reply-To: <200312220305.29955.marchand@kde.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003 16:14:13 -0500, Thomas Molina wrote:
-> I also get 90+ percent iowait under 2.6 and 0 iowait in 2.4.  I'm not sure 
-> how the alleged suckiness of 2.6 paging fits into this.  On this system 
+Mickael Marchand wrote:
+> --- /usr/src/linux-2.6.0/drivers/scsi/sata_sil.c	2003-12-21 13:30:58.000000000 +0100
+> +++ linux-2.6.0/drivers/scsi/sata_sil.c	2003-12-22 02:46:32.000000000 +0100
+> @@ -276,6 +276,16 @@
+>  		goto err_out_regions;
+>  	}
+>  
+> +	//let's have fun
+> +	u8 v; 
+> +	pci_read_config_byte(pdev, 0x8a, &v);
+> +	int mask = 0x3f; //clear 6 and 7 bits
+> +	if (v & ~mask) {
+> +		printk("Reenabling interrupts because Adaptec's BIOS disables them\n" );
+> +		v &= mask;
+> +		pci_write_config_byte(pdev, 0x8a, v);
+> +	}
+> +
+>  	memset(probe_ent, 0, sizeof(*probe_ent));
+>  	INIT_LIST_HEAD(&probe_ent->node);
+>  	probe_ent->pdev = pdev;
 
-It is not alleged. It is real, but the badness is not universal. I was
-afraid I'd have to add another category, but fortunately it seems bk
-export matches qsbench: Major regressions neither between test2 and
-test3 nor between 2.4 and 2.6.
 
-I'm still interested to learn whether 2.5.39 is a major regression
-(fixed later) for bk export, although that might have been due to the
-qs specific reference patterns, I haven't looked into it. At least for
-qsbench the spike is confirmed though, even with different parameters.
+Actually, ignore that last question.  The SII docs indicate these bits 
+are present in the standard SII 3112 chip, so the driver should just 
+make sure to do this unconditionally.
 
-Roger
+Bart, the above applies to siimage.c as well.  The following are equal:
+* PCI config reg 0x8a (byte), bits 6/7
+* PCI config reg 0x88 (dword), bits 22/23
+* MMIO offset 0x48 (dword), bits 22/23
+
+The lower bit masks IDE0 interrupts, and the higher bit masks IDE1 
+interrupts.
+
+	Jeff
+
+
+

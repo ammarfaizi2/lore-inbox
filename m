@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267053AbUBEXbt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 18:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267070AbUBEXbt
+	id S267054AbUBEXQi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 18:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267053AbUBEXPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 18:31:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20125 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267053AbUBEXbr (ORCPT
+	Thu, 5 Feb 2004 18:15:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10895 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267031AbUBEXOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 18:31:47 -0500
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat" DIO read race still fails
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076023899.7182.97.camel@ibm-c.pdx.osdl.net>
+	Thu, 5 Feb 2004 18:14:44 -0500
+Date: Thu, 5 Feb 2004 15:15:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jbarnes@sgi.com (Jesse Barnes)
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [PATCH] memblks compile fixes
+Message-Id: <20040205151556.157c88cb.akpm@osdl.org>
+In-Reply-To: <20040205202503.GB6551@sgi.com>
+References: <20040205202503.GB6551@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Feb 2004 15:31:39 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+jbarnes@sgi.com (Jesse Barnes) wrote:
+>
+> Looks like Jes forgot missed some conversions in his NR_MEMBLKS removal
+> patch.  Here's are the fixes to get ia64 going again.
 
-I tested 2.6.2-mm1 on an 8-proc running 6 copies of the read_under
-test and all 6 read_under tests saw uninitialized data in less than 5
-minutes. :(
+It seems that Len has fixed one of these in the ACPI tree.
 
-Daniel
-
-
-
-On Thu, 2004-02-05 at 01:44, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
+Len, were you planning on a merge soon?   (You should...)
 
 > 
-> O_DIRECT-ll_rw_block-vs-block_write_full_page-fix.patch
->   Fix race between ll_rw_block() and block_write_full_page()
-> 
-
-
+> ===== arch/ia64/kernel/acpi.c 1.60 vs edited =====
+> --- 1.60/arch/ia64/kernel/acpi.c	Tue Feb  3 21:35:17 2004
+> +++ edited/arch/ia64/kernel/acpi.c	Thu Feb  5 11:46:50 2004
+> @@ -395,7 +395,7 @@
+>  	size = ma->length_hi;
+>  	size = (size << 32) | ma->length_lo;
+>  
+> -	if (num_memblks >= NR_MEMBLKS) {
+> +	if (num_node_memblks >= NR_NODE_MEMBLKS) {
+>  		printk(KERN_ERR "Too many mem chunks in SRAT. Ignoring %ld MBytes at %lx\n",
+>  		       size/(1024*1024), paddr);
+>  		return;
+> ===== arch/ia64/sn/kernel/setup.c 1.30 vs edited =====
+> --- 1.30/arch/ia64/sn/kernel/setup.c	Tue Feb  3 21:39:58 2004
+> +++ edited/arch/ia64/sn/kernel/setup.c	Thu Feb  5 11:46:31 2004
+> @@ -136,7 +136,7 @@
+>  	int nid;
+>  
+>  	nid = pxm_to_nid_map[pxm];
+> -	for (i = 0; i < num_memblks; i++) {
+> +	for (i = 0; i < num_node_memblks; i++) {
+>  		if (node_memblk[i].nid == nid) {
+>  			return NASID_GET(node_memblk[i].start_paddr);
+>  		}

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSLJPUm>; Tue, 10 Dec 2002 10:20:42 -0500
+	id <S261996AbSLJPTD>; Tue, 10 Dec 2002 10:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262312AbSLJPUm>; Tue, 10 Dec 2002 10:20:42 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:55264 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S262289AbSLJPUl>; Tue, 10 Dec 2002 10:20:41 -0500
-Date: Tue, 10 Dec 2002 16:28:20 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH 2.4.20-BK] usbnet typo
-Message-ID: <20021210162820.G18849@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S262130AbSLJPTD>; Tue, 10 Dec 2002 10:19:03 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:59855 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261996AbSLJPTD>; Tue, 10 Dec 2002 10:19:03 -0500
+Date: Tue, 10 Dec 2002 15:26:39 +0000
+From: Dave Jones <davej@suse.de>
+To: ganadist@chollian.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: agpgart kconfig patch for linux-2.5.51
+Message-ID: <20021210152639.GA32073@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, ganadist@chollian.net,
+	linux-kernel@vger.kernel.org
+References: <20021210115516.GA29831@nakyup.mizi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021210115516.GA29831@nakyup.mizi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a typo in the latest usbnet driver which disables
-the compile of iPAQ specific code. 
+On Tue, Dec 10, 2002 at 08:55:16PM +0900, Young-Ho Cha wrote:
+ > in agpgart 1.0 modules, each can be modules, but kconfig set "bool"
+ > 
+ > and many symbols are not exported.
+ > 
+ > this is patch against 2.5.51 vanilla
 
-With the attached patch, the new driver recognises the iPAQ
-and even works :*)
+Applied, Thanks.
 
-Stelian.
+        Dave
 
-===== drivers/usb/usbnet.c 1.17 vs edited =====
---- 1.17/drivers/usb/usbnet.c	Thu Dec  5 15:06:42 2002
-+++ edited/drivers/usb/usbnet.c	Tue Dec 10 16:06:24 2002
-@@ -160,7 +160,7 @@
- #define	CONFIG_USB_GENESYS
- #define	CONFIG_USB_NET1080
- #define	CONFIG_USB_PL2301
--#define	CONFIG_USB_SA1110
-+#define	CONFIG_USB_SA1100
- #define	CONFIG_USB_ZAURUS
- 
- 
--- 
-Stelian Pop <stelian@popies.net>

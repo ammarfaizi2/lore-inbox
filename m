@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318693AbSHAJnr>; Thu, 1 Aug 2002 05:43:47 -0400
+	id <S318687AbSHAJm7>; Thu, 1 Aug 2002 05:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318697AbSHAJnC>; Thu, 1 Aug 2002 05:43:02 -0400
-Received: from h249n1fls32o848.telia.com ([213.66.33.249]:44541 "EHLO
-	erland.stk.mvista.com") by vger.kernel.org with ESMTP
-	id <S318689AbSHAJmb>; Thu, 1 Aug 2002 05:42:31 -0400
-Message-Id: <200208010944.g719ioV04827@erland.stk.mvista.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Erland Hedman <erland.hedman@mvista.com>
-Reply-To: erland.hedman@mvista.com
-Organization: MontaVista Software (Nordic)
-To: linux-kernel@vger.kernel.org
-Subject: APM Console blanking not complete ?
-Date: Thu, 1 Aug 2002 11:44:50 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S318686AbSHAJlz>; Thu, 1 Aug 2002 05:41:55 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:14340 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318687AbSHAJjs>; Thu, 1 Aug 2002 05:39:48 -0400
+Message-ID: <3D4849E3.30604@evision.ag>
+Date: Wed, 31 Jul 2002 22:34:43 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: martin@dalecki.de, linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.29-ide109 small bio-based cleanup
+References: <200207302254.PAA00504@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam J. Richter wrote:
+> 	linux-2.5.29/drivers/ide/pcidma.c has a bunch of code in
+> udma_new_table to work around transfers that cross 64kB boundaries
+> and transfers that are exactly 64kB when the IDE chipset might only
+> be able to handle transfers of *less than* 64kB.  However, the current
+> bio code already has limits that you can set to tell it never to send
+> IO requests with those problems (blk_queue_segement_boundary and
+> blk_queue_max_segment_size).
+> 
+> 	The following patch makes the IDE code use the bio facilities
+> to set these limits, and deletes the code that was needed to work
+> around these cases.  This shrinks the code by a net of 29 lines,
+> and may allow for a tiny bit of space savings in the future,
+> now that we know that none of the scatterlist entries that
+> pci_map_sg returns will have to be split. 
+> 
+> 	I also got rid of an unnecessary variable and some
+> extra data clearing and copying in init_hw_data.
+> 
+> 	I am running this code now on the main that I'm using
+> to compose this email.
 
-Hi,
+Thanks! Great! Code immediately swallowed, since obviously correct :-).
+However I will drop the CONFIG_CHIPSET outdefs, since at some
+point in time we will make *every* host chip controller code
+loadable at runtime.
 
-With a 2.4.18 kernel running on a Dell Inspiron 8000 I have the BIOS APM 
-console blanking working properly for both the VT consoles as well as in X, 
-but only when the laptop's internal keyboard and mouse is used. After having 
-browsed the kernel source I guess that this blanking, turning off the power 
-to the laptop backlight, is handled by the APM features in the BIOS 
-independent of the Linux kernel.
 
-The problem is that when I use an external mice, in this case a wireless 
-track ball connected to an USB port some distance from the laptop, a touch of 
-that mice does not turn on the laptop backlight again as I first took for 
-granted. It works in windows 2k  ;-(
-
-By adding a timer routine to drivers/input/mousedev.c (inspired by console.c) 
-I managed to "fix" my particular problem by implicitly  call the 
-apm_console_blank()  (apm.c) via the console_blank_hook used by console.c and 
-do the display blanking  timimg independent of the BIOS settings.
-
-This is a fix however, and does not address the problem in a general way and 
-I guess that USB a keyboard and possible other external devices will face the 
-same problem. In addition it does not sync with any BIOS settings of the 
-blanking time, nor does this  fix reset the timer if the laptops mouse or 
-keyboard is touched.
-
-So my question here (if my observations are valid) is if there are interest 
-to address this issue and/or if there is any work in progress for future 
-releases.
-
-PS. The question is not related to DPMS, nor  to the VT console's blanking 
-controlled by setterm. DS.
-
-Please CC me at erland.hedman@telia.com
--- 
-
-Best Regards,
-Erland Hedman

@@ -1,92 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbUCHUet (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 15:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUCHUel
+	id S261191AbUCHUgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 15:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCHUgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 15:34:41 -0500
-Received: from cfcafw.sgi.com ([198.149.23.1]:8381 "EHLO omx1.americas.sgi.com")
-	by vger.kernel.org with ESMTP id S261199AbUCHUdq (ORCPT
+	Mon, 8 Mar 2004 15:36:04 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:59909 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261191AbUCHUfD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 15:33:46 -0500
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200403082032.i28KWvuw082582@fsgi900.americas.sgi.com>
-Subject: [2.6 PATCH] Altix - console driver calls console_initcall
-To: davidm@napali.hpl.hp.com
-Date: Mon, 8 Mar 2004 14:32:56 -0600 (CST)
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
+	Mon, 8 Mar 2004 15:35:03 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: cciss per device queue patch for 2.6.4
+Date: Mon, 8 Mar 2004 14:35:00 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC1EA6@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cciss per device queue patch for 2.6.4
+Thread-Index: AcQFRhW40EfNoweaQAqsa9XcJppw3AABrGEw
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <apkm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Mar 2004 20:35:01.0375 (UTC) FILETIME=[D47BC0F0:01C4054C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small mod to have the console driver call console_initcall() to
-register.
+Thanks, Jens. I'll fix it & resubmit.
+
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@suse.de]
+Sent: Monday, March 08, 2004 1:46 PM
+To: Miller, Mike (OS Dev)
+Cc: apkm@osdl.org; linux-kernel@vger.kernel.org
+Subject: Re: cciss per device queue patch for 2.6.4
 
 
+On Mon, Mar 08 2004, mikem@beardog.cca.cpqcorp.net wrote:
+>  	/*
+>  	 * See if we can queue up some more IO
+> +	 * check every disk that exists on this controller 
+> +	 * and start it's IO
+>  	 */
+> -	blk_start_queue(h->queue);
+> +	for(j=0;j < NWD; j++) {
+> +		/* make sure the disk has been added and the drive is real */
+> +		/* because this can be called from the middle of init_one */
+> +		if(!(h->gendisk[j]->queue) || !(h->drv[j].nr_blocks) )
+> +			continue;
+> +		blk_start_queue(h->gendisk[j]->queue);
+> +	}
+>  	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
+>  	return IRQ_HANDLED;
 
+You can't do this, you must hold the specific queue lock for calling
+blk_start_queue() for it. The comment for that functions states that,
+too. It's even more important now that blk_start_queue() actually works
+properly (included).
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1692  -> 1.1693 
-#	drivers/char/sn_serial.c	1.5     -> 1.6    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/03/08	pfg@sgi.com	1.1693
-# drivers/char/sn_serial.c
-#     Make console_initcall() for proper registration.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/sn_serial.c b/drivers/char/sn_serial.c
---- a/drivers/char/sn_serial.c	Mon Mar  8 14:28:53 2004
-+++ b/drivers/char/sn_serial.c	Mon Mar  8 14:28:53 2004
-@@ -82,7 +82,6 @@
- static unsigned long sn_interrupt_timeout;
- 
- extern u64 master_node_bedrock_address;
--
- static int sn_debug_printf(const char *fmt, ...);
- 
- #undef DEBUG
-@@ -105,7 +104,7 @@
- static struct sn_sal_ops *sn_func;
- 
- /* Prototypes */
--static void __init sn_sal_serial_console_init(void);
-+int __init sn_sal_serial_console_init(void);
- static int snt_hw_puts(const char *, int);
- static int snt_poll_getc(void);
- static int snt_poll_input_pending(void);
-@@ -921,9 +920,6 @@
- 		printk(KERN_ERR "sn_serial: Unable to register tty driver\n");
- 		return retval;
- 	}
--#ifdef CONFIG_SGI_L1_SERIAL_CONSOLE
--	sn_sal_serial_console_init();
--#endif	/* CONFIG_SGI_L1_SERIAL_CONSOLE */
- 	return 0;
- }
- 
-@@ -993,7 +989,7 @@
- 	.index = -1
- };
- 
--static void __init
-+int __init
- sn_sal_serial_console_init(void)
+===== drivers/block/ll_rw_blk.c 1.228 vs edited =====
+--- 1.228/drivers/block/ll_rw_blk.c	Sun Feb  1 19:09:12 2004
++++ edited/drivers/block/ll_rw_blk.c	Mon Mar  8 20:41:21 2004
+@@ -1188,13 +1193,23 @@
+  * Description:
+  *   blk_start_queue() will clear the stop flag on the queue, and call
+  *   the request_fn for the queue if it was in a stopped state when
+- *   entered. Also see blk_stop_queue(). Must not be called from driver
+- *   request function due to recursion issues. Queue lock must be held.
++ *   entered. Also see blk_stop_queue(). Queue lock must be held.
+  **/
+ void blk_start_queue(request_queue_t *q)
  {
- 	if (ia64_platform_is("sn2")) {
-@@ -1001,6 +997,8 @@
- 		sn_debug_printf("sn_sal_serial_console_init : register console\n");
- 		register_console(&sal_console);
- 	}
-+	return 0;
+ 	clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+-	schedule_work(&q->unplug_work);
++
++	/*
++	 * one level of recursion is ok and is much faster than kicking
++	 * the unplug handling
++	 */
++	if (!test_and_set_bit(QUEUE_FLAG_REENTER, &q->queue_flags)) {
++		q->request_fn(q);
++		clear_bit(QUEUE_FLAG_REENTER, &q->queue_flags);
++	} else {
++		blk_plug_device(q);
++		schedule_work(&q->unplug_work);
++	}
  }
-+console_initcall(sn_sal_serial_console_init);
  
- #endif /* CONFIG_SGI_L1_SERIAL_CONSOLE */
+ EXPORT_SYMBOL(blk_start_queue);
+
+
+-- 
+Jens Axboe
+

@@ -1,109 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbQL2Prj>; Fri, 29 Dec 2000 10:47:39 -0500
+	id <S129465AbQL2QHh>; Fri, 29 Dec 2000 11:07:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQL2Pr3>; Fri, 29 Dec 2000 10:47:29 -0500
-Received: from ip-205-254-202-114.netwrx1.com ([205.254.202.114]:16910 "EHLO
-	eagle.netwrx1.com") by vger.kernel.org with ESMTP
-	id <S129228AbQL2PrK>; Fri, 29 Dec 2000 10:47:10 -0500
-From: "George R. Kasica" <georgek@netwrx1.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: SCSI Problems since upgrade from 2.2.16
-Date: Fri, 29 Dec 2000 09:16:38 -0600
-Organization: Netwrx Consulting Inc.
-Reply-To: georgek@netwrx1.com
-Message-ID: <p3ap4ts0e58mr95csmeo8sgr0gc0p63n7t@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+	id <S130092AbQL2QH1>; Fri, 29 Dec 2000 11:07:27 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31552 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129465AbQL2QHO>; Fri, 29 Dec 2000 11:07:14 -0500
+Date: Fri, 29 Dec 2000 16:36:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jure Pecar <pegasus@telemach.net>
+Cc: linux-kernel@vger.kernel.org, jef@acme.com
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
+Message-ID: <20001229163645.B12791@athlon.random>
+In-Reply-To: <3A4BE9B0.5C809AAC@telemach.net> <20001229032953.A9810@athlon.random> <3A4C4E16.52AAAFE1@telemach.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A4C4E16.52AAAFE1@telemach.net>; from pegasus@telemach.net on Fri, Dec 29, 2000 at 09:40:54AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Fri, Dec 29, 2000 at 09:40:54AM +0100, Jure Pecar wrote:
+> problem on a similary configured 2.2.17 with VM-global patch 3. gcc
 
-I'm running an HP DAT 4mm Autochanger here and since going to 2.2.17
-and 2.2.18 I'm seeing failures when it attempts to unload the tape and
-load a new one while backing up using BRU PE...utilizing the mt or mtx
-commands as follows:
+Good. Can you try to reproduce with 2.2.19pre3? (if you absolutely need raid
+0.90 you can try again with 2.2.19pre3aa3 after backing out 04_wake-one-3 that
+introduces a deadlocks spotted by Chris and that I'm debugging right now)
 
-mt -f $DEV rewoffl 2>&1 >/dev/null
+> select(7, [5], [6], NULL, {98, 547000}) = 1 (in [5], left {98, 210000})
 
-OR 
+	num_ready = fdwatch( tmr_mstimeout( &tv ) );
+	if ( num_ready < 0 )
+	    {
+	    if ( errno == EINTR )
+		continue;       /* try again */
+	    syslog( LOG_ERR, "fdwatch - %m" );
+	    exit( 1 );
+	    }
 
-/usr/local/bin/mtx -f /dev/sg1 eject 2>&1 >/dev/null
+> gettimeofday({978078109, 324744}, NULL) = 0
 
+	(void) gettimeofday( &tv, (struct timezone*) 0 );
 
-If I use the MTX command set to "manually" change the tapes all is
-well....any thoughts on the cause or a fix...I don't think the
-hardware is broken due to the fact it runs fine "manually" by doing
-the mtx -f /dev/sg1 next commnand to load the next tape
+> accept(5, {sin_family=AF_INET, sin_port=htons(3687),
+> sin_addr=inet_addr("62.76.36.242")}, [16]) = 7
 
-Pertinent info below:
+httpd_get_conn( httpd_server* hs, int listen_fd, httpd_conn* hc )
+[..]
+    hc->conn_fd = accept( listen_fd, &sa.sa, &sz );
 
-Information about installed SCSI devices 
+> fcntl(7, F_SETFD, FD_CLOEXEC)           = 0
 
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: SEAGATE  Model: ST32550N         Rev: 0021
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: HP       Model: C1553A           Rev: NS01
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 01
-  Vendor: HP       Model: C1553A           Rev: NS01
-  Type:   Medium Changer                   ANSI SCSI revision: 02
+    (void) fcntl( hc->conn_fd, F_SETFD, 1 );
 
-Bus  0, device   9, function  0:
-    SCSI storage controller: Adaptec AIC-7850 (rev 1).
-      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master
-Capable.  Latency=32.  Min Gnt=4.Max Lat=4.
-      I/O at 0xd000 [0xd001].
-      Non-prefetchable 32 bit memory at 0xdf000000 [0xdf000000].
-  
-SCSI support 
+> fcntl(7, F_GETFL)                       = 0x2 (flags O_RDWR)
 
-CONFIG_SCSI = 1
-CONFIG_BLK_DEV_SD = 1
-CONFIG_CHR_DEV_ST = 1
-CONFIG_BLK_DEV_SR = 1
-CONFIG_CHR_DEV_SG = 1
-CONFIG_SCSI_MULTI_LUN = 1
-CONFIG_SCSI_CONSTANTS = 1
-CONFIG_SCSI_LOGGING = 1
+	flags = fcntl( c->hc->conn_fd, F_GETFL, 0 );
 
+> fcntl(7, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
 
-SCSI low-level drivers 
+	else if ( fcntl( c->hc->conn_fd, F_SETFL, flags | O_NDELAY ) < 0 )
 
-CONFIG_SCSI_AIC7XXX = 1
-CONFIG_AIC7XXX_CMDS_PER_DEVICE = (8)
-CONFIG_AIC7XXX_RESET_DELAY = (5)
+> brk(0x8078000)                          = 0x8077000
+> brk(0x8078000)                          = 0x8077000
 
+for some unknown reason it doesn't notice it has to handle the new connection.
 
-> Len: 20480
-> 
-> Dec 23 01:24:37 eagle kernel: [valid=0] Info fld=0x0, EOM Current
-> st09:00: sense key None
-> Dec 23 01:24:37 eagle kernel: Additional sense indicates
-> End-of-partition/medium detected
-> Dec 23 01:24:37 eagle kernel: st0: Async write error (write) 7fffffff.
-> Dec 23 01:24:40 eagle kernel: st0: File length 641863680 bytes.
-> Dec 23 01:24:40 eagle kernel: st0: Async write waits 30037, finished
-> 1304.
-> Dec 23 01:24:42 eagle kernel: st0: Error: 28000002, cmd: 10 0 0 0 1 0
-> Len: 0
-> Dec 23 01:24:42 eagle kernel: [valid=0] Info fld=0x0, FMK EOM Current
-> st09:00: sense key None
-> Dec 23 01:24:42 eagle kernel: Additional sense indicates
-> End-of-partition/medium detected
-> Dec 23 01:24:42 eagle kernel: st0: Buffer flushed, 1 EOF(s) written
+> time([978078109])                       = 978078109
+> getpid()                                = 22061
+> send(3, "<27>Dec 29 09:21:49 thttpd[22061"..., 69, 0) = 69
 
-===[George R. Kasica]===        +1 262 513 8503
-President                       +1 206 374 6482 FAX 
-Netwrx Consulting Inc.          Waukesha, WI USA 
-http://www.netwrx1.com
-georgek@netwrx1.com
-ICQ #12862186
+    shut_down();
+    syslog( LOG_NOTICE, "exiting" );
+
+> munmap(0x125000, 4096)                  = 0
+> _exit(1)                                = ?
+
+However according to the latest sources (2.20b) shut_down() should at least
+call gettimeofday at once and that's not the case for you:
+
+shut_down( void )
+    {
+    int cnum;
+    struct timeval tv;
+
+#ifdef STATS_TIME
+    show_stats( JunkClientData, (struct timeval*) 0 );
+#endif /* STATS_TIME */
+    (void) gettimeofday( &tv, (struct timezone*) 0 );
+
+So you aren't using thttpd version 2.20b (or it's not the vanilla source).
+
+Well, this would look like an userspace bug, but I understand it's strange that
+it works well for three days.... Can you try to upgrade thttpd to the latest
+version compiled from vanilla sources?
+
+But regardless of the userspace upgrade, I still recommend to upgrade to
+2.2.19pre3 or 2.2.19pre3aa3 minus 04_wake-one-3 (once I'll fix wake-one-3 I'll
+release -4 revision and pre3aa4).
+
+Thanks,
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

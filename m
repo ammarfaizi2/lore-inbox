@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbUCLNzs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 08:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUCLNzs
+	id S262117AbUCLN7B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 08:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLN7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 08:55:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:492 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262122AbUCLNz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 08:55:28 -0500
-Date: Fri, 12 Mar 2004 13:55:30 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: William Lee Irwin III <wli@holomorphy.com>, Rik van Riel <riel@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: anon_vma RFC2
-In-Reply-To: <20040312132436.GT30940@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403121348070.4925-100000@localhost.localdomain>
+	Fri, 12 Mar 2004 08:59:01 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:61941 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262117AbUCLN65
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 08:58:57 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: UID/GID mapping system
+Date: Fri, 12 Mar 2004 07:58:33 -0600
+X-Mailer: KMail [version 1.2]
+Cc: "Andreas Dilger <=?CP 1252?q?adilger=40clusterfs=2Ecom?=> =?CP
+	1252?q?=2CS=F8ren=20Hansen?=" <sh@warma.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1078775149.23059.25.camel@luke> <04031108083100.05054@tabby> <20040311160245.GB18466@fieldses.org>
+In-Reply-To: <20040311160245.GB18466@fieldses.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Message-Id: <04031207583301.07660@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004, Andrea Arcangeli wrote:
-> On Fri, Mar 12, 2004 at 04:46:38AM -0800, William Lee Irwin III wrote:
-> > 
-> > The case where mremap() creates rmap_chains is so rare I never ever saw
-> > it happen in 6 months of regular practical use and testing. Their
-> > creation could be triggered only by remap_file_pages().
-> 
-> did you try specweb with apache? that's super heavy mremap as far as I
-> know (and it maybe using anon memory, and if not I certainly cannot
-> exclude other apps are using mremap on significant amounts of anymous
-> ram).
+On Thursday 11 March 2004 10:02, J. Bruce Fields wrote:
+> On Thu, Mar 11, 2004 at 08:08:31AM -0600, Jesse Pollard wrote:
+> > On Wednesday 10 March 2004 17:46, Andreas Dilger wrote:
+> > > If the client is trusted to mount NFS, then it is also trusted enough
+> > > not to use the wrong UID.  There is no "more" or "less" safe in this
+> > > regard.
+> >
+> > It is only trusted to not misuse the uids that are mapped for that
+> > client. If the client DOES misuse the uids, then only those mapped uids
+> > will be affected. UIDS that are not mapped for that host will be
+> > protected.
+> >
+> > It is to ISOLATE the penetration to the host that this is done. The
+> > server will not and should not extend trust to any uid not authorized to
+> > that host. This is what the UID/GID maps on the server provide.
+>
+> You're making an argument that uid mapping on the server could be used
+> to provide additional security; I agree.
+>
+> I don't believe you can argue, however, that providing uid mapping on
+> the client would *decrease* security, unless you believe that mapping
+> uid's on the client precludes also mapping uid's on the server.
 
-anonmm has no problem with most mremaps: the special case is for
-mremap MAYMOVE of anon vmas _inherited from parent_ (same page at
-different addresses in the different mms).  As I said before, it's
-quite conceivable that this case never arises outside our testing
-(but I'd be glad to be shown wrong, would make effort worthwhile).
+Not really - it would be a 1:1 map... so what would be the purpose?
 
-Hugh
+The problem is in the audit - the server would report a violation in
+uid xxx. Which according to it's records is not used on the penetrated client
+(at least not via the filesystem). Yet the administrator would report that the
+uid is valid (because of a bogus local map).
 
+Double mapping also doubles the audit complications :-)

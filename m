@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbTGKVvW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 17:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbTGKVvN
+	id S266930AbTGKV6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 17:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266925AbTGKV6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 17:51:13 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60344
+	Fri, 11 Jul 2003 17:58:23 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62392
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266899AbTGKVt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 17:49:29 -0400
-Subject: Re: 2.5 'what to expect'
+	id S266930AbTGKV6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 17:58:21 -0400
+Subject: Re: SECURITY - data leakage due to incorrect strncpy implementation
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030711193316.GA28806@gtf.org>
-References: <20030711140219.GB16433@suse.de>
-	 <20030711181453.GA976@matchmail.com>  <20030711193316.GA28806@gtf.org>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <1057959932.20637.51.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0307112100240.843-100000@artax.karlin.mff.cuni.cz>
+	 <1057959932.20637.51.camel@dhcp22.swansea.linux.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1057960893.20637.60.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1057961423.20637.68.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 23:01:34 +0100
+Date: 11 Jul 2003 23:10:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 20:33, Jeff Garzik wrote:
-> IIRC Alan's comment was "this fixes 99% of it"
+Ok an update:
 
-I fixed the 2.4 one, but the 2.4 fix relies on old style scsi error
-handling which has (thankfully on the whole) gone away in 2.5
+2.4 you have a problem if your port uses the lib/string.c
+implementation. x86 does not and is ok (very nifty implementation of the
+zeroing too)
 
+That appears to be: 
+
+Not vulnerable: x86 
+Buggy generic: ARM, CRIS, IA-64, PA-RISC, S/390, SH64, SPARC, SPARC64,
+X86-64
+Buggy asm: m68k, mips (?), sh, 
+Unknown: alpha, ppc
+
+2.5 you have problems all over the place from wrong strlcpy conversions,
+but those are easy enough to clean up before 2.6.0

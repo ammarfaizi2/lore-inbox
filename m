@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280769AbRKKBpu>; Sat, 10 Nov 2001 20:45:50 -0500
+	id <S280771AbRKKBvL>; Sat, 10 Nov 2001 20:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280775AbRKKBpk>; Sat, 10 Nov 2001 20:45:40 -0500
-Received: from oss.sgi.com ([216.32.174.27]:60079 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S280769AbRKKBpW>;
-	Sat, 10 Nov 2001 20:45:22 -0500
-Date: Sun, 11 Nov 2001 08:55:26 +1100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: __builtin_* functions
-Message-ID: <20011111085526.A13304@dea.linux-mips.net>
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4CA@axcs13.cos.agilent.com>
+	id <S280773AbRKKBuw>; Sat, 10 Nov 2001 20:50:52 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:55825 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id <S280771AbRKKBup>; Sat, 10 Nov 2001 20:50:45 -0500
+Date: Sun, 11 Nov 2001 01:48:02 +0000
+From: John Levon <moz@compsoc.man.ac.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: bcrl@redhat.com
+Subject: Re: [RFT] final cur of tr based current for -ac8
+Message-ID: <20011111014802.A1984@compsoc.man.ac.uk>
+In-Reply-To: <20011110141440.C17437@redhat.com> <20011110203348.A98674@compsoc.man.ac.uk> <20011110173331.F17437@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4CA@axcs13.cos.agilent.com>; from hiren_mehta@agilent.com on Thu, Nov 08, 2001 at 11:19:40AM -0700
-X-Accept-Language: de,en,fr
+In-Reply-To: <20011110173331.F17437@redhat.com>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 11:19:40AM -0700, MEHTA,HIREN (A-SanJose,ex1) wrote:
+On Sat, Nov 10, 2001 at 05:33:31PM -0500, Benjamin LaHaise wrote:
 
-> Can these __builtin_* functions provided by gcc be used inside kernel ?
-> In particular __builtin_alloca ?
+> Thanks...  I seem to have blotched the SMP side of things (again) which this 
+> might fix (including the symbol export from you).  Also, Michael Barabanov 
+> came up with a patch using the same trick, although I haven't seen it.
 
-In theory they're usable, in practice you should consider that alloca will
-allocate memory on the stack which is of very limited size under Linux so
-alloca doesn't usually seem to be a good idea.
+You forgot -N option of diff :
 
-  Ralf
+Only in v2.4.13-ac8+tr.4/include/linux: per_cpu.h
+
+Testing on my SMP box would be a bit awkward (not set up ppp/serial, so would have
+to transfer patches from 2.4.5 by floppy ;) but if you need an SMP test done,
+just shout.
+
+On the UP box, the previous patch has now survived several hours under very heavy
+NMI load, so I assume it's good.
+
+thanks
+john
+
+-- 
+"I know I believe in nothing but it is my nothing"
+	- Manic Street Preachers

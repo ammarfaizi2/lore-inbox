@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270844AbUJUVVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270989AbUJUVcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270844AbUJUVVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270973AbUJUVQI
+	id S270989AbUJUVcz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270972AbUJUVVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:16:08 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:34251 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S270840AbUJUVNO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:13:14 -0400
-Date: Thu, 21 Oct 2004 17:12:44 -0400
-To: john cooper <john.cooper@timesys.com>
-Cc: Scott Wood <scott@timesys.com>, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Jens Axboe <axboe@suse.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021211244.GA28290@yoda.timesys>
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com> <20041021173302.GA26318@yoda.timesys> <4177FB4F.9030202@timesys.com> <20041021184742.GB26530@yoda.timesys> <41781984.5090602@timesys.com>
+	Thu, 21 Oct 2004 17:21:48 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:5528 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S270928AbUJUVRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 17:17:44 -0400
+Date: Thu, 21 Oct 2004 16:17:18 -0500
+From: mike.miller@hp.com
+To: marcelo.tosatti@cyclades.com, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [patch 1/2] cciss: cleans up warnings in the 32/64 bit conversions
+Message-ID: <20041021211718.GA10462@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41781984.5090602@timesys.com>
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@timesys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 04:18:12PM -0400, john cooper wrote:
-> Scott Wood wrote:
-> >How would maintaining priority order make it faster to check for
-> >recursive usage?  
-> >
-> It wouldn't. My point was an exhaustive traversal may be
-> needed for other reasons with an insertion sort being
-> near free.
-> 
-> Yet considering the cost to maintain these lists in priority
-> order with multiple spinlock acquisition sequences due to how
-> the aggregate data structure must be traversed/ordered,
-> I haven't yet convinced myself either way.
+Patch 1 of 2 for 20041021.
+This patch cleans up some warnings in the 32-bit to 64-bit conversions.
+Please consider this for inclusion. Built against 2.4.28-pre4.
+Please apply in order.
 
-Another issue is that if you keep them in order, you have to fix the
-list whenever an owner of a listed mutex changes its priority.
+ cciss.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-> >On uniprocessor, one may wish to turn rwlocks into recursive non-rw
-> >mutexes, where recursion checking would use a single owner field.
-> >
-> It isn't obvious to me how this would address the case of a
-> task holding a reader lock on mx-A then blocking on mx-B.
-> Another task attempting to acquire a reader lock on mx-A would
-> block rather than immediately acquiring the lock.
-
-Yes.  However, the contention case should not be optimized at the
-expense of the common case, which can be faster for non-rwlock
-implementations when PI is involved.  On SMP, you'd be introducing a
-bottleneck by taking away rwlocks, but on UP it's only an issue when
-you get preempted or block in a critical section.
-
-There could be problems if some code tries to acquire read locks
-out-of-order, believing that it can't deadlock that way (if the
-writers don't nest), but that's a problem anyway unless there's a
-reasonable way of implementing PI without limiting the number of
-concurrent readers (they have to be stored somewhere, and the
-alternatives of setting a hard limit on mutexes-per-thread or doing
-dynamic allocation inside the lock function are worse).
-
--Scott
+Signed off by Mike Miller.
+-------------------------------------------------------------------------------
+diff -burNp lx2428-pre4.orig/drivers/block/cciss.c lx2428-pre4/drivers/block/cciss.c
+--- lx2428-pre4.orig/drivers/block/cciss.c	2004-10-21 09:14:27.388939808 -0500
++++ lx2428-pre4/drivers/block/cciss.c	2004-10-21 09:27:05.810642184 -0500
+@@ -532,10 +532,9 @@ register_ioctl32_conversion(unsigned int
+ extern int unregister_ioctl32_conversion(unsigned int cmd);
+ 
+ static int cciss_ioctl32_passthru(unsigned int fd, unsigned cmd, unsigned long arg, struct file *file);
+-static int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
+-	struct file *file);
++static int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, struct file *file);
+ 
+-typedef long (*handler_type) (unsigned int, unsigned int, unsigned long,
++typedef int (*handler_type) (unsigned int, unsigned int, unsigned long,
+ 				struct file *);
+ 
+ static struct ioctl32_map {
+@@ -611,7 +610,7 @@ int cciss_ioctl32_passthru(unsigned int 
+ 	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
+ 	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+ 	err |= get_user(arg64.buf_size, &arg32->buf_size);
+-	err |= get_user(arg64.buf, &arg32->buf);
++	err |= get_user((__u64) arg64.buf, &arg32->buf);
+ 	if (err) 
+ 		return -EFAULT; 
+ 
+@@ -641,7 +640,7 @@ int cciss_ioctl32_big_passthru(unsigned 
+ 	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+ 	err |= get_user(arg64.buf_size, &arg32->buf_size);
+ 	err |= get_user(arg64.malloc_size, &arg32->malloc_size);
+-	err |= get_user(arg64.buf, &arg32->buf);
++	err |= get_user((__u64) arg64.buf, &arg32->buf);
+ 	if (err) return -EFAULT; 
+ 	old_fs = get_fs();
+ 	set_fs(KERNEL_DS);

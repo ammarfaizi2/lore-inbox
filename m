@@ -1,53 +1,290 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbTCVLeL>; Sat, 22 Mar 2003 06:34:11 -0500
+	id <S262148AbTCVLey>; Sat, 22 Mar 2003 06:34:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262148AbTCVLeL>; Sat, 22 Mar 2003 06:34:11 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:56000 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S262128AbTCVLeK>;
-	Sat, 22 Mar 2003 06:34:10 -0500
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303221145.h2MBjAW09391@csl.stanford.edu>
-Subject: [CHECKER] races in 2.5.65/mm/swapfile.c?
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Date: Sat, 22 Mar 2003 03:45:10 -0800 (PST)
-Cc: engler@csl.stanford.edu (Dawson Engler)
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S262149AbTCVLex>; Sat, 22 Mar 2003 06:34:53 -0500
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:6409 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP
+	id <S262148AbTCVLei>; Sat, 22 Mar 2003 06:34:38 -0500
+Message-ID: <3E7C4D05.2030500@torque.net>
+Date: Sat, 22 Mar 2003 21:46:13 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@digeo.com>
+CC: pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
+References: <200303211056.04060.pbadari@us.ibm.com>	<3E7C4251.4010406@torque.net> <20030322030419.1451f00b.akpm@digeo.com>
+Content-Type: multipart/mixed;
+ boundary="------------040007010508060006090003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+This is a multi-part message in MIME format.
+--------------040007010508060006090003
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 
-mm/swapfile.c seems to have three potential races.
+Andrew Morton wrote:
+> Douglas Gilbert <dougg@torque.net> wrote:
+> 
+>>>Slab:           464364 kB
+>>
+> 
+> It's all in slab.
+> 
+> 
+>>I did notice a rather large growth of nodes
+>>in sysfs. For 84 added scsi_debug pseudo disks the number
+>>of sysfs nodes went from 686 to 3347.
+>>
+>>Does anybody know what is the per node memory cost of sysfs?
+> 
+> 
+> Let's see all of /pro/slabinfo please.
 
-The first two are in 
-        linux-2.5.62/mm/swap_state.c:87:add_to_swap_cache
+Andrew,
+Attachments are /proc/slabinfo pre and post:
+  $ modprobe scsi_debug add_host=42 num_devs=2
+which adds 84 pseudo disks.
 
-which seems reachable without a lock from the callchain:
-
-        mm/swapfile.c:sys_swapoff:998->
-              sys_swapoff:1026->
-                try_to_unuse:591->
-                        mm/swap_state.c:read_swap_cache_async:377->
-                            add_to_swap_cache
-
-add_to_swap_cache increments two global variables without a lock:
-        INC_CACHE_INFO(add_total);
-and
-        INC_CACHE_INFO(exist_race);
+Doug Gilbert
 
 
-The final one is in
-        linux-2.5.62/mm/swapfile.c:213:swap_entry_free
-which seems to increment
-        nr_swap_pages++;
-without a lock.
+--------------040007010508060006090003
+Content-Type: text/plain;
+ name="slabinfo_pre.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="slabinfo_pre.txt"
 
-Are these real races?  Or are these just stats variables?  (Or is
-there some implicit locking that protects these?)
+slabinfo - version: 1.2 (statistics)
+hpsb_packet            0      0    132    0    0    1 :   32   16 :     16      16     1    1    0    0   61 :     46      1     47      0
+rpc_buffers            8      8   2048    4    4    1 :   32   16 :      8       8     4    0    0    0   34 :      4      4      0      0
+rpc_tasks              8     19    204    1    1    1 :   32   16 :     16      16     1    0    0    0   51 :      7      1      0      0
+rpc_inode_cache        0      0    480    0    0    1 :   32   16 :      0       0     0    0    0    0   40 :      0      0      0      0
+unix_sock             10     21    576    3    3    1 :   32   16 :     21      32     3    0    0    0   39 :    593      4    587      0
+tcp_tw_bucket          0      0    100    0    0    1 :   32   16 :      0       0     0    0    0    0   71 :      0      0      0      0
+tcp_bind_bucket        7    125     28    1    1    1 :   32   16 :     16      16     1    0    0    0  157 :      6      1      0      0
+tcp_open_request       0      0     68    0    0    1 :   32   16 :      0       0     0    0    0    0   88 :      0      0      0      0
+inet_peer_cache        0      0     52    0    0    1 :   32   16 :      0       0     0    0    0    0  104 :      0      0      0      0
+secpath_cache          0      0     32    0    0    1 :   32   16 :      0       0     0    0    0    0  144 :      0      0      0      0
+flow_cache             0      0     60    0    0    1 :   32   16 :      0       0     0    0    0    0   94 :      0      0      0      0
+xfrm4_dst_cache        0      0    220    0    0    1 :   32   16 :      0       0     0    0    0    0   50 :      0      0      0      0
+ip_fib_hash           10    125     28    1    1    1 :   32   16 :     16      16     1    0    0    0  157 :     10      1      1      0
+ip_dst_cache           4     19    208    1    1    1 :   32   16 :     19      48     1    0    0    0   51 :      3      3      2      0
+arp_cache              2     21    188    1    1    1 :   32   16 :     17      32     1    0    0    0   53 :      0      2      0      0
+raw4_sock              0      0    576    0    0    1 :   32   16 :      7      14     2    2    0    0   39 :      4      2      6      0
+udp_sock               7      7    576    1    1    1 :   32   16 :     14      17     2    1    0    0   39 :     37      3     33      0
+tcp_sock              16     21   1088    3    3    2 :   32   16 :     21      30     3    0    0    0   39 :     49      6     39      0
+scsi_cmd_cache         4     11    356    1    1    1 :   32   16 :     22     141     4    3    0    0   43 :   3155     14   3167      0
+nfs_write_data        36     40    452    5    5    1 :   32   16 :     40      40     5    0    0    0   40 :     31      5      0      0
+nfs_read_data         32     36    436    4    4    1 :   32   16 :     36      36     4    0    0    0   41 :     28      4      0      0
+nfs_inode_cache        0      0    704    0    0    2 :   32   16 :      0       0     0    0    0    0   43 :      0      0      0      0
+nfs_page               0      0    108    0    0    1 :   32   16 :      0       0     0    0    0    0   68 :      0      0      0      0
+isofs_inode_cache      0      0    440    0    0    1 :   32   16 :      0       0     0    0    0    0   41 :      0      0      0      0
+ext2_inode_cache       4      7    576    1    1    1 :   32   16 :      7       7     1    0    0    0   39 :      3      1      0      0
+journal_head          26     62     60    1    1    1 :   32   16 :    420    1092     9    2    0    1   94 :   3741     71   3746     55
+revoke_table           1    144     24    1    1    1 :   32   16 :     16      16     1    0    0    0  176 :      0      1      0      0
+revoke_record          0      0     28    0    0    1 :   32   16 :     16      32     2    2    0    0  157 :      3      2      5      0
+ext3_inode_cache    2268   2268    576  324  324    1 :   32   16 :   2268    2279   324    0    0    0   39 :   1967    329     28      0
+ext3_xattr             0      0     60    0    0    1 :   32   16 :      0       0     0    0    0    0   94 :      0      0      0      0
+eventpoll_pwq          0      0     48    0    0    1 :   32   16 :      0       0     0    0    0    0  109 :      0      0      0      0
+eventpoll_epi          0      0     72    0    0    1 :   32   16 :      0       0     0    0    0    0   85 :      0      0      0      0
+kioctx                 0      0    268    0    0    1 :   32   16 :      0       0     0    0    0    0   46 :      0      0      0      0
+kiocb                  0      0    172    0    0    1 :   32   16 :      0       0     0    0    0    0   55 :      0      0      0      0
+dnotify_cache          0      0     32    0    0    1 :   32   16 :      0       0     0    0    0    0  144 :      0      0      0      0
+file_lock_cache       17     30    128    1    1    1 :   32   16 :     30     160     1    0    0    0   62 :   1052     12   1047      0
+fasync_cache           0      0     28    0    0    1 :   32   16 :      0       0     0    0    0    0  157 :      0      0      0      0
+shmem_inode_cache      2      7    576    1    1    1 :   32   16 :      7      13     1    0    0    0   39 :      0      2      0      0
+idr_layer_cache        0      0    148    0    0    1 :   32   16 :      0       0     0    0    0    0   58 :      0      0      0      0
+posix_timers_cache      0      0    136    0    0    1 :   32   16 :      0       0     0    0    0    0   60 :      0      0      0      0
+uid_cache              5    101     36    1    1    1 :   32   16 :     18      32     1    0    0    0  133 :      3      2      0      0
+sgpool-MAX_PHYS_SEGMENTS     32     32   2048   16   16    1 :   32   16 :     34      38    18    2    0    0   34 :      0     35      3      0
+sgpool-64             32     32   1024    8    8    1 :   32   16 :     36      48    12    4    0    0   36 :      6     36     10      0
+sgpool-32             32     32    512    4    4    1 :   32   16 :     40      72     9    5    0    0   40 :     33     37     38      0
+sgpool-16             32     42    268    3    3    1 :   32   16 :     42      72     3    0    0    0   46 :    225     36    229      0
+sgpool-8              48     54    140    2    2    1 :   32   16 :     54     195     2    0    0    0   59 :   2832     43   2843      0
+deadline_drq         768    826     64   14   14    1 :   32   16 :   1035    1302    21    0    0    0   91 :   1191     89    482     30
+blkdev_requests      768    775    156   31   31    1 :   32   16 :   1025    1264    47    3    0    1   57 :   1180    100    484     28
+biovec-BIO_MAX_PAGES    256    260   3072   52   52    4 :   32   16 :    256     256    52    0    0    0   37 :      0    256      0      0
+biovec-128           256    260   1536   52   52    2 :   32   16 :    256     256    52    0    0    0   37 :      0    256      0      0
+biovec-64            256    260    768   52   52    1 :   32   16 :    260     268    52    0    0    0   37 :      8    259     11      0
+biovec-16            256    266    204   14   14    1 :   32   16 :    266     286    14    0    0    0   51 :    291    259    294      0
+biovec-4             256    310     60    5    5    1 :   32   16 :    272     288     5    0    0    0   94 :    481    258    483      0
+biovec-1             267    288     24    2    2    1 :   32   16 :    512    1229     6    3    0    0  176 :   5079    317   5093     47
+bio                  266    318     72    6    6    1 :   32   16 :    509    1337    13    2    0    1   85 :   5855    329   5874     54
+sock_inode_cache      36     40    484    5    5    1 :   32   16 :     40      55     5    0    0    0   40 :    545     10    519      0
+skbuff_head_cache     16     24    160    1    1    1 :   32   16 :     24      42     1    0    0    0   56 :     13      3      0      0
+sock                   2      9    444    1    1    1 :   32   16 :      9      16     1    0    0    0   41 :     14      3     15      0
+proc_inode_cache      82     99    440   11   11    1 :   32   16 :     99     147    11    0    0    0   41 :    572     15    519      1
+sigqueue               9     27    144    1    1    1 :   32   16 :     16      16     1    0    0    0   59 :    744      1    745      0
+radix_tree_node      805    812    272   58   58    1 :   32   16 :    812     840    58    0    0    0   46 :    743     69     11      0
+cdev_cache           143    250     28    2    2    1 :   32   16 :    158     173     2    0    0    0  157 :    131     12      0      0
+bdev_cache             4     32    120    1    1    1 :   32   16 :     16      16     1    0    0    0   64 :      6      1      3      0
+mnt_cache             19     53     72    1    1    1 :   32   16 :     35      54     1    0    0    0   85 :     24      9     14      0
+inode_cache          503    513    424   57   57    1 :   32   16 :    513     546    57    0    0    0   41 :    703    305    505      0
+dentry_cache        3854   3857    204  203  203    1 :   32   16 :   3968    4474   216    2    0    1   51 :   5098    699   1909     34
+filp                 286    300    156   12   12    1 :   32   16 :    291     307    12    0    0    0   57 :    261     25      0      0
+names_cache            1      1   4096    1    1    1 :   32   16 :      8      44    22   21    0    0   33 :  14723     44  14767      0
+buffer_head         1506   1534     64   26   26    1 :   32   16 :   1523    2071    26    0    0    1   91 :   3797    139   2404     28
+mm_struct             35     35    576    5    5    1 :   32   16 :     35      73     5    0    0    0   39 :   1324      9   1307      0
+vm_area_struct       500    500     76   10   10    1 :   32   16 :    527    8798    13    1    0    1   82 :  26991    558  26555    513
+fs_cache              40     84     44    1    1    1 :   32   16 :     40      96     2    1    0    0  116 :    736      6    717      0
+files_cache           27     27    424    3    3    1 :   32   16 :     27      53     4    1    0    0   41 :    734      8    717      0
+signal_cache          65     72     52    1    1    1 :   32   16 :     65     134     1    0    0    0  104 :    743     14    707      0
+sighand_cache         45     45   1344   15   15    1 :   32   16 :     48      60    16    1    0    0   35 :    724     23    703      0
+task_struct           55     55   1632   11   11    2 :   32   16 :     55      68    11    0    0    0   37 :    736     21    704      0
+pte_chain           1650   1650     76   33   33    1 :   32   16 :   1650    6660    42    1    0    1   82 :   9854    453   8357    310
+pgd                   27     27   4096   27   27    1 :   32   16 :     33      46    43   16    0    0   33 :   1288     45   1307      0
+size-131072(DMA)       0      0 131072    0    0   32 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-131072            0      0 131072    0    0   32 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-65536(DMA)        0      0  65536    0    0   16 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-65536             0      0  65536    0    0   16 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-32768(DMA)        0      0  32768    0    0    8 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-32768             0      0  32768    0    0    8 :    8    4 :      1       1     1    1    0    0    9 :      0      1      1      0
+size-16384(DMA)        0      0  16384    0    0    4 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-16384             1      1  16384    1    1    4 :    8    4 :      2       4     4    3    0    0    9 :      2      4      5      0
+size-8192(DMA)         0      0   8192    0    0    2 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-8192              6      6   8192    6    6    2 :    8    4 :      7      10     9    3    0    0    9 :     24     10     28      0
+size-4096(DMA)         0      0   4096    0    0    1 :   32   16 :      0       0     0    0    0    0   33 :      0      0      0      0
+size-4096             27     27   4096   27   27    1 :   32   16 :     34      50    49   22    0    0   33 :    343     50    366      0
+size-2048(DMA)         0      0   2048    0    0    1 :   32   16 :      0       0     0    0    0    0   34 :      0      0      0      0
+size-2048             10     10   2048    5    5    1 :   32   16 :     10      12     5    0    0    0   34 :      4      7      1      0
+size-1024(DMA)         0      0   1024    0    0    1 :   32   16 :      0       0     0    0    0    0   36 :      0      0      0      0
+size-1024             40     40   1024   10   10    1 :   32   16 :     40      61    11    1    0    0   36 :    531     37    530      0
+size-512(DMA)          0      0    512    0    0    1 :   32   16 :      8       8     1    1    0    0   40 :      0      1      1      0
+size-512              62     64    512    8    8    1 :   32   16 :     72      94     9    1    0    0   40 :    426     21    385      0
+size-256(DMA)          0      0    268    0    0    1 :   32   16 :     14      14     1    1    0    0   46 :     31      1     32      0
+size-256               9     14    268    1    1    1 :   32   16 :     28      60     2    1    0    0   46 :    594      7    592      0
+size-192(DMA)          0      0    204    0    0    1 :   32   16 :      0       0     0    0    0    0   51 :      0      0      0      0
+size-192             133    133    204    7    7    1 :   32   16 :    133     188     7    0    0    0   51 :    481     65    422      0
+size-128(DMA)          0      0    140    0    0    1 :   32   16 :      0       0     0    0    0    0   59 :      0      0      0      0
+size-128             554    621    140   23   23    1 :   32   16 :    617     811    23    0    0    0   59 :   1781    287   1514      6
+size-64(DMA)           0      0     76    0    0    1 :   32   16 :      0       0     0    0    0    0   82 :      0      0      0      0
+size-64              338    400     76    8    8    1 :   32   16 :    366     589     8    0    0    0   82 :    285    213    144     27
+size-32(DMA)           0      0     44    0    0    1 :   32   16 :      0       0     0    0    0    0  116 :      0      0      0      0
+size-32              232    252     44    3    3    1 :   32   16 :    232     399     3    0    0    0  116 :  14239    174  14042    142
+kmem_cache           110    110    180    5    5    1 :   32   16 :    110     110     5    0    0    0   54 :     34     72      0      0
 
-Regards,
-Dawson
+--------------040007010508060006090003
+Content-Type: text/plain;
+ name="slabinfo_post.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="slabinfo_post.txt"
+
+slabinfo - version: 1.2 (statistics)
+hpsb_packet            0      0    132    0    0    1 :   32   16 :     16      16     1    1    0    0   61 :     46      1     47      0
+rpc_buffers            8      8   2048    4    4    1 :   32   16 :      8       8     4    0    0    0   34 :      4      4      0      0
+rpc_tasks              8     19    204    1    1    1 :   32   16 :     16      16     1    0    0    0   51 :      7      1      0      0
+rpc_inode_cache        0      0    480    0    0    1 :   32   16 :      0       0     0    0    0    0   40 :      0      0      0      0
+unix_sock             10     21    576    3    3    1 :   32   16 :     21      32     3    0    0    0   39 :    593      4    587      0
+tcp_tw_bucket          0      0    100    0    0    1 :   32   16 :      0       0     0    0    0    0   71 :      0      0      0      0
+tcp_bind_bucket        7    125     28    1    1    1 :   32   16 :     16      16     1    0    0    0  157 :      6      1      0      0
+tcp_open_request       0      0     68    0    0    1 :   32   16 :      0       0     0    0    0    0   88 :      0      0      0      0
+inet_peer_cache        0      0     52    0    0    1 :   32   16 :      0       0     0    0    0    0  104 :      0      0      0      0
+secpath_cache          0      0     32    0    0    1 :   32   16 :      0       0     0    0    0    0  144 :      0      0      0      0
+flow_cache             0      0     60    0    0    1 :   32   16 :      0       0     0    0    0    0   94 :      0      0      0      0
+xfrm4_dst_cache        0      0    220    0    0    1 :   32   16 :      0       0     0    0    0    0   50 :      0      0      0      0
+ip_fib_hash           10    125     28    1    1    1 :   32   16 :     16      16     1    0    0    0  157 :     10      1      1      0
+ip_dst_cache           5     19    208    1    1    1 :   32   16 :     19      63     1    0    0    0   51 :      3      4      2      0
+arp_cache              2     21    188    1    1    1 :   32   16 :     17      32     1    0    0    0   53 :      0      2      0      0
+raw4_sock              0      0    576    0    0    1 :   32   16 :      7      14     2    2    0    0   39 :      4      2      6      0
+udp_sock               7      7    576    1    1    1 :   32   16 :     14      17     2    1    0    0   39 :     37      3     33      0
+tcp_sock              16     21   1088    3    3    2 :   32   16 :     21      30     3    0    0    0   39 :     49      6     39      0
+scsi_cmd_cache        66     66    356    6    6    1 :   32   16 :     66     220     9    3    0    0   43 :   5735     22   5713      0
+nfs_write_data        36     40    452    5    5    1 :   32   16 :     40      40     5    0    0    0   40 :     31      5      0      0
+nfs_read_data         32     36    436    4    4    1 :   32   16 :     36      36     4    0    0    0   41 :     28      4      0      0
+nfs_inode_cache        0      0    704    0    0    2 :   32   16 :      0       0     0    0    0    0   43 :      0      0      0      0
+nfs_page               0      0    108    0    0    1 :   32   16 :      0       0     0    0    0    0   68 :      0      0      0      0
+isofs_inode_cache      0      0    440    0    0    1 :   32   16 :      0       0     0    0    0    0   41 :      0      0      0      0
+ext2_inode_cache       4      7    576    1    1    1 :   32   16 :      7       7     1    0    0    0   39 :      3      1      0      0
+journal_head          21     62     60    1    1    1 :   32   16 :    420    1124     9    2    0    1   94 :   6048     73   6046     55
+revoke_table           1    144     24    1    1    1 :   32   16 :     16      16     1    0    0    0  176 :      0      1      0      0
+revoke_record          0      0     28    0    0    1 :   32   16 :     16      32     2    2    0    0  157 :      3      2      5      0
+ext3_inode_cache    2275   2275    576  325  325    1 :   32   16 :   2275    2290   325    0    0    0   39 :   1969    331     28      0
+ext3_xattr             0      0     60    0    0    1 :   32   16 :      0       0     0    0    0    0   94 :      0      0      0      0
+eventpoll_pwq          0      0     48    0    0    1 :   32   16 :      0       0     0    0    0    0  109 :      0      0      0      0
+eventpoll_epi          0      0     72    0    0    1 :   32   16 :      0       0     0    0    0    0   85 :      0      0      0      0
+kioctx                 0      0    268    0    0    1 :   32   16 :      0       0     0    0    0    0   46 :      0      0      0      0
+kiocb                  0      0    172    0    0    1 :   32   16 :      0       0     0    0    0    0   55 :      0      0      0      0
+dnotify_cache          0      0     32    0    0    1 :   32   16 :      0       0     0    0    0    0  144 :      0      0      0      0
+file_lock_cache       17     30    128    1    1    1 :   32   16 :     30     173     1    0    0    0   62 :   1093     13   1089      0
+fasync_cache           0      0     28    0    0    1 :   32   16 :      0       0     0    0    0    0  157 :      0      0      0      0
+shmem_inode_cache      2      7    576    1    1    1 :   32   16 :      7      13     1    0    0    0   39 :      0      2      0      0
+idr_layer_cache        0      0    148    0    0    1 :   32   16 :      0       0     0    0    0    0   58 :      0      0      0      0
+posix_timers_cache      0      0    136    0    0    1 :   32   16 :      0       0     0    0    0    0   60 :      0      0      0      0
+uid_cache              5    101     36    1    1    1 :   32   16 :     18      32     1    0    0    0  133 :      3      2      0      0
+sgpool-MAX_PHYS_SEGMENTS     32     32   2048   16   16    1 :   32   16 :     34      38    18    2    0    0   34 :      0     35      3      0
+sgpool-64             32     32   1024    8    8    1 :   32   16 :     36      48    12    4    0    0   36 :      6     36     10      0
+sgpool-32             32     32    512    4    4    1 :   32   16 :     40      72     9    5    0    0   40 :     33     37     38      0
+sgpool-16             32     42    268    3    3    1 :   32   16 :     42      82     3    0    0    0   46 :    228     37    233      0
+sgpool-8              50     54    140    2    2    1 :   32   16 :     54     227     2    0    0    0   59 :   4322     45   4335      0
+deadline_drq       22274  22361     64  379  379    1 :   32   16 :  22538   32880   507    0    0    1   91 :  31317   2219  10606    658
+blkdev_requests    22273  22300    156  892  892    1 :   32   16 :  22541   32829  1204    5    0    2   57 :  30944   2592  10609    655
+biovec-BIO_MAX_PAGES    256    260   3072   52   52    4 :   32   16 :    256     256    52    0    0    0   37 :      0    256      0      0
+biovec-128           256    260   1536   52   52    2 :   32   16 :    256     256    52    0    0    0   37 :      0    256      0      0
+biovec-64            256    260    768   52   52    1 :   32   16 :    260     268    52    0    0    0   37 :      8    259     11      0
+biovec-16            256    266    204   14   14    1 :   32   16 :    266     296    14    0    0    0   51 :    293    260    297      0
+biovec-4             256    310     60    5    5    1 :   32   16 :    272     304     5    0    0    0   94 :    481    259    484      0
+biovec-1             285    288     24    2    2    1 :   32   16 :    512    1277     6    3    0    0  176 :   7486    320   7503     47
+bio                  274    318     72    6    6    1 :   32   16 :    509    1391    14    3    0    1   85 :   8265    333   8287     55
+sock_inode_cache      36     40    484    5    5    1 :   32   16 :     40      55     5    0    0    0   40 :    545     10    519      0
+skbuff_head_cache     16     24    160    1    1    1 :   32   16 :     24      42     1    0    0    0   56 :     13      3      0      0
+sock                   2      9    444    1    1    1 :   32   16 :      9      16     1    0    0    0   41 :     14      3     15      0
+proc_inode_cache      82     99    440   11   11    1 :   32   16 :     99     179    11    0    0    0   41 :    572     17    521      1
+sigqueue               9     27    144    1    1    1 :   32   16 :     16      16     1    0    0    0   59 :    767      1    768      0
+radix_tree_node      840    840    272   60   60    1 :   32   16 :    840     884    60    0    0    0   46 :    774     73     11      0
+cdev_cache           143    250     28    2    2    1 :   32   16 :    158     173     2    0    0    0  157 :    131     12      0      0
+bdev_cache             4     32    120    1    1    1 :   32   16 :     20      32     1    0    0    0   64 :     89      2     87      0
+mnt_cache             19     53     72    1    1    1 :   32   16 :     35      54     1    0    0    0   85 :     24      9     14      0
+inode_cache         3375   3375    424  375  375    1 :   32   16 :   3375    3418   375    0    0    0   41 :   3340    624    589      0
+dentry_cache        6744   6745    204  355  355    1 :   32   16 :   6744    7379   368    2    0    1   51 :   7671   1004   1911     34
+filp                 286    300    156   12   12    1 :   32   16 :    291     307    12    0    0    0   57 :    261     25      0      0
+names_cache            1      1   4096    1    1    1 :   32   16 :      8      47    23   22    0    0   33 :  15424     47  15471      0
+buffer_head         2458   2478     64   42   42    1 :   32   16 :   2458    3060    42    0    0    1   91 :   5662    206   3396     28
+mm_struct             35     35    576    5    5    1 :   32   16 :     35      93     5    0    0    0   39 :   1494     11   1479      0
+vm_area_struct       500    500     76   10   10    1 :   32   16 :    527    8855    13    1    0    1   82 :  29247    562  28815    513
+fs_cache              40     84     44    1    1    1 :   32   16 :     40     128     2    1    0    0  116 :    946      8    929      0
+files_cache           27     27    424    3    3    1 :   32   16 :     27      59     4    1    0    0   41 :    944     10    929      0
+signal_cache         107    144     52    2    2    1 :   32   16 :    107     205     2    0    0    0  104 :    950     19    877      0
+sighand_cache         87     87   1344   29   29    1 :   32   16 :     87     106    30    1    0    0   35 :    920     39    873      0
+task_struct           95     95   1632   19   19    2 :   32   16 :    100     117    20    1    0    0   37 :    937     32    874      0
+pte_chain           1650   1650     76   33   33    1 :   32   16 :   1650    6684    42    1    0    1   82 :  10041    455   8545    310
+pgd                   27     27   4096   27   27    1 :   32   16 :     33      51    48   21    0    0   33 :   1455     50   1479      0
+size-131072(DMA)       0      0 131072    0    0   32 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-131072            0      0 131072    0    0   32 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-65536(DMA)        0      0  65536    0    0   16 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-65536             0      0  65536    0    0   16 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-32768(DMA)        0      0  32768    0    0    8 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-32768             0      0  32768    0    0    8 :    8    4 :      1       1     1    1    0    0    9 :      0      1      1      0
+size-16384(DMA)        0      0  16384    0    0    4 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-16384             1      1  16384    1    1    4 :    8    4 :      2       4     4    3    0    0    9 :      2      4      5      0
+size-8192(DMA)         0      0   8192    0    0    2 :    8    4 :      0       0     0    0    0    0    9 :      0      0      0      0
+size-8192             91     91   8192   91   91    2 :    8    4 :     92      96    95    4    0    0    9 :    149     96    154      0
+size-4096(DMA)         0      0   4096    0    0    1 :   32   16 :      0       0     0    0    0    0   33 :      0      0      0      0
+size-4096             27     27   4096   27   27    1 :   32   16 :     34      57    55   28    0    0   33 :    489     57    519      0
+size-2048(DMA)         0      0   2048    0    0    1 :   32   16 :      0       0     0    0    0    0   34 :      0      0      0      0
+size-2048             94     94   2048   47   47    1 :   32   16 :     94      96    47    0    0    0   34 :     88     49     43      0
+size-1024(DMA)         0      0   1024    0    0    1 :   32   16 :      0       0     0    0    0    0   36 :      0      0      0      0
+size-1024             40     40   1024   10   10    1 :   32   16 :     40      67    11    1    0    0   36 :    702     39    703      0
+size-512(DMA)          0      0    512    0    0    1 :   32   16 :      8      16     2    2    0    0   40 :     83      2     85      0
+size-512             234    248    512   31   31    1 :   32   16 :    248     282    32    1    0    0   40 :   1721     46   1537      0
+size-256(DMA)          0      0    268    0    0    1 :   32   16 :     14      28     2    2    0    0   46 :    534      2    536      0
+size-256              94     98    268    7    7    1 :   32   16 :     98     149     8    1    0    0   46 :    736     14    657      0
+size-192(DMA)          0      0    204    0    0    1 :   32   16 :      0       0     0    0    0    0   51 :      0      0      0      0
+size-192             209    209    204   11   11    1 :   32   16 :    209     274    11    0    0    0   51 :    725     75    592      0
+size-128(DMA)          0      0    140    0    0    1 :   32   16 :      0       0     0    0    0    0   59 :      0      0      0      0
+size-128             681    702    140   26   26    1 :   32   16 :    691     955    26    0    0    0   59 :   2740    297   2351      6
+size-64(DMA)           0      0     76    0    0    1 :   32   16 :      0       0     0    0    0    0   82 :      0      0      0      0
+size-64              750    750     76   15   15    1 :   32   16 :    750    1041    15    0    0    0   82 :   1141    247    623     27
+size-32(DMA)           0      0     44    0    0    1 :   32   16 :      0       0     0    0    0    0  116 :      0      0      0      0
+size-32              452    504     44    6    6    1 :   32   16 :    452     619     6    0    0    0  116 :  18166    190  17772    142
+kmem_cache           110    110    180    5    5    1 :   32   16 :    110     110     5    0    0    0   54 :     34     72      0      0
+
+--------------040007010508060006090003--
+

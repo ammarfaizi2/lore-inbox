@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbUB2Smu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 13:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUB2Smu
+	id S262102AbUB2SqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 13:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbUB2SqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 13:42:50 -0500
-Received: from [80.72.36.106] ([80.72.36.106]:29587 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262099AbUB2Smt (ORCPT
+	Sun, 29 Feb 2004 13:46:15 -0500
+Received: from man-3.punkt.pl ([217.173.196.3]:41230 "EHLO prin.lo2.opole.pl")
+	by vger.kernel.org with ESMTP id S262102AbUB2SqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 13:42:49 -0500
-Date: Sun, 29 Feb 2004 19:42:45 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Robbert Haarman <lkml@inglorion.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6 Build System and Binary Modules
-In-Reply-To: <20040229183143.GA8057@shire.sytes.net>
-Message-ID: <Pine.LNX.4.58.0402291940110.22146@alpha.polcom.net>
-References: <20040229183143.GA8057@shire.sytes.net>
+	Sun, 29 Feb 2004 13:46:09 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: =?iso-8859-2?q?=09=5BANNOUNCE=5D_linux-libc-headers?= 2.6.3.0
+Date: Sun, 29 Feb 2004 19:42:44 +0100
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402291942.45392.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Feb 2004, Robbert Haarman wrote:
+Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+Changes:
+- updated to 2.6.3
+- linux/hdreg.h - fixed types in defs exposed to userspace
+- using sys/resource.h instead of linux/resource.h
+- couple of minor fixes
 
-> Hello list,
-> 
-> Excuse me for not finding this if it has been asked before. Please Cc any answers, as I am not subscribed to this list.
-> 
-> I am trying to port a driver for the Realtek 8180 wireless ehternet controller from 2.4 to 2.6. The module comes as a binary-only object file with some sources that can be adapted to fit the specific kernel. My problem is that I can't figure out how to get the 2.6 kernel to include the binary part (it's in a .o file). The new build system does a little too much magic - compiling the module from source to .ko without giving me a chance to sneak in the binary code. How do I get it to link in the .o file, without making it look for the like-named .c file?
-> 
-> Cheers,
-> 
-> Robbert Haarman
+Enjoy.
 
-I do not know if it will help You, but take a look at how makefile of new 
-nvidia driver is built... (patches from minion.de or newest driver from 
-nvidia.com)
-
-Grzegorz Kulewski
-
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

@@ -1,80 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbUCTSsm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 13:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCTSsm
+	id S263506AbUCTSto (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 13:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCTSto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 13:48:42 -0500
-Received: from painless.aaisp.net.uk ([217.169.20.17]:65005 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S263504AbUCTSsj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 13:48:39 -0500
-Subject: ACPI error with 2.4.26-pre5
-From: Andrew Clayton <andrew@digital-domain.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1079808518.1120.25.camel@alpha.digital-domain.net>
+	Sat, 20 Mar 2004 13:49:44 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:48088
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263506AbUCTStn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 13:49:43 -0500
+Date: Sat, 20 Mar 2004 19:50:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040320185034.GE9009@dualathlon.random>
+References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2696880000.1079800826@[10.10.2.4]> <20040320165500.GW9009@dualathlon.random> <2698500000.1079804017@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 20 Mar 2004 18:48:38 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2698500000.1079804017@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-With 2.4.26-pre5 I am seeing the following error at boot up.
-
-
-ACPI: Subsystem revision 20040311
-PCI: PCI BIOS revision 2.10 entry at 0xe8964, last bus=1
-PCI: Using configuration type 1
-    ACPI-0433: *** Warning: Existing references (4) on node being
-deleted (c129e
-660)
-    ACPI-0433: *** Warning: Existing references (9) on node being
-deleted (c12ae
-da0)
-ACPI: IRQ9 SCI: Edge set to Level Trigger.
-    ACPI-0097: *** Error: Unable to initialize general purpose events,
-AE_NOT_FO
-UND
-ACPI: Unable to start the ACPI Interpreter
-    ACPI-0433: *** Warning: Existing references (65419) on node being
-deleted (c
-129e4e0)
-PCI: Probing PCI hardware
-PCI: ACPI tables contain no PCI IRQ routing entries
-PCI: Probing PCI hardware (bus 00)
-PCI: Using IRQ router VIA [1106/3074] at 00:11.0
-
-
-
-2.4.26-pre4 works fine. This is on a Fujitsu-Siemens C-1020 laptop
-running Fedora Core 1
-
-
-To keep the size of this email down I have provided links to relevant
-bits of information.
-
-2.4.26-pre5 .config
-http://digital-domain.net/kernel/config
-
-2.4.26-pre5 kernel boot messages
-http://digital-domain.net/kernel/2.4.26-pre5.dmesg
-
-2.4.26.-pre4 kernel boot messages (for comparison)
-http://digital-domain.net/kernel/2.4.26-pre4.dmesg
-
-Output of lspci -vv
-http://digital-domain.net/kernel/lspci-vv
-
-
-If you would like any extra info please CC me...
-
-
-Cheers,
-
-Andrew Clayton
-
-
+sorry, it crashed in the pfn_valid because NOPAGE_SIGBUS was returned,
+so it was my mistake, will be correctd in -aa3.

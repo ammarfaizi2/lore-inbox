@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264448AbTICUNc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264433AbTICUMI
+	id S264393AbTICUL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTICUKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:12:08 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:1493 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264307AbTICUK6 (ORCPT
+	Wed, 3 Sep 2003 16:10:10 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39687 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S264393AbTICUIX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:10:58 -0400
-Date: Wed, 3 Sep 2003 15:10:44 -0500
-From: linas@austin.ibm.com
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, mingo@redhat.com,
-       riel@redhat.com, mranweil@us.ibm.com
-Subject: Re: PATCH: kernel-2.4 brlock livelock
-Message-ID: <20030903151043.B51004@forte.austin.ibm.com>
-References: <20030903142150.A48064@forte.austin.ibm.com> <20030903194401.GA688@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030903194401.GA688@krispykreme>; from anton@samba.org on Thu, Sep 04, 2003 at 05:44:02AM +1000
+	Wed, 3 Sep 2003 16:08:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: "Zach, Yoav" <yoav.zach@intel.com>, <torvalds@osdl.org>
+Subject: Re: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Date: Wed, 3 Sep 2003 23:08:16 +0300
+X-Mailer: KMail [version 1.4]
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+References: <2C83850C013A2540861D03054B478C0601CF64EC@hasmsx403.iil.intel.com>
+In-Reply-To: <2C83850C013A2540861D03054B478C0601CF64EC@hasmsx403.iil.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309032308.16828.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 05:44:02AM +1000, Anton Blanchard wrote:
-> 
-> Hi,
-> 
-> > The patch changes the non-atomic code. It grabs the write lock, and
-> > then spins, waiting for all of the existing readers to finish. 
-> > New readers are held off.  This seems (to me) to be a reasonable 
-> > thing to do, based on the following logic:
-> 
-> The problem is with recursive readers. One cpu takes a br read lock then
-> wants to take the same lock again. It must be allowed to get that read lock.
-> 
-> We need to drop the write spinlock or else we will deadlock.
+On Wednesday 03 September 2003 10:16, Zach, Yoav wrote:
+> --- Linus Torvalds <torvalds@osdl.org> wrote:
+> > I don't like the security issues here. Sure, you
+> > "trust" the interpreter,
+> > and clearly only root can set the flag, but to me
+> > that just makes me
+> > wonder why the interpreter itself can't be a simple
+> > suid wrapper that does
+> > the mapping rather than having it done in kernel
+> > space..
+>
+> If the binary resides on a NFS drive ( which is a very common practice )
+> then the suid-wrapper solution will not work because root permissions
+> are squashed on the remote drive.
 
-Whoops. 
-
-OK, how about the following: readers on a given cpu are held off 
-if the write lock is held *and* the read-count on that cpu is zero?
-
-That way, 'recursive' readers on other CPU's can get a read-lock if
-there's already a non-zero read-lock-count on that CPU.   
-
-That should work if the thread holding the lock can't get scheduled
-to another cpu.  Can these things wander around?
-
-If they can wander around, then oone would have to order the cpus:
-wait for read count to drop to zero on cpu 0 then on 1 then on 2, 
-meanwhile the read-lock can be gotten on the higher ordered CPUs ...
-
-If this sounds reasonable, would you care to see a revised patch?
-
-What else can go wrong?
-
---linas
+This is a NFS promlem. Do not work around it by adding crap elsewhere.
+NFS has to get a decent user auth/crypto features.
+I did not try it yet, but NFSv4 will address that.
+--
+vda

@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264654AbUDVT6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264010AbUDVTu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264654AbUDVT6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 15:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264653AbUDVT4I
+	id S264010AbUDVTu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 15:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUDVTuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 15:56:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4324 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264654AbUDVTxT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 15:53:19 -0400
-Date: Thu, 22 Apr 2004 12:53:17 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@mac.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] coredump - as root not only if euid switched
-Message-ID: <20040422125317.Q22989@build.pdx.osdl.net>
-References: <2899705.1082626850875.JavaMail.pwaechtler@mac.com> <20040422025638.0bf86599.akpm@osdl.org> <1082663036.2592.1.camel@picklock.adams.family>
+	Thu, 22 Apr 2004 15:50:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3535 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264647AbUDVTuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 15:50:11 -0400
+Date: Tue, 20 Apr 2004 15:50:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, alsa-user@lists.sourceforge.net,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: patch to make suspend/resume work
+Message-ID: <20040420135011.GA1413@openzaurus.ucw.cz>
+References: <20040418055415.8FE2077A2B@mail.lmc.cs.sunysb.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1082663036.2592.1.camel@picklock.adams.family>; from pwaechtler@mac.com on Thu, Apr 22, 2004 at 09:43:57PM +0200
+In-Reply-To: <20040418055415.8FE2077A2B@mail.lmc.cs.sunysb.edu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Peter Wächtler (pwaechtler@mac.com) wrote:
-> Am Do, 2004-04-22 um 11.56 schrieb Andrew Morton:
-> > Peter Waechtler <pwaechtler@mac.com> wrote:
-> > >
-> > >  >(why are you trying to unlink the old file anyway?)
-> > >  >
-> > > 
-> > >  For security measure :O
-> > >  I tried on solaris: touch the core file as user, open it and wait, dump core
-> > >  as root -> nope, couldn't read the damn core - it was unlinked and created!
-> > 
-> > hm, OK.  There's a window in which someone can come in and recreate the
-> > file, but the open is using O_EXCL|O_CREATE so that seems safe enough.
+Hi!
+
+> It seems that pci config space is messed up after resume for Intel
+> ICH4 audio controller (on Dell Latitude D600, but I notice that others
+> also complain about this problem). Consequently resume from S3 causes
+> oops with snd_intel8x0 module. If the module is removed before suspend
+> and loaded afterwards, I still get oops. The following simple patch
+> fixes the problem. With this, I can leave alsa untouched during
+> suspend/resume.
 > 
-> So here is the updated patch with an open coded call to sys_unlink
 
-This patch breaks various ptrace() checks.
 
-thanks,
--chris
+Looks good to me. Probably more drivers need this...
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131563AbQLHKSh>; Fri, 8 Dec 2000 05:18:37 -0500
+	id <S131283AbQLHKSr>; Fri, 8 Dec 2000 05:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131749AbQLHKS1>; Fri, 8 Dec 2000 05:18:27 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:48906 "EHLO smtp2.free.fr")
-	by vger.kernel.org with ESMTP id <S131283AbQLHKSO>;
-	Fri, 8 Dec 2000 05:18:14 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.2.18pre25
-Message-ID: <976268866.3a30ae4296b71@imp.free.fr>
-Date: Fri, 08 Dec 2000 10:47:46 +0100 (MET)
-From: Willy Tarreau <wtarreau@free.fr>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <E144AfG-0003B2-00@the-village.bc.nu>
-In-Reply-To: <E144AfG-0003B2-00@the-village.bc.nu>
+	id <S131832AbQLHKSh>; Fri, 8 Dec 2000 05:18:37 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20996
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131283AbQLHKSf>; Fri, 8 Dec 2000 05:18:35 -0500
+Date: Fri, 8 Dec 2000 01:48:09 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: FS Corruption Again, with known cause, and solution...
+Message-ID: <Pine.LNX.4.10.10012080129180.1452-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 195.6.58.78
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I asked people to explain why it was needed. I am still waiting. It is a
-> patch that does nothing. I will not put random deep magic into the
-> kernel.
 
-Alan, I replied to you a few weeks ago (pre20 times) when you asked me why
-I was sending you this patch. (perhaps you didn't receive my email). What I 
-observed was that my netraid card had a 0xXXXX8 base address and the patch
-aligned that address to 16 bytes :
+Okay gang, here is the skinny and it is fat and ugly!
 
-|Bus  0, device   2, function  1:
-|  Unknown class: Intel OEM MegaRAID Controller (rev 5).
-|    Medium devsel.  Fast back-to-back capable.  BIST capable.  IRQ 10.  Master
-Capable.  Latency=64.  
-|    Prefetchable 32 bit memory at 0xf0000000 [0xf0000008].
+Sometime ago some braindead engineers, at an unamed company that developed
+the first DMA engine, thought it was a good idea to wack and stop the DMA
+engine if there was a transaction delay of 1 micro-second or more;
+regardless if the transfer was done!  It is possible that with everyone
+following their lead, this may be a global ASIC error.  This would explain
+the rise-fall-rise of the reports.
 
-as you see, the board is found at 0xf0000008, but used aligned to 0xf0000000.
+Rise == the arrive of the hardware error
+Fall == Andrea A. elevator working to fake a scatter-gather (IMHO)
+Fall == attempt to address the timeouts with expiry function (may keep)
+Rise == newer larger drives that can produce out-of-bounds seeking.
 
-my server currently works with that patch, but I'm sure it won't boot anymore
-if I apply this 2.2.18pre25 alone. 
+How to kill it.....
 
-just in case, here it is again.
+Basically, issue the abort of the transfer and requeue the request, and
+try again.
+
+Problem, if the seek repeats the process and we continuily requeue the
+request then we get into other issues.
+
+Workaround 1, maintain a barf counter and after N barfs perform the task
+in a forced PIO regardless (HUGE peformance hit, but good data).
+
+Workaround 2, slice the request after first barf and make it smaller and
+retry (nasty-dirty and we have to dump dma-buffers and make new-ones).
+
+Workaround 3, give up and goto bed for now....
+
+Now who wants to jump on this and work with me on the re-insert of the
+request and try again, before we do tests on WA 1 & 2?  I am brain dead
+from reading the code sent to me by the vender because it is been hacked
+and abused to death!  They do not even like to show how fugly it is!
+
 
 Cheers,
-Willy
 
---- 18pre/drivers/scsi/megaraid.c       Wed Nov  8 16:02:45 2000
-+++ 18pre+megaraid/drivers/scsi/megaraid.c      Fri Nov 10 12:03:05 2000
-@@ -1920,10 +1920,14 @@
- 
-     pciIdx++;
- 
--    if (flag & BOARD_QUARTZ)
-+    if (flag & BOARD_QUARTZ) {
-+       megaBase &= PCI_BASE_ADDRESS_IO_MASK;
-        megaBase = (long) ioremap (megaBase, 128);
--    else
-+    }
-+    else {
-+       megaBase &= PCI_BASE_ADDRESS_MEM_MASK;
-        megaBase += 0x10;
-+    }
- 
-     /* Initialize SCSI Host structure */
-     host = scsi_register (pHostTmpl, sizeof (mega_host_config));
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

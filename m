@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRABWvN>; Tue, 2 Jan 2001 17:51:13 -0500
+	id <S130108AbRABWzO>; Tue, 2 Jan 2001 17:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130612AbRABWvD>; Tue, 2 Jan 2001 17:51:03 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:25101 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S129436AbRABWur>; Tue, 2 Jan 2001 17:50:47 -0500
-Date: Tue, 2 Jan 2001 17:20:21 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Heitzso <xxh1@cdc.gov>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: usb broken in 2.4.0 prerelease versus 2.2.18
-Message-ID: <20010102172021.H8324@sventech.com>
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F7F@mcdc-atl-5.cdc.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F7F@mcdc-atl-5.cdc.gov>; from Heitzso on Mon, Jan 01, 2001 at 05:31:34PM -0500
+	id <S130216AbRABWzE>; Tue, 2 Jan 2001 17:55:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5645 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130108AbRABWyv>; Tue, 2 Jan 2001 17:54:51 -0500
+Date: Tue, 2 Jan 2001 14:23:48 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Anton Blanchard <anton@linuxcare.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: scheduling problem?
+In-Reply-To: <Pine.LNX.4.10.10101021357180.1292-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101021418090.847-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2001, Heitzso <xxh1@cdc.gov> wrote:
-> Johannes, I apologize for not getting back to you earlier.
-> Holidays, a changing kernel, and work, kept me away from
-> the test.
 
-No problem.
 
-> DATA: s10sh 0.1.9 is a program used to access the USB
-> bus to get to digital cameras and download pictures, etc.
-> I used it for quite awhile with 2.4.0 test up until
-> test 10(?) or so when it broke.  I then switched over to 
-> 2.2.18 where s10sh works fine.  With the 2.4.0 
-> prerelease out I compiled the 2.4.0 prerelease kernel 
-> and tested and the 2.4.0 prerelease kernel still breaks 
-> s10sh though the same s10sh program works fine with 2.2.18.
+On Tue, 2 Jan 2001, Linus Torvalds wrote:
 > 
-> I cannot say that 2.4.0 is broken because I don't know
-> if it is expected for a program like s10sh to break over
-> the kernel shift.  What was odd for me was that is worked
-> fine for quite awhile with 2.4.0 then snapped.
-
-Technically, 2.4.0 is the newer code and the 2.2.18 code is a backport
-of the 2.4.0 code. There isn't significant amounts of difference between
-them, but the 2.2.18 code is slightly out of date.
-
-> DEFINITION of SNAPPED: s10sh provides a command GETALL
-> to download all of the pictures in a camera's 'directory'.
-> Running GETALL under 2.4.0 now has the first picture file
-> being somewhat reasonably sized, the second being roughly
-> 200M in size, then the next being almost a gig in size,
-> etc. until the parition I was in filled up and everything
-> stops.  I then rebooted to 2.2.18 and the same program
-> downloaded the pictures just fine.
+> Right now, the automatic balancing only hurts. The stuff that hasn't been
+> converted is probably worse off doing balancing when they don't want to,
+> than we would be to leave the balancing altogether.
 > 
-> If someone wants my .config files for 2.2.18 and 2.4.0
-> let me know with instructions for getting it to you
-> (i.e. attachments versus ...)  
+> Which is why I don't like it.
 
-Sounds like something got corrupted or expecting the wrong size bulk
-transfers.
+Actually, there is right now another problem with the synchronous waiting,
+which is completely different: because bdflush can be waited on
+synchronously by various entities that hold various IO locks, bdflush
+itself cannot do certain kinds of IO at all. In particular, it has to use
+GFP_BUFFER when it calls down to page_launder(), because it cannot afford
+to write out dirty pages which might deadlock on the locks that are held
+by people waiting for bdflush..
 
-Could you give me your .config's? Attachment is fine (just don't send
-them to the list).
+The deadlock issue is the one I dislike the most: bdflush being
+synchronously waited on is fundamentally always going to cripple it. In
+comparison, the automatic rebalancing is just a latency issue (but the
+automatic balancing _is_ the thing that brings on the fact that we call
+rebalance with locks held, so they are certainly related).
 
-JE
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbRGSOx6>; Thu, 19 Jul 2001 10:53:58 -0400
+	id <S267583AbRGSPBT>; Thu, 19 Jul 2001 11:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267579AbRGSOxt>; Thu, 19 Jul 2001 10:53:49 -0400
-Received: from [207.198.61.36] ([207.198.61.36]:36480 "EHLO
-	va.flyingbuttmonkeys.com") by vger.kernel.org with ESMTP
-	id <S267578AbRGSOxe>; Thu, 19 Jul 2001 10:53:34 -0400
-Message-ID: <007a01c11062$799a0160$c2d487d1@cartman>
-From: "Michael Rothwell" <rothwell@flyingbuttmonkeys.com>
-To: "Edouard Soriano" <e_soriano@dapsys.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010719.14393700@dap21.dapsys.ch>
-Subject: Re: 1GB system working with 64MB
-Date: Thu, 19 Jul 2001 10:52:43 -0400
+	id <S267584AbRGSPA7>; Thu, 19 Jul 2001 11:00:59 -0400
+Received: from [62.58.73.254] ([62.58.73.254]:61169 "EHLO
+	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
+	id <S267582AbRGSPAr>; Thu, 19 Jul 2001 11:00:47 -0400
+Date: Thu, 19 Jul 2001 16:51:48 +0200
+From: Ryan Sweet <rsweet@atos-group.nl>
+To: Wakko Warner <wakko@animx.eu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6 and netboot
+In-Reply-To: <20010719082650.A26980@animx.eu.org>
+Message-ID: <Pine.SGI.4.10.10107191618070.3370909-100000@iapp-0>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Add this:
+On Thu, 19 Jul 2001, Wakko Warner wrote:
 
-append="mem=1024M"
+> I'm using a kernel that is dd'd to a floppy to net boot linux on random
+> machines.  I noticed that 2.4.6 won't get it's IP from the server (it won't
+> even attempt it).  2.4.4 works
+> 
+> If any more info is needed, just ask.
 
-to your lilo boot profiles.
-
-... 2.4 correctly detects memory size more often than 2.2.16 ...
-
-
------ Original Message ----- 
-From: "Edouard Soriano" <e_soriano@dapsys.com>
-Subject: 1GB system working with 64MB
+It sounds as though you left out CONFIG_IP_PNP in the kernel
+configuration.  netboot works fine under 2.4.6 for me....
 
 
-> Hello Folks,
-> Environment: linux 2.2.16smp
-> RedHat 7.0
->
-> My problem are the 63892K
-
+-- 
+Ryan Sweet <ryan.sweet@atosorigin.com>
+Atos Origin Engineering Services
+http://www.aoes.nl
 

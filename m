@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272319AbTGaAEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272363AbTGaAEq
+	id S272372AbTGaAIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 20:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272371AbTGaAIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:04:46 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:54984 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S272319AbTGaAEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:04:45 -0400
-Message-ID: <3F28611F.5080807@genebrew.com>
-Date: Wed, 30 Jul 2003 20:21:51 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Stefano Rivoir <s.rivoir@gts.it>, lista1@telia.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Disk performance degradation
-References: <20030729182138.76ff2d96.lista1@telia.com>	<3F2786E9.9010808@gts.it>	<20030730035524.65cfc39a.akpm@osdl.org>	<3F27ECFA.5020005@gts.it> <20030730114428.7e629895.akpm@osdl.org>
-In-Reply-To: <20030730114428.7e629895.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+	Wed, 30 Jul 2003 20:08:50 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:21740 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272372AbTGaAIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 20:08:45 -0400
+Message-Id: <200307310008.h6V08f609196@zeus.kernel.org>
+From: "ERC - Equipe =?ISO-8859-1?Q?=20Reda=E7=E3o?= Comercial" 
+	<redacaodecartas@bol.com.br>
+To: <linux-kernel@vger.kernel.org>
+Subject: 540 Modelos de Cartas Comerciais
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Date: Wed, 30 Jul 2003 19:58:07 -0300
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Stefano Rivoir <s.rivoir@gts.it> wrote:
-> 
->>I think I've got it. 2.4 fails to load DRI, so when X is up there is
->> memory available until the load of gnucash, the last operation. 2.6
->> loads dri and probably this eats too much too early, causing the
->> system to touch swap since the first operation after X startup.
-> 
-> 
-> hrm, Why should loading DRI in X consume a significant amount of memory?
+A ERC (Equipe de Redação Comercial) lança a 2ª Edição do "CD MODELOS DE
+CARTAS COMERCIAIS".
 
-Perhaps this is a machine with "shared video memory", like the Intel 
-integrated video chipsets (i810). Stefano?
+Comprando o "CD MODELOS DE CARTAS COMERCIAIS", você terá um produto que sana
+suas dúvidas na elaboração de: agradecimentos, atestados e declarações,
+avisos,  cartas de cobrança, cartas em inglês, comunicados,  convites, 
+contratos, propostas, empregos, solicitações e pedidos, telegramas, cartas
+por e-mail, etc.
 
--Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
+Composto de um CD com 540 modelos de documentos diversos e inúmeras técnicas
+de REDAÇÃO COMERCIAL.
 
+Indicado para: secretárias em geral, gerências, Rh, executivos, estudantes e
+empresas de toda ordem.
+
+Este kit possui um preço ínfimo em relação ao que poderá gerar no
+aperfeiçoamento da comunicação de sua empresa.
+
+As cartas comerciais, têm grande importância na administração de qualquer
+empreendimento, pois parte significativa das transações mundiais se realiza
+por esse meio.
+
+A carta é o instrumento que faz a conexão entre as empresas.
+
+Confira!
+
+Acesse nossa Home Page para mais detalhes e pedido:
+
+http://www.cartascom2003.kit.net
+
+
+
+Ps: Caso não queira receber novas mensagens e novidades sobre esse assunto,
+acesse:
+
+http://www.cartascom2003.kit.net/remova.htm

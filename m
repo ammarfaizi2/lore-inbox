@@ -1,90 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262304AbSJNVOV>; Mon, 14 Oct 2002 17:14:21 -0400
+	id <S262252AbSJNVLo>; Mon, 14 Oct 2002 17:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262323AbSJNVOV>; Mon, 14 Oct 2002 17:14:21 -0400
-Received: from verlaine.noos.net ([212.198.2.73]:43036 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S262304AbSJNVOQ>;
-	Mon, 14 Oct 2002 17:14:16 -0400
-Date: Mon, 14 Oct 2002 23:20:00 +0200
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] 2.5.42-ac1, 2.5.42, 2.5.41 boot hang with CONFIG_USB_DEBUG=n
-Message-ID: <20021014212000.GA1002@rousalka.noos.fr>
-References: <20021013172557.GA890@rousalka.noos.fr> <3DAAF67F.1080504@pacbell.net>
+	id <S262304AbSJNVLo>; Mon, 14 Oct 2002 17:11:44 -0400
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:15622 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S262252AbSJNVKj>; Mon, 14 Oct 2002 17:10:39 -0400
+Date: Mon, 14 Oct 2002 15:12:49 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] 2.5.42, cciss, factor more dup'ed code (6 of 7)
+Message-ID: <20021014151249.F1257@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3DAAF67F.1080504@pacbell.net>; from david-b@pacbell.net on lun, oct 14, 2002 at 18:53:19 +0200
-X-Mailer: Balsa 2.0.2
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002.10.14 18:53 David Brownell wrote:
->> Now it turns out I didn't do such a piss-poor of configuring my 2.5 
->> kernel, since the only option I could find that make a difference 
->> was CONFIG_USB_DEBUG. When I accept flooding my system logs with 
->> obscure usb incantations the system boots:(.   ...
->> 
->>     Can an helpful soul help me bring my system some relief  ? I'd 
->> really like not to boot in debug mode.
-> 
-> That's a new failure mode!   Can you help narrow this down?
-> 
-> You're using the OHCI driver, so you can just tweak the lines at the
-> top of drivers/usb/host/ohci-hcd.c that can #define DEBUG.  If you
-> comment out that #define, and leave CONFIG_USB_DEBUG on (and then
-> rebuild and re-init with the new OHCI driver), does that work or not?
 
-As requested, I changed the defines in this file to :
+patch 6 of 7
+Factor out duplicated geometry inquiry code
+applies to 2.5.42
 
-/*#ifdef CONFIG_USB_DEBUG
-#       define DEBUG
-#else*/
-#       undef DEBUG
-/*#endif*/
-
-rebuild a kernel, and started rebooting like mad.
-
-Procedure was following :
-1. reboot the computer (software reboot if ok kernel, else reset)
-2. go through bios (long initiation with memory testing)
-3. when the bootloader shows up (might hang just before, my disks 
-really do not like being stopped before reboot) / when the system 
-hangs, press reset
-4. go through bios initialization (bis)
-5. when grub shows up, play a bit in the menus (up-down...) then choose 
-a kernel
-
-With this protocol I got a 100% boot rate on the original kernel and an 
-almost-always hang with the kernel where debuging was undefed in 
-drivers/usb/host/ohci-hcd.c. It did boot two times (out of maybe 10-15 
-tries) but that doesn't count since both times the keyboard was dead. 
-Since I can't do a lost of things with only the mouse, I clicked reboot 
-in gdm these two times.
-
-> If that works, it'd be time to see which OHCI printk()s morph init (?)
-> timing enough to matter to your K7 box.   Looked to me like they were
-> all either before or after the timing-critical bits (chip init), so
-> disabling just the OHCI messages "should" not change your failure 
-> mode.
-
-No such luck. It really looks like ohci is the culprit:(
-I guess I'm lucky it's got a maintainer as responsive as you:)
-
-Any other ideas ?
-
-Regards,
-
-P.S.
-
-	I don't know if it's important, but I had to enable usb 
-keyboard legacy mode in the bios to have keyboard support in the 
-bootloader stage. I had a bad feeling about the option though, a good 
-bios is a lean bios.
-
---
-Nicolas Mailhot
+diff -urN linux-2.5.42-f/drivers/block/cciss.c linux-2.5.42-g/drivers/block/cciss.c
+--- linux-2.5.42-f/drivers/block/cciss.c	Mon Oct 14 13:54:20 2002
++++ linux-2.5.42-g/drivers/block/cciss.c	Mon Oct 14 14:07:37 2002
+@@ -1007,6 +1007,49 @@
+         return(return_status);
+ 
+ }
++static void cciss_geometry_inquiry(int ctlr, int logvol,
++			int withirq, unsigned int total_size,
++			unsigned int block_size, InquiryData_struct *inq_buff,
++			drive_info_struct *drv)
++{
++	int return_code;
++	memset(inq_buff, 0, sizeof(InquiryData_struct));
++	if (withirq)
++		return_code = sendcmd_withirq(CISS_INQUIRY, ctlr,
++			inq_buff, sizeof(*inq_buff), 1, logvol ,0xC1);
++	else
++		return_code = sendcmd(CISS_INQUIRY, ctlr, inq_buff,
++			sizeof(*inq_buff), 1, logvol ,0xC1, NULL);
++	if (return_code == IO_OK) {
++		if(inq_buff->data_byte[8] == 0xFF) {
++			printk(KERN_WARNING
++				"cciss: reading geometry failed, volume "
++				"does not support reading geometry\n");
++			drv->block_size = block_size;
++			drv->nr_blocks = total_size;
++			drv->heads = 255;
++			drv->sectors = 32; // Sectors per track
++			drv->cylinders = total_size / 255 / 32;
++		} else {
++			drv->block_size = block_size;
++			drv->nr_blocks = total_size;
++			drv->heads = inq_buff->data_byte[6];
++			drv->sectors = inq_buff->data_byte[7];
++			drv->cylinders = (inq_buff->data_byte[4] & 0xff) << 8;
++			drv->cylinders += inq_buff->data_byte[5];
++		}
++	} else { /* Get geometry failed */
++		printk(KERN_WARNING "cciss: reading geometry failed, "
++			"continuing with default geometry\n");
++		drv->block_size = block_size;
++		drv->nr_blocks = total_size;
++		drv->heads = 255;
++		drv->sectors = 32; // Sectors per track
++		drv->cylinders = total_size / 255 / 32;
++	}
++	printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
++		drv->heads, drv->sectors, drv->cylinders);
++}
+ static void 
+ cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
+ 		int withirq, unsigned int *total_size, unsigned int *block_size)
+@@ -1179,53 +1222,8 @@
+ 		hba[ctlr]->highest_lun = logvol;
+ 	cciss_read_capacity(ctlr, logvol, size_buff, 1, 
+ 		&total_size, &block_size);
+-	/* Execute the command to read the disk geometry */
+-	memset(inq_buff, 0, sizeof(InquiryData_struct));
+-	return_code = sendcmd_withirq(CISS_INQUIRY, ctlr, inq_buff,
+-                	sizeof(InquiryData_struct), 1, logvol ,0xC1 );
+-	if (return_code == IO_OK)
+-		{
+-			if(inq_buff->data_byte[8] == 0xFF)
+-			{
+-			   printk(KERN_WARNING "cciss: reading geometry failed, "
+-				"volume does not support reading geometry\n");
+-
+-                           hba[ctlr]->drv[logvol].block_size = block_size;
+-                           hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-                           hba[ctlr]->drv[logvol].heads = 255;
+-                           hba[ctlr]->drv[logvol].sectors = 32; // Sectors per track
+-                           hba[ctlr]->drv[logvol].cylinders = total_size / 255 / 32;
+-                	} else
+-			{
+-
+-		 	   hba[ctlr]->drv[logvol].block_size = block_size;
+-                           hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-                           hba[ctlr]->drv[logvol].heads = 
+-					inq_buff->data_byte[6]; 
+-                           hba[ctlr]->drv[logvol].sectors = 
+-					inq_buff->data_byte[7]; 
+-			   hba[ctlr]->drv[logvol].cylinders = 
+-					(inq_buff->data_byte[4] & 0xff) << 8;
+-			   hba[ctlr]->drv[logvol].cylinders += 
+-                                        inq_buff->data_byte[5];
+-			}
+-		}
+-		else /* Get geometry failed */
+-		{
+-
+-			printk(KERN_WARNING "cciss: reading geometry failed, "
+-				"continuing with default geometry\n"); 
+-
+-			hba[ctlr]->drv[logvol].block_size = block_size;
+-			hba[ctlr]->drv[logvol].nr_blocks = total_size;
+-			hba[ctlr]->drv[logvol].heads = 255;
+-			hba[ctlr]->drv[logvol].sectors = 32; // Sectors per track 
+-			hba[ctlr]->drv[logvol].cylinders = total_size / 255 / 32;
+-		}
+-		printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
+-			hba[ctlr]->drv[logvol].heads, 
+-			hba[ctlr]->drv[logvol].sectors,
+-			hba[ctlr]->drv[logvol].cylinders);
++	cciss_geometry_inquiry(ctlr, logvol, 1, total_size, block_size,
++			inq_buff, &hba[ctlr]->drv[logvol]);
+ 	hba[ctlr]->drv[logvol].usage_count = 0;
+ 	++hba[ctlr]->num_luns;
+ 	/* setup partitions per disk */
+@@ -2184,50 +2182,8 @@
+ #endif /* CCISS_DEBUG */
+ 		cciss_read_capacity(cntl_num, i, size_buff, 0,
+ 			&total_size, &block_size);
+-		/* Execute the command to read the disk geometry */
+-		memset(inq_buff, 0, sizeof(InquiryData_struct));
+-		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
+-                	sizeof(InquiryData_struct), 1, i ,0xC1, NULL );
+-	  	if (return_code == IO_OK)
+-		{
+-			if(inq_buff->data_byte[8] == 0xFF)
+-			{
+-			   printk(KERN_WARNING "cciss: reading geometry failed, volume does not support reading geometry\n");
+-
+-                           hba[cntl_num]->drv[i].block_size = block_size;
+-                           hba[cntl_num]->drv[i].nr_blocks = total_size;
+-                           hba[cntl_num]->drv[i].heads = 255;
+-                           hba[cntl_num]->drv[i].sectors = 32; // Sectors per track
+-                           hba[cntl_num]->drv[i].cylinders = total_size / 255 / 32;                	} else
+-			{
+-
+-		 	   hba[cntl_num]->drv[i].block_size = block_size;
+-                           hba[cntl_num]->drv[i].nr_blocks = total_size;
+-                           hba[cntl_num]->drv[i].heads = 
+-					inq_buff->data_byte[6]; 
+-                           hba[cntl_num]->drv[i].sectors = 
+-					inq_buff->data_byte[7]; 
+-			   hba[cntl_num]->drv[i].cylinders = 
+-					(inq_buff->data_byte[4] & 0xff) << 8;
+-			   hba[cntl_num]->drv[i].cylinders += 
+-                                        inq_buff->data_byte[5];
+-			}
+-		}
+-		else /* Get geometry failed */
+-		{
+-			printk(KERN_WARNING "cciss: reading geometry failed, continuing with default geometry\n"); 
+-
+-			hba[cntl_num]->drv[i].block_size = block_size;
+-			hba[cntl_num]->drv[i].nr_blocks = total_size;
+-			hba[cntl_num]->drv[i].heads = 255;
+-			hba[cntl_num]->drv[i].sectors = 32; // Sectors per track 
+-			hba[cntl_num]->drv[i].cylinders = total_size / 255 / 32;
+-		}
+-		printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
+-			hba[cntl_num]->drv[i].heads, 
+-			hba[cntl_num]->drv[i].sectors,
+-			hba[cntl_num]->drv[i].cylinders);
+-
++		cciss_geometry_inquiry(cntl_num, i, 0, total_size, block_size,
++			inq_buff, &hba[cntl_num]->drv[i]);
+ 	}
+ 	kfree(ld_buff);
+ 	kfree(size_buff);

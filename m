@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbUL0AI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUL0ALS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbUL0AI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 19:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUL0AI4
+	id S261422AbUL0ALS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 19:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbUL0ALS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 19:08:56 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:7574 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261415AbUL0AIz
+	Sun, 26 Dec 2004 19:11:18 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:23187 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261422AbUL0ALH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 19:08:55 -0500
-Message-ID: <41CF528C.7090003@drzeus.cx>
-Date: Mon, 27 Dec 2004 01:08:44 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: alan@lxorguk.ukuu.org.uk, Tommy.Reynolds@MegaCoder.com
-Subject: ISA DMA demand mode (again)
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 26 Dec 2004 19:11:07 -0500
+In-Reply-To: <20041227000338.GC29854@taniwha.stupidest.org>
+References: <20041226011222.GA1896@work.bitmover.com> <20041226030957.GA8512@work.bitmover.com> <yw1x7jn5bbj1.fsf@inprovide.com> <20041226160205.GB26574@work.bitmover.com> <yw1xmzw19bnn.fsf@inprovide.com> <20041226181837.GA28786@work.bitmover.com> <1104093456.16487.0.camel@localhost.localdomain> <3ECEAB02-578B-11D9-BCB8-000A95E3BCE4@dalecki.de> <871xdc7jfk.fsf@deneb.enyo.de> <D071CC7A-5793-11D9-9777-000A95E3BCE4@dalecki.de> <20041227000338.GC29854@taniwha.stupidest.org>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <CA65A701-579B-11D9-9777-000A95E3BCE4@dalecki.de>
 Content-Transfer-Encoding: 7bit
+Cc: M?ns Rullg?rd <mru@inprovide.com>, Florian Weimer <fw@deneb.enyo.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+From: Martin Dalecki <martin@dalecki.de>
+Subject: Re: lease.openlogging.org is unreachable
+Date: Mon, 27 Dec 2004 01:11:01 +0100
+To: Chris Wedgwood <cw@f00f.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few months ago I asked why the linux ISA DMA code is locked to use 
-only single mode but I didn't get much of a response. Now this has move 
-from a curiosity to a necessity for my driver so I'm asking again. Using 
-single mode I get transfer rates of 300 kBps. With demand mode I get 
-1500 kBps. So you see why I'd like to use demand mode.
 
-Side note: If I tell the DMA controller to do single mode and the chip 
-to do demand I get 480 kBps. I find it amazing that it works at all in 
-this case.
+On 2004-12-27, at 01:03, Chris Wedgwood wrote:
 
-I included the people who helped me with the wonderful world of ISA DMA 
-(;)) the last time in the hope that you might have some insight into this.
+> On Mon, Dec 27, 2004 at 12:13:55AM +0100, Martin Dalecki wrote:
+>
+>> No the first value that worked in the whole setup of course. And I
+>> said it clearly that would be just a workaround because uniqueness
+>> can be established in the easiest way on the side of the part which
+>> is interested in the persistency - the server peer not the client.
+>
+> actually, the bk lease server could give out id's and those could be
+> caches in ~/.bk<whatever> --- server side it could be a counter that
+> you just xor with some s3kr1t value and then blind using a hash or
+> cryto-function, something good-enough (statistically unlikely to
+> break) is all that is required, it doesn't have to be perfect surely?
+>
 
-Rgds
-Pierre
+Right that's precisely what's called a cookie or token. But it would 
+involve
+a change in the on-wire protocol.
+

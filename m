@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265371AbUADKmb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 05:42:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUADKmb
+	id S265377AbUADLNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 06:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUADLNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 05:42:31 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43169 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265363AbUADKm3 (ORCPT
+	Sun, 4 Jan 2004 06:13:25 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:49341 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S265377AbUADLNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 05:42:29 -0500
-Date: Sun, 4 Jan 2004 11:42:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Christophe Saout <christophe@saout.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: CPRM ?? Re: Possibly wrong BIO usage in ide_multwrite
-Message-ID: <20040104104216.GC3418@suse.de>
-References: <20040103105721.GA24957@suse.de> <Pine.LNX.4.10.10401031153080.31033-100000@master.linux-ide.org>
+	Sun, 4 Jan 2004 06:13:19 -0500
+Date: Sun, 4 Jan 2004 03:12:57 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Lincoln Dale <ltd@cisco.com>,
+       Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Message-ID: <20040104111257.GO1882@matchmail.com>
+Mail-Followup-To: Soeren Sonnenburg <kernel@nn7.de>,
+	Nick Piggin <piggin@cyberone.com.au>, Lincoln Dale <ltd@cisco.com>,
+	Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
+	Mark Hahn <hahn@physics.mcmaster.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+References: <200401041242.47410.kernel@kolivas.org> <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local> <200401041242.47410.kernel@kolivas.org> <5.1.0.14.2.20040104195316.02151e98@171.71.163.14> <3FF7DA24.40802@cyberone.com.au> <1073211879.3261.6.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10401031153080.31033-100000@master.linux-ide.org>
+In-Reply-To: <1073211879.3261.6.camel@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03 2004, Andre Hedrick wrote:
+On Sun, Jan 04, 2004 at 11:24:39AM +0100, Soeren Sonnenburg wrote:
+> [...]
+> > Or, out of interest, an alternate scheduler?
+> > 
+> > http://www.kerneltrap.org/~npiggin/w29p2.gz
+> > (applies 2.6.1-rc1-mm1, please renice X to -10 or so)
 > 
-> Jens,
+> Thats nothing *I* can try out as I am on the powerpc benh tree.
 > 
-> Would that need bleach, detergent, or softener?
-> You should try the mirror as my original concerns were addressed to
 
-Your 'original concerns' were not original, they are the same crap you
-spout any chance you get. I don't even remember when I last saw an email
-from you with actual content. Maybe I should just get it over and done
-with and finally black list your email.
-
-> Christophe, and there are to many letters in his name for even you to
-> confuse spellings. :-)
-
-Midly amusing, you talking about spelling.
-
-I dunno why I keep getting suckered into this, it's obvious you're
-looking for these fights. I'll stop taking the bait now.
-
--- 
-Jens Axboe
-
+Says who?  The scheduler isn't platform specific.  Nick, do you have any per
+arch defines in your patch?

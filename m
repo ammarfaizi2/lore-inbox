@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRAXKB7>; Wed, 24 Jan 2001 05:01:59 -0500
+	id <S130329AbRAXKJl>; Wed, 24 Jan 2001 05:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAXKBt>; Wed, 24 Jan 2001 05:01:49 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:48134 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129375AbRAXKBg>;
-	Wed, 24 Jan 2001 05:01:36 -0500
-Message-ID: <3A6EA7FA.6B886277@innominate.com>
-Date: Wed, 24 Jan 2001 11:01:30 +0100
-From: Juri Haberland <juri.haberland@innominate.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de
+	id <S130075AbRAXKJc>; Wed, 24 Jan 2001 05:09:32 -0500
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:1805 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S129401AbRAXKJ0>;
+	Wed, 24 Jan 2001 05:09:26 -0500
+To: "Benjamin C.R. LaHaise" <blah@kvack.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: limit on number of kmapped pages
+In-Reply-To: <Pine.LNX.3.96.1010123205643.7482A-100000@kanga.kvack.org>
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 24 Jan 2001 10:09:22 +0000
+In-Reply-To: "Benjamin C.R. LaHaise"'s message of "Tue, 23 Jan 2001 21:03:09 -0500 (EST)"
+Message-ID: <y7r7l3ldzxp.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-To: nbecker@fred.net
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 statd trouble
-In-Reply-To: <x888zo29jyj.fsf@adglinux1.hns.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nbecker@fred.net wrote:
+"Benjamin C.R. LaHaise" <blah@kvack.org> writes:
+> On 24 Jan 2001, David Wragg wrote:
 > 
-> linux-2.4.0
+> > ebiederm@xmission.com (Eric W. Biederman) writes:
+> > > Why do you need such a large buffer? 
+> > 
+> > ext2 doesn't guarantee sustained write bandwidth (in particular,
+> > writing a page to an ext2 file can have a high latency due to reading
+> > the block bitmap synchronously).  To deal with this I need at least a
+> > 2MB buffer.
 > 
-> I have quite a lot of these log messages:
-> 
-> Jan 23 18:28:52 adglinux1 rpc.statd[1532]: gethostbyname error for adglinux1.hns.com
-> Jan 23 18:28:52 adglinux1 rpc.statd[1532]: STAT_FAIL to adglinux1.hns.com for SM_MON of 139.85.108.141
-> Jan 23 13:28:52 adglinux1 kernel: lockd: cannot monitor 139.85.108.141
+> This is the wrong way of going about things -- you should probably insert
+> the pages into the page cache and write them into the filesystem via
+> writepage. 
 
-Upgrade your nfs-utils to version 0.2.1
+I currently use prepare_write/commit_write, but I think writepage
+would have the same issue: When ext2 allocates a block, and has to
+allocate from a new block group, it may do a synchronous read of the
+new block group bitmap.  So before the writepage (or whatever) that
+causes this completes, it has to wait for the read to get picked by
+the elevator, the seek for the read, etc.  By the time it gets back to
+writing normally, I've buffered a couple of MB of data.
 
-Greetings,
-Juri
+But I do have a workaround for the ext2 issue.
 
--- 
-juri.haberland@innominate.com
-system engineer                                         innominate AG
-clustering & security                            the linux architects
-tel: +49-30-308806-45   fax: -77            http://www.innominate.com
+> That way the pages don't need to be mapped while being written
+> out.
+
+Point taken, though the kmap needed before prepare_write is much less
+significant than the kmap I need to do before copying data into the
+page.
+
+> For incoming data from a network socket, making use of the
+> data_ready callbacks and directly copying from the skbs in one pass with a
+> kmap of only one page at a time.
+>
+> Maybe I'm guessing incorrect at what is being attempted, but kmap should
+> be used sparingly and as briefly as possible.
+
+I'm going to see if the one-page-kmapped approach makes a measurable
+difference.
+
+I'd still like to know what the basis for the current kmap limit
+setting is.
+
+
+David Wragg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

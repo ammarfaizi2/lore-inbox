@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312083AbSCQRcq>; Sun, 17 Mar 2002 12:32:46 -0500
+	id <S312082AbSCQSFQ>; Sun, 17 Mar 2002 13:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312082AbSCQRc2>; Sun, 17 Mar 2002 12:32:28 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:48292 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S312081AbSCQRcP>; Sun, 17 Mar 2002 12:32:15 -0500
-Date: 17 Mar 2002 16:52:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8L1npIcXw-B@khms.westfalen.de>
-In-Reply-To: <20020316161057.A23495@hq.fsmlabs.com>
+	id <S312084AbSCQSFG>; Sun, 17 Mar 2002 13:05:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7940 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312082AbSCQSEt>; Sun, 17 Mar 2002 13:04:49 -0500
 Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+To: kaih@khms.westfalen.de (Kai Henningsen)
+Date: Sun, 17 Mar 2002 18:20:01 +0000 (GMT)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <8L1noxPHw-B@khms.westfalen.de> from "Kai Henningsen" at Mar 17, 2002 04:38:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E16mMDf-0007JE-00@the-village.bc.nu> <alan@lxorguk.ukuu.org.uk> <20020316143916.A23204@hq.fsmlabs.com> <E16mMDf-0007JE-00@the-village.bc.nu> <20020316161057.A23495@hq.fsmlabs.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16mfGE-00034P-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com  wrote on 16.03.02 in <20020316161057.A23495@hq.fsmlabs.com>:
+> > That's not an umlaut, that's an "ae", which is a real letter in Finnish and
+> > Swedish (it just _looks_ like an a with an umlaut to you uncultured
+> > people), and it happens to be a letter that is just left of the ' mark on
+> > a Finnish keyboard.
+> 
+> Hey, careful there! Those English speakers stole that name from German,  
+> and in German those umlauts are real letters, too. Incidentally, my ae is  
+> next to the '# key ...
 
-> On Sat, Mar 16, 2002 at 10:00:07PM +0000, Alan Cox wrote:
-> > > databases, routing tables, and images. Our good friends at Intel
-> > > claim "carrier grade" Linux  needs to run threaded apps
-> > > with 10,000 threads to depose Solaris in telecom - all sharing the
-> > > same monster address space.=20
-> >
-> > Thats intel though. The same people who seem to think that hyperthreading
-> > in the CPU is required for carrier grade work 8)
->
-> I love the whole sound of "carrier grade" though: Do you use "carrier grade"
-> Linux or just the "recreational boating" version?
-
-Wrong carrier, though. It's not US Navy carriers (those people use NT,  
-after all, and this was "depose Solaris"), it's carriers like AT&T - phone  
-companies. And I suspect many of those 10,000 threads are handling one  
-phone conversation each. Or maybe one half of one.
-
-In fact, that's a problem space I find much more interesting than the  
-military. *These* people need to be robust in peacetime. They can't afford  
-a big showy piece of hardware that breaks down when it's finally needed,  
-because "finally" is a very short-term goal.
-
-MfG Kai
+There are still a couple of places you can legitimaely use an ae symbol in
+English. It's not quite dead yet 8)

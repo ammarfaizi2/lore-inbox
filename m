@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286267AbRL0NHk>; Thu, 27 Dec 2001 08:07:40 -0500
+	id <S285118AbRL0Nhm>; Thu, 27 Dec 2001 08:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286268AbRL0NHa>; Thu, 27 Dec 2001 08:07:30 -0500
-Received: from vega.ipal.net ([206.97.148.120]:14991 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S286267AbRL0NHP>;
-	Thu, 27 Dec 2001 08:07:15 -0500
-Date: Thu, 27 Dec 2001 07:07:14 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: linux-kernel@vger.kernel.org
-Subject: what file to put a particular function in?
-Message-ID: <20011227070714.A23383@vega.ipal.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S286268AbRL0Nhd>; Thu, 27 Dec 2001 08:37:33 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:41221 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S285118AbRL0NhW>; Thu, 27 Dec 2001 08:37:22 -0500
+Date: Thu, 27 Dec 2001 14:37:16 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: "Eshwar D - CTD, Chennai." <deshwar@ctd.hcltech.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SMBFS reading & Time sync problem
+In-Reply-To: <EF836A380096D511AD9000B0D021B52746370A@narmada.ctd.hcltech.com>
+Message-ID: <Pine.LNX.4.33.0112271359390.25461-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4.17, the show_trace_task() function for sparc32 finally showed up.
-The problem was, it was moved from traps.c to process.c.  The confusion
-is that in other platforms it is in traps.c, not process.c.  DaveM
-mentions in past posting that this is arbitrary.  My question is, just
-what is the scope of such arbitrary decisions?  And is there even any
-need to keep traps.c and process.c separate if functions can be freely
-traded between them?
+On Thu, 27 Dec 2001, Eshwar D - CTD, Chennai. wrote:
 
-There is inconsistency.  At least show_trace_task() shows up in some
-platforms in one file, and in other platforms in another.  This differs
-even in related platforms like sparc32 (it's in process.c) and sparc64
-(it's in traps.c).  I believe there needs to be some kind of uniform
-consistency between platforms where possible.  Unless some special
-constraint exists in a platform, I believe any function should show up
-in the same place relative to the specific asm- tree.
+> Hai,
+> 	I am using kernel version 2.4.2. and samba version is 2.2.0. and
 
-I'm sure such changes really would not be wise for the remaining 2.4
-sequence.  But what about 2.5?  Could this not be included as a goal in
-the 2.5 tree, to get functions located more consistently?
+2.4.3 may have a fix for this if the size of the file changes. Upgrade to
+a newer kernel and see if this doesn't work better there.
 
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+smbfs does not really support this kind of sharing anyway. It caches
+things without having an "oplock" on the server. Without an oplock it
+should always re-read everything (hard to do for mmap'ed files).
+
+There is also an assumption in a lot of the code that the file does not
+change on the server.
+
+
+>  To avoid this problem my suggestion is
+> 
+> 	1. While every write the modified time to be notified to sever by
+> sending SMBsetattr.
+
+That will cut the transfer rate in half (roughly) and there is no
+guarantee that it will work as some servers do not seem to respond with
+the recently written attributes.
+
+I don't think that is the best way to do this. oplocks + proper
+invalidation should be a lot safer. Setting attributes depends on the
+clocks of the machines being somewhat in sync.
+
+
+Please test 2.4.17 (or a more recent kernel from your vendor). If that
+doesn't work could you then send me a testprogram/script that triggers
+this. Thanks.
+
+/Urban
+

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315573AbSECG4g>; Fri, 3 May 2002 02:56:36 -0400
+	id <S315582AbSECG7A>; Fri, 3 May 2002 02:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315576AbSECG4f>; Fri, 3 May 2002 02:56:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:61679 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315573AbSECG4e>; Fri, 3 May 2002 02:56:34 -0400
-Date: Fri, 3 May 2002 08:52:09 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: bjorn_helgaas@hp.com, Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] CONFIG_AGP_HP_ZX1 should only be available on ia64
-Message-ID: <Pine.NEB.4.44.0205030848230.2605-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315583AbSECG67>; Fri, 3 May 2002 02:58:59 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:55559 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S315582AbSECG6z>;
+	Fri, 3 May 2002 02:58:55 -0400
+Subject: Re: Serial port- Linux kernel
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <GVHNWI$3922BF840A57031E8DFA5B1C29C46DC1@inwind.it>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 03 May 2002 08:58:56 +0200
+Message-Id: <1020409136.272.0.camel@ADMIN>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2002-05-02 at 16:50, antonelloderosa@inwind.it wrote:
+> I must control the serial port at kernel level, because I have to make several measurements of one-way delay between a source and a destination host, so while I set the DTR on the source host when I send the UDP packet, the destination host must be able to set by itself the RTS when it receives the packet.
+> 
+> I'm quite a beginner in Linux-kernel, so may you help me more?
+> 
+> Thanks again
+> 
+> Antonello 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Hi Antonello,
 
-2.4.19-pre8 adds the CONFIG_AGP_HP_ZX1 config option that should only be
-available on ia64 but it was selectable on i386. The problem seems to be
-that IIRC the dependency on a symbol in dep_bool doesn't work if the
-symbol is neither set or unset.
+if you're new to the kernel ( like me :o), you could take Rubini &
+Corbets ``Linux Device Drivers'' book, and write a special driver for
+your problem. That could be a nice task for learning the kernel.
+I did something similar, programming a little parport-LED-lightshow.
+Your real and my artificial problem enlightenes one in driver, module,
+kernel and user-space / kernel-space relations, and is ( thus ) a fine
+task to start with.
 
-The following patch should fix this (tested only on i386):
+Regards
+Frank
 
-
---- drivers/char/Config.in.old	Fri May  3 08:47:42 2002
-+++ drivers/char/Config.in	Fri May  3 08:49:04 2002
-@@ -260,7 +260,9 @@
-    bool '  Generic SiS support' CONFIG_AGP_SIS
-    bool '  ALI chipset support' CONFIG_AGP_ALI
-    bool '  Serverworks LE/HE support' CONFIG_AGP_SWORKS
--   dep_bool '  HP ZX1 AGP support' CONFIG_AGP_HP_ZX1 $CONFIG_IA64
-+   if [ "$CONFIG_IA64" = "y" ]; then
-+      bool '  HP ZX1 AGP support' CONFIG_AGP_HP_ZX1
-+   fi
- fi
-
- bool 'Direct Rendering Manager (XFree86 DRI support)' CONFIG_DRM
+PS: Many thanks to Alessandro and Jonathan for this fine collection of
+paper.
 
 
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
 

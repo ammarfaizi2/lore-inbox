@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317448AbSHCEgQ>; Sat, 3 Aug 2002 00:36:16 -0400
+	id <S317457AbSHCExJ>; Sat, 3 Aug 2002 00:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317457AbSHCEgQ>; Sat, 3 Aug 2002 00:36:16 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:4816 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317448AbSHCEgP>;
-	Sat, 3 Aug 2002 00:36:15 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15691.24200.512998.875390@napali.hpl.hp.com>
-Date: Fri, 2 Aug 2002 21:39:36 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, Gerrit Huizenga <gh@us.ibm.com>,
-       Hubertus Franke <frankeh@watson.ibm.com>, <Martin.Bligh@us.ibm.com>,
-       <wli@holomorpy.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd) 
-In-Reply-To: <Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com>
-References: <15691.22889.22452.194180@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S317458AbSHCExJ>; Sat, 3 Aug 2002 00:53:09 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:12819 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317457AbSHCExI>;
+	Sat, 3 Aug 2002 00:53:08 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Announce: XFS split patches for 2.4.19
+Date: Sat, 03 Aug 2002 14:56:26 +1000
+Message-ID: <10959.1028350586@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 2 Aug 2002 21:26:52 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  >> I wasn't disagreeing with your case for separate large page
-  >> syscalls.  Those syscalls certainly simplify implementation and,
-  >> as you point out, it well may be the case that a transparent
-  >> superpage scheme never will be able to replace the former.
+Content-Type: text/plain; charset=us-ascii
 
-  Linus> Somebody already had patches for the transparent superpage
-  Linus> thing for alpha, which supports it. I remember seeing numbers
-  Linus> implying that helped noticeably.
+ftp://oss.sgi.com/projects/xfs/download/patches/2.4.19.
 
-Yes, I saw those.  I still like the Rice work a _lot_ better.  It's
-just a thing of beauty, from a design point of view (disclaimer: I
-haven't seen the implementation, so there may be ugly things
-lurking...).
+For some time the XFS group have been producing split patches for XFS,
+separating the core XFS changes from additional patches such as kdb,
+xattr, acl, dmapi, kbuild 2.5.  These patches were initially intended
+for internal use and for feeding to Linus but we got no response at
+all.  The split patches are now being released to the world with the
+hope that developers and distributors will find them useful.
 
-  Linus> But yes, that definitely doesn't work for humongous pages (or
-  Linus> whatever we should call the multi-megabyte-special-case-thing
-  Linus> ;).
+Read the README in each directory very carefully, the split patch
+format has changed over a few kernel releases.  Any questions that are
+covered by the README will be ignored.  There is even a 2.4.20/README
+for the terminally impatient :).
 
-Yes, you're probably right.  2MB was reported to be fine in the Rice
-experiments, but I doubt 256MB (and much less 4GB, as supported by
-some CPUs) would fly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-	--david
+iD8DBQE9S2J4i4UHNye0ZOoRAhWGAJ4pWNKVZAn5r2dWpk9frItUNkYcmgCgyXSU
+I3wu2s2oNocwUehqd0Phhzc=
+=vrKP
+-----END PGP SIGNATURE-----
+

@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCNVuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVCNVtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVCNVuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVCNVuV
+	id S262019AbVCNVtx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVCNVtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:50:21 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:22467 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S262012AbVCNVtp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 14 Mar 2005 16:49:45 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [patch 2.6.11-rc5] Add target debug_kallsyms 
-In-reply-to: Your message of "Mon, 14 Mar 2005 22:43:41 BST."
-             <20050314214341.GF17925@mars.ravnborg.org> 
+Received: from gate.crashing.org ([63.228.1.57]:4506 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261986AbVCNVtP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 16:49:15 -0500
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for
+	openfirmware	devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Jeff Mahoney <jeffm@suse.com>, Olaf Hering <olh@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <b7c54b74795bfea1bb6285d943b25341@kernel.crashing.org>
+References: <20050301211824.GC16465@locomotive.unixthugs.org>
+	 <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com>
+	 <20050303202319.GA30183@suse.de> <42277ED8.6050500@suse.com>
+	 <b34edd09a60d945f41bbe123a8321f22@kernel.crashing.org>
+	 <1110808986.5863.2.camel@gaston>
+	 <0409878c894cf868678d8e5226e20c42@kernel.crashing.org>
+	 <1110812661.5863.7.camel@gaston>
+	 <b7c54b74795bfea1bb6285d943b25341@kernel.crashing.org>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 08:47:31 +1100
+Message-Id: <1110836851.5863.9.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Mar 2005 08:49:35 +1100
-Message-ID: <31391.1110836975@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005 22:43:41 +0100, 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->On Sat, Feb 26, 2005 at 09:50:02PM +1100, Keith Owens wrote:
->> Make it easier to generate maps for debugging kallsyms problems.
->> debug_kallsyms is only a debugging target so no help or silent mode.
->> 
->> Signed-off-by: Keith Owens <kaos@ocs.com.au>
->Applied to my kbuild tree.
->I will remove it when we stop see kallsyms reports.
+On Mon, 2005-03-14 at 16:19 +0100, Segher Boessenkool wrote:
 
-Good luck!  Most of the kallsyms reports are not really kallsyms bugs,
-rather they are caused by the kallsyms checking picking up toolchain
-problems.
+> > On possibiliy would be to have the kernel replace spaces with
+> > underscores for the sake of matching. That would make life easier for
+> > everybody.
+> 
+> Yes, that'll probably work just fine.  Or use 0xb1, showing that this
+> is "plus-minus" correct :-)
+
+I'd rather avoid above 0x7f :) I think underscore is fine. Let's replace
+spaces with underscores when matching to userspace.
+
+Ben.
 

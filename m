@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbTEKR31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 13:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTEKR31
+	id S261801AbTEKRdm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 13:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEKRdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 13:29:27 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58004
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261759AbTEKR3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 13:29:21 -0400
-Subject: Re: 2.4.21-rc2 IDE Modular non-compile
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030511150312.GB5376@louise.pinerecords.com>
-References: <20030509064035.4C6612C014@lists.samba.org>
-	 <20030509075319.A10102@infradead.org>
-	 <20030510102615.GB12431@louise.pinerecords.com>
-	 <1052577101.16165.4.camel@dhcp22.swansea.linux.org.uk>
-	 <20030511150312.GB5376@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052671379.29920.11.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 May 2003 17:43:01 +0100
+	Sun, 11 May 2003 13:33:42 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:15117 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S261801AbTEKRdl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 13:33:41 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: The disappearing sys_call_table export.
+Date: 11 May 2003 17:20:26 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <b9m0oq$2sp$1@abraham.cs.berkeley.edu>
+References: <200305111234_MC3-1-3865-CD21@compuserve.com>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1052673626 2969 128.32.153.211 (11 May 2003 17:20:26 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 11 May 2003 17:20:26 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-05-11 at 16:03, Tomas Szepe wrote:
-> The patch (against 2.4.21-rc2-ac1) is rather large, because it
-> 	o  moves cmd640.c from drivers/ide/pci to drivers/ide, and
-> 	o  deletes cmd640.h as it is no longer used.
+Chuck Ebbert  wrote:
+>  How about:
 
-Please dont move cmd640, the drivers dont go in the top ide directory
+Here's a good rule of thumb:
+  In security, if you need to ask, it's probably broken.
 
-> I'm sure the patch is far from perfect yet (esp. what I did to
-> ide-default.c isn't nice at all -- I couldn't see why the object
-> was meant to be a module, or maybe I just got lost in untangling the
-> reference loops), the result, however, seems to work (for a change).
+The way to do security design is NOT by throwing a few kludgy hacks
+against the wall and seeing if any of them stick.  That's a recipe for
+security holes.  The way you get security right is by building a clean,
+simple design that you can convincingly argue to be correct.  In security,
+you don't write code until you've got your assurance argument down pat.
 
-ide-default is never going to be a module so that bit is ok.
+If you can't convince yourself it's correct, it's probably not.
 
+>        copy_from_user(name1, userfilename, ...);
+>        ret = original_unlink(userfilename);
+>        copy_from_user(name2, userfilename, ...);
+
+Insecure.  Simply exploit the race condition twice: once just before
+the original_unlink() to change the string to a dangerous filename,
+then a second time just after the original_unlink() to change it back.

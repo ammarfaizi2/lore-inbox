@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUGHSOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUGHSPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUGHSOr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 14:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUGHSOr
+	id S264058AbUGHSPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 14:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUGHSPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 14:14:47 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:26125 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263881AbUGHSOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 14:14:46 -0400
-Message-ID: <40ED9478.6050609@techsource.com>
-Date: Thu, 08 Jul 2004 14:37:44 -0400
-From: Timothy Miller <miller@techsource.com>
+	Thu, 8 Jul 2004 14:15:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39881 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264058AbUGHSPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 14:15:20 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: David Teigland <teigland@redhat.com>
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Date: Thu, 8 Jul 2004 14:22:19 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>
+References: <200407050209.29268.phillips@redhat.com> <20040708091043.GS12255@marowsky-bree.de> <20040708105338.GA16115@redhat.com>
+In-Reply-To: <20040708105338.GA16115@redhat.com>
 MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Autoregulate swappiness & inactivation
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <20040708001027.7fed0bc4.akpm@osdl.org> <cone.1089273505.418287.4554.502@pc.kolivas.org> <20040708010842.2064a706.akpm@osdl.org> <cone.1089275229.304355.4554.502@pc.kolivas.org> <40ED759C.2010009@techsource.com> <40ED807C.70705@comcast.net>
-In-Reply-To: <40ED807C.70705@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407081422.19566.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
+On Thursday 08 July 2004 06:53, David Teigland wrote:
+> We have a symmetric, kernel-based, stand-alone cluster manager (CMAN)
+> that has no ties to anything else whatsoever.  It'll simply run and
+> answer the question "who's in the cluster?" by providing a list of
+> names/nodeids.
 
-John Richard Moser wrote:
+While we're in here, could you please explain why CMAN needs to be 
+kernel-based?  (Just thought I'd broach the question before Christoph 
+does.)
 
-> 
-> Con is a medic?  . . . . shit.  I'm 5 years overdue for my
-> measles/mumps/rhubella shot
-> 
-> /me hides *cough*
+Regards,
 
-
-I'm not sure the term 'medic' quite does him justice.
-
+Daniel

@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129494AbRBSQDD>; Mon, 19 Feb 2001 11:03:03 -0500
+	id <S129949AbRBSQFn>; Mon, 19 Feb 2001 11:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129677AbRBSQCx>; Mon, 19 Feb 2001 11:02:53 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23057 "EHLO
+	id <S129935AbRBSQFd>; Mon, 19 Feb 2001 11:05:33 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24849 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129494AbRBSQCk>; Mon, 19 Feb 2001 11:02:40 -0500
-Subject: Re: Linux 2.4.1-ac15
-To: prumpf@mandrakesoft.com
-Date: Mon, 19 Feb 2001 16:03:04 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        prumpf@parcelfarce.linux.theplanet.co.uk, rusty@linuxcare.com
-In-Reply-To: <Pine.LNX.3.96.1010219054120.16489F-100000@mandrakesoft.mandrakesoft.com> from "Philipp Rumpf" at Feb 19, 2001 05:54:11 AM
+	id <S129816AbRBSQFU>; Mon, 19 Feb 2001 11:05:20 -0500
+Subject: Re: quotaon -guav on 2.4.1-ac15
+To: lech.szychowski@pse.pl
+Date: Mon, 19 Feb 2001 16:05:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010219130044.D13053@lech.pse.pl> from "Lech Szychowski" at Feb 19, 2001 01:00:44 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14UsmJ-0003kx-00@the-village.bc.nu>
+Message-Id: <E14Usok-0003lO-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Rusty had a patch that locked the module list properly IIRC.
+> > quotaon: using /home/vhosts/b/quota.user on /dev/sda3: Invalid argument
+> > quotaon: using /home/vhosts/a/quota.user on /dev/sdb1: Invalid argument
+> 
+> I believe -ac family has Jan Kara quota patches and
+> therefore you need his quota-3 utilites, avaliable from
+> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils
 
-So does -ac now. I just take a spinlock for the modify cases that race
-against faults (including vmalloc faults from irq context)
-
+Yep. This is neccessary because the Linux base tree quota code as well as
+being buggy (which can be fixed without tool changes) is 16bit uid so 
+rather useless in the real world. And fixing that _does_ need the new tools
+as well as the kernel patches Jan wrote which are integrated in -ac

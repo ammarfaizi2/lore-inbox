@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132672AbRAZJQJ>; Fri, 26 Jan 2001 04:16:09 -0500
+	id <S132432AbRAZJYb>; Fri, 26 Jan 2001 04:24:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132562AbRAZJP7>; Fri, 26 Jan 2001 04:15:59 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:44805 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S132672AbRAZJPs>; Fri, 26 Jan 2001 04:15:48 -0500
-Date: Fri, 26 Jan 2001 22:15:45 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: "Steven N. Hirsch" <shirsch@adelphia.net>
-Cc: "David S. Miller" <davem@redhat.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hotmail can't deal with ECN
-Message-ID: <20010126221545.F11097@metastasis.f00f.org>
-In-Reply-To: <14960.31423.938042.486045@pizda.ninka.net> <Pine.LNX.4.21.0101252152370.27798-100000@pii.fast.net>
+	id <S132176AbRAZJYU>; Fri, 26 Jan 2001 04:24:20 -0500
+Received: from finch-post-11.mail.demon.net ([194.217.242.39]:28682 "EHLO
+	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S130970AbRAZJYM>; Fri, 26 Jan 2001 04:24:12 -0500
+Date: Fri, 26 Jan 2001 09:24:12 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre8 losing pages
+Message-ID: <20010126092412.A508@colonel-panic.com>
+Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
+In-Reply-To: <20010125231659.A2128@colonel-panic.com> <3A70DEF1.80ECEF80@baldauf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0101252152370.27798-100000@pii.fast.net>; from shirsch@adelphia.net on Thu, Jan 25, 2001 at 09:55:00PM -0500
-X-No-Archive: Yes
+In-Reply-To: <3A70DEF1.80ECEF80@baldauf.org>; from xuan--lkml@baldauf.org on Fri, Jan 26, 2001 at 03:20:33AM +0100
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 09:55:00PM -0500, Steven N. Hirsch wrote:
+On Fri, Jan 26, 2001 at 03:20:33AM +0100, Xuan Baldauf wrote:
+> 
+> Peter Horton wrote:
+> 
+> > I'm experiencing repeatable corruption whilst writing large volumes of
+> > data to disk. Kernel version is 2.4.1-pre8, on an 850MHz AMD Athlon on an
+> > ASUS A7V (VIA KT133 chipset) motherboard 128M RAM (tested with 'memtest86'
+> > for 10 hours).
+> >
+> 
+> So what output does following bash script produce?
+> 
 
-    Adelphia Communications just blew off my problem complaint (they
-    have a router between me and the POP server that DENY's ECN),
-    telling me that they "..won't upgrade the router on the basis of
-    one complaint on a Linux (read: non-supported by them)
-    system...".
+Well this is the script I've been testing with ...
 
-With treatment like this, I would get a new ISP.
+   #!/bin/bash -x
+   set -e
+   uname -a
+   rm -f test test[a-z]
+   dd if=/dev/urandom of=test bs=1024k count=128
+   for I in a b c d e f g h i j k l m n o p q r s t u v w x y z; do
+	   cp test test$I
+   done
+   md5sum test*
 
+... this is the kinda output I get on most runs :-
 
+   Linux mole-rat 2.4.1-pre10 #1 Fri Jan 26 08:48:55 GMT 2001 i686 unknown
+   ...
+   aa6a64589748321899bab2b66f71427f  testt
+   aa6a64589748321899bab2b66f71427f  testu
+   aa6a64589748321899bab2b66f71427f  testv
+   9dde1bed276e32a1f9af98c87ab05978  testw
+   aa6a64589748321899bab2b66f71427f  testx
+   aa6a64589748321899bab2b66f71427f  testy
+   aa6a64589748321899bab2b66f71427f  testz
+   mole-rat:~# cmp testw testx
+   testw testx differ: char 110862337, line 433772
+   mole-rat:~# cmp -i $(( 110862336 + 4096 )) testw testx
+   mole-rat:~# echo $(( 110862336 % 4096 ))
+   0
 
-  --cw (who works for an ISP, and has done so for a long time)
+> 
+> I cannot reproduce your behaviour in 2.4.1-pre9.
+> 
+
+No, I can't find anybody else who can either. Maybe I've got a dodgy CPU
+:-(
+
+P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTEJUMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 16:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTEJUMs
+	id S264498AbTEJUcM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 16:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbTEJUcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 16:12:48 -0400
-Received: from mail.gmx.net ([213.165.65.60]:42434 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264494AbTEJUMq convert rfc822-to-8bit
+	Sat, 10 May 2003 16:32:12 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:12451 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264498AbTEJUcL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 16:12:46 -0400
-Date: Sat, 10 May 2003 22:23:06 +0200
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-In-Reply-To: <S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
-References: <1405.1052575075@www9.gmx.net>
-	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
-	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
-	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
-	<20030510162527.GD29271@mail.jlokier.co.uk>
-	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
-	<S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
-	<1052588866.1013.3.camel@bip.localdomain.fake>
-	<S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Sat, 10 May 2003 16:32:11 -0400
+Date: Sat, 10 May 2003 13:44:44 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net and BK->CVS gateway
+Message-ID: <20030510204444.GB27325@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+References: <20030510154352.GK679@phunnypharm.org> <20030510162207.GB24686@work.bitmover.com> <20030510192253.GA24276@delft.aura.cs.cmu.edu> <20030510195545.GA26447@work.bitmover.com> <Pine.LNX.4.44.0305102220330.12110-100000@serv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305102220330.12110-100000@serv>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003 22:06:25 +0200
-Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
+On Sat, May 10, 2003 at 10:21:55PM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Sat, 10 May 2003, Larry McVoy wrote:
+> 
+> >     "it's about being nice to people especially the ones that help you."
+> > 
+> > What he said.
+> 
+> So that gives you a right to be an ass to anyone who critizes you?
 
-> On 10 May 2003 19:47:47 +0200
-> Xavier Bestel <xavier.bestel@free.fr> wrote:
-> 
-> > Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
-> > 
-> > > rebooted with a reconfigured kernel to assure it's not cpufreq.
-> > > same behaviour without cpufreq.
-> > 
-> > You should perhaps try to enable/disable APM idle calls ..
-> > 
-> > 	Xav
-> 
-> disabling apm idle calls seem to fix it but on this notebook
-> those calls are necessary so that it doesn't get too hot.
-> or can ACPI be used to accomplish those calls?
-> 
-> I'm already running it always on SpeeStep power-saving mode
-> so that it doesn't get REALLY hot. try typing on an Inspiron
-> 8100 in the summer while compiling for a while. it's not
-> healthy for your hands :D
+A-trolling we will go, a-trolling we will go, hi ho, the merry-o,
+a-trolling we will go.  
 
-besides fixing the noise issue by disabling a wanted feature,
-somehow pcmcia is borked, it just doesn't work and print
-lots of error messages and one of pcmcia processes (dunno which)
-segfaults.
-may be my fault, who knows. well, we'll see...
+Not gonna bite, can't do it, wouldn't be prudent, Barbara wouldn't like it.

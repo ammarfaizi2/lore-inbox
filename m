@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273227AbTHFB4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 21:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273238AbTHFB4Q
+	id S273068AbTHFBwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 21:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHFBwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 21:56:16 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:30910 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S273227AbTHFB4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 21:56:14 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Andrew McGregor <andrew@indranet.co.nz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.4 vs 2.6 versions of include/linux/ioport.h
-Date: Tue, 5 Aug 2003 21:56:12 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200308051041.08078.gene.heskett@verizon.net> <200308051807.00179.gene.heskett@verizon.net> <82550000.1060129571@ijir>
-In-Reply-To: <82550000.1060129571@ijir>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 21:52:38 -0400
+Received: from mailhost.NMT.EDU ([129.138.4.52]:32436 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id S273068AbTHFBwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 21:52:37 -0400
+Date: Tue, 5 Aug 2003 19:47:24 -0600
+From: Val Henson <val@nmt.edu>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TOE brain dump
+Message-ID: <20030806014724.GH11101@speare5-1-14>
+References: <20030804223800.P5798@almesberger.net> <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com> <20030805015401.GA15811@work.bitmover.com> <20030804233026.R5798@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308052156.12613.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.12.168] at Tue, 5 Aug 2003 20:56:13 -0500
+In-Reply-To: <20030804233026.R5798@almesberger.net>
+User-Agent: Mutt/1.4.1i
+X-Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 August 2003 20:26, Andrew McGregor wrote:
->--On Tuesday, August 05, 2003 06:07:00 PM -0400 Gene Heskett
->
-><gene.heskett@verizon.net> wrote:
->> Now, the factory nvidia drivers will not build for 2.6, so I don't
->> have any X.  Whats the status of the kernel versions vis-a-vis
->> running a gforce2 MMX 32 megger?
->
->http://www.minion.de/
->
->Patches for several recent NVidia driver versions.  Works for me on
-> a GeForce2go.
->
->Andrew
+On Mon, Aug 04, 2003 at 11:30:27PM -0300, Werner Almesberger wrote:
+> Larry McVoy wrote:
+> > I'd suggest that all of you look at the fact that all of these offload 
+> > card companies have ended up dieing.  I don't know of a single one that
+> > made it to profitability.  Doesn't that tell you something?  What has 
+> > changed that makes this a good idea?
+> 
+> 1) So far, most of the battle has been about data transfers.
+>    Now, per-packet overhead is becoming an issue.
+> 
+> 2) AFAIK, they all went for designs that isolated their code
+>    from the main stack. That's one thing that, IMHO, has to
+>    change.
+> 
+> Is this enough to make TOE succeed ? I don't know.
 
-Thank you.  Patch instructions would have been nice as the patch is 
-against the archives own unpacked usr/src/nv directory, not readily 
-determined at a glance.  Took me 15 minutes to find the magic twanger 
-to play that song, erroniously patching the root makefile many times. 
-:)
+Jeff Mogul recently wrote an interesting paper called "TCP Offload is
+a Dumb Idea Whose Time Has Come":
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+http://www.usenix.org/events/hotos03/tech/full_papers/mogul/mogul_html/
 
+(It's 6 pages long and in HTML - easy to read.)
+
+After explaining why TCP offload is a dumb idea, he goes on to argue
+that *if* storage area networks are replaced with switched ethernet,
+and RDMA becomes popular, TCP offload might make sense for sending
+data to your disks.
+
+This is a good, short paper to read if you are interested in TOE for
+any reason.
+
+-VAL

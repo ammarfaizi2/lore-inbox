@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270295AbUJUGLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270311AbUJUGMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270295AbUJUGLn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUJUGLj
+	id S270311AbUJUGMb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270437AbUJUGMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:11:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:47272 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S270327AbUJUGIZ (ORCPT
+	Thu, 21 Oct 2004 02:12:08 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:39106 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S270328AbUJUGKm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 02:08:25 -0400
-Subject: Interrupts & total mess
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1098338878.3941.25.camel@gaston>
+	Thu, 21 Oct 2004 02:10:42 -0400
+Subject: Re: [PATCH 4/5]ACPI PNP driver
+From: Li Shaohua <shaohua.li@intel.com>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
+       Adam Belay <ambx1@neo.rr.com>, Matthieu <castet.matthieu@free.fr>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+In-Reply-To: <417750B6.7000409@kolumbus.fi>
+References: <1098327568.6132.226.camel@sli10-desk.sh.intel.com>
+	 <417750B6.7000409@kolumbus.fi>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1098338594.6132.234.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 16:07:58 +1000
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 14:03:14 +0800
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok so my simple project of adding NO_IRQ definitions all over the place
-is turning into a nightmare for various reasons (the probe_irq_* stuff
-beeing one of them, as it currently prevents using -1, so I'm leaning
-toward defining NO_IRQ as beeing INT_MIN, nothing against that ?)
+On Thu, 2004-10-21 at 14:01, Mika Penttilä wrote:
+> Li Shaohua wrote:
+> 
+> >Hi,
+> >This patch provides an ACPI based PNP driver. It is based on Matthieu
+> >Castet's original work. With this patch, legacy device drivers (floppy
+> >ACPI driver, COM ACPI driver, and ACPI motherboard driver) which
+> >directly use ACPI can be removed, since now we have unified PNP
+> >interface for legacy devices.
+> >
+> >Thanks,
+> >Shaohua
+> >
+> >Signed-off-by: Li Shaohua <shaohua.li@intel.com>
+> >
+> >The patch depends on previous 3 patches.
+> >
+> >--- 2.6/drivers/pnp/isapnp/Kconfig.stg3	2004-10-18 17:34:17.591712040
+> >+0800
+> >+++ 2.6/drivers/pnp/isapnp/Kconfig	2004-10-18 17:36:19.173228840 +0800
+> >  
+> >
+> Are you supposed to list here _every_ device to which not to bind? Is 
+> this feasible? Maybe take another approach and bind to the "default" 
+> acpi pnp driver if no specific driver found ?
+> 
+> +static char excluded_id_list[] =
+> +	"PNP0C0A," /* Battery */
+> +	"PNP0C0C,PNP0C0E,PNP0C0D," /* Button */
+> +	"PNP0C09," /* EC */
+> +	"PNP0C0B," /* Fan */
+> +	"PNP0A03," /* PCI root */
+> +	"PNP0C0F," /* Link device */
+> +	"PNP0000," /* PIC */
+> +	"PNP0100," /* Timer */
+> +	;
+We can't distinguish if a device has driver. Driver can be loaded as a
+module. The devices listed here are mainly be controlled by ACPI core or
+can't be controlled by PNP like PIC. This should be a short list.
 
-However, while trying to do that in a simple way, that is with a
- #ifndef NO_IRQ
- #define NO_IRQ		(INT_MIN)
- #endif
-
-Somewhere in some generic piece of include after we has some asm/* stuff
-included to let the arch a chance to override it, I figured that, first,
-there are a number of places where "irq" is defined as beeing unsigned
-long... So neither INT_MIN nor -1 are appropriate. Then I noticed while
-looking for the right files to add this stuff that we have, at least:
-
-include/linux/interrupts.h
-include/linux/irq.h
-include/linux/hardirq.h
-include/asm-*/irq.h
-include/asm-*/hw_irq.h
-include/asm-*/hardirq.h
-
-Which is seriously starting to make no sense, especially when you don't
-really know who is including who, with also the strange rule of never
-including linux/irq.h directly from a driver since the arch may not use
-the definitions in there, etc... it's a complete can of worms...
-
-So basically, linux/irq.h should be asm-generic/irq.h right ?
-
-Then, all of the CONFIG_HARDIRQS_GENERIC stuff in linux/interrupts.h
-should be moved there as well, since that's pretty much what the things
-in linux/irq.h already define.
-
-So our path should be:
-
-toplevel include
-	linux/interrupts.h (or rename it to linux/irq.h)
-	  asm/irq.h (the arch implementation)
-	    [asm-generic/irq.h] (optionally using the common defs)
-
-but I'm not sure what to do with the various hardirq.h & hw_irq.h
-thingies, at least one of the 2 arch ones should die.
-
-I'm ready to start the (painful) work of cleaning that up, though
-that will probably end up in a giga-patch touching hundreds of files
-(just to change a #include directive most of the time) though I won't
-fix all archs, I prefer not mucking aroudn with things I don't
-understand.
-
-But I'm not sure what we want to do here, so let's discuss it a bit.
-
-Ben.
+Thanks,
+Shaohua
 

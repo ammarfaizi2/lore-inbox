@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293748AbSCFSYc>; Wed, 6 Mar 2002 13:24:32 -0500
+	id <S293747AbSCFS2N>; Wed, 6 Mar 2002 13:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293750AbSCFSYW>; Wed, 6 Mar 2002 13:24:22 -0500
-Received: from mtao2.east.cox.net ([68.1.17.243]:47746 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S293748AbSCFSYK>; Wed, 6 Mar 2002 13:24:10 -0500
-Message-ID: <3C865EC4.8CD3A2A3@randomlogic.com>
-Date: Wed, 06 Mar 2002 10:24:04 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Random Logic
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <E16ieUY-0007MG-00@the-village.bc.nu>
+	id <S293750AbSCFS2C>; Wed, 6 Mar 2002 13:28:02 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44302 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293747AbSCFS1s>;
+	Wed, 6 Mar 2002 13:27:48 -0500
+Date: Wed, 6 Mar 2002 10:19:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
+Message-ID: <20020306181956.GC16003@kroah.com>
+In-Reply-To: <3C7EA7CB.C36D0211@sandino.net> <20020302075847.GE20536@kroah.com> <3C84294C.AE1E8CE9@sandino.net> <200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca> <20020306053355.GA13072@kroah.com> <200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 06 Feb 2002 16:11:41 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Mar 05, 2002 at 10:45:58PM -0700, Richard Gooch wrote:
+> Greg KH writes:
+> > On Tue, Mar 05, 2002 at 10:28:43PM -0700, Richard Gooch wrote:
+> > > 
+> > > I suspect the USB-UHCI driver is doing a double-unregister on a devfs
+> > > entry. Please set CONFIG_DEVFS_DEBUG=y, recompile and boot the new
+> > > kernel. Send the new Oops (passed through ksymoops, of course).
+> > 
+> > None of the USB host controller drivers (like usb-uhci.c) call any
+> > devfs functions.
 > 
-> >     Just about every company big enough to have a corporate lawyer, and
-> >     many even smaller do have "media" they need or want to track and
-> >     control.
-> 
-> One thing the SSSCA people must consider here is security impact. If a
-> document can be traced through its users then the ability of agencies to
-> work against organised crime will be crippled. The SSSCA appears to have no
-> provision to allow the FBI to remove watermarks, and makes it illegalf or
-> other people to be subcontracted to write the tools
-> 
-> Goodbye corporate whistleblowers, goodbye FBI plants in organised crime
-> bodies..
+> Well, usb-uhci was in the call trace. Perhaps ksymoops was being given
+> bogus input?
 
-Oh, but the FBI and DoJ appear to be excellent at breaking laws and
-making people, including the courts, believe they are completely within
-the law. According to many reports, there are hundreds of people being
-"detained" for undetermined amounts of time under the new anti-terroriam
-bills, without legal counsel, by both the FBI and DoJ. This is blatantly
-illegal and unconstitutional, but they are doing it anyway.
+I agree, with symbols like:
+	<[usb-uhci]__module_license+9099/fcd5>
+it looks like this is the case.
 
-The DMCA makes it illegal for them to do certain things, but they do.
-The way the NSA reportedly listens to ALL communication, domestic or
-foreign, is illegal. Do not discount the ability of the FBI or any other
-law enforcement agency to work around any law as they see the need.
+thanks,
 
-PGA
--- 
-Paul G. Allen
-Owner, Sr. Engineer, Security Specialist
-Random Logic/Dream Park
-www.randomlogic.com
+greg k-h

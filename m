@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318802AbSICTgS>; Tue, 3 Sep 2002 15:36:18 -0400
+	id <S318891AbSICTj3>; Tue, 3 Sep 2002 15:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318818AbSICTgS>; Tue, 3 Sep 2002 15:36:18 -0400
-Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:12950 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318802AbSICTgR>;
-	Tue, 3 Sep 2002 15:36:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>, Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: Large block device patch, part 1 of 9
-Date: Tue, 3 Sep 2002 21:42:56 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pavel Machek <pavel@suse.cz>, Peter Chubb <peter@chubb.wattle.id.au>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <20020827185833.B26573@redhat.com> <15732.34929.657481.777572@notabene.cse.unsw.edu.au>
-In-Reply-To: <15732.34929.657481.777572@notabene.cse.unsw.edu.au>
+	id <S318894AbSICTj3>; Tue, 3 Sep 2002 15:39:29 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36513 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S318891AbSICTj2>; Tue, 3 Sep 2002 15:39:28 -0400
+Date: Tue, 3 Sep 2002 20:43:50 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Hellwig <hch@lst.de>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mremap corrupts freed vma
+In-Reply-To: <Pine.LNX.4.44.0208192311300.6887-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209032031090.2200-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mJZh-0005jw-00@starship>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 12:01, Neil Brown wrote:
-> On Tuesday August 27, bcrl@redhat.com wrote:
-> > On Tue, Aug 27, 2002 at 03:23:04PM +0000, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > Then the following works properly without ugly casts or warnings:
-> > > > 
-> > > > 	__u64 val = 1;
-> > > > 
-> > > > 	printk("at least "PFU64" of your u64s are belong to us\n", val);
-> > > 
-> > > Casts are ugly but this looks even worse. I'd go for casts.
-> > 
-> > Casts override the few type checking abilities the compiler gives us.  At 
-> > least with the PFU64 style, we'll get warnings when someone changes a variable 
-> > into a pointer without remembering to update the printk.
-> > 
-> 
-> You could have the best of both worlds with:
-> 
-> static inline long long llsect(sector_t sector) { return (long long)sector;}
-> 
-> and then
->    printk("The sector number is %Lu.", llsect(sect_num));
-> 
-> Effectively, this is a type-safe cast.  You still get the warning, but
-> it looks more like the C that we are used to.
+On Mon, 19 Aug 2002, Hugh Dickins wrote:
+> My tricksy accounting code in mremap's move_vma assumed 2.4 behaviour
+> in do_munmap, which preserved vma: but 2.5 splitvma may substitute it.
+> Showed up as Committed_AS growing each time kernel built with kallsyms;
+> but more seriously, it was writing to an area already kmem_cache_freed.
 
-We've been through this before.  Last time, the winning solution was:
+Thanks, Christoph: your split_vma mods in 2.5.33-mm1 fix that issue.
 
-   printk("at least %lli of your u64s are belong to us\n", (long long) sect_num);
+(Linus didn't apply my patch: maybe he just missed it, or maybe he 
+saw, as I later did, that it would be a lot better to use splitvma
+inside move_vma, instead of second-guessing what do_munmap might do.
+But when I went to do so, I recoiled in fright from trying to work out
+the right handling of splitvma error which move_vma currently forgets.)
 
-and I expect it will be this time too.  It's just a printk!  Who cares if it
-wastes a few bytes.  It's even conceivable that if we use this idiom heavily
-enough, some gcc boffin will take the time to optimize away the useless
-conversions.
+Hugh
 
--- 
-Daniel

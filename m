@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268582AbRHPA7y>; Wed, 15 Aug 2001 20:59:54 -0400
+	id <S268611AbRHPBWF>; Wed, 15 Aug 2001 21:22:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268599AbRHPA7o>; Wed, 15 Aug 2001 20:59:44 -0400
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:26019 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S268582AbRHPA7e>; Wed, 15 Aug 2001 20:59:34 -0400
-From: Manfred Bartz <mbartz@optushome.com.au>
-Message-ID: <20010816005902.16224.qmail@optushome.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: connect() does not return ETIMEDOUT
-In-Reply-To: <Pine.LNX.4.21.0108151123510.4809-100000@w-sridhar2.des.sequent.com>
-In-Reply-To: Sridhar Samudrala's message of "Wed, 15 Aug 2001 14:41:15 -0700 (PDT)"
-Organization: yes
-Date: 16 Aug 2001 10:59:02 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S268614AbRHPBVz>; Wed, 15 Aug 2001 21:21:55 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:64507
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S268611AbRHPBVq>; Wed, 15 Aug 2001 21:21:46 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.8 Resource leaks + limits
+Date: Wed, 15 Aug 2001 20:12:48 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, mag@fbab.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E15Wz1n-00033Y-00@the-village.bc.nu> <Pine.LNX.4.33.0108150952001.2220-100000@penguin.transmeta.com> <20010815215723.F9870@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010815215723.F9870@nightmaster.csn.tu-chemnitz.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01081520213500.04125@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sridhar Samudrala <samudrala@us.ibm.com> writes:
-
-> linux has 2 queues associated with a listening socket...
-> The second one is called accept queue which hold the complete
-> connections ... The length of this queue ... is actually backlog+1.
+On Wed, 15 Aug 2001, Ingo Oeser wrote:
+>On Wed, Aug 15, 2001 at 09:53:09AM -0700, Linus Torvalds wrote:
+>> > For that to work we need to seperate struct user from the uid a little, or
+>> > provide heirarchical pools (which seems overcomplex). Its common to want
+>> > to take a group of users (eg the chemists) and give them a shared limit
+>> > rather than per user limits
+>> 
+>> No, I think the answer there is to do all the same things for "struct
+>> group" as we do for user.
 > 
-> When the accept queue is full, new incoming SYNs are accepted in a burst of 
-> 2 at a time. These are put in the SYN table expecting that the accept queue
-> will open up by the time we receive the ACK. If the accept queue doesn't get
-> open up, the ACK is simply dropped and SYN-ACK is sent again after a certain
-> timeout period. 
+>Not really. Large installations use ACLs instead of groups. 
+>
+>Why? Because if we have 2^31 users, there might be a slight
+>chance, that we need more then 32 group memberships per user.
+>
+>So let's better stop relying more and more on this group brain
+>damage and start supporting ACLs. We can support building ACL
+>groups, but please let the user and not the admin build them.
+>
+>It's called user data, because the user owns it and should
+>decide, which people are allowed to access it. 
+>
+>Please look at AFS groups, to see what I mean.
+>
+>All serious admins I know miss the ACL feature in Linux. One
+>product even emulates them via groups.
 
-Thanks for the explanation, I appreciate it.
+ACLs are good and very usefull.
 
-> In your example, 6 connections succeed immediately.
-> But only 4 enter ESTABLISHED state.
-> 2 are accepted by the server. 2 remain in the accept queue (backlog+1).
+HOWEVER, there are cases of users giving away their files to users
+that are not authorized to recieve that data.
 
-Ok, that part makes sense.
+The advantage of groups is that the facility managment defines the
+list of users authorized to view the data. It up to the user to
+grant/deny that group access authorization.
 
-> 2 of them are added to the SYN table. 
+Alternatively, it is possible to view the system as you describe - the
+user can add others to the ACL to grant access. There should still be
+some method that facility management can deny access.... On many systems
+(Trusted Solaris, UNICOS, Trix,...) this is done with compartmentalization.
+Now, it is subsets of the members of the compartment that the user can
+grant access to.
 
-So, the connections in the SYN table should be half open?
-No server SYN should have been returned?
-I just re-discovered ``TCP/IP Illustrated'' Vol.1 by W.R.Stevens and
-it confirms this in section 18.11 under ``Incoming Connection Request
-Queue''.  The book says:
-
-    5. If there is not room on the queue for the new connection, TCP
-    just ignores the received SYN.  Nothing is sent back (i.e. no RST
-    segment).  ...
-
-But in reality and going by the tcpdump, an unlimited number of
-connections is accepted because the server side completes the 3-way
-handshake regardless.  The connections are then lost later (with a
-different error message).  This does not look right to me.
-
-Comments?
+Still more flexible than generic groups, but more restricted than no
+limits on members of the ACL.
 
 -- 
-Manfred
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

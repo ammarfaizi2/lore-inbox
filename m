@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVAHK27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVAHJTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVAHK27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 05:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVAHJT5
+	id S261996AbVAHJTq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVAHJSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:19:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34949 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261841AbVAHFsJ convert rfc822-to-8bit
+	Sat, 8 Jan 2005 04:18:24 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40837 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261855AbVAHFsN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:09 -0500
+	Sat, 8 Jan 2005 00:48:13 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632633790@kroah.com>
+In-Reply-To: <1105163256826@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:44 -0800
-Message-Id: <11051632643263@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:37 -0800
+Message-Id: <11051632574140@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,96 +22,79 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.4, 2004/12/15 14:13:33-08:00, greg@kroah.com
+ChangeSet 1.1938.439.44, 2004/12/22 23:31:52-08:00, greg@kroah.com
 
-[PATCH] USB: fix sparse and compiler warnings in ti_usb_3410_5052.c
-
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/usb/serial/ti_usb_3410_5052.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
+Merge kroah.com:/home/greg/linux/BK/bleed-2.6
+into kroah.com:/home/greg/linux/BK/usb-2.6
 
 
-diff -Nru a/drivers/usb/serial/ti_usb_3410_5052.c b/drivers/usb/serial/ti_usb_3410_5052.c
---- a/drivers/usb/serial/ti_usb_3410_5052.c	2005-01-07 15:51:02 -08:00
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c	2005-01-07 15:51:02 -08:00
-@@ -179,7 +179,7 @@
- static int ti_get_serial_info(struct ti_port *tport,
- 	struct serial_struct __user *ret_arg);
- static int ti_set_serial_info(struct ti_port *tport,
--	struct serial_struct *new_arg);
-+	struct serial_struct __user *new_arg);
- static void ti_handle_new_msr(struct ti_port *tport, __u8 msr);
+ drivers/usb/atm/usb_atm.c    |   17 -----------------
+ drivers/usb/serial/keyspan.c |   12 ++++++------
+ 2 files changed, 6 insertions(+), 23 deletions(-)
+
+
+diff -Nru a/drivers/usb/atm/usb_atm.c b/drivers/usb/atm/usb_atm.c
+--- a/drivers/usb/atm/usb_atm.c	2005-01-07 15:39:38 -08:00
++++ b/drivers/usb/atm/usb_atm.c	2005-01-07 15:39:38 -08:00
+@@ -83,23 +83,6 @@
  
- static void ti_drain(struct ti_port *tport, unsigned long timeout, int flush);
-@@ -200,10 +200,10 @@
+ #include "usb_atm.h"
  
- /* circular buffer */
- static struct circ_buf *ti_buf_alloc(void);
--static inline void ti_buf_free(struct circ_buf *cb);
--static inline void ti_buf_clear(struct circ_buf *cb);
--static inline int ti_buf_data_avail(struct circ_buf *cb);
--static inline int ti_buf_space_avail(struct circ_buf *cb);
-+static void ti_buf_free(struct circ_buf *cb);
-+static void ti_buf_clear(struct circ_buf *cb);
-+static int ti_buf_data_avail(struct circ_buf *cb);
-+static int ti_buf_space_avail(struct circ_buf *cb);
- static int ti_buf_put(struct circ_buf *cb, const char *buf, int count);
- static int ti_buf_get(struct circ_buf *cb, char *buf, int count);
+-/*
+-#define DEBUG
+-#define VERBOSE_DEBUG
+-*/
+-
+-#if !defined (DEBUG) && defined (CONFIG_USB_DEBUG)
+-#	define DEBUG
+-#endif
+-
+-#include <linux/usb.h>
+-
+-#ifdef DEBUG
+-#define UDSL_ASSERT(x)	BUG_ON(!(x))
+-#else
+-#define UDSL_ASSERT(x)	do { if (!(x)) warn("failed assertion '" #x "' at line %d", __LINE__); } while(0)
+-#endif
+-
+ #ifdef VERBOSE_DEBUG
+ static int udsl_print_packet(const unsigned char *data, int len);
+ #define PACKETDEBUG(arg...)	udsl_print_packet (arg)
+diff -Nru a/drivers/usb/serial/keyspan.c b/drivers/usb/serial/keyspan.c
+--- a/drivers/usb/serial/keyspan.c	2005-01-07 15:39:38 -08:00
++++ b/drivers/usb/serial/keyspan.c	2005-01-07 15:39:38 -08:00
+@@ -1174,16 +1174,16 @@
+ 	char				*fw_name;
  
-@@ -841,7 +841,7 @@
+ 	dbg("Keyspan startup version %04x product %04x",
+-	    serial->dev->descriptor.bcdDevice,
+-	    serial->dev->descriptor.idProduct); 
++	    le16_to_cpu(serial->dev->descriptor.bcdDevice),
++	    le16_to_cpu(serial->dev->descriptor.idProduct));
+ 	
+-	if ((serial->dev->descriptor.bcdDevice & 0x8000) != 0x8000) {
++	if ((le16_to_cpu(serial->dev->descriptor.bcdDevice) & 0x8000) != 0x8000) {
+ 		dbg("Firmware already loaded.  Quitting.");
+ 		return(1);
+ 	}
  
- 		case TIOCSSERIAL:
- 			dbg("%s - (%d) TIOCSSERIAL", __FUNCTION__, port->number);
--			return ti_set_serial_info(tport, (struct serial_struct *)arg);
-+			return ti_set_serial_info(tport, (struct serial_struct __user *)arg);
+ 		/* Select firmware image on the basis of idProduct */
+-	switch (serial->dev->descriptor.idProduct) {
++	switch (le16_to_cpu(serial->dev->descriptor.idProduct)) {
+ 	case keyspan_usa28_pre_product_id:
+ 		record = &keyspan_usa28_firmware[0];
+ 		fw_name = "USA28";
+@@ -2248,10 +2248,10 @@
+ 	dbg("%s", __FUNCTION__);
+ 
+ 	for (i = 0; (d_details = keyspan_devices[i]) != NULL; ++i)
+-		if (d_details->product_id == serial->dev->descriptor.idProduct)
++		if (d_details->product_id == le16_to_cpu(serial->dev->descriptor.idProduct))
  			break;
+ 	if (d_details == NULL) {
+-		dev_err(&serial->dev->dev, "%s - unknown product id %x\n", __FUNCTION__, serial->dev->descriptor.idProduct);
++		dev_err(&serial->dev->dev, "%s - unknown product id %x\n", __FUNCTION__, le16_to_cpu(serial->dev->descriptor.idProduct));
+ 		return 1;
+ 	}
  
- 		case TIOCMIWAIT:
-@@ -1428,7 +1428,7 @@
- 
- 
- static int ti_set_serial_info(struct ti_port *tport,
--	struct serial_struct *new_arg)
-+	struct serial_struct __user *new_arg)
- {
- 	struct usb_serial_port *port = tport->tp_port;
- 	struct serial_struct new_serial;
-@@ -1734,7 +1734,7 @@
-  * Free the buffer and all associated memory.
-  */
- 
--static inline void ti_buf_free(struct circ_buf *cb)
-+static void ti_buf_free(struct circ_buf *cb)
- {
- 	kfree(cb->buf);
- 	kfree(cb);
-@@ -1747,7 +1747,7 @@
-  * Clear out all data in the circular buffer.
-  */
- 
--static inline void ti_buf_clear(struct circ_buf *cb)
-+static void ti_buf_clear(struct circ_buf *cb)
- {
- 	cb->head = cb->tail = 0;
- }
-@@ -1760,7 +1760,7 @@
-  * buffer.
-  */
- 
--static inline int ti_buf_data_avail(struct circ_buf *cb)
-+static int ti_buf_data_avail(struct circ_buf *cb)
- {
- 	return CIRC_CNT(cb->head,cb->tail,TI_WRITE_BUF_SIZE);
- }
-@@ -1773,7 +1773,7 @@
-  * buffer.
-  */
- 
--static inline int ti_buf_space_avail(struct circ_buf *cb)
-+static int ti_buf_space_avail(struct circ_buf *cb)
- {
- 	return CIRC_SPACE(cb->head,cb->tail,TI_WRITE_BUF_SIZE);
- }
 

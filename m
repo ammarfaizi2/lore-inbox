@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbTDKUCj (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTDKUCj (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:02:39 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:35714 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261707AbTDKUCh (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:02:37 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304112016.h3BKG0TM001931@81-2-122-30.bradfords.org.uk>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-To: mdresser_l@windsormachine.com (Mike Dresser)
-Date: Fri, 11 Apr 2003 21:16:00 +0100 (BST)
-Cc: root@chaos.analogic.com (Richard B. Johnson),
-       john@grabjohn.com (John Bradford), linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com
-In-Reply-To: <Pine.LNX.4.33.0304111553380.14943-100000@router.windsormachine.com> from "Mike Dresser" at Apr 11, 2003 03:59:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id S261702AbTDKUMQ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTDKUMQ (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:12:16 -0400
+Received: from [203.197.168.150] ([203.197.168.150]:30473 "HELO
+	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
+	id S261702AbTDKUMO (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:12:14 -0400
+Message-ID: <3E972414.9090607@tataelxsi.co.in>
+Date: Sat, 12 Apr 2003 01:52:44 +0530
+From: "Sriram Narasimhan" <nsri@tataelxsi.co.in>
+Organization: Tata Elxsi
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: GFP_KERNEL doubt!! <was Tasklet doubt!>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Every three-connection connector supplies power to two drives.
-> >
-> >      |--------D1
-> > -----|--------D2    ________D3
-> >      |______________|_______D4
-> >                     |_______Continue
-> Here's the way I thought of it.
-> 
->                      |--x -- 3
->        |--------X----|--x -- 3
->        |             |--x -- 3
->        |
->        |             |--x -- 3
-> -------|--------X----|--x -- 3
->        |             |--x -- 3
->        |
->        |             |--x -- 3
->        |--------X----|--x -- 3
->                      |--x -- 3
-> 
-> I now have 1 + 3 + 9 = 13 splitters, giving me 27 connections, out of 1.
-> etc, etc. Same numbers I'd have doing it your way, yours would be 13
-> levels deep instead.
-> 
-> I think I just went for the massively parallel method of hooking
-> these up and from there got massively lost.
+  Hello,
 
-Now, assuming a voltage drop of 0.05V across each cable...
+The problem of allocating more than 2.5 MB was actually more or less 
+related to the physical memory left in the kernel.
+But I moved the task which allocated the memory from the tasklet to the 
+keventd and used kmalloc (GFP_KERNEL).
 
-:-)
+The first time I ran my module, it failed at the same 2.5 MB limit.
+I restarted the system and tried it again, and I was able to allocate 5 
+MB successfully.
+I restarted the system and ran "free".
+The report is as follows:
+             total       used       free     shared    buffers     cached
+Mem:         62264      30624      31640          0       8072      16096
+-/+ buffers/cache:       6456      55808
+Swap:       192772          0     192772
 
-John.
+Then I ran gcc and compiled my code and then for the "free" report again.
+The report is as follows:
+             total       used       free     shared    buffers     cached
+Mem:         62264      45320      16944          0       9256      28384
+-/+ buffers/cache:       7680      54584
+Swap:       192772          0     192772
+
+I was able to notice that the physical memory had gone down though "gcc" 
+had completed.
+The time I ran my application, I had about 2.5M physical memory left, so 
+I was able to allocate 2.5M.
+
+What is happening ? What is the buffers/cache column and is there any 
+way I could force the kernel to release the cached memory back to free 
+physical ?
+Is there any way I can allocate more than what is left free from the 
+physical memory ?
+
+Any pointers or suggestions would be very helpful.
+
+Thank you.
+Regards,
+Sriram
+

@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318286AbSIKCTD>; Tue, 10 Sep 2002 22:19:03 -0400
+	id <S318287AbSIKC0V>; Tue, 10 Sep 2002 22:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318288AbSIKCTD>; Tue, 10 Sep 2002 22:19:03 -0400
-Received: from sabre.velocet.net ([216.138.209.205]:23562 "HELO
-	sabre.velocet.net") by vger.kernel.org with SMTP id <S318287AbSIKCTC>;
-	Tue, 10 Sep 2002 22:19:02 -0400
-To: linux-kernel@vger.kernel.org
-Subject: eth2: failed to reset hardware (err = -16)
-From: Gregory Stark <gsstark@mit.edu>
-Date: 10 Sep 2002 22:23:47 -0400
-Message-ID: <87u1kxb6x8.fsf@stark.dyndns.tv>
-MIME-Version: 1.0
+	id <S318288AbSIKC0V>; Tue, 10 Sep 2002 22:26:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:5319 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318287AbSIKC0V>;
+	Tue, 10 Sep 2002 22:26:21 -0400
+Date: Tue, 10 Sep 2002 19:29:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Status Report
+Message-ID: <20020911022933.GA3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 10, 2002 at 09:00:30PM -0500, Thomas Molina wrote:
+>               2.5 Kernel Problem Reports as of 10 Sep
+>    Problem Title                Status                Discussion
+>    qlogicisp oops               no further discussion 2.5.33
+>    PCI and/or starfire.c broken no further discussion 2.5.33
+>    __write_lock_failed() oops   no further discussion 2.5.33
 
-When I insert my USR 802.11b card it doesn't work and I get these messages.
-What does "failed to reset hardware" mean is wrong?
+Since 3 of these are things I reported...
+
+qlogicisp.c oops is some longstanding error recovery issue and/or ISR
+bug. axboe@suse.de has been taking my bugreports. There is a lack of
+general interest in and information about this device.
+
+PCI/starfire.c breakage has to do with PCI-PCI bridges appearing on
+machines with multiple PCI buses. The bus numbering scheme used by
+the bridges creates clashes with various other bus' numbers or something
+like that. It's likely more visible on NUMA-Q since the bus numbers are
+used for port I/O remapping. I'm unaware of the amount of reliance on
+bus numbers in other circumstances. colpatch@us.ibm.com is handling it.
+
+__write_lock_failed() oops is tasklist_lock starvation. The starving
+writer had spun with interrupts off for so long the NMI oopser went
+off. dhowells@redhat.com is looking into it and I have backup plans.
 
 
-Sep 10 22:20:21 stark kernel: hermes.c: 5 Apr 2002 David Gibson <hermes@gibson.dropbear.id.au>
-Sep 10 22:20:21 stark kernel: orinoco.c 0.11b (David Gibson <hermes@gibson.dropbear.id.au> and others)
-Sep 10 22:20:21 stark kernel: orinoco_cs.c 0.11b (David Gibson <hermes@gibson.dropbear.id.au> and others)
-Sep 10 22:20:22 stark kernel: eth2: failed to reset hardware (err = -16)
-Sep 10 22:20:22 stark kernel: orinoco_cs: register_netdev() failed
-
-
-
--- 
-greg
-
+Cheers,
+Bill

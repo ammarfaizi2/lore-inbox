@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbSJaSGQ>; Thu, 31 Oct 2002 13:06:16 -0500
+	id <S265260AbSJaSYr>; Thu, 31 Oct 2002 13:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbSJaSFX>; Thu, 31 Oct 2002 13:05:23 -0500
-Received: from mail.gurulabs.com ([208.177.141.7]:27576 "EHLO
-	mail.gurulabs.com") by vger.kernel.org with ESMTP
-	id <S262722AbSJaSFF>; Thu, 31 Oct 2002 13:05:05 -0500
-Subject: Re: [PATCH] 2.5.45: Filesystem capabilities
-From: Dax Kelson <dax@gurulabs.com>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <87znsuy9ho.fsf@goat.bogus.local>
-References: <87znsuy9ho.fsf@goat.bogus.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 11:11:50 -0700
-Message-Id: <1036087911.2296.19.camel@mentor>
+	id <S265272AbSJaSYq>; Thu, 31 Oct 2002 13:24:46 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:45539 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265260AbSJaSXr>;
+	Thu, 31 Oct 2002 13:23:47 -0500
+Date: Thu, 31 Oct 2002 10:30:09 -0800
+To: Juan Gomez <juang@us.ibm.com>
+Cc: Josh Myer <jbm@joshisanerd.com>, jbm@blessed.joshisanerd.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to get a local IPv4 address from within a kernel module?
+Message-ID: <20021031183009.GB2972@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <OFA4AB1D53.AE6E9560-ON87256C63.006382A4@us.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFA4AB1D53.AE6E9560-ON87256C63.006382A4@us.ibm.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 07:21, Olaf Dietsche wrote:
-> Hi Linus,
+On Thu, Oct 31, 2002 at 10:09:54AM -0800, Juan Gomez wrote:
 > 
-> This patch implements filesystem capabilities. It allows to run
-> privileged executables without the need for suid root.
+> Josh
 > 
-> Changes:
-> - switched from 32 bits to 128 bits for capabilities
+> That is the purpose of my orignal message. In fact I have implemented
+> somthing along the lines of what you suggest below and I just want to test
+> the waters on whether this will be accepted. My current implementation is a
+> little more specific as it only gets the interfaces with IPv4 enabled on
+> them and skip lo but the idea is to get a consensus on what would be
+> genrally useful and then introduce that.
 > 
-> I have addressed all objections Al Viro has raised. However, this is
-> not widely tested so far. But this is a relative small patch, so it
-> shouldn't be too hard to remove it later, if it turns out to be too
-> dangerous, either security or file system wise.
-> 
-> Please include.
-> 
-> Regards, Olaf.
+> Regards, Juan
 
-I second this!
+	I personally think it's a very bad idea, because it will lead
+to confusion. You will define a concept of "the node IP address",
+which doesn't exist and is a very dangerous assumption.
+	Just take VPN, which is becoming very widespread. You have two
+IP addresses, one on the interface, one on the tunnel. Which one do
+you get ? Those two IP address will have widely different behaviour
+and you can't exchange them.
+	My fear is that people will start coding around this API and
+flawed concept, and most of their programs will be immediately flawed,
+because incapable to adapt to the reality of networking (it will work
+in the simple case, but give bizarre behavior in non simple cases).
+	Don't get me wrong, there is a small class of applications
+where the IP address doesn't matter (and for those, 127.0.0.1 should
+be fine). But, from my experience, the vast majority of people wanting
+"the node IP address" have broken designs, i.e. it's not that they
+want any one of them, it's that they assume that only one exist.
 
-I would very very much like to purge my systems of SUID root binaries. 
+	Now, there is only one thing that could qualify as "the node
+IP address", this is the IP address associated with the hostname :
+		gethostbyname(hostname());
+	IMHO, if you define the interface you are proposing, it should
+always return the result above, because this is a well defined
+semantic and it is more useful.
 
-If this goes in, we/I should start a little project to audit the SUID
-root binaries commonly found on Linux to see what are the minimum
-capabilities each binary needs.
+	But, I'm only one of the little guy here, so what I say
+doesn't matter much. Ask Alan or DaveM.
+	Regards,
 
-Ideally the distro then ship this way by default.
-
-RPM/DPKG (tar,cpio?) should be modified to store the capabilities too.
-
-Dax Kelson
-Guru Labs
-
-
-
+	Jean

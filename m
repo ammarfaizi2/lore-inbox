@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbTJISV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 14:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTJISV6
+	id S262369AbTJISUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 14:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTJISUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 14:21:58 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:3968 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262372AbTJISV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 14:21:57 -0400
-Date: Thu, 9 Oct 2003 14:21:54 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux-kernel@vger.kernel.org
-Subject: test7 (and earlier > test1 for sure) crash on boot acpiphp_glue_init
-Message-ID: <20031009182154.GA1219@washoe.rutgers.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 9 Oct 2003 14:20:22 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:40342 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262369AbTJISUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 14:20:20 -0400
+Message-ID: <3F85A670.10405@intel.com>
+Date: Thu, 09 Oct 2003 11:18:24 -0700
+From: Arun Sharma <arun.sharma@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>	<16261.25288.125075.508225@gargle.gargle.HOWL> <20031009070505.00470202.akpm@osdl.org>
+In-Reply-To: <20031009070505.00470202.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Developers,
+Andrew Morton wrote:
+> Perhaps we should just back it out and watch more closely next time someone
+> tries to fix it?
 
-My desktop/server has been running 2.6.0-test1 kernel for a while and
-recently I decided to try new ones but it crashes early on boot giving
-me dump on test7 ( as well I've tried test6-bk9 before with the same
-crash). pci=noacpi and then acpi=off didn't help - problem persisted
+I'm fine with backing out the Kconfig part of the patch. Perhaps this is one of those things where an explicit list of platforms which do support this feature is unavoidable ? 
 
-acpi_glue_init+0x1b/0x30
-init_acpi+0x6/0x30
-acpiphp_init+0x27/0x40
-do_initcalls+0x2c/0xa0
-....
+	-Arun
 
-Configuration and some system detailes are on 
 
-http://www.onerussian.com/Linux/bugs/washoe.test7
 
-Please give me any idea how I can help?
-
-Thank you in advance
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]

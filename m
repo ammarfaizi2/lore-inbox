@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266774AbSLPPs3>; Mon, 16 Dec 2002 10:48:29 -0500
+	id <S266794AbSLPQQG>; Mon, 16 Dec 2002 11:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266777AbSLPPs3>; Mon, 16 Dec 2002 10:48:29 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:48287 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266774AbSLPPs2> convert rfc822-to-8bit;
-	Mon, 16 Dec 2002 10:48:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: "Brian Jackson" <brian-kernel-list@mdrx.com>,
-       "Scott Robert Ladd" <scott@coyotegulch.com>
-Subject: Re: /proc/cpuinfo and hyperthreading
-Date: Mon, 16 Dec 2002 09:52:35 -0600
-User-Agent: KMail/1.4.3
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <FKEAJLBKJCGBDJJIPJLJEEKMDLAA.scott@coyotegulch.com> <20021216135453.3823.qmail@escalade.vistahp.com>
-In-Reply-To: <20021216135453.3823.qmail@escalade.vistahp.com>
+	id <S266796AbSLPQQG>; Mon, 16 Dec 2002 11:16:06 -0500
+Received: from rivmkt61.wintek.com ([206.230.0.61]:128 "EHLO comcast.net")
+	by vger.kernel.org with ESMTP id <S266794AbSLPQQF>;
+	Mon, 16 Dec 2002 11:16:05 -0500
+Date: Mon, 16 Dec 2002 11:19:00 +0000 (UTC)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.52 and modules (lots of unresolved symbols)?
+In-Reply-To: <20021216094514.GA735@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
+References: <20021216094514.GA735@ulima.unil.ch>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212160952.35078.habanero@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 December 2002 07:54, Brian Jackson wrote:
-> You could always boot once with nosmp and run some benchmarks and then
-> reboot (with smp) and run some more benchmarks, and see if there is a
-> difference.
+On Mon, 16 Dec 2002, Gregoire Favre wrote:
 
-Yes, but wouldn't booting a UP kernel be a better comparison?  After all, why 
-incur any possible overhead of an SMP kernel if you don't need to?  Some 
-benchmarks may not show a difference, but some definitely will.
+> Hello,
+> 
+> I have just patched 2.5.51, and not done the make clean && make mrproper
+> before doing a make menuconfig && make dep && make bzImage && make
+> modules...
+> 
+> Will that change anything to make clean/mrproper here?
 
--Andrew Theurer
+I would give 'make clean' a try.
+ 
+> I have module-init-tools-0.9.3 compiled and installed on my system.
+
+I got the same thing (a shitload of depmod unresolved symbols messages) 
+when i first tried compiling 2.5.52.  It stopped when I reinstalled 
+module-init-tools, and built and the kernel again after a 'make clean'.
+
+-- 
+Alex Goddard
+agoddard@purdue.edu

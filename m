@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSFEK3l>; Wed, 5 Jun 2002 06:29:41 -0400
+	id <S314529AbSFEKdC>; Wed, 5 Jun 2002 06:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSFEK3k>; Wed, 5 Jun 2002 06:29:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:531 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S314459AbSFEK3j>;
-	Wed, 5 Jun 2002 06:29:39 -0400
-Date: Wed, 5 Jun 2002 12:29:39 +0200
-From: Dave Jones <davej@suse.de>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'Pavel Machek'" <pavel@suse.cz>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        trivial@rustcorp.com.au
-Subject: Re: [patch] i386 "General Options" - begone [take 2]
-Message-ID: <20020605122939.H5277@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Brad Hards <bhards@bigpond.net.au>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	'Pavel Machek' <pavel@suse.cz>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	trivial@rustcorp.com.au
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ED5@orsmsx111.jf.intel.com> <200206051134.24063.bhards@bigpond.net.au>
+	id <S314680AbSFEKdB>; Wed, 5 Jun 2002 06:33:01 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:12816 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S314529AbSFEKdA>; Wed, 5 Jun 2002 06:33:00 -0400
+Date: Wed, 5 Jun 2002 11:41:49 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Karim Yaghmour <karim@opersys.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Message-ID: <20020605114149.R681@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <E17FQPj-0001Rr-00@starship> <Pine.LNX.4.44.0206042132450.2614-100000@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 11:34:23AM +1000, Brad Hards wrote:
-
- > One idea that comes to mind is putting the power management config options in 
- > a "Power Management" section
-
-*nod* sounds sensible 8)
+On Tue, Jun 04, 2002 at 09:40:25PM -0500, Oliver Xymoron wrote:
+> Just bear in mind that it's next to impossible to avoid throwing the baby
+> out with the bathwater here. Ok, so you've got an RT kernel playing your
+> MP3 alongside your UNIX system - how do you control it? How do you switch
+> tracks? All the latency that you were struggling with in the player is
+> still there in the user interface.
  
- > then PNPBIOS in with the other PnP stuff, and 
- > so on (read: don't know were to put MPS yet, and don't know what $PIR is :)
+What stops you from providing non-sleeping messaging scheme
+primitives in Adeos? 
 
-It's an interrupt routing table.
+Adeos -> Client: Use virtual interrupt vectors and use your ipipe
+   for it.
 
-MPS and interrupt routing are both CPU related features, so the best
-place we currently have is under the CPU menu imho.
+Client -> Adeos: Provide Emission of this virtual interrupts in
+Adeos.
 
-        Dave
+Also some kind of shared memory and a "commit" for this memory is
+needed in Adeos. Allocation of this memory should be up to the
+requester of this memory, so Adeos doesn't need to wait for it
+and neither does the RTOS on the other end.
 
+With that primitives (plus some atomic magic ;-)) you can build
+non-sleeping messaging.
+
+Karim, is sth. like this planned or is it senseless?
+
+Regards
+
+Ingo Oeser
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

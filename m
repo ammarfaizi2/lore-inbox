@@ -1,31 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSJQFEN>; Thu, 17 Oct 2002 01:04:13 -0400
+	id <S261803AbSJQFIC>; Thu, 17 Oct 2002 01:08:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261800AbSJQFEN>; Thu, 17 Oct 2002 01:04:13 -0400
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:41397 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S261799AbSJQFEM>; Thu, 17 Oct 2002 01:04:12 -0400
-From: SL Baur <steve@kbuxd.necst.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15790.18139.620830.185192@sofia.bsd2.kbnes.nec.co.jp>
-Date: Thu, 17 Oct 2002 14:12:59 +0900
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Trivial ext2-as-a-module fix vs 2.5.43
-X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+	id <S261802AbSJQFIC>; Thu, 17 Oct 2002 01:08:02 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:18070 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S261801AbSJQFH4>;
+	Thu, 17 Oct 2002 01:07:56 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: kdb v2.3 is available for kernel 2.5.43
+Date: Thu, 17 Oct 2002 15:12:21 +1000
+Message-ID: <9671.1034831541@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell (rusty@rustcorp.com.au) writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Needs these two symbols exported, as I think, does ext3. 
+Content-Type: text/plain; charset=us-ascii
 
-They're needed for NFS as a module too.  Please apply the patch.
+ftp://oss.sgi.com/projects/kdb/download/v2.3/
 
-depmod: *** Unresolved symbols in /var/tmp/kernel-2.5.43-root/lib/modules/2.5.43-1sb/kernel/fs/nfs/nfs.o
-depmod:         generic_file_aio_read
-depmod:         generic_file_aio_write
+  kdb-v2.3-2.5.43-common-1.bz2
+  kdb-v2.3-2.5.43-i386-1.bz2
+
+The usb keyboard patch has been merged from kdb v2.3-2.4.19-{common,i386}.
+It does not compile on 2.5.43, the APIs have changed.  If you can help
+with usb polling support for kdb, grep for CONFIG_KDB_USB.  Without
+community support, the usb support will be dropped.
+
+Changelog extracts.
+
+2.5.43-common-1
+
+2002-10-17 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.5.43.
+	* kdb v2.3-2.5.43-common-1.
+
+2.5.43-i386-1
+
+2002-10-17 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.5.43.
+	* kdb v2.3-2.5.43-i386-1.
+
+
+No kdb patch for ia64 until there is a more recent ia64 kernel patch
+for 2.5.
+
+
+v2.3/README
+
+Starting with kdb v2.0 there is a common patch against each kernel which
+contains all the architecture independent code plus separate architecture
+dependent patches.  Apply the common patch for your kernel plus at least
+one architecture dependent patch, the architecture patches activate kdb.
+
+The naming convention for kdb patches is :-
+
+ vx.y	 The version of kdb.  x.y is updated as new features are added to kdb.
+ -v.p.s	 The kernel version that the patch applies to.  's' may include -pre,
+	 -rc or whatever numbering system the kernel keepers have thought up this
+	 week.
+ -common The common kdb code.  Everybody needs this.
+ -i386	 Architecture dependent code for i386.
+ -ia64	 Architecture dependent code for ia64, etc.
+ -n	 If there are multiple kdb patches against the same kernel version then
+	 the last number is incremented.
+
+To build kdb for your kernel, apply the common kdb patch which is less
+than or equal to the kernel v.p.s, taking the highest value of '-n'
+if there is more than one.  Apply the relevant arch dependent patch
+with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
+if there is more than one.
+
+For example, to use kdb for i386 on kernel 2.5.43, apply
+  kdb-v2.3-2.5.43-common-<n>		(use highest value of <n>)
+  kdb-v2.3-2.5.43-i386-<n>		(use highest value of <n>)
+in that order.
+
+Use patch -p1 for all patches.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9rkaui4UHNye0ZOoRAuy9AJ9UP0dHlUJ3tVwpbeRIMmDvbzZyzwCgsoh5
+wEIxFSX+eKN+DaN1W4dlSh4=
+=Vhcf
+-----END PGP SIGNATURE-----
 

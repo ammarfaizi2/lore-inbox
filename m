@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265721AbTF2SZt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 14:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbTF2SZt
+	id S265717AbTF2S27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 14:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbTF2S27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 14:25:49 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:40970 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265721AbTF2SZs convert rfc822-to-8bit (ORCPT
+	Sun, 29 Jun 2003 14:28:59 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:2745 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S265717AbTF2S26 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 14:25:48 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Subject: Re: IDE-disk spindown fails
-Date: Sun, 29 Jun 2003 20:39:56 +0200
-User-Agent: KMail/1.5.2
-References: <200306291656.32704.fsdeveloper@yahoo.de>
-In-Reply-To: <200306291656.32704.fsdeveloper@yahoo.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Sun, 29 Jun 2003 14:28:58 -0400
+Date: Sun, 29 Jun 2003 20:42:53 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Paul.Clements@steeleye.com
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>, ldl@aros.net
+Subject: Re: [PATCH] nbd: maintain compatibility with existing nbd tools
+Message-ID: <20030629184253.GE267@elf.ucw.cz>
+References: <3EFA1F7E.2080602@aros.net> <Pine.LNX.4.10.10306281315240.764-200000@clements.sc.steeleye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306292039.56161.fsdeveloper@yahoo.de>
+In-Reply-To: <Pine.LNX.4.10.10306281315240.764-200000@clements.sc.steeleye.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-Sorry, I found out, that it's not a kernel problem.
-It's a problem with the userspace noflushd daemon.
 
-On Sunday 29 June 2003 16:56, Michael Buesch wrote:
-> Hi.
->
-> I have a problem spinning down my Western Digital 80GB harddisk.
-> root@server:~> cat /proc/ide/hdc/model
-> WDC WD800BB-00CAA1
->
-> Neither hdparm -S nor noflushd is able to spin down this disk.
->
-> The machine is a very old Pentium 1 machine. It's BIOS doesn't
-> recognize this new (I've bought it a few days ago) harddisk.
-> So I've set this IDE-channel to "none" in the BIOS to avoid
-> very long searches on this channel from BIOS while booting.
->
-> Reading and writing on the disk works quite fine.
->
-> /dev/hda is the drive, the system is installed on.
-> It's a very old 2GB Quantum drive.
-> root@server:~> cat /proc/ide/hda/model
-> QUANTUM FIREBALL_TM2110A
->
-> The BIOS recognizes it and I'm able to spindown it.
->
->
-> Does linux depend on the BIOS when spinning down?
->
-> root@server:~> cat /proc/version
-> Linux version 2.4.21 (mb@lfs) (gcc-Version 3.3.1 20030519 (prerelease)) #2
-> Son Jun 15 13:08:42 CEST 2003
->
-> If you want me to run any tests on the machine, or if you
-> want some information, I've not given, just ask, please.
+> > [ ... ] In the meantime, the nbd-client tool currently can't correctly set 
+> > the size of the device and either that needs to be worked around in the 
+> > driver (I'd done that in the original jumbo patch), or the nbd-client 
+> > tool needs to be updated (the patch I'd mailed out for nbd-client works 
+> > around the sizing issue by re-opening the nbd). To be clear, that's not 
+> > something any of the changes that have gone in so far broke nor address. 
+> > It's a consequence of how bd_set_size() is called in fs/block_dev.c 
+> > do_open().
+> 
+> And here's the (tiny) patch for nbd to maintain compatibility with the
+> existing nbd-client tool. Compiled and tested on a couple machines.
+> Please apply.
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 20:38:10 up  9:47,  2 users,  load average: 0.00, 0.00, 0.00
+You are the maintainer, you can go to the linus directly. (I hope
+Linus took that MAINTAINERS patch). Or you can send this to Rusty
+'trivial patch monkey' russel. It seems easy enough.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+								Pavel
 
-iD8DBQE+/zJ8oxoigfggmSgRAo5YAJ4pZSWP+P6TIaBPeMZD5/8WywUiMQCfSDhu
-156C96aWSa6ayS3E65WKtzA=
-=FA5h
------END PGP SIGNATURE-----
+[Aha, if you wanted *Andrew* to apply it... I guess it is better to
+say directly who do you want to take it.]
 
+> Thanks,
+> Paul
+
+Content-Description: nbd patch
+> --- nbd.c.ORIG	2003-06-26 10:35:43.000000000 -0400
+> +++ nbd.c	2003-06-26 17:03:08.000000000 -0400
+> @@ -465,15 +468,18 @@
+>  			lo->blksize_bits++;
+>  			temp >>= 1;
+>  		}
+> -		lo->bytesize &= ~(lo->blksize-1); 
+> +		lo->bytesize &= ~(lo->blksize-1);
+> +		inode->i_bdev->bd_inode->i_size = lo->bytesize;
+>  		set_capacity(lo->disk, lo->bytesize >> 9);
+>  		return 0;
+>  	case NBD_SET_SIZE:
+> -		lo->bytesize = arg & ~(lo->blksize-1); 
+> +		lo->bytesize = arg & ~(lo->blksize-1);
+> +		inode->i_bdev->bd_inode->i_size = lo->bytesize;
+>  		set_capacity(lo->disk, lo->bytesize >> 9);
+>  		return 0;
+>  	case NBD_SET_SIZE_BLOCKS:
+>  		lo->bytesize = ((u64) arg) << lo->blksize_bits;
+> +		inode->i_bdev->bd_inode->i_size = lo->bytesize;
+>  		set_capacity(lo->disk, lo->bytesize >> 9);
+>  		return 0;
+>  	case NBD_DO_IT:
+
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

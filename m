@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265110AbTGGRSr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265076AbTGGRSr
+	id S267137AbTGGRSC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267139AbTGGRSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:18:47 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:24988 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265110AbTGGRSp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:18:45 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 7 Jul 2003 10:25:36 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Mel Gorman <mel@csn.ul.ie>, Daniel Phillips <phillips@arcor.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <20030707152339.GA9669@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.55.0307071007140.4704@bigblue.dev.mcafeelabs.com>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307060414.34827.phillips@arcor.de>
- <Pine.LNX.4.53.0307071042470.743@skynet> <200307071424.06393.phillips@arcor.de>
- <Pine.LNX.4.53.0307071408440.5007@skynet> <Pine.LNX.4.55.0307070745250.4428@bigblue.dev.mcafeelabs.com>
- <20030707152339.GA9669@mail.jlokier.co.uk>
+	Mon, 7 Jul 2003 13:18:02 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:6930 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267137AbTGGRSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 13:18:00 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
+Date: Mon, 7 Jul 2003 12:34:02 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
+In-Reply-To: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307071234.02595.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003, Jamie Lokier wrote:
-
-> Davide Libenzi wrote:
-> > The scheduler has to work w/out external input, period.
+On Monday 07 July 2003 06:44 am, Peter Berg Larsen wrote:
+> On Sun, 6 Jul 2003, Dmitry Torokhov wrote:
+> > +	/* adjust the touchpad to child's choice of protocol */
+> > +	child = port->private;
+> > +	if (child && child->type >= PSMOUSE_GENPS) {
 >
-> Can you justify this?
+> Not type > PSMOUSE_GENPS ?
 >
-> It strikes me that a music player's thread which requests a special
-> music-playing scheduling hint is not unreasonable, if that actually
-> works and scheduler heuristics do not.
 
-Jamie, looking at those reports it seems it is not only a sound players
-problem. It is fine that an application that has strict timing issues
-hints the scheduler. The *application* has to hint the scheduler, not the
-user. If reports about UI interactivity are true, this means that there's
-something wrong in the current scheduler though. Besides the player issue.
+We have this code in psmouse-base.c ...
+
+        if (psmouse->pktcnt == 3 + (psmouse->type >= PSMOUSE_GENPS)) {
+                psmouse_process_packet(psmouse, regs);
+                psmouse->pktcnt = 0;
+                goto out;
+        }
+
+..or am I misreading it?
+
+I will check what can be done with 0xAA 0x00 before we decide to rescan 
+later this evening.
+
+Dmitry
 
 
-
-- Davide
 

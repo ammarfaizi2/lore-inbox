@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292840AbSCOQFL>; Fri, 15 Mar 2002 11:05:11 -0500
+	id <S292837AbSCOQEb>; Fri, 15 Mar 2002 11:04:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292842AbSCOQFC>; Fri, 15 Mar 2002 11:05:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18445 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292840AbSCOQEo>;
-	Fri, 15 Mar 2002 11:04:44 -0500
-Date: Fri, 15 Mar 2002 16:04:44 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Joel Becker <jlbec@evilplan.org>, Rusty Russell <rusty@rustcorp.com.au>,
-        matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Re: futex and timeouts
-Message-ID: <20020315160444.P4836@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Hubertus Franke <frankeh@watson.ibm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>, matthew@hairy.beasts.org,
-	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-In-Reply-To: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com> <E16lkRS-0001HN-00@wagner.rustcorp.com.au> <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk> <20020315151507.2370C3FE0C@smtp.linux.ibm.com>
+	id <S292840AbSCOQEV>; Fri, 15 Mar 2002 11:04:21 -0500
+Received: from bitmover.com ([192.132.92.2]:46286 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S292837AbSCOQEJ>;
+	Fri, 15 Mar 2002 11:04:09 -0500
+Date: Fri, 15 Mar 2002 08:04:08 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 and BitKeeper
+Message-ID: <20020315080408.D11940@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C90E994.2030702@candelatech.com> <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com> <3C90E994.2030702@candelatech.com> <2865.1016190641@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020315151507.2370C3FE0C@smtp.linux.ibm.com>; from frankeh@watson.ibm.com on Fri, Mar 15, 2002 at 10:16:02AM -0500
-X-Burt-Line: Trees are cool.
+In-Reply-To: <2865.1016190641@redhat.com>; from dwmw2@infradead.org on Fri, Mar 15, 2002 at 11:10:41AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 10:16:02AM -0500, Hubertus Franke wrote:
-> > 	Why waste a syscall?  The user is going to be using a library
-> > wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
-> > FUTEX_UP, NULL);
+On Fri, Mar 15, 2002 at 11:10:41AM +0000, David Woodhouse wrote:
+> greearb@candelatech.com said:
+> >  I did a clone with this.  However, I see no files, only directories.
+> > The files do seem to be in the SCCS directories, but I don't know how
+> > to make them appear in their normal place. 
 > 
-> I agree with that, only for the reason that we are getting scarce on 
-> syscall nubmers. Is 256-delta the max ?
+> Type 'make config'. Make is clever enough to get the Makefile from SCCS for 
+> you. Add the missing dependencies to the Makefile so that make will fetch 
+> stuff like scripts/Configure before trying to run it, etc. 
 
-	This was my impression, and why I called it "wasting" a syscall.
-On architectures where syscall numbers or handles are unlimited, of
-course there is no reason to keep it to one syscall.
-
-> One thing to consider is that many don't want to use libraries.
-> They want to inline, which would result only in a few instruction.
-
-	Inlined you only take the penalty from the argument pushes.  You
-still have to go through the motions of checking whether you can
-get/release the lock in userspace.
-
-> What I would like to see is an interface that lets me pass optional 
-> parameters to the syscall interface, so I can call with different number
-> of parameters.
-
-	Is this to lock multiple futexes "atomically"?  If we are
-looking for a fast path stack-wise, this seems extra work.
-
-Joel
-
+Has anyone done this and made it work?  It would save a lot of disk space
+and performance if someone were to so.
 -- 
-
-"Friends may come and go, but enemies accumulate." 
-        - Thomas Jones
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

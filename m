@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267149AbTAPS0A>; Thu, 16 Jan 2003 13:26:00 -0500
+	id <S267155AbTAPS1k>; Thu, 16 Jan 2003 13:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267151AbTAPS0A>; Thu, 16 Jan 2003 13:26:00 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:16379 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267149AbTAPSZ7>; Thu, 16 Jan 2003 13:25:59 -0500
-Date: Thu, 16 Jan 2003 10:27:23 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (0/3) NUMA aware scheduler
-Message-ID: <2050000.1042741643@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S267156AbTAPS1k>; Thu, 16 Jan 2003 13:27:40 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21007 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267155AbTAPS1f>;
+	Thu, 16 Jan 2003 13:27:35 -0500
+Date: Thu, 16 Jan 2003 10:35:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Torben Mathiasen <torben.mathiasen@hp.com>
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       john.cagle@hp.com, dan.zink@hp.com
+Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
+Message-ID: <20030116183553.GB32126@kroah.com>
+References: <20030115095513.GA2761@tmathiasen> <20030115230554.GC25816@kroah.com> <20030116114717.GC1222@tmathiasen>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030116114717.GC1222@tmathiasen>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following is a sequence of patches to add NUMA awareness to the scheduler.
-These have been submitted to you several times before, but in my opinion
-were structured in such a way to make them too invasive to non-NUMA machines.
-I propsed a new scheme of working in "concentric circles" which this set 
-follows (Erich did most of the hard work of restructuring), and is now 
-completely non-invasive to non-NUMA systems. It has no effect whatsoever 
-on standard machines. This can be seen by code inspection, and has been 
-checked by benchmarking.
+On Thu, Jan 16, 2003 at 12:47:17PM +0100, Torben Mathiasen wrote:
+> Sure. I started out doing the patch for 2.5, but hit some hotplug bugs so I
+> decided to get it working for 2.4 first and then port it to 2.5. I'll get on
+> that.
 
-These patches are the culmination of work by Erich Focht, Michael Hohnbaum
-and myself. We've also incorporated feedback from Christoph and Robert Love.
-I believe these are now ready for mainline acceptance. I've tested them on
-NUMA-Q, standard SMP and UP. Erich has run them on the NEC ia64 NUMA machine.
+Thanks.
 
-Benchmarks on a 16-way NUMA-Q machine w/ 16Gb of RAM
+> I wanted the user to be able to know exactly which bus speed/mode the driver
+> switched to in case of a freq/mode change. Besides that it also put the info in
+> proc as you mention.
 
-Kernbench: (average of 5 kernel compiles)
-                                   Elapsed        User      System         CPU
-                        2.5.58     20.012s     191.81s      48.37s     1200.6%
-              2.5.58-numasched      19.57s    187.264s     42.186s     1171.8%
+But that is what the cur_bus_speed and max_bus_speed files in pcihpfs
+for the slot are for, right?  Isn't this just duplicating that
+information?
 
-NUMA schedbench 64: (64 processes running memory allocation fairly heavily)
-                                               Elapsed   TotalUser    TotalSys
-                        2.5.48                  608.81     9418.37       26.74
-              2.5.58-numasched                  230.49     3613.47       15.57
+> Sure, we used to ship a system that only supported 50MHz PCI-X, but I'll have
+> to get more details on that.
 
+So 50MHz PCI-X is not in the spec, right?  If you all supported it, why
+didn't you get it included in the spec?  :)
+
+thanks,
+
+greg k-h

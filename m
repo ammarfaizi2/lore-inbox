@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUJAXqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUJAXr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUJAXqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 19:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUJAXqE
+	id S266833AbUJAXr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 19:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJAXr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 19:46:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27339 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266810AbUJAXqB (ORCPT
+	Fri, 1 Oct 2004 19:47:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5091 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266833AbUJAXrL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 19:46:01 -0400
-Date: Fri, 1 Oct 2004 16:49:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4 ps hang ?
-Message-Id: <20041001164938.3231482e.akpm@osdl.org>
-In-Reply-To: <1096672002.12861.84.camel@dyn318077bld.beaverton.ibm.com>
-References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
-	<20041001120926.4d6f58d5.akpm@osdl.org>
-	<1096666140.12861.82.camel@dyn318077bld.beaverton.ibm.com>
-	<20041001145536.182dada9.akpm@osdl.org>
-	<1096672002.12861.84.camel@dyn318077bld.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 1 Oct 2004 19:47:11 -0400
+Date: Fri, 1 Oct 2004 16:41:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: Michael Hunold <hunold-ml@web.de>, linux-kernel@vger.kernel.org,
+       sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Message-ID: <20041001234115.GA9505@kroah.com>
+References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com> <41545421.5080408@web.de> <20040924200503.652ccf8e.khali@linux-fr.org> <415481B4.10804@web.de> <20041001065209.GA9561@kroah.com> <1096633365.16121.125.camel@newt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096633365.16121.125.camel@newt>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> Here is the full sysrq-t output.
+On Fri, Oct 01, 2004 at 01:22:45PM +0100, Adrian Cox wrote:
+> On Fri, 2004-10-01 at 07:52, Greg KH wrote:
+> > On Fri, Sep 24, 2004 at 10:21:08PM +0200, Michael Hunold wrote:
+> 
+> > > If we have a PCI card where we exactly know what we are doing, we can 
+> > > use the NO_PROBE flag to effectively block any probing and can use the 
+> > > proposed interface to manually connect the clients.
+> > 
+> > But why?  The .class feature can accomplish this too.  Just create a new
+> > class for this type of adapter and device.  Then only that device will
+> > be able to be connected to that adapter, just like you want to have
+> > happen, right?
+> 
+> Either the i2c devices need to be able to support a list of permitted
+> adapters, or the i2c adapters need a list of permitted clients. A single
+> class isn't adequate. Consider the following scenario:
+> 
+> The FooTV123 has multiplexor MX3R0K3 and frontend XYZZY, the TVMatic3000
+> has frontend XYZZY and multiplexor MX31337, and the FooTV124 has
+> multiplexor MX31337 and frontend FR012. All three cards are installed in
+> the same machine. In the worst case the probe code for MX31337 puts
+> MX3R0K3 into a state that requires a hard reset.
+> 
+> Manual connection of clients makes it easier to develop a driver outside
+> the kernel tree, then merge it when ready, without having to allocate a
+> number from a central authority.
 
-What's this guy up to?
+Ok, I now understand better, thanks for putting up with me :)
 
-db2fmcd       D 0000000000000000     0 11032      1          1373 11031 (NOTLB)
-00000101b9b9bef8 0000000000000002 0000003700000037 00000101c13608a0 
-       000000010000009f 0000010199649250 0000010199649588 0000000000000000 
-       0000000000000206 ffffffff801353db 
-Call Trace:<ffffffff801353db>{try_to_wake_up+971} <ffffffff80445570>{__down_write+128} 
-       <ffffffff80125e7f>{sys32_mmap+143} <ffffffff80124b01>{ia32_sysret+0} 
-       
+So, got a patch to do this?
 
-Something is seriously screwed up if it's stuck in try_to_wake_up().  Tried
-generating a few extra traces?
+thanks,
 
-Then again, maybe we're missing an up_read() somewhere.  hrm, I'll check.
+greg k-h

@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262400AbSI2GVZ>; Sun, 29 Sep 2002 02:21:25 -0400
+	id <S262399AbSI2GTM>; Sun, 29 Sep 2002 02:19:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262401AbSI2GVZ>; Sun, 29 Sep 2002 02:21:25 -0400
-Received: from web14606.mail.yahoo.com ([216.136.224.86]:33801 "HELO
-	web14606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262400AbSI2GVY>; Sun, 29 Sep 2002 02:21:24 -0400
-Message-ID: <20020929062646.97364.qmail@web14606.mail.yahoo.com>
-Date: Sat, 28 Sep 2002 23:26:46 -0700 (PDT)
-From: Arvind Gopalan <arvind_gopalan@yahoo.com>
-Subject: 4 byte mem alignment
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S262400AbSI2GTM>; Sun, 29 Sep 2002 02:19:12 -0400
+Received: from bitchcake.off.net ([216.138.242.5]:52646 "EHLO mail.off.net")
+	by vger.kernel.org with ESMTP id <S262399AbSI2GTL>;
+	Sun, 29 Sep 2002 02:19:11 -0400
+Date: Sun, 29 Sep 2002 02:24:35 -0400
+From: Zach Brown <zab@zabbo.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.39 list_head debugging
+Message-ID: <20020929022435.M13817@bitchcake.off.net>
+References: <20020929015852.K13817@bitchcake.off.net> <3D9699DE.F7528065@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D9699DE.F7528065@digeo.com>; from akpm@digeo.com on Sat, Sep 28, 2002 at 11:12:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wished someone to confirm the following: Is it a
-requirement for the user space buffer that is provided
-to the recvfrom() socket call, be 4 byte aligned?.
-Note that sockets are raw sockets (PF_PACKET type). I
-am running linux 2.4.18-10 on a dual xeon P4 (x86)
-box. At the lowest level, i think this translates to
-how strong the requirements are for copy_to_user().
-does it fault to byte-by-byte mode gracefully when
-given a non-4byte aligned buffer?.
+> Could we make these just do a printk+dump_stack and continue
+> on?  A BUG is a bit severe.
 
-Please include me in all replies, since i'm not
-subscribed to the list
+sure.  I was taking the overzealous avoidance of possible memory
+corruption, but I'm sure you're right that its better to be a little
+forgiving.  I'll fixup and resend.
 
-Thanks
--Arvind
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+- z

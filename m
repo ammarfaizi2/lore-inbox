@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272197AbRIEPX5>; Wed, 5 Sep 2001 11:23:57 -0400
+	id <S272201AbRIEPg6>; Wed, 5 Sep 2001 11:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272198AbRIEPXs>; Wed, 5 Sep 2001 11:23:48 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:22024 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S272197AbRIEPXi>;
-	Wed, 5 Sep 2001 11:23:38 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109051523.TAA24777@ms2.inr.ac.ru>
-Subject: Re: Lost TCP retransmission timer
-To: val@nmt.edu (Val Henson)
-Date: Wed, 5 Sep 2001 19:23:44 +0400 (MSK DST)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010904150750.D22301@boardwalk> from "Val Henson" at Sep 4, 1 03:07:50 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S272202AbRIEPgs>; Wed, 5 Sep 2001 11:36:48 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:61371 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S272201AbRIEPgj>; Wed, 5 Sep 2001 11:36:39 -0400
+Date: Wed, 5 Sep 2001 08:36:15 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 -> reiserfs conversion?
+In-Reply-To: <3B8D2969.FCDF9B29@namesys.com>
+Message-ID: <Pine.LNX.4.33.0109050835380.448-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 29 Aug 2001, Hans Reiser wrote:
 
-> ncr885e,
+> Sorry, limited funds means tar is your only solution.
 
-At least the version of this driver in standrad kernel has no chances to work.
-I have never seen so broken driver before this to be honest. :-)
+but what about 'find' and 'cpio'? those work too :)
 
-> patch for it that fixes some other things (currently only in the
-> LinuxPPC tree) but not this.
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 
-Well, send me this patch at least. Probably I will be able to fix at least
-major holes here.
-
-Alexey

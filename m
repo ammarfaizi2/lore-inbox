@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275390AbTHITdd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 15:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275391AbTHITdd
+	id S275380AbTHITet (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 15:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275385AbTHITet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 15:33:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23750 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S275390AbTHITdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 15:33:32 -0400
-Date: Sat, 9 Aug 2003 21:33:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: kwalker@broadcom.com
+	Sat, 9 Aug 2003 15:34:49 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:23292 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S275380AbTHITer (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 15:34:47 -0400
+Date: Sat, 9 Aug 2003 21:34:45 +0200 (MEST)
+Message-Id: <200308091934.h79JYjMP022060@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de
+Subject: [PATCH] fix 2.4.22-rc2 x86-64 compile failure
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kill EXPORT_NO_SYMBOLS from OSS swarm_cs4297a.c
-Message-ID: <20030809193323.GK16091@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below kills an occurence of the obsolete EXPORT_NO_SYMBOLS
-from sound/oss/swarm_cs4297a.c in 2.6.0-test3.   
+EXPORT_SYMBOL(mmu_cr4_features) was added recently to
+arch/x86-64/kernel/setup.c but arch/x86-64/kernel/Makefile
+wasn't simultaneously updated to list setup.o in export-objs.
+This causes a CONFIG_MODULES=y build to fail with:
 
---- linux-2.6.0-test3-not-full/sound/oss/swarm_cs4297a.c.old	2003-08-09 21:15:13.000000000 +0200
-+++ linux-2.6.0-test3-not-full/sound/oss/swarm_cs4297a.c	2003-08-09 21:15:48.000000000 +0200
-@@ -2735,8 +2735,6 @@
+x86_64-unknown-linux-gcc -D__KERNEL__ -I/tmp/linux-2.4.22-rc2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -finline-limit=2000 -fno-strength-reduce -Wno-sign-compare -fno-asynchronous-unwind-tables   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup  -c -o setup.o setup.c
+setup.c:62: syntax error before "this_object_must_be_defined_as_export_objs_in_the_Makefile"
+setup.c:62: warning: type defaults to `int' in declaration of `this_object_must_be_defined_as_export_objs_in_the_Makefile'
+setup.c:62: warning: data definition has no type or storage class
+make[1]: *** [setup.o] Error 1
+make[1]: Leaving directory `/tmp/linux-2.4.22-rc2/arch/x86_64/kernel'
+make: *** [_dir_arch/x86_64/kernel] Error 2
+
+Fixed by the trivial patch below.
+
+/Mikael
+
+--- linux-2.4.22-rc2/arch/x86_64/kernel/Makefile.~1~	2003-08-09 20:15:54.000000000 +0200
++++ linux-2.4.22-rc2/arch/x86_64/kernel/Makefile	2003-08-09 20:26:17.000000000 +0200
+@@ -15,7 +15,7 @@
+ O_TARGET := kernel.o
  
- // --------------------------------------------------------------------- 
  
--EXPORT_NO_SYMBOLS;
--
- MODULE_AUTHOR("Kip Walker, kwalker@broadcom.com");
- MODULE_DESCRIPTION("Cirrus Logic CS4297a Driver for Broadcom SWARM board");
+-export-objs     := mtrr.o msr.o cpuid.o x8664_ksyms.o pci-gart.o
++export-objs     := mtrr.o msr.o cpuid.o x8664_ksyms.o pci-gart.o setup.o
  
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_x86_64.o \

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267081AbTBPPO1>; Sun, 16 Feb 2003 10:14:27 -0500
+	id <S267189AbTBPP4B>; Sun, 16 Feb 2003 10:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbTBPPO0>; Sun, 16 Feb 2003 10:14:26 -0500
-Received: from fep07-0.kolumbus.fi ([193.229.0.51]:20969 "EHLO
-	fep07-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id <S267081AbTBPPO0>; Sun, 16 Feb 2003 10:14:26 -0500
-Date: Sun, 16 Feb 2003 17:25:22 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Ruud Linders <rkmp@xs4all.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI Tape hangs when no tape loaded (2.5.6x)
-In-Reply-To: <3E4F9D80.2000206@xs4all.nl>
-Message-ID: <Pine.LNX.4.52.0302161710160.10784@kai.makisara.local>
-References: <3E4F9D80.2000206@xs4all.nl>
+	id <S267190AbTBPP4A>; Sun, 16 Feb 2003 10:56:00 -0500
+Received: from [24.206.178.254] ([24.206.178.254]:18307 "EHLO
+	mail.brianandsara.net") by vger.kernel.org with ESMTP
+	id <S267189AbTBPPz5>; Sun, 16 Feb 2003 10:55:57 -0500
+From: Brian Jackson <brian@mdrx.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: 2.5 AGP for 2.4.21-pre4
+Date: Sun, 16 Feb 2003 10:04:53 -0600
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200302152135.22425.brian@mdrx.com> <20030216143005.GA481@codemonkey.org.uk>
+In-Reply-To: <20030216143005.GA481@codemonkey.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302161004.53012.brian@mdrx.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003, Ruud Linders wrote:
-
+On Sunday 16 February 2003 08:30 am, Dave Jones wrote:
+> On Sat, Feb 15, 2003 at 09:35:22PM -0600, Brian Jackson wrote:
+>  > P.S.S. To Dave Jones -- I thought 2.5 had support for VIA chipsets &
+>  > AGP3, but I only saw config options for the 7205/7505
 >
+> If CONFIG_AGP3 is set, then the agp3 routines in via-agp.c also get
+> built, so you get KT400 support.
 >
-> On both 2.5.60 and 2.5.61 when there is no tape loaded in my SCSI DAT
-> tape drive, access to the drive blocks for exactly 2 minutes
-> before timing out and giving an I/O error.
->
-> # mt stat
-> ....... < 2 minutes later > ...
-> /dev/tape: Input/output error
->
-Does you mt open the tape device with the O_NONBLOCK option? If not, this
-is what is expected. mt-st version >= 0.6 does use this option. I don't
-know about other mt's.
+> 		Dave
 
-The open() behaviour of st was changed at 2.5.3 to conform with SUS
-(blocking) and what the other Unices do (timeout). If the device is opened
-without O_NONBLOCK, the driver waits for some time (default 2 minutes) for
-the device to become ready. If it does not become ready, an error is returned.
+That is what it looked like as I started looking through some of the code, I 
+just wasn't sure. Thanks for the answer.
 
-	Kai
-
-P.S. I just tested 2.5.61 and in my system 'mt status' without tape in
-the drive works as expected (i.e., prints status immediately).
+--Brian Jackson

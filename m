@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130238AbQLXWXW>; Sun, 24 Dec 2000 17:23:22 -0500
+	id <S130194AbQLXWjg>; Sun, 24 Dec 2000 17:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbQLXWXM>; Sun, 24 Dec 2000 17:23:12 -0500
-Received: from smtp1.free.fr ([212.27.32.5]:47877 "EHLO smtp1.free.fr")
-	by vger.kernel.org with ESMTP id <S131259AbQLXWXD>;
-	Sun, 24 Dec 2000 17:23:03 -0500
-To: dag@brattli.net, linux-kernel@vger.kernel.org
-Subject: Re: [patch] support for FDC37N769 IRDA chip
-Message-ID: <977694755.3a467023896d4@imp.free.fr>
-Date: Sun, 24 Dec 2000 22:52:35 +0100 (MET)
-From: Willy Tarreau <wtarreau@free.fr>
-In-Reply-To: <977694274.3a466e42ddfa9@imp.free.fr>
-In-Reply-To: <977694274.3a466e42ddfa9@imp.free.fr>
+	id <S130466AbQLXWj0>; Sun, 24 Dec 2000 17:39:26 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14604 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130194AbQLXWjT>; Sun, 24 Dec 2000 17:39:19 -0500
+Date: Sun, 24 Dec 2000 14:08:25 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@innominate.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <3A46578C.5FF7AD4F@innominate.de>
+Message-ID: <Pine.LNX.4.10.10012241405570.4404-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 212.27.40.80
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grrrr !
-For Christmas, I'd like to get a new mailer which doesn't eat my patches :-)
-here it is again, after cut'n'paste. Please apply by hand or "patch -l".
 
-Cheers,
-Willy
 
---- linux-2.2.18/drivers/net/irda/smc-ircc.c    Sat Jun 24 14:57:49 2000
-+++ linux/drivers/net/irda/smc-ircc.c   Sun Dec 24 21:30:17 2000
-@@ -98,6 +98,7 @@
- static smc_chip_t chips[] =
- {
-        { "FDC37C669", 0x55, 0x55, 0x0d, 0x04, ircc_probe_69 },
-+       { "FDC37N769", 0x55, 0x55, 0x0d, 0x28, ircc_probe_69 },
-        { "FDC37N869", 0x55, 0x00, 0x0d, 0x29, ircc_probe_69 },
-        { "FDC37N958", 0x55, 0x55, 0x20, 0x09, ircc_probe_58 },
-        { NULL }
+On Sun, 24 Dec 2000, Daniel Phillips wrote:
+> 
+> It looks like PG_dirty is now being used only for swap_cache pages, and
+> not for buffer cache and page cache pages, is that correct?
+
+No. PG_dirty is used for all memory mapped pages - be they anonymous or
+not.  
+
+These days the buffer dirty bits are only used by "write()", because
+write() can obviously dirty smaller areas than one page.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

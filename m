@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262009AbRE2NGB>; Tue, 29 May 2001 09:06:01 -0400
+	id <S262504AbRE2N6O>; Tue, 29 May 2001 09:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262081AbRE2NFw>; Tue, 29 May 2001 09:05:52 -0400
-Received: from jalon.able.es ([212.97.163.2]:18875 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262009AbRE2NFl>;
-	Tue, 29 May 2001 09:05:41 -0400
-Date: Tue, 29 May 2001 15:05:22 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Fabbione <fabbione@fabbione.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OFF-TOPIC] 4 ports ETH cards
-Message-ID: <20010529150522.A24682@werewolf.able.es>
-In-Reply-To: <3B135549.19CF8965@fabbione.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3B135549.19CF8965@fabbione.net>; from fabbione@fabbione.net on Tue, May 29, 2001 at 09:52:41 +0200
-X-Mailer: Balsa 1.1.5
+	id <S262432AbRE2N6E>; Tue, 29 May 2001 09:58:04 -0400
+Received: from [212.63.44.200] ([212.63.44.200]:18670 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S262137AbRE2N54>;
+	Tue, 29 May 2001 09:57:56 -0400
+Message-ID: <3B13AA1C.AF1F86F9@pcsystems.de>
+Date: Tue, 29 May 2001 15:54:36 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved symbols printk ?
+In-Reply-To: <3B128437.7C166E53@pcsystems.de> <20010528214437.A9384@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Mon, May 28, 2001 at 07:00:39PM +0200, Nico Schottelius wrote:
+> > I am having problems with loading modules:
+> > I always get the unresolved symbols message.
+> > I didn't find any documentation for that, can you help me ?
+>
+> You did read question 8.8 from the linux-kernel mailing list FAQ?
+>
+>   http://www.tux.org/lkml/#s8-8
 
-On 05.29 Fabbione wrote:
-> Hi all,
-> 	sorry for the offtopic msg.
-> 
-> Can someone point me to a 4 ports fast/eth card solution for linux?
-> 
-> I found some cards based on the DEC 21*4* chips but when
-> I asked for more details I got a strange answer from the reseller
-> like that this card is able to work only half-duplex and the chip has
-> only one mac-address for the 4 eth cards (really strange).
-> 
+Right now, yes :)
 
-Adaptec has the DuraLAN product (aka starfire). Look in their web page.
-Drivers are included in the kernel; for more info, look in:
-http://www.scyld.com/network/starfire.html
+Just a small question, what could be the reason I have a broken
+Makefile ?
+This seems to happen frequently, if there is a need
+to name it into the lkml. I am surprised
+a makefile gets screwed up ?
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac3 #1 SMP Mon May 28 19:37:02 CEST 2001 i686
+Nico
+

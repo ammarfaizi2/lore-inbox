@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbSJaSIj>; Thu, 31 Oct 2002 13:08:39 -0500
+	id <S263270AbSJaSRv>; Thu, 31 Oct 2002 13:17:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbSJaSHb>; Thu, 31 Oct 2002 13:07:31 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:39910 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262779AbSJaSG0>;
-	Thu, 31 Oct 2002 13:06:26 -0500
-Date: Thu, 31 Oct 2002 10:12:52 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dax Kelson <dax@gurulabs.com>, Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+	id <S263279AbSJaSRu>; Thu, 31 Oct 2002 13:17:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24074 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263270AbSJaSRm>; Thu, 31 Oct 2002 13:17:42 -0500
+Date: Thu, 31 Oct 2002 10:22:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
 Subject: Re: What's left over.
-Message-ID: <20021031181252.GB24027@tapu.f00f.org>
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com> <20021031062249.GB18007@tapu.f00f.org> <1036046904.1521.74.camel@mentor> <20021031065629.GA19030@tapu.f00f.org> <3DC13EAD.9020408@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC13EAD.9020408@pobox.com>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+In-Reply-To: <3DC171FF.5000803@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.44.0210311015380.1410-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 09:31:09AM -0500, Jeff Garzik wrote:
 
-> What's wrong with our current 2.5.45 crypto api?
+On Thu, 31 Oct 2002, Chris Friesen wrote:
+> 
+> How do you deal with netdump when your network driver is what caused the 
+> crash?
 
-It's synchronous and assume everything is synchronous.  Lots of
-hardware (most) doesn't work that way.
+Actually, from a driver perspective, _the_ most likely driver to crash is 
+the disk driver. 
 
+That's from years of experience. The network drivers are a lot simpler,
+the hardware is simpler and more standardized, and doesn't do as many
+things. It's just plain _easier_ to write a network driver than a disk
+driver.
 
-  --cw
+Ask anybody who has done both.
+
+But that's not the real issue. The real issue is that I have no personal
+incentives to try to merge the thing, and as a result I think I'm the
+wrong person to do so. I've told people over and over again that I think
+this is a "vendor merge", and I'm fed up with people not _getting_ it.
+
+Don't bother to ask me to merge the thing, that only makes me get even
+more fed up with the whole discussion. This is open source, guys. Anybody 
+can merge it. Because I don't particularly believe in it doesn't mean that 
+it cannot be used. It only means that I want to see users flock to it and 
+show my beliefs wrong.
+
+		Linus
 

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUJGVVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268392AbUJGVVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269360AbUJGVVX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUJGVT7
+	id S268392AbUJGVVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268404AbUJGVTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:19:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38607 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267527AbUJGVHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:07:22 -0400
-Date: Thu, 7 Oct 2004 17:07:14 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <jonathan@jonmasters.org>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-In-Reply-To: <41659748.9090906@drdos.com>
-Message-ID: <Pine.LNX.4.44.0410071706220.18453-100000@chimarrao.boston.redhat.com>
+	Thu, 7 Oct 2004 17:19:46 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60119 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267777AbUJGVGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:06:19 -0400
+Message-ID: <4165AFBC.8010605@nortelnetworks.com>
+Date: Thu, 07 Oct 2004 15:06:04 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: george@mvista.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: question about linux time change
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Jeff V. Merkey wrote:
 
-> We offer to kernel.org the sum of $50,000.00 US for a one time
-> license to the Linux Kernel Source for a single snapshot of
-> a single Linux version by release number.
+I have been asked to add the ability to notify userspace when the time of day 
+changes.  The actual notification is the easy part.  I'm having issues with 
+where exactly the time is really changed.
 
-That would still be useless, since it doesn't give you any
-rights to the (GPL) bug fixes posted to this list on an
-almost daily basis.
+do_settimeofday() is pretty straightforward.  No problems there.
+adjtimex() with ADJ_OFFSET_SINGLESHOT mode seems reasonable as well.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+adjtimex() with ADJ_OFFSET is a bit harder to follow.  Can you give me any 
+pointers on what's going on with ADJ_OFFSET?
 
+Thanks,
+
+Chris

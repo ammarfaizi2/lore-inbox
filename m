@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265171AbTLZMOn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 07:14:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTLZMOn
+	id S265172AbTLZM2H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 07:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbTLZM2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 07:14:43 -0500
-Received: from [66.98.192.92] ([66.98.192.92]:45790 "EHLO svr44.ehostpros.com")
-	by vger.kernel.org with ESMTP id S265171AbTLZMOn (ORCPT
+	Fri, 26 Dec 2003 07:28:07 -0500
+Received: from ssmtp.aster.pl ([212.76.33.23]:39293 "EHLO mail1.astercity.net")
+	by vger.kernel.org with ESMTP id S265172AbTLZM1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 07:14:43 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: linux-kernel@vger.kernel.org
-Subject: kgdb-x86_64-1.6 for kernel 2.4.23
-Date: Fri, 26 Dec 2003 17:44:30 +0530
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Dec 2003 07:27:51 -0500
+Date: Fri, 26 Dec 2003 13:27:53 +0100
+From: =?iso-8859-2?Q?=A3ukasz?= Osipiuk <l.osipiuk@zodiac.mimuw.edu.pl>
+To: Lawrence Bowie <thesource@ldb-jab.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Pasza <pasza@zodiac.mimuw.edu.pl>, Paulinka <ofca@astercity.net>
+Subject: Re: Strange process hangs on 2.6.0
+Message-ID: <20031226122753.GA31325@lucash.localdomain>
+References: <20031225211556.GA26469@lucash.localdomain> <3FEB8D95.2080803@ldb-jab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200312261744.30948.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3FEB8D95.2080803@ldb-jab.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dnia Thu, Dec 25, 2003 at 08:23:33PM -0500, Lawrence Bowie napisa³(a):
+> Can you please share an strace of executing this as root?
 
-I have started maintaining kgdb for x86_64 architecture at 
-http://kgdb.sourceforge.net/
+I'd love to but as I've written when i call this script with strace
+i dont get any hung at all :(.
 
-Current kgdb-x86_64 version is 1.6. It features console messages through gdb.
 -- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+Lucash
+mailto: l.osipiuk@zodiac.mimuw.edu.pl
 

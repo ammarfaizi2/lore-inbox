@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132482AbRD1NXH>; Sat, 28 Apr 2001 09:23:07 -0400
+	id <S132537AbRD1N0R>; Sat, 28 Apr 2001 09:26:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132497AbRD1NWr>; Sat, 28 Apr 2001 09:22:47 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:47631 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132482AbRD1NWk>;
-	Sat, 28 Apr 2001 09:22:40 -0400
-Date: Sat, 28 Apr 2001 15:21:05 +0200 (CEST)
+	id <S132539AbRD1N0H>; Sat, 28 Apr 2001 09:26:07 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:48655 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132537AbRD1N0D>;
+	Sat, 28 Apr 2001 09:26:03 -0400
+Date: Sat, 28 Apr 2001 15:24:25 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: <mingo@elte.hu>
 To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
 Cc: Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: X15 alpha release: as fast as TUX but in user space
 In-Reply-To: <20010428161502.I3529@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.33.0104281516180.10295-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0104281521210.10295-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,21 +25,14 @@ On Sat, 28 Apr 2001, Ville Herva wrote:
 > Uhh, perhaps I'm stupid, but why not cache the date field and update
 > the field once a five seconds? Or even once a second?
 
-yes, that should work. but that means possibly updating thousands of (or
-more) cached headers, which has some overhead ...
+perhaps the best way would be to do this updating in the sending code
+itself.
 
-> I mean, at the rate of thousands of requests per second that should
-> give you some advantage over dynamically generating it -- especially
-> if that's the only thing hindering copletely sendfile()'ing the
-> answer.
-
-well, the method i suggested was to use sendfile() twice: first the
-(cached, or freshly constructed) headers put into a big file, then the
-body itself (which is the original file, accessed via cached file
-descriptors).
-
-(splitting up the header and the body has the benefit of not dual-caching
-the same webcontent. this is what TUX does too.)
+first there would be a 'current time thread', which updates a global
+shared variable that shows the current time. (ie. no extra system-call is
+needed to access current time.) If the header-sending code detects that
+current time is not equal to the timestamp stored in the header itself,
+then the header is reconstructed. Pretty simple.
 
 	Ingo
 

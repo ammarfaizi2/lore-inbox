@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSFHXIA>; Sat, 8 Jun 2002 19:08:00 -0400
+	id <S317478AbSFHX0P>; Sat, 8 Jun 2002 19:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317472AbSFHXH7>; Sat, 8 Jun 2002 19:07:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:65449 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317469AbSFHXH6>;
-	Sat, 8 Jun 2002 19:07:58 -0400
-Date: Sat, 08 Jun 2002 16:04:07 -0700 (PDT)
-Message-Id: <20020608.160407.101346167.davem@redhat.com>
-To: mark@mark.mielke.cc
-Cc: greearb@candelatech.com, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020608170511.B26821@mark.mielke.cc>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317479AbSFHX0O>; Sat, 8 Jun 2002 19:26:14 -0400
+Received: from u195-95-84-180.dialup.planetinternet.be ([195.95.84.180]:24070
+	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
+	id <S317478AbSFHX0O>; Sat, 8 Jun 2002 19:26:14 -0400
+Message-Id: <200206082325.g58NP8gf029372@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: lilo causes an oops after unloading IDE CD modules
+Date: Sun, 09 Jun 2002 01:25:08 +0200
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-You guys we have SNMP statistics for these events, there
-is no reason to have them per-socket.  You cannot convince
-me that when you are diagnosing a problem the SNMP stats
-are not enough to show you if the packets are being dropped.
+I have an (aging) P5 SMP box which is all-scsi except for an
+el-cheapo IDE CD drive. Because I almost never use the CD, I
+have the drivers compiled as modules and autoclean them.
 
-If not, this means we need to add more SNMP events, that is
-all it means.
+Ever since switching from 2.5.7 to (I think) 2.5.9, I've had 
+problems with `make bzlilo' causing the system to hang (which 
+*is* nasty). 
+
+Today I finally figured out a pattern: immediately after 
+booting, I can run lilo as often as I want, no problem. But 
+as soon as the ide-cd, cdrom, and ide-mod modules have been 
+unloaded, running lilo will result in an oops (not always the 
+same one). If I prevent the unloading by mounting a CD, lilo 
+runs fine no matter how hard and for how long I beat the 
+machine.
+
+My current kernel is 2.5.20 with modutils-2.4.12. Anyone 
+interested in hunting this thing down? I lack both time and 
+knowledge to do it myself, but am wiling to test patches.
+
+MCE
+-- 
+========================================================================
+M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
+GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
+ V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
+========================================================================
+

@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGHN0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUGHN2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUGHN0V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 09:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUGHN0U
+	id S262905AbUGHN2T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 09:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUGHN2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 09:26:20 -0400
-Received: from guardian.hermes.si ([193.77.5.150]:3603 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S264763AbUGHN0J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 09:26:09 -0400
-Message-ID: <600B91D5E4B8D211A58C00902724252C035F1F18@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, fedora-list@redhat.com
-Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
-Date: Thu, 8 Jul 2004 15:25:41 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Thu, 8 Jul 2004 09:28:19 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:422 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S262905AbUGHN15 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 09:27:57 -0400
+Date: Thu, 8 Jul 2004 09:27:45 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-aio@kvack.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6-bk] aio not returning error code(?)
+Message-ID: <20040708132745.GG6513@kvack.org>
+References: <Pine.LNX.4.60.0407071430170.28653@hermes-1.csi.cam.ac.uk> <20040707223302.GA6513@kvack.org> <1089291383.5891.69.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089291383.5891.69.camel@imp.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+Hello Anton,
 
-	Currently mousedev combines all hardware motion data that arrivers
-since
-	last time userspace read data into one cooked PS/2 packet. The
-problem is
-	that under heavy or even moderate load, when userspace can't read
-data
-	quickly enough, we start loosing valuable data which manifests in:
+On Thu, Jul 08, 2004 at 01:56:24PM +0100, Anton Altaparmakov wrote:
+> You are saying that this is wrong and that no error code is returned
+> from io_submit despite its manpage saying that it is so one of the two
+> must be wrong, no?
 
-	- ignoring buton presses as by the time userspace gets to read the
-data
-	  button has already been released;
-	- click starts in wrong place - by the time userspace got aroungd
-and read
-	  the packet mouse moved half way across the screen.
+Either or.  Yes, the man page needs to talk about early vs late errors 
+(remember that any early error for a given iocb is valid late), or your 
+patch needs to be fixed.  Something like the following would be the 
+right way of fixing it -- it doesn't report the same error twice (both 
+early and late) as your patch did, but it's not clear which was is better.  
+There are good arguements in favour of both early and late error 
+reporting, and late errors must always be handled by the application.  I 
+hope this clears things up to the level of mud. ;-)  Cheers,
 
-
-I am seeing the second simptom on Fedora Core 2 in X.
-( I click on a windows title, move the mouse and what happens is than a 
-selection rectangle is drawn on the desktop, starting a few inches away from
-the real click position )
-Is this the cause ?
-
-Regards,
-David
-
-P.S.: Is there a bug about this in bugzilla.redhat.com ? ( or elsewhere ? )
-----------------------------------------------------------------------------
------------
-http://noepatents.org/           Innovation, not litigation !
----
-David Balazic                      mailto:david.balazic@hermes.si
-HERMES Softlab                 http://www.hermes-softlab.com
-Zagrebska cesta 104            Phone: +386 2 450 8851 
-SI-2000 Maribor
-Slovenija
-----------------------------------------------------------------------------
------------
-"Be excellent to each other." -
-Bill S. Preston, Esq. & "Ted" Theodore Logan
-----------------------------------------------------------------------------
------------
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
 
 
-
-
-
-
-
-
+--- fs/aio.c.orig	2004-07-08 09:18:02.208534208 -0400
++++ fs/aio.c	2004-07-08 09:23:42.346825328 -0400
+@@ -1044,6 +1044,8 @@
+ 		if (file->f_op->aio_read)
+ 			ret = file->f_op->aio_read(req, buf,
+ 					iocb->aio_nbytes, req->ki_pos);
++		else
++			goto out_put_req;
+ 		break;
+ 	case IOCB_CMD_PWRITE:
+ 		ret = -EBADF;
+@@ -1059,20 +1061,27 @@
+ 		if (file->f_op->aio_write)
+ 			ret = file->f_op->aio_write(req, buf,
+ 					iocb->aio_nbytes, req->ki_pos);
++		else
++			goto out_put_req;
+ 		break;
+ 	case IOCB_CMD_FDSYNC:
+ 		ret = -EINVAL;
+ 		if (file->f_op->aio_fsync)
+ 			ret = file->f_op->aio_fsync(req, 1);
++		else
++			goto out_put_req;
+ 		break;
+ 	case IOCB_CMD_FSYNC:
+ 		ret = -EINVAL;
+ 		if (file->f_op->aio_fsync)
+ 			ret = file->f_op->aio_fsync(req, 0);
++		else
++			goto out_put_req;
+ 		break;
+ 	default:
+ 		dprintk("EINVAL: io_submit: no operation provided\n");
+ 		ret = -EINVAL;
++		goto out_put_req;
+ 	}
+ 
+ 	aio_put_req(req);	/* drop extra ref to req */

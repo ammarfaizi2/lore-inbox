@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265130AbTBJUd6>; Mon, 10 Feb 2003 15:33:58 -0500
+	id <S265095AbTBJUhN>; Mon, 10 Feb 2003 15:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265134AbTBJUd6>; Mon, 10 Feb 2003 15:33:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265130AbTBJUd5>; Mon, 10 Feb 2003 15:33:57 -0500
-Date: Mon, 10 Feb 2003 15:43:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: linux-2.5.59 kills ld.so.cache and some shared libraries.
-Message-ID: <Pine.LNX.3.95.1030210152059.250A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265096AbTBJUhN>; Mon, 10 Feb 2003 15:37:13 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12245 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265095AbTBJUhM>; Mon, 10 Feb 2003 15:37:12 -0500
+Date: Mon, 10 Feb 2003 21:46:51 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>, shaggy@austin.ibm.com,
+       jfs-discussion@oss.software.ibm.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.60: JFS no longer compiles with gcc 2.95
+Message-ID: <20030210204651.GE17128@fs.tum.de>
+References: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 10, 2003 at 11:08:28AM -0800, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.59 to v2.5.60
+> ============================================
+>...
+> Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
+>...
+>   o JFS: replace ugly JFS debug macros with simpler ones
+>...
 
-Hello,
-I retrieved, compiled, booted linux-2.5.59. Seemed to work
-okay. I have the following modules installed.
+This broke the compilation with gcc 2.95:
 
-Module                  Size  Used by
-ipchains               33624   7 
-ipx                    18724   0  (unused)
-3c59x                  27968   1  (autoclean)
-nls_cp437               4472   4  (autoclean)
-isofs                  17264   0  (unused)
-loop                    8536   0  (unused)
-sr_mod                 11996   0  (unused)
-cdrom                  27872   0  [sr_mod]
-BusLogic               35832   7 
-sd_mod                 10168  14 
-scsi_mod               51808   3  [sr_mod BusLogic sd_mod]
+<--  snip  -->
 
-However, after running it for an hour, I tried to reboot. The
-root file-system was permanently busy so it didn't get un-mounted.
+...
+  gcc -Wp,-MD,fs/jfs/.super.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  
+-D_JFS_4K  -DKBUILD_BASENAME=super -DKBUILD_MODNAME=jfs -c -o 
+fs/jfs/super.o fs/jfs/super.c
+fs/jfs/super.c: In function `jfs_fill_super':
+fs/jfs/super.c:335: parse error before `)'
+make[2]: *** [fs/jfs/super.o] Error 1
 
-Upon re-boot, there was a very long fsck in which a lot of
-stuff had to be "fixed", much more than simply a bad dismount.
+<--  snip  -->
 
-Then, fsck failed (stopped) in the middle. I waited about 15 minutes
-and hit the reset switch. After than, no executable files could
-execute. Booting and mounting an alternate root, I found that
-/etc/ld.so.cache had been destroyed as well as several of the
-important runtime files. I have retrieved the bad ld.so.cache file
-if anyone wants it. Fortunately I have several copies of the
-runtime libraries.
+cu
+Adrian
 
-Currently, I'm back using 2.4.18 (which works). I have about
-40 files in lost+found that I'm reviewing to see if they are
-important. There are several pieces of many library files that
-were mmapped. I find libc.so.6, libtermcap, etc. These memory-
-mapped files should have never been written to, however I
-think that a corrupted memory image can get written back to
-the file(s). I'm currently building another root file-system to
-destroy and I think that if I do `cp /dev/zero /dev/mem` the
-underlying memory-mapped files can get written in spite of
-that fact that they are read/exec only.
+-- 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

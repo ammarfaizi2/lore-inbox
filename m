@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268925AbUHUJHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268924AbUHUJJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268925AbUHUJHB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 05:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268924AbUHUJHB
+	id S268924AbUHUJJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 05:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268927AbUHUJJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 05:07:01 -0400
-Received: from main.gmane.org ([80.91.224.249]:46238 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268929AbUHUJGr (ORCPT
+	Sat, 21 Aug 2004 05:09:23 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:8856 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268924AbUHUJJJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 05:06:47 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sat, 21 Aug 2004 18:06:42 +0900
-Message-ID: <cg73b2$8bs$1@sea.gmane.org>
-References: <1093077667.854.69.camel@krustophenia.net> <S268911AbUHUIuB/20040821085001Z+1971@vger.kernel.org>
+	Sat, 21 Aug 2004 05:09:09 -0400
+Date: Sat, 21 Aug 2004 11:10:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P6
+Message-ID: <20040821091036.GA25864@elte.hu>
+References: <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu> <1093059838.854.11.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
-X-Accept-Language: bg, en, ja, ru, de
-In-Reply-To: <S268911AbUHUIuB/20040821085001Z+1971@vger.kernel.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093059838.854.11.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josan Kadett wrote:
-> Here is the very original linux-kernel mailing list, and if I cannot find an
-> answer here, then nowhere on earth can this answer be found. I also saw some
-> other messages regarding the same issue on the net. None of them is answered
-> correctly; and also as if this is a very "forbidden" thing to disable the
-> checksums, most replies are as if they are "unbreakable rules of god".
-> Really, I am losing my patience with this. It is also very odd to write a
-> low-level application in order to just disable a "feature" of the kernel to
-> deal with a faulty piece of embedded firmware.
 
-OK, try this, not tested:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-replace the return statements with "return 0;" in:
+> Also I have noticed a pattern with the XFree86 schedule() latencies,
+> they all have a section like this:
+> 
+> 04000002 0.003ms (+0.000ms): effective_prio (recalc_task_prio)
+> 04000002 0.003ms (+0.000ms): enqueue_task (schedule)
+> 00000002 0.006ms (+0.003ms): __switch_to (schedule)
+> 00000002 0.088ms (+0.082ms): finish_task_switch (schedule)
+> 00010002 0.090ms (+0.001ms): do_IRQ (finish_task_switch)
 
-net/ipv4/udp.c, function __udp_checksum_complete, about line 759
-net/ipv4/icp_input.c, function __tcp_checksum_complete_user, about line 4070
+> I presume the 04000002 -> 00000002 is some interrupt being unmasked
+> (or interrupts being globally enabled), then there's a 60-80 usec
+> latency in schedule().
 
-* line numbers above are for linux-2.6.7
+0x04000000 is PREEMPT_ACTIVE - which is just a bit we set to make sure
+we dont try to preempt recursively.
 
-Kalin.
+but the XFree86 latency is interesting indeed. It could be the effect of
+the now-enlarged ioperm() bitmap! 80 usecs is excessive.
 
--- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
-
+	Ingo

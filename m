@@ -1,102 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVASWSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVASWS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVASWSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 17:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVASWQb
+	id S261946AbVASWS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 17:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVASWPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 17:16:31 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:12540 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261945AbVASWOg
+	Wed, 19 Jan 2005 17:15:54 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:40632 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261933AbVASWOY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 17:14:36 -0500
-Date: Wed, 19 Jan 2005 14:07:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mdharm-usb@one-eyed-alien.net, zaitcev@yahoo.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on USB_STORAGE=n
-Message-ID: <20050119220707.GM4151@kroah.com>
-References: <20041220001644.GI21288@stusta.de> <20041220003146.GB11358@kroah.com> <20041223024031.GO5217@stusta.de>
+	Wed, 19 Jan 2005 17:14:24 -0500
+Subject: Re: 2.6.10-mm1 hang
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: linux-os@analogic.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
+References: <1106153215.3577.134.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050119133136.7a1c0454.akpm@osdl.org>
+	 <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1106171094.3577.156.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041223024031.GO5217@stusta.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Jan 2005 13:44:54 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 03:40:31AM +0100, Adrian Bunk wrote:
-> On Sun, Dec 19, 2004 at 04:31:46PM -0800, Greg KH wrote:
-> > On Mon, Dec 20, 2004 at 01:16:44AM +0100, Adrian Bunk wrote:
-> > > I've already seen people crippling their usb-storage driver with 
-> > > enabling BLK_DEV_UB - and I doubt the warning in the help text added 
-> > > after 2.6.9 will fix all such problems.
-> > > 
-> > > Is there except for kernel size any good reason for using BLK_DEV_UB 
-> > > instead of USB_STORAGE?
-> > 
-> > You don't want to use the scsi layer?  You like the stability of it at
-> > times?  :)
-> > 
-> > > If not, I'd suggest the patch below to let BLK_DEV_UB depend
-> > > on EMBEDDED.
-> > 
-> > No, it's good for non-embedded boxes too.
+On Wed, 2005-01-19 at 14:01, linux-os wrote:
+> On Wed, 19 Jan 2005, Andrew Morton wrote:
 > 
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >>
+> >> I was playing with kexec+kdump and ran into this on 2.6.10-mm1.
+> >>  I have seen similar behaviour on 2.6.10.
+> >>
+> >>  I am using a 4-way P-III machine. I have a module which tries
+> >>  gets same spinlock twice. When I try to "insmod" this module,
+> >>  my system hangs. All my windows froze, no more new logins,
+> >>  console froze, doesn't respond to sysrq. I wasn't expecting
+> >>  a system hang. Why ? Ideas ?
+> >>
+> >
+> > Maybe all the other CPUs are stuck trying to send an IPI to this one?  An
+> > NMI watchdog trace would tell.
+> >
+> >>  #include <linux/init.h>
+> >>  #include <asm/uaccess.h>
+> >>  #include <linux/spinlock.h>
+> >>  spinlock_t mylock = SPIN_LOCK_UNLOCKED;
+> >>  static int __init panic_init(void)
+> >>  {
+> >>          spin_lock_irq(&mylock);
+> >>          spin_lock_irq(&mylock);
+> >>         return 1;
+> >>  }
+> > -
 > 
-> My current understanding is:
-> - BLK_DEV_UB supports a subset of what USB_STORAGE can support
-> - for an average user, there's no reason to enable BLK_DEV_UB
-> - if you really know what you are doing, there might be several reasons
->   why you might want to use BLK_DEV_UB
+> What would you expect this to do? After the first lock is
+> obtained, the second MUST fail forever or else the spin-lock
+> doesn't work. The code, above, just proves that spin-locks
+> work!
+> 
 
-I have been running with just the code portion of this patch for a while
-now, with good results (no Kconfig changes.)
+I was expecting that one CPU will spin for the lock, while
+3 other CPUs do real useful work (on 4-proc machine). Instead
+my machine is hung - all my windows froze up, no more "ssh",
+doesn't respond to sysrq to get traces. Only thing it does is,
+respond to "ping".
 
-Pete and Matt, do you mind me applying the following portion of the
-patch to the kernel tree?
+Thanks,
+Badari
 
-thanks,
-
-greg k-h
-> --- linux-2.6.10-rc3-mm1-full/drivers/usb/storage/unusual_devs.h.old	2004-12-23 03:09:42.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/drivers/usb/storage/unusual_devs.h	2004-12-23 03:09:53.000000000 +0100
-> @@ -549,13 +549,11 @@
->  		US_SC_SCSI, US_PR_CB, NULL,
->  		US_FL_SINGLE_LUN ),
->  
-> -#if !defined(CONFIG_BLK_DEV_UB) && !defined(CONFIG_BLK_DEV_UB_MODULE)
->  UNUSUAL_DEV(  0x0781, 0x0002, 0x0009, 0x0009, 
->  		"Sandisk",
->  		"ImageMate SDDR-31",
->  		US_SC_DEVICE, US_PR_DEVICE, NULL,
->  		US_FL_IGNORE_SER ),
-> -#endif
->  
->  UNUSUAL_DEV(  0x0781, 0x0100, 0x0100, 0x0100,
->  		"Sandisk",
-> --- linux-2.6.10-rc3-mm1-full/drivers/usb/storage/usb.c.old	2004-12-23 03:10:00.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/drivers/usb/storage/usb.c	2004-12-23 03:10:13.000000000 +0100
-> @@ -144,9 +144,7 @@
->  	{ USB_INTERFACE_INFO(USB_CLASS_MASS_STORAGE, US_SC_QIC, US_PR_BULK) },
->  	{ USB_INTERFACE_INFO(USB_CLASS_MASS_STORAGE, US_SC_UFI, US_PR_BULK) },
->  	{ USB_INTERFACE_INFO(USB_CLASS_MASS_STORAGE, US_SC_8070, US_PR_BULK) },
-> -#if !defined(CONFIG_BLK_DEV_UB) && !defined(CONFIG_BLK_DEV_UB_MODULE)
->  	{ USB_INTERFACE_INFO(USB_CLASS_MASS_STORAGE, US_SC_SCSI, US_PR_BULK) },
-> -#endif
->  
->  	/* Terminating entry */
->  	{ }
-> @@ -220,10 +218,8 @@
->  	  .useTransport = US_PR_BULK},
->  	{ .useProtocol = US_SC_8070,
->  	  .useTransport = US_PR_BULK},
-> -#if !defined(CONFIG_BLK_DEV_UB) && !defined(CONFIG_BLK_DEV_UB_MODULE)
->  	{ .useProtocol = US_SC_SCSI,
->  	  .useTransport = US_PR_BULK},
-> -#endif
->  
->  	/* Terminating entry */
->  	{ NULL }
-
--- 

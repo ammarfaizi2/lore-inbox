@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268296AbTBYVXq>; Tue, 25 Feb 2003 16:23:46 -0500
+	id <S268575AbTBYVgm>; Tue, 25 Feb 2003 16:36:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268385AbTBYVXq>; Tue, 25 Feb 2003 16:23:46 -0500
-Received: from services.erkkila.org ([24.97.94.217]:63893 "EHLO erkkila.org")
-	by vger.kernel.org with ESMTP id <S268296AbTBYVXo>;
-	Tue, 25 Feb 2003 16:23:44 -0500
-Message-ID: <3E5BE146.4050308@erkkila.org>
-Date: Tue, 25 Feb 2003 21:33:58 +0000
-From: "Paul E. Erkkila" <pee@erkkila.org>
-Reply-To: pee@erkkila.org
-Organization: ErkkilaDotOrg
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030218
-X-Accept-Language: en-us, en
+	id <S268576AbTBYVgm>; Tue, 25 Feb 2003 16:36:42 -0500
+Received: from cs666873-16.austin.rr.com ([66.68.73.16]:51208 "EHLO
+	raptor.int.mccr.org") by vger.kernel.org with ESMTP
+	id <S268575AbTBYVgl>; Tue, 25 Feb 2003 16:36:41 -0500
+Date: Tue, 25 Feb 2003 15:46:26 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: zilvinas@gemtek.lt, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.62-mm3 - no X for me
+Message-ID: <359700000.1046209586@[10.1.1.5]>
+In-Reply-To: <20030225132755.241e85ac.akpm@digeo.com>
+References: <20030223230023.365782f3.akpm@digeo.com>
+ <3E5A0F8D.4010202@aitel.hist.no><20030224121601.2c998cc5.akpm@digeo.com>
+ <20030225094526.GA18857@gemtek.lt><20030225015537.4062825b.akpm@digeo.com>
+ <131360000.1046195828@[10.1.1.5]> <20030225132755.241e85ac.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad Keyboard nuttiness since 2.5.60 with power managemen
- t
-References: <F760B14C9561B941B89469F59BA3A8471380CA@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8471380CA@orsmsx401.jf.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-    I have the same problems with repeating keys when
-running under battery vs AC power with the later 2.5.6x
-kernels on an IBM T20. It goes away when i plug in
-the AC adaptor or boot w/o acpi. The only other oddity
-i've noticed is that i have to cntrl-alt-del TWICE
-to get it to reboot, the first one does jack, but
-i'm not blaming that on the kernel just yet ;p
 
--pee
+--On Tuesday, February 25, 2003 13:27:55 -0800 Andrew Morton
+<akpm@digeo.com> wrote:
 
-Grover, Andrew wrote:
+>> Or I could set the anon flag based on that test.  I know page flags are
+>> getting scarce, so I'm leaning toward removing the flag entirely.
+>> 
+>> What would you recommend?
+> 
+> Keep the flag for now, find the escaped page under X, remove the flag
+> later?
 
->>From: daveman@bellatlantic.net [mailto:daveman@bellatlantic.net] 
->>I am seeing a strange keyboard related issue as well on a 
->>Thinkpad A20M. It seems if I walk away for say, 20 minutes, 
->>come back and try to input a password to KDE's screen saver, 
->>the FIRST keystroke I make is not recognized at all. All 
->>keystrokes after the first one register perfectly fine. This 
->>is on the laptop's built-in keyboard. I too am using ACPI. If 
->>I don't wait long enough it doesn't happen, so I do believe 
->>it has something to do with power management. I first noticed 
->>it in 2.5.61(first 2.5 kernel that would boot for me) and am 
->>currently running 2.5.63, where I still see it. I am not 
->>using modules.
->>
->>If anyone would like more info on this, please let me know.
->>    
->>
->
->I am seeing the same behavior under Windows on an IBM T20. This makes me
->think it is not something the kernel is to blame for.
->
->Regards -- Andy
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+It occurred to me I'm already using (abusing?) the flag for nonlinear
+pages, so I have to keep it.  I'll chase solutions for X.
 
+Dave McCracken

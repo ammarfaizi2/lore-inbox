@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262209AbSJNWNG>; Mon, 14 Oct 2002 18:13:06 -0400
+	id <S262216AbSJNWUz>; Mon, 14 Oct 2002 18:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262218AbSJNWNG>; Mon, 14 Oct 2002 18:13:06 -0400
-Received: from ns0.cobite.com ([208.222.80.10]:64263 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S262209AbSJNWNF>;
-	Mon, 14 Oct 2002 18:13:05 -0400
-Date: Mon, 14 Oct 2002 18:18:55 -0400 (EDT)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@admin
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] raw over raid5: BUG at drivers/block/ll_rw_blk.c:1967
-In-Reply-To: <3DAB2DD9.B78639C5@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210141815100.2876-100000@admin>
+	id <S262217AbSJNWUz>; Mon, 14 Oct 2002 18:20:55 -0400
+Received: from mta02bw.bigpond.com ([139.134.6.34]:47050 "EHLO
+	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262216AbSJNWUy>; Mon, 14 Oct 2002 18:20:54 -0400
+Message-ID: <3DAB44CE.508@snapgear.com>
+Date: Tue, 15 Oct 2002 08:27:26 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.42uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Andrew Morton wrote:
+Hi All,
 
-> David Mansfield wrote:
-> > ------------[ cut here ]------------
-> > kernel BUG at drivers/block/ll_rw_blk.c:1967!
-> 
-> I don't think you told us the kernel version?
-> 
-> There have been recent fixes wrt sizing of the BIOs which the
-> direct-io layer sends down.  So please make sure that you're
-> testing Linus's current -bk, or 2.5.42 plus
-> 
+An updated uClinux patch is available at:
 
-I've tried to test 2.5.42-mm2 but it doesn't compile.  There were (I 
-assume 'sard') changes made to remove the DK_MAX_MAJOR etc. but there is 
-to patch to drivers/md/md.c so it fails to compile:
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0.patch.gz
 
-# find -name \*.c | xargs grep DK_MAX_MAJOR
-./drivers/md/md.c:static unsigned int sync_io[DK_MAX_MAJOR][DK_MAX_DISK];
-./drivers/md/md.c:      if ((index >= DK_MAX_DISK) || (major >= 
-DK_MAX_MAJOR))
-./drivers/md/md.c:              if ((idx >= DK_MAX_DISK) || (major >= 
-DK_MAX_MAJOR))
+Changelog:
 
-David
+1. merge Christoph Hellwig's reorg patches
+2. mm/Makefile cleanup
+3. mm/mmap.c cleanup
+4. miscellaneous mm/* CONFIG_MMU cleanup
+5. v850 update
 
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
+The merged mm/mmnommu is looking pretty good (thanks
+to Christoph :-). A few more cleanups, but the diffs
+are reasonably small now...
+
+
+Smaller patches:
+
+. FEC ColdFire 5272 ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-fec.patch.gz
+
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-serial.patch.gz
+
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-fb.patch.gz
+
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-v850.patch.gz
+
+. mm (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc0-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
 

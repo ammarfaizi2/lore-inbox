@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbUCZAuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUCZAnv
+	id S263903AbUCZA44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:56:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263878AbUCZAyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:43:51 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60352 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263890AbUCZAlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:41:37 -0500
-Date: Thu, 25 Mar 2004 16:41:02 -0800
-From: Greg KH <greg@kroah.com>
-To: James Lamanna <jamesl@appliedminds.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Figuring out USB device locations
-Message-ID: <20040326004102.GA32057@kroah.com>
-References: <406314EF.7040304@appliedminds.com> <20040325235740.GA30964@kroah.com> <40637A42.4080603@appliedminds.com>
+	Thu, 25 Mar 2004 19:54:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64981 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263887AbUCZAdl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:33:41 -0500
+Date: Fri, 26 Mar 2004 00:33:39 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, 239952@bugs.debian.org,
+       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+Message-ID: <20040326003339.GD25059@parcelfarce.linux.theplanet.co.uk>
+References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de> <20040325082949.GA3376@gondor.apana.org.au> <20040325220803.GZ16746@fs.tum.de> <40635DD9.8090809@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40637A42.4080603@appliedminds.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <40635DD9.8090809@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 04:33:06PM -0800, James Lamanna wrote:
-> Greg KH wrote:
+On Thu, Mar 25, 2004 at 05:31:53PM -0500, Jeff Garzik wrote:
 > 
-> >On Thu, Mar 25, 2004 at 09:20:47AM -0800, James Lamanna wrote:
-> >
-> >>Is there an easy way to find out what /dev entries usb devices get 
-> >>mapped to from userspace?
-> >
-> >
-> >"easy way" on 2.4?  No, sorry.  You need 2.6 to determine this in a
-> >simple manner.  But there are some files in the /proc/bus/usb/
-> >and /proc/bus/input/ directories that will help you out.
+> Well IANAL, but it seems not so cut-n-dried, at least.
 > 
-> Hmm...its not obvious to me how i can use /proc/bus/usb/xxx/yyy to get 
-> the /dev entry information. I can get the USB device number, but I don't 
-> see how to get at a mapping to a major/minor in /dev space (or is this 
-> not possible in 2.4)...
+> Firmware is a program that executes on another processor, so no linking 
+> is taking place at all.  It is analagous to shipping a binary-only 
+> program in your initrd, IMO.
 
-Well, for mice you can corrispond the usb position found in
-/proc/bus/usb/devices with the input information found in
-/proc/bus/usb/input to determine which /dev file that mouse is
-(possibly, but you might get a close guess there.)
+Linking isn't the issue.  I went and read the original bug on this a
+while back.  The issue is that it's a program that's distributed in
+binary form without source code.  That's forbidden from being in main
+by the terms of the Debian Social Contract.
 
-But remember, under 2.4 this is quite difficult.  I suggest just giving
-up and using 2.6 :)
+I realise there's a grey area between "magic data you write to a device"
+and "a program that is executed on a different processor".  For example,
+palette data for a frame buffer.  But nobody's arguing for that grey
+area here -- it's clearly a program without source code that Debian
+can't distribute.
 
-thanks,
+I think this is a terribly unfortunate state of affairs and I'm not happy
+about how it's been handled or communicated.  I'd really appreciate it
+if someone managed to think of a good solution to this.
 
-greg k-h
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263516AbUJ2UeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263521AbUJ2UeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263516AbUJ2UeF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUJ2U2s
+	id S263521AbUJ2UeE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263516AbUJ2U3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:28:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50868 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263443AbUJ2UXh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:23:37 -0400
-Date: Fri, 29 Oct 2004 15:22:49 -0500
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [PATCH 2/4] Driver core: add driver_probe_device
-Message-ID: <20041029202249.GB29171@kroah.com>
-References: <20041029185753.53517.qmail@web81307.mail.yahoo.com>
+	Fri, 29 Oct 2004 16:29:16 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:42501 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263521AbUJ2UYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:24:11 -0400
+Date: Fri, 29 Oct 2004 22:21:53 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       typo@shaw.ca, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paulo Marques <pmarques@grupopie.com>
+Subject: Re: Linuxant/Conexant HSF/HCF Modem Drivers Unlocked
+Message-ID: <20041029202153.GM19761@alpha.home.local>
+References: <1099032721.23148.5.camel@localhost> <418226FA.1030803@grupopie.com> <1099053788.4511.13.camel@localhost> <1099057814.13068.29.camel@localhost.localdomain> <20041029200011.GA18508@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041029185753.53517.qmail@web81307.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041029200011.GA18508@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:57:52AM -0700, Dmitry Torokhov wrote:
-> > I really like the "driver" part in the device.  But not as a file, let's
-> > make it a symlink back to the driver that is bound to the device at that
-> > point in time.  This makes it just like the other symlinks in the sysfs
-> > tree.
-> > 
-> > But if we do that, we still don't have a way to implement what you are
-> > really trying to do (and it breaks your code as you already have a
-> > driver file.)  I'll work on what I propose instead in my next message
-> > (will be a few hours, have real work to do for a bit, sorry...)
-> >
+On Fri, Oct 29, 2004 at 09:00:12PM +0100, Dave Jones wrote:
+> On Fri, Oct 29, 2004 at 02:50:42PM +0100, Alan Cox wrote:
+>  > On Gwe, 2004-10-29 at 13:43, Chad Christopher Giffin wrote:
+>  > > I still find myself deeply troubled and questioning the legalities of
+>  > > using "GPL\0[...]" in the license string of a non-GPL module.  As it is
+>  > > a blatant lie.  
+>  > 
+>  > Oh its almost certainly a criminal offence in the USA - the DMCA for
+>  > example. The \0 stupidity checker needs to go into the kernel.
 > 
-> Well, we can have driver as a symlink and rename my "driver" attribute
-> into something like "drvctl" (just an example, maybe somebody has better
-> name in mind, I am not fixed on the name) and make it writable only.
+> Copy protection arms-races are always fun. If we did this, no doubt
+> some enterprising individual would find that some other value
+> also has the same effect.  You need to throw out anything else
+> thats non alphanumeric too.  (plus '/' for 'Dual BSD/GPL' and friends)
 
-Yes, that's exactly what I was thinking of.  But as you wanted it to do
-three different things... Hm, no, I guess you only wanted it to do 2
-things.  Ah, that's not bad at all.  Been traveling too long, can't
-remember threads...
+Use Pascal-like strings then. I see no way to fake them.
 
-> I think it should work well as now device and driver objects are very
-> symmetrical - they both similarly linked together via device->driver
-> and driver->device).
+Willy
 
-I agree.  Hm, I guess the remaining 2 patches aren't that far away from
-what I was thinking about originally. 
-
-Ok, care to redo the "driver" patch to be a symlink instead?  I think
-the last patch doesn't really need any changes, does it?
-
-Hm, but how does this play with the current pci "add a new device id"
-scheme?  Can this "bind_mode" scheme work with that?
-
-thanks,
-
-greg k-h

@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278309AbRKAIPh>; Thu, 1 Nov 2001 03:15:37 -0500
+	id <S278364AbRKAIXh>; Thu, 1 Nov 2001 03:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278338AbRKAIP1>; Thu, 1 Nov 2001 03:15:27 -0500
-Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:64775 "HELO smeg")
-	by vger.kernel.org with SMTP id <S278309AbRKAIPL>;
-	Thu, 1 Nov 2001 03:15:11 -0500
-Message-ID: <2644.192.168.2.1.1004602385.squirrel@mail.mswinxp.net>
-Date: Thu, 1 Nov 2001 08:13:05 -0000 (GMT)
-Subject: Re: kbuild 2.5 preventing mixture of compilers
-From: "Lee Packham" <linux@mswinxp.net>
-To: kaos@ocs.com.au
-In-Reply-To: <26322.1004575402@kao2.melbourne.sgi.com>
-In-Reply-To: <26322.1004575402@kao2.melbourne.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S278381AbRKAIX1>; Thu, 1 Nov 2001 03:23:27 -0500
+Received: from adiemus.org ([129.210.16.110]:47033 "EHLO adiemus.org")
+	by vger.kernel.org with ESMTP id <S278364AbRKAIXY>;
+	Thu, 1 Nov 2001 03:23:24 -0500
+Date: Thu, 1 Nov 2001 00:23:31 -0800 (PST)
+From: Chris Tracy <ctracy@adiemus.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.13-ac2/3/5: Strange cache memory report
+Message-ID: <Pine.LNX.4.30.0111010007160.10052-100000@adiemus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IMHO, that is a good idea... almost.
+Hey,
 
-What about companies that maintain closed source driver modules for their 
-hardware?
+	I've noticed a strange bug in 2.4.13-ac2, 3, and 5.  (It wasn't
+there in 2.4.12-ac2)  Namely, shortly after starting X, the reported
+amount of cached memory spikes to somewhere around 18 hexabytes.
+Needless to say, I don't have this much memory.  :-)
 
-I know a lot of people here will say, 'well they should open source them 
-then'. However, some companies don't want to for their own reasons and 
-this 'could' blow them out the water a bit and affect end users.
+	The problem first occured on my pre-hardware-upgraded system, and
+continues to occur on the post-upgrade system.  The first system was:
 
->From a stability point of view, this may seem like an excellent idea. I'm 
-just scared that this could put companies off producing driver modules for 
-their hardware.
+	ASUS A7V
+	900MHz Athlon T-bird
+	768MB RAM
+	linux-2.4.13-ac2/ac3 (UP, CONFIG_HIGHMEM was off)
 
-Lee Packham
+	The post-upgrade system is:
 
-> FYI, kbuild 2.5 will check that all the kernel and modules were
-> compiled with the same version of gcc, in particular they must all have
-> the same value of
-> 
->   $(CC) -v 2>&1 | sed -ne '1s:.*/\([^/]*/[^/]*\)/[^/]\+$:\1:p'
-> 
-> e.g. i386-redhat-linux/2.96
-> 
-> Minor version data such as build date is assumed to be irrelevant.
-> Anybody who makes significant changes to compiler output without
-> changing the version number gets what they deserve.
-> 
-> Modules built with a different compiler from the kernel will not load
-> unless they are forced with insmod -f.
-> 
-> Is this going to cause problems for anybody?  I see no justification
-> for mixing kernel objects built by different compilers and I know of
-> problems that have been caused by doing so.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Tyan Tiger MP S2460
+	2x 1.4GHz Athlon MP 1600+
+	1024MB RAM
+	linux-2.4.13-ac5 (SMP, CONFIG_HIGHMEM was on)
 
+	/proc/meminfo on the SMP system is:
+
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  1053028352 812806144 240222208  8007680 385331200 18446744073599795200
+Swap: 263168000        0 263168000
+MemTotal:      1028348 kB
+MemFree:        234592 kB
+MemShared:        7820 kB
+Buffers:        376300 kB
+Cached:       4294860112 kB
+SwapCached:          0 kB
+Active:         453608 kB
+Inact_dirty:    191808 kB
+Inact_clean:         0 kB
+Inact_target:   209700 kB
+HighTotal:      131008 kB
+HighFree:         2040 kB
+LowTotal:       897340 kB
+LowFree:        232556 kB
+SwapTotal:      257000 kB
+SwapFree:       257000 kB
+
+	It doesn't seem to cause any problems, as the system continues to
+function normally.  (Though I've not really tested to see if there's any
+performance hit associated with the phenomenon)  Either way, I'm guessing
+it's not what's supposed to be happening.  (As much as I'd love to have
+that much cache)
+
+	If you'd like any further information, please let me know.  Oh,
+and please CC me as I'm not on this list.
+
+	Thanks,
+
+	Chris
+
+--------------------------------
+Chris Tracy
+System/Network Administrator
+Engineering Design Center
+Santa Clara University
+"Wherever you go, there you are."
 

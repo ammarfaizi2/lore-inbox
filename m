@@ -1,61 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262745AbSJCFpc>; Thu, 3 Oct 2002 01:45:32 -0400
+	id <S262739AbSJCFkT>; Thu, 3 Oct 2002 01:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262746AbSJCFpb>; Thu, 3 Oct 2002 01:45:31 -0400
-Received: from mail.ccur.com ([208.248.32.212]:38412 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id <S262745AbSJCFp3>;
-	Thu, 3 Oct 2002 01:45:29 -0400
-Message-ID: <3D9BDAAA.B31E0D48@ccur.com>
-Date: Thu, 03 Oct 2002 01:50:34 -0400
-From: Jim Houston <jim.houston@ccur.com>
-Reply-To: jim.houston@ccur.com
-Organization: Concurrent Computer Corp.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: O(1) Scheduler (tuning problem/live-lock)
-References: <200209061844.g86IiF701825@linux.local> <20020930161019.GH1235@dualathlon.random> <3D994CD9.3FDFA09F@ccur.com> <20021002064559.GB1158@dualathlon.random>
+	id <S262740AbSJCFkT>; Thu, 3 Oct 2002 01:40:19 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:24331 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262739AbSJCFkR>;
+	Thu, 3 Oct 2002 01:40:17 -0400
+Date: Wed, 2 Oct 2002 22:43:07 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB changes for 2.5.40
+Message-ID: <20021003054306.GB17960@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea, Ingo,
+This series also includes a bugfix to the driver core hotplug logic.
 
-Andrea, I tried your second patch.  Again, it keeps on running even with
-"waitpid06 -c 16 -i 10000".  This is good.  It still has some jerky
-mouse behavior (under this load).  This is on an old slow Pentium Pro
-dual processor.  If I grab a window and move it around for several
-seconds, the screen will freeze for a couple seconds.  I suspect that
-my X server fails the TASK_INTERACTIVE test.
+Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
 
-I have been hacking at sched.c myself trying to avoid the array switch
-entirely.  I'm trying to set up a self-tuning feedback mechanism to
-adjust priorities so everything gets some cpu time without 
-having to do the array switch.  I'm juggling these ideas:
+thanks,
 
-	1. Gradually raise the priority of all the processes in
-	   the run queue.  Do this without having to visit all
-	   of the processes.
+greg k-h
 
-	2. When a process uses up its time slice, move it to a 
-	   less favorable priority.
+ drivers/usb/serial/usbserial.c  | 1950 ----------------------------------------
+ drivers/base/hotplug.c          |    1 
+ drivers/usb/Makefile            |    1 
+ drivers/usb/core/message.c      |   13 
+ drivers/usb/core/usb.c          |    2 
+ drivers/usb/input/usbkbd.c      |    4 
+ drivers/usb/misc/Config.help    |    6 
+ drivers/usb/misc/Config.in      |    1 
+ drivers/usb/misc/Makefile       |    1 
+ drivers/usb/misc/speedtouch.c   |   15 
+ drivers/usb/misc/usbtest.c      |  570 +++++++++++
+ drivers/usb/net/pegasus.h       |    2 
+ drivers/usb/net/rtl8150.c       |   61 +
+ drivers/usb/serial/Makefile     |    9 
+ drivers/usb/serial/console.c    |  266 +++++
+ drivers/usb/serial/usb-serial.c | 1683 ++++++++++++++++++++++++++++++++++
+ drivers/usb/serial/usb-serial.h |   15 
+ 17 files changed, 2624 insertions(+), 1976 deletions(-)
+-----
 
-	3. Tune the sleep_avg.  I like the old decaying average
-	   approach of old unix systems.  The current sleep_avg
-	   goes to saturation too often.  I would like to
-	   be able to tell if a process has been using more than
-	   its share of the cpu time.
+ChangeSet@1.683, 2002-10-02 22:34:04-07:00, greg@kroah.com
+  USB: split the usb serial console code out into its own file.
 
-	4. Make the maximum time slice decrease with more favorable
-	   priorities.  The time slice would depend on the dynamic
-	   priority.
+ drivers/usb/serial/usbserial.c  | 1950 ----------------------------------------
+ drivers/usb/serial/Makefile     |    9 
+ drivers/usb/serial/console.c    |  266 +++++
+ drivers/usb/serial/usb-serial.c | 1683 ++++++++++++++++++++++++++++++++++
+ drivers/usb/serial/usb-serial.h |   15 
+ 5 files changed, 1970 insertions(+), 1953 deletions(-)
+------
 
-I have code hacked together for first idea but its not useful without
-the rest.
+ChangeSet@1.682, 2002-10-02 16:22:25-07:00, greg@kroah.com
+  [PATCH] hotplug: fix for non-pci and usb calls
+  
+  clear the environment variables so for busses without callbacks, we can
+  successfully call /sbin/hotplug.
+  
+  Thanks to patmans@us.ibm.com for finding this bug.
 
-Jim Houston - Concurrent Computer Corp.
+ drivers/base/hotplug.c |    1 +
+ 1 files changed, 1 insertion(+)
+------
+
+ChangeSet@1.681, 2002-10-02 14:44:06-07:00, greg@kroah.com
+  USB: speedtouch driver fix due to ioctl function parameter change
+
+ drivers/usb/misc/speedtouch.c |   15 ++++++++-------
+ 1 files changed, 8 insertions(+), 7 deletions(-)
+------
+
+ChangeSet@1.680, 2002-10-02 14:26:29-07:00, david-b@pacbell.net
+  [PATCH] USB: framework for testing usbcore
+  
+  USB test driver
+
+ drivers/usb/Makefile         |    1 
+ drivers/usb/misc/Config.help |    6 
+ drivers/usb/misc/Config.in   |    1 
+ drivers/usb/misc/Makefile    |    1 
+ drivers/usb/misc/usbtest.c   |  570 +++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 579 insertions(+)
+------
+
+ChangeSet@1.679, 2002-10-02 14:21:13-07:00, cip307@cip.physik.uni-wuerzburg.de
+  [PATCH] USB: string query fix
+  
+  Query for stringlen before reading a string in usb.c
+
+ drivers/usb/core/message.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
+------
+
+ChangeSet@1.678, 2002-10-02 11:48:32-07:00, luc.vanoostenryck@easynet.be
+  [PATCH] 2.5.40: warning fix for drivers/usb/core/usb.c
+  
+  usb_hotplug()' prototype doesn't match when CONFIG_HOTPLUG is not defined.
+
+ drivers/usb/core/usb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.677, 2002-10-02 11:47:51-07:00, davem@redhat.com
+  [PATCH] USB: usbkbd fix
+  
+
+ drivers/usb/input/usbkbd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.676, 2002-10-02 11:21:03-07:00, petkan@users.sourceforge.net
+  [PATCH] USB: pegasus update
+  
+    device ID fix
+
+ drivers/usb/net/pegasus.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.675, 2002-10-02 11:16:55-07:00, petkan@users.sourceforge.net
+  [PATCH] USB: rtl8150 update
+  
+  set_mac_address is now added to the driver.  thanks to Orjan Friberg <orjan.friberg@axis.com>
+  the actual writing to the eeprom is disabled by default
+
+ drivers/usb/net/rtl8150.c |   61 +++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 53 insertions(+), 8 deletions(-)
+------
+

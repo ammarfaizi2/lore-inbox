@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129723AbRB1Brh>; Tue, 27 Feb 2001 20:47:37 -0500
+	id <S129797AbRB1CAR>; Tue, 27 Feb 2001 21:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130045AbRB1Br1>; Tue, 27 Feb 2001 20:47:27 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:64539 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129723AbRB1BrS>; Tue, 27 Feb 2001 20:47:18 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Sergey Kubushin" <ksi@cyberbills.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac6 
-In-Reply-To: Your message of "Tue, 27 Feb 2001 16:54:28 -0800."
-             <Pine.LNX.4.31ksi3.0102271652140.15248-100000@nomad.cyberbills.com> 
+	id <S129973AbRB1CAI>; Tue, 27 Feb 2001 21:00:08 -0500
+Received: from cts2161208021.cts.com ([216.120.80.21]:11504 "EHLO NICK2.")
+	by vger.kernel.org with ESMTP id <S129797AbRB1CAF>;
+	Tue, 27 Feb 2001 21:00:05 -0500
+Date: Tue, 27 Feb 2001 18:00:02 -0800
+From: Nick Pasich <npasich@crash.cts.com>
+To: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Error running menuconfig
+Message-ID: <20010227180002.A19242@NICK2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 28 Feb 2001 12:47:12 +1100
-Message-ID: <7784.983324832@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001 16:54:28 -0800 (PST), 
-"Sergey Kubushin" <ksi@cyberbills.com> wrote:
->Menuconfig doesn't work. Worked fine in 2.4.2-ac5.
 
-Against 2.4.2-ac6.
 
-Index: 2.9/arch/i386/config.in
---- 2.9/arch/i386/config.in Wed, 28 Feb 2001 12:44:01 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
-+++ 2.9(w)/arch/i386/config.in Wed, 28 Feb 2001 12:46:03 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
-@@ -379,6 +379,6 @@ bool '  Memory mapped I/O debugging' CON
- bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
- bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
- bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
--endmenu
--
- fi
-+
-+endmenu
+ I received this error running "make menuconfig" after applying
+ patch-2.4.2-ac6.bz2 to linux-2.4.2 ...........................
+
+                     ----( Nick Pasich )----
+
+ ************************************************************************
+ ************************************************************************
+
+ Menuconfig has encountered a possible error in one of the kernel's
+ configuration files and is unable to continue.  Here is the error
+ report:
+
+  Q> scripts/Menuconfig: MCmenu0: command not found
+
+  Please report this to the maintainer <mec@shout.net>.  You may also
+  send a problem report to <linux-kernel@vger.kernel.org>.
+
+  Please indicate the kernel version you are trying to configure and
+  which menu you were trying to enter when this error occurred.
+
+  make: *** [menuconfig] Error 1
+
+ ************************************************************************
+ ************************************************************************
 

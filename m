@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSHVXEI>; Thu, 22 Aug 2002 19:04:08 -0400
+	id <S318044AbSHVXIY>; Thu, 22 Aug 2002 19:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSHVXEI>; Thu, 22 Aug 2002 19:04:08 -0400
-Received: from splat.lanl.gov ([128.165.17.254]:29868 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S318007AbSHVXEH>; Thu, 22 Aug 2002 19:04:07 -0400
-Date: Thu, 22 Aug 2002 17:08:16 -0600
-From: Eric Weigle <ehw@lanl.gov>
-To: rwhron@earthlink.net
-Cc: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.31 qlogic error "this should not happen"
-Message-ID: <20020822230816.GC21548@lanl.gov>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Eric-Conspiracy: There is no conspiracy
-X-Editor: Vim, http://www.vim.org
-X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
-X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
+	id <S318059AbSHVXIY>; Thu, 22 Aug 2002 19:08:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30994 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318044AbSHVXIX>;
+	Thu, 22 Aug 2002 19:08:23 -0400
+Message-ID: <3D656FDC.8040008@mandrakesoft.com>
+Date: Thu, 22 Aug 2002 19:12:28 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Padraig Brady'" <padraig.brady@corvil.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: IDE-flash device and hard disk on same controller
+References: <Pine.LNX.4.10.10208201452210.3867-100000@master.linux-ide.org>	<3D62BC10.3060201@mandrakesoft.com>	<3D62C2A3.4070701@mandrakesoft.com> <m1sn17pici.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---c3bfwLpm8qysLVxt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-FWIW-
-
-I occasionally saw that error on our 2.4 RAID system; it went away when I
-increased the size of the handles array in qlogicfc.h:
-
--#define QLOGICFC_REQ_QUEUE_LEN  127 /* must be power of two - 1 */
-+#define QLOGICFC_REQ_QUEUE_LEN  255 /* must be power of two - 1 */
+Eric W. Biederman wrote:
+> I don't see any checking for the ATA bsy flag before you start sending
+> commands.  I have seen the current IDE code fail too many times if I
+> boot to fast, because of a lack of this one simple test.  So I don't
+> see how this could be considered a proper probe.
 
 
-I know this probably isn't the ``right'' solution, but it worked for me...
-your mileage may vary.
+There is no ATA bsy flag check at only one point, and that is before 
+EXECUTE DEVICE DIAGNOSTIC is issued.  The idea with this command is that 
+it pretty much stomps up and down the ATA bus, trouncing ongoing 
+activity in the process.
 
--Eric
+	Jeff
 
---=20
-------------------------------------------------
- Eric H. Weigle -- http://public.lanl.gov/ehw/=20
-------------------------------------------------
 
---c3bfwLpm8qysLVxt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9ZW7g1LDXWFnqnE8RAgFDAJ9TUsDntY84E8wQobv50b2sx7JPVgCgrEGi
-Sa052MlhF2Z0kbfuYd89oeU=
-=DJ9+
------END PGP SIGNATURE-----
-
---c3bfwLpm8qysLVxt--

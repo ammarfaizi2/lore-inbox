@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267390AbTAVJXR>; Wed, 22 Jan 2003 04:23:17 -0500
+	id <S267411AbTAVJ1X>; Wed, 22 Jan 2003 04:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267392AbTAVJXR>; Wed, 22 Jan 2003 04:23:17 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:8652 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S267390AbTAVJXR>; Wed, 22 Jan 2003 04:23:17 -0500
-To: Andries.Brouwer@cwi.nl
-Cc: jgarzik@pobox.com, ALESSANDRO.SUARDI@oracle.com, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 3c509.c
-References: <UTC200301212045.h0LKjSp11532.aeb@smtp.cwi.nl>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 22 Jan 2003 10:29:46 +0100
-Message-ID: <wrp65shjzw5.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <UTC200301212045.h0LKjSp11532.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267412AbTAVJ1X>; Wed, 22 Jan 2003 04:27:23 -0500
+Received: from host-80-252-0-105.gazeta.pl ([80.252.0.105]:4772 "EHLO
+	virgin.gazeta.pl") by vger.kernel.org with ESMTP id <S267411AbTAVJ1W>;
+	Wed, 22 Jan 2003 04:27:22 -0500
+Date: Wed, 22 Jan 2003 10:36:25 +0100
+From: =?iso-8859-2?Q?Przemys=B3aw?= Maciuszko <sal@agora.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with Qlogic 2200 and 2.4.20
+Message-ID: <20030122093625.GB2617@virgin.gazeta.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andries" == Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
+Hello.
+I have a strange problem with 2.4.20 (also 2.4.19) and Qlogic FC 2200.
 
-Andries> This evening the next attempt. Under 2.5.58 my ethernet cards
-Andries> still work, under 2.5.59 eth0, a 3c509, fails.
+The machine runs test news-server, so disk load is high.
+After few minutes of running I get the following errors on console:
 
-I'm the guilty one for (1) and (2). These problems are coming from the
-3c509 removal from Space.c.
+qlogifc0 : no handle slots, this should not happen
+hostdata->queued is 19, in_ptr: 63
+qlogifc0 : no handle slots, this should not happen
+hostdata->queued is 19, in_ptr: 6a
+qlogifc0 : no handle slots, this should not happen
+hostdata->queued is 19, in_ptr: 70
 
-I'll cook a patch latter today...
+and so on.
 
-Thanks for the report.
+After this machine locks up completetly and hard reboot must be done.
+When there is no load on disks machine runs fine for many hours.
+I'm using stripped logical volume on disk connected through this Qlogic FC
+(from IBM's Shark) and using ext3.
+LVM version 1.0.6
 
-        M.
 -- 
-Places change, faces change. Life is so very strange.
+Przemys³aw Maciuszko
+Agora S.A.

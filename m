@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130168AbQLBUPr>; Sat, 2 Dec 2000 15:15:47 -0500
+	id <S130368AbQLBURH>; Sat, 2 Dec 2000 15:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130196AbQLBUPh>; Sat, 2 Dec 2000 15:15:37 -0500
-Received: from adsl-151-196-234-4.baltmd.adsl.bellatlantic.net ([151.196.234.4]:62043
-	"EHLO vaio.greennet") by vger.kernel.org with ESMTP
-	id <S130168AbQLBUPb>; Sat, 2 Dec 2000 15:15:31 -0500
-Date: Sat, 2 Dec 2000 14:48:10 -0500 (EST)
-From: Donald Becker <becker@scyld.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Francois Romieu <romieu@cogenit.fr>, Russell King <rmk@arm.linux.org.uk>,
-        Ivan Passos <lists@cyclades.com>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
+	id <S130369AbQLBUQ5>; Sat, 2 Dec 2000 15:16:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36617 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130368AbQLBUQo>;
+	Sat, 2 Dec 2000 15:16:44 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012021946.TAA07734@raistlin.arm.linux.org.uk>
 Subject: Re: [RFC] Configuring synchronous interfaces in Linux
-In-Reply-To: <20001203075958.A1121@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.10.10012021412560.16980-100000@vaio.greennet>
+To: jgarzik@mandrakesoft.mandrakesoft.com (Jeff Garzik)
+Date: Sat, 2 Dec 2000 19:46:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> from "Jeff Garzik" at Dec 02, 2000 01:07:29 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Dec 2000, Chris Wedgwood wrote:
+Jeff Garzik writes:
+> Does 'ifconfig eth0 media xxx' wind up calling dev->set_config?
 
-> On Sat, Dec 02, 2000 at 11:09:35AM -0500, Donald Becker wrote:
-> 
->     Hey, I'll make it easy.  Find an approach that fully handles only the Tulip
->     and 3c59x drivers, and that is consistent.
-> 
-> Actually, I starteed work on adding this to the 3c59x code last
-> night; I am now a little dispondent though as it wasn't as simple as
-> I first thought it might be.
-> 
-> I am now wondering whether it make sense to break 3c59x into smaller
-> peices which hander fewer cards each; there soom to be many things
-> the driver knows about which probably don't relate to my needs.
+Yes.  See drivers/acorn/net/etherh.c for an(other) example driver
+supporting 10baseT and 10base2.
 
-It's certainly possible to break the driver up, but it will be even more of
-a problem to maintain.  Some of the complicated media selection code applies
-to several generations.  Splitting the driver to have a copy for each
-generation means a lot of duplicated code, which quickly leads to version
-skew.
+> If yes, my guess is correct, I think the proper solution is to:
+> * create a generic set_config, which does nothing but convert the calls'
+> semantics into ethtool semantics, and
+> * add ethtool support to the specific driver
 
-The story usually goes like this:
-
-Someone wants to experiment with a driver.  It's always exciting to tweak
-the code for the latest and greatest.  But the driver has all of this
-complicated stuff for other, usually older, card/kernel versions.  So the
-hacker tosses out the code, "simplifying" the driver.  They then release the
-"new and improved driver".
-
-They have no CVS tree to maintain, no old driver or hardware versions to
-keep track of.  No one has been using the driver for years, and thus there
-is no one screaming when their production machine stop working.  All of the
-people with problems are just referred to the guy who did the original
-driver, who is still expected to be there when things break.  They don't
-realize they have just removed all of the excitement and motivation for they
-guy who is doing all of the time consuming maintenance and testing work.
-
-I don't mean to pick on 3Com, but the driver they released is a good
-example.  It supported only a tiny set of card types that 3Com was currently
-selling, and only with the current kernel.  It didn't support the previous
-card types, the OEMed versions, or the older kernels.  The assumption was
-that my driver would exist to support those hard cases, but by handling the
-easy 90% that 3Com would get most of the credit.
-
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
-
+Sounds logical.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

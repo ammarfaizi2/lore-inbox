@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbUJ1U3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbUJ1U3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbUJ1U3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 16:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUJ1U20
+	id S262185AbUJ1U3M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 16:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUJ1U2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 16:28:26 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:38308 "EHLO
+	Thu, 28 Oct 2004 16:28:48 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:39588 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262446AbUJ1UXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 16:23:23 -0400
+	id S262878AbUJ1UZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 16:25:43 -0400
 Subject: Re: BK kernel workflow
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Xavier Bestel <xavier.bestel@free.fr>, James Bruce <bruce@andrew.cmu.edu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: davids@webmaster.com, Xavier Bestel <xavier.bestel@free.fr>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041028151004.GA3934@work.bitmover.com>
-References: <20041025162022.GA27979@work.bitmover.com>
-	 <20041025164732.GE14325@dualathlon.random>
-	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-	 <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
-	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-	 <4180B9E9.3070801@andrew.cmu.edu>
-	 <20041028135348.GA18099@work.bitmover.com>
-	 <1098972379.3109.24.camel@gonzales>
-	 <20041028151004.GA3934@work.bitmover.com>
+In-Reply-To: <41814ACF.5000705@backtobasicsmgmt.com>
+References: <MDEHLPKNGKAHNMBLJOLKKEPBPFAA.davids@webmaster.com>
+	 <41814ACF.5000705@backtobasicsmgmt.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1098991205.9557.29.camel@localhost.localdomain>
+Message-Id: <1098991360.9557.33.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 28 Oct 2004 20:20:08 +0100
+Date: Thu, 28 Oct 2004 20:22:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-10-28 at 16:10, Larry McVoy wrote:
-> "Fair use" != "reverse engineering" in any venue so far as I know.
+On Iau, 2004-10-28 at 20:38, Kevin P. Fleming wrote:
+> But there's the rub: acquiring it legally (for free) requires acceptance 
+> of the license terms. If you do not accept the terms, or accept them but 
+> later take actions which violate the terms you accepted, you can no 
+> longer say that you "acquired it legally". You have violated the terms
 
-Reverse engineering is enshrined in EU law as a right (although this
-started due to abuse by car companies not for computing). While people
-jump up and down and point to that its not always clear you can do so
-for the purposes of cloning rather than interoperability.
+Thats not actually the case. The law in countries writes in additional
+implicit clauses you cannot avoid and also forbids clauses. Those
+clauses vary by country but you'd find in most of the world that a
+clause like
 
-Ie its one thing to reverse engineer BK to make a BK->Subversion tool
-but quite another to reverse engineer it to reimplement BK
+3.	Not to be used by Women except for payment of a $500 additional 	tech
+support fee
 
-(leaving aside that all the patch files are publically grabbable and
-every patch Linus sends goes out to a mailing list so it would be a
-rather hard work way of doing it)
+would not be enforcable
 
-I don't use BK. It's not causing problems for me.
-
-Alan
 

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265386AbTFFHpk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 03:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265388AbTFFHpk
+	id S264668AbTFFHv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 03:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTFFHv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 03:45:40 -0400
-Received: from gw.enyo.de ([212.9.189.178]:37136 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S265386AbTFFHpj (ORCPT
+	Fri, 6 Jun 2003 03:51:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:9128 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264668AbTFFHvW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 03:45:39 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.69] ext3 error: rec_len %% 4 != 0
-References: <8765nva43w.fsf@deneb.enyo.de>
-	<20030528012512.5d631827.akpm@digeo.com>
-	<87znl45utw.fsf@deneb.enyo.de>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 06 Jun 2003 09:59:11 +0200
-In-Reply-To: <87znl45utw.fsf@deneb.enyo.de> (Florian Weimer's message of
- "Fri, 30 May 2003 17:15:55 +0200")
-Message-ID: <87smqn3acw.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jun 2003 03:51:22 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: __check_region in ide code?
+Date: Fri, 06 Jun 2003 17:34:24 +1000
+Message-Id: <20030606080454.89EC12C018@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> writes:
+Hi Bart,
 
-> I see the following messages with dmesg, but they appear to be
-> non-critical:
->
-> init_special_inode: bogus i_mode (67)
-> init_special_inode: bogus i_mode (177766)
-> init_special_inode: bogus i_mode (5)
-> init_special_inode: bogus i_mode (65)
-> init_special_inode: bogus i_mode (53664)
-> init_special_inode: bogus i_mode (5)
->
-> Are they related?  They didn't appear with ext3.
+	I notice that drivers/ide/ide-probe.c's hwif_check_region()
+still uses check_region().  If it really does want to use it to probe
+and not reserve, I think we should stop it warning there.
 
-Some more data points:
+	There's nothing inherently *wrong* with check_region, it's
+just deprecated to trap the old (now racy) idiom of "if
+(check_region(xx)) reserve_region(xx)".  There's no reason not to
+introduce a probe_region if IDE really wants it.
 
-  o 2.5.70 fails as well.
+Of course, some people will start "fixing" drivers by
+s/check_region/probe_region/ when we do this, but that's the risk we
+take.
 
-  o ext2 on 2.5.70, too.
+It should also allow us to easily get rid of that stupid warning in
+ksyms.c...
 
-  o Above errors are definitely critical. 8-(
-
-  o It seems as if the kernel assumes that a file is a directory.  (At
-    least after running 2.5.70/ext2 for a while, e2fsck had some
-    problems regenerating a proper file system structure and marked a
-    few files as directories.)
-
-  o Vanilla 2.4.20 is rock solid on the same hardware (no more file
-    system corruption after downgrade).
+Thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

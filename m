@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbTEGGQA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbTEGGQA
+	id S262902AbTEGGWd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTEGGWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:16:00 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:7945 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262894AbTEGGP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:15:59 -0400
-Date: Wed, 7 May 2003 07:28:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
+	Wed, 7 May 2003 02:22:33 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48109 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262902AbTEGGWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:22:33 -0400
+Date: Tue, 06 May 2003 22:27:29 -0700 (PDT)
+Message-Id: <20030506.222729.35034981.davem@redhat.com>
+To: hch@infradead.org
 Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
-Message-ID: <20030507072830.A7586@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, dwmw2@infradead.org,
-	thomas@horsten.com, linux-kernel@vger.kernel.org
-References: <20030507062613.A5318@infradead.org> <20030506.220714.35679546.davem@redhat.com> <20030507072002.A7424@infradead.org> <20030506.221900.38693097.davem@redhat.com>
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+ defined (trivial)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030507072830.A7586@infradead.org>
+References: <20030507072002.A7424@infradead.org>
+	<20030506.221900.38693097.davem@redhat.com>
+	<20030507072830.A7586@infradead.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030506.221900.38693097.davem@redhat.com>; from davem@redhat.com on Tue, May 06, 2003 at 10:19:00PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 10:19:00PM -0700, David S. Miller wrote:
-> What about if I extend stuff without breaking the ABI?
-> How do apps get at the new features?
-
-They get the features when they use the new headers.  They ususally want
-changes to support those new features anyway..
-
-> Actually, if you look, things like include/linux/xfrm.h are excellent
-> examples of userland compatible kernel headers :-)
-
-rtnetlink.h is a bad example.  Just to use something you quoted earlier in
-this thread..
-
+   From: Christoph Hellwig <hch@infradead.org>
+   Date: Wed, 7 May 2003 07:28:30 +0100
+   
+   rtnetlink.h is a bad example.  Just to use something you quoted earlier in
+   this thread..
+   
+What is wrong with it?  Truly kernel-only elements are protected
+with __KERNEL__ the rest are only the user visible and normal
+C types that are necessary for using rtnetlink in user apps.

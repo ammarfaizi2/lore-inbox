@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbUKDUXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbUKDUPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbUKDUXA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbUKDUT5
+	id S262393AbUKDUPB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUKDUM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 15:19:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28072 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262403AbUKDUPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 15:15:14 -0500
-Date: Thu, 4 Nov 2004 12:14:32 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>, linux-kernel@vger.kernel.org,
-       zaitcev@redhat.com
-Subject: Re: 2.6.9 USB storage problems
-Message-ID: <20041104121432.64d2d7fc@lembas.zaitcev.lan>
-In-Reply-To: <Pine.LNX.3.96.1041104135949.12155B-100000@gatekeeper.tmr.com>
-References: <20041104011932.0b5d2aae@lembas.zaitcev.lan>
-	<Pine.LNX.3.96.1041104135949.12155B-100000@gatekeeper.tmr.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Nov 2004 15:12:29 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31108 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262393AbUKDUI3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 15:08:29 -0500
+Message-ID: <418A8CD2.3050107@tmr.com>
+Date: Thu, 04 Nov 2004 15:10:58 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+CC: Russell Miller <rmiller@duskglow.com>, linux-kernel@vger.kernel.org
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <200411031945.20894.rmiller@duskglow.com><200411031945.20894.rmiller@duskglow.com> <20041104015959.GA54786@gaz.sfgoth.com>
+In-Reply-To: <20041104015959.GA54786@gaz.sfgoth.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004 14:04:58 -0500 (EST), Bill Davidsen <davidsen@tmr.com> wrote:
-
-> > I thought about the coexistence between the two at some length, and it seems
-> > to me that the current scheme is the simplest workable scheme. I even thought
-> > it as "least confusing" until messages from Wolfgang and others made it clear
-> > that relationship between ub and usb-storage is not obvious enough to them.
-> > I'm always open to patches, too.
+Mitchell Blank Jr wrote:
+> Russell Miller wrote:
 > 
-> It would seem that wanting to use both flash keys and more common USB
-> devices would be the common case for those who use flash keys at all.
-> Would it be possible to have the regular USB drivers support the slow
-> devices, if only to the extent of handing them off as they do CD, NIC, or
-> disk? Or are these slow devices so unique that they are totally
-> incompatible with faster devices?
+>>Couldn't ring 1 be used to make 
+>>sure an errant driver doesn't drop the kernel, at least on x86 machines?
+> 
+> 
+> Not really -- drivers could still do things like mis-program their associated
+> hardware making it do DMA writes all over kernel memory (just as one example)
+> 
+> Basically it'd add a lot of complexity (and inefficiency) without adding
+> much real safety.
 
-It's not a question of speed, in my view, but rather the protocol.
-I have a patch by Peter Jones in my queue, which allows to burn CDs
-with ub, for example. But splitting a whole protocol class is difficult.
-It would be great to give DVDs to usb-storage and keep hard drives
-and flash keys to ub, but I don't see a good way to accomplish that.
+It would be nice on x86 to run ring 1 for kernel debugging, getting 
+faults at appropriate points. Sorry, I'm an old MULTICS guy, wish 
+Honeywell would OS it.
 
-Again, if you come up with a patch which does inquiry and somehow
-arranges who handles what, it may be a good thing. But it has to pass
-a test of "not introducing too much complexity for too little gain".
-
-I understand that I am setting a situation of two drivers doing similar
-thing but not quite in the same way, just like in the bad old days
-of uhci and usb-uhci. My current goal is to allow all users to have ub
-configured at all times, if they want to. If it didn't fail devices like
-Fabio's and if burned CDs, you'd never notice that something was different,
-right? If this turns out unattainable, we can always remove ub from
-the tree.
-
--- Pete
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

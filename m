@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUDTBMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUDTBUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUDTBMD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 21:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDTBMD
+	id S262073AbUDTBUu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 21:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDTBUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 21:12:03 -0400
-Received: from mail07c.vwh1.net ([207.201.152.68]:55335 "HELO mail07c.vwh1.net")
-	by vger.kernel.org with SMTP id S262052AbUDTBMA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 21:12:00 -0400
-From: Nick Popoff <cryptic-lkml@bloodletting.com>
-To: linux-kernel@vger.kernel.org
-Subject: Testing Dual Ethernet via Loopback
-Date: Mon, 19 Apr 2004 06:14:21 -0700
-User-Agent: KMail/1.5.4
+	Mon, 19 Apr 2004 21:20:50 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:7181 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262073AbUDTBUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 21:20:49 -0400
+Date: Tue, 20 Apr 2004 09:27:04 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Venkata Ravella <Venkata.Ravella@synopsys.com>,
+       linux-kernel@vger.kernel.org, Ramki.Balasubramanium@synopsys.com,
+       ab@californiadigital.com, autofs@linux.kernel.org
+Subject: Re: Automount/NFS issues causing executables to appear corrupted
+In-Reply-To: <40846DB7.4090102@zytor.com>
+Message-ID: <Pine.LNX.4.58.0404200916221.12229@wombat.indigo.net.au>
+References: <200404200008.i3K08Zvs018948@radium.internal.synopsys.com>
+ <40846DB7.4090102@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404190614.21764.cryptic-lkml@bloodletting.com>
-X-Loop-Detect: 1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Mon, 19 Apr 2004, H. Peter Anvin wrote:
 
-I am trying to write some software to test a dual port ethernet card.  I
-was hoping to be able to use an ethernet cable to just connect the
-ethernet board to itself and then write a program that talks to itself to
-make sure that both ports are working.  However, I've noticed that Linux
-is smart enough to realize it is talking to its own IP address, and it
-just delivers the data internally rather than use the network hardware at
-all.
+> Venkata Ravella wrote:
+> > autofs version is autofs-3.1.7-21
+> > 
+> > I also have one new update. We started seeing similar problem on
+> > the system running the kernel 2.4.18-e.12smp which has the same
+> > version(3.1.7-21) of autofs as well.
+> > 
+> > This may or may not be an autofs problem but, restarting autofs
+> > fixes this problem temporarily.
+> > 
+> 
+> That will cause an NFS remount.  This really feels much more like an NFS
+> problem.
 
-So what I'm wondering is if there is a way to force Linux to actually
-utilize its network hardware in sending these packets to itself?  In other
-words, a ping or file transfer from an IP assigned to eth0 to another IP
-assigned to eth1 should fail if I unplug the network cable connecting the
-two.  Any advice on this would be much appreciated.  I'm not afraid of
-reading kernel source but have no idea where to start on this one.
+Certainly does.
 
-I'm using 2.4.22 but would use any 2.4 or 2.6 kernel that supported this
-behavior. The National Semiconductor DP83815 (natsemi.o) is the 
-ethernet chipset.
+Venkata,
+
+Can you also forward this question to the nfs list at 
+nfs@lists.sourceforge.net. Sorry to ask you to post all over the place.
+
+Please investigate the NFS client patches maintained by Trond Myklebust. 
+Check nfs.sourceforge.net. We found we had to use them in early 2.4 versions.
+
+Ian
 
 

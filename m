@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270990AbTGPRkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTGPRiT
+	id S270987AbTGPRlo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTGPRk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:38:19 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:47254 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S270994AbTGPRhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:37:13 -0400
-Date: Wed, 16 Jul 2003 19:51:29 +0200
-To: Pavel Machek <pavel@suse.cz>
-Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Suspend on one machine, resume elsewhere [was Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa]
-Message-ID: <20030716195129.A9277@informatik.tu-chemnitz.de>
-References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk> <20030716104026.GC138@elf.ucw.cz>
+	Wed, 16 Jul 2003 13:40:27 -0400
+Received: from mh57.com ([217.160.185.21]:50850 "EHLO mithrin.mh57.de")
+	by vger.kernel.org with ESMTP id S270965AbTGPRjG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:39:06 -0400
+Date: Wed, 16 Jul 2003 19:53:28 +0200
+From: Martin Hermanowski <martin@mh57.de>
+To: Peter Chubb <peter@chubb.wattle.id.au>, Andries Brouwer <aebr@win.tue.nl>,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030716175328.GU8228@mh57.de>
+References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl> <16148.53643.475710.301248@wombat.chubb.wattle.id.au> <20030716170720.GC2681@matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030716104026.GC138@elf.ucw.cz>; from pavel@suse.cz on Wed, Jul 16, 2003 at 12:40:26PM +0200
-From: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19cqRg-0003mi-00*CGjq5/V4L2A*
+In-Reply-To: <20030716170720.GC2681@matchmail.com>
+User-Agent: Mutt/1.5.4i
+X-Authenticated-ID: martin
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 12:40:26PM +0200, Pavel Machek wrote:
-> If you want to migrate programs between machines, run UMLinux, same
-> config, on both machines. Ouch and you'll need swsusp for UMLinux, too
 
-That might be more important than you think.
+--JWEK1jqKZ6MHAcjA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just start your Oracle in UML and swsusp. Now start your loadbalancer and start
-a copy of that frozen image as soon, as the load reaches a defined limit and
-kill these images again, if load goes down.
+On Wed, Jul 16, 2003 at 10:07:20AM -0700, Mike Fedyk wrote:
+> On Wed, Jul 16, 2003 at 02:16:11PM +1000, Peter Chubb wrote:
+> > >>>>> "Andries" =3D=3D Andries Brouwer <aebr@win.tue.nl> writes:
+> >=20
+> > Andries> On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
+> > >> So, will the DOS partition make it up to 2TB?  If so, then we won't
+> > >> have a problem until we have larger than 2TB drives
+> >=20
+> > Andries> Yes, DOS partition table works up to 2^32 sectors, and with
+> > Andries> 2^9-byte sectors that is 2 TiB.
+> >=20
+> > Andries> People are encountering that limit already. We need something
+> > Andries> better, either use some existing scheme, or invent something.
+> >=20
+> > We had this discussion before, back when I first submitted the large
+> > block device patches.  The consensus then was to use EFI, or LDM.
+> >=20
+> > Unless the BIOS supports a partitioning scheme, you're not
+> > going to be able to boot anyway, or at least not without doing
+> > something clever.
+>=20
+> The bios shouldn't even know about partition tables.  It just loads the c=
+ode
+> in the MBR, and the boot loader deals with the rest from there.
 
-There might be even more interesting scenarios like this.
+There are some bios variants that refuse to boot if the hard disk has no
+partition with the boot-flag set.
 
-Regards
+LLAP, Martin
 
-Ingo Oeser
+--JWEK1jqKZ6MHAcjA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/FZEYmGb6Npij0ewRAkNfAKCBBo5/mdCZbWp4SOrzijG/N0q8gACgnQjp
+fzZOIa07wUtiy9lJEZlmbRI=
+=xg9w
+-----END PGP SIGNATURE-----
+
+--JWEK1jqKZ6MHAcjA--

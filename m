@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270763AbTHOTHb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270750AbTHOTFg
+	id S270707AbTHOTCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTHOSeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:05:36 -0400
-Received: from Sina.Sharif.EDU ([81.31.160.35]:10149 "EHLO sina.sharif.edu")
-	by vger.kernel.org with ESMTP id S270755AbTHOTFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:05:05 -0400
-Date: Fri, 15 Aug 2003 23:40:21 +0430 (IRST)
-From: Behdad Esfahbod <behdad@bamdad.org>
-To: linux-kernel@vger.kernel.org
-Subject: Auto Module Loading Question
-Message-ID: <Pine.LNX.4.44.0308152332030.26087-100000@gilas.bamdad.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Aug 2003 14:34:09 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:50982 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S270739AbTHOSbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 14:31:07 -0400
+Date: Fri, 15 Aug 2003 19:29:40 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Centrino support
+Message-ID: <20030815182940.GC9681@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org
+References: <m2wude3i2y.fsf@tnuctip.rychter.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2wude3i2y.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 15, 2003 at 11:13:09AM -0700, Jan Rychter wrote:
+ > From http://news.com.com/2100-1006-993896.html:
+ > 
+ >   Intel plans Linux support for Centrino
+ > 
+ >   Intel is working on Linux support for Centrino, its package of chips for
+ >   mobile computers with wireless networking abilities, but the company
+ >   hasn't yet decided how or when to release it.
+ > 
+ > That was on March 24, 2003.
+ > 
+ > Well, that was almost 5 months ago. So I figured I'd ask if there's any
+ > progress -- so far the built-in wireless in my notebook still doesn't
+ > work with Linux and the machine is monstrously power-hungry because
+ > Linux doesn't scale the CPU frequency.
 
-It is off-topic, but I couldn't find the answer by Googling.
-I have installed 2.6.0-test2 and module-init-tools-0.9.13-pre2 on 
-my RedHat 9 system.
+CPU frequency scaling is supported now at least. (Though you'll need
+-ac for 2.4, or 2.6). Wireless is still unsupported AFAIK.
 
-Now I have two problem:  First one is that mount does not load
-needed modules automatically, so refuses to mount if the module
-for the filesystem is not loaded.  When I load it and retry, it
-mounts.
-
-The other problem is that, in the old era, I would simply put a
-line of 'alias char-major-10-144 nvram' in my /etc/modules.conf,
-and reading from /dev/nvram would load the module and work.  Now
-there is a line for that in auto-generated /etc/modprobe.conf, 
-but 'cat /dev/nvram' errs:
-
-	cat: /dev/nvram: No such device
-
-The same problem is with some other modules, including loop.  But 
-some drivers, like rtc and cdrom have been loaded themselves.
-
-Help is welcome,
-behdad
-
-PS.  Please keep me CCed
-
+		Dave
 
 -- 
-Behdad Esfahbod		24 Mordad 1382, 2003 Aug 15 
-http://behdad.org/	[Finger for Geek Code]
-
-If you do a job too well, you'll get stuck with it.
-
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,96 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131811AbRA3SQP>; Tue, 30 Jan 2001 13:16:15 -0500
+	id <S131871AbRA3SPz>; Tue, 30 Jan 2001 13:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131832AbRA3SPz>; Tue, 30 Jan 2001 13:15:55 -0500
-Received: from chmls05.mediaone.net ([24.147.1.143]:11002 "EHLO
-	chmls05.mediaone.net") by vger.kernel.org with ESMTP
-	id <S131811AbRA3SPx>; Tue, 30 Jan 2001 13:15:53 -0500
-Date: Tue, 30 Jan 2001 13:15:11 -0500
-From: Jon Anderson <andersoj@mediaone.net>
-To: Ronald Lembcke <es186@fen-net.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: no boot with 2.4.x
-Message-ID: <20010130131511.D22358@mediaone.net>
-In-Reply-To: <98087051420864-30100120864rhairyes@lee.k12.nc.us> <20010130172428.A4899@defiant.crash>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010130172428.A4899@defiant.crash>; from es186@fen-net.de on Tue, Jan 30, 2001 at 05:24:28PM +0100
-X-Operating-System: Linux tornado 2.4.0-test10 
+	id <S131832AbRA3SPp>; Tue, 30 Jan 2001 13:15:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:39296 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131811AbRA3SPj>; Tue, 30 Jan 2001 13:15:39 -0500
+Date: Tue, 30 Jan 2001 13:10:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Mark H. Wood" <mwood@IUPUI.Edu>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Post codes during runtime, possibly OT
+In-Reply-To: <Pine.LNX.4.21.0101301241250.11300-100000@mhw.ULib.IUPUI.Edu>
+Message-ID: <Pine.LNX.3.95.1010130125040.13137A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Jan 2001, Mark H. Wood wrote:
 
---veXX9dWIonWZEC6h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sat, 27 Jan 2001, Rogier Wolff wrote:
+> [snip]
+> > I may have missed too much of the discussion, but I thought that the
+> > idea was that some people noted that their POST-code-cards don't
+> > really work all that well when Linux is running because Linux keeps on
+> > sending garbage to port 0x80. 
+> > 
+> > You seem to state that if you want POST codes, you should find a
+> > different port, modify the code, test the hell out of it, and then
+> > submit the patch.
+> > 
+> > That is NOT the right way to go about this: Port 0x80 is RESERVED for
+> > POST usage, that's why it's always free. If people want to use it for
+> > the original purpose then that is a pretty damn good reason to bump
+> > the non-intended users of that port somewhere else. 
+> > 
+> > Now, we've found that small delays are reasonably well generated with
+> > an "outb" to 0x80. So, indeed changing that to something else is going
+> > to be tricky. 
+> 
+> So how bad would it be to give these people a place to leave the value
+> that they want to have displayed, and have the delay code write *that*
+> instead of garbage?
+> 
+You need to save eax on the stack, you need to load al from memory,
+you need to write al to the port, then you need to restore eax from
+the stack, i.e.,
+
+	pushl	%eax
+	movb	(where_they_put_it),%al
+	outb	%al,$0x80
+	popl	%eax
+
+This looks trivial. However, what happens if the kernel data segment
+hasn't been set (yet), etc. To make this 'universal' you have to make
+sure that "where_they_put_it" is accessible from the current segment.
+Therefore, you have to do:
+
+	pushl	%ds
+	pushl	%eax
+	movl	$KERNEL_DS,%eax
+	movl	%eax,%ds
+	movb	(where_they_put_it),%al
+	outb	%al,$0x80
+	popl	%eax
+	popl	%ds
+
+This gets a bit long for something that is, now, only:
+
+	outb	%al,$0x80
+
+I proposed a simple change, just do:
+
+	outb	%al,$0x19
+
+... instead.
+
+That port is a R/W DMA scratch register. It's an 8-bit R/W latch
+that is not internally connected to any DMA operations. It was
+initially designed as a place to store page-register information
+because the PC/XT/AT DMA controller is a 16-bit part. Since the
+page register value must be computed for every DMA operation, it
+is/was never used.
+
+Simple decisions that used to be handled as; "Yeh, lets try it..."
+now seem to be gobble-de-gooked with proving everything to the
+world.
+
+Just try it. You'll like it.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
-After compiling 2.4 and 2.4ac11 I got failed boots as well, getting=20
-either=20
-
-  LI
-
-or=20
-
-  LIL
-
-And then nothing.  This is a K6-2 450 machine, all previous (2.4.0-test*)=
-=20
-kernels worked fine.  The correct processor is selected...
-
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-CONFIG_MK6=3Dy
-# CONFIG_MK7 is not set
-
-Running an up to date debian woody distribution.
-Switching back to the 2.4.0-test10 kernel and boot sector (using
-debian's kernel package) made everything happy again.   Let me know
-if a newbie can do anything to help.
-
-JA
-
-On Tue, Jan 30, 2001 at 05:24:28PM +0100, Ronald Lembcke wrote:
-> Hi!
->=20
->=20
-> On Tue, Jan 30, 2001 at 04:01:54PM +0000, Ryan Hairyes wrote:
-> > I compiled the 2.4 kernel on my laptop last night.
-> > After editing lilo, I rebooted the machine. I selected
-> > this new kernel and when it began to boot, it told me
-> > that it was uncompressing the kernel and that the=20
-> > kernel uncompression was ok.  Then it just froze.  Any
-> > ideas?
->=20
-> The same happened to me (not on a laptop) when I forgot to select
-> the right CPU-Type (AMD K6-2) and Pentium 3 was still selected.
->=20
-> Und weg...=20
->            Roni
-
---=20
-Jonathan Anderson               http://users.rcn.com/~andersoj
-andersoj@enc.edu
-
---veXX9dWIonWZEC6h
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjp3BK8ACgkQQTa/MyVvLDjuOACZARQSqRhJ2KOr5vR+ZzytvaS0
-tbIAnjcHPbueoLzBt0kjwIhhBAV+aEi7
-=CDbU
------END PGP SIGNATURE-----
-
---veXX9dWIonWZEC6h--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312412AbSCaIms>; Sun, 31 Mar 2002 03:42:48 -0500
+	id <S312457AbSCaIwj>; Sun, 31 Mar 2002 03:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312457AbSCaIm3>; Sun, 31 Mar 2002 03:42:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6396 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S312412AbSCaImV>;
-	Sun, 31 Mar 2002 03:42:21 -0500
-Date: Sun, 31 Mar 2002 03:42:20 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <akpm@zip.com.au>
-cc: "David S. Miller" <davem@redhat.com>, tim@birdsnest.maths.tcd.ie,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.7
-In-Reply-To: <3CA6C91D.67186FAB@zip.com.au>
-Message-ID: <Pine.GSO.4.21.0203310333460.4431-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312462AbSCaIwa>; Sun, 31 Mar 2002 03:52:30 -0500
+Received: from fepz.post.tele.dk ([195.41.46.133]:57239 "EHLO
+	fepZ.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S312457AbSCaIwQ>; Sun, 31 Mar 2002 03:52:16 -0500
+Date: Sun, 31 Mar 2002 10:52:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ryan Mack <rmack@mackman.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ERROR] SCSI layer or adapter hiccup
+Message-ID: <20020331105218.B1043@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0203301302100.10974-100000@mackman.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 30 2002, Ryan Mack wrote:
+> I don't have very complete logs of this event as the drive were remounted 
+> R/O and the console filled with messages from the md layer and (ext3) fs 
+> layer.  Here's the logs that I do have though:
+> 
+> (scsi0:A:0:0): Unexpected busfree in Data-out phase
+> SEQADDR == 0x54
+> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 10000
+>  I/O error: dev 08:01, sector 28320
 
+You should enable verbose scsi error reporting to get more info on the
+problem.
 
-On Sun, 31 Mar 2002, Andrew Morton wrote:
-
-> Could you remind us what problem this is solving?  The
-> #ifdef approach seemed reasonable and there's no indication
-> here why weak linkage is needed.
-
-The thing we want here _is_ weak linkage - "return -ENOSYS unless
-you have the real thing".  You can emulate that with ifdefs,
-but that's what it is - emulation.  IOW, what we want actually
-belongs to linker, not compiler.
-
-When file looks like
-
-#ifdef FOO
-<lots of stuff>
-<function calling that stuff>
-#else
-<make that function an equivalent of sys_ni_syscall()>
-#endif
-
-we are really talking about "make it an alias of sys_ni_syscall() and let
-<all this stuff> override that".
+-- 
+Jens Axboe
 

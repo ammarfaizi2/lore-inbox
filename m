@@ -1,135 +1,223 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265537AbSKFCZ5>; Tue, 5 Nov 2002 21:25:57 -0500
+	id <S265532AbSKFCZ6>; Tue, 5 Nov 2002 21:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265529AbSKFCYw>; Tue, 5 Nov 2002 21:24:52 -0500
-Received: from holomorphy.com ([66.224.33.161]:64411 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265532AbSKFCYk>;
+	id <S265536AbSKFCZF>; Tue, 5 Nov 2002 21:25:05 -0500
+Received: from holomorphy.com ([66.224.33.161]:63643 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265535AbSKFCYk>;
 	Tue, 5 Nov 2002 21:24:40 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [4/7] hugetlb: internalize hugetlb init
-Message-Id: <E189Fwj-0002YQ-00@holomorphy>
+Subject: [1/7] SMP iowait stats
+Message-Id: <E189Fwj-0002YH-00@holomorphy>
 From: William Lee Irwin III <wli@holomorphy.com>
 Date: Tue, 05 Nov 2002 18:29:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch internalizes hugetlb initialization, implementing a command-line
-option in the process.
-
- hugetlbpage.c |   40 ++++++++++++++++++++++++++++++++++++----
- init.c        |   31 -------------------------------
- 2 files changed, 36 insertions(+), 35 deletions(-)
+This patch provides qualitatively correct iowait time accounting on SMP
+by using per-cpu counters. Detailed dumps of how the reports have been
+improved by this patch can be found in prior postings.
 
 
-diff -urpN hugetlbfs-2.5.46-2/arch/i386/mm/hugetlbpage.c hugetlbfs-2.5.46-3/arch/i386/mm/hugetlbpage.c
---- hugetlbfs-2.5.46-2/arch/i386/mm/hugetlbpage.c	2002-11-05 11:07:53.000000000 -0800
-+++ hugetlbfs-2.5.46-3/arch/i386/mm/hugetlbpage.c	2002-11-05 17:27:30.000000000 -0800
-@@ -12,16 +12,19 @@
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/slab.h>
--
-+#include <linux/module.h>
- #include <asm/mman.h>
- #include <asm/pgalloc.h>
- #include <asm/tlb.h>
- #include <asm/tlbflush.h>
+ drivers/block/ll_rw_blk.c |   22 -------------------
+ fs/proc/proc_misc.c       |    6 ++---
+ include/linux/blkdev.h    |    5 ----
+ include/linux/sched.h     |    3 ++
+ kernel/sched.c            |   51 ++++++++++++++++++++++++++++++++++++++++++----
+ 5 files changed, 53 insertions(+), 34 deletions(-)
+
+--- 25/drivers/block/ll_rw_blk.c~iowait-accounting-fix	Fri Nov  1 20:33:06 2002
++++ 25-akpm/drivers/block/ll_rw_blk.c	Fri Nov  1 20:33:06 2002
+@@ -56,7 +56,6 @@ static int queue_nr_requests;
+ static int batch_requests;
  
-+long    htlbpagemem = 0;
-+int     htlbpage_max;
-+long    htlbzone_pages;
-+
- struct vm_operations_struct hugetlb_vm_ops;
--struct list_head htlbpage_freelist;
--spinlock_t htlbpage_lock = SPIN_LOCK_UNLOCKED;
--extern long htlbpagemem;
-+static LIST_HEAD(htlbpage_freelist);
-+static spinlock_t htlbpage_lock = SPIN_LOCK_UNLOCKED;
+ unsigned long blk_max_low_pfn, blk_max_pfn;
+-atomic_t nr_iowait_tasks = ATOMIC_INIT(0);
+ int blk_nohighio = 0;
  
- #define MAX_ID 	32
- struct htlbpagekey {
-@@ -510,6 +513,35 @@ int set_hugetlb_mem_size(int count)
- 	return (int) htlbzone_pages;
+ static struct congestion_state {
+@@ -115,27 +114,6 @@ static void set_queue_congested(request_
+ 		atomic_inc(&congestion_states[rw].nr_congested_queues);
  }
  
-+static int __init hugetlb_setup(char *s)
-+{
-+	if (sscanf(s, "%d", &htlbpage_max) <= 0)
-+		htlbpage_max = 0;
-+	return 1;
-+}
-+__setup("hugepages=", hugetlb_setup);
-+
-+static int __init hugetlb_init(void)
-+{
-+	int i, j;
-+	struct page *page;
-+
-+	for (i = 0; i < htlbpage_max; ++i) {
-+		page = alloc_pages(__GFP_HIGHMEM, HUGETLB_PAGE_ORDER);
-+		if (!page)
-+			break;
-+		for (j = 0; j < HPAGE_SIZE/PAGE_SIZE; ++j)
-+			SetPageReserved(&page[j]);
-+		spin_lock(&htlbpage_lock);
-+		list_add(&page->list, &htlbpage_freelist);
-+		spin_unlock(&htlbpage_lock);
-+	}
-+	htlbpage_max = htlbpagemem = htlbzone_pages = i;
-+	printk("Total HugeTLB memory allocated, %ld\n", htlbpagemem);
-+	return 0;
-+}
-+module_init(hugetlb_init);
-+
- static struct page * hugetlb_nopage(struct vm_area_struct * area, unsigned long address, int unused)
- {
- 	BUG();
-diff -urpN hugetlbfs-2.5.46-2/arch/i386/mm/init.c hugetlbfs-2.5.46-3/arch/i386/mm/init.c
---- hugetlbfs-2.5.46-2/arch/i386/mm/init.c	2002-11-04 14:30:46.000000000 -0800
-+++ hugetlbfs-2.5.46-3/arch/i386/mm/init.c	2002-11-05 11:30:45.000000000 -0800
-@@ -422,13 +422,6 @@ static void __init set_max_mapnr_init(vo
- extern void set_max_mapnr_init(void);
- #endif /* !CONFIG_DISCONTIGMEM */
- 
--#ifdef CONFIG_HUGETLB_PAGE
--long    htlbpagemem = 0;
--int     htlbpage_max;
--long    htlbzone_pages;
--extern struct list_head htlbpage_freelist;
--#endif
+-/*
+- * This task is about to go to sleep on IO.  Increment nr_iowait_tasks so
+- * that process accounting knows that this is a task in IO wait state.
+- *
+- * But don't do that if it is a deliberate, throttling IO wait (this task
+- * has set its backing_dev_info: the queue against which it should throttle)
+- */
+-void io_schedule(void)
+-{
+-	atomic_inc(&nr_iowait_tasks);
+-	schedule();
+-	atomic_dec(&nr_iowait_tasks);
+-}
 -
- void __init mem_init(void)
- {
- 	extern int ppro_with_ram_bug(void);
-@@ -497,30 +490,6 @@ void __init mem_init(void)
- #ifndef CONFIG_SMP
- 	zap_low_mappings();
+-void io_schedule_timeout(long timeout)
+-{
+-	atomic_inc(&nr_iowait_tasks);
+-	schedule_timeout(timeout);
+-	atomic_dec(&nr_iowait_tasks);
+-}
+-
+ /**
+  * blk_get_backing_dev_info - get the address of a queue's backing_dev_info
+  * @dev:	device
+--- 25/fs/proc/proc_misc.c~iowait-accounting-fix	Fri Nov  1 20:33:06 2002
++++ 25-akpm/fs/proc/proc_misc.c	Fri Nov  1 20:33:09 2002
+@@ -372,7 +372,7 @@ static int kstat_read_proc(char *page, c
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.nice),
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.system),
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.idle),
+-			jiffies_to_clock_t(kstat_cpu(i).cpustat.idle));
++			jiffies_to_clock_t(kstat_cpu(i).cpustat.iowait));
+ 	}
+ 	len += sprintf(page + len, "intr %u", sum);
+ 
+@@ -406,12 +406,12 @@ static int kstat_read_proc(char *page, c
+ 		"btime %lu\n"
+ 		"processes %lu\n"
+ 		"procs_running %lu\n"
+-		"procs_blocked %u\n",
++		"procs_blocked %lu\n",
+ 		nr_context_switches(),
+ 		xtime.tv_sec - jif / HZ,
+ 		total_forks,
+ 		nr_running(),
+-		atomic_read(&nr_iowait_tasks));
++		nr_iowait());
+ 
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+--- 25/include/linux/blkdev.h~iowait-accounting-fix	Fri Nov  1 20:33:06 2002
++++ 25-akpm/include/linux/blkdev.h	Fri Nov  1 20:33:06 2002
+@@ -467,9 +467,4 @@ static inline void put_dev_sector(Sector
+ #endif 
+  
+ 
+-
+-extern atomic_t nr_iowait_tasks;
+-void io_schedule(void);
+-void io_schedule_timeout(long timeout);
+-
  #endif
--#ifdef CONFIG_HUGETLB_PAGE
--	{
--		long	i, j;
--		struct	page	*page, *map;
--		/*For now reserve quarter for hugetlb_pages.*/
--		htlbzone_pages = (max_low_pfn >> ((HPAGE_SHIFT - PAGE_SHIFT) + 2)) ;
--		/*Will make this kernel command line. */
--		INIT_LIST_HEAD(&htlbpage_freelist);
--		for (i=0; i<htlbzone_pages; i++) {
--			page = alloc_pages(__GFP_HIGHMEM, HUGETLB_PAGE_ORDER);
--			if (page == NULL)
--				break;
--			map = page;
--			for (j=0; j<(HPAGE_SIZE/PAGE_SIZE); j++) {
--				SetPageReserved(map);
--				map++;
--			}
--			list_add(&page->list, &htlbpage_freelist);
--		}
--		printk("Total Huge_TLB_Page memory pages allocated %ld\n", i);
--		htlbzone_pages = htlbpagemem = i;
--		htlbpage_max = i;
--	}
--#endif
+--- 25/include/linux/sched.h~iowait-accounting-fix	Fri Nov  1 20:33:06 2002
++++ 25-akpm/include/linux/sched.h	Fri Nov  1 20:33:06 2002
+@@ -90,6 +90,7 @@ extern int nr_threads;
+ extern int last_pid;
+ extern unsigned long nr_running(void);
+ extern unsigned long nr_uninterruptible(void);
++extern unsigned long nr_iowait(void);
+ 
+ #include <linux/time.h>
+ #include <linux/param.h>
+@@ -149,6 +150,8 @@ extern void show_trace(unsigned long *st
+ extern void show_stack(unsigned long *stack);
+ extern void show_regs(struct pt_regs *);
+ 
++void io_schedule(void);
++void io_schedule_timeout(long timeout);
+ 
+ extern void cpu_init (void);
+ extern void trap_init(void);
+--- 25/kernel/sched.c~iowait-accounting-fix	Fri Nov  1 20:33:06 2002
++++ 25-akpm/kernel/sched.c	Fri Nov  1 21:01:31 2002
+@@ -157,6 +157,7 @@ struct runqueue {
+ 	task_t *migration_thread;
+ 	struct list_head migration_queue;
+ 
++	atomic_t nr_iowait;
+ } ____cacheline_aligned;
+ 
+ static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
+@@ -557,9 +558,11 @@ unsigned long nr_uninterruptible(void)
+ {
+ 	unsigned long i, sum = 0;
+ 
+-	for (i = 0; i < NR_CPUS; i++)
++	for (i = 0; i < NR_CPUS; i++) {
++		if (!cpu_online(i))
++			continue;
+ 		sum += cpu_rq(i)->nr_uninterruptible;
+-
++	}
+ 	return sum;
  }
  
- #if CONFIG_X86_PAE
+@@ -567,9 +570,23 @@ unsigned long nr_context_switches(void)
+ {
+ 	unsigned long i, sum = 0;
+ 
+-	for (i = 0; i < NR_CPUS; i++)
++	for (i = 0; i < NR_CPUS; i++) {
++		if (!cpu_online(i))
++			continue;
+ 		sum += cpu_rq(i)->nr_switches;
++	}
++	return sum;
++}
++
++unsigned long nr_iowait(void)
++{
++	unsigned long i, sum = 0;
+ 
++	for (i = 0; i < NR_CPUS; ++i) {
++		if (!cpu_online(i))
++			continue;
++		sum += atomic_read(&cpu_rq(i)->nr_iowait);
++	}
+ 	return sum;
+ }
+ 
+@@ -875,7 +892,7 @@ void scheduler_tick(int user_ticks, int 
+ 		/* note: this timer irq context must be accounted for as well */
+ 		if (irq_count() - HARDIRQ_OFFSET >= SOFTIRQ_OFFSET)
+ 			kstat_cpu(cpu).cpustat.system += sys_ticks;
+-		else if (atomic_read(&nr_iowait_tasks) > 0)
++		else if (atomic_read(&rq->nr_iowait) > 0)
+ 			kstat_cpu(cpu).cpustat.iowait += sys_ticks;
+ 		else
+ 			kstat_cpu(cpu).cpustat.idle += sys_ticks;
+@@ -1712,6 +1729,31 @@ void yield(void)
+ 	sys_sched_yield();
+ }
+ 
++/*
++ * This task is about to go to sleep on IO.  Increment rq->nr_iowait so
++ * that process accounting knows that this is a task in IO wait state.
++ *
++ * But don't do that if it is a deliberate, throttling IO wait (this task
++ * has set its backing_dev_info: the queue against which it should throttle)
++ */
++void io_schedule(void)
++{
++	struct runqueue *rq = this_rq();
++
++	atomic_inc(&rq->nr_iowait);
++	schedule();
++	atomic_dec(&rq->nr_iowait);
++}
++
++void io_schedule_timeout(long timeout)
++{
++	struct runqueue *rq = this_rq();
++
++	atomic_inc(&rq->nr_iowait);
++	schedule_timeout(timeout);
++	atomic_dec(&rq->nr_iowait);
++}
++
+ /**
+  * sys_sched_get_priority_max - return maximum RT priority.
+  * @policy: scheduling class.
+@@ -2160,6 +2202,7 @@ void __init sched_init(void)
+ 		rq->expired = rq->arrays + 1;
+ 		spin_lock_init(&rq->lock);
+ 		INIT_LIST_HEAD(&rq->migration_queue);
++		atomic_set(&rq->nr_iowait, 0);
+ 
+ 		for (j = 0; j < 2; j++) {
+ 			array = rq->arrays + j;
+
+.

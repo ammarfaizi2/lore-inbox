@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBHMT1>; Thu, 8 Feb 2001 07:19:27 -0500
+	id <S129928AbRBHM11>; Thu, 8 Feb 2001 07:27:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129051AbRBHMTR>; Thu, 8 Feb 2001 07:19:17 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:4359 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129032AbRBHMTI>; Thu, 8 Feb 2001 07:19:08 -0500
-Date: Thu, 8 Feb 2001 07:19:15 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: Matt Bernstein <matt@theBachChoir.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: increasing the 512 process limit at run-time?
-In-Reply-To: <Pine.LNX.4.32.0102070439520.15577-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.33.0102080716540.5431-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129945AbRBHM1S>; Thu, 8 Feb 2001 07:27:18 -0500
+Received: from [210.212.54.4] ([210.212.54.4]:35342 "EHLO mail.cse.iitk.ac.in")
+	by vger.kernel.org with ESMTP id <S129928AbRBHM1D>;
+	Thu, 8 Feb 2001 07:27:03 -0500
+Date: Thu, 8 Feb 2001 17:55:56 +0530 (IST)
+From: Avinash vyas <avyas@cse.iitk.ac.in>
+To: linux-kernel@vger.kernel.org
+cc: kernelnewbies@humbolt.nl.linux.org,
+        "Atul Kumar (9721171)" <ak@cse.iitk.ac.in>,
+        "Rajiv A.R" <rajiva@cse.iitk.ac.in>
+Subject: Problem with schedule_timeout..
+Message-ID: <Pine.LNX.4.10.10102081745140.758-100000@csews5.cse.iitk.ac.in>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Mr. James W. Laferriere wrote:
+Hi
+	I am a relatively newb in the kenel programming. I am using the
+function "schedule_timeout" for sleeping for some time. But in some cases
+the function returns after the specified timeout but in some instance it
+returns immediately, without decrementing the timeout value passed as the
+argument. 
+	I have to use this function only, so please suggest what can be
+the possible reasons.
 
->Date: Wed, 7 Feb 2001 04:43:19 -0800 (PST)
->From: Mr. James W. Laferriere <babydr@baby-dragons.com>
->To: Matt Bernstein <matt@theBachChoir.org.uk>
->Cc: linux-kernel@vger.kernel.org
->Content-Type: TEXT/PLAIN; charset=US-ASCII
->Subject: Re: increasing the 512 process limit at run-time?
->
->
->	Hello Matt ,  At what uptime does one hit this limit ?
->uptime
->  4:40am  up 444 days, 12:58,  1 user,  load average: 0.00, 0.00, 0.00
->uname -a
->Linux filesrv2 2.2.6 #1 SMP Thu Jul 1 20:33:30 PDT 1999 i686 unknown
->
->	Not that that is anything spectacular , just looking for
->	rough idea of uptime before hitting the NR_TASKS limit .
->		Tia ,  JimL
+	The above said instance occured when i was developing a device
+driver, where i am implementing the poll. The function do_poll() uses this
+function for sleeping for specified timeout value. In normal device
+drivers it runs as it should, but when i poll on my device then the
+function returns immediately. I used the same timeout value for both the
+polls.
 
-The NR_TASKS is the maximum number of simultaneous running
-processes in the system and has nothing at all to do whatsoever
-with the uptime.
+Thanx in advance,
+Avinash Vyas,
+Student,
+IIT Kanpur, 
+India.
 
-In 2.2.x NR_TASKS is set in stone during compile time.  If you
-need more simultaneous tasks you must recompile with NR_TASKS set
-higher.  You can set it as high as 4090 or so (read the docs).
 
-In 2.4.x it can be set via proc at runtime.
 
-Again, uptime means absolutely nothing.
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-If you're interested in computer security, and want to stay on top of the
-latest security exploits, and other information, visit:
-
-http://www.securityfocus.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

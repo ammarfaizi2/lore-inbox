@@ -1,132 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270592AbUJUAYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270515AbUJUAVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270592AbUJUAYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270439AbUJUAWa
+	id S270515AbUJUAVW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 20:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270439AbUJUAUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:22:30 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:13729
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270592AbUJUAVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:21:03 -0400
-Date: Wed, 20 Oct 2004 17:15:08 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: rlrevell@joe-job.com, herbert@gondor.apana.org.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-kernel@gondor.apana.org.au,
-       maxk@qualcomm.com, irda-users@lists.sourceforge.net, netdev@oss.sgi.com,
-       alain@parkautomat.net
-Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-Message-Id: <20041020171508.0e947d08.davem@davemloft.net>
-In-Reply-To: <200410202332.33583.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <1098230132.23628.28.camel@krustophenia.net>
-	<200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
-	<1098303951.2268.8.camel@krustophenia.net>
-	<200410202332.33583.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 20:20:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42668 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S270592AbUJUATc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 20:19:32 -0400
+Message-ID: <4176FE65.4000507@osdl.org>
+Date: Wed, 20 Oct 2004 17:10:13 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       joern@wohnheim.fh-wedel.de, sam@ravnborg.org
+Subject: [PATCH] checkstack: add x86_64 arch. support
+Content-Type: multipart/mixed;
+ boundary="------------050902080507080904060700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004 23:32:33 +0300
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+This is a multi-part message in MIME format.
+--------------050902080507080904060700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Wednesday 20 October 2004 23:25, Lee Revell wrote:
-> > > > --- include/linux/netdevice.h~	2004-10-20 15:51:00.000000000 -0400
-> > > > +++ include/linux/netdevice.h	2004-10-20 15:51:54.000000000 -0400
-> > > > @@ -694,11 +694,14 @@
-> > > >  /* Post buffer to the network code from _non interrupt_ context.
-> > > >   * see net/core/dev.c for netif_rx description.
-> > > >   */
-> > > > -static inline int netif_rx_ni(struct sk_buff *skb)
-> > > > +static int netif_rx_ni(struct sk_buff *skb)
-> > > 
-> > > non-inline functions must not live in .h files
-> > 
-> > Where do you suggest we put it?
-> 
-> Somewhere near this place:
-> 
-> http://lxr.linux.no/source/net/core/dev.c?v=2.6.8.1#L1555
 
-I've done this as follows, thanks.
+---
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/20 16:57:53-07:00 davem@nuts.davemloft.net 
-#   [NET]: Uninline netif_rx_ni().
-#   
-#   It expands to a lot of code when SMP or PREEMPT is
-#   enabled.
-#   
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-# net/core/dev.c
-#   2004/10/20 16:57:03-07:00 davem@nuts.davemloft.net +14 -0
-#   [NET]: Uninline netif_rx_ni().
-# 
-# include/linux/netdevice.h
-#   2004/10/20 16:57:03-07:00 davem@nuts.davemloft.net +1 -15
-#   [NET]: Uninline netif_rx_ni().
-# 
-diff -Nru a/include/linux/netdevice.h b/include/linux/netdevice.h
---- a/include/linux/netdevice.h	2004-10-20 16:58:28 -07:00
-+++ b/include/linux/netdevice.h	2004-10-20 16:58:28 -07:00
-@@ -677,6 +677,7 @@
- 
- #define HAVE_NETIF_RX 1
- extern int		netif_rx(struct sk_buff *skb);
-+extern int		netif_rx_ni(struct sk_buff *skb);
- #define HAVE_NETIF_RECEIVE_SKB 1
- extern int		netif_receive_skb(struct sk_buff *skb);
- extern int		dev_ioctl(unsigned int cmd, void __user *);
-@@ -690,21 +691,6 @@
- extern void		dev_init(void);
- 
- extern int		netdev_nit;
--
--/* Post buffer to the network code from _non interrupt_ context.
-- * see net/core/dev.c for netif_rx description.
-- */
--static inline int netif_rx_ni(struct sk_buff *skb)
--{
--       int err = netif_rx(skb);
--
--       preempt_disable();
--       if (softirq_pending(smp_processor_id()))
--               do_softirq();
--       preempt_enable();
--
--       return err;
--}
- 
- /* Called by rtnetlink.c:rtnl_unlock() */
- extern void netdev_run_todo(void);
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	2004-10-20 16:58:28 -07:00
-+++ b/net/core/dev.c	2004-10-20 16:58:28 -07:00
-@@ -1587,6 +1587,20 @@
- 	return NET_RX_DROP;
- }
- 
-+int netif_rx_ni(struct sk_buff *skb)
-+{
-+       int err = netif_rx(skb);
-+
-+       preempt_disable();
-+       if (softirq_pending(smp_processor_id()))
-+               do_softirq();
-+       preempt_enable();
-+
-+       return err;
-+}
-+
-+EXPORT_SYMBOL(netif_rx_ni);
-+
- static __inline__ void skb_bond(struct sk_buff *skb)
- {
- 	struct net_device *dev = skb->dev;
+--------------050902080507080904060700
+Content-Type: text/x-patch;
+ name="checkstack_x64.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="checkstack_x64.patch"
+
+
+Add support for x86_64 arch. to 'make checkstack' (checkstack.pl).
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+ scripts/checkstack.pl |    3 +++
+ 1 files changed, 3 insertions(+)
+
+diff -Naurp ./scripts/checkstack.pl~checkstack_x64 ./scripts/checkstack.pl
+--- ./scripts/checkstack.pl~checkstack_x64	2004-10-18 14:53:45.000000000 -0700
++++ ./scripts/checkstack.pl	2004-10-20 16:52:14.434261304 -0700
+@@ -39,6 +39,9 @@ my (@stack, $re, $x, $xs);
+ 	} elsif ($arch =~ /^i[3456]86$/) {
+ 		#c0105234:       81 ec ac 05 00 00       sub    $0x5ac,%esp
+ 		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%esp$/o;
++	} elsif ($arch eq 'x86_64') {
++		#    2f60:	48 81 ec e8 05 00 00 	sub    $0x5e8,%rsp
++		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%rsp$/o;
+ 	} elsif ($arch eq 'ia64') {
+ 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
+ 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
+
+--------------050902080507080904060700--

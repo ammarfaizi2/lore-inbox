@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267221AbUBSMbT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 07:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267227AbUBSMbT
+	id S267228AbUBSMjP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 07:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267229AbUBSMjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 07:31:19 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:27411 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267221AbUBSMbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 07:31:18 -0500
-Date: Thu, 19 Feb 2004 12:31:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>, torvalds@osd.org
-Cc: Christoph Hellwig <hch@infradead.org>, paulmck@us.ibm.com,
-       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040219123110.A22406@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osd.org, paulmck@us.ibm.com,
-	arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218162858.2a230401.akpm@osdl.org>
+	Thu, 19 Feb 2004 07:39:15 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:16031 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S267228AbUBSMjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 07:39:12 -0500
+Subject: Re: 2.6.3-mm1
+From: Christophe Saout <christophe@saout.de>
+To: Brandon Low <lostlogic@gentoo.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040219003301.GE449@lostlogicx.com>
+References: <20040217232130.61667965.akpm@osdl.org> <40338FE8.60809@tmr.com>
+	 <20040218200439.GB449@lostlogicx.com>
+	 <20040218122216.62bb9e82.akpm@osdl.org>
+	 <20040218203325.GC449@lostlogicx.com>
+	 <20040218125227.0bf7dc2f.akpm@osdl.org>
+	 <20040218205206.GD449@lostlogicx.com>
+	 <1077142536.27450.14.camel@leto.cs.pocnet.net>
+	 <20040219003301.GE449@lostlogicx.com>
+Content-Type: text/plain
+Message-Id: <1077194347.5970.15.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040218162858.2a230401.akpm@osdl.org>; from akpm@osdl.org on Wed, Feb 18, 2004 at 04:28:58PM -0800
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 19 Feb 2004 13:39:07 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 04:28:58PM -0800, Andrew Morton wrote:
-> OK, so I looked at the wrapper.  It wasn't a tremendously pleasant
-> experience.  It is huge, and uses fairly standard-looking filesytem
-> interfaces and locking primitives.  Also some awareness of NFSV4 for some
-> reason.
+Am Do, den 19.02.2004 schrieb Brandon Low um 01:33:
 
-And pokes deep into internal structures that it shouldn't.
+> > To set up a device basically:
+> > 
+> > echo 0 `blockdev --getsize /dev/bla` crypt <cipher> <key> 0 /dev/bla 0 |
+> > dmsetup create <newname>
+> > 
+> > is enough. And it's just temporary, because no special tool has been
+> > written yet. dmsetup is the most low-level dm tool, mostly for
+> > developers. I've written a shell script named cryptsetup for the
+> > meantime, it asks for a passphrase and does all the magic you need.
+> > 
+> > "cryptsetup create test /dev/hda5" will ask for a passphrase and set up
+> > /dev/mapper/test. Voila. "cryptsetup remove test" removes it and
+> > "cryptsetup status test" shows some status information.
+> > 
+> What I can't figure out yet is how to do that easily for a loopback...
+> use losetup first, and then cryptsetup?  I guess that's ok, just more
+> steps than I would prefer.
 
-> Still, the wrapper is GPL so this is not relevant.
+Yes. Block->File and Block->Crypto->Block are two different things and
+should be separated out. But it would be an easy one to make cryptsetup
+also call losetup if your specified backend happens to be a file. Like
+mount -o loop does. The only thing I'm not sure about: How would it know
+when to remove the loop device on "cryptsetup remove" and when now.
+mount stores it in the mtab.
 
-It's BSD licensed - they couldn't distribute it together with GPFS if
-it was GPL.
+I've got some free time, I think I'm going to rewrite cryptsetup as a
+small C program today.
 
-> Its only use is to tell
-> us whether or not the non-GPL bits are "derived" from Linux, and it
-> doesn't do that.
+> I was under the mistaken impression that I would need lvmtools as well
+> in order to use dmcrypt... cool.
 
-Well, something that needs an almost one megabyte big wrapper per defintion
-is not a standalone work but something that's deeply interwinded with
-the kernel.  The tons of kernel version checks certainly show it's poking
-deeper than it should.
+Yes, there's some FUD going around...
 
-> Why do you believe that GPFS represents a kernel licensing violation?
+> > There are some plans to write a unified plugin based key management
+> > tool. You might want to have your key stored on a USB stick. Or
+> > encrypted in the first sector of your device and you want to unlock it
+> > using a password (so you can change your password without needing to
+> > reencrypt your data). This would be much more flexible than most of the
+> > crap floating around.
+> 
+> That sounds very cool, saw mention of putting it in the first part of
+> the device elsethread.
 
-See above.  Something that pokes deep into internal structures and even
-needs new exports certainly is a derived work.  There's a few different
-interpretations of the derived works clause in the GPL around, the FSF
-one wouldn't allow binary modules at all, and Linus' one is also pretty
-strict.
+Yes, for example.
+
+> Ok ok, I'll quit panicking... this just makes it hard to decide which to
+> use now as I'm preparing to deploy soon... If I use cryptoloop, it is
+> now guaranteed to be obsolete soon, but if I use dmcrypt, it is more
+> work right now, but more forward looking... 
+> 
+> Can you point me to some useful readings related to dmcrypt,
+> devicemapper for loopback, etc.? Thanks!
+
+For dm-crypt I've set up a small page:
+http://www.saout.de/misc/dm-crypt/
+
+For device-mapper and loopback there's nothing. The loop device provides
+block devices, device-mapper can use them. Nothing special here.
 
 

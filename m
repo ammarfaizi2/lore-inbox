@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbQLAWAE>; Fri, 1 Dec 2000 17:00:04 -0500
+	id <S129460AbQLAWQ0>; Fri, 1 Dec 2000 17:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129568AbQLAV7x>; Fri, 1 Dec 2000 16:59:53 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:29572 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S129449AbQLAV7o>;
-	Fri, 1 Dec 2000 16:59:44 -0500
-Message-ID: <3A27D1C9.95F63366@scs.ch>
-Date: Fri, 01 Dec 2000 08:28:57 -0800
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Richard Henderson <rth@twiddle.net>,
-        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-        linux-alpha@vger.kernel.org
-Subject: Re: Alpha SMP problem
-In-Reply-To: <3A08455E.F3583D1B@scs.ch> <20001107225749.B26542@twiddle.net> <20001124044615.A6807@athlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129547AbQLAWQH>; Fri, 1 Dec 2000 17:16:07 -0500
+Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:7954 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129460AbQLAWP7>; Fri, 1 Dec 2000 17:15:59 -0500
+Date: Fri, 1 Dec 2000 13:45:24 -0800
+Message-Id: <200012012145.eB1LjOl03300@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <20001201175109.A4209@saw.sw.com.sg>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre23 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 1 Dec 2000 17:51:09 +0800, Andrey Savochkin <saw@saw.sw.com.sg> wrote:
 
-It's great that you could fix that! 
+> I've been promised that this issue would be looked up in Intel's errata by
+> people who had the access to it, but I haven't got the results yet.
 
-Is there any chance that we will see this patch as well as your other
-Alpha patches included in future 2.2.X and 2.4.X releases?
+There is nothing relevant in the errata, unfortunately...
 
-Thanks,
+> The card itself doesn't report its revision in details.
+> It can be checked by `lspci'.
+> Rev 8 is 82559, if I remember, and rev 9 is 82559ER.
 
-Reto
+No, 82559ER has its own PCI id, 0x1209. There is also a newer 82559 chip
+which reports a different PCI device id, 0x1030 (I have one of those).
 
-Andrea Arcangeli wrote:
-> 
-> There were a few SMP races that could trigger only using threads:
-> 
-> 1) flush_tlb_other could happen after we read the mm->context and we could
->    miss a tlb flush
-> 2) flush_tlb_current could bump up the asn of the current cpu and in turn
->    change the asn version after we acquired a new context leading to
->    an alias between our asn and a later one
-> 3) a PAL_swpctx can't be done in the middle of alpha_switch_to
-> 
-> ppc/sparc64 may have similar issues and I didn't checked them (from a fast read
-> it looks like sparc64 is just safe but I don't know the sparc hardware
-> well enough to be sure).
-> 
-> I also noticed the horrible implementation of ASN in SMP so while I was
-> there I rewrote it.
-> 
-> The rewrote is based on the fact that mm->context makes no sense. It must be an
-> array of mm->context[NR_CPUS]. Almost certainly mips wants an array of NR_CPUS
-> too. Anyways for mips it's not a big deal since SMP isn't supported in 2.2.x ;).
->
+For the old chips reporting 0x1229, revisions 1-3 are 82557, revisions
+4-5 are 82558 and revisions 6-8 are 82559.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

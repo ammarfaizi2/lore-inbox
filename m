@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUHZFcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267679AbUHZFcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267645AbUHZFcM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 01:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUHZFcM
+	id S267679AbUHZFcb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 01:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267668AbUHZFcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 01:32:12 -0400
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:2537 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267645AbUHZFcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 01:32:09 -0400
-References: <A850C6B3EB02F044907B475259FFF56501724A18@jsc-mail08.jsc.nasa.gov>
-Message-ID: <cone.1093498322.335520.27013.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: =?ISO-8859-1?B?SE9MVFos?= CORBIN
-	 =?ISO-8859-1?B?TC4gKEpTQy1FUikgKExNKQ==?= 
-	<corbin.l.holtz1@jsc.nasa.gov>
-Cc: =?ISO-8859-1?B?J2xpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcn?= 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Disable kscand/Normal?
-Date: Thu, 26 Aug 2004 15:32:02 +1000
+	Thu, 26 Aug 2004 01:32:31 -0400
+Received: from waste.org ([209.173.204.2]:32443 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267664AbUHZFcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 01:32:22 -0400
+Date: Thu, 26 Aug 2004 00:32:00 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Nicholas Miell <nmiell@gmail.com>
+Cc: Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826053200.GU31237@waste.org>
+References: <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1093496948.2748.69.camel@entropy>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HOLTZ, CORBIN L. (JSC-ER) (LM) writes:
-
-> Hello,
+On Wed, Aug 25, 2004 at 10:09:08PM -0700, Nicholas Miell wrote:
+> On Wed, 2004-08-25 at 21:44, Matt Mackall wrote:
+> > On Wed, Aug 25, 2004 at 05:42:21PM -0700, Nicholas Miell wrote:
+> > > On Wed, 2004-08-25 at 16:46, Wichert Akkerman wrote:
+> > > > Previously Jeremy Allison wrote:
+> > > > > Multiple-data-stream files are something we should offer, definately (IMHO).
+> > > > > I don't care how we do it, but I know it's something we need as application
+> > > > > developers.
+> > > > 
+> > > > Aside from samba, is there any other application that has a use for
+> > > > them? 
+> > > > 
+> > > 
+> > > Anything that currently stores a file's metadata in another file really
+> > > wants this right now. Things like image thumbnails, document summaries,
+> > > digital signatures, etc.
+> > 
+> > That is _highly_ debatable. I would much rather have my cp and grep
+> > and cat and tar and such continue to work than have to rewrite every
+> > tool because we've thrown the file-is-a-stream-of-bytes concept out
+> > the window. Never mind that I've got thumbnails, document summaries,
+> > and digital signatures already.
+> > 
+> > While the number of annoying properties of files with forks is
+> > practically endless, the biggest has got to be utter lack of
+> > portability. How do you stick the thing in an attachment or on an ftp
+> > site? Well you can't because it's NOT A FILE. 
+> > 
+> > A file is a stream of bytes.
 > 
-> Sorry to post to the list without being subscribed, but I've searched the
-> web for information on this and I can't find anything useful.  I'm currenty
-> building a realtime visualization system for a Space Shuttle landing
-> simulator at NASA.  I'm using a small network of 5 Pentium 4 computers
-> running RedHat's 2.4.20-31.9 kernel.  I'm easily running 60 frames/second on
-> my systems, but I'm having a problem because the kscand/Normal thread comes
-> in every 25 seconds and causes me to drop a frame (very annoying).  I've
-> looked into the kernel source and found where the kscand threads are
-> spawned.  I also see where the 25 second period is coming from.  What I'm
-> wondering is what would happen if I disabled the kscand/Normal thread?  I've
-> got plenty of memory, and my process is the only thing running on the
-> system.  Would I eventually see problems, or would I be OK since I'm not
-> running low on memory?  What if I modified the kernel to allow me to
-> temporarily disable the thread while my application is running (using a
-> /proc file or something similar)?  Sorry if this is a bad question, but I
-> figure the people on this list are the best source of info.
-> 
-> Please CC: me directly since I'm not subscribed to the list. 
+> "OMG! It breaks tar and email!!!" argument doesn't fly. Things break all
+> the time and are fixed. It's called progress.
 
-That vendor kernel that you're running has the rmap vm which has the kscand 
-daemon. If you build a newer vanilla kernel it will not have the kscand 
-daemon. Alternatively, you can manually nice the the kscand daemon as root 
-to a lower value (not sure what it is by default) say nice +19. You can also 
-rebuild your vendor's kernel and edit the code to set the nice level 
-on spawning the daemon (obviously this requires more knowledge than the 
-previous options).
+What it breaks is the concept of a file. In ways that are ill-defined,
+not portable, hard to work with, and needlessly complex. Along the
+way, it breaks every single application that ever thought it knew what
+a file was.
 
-Cheers,
-Con
+Progress? No, this has been done before. Various dead operating
+systems have done it or similar and regretted it. Most recently MacOS,
+which jumped through major hurdles to begin purging themselves of
+resource forks when they went to OS X. They're still there, but
+heavily deprecated.
 
+> cp, grep, cat, and tar will continue to work just fine on files with
+> multiple streams.
+
+Find some silly person with an iBook and open a shell on OS X. Use cp
+to copy a file with a resource fork. Oh look, the Finder has no idea
+what the new file is, even though it looks exactly identical in the
+shell. Isn't that _wonderful_? Now try cat < a > b on a file with a
+fork. How is that ever going to work?
+
+I like cat < a > b. You can keep your progress.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

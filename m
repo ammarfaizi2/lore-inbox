@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263557AbUCTW0t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 17:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUCTW0t
+	id S263561AbUCTWjz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 17:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbUCTWjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 17:26:49 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65284 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263557AbUCTW0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 17:26:44 -0500
-Date: Sat, 20 Mar 2004 22:26:39 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320222639.K6726@flint.arm.linux.org.uk>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com>
+	Sat, 20 Mar 2004 17:39:55 -0500
+Received: from waste.org ([209.173.204.2]:45215 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263561AbUCTWjx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 17:39:53 -0500
+Date: Sat, 20 Mar 2004 16:39:48 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       celinux-dev@tree.celinuxforum.org
+Subject: 2.6.5-rc2-tiny1 for small systems
+Message-ID: <20040320223948.GU11010@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040320205053.GJ2045@holomorphy.com>; from wli@holomorphy.com on Sat, Mar 20, 2004 at 12:50:53PM -0800
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 12:50:53PM -0800, William Lee Irwin III wrote:
-> On Sat, Mar 20, 2004 at 12:13:45PM -0800, Andrew Morton wrote:
-> > I agree that ->nopage implementations should not be doing what that driver
-> > is doing.  ->nopage is defined to return a page*: it's crazy to be
-> > returning someting from there which isn't covered by mem_map[].
-> > I just don't think it's important enough to be able to cope with
-> > non-mem_map[] "memory" in do_no_page(), so I agree that requiring ->mmap()
-> > to synchronously instantiate the pte's and retaining the debug check in
-> > do_no_page() is a good idea.
-> 
-> There are other reasons for doing it, e.g. unusual TLB attributes
-> and/or unusual pagetable structures backing the virtual region. I don't
-> see anyone standing up and screaming for more functionality than cache
-> coherency and/or disablement now, so as far as I'm concerned,
-> remap_area_pages() (or rmk's stuff) kills the issue.
+This is the latest release of the -tiny kernel tree. The aim of this
+tree is to collect patches that reduce kernel disk and memory
+footprint as well as tools for working on small systems. Target users
+are things like embedded systems, small or legacy desktop folks, and
+handhelds.
 
-I'm no longer planning on this.  In fact, I see a future where I tell
-people who want to use sound on ARM to go screw themselves because
-there doesn't seem to be an acceptable solution to this problem.
+This release is primarily a resync with 2.6.5-rc2. I have reordered
+the patches and their config options in preparation for merging
+various pieces. This also contains my latest inflate cleanups as well
+as a bunch of other minor fixes.
 
-Of course, this will lead to dirty hacks by many people who *REQUIRE*
-sound to work, but I guess we just don't care about that.
+The patch can be found at:
 
-(Yes, I'm pissed off over this issue.)
+ http://selenic.com/tiny/2.6.5-rc2-tiny1.patch.bz2
+ http://selenic.com/tiny/2.6.5-rc2-tiny1-broken-out.tar.bz2
+
+Webpage for your bookmarking pleasure:
+
+ http://selenic.com/tiny-about/
+
+I've also stuck one of my testing configs at:
+
+ http://selenic.com/tiny/sample-config
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Matt Mackall : http://www.selenic.com : Linux development and consulting

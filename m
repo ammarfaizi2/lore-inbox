@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbUKVKnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbUKVKt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbUKVKnb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUKVKmb
+	id S262030AbUKVKt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUKVKr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:42:31 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:13464 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262038AbUKVKkW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:40:22 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 22 Nov 2004 11:29:33 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: var args in kernel?
-Message-ID: <20041122102933.GG29305@bytesex>
-References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com> <20041122094312.GC29305@bytesex> <20041122101646.GP10340@devserv.devel.redhat.com>
+	Mon, 22 Nov 2004 05:47:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24450 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262042AbUKVKrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:47:10 -0500
+Date: Mon, 22 Nov 2004 02:46:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
+Message-Id: <20041122024654.37eb5f3d.akpm@osdl.org>
+In-Reply-To: <877joexjk5.fsf@devron.myhome.or.jp>
+References: <877joexjk5.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122101646.GP10340@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can call va_start on the same args list twice, both:
-> [ ... ]
-> and
-> void foo (int x, ...)
-> {
->   va_list ap;
->   va_start (ap, x);
-> ...
->   va_end (ap);
->   va_start (ap, x);
-> ...
->   va_end (ap);
-> }
-> are ok.
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> 
+>  		status = __block_prepare_write(inode, new_page, zerofrom,
+>  						PAGE_CACHE_SIZE, get_block);
+>  		if (status)
+>  			goto out_unmap;
+>  		kaddr = kmap_atomic(new_page, KM_USER0);
+>  		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
+>  		flush_dcache_page(new_page);
+>  		kunmap_atomic(kaddr, KM_USER0);
+>  		__block_commit_write(inode, new_page,
+>  				zerofrom, PAGE_CACHE_SIZE);
+>  		unlock_page(new_page);
+>  		page_cache_release(new_page);
+>  	}
+> 
+>  But until ->commit_write(), kernel doesn't update the ->i_size. Then,
+>  if kernel writes out that hole page before updates of ->i_size, dirty
+>  flag of buffer_head is cleared in __block_write_full_page(). So hole
+>  page was not writed to disk.
 
-Fine, then my patch is ok, it does exactly this ;)
+Oh I see.  After the above page is unlocked, it's temporarily outside
+i_size.
 
->  What you can't do is e.g.
->   va_list ap;
->   va_start (ap, x);
->   bar (x, ap);
->   bar (x, ap);
->   va_end (ap);
+Perhaps cont_prepare_write() should look to see if the zerofilled page is
+outside the current i_size and if so, advance i_size to the end of the
+zerofilled page prior to releasing the page lock.
 
-This is how the code looked before I fixed it.
-
-Thanks,
-
-  Gerd
-
--- 
-#define printk(args...) fprintf(stderr, ## args)
+We might need to run mark_inode_dirty() at some stage, or perhaps just rely
+on the caller doing that in ->commit_write().

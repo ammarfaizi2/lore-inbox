@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318067AbSHDC0A>; Sat, 3 Aug 2002 22:26:00 -0400
+	id <S318066AbSHDCWR>; Sat, 3 Aug 2002 22:22:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318073AbSHDCZ7>; Sat, 3 Aug 2002 22:25:59 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:45858 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318067AbSHDCZ7>;
-	Sat, 3 Aug 2002 22:25:59 -0400
-From: <Hell.Surfers@cwctv.net>
-To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Date: Sun, 4 Aug 2002 03:29:06 +0100
-Subject: AT commands & V. Standards. Anyone can be of help..
+	id <S318067AbSHDCWR>; Sat, 3 Aug 2002 22:22:17 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:57286 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318066AbSHDCWR>;
+	Sat, 3 Aug 2002 22:22:17 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1028428146828"
-Message-ID: <0aa163928020482DTVMAIL9@smtp.cwctv.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15692.37018.693984.745251@napali.hpl.hp.com>
+Date: Sat, 3 Aug 2002 19:25:30 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: frankeh@watson.ibm.com, davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
+       torvalds@transmeta.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
+       wli@holomorpy.com, linux-kernel@vger.kernel.org
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <20020803.173530.35650310.davem@redhat.com>
+References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com>
+	<15692.18584.1391.30730@napali.hpl.hp.com>
+	<200208031754.30337.frankeh@watson.ibm.com>
+	<20020803.173530.35650310.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Sat, 03 Aug 2002 17:35:30 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
 
---1028428146828
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+  DaveM>    From: Hubertus Franke <frankeh@watson.ibm.com> Date: Sat,
+  DaveM> 3 Aug 2002 17:54:30 -0400
 
-Further to your mail message I believe anyone could be helpful, I need information on hayes modem at functions ,in depth info on how they work, and v. standards literature, any in depth informations in pdf, any format, even if its vague, give me any info you have... anyone who thinks they know anything SHOULD TELL ME... PLEASE.
+  DaveM>    The Rice paper solved this reasonably elegant. Reservation
+  DaveM> and check after a while. If you didn't use reserved memory,
+  DaveM> you loose it, this is the auto promotion/demotion.
 
+  DaveM> I keep seeing this Rice stuff being mentioned over and over,
+  DaveM> can someone post a URL pointer to this work?
 
+Sure thing.  It's the first link under "Publications" at this URL:
 
-On Fri, 02 Aug 2002 21:49:00 -0400 Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+	http://www.cs.rice.edu/~jnavarro/
 
---1028428146828
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from www.linux.org.uk ([195.92.249.252]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 3 Aug 2002 02:48:41 +0100
-Received: from adsl-154-25-35.asm.bellsouth.net ([68.154.25.35] helo=mandrakesoft.com)
-	by www.linux.org.uk with esmtp (Exim 3.33 #5)
-	id 17ao2P-0007ut-00
-	for Hell.Surfers@cwctv.net; Sat, 03 Aug 2002 02:49:01 +0100
-Message-ID: <3D4B368C.8010302@mandrakesoft.com>
-Date: Fri, 02 Aug 2002 21:49:00 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hell.Surfers@cwctv.net
-Subject: Re: how do i integrate my winmodem driver.
-References: <0c9012035010382DTVMAIL4@smtp.cwctv.net>
-X-Enigmail-Version: 0.65.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-Path: jgarzik@mandrakesoft.com
-
-Hell.Surfers@cwctv.net wrote:
-> so far ive got io with the modem and very#very# basic signal processing i unfortunately am not au fais with v.90 ortcp/ip....
-
-
-drivers/char/mxser.c seems like a good example to follow, for a basic 
-serial driver...
-
-Let me know if you have any specific questions I can answer, I am very 
-interested in getting winmodem support going.  I'm willing to review 
-code, as well, when you have something close to working under Linux.
-
-	Jeff
-
-
-
-
---1028428146828--
-
-
+  --david

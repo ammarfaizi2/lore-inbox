@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267036AbSKWSZk>; Sat, 23 Nov 2002 13:25:40 -0500
+	id <S267023AbSKWSa3>; Sat, 23 Nov 2002 13:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbSKWSZk>; Sat, 23 Nov 2002 13:25:40 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:64815
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267036AbSKWSZj>; Sat, 23 Nov 2002 13:25:39 -0500
-Date: Sat, 23 Nov 2002 13:36:29 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] SCSI hosts.c missing device_register
-Message-ID: <Pine.LNX.4.50.0211231336020.1462-100000@montezuma.mastecende.com>
+	id <S267039AbSKWSa3>; Sat, 23 Nov 2002 13:30:29 -0500
+Received: from vsmtp1.tin.it ([212.216.176.221]:5347 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S267023AbSKWSa2>;
+	Sat, 23 Nov 2002 13:30:28 -0500
+Message-ID: <3DDFCAEE.7090705@virgilio.it>
+Date: Sat, 23 Nov 2002 19:37:34 +0100
+From: Lars Knudsen <gandalfit@virgilio.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Bug with netfilter and NFS server on same machine
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does this patch look correct? Please CC as i am not subscribed.
+I have been experiencing problems running a nfs server and iptables on 
+the same machine.The problem was also reported almost a year ago by Paul 
+Raines on the netfilter mailing list 
+http://lists.netfilter.org/pipermail/netfilter/2002-January/030002.html 
+but it seems no solution has been found yet.
 
-SCSI subsystem driver Revision: 1.00
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c0256725
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c0256725>]    Not tainted
-EFLAGS: 00010246
-EIP is at device_del+0x35/0xa0
-eax: c0662cac   ebx: c0514230   ecx: 00000000   edx: 00000000
-esi: c0662ca4   edi: 00000000   ebp: 00000000   esp: c15b9f1c
-ds: 0068   es: 0068   ss: 0068
-Process swapper (pid: 1, threadinfo=c15b8000 task=cff86040)
-Stack: c0662ca4 c0662c00 c0662c00 c025679b c0662ca4 c15b9f40 c02cfbbf c0662ca4
-       c0662c00 00000000 00000000 00000001 dead4ead c15b9f50 c15b9f50 c0144ed1
-       cffeb080 00000286 00000000 00000000 00000330 c05edbc6 c0662c00 cfd58424
-Call Trace:
- [<c025679b>] device_unregister+0xb/0x16
- [<c02cfbbf>] scsi_unregister+0xbf/0x140
- [<c0144ed1>] kfree+0x61/0xe0
- [<c02cffd8>] scsi_register_host+0x28/0xb0
- [<c01050b0>] init+0x80/0x1a0
- [<c0105030>] init+0x0/0x1a0
- [<c0105030>] init+0x0/0x1a0
- [<c0105030>] init+0x0/0x1a0
- [<c0108e05>] kernel_thread_helper+0x5/0x10
+The problem is this: A machine running linux 2.4.18 or 2.4.19 works just 
+fine when running just the kernel nfsd. A single client connected to the 
+server with 100Mbit ethernet sees throughput of 5-10MByte/sec even after 
+an hour or two of continous transfers. If the nfs server is also running 
+iptables the throughput is initially the same (5-10MByte/sec) but after 
+a while (200MByte-500MByte total transfer) the client starts reporting 
+"nfs server not responding" followed after a while by "nfs server OK" 
+and of course the transfer rate goes way down (< 1MByte/sec). Using 
+tcpdump on the client seems to indicate that some packets have their 
+headers garbled - wrong fragment ids being the typical error.
 
-Code: 89 4a 04 89 40 04 89 11 89 d9 8b 56 04 89 46 08 8b 06 89 02
+Having iptables compiled as modules and simply loading or unloading the 
+ipt_conntrack module is
+sufficient for causing/removing the problem. Having iptables support 
+compiled into the kernel causes the problem allways.
 
-Index: linux-2.5.49/drivers/scsi/hosts.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.49/drivers/scsi/hosts.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 hosts.c
---- linux-2.5.49/drivers/scsi/hosts.c	23 Nov 2002 02:56:36 -0000	1.1.1.1
-+++ linux-2.5.49/drivers/scsi/hosts.c	23 Nov 2002 08:50:22 -0000
-@@ -467,6 +467,7 @@
- 		DEVICE_NAME_SIZE-1);
- 	sprintf(shost->host_driverfs_dev.bus_id, "scsi%d",
- 		shost->host_no);
-+	device_register(&shost->host_driverfs_dev);
+The problem has been verified on 4 different machines with a variety of 
+different ethernet cards. In
+all cases the network continues to work without problems for all other 
+types of traffic - i.e a telnet connection from client to server works 
+with no delay and a ftp transfer goes at >5MByte/sec even when nfs 
+throughput is suffering.
 
- 	shost->eh_notify = &sem;
- 	kernel_thread((int (*)(void *)) scsi_error_handler, (void *) shost, 0);
--- 
-function.linuxpower.ca
+\Lars Knudsen
+

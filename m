@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136047AbRAGUwE>; Sun, 7 Jan 2001 15:52:04 -0500
+	id <S136032AbRAGU7v>; Sun, 7 Jan 2001 15:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135762AbRAGUvy>; Sun, 7 Jan 2001 15:51:54 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:19116 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S136096AbRAGUvl>;
-	Sun, 7 Jan 2001 15:51:41 -0500
-Date: Sun, 7 Jan 2001 21:55:58 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: <sourav@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Speed of the network card
-In-Reply-To: <20010108015421.B2575@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.30.0101072152090.4602-100000@iq.rulez.org>
+	id <S135968AbRAGU7k>; Sun, 7 Jan 2001 15:59:40 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26632 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S135762AbRAGU73>; Sun, 7 Jan 2001 15:59:29 -0500
+Date: Sun, 7 Jan 2001 17:07:59 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm-cleanup-1 (2.4.0)
+In-Reply-To: <87snmv9k13.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.21.0101071701250.4416-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Chris Wedgwood wrote:
 
->     I would like to determine the banwidth the card is getting from
->     the network.
-> /proc/net/dev exports counters; you can monitor those -- I'm sure
-> there are perfomance program that do exactly this.
 
-I have this little script for monitoring interfaces' speed on 132
-wide textmode console w/ niche histogram. It is not perfect but 'it
-works for me' (tm).
+On 7 Jan 2001, Zlatko Calusic wrote:
 
---------------------------> cut here
-if [ "$1" = "" ]
-then
-  echo "Please specify the sampling rate."
-  exit
-fi
+> The following patch cleans up some obsolete structures from the mm &
+> proc code.
+> 
+> Beside that it also fixes what I think is a bug:
+> 
+>         if ((rw == WRITE) && atomic_read(&nr_async_pages) >
+>                        pager_daemon.swap_cluster * (1 << page_cluster))
+> 
+> In that (swapout logic) it effectively says swap out 512KB at once (at
+> least on my memory configuration). I think that is a little too much.
+> I modified it to be a little bit more conservative and send only
+> (1 << page_cluster) to the swap at a time. Same applies to the
+> swapin_readahead() function. Comments welcome.
 
-while true
-do
-  cat /proc/net/ip_fwnames &
-  sleep $1
-done |
-  awk '
-    BEGIN {
-     s=0
-     d='$1'*1024*1024
-     wd=d/15
-    }
+512kb is the maximum limit for in-flight swap pages, not the cluster size 
+for IO. 
 
-    /^input /	{o=s
-		 s=$7}
-    /^output /	{s+=$7
-                 w=(s-o)/wd
-		 if(w>130)w=0
-                 printf "%fMB/s %0*c\n",(s-o)/d,w,">"}
-  '
---------------------------> cut here
-
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
-
+swapin_readahead actually sends requests of (1 << page_cluster) to disk
+at each run.
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

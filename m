@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUJaLMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUJaLRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUJaLMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 06:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUJaLLk
+	id S261551AbUJaLRq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:17:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUJaLRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:11:40 -0500
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:32837
+	Sun, 31 Oct 2004 06:17:45 -0500
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:25617
 	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261550AbUJaKEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 05:04:46 -0500
-Date: Sun, 31 Oct 2004 11:03:39 +0100
-Message-Id: <200410311003.i9VA3dMI009652@anakin.of.borg>
+	id S261551AbUJaKEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 05:04:52 -0500
+Date: Sun, 31 Oct 2004 11:03:40 +0100
+Message-Id: <200410311003.i9VA3eKU009667@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 507] M68k: Add defconfig for Apollo
+Subject: [PATCH 510] M68k: Add defconfig for HP9000/300 and HP9000/400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Add defconfig for Apollo (derived from the Debian config for HP9000/300)
+M68k: Add defconfig for HP9000/300 and HP9000/400 (based on the Debian config)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.9/arch/m68k/configs/apollo_defconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-m68k-2.6.9/arch/m68k/configs/apollo_defconfig	2004-09-20 11:03:03.000000000 +0200
-@@ -0,0 +1,787 @@
+--- linux-2.6.9/arch/m68k/configs/hp300_defconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-m68k-2.6.9/arch/m68k/configs/hp300_defconfig	2004-09-20 11:03:03.000000000 +0200
+@@ -0,0 +1,786 @@
 +#
 +# Automatically generated make config: don't edit
 +# Linux kernel version: 2.6.9-m68k
-+# Thu Oct 28 21:22:58 2004
++# Thu Oct 28 21:23:04 2004
 +#
 +CONFIG_M68K=y
 +CONFIG_MMU=y
@@ -46,7 +46,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# General setup
 +#
-+CONFIG_LOCALVERSION="-apollo"
++CONFIG_LOCALVERSION="-hp300"
 +CONFIG_SWAP=y
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
@@ -88,9 +88,10 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_AMIGA is not set
 +# CONFIG_ATARI is not set
 +# CONFIG_MAC is not set
-+CONFIG_APOLLO=y
++# CONFIG_APOLLO is not set
 +# CONFIG_VME is not set
-+# CONFIG_HP300 is not set
++CONFIG_HP300=y
++# CONFIG_DIO is not set
 +# CONFIG_SUN3X is not set
 +# CONFIG_Q40 is not set
 +
@@ -410,7 +411,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +CONFIG_NET_ETHERNET=y
 +CONFIG_MII=m
-+CONFIG_APOLLO_ELPLUS=y
++# CONFIG_HPLANCE is not set
 +
 +#
 +# Ethernet (1000 Mbit)
@@ -593,8 +594,6 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Character devices
 +#
-+CONFIG_DN_SERIAL=y
-+CONFIG_SERIAL_CONSOLE=y
 +
 +#
 +# File systems

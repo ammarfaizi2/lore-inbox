@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVDDHP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVDDH3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbVDDHP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 03:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVDDHP2
+	id S261696AbVDDH3v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 03:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVDDH3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 03:15:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45250 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261583AbVDDHPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 03:15:25 -0400
-Date: Mon, 4 Apr 2005 08:15:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: Mark Lord <lkml@rtr.ca>, zlynx@acm.org, greg@kroah.com, floam@sh.nu,
-       mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050404071513.GA4754@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paul Jackson <pj@engr.sgi.com>, Mark Lord <lkml@rtr.ca>,
-	zlynx@acm.org, greg@kroah.com, floam@sh.nu, mrmacman_g4@mac.com,
-	linux-kernel@vger.kernel.org
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost> <20050329033350.GA6990@kroah.com> <1112069010.12853.52.camel@localhost> <42507F2F.1050405@rtr.ca> <20050403210145.0d1c1eff.pj@engr.sgi.com>
+	Mon, 4 Apr 2005 03:29:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62678 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261696AbVDDH3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 03:29:34 -0400
+Date: Mon, 4 Apr 2005 00:27:48 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050404002748.23752b85.pj@engr.sgi.com>
+In-Reply-To: <20050404065040.GB23312@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403071227.666ac33d.pj@engr.sgi.com>
+	<20050403152413.GA26631@elte.hu>
+	<20050403160807.35381385.pj@engr.sgi.com>
+	<20050404065040.GB23312@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050403210145.0d1c1eff.pj@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 03, 2005 at 09:01:45PM -0700, Paul Jackson wrote:
-> Mark wrote:
-> > Probably all Linux binary drivers *are* compiled using GPL'd header files,
-> > and thus are themselves subject to the GPL.
-> 
-> I doubt that there is a consensus that simply compiling something with
-> a GPL header necessarily and always subjects it to the GPL.  See your lawyer.
+Ingo wrote:
+> agreed - i've changed it to domain_distance() in my tree.
 
-For a header as in interface maybe not.  For headers containing significant
-code in inline functions the binary drivers is definitly a derived work.
+Good - cool - thanks.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

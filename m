@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275380AbSITXmf>; Fri, 20 Sep 2002 19:42:35 -0400
+	id <S275353AbSITXkH>; Fri, 20 Sep 2002 19:40:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275381AbSITXmf>; Fri, 20 Sep 2002 19:42:35 -0400
-Received: from ns.suse.de ([213.95.15.193]:34314 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S275380AbSITXme>;
-	Fri, 20 Sep 2002 19:42:34 -0400
-Date: Sat, 21 Sep 2002 01:47:35 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, msinz@wgate.com
-Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
-Message-ID: <20020921014735.A28162@wotan.suse.de>
-References: <3D8B87C7.7040106@wgate.com.suse.lists.linux.kernel> <3D8B8CAB.103C6CB8@digeo.com.suse.lists.linux.kernel> <3D8B934A.1060900@wgate.com.suse.lists.linux.kernel> <3D8B982A.2ABAA64C@digeo.com.suse.lists.linux.kernel> <p73bs6stfv8.fsf@oldwotan.suse.de> <3D8BAEDC.ED943632@digeo.com>
+	id <S275357AbSITXkH>; Fri, 20 Sep 2002 19:40:07 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:5762 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S275353AbSITXkG>; Fri, 20 Sep 2002 19:40:06 -0400
+Date: Fri, 20 Sep 2002 16:45:09 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020920234509.GA2810@gnuppy.monkey.org>
+References: <20020920120606.GA4961@gnuppy.monkey.org> <Pine.LNX.4.44.0209201658240.5862-100000@localhost.localdomain> <20020920215029.GB1527@gnuppy.monkey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D8BAEDC.ED943632@digeo.com>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20020920215029.GB1527@gnuppy.monkey.org>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 04:27:24PM -0700, Andrew Morton wrote:
-> Andi Kleen wrote:
-> > 
-> > Andrew Morton <akpm@digeo.com> writes:
-> > 
-> > > True, but it's all more code and I don't believe that it adds
-> > > much value.  It means that people need to run off and find
-> > 
-> > One useful feature of it would be that you can get core dumps for
-> > each thread by including the pid (or tid later with newer threading libraries)
-> > Currently threads when core dumping overwrite each others cores so you lose
-> > the registers of all but one.
+On Fri, Sep 20, 2002 at 02:50:29PM -0700, Bill Huey wrote:
+> > how frequently does the GC thread run?
 > 
-> Oh sure, I agree that it's a useful feature.  But I don't agree that
-> we need to allow users to specify how the final filename is pasted
-> together.  Just give them host-uid-gid-comm.core.  ie: everything.
+> Don't remember off hand, but it's like to be several times a second which is
+> often enough to be a problem especially on large systems with high load.
+> 
+> The JVM with incremental GC is being targetted for media oriented tasks
+> using the new NIO, 3d library, etc... slowness in safepoints would cripple it
+> for these tasks. It's a critical item and not easily address by the current
+> 1:1 model.
 
-That wouldn't support the Dr.Watson thing.
+Also throwing a signal to get the ucontext is pretty a expensive way of getting
+it. But you folks know this already. Solaris threading has this via a some special
+libraries. For large number of actively running threads, say, executing in a middle
+of a method block it is potentially a huge problem for scalability.
 
--Andi
+Again, it's a critical issue from what I see of this.
+
+bill
+

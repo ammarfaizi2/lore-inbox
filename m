@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbSIWS2c>; Mon, 23 Sep 2002 14:28:32 -0400
+	id <S261365AbSIWSZY>; Mon, 23 Sep 2002 14:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSIWS1f>; Mon, 23 Sep 2002 14:27:35 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:19982 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261367AbSIWS0q>; Mon, 23 Sep 2002 14:26:46 -0400
-Date: Mon, 23 Sep 2002 20:31:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pavel Machek <pavel@suse.cz>, Richard Henderson <rth@twiddle.net>,
-       Brian Gerst <bgerst@didntduck.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, dvorak <dvorak@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-Message-ID: <20020923183157.GD11237@atrey.karlin.mff.cuni.cz>
-References: <20020922013346.A39@toy.ucw.cz> <Pine.LNX.3.95.1020923090547.2963B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020923090547.2963B-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.28i
+	id <S261366AbSIWSZX>; Mon, 23 Sep 2002 14:25:23 -0400
+Received: from mail106.mail.bellsouth.net ([205.152.58.46]:41766 "EHLO
+	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S261365AbSIWSZX>; Mon, 23 Sep 2002 14:25:23 -0400
+Date: Mon, 23 Sep 2002 14:30:29 -0400 (EDT)
+From: Burton Windle <bwindle@fint.org>
+X-X-Sender: bwindle@morpheus
+To: linux-kernel@vger.kernel.org
+cc: tytso@rsts-11.mit.edu
+Subject: [2.5.38] Warning: null TTY for (88:##) in tty_fasync
+Message-ID: <Pine.LNX.4.43.0209231419070.5735-100000@morpheus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Are these cause for concern?
 
-> > > It's a problem with a 'general purpose' compiler that wants to
-> > > be "all things" to all people. If somebody made a gcc-compatible
-> > > compiler, tuned to the ix86 characteristics, I think we could
-> > > cut the extra instructions by at least 1/2, maybe more.
-> > 
-> > Remember pgcc? 
-> > 
-> > And btw cutting instructions by 1/2might look nice but unless you can
-> > keep it as fast as it was, its useless.
-> > 								Pavel
-> > -- 
-> Yes, but to see the affect of cutting down the instruction length, you
-> need to make benchmarks that emulate running 'forever'. Many bench-
+Sep 23 14:16:56 razor kernel: Warning: null TTY for (88:01) in tty_fasync
+Sep 23 14:16:56 razor kernel: Warning: null TTY for (88:00) in tty_fasync
+Sep 23 14:24:30 razor kernel: Warning: null TTY for (88:02) in tty_fasync
 
-Specs contain things like perl and gcc, those are I believe far too
-big to be put entirely into cache and emulate "Real Life" quite
-well...
+I see that they can come from drivers/char/tty_io.c:
+     "Warning: null TTY for (%s) in %s\n";
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I'm able to reproduce these at will.
+
+Linux version 2.5.38 (bwindle@razor) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Mon Sep 23 10:07:19 EST 2002
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.19
+e2fsprogs              1.27
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.12
+
+
+--
+Burton Windle                           burton@fint.org
+Linux: the "grim reaper of innocent orphaned children."
+          from /usr/src/linux-2.4.18/init/main.c:461
+
+

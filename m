@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264169AbRFRPQG>; Mon, 18 Jun 2001 11:16:06 -0400
+	id <S263032AbRFRU7H>; Mon, 18 Jun 2001 16:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264203AbRFRPP4>; Mon, 18 Jun 2001 11:15:56 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:2822 "EHLO mx5.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S264174AbRFRPPi>;
-	Mon, 18 Jun 2001 11:15:38 -0400
-Date: Mon, 18 Jun 2001 23:15:07 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-cc: Anuradha Ratnaweera <anuradha@bee.lk>,
-        Jeff Chua <jchua@silk.corp.fedex.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Unresolved symbol do_softirq in 2.4.6-pre3
-In-Reply-To: <Pine.LNX.4.33.0106181017300.6188-100000@viper.haque.net>
-Message-ID: <Pine.LNX.4.33.0106182313450.6088-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263049AbRFRU65>; Mon, 18 Jun 2001 16:58:57 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:3076 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263032AbRFRU6r>;
+	Mon, 18 Jun 2001 16:58:47 -0400
+Message-ID: <20010617231129.A6466@bug.ucw.cz>
+Date: Sun, 17 Jun 2001 23:11:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Airlie <airlied@skynet.ie>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/VAX booting to a shell.
+In-Reply-To: <Pine.LNX.4.32.0106161228490.18791-100000@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.32.0106161228490.18791-100000@skynet>; from Dave Airlie on Sat, Jun 16, 2001 at 12:43:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Mohammad A. Haque wrote:
+Hi!
 
-> On Mon, 18 Jun 2001, Anuradha Ratnaweera wrote:
->
-> > I started running 2.4.6-pre3 using the same configuration file as 2.4.5.
-> > Diff shows no effective differences between two config files.
-> >
-> > depmod complains unresolved symbols (do_softirq) in ppp_generic, ppp_async
-> > and sunrpc.
-> >
->
-> Please check the list archives. A possible solution was posted by Keith
-> owens
-> <http://marc.theaimsgroup.com/?l=linux-kernel&m=99245070328459&w=2>.
+> Hi all, (mind crossposts on follow ups..)
+> 
+> attached below is a bootlog from the Linux/VAX port, booting up, loading
+> up busybox/uClibc sh and cat /proc/cpuinfo, from my VAXStation 3100m38,
+> 
+> Thanks to the other two members of the core VAX porting team, Andy
+> Phillips and Kenn Humborg and others on the linux-vax list who've given
+> their help, this is the second major milestone for the project, (gcc
+> porting was the first) now to get it working on a few other systems and
+> move into userspace...
 
-Try this ...
-
-Jeff.
-
-
---- include/asm-i386/softirq.h	Thu Jun 14 17:10:34 2001
-+++ include/asm-i386/softirq.h.new	Thu Jun 14 17:17:15 2001
-@@ -36,13 +36,13 @@
- 									\
- 			".section .text.lock,\"ax\";"			\
- 			"2: pushl %%eax; pushl %%ecx; pushl %%edx;"	\
--			"call do_softirq;"				\
-+			"call %c1;"					\
- 			"popl %%edx; popl %%ecx; popl %%eax;"		\
- 			"jmp 1b;"					\
- 			".previous;"					\
- 									\
- 		: /* no output */					\
--		: "r" (ptr)						\
-+		: "r" (ptr), "i" (do_softirq)				\
- 		/* no registers clobbered */ );				\
- } while (0)
-
-
+Congratulations. (This is pretty big machine, for the VAX, no? When
+was it build? How much power does it take?)
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

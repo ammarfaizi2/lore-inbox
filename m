@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbTL2W6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 17:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbTL2W6z
+	id S265112AbTL2XEY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 18:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbTL2XEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 17:58:55 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:61321 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265149AbTL2W6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 17:58:51 -0500
-Date: Mon, 29 Dec 2003 17:58:44 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-In-Reply-To: <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
-Message-ID: <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
- <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
+	Mon, 29 Dec 2003 18:04:24 -0500
+Received: from viefep14-int.chello.at ([213.46.255.13]:15714 "EHLO
+	viefep14-int.chello.at") by vger.kernel.org with ESMTP
+	id S265112AbTL2XEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 18:04:22 -0500
+From: Andreas Theofilu <noreply@TheosSoft.net>
+Subject: Re: 2.6.0 with frame buffer problems?
+To: linux-kernel@vger.kernel.org
+Newsgroups: linux.kernel
+Date: Tue, 30 Dec 2003 00:04:18 +0100
+References: <181SV-7V5-1@gated-at.bofh.it> <188KU-2z8-29@gated-at.bofh.it>
+Organization: Theos Soft
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
+Message-Id: <20031229230420.A488924002@chello062178157104.9.14.vie.surfer.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003, Linus Torvalds wrote:
+<veröffentlicht & per Mail versendet>
 
+Gene Heskett wrote:
+
+> # Graphics support
+> #
+> CONFIG_FB=y
+[...]
 > 
+> Way too many frame buffers enabled.  Pick the one that works with your
+> card and disable the vesa.  You may have to say y to the usual fonts
+> too.
 > 
-> On Mon, 29 Dec 2003, Thomas Molina wrote:
-> >
-> > I just finished a couple of comparisons between 2.4 and 2.6 which seem to 
-> > confirm my impressions.  I understand that the comparison may not be 
-> > apples to apples and my methods of testing may not be rigorous, but here 
-> > it is.  In contrast to some recent discussions on this list, this test is 
-> > a "real world" test at which 2.6 comes off much worse than 2.4.  
-> 
-> Are you sure you have DMA enabled on your laptop disk? Your 2.6.x system 
-> times are very high - much bigger than the user times. That sounds like 
-> PIO to me.
+Thanks for that hint. I did it and it's a lot better now, but unfortunately
+not completely gone. Particularly the text modus is working perfect now and
+I got the penguin back while booting :-).
+I will spend more time to this problem, because I'm not so sure that it
+belongs only to the kernel, even if someone at XFree told this.
 
-It certainly looks like DMA is enabled.  Under 2.4 I get:
+This is what I've configured currently:
+CONFIG_FB=y
+# CONFIG_FB_CYBER2000 is not set
+# CONFIG_FB_IMSTT is not set
+# CONFIG_FB_VGA16 is not set
+# CONFIG_FB_VESA is not set
+CONFIG_VIDEO_SELECT=y
+# CONFIG_FB_HGA is not set
+# CONFIG_FB_RIVA is not set
+# CONFIG_FB_MATROX is not set
+CONFIG_FB_RADEON=y
+# CONFIG_FB_ATY128 is not set
+# CONFIG_FB_ATY is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_VIRTUAL is not set
 
-[root@lap root]# hdparm /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2584/240/63, sectors = 39070080, start = 0
-
-
-Under 2.6  I get:
-
-[root@lap root]# hdparm /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 38760/16/63, sectors = 39070080, start = 0
-
-
-Relevant items from my 2.6 configuration file:
-
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_DMA_NONPCI is not set
-
+-- 
+Andreas Theofilu
+http://www.TheosSoft.net
+E-Mail: andreas at TheosSoft dot net

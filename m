@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUD1ANe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUD1ARm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUD1ANe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 20:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbUD1ALu
+	id S264519AbUD1ARm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 20:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUD1ARm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 20:11:50 -0400
-Received: from mail.gmx.de ([213.165.64.20]:56752 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264531AbUD1AIn (ORCPT
+	Tue, 27 Apr 2004 20:17:42 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:39584 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S264531AbUD1AOv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 20:08:43 -0400
-X-Authenticated: #21910825
-Message-ID: <408EF5FA.1080601@gmx.net>
-Date: Wed, 28 Apr 2004 02:08:26 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
+	Tue, 27 Apr 2004 20:14:51 -0400
+Date: Wed, 28 Apr 2004 01:14:49 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: raven@themaw.net
+Cc: Paul Jackson <pj@sgi.com>, Erdi Chen <erdi.chen@digeo.com>,
+       davem@redhat.com, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sparc64 2.6.6-rc2-mm2 build busted: usb/core/hub.c hubstatus
+In-Reply-To: <Pine.LNX.4.58.0404272234320.1547@donald.themaw.net>
+Message-ID: <Pine.LNX.4.58.0404280111430.2125@skynet>
+References: <20040426204947.797bd7c2.pj@sgi.com>
+ <Pine.LNX.4.58.0404271248250.8094@wombat.indigo.net.au>
+ <Pine.LNX.4.58.0404272234320.1547@donald.themaw.net>
 MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Marc Boucher <marc@linuxant.com>, Adam Jaskiewicz <ajjaskie@mtu.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <20040427165819.GA23961@valve.mbsi.ca> <408E9771.7020302@mtu.edu> <F55B44BB-9870-11D8-85DF-000A95BCAC26@linuxant.com> <408E9C59.2090502@nortelnetworks.com> <1DCA0B77-9876-11D8-85DF-000A95BCAC26@linuxant.com> <408EA6AB.90508@nortelnetworks.com>
-In-Reply-To: <408EA6AB.90508@nortelnetworks.com>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
 
-> Marc Boucher wrote:
-> 
->> On Apr 27, 2004, at 1:46 PM, Chris Friesen wrote:
-> 
-> 
->>> Does your company honestly feel that misleading the module loading
->>> tools is actually the proper way to work around the issue of
->>> repetitive warning messages?  This is blatently misleading and does
->>> not reflect well, especially when the "GPL" directory mentioned in
->>> the source string is actually empty.
->>
->> It is a purely technical workaround. There is nothing misleading to
->> the human eye,
-> 
-> modinfo reports a GPL license, and the kernel does not report itself as
-> tainted.  That's misleading.
+> > >       CC [M]  drivers/char/drm/ffb_drv.o
+> > >     In file included from drivers/char/drm/ffb_drv.c:336:
+> > >     drivers/char/drm/drm_drv.h:547: error: `ffb_PCI_IDS' undeclared here (not in a function)
+> > >     drivers/char/drm/drm_drv.h:547: error: initializer element is not constant
+> > >     drivers/char/drm/drm_drv.h:547: error: (near initialization for `ffb_pciidlist[0]')
+> > >     drivers/char/drm/ffb_drv.c:225: warning: `ffb_count_card_instances' defined but not used
+> > >     make[3]: *** [drivers/char/drm/ffb_drv.o] Error 1
 
-The "nothing misleading to the human eye" argument is totally bogus. The
-human eye does not see your sources (especially not the sources of the
-completely proprietary modules).
+> It appears that for 2.6.6-rc2-mm2 this should be:
+>
+> #define ffb_PCI_IDS { 0,0,0 }
+>
+> which allows the kernel to build.
 
-"Marc Boucher is a sl^Hick funny d^H^H^H^H^Huck."
-Is the above sentence insulting or not?
-"But your honor, there is nothing misleading to the human eye. Calling
-somebody a slick funny duck may seem strange, but it is surely not an insult!"
+this should be fixed in the next pull from the DRM bk tree, bk seems to be
+down so I can't confirm the fix is in there at the moment ...
+
+Looking at the oops it looks like the framebuffer device is crashing, can
+you trry building it without the ffb DRM and see if it still crashes?
 
 
->> and the GPL directory isn't empty; it is included in full in our
->> generic .tar.gz, rpm and
->> .deb packages.
-> 
-> My apologies.  I was going on the word of the original poster.
+Thanks,
+Dave.
 
-No need to apologize. If you want to check for yourself, you'll see that
-at least the SUSE .rpm packages do NOT contain any source. If you are
-interested, I can send you the (signed by Linuxant) .rpm package I am
-talking about.
-
-
-Regards,
-Carl-Daniel
 -- 
-http://www.hailfinger.org/
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,73 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTKUEYR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 23:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTKUEYR
+	id S264241AbTKUErz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 23:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTKUEry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 23:24:17 -0500
-Received: from mx2.undergrid.net ([64.174.245.170]:59010 "EHLO
-	mail.undergrid.net") by vger.kernel.org with ESMTP id S262844AbTKUEYQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 23:24:16 -0500
-From: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>
-Date: Thu, 20 Nov 2003 20:11:13 -0800
-To: linux-kernel@vger.kernel.org
-Cc: Buck Rekow <rekow@bigskytel.com>, breed@users.sourceforge.net,
-       achirica@users.sourceforge.net
-Subject: Re: PROBLEM: Aironet compile failure 2.6-test9/Alpha architecture
-Message-ID: <20031121041113.GB15436@UnderGrid.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Buck Rekow <rekow@bigskytel.com>, breed@users.sourceforge.net,
-	achirica@users.sourceforge.net
-References: <3FBD67E7.5020405@bigskytel.com> <20031121032216.GA12185@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031121032216.GA12185@twiddle.net>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-GPG-Debian: 1024D/29AB4CDD  C745 FA35 27B4 32A6 91B3 3935 D573 D5B1 29AB 4CDD
-X-GPG-General: 1024D/62DBDF62  E636 AB22 DC87 CD52 A3A4 D809 544C 4868 62DB DF62
-User-Agent: Mutt/1.5.4i
-X-UnderGrid-MailScanner: Found to be clean
+	Thu, 20 Nov 2003 23:47:54 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:9090 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264241AbTKUErw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 23:47:52 -0500
+Date: Fri, 21 Nov 2003 00:47:49 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test9-mm4 IDE PDC20267 woes
+Message-ID: <Pine.LNX.4.53.0311210040250.1637@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 07:22:16PM -0800, Richard Henderson wrote:
-> On Thu, Nov 20, 2003 at 06:18:31PM -0700, Buck Rekow wrote:
-> > drivers/net/wireless/airo.c: In function `emmh32_setseed':
-> > drivers/net/wireless/airo.c:1458: internal error--unrecognizable insn:
-> > (insn:TI 512 478 513 (set (reg:DI 1 $1)
-> >        (plus:DI (reg:DI 30 $30)
-> >            (const_int 4398046511104 [0x40000000000]))) -1 (insn_list 51 
-> > (insn_list:REG_DEP_ANTI 494 (nil)))
-> >    (nil))
-> 
-> This is always a compiler bug.
-> 
-> > Gnu C                  2.95.4
-> 
-> File a bug with Debian if you want, but the GCC folk proper
-> aren't even going to look at something this old.
-> 
-	Being a Debian Developer this must be being built on Woody 3.0 which
-is the current stable release. Sarge the current testing and Sid the
-unstable distros both have 3.2 or 3.3 default...
+I get the following messages under heavy disk load. Might also be worth 
+noting that interrupt rate is around 10,000 interrupts/s during heavy disk 
+IO.
 
-	Regards,
-	Jeremy
+The marketing name for the disks is "Seagate Barracuda IV" the system is 
+2x 2.0GHz xeon. Interestingly i have the noirqbalance parameter on, that 
+probably also needs looking into. Not to mention that the MIS line is 
+incrementing at a steady pace in step with the ide interrupts.
 
-> 
-> r~
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+           CPU0       CPU1       CPU2       CPU3
+  0:    2562053          0          0          0    IO-APIC-edge  timer
+  1:       8212          0          0          0    IO-APIC-edge  i8042
+  2:          0          0          0          0          XT-PIC  cascade
+  3:          1          0          0          0    IO-APIC-edge  serial
+  4:          1          0          0          0    IO-APIC-edge  serial
+  8:          1          0          0          0    IO-APIC-edge  rtc
+  9:          0          0          0          0   IO-APIC-level  acpi
+ 12:      49138          0          0          0    IO-APIC-edge  i8042
+ 14:      49135          0          0          0    IO-APIC-edge  ide0
+ 15:         10          0          0          0    IO-APIC-edge  ide1
+ 16:        594          0          0          0   IO-APIC-level  uhci_hcd
+ 17:         16          0          0          0   IO-APIC-level  serial
+ 19:      31549          0          0          0   IO-APIC-level  aic7xxx, uhci_hcd
+ 20:       6665          0          0          0   IO-APIC-level  eth0
+ 22:   16324115      21836      48031      42905   IO-APIC-level  ide2, ide3
+ 23:          6          0          0          0   IO-APIC-level  eth1
+ 48:     113434          0          0          0   IO-APIC-level  EMU10K1
+NMI:          0          0          0          0
+LOC:    2562342    2574744    2583077    2583076
+ERR:          0
+MIS:     112774
+
+04:06.0 RAID bus controller: Promise Technology, Inc. 20267 (rev 02)
+
+PDC20267: IDE controller at PCI slot 0000:04:06.0
+PDC20267: chipset revision 2
+PDC20267: 100% native mode on irq 22
+PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER 
+Mode.
+    ide2: BM-DMA at 0x8880-0x8887, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0x8888-0x888f, BIOS settings: hdg:pio, hdh:pio
+hde: ST340014A, ATA DISK drive
+ide2 at 0x8c08-0x8c0f,0x88fe on irq 22
+hdg: ST340014A, ATA DISK drive
+ide3 at 0x8c00-0x8c07,0x88fa on irq 22
+
+...
+hdg: dma_timer_expiry: dma status == 0x20
+hdg: DMA timeout retry
+PDC202XX: Secondary channel reset.
+PDC202XX: Primary channel reset.
+hdg: timeout waiting for DMA
+hde: dma_timer_expiry: dma status == 0x20
+hde: DMA timeout retry
+PDC202XX: Primary channel reset.
+PDC202XX: Secondary channel reset.
+hde: timeout waiting for DMA
+hdg: dma_timer_expiry: dma status == 0x20
+hdg: DMA timeout retry
+PDC202XX: Secondary channel reset.
+PDC202XX: Primary channel reset.
+hdg: timeout waiting for DMA
+hde: dma_timer_expiry: dma status == 0x20
+hde: DMA timeout retry
+PDC202XX: Primary channel reset.
+hdg: dma_timer_expiry: dma status == 0x20
+hdg: DMA timeout retry
+PDC202XX: Secondary channel reset.
+PDC202XX: Secondary channel reset.
+hde: timeout waiting for DMA
+PDC202XX: Primary channel reset.
+hdg: timeout waiting for DMA
+blk: queue c17b9400, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue c17aec00, I/O limit 4095Mb (mask 0xffffffff)
+hdg: dma_timer_expiry: dma status == 0x21
+hdg: DMA timeout error
+hdg: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest 
+}
+
+hdg: status error: status=0x50 { DriveReady SeekComplete }
+
+hdg: no DRQ after issuing MULTWRITE_EXT
+hdg: status timeout: status=0xd0 { Busy }
+
+PDC202XX: Secondary channel reset.
+PDC202XX: Primary channel reset.
+hdg: no DRQ after issuing MULTWRITE_EXT
+ide3: reset: master: error (0x00?)

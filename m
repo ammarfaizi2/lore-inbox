@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268079AbTBMQDv>; Thu, 13 Feb 2003 11:03:51 -0500
+	id <S268075AbTBMQNu>; Thu, 13 Feb 2003 11:13:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268080AbTBMQDu>; Thu, 13 Feb 2003 11:03:50 -0500
-Received: from bitmover.com ([192.132.92.2]:4578 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S268079AbTBMQDt>;
-	Thu, 13 Feb 2003 11:03:49 -0500
-Date: Thu, 13 Feb 2003 08:13:37 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Rik van Riel <riel@imladris.surriel.com>
-Cc: Jamie Lokier <jamie@shareable.org>, Andrea Arcangeli <andrea@e-mind.com>,
-       linux-kernel@vger.kernel.org
+	id <S268076AbTBMQNu>; Thu, 13 Feb 2003 11:13:50 -0500
+Received: from AGrenoble-101-1-1-235.abo.wanadoo.fr ([193.251.23.235]:48077
+	"EHLO awak") by vger.kernel.org with ESMTP id <S268075AbTBMQNt>;
+	Thu, 13 Feb 2003 11:13:49 -0500
 Subject: Re: openbkweb-0.0
-Message-ID: <20030213161337.GA9654@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rik van Riel <riel@imladris.surriel.com>,
-	Jamie Lokier <jamie@shareable.org>,
-	Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
-References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Rik van Riel <riel@imladris.surriel.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Andrea Arcangeli <andrea@e-mind.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030213161337.GA9654@work.bitmover.com>
+References: <20030206021029.GW19678@dualathlon.random>
+	 <20030213024751.GA14016@bjl1.jlokier.co.uk>
+	 <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
+	 <20030213161337.GA9654@work.bitmover.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: 
+Message-Id: <1045153390.13507.7.camel@bip.localdomain.fake>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 13 Feb 2003 17:23:10 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 13, 2003 at 09:55:28AM -0200, Rik van Riel wrote:
-> On Thu, 13 Feb 2003, Jamie Lokier wrote:
-> > Andrea Arcangeli wrote:
-> > > I guess the bitkeeper network protocol could be also implemented on the
-> > > longer run, it should be much faster to fetch all the database that way,
-> >
-> > Nobody (who is covered by copyright laws) is allowed to use the _free_
-> > version of BitKeeper to reverse engineer the protocol.  I may be
-> > mistaken - perhaps the BitKeeper "anti-competition" clause would be
-> > found unenforcable.. but I'm not interested in going there.
+Le jeu 13/02/2003 à 17:13, Larry McVoy a écrit :
+
+> We'd view reverse engineering the protocol as falling under the "you're
+> working on a competing implementation".  
 > 
-> Reverse engineering the protocol is probably allowed, as long
-> as you don't create an alternative implementation yourself.
+> The general message is that you are free to use BK but you aren't free
+> to use BK in any way which could hurt the business which produces BK.
 
-We'd view reverse engineering the protocol as falling under the "you're
-working on a competing implementation".  
+If this kind of rule was enforced, lots of drivers wouldn't have
+existed. You can't do much against reverse engineering.
 
-The general message is that you are free to use BK but you aren't free
-to use BK in any way which could hurt the business which produces BK.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

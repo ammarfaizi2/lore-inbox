@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289098AbSAGDRZ>; Sun, 6 Jan 2002 22:17:25 -0500
+	id <S289112AbSAGDSC>; Sun, 6 Jan 2002 22:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289101AbSAGDRM>; Sun, 6 Jan 2002 22:17:12 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:17925 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289098AbSAGDRE>; Sun, 6 Jan 2002 22:17:04 -0500
-Message-ID: <3C3911F1.63E55E90@zip.com.au>
-Date: Sun, 06 Jan 2002 19:11:45 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S289113AbSAGDRp>; Sun, 6 Jan 2002 22:17:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18693 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289101AbSAGDRb>; Sun, 6 Jan 2002 22:17:31 -0500
+Date: Sun, 6 Jan 2002 19:16:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Henderson <rth@twiddle.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Davide Libenzi <davidel@xmailserver.org>, Ingo Molnar <mingo@elte.hu>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <20020106190801.A27356@twiddle.net>
+Message-ID: <Pine.LNX.4.33.0201061908330.5819-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate fixes
-In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>,
-		<3C36DEA9.AEA2A402@zip.com.au>; from akpm@zip.com.au on Sat, Jan 05, 2002 at 03:08:25AM -0800 <20020107034654.G1561@athlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> I prefer my fix that simply recalls the ->truncate callback if -ENOSPC
-> is returned by prepare_write. vmtruncate seems way overkill,
 
-Actually, vmtruncate will trim the page off the inode as well as the
-blocks from the file.  I don't think there's necessarily a problem
-with having a page wholly outside i_size, but..
+On Sun, 6 Jan 2002, Richard Henderson wrote:
+> On Sun, Jan 06, 2002 at 02:13:32AM +0000, Alan Cox wrote:
+> > ... since an 8bit ffz can be done by lookup table
+> > and that is fast on all processors
+>
+> Please still provide the arch hook -- single cycle ffs type
+> instructions are still faster than any memory access.
 
--
+This is probably true even on x86, except in benchmarks (the x86 ffs
+instruction definitely doesn't historically count as "fast", and a table
+lookup will probably win in a benchmark where the table is hot in the
+cache, but you don't have to miss very often to be ok with a few CPU
+cycles..)
+
+(bsfl used to be very slow. That's not as true any more)
+
+		Linus
+

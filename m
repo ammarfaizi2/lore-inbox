@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265577AbRF1HVg>; Thu, 28 Jun 2001 03:21:36 -0400
+	id <S265594AbRF1IIZ>; Thu, 28 Jun 2001 04:08:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265580AbRF1HV1>; Thu, 28 Jun 2001 03:21:27 -0400
-Received: from nwcst31h.netaddress.usa.net ([204.68.23.63]:53988 "HELO
-	nwcst318.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S265577AbRF1HVV> convert rfc822-to-8bit; Thu, 28 Jun 2001 03:21:21 -0400
-Message-ID: <20010628072120.7126.qmail@nwcst318.netaddress.usa.net>
-Date: 28 Jun 2001 01:21:20 MDT
-From: Blesson Paul <blessonpaul@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Re: kernel2.4 is not working]
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
+	id <S265598AbRF1IIO>; Thu, 28 Jun 2001 04:08:14 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:49413 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265594AbRF1IIC>;
+	Thu, 28 Jun 2001 04:08:02 -0400
+Date: Thu, 28 Jun 2001 01:07:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Patrick Dreker <patrick@dreker.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+Message-ID: <20010628010748.A6957@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0106271514260.7355-100000@penguin.transmeta.com> <01062809432100.00590@wintermute>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01062809432100.00590@wintermute>; from patrick@dreker.de on Thu, Jun 28, 2001 at 09:43:21AM +0200
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-                      I found out the problem. The reason is that the
-kernel(linux-2.4.5) is not present in the /boot directory. But I had
-uncommented the export statement of INSTALL_PATH=/boot. But the linux kernel
-is not put in the /boot directory. why is it so. Presently the kernel is put
-in the directory where i compiled. Unfortnately it is a NFS directory. I think
-the place where linux kernel is found is hardcoded in boot
-loader(linuz-2.4.5). Moreover one warning is comming always. "CLockskew
-detected Your compilation may be incomplete". How to get rid of that
-			by
-                             Blesson Paul
+On Thu, Jun 28, 2001 at 09:43:21AM +0200, Patrick Dreker wrote:
+> Hello...
+> 
+> Am Donnerstag, 28. Juni 2001 00:16 schrieb Linus Torvalds:
+> > I don't _have_ any instances of my name being printed out to annoy the
+> > user, so that's a very theoretical argument.
+> 
+> Err.... Just nitpicking...
+> 
+> dreker@wintermute:~> dmesg | grep -C Linus
+> hub.c: 2 ports detected
+> uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti 
+> Fliegl, Thomas Sailer, Roman Weissgaerber
 
+Please look at the latest 2.4.6-pre tree.  This has been changed for a
+while now.
 
-"Alexander V. Bilichenko" <dmor@7ka.mipt.ru> wrote:
-"not working"?
-can You post there exactly crash info?
-Best regards,
-Alexander         mailto:dmor@7ka.mipt.ru
-                         mailto:alexb@kernel.org
-------------------------------------------------------
-Let's start the war, said Meggy
-------------------------------------------------------
------ Original Message -----
-From: "Blesson Paul" <blessonpaul@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, June 27, 2001 6:08 PM
-Subject: kernel2.4 is not working
+thanks,
 
-
-> hi all
->                     Presnently I am using 2.2.16. Now I downloaded the
-2.4.5
-> kernel source code. Now I compiled it. I didn't changed anything in the
-> menuconfig. Still it not working. Why it it so
->                by
->                    Blesson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+greg k-h

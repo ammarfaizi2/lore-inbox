@@ -1,71 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267345AbRGKP6n>; Wed, 11 Jul 2001 11:58:43 -0400
+	id <S267346AbRGKQDd>; Wed, 11 Jul 2001 12:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267342AbRGKP6d>; Wed, 11 Jul 2001 11:58:33 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:42314 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267341AbRGKP6O>; Wed, 11 Jul 2001 11:58:14 -0400
-Date: Wed, 11 Jul 2001 17:58:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Klaus Dittrich <kladit@t-online.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7p6 hang
-Message-ID: <20010711175809.F3496@athlon.random>
-In-Reply-To: <200107110849.f6B8nlm00414@df1tlpc.local.here> <shslmlv62us.fsf@charged.uio.no> <3B4C56F1.3085D698@uow.edu.au> <15180.24844.687421.239488@charged.uio.no>
+	id <S267347AbRGKQDX>; Wed, 11 Jul 2001 12:03:23 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:54404 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267346AbRGKQDN>; Wed, 11 Jul 2001 12:03:13 -0400
+Date: Wed, 11 Jul 2001 09:02:57 -0700
+From: Mike Anderson <mike.anderson@us.ibm.com>
+To: Dipankar Sarma <dipankar@sequent.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010711090257.B27097@us.ibm.com>
+In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15180.24844.687421.239488@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Jul 11, 2001 at 04:22:04PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010711142311.B9220@in.ibm.com>; from dipankar@sequent.com on Wed, Jul 11, 2001 at 02:23:11PM +0530
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11, 2001 at 04:22:04PM +0200, Trond Myklebust wrote:
-> >>>>> " " == Andrew Morton <andrewm@uow.edu.au> writes:
+Sorry for the slow fingers just trying to catch up on this thread.
+
+Dipankar Sarma [dipankar@sequent.com] wrote:
+> Hi Mike,
 > 
->      > Trond Myklebust wrote:
->     >>
->     >> ...  I have the same problem on my setup. To me, it looks like
->     >> the loop in spawn_ksoftirqd() is suffering from some sort of
->     >> atomicity problem.
+> On Tue, Jul 10, 2001 at 04:05:12PM -0700, Mike Anderson wrote:
+> > The call to do_aic7xxx_isr appears that you are running the aic7xxx_old.c
+> > code. This driver is using the io_request_lock to protect internal data.
+> > The newer aic driver has its own lock. This is related to previous
+> > comments by Jens and Eric about lower level use of this lock.
 > 
->      > Does a `set_current_state(TASK_RUNNING);' in spawn_ksoftirqd()
->      > fix it?  If so we have a rogue initcall...
+> There were some problems booting with the new aic7xxx driver and 2.4.4
+> kernel. This may have been fixed in later kernels, so we will check
+> this again. Besides, I wasn't aware that the new aic7xxx driver uses
+> a different locking model. Thanks for letting me know.
 > 
-> Nope. The same thing happens as before.
+> >  
+> >  I would like to know why the request_freelist is going empty? Having
+> >  __get_request_wait being called alot would appear to be not optimal.
 > 
-> A couple of debugging statements show that ksoftirqd_CPU0 gets created
-> fine, and that ksoftirqd_task(0) is indeed getting set correctly
-> before we loop in spawn_ksoftirqd().
-> After this the second call to kernel_thread() succeeds, but
-> ksoftirqd() itself never gets called before the hang occurs.
+> It is not unreasonable for request IOCB pools to go empty, the important
+> issue is at what rate ? If a large portion of I/Os have to wait for
+> request structures to be freed, we may not be able to utilize the available
+> hardware bandwidth of the system optimally when we need, say, large
+> # of IOs/Sec. On the other hand, having large number of request structures
+> available may not necessarily give you large IOs/sec. The thing to look
+> at would be - how well are we utilizing the queueing capablility
+> of the hardware given a particular type of workload.
 
-ksoftirqd is quite scheduler intensive, and while its startup is
-correct (no need of any change there), it tends to trigger scheduler
-bugs (one of those bugs was just fixed in pre5). The reason I never seen
-the deadlock I also fixed this other scheduler bug in my tree:
+Jens, I think Dipankar might have stated my comment about questioning
+optimal utilization of a pool of resources shared by all device queues in
+the last sentence of the above paragraph. 
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.7pre5aa1/00_sched-yield-1
+My thought was that if one has enough IO that cannot be merged on a queue
+you eat up request descriptors. If a request queue contains more requests
+than can be put in flight by the lower level to a spindle than this
+resource might be better used by other request queues.
 
-this one I forgot to sumbit but here it is now for easy merging:
+I might be missing something and I will look at the code some more.
 
---- 2.4.4aa3/kernel/sched.c.~1~	Sun Apr 29 17:37:05 2001
-+++ 2.4.4aa3/kernel/sched.c	Tue May  1 16:39:42 2001
-@@ -674,8 +674,10 @@
- #endif
- 	spin_unlock_irq(&runqueue_lock);
- 
--	if (prev == next)
-+	if (prev == next) {
-+		current->policy &= ~SCHED_YIELD;
- 		goto same_process;
-+	}
- 
- #ifdef CONFIG_SMP
-  	/*
+Thanks.
 
+> 
+> Thanks
+> Dipankar
+> -- 
+> Dipankar Sarma  <dipankar@sequent.com> Project: http://lse.sourceforge.net
+> Linux Technology Center, IBM Software Lab, Bangalore, India.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Andrea
+-- 
+Michael Anderson
+mike.anderson@us.ibm.com
+

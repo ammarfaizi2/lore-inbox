@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263195AbVBDFaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263239AbVBDFzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbVBDFaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 00:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbVBDFaJ
+	id S263239AbVBDFzR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 00:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVBDFzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 00:30:09 -0500
-Received: from ozlabs.org ([203.10.76.45]:33771 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263098AbVBDF36 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 00:29:58 -0500
+	Fri, 4 Feb 2005 00:55:17 -0500
+Received: from mta11.adelphia.net ([68.168.78.205]:30141 "EHLO
+	mta11.adelphia.net") by vger.kernel.org with ESMTP id S263338AbVBDFzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 00:55:09 -0500
+Message-ID: <42030E06.8080900@nodivisions.com>
+Date: Fri, 04 Feb 2005 00:54:14 -0500
+From: Anthony DiSante <theant@nodivisions.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Has anyone dumped udev for devfs?
+References: <42019E0E.1020205@stinkfoot.org> <20050203070415.GC17460@waste.org> <4202F725.8040509@stinkfoot.org> <20050204050822.GT2493@waste.org>
+In-Reply-To: <20050204050822.GT2493@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16899.2175.599702.827882@cargo.ozlabs.ibm.com>
-Date: Fri, 4 Feb 2005 16:30:39 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-In-Reply-To: <Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
-	<1106828124.19262.45.camel@hades.cambridge.redhat.com>
-	<20050202153256.GA19615@logos.cnet>
-	<Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
-	<20050202163110.GB23132@logos.cnet>
-	<Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com>
-	<16898.46622.108835.631425@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter writes:
+Kevin Fries wrote:
+ > Any ETA on when udev is going to be ready for prime time?  And, any
+ > clue why Fedora insists on relying on a program that does not f*(&%ing
+ > work!!!!
+ >
+ > I am trying to get a Microtek X12 USL scanner attached, and udev fails
+ > to mount it, every time.  Has anyone tried uninstalling udev and
+ > reinstalling devfs to stop all these damn usb failures?
+ >
+ > If so, any hints on how not to make your system unstable?
+ >
+ > TIA
+ > Kevin Fries
 
-> You need to think about this in a different way. Prezeroing only makes
-> sense if it can avoid using cache lines that the zeroing in the
-> hot paths would have to use since it touches all cachelines on
-> the page (the ppc instruction is certainly nice and avoids a cacheline
-> read but it still uses a cacheline!). The zeroing in itself (within the
+I haven't gone back to devfs, but I feel your pain.  udev+hal worked fine 
+for a couple months, until hald started intermittently locking up.  Now I 
+can't go 2 days without a reboot, because hald so often goes into 
+"uninterruptible sleep" and is totally unkillable.  I've upgraded udev, hal, 
+and my kernel a bunch of times, but nothing has fixed this.  And it's not a 
+single piece of hardware; sometimes it's USB, sometimes Firewire, sometimes 
+a CDROM, that causes hald to take a nap, permanently.
 
-The dcbz instruction on the G5 (PPC970) establishes the new cache line
-in the L2 cache and doesn't disturb the L1 cache (except to invalidate
-the line in the L1 data cache if it is present there).  The L2 cache
-is 512kB and 8-way set associative (LRU).  So zeroing a page is
-unlikely to disturb the cache lines that the page fault handler is
-using.  Then, when the page fault handler returns to the user program,
-any cache lines that the program wants to touch are available in 12
-cycles (L2 hit latency) instead of 200 - 300 (memory access latency).
-
-> cpu caches) is extraordinarily fast and the zeroing of large portions of
-> memory is so too. That is why the impact of scrubd is negligible since
-> its extremely fast.
-
-But that also disturbs cache lines that may well otherwise be useful.
-
-> The point is to save activating cachelines not the time zeroing in itself
-> takes. This only works if only parts of the page are needed immediately
-> after the page fault. All of that has been documented in earlier posts on
-> the subject.
-
-As has my scepticism about pre-zeroing actually providing any benefit
-on ppc64.  Nevertheless, the only definitive answer is to actually
-measure the performance both ways.
-
-Paul.
+-Anthony DiSante
+http://nodivisions.com/

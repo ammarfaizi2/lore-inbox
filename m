@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSHATyX>; Thu, 1 Aug 2002 15:54:23 -0400
+	id <S316878AbSHATwJ>; Thu, 1 Aug 2002 15:52:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316953AbSHATyX>; Thu, 1 Aug 2002 15:54:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316951AbSHATyW>; Thu, 1 Aug 2002 15:54:22 -0400
-Date: Thu, 1 Aug 2002 15:58:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Gary Lawrence Murphy <garym@canada.com>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       garym@teledyn.com
-Subject: Re: Kernel compiled from source won't read /parts/ of a CD?
-In-Reply-To: <m2bs8mtlit.fsf@maya.dyndns.org>
-Message-ID: <Pine.LNX.3.95.1020801154900.873A-100000@chaos.analogic.com>
+	id <S316896AbSHATwI>; Thu, 1 Aug 2002 15:52:08 -0400
+Received: from smtp1.auracom.net ([165.154.140.23]:15846 "EHLO
+	smtp1.auracom.net") by vger.kernel.org with ESMTP
+	id <S316878AbSHATwI>; Thu, 1 Aug 2002 15:52:08 -0400
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: garym@teledyn.com
+Subject: Kernel compiled from source won't read /parts/ of a CD?
+From: Gary Lawrence Murphy <garym@canada.com>
+X-Home-Page: http://www.teledyn.com
+Organization: TCI Business Innovation through Open Source Computing
+Reply-To: Gary Lawrence Murphy <garym@canada.com>
+X-Url: http://www.teledyn.com/
+Date: 01 Aug 2002 15:48:49 -0400
+Message-ID: <m24reetl5q.fsf@maya.dyndns.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Aug 2002, Gary Lawrence Murphy wrote:
 
-> 
-> This is one of the strangest situations I have ever seen: my
-> re-compiled Linux 2.4.18 kernel now /refuses/ to read /only/ the
-> "/Mandrake" directory branch of all three of the Mandrake distribution
-> CDs.  It /has/ to be some kernel option, but I can't figure which one;
-> any advice or debugging hints at all are greatly appreciated.
+This is one of the strangest situations I have ever seen: my
+re-compiled Linux 2.4.18 kernel now /refuses/ to read /only/ the
+"/Mandrake" directory branch of all three of the Mandrake distribution
+CDs.  It /has/ to be some kernel option, but I can't figure which one;
+any advice or debugging hints at all are greatly appreciated.
 
-I had some problem like this. I don't know what caused it
-because it was 'fixed' by a re-boot. I think it was that
-the kernel 'thought' the block-size was wrong for the CD.
+I had to recompile a Mandrake 8.2 kernel to remove pcmcia support (so
+I could use the sf release of it) Using the stock Mandrake 8.2 binary
+kernel, the CDs can be read just fine, it is only the kernel that I
+compiled from the linux-2.4.18-6mdk.src package that has this trouble.
+There are no warning messages, only one line returned to the console
+to say "ls /Mandrake: Invalid argument" and one line in syslog to say
+"ISO 9660: RRIP_1991A" and that's the total diagnostic information I
+have.
 
-Anyway, the next time it happend, I copied the entire
-contents of a CD to a file (ising 'cp'). I then mounted
-the file through the loop device. I figured it might be
-quicker than re-booting (it wasn't). It worked anyway.
+Using /usr/bin/isoinfo, I can list the CD contents just fine; all the
+unix tools (ls, cd, cp ...) and rpm cannot read /Mandrake.
 
-The next time it happens, I will try to mount the CD
-through the loop device. Anyway, you can try that now.
+What could I have possibly omitted from the kernel config to cause
+this?  How could that one directory be singled out by a simple kernel
+config problem? (or could it be a gcc 2.96 problem?)
 
-Maybe it will help you read it.
-
-mount -t iso9660 -o loop /dev/cdrom /mnt
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+-- 
+Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
+Business Innovations Through Open Source Systems: http://www.teledyn.com
+"Computers are useless.  They can only give you answers."(Pablo Picasso)
 

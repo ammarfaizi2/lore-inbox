@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbUJ1UwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263049AbUJ1U5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263067AbUJ1UwY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 16:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbUJ1UtG
+	id S263049AbUJ1U5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 16:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbUJ1Uw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 16:49:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54679 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261740AbUJ1Un6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 16:43:58 -0400
-Date: Thu, 28 Oct 2004 13:43:51 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stef van der Made <svdmade@planet.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel-2.6.10-rc1-mm1 compile issue
-Message-ID: <20041028134351.E14339@build.pdx.osdl.net>
-References: <418155F7.3010105@planet.nl>
+	Thu, 28 Oct 2004 16:52:56 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:54516 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263070AbUJ1Uwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 16:52:41 -0400
+Date: Thu, 28 Oct 2004 13:51:36 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Blaisorblade <blaisorblade_spam@yahoo.it>, akpm@osdl.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 7/7] uml: resolve symbols in back-traces
+Message-ID: <20041028205136.GA1888@taniwha.stupidest.org>
+References: <200410272223.i9RMNj921852@mail.osdl.org> <200410282034.21922.blaisorblade_spam@yahoo.it> <20041028192824.GC851@taniwha.stupidest.org> <200410282132.i9SLWhA3004709@ccure.user-mode-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <418155F7.3010105@planet.nl>; from svdmade@planet.nl on Thu, Oct 28, 2004 at 10:26:31PM +0200
+In-Reply-To: <200410282132.i9SLWhA3004709@ccure.user-mode-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stef van der Made (svdmade@planet.nl) wrote:
-> fs/built-in.o(.text+0x7ac23): In function `drop_page':
-> : undefined reference to `delete_from_page_cache'
-> make: *** [.tmp_vmlinux1] Error 1
+On Thu, Oct 28, 2004 at 05:32:43PM -0400, Jeff Dike wrote:
 
-Fix was posted, try this archive link:
+> They're not completely pointless, they just cater to an individual's
+> development environment, and that sort of stuff should be in the
+> environment, and not the code.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109887945018256&w=2
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+unnecessary in the code then, the exception to this perhaps being the
+compile-command stuff that was (still is?) in some of the network
+drivers as that really is per-file state

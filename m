@@ -1,127 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbTCTHHs>; Thu, 20 Mar 2003 02:07:48 -0500
+	id <S261402AbTCTHMB>; Thu, 20 Mar 2003 02:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261402AbTCTHHs>; Thu, 20 Mar 2003 02:07:48 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:34489 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261397AbTCTHHq>; Thu, 20 Mar 2003 02:07:46 -0500
-Date: Wed, 19 Mar 2003 23:15:19 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [patch] 2.5.65-mjb1: lkcd: fix dump_fmt.c for !CONFIG_SMP
-Message-ID: <12290000.1048144518@[10.10.2.4]>
-In-Reply-To: <20030319083025.GA23258@fs.tum.de>
-References: <8230000.1047975763@[10.10.2.4]> <20030319083025.GA23258@fs.tum.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S261404AbTCTHMB>; Thu, 20 Mar 2003 02:12:01 -0500
+Received: from sarge.hbedv.com ([217.11.63.11]:28824 "EHLO sarge.hbedv.com")
+	by vger.kernel.org with ESMTP id <S261402AbTCTHMA>;
+	Thu, 20 Mar 2003 02:12:00 -0500
+Date: Thu, 20 Mar 2003 08:22:59 +0100
+From: Wolfram Schlich <wolfram@schlich.org>
+To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and shared IRQs
+Message-ID: <20030320072259.ALLYOURBASEAREBELONGTOUS.E6336@bla.fasel.org>
+Mail-Followup-To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
+References: <20030319221608.ALLYOURBASEAREBELONGTOUS.A29767@bla.fasel.org> <1048124539.647.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1048124539.647.18.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+Organization: Axis of Weasel(s)
+X-Complaints-To: bla@fasel.org
+X-IRC: wschlich at irc.freenode.net
+X-Messenger: ICQ: 35713642, MSN: bla@fasel.org, YIM: wolfram_schlich, AIM: wolframschlich
+X-Registered-Linux-User: 187858 (http://counter.li.org)
+X-Warning: E-Mail may contain unsmilyfied humor and/or satire.
+X-What-Happen: Somebody set up us the bomb.
+X-Accept-Language: de, en, fr
+X-GPG-Key: 0xCD4DF205 (http://wolfram.schlich.org/wschlich.asc, x-hkp://wwwkeys.de.pgp.net)
+X-GPG-Fingerprint: 39EC 98CA 4130 E59A 1041  AD06 D3A1 C51D CD4D F205
+X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled Mar 24 2002 15:02:51)
+X-Face: |P()Q^fx-{=,K-3g?5@Id4o|o{Xf_5v:z3WIhR3fOW-$,*=[#[Qq<,@P!OsXbR|i6n=]B<3mzGC++F@K#wvoLEnIZuTR6wPCMQfxq!';9w[TiP3Bhz"r&$7eGFq7us@Z5Qd$3W[3W3:U7biTNZgf"<]LqwS
+X-Operating-System: Linux prometheus 2.4.21-pre5-grsec-1.9.9c #3 SMP Thu Mar 20 00:10:58 CET 2003 i686 unknown
+X-Uptime: 8:22am up 7:36, 2 users, load average: 0.00, 0.02, 0.00
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.9; AVE: 6.18.0.2; VDF: 6.18.0.15; host: mx.bla.fasel.org)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Mar 18, 2003 at 12:22:43AM -0800, Martin J. Bligh wrote:
->> ...
->> lkcd						LKCD team
->> 	Linux kernel crash dump support
->> ...
+* Alan Cox <alan@lxorguk.ukuu.org.uk> [2003-03-20 01:31]:
+> On Wed, 2003-03-19 at 22:16, Wolfram Schlich wrote:
+> > When one of the Promise controllers is sharing the same IRQ with one of
+> > the NICs (don't matter which, I tried all) and data is copied *to* the
+> > machine over the network, the system deadlocks. When data is copied
+> > *from* the system over the network, it works all ok. Unfortunately the
+> > system BIOS doesn't give me any possibility of setting the IRQ
+> > channels by hand, so all I can do is put the cards into other slots.
+> > 
 > 
-> I got the following compile error for !CONFIG_SMP:
+> Thats very useful information. There certain have been (and it seems
+> still are) some cases with shared IRQ that are not quite handled right.
+> The 2.4.21pre5/pre5-ac work has partly been about fixing it. Deadlocks
+> suprise me however, since the problems I've seen have been I/O
+> errors.
 
-Errrm ... oops. Sorry about that. Thanks for all the testing, and to
-you, Sam, and Christoph for suggested fixes. I've rolled up these, and 
-a couple of other issues I found below ... could you try this? Compiles
-for NUMA-Q and UP at least. Any feedback on the fixes welcome too ...
+Well, now I have trashed my array :-)
+-> http://marc.theaimsgroup.com/?l=linux-raid&m=104811878405765&w=2
 
-Thanks,
+Btw., it spits out *lots* of messages when IRQ sharing is *disabled*
+in the kernel config and just dies quietly when it's *enabled*
+(having it dying before didn't mess up my array... ;)).
 
-M.
+> However there is another known problem that does cause deadlocks with
+> the AMD76x, especially if the onboard IDE is used. Shove a PS/2 mouse
+> in the box, reboot and retest - if you dont already have one
 
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/drivers/dump/Makefile 901-lkcd_fixups/drivers/dump/Makefile
---- 900-mjb1/drivers/dump/Makefile	Mon Mar 17 21:50:08 2003
-+++ 901-lkcd_fixups/drivers/dump/Makefile	Wed Mar 19 22:30:23 2003
-@@ -1,7 +1,6 @@
- #
- # Makefile for the dump device drivers.
- #
--export-objs				:= dump_setup.o
- 
- dump-y					:= dump_setup.o dump_fmt.o dump_filters.o dump_scheme.o dump_execute.o
- dump-$(CONFIG_X86)			+= dump_i386.o
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/drivers/dump/dump_netdev.c 901-lkcd_fixups/drivers/dump/dump_netdev.c
---- 900-mjb1/drivers/dump/dump_netdev.c	Mon Mar 17 21:50:08 2003
-+++ 901-lkcd_fixups/drivers/dump/dump_netdev.c	Wed Mar 19 23:02:21 2003
-@@ -556,9 +556,9 @@ do_netdump(struct dump_dev *net_dev, con
- 		case COMM_GET_NR_PAGES:
- 			reply.code = REPLY_NR_PAGES;
- 			reply.nr = req.nr;
--			reply.info = max_mapnr;
-+			reply.info = num_physpages;
-                         reply.info = page_counter;
--			sprintf(tmp, "Number of pages: %ld\n", max_mapnr);
-+			sprintf(tmp, "Number of pages: %ld\n", num_physpages);
- 			dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
- 			break;
- 
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/drivers/dump/dump_scheme.c 901-lkcd_fixups/drivers/dump/dump_scheme.c
---- 900-mjb1/drivers/dump/dump_scheme.c	Mon Mar 17 21:50:08 2003
-+++ 901-lkcd_fixups/drivers/dump/dump_scheme.c	Wed Mar 19 22:59:05 2003
-@@ -292,7 +292,7 @@ int dump_generic_configure(unsigned long
- 	for (filter = dump_config.dumper->filter ;filter->selector; filter++) {
- 		if (!filter->start && !filter->end) {
- 			filter->start = 0;
--			filter->end = max_mapnr << PAGE_SHIFT;
-+			filter->end = num_physpages << PAGE_SHIFT;
- 		}
- 	}
- 
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/include/asm-i386/pgtable.h 901-lkcd_fixups/include/asm-i386/pgtable.h
---- 900-mjb1/include/asm-i386/pgtable.h	Mon Mar 17 21:58:58 2003
-+++ 901-lkcd_fixups/include/asm-i386/pgtable.h	Wed Mar 19 22:03:48 2003
-@@ -15,6 +15,7 @@
- #ifndef __ASSEMBLY__
- #include <asm/processor.h>
- #include <asm/fixmap.h>
-+#include <asm/system.h>
- #include <linux/threads.h>
- 
- #ifndef _I386_BITOPS_H
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/include/linux/dump.h 901-lkcd_fixups/include/linux/dump.h
---- 900-mjb1/include/linux/dump.h	Mon Mar 17 21:50:08 2003
-+++ 901-lkcd_fixups/include/linux/dump.h	Wed Mar 19 22:08:59 2003
-@@ -343,7 +343,7 @@ extern int	__dump_page_valid(unsigned lo
- #ifdef CONFIG_SMP
- extern void 	__dump_save_other_cpus(void);
- #else
--#define 	__dump_save_other_cpus(void)
-+#define 	__dump_save_other_cpus()
- #endif
- 
- #endif /* __KERNEL__ */
-diff -urpN -X /home/fletch/.diff.exclude 900-mjb1/init/Makefile 901-lkcd_fixups/init/Makefile
---- 900-mjb1/init/Makefile	Mon Mar 17 21:50:08 2003
-+++ 901-lkcd_fixups/init/Makefile	Wed Mar 19 22:14:30 2003
-@@ -1,16 +1,15 @@
- #
- # Makefile for the linux kernel.
- #
--ifdef CONFIG_CRASH_DUMP
--EXTRA_TARGETS := kerntypes.o
--CFLAGS_kerntypes.o := -gstabs
--endif
- 
- obj-y				:= main.o version.o mounts.o initramfs.o
- mounts-y			:= do_mounts.o
- mounts-$(CONFIG_DEVFS_FS)	+= do_mounts_devfs.o
- mounts-$(CONFIG_BLK_DEV_RAM)	+= do_mounts_rd.o
- mounts-$(CONFIG_BLK_DEV_MD)	+= do_mounts_md.o
-+
-+extra-$(CONFIG_CRASH_DUMP)	+= kerntypes.o
-+CFLAGS_kerntypes.o		:= -gstabs
- 
- # files to be removed upon make clean
- clean-files := ../include/linux/compile.h
-
+?! I'm using the onboard IDE for two CDROM drives and one smaller
+hard disk which I use rarely... and I didn't use any of these devices
+in the cases in which I had the described problems... Anyway, why should I
+connect a PS/2 mouse to the machine? Is it gonna solve all my
+problems at once? ;-)
+-- 
+Mit freundlichen Gruessen / Yours sincerely
+Wolfram Schlich; Friedhofstr. 8, D-88069 Tettnang; +49-(0)178-SCHLICH

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129189AbRBFUYB>; Tue, 6 Feb 2001 15:24:01 -0500
+	id <S129619AbRBFU2V>; Tue, 6 Feb 2001 15:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129219AbRBFUXw>; Tue, 6 Feb 2001 15:23:52 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:43530 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129189AbRBFUXi>;
-	Tue, 6 Feb 2001 15:23:38 -0500
-Date: Tue, 6 Feb 2001 21:22:55 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S129571AbRBFU2G>; Tue, 6 Feb 2001 15:28:06 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:42420 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129219AbRBFU1o>; Tue, 6 Feb 2001 15:27:44 -0500
+Date: Tue, 6 Feb 2001 15:25:00 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         <kiobuf-io-devel@lists.sourceforge.net>,
         Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.30.0102061450590.15204-100000@today.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.30.0102062120390.9776-100000@elte.hu>
+In-Reply-To: <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0102061521270.15204-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Feb 2001, Ingo Molnar wrote:
 
-On Tue, 6 Feb 2001, Ben LaHaise wrote:
-
-> Sure.  General parameters will be as follows (since I think we both have
-> access to these machines):
 >
-> 	- 4xXeon, 4GB memory, 3GB to be used for the ramdisk (enough for a
-> 	  base install plus data files.
-> 	- data to/from the ram block device must be copied within the ram
-> 	  block driver.
-> 	- the filesystem used must be ext2.  optimisations to ext2 for
-> 	  tweaks to the interface are permitted & encouraged.
+> On Tue, 6 Feb 2001, Ben LaHaise wrote:
 >
-> The main item I'm interested in is read (page cache cold)/synchronous
-> write performance for blocks from 256 bytes to 16MB in powers of two,
-> much like what I've done in testing the aio patches that shows where
-> improvement in latency is needed. Including a few other items on disk
-> like the timings of find/make -s dep/bonnie/dbench is probably to show
-> changes in throughput. Sound fair?
+> > This small correction is the crux of the problem: if it blocks, it
+> > takes away from the ability of the process to continue doing useful
+> > work.  If it returns -EAGAIN, then that's okay, the io will be
+> > resubmitted later when other disk io has completed.  But, it should be
+> > possible to continue servicing network requests or user io while disk
+> > io is underway.
+>
+> typical blocking point is waiting for page completion, not
+> __wait_request(). But, this is really not an issue, NR_REQUESTS can be
+> increased anytime. If NR_REQUESTS is large enough then think of it as the
+> 'absolute upper limit of doing IO', and think of the blocking as 'the
+> kernel pulling the brakes'.
 
-yep, sounds fair.
+=)  This is what I'm seeing: lots of processes waiting with wchan ==
+__get_request_wait.  With async io and a database flushing lots of io
+asynchronously spread out across the disk, the NR_REQUESTS limit is hit
+very quickly.
 
-	Ingo
+> [overhead of 512-byte bhs in the raw IO code is an artificial problem of
+> the raw IO code.]
 
+True, and in the tests I've run, raw io is using 2KB blocks (same as the
+database).
+
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

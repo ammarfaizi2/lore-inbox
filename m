@@ -1,180 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbTIVS3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 14:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTIVS3f
+	id S262114AbTIVSgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 14:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTIVSgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 14:29:35 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:58570 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261632AbTIVS3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 14:29:30 -0400
-Date: Mon, 22 Sep 2003 11:29:28 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Subject: [PATCH] Add 'make uImage' for PPC32
-Message-ID: <20030922182928.GM7443@ip68-0-152-218.tc.ph.cox.net>
-Mime-Version: 1.0
+	Mon, 22 Sep 2003 14:36:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34877 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262114AbTIVSf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 14:35:59 -0400
+To: linux@horizon.com
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+References: <20030922153651.16497.qmail@science.horizon.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Sep 2003 12:35:49 -0600
+In-Reply-To: <20030922153651.16497.qmail@science.horizon.com>
+Message-ID: <m1brtck6wq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  The following BK patch adds support for a 'uImage' target on
-PPC32.  This will create an image for the U-Boot (and formerly
-PPCBoot) firmware.  The patch adds a scripts/mkuboot.sh as a wrapper for
-the U-Boot mkimage program.  We put mkuboot.sh into scripts/ because
-U-Boot works on a number of other platforms, and it's likely that they
-will add a uImage target at some point.  Please apply.
+linux@horizon.com writes:
 
---
-Tom Rini
-http://gate.crashing.org/~trini/
+> > inb_p and outb_p issue outb's to port 0x80 to achieve a short delay.
+> > In a reasonable system there is nothing listening to port 0x80 
+> > or there is a post card, but there are no other devices there.
+> > 
+> > On a modern system with no post card the outb travels it's
+> > way down to the LPC bus, and the outb is terminated by an abort
+> > because nothing is listening.
+> > 
+> > So far so good.  Except for the fact that recent high volume
+> > ROM chips get confused when they see an abort on the LPC
+> > bus.  Making it problematic to update the ROM from under Linux.
+> 
+> Juts when we think we've found a safe time delay, somebody goes and
+> screws it up.
+> 
+> 1) Could you specify the ROM chips concerned?  Is it possible to
+>    unconfuse them in software as a workaround?
 
-This BitKeeper patch contains the following changesets:
-trini@kernel.crashing.org|ChangeSet|20030922180348|00070
+SST.   And they don't stay confused.  They just drop whatever
+command you were sending them.  And dropping writes to a ROM
+chip is very nasty.  If you don't catch and fix it your system
+will not boot the next time.
 
-# ID:	torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-# User:	trini
-# Host:	kernel.crashing.org
-# Root:	/home/trini/work/kernel/pristine/linux-2.4
+> 2) Do the BIOSes not write to port 0x80 themselves?  The port was
+>    chosen precisely because most current BIOSes write boot progress
+>    indicators there, so Linux shouldn't be doing anything new.
 
-# Patch vers:	1.3
-# Patch type:	REGULAR
+I think they do.  I have not been able to hook up a post card to
+check.   The difference is that they don't do it while talking
+to the ROM chip.
 
-== ChangeSet ==
-torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-marcelo@logos.cnet|ChangeSet|20030922093809|51297
-D 1.1132 03/09/22 11:03:48-07:00 trini@kernel.crashing.org +5 -0
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-c PPC32: Add a 'uImage' target for U-Boot.
-K 70
-P ChangeSet
-------------------------------------------------
+> > I don't know if there are other buggy LPC devices or not.  But
+> > I do know that it is generally bad form do I/O to a random port.
+> 
+> It's bad form to do I/O on a *random* port because you don't know what
+> might be listening.  It's *not* bad form to write to a known unused
+> I/O port.  On the original ISA bus, that's harmless, and the LPC bus is
+> supposed to emulate that.
+> 
+> And, as I mentioned, most BIOSes write to that port periodically.
 
-0a0
-> trini@kernel.crashing.org|scripts/mkuboot.sh|20030922175825|02447|ee487e28b66d94ad trini@kernel.crashing.org|scripts/mkuboot.sh|20030922175826|22966
-> patch@plucky.distro.conectiva|arch/ppc/boot/utils/mkimage.wrapper|20020313233104|62933|788151aa6df8c6c5 trini@kernel.crashing.org|BitKeeper/deleted/.del-mkimage.wrapper~788151aa6df8c6c5|20030922175822|19266
-> torvalds@athlon.transmeta.com|arch/ppc/Makefile|20020205174025|03176|d061f618f6a9980 trini@kernel.crashing.org|arch/ppc/Makefile|20030922180241|27723
-> patch@athlon.transmeta.com|arch/ppc/boot/images/Makefile|20020205182446|07840|d44cf30ff4422294 trini@kernel.crashing.org|arch/ppc/boot/images/Makefile|20030922180241|24193
-> torvalds@athlon.transmeta.com|arch/ppc/boot/Makefile|20020205174025|54177|a1ccc61f9b0e318d trini@kernel.crashing.org|arch/ppc/boot/Makefile|20030922180241|43396
+Yes.  There are a few boards and few weird cases where 0x80 is
+not safe.  This just adds to the list of problematic cases.
 
-== arch/ppc/boot/images/Makefile ==
-patch@athlon.transmeta.com|arch/ppc/boot/images/Makefile|20020205182446|07840|d44cf30ff4422294
-patch@plucky.distro.conectiva|arch/ppc/boot/images/Makefile|20020313233113|23561
-D 1.4 03/09/22 11:02:41-07:00 trini@kernel.crashing.org +1 -1
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-c On clean, remove uImage.
-K 24193
-O -rw-rw-r--
-P arch/ppc/boot/images/Makefile
-------------------------------------------------
+> > So can we gradually kill inb_p, outb_p in 2.6?  An the other
+> > miscellaneous users of I/O port 0x80 for I/O delays?
+> 
+> Actually, It's not easy.  The issue got debated a lot a few years ago.
+> A read is also acceptable, and allows a few more ports to be
+> potentially used, but that corrupts %al and thus bloats the code.
+> 
+> > Or possibly rewriting outb_p to look something like:
+> > outb(); udelay(200);  or whatever the appropriate delay is?
+> 
+> As Alan points out, udelay() requires either using the 8254 PIT or knowing
+> at least one system clock speed to calibrate a bogomips-style delay loop.
+> All of the known clock frequencies are on ISA-bus peripherals.  So we
+> have to access them BEFORE udelay() is calibrated.
+> 
+> And the 8254 is one of the chips which requires the pause.
+> This creates a significant boot-order challenge.
 
-D12 1
-I12 1
-	rm -f sImage vmapus vmlinux* miboot* zImage* zvmlinux* uImage
+Yes, I agree.  And during bootstrap the 0x80 case does not cause me
+problems.  But when the system is running I either need
+cli();
+......
+sti();
+pairs in my code, a global lpc bus lock, or I need to avoid
+the writes to port 0x80.  I can't even use cli()/sti() because
+they have been removed in 2.6.
 
-== BitKeeper/deleted/.del-mkimage.wrapper~788151aa6df8c6c5 ==
-patch@plucky.distro.conectiva|arch/ppc/boot/utils/mkimage.wrapper|20020313233104|62933|788151aa6df8c6c5
-patch@plucky.distro.conectiva|arch/ppc/boot/utils/mkimage.wrapper|20020313233105|23257
-D 1.2 03/09/22 10:58:22-07:00 trini@kernel.crashing.org +0 -0
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-c Delete: arch/ppc/boot/utils/mkimage.wrapper
-K 19266
-O -rw-rw-r--
-P BitKeeper/deleted/.del-mkimage.wrapper~788151aa6df8c6c5
-------------------------------------------------
+> > When debugging this I modified arch/i386/io.h to read:
+> > #define  __SLOW_DOWN_IO__ ""
+> > Which totally removed the delay and the system ran fine.
+> 
+> Yes, in 98% of modern boards it *does* work fine to just omit the delays
+> entirely, because the motherboard chipset emulation can cope.
+> But the original chip specs call for the delay, and the kernel
+> has a hard time figuring out what's what early in the boot process.
 
+Right.  So this does need to be handled and delicately.  
 
-== arch/ppc/Makefile ==
-torvalds@athlon.transmeta.com|arch/ppc/Makefile|20020205174025|03176|d061f618f6a9980
-paulus@samba.org|arch/ppc/Makefile|20030828124029|27091
-D 1.22 03/09/22 11:02:41-07:00 trini@kernel.crashing.org +1 -1
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-c Add a uImage target.
-K 27723
-O -rw-rw-r--
-P arch/ppc/Makefile
-------------------------------------------------
+My main goal is to remove the deep magic voodoo in place.  I would
+object less if the code was clearly commented and isolated, to those
+few places that need it.  
 
-D88 1
-I88 1
-BOOT_TARGETS = zImage zImage.initrd znetboot znetboot.initrd uImage
-
-== arch/ppc/boot/Makefile ==
-torvalds@athlon.transmeta.com|arch/ppc/boot/Makefile|20020205174025|54177|a1ccc61f9b0e318d
-trini@kernel.crashing.org|arch/ppc/boot/Makefile|20030703161526|40255
-D 1.11 03/09/22 11:02:41-07:00 trini@kernel.crashing.org +8 -6
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-c Add a uImage target, which replaces the pImage target.
-K 43396
-O -rw-rw-r--
-P arch/ppc/boot/Makefile
-------------------------------------------------
-
-D20 1
-I20 1
-MKIMAGE				:= $(TOPDIR)/scripts/mkuboot.sh
-D64 3
-I66 4
-# Make an image for PPCBoot / U-Boot.
-uImage: images/vmlinux.gz
-	$(CONFIG_SHELL) $(MKIMAGE) -A ppc -O linux -T kernel \
-	-C gzip -a 00000000 -e 00000000 \
-D68 2
-I69 3
-	-d $< images/vmlinux.UBoot
-	ln -sf vmlinux.UBoot images/uImage
-	rm -f ./mkuboot
-
-== scripts/mkuboot.sh ==
-New file: scripts/mkuboot.sh
-V 4
-
-trini@kernel.crashing.org|scripts/mkuboot.sh|20030922175825|02447|ee487e28b66d94ad
-D 1.0 03/09/22 10:58:25-07:00 trini@kernel.crashing.org +0 -0
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-c BitKeeper file /home/trini/work/kernel/pristine/linux-2.4/scripts/mkuboot.sh
-K 2447
-P scripts/mkuboot.sh
-R ee487e28b66d94ad
-X 0x821
-------------------------------------------------
+Eric
 
 
-trini@kernel.crashing.org|scripts/mkuboot.sh|20030922175825|02447|ee487e28b66d94ad
-D 1.1 03/09/22 10:58:25-07:00 trini@kernel.crashing.org +16 -0
-B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
-C
-F 1
-K 22966
-O -rw-rw-r--
-P scripts/mkuboot.sh
-------------------------------------------------
-
-I0 16
-#!/bin/bash
-\
-#
-# Build U-Boot image when `mkimage' tool is available.
-#
-\
-MKIMAGE=$(type -path mkimage)
-\
-if [ -z "${MKIMAGE}" ]; then
-	# Doesn't exist
-	echo '"mkimage" command not found - U-Boot images will not be built' >&2
-	exit 0;
-fi
-\
-# Call "mkimage" to create U-Boot image
-${MKIMAGE} "$@"
-
-# Patch checksum=f21abf61

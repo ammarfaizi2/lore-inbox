@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVCDAKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVCDAKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVCDAKL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVCDAJG
+	id S262800AbVCDAKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbVCDAIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:09:06 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:50135 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262734AbVCCXxq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:53:46 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Friesen <cfriesen@nortel.com>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050303165940.GA11144@kroah.com>
-References: <42268749.4010504@pobox.com>
-	 <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
-	 <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net>
-	 <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com>
-	 <4226CA7E.4090905@pobox.com>
-	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	 <42274171.3030702@nortel.com>  <20050303165940.GA11144@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1109893901.21780.68.camel@localhost.localdomain>
+	Thu, 3 Mar 2005 19:08:06 -0500
+Received: from fire.osdl.org ([65.172.181.4]:45003 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262745AbVCCXh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 18:37:59 -0500
+Date: Thu, 3 Mar 2005 15:37:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brice Figureau <brice+lklm@daysofwonder.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-ac10 oops in journal_commit_transaction
+Message-Id: <20050303153754.7a5deecd.akpm@osdl.org>
+In-Reply-To: <1109857541.29075.25.camel@localhost.localdomain>
+References: <1109857541.29075.25.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 03 Mar 2005 23:51:42 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-03-03 at 16:59, Greg KH wrote:
-> On Thu, Mar 03, 2005 at 10:55:13AM -0600, Chris Friesen wrote:
-> > Linus Torvalds wrote:
-> > 
-> > >I'll tell you what the problem is: I don't think you'll find anybody to do
-> > >the parallell "only trivial patches" tree.
-> > 
-> > Isn't this what -ac and -as effectively already are?
+Brice Figureau <brice+lklm@daysofwonder.com> wrote:
+>
+> I'm reporting an oops on a bi-Xeon database server under 2.6.10-ac10
+> quite similar to:
+> http://marc.theaimsgroup.com/?l=ext3-users&m=110848085314238&w=2
 > 
-> Based on the patches in those trees, no :)
+> I also got another server crashing (a mail server this time), but I
+> couldn't get the oops/panic.
+> 
+> This was after more than two weeks of uptime, I was running 2.6.10-ac1
+> before and never got this problem.
+> 
+> Here are the oops information:
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+>  printing eip:
+> c01a858d
+> *pde = 00000000
+> Oops: 0002 [#1]
+> PREEMPT SMP 
+> Modules linked in: i2c_i801 i2c_core ip_conntrack_ftp ipt_LOG ipt_limit ipt_REJECT ipt_state iptable_filter ip_conntrack ip_tables
+> CPU:    2
+> EIP:    0060:[journal_commit_transaction+877/5264]    Not tainted VLI
+> EFLAGS: 00010286   (2.6.10-ac10) 
+> EIP is at journal_commit_transaction+0x36d/0x1490
 
-I've not found a much smaller set that isn't rootable, trivially DoSable
-with published tools or leaves users with non-working hardware that got
-pulled by Linus having a random pissy fit about pwc etc.
+Please do:
 
--ac is essentially base security fixes + working IDE locking + pwc +
-fixes for the bugs everyone hit that needed fixing urgently. I consider
-working locking on my storage essential because I like my data to still
-be there.
-
--as is similar although it makes different choices about what matters.
-
-Given 3 or 4 people it ought to be possible to make a much much tighter
-patch set for this purpose.
-
+gdb vmlinux
+(gdb) l *0xc01a858d

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUCMC4G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 21:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263038AbUCMC4G
+	id S263038AbUCMC40 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 21:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbUCMC40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 21:56:06 -0500
-Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:11964 "EHLO
-	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S263037AbUCMC4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 21:56:03 -0500
-Date: Fri, 12 Mar 2004 18:55:51 -0800
-From: Lee Howard <faxguy@howardsilvan.com>
-To: linux-kernel@vger.kernel.org
-Subject: address space collision on PCI bridge
-Message-ID: <20040313025551.GA1769@bilbo.x101.com>
+	Fri, 12 Mar 2004 21:56:26 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5337 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263038AbUCMC4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 21:56:22 -0500
+Subject: Re: Dealing with swsusp vs. pmdisk
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+       torvalds@transmeta.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040313004756.GB5115@thunk.org>
+References: <20040312224645.GA326@elf.ucw.cz>
+	 <20040313004756.GB5115@thunk.org>
+Content-Type: text/plain
+Message-Id: <1079146273.1967.63.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 13 Mar 2004 13:51:13 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone explain this address space collision to me and offer an 
-explanation on how to resolve it?
 
- From dmesg:
+> Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
+> complaint about it is that since it's maintained outside of the
+> kernel, it's constantly behind about 0.75 revisions behind the latest
+> 2.6 release.  The feature set of swsusp2, if they can ever get it
+> completely bugfree(tm) is certainly impressive.
 
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Address space collision on region 7 of bridge 0000:00:04.3 
-[e400:e43f]
-PCI: Address space collision on region 8 of bridge 0000:00:04.3 
-[e800:e81f]
-PCI: Using IRQ router PIIX/ICH [8086/7110] at 0000:00:04.0
+I'd like it to be merged upstream too.
 
-Thanks.
+It may have problems, rough edges, whatever, but keeping out of tree
+is more or less a guarantee that none of us will look & fix them ;)
 
-Lee.
+If it gets upstream, I'll gladly finish the pmac support for it that
+I quickly hacked recently for pmdisk as a proof of concept and help
+figure out some of the remaining problems. I don't feel like doing
+that with an out-of-tree project.
+
+Ben
+

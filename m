@@ -1,829 +1,620 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbTIVXrK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 19:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTIVXrJ
+	id S262896AbTIWAET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 20:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbTIWADl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 19:47:09 -0400
-Received: from mail.kroah.org ([65.200.24.183]:9121 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262465AbTIVXas convert rfc822-to-8bit
+	Mon, 22 Sep 2003 20:03:41 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31905 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262878AbTIVXbc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 19:30:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1064273423404@kroah.com>
+	Mon, 22 Sep 2003 19:31:32 -0400
+Content-Type: text/plain; charset="iso-8859-1"
+Message-Id: <10642734243430@kroah.com>
 Subject: Re: [PATCH] i2c driver fixes for 2.6.0-test5
-In-Reply-To: <10642734231255@kroah.com>
+In-Reply-To: <10642734242947@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 22 Sep 2003 16:30:23 -0700
-Content-Transfer-Encoding: 7BIT
+Date: Mon, 22 Sep 2003 16:30:24 -0700
+Content-Transfer-Encoding: 8BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1315.1.14, 2003/09/22 12:46:46-07:00, greg@kroah.com
+ChangeSet 1.1315.1.17, 2003/09/22 13:20:35-07:00, greg@kroah.com
 
-[PATCH] I2C: move i2c-prosavage.c driver to drivers/i2c/busses where it belongs.
+[PATCH] I2C: move the i2c-philips-par driver to drivers/i2c/busses
 
 
- drivers/i2c/i2c-prosavage.c        |  356 -------------------------------------
- drivers/i2c/Kconfig                |   14 -
- drivers/i2c/Makefile               |    1 
- drivers/i2c/busses/Kconfig         |   14 +
- drivers/i2c/busses/Makefile        |    1 
- drivers/i2c/busses/i2c-prosavage.c |  356 +++++++++++++++++++++++++++++++++++++
- 6 files changed, 371 insertions(+), 371 deletions(-)
+ drivers/i2c/i2c-philips-par.c        |  256 -----------------------------------
+ drivers/i2c/Kconfig                  |   10 -
+ drivers/i2c/Makefile                 |    1 
+ drivers/i2c/busses/Kconfig           |    9 +
+ drivers/i2c/busses/Makefile          |    1 
+ drivers/i2c/busses/i2c-philips-par.c |  256 +++++++++++++++++++++++++++++++++++
+ 6 files changed, 266 insertions(+), 267 deletions(-)
 
 
 diff -Nru a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
---- a/drivers/i2c/Kconfig	Mon Sep 22 16:13:48 2003
-+++ b/drivers/i2c/Kconfig	Mon Sep 22 16:13:48 2003
-@@ -48,20 +48,6 @@
+--- a/drivers/i2c/Kconfig	Mon Sep 22 16:13:17 2003
++++ b/drivers/i2c/Kconfig	Mon Sep 22 16:13:17 2003
+@@ -48,16 +48,6 @@
  	  This support is also available as a module.  If so, the module 
  	  will be called i2c-algo-bit.
  
--config I2C_PROSAVAGE
--	tristate "S3/VIA (Pro)Savage"
--	depends on I2C_ALGOBIT && PCI && EXPERIMENTAL
--	help
--	  If you say yes to this option, support will be included for the
--	  I2C bus and DDC bus of the S3VIA embedded Savage4 and ProSavage8
--	  graphics processors.
--	  chipsets supported:
--	    S3/VIA KM266/VT8375 aka ProSavage8
--	    S3/VIA KM133/VT8365 aka Savage4
+-config I2C_PHILIPSPAR
+-	tristate "Philips style parallel port adapter"
+-	depends on I2C_ALGOBIT && PARPORT
+-	---help---
+-	  This supports parallel-port I2C adapters made by Philips.  Say Y if
+-	  you own such an adapter.
 -
 -	  This support is also available as a module.  If so, the module 
--	  will be called i2c-prosavage.
+-	  will be called i2c-philips-par.
 -
- config I2C_PHILIPSPAR
- 	tristate "Philips style parallel port adapter"
- 	depends on I2C_ALGOBIT && PARPORT
+ config I2C_ELV
+ 	tristate "ELV adapter"
+ 	depends on I2C_ALGOBIT && ISA
 diff -Nru a/drivers/i2c/Makefile b/drivers/i2c/Makefile
---- a/drivers/i2c/Makefile	Mon Sep 22 16:13:48 2003
-+++ b/drivers/i2c/Makefile	Mon Sep 22 16:13:48 2003
+--- a/drivers/i2c/Makefile	Mon Sep 22 16:13:17 2003
++++ b/drivers/i2c/Makefile	Mon Sep 22 16:13:17 2003
 @@ -5,7 +5,6 @@
  obj-$(CONFIG_I2C)		+= i2c-core.o
  obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
  obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
--obj-$(CONFIG_I2C_PROSAVAGE)	+= i2c-prosavage.o
- obj-$(CONFIG_I2C_PHILIPSPAR)	+= i2c-philips-par.o
+-obj-$(CONFIG_I2C_PHILIPSPAR)	+= i2c-philips-par.o
  obj-$(CONFIG_I2C_ELV)		+= i2c-elv.o
  obj-$(CONFIG_I2C_VELLEMAN)	+= i2c-velleman.o
+ obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
 diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	Mon Sep 22 16:13:48 2003
-+++ b/drivers/i2c/busses/Kconfig	Mon Sep 22 16:13:48 2003
-@@ -113,6 +113,20 @@
+--- a/drivers/i2c/busses/Kconfig	Mon Sep 22 16:13:17 2003
++++ b/drivers/i2c/busses/Kconfig	Mon Sep 22 16:13:17 2003
+@@ -97,6 +97,15 @@
  	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-piix4.
+ 	  will be called i2c-nforce2.
  
-+config I2C_PROSAVAGE
-+	tristate "S3/VIA (Pro)Savage"
-+	depends on I2C_ALGOBIT && PCI && EXPERIMENTAL
++config I2C_PHILIPSPAR
++	tristate "Philips style parallel port adapter"
++	depends on I2C_ALGOBIT && PARPORT
 +	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C bus and DDC bus of the S3VIA embedded Savage4 and ProSavage8
-+	  graphics processors.
-+	  chipsets supported:
-+	    S3/VIA KM266/VT8375 aka ProSavage8
-+	    S3/VIA KM133/VT8365 aka Savage4
++	  This supports parallel-port I2C adapters made by Philips.
 +
 +	  This support is also available as a module.  If so, the module 
-+	  will be called i2c-prosavage.
++	  will be called i2c-philips-par.
 +
- config I2C_SAVAGE4
- 	tristate "S3 Savage 4"
+ config I2C_PIIX4
+ 	tristate "Intel PIIX4"
  	depends on I2C && PCI && EXPERIMENTAL
 diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
---- a/drivers/i2c/busses/Makefile	Mon Sep 22 16:13:48 2003
-+++ b/drivers/i2c/busses/Makefile	Mon Sep 22 16:13:48 2003
-@@ -11,6 +11,7 @@
+--- a/drivers/i2c/busses/Makefile	Mon Sep 22 16:13:17 2003
++++ b/drivers/i2c/busses/Makefile	Mon Sep 22 16:13:17 2003
+@@ -10,6 +10,7 @@
+ obj-$(CONFIG_I2C_I810)		+= i2c-i810.o
  obj-$(CONFIG_I2C_ISA)		+= i2c-isa.o
  obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
++obj-$(CONFIG_I2C_PHILIPSPAR)	+= i2c-philips-par.o
  obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
-+obj-$(CONFIG_I2C_PROSAVAGE)	+= i2c-prosavage.o
+ obj-$(CONFIG_I2C_PROSAVAGE)	+= i2c-prosavage.o
  obj-$(CONFIG_I2C_SAVAGE4)	+= i2c-savage4.o
- obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
- obj-$(CONFIG_I2C_SIS630)	+= i2c-sis630.o
-diff -Nru a/drivers/i2c/busses/i2c-prosavage.c b/drivers/i2c/busses/i2c-prosavage.c
+diff -Nru a/drivers/i2c/busses/i2c-philips-par.c b/drivers/i2c/busses/i2c-philips-par.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/busses/i2c-prosavage.c	Mon Sep 22 16:13:48 2003
-@@ -0,0 +1,356 @@
-+/*
-+ *    kernel/busses/i2c-prosavage.c
-+ *
-+ *    i2c bus driver for S3/VIA 8365/8375 graphics processor.
-+ *    Copyright (c) 2003 Henk Vergonet <henk@god.dyndns.org>
-+ *    Based on code written by:
-+ *	Frodo Looijaard <frodol@dds.nl>,
-+ *	Philip Edelbrock <phil@netroedge.com>,
-+ *	Ralph Metzler <rjkm@thp.uni-koeln.de>, and
-+ *	Mark D. Studebaker <mdsxyz123@yahoo.com>
-+ *	Simon Vogl
-+ *	and others
-+ *
-+ *    Please read the lm_sensors documentation for details on use.
-+ *
-+ *    This program is free software; you can redistribute it and/or modify
-+ *    it under the terms of the GNU General Public License as published by
-+ *    the Free Software Foundation; either version 2 of the License, or
-+ *    (at your option) any later version.
-+ *
-+ *    This program is distributed in the hope that it will be useful,
-+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *    GNU General Public License for more details.
-+ *
-+ *    You should have received a copy of the GNU General Public License
-+ *    along with this program; if not, write to the Free Software
-+ *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+/*  18-05-2003 HVE - created
-+ *  14-06-2003 HVE - adapted for lm_sensors2
-+ *  17-06-2003 HVE - linux 2.5.xx compatible
-+ *  18-06-2003 HVE - codingstyle
-+ *  21-06-2003 HVE - compatibility lm_sensors2 and linux 2.5.xx
-+ *		     codingstyle, mmio enabled
-+ *
-+ *  This driver interfaces to the I2C bus of the VIA north bridge embedded
-+ *  ProSavage4/8 devices. Usefull for gaining access to the TV Encoder chips.
-+ *
-+ *  Graphics cores:
-+ *   S3/VIA KM266/VT8375 aka ProSavage8
-+ *   S3/VIA KM133/VT8365 aka Savage4
-+ *
-+ *  Two serial busses are implemented:
-+ *   SERIAL1 - I2C serial communications interface
-+ *   SERIAL2 - DDC2 monitor communications interface
-+ *
-+ *  Tested on a FX41 mainboard, see http://www.shuttle.com
-+ * 
-+ *
-+ *  TODO:
-+ *  - integration with prosavage framebuffer device
-+ *    (Additional documentation needed :(
-+ */
++++ b/drivers/i2c/busses/i2c-philips-par.c	Mon Sep 22 16:13:17 2003
+@@ -0,0 +1,256 @@
++/* ------------------------------------------------------------------------- */
++/* i2c-philips-par.c i2c-hw access for philips style parallel port adapters  */
++/* ------------------------------------------------------------------------- */
++/*   Copyright (C) 1995-2000 Simon G. Vogl
 +
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.		     */
++/* ------------------------------------------------------------------------- */ 
++
++/* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and even
++   Frodo Looijaard <frodol@dds.nl> */
++
++/* $Id: i2c-philips-par.c,v 1.29 2003/01/21 08:08:16 kmalkki Exp $ */
++
++#include <linux/kernel.h>
++#include <linux/ioport.h>
 +#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/pci.h>
++#include <linux/stddef.h>
++#include <linux/parport.h>
 +#include <linux/i2c.h>
 +#include <linux/i2c-algo-bit.h>
 +
-+#include <asm/io.h>
++static int type;
 +
-+
-+/*
-+ * driver configuration
-+ */
-+#define	DRIVER_ID	"i2c-prosavage"
-+#define	DRIVER_VERSION	"20030621"
-+
-+#define ADAPTER_NAME(x) (x).name
-+
-+#define MAX_BUSSES	2
-+
-+struct s_i2c_bus {
-+	u8	*mmvga;
-+	int	i2c_reg;
-+	int	adap_ok;
-+	struct i2c_adapter		adap;
-+	struct i2c_algo_bit_data	algo;
++struct i2c_par
++{
++	struct pardevice *pdev;
++	struct i2c_adapter adapter;
++	struct i2c_algo_bit_data bit_lp_data;
++	struct i2c_par *next;
 +};
 +
-+struct s_i2c_chip {
-+	u8	*mmio;
-+	struct s_i2c_bus	i2c_bus[MAX_BUSSES];
++static struct i2c_par *adapter_list;
++
++
++/* ----- global defines -----------------------------------------------	*/
++#define DEB(x)		/* should be reasonable open, close &c. 	*/
++#define DEB2(x) 	/* low level debugging - very slow 		*/
++#define DEBE(x)	x	/* error messages 				*/
++
++/* ----- printer port defines ------------------------------------------*/
++					/* Pin Port  Inverted	name	*/
++#define I2C_ON		0x20		/* 12 status N	paper		*/
++					/* ... only for phil. not used  */
++#define I2C_SDA		0x80		/*  9 data   N	data7		*/
++#define I2C_SCL		0x08		/* 17 ctrl   N	dsel		*/
++
++#define I2C_SDAIN	0x80		/* 11 stat   Y	busy		*/
++#define I2C_SCLIN	0x08		/* 15 stat   Y	enable		*/
++
++#define I2C_DMASK	0x7f
++#define I2C_CMASK	0xf7
++
++/* ----- local functions ----------------------------------------------	*/
++
++static void bit_lp_setscl(void *data, int state)
++{
++	/*be cautious about state of the control register - 
++		touch only the one bit needed*/
++	if (state) {
++		parport_write_control((struct parport *) data,
++		      parport_read_control((struct parport *) data)|I2C_SCL);
++	} else {
++		parport_write_control((struct parport *) data,
++		      parport_read_control((struct parport *) data)&I2C_CMASK);
++	}
++}
++
++static void bit_lp_setsda(void *data, int state)
++{
++	if (state) {
++		parport_write_data((struct parport *) data, I2C_DMASK);
++	} else {
++		parport_write_data((struct parport *) data, I2C_SDA);
++	}
++}
++
++static int bit_lp_getscl(void *data)
++{
++	return parport_read_status((struct parport *) data) & I2C_SCLIN;
++}
++
++static int bit_lp_getsda(void *data)
++{
++	return parport_read_status((struct parport *) data) & I2C_SDAIN;
++}
++
++static void bit_lp_setscl2(void *data, int state)
++{
++	if (state) {
++		parport_write_data((struct parport *) data,
++		      parport_read_data((struct parport *) data)|0x1);
++	} else {
++		parport_write_data((struct parport *) data,
++		      parport_read_data((struct parport *) data)&0xfe);
++	}
++}
++
++static void bit_lp_setsda2(void *data, int state)
++{
++	if (state) {
++		parport_write_data((struct parport *) data,
++		      parport_read_data((struct parport *) data)|0x2);
++	} else {
++		parport_write_data((struct parport *) data,
++		      parport_read_data((struct parport *) data)&0xfd);
++	}
++}
++
++static int bit_lp_getsda2(void *data)
++{
++	return (parport_read_status((struct parport *) data) & 
++			             PARPORT_STATUS_BUSY) ? 0 : 1;
++}
++
++/* ------------------------------------------------------------------------
++ * Encapsulate the above functions in the correct operations structure.
++ * This is only done when more than one hardware adapter is supported.
++ */
++ 
++static struct i2c_algo_bit_data bit_lp_data = {
++	.setsda		= bit_lp_setsda,
++	.setscl		= bit_lp_setscl,
++	.getsda		= bit_lp_getsda,
++	.getscl		= bit_lp_getscl,
++	.udelay		= 80,
++	.mdelay		= 80,
++	.timeout	= HZ
++}; 
++
++static struct i2c_algo_bit_data bit_lp_data2 = {
++	.setsda		= bit_lp_setsda2,
++	.setscl		= bit_lp_setscl2,
++	.getsda		= bit_lp_getsda2,
++	.udelay		= 80,
++	.mdelay		= 80,
++	.timeout	= HZ
++}; 
++
++static struct i2c_adapter bit_lp_ops = {
++	.owner		= THIS_MODULE,
++	.id		= I2C_HW_B_LP,
++	.name		= "Philips Parallel port adapter",
 +};
 +
-+
-+/*
-+ * i2c configuration
-+ */
-+#ifndef I2C_HW_B_S3VIA
-+#define I2C_HW_B_S3VIA	0x18	/* S3VIA ProSavage adapter		*/
-+#endif
-+
-+/* delays */
-+#define CYCLE_DELAY	10
-+#define TIMEOUT		(HZ / 2)
-+
-+
-+/* 
-+ * S3/VIA 8365/8375 registers
-+ */
-+#ifndef PCI_VENDOR_ID_S3
-+#define PCI_VENDOR_ID_S3		0x5333
-+#endif
-+#ifndef PCI_DEVICE_ID_S3_SAVAGE4
-+#define PCI_DEVICE_ID_S3_SAVAGE4	0x8a25
-+#endif
-+#ifndef PCI_DEVICE_ID_S3_PROSAVAGE8
-+#define PCI_DEVICE_ID_S3_PROSAVAGE8	0x8d04
-+#endif
-+
-+#define VGA_CR_IX	0x3d4
-+#define VGA_CR_DATA	0x3d5
-+
-+#define CR_SERIAL1	0xa0	/* I2C serial communications interface */
-+#define MM_SERIAL1	0xff20
-+#define CR_SERIAL2	0xb1	/* DDC2 monitor communications interface */
-+
-+/* based on vt8365 documentation */
-+#define I2C_ENAB	0x10
-+#define I2C_SCL_OUT	0x01
-+#define I2C_SDA_OUT	0x02
-+#define I2C_SCL_IN	0x04
-+#define I2C_SDA_IN	0x08
-+
-+#define SET_CR_IX(p, val)	*((p)->mmvga + VGA_CR_IX) = (u8)(val)
-+#define SET_CR_DATA(p, val)	*((p)->mmvga + VGA_CR_DATA) = (u8)(val)
-+#define GET_CR_DATA(p)		*((p)->mmvga + VGA_CR_DATA)
-+
-+
-+/*
-+ * Serial bus line handling
-+ *
-+ * serial communications register as parameter in private data
-+ *
-+ * TODO: locks with other code sections accessing video registers?
-+ */
-+static void bit_s3via_setscl(void *bus, int val)
++static void i2c_parport_attach (struct parport *port)
 +{
-+	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
-+	unsigned int r;
-+
-+	SET_CR_IX(p, p->i2c_reg);
-+	r = GET_CR_DATA(p);
-+	r |= I2C_ENAB;
-+	if (val) {
-+		r |= I2C_SCL_OUT;
-+	} else {
-+		r &= ~I2C_SCL_OUT;
-+	}
-+	SET_CR_DATA(p, r);
-+}
-+
-+static void bit_s3via_setsda(void *bus, int val)
-+{
-+	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
-+	unsigned int r;
-+	
-+	SET_CR_IX(p, p->i2c_reg);
-+	r = GET_CR_DATA(p);
-+	r |= I2C_ENAB;
-+	if (val) {
-+		r |= I2C_SDA_OUT;
-+	} else {
-+		r &= ~I2C_SDA_OUT;
-+	}
-+	SET_CR_DATA(p, r);
-+}
-+
-+static int bit_s3via_getscl(void *bus)
-+{
-+	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
-+
-+	SET_CR_IX(p, p->i2c_reg);
-+	return (0 != (GET_CR_DATA(p) & I2C_SCL_IN));
-+}
-+
-+static int bit_s3via_getsda(void *bus)
-+{
-+	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
-+
-+	SET_CR_IX(p, p->i2c_reg);
-+	return (0 != (GET_CR_DATA(p) & I2C_SDA_IN));
-+}
-+
-+
-+/*
-+ * adapter initialisation
-+ */
-+static int i2c_register_bus(struct s_i2c_bus *p, u8 *mmvga, u32 i2c_reg)
-+{
-+	int ret;
-+	p->adap.owner	  = THIS_MODULE;
-+	p->adap.id	  = I2C_HW_B_S3VIA;
-+	p->adap.algo_data = &p->algo;
-+	p->algo.setsda	  = bit_s3via_setsda;
-+	p->algo.setscl	  = bit_s3via_setscl;
-+	p->algo.getsda	  = bit_s3via_getsda;
-+	p->algo.getscl	  = bit_s3via_getscl;
-+	p->algo.udelay	  = CYCLE_DELAY;
-+	p->algo.mdelay	  = CYCLE_DELAY;
-+	p->algo.timeout	  = TIMEOUT;
-+	p->algo.data	  = p;
-+	p->mmvga	  = mmvga;
-+	p->i2c_reg	  = i2c_reg;
-+    
-+	ret = i2c_bit_add_bus(&p->adap);
-+	if (ret) {
-+		return ret;
-+	}
-+
-+	p->adap_ok = 1;
-+	return 0;
-+}
-+
-+
-+/*
-+ * Cleanup stuff
-+ */
-+static void __devexit prosavage_remove(struct pci_dev *dev)
-+{
-+	struct s_i2c_chip *chip;
-+	int i, ret;
-+
-+	chip = (struct s_i2c_chip *)pci_get_drvdata(dev);
-+
-+	if (!chip) {
++	struct i2c_par *adapter = kmalloc(sizeof(struct i2c_par),
++					  GFP_KERNEL);
++	if (!adapter) {
++		printk(KERN_ERR "i2c-philips-par: Unable to malloc.\n");
 +		return;
 +	}
-+	for (i = MAX_BUSSES - 1; i >= 0; i--) {
-+		if (chip->i2c_bus[i].adap_ok == 0)
-+			continue;
 +
-+		ret = i2c_bit_del_bus(&chip->i2c_bus[i].adap);
-+	        if (ret) {
-+			printk(DRIVER_ID ": %s not removed\n",
-+				ADAPTER_NAME(chip->i2c_bus[i].adap));
++	printk(KERN_DEBUG "i2c-philips-par.o: attaching to %s\n", port->name);
++
++	adapter->pdev = parport_register_device(port, "i2c-philips-par",
++						NULL, NULL, NULL, 
++						PARPORT_FLAG_EXCL,
++						NULL);
++	if (!adapter->pdev) {
++		printk(KERN_ERR "i2c-philips-par: Unable to register with parport.\n");
++		kfree(adapter);
++		return;
++	}
++
++	adapter->adapter = bit_lp_ops;
++	adapter->adapter.algo_data = &adapter->bit_lp_data;
++	adapter->bit_lp_data = type ? bit_lp_data2 : bit_lp_data;
++	adapter->bit_lp_data.data = port;
++
++	if (parport_claim_or_block(adapter->pdev) < 0 ) {
++		printk(KERN_ERR "i2c-philips-par: Could not claim parallel port.\n");
++		kfree(adapter);
++		return;
++	}
++	/* reset hardware to sane state */
++	bit_lp_setsda(port, 1);
++	bit_lp_setscl(port, 1);
++	parport_release(adapter->pdev);
++
++	if (i2c_bit_add_bus(&adapter->adapter) < 0)
++	{
++		printk(KERN_ERR "i2c-philips-par: Unable to register with I2C.\n");
++		parport_unregister_device(adapter->pdev);
++		kfree(adapter);
++		return;		/* No good */
++	}
++
++	adapter->next = adapter_list;
++	adapter_list = adapter;
++}
++
++static void i2c_parport_detach (struct parport *port)
++{
++	struct i2c_par *adapter, *prev = NULL;
++
++	for (adapter = adapter_list; adapter; adapter = adapter->next)
++	{
++		if (adapter->pdev->port == port)
++		{
++			parport_unregister_device(adapter->pdev);
++			i2c_bit_del_bus(&adapter->adapter);
++			if (prev)
++				prev->next = adapter->next;
++			else
++				adapter_list = adapter->next;
++			kfree(adapter);
++			return;
 +		}
++		prev = adapter;
 +	}
-+	if (chip->mmio) {
-+		iounmap(chip->mmio);
-+	}
-+	kfree(chip);
 +}
 +
 +
-+/*
-+ * Detect chip and initialize it
-+ */
-+static int __devinit prosavage_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static struct parport_driver i2c_driver = {
++	"i2c-philips-par",
++	i2c_parport_attach,
++	i2c_parport_detach,
++	NULL
++};
++
++int __init i2c_bitlp_init(void)
 +{
-+	int ret;
-+	unsigned long base, len;
-+	struct s_i2c_chip *chip;
-+	struct s_i2c_bus  *bus;
++	printk(KERN_INFO "i2c-philips-par.o: i2c Philips parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
 +
-+        pci_set_drvdata(dev, kmalloc(sizeof(struct s_i2c_chip), GFP_KERNEL)); 
-+	chip = (struct s_i2c_chip *)pci_get_drvdata(dev);
-+	if (chip == NULL) {
-+		return -ENOMEM;
-+	}
-+
-+	memset(chip, 0, sizeof(struct s_i2c_chip));
-+
-+	base = dev->resource[0].start & PCI_BASE_ADDRESS_MEM_MASK;
-+	len  = dev->resource[0].end - base + 1;
-+	chip->mmio = ioremap_nocache(base, len);
-+
-+	if (chip->mmio == NULL) {
-+		printk (DRIVER_ID ": ioremap failed\n");
-+		prosavage_remove(dev);
-+		return -ENODEV;
-+	}
-+
-+
-+	/*
-+	 * Chip initialisation
-+	 */
-+	/* Unlock Extended IO Space ??? */
-+
-+
-+	/*
-+	 * i2c bus registration
-+	 */
-+	bus = &chip->i2c_bus[0];
-+	snprintf(ADAPTER_NAME(bus->adap), sizeof(ADAPTER_NAME(bus->adap)),
-+		"ProSavage I2C bus at %02x:%02x.%x",
-+		dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	ret = i2c_register_bus(bus, chip->mmio + 0x8000, CR_SERIAL1);
-+	if (ret) {
-+		goto err_adap;
-+	}
-+	/*
-+	 * ddc bus registration
-+	 */
-+	bus = &chip->i2c_bus[1];
-+	snprintf(ADAPTER_NAME(bus->adap), sizeof(ADAPTER_NAME(bus->adap)),
-+		"ProSavage DDC bus at %02x:%02x.%x",
-+		dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	ret = i2c_register_bus(bus, chip->mmio + 0x8000, CR_SERIAL2);
-+	if (ret) {
-+		goto err_adap;
-+	}
++	parport_register_driver(&i2c_driver);
++	
 +	return 0;
-+err_adap:
-+	printk (DRIVER_ID ": %s failed\n", ADAPTER_NAME(bus->adap));
-+	prosavage_remove(dev);
-+	return ret;
 +}
 +
-+
-+/*
-+ * Data for PCI driver interface
-+ */
-+static struct pci_device_id prosavage_pci_tbl[] = {
-+   {
-+	.vendor		=	PCI_VENDOR_ID_S3,
-+	.device		=	PCI_DEVICE_ID_S3_SAVAGE4,
-+	.subvendor	=	PCI_ANY_ID,
-+	.subdevice	=	PCI_ANY_ID,
-+   },{
-+	.vendor		=	PCI_VENDOR_ID_S3,
-+	.device		=	PCI_DEVICE_ID_S3_PROSAVAGE8,
-+	.subvendor	=	PCI_ANY_ID,
-+	.subdevice	=	PCI_ANY_ID,
-+   },{ 0, }
-+};
-+
-+static struct pci_driver prosavage_driver = {
-+	.name		=	"prosavage-smbus",
-+	.id_table	=	prosavage_pci_tbl,
-+	.probe		=	prosavage_probe,
-+	.remove		=	__devexit_p(prosavage_remove),
-+};
-+
-+static int __init i2c_prosavage_init(void)
++void __exit i2c_bitlp_exit(void)
 +{
-+	printk(DRIVER_ID " version %s (%s)\n", I2C_VERSION, DRIVER_VERSION);
-+	return pci_module_init(&prosavage_driver);
++	parport_unregister_driver(&i2c_driver);
 +}
 +
-+static void __exit i2c_prosavage_exit(void)
-+{
-+	pci_unregister_driver(&prosavage_driver);
-+}
-+
-+MODULE_DEVICE_TABLE(pci, prosavage_pci_tbl);
-+MODULE_AUTHOR("Henk Vergonet");
-+MODULE_DESCRIPTION("ProSavage VIA 8365/8375 smbus driver");
++MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
++MODULE_DESCRIPTION("I2C-Bus adapter routines for Philips parallel port adapter");
 +MODULE_LICENSE("GPL");
 +
-+module_init (i2c_prosavage_init);
-+module_exit (i2c_prosavage_exit);
-diff -Nru a/drivers/i2c/i2c-prosavage.c b/drivers/i2c/i2c-prosavage.c
---- a/drivers/i2c/i2c-prosavage.c	Mon Sep 22 16:13:48 2003
++MODULE_PARM(type, "i");
++
++module_init(i2c_bitlp_init);
++module_exit(i2c_bitlp_exit);
+diff -Nru a/drivers/i2c/i2c-philips-par.c b/drivers/i2c/i2c-philips-par.c
+--- a/drivers/i2c/i2c-philips-par.c	Mon Sep 22 16:13:17 2003
 +++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,356 +0,0 @@
--/*
-- *    kernel/busses/i2c-prosavage.c
-- *
-- *    i2c bus driver for S3/VIA 8365/8375 graphics processor.
-- *    Copyright (c) 2003 Henk Vergonet <henk@god.dyndns.org>
-- *    Based on code written by:
-- *	Frodo Looijaard <frodol@dds.nl>,
-- *	Philip Edelbrock <phil@netroedge.com>,
-- *	Ralph Metzler <rjkm@thp.uni-koeln.de>, and
-- *	Mark D. Studebaker <mdsxyz123@yahoo.com>
-- *	Simon Vogl
-- *	and others
-- *
-- *    Please read the lm_sensors documentation for details on use.
-- *
-- *    This program is free software; you can redistribute it and/or modify
-- *    it under the terms of the GNU General Public License as published by
-- *    the Free Software Foundation; either version 2 of the License, or
-- *    (at your option) any later version.
-- *
-- *    This program is distributed in the hope that it will be useful,
-- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *    GNU General Public License for more details.
-- *
-- *    You should have received a copy of the GNU General Public License
-- *    along with this program; if not, write to the Free Software
-- *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- */
--/*  18-05-2003 HVE - created
-- *  14-06-2003 HVE - adapted for lm_sensors2
-- *  17-06-2003 HVE - linux 2.5.xx compatible
-- *  18-06-2003 HVE - codingstyle
-- *  21-06-2003 HVE - compatibility lm_sensors2 and linux 2.5.xx
-- *		     codingstyle, mmio enabled
-- *
-- *  This driver interfaces to the I2C bus of the VIA north bridge embedded
-- *  ProSavage4/8 devices. Usefull for gaining access to the TV Encoder chips.
-- *
-- *  Graphics cores:
-- *   S3/VIA KM266/VT8375 aka ProSavage8
-- *   S3/VIA KM133/VT8365 aka Savage4
-- *
-- *  Two serial busses are implemented:
-- *   SERIAL1 - I2C serial communications interface
-- *   SERIAL2 - DDC2 monitor communications interface
-- *
-- *  Tested on a FX41 mainboard, see http://www.shuttle.com
-- * 
-- *
-- *  TODO:
-- *  - integration with prosavage framebuffer device
-- *    (Additional documentation needed :(
-- */
+@@ -1,256 +0,0 @@
+-/* ------------------------------------------------------------------------- */
+-/* i2c-philips-par.c i2c-hw access for philips style parallel port adapters  */
+-/* ------------------------------------------------------------------------- */
+-/*   Copyright (C) 1995-2000 Simon G. Vogl
 -
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.		     */
+-/* ------------------------------------------------------------------------- */ 
+-
+-/* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and even
+-   Frodo Looijaard <frodol@dds.nl> */
+-
+-/* $Id: i2c-philips-par.c,v 1.29 2003/01/21 08:08:16 kmalkki Exp $ */
+-
+-#include <linux/kernel.h>
+-#include <linux/ioport.h>
 -#include <linux/module.h>
 -#include <linux/init.h>
--#include <linux/pci.h>
+-#include <linux/stddef.h>
+-#include <linux/parport.h>
 -#include <linux/i2c.h>
 -#include <linux/i2c-algo-bit.h>
 -
--#include <asm/io.h>
+-static int type;
 -
--
--/*
-- * driver configuration
-- */
--#define	DRIVER_ID	"i2c-prosavage"
--#define	DRIVER_VERSION	"20030621"
--
--#define ADAPTER_NAME(x) (x).name
--
--#define MAX_BUSSES	2
--
--struct s_i2c_bus {
--	u8	*mmvga;
--	int	i2c_reg;
--	int	adap_ok;
--	struct i2c_adapter		adap;
--	struct i2c_algo_bit_data	algo;
+-struct i2c_par
+-{
+-	struct pardevice *pdev;
+-	struct i2c_adapter adapter;
+-	struct i2c_algo_bit_data bit_lp_data;
+-	struct i2c_par *next;
 -};
 -
--struct s_i2c_chip {
--	u8	*mmio;
--	struct s_i2c_bus	i2c_bus[MAX_BUSSES];
+-static struct i2c_par *adapter_list;
+-
+-
+-/* ----- global defines -----------------------------------------------	*/
+-#define DEB(x)		/* should be reasonable open, close &c. 	*/
+-#define DEB2(x) 	/* low level debugging - very slow 		*/
+-#define DEBE(x)	x	/* error messages 				*/
+-
+-/* ----- printer port defines ------------------------------------------*/
+-					/* Pin Port  Inverted	name	*/
+-#define I2C_ON		0x20		/* 12 status N	paper		*/
+-					/* ... only for phil. not used  */
+-#define I2C_SDA		0x80		/*  9 data   N	data7		*/
+-#define I2C_SCL		0x08		/* 17 ctrl   N	dsel		*/
+-
+-#define I2C_SDAIN	0x80		/* 11 stat   Y	busy		*/
+-#define I2C_SCLIN	0x08		/* 15 stat   Y	enable		*/
+-
+-#define I2C_DMASK	0x7f
+-#define I2C_CMASK	0xf7
+-
+-/* ----- local functions ----------------------------------------------	*/
+-
+-static void bit_lp_setscl(void *data, int state)
+-{
+-	/*be cautious about state of the control register - 
+-		touch only the one bit needed*/
+-	if (state) {
+-		parport_write_control((struct parport *) data,
+-		      parport_read_control((struct parport *) data)|I2C_SCL);
+-	} else {
+-		parport_write_control((struct parport *) data,
+-		      parport_read_control((struct parport *) data)&I2C_CMASK);
+-	}
+-}
+-
+-static void bit_lp_setsda(void *data, int state)
+-{
+-	if (state) {
+-		parport_write_data((struct parport *) data, I2C_DMASK);
+-	} else {
+-		parport_write_data((struct parport *) data, I2C_SDA);
+-	}
+-}
+-
+-static int bit_lp_getscl(void *data)
+-{
+-	return parport_read_status((struct parport *) data) & I2C_SCLIN;
+-}
+-
+-static int bit_lp_getsda(void *data)
+-{
+-	return parport_read_status((struct parport *) data) & I2C_SDAIN;
+-}
+-
+-static void bit_lp_setscl2(void *data, int state)
+-{
+-	if (state) {
+-		parport_write_data((struct parport *) data,
+-		      parport_read_data((struct parport *) data)|0x1);
+-	} else {
+-		parport_write_data((struct parport *) data,
+-		      parport_read_data((struct parport *) data)&0xfe);
+-	}
+-}
+-
+-static void bit_lp_setsda2(void *data, int state)
+-{
+-	if (state) {
+-		parport_write_data((struct parport *) data,
+-		      parport_read_data((struct parport *) data)|0x2);
+-	} else {
+-		parport_write_data((struct parport *) data,
+-		      parport_read_data((struct parport *) data)&0xfd);
+-	}
+-}
+-
+-static int bit_lp_getsda2(void *data)
+-{
+-	return (parport_read_status((struct parport *) data) & 
+-			             PARPORT_STATUS_BUSY) ? 0 : 1;
+-}
+-
+-/* ------------------------------------------------------------------------
+- * Encapsulate the above functions in the correct operations structure.
+- * This is only done when more than one hardware adapter is supported.
+- */
+- 
+-static struct i2c_algo_bit_data bit_lp_data = {
+-	.setsda		= bit_lp_setsda,
+-	.setscl		= bit_lp_setscl,
+-	.getsda		= bit_lp_getsda,
+-	.getscl		= bit_lp_getscl,
+-	.udelay		= 80,
+-	.mdelay		= 80,
+-	.timeout	= HZ
+-}; 
+-
+-static struct i2c_algo_bit_data bit_lp_data2 = {
+-	.setsda		= bit_lp_setsda2,
+-	.setscl		= bit_lp_setscl2,
+-	.getsda		= bit_lp_getsda2,
+-	.udelay		= 80,
+-	.mdelay		= 80,
+-	.timeout	= HZ
+-}; 
+-
+-static struct i2c_adapter bit_lp_ops = {
+-	.owner		= THIS_MODULE,
+-	.id		= I2C_HW_B_LP,
+-	.name		= "Philips Parallel port adapter",
 -};
 -
--
--/*
-- * i2c configuration
-- */
--#ifndef I2C_HW_B_S3VIA
--#define I2C_HW_B_S3VIA	0x18	/* S3VIA ProSavage adapter		*/
--#endif
--
--/* delays */
--#define CYCLE_DELAY	10
--#define TIMEOUT		(HZ / 2)
--
--
--/* 
-- * S3/VIA 8365/8375 registers
-- */
--#ifndef PCI_VENDOR_ID_S3
--#define PCI_VENDOR_ID_S3		0x5333
--#endif
--#ifndef PCI_DEVICE_ID_S3_SAVAGE4
--#define PCI_DEVICE_ID_S3_SAVAGE4	0x8a25
--#endif
--#ifndef PCI_DEVICE_ID_S3_PROSAVAGE8
--#define PCI_DEVICE_ID_S3_PROSAVAGE8	0x8d04
--#endif
--
--#define VGA_CR_IX	0x3d4
--#define VGA_CR_DATA	0x3d5
--
--#define CR_SERIAL1	0xa0	/* I2C serial communications interface */
--#define MM_SERIAL1	0xff20
--#define CR_SERIAL2	0xb1	/* DDC2 monitor communications interface */
--
--/* based on vt8365 documentation */
--#define I2C_ENAB	0x10
--#define I2C_SCL_OUT	0x01
--#define I2C_SDA_OUT	0x02
--#define I2C_SCL_IN	0x04
--#define I2C_SDA_IN	0x08
--
--#define SET_CR_IX(p, val)	*((p)->mmvga + VGA_CR_IX) = (u8)(val)
--#define SET_CR_DATA(p, val)	*((p)->mmvga + VGA_CR_DATA) = (u8)(val)
--#define GET_CR_DATA(p)		*((p)->mmvga + VGA_CR_DATA)
--
--
--/*
-- * Serial bus line handling
-- *
-- * serial communications register as parameter in private data
-- *
-- * TODO: locks with other code sections accessing video registers?
-- */
--static void bit_s3via_setscl(void *bus, int val)
+-static void i2c_parport_attach (struct parport *port)
 -{
--	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
--	unsigned int r;
--
--	SET_CR_IX(p, p->i2c_reg);
--	r = GET_CR_DATA(p);
--	r |= I2C_ENAB;
--	if (val) {
--		r |= I2C_SCL_OUT;
--	} else {
--		r &= ~I2C_SCL_OUT;
--	}
--	SET_CR_DATA(p, r);
--}
--
--static void bit_s3via_setsda(void *bus, int val)
--{
--	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
--	unsigned int r;
--	
--	SET_CR_IX(p, p->i2c_reg);
--	r = GET_CR_DATA(p);
--	r |= I2C_ENAB;
--	if (val) {
--		r |= I2C_SDA_OUT;
--	} else {
--		r &= ~I2C_SDA_OUT;
--	}
--	SET_CR_DATA(p, r);
--}
--
--static int bit_s3via_getscl(void *bus)
--{
--	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
--
--	SET_CR_IX(p, p->i2c_reg);
--	return (0 != (GET_CR_DATA(p) & I2C_SCL_IN));
--}
--
--static int bit_s3via_getsda(void *bus)
--{
--	struct s_i2c_bus *p = (struct s_i2c_bus *)bus;
--
--	SET_CR_IX(p, p->i2c_reg);
--	return (0 != (GET_CR_DATA(p) & I2C_SDA_IN));
--}
--
--
--/*
-- * adapter initialisation
-- */
--static int i2c_register_bus(struct s_i2c_bus *p, u8 *mmvga, u32 i2c_reg)
--{
--	int ret;
--	p->adap.owner	  = THIS_MODULE;
--	p->adap.id	  = I2C_HW_B_S3VIA;
--	p->adap.algo_data = &p->algo;
--	p->algo.setsda	  = bit_s3via_setsda;
--	p->algo.setscl	  = bit_s3via_setscl;
--	p->algo.getsda	  = bit_s3via_getsda;
--	p->algo.getscl	  = bit_s3via_getscl;
--	p->algo.udelay	  = CYCLE_DELAY;
--	p->algo.mdelay	  = CYCLE_DELAY;
--	p->algo.timeout	  = TIMEOUT;
--	p->algo.data	  = p;
--	p->mmvga	  = mmvga;
--	p->i2c_reg	  = i2c_reg;
--    
--	ret = i2c_bit_add_bus(&p->adap);
--	if (ret) {
--		return ret;
--	}
--
--	p->adap_ok = 1;
--	return 0;
--}
--
--
--/*
-- * Cleanup stuff
-- */
--static void __devexit prosavage_remove(struct pci_dev *dev)
--{
--	struct s_i2c_chip *chip;
--	int i, ret;
--
--	chip = (struct s_i2c_chip *)pci_get_drvdata(dev);
--
--	if (!chip) {
+-	struct i2c_par *adapter = kmalloc(sizeof(struct i2c_par),
+-					  GFP_KERNEL);
+-	if (!adapter) {
+-		printk(KERN_ERR "i2c-philips-par: Unable to malloc.\n");
 -		return;
 -	}
--	for (i = MAX_BUSSES - 1; i >= 0; i--) {
--		if (chip->i2c_bus[i].adap_ok == 0)
--			continue;
 -
--		ret = i2c_bit_del_bus(&chip->i2c_bus[i].adap);
--	        if (ret) {
--			printk(DRIVER_ID ": %s not removed\n",
--				ADAPTER_NAME(chip->i2c_bus[i].adap));
+-	printk(KERN_DEBUG "i2c-philips-par.o: attaching to %s\n", port->name);
+-
+-	adapter->pdev = parport_register_device(port, "i2c-philips-par",
+-						NULL, NULL, NULL, 
+-						PARPORT_FLAG_EXCL,
+-						NULL);
+-	if (!adapter->pdev) {
+-		printk(KERN_ERR "i2c-philips-par: Unable to register with parport.\n");
+-		kfree(adapter);
+-		return;
+-	}
+-
+-	adapter->adapter = bit_lp_ops;
+-	adapter->adapter.algo_data = &adapter->bit_lp_data;
+-	adapter->bit_lp_data = type ? bit_lp_data2 : bit_lp_data;
+-	adapter->bit_lp_data.data = port;
+-
+-	if (parport_claim_or_block(adapter->pdev) < 0 ) {
+-		printk(KERN_ERR "i2c-philips-par: Could not claim parallel port.\n");
+-		kfree(adapter);
+-		return;
+-	}
+-	/* reset hardware to sane state */
+-	bit_lp_setsda(port, 1);
+-	bit_lp_setscl(port, 1);
+-	parport_release(adapter->pdev);
+-
+-	if (i2c_bit_add_bus(&adapter->adapter) < 0)
+-	{
+-		printk(KERN_ERR "i2c-philips-par: Unable to register with I2C.\n");
+-		parport_unregister_device(adapter->pdev);
+-		kfree(adapter);
+-		return;		/* No good */
+-	}
+-
+-	adapter->next = adapter_list;
+-	adapter_list = adapter;
+-}
+-
+-static void i2c_parport_detach (struct parport *port)
+-{
+-	struct i2c_par *adapter, *prev = NULL;
+-
+-	for (adapter = adapter_list; adapter; adapter = adapter->next)
+-	{
+-		if (adapter->pdev->port == port)
+-		{
+-			parport_unregister_device(adapter->pdev);
+-			i2c_bit_del_bus(&adapter->adapter);
+-			if (prev)
+-				prev->next = adapter->next;
+-			else
+-				adapter_list = adapter->next;
+-			kfree(adapter);
+-			return;
 -		}
+-		prev = adapter;
 -	}
--	if (chip->mmio) {
--		iounmap(chip->mmio);
--	}
--	kfree(chip);
 -}
 -
 -
--/*
-- * Detect chip and initialize it
-- */
--static int __devinit prosavage_probe(struct pci_dev *dev, const struct pci_device_id *id)
+-static struct parport_driver i2c_driver = {
+-	"i2c-philips-par",
+-	i2c_parport_attach,
+-	i2c_parport_detach,
+-	NULL
+-};
+-
+-int __init i2c_bitlp_init(void)
 -{
--	int ret;
--	unsigned long base, len;
--	struct s_i2c_chip *chip;
--	struct s_i2c_bus  *bus;
+-	printk(KERN_INFO "i2c-philips-par.o: i2c Philips parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
 -
--        pci_set_drvdata(dev, kmalloc(sizeof(struct s_i2c_chip), GFP_KERNEL)); 
--	chip = (struct s_i2c_chip *)pci_get_drvdata(dev);
--	if (chip == NULL) {
--		return -ENOMEM;
--	}
--
--	memset(chip, 0, sizeof(struct s_i2c_chip));
--
--	base = dev->resource[0].start & PCI_BASE_ADDRESS_MEM_MASK;
--	len  = dev->resource[0].end - base + 1;
--	chip->mmio = ioremap_nocache(base, len);
--
--	if (chip->mmio == NULL) {
--		printk (DRIVER_ID ": ioremap failed\n");
--		prosavage_remove(dev);
--		return -ENODEV;
--	}
--
--
--	/*
--	 * Chip initialisation
--	 */
--	/* Unlock Extended IO Space ??? */
--
--
--	/*
--	 * i2c bus registration
--	 */
--	bus = &chip->i2c_bus[0];
--	snprintf(ADAPTER_NAME(bus->adap), sizeof(ADAPTER_NAME(bus->adap)),
--		"ProSavage I2C bus at %02x:%02x.%x",
--		dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--	ret = i2c_register_bus(bus, chip->mmio + 0x8000, CR_SERIAL1);
--	if (ret) {
--		goto err_adap;
--	}
--	/*
--	 * ddc bus registration
--	 */
--	bus = &chip->i2c_bus[1];
--	snprintf(ADAPTER_NAME(bus->adap), sizeof(ADAPTER_NAME(bus->adap)),
--		"ProSavage DDC bus at %02x:%02x.%x",
--		dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--	ret = i2c_register_bus(bus, chip->mmio + 0x8000, CR_SERIAL2);
--	if (ret) {
--		goto err_adap;
--	}
+-	parport_register_driver(&i2c_driver);
+-	
 -	return 0;
--err_adap:
--	printk (DRIVER_ID ": %s failed\n", ADAPTER_NAME(bus->adap));
--	prosavage_remove(dev);
--	return ret;
 -}
 -
--
--/*
-- * Data for PCI driver interface
-- */
--static struct pci_device_id prosavage_pci_tbl[] = {
--   {
--	.vendor		=	PCI_VENDOR_ID_S3,
--	.device		=	PCI_DEVICE_ID_S3_SAVAGE4,
--	.subvendor	=	PCI_ANY_ID,
--	.subdevice	=	PCI_ANY_ID,
--   },{
--	.vendor		=	PCI_VENDOR_ID_S3,
--	.device		=	PCI_DEVICE_ID_S3_PROSAVAGE8,
--	.subvendor	=	PCI_ANY_ID,
--	.subdevice	=	PCI_ANY_ID,
--   },{ 0, }
--};
--
--static struct pci_driver prosavage_driver = {
--	.name		=	"prosavage-smbus",
--	.id_table	=	prosavage_pci_tbl,
--	.probe		=	prosavage_probe,
--	.remove		=	__devexit_p(prosavage_remove),
--};
--
--static int __init i2c_prosavage_init(void)
+-void __exit i2c_bitlp_exit(void)
 -{
--	printk(DRIVER_ID " version %s (%s)\n", I2C_VERSION, DRIVER_VERSION);
--	return pci_module_init(&prosavage_driver);
+-	parport_unregister_driver(&i2c_driver);
 -}
 -
--static void __exit i2c_prosavage_exit(void)
--{
--	pci_unregister_driver(&prosavage_driver);
--}
--
--MODULE_DEVICE_TABLE(pci, prosavage_pci_tbl);
--MODULE_AUTHOR("Henk Vergonet");
--MODULE_DESCRIPTION("ProSavage VIA 8365/8375 smbus driver");
+-MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+-MODULE_DESCRIPTION("I2C-Bus adapter routines for Philips parallel port adapter");
 -MODULE_LICENSE("GPL");
 -
--module_init (i2c_prosavage_init);
--module_exit (i2c_prosavage_exit);
+-MODULE_PARM(type, "i");
+-
+-module_init(i2c_bitlp_init);
+-module_exit(i2c_bitlp_exit);
 

@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVAXSo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVAXSqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVAXSo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVAXSo5
+	id S261564AbVAXSqY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 13:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVAXSqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:44:57 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:16771 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261550AbVAXSoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:44:54 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [openib-general] [PATCH][13/12] InfiniBand/mthca: initialize mutex
- earlier
-X-Message-Flag: Warning: May contain useful information
-References: <20051232214.rXeANNOMpj6wmqS6@topspin.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 24 Jan 2005 10:44:52 -0800
-In-Reply-To: <20051232214.rXeANNOMpj6wmqS6@topspin.com> (Roland Dreier's
- message of "Sun, 23 Jan 2005 22:14:24 -0800")
-Message-ID: <521xca7jkr.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Jan 2005 18:44:53.0918 (UTC) FILETIME=[CB2553E0:01C50244]
+	Mon, 24 Jan 2005 13:46:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:12191 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261564AbVAXSqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 13:46:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=bApaNNKFWySD+iECAKXFMIjcOFUPR4tY4CuuHL6OY2VUnqI/Mu1U1jF0mCZo+XqyfErRX9IRcgMw9TRp5g1Vhoe+bOSkreBqwpz91yODDupA/YQVV65QcUq/MxntzOucfUMvHmpKWsAjyMGQGoKAfd3CKe/dVODGX/JAnGhrNEw=
+Message-ID: <81b0412b05012410463c7fd842@mail.gmail.com>
+Date: Mon, 24 Jan 2005 19:46:18 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Pavel Fedin <sonic_amiga@rambler.ru>
+Subject: Re: [PATCH] Russian encoding support for MacHFS
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One more bug that slipped in...
+(could you please use shorter lines? Around 80 is good. It's difficult to read).
 
+On Mon, 24 Jan 2005 12:57:56 +0300, Pavel Fedin <sonic_amiga@rambler.ru> wrote:
+> ... This means that you must to be able to reverse-translate all names from
+> Linux encoding to Mac encoding. Using NLS causes characters loss if
+> requested character does not exist in the table (it is substituted by '?').
+> Macintosh disks often contains specific characters in file names
+> ("Folder" character for example) which will be lost in this case.
 
-The cap_mask_mutex needs to be initialized before
-ib_register_device(), because device registration will call client
-init functions that may try to modify the capability mask.
+how about just leave the characters unchanged? (remap them to the same
+codes in Unicode).
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> Probably using utf8 as host encoding would solve the problem but it's not
+> commonly used in Russia.
 
---- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-01-23 21:51:46.000000000 -0800
-+++ linux-bk/drivers/infiniband/hw/mthca/mthca_provider.c	2005-01-24 10:39:12.623987624 -0800
-@@ -634,6 +634,8 @@
- 	dev->ib_dev.detach_mcast         = mthca_multicast_detach;
- 	dev->ib_dev.process_mad          = mthca_process_mad;
- 
-+	init_MUTEX(&dev->cap_mask_mutex);
-+
- 	ret = ib_register_device(&dev->ib_dev);
- 	if (ret)
- 		return ret;
-@@ -647,8 +649,6 @@
- 		}
- 	}
- 
--	init_MUTEX(&dev->cap_mask_mutex);
--
- 	return 0;
- }
- 
+Unicode, and its encoding UTF8 IS commonly used everywhere.
+And Russia can (and often does) use it just as well.
+
+P.S. Read Documentation/SubmittingPatches.
+What kernel is the patch against?

@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUKIVAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUKIVCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUKIVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKIVAd
+	id S261684AbUKIVCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUKIVCC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:00:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16781 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261680AbUKIVAa (ORCPT
+	Tue, 9 Nov 2004 16:02:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261681AbUKIVB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:00:30 -0500
-Date: Tue, 9 Nov 2004 12:47:04 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH 2.6-bk 1/1] tg3: add license
-Message-Id: <20041109124704.1f8cb3ad.davem@redhat.com>
-In-Reply-To: <4190A32E.6090200@wanadoo.es>
-References: <4190A32E.6090200@wanadoo.es>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 9 Nov 2004 16:01:57 -0500
+Date: Tue, 9 Nov 2004 13:06:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ping Cheng <pingc@wacom.com>
+Cc: linux-kernel@vger.kernel.org, vojtech@ucw.cz
+Subject: Re: wacom driver patch for 2.6
+Message-Id: <20041109130605.6ced8156.akpm@osdl.org>
+In-Reply-To: <28E6D16EC4CCD71196610060CF213AEB065EA7@wacom-nt2.wacom.com>
+References: <28E6D16EC4CCD71196610060CF213AEB065EA7@wacom-nt2.wacom.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 Nov 2004 11:59:58 +0100
-Xose Vazquez Perez <xose@wanadoo.es> wrote:
+Ping Cheng <pingc@wacom.com> wrote:
+>
+> Vojtech or someone who can access kernel source tree, please commit my patch
+> for Wacom driver. This patch adds support for a Wacom new tablet, Intuos3,
+> and its associated tools.
 
-> there is no license, yes it's GPL but...
+Your email client wordwrapped the patch.  Please fix your mail client, send
+the patch to yourself then check that it successfully applies.  Then resend
+it to us, thanks.
 
-Why add this, it's basically implied?
-We have a copy of the file "COPYING" at the top
-of the source tree, which is why we don't duplicate
-it's contents nor excerpts all over the tree.

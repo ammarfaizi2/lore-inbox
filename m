@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTHVTFX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 15:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTHVTFX
+	id S263475AbTHVS4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTHVS4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 15:05:23 -0400
-Received: from gandalf.tausq.org ([64.81.244.94]:44984 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id S263195AbTHVTFS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 15:05:18 -0400
-Date: Fri, 22 Aug 2003 12:09:52 -0700
-From: Randolph Chung <tausq@debian.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@redhat.com>,
-       willy@debian.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+	Fri, 22 Aug 2003 14:56:23 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:32773 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263475AbTHVS4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:56:19 -0400
+Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
+	tst-mmap-eofsync in glibc on parisc)
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Hugh Dickins <hugh@veritas.com>, willy@debian.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
        PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing tst-mmap-eofsync in glibc on parisc)
-Message-ID: <20030822190952.GF21328@tausq.org>
-Reply-To: Randolph Chung <tausq@debian.org>
-References: <Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain> <1061577688.2090.285.camel@mulgrave>
+In-Reply-To: <20030822113106.0503a665.davem@redhat.com>
+References: <20030822110144.5f7b83c5.davem@redhat.com>
+	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain> 
+	<20030822113106.0503a665.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 22 Aug 2003 13:56:06 -0500
+Message-Id: <1061578568.2053.313.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061577688.2090.285.camel@mulgrave>
-X-PGP: for PGP key, see http://www.tausq.org/pgp.txt
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In reference to a message from James Bottomley, dated Aug 22:
-> On Fri, 2003-08-22 at 13:34, Hugh Dickins wrote:
-> > Might the problem be in parisc's __flush_dcache_page,
-> > which only examines i_mmap_shared?
+On Fri, 2003-08-22 at 13:31, David S. Miller wrote:
+> On Fri, 22 Aug 2003 19:34:41 +0100 (BST)
+> Hugh Dickins <hugh@veritas.com> wrote:
 > 
-> This is the issue: we do treat them differently.
+> > And to me.  If VM_SHARED is set, then __vma_link_file puts the vma on
+> > on i_mmap_shared.  If VM_SHARED is not set, it puts the vma on i_mmap.
+> > flush_dcache_page treats i_mmap_shared and i_mmap lists equally.
+> 
+> But file system page cache writes only call flush_dache_page()
+> if the page has a non-empty i_mmap_shared list.
 
-as does some other archs, like ARM.
+Hmm, but if it does that then the glibc bug test should show up on sparc
+because the i_mmap_shared list is empty if we only do MAP_SHARED of read
+only files.
 
-are we saying that MAP_SHARED != VM_SHARED? the mmap code allows
-architectures to map pages differently if MAP_SHARED is specified, but
-it puts it on i_mmap vs i_mmap_shared using VM_SHARED, and for read-only
-files we silently drop VM_SHARED... so the page is mapped using
-MAP_SHARED semantics but placed on i_mmap....
+James
 
-confused,
-randolph
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/
+

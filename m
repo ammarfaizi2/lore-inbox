@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265886AbUFOT3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265875AbUFOTcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbUFOT3i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbUFOT3i
+	id S265875AbUFOTcm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbUFOTcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:29:38 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:2301 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S265886AbUFOT3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:29:36 -0400
-To: Dean Nelson <dcn@sgi.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: calling kthread_create() from interrupt thread
-References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com>
-	<1087321777.2710.43.camel@laptop.fenrus.com>
-	<20040615191440.GA17669@sgi.com>
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: 15 Jun 2004 12:27:45 -0700
-In-Reply-To: <20040615191440.GA17669@sgi.com>
-Message-ID: <52y8mowrim.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Tue, 15 Jun 2004 15:32:41 -0400
+Received: from pdbn-d9bb9ee6.pool.mediaWays.net ([217.187.158.230]:19974 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S265875AbUFOTcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 15:32:22 -0400
+Date: Tue, 15 Jun 2004 21:32:05 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: Cesar Eduardo Barros <cesarb@nitnet.com.br>, linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040615193205.GA25131@citd.de>
+References: <20040612011129.GD1967@flower.home.cesarb.net> <orpt81sv1g.fsf@free.redhat.lsd.ic.unicamp.br> <20040614224006.GD1961@flower.home.cesarb.net> <orfz8wabng.fsf@free.redhat.lsd.ic.unicamp.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Jun 2004 19:27:45.0827 (UTC) FILETIME=[D6013F30:01C4530E]
+Content-Disposition: inline
+In-Reply-To: <orfz8wabng.fsf@free.redhat.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Dean> Can an interrupt handler setup a work_struct structure, call
-    Dean> schedule_work() and then simply return, not waiting around
-    Dean> for the work queue event to complete?
+On Tue, Jun 15, 2004 at 04:01:23PM -0300, Alexandre Oliva wrote:
+> On Jun 14, 2004, Cesar Eduardo Barros <cesarb@nitnet.com.br> wrote:
+> 
+> > The atime was never intended as an auditing feature (if it were, utimes
+> > and related functions would be root only).
+> 
+> But utimes updates the inode modification time, so you can still tell
+> something happened to the file.
 
-Yes (as long as the work_struct structure is not freed at the end of
-the interrupt handler or something like that).
+No.
 
- - Roland
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

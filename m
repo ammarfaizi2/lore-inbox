@@ -1,81 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUFTDd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUFTDsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUFTDd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 23:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFTDd6
+	id S265828AbUFTDsF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 23:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbUFTDsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 23:33:58 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:11398 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265823AbUFTDd4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 23:33:56 -0400
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Chris Caputo <ccaputo@alt.net>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>, riel@redhat.com
-In-Reply-To: <20040620001529.GA4326@logos.cnet>
-References: <Pine.LNX.4.44.0406181730370.1847-100000@nacho.alt.net>
-	 <20040620001529.GA4326@logos.cnet>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1087702435.5361.64.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 19 Jun 2004 23:33:55 -0400
+	Sat, 19 Jun 2004 23:48:05 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:14514 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265828AbUFTDr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 23:47:59 -0400
+Message-ID: <40D508E8.2050407@yahoo.com.au>
+Date: Sun, 20 Jun 2004 13:47:52 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Grzegorz Kulewski <kangur@polcom.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Memory and rsync problem with vanilla 2.6.7
+References: <20040426013944.49a105a8.akpm@osdl.org> <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net> <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net> <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net> <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net> <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------070509060502030504040902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På lau , 19/06/2004 klokka 20:15, skreiv Marcelo Tosatti:
+This is a multi-part message in MIME format.
+--------------070509060502030504040902
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> The changes between 2.4.25->2.4.26 (which introduce __refile_inode() and 
-> the unused_pagecache list) must have something to do with this. 
+Linus Torvalds wrote:
+> 
+> On Sat, 19 Jun 2004, Grzegorz Kulewski wrote:
+> 
+>>Is this bug or feature? Is there some wreid memmory leak? Where is my RAM?
+> 
+> 
+> Your memory is apparently in dentry and inode memory:
+> 
+> 	ext3_inode_cache   62553  62553   4096		(244MB)
+> 	dentry_cache       48768  48768   4096		(190MB)
+> 
+> and it really looks like you have enabled CONFIG_DEBUG_PAGEALLOC, which 
+> just eats memory like mad (a dentry is normally ~200 bytes, but then when 
+> it is rounded up to page-size, it takes 20 times the memory).
+> 
+> So don't enable DEBUG_PAGEALLOC unless you really want to debug some 
+> strange problem.
+> 
 
-Here's one question:
+This could be it. But can you check whether your previous well-behaving
+kernel also has CONFIG_DEBUG_PAGEALLOC on? If so, then it is possible
+that VM behaviour has regressed.
 
-Given the fact that in iput(), the inode remains hashed and the
-inode->i_state does not change until after we've dropped the inode_lock,
-called write_inode_now(), and then retaken the inode_lock, exactly what
-is preventing a third party task from grabbing that inode?
+Of course, DEBUG_PAGEALLOC is the wrong target to attempt to tune for:
+without it, those above two items would take up a combined 40 megs.
 
-(Better still: write_inode_now() itself actually calls __iget(), which
-could cause that inode to be plonked right back onto the "inode_in_use"
-list if ever refile_inode() gets called.)
+> That said, there might be a memory balancing problem too, and
+> DEBUG_PAGEALLOC just makes it more obvious.  Nick Piggin reports that an
+> "obvious fix" by Andrew potentially causes problems, and if you're a BK
+> user, you could try just backing out this cset:
+> 
+> 	ChangeSet@1.1722.88.2, 2004-06-03 07:58:03-07:00, akpm@osdl.org
+> 	  [PATCH] shrink_all_memory() fixes
+> 
+> 	....
+> 
+> (check with "bk changes" what the revision is in your tree, and do a
+> 
+> 	bk cset -xX.XXX.XX.X
+> 
+> to try reverting it. Quite possibly that fix makes the VM much less likely
+> to throw out the VM caches, which would make the debug problem much 
+> worse).
+> 
 
-So does the following patch help?
+Well it doesn't seem to have caused too much trouble as yet... But it
+is the obvious candidate if your problems continue. If you are not a
+bk user, the attached patch will also revert that change.
 
-Cheers,
-  Trond
+--------------070509060502030504040902
+Content-Type: text/x-patch;
+ name="vm-revert-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vm-revert-fix.patch"
 
---- linux-2.4.27-pre3/fs/inode.c.orig	2004-05-20 20:41:41.000000000 -0400
-+++ linux-2.4.27-pre3/fs/inode.c	2004-06-19 23:22:29.000000000 -0400
-@@ -1200,6 +1200,7 @@ void iput(struct inode *inode)
- 		struct super_block *sb = inode->i_sb;
- 		struct super_operations *op = NULL;
+ linux-2.6-npiggin/mm/vmscan.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+diff -puN mm/vmscan.c~vm-revert-fix mm/vmscan.c
+--- linux-2.6/mm/vmscan.c~vm-revert-fix	2004-06-12 16:53:02.000000000 +1000
++++ linux-2.6-npiggin/mm/vmscan.c	2004-06-12 16:54:26.000000000 +1000
+@@ -813,9 +813,8 @@ shrink_caches(struct zone **zones, int p
+ 		struct zone *zone = zones[i];
+ 		int max_scan;
  
-+again:
- 		if (inode->i_state == I_CLEAR)
- 			BUG();
+-		zone->temp_priority = priority;
+-		if (zone->prev_priority > priority)
+-			zone->prev_priority = priority;
++		if (zone->free_pages < zone->pages_high)
++			zone->temp_priority = priority;
  
-@@ -1241,11 +1242,16 @@ void iput(struct inode *inode)
- 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) 
- 					__refile_inode(inode);
- 				inodes_stat.nr_unused++;
--				spin_unlock(&inode_lock);
--				if (!sb || (sb->s_flags & MS_ACTIVE))
-+				if (!sb || (sb->s_flags & MS_ACTIVE)) {
-+					spin_unlock(&inode_lock);
- 					return;
--				write_inode_now(inode, 1);
--				spin_lock(&inode_lock);
-+				}
-+				if (inode->i_state & I_DIRTY) {
-+					__iget(inode);
-+					spin_unlock(&inode_lock);
-+					write_inode_now(inode, 1);
-+					goto again;
-+				}
- 				inodes_stat.nr_unused--;
- 				list_del_init(&inode->i_hash);
+ 		if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+ 			continue;	/* Let kswapd poll it */
+@@ -996,8 +995,6 @@ scan:
+ 					all_zones_ok = 0;
  			}
+ 			zone->temp_priority = priority;
+-			if (zone->prev_priority > priority)
+-				zone->prev_priority = priority;
+ 			max_scan = (zone->nr_active + zone->nr_inactive)
+ 								>> priority;
+ 			reclaimed = shrink_zone(zone, max_scan, GFP_KERNEL,
 
+_
+
+--------------070509060502030504040902--

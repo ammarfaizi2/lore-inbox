@@ -1,251 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267153AbSKMJxb>; Wed, 13 Nov 2002 04:53:31 -0500
+	id <S261701AbSKMJ6v>; Wed, 13 Nov 2002 04:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267152AbSKMJxb>; Wed, 13 Nov 2002 04:53:31 -0500
-Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:42408 "EHLO
-	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S267153AbSKMJx2>; Wed, 13 Nov 2002 04:53:28 -0500
-Date: Wed, 13 Nov 2002 10:00:18 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46 / Asus A7M266 - spontaneous reboots - CAUSE FOUND
-Message-ID: <20021113100018.GA1638@berserk.demon.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
+	id <S267152AbSKMJ6v>; Wed, 13 Nov 2002 04:58:51 -0500
+Received: from dp.samba.org ([66.70.73.150]:44460 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261701AbSKMJ6t>;
+	Wed, 13 Nov 2002 04:58:49 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] module_name() 
+In-reply-to: Your message of "Tue, 12 Nov 2002 14:03:57 -0800."
+             <20021112.140357.81690208.davem@redhat.com> 
+Date: Wed, 13 Nov 2002 21:04:10 +1100
+Message-Id: <20021113100541.3E2652C085@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I boot with "nomce" the spontaneous reboots go away. This is odd as
-the 2.4.19 kernel I run has MCE enabled.
+In message <20021112.140357.81690208.davem@redhat.com> you write:
+>    From: Rusty Russell <rusty@rustcorp.com.au>
+>    Date: Wed, 13 Nov 2002 04:32:58 +1100
+> 
+>    I prefer this: it also has the advantage of ensuring the name of
+>    built-in modules is consistent across the kernel.
+>    
+> I'd rather get NULL for built-in
 
-The system is not overclocked, the CPU fan is spinning, and the box is
-rock solid with 2.4.19 (compiler is 2.95.4 [Debian]).
+I'd rather not.  If you want that check, check for module == NULL.
+This makes it trivially consistent across proc output, which is the
+main use of module name outside module.c.
 
-Anyone else have problems with MCE?
+> this also eliminates the issue of having umpteen "[built-in]" string
+> copies in the kernel since this is expanded by an inline.
 
-P.
+Ick, yes.   Turned into macros, and changed to "kernel" since
+exec_domain.c already uses that.
 
-> I've just started testing 2.5.46 and am not getting very far. After
-> about five minutes of use the system spontaneously reboots.
-> 
-> Asus A7M266, Athlon XP2000, 512MB RAM, all partitions mounted as EXT2.
-> 
-> Kernel config follows (ACPI is included but disabled from the kernel
-> command line). The only modules loaded are the sound and network
-> modules.
-> 
-> 2.4.19 works fine on this box.
-> 
-> P.
-> 
-> --x--x--x--x--x--x--
-> 
-> CONFIG_X86=y
-> CONFIG_MMU=y
-> CONFIG_SWAP=y
-> CONFIG_UID16=y
-> CONFIG_GENERIC_ISA_DMA=y
-> 
-> CONFIG_EXPERIMENTAL=y
-> 
-> CONFIG_NET=y
-> CONFIG_SYSVIPC=y
-> CONFIG_SYSCTL=y
-> 
-> CONFIG_MODULES=y
-> CONFIG_KMOD=y
-> 
-> CONFIG_MK7=y
-> CONFIG_X86_CMPXCHG=y
-> CONFIG_X86_XADD=y
-> CONFIG_X86_L1_CACHE_SHIFT=6
-> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-> CONFIG_X86_WP_WORKS_OK=y
-> CONFIG_X86_INVLPG=y
-> CONFIG_X86_BSWAP=y
-> CONFIG_X86_POPAD_OK=y
-> CONFIG_X86_TSC=y
-> CONFIG_X86_GOOD_APIC=y
-> CONFIG_X86_USE_PPRO_CHECKSUM=y
-> CONFIG_X86_USE_3DNOW=y
-> CONFIG_X86_MCE=y
-> CONFIG_NOHIGHMEM=y
-> CONFIG_MTRR=y
-> 
-> CONFIG_ACPI=y
-> CONFIG_ACPI_BOOT=y
-> CONFIG_ACPI_BUTTON=y
-> CONFIG_ACPI_BUS=y
-> CONFIG_ACPI_INTERPRETER=y
-> CONFIG_ACPI_EC=y
-> CONFIG_ACPI_POWER=y
-> CONFIG_ACPI_PCI=y
-> CONFIG_ACPI_SYSTEM=y
-> 
-> CONFIG_PCI=y
-> CONFIG_PCI_GOANY=y
-> CONFIG_PCI_BIOS=y
-> CONFIG_PCI_DIRECT=y
-> CONFIG_PCI_NAMES=y
-> 
-> CONFIG_KCORE_ELF=y
-> CONFIG_BINFMT_ELF=y
-> 
-> CONFIG_PARPORT=m
-> CONFIG_PARPORT_PC=m
-> CONFIG_PARPORT_PC_CML1=m
-> CONFIG_PARPORT_PC_FIFO=y
-> CONFIG_PARPORT_PC_SUPERIO=y
-> CONFIG_PARPORT_1284=y
-> 
-> 
-> CONFIG_BLK_DEV_FD=y
-> CONFIG_BLK_DEV_LOOP=m
-> CONFIG_BLK_DEV_RAM=m
-> CONFIG_BLK_DEV_RAM_SIZE=8192
-> 
-> CONFIG_IDE=y
-> 
-> CONFIG_BLK_DEV_IDE=y
-> 
-> CONFIG_BLK_DEV_IDEDISK=y
-> CONFIG_IDEDISK_MULTI_MODE=y
-> CONFIG_BLK_DEV_IDECD=m
-> CONFIG_BLK_DEV_IDESCSI=m
-> 
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_IDEPCI_SHARE_IRQ=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_BLK_DEV_ADMA=y
-> CONFIG_BLK_DEV_VIA82CXXX=y
-> CONFIG_IDEDMA_AUTO=y
-> CONFIG_BLK_DEV_IDE_MODES=y
-> 
-> CONFIG_SCSI=m
-> 
-> CONFIG_BLK_DEV_SD=m
-> CONFIG_BLK_DEV_SR=m
-> CONFIG_SR_EXTRA_DEVS=2
-> CONFIG_CHR_DEV_SG=m
-> 
-> CONFIG_SCSI_MULTI_LUN=y
-> CONFIG_SCSI_CONSTANTS=y
-> 
-> CONFIG_PACKET=y
-> CONFIG_UNIX=y
-> CONFIG_INET=y
-> CONFIG_IP_MULTICAST=y
-> 
-> CONFIG_IPV6_SCTP__=y
-> 
-> CONFIG_NETDEVICES=y
-> 
-> CONFIG_NET_ETHERNET=y
-> 
-> CONFIG_NET_PCI=y
-> CONFIG_EEPRO100=m
-> CONFIG_NE2K_PCI=m
-> CONFIG_8139TOO=m
-> CONFIG_VIA_RHINE=m
-> 
-> CONFIG_INPUT=y
-> 
-> CONFIG_INPUT_MOUSEDEV=y
-> CONFIG_INPUT_MOUSEDEV_PSAUX=y
-> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-> 
-> CONFIG_SOUND_GAMEPORT=y
-> CONFIG_SERIO=y
-> CONFIG_SERIO_I8042=y
-> 
-> CONFIG_INPUT_KEYBOARD=y
-> CONFIG_KEYBOARD_ATKBD=y
-> CONFIG_INPUT_MOUSE=y
-> CONFIG_MOUSE_PS2=y
-> 
-> CONFIG_VT=y
-> CONFIG_VT_CONSOLE=y
-> CONFIG_HW_CONSOLE=y
-> 
-> CONFIG_SERIAL_8250=y
-> 
-> CONFIG_SERIAL_CORE=y
-> CONFIG_UNIX98_PTYS=y
-> CONFIG_UNIX98_PTY_COUNT=256
-> CONFIG_PRINTER=m
-> 
-> CONFIG_I2C=m
-> CONFIG_I2C_ALGOBIT=m
-> 
-> CONFIG_AGP=m
-> CONFIG_AGP_AMD=y
-> CONFIG_DRM=y
-> CONFIG_DRM_RADEON=m
-> 
-> CONFIG_AUTOFS4_FS=m
-> CONFIG_FAT_FS=m
-> CONFIG_MSDOS_FS=m
-> CONFIG_VFAT_FS=m
-> CONFIG_TMPFS=y
-> CONFIG_RAMFS=y
-> CONFIG_ISO9660_FS=m
-> CONFIG_JOLIET=y
-> CONFIG_PROC_FS=y
-> CONFIG_DEVPTS_FS=y
-> CONFIG_EXT2_FS=y
-> CONFIG_UDF_FS=m
-> CONFIG_UDF_RW=y
-> 
-> CONFIG_NFS_FS=m
-> CONFIG_NFS_V3=y
-> CONFIG_NFSD=m
-> CONFIG_NFSD_V3=y
-> CONFIG_NFSD_TCP=y
-> CONFIG_SUNRPC=m
-> CONFIG_LOCKD=m
-> CONFIG_LOCKD_V4=y
-> CONFIG_EXPORTFS=m
-> 
-> CONFIG_MSDOS_PARTITION=y
-> CONFIG_NLS=y
-> 
-> CONFIG_NLS_DEFAULT="iso8859-1"
-> 
-> CONFIG_VGA_CONSOLE=y
-> CONFIG_VIDEO_SELECT=y
-> 
-> CONFIG_SOUND=m
-> 
-> CONFIG_SND=m
-> CONFIG_SND_OSSEMUL=y
-> CONFIG_SND_MIXER_OSS=m
-> CONFIG_SND_PCM_OSS=m
-> 
-> CONFIG_SND_ENS1371=m
-> 
-> CONFIG_USB=m
-> 
-> CONFIG_USB_STORAGE=m
-> CONFIG_USB_STORAGE_DATAFAB=y
-> CONFIG_USB_STORAGE_DPCM=y
-> CONFIG_USB_STORAGE_SDDR09=y
-> CONFIG_USB_STORAGE_JUMPSHOT=y
-> 
-> CONFIG_USB_SERIAL=m
-> CONFIG_USB_SERIAL_GENERIC=y
-> CONFIG_USB_SERIAL_FTDI_SIO=m
-> 
-> CONFIG_DEBUG_KERNEL=y
-> CONFIG_MAGIC_SYSRQ=y
-> CONFIG_KALLSYMS=y
-> 
-> CONFIG_SECURITY_CAPABILITIES=y
-> 
-> CONFIG_X86_BIOS_REBOOT=y
+Thoughts?
+Rusty.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/crypto/api.c working-2.5-bk-modname/crypto/api.c
+--- linux-2.5-bk/crypto/api.c	2002-11-11 20:00:55.000000000 +1100
++++ working-2.5-bk-modname/crypto/api.c	2002-11-13 20:49:52.000000000 +1100
+@@ -263,8 +263,7 @@ static int c_show(struct seq_file *m, vo
+ 	struct crypto_alg *alg = (struct crypto_alg *)p;
+ 	
+ 	seq_printf(m, "name         : %s\n", alg->cra_name);
+-	seq_printf(m, "module       : %s\n", alg->cra_module ?
+-					alg->cra_module->name : "[static]");
++	seq_printf(m, "module       : %s\n", module_name(alg->cra_module));
+ 	seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);
+ 	
+ 	switch (alg->cra_flags & CRYPTO_ALG_TYPE_MASK) {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/include/linux/module.h working-2.5-bk-modname/include/linux/module.h
+--- linux-2.5-bk/include/linux/module.h	2002-11-13 18:54:55.000000000 +1100
++++ working-2.5-bk-modname/include/linux/module.h	2002-11-13 20:56:51.000000000 +1100
+@@ -242,6 +242,13 @@ static inline void module_put(struct mod
+ 
+ #endif /* CONFIG_MODULE_UNLOAD */
+ 
++/* This is a #define so the string doesn't get put in every .o file */
++#define module_name(mod)			\
++({						\
++	struct module *__mod = (mod);		\
++	__mod ? __mod->name : "kernel";		\
++})
++
+ #define __unsafe(mod)							     \
+ do {									     \
+ 	if (mod && !(mod)->unsafe) {					     \
+@@ -265,6 +272,8 @@ do {									     \
+ #define try_module_get(module) 1
+ #define module_put(module) do { } while(0)
+ 
++#define module_name(mod) "kernel"
++
+ #define __unsafe(mod)
+ #endif /* CONFIG_MODULES */
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/kernel/exec_domain.c working-2.5-bk-modname/kernel/exec_domain.c
+--- linux-2.5-bk/kernel/exec_domain.c	2002-11-13 18:54:56.000000000 +1100
++++ working-2.5-bk-modname/kernel/exec_domain.c	2002-11-13 20:57:19.000000000 +1100
+@@ -210,13 +210,8 @@ get_exec_domain_list(char *page)
+ 	read_lock(&exec_domains_lock);
+ 	for (ep = exec_domains; ep && len < PAGE_SIZE - 80; ep = ep->next)
+ 		len += sprintf(page + len, "%d-%d\t%-16s\t[%s]\n",
+-			ep->pers_low, ep->pers_high, ep->name,
+-#ifdef CONFIG_MODULES
+-			ep->module ? ep->module->name : "kernel"
+-#else
+-			"kernel"
+-#endif
+-			);
++			       ep->pers_low, ep->pers_high, ep->name,
++			       module_name(ep->module));
+ 	read_unlock(&exec_domains_lock);
+ 	return (len);
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/net/ipv4/netfilter/ip_nat_helper.c working-2.5-bk-modname/net/ipv4/netfilter/ip_nat_helper.c
+--- linux-2.5-bk/net/ipv4/netfilter/ip_nat_helper.c	2002-11-13 18:54:56.000000000 +1100
++++ working-2.5-bk-modname/net/ipv4/netfilter/ip_nat_helper.c	2002-11-13 20:59:30.000000000 +1100
+@@ -361,8 +361,6 @@ helper_cmp(const struct ip_nat_helper *h
+ 	return ip_ct_tuple_mask_cmp(tuple, &helper->tuple, &helper->mask);
+ }
+ 
+-#define MODULE_MAX_NAMELEN		32
+-
+ int ip_nat_helper_register(struct ip_nat_helper *me)
+ {
+ 	int ret = 0;
+@@ -374,14 +372,13 @@ int ip_nat_helper_register(struct ip_nat
+ 		    && ct_helper->me) {
+ 			__MOD_INC_USE_COUNT(ct_helper->me);
+ 		} else {
+-#ifdef CONFIG_MODULES
+ 			/* We are a NAT helper for protocol X.  If we need
+ 			 * respective conntrack helper for protoccol X, compute
+ 			 * conntrack helper name and try to load module */
+-			char name[MODULE_MAX_NAMELEN];
+-			const char *tmp = me->me->name;
++			char name[MODULE_NAME_LEN];
++			const char *tmp = module_name(me->me);
+ 			
+-			if (strlen(tmp) + 6 > MODULE_MAX_NAMELEN) {
++			if (strlen(tmp) + 6 > MODULE_NAME_LEN) {
+ 				printk("%s: unable to "
+ 				       "compute conntrack helper name "
+ 				       "from %s\n", __FUNCTION__, tmp);
+@@ -404,7 +401,6 @@ int ip_nat_helper_register(struct ip_nat
+ 			       "module loader support\n", name);
+ 			return -EBUSY;
+ #endif
+-#endif
+ 		}
+ 	}
+ 	WRITE_LOCK(&ip_nat_lock);
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

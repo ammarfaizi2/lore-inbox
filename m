@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSKRSWH>; Mon, 18 Nov 2002 13:22:07 -0500
+	id <S264637AbSKRSRd>; Mon, 18 Nov 2002 13:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263281AbSKRSWH>; Mon, 18 Nov 2002 13:22:07 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:48812 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263270AbSKRSWG>; Mon, 18 Nov 2002 13:22:06 -0500
-Subject: [maybe-OT] D-Link AirPlus ( DWL 520+ and 650+) Chipset TI ACX100
-From: Moritz Angermann <moritz.angermann@gmx.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Nov 2002 19:28:41 +0100
-Message-Id: <1037644121.4237.16.camel@ai>
+	id <S264639AbSKRSRd>; Mon, 18 Nov 2002 13:17:33 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:59601 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S264637AbSKRSRb>; Mon, 18 Nov 2002 13:17:31 -0500
+Message-Id: <200211181823.gAIIN1eA002882@pool-151-204-203-202.delv.east.verizon.net>
+Date: Mon, 18 Nov 2002 13:22:57 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: Jochen Hein <jochen@jochen.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.48] Config.help misleading
+References: <871y5iuajl.fsf@gswi1164.jochen.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <871y5iuajl.fsf@gswi1164.jochen.org>; from jochen@jochen.org on Mon, Nov 18, 2002 at 05:06:54PM +0100
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [151.204.203.202] at Mon, 18 Nov 2002 12:24:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hmm well after doing some research at google.com ( groups and web )
-i figured out, the WLAN card i bought. has this TI ACX100 chipset.
-and there ain't no driver. afaik. Also someone said, that Dlink was
-doing some linux driver. I'm suspicious this will happen anyway. 
-Since a mail i sent Dlink support. The US Support pointed me to
-the Driver for the DWL 520 and 650 which have the Prism2 chip and 
-though linux-wlan does support the. Dlink DE support told me they
-didn't know about any driver but would inform me if they do.
+Jochen Hein wrote:
+> Help says to say "Y" if unsure, but that isn't allowed:
+> ,----
+> |   UHCI HCD (most Intel and VIA) support (USB_UHCI_HCD) [N/m/?] (NEW) ?
+> | 
+[snip]
+> | 133). If unsure, say Y.
+> | 
+> |   UHCI HCD (most Intel and VIA) support (USB_UHCI_HCD) [N/m/?] (NEW) y
+> `----
 
-so it looks to me as if i'm on my own. well i don't mind... :*/
-(*grmbl*)
-I wonderd if ReverseEngineering the Windows Driver might help me with
-that. though my ASM knowledge ain't taht good (but that is increaseable)
-and in Germany afaik. Rev.Eng. is allowed.
+Did you choose to make USB support a module?  If you said 'y' to USB
+support, then you should have a 'y' option above.  However, you most
+likely said 'm' for USB support so 'm' is all you can do for this
+because it depends on it.  Had you said 'n' to USB support, you wouldn't
+be able to select 'y' or 'm' for the above.
 
-So why i write it to this ML. is because, this is kinda the 'source'
-when talking about driver, i guess. And well might be you know of anyone
-doing allreaday that... So i just don't start doing obsolet stuff.
-
-regards
 -- 
-- Moritz Angermann / mind -
-
-------------------------------------------------------------------- 
-This message is composed of 100% recycled electrons & photons only! 
--------------------------------------------------------------------
-
+Skip

@@ -1,102 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUEELSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUEELUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUEELSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUEELSr
+	id S264542AbUEELUx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 07:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUEELUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:18:47 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:36808 "EHLO
-	mailfe05.swip.net") by vger.kernel.org with ESMTP id S264530AbUEELSn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:18:43 -0400
-X-T2-Posting-ID: BRDanst2gKhoMyJYeX8opk+mB0Q5BdOtN5BQ9BTnzIE=
-From: Daniel Moyne <dmoyne@tiscali.fr>
-Organization: home
-To: linux-kernel@vger.kernel.org
-Subject: [bug kernel 2.6 / USB / SCSI] report
-Date: Wed, 5 May 2004 13:18:49 +0200
-User-Agent: KMail/1.6.1
+	Wed, 5 May 2004 07:20:53 -0400
+Received: from gizmo02bw.bigpond.com ([144.140.70.12]:28593 "HELO
+	gizmo02bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264542AbUEELUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 07:20:33 -0400
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: "Allen Martin" <AMartin@nvidia.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
+Date: Wed, 5 May 2004 21:24:55 +1000
+User-Agent: KMail/1.5.1
+Cc: "Len Brown" <len.brown@intel.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com>
+In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405051318.50204.dmoyne@tiscali.fr>
+Content-Disposition: inline
+Message-Id: <200405052124.55515.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is my bug report :
+On Tuesday 04 May 2004 08:09, Allen Martin wrote:
+> I'm happy to be able to make this information public to the Linux
+> community.  This information has been previously released to BIOS /
+> board vendors as an appnote, but in the interest of getting a workaround
+> into the hands of users the quickest we're making it public for possible
+> inclusion into the Linux kernel.
+> 
+<snip>
 
-a) data of my system
+Thank you very much Allen for being involved in linux development.
+Obsolecense is the best ending a temporary workaround could have.
 
-Linux azun.home.fr 2.6.3-4mdk #1 Tue Mar 2 07:26:13 CET 2004 i686 unknown 
-unknown GNU/Linux
+I think I have found the problem with the Albatron KM18G-pro Mobos I have been
+using.
 
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0
-e2fsprogs              1.34
-quota-tools            3.09.
-PPP                    2.4.1
-nfs-utils              1.0.6
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.1.15
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.1.2
-Modules Loaded         sg autofs4 tdfx lp md5 ipv6 snd-seq-midi 
-snd-emu10k1-synth snd-emux-synth snd-seq-virmidi snd-seq-midi-emul 
-snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss snd-mixer-oss snd-emu10k1 
-snd-rawmidi snd-pcm snd-timer snd-seq-device snd-ac97-codec snd-page-alloc 
-snd-util-mem snd-hwdep snd soundcore ppp_synctty ppp_async ppp_generic slhc 
-af_packet hid sr_mod raw ide-floppy ide-tape ide-cd cdrom floppy 8139too mii 
-supermount via-agp agpgart ppa parport_pc imm parport usblp ehci-hcd uhci-hcd 
-usbcore rtc ext3 jbd sd_mod dc395x scsi_mod
+They can't see through their Windows.??!@@#$$%%&*&
 
-Other :
-distribution : MDK 10.0 Community kernel 2.6.3-4mdk
-Motherboard : MSI K7T Turbo 2 with CPU AMD Duron 1 GHz
+ML1-0505-19 Re: Cause of lockups with KM-18G Pro is incorrect pci reg values in bios -please update bios
 
-b) problems :
-2.4.x works fine.
-2.6.x is much faster but shows some problems with USB and SCSI drives.
+From: 
+"dr.pro" <dr.pro@albatron.com.tw>
 
-USB :
+To: 
+<ross@datscreative.com.au>
 
-- the only way to get my USB printer recognized is to use the following 
-modules (from lsmod) :
-usblp                  12256  0
-ehci-hcd               24196  0
-uhci-hcd               29104  0
-usbcore                99132  6 hid,usblp,ehci-hcd,uhci-hcd
+Date: 
+Today 17:38:08
 
-and set the following "append" option in lilo :
-	append="devfs=mount noapic resume=/dev/hda5"
-what is relevant here is obviously the "noapic" option ("apic=ht" works fine 
-for kernel 2.4.x)
+  Dear Ross,
 
-- ohci does not work !
+  Thank you very much for contacting Albatron technical support.
 
-SCSI / CD drives :
+  KM18G Pro has been proved under Windows 98SE/ME/2000/XP but Linux, so you
+may encounter problems with it under Linux. We suggest you use Windows
+98SE/ME/2000/XP for the stable performance. Sorry for the inconvenience and
+please kindly understand it.
 
-- following some recommandations I removed the SCSI IDE mulation from both 
-"lilo.conf" and "modules.conf" files.
+  Please let us know if you have any question.
 
-- both K3b and XCDroast cannot locate my SCSI CD drives : K3b gets stuck from 
-the very beginning when searching CD devices and XCDroast finds my IDE drive 
-but then gets stuck also.
+  Best regards,
+  Dr.Pro
+  ----- Original Message ----- 
+  From: "Ross Dickson" <ross@datscreative.com.au>
+  To: <dr.pro@albatron.com.tw>
+  Sent: Tuesday, May 04, 2004 8:19 PM
+  Subject: Cause of lockups with KM-18G Pro is incorrect pci reg values in
+bios -please update bios
 
-- GCombust works fine
 
-I am willing to answer your questions to pursue diagnosing the various 
-problems.
-Regards.
--- 
-Daniel Moyne (Nulix)----------------------------------------------------------
-Software : Mandrake 10.0 Community \\|//    kernel "2.6.3-4mdk"
-KDE 3.2                           / --- \
-                                 (' o-o ')
---------------------------------oOO-(_)-OOo-----------------------------------
+  > Greetings,
+  >
+  > The following is required for Linux to function correctly on your KM-18G
+Pro.
+  >
+  > Allen Martin of Nvidia explains.
+  >
+  > I'm happy to be able to make this information public to the Linux
+  > community.  This information has been previously released to BIOS /
+  > board vendors as an appnote, but in the interest of getting a workaround
+  > into the hands of users the quickest we're making it public for possible
+  > inclusion into the Linux kernel.
+  >
+  >
+  > Problem:
+  > C1 Halt Disconnect problem on nForce2 systems
+  >
+  > Description:
+  > A hang is caused when the CPU generates a very fast CONNECT/HALT cycle
+  > sequence.
+  >
+  > Workaround:
+  > Set the SYSTEM_IDLE_TIMEOUT to 80 ns. This allows the state-machine and
+  > timer to return to a proper state within 80 ns of the CONNECT and probe
+  > appearing together.
+  >
+  > Since the CPU will not issue another HALT within 80 ns of the initial
+  > HALT, the failure condition is avoided.
+  >
+  > This will require changing the value for register at bus:0 dev:0 func:0
+  > offset 6c.
+  >
+  > Chip   Current Value   New Value
+  > C17       1F0FFF01     1F01FF01
+  > C18D      9F0FFF01     9F01FF01
+  >
+  > Northbridge chip version may be determined by reading the PCI revision
+  > ID (offset 8) of the host bridge at bus:0 dev:0 func:0.  C1 or greater
+  > is C18D.
+  >
+  > Regards
+  > Ross Dickson
+  >
+  >
+

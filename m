@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVCCRzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVCCR7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVCCRzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 12:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVCCRyz
+	id S261437AbVCCR7d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 12:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbVCCRy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:54:55 -0500
-Received: from iabervon.org ([66.92.72.58]:11270 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S261841AbVCCRva (ORCPT
+	Thu, 3 Mar 2005 12:54:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64960 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261437AbVCCRwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:51:30 -0500
-Date: Thu, 3 Mar 2005 12:52:52 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 12:52:19 -0500
+Date: Thu, 3 Mar 2005 09:53:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Chris Wright <chrisw@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.21.0503031226430.30848-100000@iabervon.org>
+In-Reply-To: <20050303170336.GL19505@suse.de>
+Message-ID: <Pine.LNX.4.58.0503030952120.25732@ppc970.osdl.org>
+References: <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+ <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+ <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+ <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+ <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <20050303165533.GQ28536@shell0.pdx.osdl.net>
+ <20050303170336.GL19505@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Linus Torvalds wrote:
 
->  - some very _technical_ and objective rules on patches. And they should 
->    limit the patches severely, so that people can never blame the sucker 
->    who does the job. For example, I would suggest that "size" be one hard 
->    technical rule. If the patch is more than 100 lines (with context) in
->    size, it's not trivial any more. Really. Two big screenfuls (or four, 
->    for people who still use the ISO-ANSI standard 80x24 vt100)
 
-One thing that's worth pointing out is that sometimes the 20-line patch is
-sufficient to solve the problem, but is lousy code. That's fine for a tree
-that will be frozen in a couple of months after only getting little fixes
-to other files, but mainline should get a real fix, which wouldn't be
-acceptable in the sucker tree. So 2.6.(x+1) shouldn't automatically get
-2.6.x.y. Should reverting a 200-line patch which turned out to need
-another 200 lines to work be acceptable?
+On Thu, 3 Mar 2005, Jens Axboe wrote:
+> 
+> Why should there be one? One of the things I like about this concept is
+> that it's just a moving tree. There could be daily snapshots like the
+> -bkX "releases" of Linus's tree, if there are changes from the day
+> before. It means (hopefully) that no one will "wait for x.y.z.2 because
+> that is really stable".
 
->    Also, I'd suggest that a _hard_ rule (ie nobody can override it) would 
->    also be that the problem causes an oops, a hang, or a real security
->    problem that somebody can come up with an exploit for (ie no "there
->    could be a two-instruction race" crap. Only "there is a race, and
->    here's how you exploit it"). The exploit wouldn't need to be full code 
->    that gets root, but an explanation of it, at least.
+Exactly. Th ewhole point of this tree is that there shouldn't be anything 
+questionable in it. All the patches are independent, and they are all 
+trivial and small.
 
-Similar rule for driver patches: you can patch a driver if it makes the 
-device not work (but you couldn't patch the core)?
+Which is not to say there couldn't be regressions even from trivial and 
+small patches, and yes, there will be an outcry when there is, but we're 
+talking minimizing the risk, not making it impossible.
 
-> Does this mean that some patches would never go into this tree? Yes. It
-> would mean that patches that some people might feel very _strongly_ are
-> good patches would never ever show up in this tree, but on the other hand,
-> I can see this tree being useful regardless, and I think the lack of
-> flexibility in this case is actually the whole _point_ of the tree. The 
-> lack of flexibility is the very thing that makes this be the kind of base 
-> that anybody else can then hang their own patches on top of. There should 
-> never be a situation where "I'd like that tree, but I think xxxx was done 
-> wrong".
-
-The good patches will show up in 2.6.(x+1).1, which should be
-sufficient. It's not the same sucker tree, but it's a sucker tree.
-
-	-Daniel
-*This .sig left intentionally blank*
-
+		Linus

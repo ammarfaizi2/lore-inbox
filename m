@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271997AbRH2PaR>; Wed, 29 Aug 2001 11:30:17 -0400
+	id <S271995AbRH2PbH>; Wed, 29 Aug 2001 11:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271996AbRH2PaH>; Wed, 29 Aug 2001 11:30:07 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:47569 "HELO
+	id <S271996AbRH2Pa7>; Wed, 29 Aug 2001 11:30:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:45777 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S271995AbRH2P3u>; Wed, 29 Aug 2001 11:29:50 -0400
-Date: Wed, 29 Aug 2001 17:30:02 +0200 (CEST)
+	id <S271995AbRH2Pap>; Wed, 29 Aug 2001 11:30:45 -0400
+Date: Wed, 29 Aug 2001 17:30:57 +0200 (CEST)
 From: Adrian Bunk <bunk@fs.tum.de>
 X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
-To: Hugh Dickins <hugh@veritas.com>
+To: John Levon <moz@compsoc.man.ac.uk>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: VM: Bad swap entry 0044cb00
-In-Reply-To: <Pine.LNX.4.21.0108281341140.1135-100000@localhost.localdomain>
-Message-ID: <Pine.NEB.4.33.0108291729001.21364-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <20010828012308.A36433@compsoc.man.ac.uk>
+Message-ID: <Pine.NEB.4.33.0108291730300.21364-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, Hugh Dickins wrote:
+On Tue, 28 Aug 2001, John Levon wrote:
 
->...
-> If you're still getting such messages, please let me know and
-> I'll send a test patch to make the message more informative.
+> fwiw, this seems to be a common characteristic of hardware problems with
+> 2.4 kernels. I've had bad RAM (discovered by memtest86) which was producing
+> this error without any swapoff. Once it only occurred after an entire night
+> of kernel compiles (memtest86 found it easily however)
 
-I'll try to reproduce it (it didn't appear again).
+memtest86 didn't find any errors in my RAM.
 
-> Is this an SMP machine?
-
-No.
-
-> Hugh
+> regards
+> john
 
 cu
 Adrian

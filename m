@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281080AbRKOVcT>; Thu, 15 Nov 2001 16:32:19 -0500
+	id <S281079AbRKOViJ>; Thu, 15 Nov 2001 16:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281087AbRKOVcM>; Thu, 15 Nov 2001 16:32:12 -0500
-Received: from apollo.wizard.ca ([204.244.205.22]:28429 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S281075AbRKOVcH>;
-	Thu, 15 Nov 2001 16:32:07 -0500
-Subject: Re: Re: Re: loop back broken in 2.2.14
-From: Michael Peddemors <michael@wizard.ca>
-To: joeja@mindspring.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Springmail.105.1005761843.0.30236800@www.springmail.com>
-In-Reply-To: <Springmail.105.1005761843.0.30236800@www.springmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 15 Nov 2001 13:37:35 -0800
-Message-Id: <1005860255.9913.794.camel@mistress>
+	id <S281081AbRKOVht>; Thu, 15 Nov 2001 16:37:49 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:14723 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S281079AbRKOVhq>;
+	Thu, 15 Nov 2001 16:37:46 -0500
+Date: Wed, 14 Nov 2001 00:10:54 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: L A Walsh <law@sgi.com>
+Cc: "mike@morpheus" <mike@morpheus.streamgroup.co.uk>,
+        Linux-kernel@vger.kernel.org
+Subject: Re: mysterious power off problem 2.4.10-2.4.14 on laptop
+Message-ID: <20011114001054.A37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0111122227140.24454-100000@morpheus.streamgroup.co.uk> <3BF039D9.D75809F2@sgi.com>
 Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3BF039D9.D75809F2@sgi.com>; from law@sgi.com on Mon, Nov 12, 2001 at 01:06:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I seriously considered the feasibility of having 2.4.14-fixed
-kernels around, but I could just imagine trying to deal with millions of
-people trying to download known good kernels on our bandwidth...
+Hi!
 
-It would be good to be able to point people to a stable kernel.. instead
-of having to recommend kernels in the pre-series..
+> > Give ACPI a try, for a while I've noticed APM getting mixed up
+> > on my home box (its a VIA chipset, I've been told that probably
+> > why :), doing things like not powering off and changing the instant-off
+> > powerbutton to a wait-5-seconds powerbutton.
+> > 
+> > I switched to ACPI and everythings been working fine :)
+> ---
+> 	Thanks for the suggestion.  However APM was working superbly for
+> my architecture in 2.4.9 and before.  It turned off the display when I
 
-But for now, fixing the 2.4.14. loopback bug has given us a kernel we
-are most comfortable with.. 
-
-Just wish that 2.4.14 was that kernel..
-
-On Wed, 2001-11-14 at 10:17, joeja@mindspring.com wrote:
-> I think that was suggested a while ago, in the 2.2 days.  It didn't fly! There was however a general consensus that for small bugs that are found in a 'stable' release there should be fixes for just the bug as the next release.  I.E. 2.2.15 should be released with just the one fix.  Linus didn't seem to go for that as well as some other developers .
-> 
-> If 2.5 was open this kind of thing would probably not happen, but that is not to say that there would not be other issues in 2.4
-> 
-> If someone has the web space, they could as you say, post these 2.4.14.fixme kernels and then also maintain the patches between the official Linus kernel and the fixme kernels.  
-
+You don't want to switch to acpi.... Di binary search of which patch broke 
+it....
 -- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-Wizard IT Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

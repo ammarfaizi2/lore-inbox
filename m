@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLXKQf>; Sun, 24 Dec 2000 05:16:35 -0500
+	id <S129370AbQLXK17>; Sun, 24 Dec 2000 05:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLXKQZ>; Sun, 24 Dec 2000 05:16:25 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:33039 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129319AbQLXKQR>; Sun, 24 Dec 2000 05:16:17 -0500
-Message-ID: <3A45C5AA.D0A5FDF3@t-online.de>
-Date: Sun, 24 Dec 2000 10:45:14 +0100
-From: Jeffrey.Rose@t-online.de (Jeffrey Rose)
-Organization: http://ChristForge.SourceForge.net/
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Michael Chen <michaelc@turbolinux.com.cn>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: About Celeron processor memory barrier problem
-In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn> <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com> <20001224002732.O25239@arthur.ubicom.tudelft.nl>
+	id <S129543AbQLXK1t>; Sun, 24 Dec 2000 05:27:49 -0500
+Received: from smtp3.xs4all.nl ([194.109.127.132]:42511 "EHLO smtp3.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129370AbQLXK1c>;
+	Sun, 24 Dec 2000 05:27:32 -0500
+Date: Sun, 24 Dec 2000 09:52:57 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19pre3 clock timer config lost ?
+Message-ID: <20001224095257.A1620@grobbebol.xs4all.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-OS: Linux grobbebol 2.2.19pre3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
-> 
-> On Sat, Dec 23, 2000 at 09:21:51AM -0800, Linus Torvalds wrote:
-> > A Celeron isn't a PIII, and you shouldn't tell the configure that it is.
-> 
-> Well, some Celerons are. My laptop has a Celeron with a Coppermine
-> core, so it is PIII based. Here is the output from /proc/cpuinfo:
-> 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Celeron (Coppermine)
-> stepping        : 1
-> cpu MHz         : 501.140
-> cache size      : 128 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 999.42
+never seen this before.
 
-I also have a Celeron 600 in my Compaq 5000, but even with the output
-below, I am not sure this is what Linus is talking about! I believe
-Linus is trying to say, "We HAVE configurations set for that specific
-architecture, so please USE them." However, I suppose you are saying you
-will get better performance from selecting PIII due to this output? Let
-me know ...
+I run 2.2.19pre3 on a BP6.  No OC, no vmware. just the kernel wilt
+lm-sensors stuff patched in.
 
-jrose$ cat /proc/info 
+I found that the kernel was somewhat sluggish now and then, and
+this morning, this popped up in the logs :
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Celeron (Coppermine)
-stepping	: 3
-cpu MHz		: 598.064
-cache size	: 128 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat
-pse36 mmx fxsr sse
-bogomips	: 1192.76
+Dec 24 02:05:05 grobbebol kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
 
-Cheers,
+Dec 24 02:05:05 grobbebol kernel: probable hardware bug: restoring chip
+configuration.
 
-Jeff
+which is weird I guess.
+
 -- 
-<Jeffrey.Rose@t-online.de>
-KEYSERVER=wwwkeys.de.pgp.net
-SEARCH STRING=Jeffrey Rose
-KEYID=6AD04244
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

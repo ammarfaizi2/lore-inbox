@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRCCRqd>; Sat, 3 Mar 2001 12:46:33 -0500
+	id <S129624AbRCCR6r>; Sat, 3 Mar 2001 12:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbRCCRq1>; Sat, 3 Mar 2001 12:46:27 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:58842 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129631AbRCCRqH>; Sat, 3 Mar 2001 12:46:07 -0500
-Message-ID: <3AA12CD8.7F948E0D@coplanar.net>
-Date: Sat, 03 Mar 2001 12:41:44 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jon Masters <jonathan@jonmasters.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Forwarding broadcast traffic
-In-Reply-To: <200103031054.KAA29868@localhost.localdomain>
+	id <S129632AbRCCR6h>; Sat, 3 Mar 2001 12:58:37 -0500
+Received: from marine.sonic.net ([208.201.224.37]:18256 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S129624AbRCCR6b>;
+	Sat, 3 Mar 2001 12:58:31 -0500
+X-envelope-info: <dhinds@sonic.net>
+Message-ID: <20010303095819.A16963@sonic.net>
+Date: Sat, 3 Mar 2001 09:58:19 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Bug in cardbus initialization, or am I missing something?
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Masters wrote:
+In drivers/pcmcia/cardbus.c in cb_alloc(), PCI_INTERRUPT_LINE and
+dev->irq are not filled in until after calling pci_enable_device().
+The result is a cryptic message like:
 
-> Hello,
->         I have a brain-dead application here which relies on broadcast
-> traffic for client/server discovery and I have a question with regard
-> to forwarding broadcast traffic.
+> PCI: No IRQ known for interrupt pin A of device 01:00.0. Please try using pci=biosirq. 
 
-try bridging instead if ip forwarding.  use netfilter too if you want
+Unless there is a less obvious reason for the ordering, I suggest the
+following one-liner.
 
->
->
-> A small part of my local LAN looks like this:
->
->                  REST OF LAN
->                       |
->                       | (router eth1)
->                       |
->                  masquerading
->                 router (kernel 2.2.14)
->                       |
->                       | (router eth0)
->                       |
->                    desktop (private IP)
->                     boxen  (kernel 2.4.2)
->
-> * upgrading the router is not a problem[0].
->
-> I wish to have the router forward certain broadcast traffic coming
-> from either side out to the other (as well as itself).
->
-> e.g. on desktop a broadcast udp packet (with a specified port) needs to
-> go not only to itself and the router but also the "REST OF LAN" part
-> too - and vice versa. Removing the router is not an option.
->
-> I know this isn't a *nice* idea and ordinarily I wouldn't be jumping up
-> and down suggesting one throws broadcast traffic around however I need
-> to do this for various reasons and the solution appears to be
-> non-obvious at least to me[1].
->
-> I have considered the idea of creating a transparent bridge however I
-> would really rather not do that here for various reasons.
->
-> I have posted this message to groups elsewhere however I have not yet
-> had any useful responses beyond basic instruction of IP forwarding,
-> etc. which is not what I need here :P
->
-> Any ideas? I think this one has come up before but I could not find a
-> helpful answer in my archives.
->
-> Appreciate your time,
->                         --jcm
->
-> P.S. My lkml feed at home is great but here it is not so could you
->      please CC me on replies thanks.
->
-> [0] Yeah, yeah, I know 2.2.14 is old but it's an old router and when I
->     move that box over to Debian I'll upgrade the kernel at the same
->     time :P
-> [1] either due to general stupidity or tiredness, or both.
-> -
+-- Dave Hinds
 
+--- cardbus.c.orig	Fri Mar  2 09:49:46 2001
++++ cardbus.c	Fri Mar  2 09:50:28 2001
+@@ -288,7 +288,6 @@
+ 			if (res->flags)
+ 				pci_assign_resource(dev, r);
+ 		}
+-		pci_enable_device(dev); /* XXX check return */
+ 
+ 		/* Does this function have an interrupt at all? */
+ 		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
+@@ -297,6 +296,7 @@
+ 			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
+ 		}
+ 
++		pci_enable_device(dev); /* XXX check return */
+ 		pci_insert_device(dev, bus);
+ 	}
+ 

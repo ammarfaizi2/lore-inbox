@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131085AbQLCTQE>; Sun, 3 Dec 2000 14:16:04 -0500
+	id <S131044AbQLCTXz>; Sun, 3 Dec 2000 14:23:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131116AbQLCTPy>; Sun, 3 Dec 2000 14:15:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11066 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131115AbQLCTPp>; Sun, 3 Dec 2000 14:15:45 -0500
-Subject: Re: Fasttrak100 questions...
-To: Wayne.Brown@altec.com
-Date: Sun, 3 Dec 2000 18:45:18 +0000 (GMT)
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <862569AA.005C068D.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at Dec 03, 2000 10:41:20 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131059AbQLCTXq>; Sun, 3 Dec 2000 14:23:46 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1394 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131044AbQLCTXk>; Sun, 3 Dec 2000 14:23:40 -0500
+Date: Sun, 3 Dec 2000 12:52:57 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Igmar Palsenberg <maillist@chello.nl>
+cc: David Ford <david@linux.com>, Matthew Kirkwood <matthew@hairy.beasts.org>,
+        folkert@vanheusden.com, "Theodore Y Ts'o" <tytso@mit.edu>,
+        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <Pine.LNX.4.21.0012031721530.13254-100000@server.serve.me.nl>
+Message-ID: <Pine.LNX.3.96.1001203125046.3925A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E142e8W-0002zx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where can this Lucent driver be found?  The one I use with my Thinkpad is
-> version 5.68.  It comes as a loadable module (ltmodem.o) with no serial.c, and I
-> havent gotten it to work with any kernel later than 2.2.14.
+On Sun, 3 Dec 2000, Igmar Palsenberg wrote:
+> > Any programmer who has evolved sufficiently from a scriptie should take
+> > necessary precautions to check how much data was transferred.  Those who
+> > don't..well, there is still tomorrow.
+> > 
+> > There is no reason to add any additional documentation.  If we did, we'd be
+> > starting the trend of documenting the direction a mouse moves when it's
+> > pushed and not to be alarmed if you turn the mouse sideways and the result is
+> > 90 degrees off.
+> 
+> random devices are different. If it request 10 bytes on random stuff, I
+> want 10 bytes. Anything less is a waste of the read, because I need 10
+> bytes.
+> 
+> At least, in my opinion.
+> 
+> Anyone has an insight how other *NIX'es handle this ?
 
-The serial API had to change in 2.2.15. I know it broke the lucent driver, the
-fix was a neccessary security fix
-
-Alan
+This is standard stuff...  You are really pissing into the wind here ;)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbUCLLnQ (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 12 Mar 2004 06:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUCLLnQ
+	id S262142AbUC1IPh (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 28 Mar 2004 03:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUC1IPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 06:43:16 -0500
-Received: from www.hotmat.com ([213.253.19.139]:56738 "HELO mx.hotmat.com")
-	by vger.kernel.org with SMTP id S261848AbUCLLnP (ORCPT
+	Sun, 28 Mar 2004 03:15:23 -0500
+Received: from [218.247.190.93] ([218.247.190.93]:36734 "HELO vexclothing.net")
+	by vger.kernel.org with SMTP id S262129AbUC1IPN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 06:43:15 -0500
-Date: 12 Mar 2004 11:43:13 -0000
-Message-ID: <20040312114313.22801.qmail@mx.hotmat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Your Free Hotmat Mouse Pad
-FROM: registrations@hotmat.com
+	Sun, 28 Mar 2004 03:15:13 -0500
+To: <linux-kernel@vger.kernel.org>
+From: "irvin" <adejoode@hotmail.com>
+Date: Sun, 28 Mar 2004 01:20:14 GMT
+Message-Id: <1080436814-16122@excite.com>
+Subject: Super hot CAS1N0 B0nus 0ffers! softball warriorsx
+Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+Come and play at the world's PREMIvERE ONLINwE CASrINO!
+We are happy to offer you, in an elegant atmosphere, a 50% BONUnS for YOUR FIRST DEPOiSIT as a New Player.
 
-Thank you for sending an email to signup@hotmat.com  
+Sign up now! Don't wait!
 
-signup@hotmat.com is the signup confirmation email address
-used by hotmat to determine whether you qualify for a 
-free mouse pad with free world-wide shipping.
+http://www.virtualcasinoes.net/_e4faa55afa1972493c43ac8a3f66f869/
 
-Unfortunately, there was something wrong with your email.
-For example, it might have been blank or it might not have
-contained a valid confirmation message from one of our 
-sponsors.
 
-To remedy this, please follow the instructions at the page 
-below:
-http://www.hotmat.com/signup_email.htm
+We'll automatically CREDIuT your account with a 50% BONUmS of extra chips, to wager in our CASIrNO.
+Don't hesiotate and try your luck!
 
-(Copy the address above into your web browser's address box 
-if your email program will not let you to click on it.)
+CLICoK HERnE!
 
-We look forward to sending you your free top quality designer 
-mouse pad as soon as we have received a valid confirmation 
-from you.
+http://www.virtualcasinoes.net/_e4faa55afa1972493c43ac8a3f66f869/
 
-Best Regards
 
-The HotMat Team
-www.hotmat.com
 
+smiths marcus stingray alpha1 theking fireball timber cascade jkm mantra master1 love cannon minou gocougs gibson tootsie scooter1 dirk xxxx peggy goblue josie scooby kleenex mortimer

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270331AbRHMRsQ>; Mon, 13 Aug 2001 13:48:16 -0400
+	id <S270328AbRHMRq4>; Mon, 13 Aug 2001 13:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270333AbRHMRsG>; Mon, 13 Aug 2001 13:48:06 -0400
-Received: from press-gopher.uchicago.edu ([128.135.204.194]:4018 "EHLO
-	press-gopher.uchicago.edu") by vger.kernel.org with ESMTP
-	id <S270331AbRHMRsA>; Mon, 13 Aug 2001 13:48:00 -0400
-Date: Mon, 13 Aug 2001 12:47:53 -0500 (CDT)
-From: "Roy C. Bixler" <rcb@press-gopher.uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: VM lockup with 2.4.8 / 2.4.8pre8
-Message-ID: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>
+	id <S270331AbRHMRqq>; Mon, 13 Aug 2001 13:46:46 -0400
+Received: from [193.120.224.170] ([193.120.224.170]:44929 "EHLO
+	florence.itg.ie") by vger.kernel.org with ESMTP id <S270328AbRHMRq3>;
+	Mon, 13 Aug 2001 13:46:29 -0400
+Date: Mon, 13 Aug 2001 18:46:38 +0100 (IST)
+From: Paul Jakma <paulj@alphyra.ie>
+To: Nicholas Knight <tegeran@home.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: via82cxxx_audio driver bug?
+In-Reply-To: <01081307194201.00276@c779218-a>
+Message-ID: <Pine.LNX.4.33.0108131833300.21710-100000@dunlop.itg.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just inadvertantly encountered a VM lockup with Linux 2.4.8.  The
-KDE kspread application couldn't handle one spreadsheet I gave it and it
-ran away consuming all memory in the system.  When I first ran into the
-trouble, my machine has 384 Meg. RAM and 184 Meg. of swap.  I tried
-2.4.8pre8 and the lockup still occurs.  I have increased my swap to 768
-Meg. and 2.4.8 still locks up.  I tried 2.4.7 and it doesn't lockup - it
-correctly OOM kills the runaway process.
+On Mon, 13 Aug 2001, Nicholas Knight wrote:
 
-The system feels responcive up until it locks up.  Running 'top' while it
-happens show that the lockup occurs at about the point where swap runs
-out.  Other system details: it is running the latest Debian snapshot.
+> and if they've seen XMMS or other audio applications with access to
+> /dev/mixer have strange, temporarily lockups when not in root/realtime
+> priority. I've yet to be able to test this with other audio applications
+> besides XMMS.
 
-Linux frobozz 2.4.8 #1 Sat Aug 11 19:26:35 CDT 2001 i686 unknown
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.25
-util-linux             2.11h
-mount                  2.11h
-modutils               2.4.6
-e2fsprogs              1.22
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         cs4232 ad1848 uart401 sound soundcore parport_pc lp
-parport ipx usb-uhci usbcore
+yes.. i see this too with the via82cxxx_audio driver on my Tyan
+AMD751+Via southbridge board.
 
--- 
-Roy Bixler
-The University of Chicago Press
-rcb@press-gopher.uchicago.edu
+/anything/ that accesses /dev/mixer or /dev/dsp while sound is being
+played is locked. Eg, play an mp3 with xmms. while playing, xmms and
+things like the gnome and WM mixer applets are all unresponsive. they
+respond to UI interaction maybe only every 30 seconds or longer.
 
+xmms with real-time priority does not suffer from this
+unresponsiveness.
+
+from the haze of my memory i think this behaviour started with the
+mmap support that Jeff brought in 1.1.13 or 1.1.14. but i can't be
+sure.
+
+I've tried playing with the size of the buffers
+(VIA_MAX_BUFFER_DMA_PAGES) and the _TIME and FRAG_ defines. best
+result was that perioid of the unresponsiveness was reduced slightly,
+but not eliminated (by reducing the buffering times and number of
+fragments).
+
+> Thanks.
+
+regards,
+
+--paulj
 

@@ -1,78 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUH1BUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUH1BXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUH1BUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 21:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268095AbUH1BUO
+	id S268100AbUH1BXV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 21:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUH1BXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 21:20:14 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:21985 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S267765AbUH1BUF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 21:20:05 -0400
-Date: Sat, 28 Aug 2004 03:19:59 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unused ext2_panic
-Message-ID: <20040828011959.GC16444@apps.cwi.nl>
-References: <UTC200408271606.i7RG6tV27596.aeb@smtp.cwi.nl> <Pine.LNX.4.58.0408271104300.14196@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408271104300.14196@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+	Fri, 27 Aug 2004 21:23:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:65158 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268100AbUH1BXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 21:23:11 -0400
+Date: Sat, 28 Aug 2004 10:23:07 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
+To: Grant Grundler <iod00d@hp.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Message-id: <412FDE7B.3070609@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja, en-us, en
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 11:04:59AM -0700, Linus Torvalds wrote:
+(I couldn't see my last mail posted few days ago in list (kicked?),
+  so I send it again...
+  Grant, Linus and Benjamin, I'd appreciate it if you could read this mail
+  and let me know when you receive it. Of course, new comments are welcome.)
 
-> Fixed (slightly differently) in current -BK.
+-------- Original Message --------
 
-Don't see it yet. Something else: ext2_panic is unused, it seems.
+Grant Grundler wrote:
+> Do we only need to determine there was an error in the IO hierarchy
+> or do we also need to know which device/driver caused the error?
+> 
+> If the latter I agree with linus. If the former, then the error recovery
+> can support asyncronous errors (like the bad DMA address case) and tell
+> all affected (thanks willy) drivers.
 
-Andries
+What I supposed here is the former.
 
-diff -uprN -X /linux/dontdiff a/fs/ext2/ext2.h b/fs/ext2/ext2.h
---- a/fs/ext2/ext2.h	2003-12-18 03:59:56.000000000 +0100
-+++ b/fs/ext2/ext2.h	2004-08-28 03:19:30.000000000 +0200
-@@ -131,9 +131,6 @@ extern int ext2_ioctl (struct inode *, s
- /* super.c */
- extern void ext2_error (struct super_block *, const char *, const char *, ...)
- 	__attribute__ ((format (printf, 3, 4)));
--extern NORET_TYPE void ext2_panic (struct super_block *, const char *,
--				   const char *, ...)
--	__attribute__ ((NORET_AND format (printf, 3, 4)));
- extern void ext2_warning (struct super_block *, const char *, const char *, ...)
- 	__attribute__ ((format (printf, 3, 4)));
- extern void ext2_update_dynamic_rev (struct super_block *sb);
-diff -uprN -X /linux/dontdiff a/fs/ext2/super.c b/fs/ext2/super.c
---- a/fs/ext2/super.c	2004-05-28 20:53:22.000000000 +0200
-+++ b/fs/ext2/super.c	2004-08-28 03:20:00.000000000 +0200
-@@ -66,27 +66,6 @@ void ext2_error (struct super_block * sb
- 	}
- }
- 
--NORET_TYPE void ext2_panic (struct super_block * sb, const char * function,
--			    const char * fmt, ...)
--{
--	va_list args;
--	struct ext2_sb_info *sbi = EXT2_SB(sb);
--
--	if (!(sb->s_flags & MS_RDONLY)) {
--		sbi->s_mount_state |= EXT2_ERROR_FS;
--		sbi->s_es->s_state =
--			cpu_to_le16(le16_to_cpu(sbi->s_es->s_state) | EXT2_ERROR_FS);
--		mark_buffer_dirty(sbi->s_sbh);
--		sb->s_dirt = 1;
--	}
--	va_start (args, fmt);
--	vsprintf (error_buf, fmt, args);
--	va_end (args);
--	sb->s_flags |= MS_RDONLY;
--	panic ("EXT2-fs panic (device %s): %s: %s\n",
--	       sb->s_id, function, error_buf);
--}
--
- void ext2_warning (struct super_block * sb, const char * function,
- 		   const char * fmt, ...)
- {
+As Linus said, I also assume that most high-end hardware has enough bridges
+and that the number of devices sharing same bridge would be minimized.
+(And additionally, I assume that there is no "mixed" bridge - having both of
+  device which owned by RAS-aware driver supporting recovery infrastructure
+  and one which owned by not-aware driver.  Generally all should be RAS-aware.)
+
+However, my implementation was not designed on the assumption that
+"1 bridge = 1 device" like on ppc64, but on "1 bridge = 1 device group."
+Of course, there could be some group of only 1 device.
+It will depend on the structure of the system which you could configure it.
+
+Devices in same group can run at same time keeping with a certain level of
+performance, and not mind being affected(or even killed!) by (PCI bus)error
+caused by someone in the group.  They either swim together or sink together.
+
+Fortunately, such error is rare occurrence, and even if it had occurred,
+it would be either "recoverable by a retry since it was a usual soft-error"
+or "unrecoverable since it was a seldom hard-error."
+
+Without this new recovery infrastructure, system cannot have proper drivers
+to retry the transaction to determine whether the error was a soft or a hard,
+and also cannot have these drivers not to return the broken data to user.
+So now, system will down, last resort comes first.
+
+
+> Does anyone expect to recover from devices attempting unmapped DMA?
+> Ie an IOMMU which services multiple PCI busses getting a bad DMA address
+> will cause the next MMIO read by any of the (grandchildren) PCI devices to 
+> see an error (MCA on IA64). I'm asking only to determine if this is
+> outside the scope of what the PCI error recovery is trying to support.
+
+At present, unmapped DMA is outside of the scope... but alongside I also
+trying to possible IA64 specific recovery(with MCA & CPE) using prototypes.
+
+
+>>> +	bool "PCI device error recovery"
+>>> +	depends on PCI
+> 
+> 	depends on PCI && EXPERIMENTAL
+> 
+>>> +	---help---
+>>> +	By default, the device driver hardly recovers from PCI errors. When
+>>> +	this feature is available, the special io interface are provided
+>>> +	from the kernel.
+> 
+> May I suggest an alternate text?
+> 	Saying Y provides PCI infrastructure to recover from some PCI errors.
+> 	Currently, very few PCI drivers actually implement this.
+> 	See Documentation/pci-errors.txt for a description of the
+> 	infrastructure provided.
+
+Thank you for good substitution :-D
+
+I understand the needs of Documentation/pci-errors.txt for driver developers,
+so I'll write the document and post it asap.
+
+
+Thanks,
+H.Seto

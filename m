@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268383AbTGIQC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 12:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbTGIQC3
+	id S266059AbTGIQTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 12:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266057AbTGIQTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 12:02:29 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:15023 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S268383AbTGIQC2
+	Wed, 9 Jul 2003 12:19:19 -0400
+Received: from pirx.hexapodia.org ([208.42.114.113]:45871 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266059AbTGIQTS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 12:02:28 -0400
-Date: Wed, 9 Jul 2003 09:16:51 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: mru@users.sourceforge.net
+	Wed, 9 Jul 2003 12:19:18 -0400
+Date: Wed, 9 Jul 2003 11:33:56 -0500
+From: Andy Isaacson <adi@hexapodia.org>
+To: Kurt Wall <kwall@kurtwerks.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA 150 TX2 plus
-Message-ID: <20030709161651.GA1526@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	mru@users.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <20030709150852.GA11309@work.bitmover.com> <yw1x1xwzwwwk.fsf@users.sourceforge.net>
+Subject: Re: modutils-2.3.15 'insmod'
+Message-ID: <20030709113356.B9732@hexapodia.org>
+References: <Pine.LNX.4.53.0307091119450.470@chaos> <20030709160823.GC267@kurtwerks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yw1x1xwzwwwk.fsf@users.sourceforge.net>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030709160823.GC267@kurtwerks.com>; from kwall@kurtwerks.com on Wed, Jul 09, 2003 at 12:08:23PM -0400
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 05:19:07PM +0200, mru@users.sourceforge.net wrote:
-> Larry McVoy <lm@bitmover.com> writes:
+On Wed, Jul 09, 2003 at 12:08:23PM -0400, Kurt Wall wrote:
+> Quoth Richard B. Johnson:
+> > modutils-2.3.15, and probably later, has a bug that can prevent
+> > modules from being loaded from initrd, this results in not
+> > being able to mount a root file-system. The bug assumes that
+> > malloc() will return a valid pointer when given an allocation
+> > size of zero.
 > 
-> >> > Thanks for the answer, it has got PDC 20375, not
-> >> > 20376, but it changes nothing. As Alan mentioned
-> >> > here: http://marc.theaimsgroup.com/?l=linux-kernel&m=105440080221319&w=2
-> >> > promise has got their own drivers. Have somebody seen
-> >> > this drivers really working? My card is not RAID,
-> >> > its only controller, I want only see the harddrives.
-> >> 
-> >> Do yourself a favor, and get a Highpoint card instead.
-> >
-> > I can't speak to the highpoint card, I don't have one of those.  I do have
-> > a 3ware 8500-4 which works great.  I believe that I had to use a later
-> > kernel (2.4.20? .21?) to get it to work but it has been working flawlessly.
-> > I'm using it in RAID 10 mode.
-> 
-> The 3ware does real RAID, right?  I think the OP didn't need that.
+> This isn't a bug. The standard allow returning a non-null pointer
+> for malloc(0).
 
-The 3ware does RAID or JBOD.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+It's not literally a bug in libc -- the C standard says it's
+implementation-defined whether malloc(0) returns NULL or a cookie -- but
+it is definitely a bug (in a portable program) to depend on either
+behavior from libc.  See ISO/IEC 9899:1999 7.20.3 paragraph 1.
+
+> > The most recent `man` pages that RH 9.0 distributes states that
+> > malloc() can return either NULL of a pointer that is valid for
+> > free(). This, of course, depends upon the 'C' runtime library's
+> > malloc() implementation.
+> 
+> Perhaps, but IIRC, the rationale in the GNU C library was that
+> existing programs assume malloc(0) != 0, which allows you to call
+> realloc on the pointer. Returning NULL only makes sense if the 
+> malloc() call fails.
+
+This paragraph is nonsensical, because realloc(malloc(0), 10) is
+allowed, regardless of whether malloc(0) returns NULL or a cookie.
+realloc(NULL, n) is allowed, and defined to be identical to malloc(n).
+7.20.3.4 paragraph 3.
+
+Geez, why does a trivial post about a bug in some program have to turn
+into a pile of misleading statements and citations to ISO documents?
+
+-andy

@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUAFBiF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 20:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbUAFBiE
+	id S263891AbUAFBl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 20:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUAFBlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 20:38:04 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:18375 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263775AbUAFBhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 20:37:47 -0500
-Message-ID: <3FFA1149.5030009@cyberone.com.au>
-Date: Tue, 06 Jan 2004 12:37:13 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>,
+	Mon, 5 Jan 2004 20:41:25 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:29451 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263891AbUAFBlX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 20:41:23 -0500
+Date: Tue, 6 Jan 2004 02:41:15 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Greg KH <greg@kroah.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Daniel Jacobowitz <dan@debian.org>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>	<200401041242.47410.kernel@kolivas.org>	<slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>	<200401041658.57796.kernel@kolivas.org> <m2ptdxq3vf.fsf@telia.com>
-In-Reply-To: <m2ptdxq3vf.fsf@telia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040106024115.B1153@pclin040.win.tue.nl>
+References: <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl> <20040106000014.GL30464@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040106000014.GL30464@kroah.com>; from greg@kroah.com on Mon, Jan 05, 2004 at 04:00:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 05, 2004 at 04:00:15PM -0800, Greg KH wrote:
 
+> > > Have you even _tried_ udev?
+> > 
+> > Yes, and it works reasonably well. I have version 012 here.
+> > Some flaws will be fixed in 013 or so.
+> 
+> What flaws would that be?  The short time delay for partitions?  Or
+> something else?
 
-Peter Osterlund wrote:
+Yes, partitions are not handled very well.
+So far I have never seen udev discover partitions on its own.
+I provoke it using "blockdev --rereadpt".
+The result is that partitions appear in /proc/partitions and in /udev.
+After removing the media another "blockdev --rereadpt" returns
+"No such device or address" and the entry in /proc/partitions
+disappears, but that in /udev stays.
 
->Con Kolivas <kernel@kolivas.org> writes:
->
->
->>On Sun, 4 Jan 2004 14:32, Tim Connors wrote:
->>
->>>>Not quite. The scheduler retains high priority for X for longer so it's
->>>>no new dynamic adjustment of any sort, just better cpu usage by X (which
->>>>is why it's smoother now at nice 0 than previously).
->>>>
->>>>
->>>>>If either the scheduler or xterm was a bit smarter or
->>>>>used different thresholds, the problem would go away. It would also
->>>>>explain why there are people who cannot reproduce it. Perhaps a
->>>>>somewhat faster or slower system makes the problem go away. Honnestly,
->>>>>it's the first time that I notice that my xterms are jump-scrolling, it
->>>>>was so much fluid anyway.
->>>>>
->>>>Very thorough but not a scheduler problem as far as I'm concerned. Can
->>>>you not disable smooth scrolling and force jump scrolling?
->>>>
->>>AFAIK the definition of jump scrolling is that if xterm is falling
->>>behind, it jumps. Jump scrolling is enabled by default.
->>>
->>>What this slowness means is that xterm is getting CPU at just the
->>>right moments that it isn't falling behind, so it doesn't jump - which
->>>means X gets all the CPU to redraw, which means your ls/dmesg anything
->>>else that reads from disk[1] doesn't get any CPU.
->>>
->>>Xterm is already functioning as designed - you can't force jump
->>>scrolling to jump more - it is at the mercy of how it gets
->>>scheduled. If there is nothing more in the pipe to draw, it has to
->>>draw.
->>>
->>>These bloody interactive changes to make X more responsive are at the
->>>expense of anything that does *real* work.
->>>
->>Harsh words considering it is the timing sensitive nature of xterm that relies 
->>on X running out of steam in the old scheduler design to appear smooth.
->>
->
->But the scheduler is also far from fair in this situation. If I run
->
+> > Some difficulties are of a more fundamental type, not so easy to fix.
+> 
+> Such as?
 
-snip a good analysis...
+Udev cannot do anything when there are no events.
+And media insertion or removal does not always give events.
 
-... but fairness is not about a set of numbers the scheduler gives to
-each process, its about the amount of CPU time processes are given.
+Andries
 
-In this case I don't know if I find it objectionable that X and xterm
-are considered interactive and perl considered a CPU hog. What is the
-actual problem?
+[By the way, a compilation warning for every C file:
+% make
+gcc  -pipe -Wall -Wmore.. -Os -fomit-frame-pointer -D_GNU_SOURCE \
+  -I/usr/lib/gcc-lib/i486-suse-linux/3.2/include -I.../udev-012/libsysfs
+  -c -o udev.o udev.c
+cc1: warning: changing search order for system directory
+     "/usr/lib/gcc-lib/i486-suse-linux/3.2/include"
+cc1: warning: as it has already been specified as a non-system directory]
+
 
 

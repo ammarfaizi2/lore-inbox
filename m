@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135288AbRDRUR0>; Wed, 18 Apr 2001 16:17:26 -0400
+	id <S135296AbRDRUT0>; Wed, 18 Apr 2001 16:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135293AbRDRURQ>; Wed, 18 Apr 2001 16:17:16 -0400
-Received: from central.caverock.net.nz ([210.55.207.1]:8717 "EHLO
-	central.caverock.net.nz") by vger.kernel.org with ESMTP
-	id <S135288AbRDRURN>; Wed, 18 Apr 2001 16:17:13 -0400
-Date: Thu, 19 Apr 2001 07:30:33 +1200 (NZST)
-From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Won't Power down (Was: More about 2.4.3 timer problems)
-In-Reply-To: <3ADCE83D.478F765B@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0104190718050.1106-100000@brick.flying-brick.caverock.net.nz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135297AbRDRUTH>; Wed, 18 Apr 2001 16:19:07 -0400
+Received: from mail.ettnet.se ([212.109.4.7]:18698 "HELO mail.ettnet.se")
+	by vger.kernel.org with SMTP id <S135296AbRDRUSz>;
+	Wed, 18 Apr 2001 16:18:55 -0400
+Date: Thu, 19 Apr 2001 00:28:52 +0200
+From: Joel Eriksson <jen@ettnet.se>
+To: linux-kernel@vger.kernel.org
+Subject: Socket hack question.
+Message-ID: <20010419002852.A24647@seth>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Phone: +46-736-256517
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, Andrew Morton wrote:
+Hello,
 
-:viking wrote:
-:> 
-:> Incidentally, Andrew, thanks for that patch.
-:
-:My brain is fading.  Which patch was that?
+I am a kernel hacking newbie and am struggling to understand the
+networking subsystem. I would like to be able to add a systemcall,
+preferably asynchronous, that connects a socket with a filedescriptor
+(proxy(srcsd, dstfd)) so that everything received on srcsd is directly
+written to dstfd. The proxy should close when srcsd is closed or when
+a zero-size packet is sent (or something like that..).
 
-Gee! 8-) and you suggested it to me!  It was the patch against 2.4.3-pre6
-which corrected the system clock slowing down, due to the interrupts being
-disabled for too long in framebuffer mode.  Well, it worked! I'm using it now,
-and as I mentioned in the past email, my only trouble now is the non-powering
-down of the machine.
+I started digging in the source yesterday, and have read a little
+in "The Linux Kernel" document and a few others, but can't say I
+feel much wiser. :-) I was thinking about creating a custom "data_ready"
+function that I set for the socket to be forwarded (in "struct sock"),
+does this make sense? How would I go about to write the data to the
+destination file/socket descriptor?
 
-Ah well, again, thanks for monitoring.And here's a few lines to add to that
-patch too...your patch had neglected to turn on printk for all modules, and
-when I compiled my kernel, that was fine, but my modules couldn't see
-printk()!
+I am of course fully aware that it is not of public interest and
+have certainly not intended to try getting it into the mainstream
+kernel. :-) I'm just going to use it for a web server I am developing
+that communicates with applications via sockets (UNIX domain for
+local apps and TCP for remote), portability is not an issue in this
+particular case. Another obvious use is for bouncers.
 
---- linux-2.4.3-pre6/kernel/Makefile Sun Apr 15 20:00:00 2001
-+++ lk/kernel/Makefile Sun Apr 15 21:00:00 2001
-@@ -12,1 +12,1 @@
+I would like to avoid the kernel -> userspace -> kernel copying
+of data just to forward a packet.. The web server should be able
+to scale up to a couple of thousands simultaneous connections
+without significant performance penalty, so I plan to use multiple
+processes or perhaps threads to avoid the bad scalability of
+select()/poll().
 
-- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o
-+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o printk.o
-
-Thanks again.
+When I (or if I :-) get more proficient in kernel hacking I will
+perhaps try adding support for fully event-driven I/O handling.
+Or are there perhaps any similar patches available from somewhere
+already?
 
 -- 
- /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
-| |_/'  viking@ `\_| |            including Pippin, our cat
-|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
- \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
-
+Joel Eriksson

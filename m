@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTKGWZx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTKGWZk
+	id S262081AbTKGWmW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKGW0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:25:40 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:47579 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264048AbTKGK32 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 05:29:28 -0500
-Date: Fri, 7 Nov 2003 11:24:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Mark Gross <mgross@linux.co.intel.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] SMP signal latency fix up.
-In-Reply-To: <1068158989.3555.43.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.56.0311071122360.21893@earth>
-References: <1068158989.3555.43.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Nov 2003 17:26:34 -0500
+Received: from smtp.infonegocio.com ([213.4.129.150]:23724 "EHLO
+	telesmtp3.mail.isp") by vger.kernel.org with ESMTP id S264422AbTKGPln
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 10:41:43 -0500
+Subject: Re: hard lockup with 2.6.0
+From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
+To: linux-kernel@vger.kernel.org
+Cc: miekg@atoom.net
+Content-Type: text/plain
+Message-Id: <1068219610.14200.6.camel@mir>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 07 Nov 2003 16:41:40 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Thu, 6 Nov 2003, Mark Gross wrote:
+I'm experiencing same hard lockups:
 
-> Running on SMP and the 2.6.0-test9 kernel, it takes about 10000 * 1/HZ
-> seconds.  Running this command with maxcpus=1 the command finishes in
-> fraction of a second.  Under SMP the signal delivery isn't kicking the
-> task if its in the run state on the other CPU.
+Machine (which seem stable until then) just hard locks without any prior
+notice. It's a Pentium II 233, running 192KB of RAM (PC133).
 
-yeah - good catch - it's a brown paper bag bug.
+I've ran memtest86 to no avail. Everything seems ok.
+I've run badblocks, fsck'ed and dd'ed two entire hard disk without any
+single error. I've done 24 runs of kernel compilation without any single
+SIG11. Then (randomly) machine stops responding to everything. Sometimes
+disk spin down.
 
-	Ingo
+As a side note, the machine acts as a NAT router running iptables and
+I've had two corrupted files (one Windows Service pack, unistallable)
+and one DivX file with errors. 
+
+Hope that helps.
+

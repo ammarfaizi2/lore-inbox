@@ -1,260 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317759AbSGVSoN>; Mon, 22 Jul 2002 14:44:13 -0400
+	id <S315923AbSGVSrI>; Mon, 22 Jul 2002 14:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSGVSoN>; Mon, 22 Jul 2002 14:44:13 -0400
-Received: from [206.155.169.10] ([206.155.169.10]:15377 "EHLO spinbox.com")
-	by vger.kernel.org with ESMTP id <S317751AbSGVSoJ>;
-	Mon, 22 Jul 2002 14:44:09 -0400
-Date: Mon, 22 Jul 2002 14:47:17 -0400 (EDT)
-From: Hayden Myers <hayden@spinbox.com>
-To: linux-kernel@vger.kernel.org
-cc: linux-net@vger.kernel.org
-Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
-In-Reply-To: <1027198422.16819.33.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10207221352430.27914-100000@compaq.skyline.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317730AbSGVSrI>; Mon, 22 Jul 2002 14:47:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52465 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S315923AbSGVSrH>; Mon, 22 Jul 2002 14:47:07 -0400
+Subject: Re: [PATCH] low-latency zap_page_range
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <3D3C517F.6BD3650A@zip.com.au>
+References: <3D3B94AF.27A254EA@zip.com.au> <1027360686.932.33.camel@sinai> 
+	<3D3C517F.6BD3650A@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Jul 2002 11:50:06 -0700
+Message-Id: <1027363806.931.64.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jul 2002, Alan Cox wrote:
+On Mon, 2002-07-22 at 11:40, Andrew Morton wrote:
 
-> Your buffers are way too small buf_cnt wants to be probably 60K or
-> higher. Making it large ensures one write syscall will fill all
-> available space in the queue immediately drastically reducing syscall
-> and wakeup rates. Also avoiding breaks in streaming.
+> Disagree, really.  It's not a thing of beauty, but it is completely
+> obvious what the code is doing and why it is doing it.  There are
+> no subtle side-effects and the whole lot can be understood from a
+> single screenful.  Unmaintainable code is code which requires you
+> to spend days crawling all over the tree working out what it's doing
+> any why it's doing it.  It's awkward, but it's simple, and I wouldn't
+> get very worked up over it personally.
 
-I've played around with changing the buf_cnt size and tests in house have
-surprisingly shown a slight slowdown when increasing it to 64k.  This is
-most likely inconclusive but it didn't seem to make a large difference.   
-I also tried to do away with the read and writen syscalls and replace them
-with a sendfile call but this seems to have made things even slower.  
+I agree with your points although I do not find the previous version any
+less of this.
 
-> 
-> Without tcpdump data its hard to guess
-> 
-Tcpdump output is where I'm seeing the difference in the clients receive
-window.  Below is tcpdump from the server 
+> Hard call.   In general I suspect it's best to hold onto a lock
+> for as long as possible, get a lot of work done rather than
+> reacquiring it all the time.  But there are some locks which are
+> occasionally held for a very long time and are often held for very
+> short periods.  Such as this one (mm->page_table_lock) and pagemap_lru_lock.
+> In those cases, dropping the lock to let someone else get in, out and
+> away may help.  But not as much as a little bit of locking redesign...
 
-[root@install spinbox]# /usr/sbin/tcpdump src port 80
-tcpdump: listening on eth0
-11:37:21.003009 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: S 273731802:273731802(0) ack
-2533363500 win 5792 <mss 1460,sackOK,timestamp 25697 104440615,nop,wscale
-0> (DF)
-11:37:21.006489 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . ack 302 win 6432
-<nop,nop,timestamp 25698 104440615> (DF)
-11:37:21.009357 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: P 1:16(15) ack 302 win 6432
-<nop,nop,timestamp 25698 104440615> (DF)
-11:37:21.009529 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: P 16:123(107) ack 302 win 6432
-<nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.009696 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: P 123:263(140) ack 302 win 6432
-<nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.010081 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . 263:1711(1448) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.010116 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . 1711:3159(1448) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)11:37:21.010687
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53687: P
-3159:4607(1448) ack 302 win 6432 <nop,nop,timestamp 25698 104440616>
-(DF)11:37:21.010698 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . 4607:6055(1448) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)11:37:21.010726
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53687: .
-6055:7503(1448) ack 302 win 6432 <nop,nop,timestamp 25698 104440616>
-(DF)11:37:21.010736 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: P 7503:8951(1448) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)11:37:21.011557
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53687: .
-8951:10399(1448) ack 302 win 6432 <nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.011571 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . 10399:11847(1448) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.011583 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: FP 11847:12744(897) ack 302 win
-6432 <nop,nop,timestamp 25698 104440616> (DF)
-11:37:21.058316 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: S 265781655:265781655(0) ack
-2534779761 win 5792 <mss 1460,sackOK,timestamp 25703 104440621,nop,wscale
-0> (DF)
-11:37:21.059682 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . ack 334 win 6432
-<nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.061403 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: P 1:16(15) ack 334 win 6432
-<nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.061574 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: P 16:123(107) ack 334 win 6432
-<nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.061732 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: P 123:263(140) ack 334 win 6432
-<nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.061973 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . 263:1711(1448) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.062000 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . 1711:3159(1448) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)11:37:21.062572
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53688: P
-3159:4607(1448) ack 334 win 6432 <nop,nop,timestamp 25703 104440621>
-(DF)11:37:21.062583 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . 4607:6055(1448) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)11:37:21.062611
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53688: .
-6055:7503(1448) ack 334 win 6432 <nop,nop,timestamp 25703 104440621>
-(DF)11:37:21.062619 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: P 7503:8951(1448) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)11:37:21.063147
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53688: .
-8951:10399(1448) ack 334 win 6432 <nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.063156 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . 10399:11847(1448) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.063167 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: FP 11847:12744(897) ack 334 win
-6432 <nop,nop,timestamp 25703 104440621> (DF)
-11:37:21.093947 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53687: . ack 303 win 6432
-<nop,nop,timestamp 25707 104440624> (DF)
-11:37:21.112002 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53688: . ack 335 win 6432
-<nop,nop,timestamp 25708 104440626> (DF)
+Agreed.
 
-According to the tcpdump manpage win 6432 is the number of bytes of
-receive buffer space available the other direction of the connection. 
+> zap_page_range is sometimes called under another lock, (eg, vmtruncate_list).
+> So there's nothing useful to be done there.  Perhaps you should test
+> ->preempt_count as well - if it's greater than one then don't bother with
+> the lock dropping.
 
-Below is a tcpdump session for the same request on the same client but
-with the server on a 2.2.20 kernel.
+Hrm, this means cond_resched_lock() is out of the question here, then.
 
+We could use break_spin_locks() but that would mean we drop the lock w/o
+checking for need_resched (or wrap it in need_resched() and then we
+check twice).
 
-[root@install spinbox]# /usr/sbin/tcpdump src port 80
-tcpdump: listening on eth0
-11:45:00.379901 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: S 754852391:754852391(0) ack
-2999938034 win 30660 <mss 1460,sackOK,timestamp 11434 104486504,nop,wscale
-0> (DF)
-11:45:00.383374 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . ack 302 win 30660
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.386345 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 1:16(15) ack 302 win 31856
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.386571 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 16:47(31) ack 302 win 31856
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.386855 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 47:73(26) ack 302 win 31856
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.387116 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 73:154(81) ack 302 win 31856
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.387314 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 154:263(109) ack 302 win 31856
-<nop,nop,timestamp 11435 104486504> (DF)
-11:45:00.427821 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: S 754496145:754496145(0) ack
-3011203697 win 30660 <mss 1460,sackOK,timestamp 11439 104486508,nop,wscale
-0> (DF)
-11:45:00.429069 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . ack 334 win 30660
-<nop,nop,timestamp 11439 104486508> (DF)
-11:45:00.435172 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 1:16(15) ack 334 win 31856
-<nop,nop,timestamp 11440 104486508> (DF)
-11:45:00.435392 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 16:47(31) ack 334 win 31856
-<nop,nop,timestamp 11440 104486509> (DF)
-11:45:00.435636 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 47:73(26) ack 334 win 31856
-<nop,nop,timestamp 11440 104486509> (DF)
-11:45:00.435825 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 73:210(137) ack 334 win 31856
-<nop,nop,timestamp 11440 104486509> (DF)
-11:45:00.436047 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 210:263(53) ack 334 win 31856
-<nop,nop,timestamp 11440 104486509> (DF)
-11:45:00.468318 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 263:1711(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486504> (DF)11:45:00.468380
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53702: P
-1711:3159(1448) ack 302 win 31856 <nop,nop,timestamp 11443 104486504> (DF)
-11:45:00.468422 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: P 3159:4607(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486504> (DF)
-11:45:00.468467 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . 4607:6055(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486504> (DF)
-11:45:00.468945 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . 6055:7503(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486512> (DF)
-11:45:00.468959 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . 7503:8951(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486512> (DF)
-11:45:00.468980 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . 8951:10399(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486512> (DF)
-11:45:00.469235 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . 10399:11847(1448) ack 302 win
-31856 <nop,nop,timestamp 11443 104486512> (DF)
-11:45:00.469250 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: FP 11847:12744(897) ack 302 win
-31856 <nop,nop,timestamp 11443 104486512> (DF)
-11:45:00.470040 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 263:1711(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486509> (DF)11:45:00.470077
-install.skyline.net.http > leg-66-247-99-8-RLY.sprinthome.com.53703: P
-1711:3159(1448) ack 334 win 31856 <nop,nop,timestamp 11443 104486509> (DF)
-11:45:00.470120 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: P 3159:4607(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486509> (DF)
-11:45:00.470257 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . 4607:6055(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486509> (DF)
-11:45:00.470638 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . 6055:7503(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486513> (DF)
-11:45:00.470654 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . 7503:8951(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486513> (DF)
-11:45:00.470675 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . 8951:10399(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486513> (DF)
-11:45:00.471015 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . 10399:11847(1448) ack 334 win
-31856 <nop,nop,timestamp 11443 104486513> (DF)
-11:45:00.471048 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: FP 11847:12744(897) ack 334 win
-31856 <nop,nop,timestamp 11443 104486513> (DF)
-11:45:00.487840 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53702: . ack 303 win 31856
-<nop,nop,timestamp 11445 104486514> (DF)
-11:45:00.532997 install.skyline.net.http >
-leg-66-247-99-8-RLY.sprinthome.com.53703: . ack 335 win 31856
-<nop,nop,timestamp 11450 104486519> (DF)
+Finally, we could take your approach, change cond_resched_lock() to be:
 
-Looks to be about the same amount of data going in each packet but the
-clients receive window is much larger for some reason.  I tried tweaking
-all of the window parameters I can find both in the kernel and in proc but
-none seem to increase this number.  Is there a reason this number is much
-lower in a vanilla 2.4 kernel?  I'm not very familiar with the 2.4 and
-it's ways yet but I've been reading abou the autotuning algorithms that
-have been put in place and lay suspect to them for the differences.  Any
-ideas as to why the windows are very different?
+	if (need_resched() && preempt_count() == 1) {
+		spin_unlock_no_resched(lock);
+		__cond_resched();
+		spin_lock(lock);
+	}
 
+but then we need to break the function up into a preempt and a
+non-preempt version as preempt_count() unconditionally returns 0 with
+!CONFIG_PREEMPT.  Right now the functions I posted do the right thing on
+any combination of UP, SMP, and preempt.
 
+Thoughts?
 
-Hayden Myers	
-Support Manager
-Skyline Network Technologies	
-hayden@spinbox.com
-(410)583-1337 option 2
+> This, btw, probably means that your code won't be very effective yet: large
+> truncates will still exhibit poor latency.  However, truncate _is_ something
+> which we can improve algorithmically.  One possibility is to implement a
+> radix tree split function: split the radix tree into two trees along the
+> truncation point, clean up the end and then drop the bulk of the pages
+> outside locks.
 
+I would _much_ prefer to tackle these issues via better algorithms...
+your suggestion for truncate is good.
 
+Note that I make an exception here (part of my argument for a preemptive
+kernel was no more need to do "hackish" conditional scheduling and lock
+breaking) because there really is not much you can do to this
+algorithm.  It does a lot of work on potentially a lot of data and the
+cleanest solution we have is to just break it up into chunks.
 
+	Robert Love
 

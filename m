@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131964AbRCVJRR>; Thu, 22 Mar 2001 04:17:17 -0500
+	id <S131949AbRCVJc1>; Thu, 22 Mar 2001 04:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131965AbRCVJRH>; Thu, 22 Mar 2001 04:17:07 -0500
-Received: from samar.sasken.com ([164.164.56.2]:16833 "EHLO samar.sasi.com")
-	by vger.kernel.org with ESMTP id <S131964AbRCVJQy>;
-	Thu, 22 Mar 2001 04:16:54 -0500
-Date: Thu, 22 Mar 2001 20:15:00 +0530 (IST)
-From: Manoj Sontakke <manojs@sasken.com>
-To: linux-kernel@vger.kernel.org
-Subject: Fib entries
-Message-ID: <Pine.LNX.4.21.0103222007440.1689-100000@pcc65.sasi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131954AbRCVJcR>; Thu, 22 Mar 2001 04:32:17 -0500
+Received: from www.inreko.ee ([195.222.18.2]:35318 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S131949AbRCVJcH>;
+	Thu, 22 Mar 2001 04:32:07 -0500
+Date: Thu, 22 Mar 2001 11:44:57 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: Omar Kilani <ok@mailcall.com.au>, Dalton Calford <dcalford@distributel.ca>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec/DPT RAID Drivers [Was: Re: DPT Driver Status]
+Message-ID: <20010322114457.A30008@l-t.ee>
+In-Reply-To: <5.0.2.1.2.20010316021553.01c71480@172.17.0.107> <Pine.LNX.4.30.0103212125220.28905-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0103212125220.28905-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Wed, Mar 21, 2001 at 09:27:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-	I have a question related to forwarding information base(FIB).
+On Wed, Mar 21, 2001 at 09:27:47PM -0800, Dr. Kelsey Hudson wrote:
+> I've got a SmartCACHE IV...This driver seems not to recognize it.
 
-Depending upon destination IP address a packet can be 
-a) for this machine
-b) for a machine to which this machine is directly connected
-c) for a machine to which this machine is not directly connected.
+It is not supposed to.  For DPT .* I - IV use CONFIG_SCSI_EATA
+'EATA ISA/EISA/PCI (DPT and generic EATA/DMA-compliant boards)'
+option.
 
-Does FIB contain the entries for delivery for all the 3 cases or only for
-the third case
 
-Thanks in advance for all the help
-
-Manoj
+-- 
+marko
 

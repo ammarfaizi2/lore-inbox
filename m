@@ -1,82 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136361AbRDWDVX>; Sun, 22 Apr 2001 23:21:23 -0400
+	id <S136362AbRDWDWe>; Sun, 22 Apr 2001 23:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136363AbRDWDVN>; Sun, 22 Apr 2001 23:21:13 -0400
-Received: from leng.mclure.org ([64.81.48.142]:6408 "EHLO
+	id <S136363AbRDWDWP>; Sun, 22 Apr 2001 23:22:15 -0400
+Received: from leng.mclure.org ([64.81.48.142]:7176 "EHLO
 	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S136361AbRDWDVD>; Sun, 22 Apr 2001 23:21:03 -0400
-Date: Sun, 22 Apr 2001 20:20:56 -0700
+	id <S136362AbRDWDWB>; Sun, 22 Apr 2001 23:22:01 -0400
+Date: Sun, 22 Apr 2001 20:21:58 -0700
 From: Manuel McLure <manuel@mclure.org>
-To: Brett <brett@macfeegles.com.au>
+To: whitney@math.berkeley.edu
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-Message-ID: <20010422202056.C970@ulthar.internal.mclure.org>
-In-Reply-To: <20010422192520.A3618@ulthar.internal.mclure.org> <Pine.LNX.4.21.0104231237130.13278-100000@tae-bo.generica.dyndns.org>
+Message-ID: <20010422202158.E970@ulthar.internal.mclure.org>
+In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom> <200104222138.XAA00666@kufel.dom> <20010422192520.A3618@ulthar.internal.mclure.org> <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0104231237130.13278-100000@tae-bo.generica.dyndns.org>; from brett@macfeegles.com.au on Sun, Apr 22, 2001 at 19:42:41 -0700
+In-Reply-To: <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Sun, Apr 22, 2001 at 19:42:49 -0700
 X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2001.04.22 19:42 Brett wrote:
-> On Sun, 22 Apr 2001, Manuel McLure wrote:
-> >
-> > 
-> > On 2001.04.22 14:38 Andrzej Krzysztofowicz wrote:
-> > > > 
-> > > > I'm having a problem with "su -" on ac11/ac12. ac5 doesn't show the
-> > > > problem.
-> > > > The problem is easy to reproduce - go to a console, log in as root,
-> do
-> > > an
-> > > > "su -" (this will succeed) and then another "su -". The second "su
-> -"
-> > > > should hang - ps shows it started bash and that the bash process is
-> > > > sleeping. You need to "kill -9" the bash to get your prompt back.
-> > > 
+On 2001.04.22 19:42 Wayne Whitney wrote:
+> In mailing-lists.linux-kernel, Manuel A. McLure wrote:
 > 
-> No problem here either...
-> Tried nesting 7 levels deep, a few times.
+> > Did you try nesting more than one "su -"? The first one after a boot
+> > works for me - every other one fails.
 > 
-> p75
+> Same here: the first "su -" works OK, but a second nested one hangs:
 > 
-> # uname -a
-> Linux lapsis 2.4.3-ac12 #2 Sun Apr 22 17:41:08 EST 2001 i586 unknown
+>  8825 pts/2    S      0:00 /bin/su -
+>  8826 pts/2    S      0:00 -bash
+>  8854 pts/2    T      0:00 stty erase ?
+>  8855 pts/0    R      0:00 ps ax
 > 
-> # ls /lib/libc-*
-> -rwxr-xr-x    1 root     root      1417065 Feb 17 14:57
-> /lib/libc-2.2.2.so*
+> "kill -CONT 8854" has no effect.  
 > 
-> # gcc --version
-> 2.95.3
+> > I'm on RH71 - this may be specific to this release. It's also
+> > kernel-dependent, I can reboot with ac5 and the problem does not
+> > happen.  The kernel is compiled with the same compiler as yours.
 > 
-> # su --version
-> su (GNU sh-utils) 2.0j
-> 
-> 	/ Brett
-> 
+> I'm RH-7.1 and kernel 2.4.4-pre6 (with the via 3.23 driver from -ac)
 
-In my case:
-
-# su --version
-su (GNU sh-utils) 2.0
-
-# bash --version
-GNU bash, version 2.04.21(1)-release (i386-redhat-linux-gnu)
-
-# uname -a
-Linux ulthar 2.4.3-ac12 #3 Sat Apr 21 23:15:08 PDT 2001 i686 unknown
-
-# ls -l /lib/libc-*        
--rwxr-xr-x    2 root     root      1236396 Apr  6 14:58 /lib/libc-2.2.2.so
-
-# kgcc --version
-egcs-2.91.66
-
+It looks like this may very well be a RH 7.1 interaction with the kernel,
+since others are not seeing this.
 
 -- 
 Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient

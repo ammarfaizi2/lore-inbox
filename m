@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269719AbUJMOTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUJMOWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269719AbUJMOTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 10:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUJMOTQ
+	id S269725AbUJMOWr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 10:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269726AbUJMOWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 10:19:16 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:26889 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S269719AbUJMOTI convert rfc822-to-8bit (ORCPT
+	Wed, 13 Oct 2004 10:22:47 -0400
+Received: from ts2-075.twistspace.com ([217.71.122.75]:23945 "EHLO entmoot.nl")
+	by vger.kernel.org with ESMTP id S269725AbUJMOWp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 10:19:08 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 13 Oct 2004 10:22:45 -0400
+Message-ID: <02bb01c4b138$8a786f10$161b14ac@boromir>
+From: "Martijn Sipkema" <martijn@entmoot.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: waiting on a condition
+Date: Wed, 13 Oct 2004 16:23:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [2.6 patch] fix block/cciss.c with PROC_FS=n
-Date: Wed, 13 Oct 2004 09:18:59 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DBFEC5@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] fix block/cciss.c with PROC_FS=n
-Thread-Index: AcSwnFFUD2JsAg4YQxiYc8HHA4jhTAAjc7CA
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
-Cc: "ISS StorageDev" <iss_storagedev@hp.com>,
-       <Cciss-discuss@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Oct 2004 14:19:01.0517 (UTC) FILETIME=[9639DBD0:01C4B12F]
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Adrian Bunk [mailto:bunk@stusta.de]
-> 
-> I got the following compile error in both 2.6.9-rc4 and 2.6.9-rc4-mm1 
-> when compiling with CONFIG_PROC_FS=n:
-> 
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> kernel/built-in.o(.text+0x1d42b): In function 
-> `crash_create_proc_entry':
-> : undefined reference to `proc_vmcore'
-> drivers/built-in.o(.text+0x234eb8): In function `cciss_init_one':
-> : undefined reference to `cciss_scsi_setup'
-> drivers/built-in.o(.text+0x235173): In function `cciss_remove_one':
-> : undefined reference to `cciss_unregister_scsi'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> The patch below fixes this issue.
-> 
-> 
-> I don't know whether this might qualify it for 2.6.9:
-> - it fixes the only CONFIG_PROC_FS=n compile error I found in 
-> 2.6.9-rc4
-> - it has obviously no effect in the CONFIG_PROC_FS=y case
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.9-rc4-mm1-full/drivers/block/cciss.c.old	
-> 2004-10-12 20:36:33.000000000 +0200
-> +++ linux-2.6.9-rc4-mm1-full/drivers/block/cciss.c	
-> 2004-10-12 20:37:16.000000000 +0200
-> @@ -185,10 +185,11 @@
->          }
->          return c;
->  }
-> -#ifdef CONFIG_PROC_FS
->  
->  #include "cciss_scsi.c"		/* For SCSI tape support */
->  
-> +#ifdef CONFIG_PROC_FS
-> +
->  /*
->   * Report information about this controller.
->   */
+L.S.
 
-This looks OK.
+I'd like to do something similar as can be done using a POSIX condition
+variable in the kernel, i.e. wait for some condition to become true. The
+pthread_cond_wait() function allows atomically unlocking a mutex and
+waiting on a condition. I think I should do something like:
+(the condition is updated from an interrupt handler)
 
-mikem
+disable interrupts
+acquire spinlock
+if condition not satisfied
+    add task to wait queue
+    set task to sleep
+release spinlock
+restore interrupts
+schedule
 
-> 
+Now, this will only work with preemption disabled within the critical
+section. How would something like this be done whith preemption
+enabled?
+
+
+--ms
+
+
+
+

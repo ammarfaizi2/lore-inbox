@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbTIZOtd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 10:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTIZOtd
+	id S262308AbTIZOjK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 10:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTIZOjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 10:49:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38369 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262307AbTIZOtc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 10:49:32 -0400
-Date: Fri, 26 Sep 2003 15:49:31 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
-Subject: Re: log-buf-len dynamic
-Message-ID: <20030926144931.GI7665@parcelfarce.linux.theplanet.co.uk>
-References: <878yob65tc.wl%deepfire@ibe.miee.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878yob65tc.wl%deepfire@ibe.miee.ru>
-User-Agent: Mutt/1.4.1i
+	Fri, 26 Sep 2003 10:39:10 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:47076 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S262308AbTIZOjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 10:39:08 -0400
+Subject: Re: s390 patches: descriptions.
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF8F44B7AB.266E176D-ONC1256DAD.004EFE2D-C1256DAD.005064CE@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Fri, 26 Sep 2003 16:38:06 +0200
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 26/09/2003 16:38:38
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 05:24:31PM +0400, Samium Gromoff wrote:
 
-> 	And, as the last note, if Linus was at least somewhat interested
->  in replacing bk with something less community-irritating, he could
->  do google queries like that more often:
-> 
-> 	google://"revision control" "distributed development"
-> 
-> 
-> 	Guess what? Arch is on the _first_ hit.
+Hi Sam,
 
-You know, if you look there for "object-oriented language" the first hit
-you'll get will claim that C++ and Java are such...
+> you missed the Makefile updates I sent you last time.
+> Or at least I did not see them after a quick glance.
+> Do you want me to send them againg?
+
+They are still on my disk. I tried them but a simple "make"
+didn't create the image. I'll have to find out whats wrong
+before I'll include your patch.
+
+blue skies,
+   Martin
+
+

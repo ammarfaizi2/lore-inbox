@@ -1,116 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316167AbSEOAHn>; Tue, 14 May 2002 20:07:43 -0400
+	id <S316165AbSEOAFq>; Tue, 14 May 2002 20:05:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316168AbSEOAHm>; Tue, 14 May 2002 20:07:42 -0400
-Received: from netmail.netcologne.de ([194.8.194.109]:54638 "EHLO
-	netmail.netcologne.de") by vger.kernel.org with ESMTP
-	id <S316167AbSEOAHk>; Tue, 14 May 2002 20:07:40 -0400
-Message-Id: <200205150007.AWD57178@netmail.netcologne.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
-Reply-To: joergprante@gmx.de
-Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
+	id <S316166AbSEOAFp>; Tue, 14 May 2002 20:05:45 -0400
+Received: from pensacola.gci.com ([205.140.80.79]:51466 "EHLO
+	pensacola.gci.com") by vger.kernel.org with ESMTP
+	id <S316165AbSEOAFo>; Tue, 14 May 2002 20:05:44 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA315082E17EE@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.4.19-pre8-jp12
-Date: Wed, 15 May 2002 02:05:14 +0200
-X-Mailer: KMail [version 1.3.1]
+Subject: 2.4.16+devfs+ide+scsi = Disaster! (data recovery tips requested)
+Date: Tue, 14 May 2002 16:05:37 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux kernel patch set 2.4.19pre8-jp12  
+I now join the ranks of the "Damn, I should have double-checked my
+backups to make sure they were readable."
 
-This is the twelvth release of the -jp patch set. 
+Booted into Linux last night to format a new IDE drive for a laptop.
+My thought was to clone the existing (SCSI) windows partition for my
+wife's laptop.  Then I could wipe the old partition after saving off
+my data and have one more dedicated linux box laying around.
 
-http://infolinux.de/jp12/
+Everything looked okay when I fdisk'd the drive and the formatted
+it with mkfs.vfat
 
-Status: 15 May 2002 00:45 CEST 
+That is, until I went to reboot.
 
-Changes from jp11 to jp12 
+Apparantly, there's a weird bug/race/conflict between devfs, scsi, and ide.
 
-Updates: XFS update to CVS as of 13 May 2002, new IDE convert all 10, 
-Alsa compile fix, IDE CD DMA upgrade. New patches included in this 
-version: Momchil Velikov/Christoph Hellwig's radix tree pagecache 
-(adapted to work with rmap/preempt/lockbreak and XFS), Jens Axboe's 
-IDE tagged command queue support, Robert Love's latest additional 
-miscellanous scheduler patches. 
+My CD/RW was on the IDE cable, which I had simply swapped out with the
+mini-HD.
 
-Known Issues 
+after the realization of what must have happend, i dug a little deeper.
+fortunately lilo hadn't been wiped, and I did have linux on a second (scsi)
+drive,
+so I double-checked what devices it thought everthing was.
 
-The miroSound PCM20 radio audio driver depends on OSS sound include 
-file and is no longer compileable. IDE CD should be fixed. I did not 
-find the bug but it could be in the IDE patch, or some interaction 
-with it I did not understand. Anyway, cdfs does not work, it will 
-mount, but oops when stat()ing a directory. The drive will be locked 
-until reboot. This is caused by an interaction between the new code 
-in IDE, supermount, and cdfs and must be investigated. 
+/dev/hda = block-device 8
+/dev/sda = block-device 8
 
-What is it? 
+umm... this is bad !!
 
-The -jp kernels are development kernels for testing purpose only. They 
-will appear regularly two or three times a month. Their purpose is to 
-provide a service for developers who can't keep up to date with the 
-latest kernel and patch versions, but want to test new features and 
-evaluate enhancements that are not to be expected for inclusion into 
-the mainstream 2.4 kernel. 
+the scsi-ide module was loaded (because of the CD/RW) and it seems that
+the combination of a hard-drive + scsi-ide and devfs just layed over the
+top of the existing config.
 
-Download 
- 
-http://infolinux.de/jp12/patch-2.4.19-pre8-jp12.tar.bz2 
+My kernel is 2.4.16.  I can provide more information later, if requested.
 
+So now I have a windows disk that has been formatted over with mkfs.vfat.
 
-Patch set overview
+I tried norton's unformat, but that was unable to do much work (just
+filled the root directory with things that looked like directories until
+eventually the root dir was filled)
 
-01_kernel-sound-remove-0-pre8  34_llseek
-01_kernel-sound-remove-1-pre7  35_mount
-01_kernel-sound-remove-2-pre6  36_device
-01_kernel-sound-remove-3-pre5  37_supermount
-01_kernel-sound-remove-4-pre4  38_xfs-kdb-from-cvs-04May2002
-01_kernel-sound-remove-5-pre3  39_xfs-13May2002
-01_kernel-sound-remove-6-pre2  40_xfs-kdb-adapt
-01_kernel-sound-remove-7-core  41_xfs-kdb-fixups
-02_alsa-sound-0.9.0rc1         42_jfs-1.0.14-0
-03_alsa-adapt                  43_jfs-1.0.14-15
-04_TIOCGDEV                    44_jfs-1.0.15-16
-05_boot-time-ioremap           45_jfs-1.0.16-17
-06_via-northbridge-fixup       46_jfs-adapt
-07_jiffies-for-i386            47_ftpfs-0.6.2
-08_rmap-13                     48_cdfs-0.5b
-09_rmap13a                     49_cdfs-0.5bc
-10_sched-O1-K3                 50_patch-int-2.4.18.2
-11_up-apic-fix                 51_loop-jari
-12_remove-wake-up-sync         52_grsecurity-1.9.5-pre3
-13_need-resched-abstraction    53_grsecurity-adapt
-14_frozen-lock                 54_i2c-2.6.3
-15_sched-yield                 55_lmsensors-2.6.3
-16_more-sched-yield            56_freeswan-1.97
-17_need-resched-check          57_ide-cd-dma-4
-18_maxrtprio-1                 58_lowlatency-mini
-19_maxrtprio                   59_lowlatency-fixes-5
-20_migration-thread            60_mmx-init
-21_updated-migration-init      61_p4-xeon
-22_misc-stuff                  62_x86-fast-pte
-23_preempt-2.4.19pre8          63_acpi-20020503
-24_lockbreak                   64_acpi-pciirq-17
-25_ide-all-convert-10          65_remove-khttpd
-26_md-locks                    66_tux2-final-A3
-27_raid-split                  67_sis-740-961
-28_md-part                     68_radix-tree-pagecache-2.4.19pre5ac3
-29_mdp-major                   69_radix-tree-pagecache-xfs-fix
-30_autofs4                     70_block-tag-2.4.19pre8
-31_isrdonly                    71_ide-tag-2.4.19pre8
-32_new-stat                    98_tkparse-4096
-33_mediactl                    99_VERSION
+So, the long shot is that I've got to do some serious work if I want
+to try to recover any data off of this drive.  And hopefully, this will
+serve to warn people about serious data loss when mixing ide and scsi
+without
+verifying your entire configuration before embarking on destructive changes.
 
-More info available at 
+That said, Does anybody have any tips for data recovery off of a vfat
+partition
+from linux?
 
-http://infolinux.de/jp12
+<sob>
 
-
-Jörg Prante 
-joerg@infolinux.de 
-
+Leif
+(vowing to make sure that the next backup works, and to double-check
+device numbers before fdisk/format anything!)
 

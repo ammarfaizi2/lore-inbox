@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVCYTNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVCYTOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbVCYTNo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 14:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVCYTNo
+	id S261753AbVCYTOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 14:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVCYTOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 14:13:44 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:5807 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261747AbVCYTNm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 14:13:42 -0500
-Date: Fri, 25 Mar 2005 14:13:43 -0500 (EST)
-From: Ricardo Colon <rcolon@andrew.cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: megaraid driver (proposed patch)
-In-Reply-To: <20050325190732.GA15497@infradead.org>
-Message-ID: <Pine.GSO.4.60-041.0503251412070.1327@unix5.andrew.cmu.edu>
-References: <20050325182252.GA4268@morley.grenoble.hp.com>
- <1111775992.5692.25.camel@mulgrave> <20050325184718.GA15215@infradead.org>
- <1111777477.5692.29.camel@mulgrave> <20050325190732.GA15497@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 25 Mar 2005 14:14:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:3991 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261748AbVCYTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 14:14:44 -0500
+Subject: Re: 2.6.12-rc1 breaks dosemu
+From: Arjan van de Ven <arjan@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       linux-msdos@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200503251952.33558.arnd@arndb.de>
+References: <20050320021141.GA4449@stusta.de>
+	 <200503251952.33558.arnd@arndb.de>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 20:14:34 +0100
+Message-Id: <1111778074.6312.87.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please remove me from these mailing lists?
+On Fri, 2005-03-25 at 19:52 +0100, Arnd Bergmann wrote:
 
-I don't remember signing up ffor them and it's filling
-my inbox too quickly.
+> I guess the randomization patches changed the mapping
+> in a way that dosemu did not expect.
 
-On Fri, 25 Mar 2005, Christoph Hellwig wrote:
+the randomisation patches came in a series of 8 patches (where several
+were general infrastructure); could you try to disable the individual
+randomisations one at a time to see which one causes this effect?
 
-> On Fri, Mar 25, 2005 at 01:04:37PM -0600, James Bottomley wrote:
->> You get a kernel with two drivers trying to claim some of the same set
->> of cards.  The winner will be the driver that gets its init routines
->> called first, but this isn't a desirable outcome.
->>
->> I wouldn't object to a patch that allows both *modules* to be built,
->> which is all I think the distros are after.
->
-> The new megaraid driver doesn't support old hardware.  Maybe we should
-> drop the overlapping pci ids from the old driver?
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->

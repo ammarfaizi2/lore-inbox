@@ -1,127 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUEWJCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUEWJLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUEWJCx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 05:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUEWJCx
+	id S262431AbUEWJLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 05:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUEWJLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 05:02:53 -0400
-Received: from marvin.harmless.hu ([195.70.51.173]:9378 "EHLO
-	marvin.harmless.hu") by vger.kernel.org with ESMTP id S262450AbUEWJCc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 05:02:32 -0400
-Date: Sun, 23 May 2004 11:03:45 +0200 (CEST)
-From: Gergely Czuczy <phoemix@harmless.hu>
-X-X-Sender: phoemix@localhost
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
-In-Reply-To: <40B066EC.1010107@yahoo.com.au>
-Message-ID: <Pine.LNX.4.60.0405231058530.25386@localhost>
-References: <Pine.LNX.4.60.0405230914330.15840@localhost> <40B066EC.1010107@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HD-Virus-Scanned: by amavisd-new-20030616-p7 at harmless.hu
+	Sun, 23 May 2004 05:11:49 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:56734 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262431AbUEWJLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 05:11:44 -0400
+Date: Sun, 23 May 2004 11:11:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
+Message-ID: <20040523091137.GB5415@suse.de>
+References: <200405222107.55505.l_allegrucci@despammed.com> <20040522212028.GA31188@suse.de> <20040522213018.GA31224@suse.de> <200405231058.03336.l_allegrucci@despammed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405231058.03336.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 May 2004, Nick Piggin wrote:
-
-> Gergely Czuczy wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
+On Sun, May 23 2004, Lorenzo Allegrucci wrote:
+> On Saturday 22 May 2004 23:30, Jens Axboe wrote:
+> > On Sat, May 22 2004, Jens Axboe wrote:
+> > > On Sat, May 22 2004, Andrew Morton wrote:
+> > > > Lorenzo Allegrucci <l_allegrucci@despammed.com> wrote:
+> > > > > I get a 100% reproducible oops mounting an ext3 or reiserfs
+> > > > > partition with -o barrier enabled.
+> > > > > Hand written oops (for ext3):
+> > > >
+> > > > That's a lot of hand-writing.  Thanks for doing that.  You can usually
+> > > > omit the hex numbers in [brackets] when doing this.
+> > > >
+> > > > The crash is here:
+> > > >
+> > > > static inline void blkdev_dequeue_request(struct request *req)
+> > > > {
+> > > > 	BUG_ON(list_empty(&req->queuelist));
+> > > >
+> > > > perhaps related to that I/O error sending the code through less-tested
+> > > > paths.
+> > >
+> > > Ouch indeed, I'll get that fixed up first thing in the morning.
 > >
-> > Hello everyone,
+> > Can you test this work-around? The work-around should be perfectly safe,
+> > this is just a case where a BUG_ON() does more harm than good :-)
 > >
-> > Today morning I've made a test about the thead and child process
-> > creation(fork) time on both 2.4 and 2.6 kernels.
+> > --- drivers/ide/ide-io.c~	2004-05-21 11:02:58.000000000 +0200
+> > +++ drivers/ide/ide-io.c	2004-05-22 23:28:37.692944185 +0200
+> > @@ -291,6 +291,8 @@
+> >  		sector = real_rq->hard_sector;
 > >
-> > The test systems
-> > ================
-> >
-> > Box A:
-> >  - kernel: Linux 2.4.22-xfs
-> >  - CPU: Intel P3-700 MHz (slot1)
-> >  - Ram: 384MB SDR SDRAM
-> >
-> > Box B:
-> >  - kernel: Linux 2.6.6-mm5
-> >  - CPU: Intel P4-2.6Ghz
-> >  - Ram: 512 DDR SDRAM
-> >
-> > Box B is a lot better, but it doesn't metter according to the test,
-> > because the aim was to get the ratio of the two times with different
-> > sample rates.
-> >
->
-> Even so, you really should be using the same system if you want
-> comparable results. The pentium 4 in particular can do worse at
-> specific things in microbenchmarks.
-It doesn't matter. That's why you should look at the "ratio" at the end
-and not on the pure numbers, they are just bonus "information"
+> >  	bad_sectors = real_rq->hard_nr_sectors - good_sectors;
+> > +	/* work-around, make sure request is on queue */
+> > +	elv_requeue_request(drive->queue, real_rq);
+> >  	if (good_sectors)
+> >  		__ide_end_request(drive, real_rq, 1, good_sectors);
+> >  	if (bad_sectors)
+> 
+> The oops goes away but:
+> 
+> hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hda: drive_cmd: error=0x04 { DriveStatusError }
+> end_request: I/O error, dev hda, sector 84667085
+> Buffer I/O error on device hda11, logical block 559
+> lost page write due to I/O error on hda11
+> hda: failed barrier write: sector=50beacd(good=0/bad=8)
+> Aborting journal on device hda11.
+> ext3_abort called.
+> EXT3-fs abort (device hda11): ext3_journal_start: Detected aborted journal
+> Remounting filesystem read-only
 
->
-> Your problem with not being able large numbers of threads and
-ohh wait, i don't have problems, i've just noticed the things!
+That's expected with that patch. Try the one I just sent you as well.
+ext3 doesn't recover nicely though, I'll see if I can find a way to pass
+back -EOPNOTSUPP in case of ABRT in completer_barrier().
 
-> processes could be ulimits or sysctl limits. Look at ulimit
-> and /proc/sys/kernel/threads-max and pid_max.
-threads-max is about 8179. this is why I don't see why it is limited to
-255 threads.
+-- 
+Jens Axboe
 
-
->
-> [ snip numbers ]
->
-> > Conlusion
-> > =========
-> >
-> > It's easy to notice that in case of 2.4 the ratios of the creation times
-> > are converges to 1, so it depends on the load, while in case of a 2.6
-> > kernel the ratios are mostly fix, about 9. This means that creating a new
-> > child process takes much more time than creating a new thread.
-> >
->
-> I tried your code on a P3-1000. 2.4.23 is not 100% comparable because it
-> was built with an old compiler and possibly different options.
->
-> Anyway, results with 256 samples were as follows:
-> processes			256
-> 2.4.23:
-> Total fork time: 		48.224 msecs
-> Total thread time: 		30.180 msecs
-> Total fork/thread ratio: 	 1.598
->
-> 2.6.6-mm5:
-> Total fork time: 		40.795 msecs
-> Total thread time: 		17.615 msecs
-> Total fork/thread ratio: 	 2.316
->
-> 2.6.6-mm5+child-runs-last:
-> Total fork time: 		16.080 msecs
-> Total thread time: 		 8.600 msecs
-> Total fork/thread ratio: 	 1.870
-This is very nice, but notice the difference between the total and the
-avarage time. Total time includes all the time that taken by the test, and
-The avarage/relative time reflect he time taken by the successive calls,
-eg it not includes failed pthread_create()s and fork()s, which ones makes
-the test false. After posting the test I've realized that the measurement
-of the realitve time is not good, so I will patch this problem.
-
-
- >
-> 2.6 introduced an optimisation called child-runs-first. Apparently
-> it is nice for many common things, but it also causes a context
-> switch at every fork(), so sucks for these microbenchmarks. Child-
-> runs-last simply reverts that. Patch is attached if anyone is
-> interested.
->
-
-
-Bye,
-
-Gergely Czuczy
-mailto: phoemix@harmless.hu
-PGP: http://phoemix.harmless.hu/phoemix.pgp
-
-"Wish a god, a star, to believe in,
-With the realm of king of fantasy..."

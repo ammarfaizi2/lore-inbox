@@ -1,63 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270999AbRIJQ7P>; Mon, 10 Sep 2001 12:59:15 -0400
+	id <S271421AbRIJRXy>; Mon, 10 Sep 2001 13:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271085AbRIJQ7E>; Mon, 10 Sep 2001 12:59:04 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:16532 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S270999AbRIJQ6w>; Mon, 10 Sep 2001 12:58:52 -0400
-Message-ID: <3B9CF178.333B11BE@kegel.com>
-Date: Mon, 10 Sep 2001 09:59:36 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bernd.Suessmilch@SWAROVSKI.COM,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: re: 2.4.x, mlockall() and pthreads: exceptionally huge memory demands
-Content-Type: text/plain; charset=us-ascii
+	id <S271431AbRIJRXp>; Mon, 10 Sep 2001 13:23:45 -0400
+Received: from mx7.port.ru ([194.67.57.17]:2786 "EHLO mx7.port.ru")
+	by vger.kernel.org with ESMTP id <S271421AbRIJRXe>;
+	Mon, 10 Sep 2001 13:23:34 -0400
+Date: Mon, 10 Sep 2001 21:27:30 +0400
+From: Nick Kurshev <nickols_k@mail.ru>
+To: linux-kernel@vger.kernel.org
+Cc: ajoshi@unixbox.com
+Subject: [linux-2.4.9-ac10 PATCH] ATI Radeon VE QZ framebuffer support
+Message-Id: <20010910212730.6604296f.nickols_k@mail.ru>
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd.Suessmilch@SWAROVSKI.COM wrote:
-> I have written an application that uses mlockall() in conjunction
-> with posix-threads. I realized that under Kernel 2.4.x (tested
-> on 2.4.5-pre1 and 2.4.10-pre6, pentium III, no swap) each thread
-> consumes an exceptionally huge amount of memory (about 2MB).
-> When I omit the mlockall()-call each thread consumes only about
-> 24KB.
-> Running the same application under kernel 2.2.x  each thread
-> consumes about 12KB of memory (with memory locked).
-> The attached program illustrates this behavior. 
-> 
-> May this be a bug in the mlockall() implementation of 2.4.x and is
-> this behavior already known (I found no hint in the archive)?
+Hello!
 
-First - this is a glibc issue, not a kernel issue, I bet.
-Second - the new behavior seems allowed by the standard, if not desirable.
-Portably speaking, the default stack size for a thread may be quite large.
-If you want to consume less memory, either configure the threads to use a 
-smaller stack with pthread_attr_setstacksize() (I haven't tried this), 
-or use fewer threads (my favorite approach).
+I want suggest still one a little fix for radeonfb.c driver
+for latest Alan's Linux distribution.
+After study of XFree86-CVS code I've found that Xfree86 doesn't
+differ VE QY and VE QZ chips from driver point. So I guess
+that my code will work correctly with VE QZ chip. Finely -
+in the same way as with Radeon VE QY chip.
+Also I've added Radeon Mobility identificators but these chips
+require volunteers for testing and improvements.
 
-Third - the old behavior is hinted by 
-http://pauillac.inria.fr/~xleroy/linuxthreads/faq.html
-(see below) so perhaps there's a problem with newer glibc's?
-- Dan
+Best regards! Nick
 
-"E.5: Does LinuxThreads implement pthread_attr_setstacksize() and pthread_attr_setstackaddr()?
+--- linux/drivers/video/radeonfb.c.old	Mon Sep 10 11:23:56 2001
++++ linux/drivers/video/radeonfb.c	Mon Sep 10 21:10:05 2001
+@@ -13,13 +13,21 @@
+  *			and minor mode tweaking, 0.0.9
+  *
+  *	2001-09-07	Radeon VE support
+- *
++ *	2001-09-10	Radeon VE QZ support by Nick Kurshev <nickols_k@mail.ru>
++ *			(limitations: on dualhead Radeons (VE, M6, M7)
++ *			 driver works only on second head (DVI port).
++ *			 TVout is not supported too. M6 & M7 chips
++ *			 currently are not supported. Driver has a lot
++ *			 of other bugs. Probably they can be solved by
++ *			 importing XFree86 code, which has ATI's support).,
++ *			 0.0.11
++ *			
+  *	Special thanks to ATI DevRel team for their hardware donations.
+  *
+  */
+ 
+ 
+-#define RADEON_VERSION	"0.0.10"
++#define RADEON_VERSION	"0.0.11"
+ 
+ 
+ #include <linux/config.h>
+@@ -64,7 +72,8 @@
+ 	RADEON_QE,
+ 	RADEON_QF,
+ 	RADEON_QG,
+-	RADEON_VE
++	RADEON_QY,
++	RADEON_QZ
+ };
+ 
+ 
+@@ -73,7 +82,8 @@
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QE},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QF},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QG, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QG},
+-	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_VE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_VE},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QY, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QY},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QZ, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QZ},
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, radeonfb_pci_table);
+@@ -176,7 +186,7 @@
+ 	struct radeon_regs state;
+ 	struct radeon_regs init_state;
+ 
+-	char name[10];
++	char name[14];
+ 	char ram_type[12];
+ 
+ 	u32 mmio_base_phys;
+@@ -642,8 +652,11 @@
+ 		case PCI_DEVICE_ID_RADEON_QG:
+ 			strcpy(rinfo->name, "Radeon QG ");
+ 			break;
+-		case PCI_DEVICE_ID_RADEON_VE:
+-			strcpy(rinfo->name, "Radeon VE ");
++		case PCI_DEVICE_ID_RADEON_QY:
++			strcpy(rinfo->name, "Radeon VE QY ");
++			break;
++		case PCI_DEVICE_ID_RADEON_QZ:
++			strcpy(rinfo->name, "Radeon VE QZ ");
+ 			break;
+ 		default:
+ 			return -ENODEV;
+@@ -760,7 +773,7 @@
+ 		radeon_engine_init (rinfo);
+ 	}
+ 
+-	printk ("radeonfb: ATI %s %d MB\n",rinfo->name,
++	printk ("radeonfb: ATI %s %s %d MB\n",rinfo->name,rinfo->ram_type,
+ 		(rinfo->video_ram/(1024*1024)));
+ 
+ 	return 0;
 
-These optional functions are provided in recent versions 
-of LinuxThreads (0.8 and up). Earlier releases did not provide 
-these optional components of the POSIX standard.
+--- linux/drivers/video/radeon.h.old	Mon Sep 10 11:23:56 2001
++++ linux/drivers/video/radeon.h	Mon Sep 10 20:37:16 2001
+@@ -7,8 +7,15 @@
+ #define PCI_DEVICE_ID_RADEON_QE		0x5145
+ #define PCI_DEVICE_ID_RADEON_QF		0x5146
+ #define PCI_DEVICE_ID_RADEON_QG		0x5147
+-#define PCI_DEVICE_ID_RADEON_VE		0x5159
++#define PCI_DEVICE_ID_RADEON_QY		0x5159
++#define PCI_DEVICE_ID_RADEON_QZ		0x515A
+ 
++#if 0
++/* known but untested chips */
++#define PCI_DEVICE_ID_RADEON_LW		0x4C57 /* "M7" */
++#define PCI_DEVICE_ID_RADEON_LY		0x4C59 /* "Radeon Mobility M6 LY" */
++#define PCI_DEVICE_ID_RADEON_LZ		0x4C5A /* "Radeon Mobility M6 LZ" */
++#endif
+ #define RADEON_REGSIZE			0x4000
+ 
+ 
 
-Even if pthread_attr_setstacksize() and pthread_attr_setstackaddr() 
-are now provided, we still recommend that you do not use them 
-unless you really have strong reasons for doing so. The default 
-stack allocation strategy for LinuxThreads is nearly optimal: 
-stacks start small (4k) and automatically grow on demand to a 
-fairly large limit (2M). 
-Moreover, there is no portable way to estimate the stack requirements 
-of a thread, so setting the stack size yourself makes your program 
-less reliable and non-portable."
+--- linux/include/linux/pci_ids.h.old	Mon Sep 10 11:24:03 2001
++++ linux/include/linux/pci_ids.h	Mon Sep 10 20:59:33 2001
+@@ -264,6 +264,14 @@
+ #define PCI_DEVICE_ID_ATI_RADEON_RB	0x5145
+ #define PCI_DEVICE_ID_ATI_RADEON_RC	0x5146
+ #define PCI_DEVICE_ID_ATI_RADEON_RD	0x5147
++/* Radeon VE */
++#define PCI_DEVICE_ID_ATI_RADEON_QY	0x5159
++#define PCI_DEVICE_ID_ATI_RADEON_QZ	0x515A
++/* Radeon M6 */
++#define PCI_DEVICE_ID_ATI_RADEON_LY	0x4C59
++#define PCI_DEVICE_ID_ATI_RADEON_LZ	0x4C5A
++/* Radeon M7 */
++#define PCI_DEVICE_ID_ATI_RADEON_LW	0x4C57
+ 
+ #define PCI_VENDOR_ID_VLSI		0x1004
+ #define PCI_DEVICE_ID_VLSI_82C592	0x0005

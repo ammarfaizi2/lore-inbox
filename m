@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262799AbRE3OLl>; Wed, 30 May 2001 10:11:41 -0400
+	id <S262800AbRE3OMW>; Wed, 30 May 2001 10:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262809AbRE3OLb>; Wed, 30 May 2001 10:11:31 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:13835 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S262800AbRE3OLY>;
-	Wed, 30 May 2001 10:11:24 -0400
-Date: Wed, 30 May 2001 16:09:33 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <mdaljeet@in.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pte_page
-In-Reply-To: <CA256A5C.002E4CF0.00@d73mta01.au.ibm.com>
-Message-ID: <Pine.LNX.4.33.0105301602430.1328-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262808AbRE3OMB>; Wed, 30 May 2001 10:12:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2322 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262800AbRE3OL5>;
+	Wed, 30 May 2001 10:11:57 -0400
+Date: Wed, 30 May 2001 16:06:53 +0200
+From: Jens Axboe <axboe@kernel.org>
+To: andrea@e-mind.com
+Cc: Jens Axboe <axboe@kernel.org>, Mark Hemment <markhe@veritas.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
+Subject: Re: [patch] 4GB I/O, cut three
+Message-ID: <20010530160653.G17136@suse.de>
+In-Reply-To: <20010529160704.N26871@suse.de> <Pine.LNX.4.21.0105301022410.7153-100000@alloc> <20010530115538.B15089@suse.de> <20010530160008.C1408@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010530160008.C1408@athlon.random>; from andrea@suse.de on Wed, May 30, 2001 at 04:00:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 30 2001, Andrea Arcangeli wrote:
+> > >   I did change the patch so that bounce-pages always come from the NORMAL
+> > > zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
+> > > I'm not 100% sure the VM is capable of keeping the zones it already has
+> > > balanced - and adding another one might break the camels back.  But as the
+> > > test box has 4GB, it wasn't bouncing anyway.
+> > 
+> > You are right, this is definitely something that needs checking. I
+> > really want this to work though. Rik, Andrea? Will the balancing handle
+> > the extra zone?
+> 
+> The bounces can came from the ZONE_NORMAL without problems, however the
 
-On Wed, 30 May 2001 mdaljeet@in.ibm.com wrote:
+Of course
 
-> I use the 'pgt_offset', 'pmd_offset', 'pte_offset' and 'pte_page'
-> inside a module to get the physical address of a user space virtual
-> address. The physical address returned by 'pte_page' is not page
-> aligned whereas the virtual address was page aligned. Can somebody
-> tell me the reason?
+> ZONE_DMA32 way is fine too, but yes probably it isn't needed in real
+> life unless you do an huge amount of I/O at the same time. If you want
 
-__pa(page_address(pte_page(pte))) is the address you want. [or
-pte_val(*pte) & (PAGE_SIZE-1) on x86 but this is platform-dependent.]
+It's not strictly needed, but it does buy us 3 extra gig to do I/O from
+an a pae enabled x86.
 
-> Also, can i use these functions to get the physical address of a
-> kernel virtual address using init_mm?
+> to reduce the amount of changes you can defer the zone_dma32 patch and
+> possibly plug it in later.
 
-nope. Eg. on x86 these functions only walk normal 4K page pagetables, they
-do not walk 4MB pages correctly. (which are set up on pentiums and better
-CPUs, unless mem=nopentium is specified.)
+Yes, I did modular patches for this reason.
 
-a kernel virtual address can be decoded by simply doing __pa(kaddr). If
-the page is a highmem page [and you have the struct page pointer] then you
-can do [(page-mem_map) << PAGE_SHIFT] to get the physical address, but
-only on systems where mem_map[] starts at physical address 0.
+Thanks!
 
-	Ingo
+-- 
+Jens Axboe
 

@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268845AbRG0NKQ>; Fri, 27 Jul 2001 09:10:16 -0400
+	id <S268844AbRG0NJq>; Fri, 27 Jul 2001 09:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268842AbRG0NKK>; Fri, 27 Jul 2001 09:10:10 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:29958 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S268843AbRG0NJx>; Fri, 27 Jul 2001 09:09:53 -0400
-Date: Fri, 27 Jul 2001 14:04:32 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cg14 frambuffer bug in 2.2.19 (and probably 2.4.x as well)
-In-Reply-To: <15201.14426.240997.18614@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0107271357550.2983-100000@tahallah.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268843AbRG0NJg>; Fri, 27 Jul 2001 09:09:36 -0400
+Received: from [209.226.93.226] ([209.226.93.226]:34037 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268842AbRG0NJ0>; Fri, 27 Jul 2001 09:09:26 -0400
+Date: Fri, 27 Jul 2001 09:08:14 -0400
+Message-Id: <200107271308.f6RD8EA02743@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Re: Linx Kernel Source tree and metrics
+In-Reply-To: <01072714523106.00285@starship>
+In-Reply-To: <3B612D26.BA131CEC@randomlogic.com>
+	<01072714523106.00285@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 27 Jul 2001, David S. Miller wrote:
+Daniel Phillips writes:
+> On Friday 27 July 2001 10:58, Paul G. Allen wrote:
+> > For those interested, I have run the kernel (2.4.2-2) through a
+> > program and generated extensive HTML reports including call trees,
+> > function and data declarations, source code, and metrics. I plan to
+> > upgrade this to the latest kernel and keep it up to date (as much as
+> > possible :), but I am a) working with a kernel that I know currently
+> > runs on my dual Athlon, and b) wanted to test this out and run it by
+> > the two lists first.
+> >
+> > My bandwisth is currently limited (cable modem), but if it's decided
+> > that I'll keep this available, I will upload it to a web server with
+> > a couple T1's avalable (or maybe I will use one of our companies
+> > servers on a DS3 or greater).
+> >
+> > The URL is:
+> >
+> > http://24.5.14.144:3000/linux-kernel
+> >
+> > If you have any connection problems (and there may be, since it's
+> > currently running on the same machine I'm using to develop with - the
+> > dual Athlon), suggestions (even if it's "hey, dork, it's already
+> > available at http://xxx.yyy"), or whatever, please let me know.
 
-> I've made this change in both my 2.2.x and 2.4.x trees.
-> Thanks a lot for hunting this down and making a fix.
+Hm. Interesting. But I note it has the devfsd source code in there as
+well. That's definately not part of the kernel!
 
-Is the 2.4.7 fix anything like this:
+				Regards,
 
-       if (c->enable) {
-                u8 tmp = sbus_readb(&cur->ccr);
-
-                tmp |= CG14_CCR_ENABLE;
-                sbus_writeb(tmp, &cur->ccr);
-        }
-        else {
-                u8 tmp = sbus_readb(&cur->ccr);
-
-                tmp &= ~CG14_CCR_ENABLE;
-                sbus_writeb(tmp, &cur->ccr);
-        }
-
-It looks a bit ugly though. I'd prefer:
-
-	u8 tmp = sbus_readb(&cur->ccr);
-
-	if (c->enable)
-		tmp != CG14_CCR_ENABLE;
-	else
-		tmp &= ~CG14_CCR_ENABLE;
-
-	sbus_writeb(tmp, &cur->ccr);
-
-I'll test this as soon as I recompile 2.4.7 with egcs 1.1.2 to prove a
-theory of mine that using 2.95.3 results in non-bootable kernels.
-
-PS: I'm still learning the internals of the sparc32 port. Lots of lovely
-confusing bits to hack my way through. :o)
-
--- 
-Hey, they *are* out to get you, but it's nothing personal.
-
-http://www.tahallah.demon.co.uk
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

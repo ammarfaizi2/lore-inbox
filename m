@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270919AbRHNWth>; Tue, 14 Aug 2001 18:49:37 -0400
+	id <S270915AbRHNWrr>; Tue, 14 Aug 2001 18:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270917AbRHNWt2>; Tue, 14 Aug 2001 18:49:28 -0400
-Received: from cs242719-203.austin.rr.com ([24.27.19.203]:30971 "EHLO
-	snafu.haywired.net") by vger.kernel.org with ESMTP
-	id <S270916AbRHNWtO>; Tue, 14 Aug 2001 18:49:14 -0400
-Date: Tue, 14 Aug 2001 18:12:23 -0500 (CDT)
-From: <paulsch@haywired.net>
-To: <linux-thinkpad@www.bm-soft.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mwave_linux-2.4.8 / release mwavem-1.0.2
-Message-ID: <Pine.LNX.4.33.0108141809020.16539-100000@screwy.haywired.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270912AbRHNWrh>; Tue, 14 Aug 2001 18:47:37 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:14656 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S270915AbRHNWrY>; Tue, 14 Aug 2001 18:47:24 -0400
+Date: Wed, 15 Aug 2001 00:47:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Tim Hockin <thockin@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: poll change - nevermind
+Message-ID: <20010815004724.B4304@athlon.random>
+In-Reply-To: <3B799358.38EF3B72@sun.com> <3B79A01B.4AB045A8@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B79A01B.4AB045A8@sun.com>; from thockin@sun.com on Tue, Aug 14, 2001 at 03:03:07PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The mwave driver and distribution have been updated...  They can be gotten
-at the Mwave home page:  http://oss.software.ibm.com/acpmodem/
+On Tue, Aug 14, 2001 at 03:03:07PM -0700, Tim Hockin wrote:
+> Tim Hockin wrote:
+> 
+> > poll() currently does not allow you to pass more fd's than you have 
+> 
+> I'll shut up - I was looking at 2.2.x source.
 
-Questions, comments, etc. are welcome...
+btw, it is also fixed in my 2.2 tree since 2.2.20pre8aa1:
 
-Here are the changes:
+	ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre8aa1/00_poll-max_fds-1
 
-Version 1.0.2 Source
-
-    * Includes latest 2.4.8 driver patch
-	- Fix undefinded __exit for 2.2.x kernels
-	- Global s_mdd now prefixed with mwave_ as it should be
-	- Bugfixes for initialization failure cases (Thomas Hood)
-	- printk cleanups (Hood)
-	- Disabling of other UARTs contolled by
-MWAVE_FUTZ_WITH_OTHER_DEVICES flag (Hood)
-    * ./configure and mwaved fixes for older versions of bash
-
-
-Cheers...Paul...
-
-
--- 
-
-Paul B Schroeder
-paulsch@haywired.net
-
-
+Andrea

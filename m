@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbSLIKxb>; Mon, 9 Dec 2002 05:53:31 -0500
+	id <S265093AbSLILJt>; Mon, 9 Dec 2002 06:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbSLIKxb>; Mon, 9 Dec 2002 05:53:31 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60680 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265099AbSLIKxa>; Mon, 9 Dec 2002 05:53:30 -0500
-Date: Mon, 9 Dec 2002 12:01:11 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
-Message-ID: <20021209110111.GA18878@atrey.karlin.mff.cuni.cz>
-References: <20021205224019.GH7396@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain> <20021206000618.GB15784@atrey.karlin.mff.cuni.cz> <20021206185702.GE17595@poup.poupinou.org> <20021208194944.GB19604@atrey.karlin.mff.cuni.cz> <20021209102858.GA14882@poup.poupinou.org>
+	id <S265102AbSLILJt>; Mon, 9 Dec 2002 06:09:49 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62605 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265093AbSLILJs>;
+	Mon, 9 Dec 2002 06:09:48 -0500
+Date: Mon, 9 Dec 2002 11:14:37 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: William Knop <w_knop@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50-ac1 mpparse -> gcc 3.0.1 segfault
+Message-ID: <20021209111437.GA31468@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	William Knop <w_knop@hotmail.com>, linux-kernel@vger.kernel.org
+References: <F32fiSBtAM9r5h1inen000214bb@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021209102858.GA14882@poup.poupinou.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <F32fiSBtAM9r5h1inen000214bb@hotmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Dec 09, 2002 at 01:55:08AM -0500, William Knop wrote:
+ > Hello,
+ > The machine I'm working on has SMP enabled (dual 2GHZ P4 Xeon), although 
+ > I've tried it on a different box with dual P3s and it's still a no go. It 
+ > didn't happen on 2.5.50-vanilla, so far as I can tell (it had other compile 
+ > errors wrt intermezzo, but it got past mpparse). Attached at the bottom is 
+ > the make output. Any info on similar occurrences or a fix would be 
+ > appreciated.
 
-> > I think that s4bios is nice to have. Its similar to S3 and easier to
-> > set up than swsusp... It would be nice to have it.
-> 
-> for me:
-> pros:
-> -----
-> 1- it is really really more easier to implement than S4;
-> 2- we can even have it with 2.4 kernels (it seems that it work without
-> the need of freezing processes, but I suspect that this statement
-> is 'wrong' by nature).
-> 
-> cons:
-> -----
-> 1- it is much slower (especially at save time) than your swsusp;
-> 2- end users must setup their systems (need to create a suspend partition,
-> or to keep a vfat partition as the really first one (/dev/hda1));
-> 3- we use a bios function.  Actually, everything can happen...
-> 
-> That why I prefer swsusp at this time, or any other implementation of S4 (I
-> think about an implementation of S4 via LKCD).
+3.0.1 is now quite old, and has a number of issues. Try a more recent gcc,
+and if the problem is repeatable, file a bug with the gcc folks, as the
+output told you to.
 
-Yes I think swsusp is better (long term), but it might be worth it to
-have S4bios, too. At least it has nice graphical task bars :-). Can
-you push the patch, or is it okay for me to try to get it merged?
+		Dave
 
-								Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+| Dave Jones.        http://www.codemonkey.org.uk

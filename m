@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265536AbSJSGxJ>; Sat, 19 Oct 2002 02:53:09 -0400
+	id <S265551AbSJSHu2>; Sat, 19 Oct 2002 03:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265538AbSJSGxJ>; Sat, 19 Oct 2002 02:53:09 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:29962 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265536AbSJSGxI>;
-	Sat, 19 Oct 2002 02:53:08 -0400
-Date: Sat, 19 Oct 2002 02:59:16 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: John Myers <jgmyers@netscape.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-Message-ID: <20021019065916.GB17553@mark.mielke.cc>
-References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com> <3DB0AD79.30401@netscape.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB0AD79.30401@netscape.com>
-User-Agent: Mutt/1.4i
+	id <S265552AbSJSHu2>; Sat, 19 Oct 2002 03:50:28 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:31429 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S265551AbSJSHu1>;
+	Sat, 19 Oct 2002 03:50:27 -0400
+Message-ID: <3DB1110A.2050907@athlon.maya.org>
+Date: Sat, 19 Oct 2002 10:00:10 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021007
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Compile problems with 2.4.20pre kernels
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 05:55:21PM -0700, John Myers wrote:
-> So whether or not a proposed set of epoll semantics is consistent with 
-> your Platonic ideal of "use the fd until EAGAIN" is simply not an issue. 
-> What matters is what works best in practice.
+Hello all,
 
->From this side of the fence: One vote for "use the fd until EAGAIN" being
-flawed. If I wanted a method of monopolizing the event loop with real time
-priorities, I would implement real time priorities within the event loop.
+I'm not sure, but I think that there are compile problems since the
+2.4.20pre-kernels with pcmcia-cs package 3.2.1. I get the following
+warnings:
 
-mark
+In file included from /usr/src/linux/include/linux/rwsem.h:29,
+                  from /usr/src/linux/include/asm/semaphore.h:42,
+                  from /usr/src/linux/include/linux/fs.h:200,
+                  from /usr/src/linux/include/linux/capability.h:17,
+                  from /usr/src/linux/include/linux/binfmts.h:5,
+                  from /usr/src/linux/include/linux/sched.h:9,
+                  from ../include/linux/sched.h:5,
+                  from /usr/src/linux/include/linux/mm.h:4,
+                  from /usr/src/linux/include/linux/slab.h:14,
+                  from ../include/linux/slab.h:9,
+                  from cs.c:41:
+/usr/src/linux/include/asm/rwsem.h: In function `__down_write_trylock':
+/usr/src/linux/include/asm/rwsem.h:176: warning: implicit declaration of
+function `cmpxchg'
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+In file included from /usr/src/linux/include/linux/wait.h:13,
+                  from ../include/linux/wait.h:5,
+                  from /usr/src/linux/include/linux/fs.h:12,
+                  from /usr/src/linux/include/linux/capability.h:17,
+                  from /usr/src/linux/include/linux/binfmts.h:5,
+                  from /usr/src/linux/include/linux/sched.h:9,
+                  from ../include/linux/sched.h:5,
+                  from /usr/src/linux/include/linux/vmalloc.h:4,
+                  from ../include/linux/vmalloc.h:7,
+                  from /usr/src/linux/include/asm/io.h:47,
+                  from ../include/asm/io.h:5,
+                  from wvlan_hcfcfg.h:580,
+                  from wvlan_hcf.h:101,
+                  from wvlan_hcfio.c:121:
+../include/linux/kernel.h:10: warning: `EXPORT_SYMTAB' redefined
 
-                           http://mark.mielke.cc/
+
+Is this a problem of the kernel haeders or should the pcmcia-package be
+fixed?
+
+
+Regards,
+Andreas Hartmann
 

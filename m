@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261311AbSIWSfj>; Mon, 23 Sep 2002 14:35:39 -0400
+	id <S261285AbSIWSxz>; Mon, 23 Sep 2002 14:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261313AbSIWSfj>; Mon, 23 Sep 2002 14:35:39 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:49037 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261311AbSIWSfi>;
-	Mon, 23 Sep 2002 14:35:38 -0400
-Date: Mon, 23 Sep 2002 11:42:21 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: Andre Hedrick <andre@linux-ide.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: devicefs & sleep support for IDE
-In-Reply-To: <20020921210456.GA31784@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0209231136100.6409-100000@cherise.pdx.osdl.net>
+	id <S261318AbSIWSxR>; Mon, 23 Sep 2002 14:53:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55563 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261285AbSIWStm>; Mon, 23 Sep 2002 14:49:42 -0400
+Date: Mon, 23 Sep 2002 11:57:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andi Kleen <ak@muc.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nanosecond resolution for stat(2)
+In-Reply-To: <20020923184705.GA8195@averell>
+Message-ID: <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> New patch, rediffed against 2.5.36.
+On Mon, 23 Sep 2002, Andi Kleen wrote:
 > 
-> More patches will be needed to support IDE properly (like DVD burners
-> you mentioned), but this is known to fix data corruption. It has zero
-> impact on actual I/O. It affects initialization and suspend only.
-> Please apply this time.
+> Some drivers (like mouse drivers or tty) do dubious inode [mac] time 
+> accesses of the on disk inode and without even marking it dirty. This is 
+> likely a bug.
 
-Basic driver model support for IDE is in 2.5.38. This just involves 
-creating an IDE bus type, and registering drives as devices. I.e. there is 
-no driver set for any of the drives. 
+No, it is intentional. At least some versions of "w" (maybe all) will use
+the tty access times to judge how long the tty has been idle. The point is
+that this is all information that is interesting (and useful), but not
+worth sending to disk - it is useful only as long as the inode remains
+locked in-core for other reasons, ie being in use.
 
-I do have a couple of comments though.
+(It's not only "not worth it" to send to disk, but it would be positively 
+wrong to even _try_ updating the disk with the access times, since we want 
+these things to work even with a read-only /dev).
 
-> +static struct device_driver idedisk_devdrv = {
-> +	.lock = RW_LOCK_UNLOCKED,
-> +	.suspend = idedisk_suspend,
-> +	.resume = idedisk_resume,
-> +};
-
-You don't need to initialize .lock. But, you do need a .name and .bus. The 
-driver won't even be registered unless .bus is set. 
-
-> @@ -835,6 +837,7 @@
->  	int		crc_count;	/* crc counter to reduce drive speed */
->  	struct list_head list;
->  	struct gendisk *disk;
-> +	struct device	device;		/* for driverfs */
->  } ide_drive_t;
-
-There is a struct device in struct gendisk; that should suffice. But note 
-that you may have to do an extra conversion in order to access it in the 
-driver callbacks. 
-
-> +	struct device	device;		/* for devicefs */
-
-Please: it's driver model support, not driverfs. And devicefs does not 
-even exist. :)
-
-
-Thanks,
-
-	-pat
+		Linus
 

@@ -1,129 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUEVMXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUEVMak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUEVMXP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 08:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUEVMXP
+	id S261169AbUEVMak (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 08:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUEVMak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 08:23:15 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:30159 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261162AbUEVMXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 08:23:01 -0400
-Message-ID: <40AF4618.5060300@colorfullife.com>
-Date: Sat, 22 May 2004 14:22:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: slab redzoning
-References: <20040522034902.GB2161@holomorphy.com> <40AF0911.6020000@colorfullife.com> <20040522082602.GJ2161@holomorphy.com> <40AF12C3.80902@colorfullife.com> <20040522085236.GL2161@holomorphy.com>
-In-Reply-To: <20040522085236.GL2161@holomorphy.com>
-Content-Type: multipart/mixed;
- boundary="------------030709040309070708060501"
+	Sat, 22 May 2004 08:30:40 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2688 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261169AbUEVMai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 08:30:38 -0400
+Date: Sat, 22 May 2004 13:37:02 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200405221237.i4MCb2Qn000252@81-2-122-30.bradfords.org.uk>
+To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>,
+       linux-kernel@vger.kernel.org
+Cc: Andries.Brouwer@cwi.nl, torvalds@osdl.org
+In-Reply-To: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
+References: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
+Subject: Re: rfc: test whether a device has a partition table
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030709040309070708060501
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Quote from Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>:
+> Hello,
+> 
+> around last september there was a discussion about the linux kernel
+> recognizing "supperfloppys" as disks with bogus partition tables.
+> Linux Torvalds wrote at one point in the discussion:
+> >On Thu, 25 Sep 2003, Andries Brouwer wrote:
+> >> 
+> >> My post implicitly suggested the minimal thing to do.
+> >> It will not be enough - heuristics are never enough -
+> >> but it probably helps in most cases.
+> >
+> >I don't mind the 0x00/0x80 "boot flag" checks - those look fairly 
+> > obvious and look reasonably safe to add to the partitioning code.
+> >
+> >There are other checks that can be done - verifying that the start/end
+> >sector values are at all sensible. We do _some_ of that, but only for
+> >partitions 3 and 4, for example. We could do more - like checking the
+> >actual sector numbers (but I think some formatters leave them as zero).
+> >
+> >Which actually makes me really nervous - it implies that we've probably 
+> >seen partitions 1&2 contain garbage there, and the problem is that if 
+> >you'r etoo careful in checking, you will make a system unusable.
+> >
+> >This is why it is so much nicer to be overly permissive ratehr than 
+> >being a stickler for having all the values right.
+> >
+> >And your random byte checks for power-of-2 make no sense. What are they
+> >based on?
+> 
+> The discussion seemed to fade out with no visible result, and for example my
 
-William Lee Irwin III wrote:
+I seem to remember the conclusion being Linus saying something along the
+lines of prefering the situation where you have bogus partitions detected
+rather than genuine partitions not detected.
 
->William Lee Irwin III wrote:
->  
->
->>>It returns a false positive when size + 3*BYTES_PER_WORD == 2**n, e.g.
->>>size == 16373. Here, fls(size - 1) == 13, but fls(size - 1 + 12) == 13
->>>while size - 1 + 12 == 16384, where we'd want the check to fail.
->>>      
->>>
->
->On Sat, May 22, 2004 at 10:43:47AM +0200, Manfred Spraul wrote:
->  
->
->>No, 16373 must fail: After adding 12 bytes the object size would be 
->>16385, which would mean an order==3 allocation.
->>And 16372 must succeed: 16384 is still an order==2 allocation.
->>The idea is that there shouldn't be an allocation order increase due to 
->>redzoning, and afaics that doesn't happen, except between 4082 and 4095 
->>bytes.
->>    
->>
->
->Yes. While you've corrected the one-offs in my post (arithmetic is boring,
->we have machines to do that for us now)
->
-I admit, I'm cheating:
-I'd copied the test to user space and then tested all values between 32 
-and 131072. 16372 passes:
-fls(16371) == fls(16383).
-
-I'll send a patch to Andrew to fix the range between 4084 and 4095.
-
---
-    Manfred
-
---------------030709040309070708060501
-Content-Type: text/x-csrc;
- name="test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="test.c"
-
-#include <stdio.h>
-
-#define BYTES_PER_WORD	4
-#define PAGE_SIZE 4096
-
-/*
- * fls: find last bit set.
- */
-
-static int fls(int x)
-{
-	int r = 32;
-
-	if (!x)
-		return 0;
-	if (!(x & 0xffff0000u)) {
-		x <<= 16;
-		r -= 16;
-	}
-	if (!(x & 0xff000000u)) {
-		x <<= 8;
-		r -= 8;
-	}
-	if (!(x & 0xf0000000u)) {
-		x <<= 4;
-		r -= 4;
-	}
-	if (!(x & 0xc0000000u)) {
-		x <<= 2;
-		r -= 2;
-	}
-	if (!(x & 0x80000000u)) {
-		x <<= 1;
-		r -= 1;
-	}
-	return r;
-}
-
-int main(void)
-{
-	int size;
-
-	for (size=32;size<131073;size++) {
-		if ((size <= PAGE_SIZE-3*BYTES_PER_WORD || fls(size-1) == fls(size-1+3*BYTES_PER_WORD))) {
-			/* printf("%6d: no order change \n", size); */
-		} else {
-			printf("%6d: order change \n", size);
-		}
-	}
-	return 0;
-}
-
---------------030709040309070708060501--
-
+John.

@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTDUPiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 11:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTDUPiI
+	id S261366AbTDUPlb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 11:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbTDUPlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 11:38:08 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:49089 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261390AbTDUPiF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 11:38:05 -0400
-Date: Mon, 21 Apr 2003 08:50:08 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 612] New: aic7<CENSORED> driver hang 
-Message-ID: <29320000.1050940208@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 21 Apr 2003 11:41:31 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:54758 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261366AbTDUPla (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 11:41:30 -0400
+Date: Mon, 21 Apr 2003 11:53:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 614] New: Oops on boot in vortex_interrupt with 3c59x
+Message-ID: <20030421155333.GC19954@gtf.org>
+References: <28390000.1050939977@[10.10.2.4]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <28390000.1050939977@[10.10.2.4]>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 21, 2003 at 08:46:17AM -0700, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=614
+> 
+>            Summary: Oops on boot in vortex_interrupt with 3c59x
+>     Kernel Version: 2.5.68-bk1
+>             Status: NEW
+>           Severity: high
+>              Owner: jgarzik@pobox.com
+>          Submitter: bwindle-kbt@fint.org
 
-http://bugme.osdl.org/show_bug.cgi?id=612
+Closed, fix already sent to Linus.
 
-           Summary: aic7xxx driver hang
-    Kernel Version: 2.5.68
-            Status: NEW
-          Severity: high
-             Owner: andmike@us.ibm.com
-         Submitter: m4341@abc.se
+Note that we will have lots of bugs like this in 2.5.68-bk1, until we
+get the new interrupt handler return value sorted.
 
+	Jeff
 
-Notes:
-  1. Problem seems to be similar to bug #36.
-
-Distribution:
-  Red Hat 8.0 with kernel 2.5.68
-
-Hardware Environment:
-  HP Vectra XU 2*200MHz Pentium Pro
-  scsi0: aic7880: Ultra Single Channel A, SCSI Id=7, 16/253 SCBs
-    sda: SEAGATE   Model: ST39140N          Rev: 1498
-      sda1: ext3 filesystem /boot       128M
-      sda2: ext3 filesystem /           861M
-  scsi1: aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-    sdb: SEAGATE   Model: ST318436LW
-      sdb1: swap                          1G
-      sdb2: ext3 filesystem /usr/local   16G
-  ide-bus0: hda: DVD-ROM
-  ide-bus1: hdc: CD-RW
-
-Software Environment:
-Problem Description:
-  System "hangs" with logging of messages:
-    "Attempting to queue an ABORT message"
-  Only resort is to reset the machine.
-
-Steps to reproduce:
-  Problem seems to occur during high load on concurrent disk I/O when
-running in
-multi-processor mode. The problem does not occur if system is booted with a
-single-processor kernel (SMP disabled in kernel build).
 
 

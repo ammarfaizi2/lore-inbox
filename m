@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbQLKArv>; Sun, 10 Dec 2000 19:47:51 -0500
+	id <S130373AbQLKAuv>; Sun, 10 Dec 2000 19:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130511AbQLKArm>; Sun, 10 Dec 2000 19:47:42 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:35260 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129792AbQLKArg>; Sun, 10 Dec 2000 19:47:36 -0500
-Date: Mon, 11 Dec 2000 02:16:52 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Frank Davis <fdavis112@juno.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: test12-pre8 ohci1394.c compile error
-Message-ID: <20001211021652.J7554@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <381711807.976492925796.JavaMail.root@web340-wra.mail.com>
+	id <S130511AbQLKAul>; Sun, 10 Dec 2000 19:50:41 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:36368 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S130373AbQLKAuZ>; Sun, 10 Dec 2000 19:50:25 -0500
+Date: Sun, 10 Dec 2000 16:19:55 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Abramo Bagnara <abramo@alsa-project.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2*PATCH] alpha I/O access and mb()
+Message-ID: <20001210161955.A31596@twiddle.net>
+In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net> <3A334F7C.3205A3DF@alsa-project.org> <20001210104413.A31257@twiddle.net> <3A33D3A7.FCD55F4@alsa-project.org> <20001210124918.A31383@twiddle.net> <3A33F448.258A731@alsa-project.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <381711807.976492925796.JavaMail.root@web340-wra.mail.com>; from fdavis112@juno.com on Sun, Dec 10, 2000 at 07:02:05PM -0500
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A33F448.258A731@alsa-project.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2000 at 07:02:05PM -0500, Frank Davis wrote:
-> ohci1394.c:1588: structure has no member named 'next'
-> make[2]:*** [ohci1394.o] Error 1
-> make[2]: Leaving directory '/usr/src/linux/drivers/ieee1394'
-> ....
-> Its the same case with drivers/i2o/i2o_lan.c
-> 
-> I suspect there are more. Is there a simple patch that will fix all affected drivers?
+On Sun, Dec 10, 2000 at 10:23:20PM +0100, Abramo Bagnara wrote:
+> asm/io.h uses out of line function only when CONFIG_ALPHA_GENERIC is
+> defined, otherwise it uses (take writel as an example) __raw_writel that
+> IMHO need to be defined in core_t2.h.
 
-Working on it. I _need_ pre8, because of some critical fixes in
-it.
+Perhaps you should _show_ an actual failure rather than just guessing.
 
-<RANT>
-Whoever changed this interface without fixing _all_ the offending
-files, should be shot^W^Wthink about the meaning of the words
+You are wildly incorrect asserting that out of line functions are used
+only with CONFIG_ALPHA_GENERIC.  You should examine
 
-                          CODE FREEZE
-for at least one week.
-</RANT>
+#ifndef __raw_writel
+# define __raw_writel(v,a)  ___raw_writel((v),(unsigned long)(a))
+#endif
 
-Sorry, but this had to be said ;-)
+and suchlike definitions.
 
-But heh, we all make mistakes sometimes.
+> core_t2.h is the only core_*.h file that does not define it and this is
+> why I've proposed that patch.
 
-Regards
+FOR THE NTH TIME, NO IT IS NOT!
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+How often do I have to point you at the other files that do not
+define (all of) these macros before you will believe me?
+
+Jesus H Christ!  Look at some preprocessor output why don't you?
+Better yet, compile the kernel with CONFIG_ALPHA_T2.  Notice how
+it does not fail with undefined symbol errors.  Notice how there
+are non-trivial bit fiddling insns implementing the functions in
+alpha/lib/io.o.  That's the quickest way to see that I'm right
+and you aren't.
+
+End of discussion.
+
+
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

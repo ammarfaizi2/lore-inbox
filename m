@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVCBMSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVCBMUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVCBMSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 07:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVCBMSA
+	id S262278AbVCBMUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 07:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVCBMUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 07:18:00 -0500
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:45496 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S262276AbVCBMRp (ORCPT
+	Wed, 2 Mar 2005 07:20:24 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:59229 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262278AbVCBMUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 07:17:45 -0500
-Date: Wed, 2 Mar 2005 14:17:44 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disallow modular framebuffers
-Message-ID: <20050302121744.GA2871@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Adrian Bunk <bunk@stusta.de>, adaplas@pol.net,
-	linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050301024118.GF4021@stusta.de>
+	Wed, 2 Mar 2005 07:20:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TQ9J/zBkqsVi/o2r3KQ1n9nJpMlt4ouoyPTw8HtI2yUYhbeFZP/U4/uEbAVh4YdSbS8QfB9249S9AnQnrR6QHbevTWmRoVUBHarwEXEC5gQJpZ+nTR0fxGxJ7qta/iD2tH7npzTDqlehs7l2ojgcWJM5AZa3qwlBxN3QtVHmoCk=
+Message-ID: <3f250c71050302042059f36525@mail.gmail.com>
+Date: Wed, 2 Mar 2005 08:20:13 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] A new entry for /proc
+Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, rrebel@whenu.com,
+       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
+In-Reply-To: <3f250c710503010744390391e2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
-In-Reply-To: <20050301024118.GF4021@stusta.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050106202339.4f9ba479.akpm@osdl.org>
+	 <3f250c710502240343563c5cb0@mail.gmail.com>
+	 <20050224035255.6b5b5412.akpm@osdl.org>
+	 <3f250c7105022507146b4794f1@mail.gmail.com>
+	 <3f250c71050228014355797bd8@mail.gmail.com>
+	 <3f250c7105022801564a0d0e13@mail.gmail.com>
+	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
+	 <3f250c7105030100085ab86bd2@mail.gmail.com>
+	 <3f250c710503010617537a3ca@mail.gmail.com>
+	 <3f250c710503010744390391e2@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does anyone know if the place I put pte_unmap is logical and safe
+after several pte increments?
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	pte = pte_offset_map(pmd, address);
+	address &= ~PMD_MASK;
+	end = address + size;
+	if (end > PMD_SIZE)
+		end = PMD_SIZE;
+	do {
+		pte_t page = *pte;
 
-On Tue, Mar 01, 2005 at 03:41:18AM +0100, Adrian Bunk wrote:
-> Do modular framebuffers really make sense?
->=20
-Yes, at least these are quite common with embedded systems, quite often
-without fbcon. It makes little sense to keep the driver constantly loaded
-if the device is not being used as a console and is only seeing
-occasional use.
+		address += PAGE_SIZE;
+		pte++;
+		if (pte_none(page) || (!pte_present(page)))
+			continue;
+		*rss += PAGE_SIZE;
+	} while (address < end);
+	pte_unmap(pte);
 
-It seems more sensible to just fix up the drivers that don't do this
-right.. most of the broken drivers seem to be geared at x86 anyways where
-people generally don't seem to care.
+BR,
 
-It may not make a lot of sense with distributions on x86, though it is
-useful if you are doing driver development on a secondary device. This is
-certainly a corner case though.
-
---IS0zKkzwUGydFO0o
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCJa7o1K+teJFxZ9wRAmzXAKCGjNhPV3QJclqFGwKkOofuc6U2uQCdHAbt
-Qka7Zg9YoBwLEQZNVPMTgP4=
-=zZ2e
------END PGP SIGNATURE-----
-
---IS0zKkzwUGydFO0o--
+Mauricio Lin.

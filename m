@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVAYFN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVAYFOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVAYFN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 00:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVAYFN4
+	id S261819AbVAYFOu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 00:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVAYFOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 00:13:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:59333 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261818AbVAYFNw (ORCPT
+	Tue, 25 Jan 2005 00:14:50 -0500
+Received: from mail.joq.us ([67.65.12.105]:8620 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261819AbVAYFOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 00:13:52 -0500
-Date: Mon, 24 Jan 2005 21:12:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>, tj@home-tj.org
-Cc: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Modules: Allow sysfs module paramaters to be written to.
-Message-ID: <20050125051244.GA656@kroah.com>
-References: <200501132234.30762.rathamahata@ehouse.ru> <20050114005948.GD4140@kroah.com> <1106463261.8118.13.camel@pegasus>
-Mime-Version: 1.0
+	Tue, 25 Jan 2005 00:14:41 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 24 Jan 2005 23:16:17 -0600
+Message-ID: <87u0p6t7fi.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106463261.8118.13.camel@pegasus>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 07:54:21AM +0100, Marcel Holtmann wrote:
-> Hi Greg,
-> 
-> > > It looks like module parameters are not setable via sysfs in 2.6.11-rc1
-> > > 
-> > > E.g.
-> > > arise parameters # echo -en Y > /sys/module/usbcore/parameters/old_scheme_first
-> > > -bash: /sys/module/usbcore/parameters/old_scheme_first: Permission denied
-> > > arise parameters # id
-> > > uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
-> > > arise parameters # 
-> > > arise parameters # ls -la /sys/module/usbcore/parameters/old_scheme_first
-> > > -rw-r--r--  1 root root 0 Jan 13 22:22 /sys/module/usbcore/parameters/old_scheme_first
-> > > arise parameters # 
-> > > 
-> > > This is sad because it seems that my usb flash stick (transcebd jetflash)
-> > > doesn't like new USB device initialization scheme introduced in 2.6.10.
-> > 
-> > I'm seeing the same problem here.  I'll dig into it later tonight.
-> 
-> any updates on this? It still results in a permission denied with a
-> recent 2.6.11-rc2 kernel.
+Ingo Molnar <mingo@elte.hu> writes:
 
-Here's a patch that fixes this for me.  It's as if the function was
-never implemented at all for some reason.  Sorry for not catching this
-when tj's patches went in that changed all of this logic.
+> * Jack O'Quin <joq@io.com> wrote:
+>
+>>   First, only SCHED_FIFO worked reliably in my tests.  In Con's tests
+>>   even that did not work.  My system is probably better tuned for low
+>>   latency than his.  Until we can determine why there were so many
+>>   xruns, it is premature to declare victory for either scheduler.
+>>   Preferably, we should compare them on a well-tuned low-latency
+>>   system running your Realtime Preemption kernel.
+>
+> i didnt declare victory - the full range of latency fixes is in the -RT
+> tree. Merging of relevant bits is an ongoing process - in 2.6.10 you've
+> already seen some early results, but it's by no means complete. 
 
-Let me know if this fixes the problem for you or not.
+I didn't mean to insult you, Ingo.  
 
-thanks,
+I have nothing but praise for what you've accomplished with 2.6.10.
+My tests yesterday demonstrated slightly better SCHED_FIFO performance
+with 2.6.10 than 2.4.19 with Andrew's low-latency patches.  For a
+mainstream kernel that is a huge accomplishment, never before
+achieved.  We should celebrate.
 
-greg k-h
+I was just pointing out that saying nice(-20) works as well as
+SCHED_ISO, though true, doesn't mean much since neither of them
+(currently) work well enough to be useful.
 
------
-Modules: Allow sysfs module paramaters to be written to.
+>>   Second, the nice(-20) scheduler provides no clear way to support
+>>   multiple realtime priorities. [...]
+>
+> why? You could use e.g. nice -20, -19 and -18. (see the patch below that
+> implements this.)
 
-Fixes a bug in the current tree preventing the sysfs module paramaters from being able
-to be changed at all from userspace.  It's as if someone just forgot to write this function...
+Which of the the POSIX 1-99 range do you map into those three
+priorities?  (I can't figure it out from the patch.)
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+How does one go about deciding which priority differences "matter" and
+which do not?  Why not honor the realtime programmer's choice of
+priorities?
 
-diff -Nru a/kernel/params.c b/kernel/params.c
---- a/kernel/params.c	2005-01-24 21:07:40 -08:00
-+++ b/kernel/params.c	2005-01-24 21:07:40 -08:00
-@@ -640,9 +640,33 @@
- 	return ret;
- }
- 
-+static ssize_t module_attr_store(struct kobject *kobj,
-+				struct attribute *attr,
-+				const char *buf, size_t len)
-+{
-+	struct module_attribute *attribute;
-+	struct module_kobject *mk;
-+	int ret;
-+
-+	attribute = to_module_attr(attr);
-+	mk = to_module_kobject(kobj);
-+
-+	if (!attribute->store)
-+		return -EPERM;
-+
-+	if (!try_module_get(mk->mod))
-+		return -ENODEV;
-+
-+	ret = attribute->store(attribute, mk->mod, buf, len);
-+
-+	module_put(mk->mod);
-+
-+	return ret;
-+}
-+
- static struct sysfs_ops module_sysfs_ops = {
- 	.show = module_attr_show,
--	.store = NULL,
-+	.store = module_attr_store,
- };
- 
- #else
+For good reasons, most audio developers prefer the POSIX realtime
+interfaces.  They are far from perfect, but remain the only workable,
+portable solution available.  That is why I like your rt_cpu_limit
+proposal so much better that this one.
+-- 
+  joq

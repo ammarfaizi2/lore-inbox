@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271823AbTHHS4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 14:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271808AbTHHSye
+	id S271756AbTHHTGS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 15:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271824AbTHHTBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 14:54:34 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:1975 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S271742AbTHHSwm (ORCPT
+	Fri, 8 Aug 2003 15:01:19 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:57528 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S271811AbTHHSzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 14:52:42 -0400
-Date: Fri, 8 Aug 2003 11:52:37 -0700
+	Fri, 8 Aug 2003 14:55:35 -0400
+Date: Fri, 8 Aug 2003 11:55:34 -0700
 To: Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5 IrDA] irda-usb probe fix
-Message-ID: <20030808185237.GD13274@bougret.hpl.hp.com>
+Subject: [PATCH 2.5 IrDA] IrCOMM module fix
+Message-ID: <20030808185534.GH13274@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,155 +26,80 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir260_usb_probe-4.diff :
-~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Oliver Neukum and Daniele Bellucci>
-	o [CORRECT] minor fix to the probe failure path of irda-usb.
+ir260_ircomm_owner.diff :
+~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Andrey Borzenkov>
+	o [CORRECT] Update module refcount in IrCOMM module
 
 
-diff -u -p linux/drivers/net/irda/irda-usb.d2.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d2.c	Fri Jul 18 10:45:27 2003
-+++ linux/drivers/net/irda/irda-usb.c	Tue Aug  5 15:25:31 2003
-@@ -1410,8 +1410,8 @@ static inline struct irda_class_desc *ir
-  * This routine is called by the USB subsystem for each new device
-  * in the system. We need to check if the device is ours, and in
-  * this case start handling it.
-- * Note : it might be worth protecting this function by a global
-- * spinlock... Or not, because maybe USB already deal with that...
-+ * The USB layer protect us from reentrancy (via BKL), so we don't need
-+ * to spinlock in there... Jean II
-  */
- static int irda_usb_probe(struct usb_interface *intf,
- 			  const struct usb_device_id *id)
-@@ -1421,7 +1421,7 @@ static int irda_usb_probe(struct usb_int
- 	struct usb_host_interface *interface;
- 	struct irda_class_desc *irda_desc;
- 	int ret;
--	int i;
-+	int i;		/* Driver instance index / Rx URB index */
+diff -u -p linux/net/irda/ircomm/ircomm_tty.d2.c linux/net/irda/ircomm/ircomm_tty.c
+--- linux/net/irda/ircomm/ircomm_tty.d2.c	Fri Aug  8 10:47:13 2003
++++ linux/net/irda/ircomm/ircomm_tty.c	Fri Aug  8 10:51:25 2003
+@@ -117,6 +117,7 @@ int __init ircomm_tty_init(void)
+ 		return -ENOMEM;
+ 	}
  
- 	/* Note : the probe make sure to call us only for devices that
- 	 * matches the list of dongle (top of the file). So, we
-@@ -1467,30 +1467,26 @@ static int irda_usb_probe(struct usb_int
- 	for (i = 0; i < IU_MAX_RX_URBS; i++) {
- 		self->rx_urb[i] = usb_alloc_urb(0, GFP_KERNEL);
- 		if (!self->rx_urb[i]) {
--			int j;
--			for (j = 0; j < i; j++)
--				usb_free_urb(self->rx_urb[j]);
--			return -ENOMEM;
-+			ret = -ENOMEM;
-+			goto err_out_1;
++	driver->owner		= THIS_MODULE,
+ 	driver->driver_name     = "ircomm";
+ 	driver->name            = "ircomm";
+ 	driver->devfs_name      = "ircomm";
+@@ -363,10 +364,8 @@ static int ircomm_tty_open(struct tty_st
+ 
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
+ 
+-	MOD_INC_USE_COUNT;
+ 	line = tty->index;
+ 	if ((line < 0) || (line >= IRCOMM_TTY_PORTS)) {
+-		MOD_DEC_USE_COUNT;
+ 		return -ENODEV;
+ 	}
+ 
+@@ -377,7 +376,6 @@ static int ircomm_tty_open(struct tty_st
+ 		self = kmalloc(sizeof(struct ircomm_tty_cb), GFP_KERNEL);
+ 		if (self == NULL) {
+ 			ERROR("%s(), kmalloc failed!\n", __FUNCTION__);
+-			MOD_DEC_USE_COUNT;
+ 			return -ENOMEM;
  		}
- 	}
- 	self->tx_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!self->tx_urb) {
--		for (i = 0; i < IU_MAX_RX_URBS; i++)
--			usb_free_urb(self->rx_urb[i]);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_out_1;
- 	}
- 	self->speed_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!self->speed_urb) {
--		for (i = 0; i < IU_MAX_RX_URBS; i++)
--			usb_free_urb(self->rx_urb[i]);
--		usb_free_urb(self->tx_urb);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_out_2;
- 	}
+ 		memset(self, 0, sizeof(struct ircomm_tty_cb));
+@@ -443,7 +441,6 @@ static int ircomm_tty_open(struct tty_st
+ 			return -ERESTARTSYS;
+ 		}
  
- 	/* Is this really necessary? */
- 	if (usb_set_configuration (dev, dev->config[0].desc.bConfigurationValue) < 0) {
- 		err("set_configuration failed");
--		return -EIO;
-+		ret = -EIO;
-+		goto err_out_3;
+-		/* MOD_DEC_USE_COUNT; "info->tty" will cause this? */
+ #ifdef SERIAL_DO_RESTART
+ 		return ((self->flags & ASYNC_HUP_NOTIFY) ?
+ 			-EAGAIN : -ERESTARTSYS);
+@@ -471,7 +468,6 @@ static int ircomm_tty_open(struct tty_st
+ 
+ 	ret = ircomm_tty_block_til_ready(self, filp);
+ 	if (ret) {
+-		/* MOD_DEC_USE_COUNT; "info->tty" will cause this? */
+ 		IRDA_DEBUG(2, 
+ 		      "%s(), returning after block_til_ready with %d\n", __FUNCTION__ ,
+ 		      ret);
+@@ -503,7 +499,6 @@ static void ircomm_tty_close(struct tty_
+ 	spin_lock_irqsave(&self->spinlock, flags);
+ 
+ 	if (tty_hung_up_p(filp)) {
+-		MOD_DEC_USE_COUNT;
+ 		spin_unlock_irqrestore(&self->spinlock, flags);
+ 
+ 		IRDA_DEBUG(0, "%s(), returning 1\n", __FUNCTION__ );
+@@ -530,7 +525,6 @@ static void ircomm_tty_close(struct tty_
+ 		self->open_count = 0;
  	}
+ 	if (self->open_count) {
+-		MOD_DEC_USE_COUNT;
+ 		spin_unlock_irqrestore(&self->spinlock, flags);
  
- 	/* Is this really necessary? */
-@@ -1510,8 +1506,8 @@ static int irda_usb_probe(struct usb_int
- 			break;
- 		default:
- 			IRDA_DEBUG(0, "%s(), Unknown error %d\n", __FUNCTION__, ret);
--			return -EIO;
--			break;
-+			ret = -EIO;
-+			goto err_out_3;
- 	}
+ 		IRDA_DEBUG(0, "%s(), open count > 0\n", __FUNCTION__ );
+@@ -572,8 +566,6 @@ static void ircomm_tty_close(struct tty_
  
- 	/* Find our endpoints */
-@@ -1519,15 +1515,17 @@ static int irda_usb_probe(struct usb_int
- 	if(!irda_usb_parse_endpoints(self, interface->endpoint,
- 				     interface->desc.bNumEndpoints)) {
- 		ERROR("%s(), Bogus endpoints...\n", __FUNCTION__);
--		return -EIO;
-+		ret = -EIO;
-+		goto err_out_3;
- 	}
- 
- 	/* Find IrDA class descriptor */
- 	irda_desc = irda_usb_find_class_desc(intf);
-+	ret = -ENODEV;
- 	if (irda_desc == NULL)
--		return -ENODEV;
--	
--	self->irda_desc =  irda_desc;	
-+		goto err_out_3;
-+
-+	self->irda_desc =  irda_desc;
- 	self->present = 1;
- 	self->netopen = 0;
- 	self->capability = id->driver_info;
-@@ -1535,10 +1533,23 @@ static int irda_usb_probe(struct usb_int
- 	self->usbintf = intf;
- 	ret = irda_usb_open(self);
- 	if (ret)
--		return -ENOMEM;
-+		goto err_out_3;
- 
- 	usb_set_intfdata(intf, self);
- 	return 0;
-+
-+err_out_3:
-+	/* Free all urbs that we may have created */
-+	usb_free_urb(self->speed_urb);
-+err_out_2:
-+	usb_free_urb(self->tx_urb);
-+err_out_1:
-+	for (i = 0; i < IU_MAX_RX_URBS; i++) {
-+		if (self->rx_urb[i])
-+			usb_free_urb(self->rx_urb[i]);
-+	}
-+
-+	return ret;
+ 	self->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
+ 	wake_up_interruptible(&self->close_wait);
+-
+-	MOD_DEC_USE_COUNT;
  }
  
- /*------------------------------------------------------------------*/
-@@ -1630,10 +1641,13 @@ static struct usb_driver irda_driver = {
  /*
-  * Module insertion
-  */
--int __init usb_irda_init(void)
-+static int __init usb_irda_init(void)
- {
--	if (usb_register(&irda_driver) < 0)
--		return -1;
-+	int	ret;
-+
-+	ret = usb_register(&irda_driver);
-+	if (ret < 0)
-+		return ret;
- 
- 	MESSAGE("USB IrDA support registered\n");
- 	return 0;
-@@ -1644,7 +1658,7 @@ module_init(usb_irda_init);
- /*
-  * Module removal
-  */
--void __exit usb_irda_cleanup(void)
-+static void __exit usb_irda_cleanup(void)
- {
- 	struct irda_usb_cb *irda = NULL;
- 	int	i;

@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVAQT1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVAQTbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262842AbVAQT1T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVAQT1T
+	id S262848AbVAQTbH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:31:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVAQTbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:27:19 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:14518 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262842AbVAQT1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:27:12 -0500
-From: Russ Anderson <rja@sgi.com>
-Message-Id: <200501171927.j0HJRAmE3010159@clink.americas.sgi.com>
-Subject: Re: [patch] Remove limit on MCA recoveries
-To: mfl@kernel.paris.sgi.com (Matthias Fouquet-Lapar)
-Date: Mon, 17 Jan 2005 13:27:10 -0600 (CST)
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200501160901.j0G91h8G001716@mtv-vpn-hw-mfl-1.corp.sgi.com> from "Matthias Fouquet-Lapar" at Jan 16, 2005 10:01:43 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 14:31:07 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:64959 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S262848AbVAQTau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:30:50 -0500
+Date: Mon, 17 Jan 2005 14:30:27 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [RFC] shared subtrees
+In-reply-to: <20050117190028.GF24830@fieldses.org>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <41EC1253.8080902@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+ <41EC0466.9010509@sun.com> <20050117190028.GF24830@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Fouquet-Lapar wrote:
-> Keith Owens wrote:
-> > Russ Anderson <rja@sgi.com> wrote:
-> > >The MCA recovery driver saves the addresses of memory errors
-> > >in an array.  The array has 32 entries.  The effect is 
-> > >that after 32 recoveries, the driver stops recovering.
-> > >
-> > >This patch removes the page_isolate array.  Since the array
-> > >was only used to see if the page is already marked reserved,
-> > >check the reserved bit instead of the array.
-> > 
-> > lkcd dumps kernel pages marked reserved, so lkcd will try to process
-> > isolated pages.  We will eventually need to add a new page flag to mark
-> > faulty pages.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+J. Bruce Fields wrote:
+> On Mon, Jan 17, 2005 at 01:31:02PM -0500, Mike Waychison wrote:
 > 
-> Probably any other dump mechanism should be aware of bad HW pages as well,
-> so we might be better off to add a flag right away.  While we are at it I
-> would propose to have actually two flags :
+>>Corner case: how do we handle the case where:
+>>
+>>mount --make-shared /foo
+>>mount --bind /foo /foo/bar
+>>
+>>A nested --bind without sharing makes sense, but doesn't when sharing is
+>>enabled (infinite loop).
 > 
->   - hard error (which will cause a MCA and should be skipped when taking
->                 a system dump)
->   - soft error (page has encountered SBE, so we might want to avoid future
->                 allocation, but it can be dumped without causing an MCA)
+> 
+> How does this force an infinite loop?  I don't see it.
+> 
 
-Yes, there should be page->flags to indicate hard and soft memory errors,
-such as PG_hard_error and PG_soft_error.  The dump code could look at those 
-flags.
+Well, if I understand it correctly:
 
-include/linux/page-flags.h has PG_error for indicating I/O errors, which 
-is close but not quite what we need, given the way it is used.  
+(assuming /foo is vfsmount A)
 
-CCing linux-kernel since the flags are not ia64 specific.
+$> mount --make-shared /foo
 
--- 
-Russ Anderson, OS RAS/Partitioning Project Lead  
-SGI - Silicon Graphics Inc          rja@sgi.com
+will make A->A
+
+$> mount --bind /foo /foo/bar
+
+will create a vfsmount B based off A, but because A is in a p-node,
+A->B, B->A.
+
+Then, we attach B to A in the vfsmount tree, but because A->B in the
+propagation tree, B also gets a vfsmount C added on dentry 'bar'.
+Recurse ad infinitum.
+
+Make sense?
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB7BJTdQs4kOxk3/MRAm9HAJ9gLZC9N1QkpriYtwE6pfJ7u47FyACfYXwU
+tTIEFgSUeoocka4RZVe9McI=
+=iWNB
+-----END PGP SIGNATURE-----

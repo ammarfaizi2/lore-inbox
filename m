@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRBMMJ7>; Tue, 13 Feb 2001 07:09:59 -0500
+	id <S129197AbRBMMRu>; Tue, 13 Feb 2001 07:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129463AbRBMMJs>; Tue, 13 Feb 2001 07:09:48 -0500
-Received: from web3502.mail.yahoo.com ([204.71.203.69]:10257 "HELO
-	web3502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129242AbRBMMJk>; Tue, 13 Feb 2001 07:09:40 -0500
-Message-ID: <20010213120932.8110.qmail@web3502.mail.yahoo.com>
-Date: Tue, 13 Feb 2001 12:09:32 +0000 (GMT)
-From: Michèl Alexandre Salim 
-	<salimma1@yahoo.co.uk>
-Subject: PCI GART (?)
-To: LKML <linux-kernel@vger.kernel.org>
+	id <S129417AbRBMMRk>; Tue, 13 Feb 2001 07:17:40 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:45445 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129197AbRBMMRd>; Tue, 13 Feb 2001 07:17:33 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Admin Mailing Lists <mlist@intergrafix.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: shared memory problem
+In-Reply-To: <Pine.LNX.4.10.10102121304250.24584-100000@athena.intergrafix.net>
+Organisation: SAP LinuxLab
+In-Reply-To: <Pine.LNX.4.10.10102121304250.24584-100000@athena.intergrafix.net>
+Message-ID: <m3k86vm1lg.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Date: 13 Feb 2001 13:23:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Admin,
 
-This might not be the proper place to ask - my
-apologies - but since it pertains to the Sony
-Picturebook (C1VE - Crusoe) that people have been
-discussing on this list anyway, I hope people don't
-mind too much :)
+On Mon, 12 Feb 2001, Admin Mailing Lists wrote:
+> 
+> I've been using the 2.2.x series successfully, latest i used was
+> 2.2.19pre7.  Today i upgraded to 2.4.1-ac9 and noticed that shared
+> memory shows 0.  I searched the list archive briefly and someone
+> said the stats have been broken since sometime in 2.3, 
 
-I have RTFM but on the matter of enabling DRI for the
-ATI Mobility video chipset, which on that notebook is
-a PCI model, there is practically nil information. The
-DRI website mentions using PCI GART, but there is no
-option for that in the kernel. How do I enable this?
+Yes, right.
 
-Currently running the XFree 4.0.2 from RH 7.0.90 (7.1
-beta, Fisher) on top of my RH 7 + Ximian system and
-when using aviplay it doesn't use any acceleration
-features at all, consequently choppy display. The same
-file plays much better in Windows.
+> but my system also shows my swap being used up a great deal (100MB
+> whereas i'm rarely using more than 5MB (and that only at loaded
+> times, which this isn't))
 
-Xdpyinfo shows that Xvideo and Xrender are both
-loaded, so I presume they *should* work.
+Yes, that's normal for 2.4. As soon as you run into swap it will eat
+more swap space and keep it also if the load is smaller. This makes
+overall swapping faster.
 
-Thanks in advance,
+> this server is dedicated for apache web serving, and CONFIG_TMPFS is
+> not configured in/any shm fs mounted. I didn't have this in 2.2
+> either.
 
-Michel Salim
+Doesn't have anything to do with tmpfs/shm fs.
 
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
-or your free @yahoo.ie address at http://mail.yahoo.ie
+Greetings
+		Christoph
+
+

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTJPLQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 07:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTJPLQ6
+	id S262850AbTJPLSX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbTJPLSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 07:16:58 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36996 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262844AbTJPLQ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 07:16:57 -0400
-Message-ID: <3F8E7E1C.4010605@pobox.com>
-Date: Thu, 16 Oct 2003 07:16:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 16 Oct 2003 07:18:23 -0400
+Received: from mail.gmx.de ([213.165.64.20]:24206 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262850AbTJPLSV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 07:18:21 -0400
+Date: Thu, 16 Oct 2003 13:18:20 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: wind@cocodriloo.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test7] b44: NETDEV WATCHDOG: eth0: transmit timed out
-References: <200310161253.13548.lkml@kcore.org>
-In-Reply-To: <200310161253.13548.lkml@kcore.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <3F8E757A.5010008@pobox.com>
+Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <26145.1066303100@www7.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Same bug as in 2.4:
-> 
-> Oct 16 12:29:14 precious kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> Oct 16 12:29:14 precious kernel: b44: eth0: transmit timed out, resetting
-> 
-> after which the interface is useless.
-> 
-> Can the same patch (by  Pekka Pietikainen) be applied?
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106476776914551&w=2
+Hi Jeff,
 
+Yes, the 8139too driver is doing it's job correctly - I was just thinking
+about the source of the starvation, ie the cause of the effect. I.e. the
+brokeness is elsewhere, in other drivers etc.
 
-Already sent to Linus and Marcelo.
+Dan
 
-	Jeff
+> Daniel Blueman wrote:
+> > I have seen problems like this when a bad driver was spending loads of
+> time
+> > in it's SA_INTERRUPT (ie meant to be 'fast') IRQ handler ...this
+> buffered up
+> > *lots * of packets to be handled, and caused this message.
+> > 
+> > Perhaps we should profile?
+> 
+> 
+> There is no need to profile, I described the problem precisely.
+> 
+> 	Jeff
+> 
+> 
+> 
 
+-- 
+Daniel J Blueman
 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
+	id <S262273AbSIZKVc>; Thu, 26 Sep 2002 06:21:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262272AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:37105 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S262269AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
-Message-ID: <3D92E090.4030504@drugphish.ch>
-Date: Thu, 26 Sep 2002 12:25:20 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
+	id <S262274AbSIZKVb>; Thu, 26 Sep 2002 06:21:31 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43141 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262273AbSIZKVb>;
+	Thu, 26 Sep 2002 06:21:31 -0400
+Date: Thu, 26 Sep 2002 03:20:31 -0700 (PDT)
+Message-Id: <20020926.032031.76775895.davem@redhat.com>
+To: ratz@drugphish.ch
 Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca
 Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <p73n0q5sib2.fsf@oldwotan.suse.de>	<20020925.172931.115908839.davem@redhat.com>	<3D92CCC5.5000206@drugphish.ch> <20020926.020602.75761707.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D92E090.4030504@drugphish.ch>
+References: <3D92CCC5.5000206@drugphish.ch>
+	<20020926.020602.75761707.davem@redhat.com>
+	<3D92E090.4030504@drugphish.ch>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> About using syslog to record messages, that is doomed to failure,
-> implement log messages via netlink and use that to log the events
-> instead.
+   From: Roberto Nibali <ratz@drugphish.ch>
+   Date: Thu, 26 Sep 2002 12:25:20 +0200
 
-<maybe stupid thought>
-Another thing would be to use netconsole to send event messages over the 
-network to a central loghost. This would eliminate the buffer overwrite 
-problem unless you sent more messages than the backlog queue is able to 
-hold before the packets are being processed. But you could theoretically 
-send 10 MB messages per seconds that could also be stored.
-</maybe stupid thought>
+   <maybe stupid thought>
+   Another thing would be to use netconsole to send event messages over the 
 
-I will shut up now as I do not want to waste your and the others 
-precious time with my extensive schmoozing ;).
-
-Best regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+What if the netconsole packets cause events to be logged?

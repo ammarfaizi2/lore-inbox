@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUDBFbl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 00:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUDBFbl
+	id S263090AbUDBFiW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 00:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUDBFiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 00:31:41 -0500
-Received: from ns0.kiralybroker.hu ([213.253.198.141]:44041 "EHLO fw.baumag.hu")
-	by vger.kernel.org with ESMTP id S263185AbUDBFbg (ORCPT
+	Fri, 2 Apr 2004 00:38:22 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64524 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263090AbUDBFiV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 00:31:36 -0500
-X-Mailbox-Line: From postmaster@baumag.hu Fri Apr  2 07:43:39 2004
-Content-Type: text/plain;
-	charset="iso-8859-2"
-From: postmaster@baumag.hu
-To: linux-kernel@vger.kernel.org
-Subject: Warning ( Mail Delivery (failure vetkezet@baumag.hu))
-Date: Fri, 02 Apr 2004 07:43:39 +0200 (CEST)
-Message-Id: <20040402074339.mv9Uu1Ay-postmaster@baumag.hu>
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Apr 2004 00:38:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Chris Shoemaker <chris.shoemaker@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.4] Bad swap file entry, then kernel BUG at mm/shmem.c:475
+Date: Fri, 2 Apr 2004 08:38:09 +0300
+X-Mailer: KMail [version 1.4]
+References: <20040401232734.GB8061@cox.net>
+In-Reply-To: <20040401232734.GB8061@cox.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404020838.09566.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vírusos levél!
+On Friday 02 April 2004 02:27, Chris Shoemaker wrote:
+> and I haven't found evidence of off-by-bit errors.  However, 2 days
+> running memtest86 with all tests, gave no errors.  (BTW, does anyone
+> have a suggestion of a more rigorous general hardware stress-test for
+> detecting flakiness?)  If my hardware is bad it's pretty intermittent
 
-Kedves linux-kernel@vger.kernel.org!
-A levelezési rendszerünk I-Worm.NetSky.q vírussal fertõzött 
-állományt talált az Ön által küldött e-mail üzenetben, ezért
-nem továbbította azt a címzett(ek)hez!
-Kérem ellenõrizze levele tartalmát!
+cpuburn.
 
-Megértését köszönjük.
-Baumag rendszergazdák (postmaster@baumag.hu).
+Also try to slightly underclock your hardware,
+downgrade DMA mode, etc (although it seems you use SCSI...).
+Stop using modules you don't absolutely need.
 
-Levél tulajdonságai:
-Feladó: linux-kernel@vger.kernel.org
-Címzett(ek): vetkezet@baumag.hu; 
-Tárgy:  Mail Delivery (failure vetkezet@baumag.hu)
+>  Debug: sleeping function called from invalid context at
+> include/linux/rwsem.h:43 in_atomic():1, irqs_disabled():0
 
+>  bad: scheduling while atomic!
 
-
-Virus infected e-mail!
-Dear linux-kernel@vger.kernel.org!
-Our mail system had detected virus infection (I-Worm.NetSky.q) in
-your e-mail That's why the addressee(s) hadn't received you message.
-Please check again the content of your message!
-
-Thank you for the co-operation.
-Baumag system administrators (postmaster@baumag.hu).
-
-E-mail propetize:
-From: linux-kernel@vger.kernel.org
-To: vetkezet@baumag.hu; 
-Subject:  Mail Delivery (failure vetkezet@baumag.hu)
-
+Some of them are not oopses, just debug.
+-- 
+vda

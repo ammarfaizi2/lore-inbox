@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbTLOHsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 02:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLOHsK
+	id S263345AbTLOHvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 02:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLOHvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 02:48:10 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:64783 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263356AbTLOHsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 02:48:08 -0500
-Date: Mon, 15 Dec 2003 07:48:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: PCI Express support for 2.4 kernel
-Message-ID: <20031215074807.B5441@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <3FDC9DC5.2070302@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FDC9DC5.2070302@intel.com>; from vladimir.kondratiev@intel.com on Sun, Dec 14, 2003 at 07:28:37PM +0200
+	Mon, 15 Dec 2003 02:51:38 -0500
+Received: from mail1.cc.huji.ac.il ([132.64.1.17]:28567 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S263345AbTLOHvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 02:51:35 -0500
+Message-ID: <3FDD6804.5010708@mscc.huji.ac.il>
+Date: Mon, 15 Dec 2003 09:51:32 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031119
+X-Accept-Language: en-us, en, he
+MIME-Version: 1.0
+To: Harry McGregor <hmcgregor@espri.arizona.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vs 2.6
+References: <20031201062052.GA2022@frodo>	 <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet>	 <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il>	 <3FDC8957.4000602@yahoo.es>  <3FDC9EC8.1000908@mscc.huji.ac.il> <1071473021.30831.5.camel@Sony>
+In-Reply-To: <1071473021.30831.5.camel@Sony>
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 14, 2003 at 07:28:37PM +0200, Vladimir Kondratiev wrote:
-> Hi,
-> PCI-Express platforms will soon appear on the market. It is worth to 
-> support it.
-> 
-> Following is patch for 2.4.23 kernel. I tested it on my host, it works 
-> properly.
-> I did it for i386 only, I have no other architecture to test.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Patch looks okay (except for totally broken indentation, that needs fixing)
+Harry McGregor wrote:
 
-It should go into 2.6 first. though.  And while you're at it add your
-copyright info to the top of the file instead of the middle.
+| On Sun, 2003-12-14 at 10:32, Voicu Liviu wrote:
+|
+|> Because i use lvm2 and I could not find the way to get back to
+|> lvm1 Any clue?
+|
+|
+| How about using the patches for 2.4 to give you LVM2 support?
+|
+| http://people.sistina.com/~thornber/
+
+This url?
+http://people.sistina.com/~thornber/patches/2.4-stable/2.4.22/2.4.22-dm-1/
+I'll just get the 2.4.23 vanilla and patch it? I'll try
+Thanks
+
+|
+| We have it running on one system right now, in fact it is part of
+| the reason that we manually patched our 2.4.21 to fix the local
+| root exploit that was fixed in 2.4.23, we just had too many
+| external patches (FreeSwan, DeviceMapper, XFS, etc) on that system,
+| to do patch and recompile in a reasonable amount of time.
+|
+|
+| Harry
+|
+|> Liviu
+|
+|
+|
+| - To unsubscribe from this list: send the line "unsubscribe
+| linux-kernel" in the body of a message to majordomo@vger.kernel.org
+|  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|  Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/3WgCkj4I0Et8EMgRApIvAKDO8umYrrSqDodby3OWmxwY9x5ejgCg7wZ+
+u5SiceDoteNq61XIVK7vD54=
+=5qUw
+-----END PGP SIGNATURE-----
+
 

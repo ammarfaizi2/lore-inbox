@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbUCWJuR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 04:50:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUCWJuR
+	id S262415AbUCWJxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 04:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCWJxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 04:50:17 -0500
-Received: from math.ut.ee ([193.40.5.125]:33180 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262412AbUCWJuM (ORCPT
+	Tue, 23 Mar 2004 04:53:32 -0500
+Received: from aelfric.plus.com ([80.229.143.166]:46518 "EHLO zaphod.hmmn.org")
+	by vger.kernel.org with ESMTP id S262415AbUCWJxa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 04:50:12 -0500
-Date: Tue, 23 Mar 2004 11:50:04 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PnPBIOS: Unknown tag '0x82'
-In-Reply-To: <20040322160252.GA6414@neo.rr.com>
-Message-ID: <Pine.GSO.4.44.0403231149120.18934-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Mar 2004 04:53:30 -0500
+Date: Tue, 23 Mar 2004 09:53:18 +0000
+From: Jonathan Sambrook <swsusp@hmmn.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
+Message-ID: <20040323095318.GB20026@hmmn.org>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040318193703.4c02f7f5.akpm@osdl.org> <1079661410.15557.38.camel@calvin.wpcb.org.au> <20040318200513.287ebcf0.akpm@osdl.org> <1079664318.15559.41.camel@calvin.wpcb.org.au> <20040321220050.GA14433@elf.ucw.cz> <1079988938.2779.18.camel@calvin.wpcb.org.au> <20040322231737.GA9125@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040322231737.GA9125@elf.ucw.cz>
+Reply-By: Sat Mar 20 18:05:53 GMT 2004
+X-OS: Linux 2.4.23 
+X-Message-Flag: http://www.hmmn.org
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > PnPBIOS: Scanning system for PnP BIOS support...
-> > PnPBIOS: Found PnP BIOS installation structure at 0xc00f2480
-> > PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x1d2a, dseg 0xf0000
-> > pnp: 00:09: ioport range 0x4d0-0x4d1 has been reserved
-> > pnp: 00:09: ioport range 0xcf8-0xcff could not be reserved
-> > PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20 .
-> > pnp: 00:0b: ioport range 0x800-0x87f has been reserved
-> > PnPBIOS: 20 nodes reported by PnP BIOS; 20 recorded by driver
->
-> In this case it should be harmless.  Typically when one tag is
-> corrupted (or incorrectly interpreted) it will also complain
-> about the following tag because of size checks.  Where did the
-> unknown tag occur?  Perhaps in pnpbios_parse_resource_option_data?
+At 00:17 on Tue 23/03/04, pavel@ucw.cz masquerading as 'Pavel Machek' wrote:
+> Hi!
+> 
+> > > Now I have _proof_ that eye-candy is harmfull. What is see on screen is:
+> > 
+> > No, that's not proof; just a bug in the code. It's not using the right
+> > code to display the error message. I'll fix it asap.
+> 
+> :-)
+> 
+> I'd really like eye-candy code to be gone. Its long, and its not worth
+> the trouble.
 
-It's in pnpbios_parse_compatible_ids.
+Pejorative comments aside Pavel, it is valued feedback for end-user
+re-assurance. It has also helped swsusp2 get streets ahead of the other
+implementations by aiding end-user feedback on a wide range of hardware,
+Which would appear to be well worth it? If it's not broke (and is
+valuble) why rip it out?
+
+Regards,
+Jonathan
+
 
 -- 
-Meelis Roos (mroos@linux.ee)
+
+
+    .__
+    |..|__   _____   _____   ___        ____  _    ____
+    |;;|: \ /;:;:;\ /;:;:;\ /;:;\      /;;;;\/;\/\/;;;;\
+    |   Y  \  Y Y  \  Y Y  \  Y  \    |  ___ \ |\_| ___ \
+    |___|  /__|_|  /__|_|  /__|  /  o  \_____/ |  \___  /
+         \/      \/      \/    \/            \/    _/  /
+                                                   \__/
+ 
+ hmmnsoft's FreeShade : window shading, for Windows, for free
+ 
+                http://www.hmmn.org/FreeShade
 

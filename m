@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTESSJn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 14:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTESSJm
+	id S262633AbTESSLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 14:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTESSLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 14:09:42 -0400
-Received: from h-64-105-35-70.SNVACAID.covad.net ([64.105.35.70]:15488 "EHLO
-	adam.yggdrasil.com") by vger.kernel.org with ESMTP id S262609AbTESSJk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 14:09:40 -0400
-Date: Mon, 19 May 2003 11:21:47 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200305191821.h4JILlE12026@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.69-bk1[23] kconfig loop
+	Mon, 19 May 2003 14:11:55 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:8965 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262633AbTESSLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 14:11:53 -0400
+Date: Mon, 19 May 2003 19:24:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Ford <david+cert@blue-labs.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Martin Schlemmer <azarah@gentoo.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Message-ID: <20030519192445.A27338@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Ford <david+cert@blue-labs.org>,
+	Martin Schlemmer <azarah@gentoo.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1053289316.10127.41.camel@nosferatu.lan> <20030518204956.GB8978@holomorphy.com> <1053292339.10127.45.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519124539.B8868@infradead.org> <1053348984.9142.98.camel@workshop.saharact.lan> <20030519140617.A15587@infradead.org> <3EC91CF2.7020602@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EC91CF2.7020602@blue-labs.org>; from david+cert@blue-labs.org on Mon, May 19, 2003 at 02:05:38PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        If I run "make oldconfig" under linux-2.5.69-bk12
-and select "m" for CONFIG_USB_GADGET, I am asked a question
-or two about USB gadget interfaces that I might want, and
-then the build process gets into an infinite loop.  If I set
-CONFIG_USB_GADGET to "n", then everything is fine.
+On Mon, May 19, 2003 at 02:05:38PM -0400, David Ford wrote:
+> How about not passing the buck off to "the vendor" and helping "this 
+> vendor" make sanitized headers.
 
-        I expect there is no input that is supposed to cause
-"make oldconfig" to go into an infinite loop, so this must at
-least be a kconfig bug.  Here is a transcript of the interation
-that leads to the infinite loop:
+Wjhy?  Someone already did the work so why should I help to duplicate
+the effort.  Something doesn't have to be bad just because it's from
+redhat.
 
+> Not everybody copies RH and changes the text files from "RH" to "my 
+> distribution name".
 
-Support for USB Gadgets (USB_GADGET) [N/m/y/?] (NEW) m
-  USB Peripheral Controller Support
-    NetChip 2280 USB Peripheral Controller (USB_NET2280) [N/m/?] (NEW) m
-  USB Gadget Drivers
-    Gadget Zero (DEVELOPMENT) (USB_ZERO) [N/m/?] (NEW) m
-    Ethernet Gadget (USB_ETH) [N/m/?] (NEW) m
-[Infinite loop starts here.  The following lines repeat forever,
-non-interactively.  They just go scrolling by.]
-*
-* Restart config...
-*
-*
-* Support for USB Gadgets
-*
-Support for USB Gadgets (USB_GADGET) [M/n/y/?] m
-  USB Peripheral Controller Support
-    NetChip 2280 USB Peripheral Controller (USB_NET2280) [M/n/?] m
-  USB Gadget Drivers
-    Gadget Zero (DEVELOPMENT) (USB_ZERO) [M/n/?] m
-make: *** [oldconfig] Interrupt
+It would certainly help gentoo..
 
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Miplitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

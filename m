@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278831AbRJVOa7>; Mon, 22 Oct 2001 10:30:59 -0400
+	id <S278832AbRJVOd3>; Mon, 22 Oct 2001 10:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278830AbRJVOat>; Mon, 22 Oct 2001 10:30:49 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:10765 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S278832AbRJVOaf>;
-	Mon, 22 Oct 2001 10:30:35 -0400
-Date: Mon, 22 Oct 2001 16:30:51 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs mount of msdos fs?
-Message-Id: <20011022163051.558d602e.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.10.10110221014590.18541-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <20011022125928.2f2a15b9.skraw@ithnet.com>
-	<Pine.LNX.4.10.10110221014590.18541-100000@coffee.psychology.mcmaster.ca>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S278833AbRJVOdT>; Mon, 22 Oct 2001 10:33:19 -0400
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:4876 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S278832AbRJVOdK>; Mon, 22 Oct 2001 10:33:10 -0400
+Message-ID: <00e501c15b06$782beac0$5cbefea9@moya>
+From: "MichaelM" <michail@manegakis.freeserve.co.uk>
+To: "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <15vQtM-22TOdsC@fmrl02.sul.t-online.com> <20011022022839.A8452@unthought.net> <15va3i-0cRXvcC@fmrl00.sul.t-online.com> <20011022103411.A17996@crystal.2d3d.co.za>
+Subject: Re: LPP (was: The new X-Kernel !)
+Date: Mon, 22 Oct 2001 15:33:07 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 10:15:34 -0400 (EDT) Mark Hahn <hahn@physics.mcmaster.ca>
-wrote:
+From: "Abraham vd Merwe" <abraham@2d3d.co.za>
 
-> > I just found out, that msdos-type fs cannot be exported via nfs.
-Disregarding
-> > the security problems with msdos fs, how can I export it anyway via nfs? Is
-> > this possible at all? I tried with 2.2.19 kernel and kernel nfs.
-> 
-> I'm guessing because msdos doesn't have inode numbers,
-> and nfsd wants them to make stable cookies.
+>See the difference between the O/S in question and the one you might be
+>confusing it with is that this O/S was (and still is) written and being
+>maintained by technical people. These kind of people like to know what's
+>going on. It also happens that the primary audience for these people's work
+>is themselves (us) and NOT novices - that my friend, is a bonus, not the
+>sole aim of the exercise.
 
-Works under 2.4, btw. Unfortunately I cannot use 2.4 in this special case. But
-to make it clear:
-server is 2.2.19, client is 2.4.4
+Have you ever thought that people get great difficulties when they try to
+change to linux, e.g the partitioning, 3d games graphics ;) etc..
 
-Regards,
-Stephan
+... therefore, only technical and technical-wanna-be people remain?
+
+It's quite clear to me.
+

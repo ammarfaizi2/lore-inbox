@@ -1,104 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUDTQxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbUDTRM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUDTQxw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 12:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUDTQxv
+	id S262226AbUDTRM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 13:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUDTRM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 12:53:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:35746 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263185AbUDTQxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 12:53:48 -0400
-Message-ID: <8F4CF9CC.3D7D157C@mail.gmail.com>
-Date: Tue, 20 Apr 2004 09:46:00 -0700
-From: Ross Biro <ross.biro@gmail.com>
-To: ross@datscreative.com.au
-Subject: Re: Kernel writes to RAM it doesn't own on 2.4.24
-Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_0_14150698.1082479560614"
-References: <200404171440.18829.ross@datscreative.com.au> <7FF8CDFE.64C50807@mail.gmail.com>
+	Tue, 20 Apr 2004 13:12:57 -0400
+Received: from relay2.paracel.com ([192.187.140.37]:27791 "EHLO
+	relay2.paracel.com") by vger.kernel.org with ESMTP id S262226AbUDTRMy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 13:12:54 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: PROBLEM: Second processor not responding in 2.4.21 and later
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Date: Tue, 20 Apr 2004 09:29:42 -0700
+Message-ID: <9D8C1A43309BAD4A9B46071DAF911D9E80B569@exch01.paracel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROBLEM: Second processor not responding in 2.4.21 and later
+Thread-Index: AcQj52NPk2LgOxA5RiWR4PkwekOUMgDDPMxQ
+From: "Marc Rieffel" <marc@paracel.com>
+To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_0_14150698.1082479560614
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+It looks like things changed dramatically from 2.4.20-pre4 to 2.4.20-pre5.  Can you help me figure out which of the changes was responsible?
 
-> I believe what I did was to save a copy of the e820 maps for later,
-> and then take then take the first free address as the max of the first
-> free address from the user supplied map and the bios supplied map.
-> I'll send out a patch on Tuesday.
+Thanks.
 
-Here's the changes to setup.c.  I haven't check to see if it's
-complete, but I did the diff from a working 2.4.18-kernel.  You need
-to apply this patch in arch/i386/kernel.
+Kernel			Fail	Pass	Fail%
 
-------=_Part_0_14150698.1082479560614
-Content-Type: application/octet-stream; name="stuff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="stuff"
+2.4.18-27.7.xsmp		0	3314	0.0000
+2.4.18			5	4206	0.0012
+2.4.19			12	25786	0.0005
+2.4.20-pre4			2	586	0.0034
+2.4.20-pre5			2	49	0.0392
+2.4.20-pre6			12	745	0.0159
+2.4.20			55	3128	0.0173
+2.4.20-20.7smp		483	15427	0.0304
+2.4.21-4.0.1.ELsmp	155	7278	0.0209
 
-LS0tIC9ob21lL3Jvc3NiL2xvY2FsL2xpbnV4LTIuNC4xOC9hcmNoL2kzODYva2VybmVsL3NldHVw
-LmMJMjAwMy0wOS0yMyAxOTo1NToxMy4wMDAwMDAwMDAgLTA3MDAKKysrIHNldHVwLmMJMjAwNC0w
-My0yNCAxMDoyMDo1Ni4wMDAwMDAwMDAgLTA4MDAKQEAgLTExMyw2ICsxMTMsMTcgQEAKICNpbmNs
-dWRlIDxhc20vZG1hLmg+CiAjaW5jbHVkZSA8YXNtL21wc3BlYy5oPgogI2luY2x1ZGUgPGFzbS9t
-bXVfY29udGV4dC5oPgorCisjZGVmaW5lIFBGTl9VUCh4KQkoKCh4KSArIFBBR0VfU0laRS0xKSA+
-PiBQQUdFX1NISUZUKQorI2RlZmluZSBQRk5fRE9XTih4KQkoKHgpID4+IFBBR0VfU0hJRlQpCisj
-ZGVmaW5lIFBGTl9QSFlTKHgpCSgoeCkgPDwgUEFHRV9TSElGVCkKKworLyoKKyAqIFJlc2VydmVk
-IHNwYWNlIGZvciB2bWFsbG9jIGFuZCBpb21hcCAtIGRlZmluZWQgaW4gYXNtL3BhZ2UuaAorICov
-CisjZGVmaW5lIE1BWE1FTV9QRk4JUEZOX0RPV04oTUFYTUVNKQorI2RlZmluZSBNQVhfTk9OUEFF
-X1BGTgkoMSA8PCAyMCkKKwogLyoKICAqIE1hY2hpbmUgc2V0dXAuLgogICovCkBAIC0xMjEsNiAr
-MTMyLDggQEAKIHN0cnVjdCBjcHVpbmZvX3g4NiBib290X2NwdV9kYXRhID0geyAwLCAwLCAwLCAw
-LCAtMSwgMSwgMCwgMCwgLTEgfTsKIAogdW5zaWduZWQgbG9uZyBtbXVfY3I0X2ZlYXR1cmVzOwor
-dW5zaWduZWQgbG9uZyBudW1fZTgyMHBoeXNwYWdlczsKK3Vuc2lnbmVkIGxvbmcgbnVtX2U4MjBf
-bm9ucGFlX3BoeXNwYWdlczsKIAogLyoKICAqIEJ1cyB0eXBlcyAuLgpAQCAtMTUxLDYgKzE2NCw3
-IEBACiB9OwogCiBzdHJ1Y3QgZTgyMG1hcCBlODIwOworc3RydWN0IGU4MjBtYXAgYmlvc19lODIw
-OwogCiB1bnNpZ25lZCBjaGFyIGF1eF9kZXZpY2VfcHJlc2VudDsKIApAQCAtNzEwLDExICs3MjQs
-NDQgQEAKIAljaGFyIGMgPSAnICcsICp0byA9IGNvbW1hbmRfbGluZSwgKmZyb20gPSBDT01NQU5E
-X0xJTkU7CiAJaW50IGxlbiA9IDA7CiAJaW50IHVzZXJtZW0gPSAwOworICAgICAgICBpbnQgaTsK
-KyAgICAgICAgdW5zaWduZWQgbG9uZyBtYXhfcGZuOwogCiAJLyogU2F2ZSB1bnBhcnNlZCBjb21t
-YW5kIGxpbmUgY29weSBmb3IgL3Byb2MvY21kbGluZSAqLwogCW1lbWNweShzYXZlZF9jb21tYW5k
-X2xpbmUsIENPTU1BTkRfTElORSwgQ09NTUFORF9MSU5FX1NJWkUpOwogCXNhdmVkX2NvbW1hbmRf
-bGluZVtDT01NQU5EX0xJTkVfU0laRS0xXSA9ICdcMCc7CiAKKyAgICAgICAgLyogQ29tcHV0ZSB0
-aGlzIGhlcmUgaW4gY2FzZSB0aGUgdXNlciB3YW50cyB0byBrbm93IGl0IGxhdGVyLiAqLworCW1h
-eF9wZm4gPSAwOworICAgICAgICBtYXhfbG93X3BmbiA9IDA7CisJZm9yIChpID0gMDsgaSA8IGU4
-MjAubnJfbWFwOyBpKyspIHsKKwkJdW5zaWduZWQgbG9uZyBzdGFydCwgZW5kOworCQkvKiBSQU0/
-ICovCisJCWlmIChlODIwLm1hcFtpXS50eXBlICE9IEU4MjBfUkFNICYmCisgICAgICAgICAgICAg
-ICAgICAgIGU4MjAubWFwW2ldLnR5cGUgIT0gRTgyMF9BQ1BJKQorCQkJY29udGludWU7CisKKwkJ
-c3RhcnQgPSBQRk5fVVAoZTgyMC5tYXBbaV0uYWRkcik7CisJCWVuZCA9IFBGTl9ET1dOKGU4MjAu
-bWFwW2ldLmFkZHIgKyBlODIwLm1hcFtpXS5zaXplKTsKKwkJaWYgKHN0YXJ0ID49IGVuZCkKKwkJ
-CWNvbnRpbnVlOworICAgICAgICAgICAgICAgIGlmIChlbmQgPiBNQVhfTk9OUEFFX1BGTikgewor
-ICAgICAgICAgICAgICAgICAgICAgaWYgKHN0YXJ0IDwgTUFYX05PTlBBRV9QRk4pIHsKKyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgbWF4X2xvd19wZm4gPSBNQVhfTk9OUEFFX1BGTjsKKyAgICAg
-ICAgICAgICAgICAgICAgIH0KKyAgICAgICAgICAgICAgICB9IGVsc2UgeworICAgICAgICAgICAg
-ICAgICAgICAgaWYgKGVuZCA+IG1heF9sb3dfcGZuKSB7CisgICAgICAgICAgICAgICAgICAgICAg
-ICAgIG1heF9sb3dfcGZuID0gZW5kOworICAgICAgICAgICAgICAgICAgICAgfQorICAgICAgICAg
-ICAgICAgIH0KKwkJaWYgKGVuZCA+IG1heF9wZm4pCisJCQltYXhfcGZuID0gZW5kOworCX0KKwor
-ICAgICAgICBudW1fZTgyMHBoeXNwYWdlcyA9IG1heF9wZm47CisgICAgICAgIG51bV9lODIwX25v
-bnBhZV9waHlzcGFnZXMgPSBtYXhfbG93X3BmbjsKKyAgICAgICAgbWVtY3B5KCZiaW9zX2U4MjAs
-ICZlODIwLCBzaXplb2YoZTgyMCkpOworCiAJZm9yICg7OykgewogCQkvKgogCQkgKiAibWVtPW5v
-cGVudGl1bSIgZGlzYWJsZXMgdGhlIDRNQiBwYWdlIHRhYmxlcy4KQEAgLTc4Myw2ICs4MzAsNyBA
-QAogewogCXVuc2lnbmVkIGxvbmcgYm9vdG1hcF9zaXplLCBsb3dfbWVtX3NpemU7CiAJdW5zaWdu
-ZWQgbG9uZyBzdGFydF9wZm4sIG1heF9wZm4sIG1heF9sb3dfcGZuOworICAgICAgICB1bnNpZ25l
-ZCBsb25nIGU4MjBfbG93X21lbV9zaXplOwogCWludCBpOwogCiAjaWZkZWYgQ09ORklHX1ZJU1dT
-CkBAIC04MjIsMTYgKzg3MCw2IEBACiAKIAlwYXJzZV9tZW1fY21kbGluZShjbWRsaW5lX3ApOwog
-Ci0jZGVmaW5lIFBGTl9VUCh4KQkoKCh4KSArIFBBR0VfU0laRS0xKSA+PiBQQUdFX1NISUZUKQot
-I2RlZmluZSBQRk5fRE9XTih4KQkoKHgpID4+IFBBR0VfU0hJRlQpCi0jZGVmaW5lIFBGTl9QSFlT
-KHgpCSgoeCkgPDwgUEFHRV9TSElGVCkKLQotLyoKLSAqIFJlc2VydmVkIHNwYWNlIGZvciB2bWFs
-bG9jIGFuZCBpb21hcCAtIGRlZmluZWQgaW4gYXNtL3BhZ2UuaAotICovCi0jZGVmaW5lIE1BWE1F
-TV9QRk4JUEZOX0RPV04oTUFYTUVNKQotI2RlZmluZSBNQVhfTk9OUEFFX1BGTgkoMSA8PCAyMCkK
-LQogCS8qCiAJICogcGFydGlhbGx5IHVzZWQgcGFnZXMgYXJlIG5vdCB1c2FibGUgLSB0aHVzCiAJ
-ICogd2UgYXJlIHJvdW5kaW5nIHVwd2FyZHM6CkBAIC0xMDMyLDggKzEwNzAsMTYgQEAKIAogCS8q
-IFRlbGwgdGhlIFBDSSBsYXllciBub3QgdG8gYWxsb2NhdGUgdG9vIGNsb3NlIHRvIHRoZSBSQU0g
-YXJlYS4uICovCiAJbG93X21lbV9zaXplID0gKChtYXhfbG93X3BmbiA8PCBQQUdFX1NISUZUKSAr
-IDB4ZmZmZmYpICYgfjB4ZmZmZmY7CisKKyAgICAgICAgZTgyMF9sb3dfbWVtX3NpemUgPSAoKG51
-bV9lODIwX25vbnBhZV9waHlzcGFnZXMgPDwgUEFHRV9TSElGVCkgKyAKKyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgMHhmZmZmZikgJiB+MHhmZmZmZjsKKworCWlmIChlODIwX2xvd19tZW1f
-c2l6ZSA+IHBjaV9tZW1fc3RhcnQpCisgICAgICAgICAgICAgcGNpX21lbV9zdGFydCA9IGU4MjBf
-bG93X21lbV9zaXplOworICAgICAgICAKIAlpZiAobG93X21lbV9zaXplID4gcGNpX21lbV9zdGFy
-dCkKIAkJcGNpX21lbV9zdGFydCA9IGxvd19tZW1fc2l6ZTsKKyAgICAgICAgICAgICAgICAgICAg
-IAogCiAjaWZkZWYgQ09ORklHX1ZUCiAjaWYgZGVmaW5lZChDT05GSUdfVkdBX0NPTlNPTEUpCg==
-------=_Part_0_14150698.1082479560614--
+> -----Original Message-----
+> From: Denis Vlasenko [mailto:vda@port.imtp.ilyichevsk.odessa.ua]
+> Sent: Friday, April 16, 2004 12:17 PM
+> To: Marc Rieffel
+> Subject: Re: PROBLEM: Second processor not responding in 2.4.21 and
+> later
+> 
+> 
+> On Friday 16 April 2004 18:45, Marc Rieffel wrote:
+> > [1.] One line summary of the problem:
+> >
+> > The kernel sometimes fails to initialize the second 
+> processor in 2.4.21 and
+> > later kernels.
+> >
+> > [2.] Full description of the problem/report:
+> >
+> > I have an 18-node cluster running Rocks 3.1.0, which is 
+> based on RHEL 2.1
+> > and uses the 2.4.21-4.0.1.ELsmp kernel.  Each node has dual 
+> Intel Xeon
+> > processors on Intel motherboards.  I have configured each 
+> node to reboot
+> > continuously.  Sometimes the nodes fail to initialize the 
+> second processor,
+> > printing messages like this,
+> >
+> > Apr 15 04:14:43 compute-0-14 kernel: Booting processor 1/6 eip 2000
+> > Apr 15 04:14:43 compute-0-14 kernel: Not responding.
+> > Apr 15 04:14:43 compute-0-14 kernel: Error: only one 
+> processor found.
+> >
+> > Once up, the system behaves as normal, but with only one 
+> processor instead
+> > of two.
+> >
+> > I have rebooted these systems thousands of times over two 
+> days.  Most (15)
+> > of my nodes have Intel SE7501CW2 motherboards with dual 2.4 GHz Xeon
+> > processors.  These nodes exhibit this failure about 2% of 
+> the time, but
+> > with a wide variation.  Some nodes get it as often as 10% 
+> of the time, and
+> > others as infrequently as 0.3% of the time, but every node with this
+> > motherboard and this kernel has done it at least twice.
+> >
+> > One of my nodes has an Intel SE7501CW2 motherboard with 
+> dual 2.8 GHz Xeon
+> > processors and a different chassis and power supply.  This 
+> has about the
+> > same failure rate as the 2.4 GHz CW2 nodes.
+> >
+> > Two of my nodes have Intel SE7501BR2 motherboards with dual 
+> 2.4 GHz Xeon
+> > processors.  Neither of these motherboards has ever shown 
+> this problem.
+> >
+> > I have a separate 8-node cluster running Rocks 2.3.2, which 
+> is based on
+> > RedHat 7.3 and uses the 2.4.18-27.7.xsmp kernel.  This has 
+> nodes that are
+> > identical to the 15 nodes in the first cluster -- Intel SE7501CW2
+> > motherboards with dual 2.4 GHz Xeons.  None of the nodes in this
+> > configuration has ever failed to initialize a processor.
+> >
+> > I ran one of these nodes with a custom-build 2.4.25 kernel, and it
+> > exhibited about the same failure rate as the CW2's running 2.4.21.
+> 
+> Looks like you have a nice pile of CPU power :)
+> >
+> > This evidence seems to suggest that a bug was introduced in 
+> the linux
+> > kernel sometime between 2.4.18 and 2.4.21, and that this 
+> bug only exhibits
+> > itself infrequently and only on the CW2 motherboard (not the BR2).
+> 
+> You can do bianry search between .18 and .21, then between -preN's.
+> --
+> vda
+> 
+> 

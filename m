@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313611AbSDHNH7>; Mon, 8 Apr 2002 09:07:59 -0400
+	id <S313615AbSDHNQN>; Mon, 8 Apr 2002 09:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313612AbSDHNH6>; Mon, 8 Apr 2002 09:07:58 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:44812 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313611AbSDHNH6>; Mon, 8 Apr 2002 09:07:58 -0400
-Message-ID: <3CB187AC.2040604@evision-ventures.com>
-Date: Mon, 08 Apr 2002 14:06:04 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313616AbSDHNQM>; Mon, 8 Apr 2002 09:16:12 -0400
+Received: from mustard.heime.net ([194.234.65.222]:24998 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S313615AbSDHNQM>; Mon, 8 Apr 2002 09:16:12 -0400
+Date: Mon, 8 Apr 2002 15:15:40 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+X-X-Sender: roy@mustard.heime.net
+To: Rob Radez <rob@osinvestor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Further WatchDog Updates
+In-Reply-To: <Pine.LNX.4.33.0204072342550.17511-100000@pita.lan>
+Message-ID: <Pine.LNX.4.44.0204081515200.10872-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][CFT] IDE tagged command queueing support
-In-Reply-To: <20020408120713.GB25984@suse.de> <3CB1806F.9090103@evision-ventures.com> <20020408125350.GE25984@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, Apr 08 2002, Martin Dalecki wrote:
+hi
+
+will this be merged into any of the standard pathces or the main tree?
+
+On Sun, 7 Apr 2002, Rob Radez wrote:
+
+> Ok, new version of watchdog updates is up at
+> http://osinvestor.com/bigwatchdog-4.diff
 > 
->>Jens Axboe wrote:
->>
->>>Hi,
->>>
->>>I've implemented tagged command queueing for ATA disk drives, and it's
->>>now ready for people to give it a test spin. As it has had only limited
->>>testing so far, please be very careful with it. It has been tested on
->>>two drives so far, a GXP75-30gb and a GXP120-40gb, and with a PIIX4
->>>controller:
->>
->>OK after a cursory look I see that the patch contains quite
->>a lot of ideas for the generic code itself. Do you think that it would
->>be worth wile to extract them first or should the patch be just included
->>in mainline. (I don't intent to interferre too much with your efforts to
->>do something similar in 2.4.xx.)....
+> This also includes replacing the three watchdog docs in Documentation/
+> and slight modification of the watchdog API after discussion with Alan Cox.
 > 
+> Diffstat:
+>  Documentation/pcwd-watchdog.txt       |  132 -----------
+>  Documentation/watchdog-api.txt        |  390 ----------------------------------
+>  Documentation/watchdog.txt            |  113 ---------
+>  Documentation/watchdog/api.txt        |  139 ++++++++++++
+>  Documentation/watchdog/howtowrite.txt |   55 ++++
+>  Documentation/watchdog/status.txt     |  137 +++++++++++
+>  drivers/char/acquirewdt.c             |  100 +++++---
+>  drivers/char/advantechwdt.c           |   88 ++++---
+>  drivers/char/alim7101_wdt.c           |   83 ++++---
+>  drivers/char/eurotechwdt.c            |   65 +++--
+>  drivers/char/i810-tco.c               |   68 +++--
+>  drivers/char/ib700wdt.c               |   87 ++++---
+>  drivers/char/machzwd.c                |   96 ++++----
+>  drivers/char/mixcomwd.c               |   24 --
+>  drivers/char/pcwd.c                   |   26 +-
+>  drivers/char/sbc60xxwdt.c             |   75 ++++--
+>  drivers/char/sc1200wdt.c              |   30 --
+>  drivers/char/sc520_wdt.c              |   55 ++--
+>  drivers/char/shwdt.c                  |   67 ++---
+>  drivers/char/softdog.c                |   30 +-
+>  drivers/char/w83877f_wdt.c            |   52 ++--
+>  drivers/char/wafer5823wdt.c           |   45 +++
+>  drivers/char/wdt.c                    |   33 ++
+>  drivers/char/wdt285.c                 |   26 --
+>  drivers/char/wdt977.c                 |  137 ++++++++---
+>  drivers/char/wdt_pci.c                |   23 --
+>  26 files changed, 1063 insertions(+), 1113 deletions(-)
 > 
-> Good question, I've asked myself that too... Yeah I see some of my ideas
-> as being nice to have in mainline even without TCQ. The big one being
-> ata_request_t of course, there are some parts to this:
+> Please take a look at it, especially the documentation.
+> 
+> Regards,
+> Rob Radez
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Sure ;-).
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-> - Separate scatterlist and dma table out from hwgroup. This is not
->   really needed for TCQ, but saves doing a blk_rq_map_sg on a request
->   more than once. If future ATA hardware would support more than one
->   pending DMA operation per hwgroup, this would be useful even without
->   TCQ.
-
-Agreed.
-
-> - Use ata_request_t as the main request command. This is where I really
->   want to go. I'm not saying that we need a complete IDE mid layer, but
->   a private request type is a nice way to unify the passing of a general
->   command around. So the taskfile stuff would remain very low level,
->   ata_request would add the higher level parts. I could expand lots more
->   on this, but I'm quite sure you know where I'm going :-)
-
-Well I can assure you that we are not dragging the towell in two different
-directions - please see for example my notes about the ata_taskfile
-function having too much parameters ;-).
-
-> Note that the ata_request_t usage is a bit messy in the current patch,
-
-I noted it already ;-)
-
-> that's merely because I was more focused on getting TCQ stable than
-> designing this out right now. So I think we should let it mature in the
-> TCQ patch for just a while before making any final commitments. Agreed?
-
-No problem with me. I will just pull out the generally good stuff
-out of it OK? I hope this will not make the tracking of the
-alpha patches too difficult for you...
-
-> Of course this will leave me with the pain of merging with your IDE
-> stuff every time a new -pre comes out (updating this patch from
-> 2.5.1-pre where I last used it was _not_ funny! :-), but I can handle
-> that.
-
-Well, there is *no question* you are capable to do this...
-
-> In addition, there are small buglet fixes in the patch that should go to
-> general. I will extract these, I already send you one of these earlier
-> today.
-
-Yes I have noticed this as well. However let's wait and see
-whatever maybe I'm able to save you the trobule and pull them
-out myself. Your alpha patch is "interresting" enough to have me
-a walk over it line by line anyway :-).
-
-I have to catch up with 2.5.8-pre2 anyway, since apparently this
-weekend was more about alcohol consumption for me then hacking...
+Computers are like air conditioners.
+They stop working when you open Windows.
 

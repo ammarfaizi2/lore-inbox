@@ -1,166 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRDSQFl>; Thu, 19 Apr 2001 12:05:41 -0400
+	id <S130768AbRDSQJK>; Thu, 19 Apr 2001 12:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRDSQFc>; Thu, 19 Apr 2001 12:05:32 -0400
-Received: from goat.cs.wisc.edu ([128.105.166.42]:54030 "EHLO goat.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id <S130532AbRDSQFM>;
-	Thu, 19 Apr 2001 12:05:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: BUG: Global FPU corruption in 2.2
-From: Victor Zandy <zandy@cs.wisc.edu>
-Date: 19 Apr 2001 11:05:03 -0500
-Message-ID: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
+	id <S131205AbRDSQJA>; Thu, 19 Apr 2001 12:09:00 -0400
+Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:63244 "EHLO
+	mail.ivivity.com") by vger.kernel.org with ESMTP id <S130768AbRDSQIu>;
+	Thu, 19 Apr 2001 12:08:50 -0400
+Message-ID: <25369470B6F0D41194820002B328BDD27C91@ATLOPS>
+From: Marc Karasek <marc_karasek@ivivity.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: FW: Bug in serial.c 
+Date: Thu, 19 Apr 2001 12:08:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
-We have found that one of our programs can cause system-wide
-corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
-run this program, the FPU gives bad results to all subsequent
-processes.
+-----Original Message-----
+From: Marc Karasek
+To: 'Richard B. Johnson '
+Sent: 4/19/01 11:53 AM
+Subject: RE: Bug in serial.c 
 
-We see this problem on dual 550MHz Xeons with 1GB RAM.  We have 64 of
-these things, and we see the problem on every node we try (dozens).
-We don't have other SMPs handy.  Uniprocessors, including other PIIIs,
-don't seem to be affected.
+ Did something change between 2.4.2 & 2.4.3? Under 2.4.2 I did not have
+to init the terminal (are you refering to the host or client side?) and
+just accepted the defaults (9600, 8n1) which was fine for debug and
+terminal I/O.  
 
-While we prepare to test for the problem on more recent 2.2 and 2.4
-kernels, we would appreciate hearing from anyone who may have insight
-into it.
+My issue is with 2.4.2 it works with 2.4.3 (same .config) it does not.
+So in my mind this is a bug of some type.....  :-) 
 
-Below are two programs we use to produce the behavior.  The first
-program, pi, repeatedly spawns 10 parallel computations of pi.  When
-all is well, each process prints pi as it completes.
+Which kernel are you using in your embedded project??
 
-The second program, pt, repeatedly attaches to and detaches from
-another process.  Run pt against the root pi process until the output
-of pi begins to look wrong.  Then kill everything and run pi by itself
-again.  It will no longer produce good results.  We find that the FPU
-persistently gives bad results until we reboot.
 
-Here is the sort of thing we see:
 
-BEFORE                  AFTER
---------------------------------------
-c36% ./pi               c36% ./pi        
-[3883]                  [4069]           
-3.141593                6865157.146714   
-3.141593                inf              
-3.141593                81705.277947     
-3.141593                4.742524         
-3.141593                nan              
-3.141593                585.810296       
-3.141593                inf              
-3.141593                4.578857         
-3.141593                nan              
-3.141593                4.578857         
 
-I am not currently subscribed to linux-kernel.  I'll be checking the
-web archives, but please CC replies to me.
+-----Original Message-----
+From: Richard B. Johnson
+To: Marc Karasek
+Cc: 'linux-kernel@vger.kernel.org'
+Sent: 4/19/01 11:43 AM
+Subject: Re: Bug in serial.c 
 
-Thanks!
+On Thu, 19 Apr 2001, Marc Karasek wrote:
 
-Vic Zandy
+> I am doing some embedded development with the 2.4.x series and have
+noticed
+> a few things..
+>
+[SNIPPED...]
+ 
+> 
+> 2) In 2.4.3 the console port using ttySX is broken.  It dumps fine to
+the
+> terminal but when you get to a point of entering data (login,
+configuration
+> scripts, etc) the terminal does not accept any input.  
+>
 
-/* pi.c: gcc -g -o pi pi.c -lm */
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <errno.h>
+It is not broken. It is used all the while in our embeded systems.
+ 
+> So far I have been able to debug to the point where I see that the
+kernel is
+> receiving the characters from the serial.c driver.  But it never echos
+them
+> or does anything else with them.  I will continue to look into this at
+this
+> end.  
+> 
 
-static double
-do_pi()
-{
-	double sum=0.0;
-	double x=1.0;
-	double s=1.0;
-	double pi;
+Did you ever initialize the terminal? And I'm not talking about
+baud-rate.
+There is a termios structure of information necessary to configure a
+terminal for I/O.
 
-	while (x <= 10000000.0)	{
-		sum += (1.0/pow(x, 3.0))*s;
-		s = -s;
-		x += 2.0;
-	}
-	pi = pow(sum*32.0, 1.0/3.0);
-	return pi;
-}
+> I was also wondering if anyone else has seen this or if a patch is
+avail for
+> this bug??
 
-int
-main( int argc, char* argv[] )
-{
-	int i;
-	int pid;
-	int m = 1000;   /* runs */
-	int n = 10;     /* procs per run */
+You refer to a BUG?  There isn't any of the kind you describe.
 
-	pid = getpid();
-	fprintf(stderr, "[%d]\n", pid);
-	while (m-- > 0) {
-	     for (i = 1; i < n; i++)
-		  if (!fork())
-		       break;
-	     fprintf(stderr, "%f\n", do_pi());
-	     if (getpid() != pid)
-		  return 0;
-	     while (waitpid(0, 0, WNOHANG) > 0)
-		  ;
-	}
-	return 0;
-}
-/* end of pi.c */
 
-/* pt.c: gcc -g -o pt pt.c */
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <string.h>
-#include <linux/ptrace.h>
+Cheers,
+Dick Johnson
 
-long
-dptrace(int req, pid_t pid, void *addr, void *data)
-{
-	char buf[64];
-	int rv;
-	rv = ptrace(req, pid, addr, data);
-	if ((req != PTRACE_PEEKUSR && req != PTRACE_PEEKTEXT) && 0 > rv) {
-		sprintf(buf, "ptrace (req=%d)", req);
-		perror(buf);
-		exit(1);
-	}
-	return rv;
-}
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-int
-main(int argc, char *argv[])
-{
-	int pid;
-	char buf[1024];
-	int n;
-
-	if (argc < 2) {
-		fprintf(stderr, "Usage: %s PID\n", argv[0]);
-		exit(1);
-	}
-	pid = atoi(argv[1]);
-	while (1) {
-		dptrace(PTRACE_ATTACH, pid, 0, 0);
-		waitpid(pid, 0, 0);
-		dptrace(PTRACE_DETACH, pid, 0, 0);
-		fprintf(stderr, ".");
-	}
-	return 0;
-}
-/* end of pt.c */
-
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 

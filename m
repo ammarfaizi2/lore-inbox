@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262898AbSJBBQK>; Tue, 1 Oct 2002 21:16:10 -0400
+	id <S262914AbSJBBTV>; Tue, 1 Oct 2002 21:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbSJBBQJ>; Tue, 1 Oct 2002 21:16:09 -0400
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:10564 "HELO
-	laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S262898AbSJBBQI>; Tue, 1 Oct 2002 21:16:08 -0400
-From: brian@worldcontrol.com
-Date: Tue, 1 Oct 2002 18:21:29 -0700
+	id <S262917AbSJBBTV>; Tue, 1 Oct 2002 21:19:21 -0400
+Received: from byterapers.com ([195.156.109.210]:44949 "EHLO byterapers.com")
+	by vger.kernel.org with ESMTP id <S262914AbSJBBTU>;
+	Tue, 1 Oct 2002 21:19:20 -0400
+Date: Wed, 2 Oct 2002 04:24:47 +0300 (EEST)
+From: <jhakala@byterapers.com>
 To: linux-kernel@vger.kernel.org
-Subject: aha152x.c:1944: warning: implicit declaration `queue_task'
-Message-ID: <20021002012129.GA26564@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-No-Archive: yes
-X-Noarchive: yes
+Subject: 2.5.40 FB_RIVA broken
+Message-ID: <Pine.LNX.4.21.0210020410230.28657-100000@byterapers.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.5.40 (gcc 3.2)
+Using framebuffer-driver for "nVidia Riva" causes compile to fail.
+(in .config: CONFIG_FB_RIVA=y)
+-----------------
+ gcc -Wp,-MD,./.accel.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=athlon  -I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc
+-iwithprefix include    -DKBUILD_BASENAME=accel   -c -o accel.o accel.c
+drivers/video/riva/accel.c: In function `fbcon_riva8_setup':
+drivers/video/riva/accel.c:165: structure has no member named
+`line_length'
+drivers/video/riva/accel.c:165: structure has no member named
+`line_length'
+drivers/video/riva/accel.c: In function `fbcon_riva16_setup':
+drivers/video/riva/accel.c:271: structure has no member named
+`line_length'
+drivers/video/riva/accel.c:271: structure has no member named
+`line_length'
+drivers/video/riva/accel.c: In function `fbcon_riva32_setup':
+drivers/video/riva/accel.c:358: structure has no member named
+`line_length'
+drivers/video/riva/accel.c:358: structure has no member named
+`line_length'
+  ld -m elf_i386  -r -o rivafb.o fbdev.o riva_hw.o accel.o
+ld: cannot open fbdev.o: No such file or directory
+make[3]: *** [rivafb.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.40/drivers/video/riva'
+make[2]: *** [riva] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.40/drivers/video'
+make[1]: *** [video] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.40/drivers'
+make: *** [drivers] Error 2
+----------------
 
-drivers/scsi/pcmcia/../aha152x.c: In function `intr':
-drivers/scsi/pcmcia/../aha152x.c:1944: warning: implicit declaration of function `queue_task'
-drivers/scsi/pcmcia/../aha152x.c:1944: `tq_immediate' undeclared (first use in this function)
-drivers/scsi/pcmcia/../aha152x.c:1944: (Each undeclared identifier is reported only once
-drivers/scsi/pcmcia/../aha152x.c:1944: for each function it appears in.)
-drivers/scsi/pcmcia/../aha152x.c:1945: warning: implicit declaration of function `mark_bh'
-drivers/scsi/pcmcia/../aha152x.c:1945: `IMMEDIATE_BH' undeclared (first use in this function)
+the complete .config -file is available from
+http://byterapers.com/~jhakala/config2540_riva
+
+Compiler was unofficial RedHatted GCC version 2.96-81. (shame on me)
 
 
-
-
-
--- 
-Brian Litzinger

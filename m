@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbUDSFLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 01:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUDSFLL
+	id S262972AbUDSF2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 01:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUDSF2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 01:11:11 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:38246 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262936AbUDSFLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 01:11:09 -0400
-Message-ID: <40835F4E.5000308@yahoo.com.au>
-Date: Mon, 19 Apr 2004 15:10:38 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Mon, 19 Apr 2004 01:28:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58014 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262960AbUDSF2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 01:28:16 -0400
+Date: Sun, 18 Apr 2004 22:28:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: chris@scary.beasts.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Nasty 2.6 sendfile() bug / regression; affects vsftpd
+In-Reply-To: <20040419004657.GD11064@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0404182220470.2808@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0404180026490.16486@sphinx.mythic-beasts.com>
+ <Pine.LNX.4.58.0404172005260.23917@ppc970.osdl.org> <20040419004657.GD11064@mail.shareable.org>
 MIME-Version: 1.0
-To: Pedro Larroy <piotr@larroy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CFQ iosched praise: good perfomance and better latency
-References: <20040419005651.GA7860@larroy.com>
-In-Reply-To: <20040419005651.GA7860@larroy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pedro Larroy wrote:
-> Hi
-> 
-> I've been trying CFQ ioscheduler in my software raid5 with nice results,
-> I've observed that a latency pattern still exists, just as in the
-> anticipatory ioscheduler, but those spikes are now much lower (from
-> 6ms with AS to 2ms with CFQ as seen in the bottom of
-> http://pedro.larroy.com/devel/iolat/analisys/),
-> plus apps seems to get a fair amount of io so they don't get starved.
-> 
-> Seems a good choice for io loaded boxes. Thanks Jens Axboe.
-> 
 
-Although AS isn't at its best when behind raid devices (it should
-probably be in front of them), you could be seeing some problem
-with the raid code.
 
-I'd be interested to see what the graph looks like with elevator=noop
+On Mon, 19 Apr 2004, Jamie Lokier wrote:
+> 
+> Is there a reason why put_user() supports 1/2/4/8 bytes and get_user()
+> supports only 1/2/4 bytes?
+
+It's a bit more complicated to do get_user, mainly because we use a 64-bit
+value to pass the data around already on x86 - the "real data" in %eax,
+and the error code in %edx. So you'd need to have a slightly different 
+calling convention for the 8-byte case, so it was more than just 
+"duplicate the other cases".
+
+I agree that it's an ugly special case. get/put_user should really accept 
+all the normal cases, and that includes 'u64'.
+
+Not a lot of code cares, though, so for now we've just had the special 
+case. You are the first one to notice, I think.
+
+		Linus

@@ -1,81 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265344AbTL0Irp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 03:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265345AbTL0Irp
+	id S265346AbTL0JBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 04:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265350AbTL0JBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 03:47:45 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:15634 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S265344AbTL0Irn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 03:47:43 -0500
-Message-ID: <3FED4838.6050908@kolumbus.fi>
-Date: Sat, 27 Dec 2003 10:52:08 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-References: <200312231138.21734.kernel@kolivas.org> <20031226225652.GE197@elf.ucw.cz>
-In-Reply-To: <20031226225652.GE197@elf.ucw.cz>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 27.12.2003 10:49:45,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 27.12.2003 10:48:56,
-	Serialize complete at 27.12.2003 10:48:56
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 27 Dec 2003 04:01:46 -0500
+Received: from userbb201.dsl.pipex.com ([62.190.241.201]:18124 "EHLO
+	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
+	id S265346AbTL0JBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 04:01:44 -0500
+Date: Sat, 27 Dec 2003 09:01:42 +0000
+From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Rohit Seth <rohit.seth@intel.com>
+Subject: Re: 2.6.0 Huge pages not working as expected
+Message-ID: <20031227090142.GA8777@axis.demon.co.uk>
+References: <20031226105433.GA25970@axis.demon.co.uk> <20031226115647.GH27687@holomorphy.com> <20031226201011.GA32316@axis.demon.co.uk> <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 26, 2003 at 12:33:58PM -0800, Linus Torvalds wrote:
+> On Fri, 26 Dec 2003, Nick Craig-Wood wrote:
+> > 
+> > The results are just about the same - a slight slowdown for
+> > hugepages...
+> 
+> I don't think you are really testing the TLB - you are testing the data 
+> cache.
+> 
+> And the thing is, using huge pages will mean that the pages are 1:1
+> mapped, and thus get "perfectly" cache-coloured, while the anonymous mmap 
+> will give you random placement.
 
+Mmmm, yes.
 
-Pavel Machek wrote:
+> And what you are seeing is likely the fact that random placement is 
+> guaranteed to not have any worst-case behaviour. While perfect 
+> cache-coloring very much _does_ have worst-case schenarios, and you're 
+> likely triggering one of them.
+> 
+> In particular, using a pure power-of-two stride means that you are
+> limiting your cache to a certain subset of the full result with the
+> perfect coloring.
+> 
+> This, btw, is why I don't like page coloring: it does give nicely
+> reproducible results, but it does not necessarily improve performance.  
+> Random placement has a lot of advantages, one of which is a lot smoother
+> performance degradation - which I personally think is a good thing.
+> 
+> Try your program with non-power-of-two, and non-page-aligned strides. I
+> suspect the results will change (but I suspect that the TLB wins will 
+> still be pretty much in the noise compared to the actual data cache 
+> effects).
 
->Hi!
->
->  
->
->>I've done a resync and update of my batch scheduling that is also hyper-thread 
->>aware.
->>
->>What is batch scheduling? Specifying a task as batch allows it to only use cpu 
->>time if there is idle time available, rather than having a proportion of the 
->>cpu time based on niceness.
->>
->>Why do I need hyper-thread aware batch scheduling?
->>
->>If you have a hyperthread (P4HT) processor and run it as two logical cpus you 
->>can have a very low priority task running that can consume 50% of your 
->>physical cpu's capacity no matter how high priority tasks you are running. 
->>For example if you use the distributed computing client setiathome you will 
->>be effectively be running at half your cpu's speed even if you run setiathome 
->>at nice 20. Batch scheduling for normal cpus allows only idle time to be used 
->>for batch tasks, and for HT cpus only allows idle time when both logical cpus 
->>are idle.
->>    
->>
->
->BTW this is going to be an issue even on normal (non-HT)
->systems. Imagine memory-bound scientific task on CPU0 and nice -20
->memory-bound seti&home at CPU1. Even without hyperthreading, your
->scientific task is going to run at 50% of speed and seti&home is going
->to get second half. Oops.
->
->Something similar can happen with disk, but we are moving out of
->cpu-scheduler arena with that.
->
->[I do not have SMP nearby to demonstrate it, anybody wanting to
->benchmark a bit?] 
->									Pavel
->
-heh...and the situation gets even worse when you add cpus, with 16way 
-you get only 1/16 of the speed ;)
+Yes you are right and I should have thought have that as I know that
+FFTs often have a bit of padding on each row to make them a non power
+of two to avoid this effect!
 
---Mika
+Here are the results again with a some non power of two strides run on
+a P4.  Apart from the variable results the hugetlb ones are always
+less than the small page ones.
 
+Memory from /dev/zero
+Testing memory at 0x42400000
+span =        1, time =     12.103 ms, total = -973807672
+span =        2, time =     21.051 ms, total = -973807672
+span =        3, time =     28.391 ms, total = -973807672
+span =        5, time =     44.004 ms, total = -973807672
+span =        7, time =     60.622 ms, total = -973807672
+span =       11, time =     96.537 ms, total = -973807672
+span =       13, time =    116.335 ms, total = -973807672
+span =       17, time =    153.163 ms, total = -973807672
+span =       33, time =    276.764 ms, total = -973807672
+span =       77, time =    282.419 ms, total = -973807672
+span =      119, time =    287.168 ms, total = -973807672
+span =      221, time =    298.292 ms, total = -973807672
+span =      561, time =    343.215 ms, total = -973807672
+span =      963, time =    418.078 ms, total = -973807672
+span =     1309, time =    446.026 ms, total = -973807672
+span =     2023, time =    253.098 ms, total = -973807672
+span =     4335, time =     68.616 ms, total = -973807672
 
+Memory from hugetlbfs
+Testing memory at 0x41400000
+span =        1, time =     12.059 ms, total = -973807672
+span =        2, time =     20.745 ms, total = -973807672
+span =        3, time =     28.324 ms, total = -973807672
+span =        5, time =     43.683 ms, total = -973807672
+span =        7, time =     60.228 ms, total = -973807672
+span =       11, time =     95.680 ms, total = -973807672
+span =       13, time =    115.695 ms, total = -973807672
+span =       17, time =    152.603 ms, total = -973807672
+span =       33, time =    275.821 ms, total = -973807672
+span =       77, time =    280.759 ms, total = -973807672
+span =      119, time =    285.515 ms, total = -973807672
+span =      221, time =    295.163 ms, total = -973807672
+span =      561, time =    335.941 ms, total = -973807672
+span =      963, time =    411.387 ms, total = -973807672
+span =     1309, time =    433.168 ms, total = -973807672
+span =     2023, time =    119.780 ms, total = -973807672
+span =     4335, time =     32.085 ms, total = -973807672
+
+Isn't modern memory management fun ;-)
+
+-- 
+Nick Craig-Wood
+ncw1@axis.demon.co.uk

@@ -1,42 +1,255 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267591AbSLMBxk>; Thu, 12 Dec 2002 20:53:40 -0500
+	id <S267014AbSLMCCT>; Thu, 12 Dec 2002 21:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267596AbSLMBxk>; Thu, 12 Dec 2002 20:53:40 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:36834 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267591AbSLMBxj>; Thu, 12 Dec 2002 20:53:39 -0500
-Message-ID: <3DF93F2A.6090600@us.ibm.com>
-Date: Thu, 12 Dec 2002 18:00:10 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
+	id <S267290AbSLMCCT>; Thu, 12 Dec 2002 21:02:19 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:33252 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267014AbSLMCCM> convert rfc822-to-8bit; Thu, 12 Dec 2002 21:02:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Zwane Mwaikambo <zwane@holomorphy.com>, Martin Bligh <mbligh@us.ibm.com>
+Subject: Re: [PATCH][2.5][RFC] Using xAPIC apic address space on !Summit
+Date: Thu, 12 Dec 2002 18:09:43 -0800
+User-Agent: KMail/1.4.3
+Cc: John Stultz <johnstul@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0212112105490.14901-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0212112105490.14901-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [ANNOUNCE] kexec-tools-1.8
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>	<m1k7jb3flo.fsf_-_@frodo.biederman.org>	<m1el9j2zwb.fsf@frodo.biederman.org>	<m11y5j2r9t.fsf_-_@frodo.biederman.org>	<m1r8d1xcap.fsf_-_@frodo.biederman.org> <3DEC1758.8030302@us.ibm.com> <m18yz7y2qh.fsf@frodo.biederman.org>
-In-Reply-To: <m18yz7y2qh.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212121809.43698.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got around to trying it on a NUMA-Q again.  It makes it well into 
-the kernel this time.  I've been getting some strange CPU numbering 
-problems, but that was happening to a lesser extent before I threw 
-kexec in there.
+On Thursday 12 December 2002 05:44 pm, Zwane Mwaikambo wrote:
+> Hi,
+> 	I've got an 32x SMP system which has an xAPIC but utilises flat
+> addressing. This patch is to rename what was formerly x86_summit to
+> x86_xapic (just to avoid confusion) and then select mask depending on
+> that.
+>
+> Untested/uncompiled patch
 
-Right now it's dying in the memory allocator, but that is probably 
-just something that didn't get initialized right, or some cross-quad 
-memory that isn't set up right.
+Hi Zwane,
 
-I would really like to see this go into 2.5.  The fact that it gets 
-this far on something as exotic as a NUMA-Q is a tribute to its 
-maturity.
+How can you have a 32-way SMP system with flat addressing?  There are only 8 
+bits in the destination address field.  Even if you work around that by 
+assigning a set of CPUs to each dest addr bit, there can only be 15 physical 
+APIC IDs in flat mode.  To get to 32 you must switch into clustered mode.
+
+Please tell me more.  I'm intrigued how this can be done.
+
+
+> Index: linux-2.5.51/include/asm-i386/apic.h
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/include/asm-i386/apic.h,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 apic.h
+> --- linux-2.5.51/include/asm-i386/apic.h	10 Dec 2002 12:47:44 -0000	1.1.1.1
+> +++ linux-2.5.51/include/asm-i386/apic.h	12 Dec 2002 17:10:51 -0000
+> @@ -90,6 +90,7 @@
+>  extern int check_nmi_watchdog (void);
+>  extern void enable_NMI_through_LVT0 (void * dummy);
+>
+> +extern int x86_xapic;
+>  extern unsigned int nmi_watchdog;
+>  #define NMI_NONE	0
+>  #define NMI_IO_APIC	1
+> Index: linux-2.5.51/include/asm-i386/apicdef.h
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/include/asm-i386/apicdef.h,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 apicdef.h
+> --- linux-2.5.51/include/asm-i386/apicdef.h	10 Dec 2002 12:47:44
+> -0000	1.1.1.1 +++ linux-2.5.51/include/asm-i386/apicdef.h	12 Dec 2002
+> 03:22:59 -0000 @@ -9,10 +9,11 @@
+>   */
+>
+>  #define		APIC_DEFAULT_PHYS_BASE	0xfee00000
+> -
+> +extern int x86_xapic;
+> +#define		APIC_BROADCAST_ID     (x86_xapic ? 0xFF : 0x0F)
+>  #define		APIC_ID		0x20
+> -#define			APIC_ID_MASK		(0x0F<<24)
+> -#define			GET_APIC_ID(x)		(((x)>>24)&0x0F)
+> +#define			APIC_ID_MASK		(APIC_BROADCAST_ID<<24)
+> +#define			GET_APIC_ID(x)		(((x)>>24)&APIC_BROADCAST_ID)
+>  #define		APIC_LVR	0x30
+>  #define			APIC_LVR_MASK		0xFF00FF
+>  #define			GET_APIC_VERSION(x)	((x)&0xFF)
+> Index: linux-2.5.51/arch/i386/kernel/apic.c
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/arch/i386/kernel/apic.c,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 apic.c
+> --- linux-2.5.51/arch/i386/kernel/apic.c	10 Dec 2002 12:46:46 -0000	1.1.1.1
+> +++ linux-2.5.51/arch/i386/kernel/apic.c	12 Dec 2002 17:08:26 -0000
+> @@ -33,6 +33,8 @@
+>  #include <asm/arch_hooks.h>
+>  #include "mach_apic.h"
+>
+> +int x86_xapic;
+> +
+>  void __init apic_intr_init(void)
+>  {
+>  #ifdef CONFIG_SMP
+> Index: linux-2.5.51/arch/i386/kernel/io_apic.c
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/arch/i386/kernel/io_apic.c,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 io_apic.c
+> --- linux-2.5.51/arch/i386/kernel/io_apic.c	10 Dec 2002 12:46:46
+> -0000	1.1.1.1 +++ linux-2.5.51/arch/i386/kernel/io_apic.c	12 Dec 2002
+> 16:08:04 -0000 @@ -1147,7 +1147,7 @@
+>
+>  	if (clustered_apic_mode)
+>  		/* We don't have a good way to do this yet - hack */
+> -		phys_id_present_map = (u_long) 0xf;
+> +		phys_id_present_map = (u_long) APIC_BROADCAST_ID;
+>  	/*
+>  	 * Set the IOAPIC ID to the value stored in the MPC table.
+>  	 */
+> @@ -1177,10 +1177,10 @@
+>  					mp_ioapics[apic].mpc_apicid)) {
+>  			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID %d is already used!...\n",
+>  				apic, mp_ioapics[apic].mpc_apicid);
+> -			for (i = 0; i < 0xf; i++)
+> +			for (i = 0; i < APIC_BROADCAST_ID; i++)
+>  				if (!(phys_id_present_map & (1 << i)))
+>  					break;
+> -			if (i >= 0xf)
+> +			if (i >= APIC_BROADCAST_ID)
+>  				panic("Max APIC ID exceeded!\n");
+>  			printk(KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
+>  				i);
+> Index: linux-2.5.51/arch/i386/kernel/mpparse.c
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/arch/i386/kernel/mpparse.c,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 mpparse.c
+> --- linux-2.5.51/arch/i386/kernel/mpparse.c	10 Dec 2002 12:46:46
+> -0000	1.1.1.1 +++ linux-2.5.51/arch/i386/kernel/mpparse.c	12 Dec 2002
+> 17:07:39 -0000 @@ -67,10 +67,9 @@
+>  /* Internal processor count */
+>  static unsigned int __initdata num_processors;
+>
+> -/* Bitmask of physically existing CPUs */
+> +/* Bitmask of physically present CPUs and IOAPICs */
+>  unsigned long phys_cpu_present_map;
+>
+> -int summit_x86 = 0;
+>  u8 raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+>
+>  /*
+> @@ -394,7 +393,7 @@
+>  	str[12]=0;
+>  	printk("Product ID: %s ",str);
+>
+> -	summit_check(oem, str);
+> +	smp_hardware_check(oem, str);
+>
+>  	printk("APIC at: 0x%lX\n",mpc->mpc_lapic);
+>
+> Index: linux-2.5.51/arch/i386/mach-generic/mach_apic.h
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/arch/i386/mach-generic/mach_apic.h,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 mach_apic.h
+> --- linux-2.5.51/arch/i386/mach-generic/mach_apic.h	10 Dec 2002 12:46:46
+> -0000	1.1.1.1 +++ linux-2.5.51/arch/i386/mach-generic/mach_apic.h	12 Dec
+> 2002 03:49:07 -0000 @@ -17,11 +17,15 @@
+>   #define TARGET_CPUS 0x01
+>  #endif
+>
+> -#define APIC_BROADCAST_ID      0x0F
+>  #define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
+>
+> -static inline void summit_check(char *oem, char *productid)
+> +static inline void smp_hardware_check(char *oem, char *productid)
+>  {
+> +	unsigned long ver, reg = apic_read(APIC_LVR);
+> +
+> +	ver = GET_APIC_VERSION(reg);
+> +	if (ver == 0x14)
+> +		x86_xapic = 1;
+>  }
+>
+>  static inline void clustered_apic_check(void)
+> Index: linux-2.5.51/arch/i386/mach-summit/mach_apic.h
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.51/arch/i386/mach-summit/mach_apic.h,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 mach_apic.h
+> --- linux-2.5.51/arch/i386/mach-summit/mach_apic.h	10 Dec 2002 12:46:46
+> -0000	1.1.1.1 +++ linux-2.5.51/arch/i386/mach-summit/mach_apic.h	12 Dec
+> 2002 03:49:20 -0000 @@ -1,8 +1,6 @@
+>  #ifndef __ASM_MACH_APIC_H
+>  #define __ASM_MACH_APIC_H
+>
+> -extern int x86_summit;
+> -
+>  #define XAPIC_DEST_CPUS_MASK    0x0Fu
+>  #define XAPIC_DEST_CLUSTER_MASK 0xF0u
+>
+> @@ -13,34 +11,33 @@
+>  {
+>  	unsigned long id;
+>
+> -	if (x86_summit)
+> +	if (x86_xapic)
+>  		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
+>  	else
+>  		id = 1UL << smp_processor_id();
+>  	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
+>  }
+>
+> -#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
+> -#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
+> +#define APIC_DFR_VALUE	(x86_xapic ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
+> +#define TARGET_CPUS	(x86_xapic ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
+>
+> -#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
+>  #define check_apicid_used(bitmap, apicid) (0)
+>
+> -static inline void summit_check(char *oem, char *productid)
+> +static inline void smp_hardware_check(char *oem, char *productid)
+>  {
+>  	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(str, "VIGIL SMP", 9))
+> -		x86_summit = 1;
+> +		x86_xapic = 1;
+>  }
+>
+>  static inline void clustered_apic_check(void)
+>  {
+>  	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
+> -		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
+> +		(x86_xapic ? "Summit" : "Flat"), nr_ioapics);
+>  }
+>
+>  static inline int cpu_present_to_apicid(int mps_cpu)
+>  {
+> -	if (x86_summit)
+> +	if (x86_xapic)
+>  		return (int) raw_phys_apicid[mps_cpu];
+>  	else
+>  		return mps_cpu;
+> @@ -48,7 +45,7 @@
+>
+>  static inline unsigned long apicid_to_phys_cpu_present(int apicid)
+>  {
+> -	if (x86_summit)
+> +	if (x86_xapic)
+>  		return (1ul << (((apicid >> 4) << 2) | (apicid & 0x3)));
+>  	else
+>  		return (1ul << apicid);
+> -
+
+
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

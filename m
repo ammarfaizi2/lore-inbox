@@ -1,139 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131169AbRAPMRT>; Tue, 16 Jan 2001 07:17:19 -0500
+	id <S129534AbRAPMec>; Tue, 16 Jan 2001 07:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131240AbRAPMRJ>; Tue, 16 Jan 2001 07:17:09 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:38376 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131169AbRAPMQ7>; Tue, 16 Jan 2001 07:16:59 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] shmem fixes for 2.4.1-pre7
-From: Christoph Rohland <cr@sap.com>
-Date: 16 Jan 2001 13:16:18 +0100
-Message-ID: <qwwofx7g0a5.fsf@sap.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129593AbRAPMeW>; Tue, 16 Jan 2001 07:34:22 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:22280 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129534AbRAPMeJ>;
+	Tue, 16 Jan 2001 07:34:09 -0500
+Date: Tue, 16 Jan 2001 13:34:05 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        dean gaudet <dean-list-linux-kernel@arctic.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Jonathan Thackray <jthackray@zeus.com>
+Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was: sendpath()]]
+Message-ID: <20010116133405.A576@gruyere.muc.suse.de>
+In-Reply-To: <20010116123743.A32075@gruyere.muc.suse.de> <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 01:04:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Jan 16, 2001 at 01:04:22PM +0100, Ingo Molnar wrote:
+> - a less radical solution would be to still map file structures to an
+> integer range (file descriptors) and usage-maintain files per processes,
+> but relax the 'allocate first non-allocated integer in the range' rule.
+> I'm not sure exactly how simple this is, but something like this should
+> work: on close()-ing file descriptors the freed file descriptors would be
+> cached in a list (this needs a new, separate structure which must be
+> allocated/freed as well). Something like:
+> 
+> 	struct lazy_filedesc {
+> 		int fd;
+> 		struct file *file;
+> 	}
 
-Here is a patch against 2.4.1-pre7 which
+More generic file -> fd mapping would be useful to speed up poll() too,
+because the event trigger could directly modify the poll table without 
+a second slow walk over the whole table. 
 
-1) Adds prototype for shmem_lock to mm.h
-2) Again brings the fixes for the accounting. I still think it
-   should be applied.
+So you could add another bit that tells if the fd is open or closed 
+and share it with poll. 
 
-Greetings
-		Christoph
+Also in that table you could just keep a linked ordered free list
+and not use GFP_ANY, because getting the lowest would be rather cheap.
 
-diff -uNr 1-pre7/include/linux/mm.h m1-pre7/include/linux/mm.h
---- 1-pre7/include/linux/mm.h	Tue Jan 16 09:33:02 2001
-+++ m1-pre7/include/linux/mm.h	Tue Jan 16 09:34:20 2001
-@@ -386,6 +386,7 @@
- 
- struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int no_share);
- struct file *shmem_file_setup(char * name, loff_t size);
-+void shmem_lock(struct file * file, int lock);
- extern int shmem_zero_setup(struct vm_area_struct *);
- 
- extern void zap_page_range(struct mm_struct *mm, unsigned long address, unsigned long size);
-diff -uNr 1-pre7/mm/shmem.c m1-pre7/mm/shmem.c
---- 1-pre7/mm/shmem.c	Tue Jan 16 09:33:02 2001
-+++ m1-pre7/mm/shmem.c	Tue Jan 16 09:33:45 2001
-@@ -117,11 +117,43 @@
- 	return 0;
- }
- 
-+/*
-+ * shmem_recalc_inode - recalculate the size of an inode
-+ *
-+ * @inode: inode to recalc
-+ *
-+ * We have to calculate the free blocks since the mm can drop pages
-+ * behind our back
-+ *
-+ * But we know that normally
-+ * inodes->i_blocks == inode->i_mapping->nrpages + info->swapped
-+ *
-+ * So the mm freed 
-+ * inodes->i_blocks - (inode->i_mapping->nrpages + info->swapped)
-+ *
-+ * It has to be called with the spinlock held.
-+ */
-+
-+static void shmem_recalc_inode(struct inode * inode)
-+{
-+	unsigned long freed;
-+
-+	freed = inode->i_blocks -
-+		(inode->i_mapping->nrpages + inode->u.shmem_i.swapped);
-+	if (freed){
-+		struct shmem_sb_info * info = &inode->i_sb->u.shmem_sb;
-+		inode->i_blocks -= freed;
-+		spin_lock (&info->stat_lock);
-+		info->free_blocks += freed;
-+		spin_unlock (&info->stat_lock);
-+	}
-+}
-+
- static void shmem_truncate (struct inode * inode)
- {
- 	int clear_base;
- 	unsigned long start;
--	unsigned long mmfreed, freed = 0;
-+	unsigned long freed = 0;
- 	swp_entry_t **base, **ptr;
- 	struct shmem_inode_info * info = &inode->u.shmem_i;
- 
-@@ -154,26 +186,9 @@
- 	info->i_indirect = 0;
- 
- out:
--
--	/*
--	 * We have to calculate the free blocks since we do not know
--	 * how many pages the mm discarded
--	 *
--	 * But we know that normally
--	 * inodes->i_blocks == inode->i_mapping->nrpages + info->swapped
--	 *
--	 * So the mm freed 
--	 * inodes->i_blocks - (inode->i_mapping->nrpages + info->swapped)
--	 */
--
--	mmfreed = inode->i_blocks - (inode->i_mapping->nrpages + info->swapped);
- 	info->swapped -= freed;
--	inode->i_blocks -= freed + mmfreed;
-+	shmem_recalc_inode(inode);
- 	spin_unlock (&info->lock);
--
--	spin_lock (&inode->i_sb->u.shmem_sb.stat_lock);
--	inode->i_sb->u.shmem_sb.free_blocks += freed + mmfreed;
--	spin_unlock (&inode->i_sb->u.shmem_sb.stat_lock);
- }
- 
- static void shmem_delete_inode(struct inode * inode)
-@@ -208,6 +223,7 @@
- 		return 1;
- 
- 	spin_lock(&info->lock);
-+	shmem_recalc_inode(page->mapping->host);
- 	entry = shmem_swp_entry (info, page->index);
- 	if (!entry)	/* this had been allocted on page allocation */
- 		BUG();
-@@ -269,6 +285,9 @@
- 	entry = shmem_swp_entry (info, idx);
- 	if (!entry)
- 		goto oom;
-+	spin_lock (&info->lock);
-+	shmem_recalc_inode(inode);
-+	spin_unlock (&info->lock);
- 	if (entry->val) {
- 		unsigned long flags;
- 
+Disadvantage is that it would need more cache and more overhead than
+the current scheme.
+[in a way it is a ugly duck like pte<->vma links] 
+
+
+> - Best-case overhead saves us a get_unused_fd() call, which can be *very*
+>   expensive (in terms of CPU time and cache footprint) if thousands of
+>   files are used. If O_ANY is used mostly, then the best-case is always
+>   triggered.
+
+Really? Does the open_fds bitmap get that big ?
+
+Maybe it just needs a faster find_next_zero_bit() @)
+
+
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

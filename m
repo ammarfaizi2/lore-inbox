@@ -1,93 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbUCNQm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 11:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUCNQm2
+	id S261433AbUCNQuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 11:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUCNQuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 11:42:28 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:43469 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261376AbUCNQmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 11:42:25 -0500
-Date: Sun, 14 Mar 2004 17:33:10 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: paul.devriendt@amd.com
-Cc: Pavel Machek <pavel@suse.cz>, patches@x86-64.org,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, davej@redhat.com,
-       ducrot@poupinou.org
-Subject: Re: powernow-k8 updates
-Message-ID: <20040314163310.GB24433@dominikbrodowski.de>
-Mail-Followup-To: paul.devriendt@amd.com,
-	Pavel Machek <pavel@suse.cz>, patches@x86-64.org,
-	Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-	kernel list <linux-kernel@vger.kernel.org>, davej@redhat.com,
-	ducrot@poupinou.org
-References: <20040309214830.GA1240@elf.ucw.cz> <20040310110941.GC28592@poupinou.org> <20040310113246.GA4775@atrey.karlin.mff.cuni.cz> <20040310134811.GD28592@poupinou.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
-Content-Disposition: inline
-In-Reply-To: <20040310134811.GD28592@poupinou.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 14 Mar 2004 11:50:05 -0500
+Received: from mail2.scram.de ([195.226.127.112]:12811 "EHLO mail2.scram.de")
+	by vger.kernel.org with ESMTP id S261433AbUCNQt7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 11:49:59 -0500
+Date: Sun, 14 Mar 2004 17:49:50 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@localhost
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: netdev@oss.sgi.com
+Subject: [bug 2.6.4] llc2 oops
+Message-ID: <Pine.LNX.4.58.0403141732350.25924@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---XOIedfhf+7KOe/yw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+looks like llc_ui_bind forgets to set llc->dev. The combination:
+  bind (fd, &sllc, sizeof (sllc));
+  connect(fd, &dllc, sizeof(dllc));
+produces the following oops for me:
 
-On Wed, Mar 10, 2004 at 02:48:11PM +0100, Bruno Ducrot wrote:
-> ducrot@poupon:~/kernel/linux-2.6.4-bk-acpi> grep EXPORT drivers/acpi/proc=
-essor.c
-> EXPORT_SYMBOL(acpi_processor_register_performance);
-> EXPORT_SYMBOL(acpi_processor_unregister_performance);
-> EXPORT_SYMBOL(acpi_processor_set_thermal_limit);
->=20
-> So all you need are acpi_processor_register_performance() and
-> acpi_processor_unregister_performance().  I'm pretty sure that those
-> functions are in 2.6.4-rc2.
+Unable to handle kernel paging request at virtual address 00000000000000c8
+llc-linux(18496): Oops 0
+pc = [<fffffffc00576194>]  ra = [<fffffffc00582df0>]  ps = 0000    Not
+tainted
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 0000000000000000  t0 = fffffffc00582cba  t1 = fffffffc00582cba
+t2 = 0000000004030201  t3 = 0000000000582c00  t4 = 0000000004030201
+t5 = 0000060504030201  t6 = fffffc001389fe19  t7 = fffffc001389c000
+s0 = fffffc002bfc0e00  s1 = ffffffffffffffc8  s2 = fffffc001389fe88
+s3 = ffffffffffffffdb  s4 = fffffc001f56e8c0  s5 = fffffc0025a1e9c0
+s6 = 000000011ffffba0
+a0 = fffffc002bfc0e00  a1 = 00000000000000c8  a2 = fffffc001389fe90
+a3 = 0000000000582cba  a4 = ffffffffffffffff  a5 = 0000000000000000
+t8 = fffffc001389fe1d  t9 = 00000023d3f41186  t10= 0000060504030201
+t11= fffffc001389fe94  pv = fffffffc0057e360  at = fffffc001f56e8c0
+gp = fffffffc00594068  sp = fffffc001389fde8
+Trace:fffffc00011607ba fffffc000115d940 fffffc0001012c9c
+Code: b27e0030  2c3e0034  2c5e0031  48b20d45  2cd20005  487204c3
+<2c910000> 44650403
 
-These functions are indeed in 2.6.3 and 2.6.4 -- and they work fine. If you
-have any questions related to them, please ask me.
-=20
-> If you want to play with those functions, you have to include
-> <acpi/processor.h>, and then you have to register a driver via:
-> acpi_processor_register_performance(&pr, cpu) where:
-> - cpu is the cpu id (point-of-view of Linux, not the acpi cpu id),
-> - pr is a struct acpi_processor_performance (defined in
->   acpi/processor.h).
->=20
-> You will have then for free:
-> - configurations via the acpi_processor_performance structure,
-> - handling of the _PPC object, so that you don't have to care about
->   changes for that in the driver.  That will be done via classic
->   ACPI event notifications to the processor, via the limit interface
->   writen in drivers/acpi/processor.c, and cpufreq notion of notifiers.
 
-Minor correction: only the first and last steps are indeed used to handle
-_PPC, IIRC.
+>>RA;  fffffffc00582df0 <[llc2]llc_ui_connect+170/220>
 
-Also, you'll have
-- support for _PDC, if needed
-- proper embedding into ACPI core
-- the /proc/acpi/processor/./performance interface which some still tend to
-   like...
+>>PC;  fffffffc00576194 <[llc2]llc_establish_connectio+84/440>   <=====
 
-	Dominik
+Trace; fffffc00011607ba <release_sock+1a/f0>
+Trace; fffffc000115d940 <sys_connect+a0/e0>
+Trace; fffffc0001012c9c <strace+4c/c0>
 
---XOIedfhf+7KOe/yw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Code;  fffffffc0057617c <[llc2]llc_establish_connectio+6c/440>
+0000000000000000 <_PC>:
+Code;  fffffffc0057617c <[llc2]llc_establish_connectio+6c/440>
+   0:   30 00 7e b2       stl  a3,48(sp)
+Code;  fffffffc00576180 <[llc2]llc_establish_connectio+70/440>
+   4:   34 00 3e 2c       ldq_u        t0,52(sp)
+Code;  fffffffc00576184 <[llc2]llc_establish_connectio+74/440>
+   8:   31 00 5e 2c       ldq_u        t1,49(sp)
+Code;  fffffffc00576188 <[llc2]llc_establish_connectio+78/440>
+   c:   45 0d b2 48       extlh        t4,a2,t4
+Code;  fffffffc0057618c <[llc2]llc_establish_connectio+7c/440>
+  10:   05 00 d2 2c       ldq_u        t5,5(a2)
+Code;  fffffffc00576190 <[llc2]llc_establish_connectio+80/440>
+  14:   c3 04 72 48       extll        t2,a2,t2
+Code;  fffffffc00576194 <[llc2]llc_establish_connectio+84/440>   <=====
+  18:   00 00 91 2c       ldq_u        t3,0(a1)   <=====
+Code;  fffffffc00576198 <[llc2]llc_establish_connectio+88/440>
+  1c:   03 04 65 44       or   t2,t4,t2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Without the bind(), things get a bit further. I receive an EAGAIN and in
+dmesg:
 
-iD8DBQFAVIlGZ8MDCHJbN8YRAktuAJ9zTn9OfnOElU+tFH24TxnRaI/1zACgjpM7
-iILO3EKJWkjSuI4ovL6rMv0=
-=0m0y
------END PGP SIGNATURE-----
+schedule_timeout: wrong timeout value ffffffffffffffff from
+fffffffc005831d4
 
---XOIedfhf+7KOe/yw--
+So, apparently, llc_ui_wait_for_conn() and llc_ui_wait_for_disc() are
+buggy, as well...
+
+--jochen

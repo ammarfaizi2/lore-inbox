@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbULSQWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbULSQed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbULSQWY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 11:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbULSQWY
+	id S261307AbULSQed (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 11:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbULSQed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 11:22:24 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:43144
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261306AbULSQWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 11:22:13 -0500
-Subject: Re: Linux 2.6.9-ac16
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Chris Ross <chris@tebibyte.org>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41C448BB.1020902@tmr.com>
-References: <41C2FF09.5020005@tebibyte.org>
-	 <1103222616.21920.12.camel@localhost.localdomain>
-	 <1103349675.27708.39.camel@tglx.tec.linutronix.de>
-	 <41C448BB.1020902@tmr.com>
-Content-Type: text/plain
-Date: Sun, 19 Dec 2004 17:22:11 +0100
-Message-Id: <1103473331.27708.50.camel@tglx.tec.linutronix.de>
+	Sun, 19 Dec 2004 11:34:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:50706 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261307AbULSQe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 11:34:26 -0500
+Date: Sun, 19 Dec 2004 17:34:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Max Krasnyansky <maxk@qualcomm.com>, bluez-devel@lists.sf.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Network Development Mailing List <netdev@oss.sgi.com>
+Subject: [2.6 patch] bluetooth/cmtp/capi.c: make a function static
+Message-ID: <20041219163421.GB21288@stusta.de>
+References: <20041214041352.GZ23151@stusta.de> <1103009649.2143.65.camel@pegasus> <20041219160758.GY21288@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041219160758.GY21288@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-18 at 10:11 -0500, Bill Davidsen wrote:
+The patch below makes a needlessly global function static.
 
-> As someone who runs most new versions first on a 96MB (slow) machine, I 
-> would agree that this is a desirable change. I'm not sure yet if the 
-> selection is optimal, but it's better than the stock kernel, which seems 
-> to follow the "kill them all, let god sort it out" principle.
 
-The main fix IMHO is Andrea's correct solution of the invocation
-including the removal of the evidential useless protection timers and
-counters in out_of_memory().
+diffstat output:
+ net/bluetooth/cmtp/capi.c |   28 +++++++++++++---------------
+ net/bluetooth/cmtp/cmtp.h |    1 -
+ 2 files changed, 13 insertions(+), 16 deletions(-)
 
-The selection mechanism is now nearly matching the comment above badness
-() much better: "this algorithm has been meticulously tuned to meet the
-principle of least surprise ... (be careful when you change it)".
 
-It can always be further optimized, but it will never meet the
-expectation of all users
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-tglx
-
+--- linux-2.6.10-rc3-mm1-full/net/bluetooth/cmtp/cmtp.h.old	2004-12-18 01:44:36.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/bluetooth/cmtp/cmtp.h	2004-12-18 02:28:40.000000000 +0100
+@@ -120,7 +120,6 @@
+ void cmtp_detach_device(struct cmtp_session *session);
+ 
+ void cmtp_recv_capimsg(struct cmtp_session *session, struct sk_buff *skb);
+-void cmtp_send_capimsg(struct cmtp_session *session, struct sk_buff *skb);
+ 
+ static inline void cmtp_schedule(struct cmtp_session *session)
+ {
+--- linux-2.6.10-rc3-mm1-full/net/bluetooth/cmtp/capi.c.old	2004-12-18 01:44:43.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/bluetooth/cmtp/capi.c	2004-12-19 17:09:00.000000000 +0100
+@@ -139,6 +139,19 @@
+ 	return session->msgnum;
+ }
+ 
++static void cmtp_send_capimsg(struct cmtp_session *session, struct sk_buff *skb)
++{
++	struct cmtp_scb *scb = (void *) skb->cb;
++
++	BT_DBG("session %p skb %p len %d", session, skb, skb->len);
++
++	scb->id = -1;
++	scb->data = (CAPIMSG_COMMAND(skb->data) == CAPI_DATA_B3);
++
++	skb_queue_tail(&session->transmit, skb);
++
++	cmtp_schedule(session);
++}
+ 
+ static void cmtp_send_interopmsg(struct cmtp_session *session,
+ 					__u8 subcmd, __u16 appl, __u16 msgnum,
+@@ -337,21 +350,6 @@
+ 	capi_ctr_handle_message(ctrl, appl, skb);
+ }
+ 
+-void cmtp_send_capimsg(struct cmtp_session *session, struct sk_buff *skb)
+-{
+-	struct cmtp_scb *scb = (void *) skb->cb;
+-
+-	BT_DBG("session %p skb %p len %d", session, skb, skb->len);
+-
+-	scb->id = -1;
+-	scb->data = (CAPIMSG_COMMAND(skb->data) == CAPI_DATA_B3);
+-
+-	skb_queue_tail(&session->transmit, skb);
+-
+-	cmtp_schedule(session);
+-}
+-
+-
+ static int cmtp_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
+ {
+ 	BT_DBG("ctrl %p data %p", ctrl, data);
 

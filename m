@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271894AbRHUXL4>; Tue, 21 Aug 2001 19:11:56 -0400
+	id <S271890AbRHUXOX>; Tue, 21 Aug 2001 19:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271890AbRHUXLe>; Tue, 21 Aug 2001 19:11:34 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:7145 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S271891AbRHUXLY>;
-	Tue, 21 Aug 2001 19:11:24 -0400
-Message-Id: <200108212311.f7LNBwl18820@www.2ka.mipt.ru>
-Date: Wed, 22 Aug 2001 03:52:58 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [very very small patch] that concerns ./fs/binfmt_elf.c and fix one of XXX
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.9; i686)
-Organization: MIPT
+	id <S271891AbRHUXON>; Tue, 21 Aug 2001 19:14:13 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:36119 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S271890AbRHUXOE>; Tue, 21 Aug 2001 19:14:04 -0400
+Date: Wed, 22 Aug 2001 01:14:18 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap size for a machine with 2GB of memory
+Message-ID: <20010822011418.A21379@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200108200008.AAA157827@vlet.cwi.nl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__22_Aug_2001_03:52:58_+0400_081ee798"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <200108200008.AAA157827@vlet.cwi.nl>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.7 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart_Wed__22_Aug_2001_03:52:58_+0400_081ee798
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Helo, linux guru.
+On Mon, Aug 20, 2001 at 12:08:40AM +0000, Andries Brouwer wrote:
+> You give two statements. The 128 MB bound was claimed by Microsoft
+> and we screamed loudly that that was a lie - now it is claimed
+> by both SuSE and RedHat. Funny.
 
-This is a very small and first patch against 2.4.9 kernel.
-I think anyone can do this, but forgot.
-It was made after looking into binfmt_aaout.c and comparison with
-binfmt_elf.c
-And while the graetest guru are speaking about great, complex and
-particularily needed tasks, small beginers are ( and i suppose lamers( and
-i
-hope not for a long time)) trying to fix small problems :))
-Here it:
+Oops!=20
+I found /usr/share/doc/packages/yast2/README.partitioner
+Embarassing; considering that YaST2 is newer then the end of this limit ...
 
----
-WBR. //s0mbre
+If you found more of them, please tell me, so it gets fixed.
 
---Multipart_Wed__22_Aug_2001_03:52:58_+0400_081ee798
-Content-Type: text/plain;
- name="binfmt_elf.patch"
-Content-Disposition: attachment;
- filename="binfmt_elf.patch"
-Content-Transfer-Encoding: base64
+TiA!
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
 
-LS0tIC90bXAvbGludXgvZnMvYmluZm10X2VsZi5jCVNhdCBKdWwgMjEgMjM6NDI6MjUgMjAwMQor
-KysgLi9mcy9iaW5mbXRfZWxmLmMJV2VkIEF1ZyAyMiAwMTo0NDoyOCAyMDAxCkBAIC00MTMsNyAr
-NDEzLDcgQEAKIAlzdHJ1Y3QgZWxmaGRyIGludGVycF9lbGZfZXg7CiAgIAlzdHJ1Y3QgZXhlYyBp
-bnRlcnBfZXg7CiAJY2hhciBwYXNzZWRfZmlsZW5vWzZdOwotCisJCiAJLyogR2V0IHRoZSBleGVj
-LWhlYWRlciAqLwogCWVsZl9leCA9ICooKHN0cnVjdCBlbGZoZHIgKikgYnBybS0+YnVmKTsKIApA
-QCAtNTkyLDkgKzU5MiwxNCBAQAogCS8qIERvIHRoaXMgc28gdGhhdCB3ZSBjYW4gbG9hZCB0aGUg
-aW50ZXJwcmV0ZXIsIGlmIG5lZWQgYmUuICBXZSB3aWxsCiAJICAgY2hhbmdlIHNvbWUgb2YgdGhl
-c2UgbGF0ZXIgKi8KIAljdXJyZW50LT5tbS0+cnNzID0gMDsKLQlzZXR1cF9hcmdfcGFnZXMoYnBy
-bSk7IC8qIFhYWDogY2hlY2sgZXJyb3IgKi8KKwlyZXR2YWwgPSBzZXR1cF9hcmdfcGFnZXMoYnBy
-bSk7CisgICAgaWYgKHJldHZhbCA8IDApIHsKKwkJLyogU29tZW9uZSBjaGVjay1tZTogaXMgdGhp
-cyBlcnJvciBwYXRoIGVub3VnaD8gKi8KKwkJc2VuZF9zaWcoU0lHS0lMTCwgY3VycmVudCwgMCk7
-CisJCXJldHVybiByZXR2YWw7CisJfQorCQogCWN1cnJlbnQtPm1tLT5zdGFydF9zdGFjayA9IGJw
-cm0tPnA7Ci0KIAkvKiBOb3cgd2UgZG8gYSBsaXR0bGUgZ3J1bmd5IHdvcmsgYnkgbW1hcGluZyB0
-aGUgRUxGIGltYWdlIGludG8KIAkgICB0aGUgY29ycmVjdCBsb2NhdGlvbiBpbiBtZW1vcnkuICBB
-dCB0aGlzIHBvaW50LCB3ZSBhc3N1bWUgdGhhdAogCSAgIHRoZSBpbWFnZSBzaG91bGQgYmUgbG9h
-ZGVkIGF0IGZpeGVkIGFkZHJlc3MsIG5vdCBhdCBhIHZhcmlhYmxlCg==
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---Multipart_Wed__22_Aug_2001_03:52:58_+0400_081ee798--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7gutJxmLh6hyYd04RAtZTAJ4/xi6UD/b8BhAI4VqNz/c7HEiKzQCfcxZn
+2zlzNOO69s22UHZNM/0Grbc=
+=61s9
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261713AbSJZABE>; Fri, 25 Oct 2002 20:01:04 -0400
+	id <S261715AbSJZAGx>; Fri, 25 Oct 2002 20:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSJZABE>; Fri, 25 Oct 2002 20:01:04 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:19432 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261713AbSJZABD>;
-	Fri, 25 Oct 2002 20:01:03 -0400
-Date: Fri, 25 Oct 2002 17:02:21 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
-Message-ID: <519740000.1035590541@flay>
-In-Reply-To: <515310000.1035588399@flay>
-References: <200210242351.56719.efocht@ess.nec.de> <2862423467.1035473915@[10.10.2.3]> <200210251015.46388.efocht@ess.nec.de> <515310000.1035588399@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261718AbSJZAGx>; Fri, 25 Oct 2002 20:06:53 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:44942 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261715AbSJZAGw>;
+	Fri, 25 Oct 2002 20:06:52 -0400
+Message-ID: <037101c27c84$70015ce0$9865fea9@PCJohn>
+From: "John Hawkes" <hawkes@sgi.com>
+To: <linux-kernel@vger.kernel.org>
+References: <fa.d95885v.1d14t8c@ifi.uio.no>
+Subject: Re: [BENCHMARK] AIM Independent Resource Benchmark  results for kernel-2.5.44
+Date: Fri, 25 Oct 2002 17:12:56 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I thought this problem is well understood! For some reasons independent of
->> my patch you have to boot your machines with the "notsc" option. This
->> leaves the cache_decay_ticks variable initialized to zero which my patch
->> doesn't like. I'm trying to deal with this inside the patch but there is
->> still a small window when the variable is zero. In my opinion this needs
->> to be fixed somewhere in arch/i386/kernel/smpboot.c. Booting a machine
->> with cache_decay_ticks=0 is pure nonsense, as it switches off cache
->> affinity which you absolutely need! So even if "notsc" is a legal option,
->> it should be fixed such that it doesn't leave your machine without cache
->> affinity. That would anyway give you a falsified behavior of the O(1)
->> scheduler.
+From: "Siva Koti Reddy" <siva.kotireddy@wipro.com>
+>     39 new_raph       Unable to solve equation in 100 tries. P =
+1.5708, P0
+> = 1.5708, delta = 6.12574e-17
+> new_raph: Success
+>  *** Failed to execute new_raph  ***
 
-> EIP is at task_to_steal+0x118/0x260
+The AIM7/AIM9 new_raph is broken code.  The convergence loop termination
+conditional looks something like:
+   if (delta == 0) break;
+for a type "double" delta.  You ought to change that to be something
+like:
+   if (delta <= 0.00000001L) break;
 
-This turned out to be:
-
-weight = (jiffies - tmp->sleep_timestamp)/cache_decay_ticks;
-
-So I guess that window is still biting you. I'll see if I can fix it properly.
-
-M.
+--
+John Hawkes
 

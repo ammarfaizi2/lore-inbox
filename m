@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264114AbTH1QUq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 12:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTH1QUq
+	id S263290AbTH1QPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 12:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264074AbTH1QPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 12:20:46 -0400
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:6043 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id S264114AbTH1QUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 12:20:44 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200308281618.h7SGIMMp014455@wildsau.idv.uni.linz.at>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <20030828154454.A2343@pclin040.win.tue.nl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Date: Thu, 28 Aug 2003 18:18:22 +0200 (MET DST)
-CC: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Thu, 28 Aug 2003 12:15:14 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:62724 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S263290AbTH1QPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 12:15:10 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-testX and InnoDB (was: Re: 2.6.0-test2-mm3 and mysql)
+Date: Thu, 28 Aug 2003 20:15:15 +0400
+User-Agent: KMail/1.5
+References: <1059871132.2302.33.camel@mars.goatskin.org> <20030804000514.GY22824@waste.org> <200308271952.29331.rathamahata@php4.ru>
+In-Reply-To: <200308271952.29331.rathamahata@php4.ru>
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200308282015.15580.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Aug 28, 2003 at 04:59:14AM +0200, H.Rosmanith (Kernel Mailing List) wrote:
-> 
-> > the contradiction to this is that the flashdisk can be used
-> > in a "partition-less" state where it is possible to use the
-> > whole device at one: "mke2fs /dev/sdb". you have to use the
-> > vendor formating-tool to make the flashdisk look like an USB_FDD
-> > device. but even in USB_HDD mode with partitions, the partitions
-> > still look strange, not ending on cylinder boundaries and so on.
-> 
-> I have seen several posts from you, but all in this vague, almost
-> information-free style.
+Hello all,
 
-the information is vague, because I don't exactly know how I manage
-to stop the drive working.
- 
-> It would be of interest if you described your actions and the results
-> in detail. Or if you gave explicitly the partition table that you
-> consider strange.
+On Wednesday 27 August 2003 19:52, Sergey S. Kostyliov wrote:
+> On Monday 04 August 2003 04:05, Matt Mackall wrote:
 
-hm, that's not so easy. I notice that the drive stops working, but
-I can't exactly tell when. Unfortunately I can't give you the
-partition table of the new drive anymore, because it's alread gone ;-)
+<cut>
 
-> [If you only think about cylinder boundaries: cylinders do not exist,
-> and cylinder boundaries do not exist either. So that in itself does
-> not mean a thing.]
+> > All Linux kernels prior to 2.6.0-test2-mm3-1 would silently fail to
+> > complete fsync() and msync() operations if they encountered an I/O
+> > error, resulting in corruption. If a particular disk subsystem was
+> > producing these errors, the symptoms would likely be:
+> >
+> > - no error reported
+> > - no messages in logs
+> > - independent of kernel version, etc.
+> > - suddenly appear at some point in drive life
+> > - works flawlessly on other machines
+> >
+> > If you can reproduce this corruption, please try running against mm3-1
+> > and seeing if it reports problems (both to fsync and in logs).
+>
+> I've just got another one InnoDB crash with 2.6.0-test4.
+> As in previous case there was no messages in kernel log.
+> You can find mysql error log here.
+> Re: 2.6.0-test2-mm3 and mysql
 
-well ... I would assume that a proper "emulation" of a harddisk by a
-flashdrive would also look like a real harddisk, with correct
-cylinder boundaries. But obviously, this is not the case. Should
-I get a new drive, I will mail you the strange-looking partiotion-table:
-it will look like "physical start at (0,3,3)" or similar.
+And here is another one InnoDB crash I've just got with 2.6.0-test4.
+http://sysadminday.org.ru/linux-2.6.0-test4_InnoDB_crash-20030828
+No messages in kernel log :((
 
-best regards,
-h.rosmanith
+>
+> It's a development server, so this isn't a big problem.
+> I do understand that this can easily be a hardware problem,
+> but the kernel silence is really sad in such case.
+> Memory is fine (at least according to memtest 3.0).
+>
+> Any hints will be appreciated.
 
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

@@ -1,220 +1,479 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVCUVFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVCUVBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVCUVFI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVCUVCY
+	id S261910AbVCUVBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVCUU77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:02:24 -0500
-Received: from digitalimplant.org ([64.62.235.95]:10892 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261878AbVCUUse
+	Mon, 21 Mar 2005 15:59:59 -0500
+Received: from digitalimplant.org ([64.62.235.95]:15244 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261888AbVCUUsm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:48:34 -0500
-Date: Mon, 21 Mar 2005 12:48:28 -0800 (PST)
+	Mon, 21 Mar 2005 15:48:42 -0500
+Date: Mon, 21 Mar 2005 12:48:36 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: linux-kernel@vger.kernel.org
 cc: greg@kroah.com
-Subject: [0/9] [RFC] Steps to fixing the driver model locking
-Message-ID: <Pine.LNX.4.50.0503211234040.20647-100000@monsoon.he.net>
+Subject: [2/9] [RFC] Steps to fixing the driver model locking
+Message-ID: <Pine.LNX.4.50.0503211243430.20647-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+ChangeSet@1.2231, 2005-03-21 10:52:54-08:00, mochel@digitalimplant.org
+  [driver core] Move device/driver code to drivers/base/dd.c
 
-For quite some time, many of the driver model objects and actions have
-been synchronnized with an rwsem. While this has proved to be +/- adequate
-up to now, it does have some limitations. The rwsem is pretty heavy
-handed, and it doesn't allow us to do things like modify a list that we're
-currently iterating over.
-
-There are a number of approaches to fixing this. This series of patches
-presents one. Basically, it uses a spinlock to protect the iterations of
-the list that is dropped before doing work on each node, and a refcount to
-guarantee that a node doesn't go away before we're done touching it. It's
-all wrapped in clean and reusable container (struct klist) and given some
-helpers to make it easy to integrate. Details are in the descriptions
-below and the following patches.
-
-The lists in struct bus_type that hold its devices and drivers have been
-fixed up to use the struct klist. The power management lists are probably
-next.
-
-Thoughts, comments, flames?
-
-Thanks,
-
-
-	Pat
-
-
-You can pull from
-
-	bk://kernel.bkbits.net:/home/mochel/linux-2.6-core
-
-Which would update the following files:
-
- drivers/base/Makefile        |    2
- drivers/base/base.h          |    2
- drivers/base/bus.c           |  303 ++++++++-----------------------------------
- drivers/base/core.c          |    3
- drivers/base/dd.c            |  246 ++++++++++++++++++++++++++++++++--
- drivers/base/driver.c        |   62 +++++++-
- drivers/base/power/resume.c  |    8 -
- drivers/base/power/suspend.c |    4
- drivers/pnp/driver.c         |   12 +
- drivers/usb/core/usb.c       |   43 +++---
- include/linux/device.h       |   15 +-
- include/linux/klist.h        |   53 +++++++
- lib/Makefile                 |    7
- lib/klist.c                  |  248 +++++++++++++++++++++++++++++++++++
- 14 files changed, 701 insertions(+), 307 deletions(-)
-
-through these ChangeSets:
-
-<mochel@digitalimplant.org> (05/03/21 1.2238)
-   [driver core] Add a klist to struct device_driver for the devices bound to it.
-
-   - Use it in driver_for_each_device() instead of the regular list_head and stop using
-     the bus's rwsem for protection.
-   - Use driver_for_each_device() in driver_detach() so we don't deadlock on the
-     bus's rwsem.
-   - Remove ->devices.
-   - Move klist access and sysfs link access out from under device's semaphore, since
-     they're synchronized through other means.
+  This relocates the driver binding/unbinding code to drivers/base/dd.c. This is done
+  for two reasons: One, it's not code related to the bus_type itself; it uses some from
+  that, some from devices, and some from drivers. And Two, it will make it easier to do
+  some of the upcoming lock removal on that code..
 
 
 
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
 
-<mochel@digitalimplant.org> (05/03/21 1.2237)
-   [driver core] Add a klist to struct bus_type for its drivers.
+diff -Nru a/drivers/base/Makefile b/drivers/base/Makefile
+--- a/drivers/base/Makefile	2005-03-21 12:30:47 -08:00
++++ b/drivers/base/Makefile	2005-03-21 12:30:47 -08:00
+@@ -1,6 +1,6 @@
+ # Makefile for the Linux device tree
 
+-obj-y			:= core.o sys.o interface.o bus.o \
++obj-y			:= core.o sys.o interface.o bus.o dd.o \
+ 			   driver.o class.o class_simple.o platform.o \
+ 			   cpu.o firmware.o init.o map.o dmapool.o \
+ 			   attribute_container.o transport_class.o
+diff -Nru a/drivers/base/base.h b/drivers/base/base.h
+--- a/drivers/base/base.h	2005-03-21 12:30:47 -08:00
++++ b/drivers/base/base.h	2005-03-21 12:30:47 -08:00
+@@ -4,6 +4,8 @@
+ extern int bus_add_driver(struct device_driver *);
+ extern void bus_remove_driver(struct device_driver *);
 
-   - Use it in bus_for_each_drv().
-   - Use the klist spinlock instead of the bus rwsem.
++extern void driver_detach(struct device_driver * drv);
++
+ static inline struct class_device *to_class_dev(struct kobject *obj)
+ {
+ 	return container_of(obj, struct class_device, kobj);
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2005-03-21 12:30:47 -08:00
++++ b/drivers/base/bus.c	2005-03-21 12:30:47 -08:00
+@@ -18,7 +18,6 @@
+ #include "power/power.h"
 
+ #define to_dev(node) container_of(node, struct device, bus_list)
+-#define to_drv(node) container_of(node, struct device_driver, kobj.entry)
 
+ #define to_bus_attr(_attr) container_of(_attr, struct bus_attribute, attr)
+ #define to_bus(obj) container_of(obj, struct bus_type, subsys.kset.kobj)
+@@ -243,182 +242,6 @@
+ 	return ret;
+ }
 
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+-/**
+- *	device_bind_driver - bind a driver to one device.
+- *	@dev:	device.
+- *
+- *	Allow manual attachment of a driver to a device.
+- *	Caller must have already set @dev->driver.
+- *
+- *	Note that this does not modify the bus reference count
+- *	nor take the bus's rwsem. Please verify those are accounted
+- *	for before calling this. (It is ok to call with no other effort
+- *	from a driver's probe() method.)
+- */
+-
+-void device_bind_driver(struct device * dev)
+-{
+-	pr_debug("bound device '%s' to driver '%s'\n",
+-		 dev->bus_id, dev->driver->name);
+-	list_add_tail(&dev->driver_list, &dev->driver->devices);
+-	sysfs_create_link(&dev->driver->kobj, &dev->kobj,
+-			  kobject_name(&dev->kobj));
+-	sysfs_create_link(&dev->kobj, &dev->driver->kobj, "driver");
+-}
+-
+-
+-/**
+- *	driver_probe_device - attempt to bind device & driver.
+- *	@drv:	driver.
+- *	@dev:	device.
+- *
+- *	First, we call the bus's match function, if one present, which
+- *	should compare the device IDs the driver supports with the
+- *	device IDs of the device. Note we don't do this ourselves
+- *	because we don't know the format of the ID structures, nor what
+- *	is to be considered a match and what is not.
+- *
+- *	If we find a match, we call @drv->probe(@dev) if it exists, and
+- *	call device_bind_driver() above.
+- */
+-int driver_probe_device(struct device_driver * drv, struct device * dev)
+-{
+-	int error = 0;
+-
+-	if (drv->bus->match && !drv->bus->match(dev, drv))
+-		return -ENODEV;
+-
+-	down(&dev->sem);
+-	dev->driver = drv;
+-	if (drv->probe) {
+-		error = drv->probe(dev);
+-		if (error) {
+-			dev->driver = NULL;
+-			up(&dev->sem);
+-			return error;
+-		}
+-	}
+-	up(&dev->sem);
+-	device_bind_driver(dev);
+-	return 0;
+-}
+-
+-
+-/**
+- *	device_attach - try to attach device to a driver.
+- *	@dev:	device.
+- *
+- *	Walk the list of drivers that the bus has and call
+- *	driver_probe_device() for each pair. If a compatible
+- *	pair is found, break out and return.
+- */
+-int device_attach(struct device * dev)
+-{
+- 	struct bus_type * bus = dev->bus;
+-	struct list_head * entry;
+-	int error;
+-
+-	if (dev->driver) {
+-		device_bind_driver(dev);
+-		return 1;
+-	}
+-
+-	if (bus->match) {
+-		list_for_each(entry, &bus->drivers.list) {
+-			struct device_driver * drv = to_drv(entry);
+-			error = driver_probe_device(drv, dev);
+-			if (!error)
+-				/* success, driver matched */
+-				return 1;
+-			if (error != -ENODEV && error != -ENXIO)
+-				/* driver matched but the probe failed */
+-				printk(KERN_WARNING
+-				    "%s: probe of %s failed with error %d\n",
+-				    drv->name, dev->bus_id, error);
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-
+-/**
+- *	driver_attach - try to bind driver to devices.
+- *	@drv:	driver.
+- *
+- *	Walk the list of devices that the bus has on it and try to
+- *	match the driver with each one.  If driver_probe_device()
+- *	returns 0 and the @dev->driver is set, we've found a
+- *	compatible pair.
+- *
+- *	Note that we ignore the -ENODEV error from driver_probe_device(),
+- *	since it's perfectly valid for a driver not to bind to any devices.
+- */
+-void driver_attach(struct device_driver * drv)
+-{
+-	struct bus_type * bus = drv->bus;
+-	struct list_head * entry;
+-	int error;
+-
+-	if (!bus->match)
+-		return;
+-
+-	list_for_each(entry, &bus->devices.list) {
+-		struct device * dev = container_of(entry, struct device, bus_list);
+-		if (!dev->driver) {
+-			error = driver_probe_device(drv, dev);
+-			if (error && (error != -ENODEV))
+-				/* driver matched but the probe failed */
+-				printk(KERN_WARNING
+-				    "%s: probe of %s failed with error %d\n",
+-				    drv->name, dev->bus_id, error);
+-		}
+-	}
+-}
+-
+-
+-/**
+- *	device_release_driver - manually detach device from driver.
+- *	@dev:	device.
+- *
+- *	Manually detach device from driver.
+- *	Note that this is called without incrementing the bus
+- *	reference count nor taking the bus's rwsem. Be sure that
+- *	those are accounted for before calling this function.
+- */
+-
+-void device_release_driver(struct device * dev)
+-{
+-	struct device_driver * drv;
+-
+-	down(&dev->sem);
+-	drv = dev->driver;
+-	if (drv) {
+-		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+-		sysfs_remove_link(&dev->kobj, "driver");
+-		list_del_init(&dev->driver_list);
+-		device_detach_shutdown(dev);
+-		if (drv->remove)
+-			drv->remove(dev);
+-		dev->driver = NULL;
+-	}
+-	up(&dev->sem);
+-}
+-
+-
+-/**
+- *	driver_detach - detach driver from all devices it controls.
+- *	@drv:	driver.
+- */
+-
+-static void driver_detach(struct device_driver * drv)
+-{
+-	struct list_head * entry, * next;
+-	list_for_each_safe(entry, next, &drv->devices) {
+-		struct device * dev = container_of(entry, struct device, driver_list);
+-		device_release_driver(dev);
+-	}
+-}
 
-<mochel@digitalimplant.org> (05/03/21 1.2236)
-   [driver core] Add a klist to struct bus_type for its devices.
+ static int device_add_attrs(struct bus_type * bus, struct device * dev)
+ {
+@@ -758,12 +581,6 @@
 
-   - Use it for bus_for_each_dev().
-   - Use the klist spinlock instead of the bus rwsem.
+ EXPORT_SYMBOL_GPL(bus_for_each_dev);
+ EXPORT_SYMBOL_GPL(bus_for_each_drv);
+-
+-EXPORT_SYMBOL_GPL(driver_probe_device);
+-EXPORT_SYMBOL_GPL(device_bind_driver);
+-EXPORT_SYMBOL_GPL(device_release_driver);
+-EXPORT_SYMBOL_GPL(device_attach);
+-EXPORT_SYMBOL_GPL(driver_attach);
 
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2235)
-   [klist] Add initial implementation of klist helpers.
-
-   This klist interface provides a couple of structures that wrap around
-   struct list_head to provide explicit list "head" (struct klist) and
-   list "node" (struct klist_node) objects. For struct klist, a spinlock
-   is included that protects access to the actual list itself. struct
-   klist_node provides a pointer to the klist that owns it and a kref
-   reference count that indicates the number of current users of that node
-   in the list.
-
-   The entire point is to provide an interface for iterating over a list
-   that is safe and allows for modification of the list during the
-   iteration (e.g. insertion and removal), including modification of the
-   current node on the list.
-
-   It works using a 3rd object type - struct klist_iter - that is declared
-   and initialized before an iteration. klist_next() is used to acquire the
-   next element in the list. It returns NULL if there are no more items.
-   This klist interface provides a couple of structures that wrap around
-   struct list_head to provide explicit list "head" (struct klist) and
-   list "node" (struct klist_node) objects. For struct klist, a spinlock
-   is included that protects access to the actual list itself. struct
-   klist_node provides a pointer to the klist that owns it and a kref
-   reference count that indicates the number of current users of that node
-   in the list.
-
-   The entire point is to provide an interface for iterating over a list
-   that is safe and allows for modification of the list during the
-   iteration (e.g. insertion and removal), including modification of the
-   current node on the list.
-
-   It works using a 3rd object type - struct klist_iter - that is declared
-   and initialized before an iteration. klist_next() is used to acquire the
-   next element in the list. It returns NULL if there are no more items.
-   Internally, that routine takes the klist's lock, decrements the reference
-   count of the previous klist_node and increments the count of the next
-   klist_node. It then drops the lock and returns.
-
-   There are primitives for adding and removing nodes to/from a klist.
-   When deleting, klist_del() will simply decrement the reference count.
-   Only when the count goes to 0 is the node removed from the list.
-   klist_remove() will try to delete the node from the list and block
-   until it is actually removed. This is useful for objects (like devices)
-   that have been removed from the system and must be freed (but must wait
-   until all accessors have finished).
-
-   Internally, that routine takes the klist's lock, decrements the reference
-   count of the previous klist_node and increments the count of the next
-   klist_node. It then drops the lock and returns.
-
-   There are primitives for adding and removing nodes to/from a klist.
-   When deleting, klist_del() will simply decrement the reference count.
-   Only when the count goes to 0 is the node removed from the list.
-   klist_remove() will try to delete the node from the list and block
-   until it is actually removed. This is useful for objects (like devices)
-   that have been removed from the system and must be freed (but must wait
-   until all accessors have finished).
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2234)
-   [usb] Use driver_for_each_device() instead of manually walking list.
-
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2233)
-   [pnp] Use driver_for_each_device() in drivers/pnp/driver.c instead of manually walking list.
-
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2232)
-   [driver core] Add driver_for_each_device().
-
-   Now there's an iterator for accessing each device bound to a driver.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2231)
-   [driver core] Move device/driver code to drivers/base/dd.c
-
-   This relocates the driver binding/unbinding code to drivers/base/dd.c. This is done
-   for two reasons: One, it's not code related to the bus_type itself; it uses some from
-   that, some from devices, and some from drivers. And Two, it will make it easier to do
-   some of the upcoming lock removal on that code..
-
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/21 1.2230)
-   [driver core] Add a semaphore to struct device to synchronize calls to its driver.
-
-   This adds a per-device semaphore that is taken before every call from the core to a
-   driver method. This prevents e.g. simultaneous calls to the ->suspend() or ->resume()
-   and ->probe() or ->release(), potentially saving a whole lot of headaches.
-
-   It also moves us a step closer to removing the bus rwsem, since it protects the fields
-   in struct device that are modified by the core.
-
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
+ EXPORT_SYMBOL_GPL(bus_add_device);
+ EXPORT_SYMBOL_GPL(bus_remove_device);
+diff -Nru a/drivers/base/dd.c b/drivers/base/dd.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/base/dd.c	2005-03-21 12:30:47 -08:00
+@@ -0,0 +1,209 @@
++/*
++ *	drivers/base/dd.c - The core device/driver interactions.
++ *
++ * 	This file contains the (sometimes tricky) code that controls the
++ *	interactions between devices and drivers, which primarily includes
++ *	driver binding and unbinding.
++ *
++ *	All of this code used to exist in drivers/base/bus.c, but was
++ *	relocated to here in the name of compartmentalization (since it wasn't
++ *	strictly code just for the 'struct bus_type'.
++ *
++ *	Copyright (c) 2002-5 Patrick Mochel
++ *	Copyright (c) 2002-3 Open Source Development Labs
++ *
++ *	This file is released under the GPLv2
++ */
++
++#include <linux/device.h>
++#include <linux/module.h>
++
++#include "base.h"
++#include "power/power.h"
++
++#define to_drv(node) container_of(node, struct device_driver, kobj.entry)
++
++
++/**
++ *	device_bind_driver - bind a driver to one device.
++ *	@dev:	device.
++ *
++ *	Allow manual attachment of a driver to a device.
++ *	Caller must have already set @dev->driver.
++ *
++ *	Note that this does not modify the bus reference count
++ *	nor take the bus's rwsem. Please verify those are accounted
++ *	for before calling this. (It is ok to call with no other effort
++ *	from a driver's probe() method.)
++ */
++
++void device_bind_driver(struct device * dev)
++{
++	pr_debug("bound device '%s' to driver '%s'\n",
++		 dev->bus_id, dev->driver->name);
++	list_add_tail(&dev->driver_list, &dev->driver->devices);
++	sysfs_create_link(&dev->driver->kobj, &dev->kobj,
++			  kobject_name(&dev->kobj));
++	sysfs_create_link(&dev->kobj, &dev->driver->kobj, "driver");
++}
++
++
++/**
++ *	driver_probe_device - attempt to bind device & driver.
++ *	@drv:	driver.
++ *	@dev:	device.
++ *
++ *	First, we call the bus's match function, if one present, which
++ *	should compare the device IDs the driver supports with the
++ *	device IDs of the device. Note we don't do this ourselves
++ *	because we don't know the format of the ID structures, nor what
++ *	is to be considered a match and what is not.
++ *
++ *	If we find a match, we call @drv->probe(@dev) if it exists, and
++ *	call device_bind_driver() above.
++ */
++int driver_probe_device(struct device_driver * drv, struct device * dev)
++{
++	int error = 0;
++
++	if (drv->bus->match && !drv->bus->match(dev, drv))
++		return -ENODEV;
++
++	down(&dev->sem);
++	dev->driver = drv;
++	if (drv->probe) {
++		error = drv->probe(dev);
++		if (error) {
++			dev->driver = NULL;
++			up(&dev->sem);
++			return error;
++		}
++	}
++	up(&dev->sem);
++	device_bind_driver(dev);
++	return 0;
++}
++
++
++/**
++ *	device_attach - try to attach device to a driver.
++ *	@dev:	device.
++ *
++ *	Walk the list of drivers that the bus has and call
++ *	driver_probe_device() for each pair. If a compatible
++ *	pair is found, break out and return.
++ */
++int device_attach(struct device * dev)
++{
++ 	struct bus_type * bus = dev->bus;
++	struct list_head * entry;
++	int error;
++
++	if (dev->driver) {
++		device_bind_driver(dev);
++		return 1;
++	}
++
++	if (bus->match) {
++		list_for_each(entry, &bus->drivers.list) {
++			struct device_driver * drv = to_drv(entry);
++			error = driver_probe_device(drv, dev);
++			if (!error)
++				/* success, driver matched */
++				return 1;
++			if (error != -ENODEV && error != -ENXIO)
++				/* driver matched but the probe failed */
++				printk(KERN_WARNING
++				    "%s: probe of %s failed with error %d\n",
++				    drv->name, dev->bus_id, error);
++		}
++	}
++
++	return 0;
++}
++
++
++/**
++ *	driver_attach - try to bind driver to devices.
++ *	@drv:	driver.
++ *
++ *	Walk the list of devices that the bus has on it and try to
++ *	match the driver with each one.  If driver_probe_device()
++ *	returns 0 and the @dev->driver is set, we've found a
++ *	compatible pair.
++ *
++ *	Note that we ignore the -ENODEV error from driver_probe_device(),
++ *	since it's perfectly valid for a driver not to bind to any devices.
++ */
++void driver_attach(struct device_driver * drv)
++{
++	struct bus_type * bus = drv->bus;
++	struct list_head * entry;
++	int error;
++
++	if (!bus->match)
++		return;
++
++	list_for_each(entry, &bus->devices.list) {
++		struct device * dev = container_of(entry, struct device, bus_list);
++		if (!dev->driver) {
++			error = driver_probe_device(drv, dev);
++			if (error && (error != -ENODEV))
++				/* driver matched but the probe failed */
++				printk(KERN_WARNING
++				    "%s: probe of %s failed with error %d\n",
++				    drv->name, dev->bus_id, error);
++		}
++	}
++}
++
++
++/**
++ *	device_release_driver - manually detach device from driver.
++ *	@dev:	device.
++ *
++ *	Manually detach device from driver.
++ *	Note that this is called without incrementing the bus
++ *	reference count nor taking the bus's rwsem. Be sure that
++ *	those are accounted for before calling this function.
++ */
++
++void device_release_driver(struct device * dev)
++{
++	struct device_driver * drv;
++
++	down(&dev->sem);
++	drv = dev->driver;
++	if (drv) {
++		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
++		sysfs_remove_link(&dev->kobj, "driver");
++		list_del_init(&dev->driver_list);
++		device_detach_shutdown(dev);
++		if (drv->remove)
++			drv->remove(dev);
++		dev->driver = NULL;
++	}
++	up(&dev->sem);
++}
++
++
++/**
++ *	driver_detach - detach driver from all devices it controls.
++ *	@drv:	driver.
++ */
++
++void driver_detach(struct device_driver * drv)
++{
++	struct list_head * entry, * next;
++	list_for_each_safe(entry, next, &drv->devices) {
++		struct device * dev = container_of(entry, struct device, driver_list);
++		device_release_driver(dev);
++	}
++}
++
++EXPORT_SYMBOL_GPL(driver_probe_device);
++EXPORT_SYMBOL_GPL(device_bind_driver);
++EXPORT_SYMBOL_GPL(device_release_driver);
++EXPORT_SYMBOL_GPL(device_attach);
++EXPORT_SYMBOL_GPL(driver_attach);
++

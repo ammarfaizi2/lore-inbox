@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315169AbSEJLay>; Fri, 10 May 2002 07:30:54 -0400
+	id <S315042AbSEJL2v>; Fri, 10 May 2002 07:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315557AbSEJLay>; Fri, 10 May 2002 07:30:54 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:5080 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S315169AbSEJLaw>; Fri, 10 May 2002 07:30:52 -0400
-Date: Fri, 10 May 2002 13:30:43 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
+	id <S315559AbSEJL2u>; Fri, 10 May 2002 07:28:50 -0400
+Received: from surf.viawest.net ([216.87.64.26]:5265 "EHLO surf.viawest.net")
+	by vger.kernel.org with ESMTP id <S315042AbSEJL2t>;
+	Fri, 10 May 2002 07:28:49 -0400
+Date: Fri, 10 May 2002 04:28:19 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: sb16 isa non-pnp problems
-Message-ID: <20020510133042.A6618@ping.be>
-In-Reply-To: <001101c1f7c1$c233fba0$0319450a@sandos>
+Subject: Re: [PATCH][2.5] opl3 OSS emulation compile fixes
+Message-ID: <20020510112819.GA26247@wizard.com>
+In-Reply-To: <20020510062333.GA10020@wizard.com> <Pine.LNX.4.44.0205101146160.6271-100000@netfinity.realnet.co.sz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux/2.5.7 (i686)
+X-uptime: 4:21am  up 3 days, 29 min,  2 users,  load average: 0.01, 0.02, 0.00
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 03:26:49AM +0200, John Bäckstrand wrote:
-> Ive been trying to get my sb16 isa non-pnp working on a
-> old 486, it has got two isa slots.
+On Fri, May 10, 2002 at 11:47:10AM +0200, Zwane Mwaikambo wrote:
+> On Thu, 9 May 2002, A Guy Called Tyketto wrote:
 > 
-> Ive checked the config of both my two NICs (tried two
-> different ones), and the config on my sb16, no
-> conflicts, and I am sure that I set the correct
-> parameters. I also tried a pnp isa sb16 (vibra). Ive
-> tried 2.2.20 and 2.4.17, both compiled in and module,
-> but not every possible combination though.
+> > 
+> >         IMHO, this isn't good. I just gave this a run with 2.5.15, and 
+> > opl3_oss.c wasn't even touched during compile (either into the kernel or as a 
+> > module); it's completely passed over. more than likely when inserted with 
+> > modprobe, OSS emulation would fail from functions not being there. I haven't 
+> > tried that yet, but this would be my guess..
 > 
-> The problems Im seeing is for the pnp card that it isnt
-> detected at all, even if I do modprobe sb io=0x220
-> dma=1 irq=5, I guess that is because I cant seem to be
-> able to configure it using pnp, isapnp didnt print
-> anything and the conf-files seemed very long-winded.
+> OSS emulation? Or OPL3 OSS emulation?
+> 
 
-I still have a SB16 ISA non-PNP around here and used it until a
-few months ago.  It always worked perfectly.  It worked with 2.4,
-2.2, 2.0 and older.
+        This is for OPL3 OSS emulation. With your patch applied to 2.5.15, 
+opl3_oss.c was not compiled at all, whether into the kernel, or as a module. 
+Also, your patch for include/sound/opl3.h did not need to be applied as the 
+#ifdef CONFIG_SND_OSSEMUL and #endif lines are already present sound the two 
+variables listed.
 
-In my lilo.conf I had: append="sb=0x220,7,1,5"
-
-So io=0x220, irq=7, dma=1 and dma16=5
-
-
-Kurt
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

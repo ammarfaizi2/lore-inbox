@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279817AbRJ0Nx0>; Sat, 27 Oct 2001 09:53:26 -0400
+	id <S279818AbRJ0OB4>; Sat, 27 Oct 2001 10:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279818AbRJ0NxP>; Sat, 27 Oct 2001 09:53:15 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:29576 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S279817AbRJ0Nw7>; Sat, 27 Oct 2001 09:52:59 -0400
-Date: Sat, 27 Oct 2001 14:06:14 +1000
-From: CaT <cat@zip.com.au>
-To: Pavel Machek <pavel@suse.cz>
+	id <S279820AbRJ0OBq>; Sat, 27 Oct 2001 10:01:46 -0400
+Received: from B5aee.pppool.de ([213.7.90.238]:42510 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S279818AbRJ0OBl>;
+	Sat, 27 Oct 2001 10:01:41 -0400
+Date: Sat, 27 Oct 2001 15:37:48 +0200 (CEST)
+From: degger@fhm.edu
+Reply-To: degger@fhm.edu
+Subject: Re: [PATCH] make pcmcia use correct parent resources
+To: paulus@samba.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kjournald and disk sleeping
-Message-ID: <20011027140614.A667@zip.com.au>
-In-Reply-To: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar> <20011025161330.A38@toy.ucw.cz> <20011026192750.A670@zip.com.au> <20011026235447.A23218@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011026235447.A23218@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.23i
-Organisation: Furball Inc.
+In-Reply-To: <15308.53916.81722.466476@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20011027135037.3495D72FF@Nicole.fhm.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 11:54:47PM +0200, Pavel Machek wrote:
-> > > I'm working on suspend-to-disk, and suspend-to-ram is mostly working, also.
-> > > ...
-> > 
-> > Sweet.
-> > 
-> > What's not working with suspend-to-ram? Gateway, in their infinate
-> 
-> Patrick Mochel from transmeta. [Or you meant suspend-to-disk?]
+On 17 Oct, Paul Mackerras wrote:
 
-Actually, now that I think about it, both. :)
+> I put a similar patch up some time ago and there was some discussion
+> but no conclusion was reached.  This patch is almost identical except
+> that I have changed the request_io/mem_resource functions that I add
+> to take a pci_dev * instead of the socket_info_t * that I had before.
+ 
+> Comments, anyone?  Linus, would you be willing to apply this to your
+> tree?
 
--- 
-CaT        "As you can expect it's really affecting my sex life. I can't help
-           it. Each time my wife initiates sex, these ejaculating hippos keep
-           floating through my mind."
-                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens
+I just tried a kernel with this patch but still have the same troubles
+on insertion of a Cisco Aironet 340 card in my Ti PowerBook. 
+
+This is what I get in the kernel message log:
+cs: unable to map card memory!
+cs: unable to map card memory!
+
+I believe this worked at the point when I got this notebook but didn't
+have the AirPort card builtin so maybe this is the culprit;
+unfortunately I'm not in the mood to disassemble the notebook again
+to verify that.
+
+Ideas?
+
+--
+Servus,
+       Daniel
+

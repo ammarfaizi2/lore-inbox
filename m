@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264741AbTFQNzV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 09:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264743AbTFQNzU
+	id S264732AbTFQOHI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 10:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbTFQOHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 09:55:20 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:21513 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S264741AbTFQNzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 09:55:12 -0400
-Date: Tue, 17 Jun 2003 16:14:52 +0200
-From: DervishD <raul@pleyades.net>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Maciej =?iso-8859-1?Q?G=F3rnicki?= <gutko@poczta.onet.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21 working OK compiled with GCC 3.2.2
-Message-ID: <20030617141452.GB4950@DervishD>
-References: <20030617111718.GD64@DervishD> <000b01c334c4$f2396d30$41010101@toshiba> <1055858387.588.1.camel@teapot.felipe-alfaro.com>
+	Tue, 17 Jun 2003 10:07:08 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:56251 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264732AbTFQOHH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 10:07:07 -0400
+Date: Tue, 17 Jun 2003 07:20:57 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resend: 2.4 bkbits.net not updated - 2.4.21 missing
+Message-ID: <20030617142057.GA6552@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Michael Frank <mflt1@micrologica.com.hk>,
+	linux-kernel@vger.kernel.org
+References: <200306171358.30412.mflt1@micrologica.com.hk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1055858387.588.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <200306171358.30412.mflt1@micrologica.com.hk>
 User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Felipe :)
+On Tue, Jun 17, 2003 at 01:58:30PM +0800, Michael Frank wrote:
+> 2.4.21 seems not be at  http://linux.bkbits.net/linux-2.4
 
- * Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> dixit:
-> On Tue, 2003-06-17 at 13:38, Maciej Górnicki wrote:
-> > I had even no problems compiling 2.4.21-ac1 with gcc3.3 :)
-> gcc 3.2.2 has some nasty bugs... At least, I have been smashing my head
-> against a wall for a long time, until I discovered that all my OOPses
-> and crashes with the ymfpci driver were caused by gcc 3.2.2.
+ChangeSet@1.1201, 2003-06-09 17:42:11-03:00, marcelo@freak.distro.conectiva
+  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201907|11405
 
-    Darn... I think I should update then, although I'm not sure I'm
-affected by the O_DIRECT miscompiling bug :??
-
-    Thanks for the warning, Felipe :)
-
-    Raúl Núñez de Arenas Coronado
-
+Is the top changeset there so if that's not what you expected, Marcelo
+hasn't pushed.
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

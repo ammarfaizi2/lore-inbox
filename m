@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULBRty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbULBRwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbULBRty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 12:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbULBRtx
+	id S261675AbULBRwu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 12:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbULBRwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 12:49:53 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:32640
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S261637AbULBRtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 12:49:43 -0500
-From: John Mock <kd6pag@qsl.net>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-cc: Pavel Machek <pavel@suse.cz>
-Subject: re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-Id: <E1CZv5H-0001zG-00@penngrove.fdns.net>
-Date: Thu, 02 Dec 2004 09:49:39 -0800
+	Thu, 2 Dec 2004 12:52:18 -0500
+Received: from adsl.a2000.nu ([80.126.253.168]:20359 "EHLO adsl.a2000.nu")
+	by vger.kernel.org with ESMTP id S261675AbULBRvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 12:51:10 -0500
+Date: Thu, 2 Dec 2004 18:51:01 +0100 (CET)
+From: Stephan van Hienen <kernel@a2000.nu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs and LBD support (2TB+)
+In-Reply-To: <1101945033.32266.33.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.61.0412021850120.16787@adsl.a2000.nu>
+References: <Pine.LNX.4.61.0412020017550.2774@adsl.a2000.nu>
+ <1101945033.32266.33.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, this one has taint from forced module load... If you can
-> reproduce it without that, it would be nice to decrease number of
-> modules in use, perhaps one of them is a problem?
+On Wed, 1 Dec 2004, Trond Myklebust wrote:
 
-The diagnosis is correct, the removing the forced module unload prevents
-the recursive page fault from happening.  The HOWEVER, i find it troubling
-that it is even possible for the page fault handling code to get page
-faults...
+> Yep... There is a slight problem with the way glibc has decided to
+> implement the statvfs function when interacting with 2.6.x kernels...
+>
 
-The problem is with the 'sonypi' module, which i will document separately.
-It was being removed/re-installed to prevent the jog wheel from being
-broken after software suspend under X windows.  It currently unloads
-without forcing on '2.6.10-rc1' but not '2.6.10-rc2'.  If that is moved
-to after the software suspend, then the recursive page fault doesn't
-happen (until the next suspend).
-				    -- JM
+<..>
+
+> This was not a problem in Linux-2.4.x, 'cos glibc would simply emulate a
+> value for f_frsize by setting it to f_bsize.
+> However for 2.6.x kernels, glibc grabs a value of f_frsize that the
+> kernel gives it. So if that value differs from the bsize (and allowing
+> f_frsize != f_bsize is the whole point of passing a value for f_frsize
+> to glibc in the first place), you get wierd discrepancies like the
+> above.
+
+and is there a fix ?
+(it looks like it's working ok, but still i would like to see the actual 
+free space/usage)

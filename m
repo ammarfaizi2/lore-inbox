@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130657AbQKJVO4>; Fri, 10 Nov 2000 16:14:56 -0500
+	id <S131766AbQKJVPS>; Fri, 10 Nov 2000 16:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130892AbQKJVOq>; Fri, 10 Nov 2000 16:14:46 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:7172 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130657AbQKJVOf>; Fri, 10 Nov 2000 16:14:35 -0500
-Message-ID: <3A0C6445.A75061F1@timpanogas.org>
-Date: Fri, 10 Nov 2000 14:10:29 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+	id <S131765AbQKJVPJ>; Fri, 10 Nov 2000 16:15:09 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:65244 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130892AbQKJVO7>;
+	Fri, 10 Nov 2000 16:14:59 -0500
+Message-ID: <3A0C1CB6.BC7BE4AB@scs.ch>
+Date: Fri, 10 Nov 2000 08:05:10 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: wmaton@ryouko.dgim.crc.ca
-CC: Andrea Arcangeli <andrea@suse.de>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  
- /var/spool/mqueue]
-In-Reply-To: <Pine.GSO.3.96LJ1.1b7.1001110160719.514B-100000@ryouko.dgim.crc.ca>
+To: "M.Kiran Babu" <kbabu@iitg.ernet.in>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: threads
+In-Reply-To: <Pine.LNX.4.10.10011102031210.31929-100000@kamrup.iitg.ernet.in>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lock_kernel is a special case and will not block when you call it in
+order to create a new kernel thread. Look at the implementation of
+lock_kernel if you have any doubts (this is true for the 2.2 kernels. I
+don't know it by heart for the 2.4 kernel). 
 
+	Reto
 
-"William F. Maton" wrote:
+"M.Kiran Babu" wrote:
 > 
-> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
+>  sir,
+> i got some doubts in kernel
+> programming. i am using linux 6.1 version. i want to use threads in
+> kernel.is it possible to use pthreads in kernel. there is one more
+> function kernel_thread. can i use
+> that function. if i use that function how to get synchonization. inmany
+> files it was used. but everywhere lock_kernel() and unlock_kernel()
+> functions are being used. if we use that commands the whole kernel gets
+> locked. is there any other mechanisms. or can i use that methods only. if
+> i can use these methods what is the syntax of kernel_thread function. the
+> arguments that are passing to these function are 3. i dont know what are
+> those three. please  tell me.
 > 
-> > Andrea Arcangeli wrote:
-> > >
-> > > On Fri, Nov 10, 2000 at 03:07:46PM -0500, Richard B. Johnson wrote:
-> > > > It isn't a TCP/IP stack problem. It may be a memory problem. Every time
-> > > > sendmail spawns a child to send the file data, it crashes.  That's
-> > > > why the file never gets sent!
-> > >
-> > > Sure that could be the case. You should be able to verify the kernel kills the
-> > > task with `dmesg`.
-> > >
-> > > However Jeff said the problem happens over 400K and a 500K attachment shouldn't
-> > > really run any machine out of memory, so maybe this wasn't his same problem?
-> >
-> > I think it is.  So it looks like sendmail is bombing when it attempts to
-> > send large files.
 > 
-> Not to use the 'S-word', but we're receiving/sending biggish attachments
-> (7MB-9MB) under Solaris 2.6.  Could sendmail be triggering a linux bug, or
-> could something specific to linux be triggering a sendmail bug?
-
-Richard has determined that it's a low memory problem on Linux with
-sendmail.  Perhaps it affects Solaris as well, try it in low memory with
-a big file.
-
-Jeff
-
-
 > 
-> > Jeff
 > 
-> wfms
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

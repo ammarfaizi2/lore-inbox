@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbTIYLmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbTIYLmX
+	id S261817AbTIYLhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbTIYLhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:42:23 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:41746 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261810AbTIYLmT (ORCPT
+	Thu, 25 Sep 2003 07:37:31 -0400
+Received: from [193.67.22.90] ([193.67.22.90]:37636 "HELO cook.nl")
+	by vger.kernel.org with SMTP id S261811AbTIYLh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:42:19 -0400
-Date: Thu, 25 Sep 2003 13:42:17 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rfc: test whether a device has a partition table
-Message-ID: <20030925114217.GB21508@win.tue.nl>
-References: <20030924235041.GA21416@win.tue.nl> <Pine.LNX.4.44.0309242137090.1729-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309242137090.1729-100000@home.osdl.org>
-User-Agent: Mutt/1.3.25i
+	Thu, 25 Sep 2003 07:37:28 -0400
+From: "Ron Verhees" <r.verhees@cook-eu.com>
+To: "'Adrian Bunk'" <bunk@fs.tum.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PS2 keyboard & mice mandatory again ?
+Date: Thu, 25 Sep 2003 13:36:04 +0200
+Message-ID: <007e01c38359$3434f640$c9001f0a@cookvpn.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20030925111547.GL15696@fs.tum.de>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 09:47:01PM -0700, Linus Torvalds wrote:
+Personally I never got the point for including something that you won't
+need anyway. True you can say that it doesn't hurt anyone on the
+computers nowadays but is there any specific reason for not having it
+mandatory (eg. Fixing it)?
 
-> On Thu, 25 Sep 2003, Andries Brouwer wrote:
+Regards,
+Ron
 
-> > My post implicitly suggested the minimal thing to do.
-> > It will not be enough - heuristics are never enough -
-> > but it probably helps in most cases.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Adrian Bunk
+Sent: Thursday, September 25, 2003 1:16 PM
+To: Nicolas Mailhot
+Cc: Vojtech Pavlik; linux-kernel@vger.kernel.org
+Subject: Re: PS2 keyboard & mice mandatory again ?
+
+On Thu, Sep 25, 2003 at 10:11:45AM +0200, Nicolas Mailhot wrote:
 > 
-> I don't mind the 0x00/0x80 "boot flag" checks - those look fairly obvious
-> and look reasonably safe to add to the partitioning code.
-> 
-> There are other checks that can be done - verifying that the start/end
-> sector values are at all sensible. We do _some_ of that, but only for
-> partitions 3 and 4, for example. We could do more - like checking the
-> actual sector numbers (but I think some formatters leave them as zero).
-> 
-> Which actually makes me really nervous - it implies that we've probably 
-> seen partitions 1&2 contain garbage there, and the problem is that if 
-> you're too careful in checking, you will make a system unusable.
+> Great, now a standard mass-market computer is an embedded device. I
+can
+> (and will) certainly do it, but this looks like a ticking bomb to me.
+>...
 
-No and yes.
+What does it cost if an unneeded driver is included in your kernel? 
+Perhaps a few kB?
 
-Note that all checks that are there today are mine.
-No, the missing check on 1&2 does not mean that there may be garbage there,
-it was just the other way around. In a chain of logical partitions inside
-an extended partition almost always only slots 1 and 2 are used, and
-slots 3 and 4 are zeroed out. But it happens that slots 3 and 4 are used,
-so we want to look at them. But sometimes slots 3 and 4 contain complete
-garbage, so we trust them much less than slots 1 and 2, and accept them only
-when everything really looks right.
+On a standard mass-market computer with 256 MB of RAM where the user 
+uses Mozilla under KDE this is quite irrelevant.
 
-It is possible to add more checks, and each time there was reason to do so
-we added the minimal check.
+EMBEDDED is for people that really have to count every kB to put a 
+kernel onto a small floppy/flash/computer with limited RAM.
 
-> And your random byte checks for power-of-2 make no sense. What are they
-> based on?
+> Regards,
+> Nicolas Mailhot
 
-First you say that they make no sense and then you ask why they make sense?
-You might as well just ask.
+cu
+Adrian
 
-I don't know whether you want a general or a technical answer.
-Let us try the technical one. A FAT bootsector has in bytes 11-12
-a little-endian short that gives the number of bytes per sector.
-It is almost always 512, but also 1024, 2048, 4096 occur.
-A FAT bootsector has in byte 13 the number of sectors per cluster.
-It is usually 1, but also 2, 4, 8, 16, 32, 64, 128 occur.
+-- 
 
-Thus, it is a reasonable test to check these three bytes and
-require two powers of two. If that fails, then we do not have
-a FAT bootsector (of a type I have ever seen).
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Andries
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

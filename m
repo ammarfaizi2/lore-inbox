@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132821AbRAHFYj>; Mon, 8 Jan 2001 00:24:39 -0500
+	id <S136918AbRAHFZj>; Mon, 8 Jan 2001 00:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136751AbRAHFYT>; Mon, 8 Jan 2001 00:24:19 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:55562 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S132821AbRAHFYM>; Mon, 8 Jan 2001 00:24:12 -0500
-From: aprasad@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA2569CE.001D8FED.00@d73mta05.au.ibm.com>
-Date: Mon, 8 Jan 2001 11:46:38 +0630
-Subject: Normal Response Mode of HDLC for linux
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S136916AbRAHFZ3>; Mon, 8 Jan 2001 00:25:29 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50933 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136917AbRAHFZT>;
+	Mon, 8 Jan 2001 00:25:19 -0500
+Date: Mon, 8 Jan 2001 00:25:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Robert Wienholt, Jr." <rwienholt@legiontech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/mmap.c find_vma(), kernel 2.4.0
+In-Reply-To: <Pine.SGI.4.30.0101072347130.1511-100000@legion.wienholt.net>
+Message-ID: <Pine.GSO.4.21.0101080024260.2221-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-Has anybody written any support for HDLC normal response mode. I could only
-find the support of HDLC  asynchronous balanced mode (LAPB).
-Any pointers will highly be appreciated.
 
-Thanks,
-Anil
 
+On Mon, 8 Jan 2001, Robert Wienholt, Jr. wrote:
+
+> Gentlemen,
+> 
+> 	I was looking through some of the memory management code today and
+> came across something that may provide a minor performance boost.  I have
+> included a patch below for the 2.4.0 source.
+> 
+> 	In the find_vma function a cached vma is checked and if that is
+> not the requested vma, the linked list (unless there's an avl tree) is
+> traversed from the beginning.  My thought was that if the cached vma is
+> somewhere in the middle of a "long" list, and the memory address we are
+				^^^^^^^^^^
+No such thing. If you get many VMAs you get AVL tree and that's what is
+used for search.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUCIOFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 09:05:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUCIOFM
+	id S261951AbUCIOHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 09:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUCIOHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 09:05:12 -0500
-Received: from disk.smurf.noris.de ([192.109.102.53]:7830 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S261940AbUCIOFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 09:05:09 -0500
+	Tue, 9 Mar 2004 09:07:43 -0500
+Received: from mail.humboldt.co.uk ([81.2.65.18]:20714 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S261951AbUCIOHZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 09:07:25 -0500
+Subject: cdromaudio patch gives up too easily
+From: Adrian Cox <adrian@humboldt.co.uk>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: disable partitioning!
-Date: Tue, 09 Mar 2004 15:02:49 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.03.09.14.02.45.841834@smurf.noris.de>
-References: <1118873EE1755348B4812EA29C55A9721287C8@esnmail.esntechnologies.co.in>
-NNTP-Posting-Host: kiste.smurf.noris.de
+Cc: Jens Axboe <axboe@suse.de>
+Content-Type: text/plain
+Message-Id: <1078841242.995.24.camel@newt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1078840969 6429 192.109.102.35 (9 Mar 2004 14:02:49 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Tue, 9 Mar 2004 14:02:49 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 14:07:23 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jinu M. wrote:
+The patch for DMA based CD reading worked well for me until I tried to
+read the audio from a badly damaged CDR.  At this point the code dropped
+back to the old mechanism and stayed that way for further CDs.
 
-> We are writing a block device driver for 2.4.x kernel.
-> I want to know how to indicate to the filesystem that our block driver does not support partitions.
+The logs below show what happened, running 2.6.4-rc2 with just that
+patch:
 
-Forgive me for asking a stupid question, but -- why? (Or rather, why not.)
+cdrom: open failed.
+hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+hdc: packet command error: error=0x30
+ATAPI device hdc:
+  Error: Medium error -- (Sense key=0x03)
+  (reserved error code) -- (asc=0x57, ascq=0x00)
+  The failed "Prevent/Allow Medium Removal" packet command was:
+  "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+cdrom: open failed.
+hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+hdc: packet command error: error=0x30
+ATAPI device hdc:
+  Error: Medium error -- (Sense key=0x03)
+  (reserved error code) -- (asc=0x57, ascq=0x00)
+  The failed "Prevent/Allow Medium Removal" packet command was:
+  "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+cdrom: cdda rip sense 03/02/00
+cdrom: dropping to old style cdda
+hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+hdc: packet command error: error=0x30
+ATAPI device hdc:
+  Error: Medium error -- (Sense key=0x03)
+  (reserved error code) -- (asc=0x02, ascq=0x00)
+  The failed "Read CD" packet command was:
+  "be 04 00 00 00 00 00 00 08 f8 00 00 00 00 00 00 "
 
--- 
-Matthias Urlichs
+... and the above pattern eventually becomes this:
+ide-cd: cmd 0xbe timed out
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+hdc: ATAPI reset complete
+ide-cd: cmd 0xbe timed out
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+hdc: ATAPI reset complete
+ide-cd: cmd 0xbe timed out
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+hdc: status timeout: status=0xd0 { Busy }
+hdc: status timeout: error=0xd0LastFailedSense 0x0d
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+
+At some point in the sequence I killed grip and ejected the CD.
+
+- Adrian Cox
+
+

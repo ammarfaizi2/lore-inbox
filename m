@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131421AbQLFUg0>; Wed, 6 Dec 2000 15:36:26 -0500
+	id <S131455AbQLFUiP>; Wed, 6 Dec 2000 15:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbQLFUgI>; Wed, 6 Dec 2000 15:36:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2315 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130786AbQLFUf4>; Wed, 6 Dec 2000 15:35:56 -0500
-Date: Wed, 6 Dec 2000 12:05:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re:  The horrible hack from hell called A20
-In-Reply-To: <3A2E2C95.10603@megapathdsl.net>
-Message-ID: <Pine.LNX.4.10.10012061150460.1917-100000@penguin.transmeta.com>
+	id <S131462AbQLFUiF>; Wed, 6 Dec 2000 15:38:05 -0500
+Received: from lynx.Lynx.COM ([207.21.185.2]:50441 "EHLO lynx.Lynx.COM")
+	by vger.kernel.org with ESMTP id <S131455AbQLFUhv>;
+	Wed, 6 Dec 2000 15:37:51 -0500
+Message-ID: <3A2E3A90.A8B570A2@LynuxWorks.com>
+Date: Wed, 06 Dec 2000 05:09:36 -0800
+From: Vitaly Luban <vluban@LynuxWorks.COM>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Hill <steve@navaho.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Serial Console
+In-Reply-To: <Pine.LNX.4.21.0012051202120.1578-100000@sorbus.navaho>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Steve Hill wrote:
 
-On Wed, 6 Dec 2000, Miles Lane wrote:
-> 
-> If I insert both my 3c575 and Belkin BusPort Mobile USB host-controller 
-> and then enable both of them, "modprobe usb-ohci" hangs.  If I then
-> attempt "modprobe -r 3c59x", that process hangs, too.  lsmod shows:
-> 
-> 	usb-ohci     15072   1  (initializing)
-> 	3c59x            0   0  (deleted)
-> 	usbcore      50384   1  (autoclean) [usb-ohci]
+> I'm building boxes with the console set to /dev/ttyS0.  However, I can't
+> guarantee that there will always be a term plugged into the serial
+> port.  If there is no term on the port, eventually the buffer fills and
+> any processes that write to the console (i.e. init) block.  Is there some
+> option somewhere to stop this happening (i.e. either ignoring the
+> flow-control or just allowing the buffer to overflow)?
+>
 
-The only thing in common between the two will be the fact that they do
-share the same irq, and I'm not at all sure that those two drivers are
-always happy about irq sharing.
+Try the following into /etc/inittab
 
-Your dmesg output looks sane and happy, though. Both the USB and the 3c59x
-driver find their hardware, and claim to have successfully initialized
-them. The USB driver even finds the stuff on the USB bus (microsoft
-intellimouse), so it obviously works to a large degree. Similarly, the
-ethernet driver happily finds everything etc.
+s1:12345:respawn:/sbin/agetty -L 19200 ttyS0 vt100
 
-In fact, everything looks so happy that I bet that the reason the module
-is stuck initializing is some setup problem, possibly because kusbd ends
-up waiting on /sbin/hotplug or similar. It does not look like the drivers
-themselves would have trouble, it looks much more like a modprobe-related
-issue (maybe deadlocking on some semaphore or other lock).
+"-L" here means "ignore flow control", the rest, as you wish.
 
-I'd suggest two things:
+Hope this helps,
 
- - try not using modules. Does it "just work" for you then? (Both the OHCI
-   and the 3c59x driver should happily work with hotplug compiled right
-   into the kernel).
+Vitaly.
 
- - try "strace"ing the whole modprobe thing, to see where it hangs, in
-   order to figure out what it is waiting for. I wonder if it's the
-   keventd changes.
-
-Basically, I think this is a completely different problem, and not really
-driver-related any more.
-
-		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

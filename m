@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265932AbSKFS31>; Wed, 6 Nov 2002 13:29:27 -0500
+	id <S265972AbSKFSmM>; Wed, 6 Nov 2002 13:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265946AbSKFS31>; Wed, 6 Nov 2002 13:29:27 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:20986 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S265932AbSKFS30>;
-	Wed, 6 Nov 2002 13:29:26 -0500
-Date: Wed, 6 Nov 2002 19:36:03 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: xmb <xmb@kick.sytes.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question about switching to a fresh kernel tree
-Message-ID: <20021106183602.GC5219@pasky.ji.cz>
-Mail-Followup-To: xmb <xmb@kick.sytes.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <2147483647.1036611045@[192.168.1.2]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2147483647.1036611045@[192.168.1.2]>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S265979AbSKFSmM>; Wed, 6 Nov 2002 13:42:12 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:11517 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S265972AbSKFSmL>; Wed, 6 Nov 2002 13:42:11 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A4C5@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Stelian Pop'" <stelian.pop@fr.alcove.com>,
+       Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.20-pre10-ac2, Sony PCG-C1MHP and Sonypi
+Date: Wed, 6 Nov 2002 10:48:41 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Nov 06, 2002 at 07:30:45PM CET, I got a letter,
-where xmb <xmb@kick.sytes.net> told me, that...
-> Yo,
+> From: Stelian Pop [mailto:stelian.pop@fr.alcove.com] 
+> On Wed, Nov 06, 2002 at 10:15:51AM +0100, Manuel Serrano wrote:
 > 
-> to switch to a completly new and fresh kernel src tree, but using the old 
-> configs... would it be enough to copy the old .config and Makefile to the 
-> new tree
+> > > > > Sonypi and USB modules seems to be incompatible. That 
+> is, if I don't load
+> [...]
+> > Well,
+> > 
+> > first of all this things is driving me nuts ;-) I have compiled and
+> > tested at least 10 variations around the kernel and ACPI and I have
+> > noticed about 10 different behaviors.
+> [...]
+> > My intuition (which may be totally erroneous) is that there 
+> is something
+> > broken in the ospm_ec support. I explain this:
+> [...]
+> 
+> You should really send a CC: of this on the acpi mailing list:
+> 	https://lists.sourceforge.net/lists/listinfo/acpi-devel
 
-Copy the .config and then do make oldconfig in the new tree. README could be
-interesting reading for you, BTW ;-).
+Can you reproduce with 2.5.latest?
 
--- 
- 
-				Petr "Pasky" Baudis
-.
-This host is a black hole at HTTP wavelengths. GETs go in, and nothing
-comes out, not even Hawking radiation.
-                -- Graaagh the Mighty on rec.games.roguelike.angband
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+Also, yeah we need a patch to list the keyboard as only using 0x60 and 0x62,
+not the whole range.
+
+Regards -- Andy

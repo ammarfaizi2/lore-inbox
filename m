@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262983AbTCWJBU>; Sun, 23 Mar 2003 04:01:20 -0500
+	id <S262987AbTCWJEN>; Sun, 23 Mar 2003 04:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262984AbTCWJBU>; Sun, 23 Mar 2003 04:01:20 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:52615 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262983AbTCWJBT>; Sun, 23 Mar 2003 04:01:19 -0500
-Date: Sun, 23 Mar 2003 10:01:52 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: KML <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk,
-       sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] Sensors chip w83781d for linux-2.5.6[45] (follow up on PCI quirk for SMBus bridge on Asus P4 boards)
-Message-ID: <20030323090152.GA1113@brodo.de>
-References: <20030319211837.GA23651@brodo.de> <1048146514.12350.43.camel@workshop.saharact.lan> <20030320084148.GA2414@brodo.de> <20030322131503.254c2aa7.azarah@gentoo.org>
+	id <S262988AbTCWJEN>; Sun, 23 Mar 2003 04:04:13 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60611 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262987AbTCWJEM>;
+	Sun, 23 Mar 2003 04:04:12 -0500
+Date: Sun, 23 Mar 2003 01:13:09 -0800 (PST)
+Message-Id: <20030323.011309.81687153.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] nicstar doesnt count all dropped pdus (and
+ powerpc fixup)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200303211650.h2LGoAGi002595@locutus.cmf.nrl.navy.mil>
+References: <200303211650.h2LGoAGi002595@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030322131503.254c2aa7.azarah@gentoo.org>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 01:15:03PM +0200, Martin Schlemmer wrote:
-> Hi
-> 
-> After I had this P4T533-C's SMBus enabled again on 2.5 kernel with
-> Dominik's patch, I thought it will be a good time to try and get
-> lm_sensors to work again.
-> 
-> I did not have much luck with a CVS snapshot of lm_sensors2 though,
-> so I hacked 2.5.64bk12 to include the w83781d module.  Yes, it is
-> rather hackish, but it seems to work just fine.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Fri, 21 Mar 2003 11:50:10 -0500
 
-works fine over here, AFAICT. thanks!
+   these two issues with the nicstar have annoyed for some time now.  i
+   have a powerpc platform and the +=KERNELBASE doenst work/make sense.
+   pci_resource_start() should take care of this if necessary.  the
+   second gripe, when atm_charge() fails, you need to count the pdu you
+   are about to drop.
 
-	Dominik
+Patch applied, thanks Chas.

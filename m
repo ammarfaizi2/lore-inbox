@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKGTDG>; Tue, 7 Nov 2000 14:03:06 -0500
+	id <S129033AbQKGTSH>; Tue, 7 Nov 2000 14:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKGTC4>; Tue, 7 Nov 2000 14:02:56 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:19213 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129045AbQKGTCx>; Tue, 7 Nov 2000 14:02:53 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC57@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'David Woodhouse'" <dwmw2@infradead.org>
-Cc: "'Russell King'" <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: RE: USB init order dependencies. 
-Date: Tue, 7 Nov 2000 11:02:12 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129043AbQKGTR5>; Tue, 7 Nov 2000 14:17:57 -0500
+Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:45573 "EHLO
+	trampoline.thunk.org") by vger.kernel.org with ESMTP
+	id <S129033AbQKGTRr>; Tue, 7 Nov 2000 14:17:47 -0500
+Date: Tue, 7 Nov 2000 15:17:38 -0500
+Message-Id: <200011072017.eA7KHcm23505@trampoline.thunk.org>
+To: alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu> (message from Alan Cox on
+	Fri, 3 Nov 2000 15:53:34 +0000 (GMT))
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+From: tytso@mit.edu
+Phone: (781) 391-3464
+In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> randy.dunlap@intel.com said:
-> >  Yes, your proposal is to init only "usbcore" from init/main.c. I
-> > still don't see a need to do this in test10. It's fixed now AFAIK.
-> 
-> Not my proposal. The proposal to which Russell was objecting. 
-> 
-> My proposal was to just make the thing work without having to 
-> care about the link order.
-> 
-> --
-> dwmw2
+   Date: Fri, 3 Nov 2000 15:53:34 +0000 (GMT)
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-OK, I stand corrected.  My bad.
+   >      * AIC7xxx doesnt work non PCI ? (Doug says OK, new version due
+   >        anyway)
 
-Sounds like we basically all want the same thing.  :)
+   This is now in Justin Gibbs hand but will take time to move on. Doug
+   confirmed his current code is now merged too.
 
-~Randy
+Does this mean that the problem has been fixed in the latest 2.4 tree?
+i.e., Does Doug's current code have the problem fixed?
 
+   >      * Issue with notifiers that try to deregister themselves? (lnz;
+   >        notifier locking change by Garzik should backed out, according to
+   >        Jeff)
+
+   and according to Alan
+
+But it hasn't been backed out yet, correct?  
+
+Someone one send a patch to Linus?
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

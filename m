@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265008AbSLQMpe>; Tue, 17 Dec 2002 07:45:34 -0500
+	id <S265033AbSLQMqG>; Tue, 17 Dec 2002 07:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265019AbSLQMpe>; Tue, 17 Dec 2002 07:45:34 -0500
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:31426
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S265008AbSLQMpd>; Tue, 17 Dec 2002 07:45:33 -0500
-Subject: Re: 2.4.20 copy_from/to_user
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Margit Schubert-While <margitsw@t-online.de>
+	id <S265019AbSLQMqG>; Tue, 17 Dec 2002 07:46:06 -0500
+Received: from [80.247.74.2] ([80.247.74.2]:41620 "EHLO foradada.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S264990AbSLQMqF>;
+	Tue, 17 Dec 2002 07:46:05 -0500
+Message-Id: <5.2.0.9.0.20021217132123.0349bab0@mail.isolaweb.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 17 Dec 2002 13:51:49 +0100
+To: Arjan van de Ven <arjanv@redhat.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Multithreaded coredump patch where?
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20021217112614.00b55eb0@pop.t-online.de>
-References: <4.3.2.7.2.20021217112614.00b55eb0@pop.t-online.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sjR02yAnPyL18LZRpY+g"
-Organization: 
-Message-Id: <1040129576.1768.14.camel@lemsip>
+In-Reply-To: <1040126717.10064.2.camel@laptop.fenrus.com>
+References: <5.2.0.9.0.20021217105617.00aa31e0@mail.isolaweb.it>
+ <5.2.0.9.0.20021216182325.042a2b60@mail.isolaweb.it>
+ <5.2.0.9.0.20021216182325.042a2b60@mail.isolaweb.it>
+ <5.2.0.9.0.20021217105617.00aa31e0@mail.isolaweb.it>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 17 Dec 2002 12:52:57 +0000
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-scanner: scanned by Antivirus Service IsolaWeb Agency - (http://www.isolaweb.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 13.05 17/12/02 +0100, Arjan van de Ven wrote:
+>On Tue, 2002-12-17 at 12:05, Roberto Fichera wrote:
+> > At 13.21 16/12/02 -0800, mgross wrote:
+> >
+> > >I haven't rebased the patches I posted back in June for a while now.
+> > >
+> > >Attached is the patch I posted for the 2.4.18 vanilla kernel.  Its a bit
+> > >controversial, but it seems to work for a number of folks.  Let me know if
+> > >you have any troubles re-basing it.
+> >
+> > Only one hunk failed on include/asm-ia64/elf.h but fixed by hand.
+> > Why do you say a bit controversial ?
+>
+>The design has theoretical (but probably in practice not trivial to
+>trigger) deadlocks; by design it prevents processes that are sleeping
+>from running, regardless whether those processes are in kernel space or
+>not. If they are in kernel space, they can accidentally be holding a
+>semaphore that something in the core dumping path will need to get (but
+>can't because it never will be released). There are not that many of
+>such semaphores (kmap semaphore is one, and filesystems can have several
+>internally)
 
---=-sjR02yAnPyL18LZRpY+g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ok! Now I see why! This problem should be avoided if the coredump algo
+will permit to complete the kernel execution for all the threads that
+need it, and just before to reenter in userspace, all the threads will 
+freeze in
+a know point so the coredump can continue with the snapshot. Not easy ;-)!
 
-On Tue, 2002-12-17 at 10:42, Margit Schubert-While wrote:
-> Maybe talking through the top of my hat , however -
-> copy_from_user and copy_to_user are used all over the place and the
-> return tested to see if an EFAULT should be generated.
-> Looking at include/asm-i386/uaccess.h and arch/i386/lib/usercopy.c
-> I don't see how these return anything but the 3rd (length) param.
 
-Kernel glibly copies data until a exception occurs, when that happens it
-looks at the address of the faulting instruction and jumps to some fixup
-code, which somehow makes the function returns the truncated value.
 
-grep for ".section .fixup" and ".section .__ex_table." in those files.
+Roberto Fichera. 
 
---=20
-// Gianni Tedesco (gianni at ecsc dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
---=-sjR02yAnPyL18LZRpY+g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9/x4okbV2aYZGvn0RAoQWAJsHMAfntBtpPRzlhQAgRIWpRyMoRQCbBl39
-FzuW35irxezjkywnMN5nwKs=
-=fYa3
------END PGP SIGNATURE-----
-
---=-sjR02yAnPyL18LZRpY+g--
-
+______________________________________
+E-mail protetta dal servizio antivirus di IsolaWeb Agency & ISP
+http://wwww.isolaweb.it

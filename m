@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbUKDTP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbUKDTTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbUKDTP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbUKDTId
+	id S262369AbUKDTTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUKDTTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:08:33 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:52257 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262364AbUKDTFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:05:42 -0500
+	Thu, 4 Nov 2004 14:19:40 -0500
+Received: from web81309.mail.yahoo.com ([206.190.37.84]:347 "HELO
+	web81309.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262317AbUKDTNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:13:01 -0500
+Message-ID: <20041104191258.77740.qmail@web81309.mail.yahoo.com>
+Date: Thu, 4 Nov 2004 11:12:58 -0800 (PST)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
 To: Greg KH <greg@kroah.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Germano <germano.barreiro@cyclades.com>, Scott_Kilau@digi.com,
-       linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <1099487348.1428.16.camel@tsthost>
-	<20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com>
-	<20041104174044.GC16389@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 04 Nov 2004 11:05:40 -0800
-In-Reply-To: <20041104174044.GC16389@kroah.com> (Greg KH's message of "Thu,
- 4 Nov 2004 09:40:44 -0800")
-Message-ID: <52bredmo3f.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+Cc: Tejun Heo <tj@home-tj.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041104185826.GA17756@kroah.com>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: patch for sysfs in the cyclades driver
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 04 Nov 2004 19:05:41.0386 (UTC) FILETIME=[473C16A0:01C4C2A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> I assume this is OK (since there is already one in-kernel
-    Roland> driver doing it), but Greg, can you confirm that it's
-    Roland> definitely OK for a driver to use class_set_devdata() on a
-    Roland> class_device from class_simple_device_add()?
+Greg KH <greg@kroah.com> wrote:
+> On Thu, Nov 04, 2004 at 04:02:58PM +0900, Tejun Heo wrote:
+> >  df_02_bus_rescan_devcies_fix.patch
+> > 
+> >  bus_rescan_devices() eventually calls device_attach() and thus
+> > requires write locking the corresponding bus.  The original code just
+> > called bus_for_each_dev() which only read locks the bus.  This patch
+> > separates __bus_for_each_dev() and __bus_for_each_drv(), which don't
+> > do locking themselves, out from the original functions and call them
+> > with read lock in the original functions and with write lock in
+> > bus_rescan_devices().
+> > 
+> > 
+> > Signed-off-by: Tejun Heo <tj@home-tj.org>
+> 
+> Thanks, I cleaned up the formatting a bit in this patch and applied it.
+> 
 
-    Greg> Hm, I think that should be ok, but I'd make sure to test it
-    Greg> before verifying that it really is :)
+Hmm, I do not like that the patch now fiddles with bus's rwsem before
+incrementing bus's refcount.
 
-Well class_simple.c definitely doesn't use class_data/class_set_devdata()
-now (and as I said drivers/scsi/st.c is using this on a class_simple
-device).  The question is whether you can bless this situation as part
-of the API, or whether some time in the future class_simple might
-start using class_data.
+I think just iterating through device list right the bus_rescan_devices
+will be good enough. I sent the patch together with other 3, did it get
+lost? 
 
- - R.
+-- 
+Dmitry
+

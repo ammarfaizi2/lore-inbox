@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSK1Dwo>; Wed, 27 Nov 2002 22:52:44 -0500
+	id <S265140AbSK1EFR>; Wed, 27 Nov 2002 23:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbSK1Dwo>; Wed, 27 Nov 2002 22:52:44 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:13548 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265134AbSK1Dwn>;
-	Wed, 27 Nov 2002 22:52:43 -0500
-Date: Wed, 27 Nov 2002 21:48:54 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Martin Waitz <tali@admingilde.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] allow to register interfaces after devices
-In-Reply-To: <20021126212239.GA1118@admingilde.org>
-Message-ID: <Pine.LNX.4.33.0211272147550.22289-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265154AbSK1EET>; Wed, 27 Nov 2002 23:04:19 -0500
+Received: from dp.samba.org ([66.70.73.150]:984 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265140AbSK1EEP>;
+	Wed, 27 Nov 2002 23:04:15 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Brownell <david-b@pacbell.net>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module alias and table support 
+In-reply-to: Your message of "Wed, 27 Nov 2002 13:53:58 -0800."
+             <3DE53EF6.4080303@pacbell.net> 
+Date: Thu, 28 Nov 2002 14:14:29 +1100
+Message-Id: <20021128041136.35CA02C081@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3DE53EF6.4080303@pacbell.net> you write:
+> One of the points being that the breakage comes from changing the
+> format supported by modutils.  Restoring current functionality should
+> IMO be high on the agenda .... USB has worked poorly in normal .configs
+> for a while now, because of this.
 
-On Tue, 26 Nov 2002, Martin Waitz wrote:
+Absolutely.  I sent the patch to put the USB etc. tables back in
+(merged in .48 IIRC).
 
-> hi :)
-> 
-> 
-> i had a problem some of my code that registered a interface for cpu_devclass
-> was being run after cpu devices got added to the class.
-> 
-> current code only adds those devices to the interface that are
-> added after registering the interface.
-> this patch changes it by walking all devices that are already registered
-> to intf->devclass.
+Hopefully this is back together: the device-table-to-aliases stuff is
+a separate step which can be argued on its own, and I think will
+probably have to wait for 2.7 unless Greg is going to champion it.
 
-Yeah, the interface code has a lot of crap in it. Thanks for the patch; 
-I'll integrate it, and be making more changes on top of it.
+The real win is simplicity and independence from the kernel
+datastructures (which probably won't change during 2.6 anyway).
 
-Thanks,
-
-	-pat
-
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

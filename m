@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272576AbRIXVbr>; Mon, 24 Sep 2001 17:31:47 -0400
+	id <S272559AbRIXVch>; Mon, 24 Sep 2001 17:32:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272661AbRIXVba>; Mon, 24 Sep 2001 17:31:30 -0400
-Received: from NET.WAU.NL ([137.224.10.12]:51983 "EHLO net.wau.nl")
-	by vger.kernel.org with ESMTP id <S272576AbRIXVbN>;
-	Mon, 24 Sep 2001 17:31:13 -0400
-Date: Mon, 24 Sep 2001 23:31:39 +0200
-From: Olivier Sessink <olivier@lx.student.wau.nl>
-Subject: weird memory related problems,
- negative memory usage or fake memory usage?
-To: linux-kernel@vger.kernel.org
-Message-id: <20010924233139.A14548@fender.fakenet>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-X-MSMail-priority: High
-User-Agent: Mutt/1.2.5i
-X-System-Uptime: 11:18pm  up 43 days,  1:39,  1 user,  load average: 0.09,
- 0.05, 0.01
-X-Reverse-Engineered: High priority for sending SMS messages
+	id <S272582AbRIXVc2>; Mon, 24 Sep 2001 17:32:28 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:30191 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S272559AbRIXVcT>; Mon, 24 Sep 2001 17:32:19 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Mon, 24 Sep 2001 15:32:16 -0600
+To: Ryan Mack <rmack@mackman.net>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [BUG?] ext3 0.9.10-2410 - root partition never marked dirty
+Message-ID: <20010924153216.H14526@turbolinux.com>
+Mail-Followup-To: Ryan Mack <rmack@mackman.net>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.33.0109241409490.990-100000@mackman.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109241409490.990-100000@mackman.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sep 24, 2001  14:15 -0700, Ryan Mack wrote:
+> It seems that the aforementioned changes in 2.4.10 has prevented the root
+> filesystem from having its superblock updated as dirty.  It may be my
+> imagination, but since the root fs is already mounted ro when it's
+> remounted rw, the superblock isn't being updated with the needs_recovery
+> flag.
 
-after upgrade from 2.4.10pre8 to 2.4.10 I have weird problems, Xfree
-sometimes shows up with 99.9% memory in top (on a box with 512 mb), and in
-ps axl it has 4294989036 in the RSS column. When this happens the box starts
-to kill some processes, starts heavily swapping (top reports > 400MB in the
-cache, but the machine is heavily swapping!!!) and is completely unusable.
+OK, it's not exactly clear what you are referring to, but:
+1) On ext3 the superblock is NEVER marked dirty, because of the journal.
+   As long as the journal is running normally, the filesystem will always
+   be "clean".
+2) There should _not_ be a problem with the needs_recovery flag being set
+   from within the kernel.  HOWEVER, attempts to read it from user-space
+   may fail because of a disconnect between the buffer cache and the page
+   cache.
 
-The problems is triggered when I start edonkey, some filesharing program
-that creates checksums of large files (a couple of > 700Mb files).
+Now that these issues are in the open (and already being discussed) they
+will likely be fixed in a relatively short timeframe.
 
-Since this makes the machine completely unusable, and since it is not
-happening on 2.4.10pre8 I guess it is a bug ;-)
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-This is a top snapshot:
-
-46 processes: 43 sleeping, 3 running, 0 zombie, 0 stopped
-CPU states:   3.8% user,   1.2% system,  94.6% nice,   0.4% idle
-Mem:    514032K total,   511436K used,     2596K free,     1244K buffers
-Swap:   358808K total,    10928K used,   347880K free,   466072K cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-  253 olivier   19  18   300  196   124 R N  52.9  0.0 119:50 dnetc
- 1274 root      14   0  5940 5940   872 R    33.7  1.1   0:00 xsetbg
- 1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
- 1263 root       9   0  1528 1492  1204 S     2.7  0.2   0:00 xdm
- 1267 root      11   0   980  976   776 R     2.7  0.1   0:00 top
- 1270 root       9   0  1016 1012   820 S     0.9  0.1   0:00 Xsetup_0
-    1 root       8   0   104   56    36 S     0.0  0.0   0:04 init
-    2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
-    3 root       9   0     0    0     0 SW    0.0  0.0   0:00 kapm-idled
-    4 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
-    5 root       9   0     0    0     0 SW    0.0  0.0   0:01 kswapd
-    6 root       9   0     0    0     0 SW    0.0  0.0   0:00 bdflush
-    7 root       9   0     0    0     0 SW    0.0  0.0   0:00 kupdated
-    8 root       9   0     0    0     0 SW    0.0  0.0   0:00 kreiserfsd
-
-the ps axl for X then is
-
-100     0  1262  1260   5 -10 52408 4294965424 select S< ?      0:01
-/usr/X11R6/bin/X vt7 -dpi 100 -nolisten tcp -auth /var/lib/xdm/authdir
-
-regards,
-	Olivier

@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbSAZP0a>; Sat, 26 Jan 2002 10:26:30 -0500
+	id <S285424AbSAZPrz>; Sat, 26 Jan 2002 10:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285273AbSAZP0Y>; Sat, 26 Jan 2002 10:26:24 -0500
-Received: from smtp2.libero.it ([193.70.192.52]:13484 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S285226AbSAZP0L>;
-	Sat, 26 Jan 2002 10:26:11 -0500
-From: Andrea Ferraris <andrea_ferraris@libero.it>
-Reply-To: andrea_ferraris@libero.it
-Date: Sat, 26 Jan 2002 16:24:23 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <3C51E36B.6296299D@mandrakesoft.com> <0201261111500C.01074@af>
-In-Reply-To: <0201261111500C.01074@af>
-Subject: OPS: eth0: NULL pointer encountered in RX ring, skipping
-MIME-Version: 1.0
-Message-Id: <02012616242303.03848@af>
-Content-Transfer-Encoding: 8bit
+	id <S285352AbSAZPrp>; Sat, 26 Jan 2002 10:47:45 -0500
+Received: from relay1.mail.twtelecom.net ([207.67.10.252]:29959 "HELO
+	relay1.mail.twtelecom.net") by vger.kernel.org with SMTP
+	id <S285229AbSAZPr2>; Sat, 26 Jan 2002 10:47:28 -0500
+Subject: VM benchmark
+From: Joel Hollingsworth <jhollingsworth@elon.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 26 Jan 2002 10:48:12 -0500
+Message-Id: <1012060092.17607.266.camel@trumpy.elon.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Saturday 26 January 2002 11:11, Andrea Ferraris scrisse:
-> Friday 25 January 2002 23:59, Jeff Garzik scrisse:
-> > Well, the code says "this should never happen" ;-)
-> >
-> > But anyway, it is probably a temporary memory allocation failure.  The
-> > code handles this case.
->
-> Yes, but I think that isn't normal to have to do a cold reboot to have the
-> machine again working on the network. It is, maybe that the code doesn't
-> handle so well this case. Do you suggest a kernel upgrade?
 
-Ops ... sorry. It was a 2.2.16 kernel.
+Hi all. 
 
-Andrea
+I'm looking for a benchmark that will measure page swapping performance.
+Does anyone know of such a benchmark?
+
+Thanks.
+
+-joel
+

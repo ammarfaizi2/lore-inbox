@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSGMSli>; Sat, 13 Jul 2002 14:41:38 -0400
+	id <S315282AbSGMSzf>; Sat, 13 Jul 2002 14:55:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315282AbSGMSlh>; Sat, 13 Jul 2002 14:41:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57609 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315279AbSGMSlh>; Sat, 13 Jul 2002 14:41:37 -0400
-Date: Sat, 13 Jul 2002 11:46:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Muli Ben-Yehuda <mulix@actcom.co.il>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: compile the kernel with -Werror
-In-Reply-To: <1026570243.9958.81.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207131143540.16670-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315293AbSGMSzf>; Sat, 13 Jul 2002 14:55:35 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:46552 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S315282AbSGMSze>; Sat, 13 Jul 2002 14:55:34 -0400
+Date: Sat, 13 Jul 2002 14:57:23 -0400
+To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: oprofile results with lmbench
+Message-ID: <20020713185723.GA17787@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+oprofile gives access to cpu performance counters on x86.
 
+I ran oprofile with the individual lmbench tests to get
+data from several of the counters.  This "hot kernel 
+function" and counter info may be useful.  A web page with the
+results from 5 of the performance counters for each
+lmbench test is at:
 
-On 13 Jul 2002, Alan Cox wrote:
->
-> May I suggest the user learns to use the command line properly. Adding
-> -Werror doesn't help because gcc emits far too many bogus warnings for
-> that.
+http://home.earthlink.net/~rwhron/kernel/lmbench_oprofile.html
 
-Especially _some_ versions of gcc.
+I'll add the rest of the counter data over the next few days.
+Comments/caveats on how to make the information more useful are
+welcome.
 
-We've tried this before, and there are versions of gcc that have some
-warnings on by default that simply aren't acceptable and cannot be avoided
-sanely (I think at least some snapshots had the sign warnings on, for
-example, which causes some really silly warnings where the warnings are
-less odious than the changes required to get rid of them).
+The target kernel was 2.4.19rc1aa1 on an Athlon 1333.
 
-That said, I don't think -Werror is really wrong. It might make it less
-likely to have new drivers introducing unnecessary warnings..
-
-		Linus
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

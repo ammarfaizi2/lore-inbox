@@ -1,65 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTDNROV (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTDNROV (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 13:14:21 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:19587 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263573AbTDNROU (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 13:14:20 -0400
-Date: Mon, 14 Apr 2003 10:22:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Antonio Vargas <wind@cocodriloo.com>
-cc: Timothy Miller <tmiller10@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       nicoya@apia.dhs.org
-Subject: Re: Quick question about hyper-threading (also some NUMA stuff)
-Message-ID: <16700000.1050340965@[10.10.2.4]>
-In-Reply-To: <20030414171419.GG14552@wind.cocodriloo.com>
-References: <001301c3028a$25374f30$6801a8c0@epimetheus>
- <10760000.1050332136@[10.10.2.4]>
- <20030414152947.GB14552@wind.cocodriloo.com>
- <12790000.1050334744@[10.10.2.4]>
- <20030414155748.GD14552@wind.cocodriloo.com>
- <14860000.1050337484@[10.10.2.4]>
- <20030414164321.GE14552@wind.cocodriloo.com>
- <15700000.1050338226@[10.10.2.4]>
- <20030414171419.GG14552@wind.cocodriloo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id S263574AbTDNRQA (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTDNRQA (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 13:16:00 -0400
+Received: from users.ccur.com ([208.248.32.211]:52579 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S263574AbTDNRP4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 13:15:56 -0400
+Date: Mon, 14 Apr 2003 13:27:31 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4 preemption bug in bh_kmap_irq
+Message-ID: <20030414172730.GA17451@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Ah, you probably don't want to do that ... it's very expensive. Moreover,
->> if you exec 2ns later, all the effort will be wasted ... and it's very
->> hard to deterministically predict whether you'll exec or not (stupid
->> UNIX  semantics). Doing it lazily is probably best, and as to "nodes
->> would not  have to reference the memory from others" - you're still
->> doing that, you're just batching it on the front end.
-> 
-> True... What about a vma-level COW-ahead just like we have a file-level
-> read-ahead, then? I mean batching the COW at unCOW-because-of-write time.
+  [I submitted this bug to Alan some time ago, he agreed it was
+   a problem but felt that it should be fixed in the 2.4 preemption
+   patch.]
 
-That'd be interesting ... and you can test that on a UP box, is not just
-NUMA. Depends on the workload quite heavily, I suspect.
+Hi Robert, Everyone,
+
+The bh_kmap_irq/bh_kunmap_irq functions are broken in 2.4.21-pre5.
+However no symptoms occur unless the preemption patch is applied.
+
+The bug is that bh_map_irq *conditionally* calls kmap_atomic (which
+disables preemption as one of its functions), while bh_unmap_irq
+*unconditionally* calls kunmap_atomic (which enables it).  This
+imbalance results in a occasional off-by-one preempt_count, which in
+turn causes IDE PIO mode interrupt code (specifically, read_intr) to
+erronously invoke preempt_schedule while at interrupt level.
+
+The below patch compiles and boots ide=nodma on my preempt 2.4 kernel
+on the one motherboard that had the problem.  Before this patch, the
+kernel would not even boot for that motherboard.  I also applied and
+test booted a pure 2.4.21-pre5 kernel with this patch.
+
+The patch implements my preference for simplicity, so you may want to
+take some other approach if maximal performance is what you want.
+
+Joe
+
+
+
+
+--- include/linux/highmem.h.orig	2003-03-12 05:01:56.000000000 -0500
++++ include/linux/highmem.h	2003-03-12 16:07:04.000000000 -0500
+@@ -33,22 +33,10 @@
+ {
+ 	unsigned long addr;
  
-> btw, COW-ahead sound really silly :)
-
-Yeah. So be sure to call it that if it works out ... we need more things
-like that ;-) Moooooo.
+-	__save_flags(*flags);
+-
+-	/*
+-	 * could be low
+-	 */
+-	if (!PageHighMem(bh->b_page))
+-		return bh->b_data;
+-
+-	/*
+-	 * it's a highmem page
+-	 */
+-	__cli();
++	local_irq_save(*flags);
+ 	addr = (unsigned long) kmap_atomic(bh->b_page, KM_BH_IRQ);
  
-> Not possible for me since I've got no SMP. But posting a quick note about
-> your proposed "fake-NUMA-on-SMP.patch" would be good only if to have an
-> offsite (offbrain also? ;) backup of your ideas :)
+-	if (addr & ~PAGE_MASK)
+-		BUG();
++	BUG_ON (addr & ~PAGE_MASK);
+ 
+ 	return (char *) addr + bh_offset(bh);
+ }
+@@ -58,7 +46,7 @@
+ 	unsigned long ptr = (unsigned long) buffer & PAGE_MASK;
+ 
+ 	kunmap_atomic((void *) ptr, KM_BH_IRQ);
+-	__restore_flags(*flags);
++	local_irq_restore(*flags);
+ }
+ 
+ #else /* CONFIG_HIGHMEM */
 
-Oh, well basically you just need to split memory in half, and assign one
-cpu to each "node" for each cpu_to_node thingy. Would be easy to just do it
-as static #defines for sizes at first (most of the work in supporting a new
-NUMA arch is just parsing the machinet tables). Set MAX_NUMNODES to > 1,
-make sure you create a pgdat for each "node", and frig with build_zonelists
-and free_area_init_core a bit. 
+>From alan@lxorguk.ukuu.org.uk  Wed Mar 12 22:19:43 2003
+Return-Path: <alan@lxorguk.ukuu.org.uk>
+Received: from exchange.ccur.com by rudolph.ccur.com (8.6.10/CCC-4.1)
+	id WAA17543; Wed, 12 Mar 2003 22:19:43 GMT
+Received: by exchange.ccur.com with Internet Mail Service (5.5.2653.19)
+	id <1J8VJBZT>; Wed, 12 Mar 2003 17:19:43 -0500
+Received: from irongate.swansea.linux.org.uk (pc2-cwma1-4-cust86.swan.cable.ntl.com [213.105.254.86]) by exchange.ccur.com with SMTP (Microsoft Exchange Internet Mail Service Version 5.5.2653.13)
+	id 1J8VJBZS; Wed, 12 Mar 2003 17:19:38 -0500
+Received: from irongate.swansea.linux.org.uk (localhost [127.0.0.1])
+	by irongate.swansea.linux.org.uk (8.12.7/8.12.7) with ESMTP id h2CNRVYf024118;
+	Wed, 12 Mar 2003 23:27:32 GMT
+Received: (from alan@localhost)
+	by irongate.swansea.linux.org.uk (8.12.7/8.12.7/Submit) id h2CNRTqm024116;
+	Wed, 12 Mar 2003 23:27:29 GMT
+X-Authentication-Warning: irongate.swansea.linux.org.uk: alan set sender to alan@lxorguk.ukuu.org.uk using -f
+Subject: Re: [PATCH] bug in 2.4 bh_kmap_irq() breaks IDE under preempt patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303122213.WAA17415@rudolph.ccur.com>
+References: <200303122213.WAA17415@rudolph.ccur.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1047511647.23902.29.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Mar 2003 23:27:28 +0000
+Status: RO
+Content-Length: 406
+Lines: 9
 
-M.
+On Wed, 2003-03-12 at 22:13, Joe Korty wrote:
+> The bug is that bh_map_irq *conditionally* calls kmap_atomic (which
+> disables preemption as one of its functions), while bh_unmap_irq
+> *unconditionally* calls kunmap_atomic (which enables it).  This
 
-
+Thats a pre-empt bug ont a bh_map_irq bug. I'm glad you've found it
+however. It explains a few things and will be useful for people wanting
+pre-empt 2.4 .

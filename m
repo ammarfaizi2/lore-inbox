@@ -1,28 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUJNQCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJNQDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUJNQCA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 12:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUJNQB7
+	id S266477AbUJNQDL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 12:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUJNQDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 12:01:59 -0400
-Received: from lennier.cc.vt.edu ([198.82.162.213]:8467 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S266319AbUJNQBz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 12:01:55 -0400
-Message-ID: <4196928A.9070103@vt.edu>
-Date: Sat, 13 Nov 2004 17:02:34 -0600
-From: William Wolf <wwolf@vt.edu>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041021)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re:  [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Oct 2004 12:03:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:53295 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266477AbUJNQDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 12:03:07 -0400
+Message-ID: <ef88c0e0041014090337d6f611@mail.gmail.com>
+Date: Thu, 14 Oct 2004 09:03:06 -0700
+From: Ken Brush <kbrush@gmail.com>
+Reply-To: Ken Brush <kbrush@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Spam on the list
+In-Reply-To: <416EA06E.3050608@colannino.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <416EA06E.3050608@colannino.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone tried these patches been on x86_64?  Im trying the latest -U1 
-patch and getting lots of compile errors.  I can send the output if needed.
+On Thu, 14 Oct 2004 08:51:10 -0700, James Colannino <lkml@colannino.org> wrote:
+> I was just thinking that the list receives a lot of spam.  Shouldn't the
+> list be locked down to be posted to by subsribers only as to curb the
+> bulk of that spam?  That's how most mailing lists I'm on are and it
+> works well.  Please don't flame me for this... :)  Just thought I'd
+> mention it.
+> 
+
+They already filter a lot of stuff. And I believe that they are
+constantly adding to the filters.
+
+As for making it subscriber-only, that would just make the list less
+open. And we like really, really open lists that don't shut out any
+opinions.
+
+-Ken

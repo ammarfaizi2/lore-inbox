@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbTFIXVL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 19:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFIXVL
+	id S262271AbTFIX1P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 19:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTFIX1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 19:21:11 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:29970 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262270AbTFIXVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 19:21:10 -0400
-Date: Tue, 10 Jun 2003 01:34:19 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "David S. Miller" <davem@redhat.com>
-cc: wa@almesberger.net, <chas@cmf.nrl.navy.mil>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2)
-In-Reply-To: <20030609.161435.104053652.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0306100129460.12110-100000@serv>
-References: <Pine.LNX.4.44.0306100011230.5042-100000@serv>
- <20030609.160013.74730356.davem@redhat.com> <Pine.LNX.4.44.0306100113420.12110-100000@serv>
- <20030609.161435.104053652.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jun 2003 19:27:14 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:42926 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262271AbTFIX1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 19:27:14 -0400
+Subject: Re: [PATCH] Some clean up of the time code.
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Eric Piel <Eric.Piel@Bull.Net>
+In-Reply-To: <3EE510E7.60801@mvista.com>
+References: <3EE510E7.60801@mvista.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055201760.18643.6.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Jun 2003 16:36:00 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2003-06-09 at 15:57, george anzinger wrote:
+> Pushs down the change from timeval to timespec in the settime routines.
 
-On Mon, 9 Jun 2003, David S. Miller wrote:
+No complaints here. 
 
->    > netdev->dead = 1;
->    > netdev->op_this = NULL;
->    > netdev->op_that = NULL;
->    > netdev->op_whatever = NULL;
->    > synchronize_kernel();
->    
->    That assumes of course that the functions don't sleep.
->    (RCU isn't really the answer to everything.)
->    
-> They hold references to the object, it doesn't matter if
-> they sleep.
+> Fixes two places where time was set without updating the monotonic
+> clock offset.  (Changes sys_stime() to call do_settimeofday() and
+> changes clock_warp to do the update directly.)  These were bugs!
 
-That's not the point. You also have to wait for the already running 
-operations to finish, before you can allow the module to unload.
+Yea, that sys_stime bug really needed fixing. Thanks for kicking this
+out.
 
-bye, Roman
+> Changes the uptime code to use the posix_clock_monotonic notion of
+> uptime instead of the jiffies.  This time will track NTP changes and
+> so should be better than your standard wristwatch (if your using ntp).
+
+Hmmm. Might want to see if the btime changes from last week could
+benefit from a similar change. 
+
+Didn't test it personally, but looks good. 
+
+thanks
+-john
 

@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUFBU26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUFBUao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUFBU26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUFBU26
+	id S264085AbUFBUao (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFBU3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:28:58 -0400
-Received: from ip67-93-141-190.z141-93-67.customer.algx.net ([67.93.141.190]:32565
-	"EHLO datapower.ducksong.com") by vger.kernel.org with ESMTP
-	id S264085AbUFBUZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:25:16 -0400
-Subject: Re: TCP retransmission : how to detect from an application ?
-From: patrick mcmanus <mcmanus@ducksong.com>
-To: rol@as2917.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200406021257.i52CvEX31840@tag.witbe.net>
-References: <200406021257.i52CvEX31840@tag.witbe.net>
-Content-Type: text/plain
-Message-Id: <1086207911.11413.18.camel@mcmanus.datapower.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 02 Jun 2004 16:25:12 -0400
+	Wed, 2 Jun 2004 16:29:16 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:56523 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264098AbUFBU1N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:27:13 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16574.14357.123292.702881@napali.hpl.hp.com>
+Date: Wed, 2 Jun 2004 13:27:01 -0700
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com,
+       <James.Bottomley@SteelEye.com>, <ak@suse.de>, <rmk@arm.linux.org.uk>,
+       <paulus@samba.org>, <anton@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pretest pte_young and pte_dirty
+In-Reply-To: <Pine.LNX.4.44.0406022114110.27696-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0406022103500.27696-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0406022114110.27696-100000@localhost.localdomain>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-02 at 08:57, Paul Rolland wrote:
-> corrected by the kernel (hell, TCP is reliable, isn't it :-), but I'd like
-> to know if an application can detect this (well, I don't want to be notified
-> of a packet loss once detected, but I'd like to get some stats before
-> closing
-> the connection).
+>>>>> On Wed, 2 Jun 2004 21:16:59 +0100 (BST), Hugh Dickins <hugh@veritas.com> said:
 
-#include <linux/tcp.h>
+  Hugh> Test for pte_young before going to the costlier atomic
+  Hugh> test_and_clear, as asm-generic does.  Test for pte_dirty
+  Hugh> before going to the costlier atomic test_and_clear, as
+  Hugh> asm-generic does (I said before that I would not do so for
+  Hugh> pte_dirty, but was missing the point: there is nothing atomic
+  Hugh> about deciding to do nothing).  But I've not touched the
+  Hugh> rather different ppc and ppc64.
 
-struct tcp_info info;
+The ia64-portion of the patch looks good to me.
 
-getsockopt (... TCP_INFO ... &info ...);
+Thanks!
 
-and you get all of this (you'll have to see net/ipv4/tcp.c to see how it
-all gets filled in.. I'm not aware of better documentation than that):
-
-struct tcp_info
-{
-    __u8    tcpi_state;
-    __u8    tcpi_ca_state;
-    __u8    tcpi_retransmits;
-    __u8    tcpi_probes;
-    __u8    tcpi_backoff;
-    __u8    tcpi_options;
-    __u8    tcpi_snd_wscale : 4, tcpi_rcv_wscale : 4;
-
-    __u32   tcpi_rto;
-    __u32   tcpi_ato;
-    __u32   tcpi_snd_mss;
-    __u32   tcpi_rcv_mss;
-
-    __u32   tcpi_unacked;
-    __u32   tcpi_sacked;
-    __u32   tcpi_lost;
-    __u32   tcpi_retrans;
-    __u32   tcpi_fackets;
-
-    /* Times. */
-    __u32   tcpi_last_data_sent;
-    __u32   tcpi_last_ack_sent;     /* Not remembered, sorry. */
-    __u32   tcpi_last_data_recv;
-    __u32   tcpi_last_ack_recv;
-
-    /* Metrics. */
-    __u32   tcpi_pmtu;
-    __u32   tcpi_rcv_ssthresh;
-    __u32   tcpi_rtt;
-    __u32   tcpi_rttvar;
-    __u32   tcpi_snd_ssthresh;
-    __u32   tcpi_snd_cwnd;
-    __u32   tcpi_advmss;
-    __u32   tcpi_reordering;
-};
-
-
+	--david

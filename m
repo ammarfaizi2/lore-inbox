@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbRHWOFY>; Thu, 23 Aug 2001 10:05:24 -0400
+	id <S266488AbRHWOOg>; Thu, 23 Aug 2001 10:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266808AbRHWOFO>; Thu, 23 Aug 2001 10:05:14 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:31752 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S266806AbRHWOFI>;
-	Thu, 23 Aug 2001 10:05:08 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Richard J Moore" <richardj_moore@uk.ibm.com>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Is there any interest in Dynamic API 
-In-Reply-To: Your message of "Thu, 23 Aug 2001 14:58:44 +0100."
-             <OF5C54F2B3.04BACD3A-ON80256AB1.004CA1FB@portsmouth.uk.ibm.com> 
+	id <S266808AbRHWOO1>; Thu, 23 Aug 2001 10:14:27 -0400
+Received: from duba06h06-0.dplanet.ch ([212.35.36.67]:50954 "EHLO
+	duba06h06-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S266488AbRHWOOM>; Thu, 23 Aug 2001 10:14:12 -0400
+Date: Thu, 23 Aug 2001 16:10:55 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH (URL), RFC] Stackable dmi_blacklist rules
+Message-ID: <20010823161055.A1029@tm.hellgate.ch>
+In-Reply-To: <20010823152200.A853@tm.hellgate.ch> <E15Zua2-0003sM-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 24 Aug 2001 00:05:18 +1000
-Message-ID: <13928.998575518@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <E15Zua2-0003sM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 23, 2001 at 02:31:30PM +0100
+X-Operating-System: Linux 2.4.5-ac13 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001 14:58:44 +0100, 
-"Richard J Moore" <richardj_moore@uk.ibm.com> wrote:
->
->
->On Thu, 23 Aug 2001, Alexander Viro <viro@math.psu.edu>:
->
->> s/ioctl/read() and write()/, please.
->
->Why not ioctl?
+> > Currently, we walk the list and throw out bad apples based on full
+> > or partial strings we match against what we get from the BIOS.
+> > Once a rule matches, the value is immutable.
+> 
+> Hardly. You can set it back, you can also access the fields to make 
+> complex decisions after a match call. 
 
-Oh no, not the ioctl bad, read/write good flamewar again.  Please leave
-me off this one.
+You'd have to write extra feature_off callback functions, though
+(or change the existing ones, as I did), since currently no callback
+function allows to reset a value once it was called. They are all
+coded like this:
 
+static __init int apm_is_horked(struct dmi_blacklist *d)
+{
+	if (apm_info.disabled == 0)
+	
+		apm_info.disabled = 1;
+		printk(KERN_INFO "%s machine detected. Disabling APM.\n", d->ident);
+	
+	return 0;
+}
+
+What I was looking for was a solution which allows resetting values
+simply by changing the dmi_blacklist.
+
+One can of course argue that we can always add apm_is_not_horked_after_all()
+should the need ever arise.
+
+Roger Luethi

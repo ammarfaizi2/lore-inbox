@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280781AbRKSXpV>; Mon, 19 Nov 2001 18:45:21 -0500
+	id <S280782AbRKSXwb>; Mon, 19 Nov 2001 18:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280779AbRKSXpN>; Mon, 19 Nov 2001 18:45:13 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:4115 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S280774AbRKSXo5>;
-	Mon, 19 Nov 2001 18:44:57 -0500
-Message-ID: <3BF99977.4090003@free.fr>
-Date: Tue, 20 Nov 2001 00:44:55 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
-In-Reply-To: <35E64A70B5ACD511BCB0000000004CA1095C9A@NT_CHEMO>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280777AbRKSXwV>; Mon, 19 Nov 2001 18:52:21 -0500
+Received: from peace.netnation.com ([204.174.223.2]:31155 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S280779AbRKSXwP>; Mon, 19 Nov 2001 18:52:15 -0500
+Date: Mon, 19 Nov 2001 15:52:14 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1
+Message-ID: <20011119155214.A2418@netnation.com>
+In-Reply-To: <20011119152745.A27716@netnation.com> <Pine.LNX.4.33.0111191537450.19585-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.33.0111191537450.19585-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 19, 2001 at 03:38:45PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 19, 2001 at 03:38:45PM -0800, Linus Torvalds wrote:
 
+> On Mon, 19 Nov 2001, Simon Kirby wrote:
+> >
+> > Well, I found out what file has the bog-standard page.
+> >
+> > open("/home/stevendi//.htaccess", O_RDONLY|O_LARGEFILE) = 4
+> 
+> What filesystem is this?
 
-PVotruba@Chemoprojekt.cz wrote:
+EXT2.
 
->Hi,
->Please try to be more specific. Do you use VGA textmode console or NVidia
->console framebuffer? I had also some freezes due to console framebuffer,
->after returning closing X - the command line never appeared again. Try to
->use only textmode console, NVidia framebuffer is currently in EXPERI-MENTAL
->state :)
->
-Very experimental on my box, it broked hard the last time I tried (SMP 
-2.4.13-ac7) on my config :
-lockup on first X -> fb console switch , SysRq worked for 
-sync/umount/reboot, didn't tried blind "killall X" in initlevel 5 though 
-(so X restart not tested).
-If the maintainer wants some testing on a SMP with a Geforce2 MX, with 
-every single partition reiserfs or ext3 mounted I can afford reboots now 
-(130 GB on 4 IDE drives weren't especially fast to fsck)...
+tune2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+Filesystem volume name:   <none>
+Last mounted on:          <not available>
+Filesystem UUID:          31cd0726-a6c1-458b-905e-983df0f7c695
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Filesystem features:      filetype sparse_super
+Filesystem state:         not clean
+Errors behavior:          Continue
+Filesystem OS type:       Linux
+Inode count:              3623040
+Block count:              7245307
+Reserved block count:     362265
+Free blocks:              1278488
+Free inodes:              2748224
+First block:              0
+Block size:               4096
+Fragment size:            4096
+Blocks per group:         32768
+Fragments per group:      32768
+Inodes per group:         16320
+Inode blocks per group:   510
+Last mount time:          Tue Nov 13 13:07:22 2001
+Last write time:          Mon Nov 19 15:51:24 2001
+Mount count:              1
+Maximum mount count:      20
+Last checked:             Tue Nov 13 13:07:21 2001
+Check interval:           15552000 (6 months)
+Next check after:         Sun May 12 14:07:21 2002
+Reserved blocks uid:      0 (user root)
+Reserved blocks gid:      0 (group root)
+First inode:              11
+Inode size:               128
 
+Simon-
 
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130316AbQJaSMx>; Tue, 31 Oct 2000 13:12:53 -0500
+	id <S129054AbQJaSW4>; Tue, 31 Oct 2000 13:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130235AbQJaSMe>; Tue, 31 Oct 2000 13:12:34 -0500
-Received: from gromco.com ([209.10.98.91]:11072 "HELO gromco.com")
-	by vger.kernel.org with SMTP id <S130312AbQJaSMW>;
-	Tue, 31 Oct 2000 13:12:22 -0500
-Message-ID: <39FF0A71.FE05FAEB@gromco.com>
-Date: Tue, 31 Oct 2000 13:07:45 -0500
-From: Vladislav Malyshkin <mal@gromco.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>, R.E.Wolff@BitWizard.nl,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <39FEF039.69FAFDB2@gromco.com> <14846.63285.212616.574188@wire.cadcamlab.org>
+	id <S129041AbQJaSWq>; Tue, 31 Oct 2000 13:22:46 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:41711 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S129029AbQJaSWc>; Tue, 31 Oct 2000 13:22:32 -0500
+Date: Tue, 31 Oct 2000 19:22:30 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: kmalloc() allocation.
+Message-ID: <20001031192229.G7204@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20001031161753.F7204@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.21.0010311410440.23139-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0010311410440.23139-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 31, 2000 at 02:11:24PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also, the function remove_duplicates can be written using make rules and
-functions.
-Using functions "foreach" "if" from make and comparison you can easily
-build
-a function remove_duplicates in make, no shell involved.
-so instead of $(sort) your will have $(remove_duplicates)
-written entirely in make.
-Vladislav
+On Tue, Oct 31, 2000 at 02:11:24PM -0200, Rik van Riel wrote:
+[PCAC]
+> It's a nice idea, but you still want to be sure you won't
+> allocate eg. page tables randomly in the middle of the
+> PCACs ;)
 
-Peter Samuelson wrote:
+Yes. That's why we check later, whether our hint is still true.
 
-> [Vladislav Malyshkin <mal@gromco.com>]
-> > You can easily remove duplicates in object files without sorting.
-> > You can just use a shell written function.
->
-> This is true.  That was something I forgot to mention.  I have looked
-> at that as well, and it strikes me as even more of a hack than the
-> solutions I mentioned: it is yet another external shell process for
-> each invocation of Rules.make (ie each directory).  As I said before,
-> though, one man's hack is another man's clean design, so whatever.
->
-> Your function is rather long; try this one instead (untested):
->
->   remove_duplicates () {
->     str='';
->     for i; do
->       case "$str " in *" $i "*) ;; *) str="$str $i" ;; esac
->     done
->     echo "$str"
->   }
->
-> I still think anything outside the makefiles that's needed to organize
-> the build process is a hack.  That includes scripts/pathdown.sh (yes, I
-> do have a scheme to get rid of it) and 2.2.18 scripts/kwhich (yes, I
-> did propose a working alternative).  It doesn't include scripts/mkdep.c
-> (which must do a lot of work as efficiently as possible),
-> scripts/Configure et al (which are really standalone programs), or
-> scripts/split-include.c (which is really a continuation of Configure).
->
-> Peter
+If we cannot free or move all pages from this area, we retry by
+looking up the PCAC again (which I forgot to show, because I was
+in a hurry :-/ ), or try the old method and might fail there.
 
+So we have only an idea, where we MIGHT have an physical area of
+this size, but have no idea whether it is STILL freeable or
+movable.
+
+That's why I didn't care about ANY locking[1]. The only thing, that
+I take for granted, is that all struct phys_page are linked
+together and represent the whole systems physical memory
+including holes. Anything that breaks these assumption must be
+fixed in my code.
+
+Once you have implemented physical page scanning, I'll try to
+implement this. I just needed to know, whether you like the idea,
+or it is total crap ;-)
+
+Another problem is, that the PCAC needs memory to store these
+areas. One possibility is to store in in struct phys_page and
+have a global hash table for the sizes. But these are details for
+2.5 and not for now ;-)
+
+Regards
+
+Ingo Oeser
+
+[1] Later I have to lock the PCAC related structures of course.
+-- 
+Feel the power of the penguin - run linux@your.pc
+<esc>:x
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291621AbSBNNS3>; Thu, 14 Feb 2002 08:18:29 -0500
+	id <S291627AbSBNNT3>; Thu, 14 Feb 2002 08:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291627AbSBNNST>; Thu, 14 Feb 2002 08:18:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:16853 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S291621AbSBNNSF>; Thu, 14 Feb 2002 08:18:05 -0500
-Date: Thu, 14 Feb 2002 14:14:26 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-rc1
-In-Reply-To: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0202141404210.25879-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S291630AbSBNNTZ>; Thu, 14 Feb 2002 08:19:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37906 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291627AbSBNNTI>; Thu, 14 Feb 2002 08:19:08 -0500
+Subject: Re: Promise SuperTrak100 Oops/Kernel Panic
+To: rlake@colabnet.com (Rob Lake)
+Date: Thu, 14 Feb 2002 13:33:03 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1013650921.2150.5.camel@sphere878.hive.colabnet.com> from "Rob Lake" at Feb 13, 2002 10:12:01 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bM0V-0008SB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Marcelo Tosatti wrote:
+> Feb 13 21:52:15 sphere878 kernel: i2o/hda: Disk Storage: 305274MB, 512
+> byte sectors.
+> Feb 13 21:52:15 sphere878 kernel: i2o/hda: Maximum sectors/read set to
+> 32.
 
-> So here it goes.
->
-> rc1:
->...
-> - Merge some -ac bugfixes			(Alan Cox)
->
-> pre9:
->...
-> - Add framebuffer support for trident graphics
->   card						(James Simmons)
->...
+It found the block array happily.
 
-These two changes together result in the fact that there's now a
-CONFIG_FB_TRIDENT but if you try to enable it compilation fails with a
+> Feb 13 21:52:17 sphere878 kernel:  i2o/hda:r 3
+> Feb 13 21:52:17 sphere878 kernel: I2O: Spurious reply to handler 3
+> Feb 13 21:52:17 sphere878 last message repeated 454 times
 
-  tridentfb.c:524: #error "Floating point maths. This needs fixing before
-  the driver is safe"
-
-which makes it pretty useless. Since this is a stable kernel series I want
-to suggest that if there's no fix for this before 2.4.18-final to remove
-the trident support from 2.4.18 and to re-add it in 2.4.19-pre1 (with
-the hope that it will be fixed before 2.4.19-final).
-
-cu
-Adrian
-
-
-
+Then things seem to go a little mad, and its getting bogus messages to
+a drivert that has been unloaded

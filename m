@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262434AbSKDSEx>; Mon, 4 Nov 2002 13:04:53 -0500
+	id <S262442AbSKDSE7>; Mon, 4 Nov 2002 13:04:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262442AbSKDSEw>; Mon, 4 Nov 2002 13:04:52 -0500
-Received: from [12.161.69.65] ([12.161.69.65]:49829 "EHLO
-	osismtp.origin.ea.com") by vger.kernel.org with ESMTP
-	id <S262434AbSKDSEu>; Mon, 4 Nov 2002 13:04:50 -0500
-Subject: Need assistance in determining memory usage
-From: Thomas Schenk <tschenk@origin.ea.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Nov 2002 12:11:07 -0600
-Message-Id: <1036433472.2884.42.camel@shire>
+	id <S262444AbSKDSE7>; Mon, 4 Nov 2002 13:04:59 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:41996 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262442AbSKDSE5>;
+	Mon, 4 Nov 2002 13:04:57 -0500
+Date: Mon, 4 Nov 2002 10:07:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Miles Lane <miles.lane@attbi.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 -- usbaudio.c: 1882: structure has no member named `bInterfaceClass' in function `snd_usb_create_streams'
+Message-ID: <20021104180750.GE6635@kroah.com>
+References: <3DC1D768.6000104@attbi.com> <20021101020326.GA13031@kroah.com> <s5hpttlr796.wl@alsa2.suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hpttlr796.wl@alsa2.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all.
+On Mon, Nov 04, 2002 at 10:53:09AM +0100, Takashi Iwai wrote:
+> At Thu, 31 Oct 2002 18:03:26 -0800,
+> Greg KH wrote:
+> > 
+> > On Thu, Oct 31, 2002 at 05:22:48PM -0800, Miles Lane wrote:
+> > > CONFIG_SND_DEBUG=y
+> > > CONFIG_SND_DEBUG_MEMORY=y
+> > > CONFIG_SND_DEBUG_DETECT=y
+> > 
+> > Turn these off, and the error should go away :)
+> > 
+> > Sorry, my fault, I'll fix them up.
+> 
+> i already changed the code on ALSA cvs to use some macros for
+> retrieving descriptors from host_* struct, so that it can be compiled
+> still on 2.4 kernel with a wrapper header, and fixed the relevant
+> part, too.
+> hence, you don't need to waste your precious time :)
 
-I have been asked a question by some of the developers in my
-organization and after searching Google, scouring the Linux newsgroups,
-and searching as many mailing list archives and howtos as I could find,
-I still cannot find a satisfactory answer to the following question:
+Thanks for letting me know.
 
-Q. How can you determine how much memory a process is using at a given
-point in time?  Specifically, I want to know of a method or tool that
-will tell me how much total memory a process is using, how much of that
-total is shared with other processes, how much is resident, and how much
-is swapped out.
-
-Please don't say to just use ps or top, because if either of these tools
-was adequate, I wouldn't be asking here and every reference I could find
-indicates that this is not a trivial problem.  There were also
-indications I found while searching that these tools do not always
-report memory numbers accurately.  If there is a way to determine this
-information using /proc, this would be ideal, since I could then
-conceivably create a script or simple program that could determine the
-answer given the process ID, which is what the developers here really
-want.
-
-If you can assist me in determining the answer to this question, I would
-greatly appreciate it.  Please note that I am far from being a kernel
-expert (being just a lowly systems administrator), so please keep make
-your explanations as detailed as possible.
-
-Tom S.
-
--- 
-+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-| Tom Schenk      | A positive attitude may not solve all your    |
-| Online Ops      | problems, but it will annoy enough people to  |
-| tschenk@ea.com  | make it worth the effort. -- Herm Albright    |
-+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-
+greg k-h

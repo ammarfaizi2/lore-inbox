@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbUCCK5W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 05:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUCCK5W
+	id S262431AbUCCK7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 05:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUCCK6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 05:57:22 -0500
-Received: from gprs40-155.eurotel.cz ([160.218.40.155]:52194 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262430AbUCCK5V (ORCPT
+	Wed, 3 Mar 2004 05:58:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20890 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262431AbUCCK6Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 05:57:21 -0500
-Date: Wed, 3 Mar 2004 11:56:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: Code freeze on lite patches and schedule for submission into mainline kernel
-Message-ID: <20040303105653.GB342@elf.ucw.cz>
-References: <200403031354.10370.amitkale@emsyssoft.com>
+	Wed, 3 Mar 2004 05:58:25 -0500
+Date: Wed, 3 Mar 2004 02:58:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, hugh@veritas.com,
+       wli@holomorphy.com
+Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
+Message-Id: <20040303025820.2cf6078a.akpm@osdl.org>
+In-Reply-To: <20040303070933.GB4922@dualathlon.random>
+References: <20040303070933.GB4922@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403031354.10370.amitkale@emsyssoft.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> --- sles-objrmap/mm/rmap.c.~1~	2004-03-03 06:45:38.995594456 +0100
+>  +++ sles-objrmap/mm/rmap.c	2004-03-03 07:01:39.200621104 +0100
+>  @@ -470,7 +470,7 @@ try_to_unmap_obj_one(struct vm_area_stru
+>   	if (!pte)
+>   		goto out;
+>   
+>  -	if (vma->vm_flags & VM_LOCKED) {
+>  +	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED)) {
+>   		ret =  SWAP_FAIL;
+>   		goto out_unmap;
 
-> We have two sets of kgdb patches as of now: [core-lite, i386-lite, 8250] and 
-> [core, i386, ppc, x86_64, eth]. First set of kgdb patches (lite) is fairly 
-> clean. Let's consider it to be a candicate for submission to mainline kernel.
-> 
-> I am freezing the lite patches wrt. feature updates. Only bug-fixes and code 
-> cleanups will be allowed in lite patches. You can make any feature 
-> enhancements to second set of patches.
+I keep on wanting to put that in there too.  But pages in a VM_RESERVED vma
+should not find their way onto the LRU.  Maybe we should be checking for
+that in do_no_page().
 
-Sounds good.
 
-> I propose following schedule for pushing kgdb lite into mainline kernel:
-> Take 1: 8th , Take 2: 15th, Take 3: 22nd, Take 4:29th. I'll download the 
-> kernel snapshot (http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/) on 
-> these dates and submit a single patch for possible acceptance into mainline 
-> kenrel and feedback from community. Hopefully we'll succeed by end of this 
-> month.
-
-Well, you should have really cc-ed this one to andrew :-). [What?
-Schedule for pushing? No patchbombing? ;-))))))))))]
-									Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVCOJOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVCOJWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVCOJOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 04:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVCOJOu
+	id S262354AbVCOJWi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 04:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVCOJWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 04:14:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37808 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262368AbVCOJOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 04:14:41 -0500
-Date: Tue, 15 Mar 2005 09:14:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Tue, 15 Mar 2005 04:22:38 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:34176 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262354AbVCOJWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 04:22:36 -0500
+Message-ID: <4236B8B2.AD69714@tv-sign.ru>
+Date: Tue, 15 Mar 2005 13:28:02 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Christoph Lameter <christoph@lameter.com>
-Cc: akpm@osdl.org, shai@scalex86.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Per cpu irq stat
-Message-ID: <20050315091433.GA29079@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christoph Lameter <christoph@lameter.com>, akpm@osdl.org,
-	shai@scalex86.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Shai Fultheim <Shai@Scalex86.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] del_timer_sync scalability patch
+References: <4231E959.141F7D85@tv-sign.ru> <42343C61.6A1210C0@tv-sign.ru> <Pine.LNX.4.58.0503150004190.13281@server.graphe.net>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 10:32:34PM -0800, Christoph Lameter wrote:
-> The definition of the irq_stat as an array means that the individual
-> elements of the irq_stat array are located on one NUMA node requiring
-> internode traffic to access irq_stat from other nodes. This patch makes
-> irq_stat a per_cpu variable which allows most accesses to be local.
+Christoph Lameter wrote:
+>
+> @@ -476,6 +454,7 @@ repeat:
+>  				}
+>  			}
+>  			spin_lock_irq(&base->lock);
+> +			timer->running = 0;
+			^^^^^^^^^^^^^^^^^^
+>  			goto repeat;
+>  		}
+>  	}
 
-There's architectures accessing it from assemly.
+This is imho wrong. The timer probably don't exist when
+timer_list->function returns.
 
-But furthermore there's absolutely not point for the irq_stat structure
-at all anymore now that we have the per_cpu infrastructure.  so kill it
-completely and let every architecture just provide a local_softirq_pending
-macro.
+I mean, timer_list->function could deallocate timer's memory.
 
+Oleg.

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293675AbSB1TqN>; Thu, 28 Feb 2002 14:46:13 -0500
+	id <S293749AbSB1U6w>; Thu, 28 Feb 2002 15:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293691AbSB1Tm7>; Thu, 28 Feb 2002 14:42:59 -0500
-Received: from marge.bucknell.edu ([134.82.9.1]:14348 "EHLO mail.bucknell.edu")
-	by vger.kernel.org with ESMTP id <S293699AbSB1Tk1>;
-	Thu, 28 Feb 2002 14:40:27 -0500
-Subject: Re: a linux funny from slashdot...[only partly OT]
-From: Eric Krout <ekrout@bucknell.edu>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C7E6DEE.15EFA327@nortelnetworks.com>
-In-Reply-To: <3C7E6DEE.15EFA327@nortelnetworks.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 28 Feb 2002 14:40:46 -0500
-Message-Id: <1014925246.24114.14.camel@ekrout.resnet.bucknell.edu>
-Mime-Version: 1.0
+	id <S293745AbSB1U5Y>; Thu, 28 Feb 2002 15:57:24 -0500
+Received: from gate.perex.cz ([194.212.165.105]:32261 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S293740AbSB1U5M>;
+	Thu, 28 Feb 2002 15:57:12 -0500
+Date: Thu, 28 Feb 2002 21:56:09 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Patch - sharing RTC timer between kernel and user space
+In-Reply-To: <Pine.LNX.4.21.0202281535380.24187-100000@serv>
+Message-ID: <Pine.LNX.4.33.0202282155450.543-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-28 at 12:50, Chris Friesen wrote:
+On Thu, 28 Feb 2002, Roman Zippel wrote:
+
+> Hi,
 > 
-> The following is a quote from an anonymous coward posting on /.
+> On Thu, 28 Feb 2002, Jaroslav Kysela wrote:
 > 
-> //////begin quote//////////
+> > Using the RTC timer is optional. The default timer is system timer, of 
+> > course.
 > 
->  This is an open letter to Spanish Linux creator Linus Torvaldez.  
-> ...
+> Who is setting up this timer? This patch can also be done in userspace:
+> 
+> 	fd = open("/dev/rtc",...);
+> 	ioctl(alsafd, RTCFD, fd);
+> 
+> in the alsa driver you can do:
+> 
+> 	file = fget(fd);
+> 	...
+> 	if (file->f_op && file->f_op->ioctl)
+> 		file->f_op->ioctl(file->f_dentry->d_inode, file, cmd, arg);
+> 	...
+> 	fput(file);
 
-Chris,
+We need also a callback called at interrupt time.
 
-Although your interest in development issues that arise with the Linux
-kernel code should be applauded, I must advise you to refrain from
-posting any prose that has the possibility of inciting laughter among
-LKML subscribers.  While messages that intentionally humiliate others
-are widely accepted and used, humor, on the the other hand, is NOT
-CONDONED.
+						Jaroslav
 
-
-
-
-...Yes, I'm just kidding  ;-)
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

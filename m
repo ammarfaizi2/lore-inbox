@@ -1,85 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVCCFEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCCFEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVCCFEe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 00:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVCCEm7
+	id S261467AbVCCFEd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCCEnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:42:59 -0500
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:6831 "HELO
-	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261349AbVCCETy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:19:54 -0500
-From: Russell Miller <rmiller@duskglow.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: RFD: Kernel release numbering
-Date: Wed, 2 Mar 2005 20:21:00 -0800
-User-Agent: KMail/1.7
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	Wed, 2 Mar 2005 23:43:20 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:17294 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261436AbVCCE1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:27:45 -0500
+Date: Wed, 2 Mar 2005 20:27:33 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+In-Reply-To: <20050302201425.2b994195.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+ <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+ <20050302185508.4cd2f618.akpm@osdl.org> <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+ <20050302201425.2b994195.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503022021.00878.rmiller@duskglow.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 March 2005 19:37, Linus Torvalds wrote:
+On Wed, 2 Mar 2005, Andrew Morton wrote:
 
-> That's the whole point here, at least to me. I want to have people test
-> things out, but it doesn't matter how many -rc kernels I'd do, it just
-> won't happen. It's not a "real release".
+> > There have been extensive discussions on all aspects of this patch.
+> > This issue was discussed in
+> > http://marc.theaimsgroup.com/?t=110694497200004&r=1&w=2
 >
-> In contrast, making it a real release, and making it clear that it's a
-> release in its own right, might actually get people to use it.
+> This is a difficult, intrusive and controversial patch.  Things like the
+> above should be done in a separate patch.  Not only does this aid
+> maintainability, it also allows the change to be performance tested in
+> isolation.
+
+Well it would have been great if this was mentioned in the actual
+discussion at the time.
+
+> > The cmpxchg will fail if that happens.
 >
-> Might. Maybe.
+> How about if someone does remap_file_pages() against that virtual address
+> and that syscalls happens to pick the same physical page?  We have the same
+> physical page at the same pte slot with different contents, and the cmpxchg
+> will succeed.
+
+Any mmap changes requires the mmapsem.
+
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110272296503539&w=2
 >
-Linus, I respect all of the work you have done on the Linux kernels over the 
-years, and I have been an avid user of Linux almost since its inception (when 
-I could get it to work with the hardware, at least in the early days ;-)  And 
-the fact that my contributions to the kernel are almost nonexistent probbly 
-means you won't pay attention to a word I say anyway :-)  that's alright, I'm 
-going to say it and you can listen if you want.
+> Those are different cases.  I still don't see why the change is justified in
+> do_swap_page().
 
-My respect for your accomplishments is why it pains me a great deal to have to 
-tell you that I think you're wrong.
+Lets undo that then.
 
-I agree with the first part of your mail that I quoted above.  Indeed, the -rc 
-releases are not a "real release", and therefore people aren't going to test 
-it.
+> > These architectures have the atomic pte's not enable.  It would require
+> > them to submit a patch to activate atomic pte's for these architectures.
+>
+>
+> But if the approach which these patches take is not suitable for these
+> architectures then they have no solution to the scalability problem.  The
+> machines will perform suboptimally and more (perhaps conflicting)
+> development will be needed.
 
-What you are missing is that if you use the method you have proposed. odd 
-numberered kernels will stop being a "real release" as well to a great deal 
-of users.
+They can implement their own approach with the provided hooks. You could
+for example use SSE / MMX for atomic 64 bit ops on i386 with PAE mode by
+using the start/stop macros to deal with the floatingh point issues.
 
-I don't think you will actually gain anything here except for just changing 
-the kernel naming scheme yet *again*.  I certainly don't think you're going 
-to solve the problem you are trying to solve.
+> > One
+> > would have to check for the lock being active leading to significant code
+> > changes.
+>
+> Why?
 
-The problem as stated is that people are not downloading and testing the test 
-releases.
+Because if a pte is locked it should not be used.
 
-Your solution to that problem is to make test releases look like real releases 
-and maybe people will test them anyway.
+Look this is an endless discussion with new things brought up at every
+corner and I have reworked the patches numerous times. Could you tell me
+some step by step way that we can finally deal with this? Specify a
+sequence of patches and I will submit them to you step by step.
 
-The solution should be to find a way to encourage people to download and test 
-the test releases.  Perhaps a "bug bounty" of some kind (it doesn't have to 
-be money), or something similar, may prove to be a better motivator than 
-trying to trick the userbase.  It's not going to work.  If you take the 
-motivational approach, then it won't matter what you name the test releases, 
-people will test them anyway.
-
-Several ideas right off the top of my head:
-- a "bug bounty" as I mentioned above.
-- a volunteer army of people, similar to the "kernel janitors", whose job is 
-to do QA for the kernel.
-
---Russell
-
--- 
-
-Russell Miller - rmiller@duskglow.com - Agoura, CA

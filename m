@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbTEODV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 23:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTEODVs
+	id S263777AbTEODTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 23:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTEODSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 23:21:48 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:28396 "EHLO
+	Wed, 14 May 2003 23:18:40 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:6380 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263817AbTEODS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 23:18:28 -0400
-Date: Thu, 15 May 2003 04:31:16 +0100
-Message-Id: <200305150331.h4F3VGA3000762@deviant.impure.org.uk>
-To: torvalds@transmeta.com
+	id S263781AbTEODSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 23:18:17 -0400
+Date: Thu, 15 May 2003 04:31:05 +0100
+Message-Id: <200305150331.h4F3V5KB000583@deviant.impure.org.uk>
+To: alan@redhat.com
 From: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: shorten rclan debug output
+Subject: Incorrect AMD74xx UDMA100 test.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 2.4 long long ago.
+We do 80wire comparisons based on an uninitialised var.
+Shouldn't we also be doing the 80wire check on the UDMA66 case ?
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/rclanmtl.h linux-2.5/drivers/net/rclanmtl.h
---- bk-linus/drivers/net/rclanmtl.h	2003-04-22 00:40:42.000000000 +0100
-+++ linux-2.5/drivers/net/rclanmtl.h	2003-04-22 01:23:14.000000000 +0100
-@@ -54,10 +54,10 @@
- #include <asm/io.h>
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/ide/pci/amd74xx.c linux-2.5/drivers/ide/pci/amd74xx.c
+--- bk-linus/drivers/ide/pci/amd74xx.c	2003-04-10 06:01:18.000000000 +0100
++++ linux-2.5/drivers/ide/pci/amd74xx.c	2003-03-22 12:41:47.000000000 +0000
+@@ -313,7 +313,8 @@ static unsigned int __init init_chipset_
  
- /* Debug stuff. Define for debug output */
--#define RCDEBUG
-+#undef RCDEBUG
- 
- #ifdef RCDEBUG
--#define dprintk(args...) printk(KERN_DEBUG "(rcpci45 driver:) " args)
-+#define dprintk(args...) printk(KERN_DEBUG "rc: " args)
- #else
- #define dprintk(args...) { }
- #endif
+ 		case AMD_UDMA_100:
+ 			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);
+-			amd_80w = ((u & 0x3) ? 1 : 0) | ((u & 0xc) ? 2 : 0);
++			amd_80w = ((t & 0x3) ? 1 : 0) | ((t & 0xc) ? 2 : 0);
++			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
+ 			for (i = 24; i >= 0; i -= 8)
+ 				if (((u >> i) & 4) && !(amd_80w & (1 << (1 - (i >> 4))))) {
+ 					printk(KERN_WARNING "AMD_IDE: Bios didn't set cable bits correctly. Enabling workaround.\n");

@@ -1,54 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbUAHKQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 05:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUAHKQ2
+	id S264265AbUAHKaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 05:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUAHKaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 05:16:28 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:926 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263963AbUAHKQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 05:16:27 -0500
-Date: Thu, 8 Jan 2004 02:16:58 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jesper Juhl <juhl@dif.dk>
-Cc: joe@perches.com, juhl-lkml@dif.dk, linux-kernel@vger.kernel.org,
-       markhe@nextd.demon.co.uk, andrea@e-mind.com, manfred@colorfullife.com
-Subject: Re: [PATCH] mm/slab.c remove impossible <0 check - size_t is not
- signed - patch is against 2.6.1-rc1-mm2
-Message-Id: <20040108021658.0a8aaccc.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.56.0401081032590.10083@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.56.0401080204060.9700@jju_lnx.backbone.dif.dk>
-	<1073531294.2304.18.camel@localhost.localdomain>
-	<Pine.LNX.4.56.0401081032590.10083@jju_lnx.backbone.dif.dk>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 05:30:07 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:54532 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S264265AbUAHKaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 05:30:00 -0500
+Date: Thu, 8 Jan 2004 11:27:07 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH] fs/fcntl.c - remove impossible <0 check in do_fcntl -
+ arg is unsigned.
+In-Reply-To: <Pine.LNX.4.58.0401071846160.2131@home.osdl.org>
+Message-ID: <Pine.LNX.4.56.0401081034200.10083@jju_lnx.backbone.dif.dk>
+References: <8A43C34093B3D5119F7D0004AC56F4BC074B2059@difpst1a.dif.dk>
+ <Pine.LNX.4.58.0401071846160.2131@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason asked:
-> Well, anything wrong in cleaning them [unsigned compare warnings] up?
 
-It's more important that we write code that will fit in our limited
-human brains than that we write code that will avoid spurious warnings
-from gcc ('spurious' meaning warnings for code that gcc will correctly
-compile anyway).
+On Wed, 7 Jan 2004, Linus Torvalds wrote:
+>
+> On Thu, 8 Jan 2004, Jesper Juhl wrote:
+> >
+> > The 'arg' argument to the function do_fcntl in fs/fcntl.c is of type
+> > 'unsigned long', thus it can never be less than zero (all callers of
+> > do_fcntl take unsigned arguments as well and pass on unsigned values),
+>
+> I'm not sure I like these kinds of patches.
+>
 
-Or, see a couple months ago, in a thread with the Subject of:
-
-  [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
-
-in which Linus wrote:
-> That's why I hate the "sign compare" warning of gcc so much - it warns 
-> about things that you CANNOT sanely write in any other way. That makes 
-> that particular warning _evil_, since it encourages people to write crap 
-> code.
+Ok, let me try and argue in favour of it, and if you think the arguments
+are bogus then I won't be doing any more of this type of patches.
 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> I _like_ the code being readable.
+
+I can't argue with that, but I don't think this patch actually decreases
+readabillity. It's still perfectly clear what the remaining code does, and
+if anybody is wondering if 'arg' could ever be <0 then a quick glance at
+the type will answer that.
+
+Would you like this sort of patch better if removing the code went
+hand-in-hand with the addition of a one-line comment stating something
+like  /* the test for arg < 0 is not done since arg is unsigned */ or ?
+
+
+>  The fact that the compiler can optimize
+> away one of the tests if the type is right i2Ds fine. It seems to be
+> draconian to remove code that is correct and safe, especially when the
+> code has no real downsides to it.
+
+>From my point of view it's a matter of correctness. Testing an unsigned
+value for <0 makes no sense, and doing things that make no sense is a bad
+habbit in my oppinion. Yes, the code will be optimized away, so it doesn't
+actually do any harm, and in this case it's a very small amount of code,
+but that's not always so. A little while ago I posted a similar patch that
+removes some dead code in (amongst others) ReiserFS, and in that case it's
+a bit more code (not much, but a bit more) and there I think removing the
+impossible code makes the code easier to read since a person trying to
+find out what's going on does not have to spend time tracing the workings
+of something that can never execute in any case.
+
+
+>
+> Do we have a compiler that needlessly complains again?
+>
+
+Gcc /will/ warn about the fact that the result of an unsigned comparison
+with <0 is always false if the code in question is compiled with
+"-W -Wall", with the standard compile options no such warning is given.
+
+
+> Sometimes it is the _complaints_ that are bogus.
+>
+
+I'm not arguing against that. My mission here is not to silence any
+warning just for the sake of silencing the warning, although I must admit
+that I am trying to get rid of as many potential warnings as I can - It
+would be nice to be able to compile the kernel with "-W -Wall" and not
+have the output too cluttered, and some of the things that gcc will warn
+about could potentially hide real bugs, so I believe it's a valid
+exercise. But my real goal is mainly to find and fix potential problems,
+squishing potential warnings is a secondary bennefit.
+
+
+-- Jesper Juhl
+

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbTIHOd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOd0
+	id S262515AbTIHOh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbTIHOh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:33:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54914 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262248AbTIHOdX (ORCPT
+	Mon, 8 Sep 2003 10:37:58 -0400
+Received: from ns.suse.de ([195.135.220.2]:63150 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262515AbTIHOh4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:33:23 -0400
-Date: Mon, 8 Sep 2003 16:33:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by the kernel
-Message-ID: <20030908143334.GS840@suse.de>
-References: <bjgh6a$82o$1@sea.gmane.org> <20030908085802.GH840@suse.de> <bjhtmm$crf$1@sea.gmane.org>
-Mime-Version: 1.0
+	Mon, 8 Sep 2003 10:37:56 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel header separation
+References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
+	<20030903014908.GB1601@codepoet.org>
+	<20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk>
+	<20030905211604.GB16993@codepoet.org>
+	<20030905232212.GP18654@parcelfarce.linux.theplanet.co.uk>
+	<1063028303.32473.333.camel@hades.cambridge.redhat.com>
+	<1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
+	<20030908142545.GA3926@gtf.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!!  That's a GOOD IDEA!!  Eating a whole FIELD of COUGH MEDICINE
+ should make you feel MUCH BETTER!!
+Date: Mon, 08 Sep 2003 16:37:54 +0200
+In-Reply-To: <20030908142545.GA3926@gtf.org> (Jeff Garzik's message of "Mon,
+ 8 Sep 2003 10:25:45 -0400")
+Message-ID: <je1xurwdkt.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <bjhtmm$crf$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08 2003, Sven Köhler wrote:
-> >You'll probably find that if you bump the max_sectors count if your
-> >drive to 256 from 255 (that is the default if you haven't set it), then
-> >you'll see 128kb chunks all the time.
-> 
-> Why is 255 the default. It seems to be an inefficient value. Perhaps the 
-> NBD itself should set it to 256.
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-To avoid 8-bit wrap arounds, basically. Not sure it's still very valid,
-you are free to compile your kernel with it set to 256. 2.6 uses 256 by
-default.
+> Well, strictly speaking, __u8 is an internal gcc not kernel type.
 
-> >See max_sectors[] array.
-> 
-> Well, i found the declaration, but i can't imagine how to set the values 
-> in it.
+No, gcc does not define it at all.
 
-You can grep for other examples in the kernel, I would imagine?
+> Whenever I see "__u8", I think "non-standard, gcc-specific dependency"
+
+Check out <asm/types.h>.
+
+Andreas.
 
 -- 
-Jens Axboe
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbUBTWhu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 17:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUBTWhu
+	id S261405AbUBTWkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 17:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUBTWkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 17:37:50 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:30658 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S261328AbUBTWhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 17:37:43 -0500
-Date: Fri, 20 Feb 2004 15:37:50 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>,
-       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: harddisk or kernel problem?
-Message-ID: <20040220223750.GA8427@bounceswoosh.org>
-Mail-Followup-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>,
-	Nico Schottelius <nico-kernel@schottelius.org>,
-	Bruce Allen <ballen@gravity.phys.uwm.edu>,
-	linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu> <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca> <20040219081642.GE25184@schottelius.org> <Pine.LNX.4.58.0402201407480.1167@pervalidus.dyndns.org>
+	Fri, 20 Feb 2004 17:40:22 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:27613 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261405AbUBTWkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 17:40:11 -0500
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+From: Christophe Saout <christophe@saout.de>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040220185340.GA14358@leto.cs.pocnet.net>
+References: <20040219170228.GA10483@leto.cs.pocnet.net>
+	 <20040219111835.192d2741.akpm@osdl.org>
+	 <20040220171427.GD9266@certainkey.com>
+	 <20040220185340.GA14358@leto.cs.pocnet.net>
+Content-Type: text/plain
+Message-Id: <1077316812.24726.5.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402201407480.1167@pervalidus.dyndns.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 23:40:13 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20 at 14:10, Frédéric L. W. Meunier wrote:
->It isn't that hot, and by ambient temperature I assume it's the
->local temperature, not of the hard drive.
->
->194 Temperature_Celsius     0x0022   079   074   042    Old_age   Always       -       54
->
->and has been running almost fine for over 2 years.
+James,
 
-The SMART data is the temperature recorded by the drive itself.  There
-are various places where these measurements may be made, the actual
-implementation is vendor specific.
+> The crypto_hmac_init part could be done in the dm target constructor
+> once and then call crypto_hmac_update and crypto_hmac_final in the
+> iv_generator but this would require some cryptoapi hacking which I'm
+> not too happy about. I would like to make a copy of the tfm (including
+> the private context) on the stack and then operate on that copy for
+> crypto_hmac_update and crypto_hmac_final.
+> 
+> Can I have a function to return the tfm size so I can do a memcpy
+> to a variable on the stack? I could get rid of the mutex too then.
 
-An ambient temperature exceeding 55C would void most drive warranties,
-it isn't a good idea.  Sure, your drive may survive at higher temps,
-but it really is a bad idea.
+What do you think of this?
 
+I would like to copy the tfm onto the stack so that I can
+a) compute the hmac on several CPUs at the same time without locking
+b) reuse a precomputed tfm from just after crypt_hmac_init
 
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
 

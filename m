@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTDATlx>; Tue, 1 Apr 2003 14:41:53 -0500
+	id <S262788AbTDATfL>; Tue, 1 Apr 2003 14:35:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbTDATlx>; Tue, 1 Apr 2003 14:41:53 -0500
-Received: from main.gmane.org ([80.91.224.249]:23484 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S262789AbTDATlw>;
-	Tue, 1 Apr 2003 14:41:52 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: David Wuertele <dave-gnus@bfnet.com>
-Subject: Re: flash as hda causes 2.4.18 to hang in
- grok_partitions()...add_to_page_cache_unique()
-Date: Tue, 01 Apr 2003 11:49:13 -0800
-Organization: Berkeley Fluent Network
-Message-ID: <m3wuiedmme.fsf@bfnet.com>
-References: <m3smt3xuo1.fsf@bfnet.com> <1049212755.7628.5.camel@localhost>
-Mime-Version: 1.0
+	id <S262789AbTDATfL>; Tue, 1 Apr 2003 14:35:11 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59080 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262788AbTDATfK>; Tue, 1 Apr 2003 14:35:10 -0500
+Date: Tue, 01 Apr 2003 11:36:29 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: colpatch@us.ibm.com
+cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (2.5.66-mm2) War on warnings
+Message-ID: <135490000.1049225789@flay>
+In-Reply-To: <3E89E94C.4040004@us.ibm.com>
+References: <19200000.1049210557@[10.10.2.4]> <20030401152703.GA21986@gtf.org> <25070000.1049213622@[10.10.2.4]> <3E89E94C.4040004@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2 (i686-pc-linux-gnu)
-Cancel-Lock: sha1:mK1my5IEr9hF+RujrWi7BG8cXoA=
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel> I'd say this is a platform specific bug as it works for me
-Daniel> under 2.4.18 on ppc and i386.
 
-Do you have DMA enabled?  Specifically, Use PCI DMA by default when
-available (CONFIG_IDEDMA_PCI_AUTO)?
+> diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/drivers/char/drm/r128_cce.c linux-2.5.66-warnings/drivers/char/drm/r128_cce.c
+> --- linux-2.5.66-vanilla/drivers/char/drm/r128_cce.c	Mon Mar 24 14:00:07 2003
+> +++ linux-2.5.66-warnings/drivers/char/drm/r128_cce.c	Mon Mar 31 11:55:16 2003
+> @@ -352,7 +352,7 @@
+>       			    entry->busaddr[page_ofs]);
+>  		DRM_DEBUG( "ring rptr: offset=0x%08x handle=0x%08lx\n",
+>  			   entry->busaddr[page_ofs],
+> -     			   entry->handle + tmp_ofs );
+> +     			   (unsigned long)entry->handle + tmp_ofs );
+>  	}
+>  
+>  	/* Set watermark control */
 
-Dave
+These sort of things really need to be typecast to u64 if that's
+the dma_addr_t printk problem ... otherwise you silently lose data,
+which is most confusing.
+
+linux-2.5.66-vanilla/drivers/scsi/scsi_sysfs.c linux-2.5.66-warnings/drivers/scsi/scsi_sysfs.c
+> --- linux-2.5.66-vanilla/drivers/scsi/scsi_sysfs.c	Mon Mar 24 14:00:08 2003
+> +++ linux-2.5.66-warnings/drivers/scsi/scsi_sysfs.c	Mon Mar 31 11:56:02 2003
+> @@ -272,14 +272,17 @@
+>  	return 0; 
+>  }
+>  
+> +void scsi_rescan_device(struct scsi_device *);
+>  static ssize_t
+>  store_rescan_field (struct device *dev, const char *buf, size_t count) 
+>  {
+>  	int ret = ENODEV;
+>  	struct scsi_device *sdev;
+>  	sdev = to_scsi_device(dev);
+> -	if (sdev)
+> -		ret = scsi_rescan_device(sdev);
+> +	if (sdev){
+> +		ret = 0;
+> +		scsi_rescan_device(sdev);
+> +	}
+>  	return ret;
+>  }
+
+
+That's pretty much what I did, but apparently Christoph had a better fix
+posted to linux-scsi somewhere. I lost it though ...
+
+M.
 

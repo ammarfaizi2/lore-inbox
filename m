@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267176AbTAUTY4>; Tue, 21 Jan 2003 14:24:56 -0500
+	id <S267179AbTAUT07>; Tue, 21 Jan 2003 14:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267179AbTAUTY4>; Tue, 21 Jan 2003 14:24:56 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53216 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267176AbTAUTY4>; Tue, 21 Jan 2003 14:24:56 -0500
-Date: Tue, 21 Jan 2003 11:26:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
-cc: acpi-devel@sourceforge.net, mingo@redhat.com
-Subject: RE: [PATCH] SMP parsing rewrite, phase 1
-Message-ID: <298380000.1043177177@flay>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A12B@orsmsx401.jf.intel.com>
-References: <F760B14C9561B941B89469F59BA3A84725A12B@orsmsx401.jf.intel.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S267180AbTAUT07>; Tue, 21 Jan 2003 14:26:59 -0500
+Received: from comtv.ru ([217.10.32.4]:136 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S267179AbTAUT06>;
+	Tue, 21 Jan 2003 14:26:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] vmtruncate releases pages of MAP_PRIVATE vma
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 21 Jan 2003 22:26:25 +0300
+Message-ID: <m3hec2i9su.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Would be a lot easier to read if you could seperate out the
->> renames from the rest of the patch that actually does things.
-> ....
-> 
-> Anyways, I will take a stab at redoing the changesets the way you
-> describe.
 
-Cool, will be much easier to see what you're actually changing ;-)
- 
->> Anyway, I'll give it a spin on my wierdo box, and see what happens.
-> 
-> Cool, thanks.
+Good day!
 
-Your latest update makes the NUMA-Q work just fine ;-)
-x440 will need that array fixed, I guess.
+I've just encountered that vmtruncate() releases all pages of
+selected VMA. It does even if VMA is MAP_PRIVATE. Is this right
+behaviour?
 
-M.
+I think vmtruncate() should preserve that pages. 
 
+with best regards, Alex
 

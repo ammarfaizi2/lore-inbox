@@ -1,206 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSEVGFb>; Wed, 22 May 2002 02:05:31 -0400
+	id <S316865AbSEVGIX>; Wed, 22 May 2002 02:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316865AbSEVGFa>; Wed, 22 May 2002 02:05:30 -0400
-Received: from pop.adiglobal.com ([66.207.47.93]:36868 "EHLO
-	mail.adiglobal.com") by vger.kernel.org with ESMTP
-	id <S316864AbSEVGF2>; Wed, 22 May 2002 02:05:28 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 22 May 2002 02:04:13 -0400
+	id <S316866AbSEVGIW>; Wed, 22 May 2002 02:08:22 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:12263 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S316865AbSEVGIV>; Wed, 22 May 2002 02:08:21 -0400
+Message-Id: <200205220605.g4M65cI14609@colombe.home.perso>
+Date: Wed, 22 May 2002 08:05:35 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: nVidia NIC/IDE/something support?
+To: pavel@suse.cz
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020517002947.G116@toy.ucw.cz>
 MIME-Version: 1.0
-Subject: [STATUS 2.5]  May 22, 2002
-Message-ID: <3CEAFC9D.1735.5859792@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In brief this week...
-- A new and much improved quota system, courtesy of Jan Kara, 
-  has been merged in 2.5.17.
-- InfiniBand, the best thing since slice bread and PCI, is 
-  getting serious on Linux: some early reference code has just 
-  been made available.
+Le 17 Mai, Pavel Machek a écrit :
+> Hi!
+> 
+>> > One thing I've found for nForce chipset: official patches from nVidia 
+>> > (network driver is under nVidia's licence, all the rest is under GPL).
+>> > Hope that helps:
+>> > 
+>> > http://www.nvidia.com/view.asp?IO=linux_nforce_1.0-0236
+>> 
+>> Unfortunately the license you must agree to says it is all nvidia license
+>> and furthermore contains clauses illegal in the UK. If Nvidia was to submit
+>> any GPL bits they wanted merged without such stuff it would be useful
+> 
+> That's probably simple error by nvidia...
+> 								Pavel
 
-For hyperlinks to all these projects, bold items showing changes 
-since last week and much more, check out the kernel 2.5 status
-page at: 
-  http://www.kernelnewbies.org/status/
+nvidia help for swsusp would be nice also. I tried the patch on my
+desktop for the first time and it seems to work reliably (even from X)
+except that 3D is lost after resume. That's rather curious: menus
+without highlights or things like that.
 
-A text version is available below.  Comments welcome.
-Enjoy!
+--
+Florent Chabaud
+http://www.ssi.gouv.fr | http://fchabaud.free.fr
 
--- Guillaume
-
----------------------------------
-Kernel 2.5 status  -  May 22nd, 2002
-(Latest kernel release is 2.5.17)
-
-
-Features:
-
-Merged
-o in 2.5.1+   Rewrite of the block IO (bio) layer             (Jens Axboe)
-o in 2.5.2    Initial support for USB 2.0                     (David Brownell, 
-Greg Kroah-Hartman, etc.)
-o in 2.5.2    Per-process namespaces, late-boot cleanups      (Al Viro, Manfred 
-Spraul)
-o in 2.5.2+   New scheduler for improved scalability          (Ingo Molnar)
-o in 2.5.2+   New kernel device structure (kdev_t)            (Linus Torvalds, 
-etc.)
-o in 2.5.3    IDE layer update                                (Andre Hedrick)
-o in 2.5.3    Support reiserfs external journal               (Reiserfs team)
-o in 2.5.3    Generic ACL (Access Control List) support       (Nathan Scott)
-o in 2.5.3    PnP BIOS driver                                 (Alan Cox, Thomas 
-Hood, Dave Jones, etc.)
-o in 2.5.3+   New driver model & unified device tree          (Patrick Mochel)
-o in 2.5.4    Add preempt kernel option                       (Robert Love, 
-MontaVista team)
-o in 2.5.4    Support for Next Generation POSIX Threading     (NGPT team)
-o in 2.5.4+   Porting all input devices over to input API     (Vojtech Pavlik, 
-James Simmons)
-o in 2.5.5    Add ALSA (Advanced Linux Sound Architecture)    (ALSA team)
-o in 2.5.5    Pagetables in highmem support                   (Ingo Molnar, Arjan 
-van de Ven)
-o in 2.5.5    New architecture: AMD 64-bit (x86-64)           (Andi Kleen, x86-64 
-Linux team)
-o in 2.5.5    New architecture: PowerPC 64-bit (ppc64)        (Anton Blanchard, 
-ppc64 team)
-o in 2.5.5+   IDE subsystem major cleanup                     (Martin Dalecki, 
-Vojtech Pavlik)
-o in 2.5.6    Add JFS (Journaling FileSystem from IBM)        (JFS team)
-o in 2.5.6    per_cpu infrastructure                          (Rusty Russell)
-o in 2.5.6    HDLC (High-level Data Link Control) update      (Krzysztof Halasa)
-o in 2.5.6    smbfs Unicode and large file support            (Urban Widmark) 
-o in 2.5.7    New driver API for Wireless Extensions          (Jean Tourrilhes)
-o in 2.5.7    Video for Linux (V4L) redesign                  (Gerd Knorr)
-o in 2.5.7    Futexes (Fast Lightweight Userspace Semaphores) (Rusty Russell, etc.)
-o in 2.5.7+   NAPI network interrupt mitigation               (Jamal Hadi Salim, 
-Robert Olsson, Alexey Kuznetsov)
-o in 2.5.7+   ACPI (Advanced Configuration & Power Interface) (Andy Grover, ACPI 
-team)
-o in 2.5.8    Syscall interface for CPU task affinity         (Robert Love)
-o in 2.5.8    Radix-tree pagecache                            (Momchil Velikov, 
-Christoph Hellwig)
-o in 2.5.8+   Delayed disk block allocation                   (Andrew Morton)
-o in 2.5.9    Smarter IRQ balancing                           (Ingo Molnar)
-o in 2.5.11   Replace old NTFS driver with NTFS TNG driver    (Anton Altaparmakov)
-o in 2.5.11   Fast walk dcache                                (Hanna Linder)
-o in 2.5.11+  Rewrite of the framebuffer layer                (James Simmons)
-o in 2.5.12+  Rewrite of the buffer layer                     (Andrew Morton)
-o in 2.5.14   Support for IDE TCQ (Tagged Command Queueing)   (Jens Axboe)
-o in 2.5.14   Bluetooth support (no longer experimental!)     (Maxim Krasnyansky, 
-Bluetooth team)
-o in 2.5.17   New quota system supporting plugins             (Jan Kara)
-
-o in -dj      Rewrite of the console layer                    (James Simmons)
-o in -dj      New MTRR (Memory Type Range Register) driver    (Patrick Mochel)
-o in -ac      Strict address space accounting                 (Alan Cox)
-o in -ac      PCMCIA Zoom video support                       (Alan Cox)
-o in -ac      More complete NetBEUI stack                     (Arnaldo Carvalho de 
-Melo, from Procom donated code)
-o in -ac      More complete IEEE 802.2 stack                  (Arnaldo, Jay 
-Schullist, from Procom donated code)
-o in -ac      Add support for CPU clock/voltage scaling       (Erik Mouw, Dave 
-Jones, Russell King, Arjan van de Ven)
-o in -ac      Improved i2o (Intelligent Input/Ouput) layer    (Alan Cox)
-
-o Ready       Better event logging for enterprise systems     (Larry Kessler, 
-evlog team)
-o Ready       Linux booting ELF images                        (Eric Biederman)
-o Ready       First pass at LinuxBIOS support                 (Eric Biederman)
-o Ready       Build option for Linux Trace Toolkit (LTT)      (Karim Yaghmour)
-o Ready       New kernel build system (kbuild 2.5)            (Keith Owens)
-
-o Beta        Serial driver restructure                       (Russell King)
-o Beta        New IO scheduler                                (Jens Axboe)
-o Beta        Add XFS (A journaling filesystem from SGI)      (XFS team)
-o Beta        New VM with reverse mappings                    (Rik van Riel)
-o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, 
-Robert Love, etc.)
-o Beta        Add Linux Security Module (LSM)                 (LSM team)
-o Beta        Hotplug CPU support                             (Rusty Russell)
-o Beta        Per-mountpoint read-only, union-mounts, unionfs (Al Viro)
-o Beta        EVMS (Enterprise Volume Management System)      (EVMS team)
-o Beta        LVM (Logical Volume Manager) v2.0               (LVM team)
-o Beta        Dynamic Probes                                  (Suparna 
-Bhattacharya, dprobes team)
-o Beta        Scalable CPU bitmasks                           (Russ Weight)
-o Beta        Page table sharing                              (Daniel Phillips)
-o Beta        ext2/ext3 online resize support                 (Andreas Dilger)
-o Beta        Add User-Mode Linux (UML)                       (Jeff Dike)
-o Beta        UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter 
-Osterlund)
-o Beta        Add hardware sensors drivers                    (lm_sensors team)
-o Beta        New kernel config system: CML2                  (Eric Raymond)
-o Beta        Read-Copy Update Mutual Exclusion               (Dipankar Sarma, 
-Rusty Russell, Andrea Arcangeli, LSE Team)
-o Beta        USB device (not host) support                   (Stuart Lynne, Greg 
-Kroah-Hartman)
-
-o Alpha       Better support of high-end NUMA machines        (NUMA team)
-o Alpha       Add Asynchronous IO (aio) support               (Ben LaHaise)
-o Alpha       Overhaul PCMCIA support                         (David Woodhouse, 
-David Hinds)
-o Alpha       Full compliance with IPv6                       (Alexey Kuznetzov, 
-Jun Murai, Yoshifuji Hideaki, USAGI team)
-o Alpha       UMSDOS (Unix under MS-DOS) Rewrite              (Al Viro)
-o Alpha       Scalable Statistics Counter                     (Ravikiran 
-Thirumalai)
-o Alpha       Linux Kernel Crash Dumps                        (Matt Robinson, LKCD 
-team)
-o Alpha       Add support for NFS v4                          (NFS v4 team)
-o Alpha       ext2/ext3 large directory support: HTree index  (Daniel Phillips, 
-Christopher Li, Ted Ts'o)
-o Alpha       Remove use of the BKL (Big Kernel Lock)         (Alan Cox, Robert 
-Love, Neil Brown, Dave Hansen, etc.)
-o Alpha       Zerocopy NFS                                    (Hirokazu Takahashi)
-
-o Started     Change all drivers to new driver model          (All maintainers)
-o Started     Reiserfs v4                                     (Reiserfs team)
-o Started     Move ISDN4Linux to CAPI based interface         (ISDN4Linux team)
-o Started     Direct pagecache <-> BIO disk I/O               (Andrew Morton)
-
-o Draft #2    New lightweight library (klibc)                 (Greg Kroah-Hartman)
-o Draft #3    Replace initrd by initramfs                     (H. Peter Anvin, Al 
-Viro)
-o Planning    Add thrashing control                           (Rik van Riel)
-o Planning    Remove all hardwired drivers from kernel        (Alan Cox, etc.)
-o Planning    Generic parameter/command line interface        (Keith Owens)
-o Planning    New mount API                                   (Al Viro)
-o Planning    Implement new device naming convention          (Device naming team)
-* Planning    InfiniBand support                              (InfiniBand team)
-
-Cleanups:
-
-Merged
-o in 2.5.3    Break Configure.help into multiple files        (Linus Torvalds)
-o in 2.5.3    Untangle sched.h & fs.h include dependancies    (Dave Jones, Roman 
-Zippel)
-o in 2.5.4    Per network protocol slabcache & sock.h         (Arnaldo Carvalho de 
-Melo)
-o in 2.5.4    Per filesystem slabcache & fs.h                 (Daniel Phillips, 
-Jeff Garzik, Al Viro)
-o in 2.5.6    Killing kdev_t for block devices                (Al Viro)
-
-o in -dj      Split up x86 setup.c into managable pieces      (Patrick Mochel)
-
-o Ready       Switch to ->get_super() for file_system_type    (Al Viro)
-o Ready       ->getattr() ->setattr() ->permission() changes  (Al Viro)
-
-o Beta        file.h and INIT_TASK                            (Benjamin LaHaise)
-o Beta        Proper UFS fixes, ext2 and locking cleanups     (Al Viro)
-o Beta        Lifting limitations on mount(2)                 (Al Viro)
-o Beta        Remove dcache_lock                              (Maneesh Soni, IBM 
-team)
-
-o Started     Reorder x86 initialization                      (Dave Jones, Randy 
-Dunlap)
-
-Have some free time and want to help?  Check out the Kernel Janitor 
-TO DO list for a list of source code cleanups you can work on.  
-A great place to start learning more about kernel internals!

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270393AbTGRWwM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270397AbTGRWwL
+	id S270397AbTGRWxl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270404AbTGRWxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:52:11 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:33797
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270393AbTGRWwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:52:08 -0400
-Date: Fri, 18 Jul 2003 16:07:17 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH] O7int for interactivity
-Message-ID: <20030718230717.GG2289@matchmail.com>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-	Davide Libenzi <davidel@xmailserver.org>
-References: <200307190210.49687.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307190210.49687.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 18 Jul 2003 18:53:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19851 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270397AbTGRWwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:52:54 -0400
+Message-ID: <3F187DB1.1040309@pobox.com>
+Date: Fri, 18 Jul 2003 19:07:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stefan Cars <stefan@snowfall.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ICH5 SATA high interrupt/system load again...
+References: <20030718233631.F31074@guldivar.globalwire.se>
+In-Reply-To: <20030718233631.F31074@guldivar.globalwire.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
-> Here is an update to my Oint patches for 2.5/6 interactivity. Note I will be 
-> away for a week so bash away and abuse this one lots and when I get back I can 
-> see what else needs doing. Note I posted a preview earlier but this is the formal
-> O7 patch (check the datestamp which people hate in the naming of my patches).
-> I know this is turning into a marathon effort but... as you're all probably aware
-> there is nothing simple about tuning this beast. Thanks to all the testers and
-> people commenting; keep it coming please.
+Stefan Cars wrote:
+> Hi!
+> 
+> I've seen the discussion regarding high interrupt / system load on the
+> ICH5 SATA and I'm asking what todo about it if I can't put my BIOS into
+> "normal" mode. This machine is an Dell Precision 360 and for some stupid
+> reason they have for this model removed the possibility in the BIOS to
+> change this sort of things (you can't change much really). I'm using
+> 2.4.21-ac4. Just to extract a simple tar file brings the system load up
+> and the computer is slow...
+> 
+> 
+> Here is some info:
+> tjatte:/import# cat /proc/interrupts
+>            CPU0
+>   0:     557725          XT-PIC  timer
+>   1:        102          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   5:          0          XT-PIC  ehci_hcd
+>   9:   16409116          XT-PIC  libata, usb-uhci, eth0
 
-Is this on top of 06 or 06.1?
+
+Hum... interesting.  I had seen reports of this before, but they were of 
+the variety "drivers/ide has high load, libata doesn't".  So it seems 
+intrinsic of the hardware, which is a useful data point.
+
+Have you tried messing around with interrupt routing in BIOS setup? 
+Since ATA, USB, and eth0 are all on the same interrupt, changing that 
+may affect the situation positively.
+
+	Jeff
+
+
+

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277338AbRJOJJT>; Mon, 15 Oct 2001 05:09:19 -0400
+	id <S277351AbRJOJOt>; Mon, 15 Oct 2001 05:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277345AbRJOJJI>; Mon, 15 Oct 2001 05:09:08 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:45039 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S277338AbRJOJJA>; Mon, 15 Oct 2001 05:09:00 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Mon, 15 Oct 2001 03:09:09 -0600
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: journaling and devel [was Re: Development Setups]
-Message-ID: <20011015030909.A2519@turbolinux.com>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S277349AbRJOJOk>; Mon, 15 Oct 2001 05:14:40 -0400
+Received: from 217-79-101-244.adsl.griffin.net.uk ([217.79.101.244]:34925 "EHLO
+	beast.ez-dsp.com") by vger.kernel.org with ESMTP id <S277347AbRJOJOZ>;
+	Mon, 15 Oct 2001 05:14:25 -0400
+Message-ID: <048a01c1555a$09d4e790$07fea8c0@stu2>
+From: "James Stevenson" <mail-lists@stev.org>
+To: "David Ford" <david@blue-labs.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BC8A04A.5090108@blue-labs.org>
+Subject: Re: Tcpdump filters, problem with UDP and 2.4.x
+Date: Mon, 15 Oct 2001 10:16:13 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel writes:
-> I disagree.. With journal filesystem, when something is silently corrupting
-> your disk, you'll never know.  With ext2, you sometimes sync & reset to make
-> sure your disks are still healthy.  I would not recomment journaling on
-> experimental boxes.
 
-I would say just the opposite with ext3 - I prefer to use it on my development
-boxes.
+----- Original Message -----
+From: "David Ford" <david@blue-labs.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Saturday, October 13, 2001 9:12 PM
+Subject: Tcpdump filters, problem with UDP and 2.4.x
 
-1) No fsck time (normally) after crashing, which can happen a lot.
-2) You can set ext3 to fsck automatically after a fixed number of reboots/time
-   if you are worried about a bad disk/cable/kernel.
 
-Most of the mke2fs which support ext3 (1.20+ or so) will set the check
-interval to 20 + rand(20) reboots per check by default, or 6 months.  Since
-this is a random value, you don't get all of your filesystems checked at the
-same time, but it happens at least once in a while to ensure that each fs is
-OK.
+> I see a lot of "UDP: bad checksum. ..." between two of my servers.  I
+> haven't attached a tcpdump output of the packets because a) the packets
+> between machine A and B travel through a GRE tunnel and b) does anyone
+> have tcpdump filters or know how to finagle tcpdump into dumping the
+> embedded packet instead of the GRE header'd packet?
+>
 
-Of course, you can turn it off if you want, but the option is there to do
-periodic checks.  The time interval is probably still a good idea, even if
-you turn of the per-N-mount checking, because of bit rot, etc.
+id this for NFS udp traffic ?
+if it is then you will see it i have seen this on both 2.2.x and 2.4.x
+kernels
+it only shows up on the nfs server side for me though.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+
+
 

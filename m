@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbUKUUUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbUKUU3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbUKUUUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 15:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKUUUf
+	id S261781AbUKUU3o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 15:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKUU3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 15:20:35 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:65512 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261753AbUKUUUb
+	Sun, 21 Nov 2004 15:29:44 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:44250 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261785AbUKUU31
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 15:20:31 -0500
-Message-ID: <41A0F893.9020106@free.fr>
-Date: Sun, 21 Nov 2004 21:20:35 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
-References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> <419E3B7A.4000904@free.fr> <Pine.SOC.4.61.0411200102580.12992@math.ut.ee> <419F136B.8010308@free.fr> <Pine.SOC.4.61.0411211949260.23880@math.ut.ee> <41A0DB78.2010807@free.fr> <Pine.SOC.4.61.0411212050490.11420@math.ut.ee>
-In-Reply-To: <Pine.SOC.4.61.0411212050490.11420@math.ut.ee>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Nov 2004 15:29:27 -0500
+Date: Sun, 21 Nov 2004 21:29:23 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Priority Inheritance Test (Real-Time Preemption)
+Message-Id: <Pine.OSF.4.05.10411212107240.29110-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meelis Roos wrote:
->> Could I have the log from smsc-ircc2 when it failed with pnpacpi ?
-> 
-> 
-> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-> smsc_superio_flat(): IrDA not enabled
-> smsc_superio_flat(): fir: 0x00, sir: 0x00, dma: 15, irq: 0, mode: 0x02
-> 
-just for curiosity, when you have time, could try pnpacpi and jean PNP 
-smsc patch?
+Hi,
+ From realfeel I wrote a small, simple test to test how well priority
+inheritance mechanism works. 
 
-It sould find the correct resources because there are provided by PnP 
-layer, but if the resources are not well allocated by PnPacpi, the 
-device shouldn't work.
+Basicly it samples how long a real-time task have to wait to get into a
+protected region while non-real-time tasks also try to get into the
+region (a character device). Their "job" in the region is to busy-loop for
+1 ms. This ought to mimic how drivers and other parts of the kernel would
+work in a real real-time application: Real time tasks using the driver
+while non-real-time tasks also use the same driver.
+
+With an ideal PI mutex the time the real-time task has to wait to get the
+lock should be between 0 and 1 ms. 0 when the mutex is uncongested and 1
+ms when one of the non-real-time tasks just got the mutex.
+
+I tested it on V0.7.26-0 and my own U9.2-priom. Both implementations fails
+when the mutex is congested by more than 1 non-real-time task. It works
+well enough when there is only one non-real-time task trying to get the
+mutex, but as soon as there are more it could look like the real-time task
+not always is the first on the wait queue. I.e. sometimes it has to wait 2
+ms! With 4 non-real-time tasks the most common is 1-2 ms!
+
+Code, detailed description and data can be found at
+ http://www.phys.au.dk/~simlo/Linux/pi_test.tgz
+
+Esben
 
 
-thanks
 
-Matthieu

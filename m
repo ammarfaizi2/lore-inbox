@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269081AbUJKQPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269130AbUJKQPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269081AbUJKQPE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbUJKQKt
+	id S269130AbUJKQPC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:15:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269081AbUJKQNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:10:49 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:32641 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S269048AbUJKQIU convert rfc822-to-8bit
+	Mon, 11 Oct 2004 12:13:55 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:7146 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S269065AbUJKQG4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:08:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 11 Oct 2004 12:06:56 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
+Date: Mon, 11 Oct 2004 09:07:15 -0700
+User-Agent: KMail/1.6.2
+Cc: Kay Sievers <kay.sievers@vrfy.org>, bert hubert <ahu@ds9a.nl>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20041011120701.GA824@outpost.ds9a.nl> <20041011153719.GA4118@vrfy.org>
+In-Reply-To: <20041011153719.GA4118@vrfy.org>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Linux 2.6.9-rc4 - pls test (and no more patches)
-Date: Tue, 12 Oct 2004 00:07:48 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8405C29CF8@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux 2.6.9-rc4 - pls test (and no more patches)
-Thread-Index: AcSvpt5DddFq/9QJQBeJfIFYoiRj6gAA9uVQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>, <Brice.Goglin@ens-lyon.org>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Moore, Robert" <robert.moore@intel.com>,
-       "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 11 Oct 2004 16:07:58.0757 (UTC) FILETIME=[79E60550:01C4AFAC]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410110907.15219.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->
->but yours are different:
->
->> By the way, I still see these errors during the boot, don't 
->know if it's
->> supposed to be fixed :
->> 
->>   psparse-1133: *** Error: Method execution failed 
->[\_SB_.C03E.C053.C0D1.C12E] (Node e7f9a3a8), AE_AML_UNINITIALIZED_LOCAL
->>   psparse-1133: *** Error: Method execution failed 
->[\_SB_.C03E.C053.C0D1.C13D] (Node e7f9bd68), AE_AML_UNINITIALIZED_LOCAL
->>   psparse-1133: *** Error: Method execution failed 
->[\_SB_.C19F._BTP] (Node e7fa3348), AE_AML_UNINITIALIZED_LOCAL
->
+On Monday 11 October 2004 8:37 am, Kay Sievers wrote:
+> On Mon, Oct 11, 2004 at 02:07:01PM +0200, bert hubert wrote:
+> > 
+> > The expected behaviour is that on forceably unplugging an USB
+> > memory stick, 
+> > the created SCSI device should vanish, along with the mounts based on it.
+> 
+> That is clearly bejond the scope of the kernel or hotplug. This policy
+> belongs to some other device management software
 
-..snippets from ASL language spec.(defined in ACPI spec).
+I've got to disagree with the "clearly", if not that entire claim.
 
-17.5.69   Localx (Method Local Data Objects)
-...
-On entry to a control method, these objects are uninitialized 
-and cannot be used until some value or reference is stored
-into the object....
+"Clearly" would imply there's some other sane default policy
+that doesn't amount to "wedge the system".
 
-I guess AML interpreter successfully catch a bug violating 
-the rule above.  Please attach /proc/acpi/dsdt in bug report.
-
-Thanks,
-Luming
-
-
+- Dave

@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbTITDbw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 23:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTITDbw
+	id S261346AbTITEaf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 00:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTITEae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 23:31:52 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:17536
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S261329AbTITDbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 23:31:50 -0400
-Date: Sat, 20 Sep 2003 05:31:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+	Sat, 20 Sep 2003 00:30:34 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:43752 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261346AbTITEad
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 00:30:33 -0400
+Date: Fri, 19 Sep 2003 21:30:26 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
 Subject: Re: Fix for wrong OOM killer trigger?
-Message-ID: <20030920033153.GA1452@velociraptor.random>
-References: <20030919191613.36750de3.bless@tm.uka.de> <20030919192544.GC1312@velociraptor.random> <20030919203538.D1919@flint.arm.linux.org.uk> <20030919200117.GE1312@velociraptor.random> <20030919205220.GA19830@work.bitmover.com>
+Message-ID: <20030920043026.GA10836@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20030919191613.36750de3.bless@tm.uka.de> <20030919192544.GC1312@velociraptor.random> <20030919203538.D1919@flint.arm.linux.org.uk> <20030919200117.GE1312@velociraptor.random> <20030919205220.GA19830@work.bitmover.com> <20030920033153.GA1452@velociraptor.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030919205220.GA19830@work.bitmover.com>
+In-Reply-To: <20030920033153.GA1452@velociraptor.random>
 User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
+On Sat, Sep 20, 2003 at 05:31:53AM +0200, Andrea Arcangeli wrote:
+> If I would remotely think my signature is rude with you, or anybody
+> else, I wouldn't post it anymore, especially after you point me to it.
+> [etc]
 
-On Fri, Sep 19, 2003 at 01:52:20PM -0700, Larry McVoy wrote:
-> won't come back until you have stopped being rude.  You do understand
+The problem is that you are saying that closed source is bad, in
+particular, that BitKeeper is bad.  That's not the problem, lots of
+people think that closed source is bad, but in the same breath you
+promote some free gateways PAID FOR BY BITKEEPER and requested by you.
+That's hypocritical in the extreme.
 
-If I would remotely think my signature is rude with you, or anybody
-else, I wouldn't post it anymore, especially after you point me to it.
+Let me clue you in.  The economy sucks.  Nobody except Microsoft is
+getting rich in this economy.  Everyone is looking to cut costs and we
+are too.  It costs us money to provide those gateways.  I write checks
+every month to keep them going.  As a corporation we derive zero benefit
+from providing those gateways.  They are there because you asked for them
+and I thought the deal was that you would stop whining once you got them.
+If that's the deal, then stop whining.  If that's not the deal, ok,
+I guess I misunderstood, but I can save some money and shut them down.
 
-Some people in the past and probably even today thought they would
-never depend on open source for critical things, a number of people
-like me thinks just the opposite.
+Then your signature can read:
 
-I don't see why you find this fact as rude. Do you think it's rude that
-some people refuses to depend on closed software for critical tasks?
-So then why do you think the source code of some closed software is
-being offered to governaments for the first time after 20 years? Is it
-rude that some governament prefers to have the source too and they as
-well apparently see a value in not depending on closed software? I mean
-you really can't just complain at me saying I'm rude, like if I was the
-only one on earth sharing this view.
+/*
+ * We used to be able to depend on the following license free gateways
+ * but I was deliberately rude to the people providing them so they went
+ * away:
+ *
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+ * :pserver:anonymous@kernel.bkbits.net:/home/cvs/linux-2.[45]/
+ * svn://svn.kernel.org/linux-2.[46]/trunk
+ */
 
-And clearly if somebody is interested in my links is because he's
-sharing my view, otherwise he could just use bitkeeper that despite
-being born after cvs, is much more feature rich (that's the reason of
-the comment!).
-
-I will never say that you're rude because your claims against open
-source you posted several times in linux-kernel (you know the parasite that
-eat the host, and lots and lots of stuff like that, all things that I
-absolutely and totally disagree with), I will never say the bitkeeper
-"free" licence is rude or whatever like that despite I find it much less
-acceptable than all other proprietary licence I dealt with in my limited
-experience with proprietary software, but people is different, it's not
-about being rude, it's about thinking differently, and I will never buy
-from you that thinking different is the same as being rude.
-
-Andrea - If you refuse to depend on closed software for a critical
-	 part of your business, these links may be useful:
-	  rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-	  http://www.cobite.com/cvsps/
-	  svn://svn.kernel.org/linux-2.[46]/trunk
+Sooner or later, I expect the more reasonable people out there to explain
+to you that your actions are hurting them and maybe they'll help you
+decide which is more important, getting at the data you want, in a timely
+manner, without a license, or doing negative advertising against us.
+If the other folks don't care enough to do that then that's fine, the
+gateways are not important and you can whine all you want but you'll be
+back to waiting for tarball releases and we can save some money.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

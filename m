@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQLWQTi>; Sat, 23 Dec 2000 11:19:38 -0500
+	id <S129535AbQLWQYK>; Sat, 23 Dec 2000 11:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129535AbQLWQT2>; Sat, 23 Dec 2000 11:19:28 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:20494 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129340AbQLWQTS>;
-	Sat, 23 Dec 2000 11:19:18 -0500
-Message-ID: <3A44C8F7.53BB069D@innominate.de>
-Date: Sat, 23 Dec 2000 16:47:03 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S130300AbQLWQYA>; Sat, 23 Dec 2000 11:24:00 -0500
+Received: from winds.org ([209.115.81.9]:13830 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129535AbQLWQXp>;
+	Sat, 23 Dec 2000 11:23:45 -0500
+Date: Sat, 23 Dec 2000 10:53:11 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: Rok Pergarec <mammbo@knux.nu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ATI Mach 64 (2.4.0-test12)
+In-Reply-To: <Pine.LNX.4.20.0012230940310.1633-100000@ns.knux.nu>
+Message-ID: <Pine.LNX.4.21.0012231048530.2110-100000@winds.org>
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <Pine.LNX.4.21.0012221730270.3382-100000@freak.distro.conectiva> <84320000.977527131@coffee>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
-> It is enough to leave buffer heads we don't flush on the dirty list (and
-> redirty the page), they'll get written by a future loop through
-> flush_dirty_pages, or by page_launder.  We could use ll_rw_block instead,
-> even though anon pages do have a writepage with this patch (just check if
-> page->mapping == &anon_space_mapping).
+On Sat, 23 Dec 2000, Rok Pergarec wrote:
 
-anon_space_mapping... this is really useful.  This would make a nice
-patch on its own.
+> Hello,
+> 
+> I have problems with the ATI Mach 64 (Rage 2) video card. After a boot, I
+> get just a blank screen with a few vertical lines, but the system boots up
+> normally beacuse I can reboot the machine anyway. I don't get a sigle
+> error in compiling.
 
---
-Daniel
+Try configuring just standard 'VGA text console' and disabling 'Video mode
+selection support'. Don't configure any special ATI choices either (or frame
+buffering), and see if it boots up then. The Mach64 should have standard VGA
+capabilities and should be compatible with every other vga card on bootup.
+
+If it still doesn't work, send me your /usr/src/linux/.config file so I can see
+what you have configured.
+
+Regards,
+ Byron
+
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

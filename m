@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129119AbRBANZ4>; Thu, 1 Feb 2001 08:25:56 -0500
+	id <S129095AbRBANiB>; Thu, 1 Feb 2001 08:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129278AbRBANZq>; Thu, 1 Feb 2001 08:25:46 -0500
-Received: from ckmso1.att.com ([12.20.58.69]:56216 "EHLO ckmso1.proxy.att.com")
-	by vger.kernel.org with ESMTP id <S129119AbRBANZf>;
-	Thu, 1 Feb 2001 08:25:35 -0500
-Message-ID: <0DDEC5E8B4C3D311BE0800902799EC360388FFB3@mo3980po04.ems.att.com>
-From: "Willson, Wayne M, NTCOM" <wwillson@att.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Different L2 cache size - will it hurt stability?
-Date: Thu, 1 Feb 2001 07:25:19 -0600 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129171AbRBANhv>; Thu, 1 Feb 2001 08:37:51 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:41734 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129095AbRBANhg>; Thu, 1 Feb 2001 08:37:36 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: mjacob@feral.com, dank@alumni.caltech.edu
+cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Message-ID: <CA2569E6.0049DA68.00@d73mta05.au.ibm.com>
+Date: Thu, 1 Feb 2001 18:50:08 +0530
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait 
+	/notify + callback chains
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
 
-I just noticed that one of my production boxes has one CPU with 256K L2
-cache and the other has 512K L2 cache.  Will this make the server any less
-stable?  If it reduced performance I don't really care, but stability is
-paramount.
+sct wrote:
+>> >
+>> > Thanks for mentioning this. I didn't know about it earlier. I've been
+>> > going through the 4/00 kqueue patch on freebsd ...
+>>
+>> Linus has already denounced them as massively over-engineered...
+>
+>That shouldn't stop anyone from looking at them and learning, though.
+>There might be a good idea or two hiding in there somewhere.
+>- Dan
+>
 
-[root@il05037a /proc]# more cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 1
-model name      : Pentium Pro
-stepping        : 7
-cpu MHz         : 199.455
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov
-bogomips        : 398.13
+There is always a scope to learn from a different approach to tackle a
+problem of a similar nature -  both good ideas as well as over-engineered
+ones - sometimes more from the later :-)
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 1
-model name      : Pentium Pro
-stepping        : 9
-cpu MHz         : 199.455
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov
-bogomips        : 397.31
+As far as I have understood so far from looking at the original kevent
+patch and notes (which perhaps isn't enough and maybe out of date as well),
+the concept of knotes and filter ops, and the event queuing mechanism in
+itself is interesting and generic, but most of it seems to have been
+designed with linkage to user-mode issueable event waits in mind - like
+poll/select/aio/signal etc, at least as it appears from the way its been
+used in the kernel. A little different from what I had in mind, though its
+perhaps possible to use it otherwise. But maybe I've just not thought about
+it enough or understood it.
+
+Regards
+Suparna
+
+  Suparna Bhattacharya
+  Systems Software Group, IBM Global Services, India
+  E-mail : bsuparna@in.ibm.com
+  Phone : 91-80-5267117, Extn : 2525
 
 
-Thanks in advance,
-
-Wayne Willson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

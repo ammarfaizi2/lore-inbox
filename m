@@ -1,115 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269142AbUIRHSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269147AbUIRHXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269142AbUIRHSg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 03:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269144AbUIRHSg
+	id S269147AbUIRHXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 03:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269149AbUIRHXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 03:18:36 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:7069 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269142AbUIRHSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 03:18:18 -0400
-Date: Sat, 18 Sep 2004 00:18:17 -0700
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: marcelo.tosatti@cyclades.com
-Subject: [PATCH 2.4] hotplug: Don't build cpqphp_proc.o if !PROC_FS
-Message-ID: <20040918071817.GA4864@darjeeling.triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	marcelo.tosatti@cyclades.com
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6+20040818i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Sat, 18 Sep 2004 03:23:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26809 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269147AbUIRHWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 03:22:23 -0400
+Date: Sat, 18 Sep 2004 03:22:09 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>,
+       Andreas Gruenbacher <agruen@suse.de>, Chris Wright <chrisw@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/6] xattr consolidation v2 - LSM
+In-Reply-To: <Xine.LNX.4.44.0409180305300.10905@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0409180306490.10905-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch replaces the dentry parameter with an inode in the LSM
+inode_{set|get|list}security hooks, in keeping with the ext2/ext3 code.
+dentries are not needed here.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hello,
+ include/linux/security.h |   30 +++++++++++++++---------------
+ security/dummy.c         |    6 +++---
+ security/selinux/hooks.c |    8 +++-----
+ 3 files changed, 21 insertions(+), 23 deletions(-)
 
-This simple patch to drivers/hotplug/Makefile eliminates a build failure
-for cpqphp if CONFIG_PROC_FS is disabled. Herbert Xu originally wrote
-this patch.
 
-Marcelo, please apply.
+Signed-off-by: James Morris <jmorris@redhat.com>
+Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
 
-(Note: does not apply to 2.6 because stuff seems to have switched to
-sysfs there.)
 
-Signed-off-by: Joshua Kwan <joshk@triplehelix.org>
+diff -purN -X dontdiff linux-2.6.9-rc2.p/include/linux/security.h linux-2.6.9-rc2.w/include/linux/security.h
+--- linux-2.6.9-rc2.p/include/linux/security.h	2004-09-13 01:33:11.000000000 -0400
++++ linux-2.6.9-rc2.w/include/linux/security.h	2004-09-18 01:40:06.535428080 -0400
+@@ -395,13 +395,13 @@ struct swap_info_struct;
+  * 	Return 0 if permission is granted.
+  * @inode_getsecurity:
+  *	Copy the extended attribute representation of the security label 
+- *	associated with @name for @dentry into @buffer.  @buffer may be 
++ *	associated with @name for @inode into @buffer.  @buffer may be 
+  *	NULL to request the size of the buffer required.  @size indicates
+  *	the size of @buffer in bytes.  Note that @name is the remainder
+  *	of the attribute name after the security. prefix has been removed.
+  *	Return number of bytes used/required on success.
+  * @inode_setsecurity:
+- *	Set the security label associated with @name for @dentry from the 
++ *	Set the security label associated with @name for @inode from the 
+  *	extended attribute value @value.  @size indicates the size of the
+  *	@value in bytes.  @flags may be XATTR_CREATE, XATTR_REPLACE, or 0.
+  *	Note that @name is the remainder of the attribute name after the 
+@@ -409,7 +409,7 @@ struct swap_info_struct;
+  *	Return 0 on success.
+  * @inode_listsecurity:
+  *	Copy the extended attribute names for the security labels
+- *	associated with @dentry into @buffer.  @buffer may be NULL to 
++ *	associated with @inode into @buffer.  @buffer may be NULL to 
+  *	request the size of the buffer required.  
+  *	Returns number of bytes used/required on success.
+  *
+@@ -1108,9 +1108,9 @@ struct security_operations {
+ 	int (*inode_getxattr) (struct dentry *dentry, char *name);
+ 	int (*inode_listxattr) (struct dentry *dentry);
+ 	int (*inode_removexattr) (struct dentry *dentry, char *name);
+-  	int (*inode_getsecurity)(struct dentry *dentry, const char *name, void *buffer, size_t size);
+-  	int (*inode_setsecurity)(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
+-  	int (*inode_listsecurity)(struct dentry *dentry, char *buffer);
++  	int (*inode_getsecurity)(struct inode *inode, const char *name, void *buffer, size_t size);
++  	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
++  	int (*inode_listsecurity)(struct inode *inode, char *buffer);
+ 
+ 	int (*file_permission) (struct file * file, int mask);
+ 	int (*file_alloc_security) (struct file * file);
+@@ -1575,19 +1575,19 @@ static inline int security_inode_removex
+ 	return security_ops->inode_removexattr (dentry, name);
+ }
+ 
+-static inline int security_inode_getsecurity(struct dentry *dentry, const char *name, void *buffer, size_t size)
++static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
+-	return security_ops->inode_getsecurity(dentry, name, buffer, size);
++	return security_ops->inode_getsecurity(inode, name, buffer, size);
+ }
+ 
+-static inline int security_inode_setsecurity(struct dentry *dentry, const char *name, const void *value, size_t size, int flags) 
++static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags) 
+ {
+-	return security_ops->inode_setsecurity(dentry, name, value, size, flags);
++	return security_ops->inode_setsecurity(inode, name, value, size, flags);
+ }
+ 
+-static inline int security_inode_listsecurity(struct dentry *dentry, char *buffer)
++static inline int security_inode_listsecurity(struct inode *inode, char *buffer)
+ {
+-	return security_ops->inode_listsecurity(dentry, buffer);
++	return security_ops->inode_listsecurity(inode, buffer);
+ }
+ 
+ static inline int security_file_permission (struct file *file, int mask)
+@@ -2214,17 +2214,17 @@ static inline int security_inode_removex
+ 	return cap_inode_removexattr(dentry, name);
+ }
+ 
+-static inline int security_inode_getsecurity(struct dentry *dentry, const char *name, void *buffer, size_t size)
++static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int security_inode_setsecurity(struct dentry *dentry, const char *name, const void *value, size_t size, int flags) 
++static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags) 
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int security_inode_listsecurity(struct dentry *dentry, char *buffer)
++static inline int security_inode_listsecurity(struct inode *inode, char *buffer)
+ {
+ 	return 0;
+ }
+diff -purN -X dontdiff linux-2.6.9-rc2.p/security/dummy.c linux-2.6.9-rc2.w/security/dummy.c
+--- linux-2.6.9-rc2.p/security/dummy.c	2004-09-13 01:31:57.000000000 -0400
++++ linux-2.6.9-rc2.w/security/dummy.c	2004-09-18 01:40:06.537427776 -0400
+@@ -447,17 +447,17 @@ static int dummy_inode_removexattr (stru
+ 	return 0;
+ }
+ 
+-static int dummy_inode_getsecurity(struct dentry *dentry, const char *name, void *buffer, size_t size)
++static int dummy_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_inode_setsecurity(struct dentry *dentry, const char *name, const void *value, size_t size, int flags) 
++static int dummy_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags) 
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_inode_listsecurity(struct dentry *dentry, char *buffer)
++static int dummy_inode_listsecurity(struct inode *inode, char *buffer)
+ {
+ 	return 0;
+ }
+diff -purN -X dontdiff linux-2.6.9-rc2.p/security/selinux/hooks.c linux-2.6.9-rc2.w/security/selinux/hooks.c
+--- linux-2.6.9-rc2.p/security/selinux/hooks.c	2004-09-13 01:33:37.000000000 -0400
++++ linux-2.6.9-rc2.w/security/selinux/hooks.c	2004-09-18 01:40:06.553425344 -0400
+@@ -2331,9 +2331,8 @@ static int selinux_inode_removexattr (st
+ 	return -EACCES;
+ }
+ 
+-static int selinux_inode_getsecurity(struct dentry *dentry, const char *name, void *buffer, size_t size)
++static int selinux_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
+-	struct inode *inode = dentry->d_inode;
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	char *context;
+ 	unsigned len;
+@@ -2361,10 +2360,9 @@ static int selinux_inode_getsecurity(str
+ 	return len;
+ }
+ 
+-static int selinux_inode_setsecurity(struct dentry *dentry, const char *name,
++static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+                                      const void *value, size_t size, int flags)
+ {
+-	struct inode *inode = dentry->d_inode;
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 newsid;
+ 	int rc;
+@@ -2383,7 +2381,7 @@ static int selinux_inode_setsecurity(str
+ 	return 0;
+ }
+ 
+-static int selinux_inode_listsecurity(struct dentry *dentry, char *buffer)
++static int selinux_inode_listsecurity(struct inode *inode, char *buffer)
+ {
+ 	const int len = sizeof(XATTR_NAME_SELINUX);
+ 	if (buffer)
 
---=20
-Joshua Kwan
 
-# origin: Debian (herbert)
-# cset: n/a
-# inclusion: not submitted
-# description: don't build cpqphp_proc.o if !PROC_FS
-# revision date: 2004-09-05
-
-diff -urN kernel-source-2.4.26/drivers/hotplug/Makefile kernel-source-2.4.2=
-6-1/drivers/hotplug/Makefile
---- kernel-source-2.4.26/drivers/hotplug/Makefile	2003-08-25 21:44:41.00000=
-0000 +1000
-+++ kernel-source-2.4.26-1/drivers/hotplug/Makefile	2004-04-17 08:17:42.000=
-000000 +1000
-@@ -18,7 +18,6 @@
-=20
- cpqphp-objs		:=3D	cpqphp_core.o	\
- 				cpqphp_ctrl.o	\
--				cpqphp_proc.o	\
- 				cpqphp_pci.o
-=20
- ibmphp-objs		:=3D	ibmphp_core.o	\
-@@ -36,5 +35,9 @@
- 	cpqphp-objs +=3D cpqphp_nvram.o
- endif
-=20
-+ifeq ($(CONFIG_PROC_FS),y)
-+	cpqphp-objs +=3D cpqphp_proc.o
-+endif
-+
- include $(TOPDIR)/Rules.make
-=20
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
-
-iQIVAwUBQUvhOaOILr94RG8mAQLSQhAA432PI53sV7fVdtGXvhzxkr3pOnL3FBSH
-Ofh0newd/n/XVC8GC0VVZb3eRslZ2pEGfUqiGQht9ADfncHNsWw6xON+Uel5n9d5
-0i4cNBu1Z8cgeIjD9Qs9+YI2WVgyNorgRvpup+mQJIMTA6rkXbsBrC06niSZz0cx
-eoaYpYDHy8t5b80+RoXdH9C3eqGcXPiX8K1P5RL4aGF+gzPd/E11jcbIeOeR9psD
-vtbdqmLPkTcW/6/2D57xg2LSGVmxgl30wXnO/w1MK+Ryk1z/PuQvESCRJGs7BdWf
-EtRqHFgAnJUvHsf3/BROpkecx2Sgt8UMgbiBAK3ms+HKo6FDYScMadmCfvmqNONX
-/qHaBXdrby2UWY0uJBslzSII/SlQVg+hdu61GBw16bWupUhjzSFmIPDa8g/n6yW+
-TOLv0I4xWq3yEz8nAR+1WlV0oI0orzna9AWf4Rz+3Ayg0SDfPTRMD3sL5xEoGM6O
-KMQ68oX/as4eNGI3b6Rg229FGRpPNjVWrNo3s2RVWzms+8gZAOKSnmOlxlVZfbc7
-OIl2ZiEtWt4ebTpk6E2yaiQsvlSrudpaG36lk+H46hBkFuRoaK09maysks2gLm4i
-3pinq+fPCZ6rYTuY61qi/MCJJw1jgLjggTrApPRxt7xAziy/l+vaBg9JGcVNtro8
-ZCfhvdVy/sc=
-=D+OR
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--

@@ -1,138 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317040AbSFKNdb>; Tue, 11 Jun 2002 09:33:31 -0400
+	id <S317045AbSFKNm0>; Tue, 11 Jun 2002 09:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317045AbSFKNda>; Tue, 11 Jun 2002 09:33:30 -0400
-Received: from fortress.mirotel.net ([194.125.225.117]:10500 "EHLO
-	fortress.mirotel.net") by vger.kernel.org with ESMTP
-	id <S317040AbSFKNd2>; Tue, 11 Jun 2002 09:33:28 -0400
-Content-Type: text/plain;
-  charset="koi8-r"
-From: "Lev V. Vanyan" <remedy@mirotel.net>
-Reply-To: remedy@mirotel.net
-Organization: Mirotel LTD
-To: linux-kernel@vger.kernel.org
-Subject: sysctl net.ipv4.icmp_default_ttl
-Date: Tue, 11 Jun 2002 16:33:38 +0300
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <02061116333800.01217@fortress.mirotel.net>
-Content-Transfer-Encoding: 8bit
+	id <S317047AbSFKNmZ>; Tue, 11 Jun 2002 09:42:25 -0400
+Received: from fysh.org ([212.47.68.126]:42672 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S317045AbSFKNmY>;
+	Tue, 11 Jun 2002 09:42:24 -0400
+Date: Tue, 11 Jun 2002 14:42:25 +0100
+From: Athanasius <Athanasius@miggy.org.uk>
+To: Keith Owens <kaos@ocs.com.au>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel: request_module[net-pf-10]: fork failed, errno 11
+Message-ID: <20020611134225.GD13726@miggy.org.uk>
+Mail-Followup-To: Athanasius <Athanasius@miggy.org.uk>,
+	Keith Owens <kaos@ocs.com.au>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020608094307.GA6522@miggy.org.uk> <21483.1023531725@ocs3.intra.ocs.com.au> <20020609175414.GB13726@miggy.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
+On Sun, Jun 09, 2002 at 06:54:14PM +0100, Athanasius wrote:
+> On Sat, Jun 08, 2002 at 08:22:05PM +1000, Keith Owens wrote:
+> > On Sat, 8 Jun 2002 10:43:07 +0100, 
+> > Athanasius <link@gurus.tf> wrote:
+> > >  I'm seeing a lot of:
+> > >
+> > >	kernel: request_module[net-pf-10]: fork failed, errno 11
+> [snip]
+> > 
+> > That error is occurring before modprobe has run, long before it gets to
+> > modules.conf.  You need to find out why fork() for modprobe on your
+> > system is failing with EAGAIN.  Have you reached the limit on the
+> > number of tasks?
+> 
+>    Not as far as I can tell.  It would be easier to tell if 'sa' (BSD
+> process accounting) carried useful information like timestamps per
+> process or even just their PIDs (to match to a *.* syslog'd file).
 
-I wrote a new sysctl flag allowing to control Time To Live for ICMP packages. 
-I've applied it to my 2.4.18 and it runs stable on fortress.mirotel.net 
-(Linux i386).
+  Ok, a little more investigation:
 
-PS: This is my first kernel patch, so it would be better if community will 
-forgive me in case i've done something wrong :)
+root@bowl:/sbin# cat modprobe-logging 
+#!/bin/sh
 
+echo "`date` `ps axh | wc -l`: $@" >> /var/log/modprobe.log
+exec /sbin/modprobe $@
+root@bowl:/sbin# cat /proc/sys/kernel/modprobe 
+/sbin/modprobe-logging
 
-- --- linux/net/ipv4/sysctl_net_ipv4.c	Wed Oct 31 01:08:12 2001
-+++ linux-2.4.18/net/ipv4/sysctl_net_ipv4.c	Mon Jun 10 21:51:08 2002
-@@ -22,6 +22,7 @@
- extern int sysctl_icmp_echo_ignore_all;
- extern int sysctl_icmp_echo_ignore_broadcasts;
- extern int sysctl_icmp_ignore_bogus_error_responses;
-+extern int sysctl_icmp_default_ttl;
- 
- /* From ip_fragment.c */
- extern int sysctl_ipfrag_low_thresh;
-@@ -176,6 +177,9 @@
- 	{NET_IPV4_ICMP_IGNORE_BOGUS_ERROR_RESPONSES, 
-"icmp_ignore_bogus_error_responses",
- 	 &sysctl_icmp_ignore_bogus_error_responses, sizeof(int), 0644, NULL,
- 	 &proc_dointvec},
-+	{NET_IPV4_ICMP_DEFAULT_TTL, "icmp_default_ttl",
-+	&sysctl_icmp_default_ttl,sizeof(int), 0644,NULL,
-+	&proc_dointvec},
- 	{NET_IPV4_ROUTE, "route", NULL, 0, 0555, ipv4_route_table},
- #ifdef CONFIG_IP_MULTICAST
- 	{NET_IPV4_IGMP_MAX_MEMBERSHIPS, "igmp_max_memberships",
-- --- linux/net/ipv4/ip_output.c	Thu Oct 18 00:16:39 2001
-+++ linux-2.4.18/net/ipv4/ip_output.c	Tue Jun 11 15:58:07 2002
-@@ -84,6 +84,9 @@
- 
- int sysctl_ip_dynaddr = 0;
- int sysctl_ip_default_ttl = IPDEFTTL;
-+#ifdef CONFIG_SYSCTL
-+extern int sysctl_icmp_default_ttl;
-+#endif
- 
- /* Generate a checksum for an outgoing IP datagram. */
- __inline__ void ip_send_check(struct iphdr *iph)
-@@ -572,10 +575,17 @@
- 				 */
- 				mf = htons(IP_MF);
- 			}
-- -			if (rt->rt_type == RTN_MULTICAST)
-- -				iph->ttl = sk->protinfo.af_inet.mc_ttl;
-- -			else
-- -				iph->ttl = sk->protinfo.af_inet.ttl;
-+#ifdef CONFIG_SYSCTL
-+			if(sk->protocol != IPPROTO_ICMP) {
-+#endif
-+				if (rt->rt_type == RTN_MULTICAST) 
-+					iph->ttl = sk->protinfo.af_inet.mc_ttl;
-+				else
-+					iph->ttl = sk->protinfo.af_inet.ttl;
-+#ifdef CONFIG_SYSCTL			
-+			}
-+				else iph->ttl = sysctl_icmp_default_ttl;
-+#endif
- 			iph->protocol = sk->protocol;
- 			iph->check = 0;
- 			iph->saddr = rt->rt_src;
-@@ -693,10 +703,19 @@
- 		iph->tos=sk->protinfo.af_inet.tos;
- 		iph->tot_len = htons(length);
- 		iph->frag_off = df;
-- -		iph->ttl=sk->protinfo.af_inet.mc_ttl;
-+		/* set TTL for ICMP packets */
-+#ifdef	CONFIG_SYSCTL
-+		if(iph->protocol == IPPROTO_ICMP)
-+			iph->ttl = sysctl_icmp_default_ttl;
-+		else {
-+#endif
-+			if(rt->rt_type != RTN_MULTICAST)
-+				iph->ttl = sk->protinfo.af_inet.ttl;
-+			else iph->ttl = sk->protinfo.af_inet.mc_ttl;
-+#ifdef CONFIG_SYSCTL
-+		}
-+#endif
- 		ip_select_ident(iph, &rt->u.dst, sk);
-- -		if (rt->rt_type != RTN_MULTICAST)
-- -			iph->ttl=sk->protinfo.af_inet.ttl;
- 		iph->protocol=sk->protocol;
- 		iph->saddr=rt->rt_src;
- 		iph->daddr=rt->rt_dst;
-- --- linux/net/ipv4/icmp.c	Mon Feb 25 21:38:14 2002
-+++ linux-2.4.18/net/ipv4/icmp.c	Tue Jun 11 15:36:36 2002
-@@ -143,6 +143,9 @@
- int sysctl_icmp_echo_ignore_all;
- int sysctl_icmp_echo_ignore_broadcasts;
- 
-+/* Control max icmp ttl. */
-+int sysctl_icmp_default_ttl = 255;
-+
- /* Control parameter - ignore bogus broadcast responses? */
- int sysctl_icmp_ignore_bogus_error_responses;
- 
-ð
+In /var/log/kern.log:
+Jun 11 14:36:58 bowl kernel: request_module[net-pf-10]: fork failed, errno 11
 
-- -- 
-Lev V. Vanyan                    Software Engineer
-Mirotel ISP                      nic-hdl: VL1580-RIPE, LV2560-NIC
-mailto: remedy@mirotel.net
------BEGIN PGP SIGNATURE-----
-Version: 2.6.3a
-Charset: noconv
+And in /var/log/modprobe.log:
 
-iQB1AwUBPQX8O89Sz223N4s1AQGg9wL+MvqmTeGEo+fPPQO0N9xhuDCskpOypQ/7
-AoV7dkqx3IhvYqrZPFUJ2P2KYR1l/whzQK0gmFsWkc0jpPpsfW0Krtmn8JzS4U4h
-PQhHhOqhbhWLOEMQoOGhkT/g/mOmAXnE
-=d6XJ
------END PGP SIGNATURE-----
+Tue Jun 11 14:36:41 BST 2002     229: -s -k -- net-pf-10
+Tue Jun 11 14:36:58 BST 2002     228: -s -k -- net-pf-10
+Tue Jun 11 14:36:58 BST 2002     227: -s -k -- net-pf-10
+Tue Jun 11 14:37:02 BST 2002     227: -s -k -- net-pf-10
+
+/proc/sys/kernel/threads-max is 4095.
+
+  So, nowhere near threads-max (if ps axh is a good test of that),
+certainly not processes-wise.  Yet at times the request_module is
+failing anyway.  It would seem that an immediate followup attempt works.
+Yup, just had another instance:
+
+Jun 11 14:40:11 bowl kernel: request_module[net-pf-10]: fork failed, errno 11
+Tue Jun 11 14:40:07 BST 2002     235: -s -k -- net-pf-10
+Tue Jun 11 14:40:11 BST 2002     229: -s -k -- net-pf-10
+Tue Jun 11 14:40:11 BST 2002     230: -s -k -- net-pf-10
+Tue Jun 11 14:40:42 BST 2002     227: -s -k -- net-pf-10
+
+  Note that ulimit -u is 256, but that's per login instance normally and
+I'd not have thought a kernel thread goes through PAM anyway...
+
+-Ath
+-- 
+- Athanasius = Athanasius(at)miggy.org.uk / http://www.clan-lovely.org/~athan/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME

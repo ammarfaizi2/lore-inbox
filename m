@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUEGHXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263232AbUEGH3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUEGHXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 03:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbUEGHXk
+	id S263232AbUEGH3z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 03:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263252AbUEGH3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 03:23:40 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:60671 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263229AbUEGHXh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 03:23:37 -0400
-Message-ID: <409B3930.9B0C9659@melbourne.sgi.com>
-Date: Fri, 07 May 2004 17:22:24 +1000
-From: Greg Banks <gnb@melbourne.sgi.com>
-Organization: SGI Australian Software Group
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Oliver Tennert <tennert@science-computing.de>,
-       linux-kernel@vger.kernel.org,
-       Linux NFS Mailing List <nfs@lists.sourceforge.net>
-Subject: Re: PATCH [NFSd] NFSv3/TCP
-References: <Pine.LNX.4.44.0405070834001.4547-100000@picard.science-computing.de> <16539.12572.90447.543633@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 7 May 2004 03:29:55 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:57343 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S263232AbUEGH3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 03:29:54 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+From: Ian Kumlien <pomac@vapor.com>
+To: richard@techdrive.com.au
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vCn8x1+9moDkI+sZIf3B"
+Message-Id: <1083914992.2797.82.camel@big>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 07 May 2004 09:29:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> There was once a patch floating around which allowed a larger
-> NFSSVC_MAXBLKSIZE on architectures with large page sizes, but it never
-> got properly submitted I think.
 
-Then please consider this a resend.  I'll appreciate any guidance
-about proper submission.
+--=-vCn8x1+9moDkI+sZIf3B
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This patch has been in SGI's ProPack kernel for 6 months and resulted
-in a significant improvement in NFS throughput at a number of customer
-sites.
+> ASUS have now supplied a BIOS update for the A7N8X-X which fixes the=20
+> C1 halt crash. dated the 2004/04/21.  So I assume that they will=20
+> supply a patch for all nforce2 motherboards.
 
---- /usr/tmp/TmpDir.16250-0/linux/linux/include/linux/nfsd/const.h_1.5	Fri May  7
-17:20:22 2004
-+++ /usr/tmp/TmpDir.16250-0/linux/linux/include/linux/nfsd/const.h	Fri May  7
-17:20:22 2004
-@@ -12,6 +12,7 @@
- #include <linux/nfs.h>
- #include <linux/nfs2.h>
- #include <linux/nfs3.h>
-+#include <asm/page.h>
- 
- /*
-  * Maximum protocol version supported by knfsd
-@@ -19,9 +20,16 @@
- #define NFSSVC_MAXVERS		3
- 
- /*
-- * Maximum blocksize supported by daemon currently at 8K
-+ * Maximum blocksize supported by daemon.  We want the largest
-+ * value which 1) fits in a UDP datagram less some headers
-+ * 2) is a multiple of page size 3) can be successfully kmalloc()ed
-+ * by each nfsd.   
-  */
--#define NFSSVC_MAXBLKSIZE	(8*1024)
-+#if PAGE_SIZE > (16*1024)
-+#define NFSSVC_MAXBLKSIZE	(32*1024)
-+#else
-+#define NFSSVC_MAXBLKSIZE	(2*PAGE_SIZE)
-+#endif
- 
- #ifdef __KERNEL__
- 
+you mean the 1009 bios? It doesn't fix anything.
+I'm using it and:
 
+dmesg output:
+...
+Asus A7N8X-X detected: BIOS IRQ0 pin2 override will be ignored
+...
+PCI: nForce2 C1 Halt Disconnect fixup
+...
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+(I'm the one that told Len about the new bios that doesn't fix the pin2
+bug and afair, the C1 Halt Disconnect fix checked for flawed values, ie,
+this bios dosn't fix anything...)
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-vCn8x1+9moDkI+sZIf3B
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAmzrw7F3Euyc51N8RAtuvAKC1BwGf59+Yq72UNOA0BHUHhJPaSQCfRtbM
+kkA0hyBF3lWGFpUz7byz8L0=
+=bi7A
+-----END PGP SIGNATURE-----
+
+--=-vCn8x1+9moDkI+sZIf3B--
+

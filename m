@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262119AbREXP4r>; Thu, 24 May 2001 11:56:47 -0400
+	id <S262120AbREXP51>; Thu, 24 May 2001 11:57:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262120AbREXP4h>; Thu, 24 May 2001 11:56:37 -0400
-Received: from www.microgate.com ([216.30.46.105]:29969 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S262119AbREXP4c>; Thu, 24 May 2001 11:56:32 -0400
-Message-ID: <003b01c0e472$6f7a3ae0$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <rjd@xyzzy.clara.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200105241530.f4OFUdw27786@xyzzy.clara.co.uk>
-Subject: Re: SyncPPP IPCP/LCP loop problem and patch
-Date: Thu, 24 May 2001 10:56:11 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S262125AbREXP5H>; Thu, 24 May 2001 11:57:07 -0400
+Received: from ns.suse.de ([213.95.15.193]:44555 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262120AbREXP5E>;
+	Thu, 24 May 2001 11:57:04 -0400
+Date: Thu, 24 May 2001 17:56:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Dying disk and filesystem choice.
+Message-ID: <20010524175600.A14584@gruyere.muc.suse.de>
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au> <200105240658.f4O6wEWq031945@webber.adilger.int> <20010524103145.A9521@gruyere.muc.suse.de> <p05100301b732c8715ebd@[207.213.214.37]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <p05100301b732c8715ebd@[207.213.214.37]>; from jlundell@pobox.com on Thu, May 24, 2001 at 08:50:04AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 24, 2001 at 08:50:04AM -0700, Jonathan Lundell wrote:
+> At 10:31 AM +0200 2001-05-24, Andi Kleen wrote:
+> >reiserfs doesn't, but the HD usually has transparently in its firmware.
+> >So it hits a bad block; you see an IO error and the next time you hit
+> >the block the firmware has mapped in a fresh one from its internal
+> >reserves.
+> 
+> Drives have remapping capability, but it's the first I've heard of HD 
+> firmware doing it automatically. I'd be very interested in reading 
+> the relevant documentation, if you could provide a pointer. Seems to 
+> me if a drive *could* do this, you'd certainly want to turn it 
+> (automatic remapping) off. There's way too much chance that a system 
+> will read the remapped sector and assume that it contains the 
+> original data. That would be hopelessly corrupting.
 
-From: <rjd@xyzzy.clara.co.uk>
-> Linux syncppp does not have a LCP_STATE_REQ_SENT ...
-[snip]
-> Who's the owner for syncppp.c ?  I might be able to put some time in on
-> it, but would hate to be sending patches into empty space.
+There are two scenarios: read and write. For write doing remapping transparent
+is all fine, as the data is destroyed anyways.
+For read it returns an IO error once and the next time you read from that 
+block it contains fresh (or partly recovered) data.
 
-I'm not sure anyone is willing to claim ownership :)
-
-I did not realize that syncppp does not implement
-all the RFC1661 states. That's simply broken :(
-A proper state machine implementation would be nice.
-
-On the other hand, it works in a minimal way
-for most people and it's supposed to be folded
-into the generic PPP implementation someday.
-So there's not much point in trying to overhaul the code.
-
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation www.microgate.com
-
-
+-Andi

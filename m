@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSI0N3a>; Fri, 27 Sep 2002 09:29:30 -0400
+	id <S261697AbSI0Npc>; Fri, 27 Sep 2002 09:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261658AbSI0N3a>; Fri, 27 Sep 2002 09:29:30 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:12295 "EHLO
-	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S261615AbSI0N3a>; Fri, 27 Sep 2002 09:29:30 -0400
-Message-ID: <3D945F48.5DC9D233@compro.net>
-Date: Fri, 27 Sep 2002 09:38:16 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
-X-Accept-Language: en
+	id <S261658AbSI0Npc>; Fri, 27 Sep 2002 09:45:32 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:37897 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S261537AbSI0Npa>; Fri, 27 Sep 2002 09:45:30 -0400
+Date: Fri, 27 Sep 2002 07:30:55 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>
+cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing
+ file transfers
+Message-ID: <389902704.1033133455@aslan.scsiguy.com>
+In-Reply-To: <20020927102503.GA15101@suse.de>
+References: <20020927074509.GA860@suse.de>
+ <Pine.BSF.4.21.0209270055290.18408-100000@beppo>
+ <20020927102503.GA15101@suse.de>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [OT]Raw Disk Support?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Sorry if this is the wrong place to ask. Just figured you all would know the
-answer for sure.
+> The starvation I'm talking about is the drive starving requests. Just
+> keep it moderately busy (10-30 outstanding tags), and a read can take a
+> long time to complete.
 
-I have a need for an application I'm writing to be able to read raw data from
-scsi disk drives that were used on an old Proprietary OS. (MPX-32). These disks
-are formatted at a 768 byte sector size. All disks using this OS were formatted
-at a 768 byte sector. Is there any way that I can read the raw 768 byte sectors
-with Linux?
+As I tried to explain to Andrew just the other day, this is neither a
+drive nor HBA problem.  You've essentially constructed a benchmark where
+a single process can get so far ahead of the I/O subsystem in terms of
+buffered writes that there is no choice but for there to be a long delay
+for the device to handle your read.  Consider that because you are queuing,
+the drive will completely fill its cache with write data that is pending
+to hit the platters.  The number of transactions in the cache is marginally
+dependant on the number of tags in use since that will affect the ability
+of the controller to saturate the drive cache with write data.  Depending
+on your drive, mode page settings, etc, the drive may allow your read to
+pass the write, but many do not.  So you have to wait for the cache to
+at least have space to handle your read and perhaps have even additional
+write data flush before your read can even be started.  If you don't like
+this behavior, which actually maximizes the throughput of the device, have
+the I/O scheduler hold back a single processes from creating such a large
+backlog.  You can also read the SCSI spec and tune your disk to behave
+differently.
 
-I guess first, will a Linux scsi driver let me read 768 byte sectors and second
-is there raw disk device support such that I can read these disks without a
-known filesystem type being on them?
+Now consider the read case.  I maintain that any reasonable drive will
+*always* outperform the OS's transaction reordering/elevator algorithms
+for seek reduction.  This is the whole point of having high tag depths.
+In all I/O studies that have been performed todate, reads far outnumber
+writes *unless* you are creating an ISO image on your disk.  In my opinion
+it is much more important to optimize for the more common, concurrent
+read case, than it is for the sequential write case with intermittent
+reads.  Of course, you can fix the latter case too without any change to
+the driver's queue depth as outlined above.  Why not have your cake and
+eat it too?
 
-Thanks in advance and Regards
-
-Mark
+--
+Justin

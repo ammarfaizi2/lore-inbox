@@ -1,104 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUCSVLs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 16:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUCSVLs
+	id S261832AbUCSVTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 16:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbUCSVTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 16:11:48 -0500
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:41735
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261160AbUCSVLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 16:11:44 -0500
-Date: Fri, 19 Mar 2004 13:09:19 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: hpt366-0.37.patch.bz2 K.O.
-In-Reply-To: <Pine.LNX.4.10.10403191251180.2569-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10403191303000.2569-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Fri, 19 Mar 2004 16:19:09 -0500
+Received: from cfcafw.sgi.com ([198.149.23.1]:51957 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261832AbUCSVTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 16:19:06 -0500
+Date: Fri, 19 Mar 2004 15:14:57 -0600
+From: Robin Holt <holt@sgi.com>
+To: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Arthur Corliss <corliss@digitalmages.com>,
+       Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: [patch,rfc] BSD accounting format rework
+Message-ID: <20040319211457.GA19662@lnx-holt>
+References: <Pine.LNX.4.53.0403161414150.19052@gockel.physik3.uni-rostock.de> <Pine.LNX.4.53.0403191424480.19032@gockel.physik3.uni-rostock.de> <20040319191916.GQ1066@vestdata.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040319191916.GQ1066@vestdata.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Please go install a version 2 HPT372A/N and watch the kernel die, then
-install the patch and it works proper.  Better yet rewind to 2.4.18 and it
-works correct unpatch.
-
-The point is the current HPT372N detection code is so broad and a foul
-mess, it actually trashes a HPT372A ver 2 device, which by chance happens
-to be silkscreened with HPT372N.  This is one of the reason I happen to
-get paid to fix things, is know the differences and where to parse against
-them.
-
-There is a reason to have it EXPLODE early.  Failure have proper timing
-parameters and continued execution has generally resulted in FS havoc.
-General file system corruption is bad.  It is far better to BUG out and
-OOPS before reading or writing data, or is this point to suttle?
-
-I now remember why I avoid LKML.
-
-Gurr.....
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Fri, 19 Mar 2004, Andre Hedrick wrote:
-
+> One idea is to add the size of the structure to log. The start of the
+> struct could be something like:
+> struct acct_base {
+> 	char flags;
+> 	char ac_version;
+> 	__u16 ac_size;
+> }
 > 
-> So the point is that I know there will not be a version greater than two
-> on this asic?
+> This makes future extentions easier in two seperate ways:
+> Userspace acct can recognize futuristic data structures. It will, of
+> course, not be able to process them, but it can warn the user and then
+> continue on to the next struct.
 > 
-> I post fixes for problems people pay to have fixed.
-> If there are other problems, you are free to fix it yourself.
-> 
-> I have been doing this for only the past 6 years, there is just a tiny bit
-> of insight I might have.  Hey apply or not.
-> 
-> Regards,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> On Fri, 19 Mar 2004, Sergey Vlasov wrote:
-> 
-> > On Fri, 19 Mar 2004 04:53:22 -0800 (PST) Andre Hedrick wrote:
-> > 
-> > > http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.25/hpt366-0.37.patch.bz2
-> > > 
-> > > Fixes fifo dma data corruption on RocketRaid404
-> > > Fixes native HPT372 detection/setup for HPT372/HPT372A/HPT372N
-> > > 
-> > > HPT372N's previous code seems kooky, but then again do not have specific
-> > > hardware rev in question.
-> > 
-> >  static void __init init_setup_hpt37x (struct pci_dev *dev, ide_pci_device_t *d)
-> >  {
-> > +	if (d->device == PCI_DEVICE_ID_TTI_HPT372) {
-> > +		unsigned int class_rev;
-> > +		static char *chipset_names[] = {"HPT372", "HPT372A", "HPT372N"};
-> > +
-> > +		pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-> > +		class_rev &= 0xff;
-> > +		d->name = chipset_names[class_rev];
-> > +	}
-> > +
-> >  	ide_setup_pci_device(dev, d);
-> >  }
-> > 
-> > This will blow up if a chip with the same PCI ID and a revision larger
-> > than 2 ever appears.
-> > 
-> > Also, hpt366_init_one() is __devinit, but it calls d->init_setup, and
-> > all init_setup_*() functions are __init - does not look good.  Hmm,
-> > this is present in many drivers, also in 2.6.x... apparently this is
-> > safe because such devices cannot be hotplugged.
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Also, it would make it possible to add new fields at the end of the
+> structure _without_ bumping the version-number. (Like an extention to
+> the same format). When userspace find a v2 struct bigger that it's
+> "struct acct_v2" it can parse the first part of the data with struct
+> acct_v2 and just ignore the rest. This makes it trivial to add new
+> fields without breaking userspace.
 
+How about breaking the ac_version structure down as two nibbles?  One
+half being the major version and the other half being a minor version.
+The major version, when changed, means the structure is no longer compatible.
+The minor version can be changed when existing fields are not modified
+in either form or function.
+
+Robin

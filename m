@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbTEVSLX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTEVSLW
+	id S262985AbTEVSQo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 14:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTEVSQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:11:22 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:45061 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S262964AbTEVSLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:11:22 -0400
-From: Terence Ripperda <tripperda@nvidia.com>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
-Date: Thu, 22 May 2003 13:23:52 -0500
-From: <tripperda@nvidia.com>
-Subject: Re: pat support in the kernel
-Message-ID: <20030522182352.GC532@hygelac>
-References: <20030520190017$773c@gated-at.bofh.it> <m38yt1igdh.fsf@averell.firstfloor.org> <20030520201855.GE1050@hygelac> <20030521093343.GA2819@averell>
-Mime-Version: 1.0
+	Thu, 22 May 2003 14:16:43 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:10226 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262985AbTEVSQm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 14:16:42 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030521093343.GA2819@averell>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.4.19
+Content-Transfer-Encoding: 7bit
+Message-ID: <16077.5909.155004.502440@gargle.gargle.HOWL>
+Date: Thu, 22 May 2003 20:29:41 +0200
+From: mikpe@csd.uu.se
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: arch/i386/kernel/mpparse.c warning fixes
+In-Reply-To: <20030522162305.GT8978@holomorphy.com>
+References: <20030522155320.GP29926@holomorphy.com>
+	<16076.62927.525714.113342@gargle.gargle.HOWL>
+	<20030522162305.GT8978@holomorphy.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the tips Andi,
+William Lee Irwin III writes:
+ > William Lee Irwin III writes:
+ > >> -	if (m->mpc_apicid > MAX_APICS) {
+ > >> +	if (MAX_APICS - m->mpc_apicid <= 0) {
+ > >>  		printk(KERN_WARNING "Processor #%d INVALID. (Max ID: %d).\n",
+ > >>  			m->mpc_apicid, MAX_APICS);
+ > >>  		--num_processors;
+ > 
+ > On Thu, May 22, 2003 at 06:07:43PM +0200, mikpe@csd.uu.se wrote:
+ > > Eeew. Whatever the original problem is, this "fix" is just too
+ > > obscure and ugly.
+ > 
+ > m->mpc_apicid is an 8-bit type; MAX_APICS can be 256. The above fix
+ > properly compares two integral expressions of equal width.
 
-The rmap lookups sound like a good route to go. I'll work on that and post another patch when I have something working. 
+In the original "_>_", the 8-bit mpc_apicid is implicitly converted to int
+before the comparison, as part of the "integer promotions" in the "usual
+arithmetic conversions" (C standard lingo). The same happens in your "_-_<=0".
+So what's the benefit of the rewrite?
 
-And I agree that a "first come, first serve" approach that fails any conflicting mapping attempts is a good route to go.
+ > Also, as MAX_APICS-1 is reserved for the broadcast physical APIC ID
+ > (it's 0xF for serial APIC and 0xFF for xAPIC) the small semantic change
+ > here is correct.
 
-Terence
+No argument there, except that ">=" gets the job done in a cleaner way.

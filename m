@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUFVReG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUFVRiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUFVReG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUFVRGx
+	id S264430AbUFVRiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 13:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbUFVRGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:06:53 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:61967 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S264147AbUFVQrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 12:47:01 -0400
-Message-ID: <001201c45870$2a9473d0$a900a8c0@glowworm>
-From: "DaMouse Networks" <damouse@zero10.demon.co.uk>
-To: <con@kolivas.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Staircase scheduler v7.3 for 2.6.7
-Date: Tue, 22 Jun 2004 16:47:04 +0100
+	Tue, 22 Jun 2004 13:06:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17604 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264229AbUFVQn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 12:43:26 -0400
+Date: Tue, 22 Jun 2004 12:43:02 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: Joy Latten <latten@austin.ibm.com>, <kartik_me@hotmail.com>,
+       <linux-kernel@vger.kernel.org>, <serue@us.ibm.com>, <arjanv@redhat.com>,
+       <jamesm@redhat.com>
+Subject: Re: RSA [patch #1]
+In-Reply-To: <14892.1087920395@redhat.com>
+Message-ID: <Xine.LNX.4.44.0406221228310.28581-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Made mm1 patch:
+On Tue, 22 Jun 2004, David Howells wrote:
 
-http://www.evilrealms.net/~damouse/kernel-stuff/ck/2.6.7-mm1/
+>  (3) A DSA signature checker.
+> 
+> In patch #3, ksign-publickey.c contains a keyring containing some public
+> keys. These are listed during boot:
+> 
+> 	ksign: Installing public key data
+> 	Loading keyring
+> 	- Added public key 5B23D93E238D57CC
+> 	- User ID: David W Howells (hello) <dhowells@redhat.com>
+> 	- Added public key 8491D58C6C10A25E
+> 	- User ID: David Howells (dwh's signature) <dhowells@redhat.com>
 
-(Other patches are with sc 7.1 and may or may not work with 7.3)
+I think the way to manage keyrings is via a filesystem API, which 
+different asymmetric crypto apps can register with.
 
--DaMouse
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
+
 

@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVBWNDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVBWNDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVBWNDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 08:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVBWNDA
+	id S261481AbVBWNDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 08:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVBWNDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 08:03:00 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:23657 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261480AbVBWNC5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 08:02:57 -0500
-Date: Wed, 23 Feb 2005 14:02:51 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Help tracking down problem --- endless loop in __find_get_block_slow
-Message-ID: <20050223130251.GA31851@zensonic.dk>
-References: <4219BC1A.1060007@zensonic.dk> <20050222011821.2a917859.akpm@osdl.org> <20050223120013.GA28169@zensonic.dk> <20050223041036.5f5df2ff.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050223041036.5f5df2ff.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: zensonic@zensonic.dk (Thomas S. Iversen)
+	Wed, 23 Feb 2005 08:03:34 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:42245 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261481AbVBWNDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 08:03:30 -0500
+Message-ID: <421C7FC2.1090402@aitel.hist.no>
+Date: Wed, 23 Feb 2005 14:06:10 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
+References: <20050223014233.6710fd73.akpm@osdl.org>
+In-Reply-To: <20050223014233.6710fd73.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, so we're looking for the buffer_head for block 101 and the first
-> buffer_head which is attached to the page represents block 100.  So the
-> next buffer_head _should_ represent block 101.  Please print it out:
+This kernel came up, but my boot script complained about no /dev/hdb3
+when trying to mount /var.
+(I have two IDE disks on the same cable, and an IDE cdrom on another.)
+They are usually hda, hdb, and hdc.
 
-Not quite the same, but simelar:
+MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
+/dev/hdq1 is at major:3 minor:1025 if I interpret things right. 
+(/dev/hda1 is at 3:1, which is correct.)
+These numbers did not work with my mknod, it created 7:1 instead.
+So I didn't get to test this mysterious device.
 
-Feb 23 14:50:24 localhost kernel: __find_get_block_slow() failed. block=102,
-b_blocknr=128, next=129
-Feb 23 14:50:24 localhost kernel: b_state=0x00000013, b_size=2048
-Feb 23 14:50:24 localhost kernel: device blocksize: 2048
-Feb 23 14:50:24 localhost kernel: ------------[ cut here ]------------
+But I assume this is a mistake of some sort, I haven't heard about any
+change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
 
-> Could be UFS.  But what does "transparent block encryption and sector
-> shuffling" mean?  How is the sector shuffling implemented?
+It may be interesting to note that my root raid-1 came up fine,
+consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
 
-GDBE is a block level encrypter. It encrypts the actual sectors
-transparently via the GEOM API (corresponds to the devicemapper api in linux).
-
-GBDE assigns a key for each block, thereby introducing keysectors.
-Furthermore the sectors are remapped so that one can not guess where e.g.
-metadata is located on the physical disk. It is a rather simple remap:
-
-Taken from GDBE:
-
-/*
- * Convert an unencrypted side offset to offsets on the encrypted side.
- *
- * Security objective:  Make it harder to identify what sectors contain what
- * on a "cold" disk image.
- *
- * We do this by adding the "keyoffset" from the lock to the physical sector
- * number modulus the available number of sectors.  Since all physical sectors
- * presumably look the same cold, this will do.
- *
- * As part of the mapping we have to skip the lock sectors which we know
- * the physical address off.  We also truncate the work packet, respecting
- * zone boundaries and lock sectors, so that we end up with a sequence of
- * sectors which are physically contiguous.
- *
- * Shuffling things further is an option, but the incremental frustration is
- * not currently deemed worth the run-time performance hit resulting from the
- * increased number of disk arm movements it would incur.
- *
- * This function offers nothing but a trivial diversion for an attacker able
- * to do "the cleaning lady attack" in its current static mapping form.
- */"
-  
-Further reading:
-
-	http://phk.freebsd.dk/pubs/bsdcon-03.gbde.paper.pdf
-
-Regards Thomas
+Helge Hafting

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUDALww (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 06:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUDALww
+	id S262872AbUDAL5P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 06:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbUDAL5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 06:52:52 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:3745 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262874AbUDALwu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 06:52:50 -0500
-Date: Thu, 1 Apr 2004 13:52:48 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Len Brown <len.brown@intel.com>
-Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com, kernel@kolivas.org, Ian Kumlien <pomac@vapor.com>
-Subject: Re: ACPI SCI IOAPIC bug (Re: Fixes for nforce2 hard lockup, apic,
- io-apic, udma133 covered)
-In-Reply-To: <1080771580.31359.32.camel@dhcppc4>
-Message-ID: <Pine.LNX.4.55.0404011331550.3675@jurand.ds.pg.gda.pl>
-References: <A6974D8E5F98D511BB910002A50A6647615F0C10@hdsmsx402.hd.intel.com>
- <1080771580.31359.32.camel@dhcppc4>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Apr 2004 06:57:15 -0500
+Received: from tench.street-vision.com ([212.18.235.100]:56737 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S262872AbUDAL5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 06:57:14 -0500
+Subject: Re: [PATCH] libata transport attributes
+From: Justin Cormack <justin@street-vision.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
+       mort@wildopensource.com
+In-Reply-To: <406B3313.3080607@pobox.com>
+References: <1080752942.27347.43.camel@lotte.street-vision.com>
+	 <406B3313.3080607@pobox.com>
+Content-Type: text/plain
+Message-Id: <1080820605.30218.14.camel@lotte.street-vision.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Apr 2004 12:56:45 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2004, Len Brown wrote:
+On Wed, 2004-03-31 at 22:07, Jeff Garzik wrote:
 
-> Why is it that all IRQs get their name from the
-> IOAPIC pin number, but the timer connected to
-> pin 2 is called IRQ0 instead of IRQ2?
+> Did you see the comments I posted WRT mort's patch?
+> 
 
- ISA interrupts get their numbers from 8259A IRQ numbers they would be
-routed to in the PIC mode.  This lets the code operate in the mixed mode
-sanely (which happens for certain hardware), although it's not necessarily
-the reason for the numbering used.  Note that the MP Specification does
-not mandate an identity map of ISA interrupts, although it seems to be
-what vendors do.
+oops, no I missed his patch and your comments until now.
 
- Also note that depending on the configuration, the timer can effectively
-be routed to INTIN2 or INTIN0 by Linux -- one of the alternatives being a
-direct connection and the other one being done through the 8259A
-configured to be transparent for its IRQ 0.
+> Since libata is leaving SCSI in 2.7, I would rather not add superfluous 
+> stuff like this at all.
+> 
 
-> I wonder if we should't be moving to at least a build option which
-> deletes support for multiple pins at an IRQ, and deletes
-> suport for non-identity pin->IRQ mapping.
+I didnt know this.
 
- This can't be done for the timer due to configuration variations.
+> Further, you can already retrieve the information you export with _zero_ 
+> new code.
 
-> While the ACPI table parsing is very early, the _PRT parsing
-> can happen only after the ACPI interpreter is up, because
-> the _PRT's are encoded in AML.
+How? Sorry to be dumb...
 
- Hmm, that's unfortunate.  Couldn't the interpreter be started earlier?
+Justin
 
-  Maciej
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

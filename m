@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262933AbTCTXv3>; Thu, 20 Mar 2003 18:51:29 -0500
+	id <S263098AbTCUAAj>; Thu, 20 Mar 2003 19:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262969AbTCTXv3>; Thu, 20 Mar 2003 18:51:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32785 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262933AbTCTXv2>; Thu, 20 Mar 2003 18:51:28 -0500
-Message-ID: <3E7A567E.3080409@zytor.com>
-Date: Thu, 20 Mar 2003 16:02:06 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en, sv
+	id <S263114AbTCUAAi>; Thu, 20 Mar 2003 19:00:38 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:63492 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S263098AbTCUAAd>; Thu, 20 Mar 2003 19:00:33 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303210013.h2L0D0jx000566@81-2-122-30.bradfords.org.uk>
+Subject: Re: Release of 2.4.21
+To: akpm@digeo.com (Andrew Morton)
+Date: Fri, 21 Mar 2003 00:13:00 +0000 (GMT)
+Cc: hch@infradead.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
+In-Reply-To: <20030320175532.3ef85c1b.akpm@digeo.com> from "Andrew Morton" at Mar 20, 2003 05:55:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Joel Becker <Joel.Becker@oracle.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t and major/minor split
-References: <b5dckh$lv1$1@cesium.transmeta.com> <20030320220901.GR2835@ca-server1.us.oracle.com> <3E7A4977.5090700@zytor.com> <20030320234946.GT2835@ca-server1.us.oracle.com>
-In-Reply-To: <20030320234946.GT2835@ca-server1.us.oracle.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
-> On Thu, Mar 20, 2003 at 03:06:31PM -0800, H. Peter Anvin wrote:
+> > > For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
+> > > the 2.4.21-pre cycle, that would be less productive than just patching
+> > > 2.4.20 and rolling a separate release off of that.
+> > 
+> > I think the naming is illogical.  If there's a bugfix-only release
+> > it whould have normal incremental numbers.  So if marcelo want's
+> > it he should clone a tree of at 2.4.20, apply the essential patches
+> > and bump the version number in the normal 2.4 tree to 2.4.22-pre1
 > 
->>Last I checked, all traditional (inode-based) Unix filesystems,
->>including ext2/3 used block pointers for dev_t.  There are plenty of
->>block pointers; 60 bytes worth.
+> No point in making things too complex.  2.4.20-post1 is something people can
+> easily understand.
 > 
-> 	They do indeed.  But ext2/3 touches that block pointer with
-> cpu_to_le32() and friends.  It needs fixing at best, and compatability
-> work for already existing partitions.
+> I needed that for the ext3 problems which popped up shortly after 2.4.20 was
+> released - I was reduced to asking people to download fixes from my web page.
 > 
+> And having a -post stream may allow us to be a bit more adventurous in the
+> -pre stream.
 
-A few options:
+Why can't we just make all releases smaller and more frequent?
 
-a) Use an inode flag indicating a large dev_t.  This is probably the
-best option.
+Why do we need 2.4.x-pre at all, anyway - why can't we just test
+things in the -[a-z][a-z] trees, and _start_ with -rc1?
 
-b) Use a sentinel value, e.g. 0xffffffff, to indicate that the major and
-minor are in block pointers 1 and 2.
+Why can't we just do bugfixes for 2.4, and speed up 2.5 development?
 
-	-hpa
-
-
+John.

@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVATBXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVATBbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVATBXj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 20:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVATBXj
+	id S262022AbVATBbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 20:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVATBbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 20:23:39 -0500
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:22671 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262021AbVATBXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 20:23:32 -0500
-Message-ID: <41EF080D.7020101@bigpond.net.au>
-Date: Thu, 20 Jan 2005 12:23:25 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 20:31:16 -0500
+Received: from mail.joq.us ([67.65.12.105]:7077 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262022AbVATBbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 20:31:14 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 19 Jan 2005 19:32:47 -0600
+In-Reply-To: <41EF00ED.4070908@kolivas.org> (Con Kolivas's message of "Thu,
+ 20 Jan 2005 11:53:01 +1100")
+Message-ID: <873bwwga0w.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Con Kolivas <kernel@kolivas.org>, Chris Han <xiphux@gmail.com>
-Subject: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... are now available from:
+Con Kolivas <kernel@kolivas.org> writes:
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-2.0-for-2.6.10.patch?download>
+> Con Kolivas wrote:
+>
+> Here are my results with SCHED_ISO v2 on a pentium-M 1.7Ghz (all
+> powersaving features off):
+>
+> Increasing iso_cpu did not change the results.
+>
+> At least in my testing on my hardware, v2 is working as advertised. I
+> need results from more hardware configurations to know if priority
+> support is worth adding or not.
 
-as a single patch to linux-2.6.10 and at:
+Excellent.  Judging by the DSP Load, your machine seems to run almost
+twice as fast as my 1.5GHz Athlon (surprising).  You might want to try
+pushing it a bit harder by running more clients (2nd parameter,
+default is 20).
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-2.0-for-2.6.10.patchset.tar.gz?download>
-
-as a (gzipped and tarred) patch set including "series" file which 
-nominates the order of application of the patches.
-
-This is an update of the earlier version of plugsched (previously 
-released by Con Kolivas) and has a considerably modified scheduler 
-interface that is intended to reduce the amount of code duplication 
-required when adding a new scheduler.  It also contains a sysfs 
-interface based on work submitted by Chris Han.
-
-This version of plugsched contains 4 schedulers:
-
-1. "ingosched" which is the standard active/expired array O(1) scheduler 
-created by Ingo Molnar,
-2. "staircase" which is Con Kolivas's version 10.5 O(1) staircase scheduler,
-3. "spa_no_frills" which is a single priority array O(1) scheduler 
-without any interactive response enhancements, etc., and
-4. "zaphod" which is a single priority array O(1) scheduler with 
-interactive response bonuses, throughput bonuses and a choice of 
-priority based or entitlement based interpretation of "nice".
-
-Schedulers 3 and 4 also offer unprivileged real time tasks and hard/soft 
-per task CPU rate caps.
-
-The required scheduler can be selected at boot time by supplying a 
-string of the form "cpusched=<name>" where <name> is one of the names 
-listed above.
-
-The default scheduler (that will be used in the absence of a "cpusched" 
-boot argument) can be configured at build time and is set to "ingosched" 
-by default.
-
-The file /proc/scheduler contains a string describing the current scheduler.
-
-The directory /sys/cpusched/<current scheduler name>/ contains any 
-scheduler configuration control files that may apply to the current 
-scheduler.
-
-Peter
+Are you getting fairly consistent results running SCHED_ISO
+repeatedly?  That worked better for me after I fixed that bug in JACK
+0.99.47, but I think there is still more variance than with
+SCHED_FIFO.
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+  joq

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285362AbRLGBgn>; Thu, 6 Dec 2001 20:36:43 -0500
+	id <S285365AbRLGBpP>; Thu, 6 Dec 2001 20:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285364AbRLGBgd>; Thu, 6 Dec 2001 20:36:33 -0500
-Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:16547 "EHLO
-	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S285362AbRLGBg2>; Thu, 6 Dec 2001 20:36:28 -0500
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-From: Cory Bell <cory.bell@usa.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: john@deater.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20011206170335.03856f7b.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy>
-	<1007685691.6675.1.camel@localhost.localdomain> 
-	<20011206170335.03856f7b.rddunlap@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 06 Dec 2001 17:27:20 -0800
-Message-Id: <1007688442.6675.8.camel@localhost.localdomain>
+	id <S285366AbRLGBpF>; Thu, 6 Dec 2001 20:45:05 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:1456 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S285365AbRLGBor>; Thu, 6 Dec 2001 20:44:47 -0500
+Date: Thu, 6 Dec 2001 18:44:39 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011207014439.GE30935@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu> <20011206180432.IHMU19462.femail37.sdc1.sfba.home.com@there> <20011206195710.A1949@thyrsus.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011206195710.A1949@thyrsus.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-06 at 17:03, Randy.Dunlap wrote:
-> Hi-
+On Thu, Dec 06, 2001 at 07:57:10PM -0500, Eric S. Raymond wrote:
+> Rob Landley <landley@trommello.org>:
+> > P.S.  Can we seperate "add new subsystem y prime" and "remove old subsystem 
+> > y".  LIke the new and old SCSI error handling, which have been in the tree in 
+> > parallel for some time?  Did I hear Eric ever suggest removing the old 
+> > configurator for 2.4?  Anybody?
 > 
-> Did your search for "$PIR" or "RIP$" ?
-> It is suppsed to be the latter (little-endian).
+> The whole point of putting the new configurator in would be to be able
+> to drop the old one out.
+> 
+> But that would be strictly Marcelo's call.  It would be up to him to decide
+> whether the tradeoff were worth it.
 
-Tried both. The flash BIOS update might be reading system specific stuff
-and then appending it to the new update, though. Maybe they have
-separate "code" and data areas, and the the data part never gets
-overwritten.
+Yes, but what people are saying (on this part of the thread) is please
+don't bother Marcelo with it in the first place.  All of the main gripes
+people have don't apply to the current unstable tree, but most certainly
+do to the current stable one.
 
-Would you happen to have any thoughts or advice WRT the problem we have
-and the proper method of addressing it? Absent a BIOS fix, of course,
-which I imagine would be the ultimate solution.
-
--Cory
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261709AbSJFQjJ>; Sun, 6 Oct 2002 12:39:09 -0400
+	id <S261689AbSJFQxF>; Sun, 6 Oct 2002 12:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261716AbSJFQjJ>; Sun, 6 Oct 2002 12:39:09 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:51697 "EHLO
+	id <S261690AbSJFQxF>; Sun, 6 Oct 2002 12:53:05 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:1522 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261709AbSJFQjI>; Sun, 6 Oct 2002 12:39:08 -0400
-Subject: Re: The end of embedded Linux?
+	id <S261689AbSJFQxE>; Sun, 6 Oct 2002 12:53:04 -0400
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+	3.0 - (NUMA))
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: giduru@yahoo.com, Andre Hedrick <andre@linux-ide.org>,
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, Rob Landley <landley@trommello.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021005.212832.102579077.davem@redhat.com>
-References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org>
-	<20021005205238.47023.qmail@web13201.mail.yahoo.com> 
-	<20021005.212832.102579077.davem@redhat.com>
+In-Reply-To: <20021006104219.A27487@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
+	<200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
+	<3D9F9CD5.CEB61219@digeo.com> 
+	<20021006104219.A27487@flint.arm.linux.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 17:53:26 +0100
-Message-Id: <1033923206.21282.28.camel@irongate.swansea.linux.org.uk>
+Date: 06 Oct 2002 18:06:54 +0100
+Message-Id: <1033924014.21257.38.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 05:28, David S. Miller wrote:
-> Embedded applications tend to have issues which are entirely specific
-> to that embedded project.  As such, those are things that do not
-> belong in a general purpose OS.
+On Sun, 2002-10-06 at 10:42, Russell King wrote:
+> What I'm not saying here is that anything one thing sucks (except maybe
+> ARM on a desktop box running Gnome.)  The point I'm trying to make is
+> that you can give the kernel as much "interactive" feel as you like, but
+> until user space gets It Right (tm), the kernel isn't really going to
+> make one blind bit of difference to the "feel" the user experiences.
+> 
+> I just wish someone would take away all the gnome developers high
+> performance machines and give them slow old 486's.  8)
 
-90% of the embedded Linux problem is not this. Its actually easy to get
-most of the embedded needs into the base kernel - in fact they overlap
-the other worlds a lot.
+The GNOME stuff is mostly userspace problems not kernel space, and some
+of it is tool problems (lack of tools to lay binaries out so they stream
+from disk, lack of tools to put all the fixups in the same few pages).
+Gnome noticably improved when prelinking in gnu tools began to work
 
-Need low power consumption/resource usage - thats S/390 mainframe
-instances and ibm wristwatches.
+To do a meaningful kernel comparison you need to look at 2.2/2.4/2.5
+with the same user space setup. 
 
-Need good cpu control - thats desktop/laptop and embedded
-
-Need good irq behaviour (pre-empt/low latency) - thats desktop/embedded
-
-and it carries on like that.
-
-No the big problem is that each embedded vendor is desperately trying to
-keep their changes out of the mainstream so they can screw each other.
-In doing so the main people they screw are all their customers.
-
-So if the embedded people want 2.6 to be good at embedded they need to
-get their heads out of their arses and contribute to the mainstream.
-Otherwise they'll always be chasing a moving ball, and a ball most
-people are kicking the other way down the field. Its a simple fact of
-line, if you stick you head up your backside all you get to do is eat
-shit
-
-(and yes there are some embedded people who do contribute but they are
-sadly a real minority)
-
-Alan
+As to the 486's. There is optimisation work for gnome and especially
+startup going on. Seems its a bit slow on those old legacy sparc64
+contraptions ;)
 

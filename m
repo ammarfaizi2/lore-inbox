@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUJaXYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbUJaXYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbUJaXYM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUJaXYL
+	id S261690AbUJaXYp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUJaXYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:24:11 -0500
-Received: from washoe.rutgers.edu ([165.230.95.67]:30147 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261689AbUJaXYH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:24:07 -0500
-Date: Sun, 31 Oct 2004 18:24:05 -0500
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ipod vfat
-Message-ID: <20041031232405.GB31975@washoe.rutgers.edu>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041031213523.GO1530@washoe.rutgers.edu>
+	Sun, 31 Oct 2004 18:24:45 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32727 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261690AbUJaXYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:24:38 -0500
+Date: Mon, 1 Nov 2004 10:24:26 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: mmokrejs@ribosome.natur.cuni.cz
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: Filesystem performance on 2.4.28-pre3 on hardware RAID5.
+Message-ID: <20041101102426.G5462300@wobbly.melbourne.sgi.com>
+References: <20041029111049.GA554@ribosome.natur.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041031213523.GO1530@washoe.rutgers.edu>
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041029111049.GA554@ribosome.natur.cuni.cz>; from mmokrejs@ribosome.natur.cuni.cz on Fri, Oct 29, 2004 at 01:10:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry guys - it seems that the necessary steps were taken in the
-last kernel version:
+On Fri, Oct 29, 2004 at 01:10:49PM +0200, mmokrejs@ribosome.natur.cuni.cz wrote:
+> Hi Nathan, Marcello and others,
+>   the collested meminfo, slabinfo, vmstat output are at
+> http://www.natur.cuni.cz/~mmokrejs/crash/
 
-        /*
-         * The low byte of FAT's first entry must have same value with
-         * media-field.  But in real world, too many devices is
-         * writing wrong value.  So, removed that validity check.
-         *
-         * if (FAT_FIRST_ENT(sb, media) != first)
-         */
+On Sun, Oct 31, 2004 at 11:20:35PM +0100, Martin MOKREJ? wrote:
+> Sorry, fixed by soflink. Was actually http://www.natur.cuni.cz/~mmokrejs/tmp/c
+rash/
 
-So I will give it a spin :-)
+OK, well there's your problem - see the slabinfo output - you
+have over 700MB of buffer_head structures that are not being
+reclaimed.  Everything else seems to be fine.
 
-Sorry once again
+> If you tell what kind of memory/xfs debugging I should turn
+> on adn *how*, I can do it immediately. I don't have access
+
+I think turning on debugging is going to hinder more than it
+will help here.
+
+> to the machine daily, and already had to be in production. :(
+> 
+> P.S: It is hardware raid5. I use mkfs.xfs version 2.6.13.
+
+Hmm.  Did that patch I sent you help at all?  That should help
+free up buffer_heads more effectively in low memory situations
+like this.  You may also have some luck with tweaking bdflush
+parameters so that flushing out of dirty buffers is started
+earlier and/or done more often.  I can't remember off the top
+of my head what all the bdflush tunables are - see the bdflush
+section in Documentation/filesystems/proc.txt.
+
+Alternatively, pick a filesystem blocksize that matches your
+pagesize (4K instead of 512 bytes) to minimise the number of
+buffer_heads you end up using.
+
+cheers.
 
 -- 
-Yarik
-
-On Sun, Oct 31, 2004 at 04:35:23PM -0500, Yaroslav Halchenko wrote:
-> Dear Kernel Developers,
-
-> Is it possible to incorporate the next patch which I had to introduce to
-> have the vfat fs of my ipod to get mounted under Linux.
-
-> Originally its vfat was mounting ok, but then at some point which I
-> didn't clearly mentioned, it stopped... probably it happened after I
-> attached ipod to some windows box, because now windows still can easily
-> mount it whenever vanilla linux kernel refuses...
-
-> Or should I just adjust my ipod's fs definition?
-
-> Thank you in advance
--- 
-                                                  Yaroslav Halchenko
-                  Research Assistant, Psychology Department, Rutgers
-          Office  (973) 353-5440 x263  Fax (973) 353-1171
-   Ph.D. Student  CS Dept. NJIT
-             Key  http://www.onerussian.com/gpg-yoh.asc
- GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-
+Nathan

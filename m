@@ -1,119 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274920AbRJALjv>; Mon, 1 Oct 2001 07:39:51 -0400
+	id <S274965AbRJALrl>; Mon, 1 Oct 2001 07:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274951AbRJALjl>; Mon, 1 Oct 2001 07:39:41 -0400
-Received: from bart.one-2-one.net ([195.94.80.12]:16907 "EHLO
-	bart.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S274920AbRJALjd>; Mon, 1 Oct 2001 07:39:33 -0400
-Date: Mon, 1 Oct 2001 13:42:08 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] yet another yenta resource allocation fix
-In-Reply-To: <Pine.LNX.4.21.0110010104290.746-100000@notebook.diehl.home>
-Message-ID: <Pine.LNX.4.21.0110011327330.941-100000@notebook.diehl.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274966AbRJALrc>; Mon, 1 Oct 2001 07:47:32 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:51919 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S274965AbRJALra>; Mon, 1 Oct 2001 07:47:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: [Moving rapidly away from LKM] (Was: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in)
+Date: Mon, 1 Oct 2001 11:47:57 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9p9l5d$r8e$1@forge.intermeta.de>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com> <3BB82DA9.34499802@idb.hist.no>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1001936877 12882 212.34.181.4 (1 Oct 2001 11:47:57 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 1 Oct 2001 11:47:57 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Oct 2001, Martin Diehl wrote:
+Helge Hafting <helgehaf@idb.hist.no> writes:
 
-> On Mon, 1 Oct 2001, Alan Cox wrote:
-> 
-> > Would a generic
-> > 
-> > 	pci_fixup_device()
-> > 
-> > type function not be more appropriate
-> 
-> IIRC there was some discussion on l-k some time ago, whether such fixups
-> should stay close to were the issue appeared or better be placed at
-> generic pci quirk location. In this particular case I personally tend to
-> the latter one as well, particularly because there may be other BIOS'
-> doing similar things with non-cardbus memory bar's.
+>And the one to blame here isn't the virus writer.  The ones to blame
+>are:
+>1. Whoever decided to install that vulnerable software.
 
-Just to follow-up myself, seems the general pci-quirk approach is superior
-because there is no need to release-modify-reclaim the bad resource when
-fixing during pci header scan. Furthermore, there is already a cardbus
-specific fixup (disabling legacy registers) in drivers/pci/quirks.c.
-So I've just moved and adjusted the stuff to the same location.
+"The ones to blame are not the people that build the bombs. The ones
+to blame are the people that live in normal houses with normal locks
+or even let their doors open instead of living in fortified bunkers
+and shoot everyone on sight".
 
-Improved patch vs. 2.4.10 below. Successfully tested on my OB-800 where
-the "featured" BIOS maps the cardbus bar at 0xe6000.
+Come on. I may not know what's right, but I know this can't be it.
 
-Regards,
-Martin
+The blame is on both sides. On the people that write the stuff and the
+ones that are not able to install the most basic defenses on their
+business critical systems.
 
--------------------------
+>   This one isn't popular because it is someone inside the company. 
 
---- linux-2.4.10/drivers/pci/quirks.c	Sun Sep 30 15:55:13 2001
-+++ v2.4.10-md/drivers/pci/quirks.c	Mon Oct  1 12:48:41 2001
-@@ -412,6 +412,57 @@
- }
- 
- 
-+/* BIOS might have mapped the cardbus memory resource to a bogus location
-+ * in legacy memory area and the hostbridge somehow looses this window
-+ * after pm-suspend (seen on OB800).
-+ * We try to detect and fix this by re-assigning the resource if we
-+ * find it mapped to legacy area <1M. But we don't try, if the obsolete
-+ * MEM_TYPE_1M flag is set, just in case...
-+ */
-+
-+static void __init quirk_cardbus_bar(struct pci_dev *dev)
-+{
-+	unsigned long	oldstart;
-+	u32		temp, extend;
-+	struct resource	*res;
-+
-+	if ((PCI_CLASS_BRIDGE_CARDBUS << 8) ^ dev->class)
-+		return;
-+
-+	if (!(dev->resource[0].flags&IORESOURCE_MEM))	/* not cardbus memory BAR */
-+		return;
-+
-+	oldstart = dev->resource[0].start;
-+	if (oldstart >= 0x00100000UL)		/* mapped above 1MB legacy area - fine! */
-+		return;
-+
-+	pci_read_config_dword(dev, PCI_BASE_ADDRESS_0, &temp);
-+	if (temp & PCI_BASE_ADDRESS_MEM_TYPE_1M) {
-+		printk(KERN_DEBUG "%s: cardbus memory has obsolete 1M flag set?\n",
-+			__FUNCTION__);
-+		return;
-+	}
-+
-+	/* re-read required size and flags from device */
-+
-+	pci_write_config_dword(dev, PCI_BASE_ADDRESS_0, 0xffffffff);
-+	pci_read_config_dword(dev, PCI_BASE_ADDRESS_0, &temp);
-+	if (temp & PCI_BASE_ADDRESS_SPACE_IO) {	/* paranoia */
-+		pci_write_config_dword(dev, PCI_BASE_ADDRESS_0, oldstart);
-+		printk(KERN_WARNING "%s: cardbus memory mutated to io?\n",
-+			__FUNCTION__);
-+		return;
-+	}
-+	extend = ~(u32)(temp & PCI_BASE_ADDRESS_MEM_MASK);
-+
-+	res = &dev->resource[0];
-+	res->start = 0;
-+	res->end = res->start + extend;
-+	res->flags = IORESOURCE_MEM;
-+	if (temp & PCI_BASE_ADDRESS_MEM_PREFETCH)
-+		res->flags |= IORESOURCE_PREFETCH;
-+}
-+
- /*
-  *  The main table of quirks.
-  */
-@@ -462,6 +513,7 @@
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic },
-+	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,		PCI_ANY_ID,			quirk_cardbus_bar },
- 
- 	{ 0 }
- };
+I don't think so. I'd say 6 of 10 systems in larger companies are
+installed either by the vendor via their own "consulting branch" or by
+a "vendor certified partner" or by a hired consulting branch. Most of
+the bigger companies have _enough_ to do with just keeping this stuff
+running. Or they even hire outside resources to run their stuff.
 
+[...Your argumentation goes downhill from here...]
+
+Fact is: Most companies don't install IIS just because they're
+Microsoft slaves. They install it, because another 3rd party
+application that depends on yet another application that needs another
+piece of software to run is only available on (you may already have
+guessed it) WIN32. OLE, Visual Basic and all the heavily glued
+together windows stuff. That is what drags people to the WIN32.
+And once you're here, you use IIS. Not Apache. Not iPlanet.
+
+Not just the "nice icons to click" that most of the clueless here seem
+to think.
+
+Try to set up an Oracle development shop in an "all Solaris, all
+Linux" environment. You can't get 99% of the frontends for your
+platform? Too bad. Others do and they're working faster than you."
+
+Try that with Intershop. With Cache. Other Borland stuff. SAP R/3. You
+get all the backends for Linux. The frontends?
+
+Even Java development is easier with WIN32 (though JBuilder and
+NetBeans run quite usable under Linux). But the native SUN JDK runs
+faster on Win32 than on their own Sparc platform. Than on Linux. Why?
+Because Sun throws all of its engineering efforts into WIN32 and not
+into Sparc?
+
+I know all about the "ok, let's use Linux in our back office and WIN32
+just on the desktops" mentality. But you might not understand that
+companies then have to hire not just one but two people. One to admin
+the desktops, one for the back ends. In times when getting a single
+clueful individual is hard to do. And budget cuts say "we get _one_
+admin. Not two."
+
+So you go for an uniform solution to the problem. Use one platform for
+everything. Linux loses in such shops every time.
+
+When companies like IBM, Oracle and SAP spell "commitment to Linux" as
+"we port _everything not just our servers to Linux", then Linux get a
+chance here. I don't see this.
+
+And what has all of this to do with Linux kernel? 
+
+	Regards
+		Henning
+
+
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290192AbSBKTH7>; Mon, 11 Feb 2002 14:07:59 -0500
+	id <S290200AbSBKTKj>; Mon, 11 Feb 2002 14:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290185AbSBKTHm>; Mon, 11 Feb 2002 14:07:42 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52486 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290125AbSBKTH0>; Mon, 11 Feb 2002 14:07:26 -0500
-Date: Mon, 11 Feb 2002 14:05:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <E16a4Ly-0000EN-00@starship.berlin>
-Message-ID: <Pine.LNX.3.96.1020211140359.642A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290206AbSBKTKa>; Mon, 11 Feb 2002 14:10:30 -0500
+Received: from adsl-64-168-153-221.dsl.snfc21.pacbell.net ([64.168.153.221]:3728
+	"EHLO unifiedcomputing.com") by vger.kernel.org with ESMTP
+	id <S290200AbSBKTKV>; Mon, 11 Feb 2002 14:10:21 -0500
+Message-Id: <4.2.2.20020211110312.00b0e0c0@10.10.10.29>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
+Date: Mon, 11 Feb 2002 11:06:44 -0800
+To: Pavel Machek <pavel@suse.cz>
+From: "S. Parker" <linux@sparker.net>
+Subject: Re: Sysrq enhancement: process kill facility
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        marcelo@conectiva.com.br
+In-Reply-To: <20020209201955.GC851@elf.ucw.cz>
+In-Reply-To: <4.2.2.20020208092102.00aa5eb8@10.10.10.29>
+ <4.2.2.20020208092102.00aa5eb8@10.10.10.29>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Daniel Phillips wrote:
 
-> On February 9, 2002 07:15 pm, Bill Davidsen wrote:
-> > On Wed, 6 Feb 2002, Randy.Dunlap wrote:
-> > 
-> > > I still prefer your suggestion to append it to the kernel image
-> > > as __initdata so that it's discarded from memory but can be
-> > > read with some tool(s).
-> > 
-> > The problem is that it make the kernel image larger, which lives in /boot
-> > on many systems. Putting it in a module directory, even if not a module,
-> > would be a better place for creative boot methods, of which there are
-> > many.
-> 
-> You don't seem to be clear on the concept of 'option'.
+I certainly have no particular preference for what this is called.
+Is there support for dropping the existing kIll and me re-submitting
+these changes that way?  (I've never imagined how kIll actually helped.)
 
-Did I miss discussion of an option to put it somewhere other than as part
-of the kernel? Sorry, I missed that.
+Cheers,
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+         ~sparker
+
+At 12:19 PM 2/9/2002 , Pavel Machek wrote:
+>Hi!
+>
+> >
+> > You enter <alt>-<sysrq>-n ("nuke"), and then prompts for the pid.  It
+> > supports
+> > backspace and control-U.  On serial ports, it retains the same semantics:
+> > a break activates this as a sysrq sequence, but if more than 5-seconds pass
+> > without any input, it drops out of processing input as a sysrq.
+> >
+> > Feedback welcome, please cc: me directly.
+>
+>Looks good to me; (maybe you could reuse from 'kIll' as killing of all
+>processes is hardly ever usefull).
+>                                                                         Pavel
+>--
+>(about SSSCA) "I don't say this lightly.  However, I really think that the 
+>U.S.
+>no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+
+Cheers,
+
+	~sparker
 

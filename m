@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268410AbUIWNAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUIWM5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268410AbUIWNAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268430AbUIWNAE
+	id S268425AbUIWM5j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 08:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268430AbUIWM5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:00:04 -0400
-Received: from scanner1.mail.elte.hu ([157.181.1.137]:63701 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268410AbUIWM77 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 08:59:59 -0400
-Date: Thu, 23 Sep 2004 15:01:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 23 Sep 2004 08:57:39 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:47336 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268425AbUIWM5h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 08:57:37 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
-Message-ID: <20040923130134.GA12392@elte.hu>
-References: <20040907115722.GA10373@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <200409230957.29318.norberto+linux-kernel@bensa.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 23 Sep 2004 09:57:29 -0300
+User-Agent: KMail/1.7
+Cc: Ingo Molnar <mingo@elte.hu>
+References: <20040907115722.GA10373@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+In-Reply-To: <20040923122838.GA9252@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200409230957.29318.norberto+linux-kernel@bensa.ath.cx>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200409230957.29318.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
+Ingo Molnar wrote:
+> i've released the -S4 VP patch:
+>
+>   
+> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-
+>S4
 
-> Hello,
-> 
-> Ingo Molnar wrote:
-> > i've released the -S4 VP patch:
-> >
-> >   
-> > http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-
-> >S4
-> 
->   CC      arch/i386/kernel/irq.o
-> arch/i386/kernel/irq.c: In function `do_IRQ':
-> arch/i386/kernel/irq.c:287: warning: implicit declaration of function 
-> `redirect_hardirq'
-> arch/i386/kernel/irq.c:344: error: `noirqdebug' undeclared (first use in this 
+  CC      arch/i386/kernel/irq.o
+arch/i386/kernel/irq.c: In function `do_IRQ':
+arch/i386/kernel/irq.c:287: warning: implicit declaration of function 
+`redirect_hardirq'
+arch/i386/kernel/irq.c:344: error: `noirqdebug' undeclared (first use in this 
+function)
+arch/i386/kernel/irq.c:344: error: (Each undeclared identifier is reported 
+only once
+arch/i386/kernel/irq.c:344: error: for each function it appears in.)
+arch/i386/kernel/irq.c:345: warning: implicit declaration of function 
+`note_interrupt'
+make[1]: *** [arch/i386/kernel/irq.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
 
-did you do a 'make oldconfig'? Make sure there's
-CONFIG_GENERIC_HARDIRQ=y in your .config.
-
-	Ingo
+Regards,
+Norberto

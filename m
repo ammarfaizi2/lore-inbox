@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267858AbTB1NNM>; Fri, 28 Feb 2003 08:13:12 -0500
+	id <S267773AbTB1NXv>; Fri, 28 Feb 2003 08:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267870AbTB1NNM>; Fri, 28 Feb 2003 08:13:12 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46348 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267858AbTB1NNL>; Fri, 28 Feb 2003 08:13:11 -0500
-Date: Fri, 28 Feb 2003 14:23:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Ben Collins <bcollins@debian.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com, ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-Message-ID: <20030228132330.GC8498@atrey.karlin.mff.cuni.cz>
-References: <20030227203440.GP21100@phunnypharm.org> <20030227.122126.30208201.davem@redhat.com> <20030227205044.GQ21100@phunnypharm.org> <20030227.123701.16257819.davem@redhat.com> <20030227211256.GR21100@phunnypharm.org>
-Mime-Version: 1.0
+	id <S267829AbTB1NXv>; Fri, 28 Feb 2003 08:23:51 -0500
+Received: from [202.109.126.231] ([202.109.126.231]:10021 "HELO
+	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
+	id <S267773AbTB1NXt>; Fri, 28 Feb 2003 08:23:49 -0500
+Message-ID: <3E5F646C.46AB022A@mic.com.tw>
+Date: Fri, 28 Feb 2003 21:30:20 +0800
+From: "rain.wang" <rain.wang@mic.com.tw>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: zh, en, zh-TW, zh-CN
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: system hang on HDIO_DRIVE_RESET! help!
+References: <3E5CEF17.4C014A4C@mic.com.tw>
+		 <1046288652.9837.18.camel@irongate.swansea.linux.org.uk>
+		 <3E5EEDF9.5906D73E@mic.com.tw> <1046439323.16779.16.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030227211256.GR21100@phunnypharm.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2003 13:26:56.0234 (UTC) FILETIME=[1073C4A0:01C2DF2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox wrote:
 
-> >    > Well, you just doubled the size of the table on sparc64.
-> >    > I don't know if I like that.
-> >    
-> >    Not much of a way around it.
-> > 
-> > Such problems are only in your mind. :-)
-> > 
-> > What's wrong with defining the type and accessor macros
-> > in include/asm/compat.h?
-> 
-> One thing I am just now wondering is why struct ioctl_trans defines cmd
-> as an unsigned long instead of just unsigned int. That adds an uneeded
-> bit of space to the array.
+> On Fri, 2003-02-28 at 05:04, rain.wang wrote:
+> > > Does this still occur on 2.4.21pre. It should be fixed now
+> >
+> > I had tested 'hdparm -w /dev/hda' under 2.4.21-pre4, but problem sill exist,
+> >
+> > just same message as in 2.4.20.
+>
+> What controller are you using and I'll look into it a bit further
 
-Do you think so?
+Intel 82801AA host controller,  and I found when I disabled DMA before doing
+drive reset, system wouldn't hang at most time.  It seemed not tight related with
 
-cmd probably could be u32 (since it is ioctl32 after all), but I doubt
-it matters, as two following entries are pointers so it looks to me
-like it is going to be lost by alignment, anyway.
+host chip, does it?
 
-> As for your suggestion, sounds great, but I'll leave it to Pavel :)
+rain.w
 
-First things first, patch probably still breaks all other
-architectures than x86-64 and sparc64....
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+

@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267220AbSKPFnW>; Sat, 16 Nov 2002 00:43:22 -0500
+	id <S267222AbSKPFoj>; Sat, 16 Nov 2002 00:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267222AbSKPFnW>; Sat, 16 Nov 2002 00:43:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60425 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267220AbSKPFnV>;
-	Sat, 16 Nov 2002 00:43:21 -0500
-Message-ID: <3DD5DC77.2010406@pobox.com>
-Date: Sat, 16 Nov 2002 00:49:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: john slee <indigoid@higherplane.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-References: <3DD5D93F.8070505@kegel.com>
-In-Reply-To: <3DD5D93F.8070505@kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267223AbSKPFoi>; Sat, 16 Nov 2002 00:44:38 -0500
+Received: from dp.samba.org ([66.70.73.150]:19845 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267222AbSKPFoh>;
+	Sat, 16 Nov 2002 00:44:37 -0500
+Date: Sat, 16 Nov 2002 16:47:55 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: in-kernel linking issues
+Message-Id: <20021116164755.59575f21.rusty@rustcorp.com.au>
+In-Reply-To: <20021114143701.A30355@twiddle.net>
+References: <20021114143701.A30355@twiddle.net>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
+On Thu, 14 Nov 2002 14:37:01 -0800
+Richard Henderson <rth@twiddle.net> wrote:
 
-> john slee  wrote:
->
-> > now 2.5-bk is far from it.  last i checked allmodconfig (a couple of
-> > days ago) there was major breakage all over llc, scsi, video, sound, ...
-> > which kinda masks any breakages you might have introduced.
->
-> Hrmph.  Y'know, maybe it's time for us to collectively put our
-> feet down, get 2.5-linus to the point where everything compiles,
-> and keep it there.  After all, we are supposedly trying to
-> *stabilize* 2.5.  It isn't stable if it doesn't compile...
+> So you said you had a userland test harness?
 
+Yes, which is fine for testing basic relocs, but misses some subtle issues.
+[ Sorry for the delayed reply, I only got this mail via kernel.org: did you
+  get a bounce from rusty@rustcorp.com.au? ]
 
-Most of the stuff that doesn't compile (or link) is typically stuff that 
-is lesser used, or never used.  A lot of the don't-compile complaints 
-seem to be vocal-minority type complaints or "why can't I build _every_ 
-module in the kernel?" complaints.  Ref allmodconfig, above.
+> Some problems I've seen browsing the code:
 
-If people want to get rivafb or an ancient ISA net driver building 
-again... patches welcome.  But I don't think calls for the kernel to 
-compile 100 percent of the drivers is realistic or even reasonable. 
-Some of the APIs, particularly SCSI, are undergoing API stabilization. 
-And SCSI is an excellent example of drivers where 
-I-dont-have-test-hardware patches to fix compilation may miss subtle 
-problems -- and then six months later when the compileable-but-broken 
-SCSI driver is used by a real user, we have to spend more time in the 
-long run tracking down the problem.
+Thanks for this.  It adds even more weight to your ET_DYN argument as well.
+I'll need to play with that linker script some more (on PPC, binfmt_misc.o
+is 13000 bytes, binfmt_misc.so becomes 156128 bytes 8)
 
-But like I said, patches welcome.
+There's still the issue of PPC and PPC64 which can only jump 24-bits away,
+and so currently insert trampolines which have to be allocated with the
+module, but that should be no uglier than currently.  (They could use a
+special allocator, too, but with only 16M, they have to ensure noone else
+uses those addresses).
 
-	Jeff
+PPC64 also frobs the TOC ptr (r2) in the trampolines: I don't have a
+ppc64 box in front of me, but I imagine -shared will do the right thing
+there too.
 
-
-
+Thanks!
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

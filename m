@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314101AbSDLPLh>; Fri, 12 Apr 2002 11:11:37 -0400
+	id <S314102AbSDLPfV>; Fri, 12 Apr 2002 11:35:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314102AbSDLPLg>; Fri, 12 Apr 2002 11:11:36 -0400
-Received: from kirk.etnet.fr ([195.146.194.12]:33810 "EHLO kirk.etnet.fr")
-	by vger.kernel.org with ESMTP id <S314101AbSDLPLf>;
-	Fri, 12 Apr 2002 11:11:35 -0400
-Date: Fri, 12 Apr 2002 17:12:06 +0200
-From: Guillaume Gimenez <ggimenez@prologue-software.fr>
+	id <S314103AbSDLPfU>; Fri, 12 Apr 2002 11:35:20 -0400
+Received: from smtp-sec1.zid.nextra.de ([212.255.127.204]:52236 "EHLO
+	smtp-sec1.zid.nextra.de") by vger.kernel.org with ESMTP
+	id <S314102AbSDLPfU>; Fri, 12 Apr 2002 11:35:20 -0400
+Date: Fri, 12 Apr 2002 17:35:13 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
 To: <linux-kernel@vger.kernel.org>
-Cc: Rowan Ingvar Wilson <rowan.ingvar.wilson@0800dial.com>,
-        "blesson paul" <blessonpaul@msn.com>, Samuel Maftoul <maftoul@esrf.fr>
-Subject: Re: /dev/zero
-Message-Id: <20020412171206.2783acce.ggimenez@prologue-software.fr>
-In-Reply-To: <20020412100804.A6605@pcmaftoul.esrf.fr>
-Organization: Prologue Software
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #aYAM@CUO[tWCSX=wrnq$Aou=9$*@-<8{sgt[sSL;U(&AIRAJpcVt`0`=<gW@j?B5~[$uVf j6<bh?MB`;Ug#@.HxckUG)/`~dT(,3~\&q{QQX<*yu,p,XGfU+-~OO^w@?FC;Yv+uUq']Y&?P)?G:n cP^h4o=/N)gGrj}o\dB8}&
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=..s_CYQ8_0G1FSr"
+Subject: serial driver question
+Message-ID: <Pine.LNX.4.33.0204121733460.15512-100000@pcgl.dsa-ac.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=..s_CYQ8_0G1FSr
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+(asking on kernelnewbies didn't produceany results, so, I'm protected:-))
 
-Samuel Maftoul a écrit:
-    Samuel> It's just zeroes, so it allows you to test raw write speed on any
-    Samuel> device:
-    Samuel> dd if=/dev/zero of=/dev/hda to test your performances of hda ...
-    Samuel> normally if I get it well, /dev/zero can't be you're bottleneck.
-    Samuel>         Sam
+Hello all
 
-Just to save Samuel's soul ;-)
-the dd command supplied above will erase your primary hard drive
+The function
+static int size_fifo(struct async_struct *info)
+{
+...
+ends as follows:
+	serial_outp(info, UART_LCR, UART_LCR_DLAB);
+	serial_outp(info, UART_DLL, old_dll);
+	serial_outp(info, UART_DLM, old_dlm);
 
-To see hard drive performances, hdparm -tT /dev/hda is better.
+	return count;
+}
 
-PS: Pas sympa Samuel
+Which means, that DLAB is not re-set, and, in particular, all subsequent
+read/write operations on offsets 0 and 1 will not affect the data and
+interrupt enable registers, but the divisor latch register... Or is this
+register somehow magically restored elsewhere or by the hardware (say, on
+an interrupt)? This function seems to be only called for startech UARTs.
 
--- 
-Guillaume Gimenez
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 
---=..s_CYQ8_0G1FSr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6b (GNU/Linux)
-
-iD8DBQE8tvlJ00PDGGWQcLIRAqyFAKCwYQWQjFx90he4zfg7czjsaQ0STQCgmhM6
-Hkwb0lzvicgLyZDYiY5yMjE=
-=sDib
------END PGP SIGNATURE-----
-
---=..s_CYQ8_0G1FSr--
 

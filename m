@@ -1,42 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265373AbUFOI74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUFOJDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265373AbUFOI74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 04:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUFOI74
+	id S265377AbUFOJDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 05:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUFOJDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 04:59:56 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:58855 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265373AbUFOI7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 04:59:55 -0400
-Date: Tue, 15 Jun 2004 09:59:52 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] kbuild: default kernel image
-Message-ID: <20040615085952.GA19197@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk> <20040615044020.GC16664@mars.ravnborg.org> <20040615093807.A1164@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Tue, 15 Jun 2004 05:03:34 -0400
+Received: from web54101.mail.yahoo.com ([206.190.37.236]:13199 "HELO
+	web54101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265377AbUFOJDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 05:03:30 -0400
+Message-ID: <20040615090330.81780.qmail@web54101.mail.yahoo.com>
+Date: Tue, 15 Jun 2004 02:03:30 -0700 (PDT)
+From: Kumar V <vhkumar95@yahoo.com>
+Subject: DMA-ACQ-HELP
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040615093807.A1164@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 09:38:07AM +0100, Russell King wrote:
-> AFAIAC, if the boot loader does not support the standard Image or
-> zImage format, both of which are the fully documented "official"
-> ARM kernel formats, it is up to the boot loader to provide whatever
-> scripts or programs are needed to manipulate the output of the kernel
-> build to whatever the boot loader wants.
+Hi All,
+I would like to acquire the data through DMA @1kbps
+contineously.
+I am not able to acquire the data correctly, I am
+missing the data.
+What would be the reason. From H/W side there is no
+problem.
+Here Idea is to divide 4k into 128 block of data i.e.
+4096/128=32 blocks and I would like to take previously
+acquired  
+block of data. After 4kb it should roll back to
+starting, like circular 
+Q.
+Here is the driver code for the same.
+Please help me what would be the problem.
+Thanks in advance.
 
-And we have /sbin/installkernel and ~/bin/installkernel as defined hooks
-for that.  No need to support everything and a kitchensink in the kernel
-build process.  In fact I'd love to reduce what the kernel builds to just
-vmlinux and vmlinux.gz, but I guess all those lilo user will kill me ;-)
+Regards
+V. Kumar.
+
+*********************************
+
+At open entry
+dma_buff = __get_dma_pages(__GFP_DMA, 0); //
+1-page(4096 byte) 
+flags = claim_dma_lock ();
+disable_dma (dma_ch);
+clear_dma_ff (dma_ch);
+set_dma_mode (dma_ch, DMA_MODE_READ | DMA_AUTOINIT);
+set_dma_addr (dma_ch, virt_to_bus (dma_buff));
+set_dma_count (dma_ch,4096 );
+enable_dma (dma_ch);
+release_dma_lock (flags);
+*******************************
+
+At Read Entry
+flags = claim_dma_lock ();
+residue = get_dma_residue (dma_ch);
+
+// just to wait for at least 1k bytes to acquire
+if (( prev_cntr-residue) < 128 )
+{
+	prevcntr = residue ;
+	return 0 ;
+}
+prev_cntr = residue ;
+
+i = 4096 - residue;
+// Copying the acquired data to tmp buff of 128 bytes
+// mean time DMA can continue the data transfer 
+start = (int)(i / 128);
+start = start * 128;
+for (i = 0; i < 128; i++)
+	tbuff[i] = dma_buff[start + i];
+__copy_to_user ((unsigned char *) buf, (unsigned char
+*) tbuff,
+         sizeof (tbuff));
+*******************************
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - You care about security. So do we.
+http://promotions.yahoo.com/new_mail

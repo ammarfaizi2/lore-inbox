@@ -1,34 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLWKVi>; Sat, 23 Dec 2000 05:21:38 -0500
+	id <S129210AbQLWKwg>; Sat, 23 Dec 2000 05:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQLWKV2>; Sat, 23 Dec 2000 05:21:28 -0500
-Received: from AGrenoble-101-1-1-84.abo.wanadoo.fr ([193.251.23.84]:51696 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S129325AbQLWKVW>;
-	Sat, 23 Dec 2000 05:21:22 -0500
-From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+	id <S129340AbQLWKw1>; Sat, 23 Dec 2000 05:52:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63505 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129210AbQLWKwT>;
+	Sat, 23 Dec 2000 05:52:19 -0500
+Date: Sat, 23 Dec 2000 10:21:52 +0000
+From: Matthew Wilcox <matthew@wil.cx>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0 test13-pre4 causes CDROM ioctl errors
-X-Mailer: MH [version 6.8]
-Organization: Home, Grenoble, France
-Date: Sat, 23 Dec 2000 10:50:42 +0100
-Message-ID: <1433.977565042@nice.ram.loc>
+Subject: [PATCH] find_vma_prev rewrite
+Message-ID: <20001223102152.B17346@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since I've installed 2.4.0 test13-pre4, I see the following errors
-in my log:
 
-	sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+find_vma_prev doesn't return a pointer to the `prev' vma if the address
+is greater than the last existing vma.  This doesn't matter unless you're
+on a PA-RISC machine :-)
 
-and xmcd reports:
+This rewrite should speed up & make find_vma_prev simpler, as well as
+fixing the previous behaviour.
 
-	CD audio: ioctl error on /dev/scd0: cmd=CDROMVOLCTRL errno=95
+--- linux-t10/mm/mmap.c	Fri Oct 13 20:10:30 2000
++++ linux-mine/mm/mmap.c	Wed Dec 20 15:22:53 2000
+@@ -417,54 +417,48 @@
+ struct vm_area_struct * find_vma_prev(struct mm_struct * mm, unsigned long addr,
+ 				      struct vm_area_struct **pprev)
+ {
+-	if (mm) {
+-		if (!mm->mmap_avl) {
+-			/* Go through the linear list. */
+-			struct vm_area_struct * prev = NULL;
+-			struct vm_area_struct * vma = mm->mmap;
+-			while (vma && vma->vm_end <= addr) {
+-				prev = vma;
+-				vma = vma->vm_next;
+-			}
+-			*pprev = prev;
+-			return vma;
+-		} else {
+-			/* Go through the AVL tree quickly. */
+-			struct vm_area_struct * vma = NULL;
+-			struct vm_area_struct * last_turn_right = NULL;
+-			struct vm_area_struct * prev = NULL;
+-			struct vm_area_struct * tree = mm->mmap_avl;
+-			for (;;) {
+-				if (tree == vm_avl_empty)
++	struct vm_area_struct *vma = NULL;
++	struct vm_area_struct *prev = NULL;
++	if (!mm)
++		goto out;
++	prev = mm->mmap_cache;
++	if (prev) {
++		vma = prev->vm_next;
++		if (prev->vm_end < addr &&
++				((vma == NULL) || (addr < vma->vm_end)))
++			goto out;
++		prev = NULL;
++	}
++	vma = mm->mmap; /* guard against there being no prev */
++	if (!mm->mmap_avl) {
++		/* Go through the linear list. */
++		while (vma && vma->vm_end <= addr) {
++			prev = vma;
++			vma = vma->vm_next;
++		}
++	} else {
++		/* Go through the AVL tree quickly. */
++		struct vm_area_struct * tree = mm->mmap_avl;
++		while (tree != vm_avl_empty) {
++			if (addr < tree->vm_end) {
++				tree = tree->vm_avl_left;
++			} else {
++				prev = tree;
++				if (tree->vm_next == NULL)
+ 					break;
+-				if (tree->vm_end > addr) {
+-					vma = tree;
+-					prev = last_turn_right;
+-					if (tree->vm_start <= addr)
+-						break;
+-					tree = tree->vm_avl_left;
+-				} else {
+-					last_turn_right = tree;
+-					tree = tree->vm_avl_right;
+-				}
+-			}
+-			if (vma) {
+-				if (vma->vm_avl_left != vm_avl_empty) {
+-					prev = vma->vm_avl_left;
+-					while (prev->vm_avl_right != vm_avl_empty)
+-						prev = prev->vm_avl_right;
+-				}
+-				if ((prev ? prev->vm_next : mm->mmap) != vma)
+-					printk("find_vma_prev: tree inconsistent with list\n");
+-				*pprev = prev;
+-				return vma;
++				if (addr < tree->vm_next->vm_end)
++					break;
++				tree = tree->vm_avl_right;
+ 			}
+ 		}
+ 	}
+-	*pprev = NULL;
+-	return NULL;
++	mm->mmap_cache = prev;
++out:
++	*pprev = prev;
++	return prev ? prev->vm_next : vma;
+ }
+ 
++/* XXX: Needs to be fixed for PA-RISC -- won't grow our stack. */
+ struct vm_area_struct * find_extend_vma(struct mm_struct * mm, unsigned long addr)
+ {
+ 	struct vm_area_struct * vma;
 
-This was working fine with 2.4.0 test12-pre5, which was the previous
-kernel I was using.
-
-Raphael
+-- 
+Revolutions do not require corporate support.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

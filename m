@@ -1,120 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbUDIP2f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 11:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUDIP2e
+	id S261410AbUDIPh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 11:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUDIPh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 11:28:34 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:54515 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261405AbUDIP2R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 11:28:17 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>, Valdis.Kletnieks@vt.edu
-Subject: Re: kernel stack challenge
-Date: Fri, 9 Apr 2004 10:27:48 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040408222246.49161.qmail@web40506.mail.yahoo.com>
-In-Reply-To: <20040408222246.49161.qmail@web40506.mail.yahoo.com>
-MIME-Version: 1.0
-Message-Id: <04040910274800.07703@tabby>
-Content-Transfer-Encoding: 8bit
+	Fri, 9 Apr 2004 11:37:28 -0400
+Received: from mh57.com ([217.160.185.21]:6342 "EHLO mithrin.mh57.de")
+	by vger.kernel.org with ESMTP id S261410AbUDIPhZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 11:37:25 -0400
+Date: Fri, 9 Apr 2004 17:37:21 +0200
+From: Martin Hermanowski <lkml@martin.mh57.de>
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-mm2 (swsusp not working and acpi problem)
+Message-ID: <20040409153720.GA5713@mh57.de>
+References: <20040406223321.704682ed.akpm@osdl.org> <20040407065154.GG1139@ens-lyon.fr> <20040407001004.0360a049.akpm@osdl.org> <1081344258.10773.3.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+Content-Disposition: inline
+In-Reply-To: <1081344258.10773.3.camel@mulgrave>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
+X-Spam-Score: 0.0 (/)
+X-Authenticated-ID: martin
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 April 2004 17:22, Sergiy Lozovsky wrote:
->
-> Usual way of stack problems was - to run shell using
-> security hole. Change root password or create new
-> account with root UID. All these usually done with
-> tools available at the system.
->
-> VXE use word Environment (description of available
-> resources), some systems use word Domain. There is no
-> shell, ls, vi and so on in POPD Environment. So, most
-> of attackers will just go away. One should be really
-> motivated to master unique binary code to hack VXE
-> protected system. Let's see what is possible even in
-> that case.
->
-> Let's assume there is a security hole in POPD. One
-> should create custom binary code to inspect RAM. How
-> to communicate information back to hacker? There
-> should be enough code to do that. This code should not
-> destroy POPD to such extent that it will end (or core
-> dumped), because hacker's code will end too. (POPD
-> doesn't need exec or fork for its work, so hacker
-> can't call these syscalls). So, in theory it is
-> possible to do some damage to particular subsystem,
-> but it's nearly impossible to compromise all system.
 
-Why shouldn't it?
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It can just replace the entire code with itself.
-and since you cannot prevent the use of mmap (which
-is used to load the runtime libraries AND the executable)
-it can still do that.
+Hi,
 
-> > Unless he finds a copy of the file on the process
-> > heap (more than
-> > one information leakage issue has come from THAT
-> > sort of problem)
->
-> If you have limited number syscalls (with limited
-> parameters you can call allowed syscalls) - it's VERY
-> hard to do. Purpose of VXE is to protect subsystems,
-> which can have security holes. In real life nobody can
-> gurantee, that there are no security holes in a given
-> system. Some time ago they constantly were finding
-> bugs in sendmail. Nevertheless people were using it.
+I tried updating from 2.6.4-rc1-mm2 to 2.6.5-mm2, and I found two
+problems:
 
-And they were fixing it. Not trying to make VERY kluged
-work arounds in the kernel.
+First, swsusp stopped working, I get a NULL pointer in
+`poke_blanked_console' after all the other things seem to be fine.
 
-> > Unless he opens a new file on the system, and writes
-> > a binary into
-> > it, chmod's it to executable, and does a
-> > pipe/fork/exec and use
-> > that program's quota of opens to read it...
->
-> POPD doesn't use chmod/fork/exec, so that wouldn't
-> work - there are no these syscalls in POPD
-> Environment. Let's assume some file was created by
-> hacker in /var/spool/mailbox, so what? How that can
-> damage the system. (it's the only directory where POPD
-> can create/modify files).
+I made a screenshot available under
+http://mh57.de/~martin/oops-part1.png and
+http://mh57.de/~martin/oops-part2.png
 
-You don't need to use chmod/fork/exec. It is entire possible
-to replace the executable just by using mmap. I've already
-written programs that deliberately do that (though I did use
-dlopen). I've written a single binary that do anything. Including
-running previously build applications.
+This happens regardless of starting X or using the framebuffer. The
+hardware is an IBM Thinkpad T41p. In the screenshots above, the kernel
+is tainted from the madwifi module, but not loading it before did not
+change the oops.
 
-After all - ld.so does just that during the initial load
-an execed binary. All exec does is start ld.so with different
-parameters... and nothing says that can't be done again.
+The kernel contains two more patches, linux-iscsi-kernel-4.0.1.3.patch
+and linux-2.6.3-mppe-mppc-0.99.patch.gz, but these two modules were not
+loaded before during my tests.
 
-And just not having a shell program on disk is silly - It
-can be created rather easily. After all, that is what
-root kits do routinely.
+The kernel config can be downloaded at
+http://mh57.de/~martin/265-cfg-notworking , I am booting with noapic and
+nolapic.
 
-> > And that's just the *obvious* end runs.  As somebody
-> > else noted,
-> > writing the code is the easy part....
->
-> So, in theory it is possible to make some damage to
-> hacked subsystem (POPD for example and damaged can be
-> only mailboxes), but the rest of the system will be
-> intact (and there is a lot of stuff in the system
-> except POPD). But in practice with such striped
-> environment - without shell, editors, limited set of
-> syscalls - generic hackers tools will not work. Only
-> if someone will dedicate efforts to create custom
-> tools for your particular site - he can damage
-> mailboxes at most (in case of POPD). I think, that it
-> is a pretty good result.
+The other problem is less easy to describe, with 2.6.5-mm2, the notebook
+seems to have a higher power consumption then with 2.6.4-rc1-mm2, ie. I
+get about 20min less runtime out of my battery. I will investigate oh
+this later.
 
-It would be better to use a chroot environment.
+LLAP, Martin
+
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAdsMwmGb6Npij0ewRArYmAJ97p34F8Hk5tfijPStcOhHfpDXy6QCgpxCQ
+y2cF8Xt9wHL2pAbZJuVufCA=
+=Tr8L
+-----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--

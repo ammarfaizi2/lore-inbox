@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287947AbSAHGfb>; Tue, 8 Jan 2002 01:35:31 -0500
+	id <S287950AbSAHGob>; Tue, 8 Jan 2002 01:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287950AbSAHGfW>; Tue, 8 Jan 2002 01:35:22 -0500
-Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:38916 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287946AbSAHGfS>;
-	Tue, 8 Jan 2002 01:35:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-Date: Tue, 8 Jan 2002 07:38:00 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, torvalds@transmeta.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <5.1.0.14.2.20020107134718.025e4d90@pop.cus.cam.ac.uk> <E16NpoB-00006w-00@starship.berlin> <3C3A925B.C8A33E49@mandrakesoft.com>
-In-Reply-To: <3C3A925B.C8A33E49@mandrakesoft.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NptY-000071-00@starship.berlin>
+	id <S287952AbSAHGoW>; Tue, 8 Jan 2002 01:44:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:65297 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287950AbSAHGoN>;
+	Tue, 8 Jan 2002 01:44:13 -0500
+Date: Tue, 8 Jan 2002 07:43:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFT] simple deadline I/O scheduler
+Message-ID: <20020108074350.Q1755@suse.de>
+In-Reply-To: <20020104094334.N8673@suse.de> <20020105133800.A37@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020105133800.A37@toy.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 8, 2002 07:31 am, Jeff Garzik wrote:
-> Daniel Phillips wrote:
-> >   - When that's done we will apply what would be my unbork patches (2: ext2_i) and
-> >     (3: ext2_sb) to both 2.4.current and 2.5.current?  Subject to getting these two
-> >     patches into the form everybody likes, of course.
+On Sat, Jan 05 2002, Pavel Machek wrote:
+> Hi!
 > 
-> predictably I would rather my patches got applied for this :)
+> > I've played around with implementing an I/O scheduler that _tries_ to
+> > start request within a given time limit. Note that it makes no
+> > guarentees of any sort, it's simply a "how does this work in real life"
+> > sort of thing. It's main use is actually to properly extend the i/o
+> > scheduler / elevator api to be able to implement more advanced
+> > schedulers (eg cello).
+> 
+> Would it be possible to introduce concept of I/O priority? I.e. I want 
+> updatedb not to load disk if I need it for something else?
 
-Naturally ;)
+I've been toying with equal i/o distribution between the processes in
+the system, but it isn't done yet. I know Arjan is working on a priority
+scheduler, too. So something is bound to materialize sooner or later :)
 
---
-Daniel
+-- 
+Jens Axboe
+

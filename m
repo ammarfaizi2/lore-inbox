@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266491AbSKLLxr>; Tue, 12 Nov 2002 06:53:47 -0500
+	id <S266535AbSKLMJr>; Tue, 12 Nov 2002 07:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266513AbSKLLxr>; Tue, 12 Nov 2002 06:53:47 -0500
-Received: from mta03ps.bigpond.com ([144.135.25.135]:32464 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S266491AbSKLLxq>; Tue, 12 Nov 2002 06:53:46 -0500
-Message-ID: <3DD0EDC8.9050807@snapgear.com>
-Date: Tue, 12 Nov 2002 22:02:16 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Miles Bader <miles@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.5.47-uc0 (MMU-less fixups)
-References: <3DD06E49.8080309@snapgear.com> <buo7kfjyvar.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266528AbSKLMJr>; Tue, 12 Nov 2002 07:09:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26126 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S266527AbSKLMJq>; Tue, 12 Nov 2002 07:09:46 -0500
+Date: Tue, 12 Nov 2002 13:16:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Voyager subarchitecture for 2.5.46
+Message-ID: <20021112121633.GB21443@atrey.karlin.mff.cuni.cz>
+References: <johnstul@us.ibm.com> <1037047250.1625.5.camel@cornchips> <200211112057.gABKvS620539@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211112057.gABKvS620539@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miles,
+Hi!
 
-Miles Bader wrote:
-> Here's a v850 update for linux-2.5.47-uc0:
+> As a beginning, what about the attached patch?  It eliminates the compile time 
+> TSC options (and thus hopefully the sources of confusion).  I've exported 
+> tsc_disable, so it can be set by the subarchs if desired (voyager does this) 
+> and moved the notsc option into the timer_tsc code (which is where it looks 
+> like it belongs).
 
-Applied.
-
-Thanks
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+Looks good to me.
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265008AbRFVBNu>; Thu, 21 Jun 2001 21:13:50 -0400
+	id <S265074AbRFVBVW>; Thu, 21 Jun 2001 21:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265043AbRFVBNk>; Thu, 21 Jun 2001 21:13:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3084 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S265008AbRFVBNd>;
-	Thu, 21 Jun 2001 21:13:33 -0400
-Date: Thu, 21 Jun 2001 22:13:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Justin Guyett <justin@soze.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] What are the VM motivations??
-In-Reply-To: <Pine.LNX.4.33.0106211631150.13638-100000@gw.soze.net>
-Message-ID: <Pine.LNX.4.21.0106212212420.7419-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S265214AbRFVBVL>; Thu, 21 Jun 2001 21:21:11 -0400
+Received: from ut-ras1-dial47.uniweb.net.co ([200.24.96.47]:48913 "EHLO
+	earth.cj.osso.org.co") by vger.kernel.org with ESMTP
+	id <S265074AbRFVBVG> convert rfc822-to-8bit; Thu, 21 Jun 2001 21:21:06 -0400
+Date: Thu, 21 Jun 2001 20:20:43 -0500 (COT)
+From: "Jhon H. Caicedo" <jhcaiced@osso.org.co>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: "Jhon H. Caicedo" <jhcaiced@osso.org.co>, <linux-kernel@vger.kernel.org>
+Subject: Re: AMD756VIPER PCI IRQ Routing Patch (Need Additional Tests)
+In-Reply-To: <3B32818B.CECD9505@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0106212012250.30398-100000@earth.cj.osso.org.co>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Justin Guyett wrote:
 
-> > 	One we know how we would 'train' our little VM critter, we
-> > will know how to measure its performance. Once we have measures, we
-> > can have good benchmarks. Once we have good benchmarks - we can pick
-> > a good VM alg.
-> 
-> I can see it now... "Care and Feeding of your linux kernel VM for Dummies"
+Hi,
 
-Shouldn't that be "by Dummies(tm)" ?  ;)
+Thanks for your comment,
 
-Rik
+I haven't used read_config_nybble, write_config_nybble in order to use the
+same code with this kernel patch (2.4.X) and a patch for pcmcia-cs
+(pci_fixup.c) to use with linux 2.2.X
+
+I think it would be better to rewrite the patch using the nybble functions
+and "import" the nybble functions to the pcmcia-cs code, I will work on
+it tomorrow and send it to the kernel mailing list.
+
+Again, Thanks for the comment and for take the time to review the code.
+
+Best wishes,
+
+On Thu, 21 Jun 2001, Jeff Garzik wrote:
+
+> Can you use read_config_nybble and write_config_nybble, in your patch?
+>
+
+-- 
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Jhon H. Caicedo O. <jhcaiced@osso.org.co>
+Observatorio Sismológico del SurOccidente O.S.S.O
+http://www.osso.org.co
+Cali - Colombia
 

@@ -1,63 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268568AbUJDTff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUJDTff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268568AbUJDTff (ORCPT <rfc822;willy@w.ods.org>);
+	id S268526AbUJDTff (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 4 Oct 2004 15:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbUJDTch
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUJDTbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:32:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52621 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268502AbUJDTYE (ORCPT
+	Mon, 4 Oct 2004 15:31:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6081 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268526AbUJDT1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:24:04 -0400
-Message-ID: <4161A3BF.4020908@RedHat.com>
-Date: Mon, 04 Oct 2004 15:25:51 -0400
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] lockd
-References: <41617958.2020406@RedHat.com> <1096912231.22446.60.camel@lade.trondhjem.org>
-In-Reply-To: <1096912231.22446.60.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 4 Oct 2004 15:27:54 -0400
+Date: Mon, 4 Oct 2004 12:25:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: annabellesgarden@yahoo.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.9-rc3-mm2
+Message-Id: <20041004122533.0a85a1ad.akpm@osdl.org>
+In-Reply-To: <20041004122304.4f545f3c.akpm@osdl.org>
+References: <200410041634.24937.annabellesgarden@yahoo.de>
+	<20041004122304.4f545f3c.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Trond Myklebust wrote:
-
->På må , 04/10/2004 klokka 18:24, skreiv Steve Dickson:
+Andrew Morton <akpm@osdl.org> wrote:
 >
->  
->
->>Hey Neil,
->>    
->>
->
->Hey! This is the client side NLM code... 8-)
->  
->
-Sorry buddy.... I'm having one of those days!!!! :-\
+> You're the second person who is seeing in_interrupt() returning true when
+>  clearly it should not be doing so.  Ingo, did you do soemthing which might
+>  have caused this?
 
->Note that you probably also want to move the call to
->set_current_state(TASK_INTERRUPTIBLE) inside the loop. In that case you
->can also remove the call to set_current_state(TASK_RUNNING) ('cos
->schedule_timeout() will do that for you).
->
->  
->
-Ok...
-
->Also, why aren't you using the more standard DECLARE_WAITQUEUE(__wait)?
->  
->
-I guess I didn't realize that would be a better way to do it... I'll 
-look into to...
-
-thanks,
-
-SteveD.
-
+I'm suspecting that something is causing preempt_count() to overflow into
+the softirq counter.  An imbalanced preempt_disable(), for example.

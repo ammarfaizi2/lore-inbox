@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268286AbUIQC3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUIQCoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268286AbUIQC3j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 22:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIQC3j
+	id S268344AbUIQCoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 22:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIQCoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 22:29:39 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:9935 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268286AbUIQC3h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 22:29:37 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9
-From: Robert Love <rml@novell.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jan Kara <jack@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095377752.23913.3.camel@localhost.localdomain>
-References: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
-	 <1095376979.23385.176.camel@betsy.boston.ximian.com>
-	 <1095377752.23913.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 16 Sep 2004 22:29:36 -0400
-Message-Id: <1095388176.20763.29.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+	Thu, 16 Sep 2004 22:44:14 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:50063 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S268344AbUIQCoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 22:44:12 -0400
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+Subject: [2.6.9-rc2-bk2][USB HID] Problem with USB <-> PS/2 converter for keyboard -  USB unable to set Port - continued
+Date: Thu, 16 Sep 2004 22:44:09 -0400
+User-Agent: KMail/1.7
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409162244.09448.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-17 at 00:35 +0100, Alan Cox wrote:
 
-> How many of the races matter. There seem to be several different
-> problems here and mixing them up might be a mistake. 
-> 
-> 1.	I absolutely need to get the right file at the right moment, please
-> mass me a descriptor to the file as the user closes it so I always get
-> it right (indexer, virus checker)
-> 
-> 2.	If something happens bug me and I'll have a look (eg file manager)
+Is this a known issue? I can still reproduce this problem: 
 
-I think we want a solution that works well for both cases.
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 001c03 POWER sig=?  CSC CONNECT 
+hub 4-0:1.0: port 3, status 0501, change 0001, 480 Mb/s 
+hub 4-0:1.0: debounce: port 3: total 100ms stable 100ms status 0x501 
+hub 4-0:1.0: port 3 not reset yet, waiting 50ms
+ehci_hcd 0000:00:1d.7: port 3 full speed --> companion
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 003c01 POWER OWNER sig=? CONNECT 
+uhci_hcd 0000:00:1d.1: wakeup_hc
+uhci_hcd 0000:00:1d.1: port 1 portsc 0082
+hub 2-0:1.0: port 1, status 0100, change 0001, 12 Mb/s
+hub 2-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x100
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 001c03 POWER sig=?  CSC CONNECT 
+hub 4-0:1.0: port 3, status 0501, change 0001, 480 Mb/s
+hub 4-0:1.0: debounce: port 3: total 100ms stable 100ms status 0x501
+hub 4-0:1.0: port 3 not reset yet, waiting 50ms
+ehci_hcd 0000:00:1d.7: port 3 full speed --> companion
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 003c01 POWER OWNER sig=? CONNECT 
+uhci_hcd 0000:00:1d.1: suspend_hc
+uhci_hcd 0000:00:1d.1: wakeup_hc
+uhci_hcd 0000:00:1d.1: port 1 portsc 00b2
+hub 2-0:1.0: port 1, status 0100, change 0001, 12 Mb/s
+hub 2-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x100
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 001c03 POWER sig=?  CSC CONNECT 
+hub 4-0:1.0: port 3, status 0501, change 0001, 480 Mb/s
+ehci_hcd 0000:00:1d.7: GetStatus port 3 status 001c03 POWER sig=?  CSC CONNECT
 
-E.g., we have a few different needs:
+Please let me know what other info other than what I have provided in previous email I will be glad to get this information for you.
 
-	- Stuff like Spotlight-esque automatic Indexers.
-	- File manager notifications
-	- Other GUI notifications (desktop, menus, etc.)
-	- To prevent polling (e.g. /proc/mtab)
-	- Existing dnotify users
+This is a Thinkpad T42 Laptop USB 2.0 ports (2 of them external 6 total interal wired for bluetooth and such).
 
-dnotify is pretty lame for any of the above situations.  Even for
-something as trivial as watching the current open directory in Nautilus,
-look at the hoops we have to just through with FAM.
-
-And dnotify utterly falls apart on removable media or for any "large"
-sort of job, e.g. indexing.
-
-	Robert Love
-
-
+Shawn.

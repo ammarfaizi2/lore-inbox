@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278441AbRJMXJj>; Sat, 13 Oct 2001 19:09:39 -0400
+	id <S278440AbRJMXVj>; Sat, 13 Oct 2001 19:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278440AbRJMXJ3>; Sat, 13 Oct 2001 19:09:29 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:51210 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S278438AbRJMXJX>;
-	Sat, 13 Oct 2001 19:09:23 -0400
-Message-Id: <200110132309.f9DN9Z8l027418@sleipnir.valparaiso.cl>
-To: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
-cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, Matt_Domsch@dell.com
-Subject: Re: crc32 cleanups 
-In-Reply-To: Message from Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de> 
-   of "Sat, 13 Oct 2001 12:07:48 +0200." <Pine.LNX.4.30.0110131202070.1076-100000@stud.fbi.fh-darmstadt.de> 
-Date: Sat, 13 Oct 2001 19:09:34 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S278438AbRJMXVT>; Sat, 13 Oct 2001 19:21:19 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:48409 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S278437AbRJMXVN>; Sat, 13 Oct 2001 19:21:13 -0400
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+From: Robert Love <rml@ufl.edu>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrea Arcangeli <andrea@suse.de>, safemode <safemode@speakeasy.net>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011012132220.B35@toy.ucw.cz>
+In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org>
+	<20011010031803.F8384@athlon.random>
+	<20011010020935.50DEF1E756@Cantor.suse.de>
+	<20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy> 
+	<20011012132220.B35@toy.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
+Date: 13 Oct 2001 19:21:25 -0400
+Message-Id: <1003015290.864.70.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de> said:
-> That doesn't solve the problem, if your kernel doesn't use the crc
-> functions but an externel one (special driver - eventually binary) module
-> needs the code. The external driver may give a message like "crc functions
-> needed - please recompile your kernel with crc support". Is this ok for
-> the normal user ?
+On Fri, 2001-10-12 at 09:22, Pavel Machek wrote:
+> Hi!
+> 
+> > Now dbench (or any task) is in kernel space for too long.  The CPU time
+> > xmms needs will of course still be given, but _too late_.  Its just not
+> > a cpu resource problem, its a timing problem.  xmms needs x units of CPU
+> > every y units of time.  Just getting the x whenever is not enough.
+> 
+> Yep, with
+> 
+> x = 60msec
+> y = 600msec
 
-Make it a configure option, forced by drivers that need them and up to the
-builder otherwise (default to "yes", I'd suppose).
+How are you arriving at that y?  On what system?
 
-Going a bit further, there are several cases of "library" stuff in the
-kernel (CRC, gzip come to mind). Dunno if it is enough stuff to set up a
-specific policy and perhaps CML support (or suggestions on how to use CML2
-for this case).
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+I agree with the x value, though.  However, people have been shouting a
+lot of numbers around about the size of audio buffers, the size of DMA
+buffers, etc. and they aren't realistic.  If you calculate out the times
+that have been quoted, keeping in mind the stereo and all, the buffers
+are huge.  We need to find out what the sizes _really_ are, and then
+keep in mind that we have multiple channels (plus any other sound output
+from X and what not).
+
+Honestly, I don't know what the buffer sizes are.  I do know audio skips
+for me, and preempt-kernel patch improves that.
+
+	Robert Love
+

@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272745AbRIGP7b>; Fri, 7 Sep 2001 11:59:31 -0400
+	id <S272749AbRIGQCV>; Fri, 7 Sep 2001 12:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272743AbRIGP7V>; Fri, 7 Sep 2001 11:59:21 -0400
-Received: from [195.89.159.99] ([195.89.159.99]:44789 "EHLO
-	kushida.degree2.com") by vger.kernel.org with ESMTP
-	id <S272747AbRIGP7I>; Fri, 7 Sep 2001 11:59:08 -0400
-Date: Fri, 7 Sep 2001 16:58:52 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: kubla@sciobyte.de, joe@mathewson.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Secure network fileserving Linux <-> Linux
-Message-ID: <20010907165852.B8956@kushida.degree2.com>
-In-Reply-To: <200109071534.KAA90220@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
+	id <S272751AbRIGQCL>; Fri, 7 Sep 2001 12:02:11 -0400
+Received: from infinity.ciit.y12.doe.gov ([134.167.144.20]:59154 "EHLO
+	infinity.ciit.y12.doe.gov") by vger.kernel.org with ESMTP
+	id <S272749AbRIGQCA>; Fri, 7 Sep 2001 12:02:00 -0400
+Message-ID: <3B98EF85.C1CBF8BE@ciit.y12.doe.gov>
+Date: Fri, 07 Sep 2001 12:02:13 -0400
+From: Lawrence MacIntyre <lpz@ciit.y12.doe.gov>
+Organization: Center for Information Infrastructure Technology
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: re: hamachi (GNIC-II) and 2.4.9-ac9
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200109071534.KAA90220@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Fri, Sep 07, 2001 at 10:34:12AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-> > It can improve security if you use NFS over TCP over SSL...
-> > That may be easier to configure than IPSec in some environments.
-> 
-> I've never seen that used. I assume the procedure is something like:
-> 
-> 1. login on client (requires home directory be local)
-> 2. ssh to server (local window for password)
+Hi:
 
-Or you can use the `openssl' program.
-
-> 3. user mode mount to another directory (assuming not mounting working
->    directory - marked busy, though that might be allowed)
-> 4. use another window for local usage.
-> 
-> 	mountd port has to be redirected
-> 	nfsd port(s) have to be redirected (I think, might not apply to server)
-
-Really, the only critical one if you're worried about people
-reading/writing your data is nfsd.  mountd is second most important, but
-not really if you're using the user-space NFS server.
-
-> 	biod port(s) have to be redirected
-
-No need for biod.
-
-> 	lockd port(s) have to be redirected (unless nolocking)
-> 	statd port(s) have to be redirected (not sure)
-
-I'm not sure about statd either.  It would be safest to run this over SSL.
-
-> And only a single user per host (not unreasonable).
-
-You could have multiple users per host, with appropriate funky mounts so
-each user can only access their own secure mounts.  Either mount in a
-subdirectory of a user-private directory, or use the Plan9-style
-per-user mount trees (experimental patches from Al Viro).
-
-> Would it also work for windows/Macs?
-
-If you put a Linux box in between to implement the SSL part :-)
-
-It's pretty complicated, but then even a simple port-based firewall is
-rather complicated with NFS.
-
-Now, if somebody were to fix the portmapper and RPC libraries to use
-sensible fixed ports, so we could sensibly firewall RPC services, they
-might be tempted to implement automatic SSL tunnelling while they're
-there...
-
--- Jamie
+If I replace the 2.4.9-ac9 hamachi.c file with the one from the stock RH
+7.1 kernel distribution it works fine on the P-III and the alpha.  I
+even get better performance with 2.4.9-ac9 than with the stock kernel
+(340 Mb/s vs. 325 Mb/s).  There were a lot of changes in hamachi.c
+between the two versions. Insmoding the driver with debug=10 showed
+these 4 error numbers:
+0f32e812 (CRC) 0f32c812 (CRC) 0bc25012 00d30812 (CRC).  From reading the
+source, three of those point to CRC, the other isn't mentioned.  I don't
+have the hamachi data sheets to look up any other possible errors.  I'm
+quite willing to test any fixes if anyone has any ideas.
+-- 
+                                 Lawrence
+                                    ~
+------------------------------------------------------------------------
+ Lawrence MacIntyre    Center for Information Infrastructure Technology
+ 865.574.8696   lpz@ciit.y12.doe.gov   http://www.ciit.y12.doe.gov/~lpz

@@ -1,85 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267525AbTACOh5>; Fri, 3 Jan 2003 09:37:57 -0500
+	id <S267527AbTACOkA>; Fri, 3 Jan 2003 09:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267527AbTACOh5>; Fri, 3 Jan 2003 09:37:57 -0500
-Received: from otter.mbay.net ([206.55.237.2]:21510 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S267525AbTACOh4>;
-	Fri, 3 Jan 2003 09:37:56 -0500
-Date: Fri, 3 Jan 2003 06:46:23 -0800 (PST)
-From: John Alvord <jalvo@mbay.net>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <3E159336.F249C2A1@aitel.hist.no>
-Message-ID: <Pine.LNX.4.20.0301030645040.31823-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267528AbTACOkA>; Fri, 3 Jan 2003 09:40:00 -0500
+Received: from f22.sea2.hotmail.com ([207.68.165.22]:58898 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267527AbTACOj6>;
+	Fri, 3 Jan 2003 09:39:58 -0500
+X-Originating-IP: [218.75.193.47]
+From: "fretre lewis" <fretre3618@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 03 Jan 2003 14:48:24 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F22ZpqurGv0OfLjOWRj00008619@hotmail.com>
+X-OriginalArrivalTime: 03 Jan 2003 14:48:24.0998 (UTC) FILETIME=[2B3FF460:01C2B337]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Helge Hafting wrote:
+hi,all
 
-> Andrew Walrond wrote:
-> > 
-> > Yes but....
-> > 
-> > I develop computer games. The last one I did took a team of 35 people 2
-> > years and cost $X million to develop.
-> > 
-> > Please explain how I could do this as free software, while still feeding
-> > my people? 
-> 
-> > Am I a bad person charging for my work?
-> No.
-> > 
-> > Really - I want to understand so I too can join this merry band of happy
-> > people giving everything away for free!
-> > 
-> Nobody give everything away from free.  Free software, in particular,
-> runs
-> on boxes that cost money.  And people sell service and support.
-> 
-> The problem with nvidia isn't that they charge money.  The problem
-> is that their product comes with strange restrictions.  
-> 
-> Everybody accepts that a nvidia cards cost money - chips and boards
-> certainly aren't free.  They even provide drivers for their card
-> for free.  They can trivially do this because they make their
-> money on selling the hardware.
-> 
-> The problems are:
-> 1) The drivers are closed-source, so we can't fix the bugs.  (Yes,
->    there are bugs, and no, nvidia don't fix them immediately.  So
->    it'd be nice for us who understand C to fix this ourselves.
->    Releasing the code don't won't cost nvidia because they aren't
->    making money on it.  They might actually sell _more_ hardware
->    if they released the code.  So keeping it secret don't make sense
->    even from a extreme greediness viewpoint.  Such a driver can't
->    be made to work with a competing product either with a few tweaks.
-> 
-> 2) Still, they _may_ have reasons not to release the code, perhaps
->    a patended algorithm or some such.  They could at least release the
->    specs for their card, so a free driver could be written from scratch.
->    But they don't do that either - strange.  Some manufacturers _do_
->    this, with no ill effects.  They get a slightly bigger market because
->    their equipment is ok with the free software world.  
-Another possibility is that they used some propriatary software libraries
-which have restrictions. Didn't someone see some strings which suggested
-that?
+  I am reading code about pci, and I can't understand some lines in
+pci_check_direct(), in arch/i386/kernel/pci-pc.c
 
-> 
-> This is very much like selling cars were the gas tank is locked, and
-> you don't have the key.  The gas stations have keys, but only
-> some of them.  So you can't fill anywhere.  
-> Or a tv that don't work on thursdays. Silly in the extreme,
-> annoying for the user and no benefit for the manufacturer.
-> 
-> Helge Hafting
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+well, I wonder why "outb (0x01, 0xCFB);" if check configuration type 1 ? and 
+why
+"outb (0x00, 0xCFB);" if check configuration type 2?
+
+please help me,thanks a lot
+
+406 static struct pci_ops * __devinit pci_check_direct(void)
+407 {
+408         unsigned int tmp;
+409         unsigned long flags;
+410
+411         __save_flags(flags); __cli();
+412
+413         /*
+414          * Check if configuration type 1 works.
+415          */
+416         if (pci_probe & PCI_PROBE_CONF1) {
+417                 outb (0x01, 0xCFB);
+418                 tmp = inl (0xCF8);
+419                 outl (0x80000000, 0xCF8);
+420                 if (inl (0xCF8) == 0x80000000 &&
+421                     pci_sanity_check(&pci_direct_conf1)) {
+422                         outl (tmp, 0xCF8);
+423                         __restore_flags(flags);
+424                         printk(KERN_INFO "PCI: Using configuration type 
+1\n");
+425                         request_region(0xCF8, 8, "PCI conf1");
+426                         return &pci_direct_conf1;
+427                 }
+428                 outl (tmp, 0xCF8);
+429         }
+430
+431         /*
+432          * Check if configuration type 2 works.
+433          */
+434         if (pci_probe & PCI_PROBE_CONF2) {
+435                 outb (0x00, 0xCFB);
+436                 outb (0x00, 0xCF8);
+437                 outb (0x00, 0xCFA);
+438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
+439                     pci_sanity_check(&pci_direct_conf2)) {
+440                         __restore_flags(flags);
+441                         printk(KERN_INFO "PCI: Using configuration type 
+2\n");
+442                         request_region(0xCF8, 4, "PCI conf2");
+443                         return &pci_direct_conf2;
+444                 }
+445         }
+446
+447         __restore_flags(flags);
+448         return NULL;
+449 }
+450
+451 #endif
+
+
+
+
+
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

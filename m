@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVB1Q45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVB1RDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVB1Q45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVB1Q4C
+	id S261686AbVB1RDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 12:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVB1RDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:56:02 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:51078 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261690AbVB1QzH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:55:07 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 28 Feb 2005 17:52:19 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: James Bruce <bruce@andrew.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-Message-ID: <20050228165219.GA25892@bytesex>
-References: <422001CD.7020806@andrew.cmu.edu> <20050228134410.GA7499@bytesex> <42232DFC.6090000@andrew.cmu.edu> <87mzto3c78.fsf@bytesex.org> <20050228164459.GI21514@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228164459.GI21514@vanheusden.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 28 Feb 2005 12:03:16 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:39310 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261686AbVB1RCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 12:02:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:reply-to:from:to:cc:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:x-mimeole;
+        b=IzABFru2Ls8n2mnrBjdqwA1tWdvjCldSsvGX6jxqjFzoT5HAtOkIviq9XgNp0YILDokXGqOmSaudxfAfeH2WFDGJMULXjnM3RrifsoCRHydOqa+A4IfnFXHnVWLDkzTIMPYddPVIHGi4qhf/m8CZgOQPnrfEy29x3ncn2W38G+w=
+Message-ID: <000b01c51db7$9492da80$8e3c65cb@y3e5j4>
+Reply-To: "srinivas naga vutukuri" <srinivas.vutukuri@gmail.com>
+From: "srinivas naga vutukuri" <srinivas.vutukuri@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <pmanohar@lantana.cs.iitm.ernet.in>
+Subject: need for user mode linux
+Date: Mon, 28 Feb 2005 22:34:29 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I remember something about that you shouldn't use the teletext-decoder
-> at the same time as viewing regular tv. That would damage the eeprom.
-> Maybe it is related?
+Hi Manohar,
 
-No.  Thats (a) very old and about two drivers banging on the bt848 card
-at the same time, where the second doesn't even exist for 2.4 any more I
-think.  And (b) damage in that case means "write random bytes to it",
-which is a very different issue.  You can still read it in that case.
+         Can get uses of user mode linux here.
+http://user-mode-linux.sourceforge.net/uses.html
 
-  Gerd
+regards,
+srinivas.
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+

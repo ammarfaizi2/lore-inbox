@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266739AbUG1AMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266740AbUG1AOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266739AbUG1AMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 20:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUG1AMZ
+	id S266740AbUG1AOk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 20:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUG1AOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 20:12:25 -0400
-Received: from click.bur.st ([203.34.17.217]:25118 "EHLO click.bur.st")
-	by vger.kernel.org with ESMTP id S266739AbUG1AMW (ORCPT
+	Tue, 27 Jul 2004 20:14:40 -0400
+Received: from holomorphy.com ([207.189.100.168]:42631 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266740AbUG1AOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 20:12:22 -0400
-Date: Wed, 28 Jul 2004 08:12:18 +0800
-From: Trent Lloyd <lathiat@bur.st>
-To: mru@kth.se, linux-kernel@vger.kernel.org
-Subject: Re: Future devfs plans (sorry for previous incomplete message)
-Message-ID: <20040728001217.GC31618@thump.bur.st>
-References: <200407261737.i6QHbff04878@freya.yggdrasil.com> <20040726062435.GA22559@thump.bur.st> <yw1xzn5nrv6o.fsf@kth.se>
+	Tue, 27 Jul 2004 20:14:38 -0400
+Date: Tue, 27 Jul 2004 17:14:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
+Message-ID: <20040728001415.GI2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com> <20040727132638.7d26e825.ak@suse.de> <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com> <20040727120125.0ec751a3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yw1xzn5nrv6o.fsf@kth.se>
-User-Agent: Mutt/1.3.28i
-X-Random-Number: 8.96272388128626e+197
+In-Reply-To: <20040727120125.0ec751a3.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see your point, but I wonder how it differs from the current devfs
-implementation (i don't know how it works in these cases)
+On Tue, 27 Jul 2004, Andi Kleen wrote:
+>>> This will likely increase code size. Do you have numbers by how
+>>> much? And is it really worth it?
 
-> Trent Lloyd <lathiat@bur.st> writes:
-> 
-> > Wouldn't a possible solution to do this to develop an extension to tmpfs to
-> > catch files accessed that don't exist etc and use that in conjuction
-> > with udev?
-> 
-> There is a problem with that scheme.  Imagine that a program attempts
-> to access a non-existing device.  The special fs would call modprobe
-> or similar which would load the correct module.  Loading this module
-> would cause hotplug events upon which udev would create the device
-> node.  However, all this is asynchronous.  The special fs could wait
-> for a while for the device to appear, but this doesn't quite look like
-> a nice solution.  The exit status of modprobe can't be used, since
-> even if the module loads perfectly it might not cause the requested
-> device to be created.  Even if it does, there will be some delay from
-> the module being loaded to udev creating the device node, so how long
-> should the kernel wait for the device to appear?  I haven't thought
-> about it further, but I smell races here.
-> 
-> -- 
-> M?ns Rullg?rd
-> mru@kth.se
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>>  Yes there is a growth;
+>>     text    data     bss     dec     hex filename
+>>  3655358 1340511  486128 5481997  53a60d vmlinux-after
+>>  3648445 1340511  486128 5475084  538b0c vmlinux-before
 
--- 
-Trent Lloyd <lathiat@bur.st>
-Bur.st Networking Inc.
+On Tue, Jul 27, 2004 at 12:01:25PM -0700, Andrew Morton wrote:
+> The growth is all in the out-of-line section, so there should be no
+> significant additional icache pressure.
+
+There are also flash and similar absolute space footprints to consider.
+Experiments seem to suggest that consolidating the lock sections and
+other spinlock code can reduce kernel image size by as much as 220KB on
+ia32 with no performance impact (rigorous benchmarks still in progress).
+
+That said, I agree with zwane's interrupt enablement change.
+
+
+-- wli

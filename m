@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263016AbSJSJeJ>; Sat, 19 Oct 2002 05:34:09 -0400
+	id <S265575AbSJSJiH>; Sat, 19 Oct 2002 05:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265575AbSJSJeI>; Sat, 19 Oct 2002 05:34:08 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4108 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S263016AbSJSJeH>; Sat, 19 Oct 2002 05:34:07 -0400
-Message-Id: <200210190935.g9J9Z9p15259@Port.imtp.ilyichevsk.odessa.ua>
+	id <S265577AbSJSJiH>; Sat, 19 Oct 2002 05:38:07 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:39120 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S265575AbSJSJiG> convert rfc822-to-8bit; Sat, 19 Oct 2002 05:38:06 -0400
 Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-Subject: Re: Forced umount
-Date: Sat, 19 Oct 2002 14:28:02 +0000
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1021018151840.150A-100000@chaos.analogic.com> <3DB06E3D.8050704@gmx.net>
-In-Reply-To: <3DB06E3D.8050704@gmx.net>
+  charset="iso-8859-1"
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@orga.com>
+Subject: Re: bootsect.S and magic address 0x78
+Date: Fri, 18 Oct 2002 23:44:05 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <3DAFDC88.2010009@orga.com>
+In-Reply-To: <3DAFDC88.2010009@orga.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210182344.05223.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 October 2002 20:25, Carl-Daniel Hailfinger wrote:
-> Richard B. Johnson wrote:
-> > In other words, if I have quark:/tmp mounted on /tmp, I can
-> > umount / without unmounting quark:/tmp.
+On Friday 18 October 2002 05:03, Gerrit Bruchhäuser wrote:
+> Hello Linus,
+>
+>
+> Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
+> refers to? I mean, is this somewhere specified?
+>
+> Many thanks and cheers from germany.
+>
+> Gerrit
 
-You can remount ro. I doubt you can umount.
+I believe Tigran's Linux Kernel Internels guide for 2.4 covers this, you can 
+download it from here:
 
-> >
-> > [SNIPPED]
->
-> Does not work here.
->
-> # mount /dev/fd0 /floppy/
-> # mount /dev/hda1 /floppy/test/
-> # umount /floppy/
-> umount: /media/floppy: device is busy
-> # touch /floppy/foo
-> umount -f /floppy/
-> umount2: Device or resource busy
-> umount: /dev/fd0: not mounted
-> umount: /media/floppy: Illegal seek
-> # touch /floppy/foo2
-> # mount
-> /dev/fd0 on /floppy type vfat (rw,sync)
-> /dev/hda1 on /floppy/test type vfat (rw)
->
-> In other words, your suggested method does not work here. (Kernel
-> 2.4.18, util-linux-2.11n)
->
-> # mount -o remount,ro /floppy/
-> /dev/fd0 on /floppy type vfat (ro,sync)
-> /dev/hda1 on /floppy/test type vfat (rw)
->
-> This, however, seems to work.
+http://www.tldp.org/guides.html
 
-umount / is special: in fact it does remount ro.
-So you two do the same thing.
---
-vda
+Alas, there isn't a 2.5 guide yet.  Moves too fast. :)
+
+Rob

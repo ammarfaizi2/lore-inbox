@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUEVKrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUEVKwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUEVKrj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 06:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUEVKrj
+	id S264957AbUEVKwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 06:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUEVKwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 06:47:39 -0400
-Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:35977 "EHLO
-	texas.encore.com") by vger.kernel.org with ESMTP id S264537AbUEVKrh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 06:47:37 -0400
-Message-ID: <40AF2FC4.911DB14B@compro.net>
-Date: Sat, 22 May 2004 06:47:32 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ert i686)
-X-Accept-Language: en
+	Sat, 22 May 2004 06:52:11 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:47042 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264957AbUEVKwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 06:52:08 -0400
+Message-ID: <40AF30D8.6050107@g-house.de>
+Date: Sat, 22 May 2004 12:52:08 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: de-de, de-at, de, en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mlockall and mmap of IO devices don't mix
-References: <20031003214411.GA25802@rudolph.ccur.com>
-		<40ADE959.822F1C23@compro.net> <20040521191326.58100086.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/buffer.c:1270! [TAINTED]
+References: <40AE4AAB.60008@g-house.de> <20040521191904.68544946.akpm@osdl.org>
+In-Reply-To: <20040521191904.68544946.akpm@osdl.org>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Mark Hounschell <markh@compro.net> wrote:
-> >
-> > Joe Korty wrote:
-> > >
-> > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
-> > > the registers of an IO device will hang that process uninterruptibly.
-> > > The task runs in an infinite loop in get_user_pages(), invoking
-> > > follow_page() forever.
-> > >
-> > > Using binary search I discovered that the problem was introduced
-> > > in 2.5.14, specifically in ChangeSetKey
-> > >
-> > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
-> > >
-> >
-> > I know this is an old thread but can anyone tell me if this problem is
-> > resolved in the current 2.6.6 kernel?
-> >
-> 
-> There's an utterly ancient patch in -mm which might fix this.
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks for that. I'll try it. 
+Andrew Morton schrieb:
+| This is isofs passing sinful block sizes to bread().  There's a patch in
+| Linus's current tree which should allow the system to survive this.  It
+| won't fix the root problem though, which is presumably related to
+those I/O
+| errors.
 
-Mark
+Thank you for the explanation and the patch! well, if it's in Linus'
+tree anyway, i guess "bk pull" will hit it soon.
+astonishing, how this oops-gibberish makes sense to someone and even
+points out to be a known issue :-)
+
+you guys rock,
+Christian.
+- --
+BOFH excuse #251:
+
+Processes running slowly due to weak power supply
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFArzDY+A7rjkF8z0wRAv8PAKDD/wbwvAntQNUlJsM3+Gp5OhV5QwCgotug
+bxyLwhS1jY/GLdt6cw6zbH8=
+=7++L
+-----END PGP SIGNATURE-----

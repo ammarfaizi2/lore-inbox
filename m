@@ -1,87 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266027AbUA1UL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 15:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbUA1UL2
+	id S266267AbUA1UB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 15:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266268AbUA1UB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 15:11:28 -0500
-Received: from ns.suse.de ([195.135.220.2]:13957 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266027AbUA1ULZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 15:11:25 -0500
-Date: Wed, 28 Jan 2004 21:04:08 +0100
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc2-mm1
-Message-ID: <20040128200408.GA23896@suse.de>
-References: <20040127233402.6f5d3497.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Wed, 28 Jan 2004 15:01:56 -0500
+Received: from stone.bol.com.br ([200.221.24.18]:56966 "EHLO stone.bol.com.br")
+	by vger.kernel.org with ESMTP id S266267AbUA1UBu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 15:01:50 -0500
+Date: Wed, 28 Jan 2004 18:01:48 -0200
+Message-Id: <HS7UB0$I11pQOZMlQl4ir_VnYO0gf4dUQlR2lPU85VFs@bol.com.br>
+Subject: oops 2.6.1 adsl
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+From: "rollor" <rollor@bol.com.br>
+To: linux-kernel@vger.kernel.org
+X-XaM3-API-Version: 2.4 R3 ( B4 )
+X-SenderIP: 200.102.71.169
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jan 27, Andrew Morton wrote:
+hi,
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2.6.2-rc2-mm1/
-> 
-> 
-> - From now on, -mm kernels will contain the latest contents of:
-> 
-> 	Linus's tree:		linus.patch
-> 	The ACPI tree:		acpi.patch
-> 	Vojtech's tree:		input.patch
-> 	Jeff's tree:		netdev.patch
-> 	The ALSA tree:		alsa.patch
-> 
->   If anyone has any more external trees which need similar treatment,
->   please let me know.
+I am testing the 2.6.1 kernel on a p4,
+debian sarge. I tried to start my adsl
+connection and received this:
 
-The bigendian trees.
+Jan 28 17:40:54 rock pppd[913]: pppd
+2.4.2 started by oot, uid 0
+Jan 28 17:40:54 rock pppd[913]: Serial
+connection established.
+Jan 28 17:40:54 rock pppd[913]: Using
+interface ppp0
+Jan 28 17:40:54 rock pppd[913]:
+Connect: ppp0 <--> /dev/pts/0
+Jan 28 17:40:54 rock kernel: Badness
+in local_bh_enable at kernel/softirq.c:121
+Jan 28 17:40:54 rock kernel: Call Trace:
+Jan 28 17:40:54 rock kernel: 
+[local_bh_enable+133/135]
+local_bh_enable+0x85/0x87     Jan 28
+17:40:54 rock kernel: 
+[ppp_async_push+158/373]
+ppp_async_push+0x9e/0x175
+Jan 28 17:40:54 rock kernel: 
+[ppp_asynctty_wakeup+45/94]
+ppp_asynctty_wakeup+0x2d/0x5e
+Jan 28 17:40:54 rock kernel: 
+[pty_unthrottle+88/90]
+pty_unthrottle+0x58/0x5a         Jan
+28 17:40:54 rock kernel: 
+[check_unthrottle+57/59]
+check_unthrottle+0x39/0x3b
+Jan 28 17:40:54 rock kernel: 
+[n_tty_flush_buffer+19/85]
+n_tty_flush_buffer+0x13/0x55
+Jan 28 17:40:54 rock kernel: 
+[pty_flush_buffer+102/104]
+pty_flush_buffer+0x66/0x68
+Jan 28 17:40:54 rock kernel: 
+[do_tty_hangup+1146/1243]
+do_tty_hangup+0x47a/0x4db
+Jan 28 17:40:54 rock kernel: 
+[release_dev+1752/1796]
+release_dev+0x6d8/0x704
+Jan 28 17:40:54 rock kernel: 
+[unmap_page_range+67/105]
+unmap_page_range+0x43/0x69    Jan 28
+17:40:54 rock pppd[913]: Modem hangup
+Jan 28 17:40:54 rock kernel: 
+[tty_release+45/102] tty_release+0x2d/0x66
+Jan 28 17:40:54 rock pppd[913]:
+Connection terminated.
+Jan 28 17:40:54 rock kernel: 
+[__fput+258/276] __fput+0x102/0x114
+Jan 28 17:40:54 rock kernel: 
+[filp_close+89/134] filp_close+0x59/0x86
+Jan 28 17:40:54 rock kernel: 
+[put_files_struct+132/233]
+put_files_struct+0x84/0xe9   Jan 28
+17:40:54 rock kernel: 
+[do_exit+397/1034] do_exit+0x18d/0x40a
+Jan 28 17:40:54 rock kernel: 
+[do_group_exit+58/172]
+do_group_exit+0x3a/0xac
+Jan 28 17:40:54 rock kernel: 
+[syscall_call+7/11] syscall_call+0x7/0xb
 
+if someone needs more information,
+please let me now.
 
-Here is a patch to fix compilation on ppc32.
-pm_prepare_console returns int and linux/suspend.h is already included.
-The ide object files can be found in a subdirectory.
+PS: CC to me.
 
+thanks.
 
-diff -p -purN linux-2.6.2-rc2-mm1.orig/drivers/ide/Makefile linux-2.6.2-rc2-mm1/drivers/ide/Makefile
---- linux-2.6.2-rc2-mm1.orig/drivers/ide/Makefile	2004-01-28 19:30:54.000000000 +0000
-+++ linux-2.6.2-rc2-mm1/drivers/ide/Makefile	2004-01-28 19:55:41.000000000 +0000
-@@ -34,9 +34,9 @@ ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= ma
- ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= q40ide.o
  
- # built-in only drivers from ppc/
--ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= mpc8xx.o
--ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= pmac.o
--ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= swarm.o
-+ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= ppc/mpc8xx.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= ppc/pmac.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= ppc/swarm.o
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
- obj-$(CONFIG_IDE_GENERIC)		+= ide-generic.o
-diff -p -purN linux-2.6.2-rc2-mm1.orig/drivers/macintosh/via-pmu.c linux-2.6.2-rc2-mm1/drivers/macintosh/via-pmu.c
---- linux-2.6.2-rc2-mm1.orig/drivers/macintosh/via-pmu.c	2004-01-28 19:30:54.000000000 +0000
-+++ linux-2.6.2-rc2-mm1/drivers/macintosh/via-pmu.c	2004-01-28 20:00:00.000000000 +0000
-@@ -2339,8 +2339,6 @@ restore_via_state(void)
- }
- 
- extern long sys_sync(void);
--extern void pm_prepare_console(void);
--extern void pm_restore_console(void);
- 
- static int __pmac
- pmac_suspend_devices(void)
+__________________________________________________________________________
+Acabe com aquelas janelinhas que pulam na sua tela.
+AntiPop-up UOL - … gr·tis!
+http://antipopup.uol.com.br/
 
--- 
-USB is for mice, FireWire is for men!
 
-sUse lINUX ag, n√úRNBERG

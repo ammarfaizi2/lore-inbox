@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264287AbTKZTHX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTKZTHX
+	id S264315AbTKZTP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264316AbTKZTPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:07:23 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13585
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264287AbTKZTHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:07:22 -0500
-Date: Wed, 26 Nov 2003 11:07:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test10-mm1
-Message-ID: <20031126190718.GB1566@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20031125211518.6f656d73.akpm@osdl.org> <20031126085123.A1952@infradead.org> <20031126044251.3b8309c1.akpm@osdl.org> <20031126130936.A5275@infradead.org> <20031126052900.17542bb3.akpm@osdl.org> <20031126132505.C5477@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 Nov 2003 14:15:55 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:55755 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S264315AbTKZTPy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:15:54 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: amanda vs 2.6
+Date: Wed, 26 Nov 2003 14:15:52 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200311261212.10166.gene.heskett@verizon.net> <20031126171925.GR8039@holomorphy.com>
+In-Reply-To: <20031126171925.GR8039@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031126132505.C5477@infradead.org>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311261415.52304.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.54.127] at Wed, 26 Nov 2003 13:15:52 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 01:25:05PM +0000, Christoph Hellwig wrote:
-> On Wed, Nov 26, 2003 at 05:29:00AM -0800, Andrew Morton wrote:
-> > But I do not think that making a single kernel symbol inaccessible is an
-> > appropriate way of resolving a GPFS licensing dispute.
-> 
-> well, GFPS is a derived work with or without it.  It's just that I remember
-> we had that agreement about merging it only with the _GPL export.  In fact
-> I'm pretty sure Paul told something about GPLed distributed filesystems from
-> IBM in that context..
+On Wednesday 26 November 2003 12:19, William Lee Irwin III wrote:
+>echo 1 > /proc/sys/vm/overcommit_memory
 
-Are you trying to say that something that was ported from AIX is a derived
-work because it has to read kernel internals to get its job done?
+Unforch, this seems to have fubared the system, and I will have to 
+reboot as I cannot (it hangs) do an "su amanda" after executeing 
+this.
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

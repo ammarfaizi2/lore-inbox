@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUFXPXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265516AbUFXPYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265510AbUFXPXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUFXPXQ
+	id S265516AbUFXPYu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 11:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUFXPYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 11:23:16 -0400
-Received: from holomorphy.com ([207.189.100.168]:24458 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265510AbUFXPXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 11:23:05 -0400
-Date: Thu, 24 Jun 2004 08:23:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
-Message-ID: <20040624152301.GC21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com> <20040623151659.70333c6d.akpm@osdl.org> <20040623223146.GG1552@holomorphy.com> <20040623153758.40e3a865.akpm@osdl.org> <20040623230730.GJ1552@holomorphy.com> <20040623163819.013c8585.akpm@osdl.org> <20040624000308.GK1552@holomorphy.com> <20040623171818.39b73d52.akpm@osdl.org> <20040624002651.GL1552@holomorphy.com> <20040624141637.GA20702@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624141637.GA20702@logos.cnet>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 24 Jun 2004 11:24:49 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:12419 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265516AbUFXPYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 11:24:36 -0400
+Date: Thu, 24 Jun 2004 11:26:49 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [PATCH][2.6] Fix module_text_address/store_stackinfo race
+In-Reply-To: <1088061512.22860.252.camel@bach>
+Message-ID: <Pine.LNX.4.58.0406241047080.3273@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0406230349390.3273@montezuma.fsmlabs.com> 
+ <1088051071.21510.8.camel@bach>  <Pine.LNX.4.58.0406240040330.3273@montezuma.fsmlabs.com>
+ <1088061512.22860.252.camel@bach>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 11:16:37AM -0300, Marcelo Tosatti wrote:
-> Removing the check on v2.4 based kernels will trigger the OOM killer
-> too soon for a lot of cases, I'm pretty sure.
+On Thu, 24 Jun 2004, Rusty Russell wrote:
 
-Other 2.4 oom_kill.c issues aside, since this is a relatively blatant
-deadlock. What form would you like a fix to take, if you care to have
-a fix for this at all?
+> I keep fighting to keep it static 8)
+>
+> How's this:
+>
+> Name: Fix race between CONFIG_DEBUG_SLABALLOC and modules
+> Status: Compiled on 2.6.7
+> Version: -mm
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (modified)
+> Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+>
+> store_stackinfo() does an unlocked module list walk during normal runtime
+> which opens up a race with the module load/unload code. This can be
+> triggered by simply unloading and loading a module in a loop with
+> CONFIG_DEBUG_PAGEALLOC resulting in store_stackinfo() tripping over bad
+> list pointers.
+>
+> kernel_text_address doesn't take any locks, because during an OOPS we
+> don't want to deadlock.  Rename that to __kernel_text_address, and
+> make kernel_text_address take the lock.
 
+Thanks, looks good, works here.
 
--- wli
+	Zwane
+

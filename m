@@ -1,78 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbRFENH0>; Tue, 5 Jun 2001 09:07:26 -0400
+	id <S262999AbRFENM0>; Tue, 5 Jun 2001 09:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263973AbRFENHQ>; Tue, 5 Jun 2001 09:07:16 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:38037 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S263246AbRFENHI>; Tue, 5 Jun 2001 09:07:08 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: TRG vger.timpanogas.org hacked
-Date: Tue, 5 Jun 2001 13:07:05 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9filhp$hj$1@forge.intermeta.de>
-In-Reply-To: <20010604183642.A855@vger.timpanogas.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 991746425 9422 212.34.181.4 (5 Jun 2001 13:07:05 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 5 Jun 2001 13:07:05 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S263145AbRFENMQ>; Tue, 5 Jun 2001 09:12:16 -0400
+Received: from lotus.ariel.com ([204.249.107.2]:65248 "EHLO cranmail.ariel.com")
+	by vger.kernel.org with ESMTP id <S262999AbRFENL7>;
+	Tue, 5 Jun 2001 09:11:59 -0400
+From: "Arthur Naseef" <arthur.naseef@ariel.com>
+To: "Stephen Wille Padnos" <stephenwp@adelphia.net>,
+        "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Exporting new functions from kernel 2.2.14
+Date: Tue, 5 Jun 2001 09:10:56 -0400
+Message-ID: <OIBBKHIAILDFLNOGGFMNOEHLCBAA.arthur.naseef@ariel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3B1D00B7.168B52D1@adelphia.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
+Steve:
 
->is curious as to how these folks did this.  They exploited BIND 8.2.3
+I still have not figured out the magic that creates the .ver files which
+would resolve your concern with the symbol versions, but I do know that
+you can edit the .ver file yourself (under /usr/src/linux/include/modules/)
+and add entries.  This will eliminate the funny versioning, as in:
 
-Look below.
+    grab_timer_interrupt_R__ver_grab_timer_interrupt
 
->to get in and logs indicated that someone was using a "back door" in 
->Novell's NetWare proxy caches to perform the attack (since several 
->different servers were used as "blinds" to get in).  
+You can pick a hash value to use.  For example, you might add the following:
 
-There is AFAIK no known exploit to BIND 8.2.3 and I don't see why
-anyone should use a "novell Netcache backdoor". If I'd want to hack
-your box, I would use this:
+	#define __ver_grab_timer_interrupt	a1b2c3d4
+	#define grab_timer_interrupt	_set_ver(grab_timer_interrupt)
 
-% telnet vger.timpanogas.com 22     
-Trying 207.109.151.240...
-Connected to vger.timpanogas.com.
-Escape character is '^]'.
-SSH-1.5-1.2.27
-^]
-telnet> quit
+As far as the printk() warning, you need to make sure your module code
+includes the right header files.  In this case, I believe you need to grab
+<linux/kernel.h> after including <linux/module.h>.
 
-Well known exploits downloadable at any of the better hacking sites.
+I hope this helps.
 
->We are unable to determine just how they got in exactly, but they 
->kept trying and created an oops in the affected code which allowed 
->the attack to proceed.  
+-art
 
-Come on, you can't be _that_ blind. Either you didn't install all your
-vendor recommended updates or you installed self rolled programs and
-got caught.
-
-You even get connects on the telnet port (no daemon, though), so you
-either have a hosts.allow (which _is_ spoofable) or a non-cleaned up
-[x]inetd.conf which means you didn't harden your box for Internet
-usage.
-
-If you don't prepare your box for a hostile environment, you get
-hit. First law of the Internet.
-
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Stephen Wille
+> Padnos
+> Sent: Tuesday, June 05, 2001 11:55 AM
+> To: Linux Kernel
+> Subject: Exporting new functions from kernel 2.2.14
+> 
+> 
+> Hello, all.
+> 
+> I am writing a pseudo-realtime control system, based on kernel 2.2.14.
+> The only RT-like task needs to hang off the timer IRQ.  I am using
+> techniques like those in the book "Linux Kernel Internals", by Beck, et
+> al..
+> 
+> The patches in that book won't apply (they are for 2.1.24 or lower),
+> plus I want a somewaht different functionality, which brings me to my
+> question:  How can I get (modversions-enabled) functions exported from
+> arch/i386/kernel/irq.c?
+> 
+> I see in /proc/ksyms that there are some functions exported from there
+> ({enable,disable}_irq, probe_irq_{on,off}, etc.), and they have correct
+> looking versions.
+> 
+> When I add my new finctions to i386ksyms.c:
+> EXPORT_SYMBOL(grab_timer_interrupt);
+> EXPORT_SYMBOL(release_timer_interrupt);
+> 
+> I get names like
+> 
+> grab_timer_interrupt_R__ver_grab_timer_interrupt
+> release_timer_interrupt_R__ver_release_timer_interrupt
+> 
+> instead of
+> local_irq_count_R4d40375f
+> 
+> Additionally, when I make a dummy module (a la Alessandro Rubini's
+> "Hello" module in "Linux Device Drivers"), I get the following warning:
+> control.c:31: warning: implicit declaration of function
+> `printk_R1b7d4074'
+> The module seems to work (it printk's "module loaded" on load and
+> "module unloaded" on unload), but I suspect that this is because I am
+> printk()-ing unformatted text strings - only one parameter gets sent.
+> 
+> So, I obviously have missed some basics about:
+> a) versioning,
+> b) exporting symbols, and
+> c) modules.
+> 
+> could soemone please enlighten me, or direct me along the path of
+> enlightenment :)
+> 
+> Thanks
+> - Steve
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

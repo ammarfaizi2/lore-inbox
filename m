@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRIFOfW>; Thu, 6 Sep 2001 10:35:22 -0400
+	id <S270999AbRIFOjm>; Thu, 6 Sep 2001 10:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270992AbRIFOfM>; Thu, 6 Sep 2001 10:35:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16143 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270947AbRIFOfA>; Thu, 6 Sep 2001 10:35:00 -0400
+	id <S271006AbRIFOjc>; Thu, 6 Sep 2001 10:39:32 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:19212 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S270999AbRIFOjY>;
+	Thu, 6 Sep 2001 10:39:24 -0400
+Date: Thu, 6 Sep 2001 16:39:09 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: phillips@bonn-fries.net, riel@conectiva.com.br, jaharkes@cs.cmu.edu,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() on 2.4.9/10 issue
-To: znmeb@aracnet.com (M. Edward Borasky)
-Date: Thu, 6 Sep 2001 15:39:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com> from "M. Edward Borasky" at Sep 06, 2001 06:54:14 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20010906163909.186b8b46.skraw@ithnet.com>
+In-Reply-To: <594419049.999788509@[10.132.112.53]>
+In-Reply-To: <20010906154212.442bdf7b.skraw@ithnet.com>
+	<594419049.999788509@[10.132.112.53]>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15f0JJ-0008E4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> forgive me if I'm asking a silly question or making a silly comment. It
-> seems to me, from what I've seen of this discussion so far, that the only
-> way one "tunes" Linux kernels at the moment is by changing code and
-> rebuilding the kernel. That is, there are few "tunables" that one can set,
-> based on one's circumstances, to optimize kernel performance for a specific
-> application or environment.
+On Thu, 06 Sep 2001 15:01:49 +0100 Alex Bligh - linux-kernel
+<linux-kernel@alex.org.uk> wrote:
 
-There are a lot of tunables in /proc/sys. An excellent tool for playing with
-them is "powertweak". 
+> Yes, but this is because VM system's targets & pressure calcs do not
+> take into account fragmentation of the underlying physical memory.
+> IE, in theory you could have half your memory free, but
+> not be able to allocate a single 8k block. Nothing would cause
+> cache, or InactiveDirty stuff to be written.
 
-> No one "memory management scheme", for example, can be all things to all
-> tasks, and it seems to me that giving users tools to measure and control the
-> behavior of memory management, *preferably without having to recompile and
-> reboot*, should be a major priority if Linux is to succeed in a wide variety
-> of applications.
+Which is obviously not the right way to go. I guess we agree in that.
 
-The VM is tunable in the -ac tree. I still believe the VM can and should be
-self tuning but we are not there yet.
+> You yourself proved this, by switching rsize,wsize to 1k and said
+> it all worked fine! (unless I misread your email).
 
-> OK, I'll get off my soapbox now, and ask a related question. Is there a
-> mathematical model of the Linux kernel somewhere that I could get my hands
-> on?
+Sorry, misunderstanding: I did not touch rsize/wsize. What I do is to lower fs
+action by not letting knfsd walk through the subtrees of a mounted fs. This
+leads to less allocs/frees by the fs layer which tend to fail and let knfs fail
+afterwards.
 
-Not that I am aware of. 
+> [...]
+> I think what you want isn't more memory, its less
+> fragmented memory.
 
-Alan
+This is one important part for sure.
+
+> Or an underlying system which can
+> cope with fragmentation.
+
+Well, I'd rather prefer the cure than the dope :-)
+
+Regards, Stephan
+

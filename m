@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbULKEwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbULKFQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbULKEwu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 23:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbULKEwu
+	id S261852AbULKFQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 00:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbULKFQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 23:52:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41185 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261833AbULKEws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 23:52:48 -0500
-Date: Fri, 10 Dec 2004 20:52:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Sipek <jeffpc@optonline.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       James.Bottomley@HansenPartnership.com, mdharm-usb@one-eyed-alien.net,
-       axboe@suse.de, piggin@cyberone.com.au
-Subject: Re: BUG at drivers/block/as-iosched.c:1853
-Message-ID: <20041211045238.GA26384@kroah.com>
-References: <20041211030248.GA32420@optonline.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041211030248.GA32420@optonline.net>
-User-Agent: Mutt/1.5.6i
+	Sat, 11 Dec 2004 00:16:57 -0500
+Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:55051 "EHLO
+	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261832AbULKFQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 00:16:52 -0500
+Message-ID: <41BA825F.9040509@lougher.demon.co.uk>
+Date: Sat, 11 Dec 2004 05:15:11 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: [Announce] Squashfs 2.1 released (compressed filesystem)
+References: <41BA0245.4050502@lougher.demon.co.uk> <20041211013323.GA12796@kroah.com>
+In-Reply-To: <20041211013323.GA12796@kroah.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 10:02:48PM -0500, Jeff Sipek wrote:
-> Badness in scsi_device_set_state at drivers/scsi/scsi_lib.c:1688
->  [<c0106fb5>] dump_stack+0x1e/0x22
->  [<c0341454>] scsi_device_set_state+0xc2/0x110
->  [<c033eefb>] scsi_eh_offline_sdevs+0x61/0x80
->  [<c033f432>] scsi_unjam_host+0xd3/0x20a
->  [<c033f647>] scsi_error_handler+0xde/0x17a
->  [<c0104275>] kernel_thread_helper+0x5/0xb
+Greg KH wrote:
+> On Fri, Dec 10, 2004 at 08:08:37PM +0000, Phillip Lougher wrote:
+> 
+>>I'm pleased to announce the release of Squashfs 2.1.
+> 
+> 
+> Are you going to submit this fs for inclusion in the main kernel tree?
+> I'm getting tired of maintaining it as part of the Gentoo kernel patch
+> set :)
 
-This should be fixed in 2.6.10-rc3.  If not, please let us know.
+Good question...  When I originally released Squashfs (Oct 2002) the 2.5 
+kernel had just gone into the feature freeze and I was waiting for the 
+unfreeze that would happen when 2.7 arrived.  As the official stance on 
+additions to 2.6 has been relaxed I have thought about submitting it.
 
-thanks,
+I need to tidy up the code a bit before I submit it to the merciless 
+scrutiny of LKML :-)  Nothing bad (I hope) but there's lots of long 
+lines and I do know LKML'mers like 80 columns.
 
-greg k-h
+I'm planning on adding ea/acl support (people have been asking for 
+them), I can't decide whether to submit it now or wait until I've 
+finished them.  Suggestions and advice would be welcome.
+
+Slightly off topic, I've noticed you're the kernel maintainer for 
+Gentoo.  You mentioned somewhere you're down to 4 kernel patches, 
+including Squashfs? :) A lot of people/projects are now using Squashfs 
+and it would help a lot of people (and me) if it did get into the 
+kernel.  Plus it would be a nice thing for me anyway to have finally got 
+it included.
+
+Regards
+
+Phillip
+

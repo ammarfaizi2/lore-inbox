@@ -1,85 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbRATD1y>; Fri, 19 Jan 2001 22:27:54 -0500
+	id <S129911AbRATDmu>; Fri, 19 Jan 2001 22:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129911AbRATD1p>; Fri, 19 Jan 2001 22:27:45 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:51204 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S129908AbRATD1d>;
-	Fri, 19 Jan 2001 22:27:33 -0500
-Message-ID: <3A691524.C534BEDE@candelatech.com>
-Date: Fri, 19 Jan 2001 21:33:40 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S130187AbRATDmk>; Fri, 19 Jan 2001 22:42:40 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55048 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129911AbRATDme>; Fri, 19 Jan 2001 22:42:34 -0500
+Date: Fri, 19 Jan 2001 23:52:36 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, Rajagopal Ananthanarayanan <ananth@sgi.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [RFC] generic IO write clustering 
+In-Reply-To: <Pine.LNX.4.31.0101201355560.1071-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0101192311090.6167-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
-        VLAN Mailing List <vlan@Scry.WANfear.com>,
-        "gleb@tochna.technion.ac.il" <gleb@tochna.technion.ac.il>
-Subject: [PATCH] 802.1Q VLAN for Linux
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Announcing 802.1Q VLAN version 1.0.0 for Linux.
 
-802.1Q VLAN is an industry standard that allows you to run multiple
-Virtual LANs over a single ethernet wire/interface.  It also supports
-priority settings.  To user-space code, this VLAN patch makes VLAN
-devices look like Ethernet devices.
+On Sat, 20 Jan 2001, Rik van Riel wrote:
 
-The patch is large, so go here to find it:  (get version 1.0.0)
-http://scry.wanfear.com/~greear/vlan.html
+> Is there ever a reason NOT to do the best possible IO
+> clustering at write time ?
+> 
+> Remember that disk writes do not cost memory and have
+> no influence on the resident set ... completely unlike
+> read clustering, which does need to be limited.
 
-Or, if you just want the raw patch & user tools with no explanation:
-http://scry.wanfear.com/~greear/vlan/vlan.1.0.0.tar.gz
+You dont want to have too many ongoing writes at the same time to avoid
+complete starvation of the system. We already do this, and have to, in a
+quite a few places.
 
-If you really want the whole thing as a diff emailed to you, let me know!
+> >   - By doing the write clustering at a higher level, we avoid a ton of
+> >     filesystems duplicating the code.
+> >
+> > So what I suggest is to add a "cluster" operation to struct address_space
+> > which can be used by the VM code to know the optimal IO transfer unit in
+> > the storage device. Something like this (maybe we need an async flag but
+> > thats a minor detail now):
+> >
+> >         int (*cluster)(struct page *, unsigned long *boffset,
+> > 		unsigned long *poffset);
+> 
+> Makes sense, except that I don't see how (or why) the _VM_
+> should "know the optimal IO transfer unit". This sounds more
+> like a job for the IO subsystem and/or the filesystem, IMHO.
 
-This code has been in development for about 2 years now, and I feel
-it is stable enough to warrant inclusion into the kernel as
-an EXPERIMENTAL feature.  I understand Linus and others may not
-wish to add it to 2.4.0 proper, but even getting in something
-like the -ac series, or any broader audience, should help wring
-the final bugs out and ensure it will be stable.  Your comments
-and testing will help make the code stronger!
+The a_ops->cluster() operation will make the VM aware of the contiguous
+pages which can be clustered.
 
-My 802.1Q VLAN patch features:
+The VM does not know about _any_ fs lowlevel details (which are hidden
+behind ->cluster()), including buffer_head's.
 
-    * Implements 802.1Q VLAN spec. 
-    * Can support up to 4094 VLANs per ethernet interface. 
-    * Scales well in critical paths: O(1), as far as I can tell. 
-    * Optional hashed device lookup tables in the kernel, for better scalability in non-critical paths. 
-    * Supports MULTICAST
-    * Can change MAC address of VLAN. 
-    * Multiple naming conventions supported, and adjustable at runtime. 
-    * Optional header-reordering, to make the VLAN interface look JUST LIKE an Ethernet interface. This
-      fixes some problems with DHCPd and anything else that uses a SOCK_PACKET socket. Default
-      setting is off, which works for every other protocol I know about, and is slightly faster. 
-    * Patches for both the 2.2.X series and the 2.4.0 series.
-    * /proc file system support (/proc/net/vlan)
-    * 802.1Q Priority mapping and support.
-    
-I have not tested compiling it in as a module, though preliminary module support
-has been added to the 2.4.0 patch.  It should work just fine when compiled
-in (not a module.)
+> 
+> > "page" is from where the filesystem code should start its search
+> > for contiguous pages. boffset and poffset are passed by the VM
+> > code to know the logical "backwards offset" (number of
+> > contiguous pages going backwards from "page") and "forward
+> > offset" (cont pages going forward from "page") in the inode.
+> 
+> Yes, this makes a LOT of sense. I really like a pagecache
+> helper function so the filesystems can build their writeout
+> clusters easier.
 
-For comparison, there is also another VLAN project at
-http://vlan.sourceforge.net, but I think mine is better, or
-at least has a more colorful web-page! :)
+The address space owners (filesystems _and_ swap for this case) do not
+need to implement the writeout clustering at all because we're doing it at
+the VM _without_ having to know about low-level details.
+
+Take a look at this somewhat pseudo-code:
+
+int cluster_write (struct page *page)
+{
+        struct address_space *mapping = page->mapping;
+	unsigned long boffset, poffset;
+        int nr_pages;
+
+	...
+	/* How much pages can we write for free? */
+        nr_pages = mapping->a_ops->cluster(page, &boffset, &poffset);
+	...	
+
+	page_cluster_flush(page, csize); 
+}
+
+/*
+ * @page: dirty page from where to start the search
+ * @csize: maximum size of the cluster
+ */
+int page_cluster_flush(struct page *page, int csize)
+{
+        struct *cpages[csize];
+        struct address_space *mapping = page->mapping;
+        struct inode *inode = mapping->host;
+        unsigned long end_index = inode->i_size >> PAGE_CACHE_SHIFT;
+        unsigned long index = page->index;
+        unsigned long curr_index = page->index;
+
+	cpages[csize] = page;
+	count = 1;
+
+	/* Search for clusterable dirty pages behind */
+	....
+	/* Search for clusterable dirty pages ahead */
+	...
+	/* Write all of them */
+	for(i=0; i<count; i++) {
+		ClearPageDirty(cpages[i]);
+		writepage(cpages[i]);  
+	...
+}
+
+This way we have _one_ clean implementation of write clustering without
+any lowlevel crap involved. Try to imagine the amount of code people will
+manage to write in their own fs's to implement write clustering.
 
 
-Comments are welcome.
-
-Thanks,
-Ben
-
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

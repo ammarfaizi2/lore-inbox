@@ -1,24 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSCSSbP>; Tue, 19 Mar 2002 13:31:15 -0500
+	id <S289606AbSCSSbF>; Tue, 19 Mar 2002 13:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289817AbSCSSbH>; Tue, 19 Mar 2002 13:31:07 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:34570 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S289815AbSCSSas>;
-	Tue, 19 Mar 2002 13:30:48 -0500
-Date: Tue, 19 Mar 2002 19:30:55 +0100 (CET)
+	id <S289817AbSCSSau>; Tue, 19 Mar 2002 13:30:50 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:33290 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S289606AbSCSSaI>;
+	Tue, 19 Mar 2002 13:30:08 -0500
+Date: Tue, 19 Mar 2002 19:30:17 +0100 (CET)
 From: Luigi Genoni <kernel@Expansa.sns.it>
 To: Martin Dalecki <dalecki@evision-ventures.com>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: oops at boot with 2.5.7 and i810
-In-Reply-To: <3C9770C9.5000201@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0203191930220.26263-100000@Expansa.sns.it>
+In-Reply-To: <3C976AE4.5070309@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0203191930060.26263-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This did not work, nor with DMA_66 neighter with DMA_33
+that is: __get_hash_table
+
+
 
 
 On Tue, 19 Mar 2002, Martin Dalecki wrote:
@@ -42,22 +44,12 @@ On Tue, 19 Mar 2002, Martin Dalecki wrote:
 > >
 > > any hint
 >
-> This device is behaving quite like the 440MX chipset
-> I have myself I can't therefore the oops expect beeing caused
-> by a trivial programming error in the actual ide driver.
-> I don't see much pointer acces in piix.c code as well.
+> The entries found there are just the starting points of functions.
+> You can therefore look up the function where th oops happens
+> by looking at the nearest lower number in System.map.
 >
-> However you could eventually just try apply the following
-> pseudo diff to piix.c and then try again:
+> > my rootfs in reiserFS, but i do not even reach the mount ...
 >
-> -
-> { PCI_DEVICE_ID_INTEL_82801AA_1,	PIIX_UDMA_66  | PIIX_PINGPONG },
-> +
-> { PCI_DEVICE_ID_INTEL_82801AA_1,	PIIX_UDMA_66 },
->
-> Replaceing PIIX_UDMA_33 with PIIX_UDMA_33 could be worth a try as well.
->
->
->
+> That should not matter.
 >
 

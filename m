@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271818AbRHXOcP>; Fri, 24 Aug 2001 10:32:15 -0400
+	id <S271854AbRHXOdz>; Fri, 24 Aug 2001 10:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272019AbRHXOcF>; Fri, 24 Aug 2001 10:32:05 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:57736 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S271818AbRHXObt> convert rfc822-to-8bit;
-	Fri, 24 Aug 2001 10:31:49 -0400
-Date: Fri, 24 Aug 2001 16:33:43 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Bernhard Busch <bbusch@biochem.mpg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Poor Performance for ethernet bonding 
-In-Reply-To: <3B865882.24D57941@biochem.mpg.de>
-Message-ID: <Pine.LNX.4.21.0108241630060.17009-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S271853AbRHXOdp>; Fri, 24 Aug 2001 10:33:45 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:51148 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S271854AbRHXOd3>; Fri, 24 Aug 2001 10:33:29 -0400
+Date: Fri, 24 Aug 2001 07:33:38 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3ware RAID1 sequential read speed slower than write speed (2.4.8-ac10)
+Message-ID: <20010824073338.A16254@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010824090655.29285.qmail@yusufg.portal2.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010824090655.29285.qmail@yusufg.portal2.com>; from yusufg@outblaze.com on Fri, Aug 24, 2001 at 09:06:55AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Aug 2001, Bernhard Busch wrote:
+On Fri, Aug 24, 2001 at 09:06:55AM -0000, Yusuf Goolamabbas wrote:
+> P3-450 with 256MB RAM with a 3ware 6200 attached to 2 20GB Western
+> Digitial 7200RPM Caviar Drive  WD200BB
+> 
+> Running bonnie++ <http://www.coker.com.au/bonnie++/> on both an ext3
+> and ext2 partition, I get the following results
+> 
+> Version  1.01d      ------Sequential Output------ --Sequential Input- --Random-
+>                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> ext3           512M  6020  98 41022  57  6673   8  4619  77 21834  14 237.1   2
+> 
+> 
+> Version  1.01d      ------Sequential Output------ --Sequential Input- --Random-
+>                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> ext2           512M  6385  99 39969  32  9371  10  5540  91 27864  14 320.7   2
+> 
+> 
+> Whilst, I think the write performance is quite good. The read
+> performance seems to be quite bad. I expected read performance to be
+> better than write performance for RAID-1 configuration
+> 
+> Any ideas,patches to try ?
 
-> Hi
-> 
-> 
-> I have tried to use ethernet  network interfaces bonding to increase
-> peformance.
-> 
-> Bonding is working fine, but the performance is rather poor.
-> FTP between 2 machines ( kernel 2.4.4 and 4 port DLink 100Mbit ethernet
-> card)
-> results in a transfer rate of 3MB/s).
-> 
-> Any Hints?
+Yes, for a mirrored setup you would expect to see almost double the random
+seeks and read rates equaling write rates.  I think the block size that
+bonnie uses is small, so it doesn't give the RAID a chance to alternate
+disks for block reads.
 
-I've seen this too, it doesn't have anything to do with bonding, it's the
-fact that you are sending packets out several interfaces at once that's
-the cause. Same thing happend to me when transmitting at high speeds on
-two interfaces at once without bonding. And you are using 4 interfaces so
-I can imagine that it will be even worse than I saw.
+At least this is what seemed to happen when I was testing software RAID-1
+using bonnie (not bonnie++).
 
-And bonding on my two eepro100 in another machine works perfectly,
-no problem maxing out at aproximatly 200Mbit.
+What's the speed of one disk?  Can you try 2.4.8-ac9, -ac10 includes a 3ware
+driver update.
 
-/Martin
+I'll post some numbers from the software raid testing I was doing when I get
+to work for comparison.  If anyone wants to send me a 3ware card (hint,
+hint ;-), I'll gladly run some tests on that as well to compare.  Heck, I'll
+even write a full review comparing 3ware to software raid!
 
-> here is my setup for the channel bonding
-> 
-> insmod bonding
-> insmod tulip
-> ifconfig bond0 192.168.100.2 netmask 255.255.255.0 broadcast
-> 192.168.100.255
-> ifconfig bond0 down
-> ./ifenslave  -v bond0 eth2 eth3 eth4 eth5
-> ifconfig bond0 up
-> route add -host 192.168.100.1 dev bond0
-> 
-> 
-> Many thanks for every help
-> 
-> Bernhard
-> 
-> --
-> Dr. Bernhard Busch
-> Max-Planck-Institut für Biochemie
-> Am Klopferspitz 18a
-> D-82152 Martinsried
-> Tel: +48(89)8578-2582
-> Fax: +49(89)8578-2479
-> Email bbusch@biochem.mpg.de
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Linux hackers are funny people: They count the time in patchlevels.
-
+-Dave

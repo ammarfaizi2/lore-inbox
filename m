@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131249AbRA2S3m>; Mon, 29 Jan 2001 13:29:42 -0500
+	id <S131139AbRA2Scw>; Mon, 29 Jan 2001 13:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131139AbRA2S30>; Mon, 29 Jan 2001 13:29:26 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:3334 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S131249AbRA2S2w>; Mon, 29 Jan 2001 13:28:52 -0500
-Date: Mon, 29 Jan 2001 10:27:50 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: John Levon <moz@compsoc.man.ac.uk>
-Cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-In-Reply-To: <Pine.LNX.4.21.0101291708140.30959-100000@mrworry.compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
+	id <S132119AbRA2Scm>; Mon, 29 Jan 2001 13:32:42 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48134 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S131139AbRA2Sc0>;
+	Mon, 29 Jan 2001 13:32:26 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101291831.f0TIV7h484162@saturn.cs.uml.edu>
+Subject: Re: ECN: Clearing the air (fwd)
+To: davem@redhat.com (David S. Miller)
+Date: Mon, 29 Jan 2001 13:31:07 -0500 (EST)
+Cc: jas88@cam.ac.uk (James Sutherland),
+        miquels@traveler.cistron-office.nl (Miquel van Smoorenburg),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <14965.7321.926528.391631@pizda.ninka.net> from "David S. Miller" at Jan 28, 2001 11:32:41 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, John Levon wrote:
+David S. Miller writes:
+> James Sutherland writes:
 
-> huh ?
+>> Except you can detect and deal with these "PMTU black holes". Just as you
+>> should detect and deal with ECN black holes. Maybe an ideal Internet
+>> wouldn't have them, but this one does. If you can find an ideal Internet,
+>> go code for it: until then, stick with the real one. It's all we've got.
+>
+> Guess what, Linux works not around PMTU black holes either for the
+> same exact reason we will not work around ECN.
+>
+> I'm getting a bit tired of you, and I suppose others are as
+> well.  You are being nothing but a pompous ass.
+
+He is being practical. You are being idealistic.
+
+> Anyways, let me quote a comment from the Linux source code where
+> we would have done PMTU black hole detection:
 > 
-> http://www.kernelnewbies.org/books.php3
-> 
-> /usr/src/linux-2.4/Documentation/DocBook
-> 
-> /usr/src/linux/*
-> 
-> try the last one on Windows. Please get your facts at least remotely near
-> the truth before you rant on linux-kernel again
-> 
-> john
-> 
-> 
+> /* NOTE. draft-ietf-tcpimpl-pmtud-01.txt requires pmtu black
+>   hole detection. :-(
+>   It is place to make it. It is not made. I do not want
 
-Umm, john.. He IS right. I've been following the linux kernel list for
-QUITE some time, though actively asking questions on it for the last 2
-months. I've read through the docs in /usr/src/linux/Documentation/* and i
-hear one more person tell me to "read the source" I'll go nuts. 
+So the Linux code is broken. ("requires")
 
-SOURCE CODE ONLY MAKES SENSE TO THOSE THAT EITHER WROTE IT OR WORK WITH IT
-EVERYDAY!
+>    to make it. It is disguisting. It does not work in any
+>    case. Let me to cite the same draft, which requires for
+>    us to implement this:
+...
+>    upper-layer protocols.  The safest web site in the world is worthless
+>    if most TCP implementations cannot transfer data from it.  It would
+>    be far nicer to have all of the black holes fixed rather than fixing
+>    all of the TCP implementations."
 
-And don't tell me "Well, then you shouldn't be touching the kernel if
-you're not a developer" because that's crap too.
+The author is expressing his wish for an ideal world. Note that he
+also accepts reality. He accepts that PMTU black holes won't go
+away, even though we might like them to do so.
 
-
-Simply put, with all bitterness and finger pointing aside, WHERE do we
-find information on various kernel functions, their general usage (as in
-the WHY, not only the HOW) and reasonings on why not to use some
-vs. others.
-
-Remember, most of you guys have been coding for years, or working on the
-kernel for years. Some of us don't have that level of expertise, are
-trying to get it, and feel like we're being told that information is a
-private domain we aren't allowed in to.
-
-
-Me personally, I'd be happy with a list of all the finctions in the linux
-kernel, a brief description of their usage and a singl elink on where to
-find more info about that particular function.
-
-
-Just my 2 cents worth.
-
-David D.W. Downey
-
-
+Hell, I think I'm behind one. ICMP is/was blocked to/from/within
+the entire university. This was to stop ping flood attacks. :-)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

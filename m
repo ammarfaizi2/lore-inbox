@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUEJIcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUEJIku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUEJIcT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 04:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUEJIcT
+	id S264561AbUEJIku (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 04:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUEJIku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 04:32:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60068 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264560AbUEJIcR (ORCPT
+	Mon, 10 May 2004 04:40:50 -0400
+Received: from ns.suse.de ([195.135.220.2]:12940 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264561AbUEJIks (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 04:32:17 -0400
-Subject: Re: dentry bloat.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <409F3CEE.8060102@aitel.hist.no>
-References: <20040508120148.1be96d66.akpm@osdl.org>
-	 <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org>
-	 <20040508204239.GB6383@in.ibm.com> <20040508135512.15f2bfec.akpm@osdl.org>
-	 <20040508211920.GD4007@in.ibm.com> <20040508171027.6e469f70.akpm@osdl.org>
-	 <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org>
-	 <20040508201215.24f0d239.davem@redhat.com>
-	 <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org>
-	 <20040509210312.GL5414@waste.org>  <409F3CEE.8060102@aitel.hist.no>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EICE8mvYpvxjvrIvmjxL"
-Organization: Red Hat UK
-Message-Id: <1084177928.4925.13.camel@laptop.fenrus.com>
+	Mon, 10 May 2004 04:40:48 -0400
+Date: Mon, 10 May 2004 10:39:05 +0200
+From: Olaf Hering <olh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.6
+Message-ID: <20040510083905.GA18603@suse.de>
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 10 May 2004 10:32:08 +0200
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Sun, May 09, Linus Torvalds wrote:
 
---=-EICE8mvYpvxjvrIvmjxL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Holler if I missed anything,
 
-On Mon, 2004-05-10 at 10:27, Helge Hafting wrote:
-> Matt Mackall wrote:
->=20
-> >One also wonders about whether all the RCU stuff is needed on UP. I'm
-> >not sure if I grok all the finepoints here, but it looks like the
-> >answer is no and that we can make struct_rcu head empty and have
-> >call_rcu fall directly through to the callback. This would save
-> >something like 16-32 bytes (32/64bit), not to mention a bunch of
-> >dinking around with lists and whatnot.
-> >
-> >So what am I missing?
-> > =20
-> >
-> Preempt can happen anytime, I believe.
+add 'chmod -Rf a+rX,o-w,g-w .' to your release scripts.
 
-ok so for UP-non-preempt we can still get those 16 bytes back from the
-dentry....
+cp -a linux-2.6.6/ linux-2.6.6.xxx
+cp: cannot open `linux-2.6.6/arch/arm/mm/proc-v6.S' for reading: Permission denied
+cp: cannot open `linux-2.6.6/arch/arm/mm/cache-v6.S' for reading: Permission denied
+cp: cannot open `linux-2.6.6/arch/arm/mm/abort-ev6.S' for reading: Permission denied
+cp: cannot open `linux-2.6.6/arch/arm/mm/copypage-v6.c' for reading: Permission denied
+cp: cannot open `linux-2.6.6/arch/arm/mm/tlb-v6.S' for reading: Permission denied
+cp: cannot open `linux-2.6.6/arch/arm/mm/blockops.c' for reading: Permission denied
+cp: cannot open `linux-2.6.6/drivers/char/agp/isoch.c' for reading: Permission denied
+cp: cannot open `linux-2.6.6/drivers/input/joystick/grip_mp.c' for reading: Permission denied
+cp: cannot open `linux-2.6.6/Documentation/networking/netif-msg.txt' for reading: Permission denied
+cp: cannot open `linux-2.6.6/Documentation/scsi/ChangeLog.megaraid' for reading: Permission denied
 
 
---=-EICE8mvYpvxjvrIvmjxL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+-- 
+USB is for mice, FireWire is for men!
 
-iD8DBQBAnz4HxULwo51rQBIRApfeAJ9bpC67F6M+aoS3t/wR28EGFW5n6QCdEoZl
-eRXOM2f6YwGhzR9qifRTX4g=
-=LEsx
------END PGP SIGNATURE-----
-
---=-EICE8mvYpvxjvrIvmjxL--
-
+sUse lINUX ag, nÜRNBERG

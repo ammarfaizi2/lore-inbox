@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312920AbSDGUuw>; Sun, 7 Apr 2002 16:50:52 -0400
+	id <S313471AbSDGUzo>; Sun, 7 Apr 2002 16:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313471AbSDGUuw>; Sun, 7 Apr 2002 16:50:52 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:19498 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S312920AbSDGUuv>; Sun, 7 Apr 2002 16:50:51 -0400
-Message-ID: <3CB0B124.70423121@chello.nl>
-Date: Sun, 07 Apr 2002 22:50:47 +0200
-From: Segher Boessenkool <segher@chello.nl>
-Reply-To: segher@chello.nl
-X-Mailer: Mozilla 4.73C-CCK-MCD {C-UDP; EBM-APPLE} (Macintosh; U; PPC)
-X-Accept-Language: en
+	id <S313472AbSDGUzn>; Sun, 7 Apr 2002 16:55:43 -0400
+Received: from smtp.localnet.com ([207.251.201.46]:19353 "HELO
+	smtp.localnet.com") by vger.kernel.org with SMTP id <S313471AbSDGUzm>;
+	Sun, 7 Apr 2002 16:55:42 -0400
+To: Urban Widmark <urban@teststation.com>
+Cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] Re: 2.4.19-pre6 dead Makefile entries
+In-Reply-To: <Pine.LNX.4.33.0204071541030.4531-100000@cola.teststation.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 07 Apr 2002 16:55:27 -0400
+Message-ID: <m3elhrjkjk.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: benh@kernel.crashing.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "David N. Welton" <davidw@dedasys.com>, linux-kernel@vger.kernel.org
-Subject: Re: forth interpreter as kernel module
-In-Reply-To: <E16tHSB-00078F-00@the-village.bc.nu> <20020405181627.22453@mailhost.mipsys.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> fs/nls/Makefile nls_cp1252.o
 
+It does seem as though this one would be useful to a significant
+number of people.  Is there some reason 125[2-46-8] are not included
+where the rest are?  
 
-benh@kernel.crashing.org wrote:
+I can generate a patch to add the missing ones if anyone is
+interested.  Though it would be easier were there a tool to automate
+those .c files....  (I've not found any docs about the layout; I'm
+sure it would be easy given such info to modify eg Markus Kuhn's
+uniset to output the necessary data.  In fact, it seems like it would
+be better to include the unicode table files in the kernel tree and
+use a utility to generate the nls...c files as needed, yes?)
 
-> Yes, an OpenFirmware emulator would be interesting. It would allow to
-> softboot OF PCI cards on non-OF machines, and would allow to implement
-> properly resume from sleep on some desktop G4s that will power off the
-> PCI bus during sleep (some cards need to be re-softbooted, like video
-> ones, and in some case, you really want the vendor firmware to run).
-
-I'm writing a full OF implementation for OpenBios.  It will also be
-able to run in user space, which might be a better solution for things
-like softboot (and besides, it makes development a lot easier).
-
-It is supposed to be fully portable across all architectures that
-run Linux.
-
-Check out module Paflof from OpenBios CVS.
-
-http://www.freiburg.linux.de/OpenBIOS/
-
-Nothing very mature yet, so don't get too excited now.
-
-
-Cheers,
-
-Segher
+-JimC
 

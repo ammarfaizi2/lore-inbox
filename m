@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUGBPFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUGBPGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUGBPFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 11:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUGBPFQ
+	id S264633AbUGBPGD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 11:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbUGBPGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 11:05:16 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:1670 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S264297AbUGBPFK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 11:05:10 -0400
-Date: Fri, 2 Jul 2004 17:04:57 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6] meye driver update (wait_ms -> msleep)
-Message-ID: <20040702150456.GE2942@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <20040702140825.GD2942@crusoe.alcove-fr> <40E573DE.6090303@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40E573DE.6090303@pobox.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 2 Jul 2004 11:06:03 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:41886
+	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S264633AbUGBPF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 11:05:59 -0400
+Date: Fri, 2 Jul 2004 16:05:41 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+Message-Id: <200407021505.i62F5faM002217@voidhawk.shadowen.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix TRAP_BAD_SYSCALL_EXITS on i386
+Cc: akpm@osdl.org, apw@shadowen.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 10:40:30AM -0400, Jeff Garzik wrote:
+Seems that we are not using the right accessor for the preempt
+count in entry.S on i386 for the TRAP_BAD_SYSCALL_EXITS checks.
+Patch below should fix this.  Complied and booted on -mm5.
 
-> >-static inline void wait_ms(unsigned int ms) {
-> >-	if (!in_interrupt()) {
-> >-		set_current_state(TASK_UNINTERRUPTIBLE);
-> >-		schedule_timeout(1 + ms * HZ / 1000);
-> >-	}
-> >-	else
-> >-		mdelay(ms);
-> >-}
-> >-
-> 
-> I was worried about in_interrupt() removal (when you unconditionally 
-> use msleep), so I reviewed this in-depth.  Looks OK to me.
+-apw
 
-Yup, the in_interrupt() test was reminiscent from a very old
-version of the driver, and was wait_ms is not used anymore in
-interrupt context, so its replacement by msleep() is safe.
+=== 8<===
+We are not using the right offset name, nor the right address when checking
+for a non-zero preempt count.  Move to TI_preempt_count(%ebp).
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+Revision: $Rev: 356 $
+
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+
+---
+ entry.S |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/entry.S current/arch/i386/kernel/entry.S
+--- reference/arch/i386/kernel/entry.S	2004-07-02 14:00:51.000000000 +0100
++++ current/arch/i386/kernel/entry.S	2004-07-02 16:18:07.000000000 +0100
+@@ -314,7 +314,7 @@ restore_all:
+ 	testl $(VM_MASK | 3), %eax
+ 	jz resume_kernelX		# returning to kernel or vm86-space
+ 
+-	cmpl $0,TI_PRE_COUNT(%ebx)	# non-zero preempt_count ?
++	cmpl $0,TI_preempt_count(%ebp)  # non-zero preempt_count ?
+ 	jz resume_kernelX
+ 
+         int $3

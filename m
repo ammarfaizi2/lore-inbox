@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUA3Ri4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUA3Riz
+	id S262913AbUA3Rfz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUA3Rfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:38:55 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:6350 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263015AbUA3Rg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:36:58 -0500
-Date: Fri, 30 Jan 2004 18:36:56 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: khubd crash on scanner disconnect
-Message-ID: <20040130173656.GA4570@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	Fri, 30 Jan 2004 12:35:55 -0500
+Received: from mail.shareable.org ([81.29.64.88]:29056 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262913AbUA3Rff
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 12:35:35 -0500
+Date: Fri, 30 Jan 2004 17:34:40 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040130173440.GB6285@mail.shareable.org>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org> <40194B6D.6060906@redhat.com> <20040129191500.GA1027@mail.shareable.org> <4019A5D2.7040307@redhat.com> <20040130041708.GA2816@mail.shareable.org> <4019E713.1010107@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <4019E713.1010107@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ulrich Drepper wrote:
+> Your entire scheme is based on this and therefore not worth the bits
+> used to store it.  Your understanding of how and where syscalls are made
+> and how ELF works is flawed.  There is no "group the syscalls nicely
+> together", they are all over the place, inlined in many places.
 
-I have just caught this khubd NULL dereference simply by unplugging my
-scanner. Kernel is a current 2.6.2-rc2 from BK, PNP enabled:
+That's a choice.  There is no reason why you cannot put the entry path
+of all the stub functions called "read", "write" etc. in a special
+section.  For syscalls inlined in larger functions, then it's
+reasonable to avoid text relocation in those places and use an
+indirect call as done now.  Surely there aren't too many of those,
+though, because LD_PRELOAD libraries which override syscall stubs
+rather depend on all normal calls to a syscall going through the stubs?
 
-usb 1-1: USB disconnect, address 2
-Unable to handle kernel NULL pointer dereference at virtual address 0000001e
- printing eip:
-c0299a9c
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0299a9c>]    Not tainted
-EFLAGS: 00010282
-EIP is at disconnect_scanner+0x2c/0x5f
-eax: ffffffff   ebx: d3d25094   ecx: c03d76d8   edx: 00000030
-esi: 00000000   edi: d3cb28c0   ebp: d3dc1e24   esp: d3dc1e14
-ds: 007b   es: 007b   ss: 0068
-Process khubd (pid: 5, threadinfo=d3dc0000 task=d3f8e040)
-Stack: d3d25080 c03d76d8 d3d25080 c03d7740 d3dc1e40 c02824f6 d3d25080 d3d25080 
-       d3d25094 d3d25094 c03d7760 d3dc1e58 c023b456 d3d25094 d3d250c0 d3cb28fc 
-       d3cb28e8 d3dc1e74 c02993ec d3d25094 d3d25080 d3cb28fc c03d766c 00000000 
-Call Trace:
- [<c02824f6>] usb_unbind_interface+0x76/0x80
- [<c023b456>] device_release_driver+0x66/0x70
- [<c02993ec>] destroy_scanner+0x7c/0xe0
- [<c01e3225>] kobject_cleanup+0x95/0xa0
- [<c02824f6>] usb_unbind_interface+0x76/0x80
- [<c023b456>] device_release_driver+0x66/0x70
- [<c023b5cd>] bus_remove_device+0x6d/0xb0
- [<c023a394>] device_del+0x74/0xd0
- [<c0288a20>] usb_disable_device+0x90/0xc0
- [<c0282fd4>] usb_disconnect+0xd4/0x120
- [<c028562f>] hub_port_connect_change+0x22f/0x350
- [<c0285041>] hub_port_status+0x41/0xb0
- [<c02859c6>] hub_events+0x276/0x330
- [<c0285ad3>] hub_thread+0x53/0x110
- [<c011f6c0>] default_wake_function+0x0/0x20
- [<c0285a80>] hub_thread+0x0/0x110
- [<c01092a9>] kernel_thread_helper+0x5/0xc
+> there is no concept of weak aliases in dynamic linking.  Finding all
+> the "aliases" requires lookups by name for now more than 200 syscall
+> names and growing.
 
-Code: 80 7e 1e 00 75 16 85 f6 74 21 8d 46 3c 8b 5d f8 8b 75 fc 89 
+See Ingo's post.
 
--- 
-Matthias Andree
+> Prelinking can help if it is wanted, but if the vDSO address is
+> changed or randomized (this is crucial I'd say) or the vDSO is not
+> setup up for a process, the full price has to be paid.
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+I agree; it is not reasonable to depend on prelinking.
+
+> With every kernel change the whole prelinking has to be redone.
+
+Not really, that's an implementation limitation, there's no reason to
+prelink the entire system just to alter the jumps in libc.so on those
+occasions when a new kernel is run.  If vDSO randomisation is per boot
+rather than per task (because the latter implies an MSR write per
+context switch), then a libsyscall.so can be patched at boot time.
+
+Yes I know, extravagent ideas, just wanted to write them for folk to
+be aware of the possibilities.
+
+> If gettimeofday() is the only optimized syscall, just add a simple
+> 
+>   cmp $__NR_gettimeofday, %eax
+>   je  __vsyscall_gettimeofday
+> 
+> to the __kernel_vsyscall code.
+
+That does seem to be a very practical answer for now :)
+
+-- Jamie

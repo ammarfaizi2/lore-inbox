@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbUKEXkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUKEXo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbUKEXkE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 18:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUKEXkE
+	id S261265AbUKEXo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 18:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbUKEXo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 18:40:04 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:27848 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261274AbUKEXiB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 18:38:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=eB4AGXmigUMkJHF7D7snK1VBYf61GLfVeqf6wqWaafn3Ds5mHFHYfmVKh/kRgl6vQ1W+kcQjHz1UU0VwkSBWAphZTRTeWOgb0ZA5PxOH9M3DvRvryEfY8cjhK9HI6A6A6aRDKKpFi1AY11RMjwJy68S/dZ4fWQMt4XnSM0rabCE=
-Message-ID: <66dc751804110515386d92892a@mail.gmail.com>
-Date: Fri, 5 Nov 2004 18:38:00 -0500
-From: chibiryuu <ephemient@gmail.com>
-Reply-To: chibiryuu <ephemient@gmail.com>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Subject: Re: support of older compilers [u]
-Cc: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>,
-       Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
-       Andries Brouwer <aebr@win.tue.nl>, Adam Heath <doogie@debian.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0411060003550.3255@alpha.polcom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Nov 2004 18:44:28 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:160 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261265AbUKEXoT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 18:44:19 -0500
+Date: Sat, 6 Nov 2004 00:44:14 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] change Kconfig entry for RAMFS
+In-Reply-To: <Pine.LNX.4.58.0411051506590.2223@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.60.0411060027560.3255@alpha.polcom.net>
 References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
-	 <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
-	 <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org>
-	 <20041105014146.GA7397@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
-	 <20041105195045.GA16766@taniwha.stupidest.org>
-	 <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
-	 <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
-	 <1099694246.4450.11.camel@nosferatu.lan>
-	 <Pine.LNX.4.60.0411060003550.3255@alpha.polcom.net>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
+ <Pine.LNX.4.58.0411051406200.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411052319160.3255@alpha.polcom.net>
+ <Pine.LNX.4.58.0411051506590.2223@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And yes, I probably can force UDEV to stop creating /dev/sda[0-9]*
-> devices, but this is not the right solution I think. These config files
-> are managed by my distribution and are complicated. I do not want to have
-> to merge them with updates every time new UDEV is released. Besides I want
-> to disable kernel partition discovery just for this device. This will be
-> ugly excaption.
+> So at the very least you'd need to make the Kconfig understand the
+> dependency on ramfs.
 
-You can just place a file in /etc/udev/rules.d; your distribution may
-have files (50-udev.rules) in there already, but if you create a file
-which is lexically before them (10-local.rules), rules in it will take
-precedence -- well, be parsed first -- and your distribution should
-not overwrite your file.
+Should I add dependency to tmpfs on ramfs when building for embedded? Or 
+should I introduce new config option to stop registering ramfs as a 
+mountable filesystem?
+
+
+> Also, don't shout in help-files. Nobody likes shouting.
+
+Sorry.
+
+For now, will you accept this patch:
+
+Signed-off-by: Grzegorz Kulewski <kangur@polcom.net>
+
+--- linux/fs/Kconfig	 2004-10-20 19:48:27.000000000 +0200
++++ linux-gk/fs/Kconfig	 2004-11-05 23:58:56.745730328 +0100
+@@ -939,9 +939,6 @@
+           you need a file system which lives in RAM with limit checking use
+           tmpfs.
+
+-         To compile this as a module, choose M here: the module will be called
+-         ramfs.
+-
+  source "fs/supermount/Kconfig"
+
+  endmenu
+-
+
+
+Thanks,
+
+Grzegorz Kulewski
+

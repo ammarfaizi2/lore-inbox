@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290983AbSC0UvJ>; Wed, 27 Mar 2002 15:51:09 -0500
+	id <S290965AbSC0Uwm>; Wed, 27 Mar 2002 15:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291279AbSC0UvE>; Wed, 27 Mar 2002 15:51:04 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:28806 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S290120AbSC0Uty>;
-	Wed, 27 Mar 2002 15:49:54 -0500
-Date: Tue, 26 Mar 2002 18:52:39 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Wakko Warner <wakko@animx.eu.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-Message-ID: <20020326185238.A324@toy.ucw.cz>
-In-Reply-To: <20020325152617.A18605@animx.eu.org> <Pine.LNX.4.10.10203251319100.1305-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S291169AbSC0Uwb>; Wed, 27 Mar 2002 15:52:31 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:14272 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S291620AbSC0UwS>;
+	Wed, 27 Mar 2002 15:52:18 -0500
+Message-ID: <3CA230A3.7F5CD1D4@mvista.com>
+Date: Wed, 27 Mar 2002 12:50:43 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: high-res-timers-discourse@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Is CLOCK_REALTIME the same as the clock under gettimeofday()
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+A re-reading of the standard (dammed nuisance), to get the man pages
+right, uncovered the information that clock_nanosleep() with the
+absolute
+option is supposed to wake up at the specified time, regardless of
+intervening calls to clock_settime() (all on CLOCK_REALTIME).  In
+considering how to make this happen, I assumed that this also meant that
+calls to settime() and adjtime() (i.e. ntp code) should also be
+covered.  All this assumes that CLOCK_REALTIME and the gettimeofday()
+clock are the same.
 
-> > > >   The way you say that makes me think that it does support at some other
-> > > > level... hot swap controller? Doesn't match MY hardware. Hot swap
-> > > 
-> > > Controller level hotswap works mostly (think about pcmcia ide for example)
-> > 
-> > Just to throw this out there.  Is it possible to make the ide subsystem look
-> > like a scsi controller ?  that way the scsi layer could insert/remove
-> > devices.  say: ide0/1 = scsi0 (assuming no other scsi controllers) and hda =
-> > scsi0 channel0 id0 lun0  and hdc = scsi0 channel1 id0 lun0 ...
-> > 
-> > Personally, if it's doable, i'd like it.
-> 
-> Hardware is different.
-> You can paint a goose yellow and call it a duck, but it is still a goose.
-> The electrical/electronic interface will kill you!
+The way to do this IMHO, is to put these sleep requests in a linked list
+and, each time the time is changed, run thru the list and cancel each
+sleep and redo it.  The problem with this is the ntp stuff which makes
+small adjustments each tick (10 ms).  I think this is too much overhead
+for each tick so I am trying to come up with a new way that has less
+overhead.
 
-We already have support for SCSI-(raid)controllers which use IDE disks for
-storage, so...
+One possible solution is to disconnect CLOCK_REALTIME from the
+gettimeofday() clock.  It could be, for example, connected to the uptime
+clock (CLOCK_MONOTONIC) with an offset which would be added to get to
+something close to the gettimeofday() clock.  The offset would be
+calculated at boot time and then periodically from then on.  The period
+could be something that keeps ntp drifting from causing a redo of the
+clock_nanosleep() calls every tick, but still keeps the clock relatively
+close, say every second or so (possibly this period could be changed or
+configured).
 
-USB mass storage is not SCSI (in some cases), either. [Ouch, and some
-usb-storage devices *are* IDE.]
+Another solution to this issue is to program the clock_nanosleep() calls
+to wake up a second or so prior to the requested time and then fine tune
+the wake up to happen as close as possible to the requested time.  This
+calculation might take into account the current ntp drift rate.
 
-So it makes sense to view IDE as very odd SCSI controllers.
-								Pavel
+comments?
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/
+Preemption patch:http://www.kernel.org/pub/linux/kernel/people/rml

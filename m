@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132224AbRDTXwq>; Fri, 20 Apr 2001 19:52:46 -0400
+	id <S132186AbRDTXxq>; Fri, 20 Apr 2001 19:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRDTXwf>; Fri, 20 Apr 2001 19:52:35 -0400
-Received: from eispost12.serverdienst.de ([212.168.16.111]:6672 "EHLO imail")
-	by vger.kernel.org with ESMTP id <S132226AbRDTXvi>;
-	Fri, 20 Apr 2001 19:51:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-To: Wayne.Brown@altec.com
-Subject: Re: Current status of NTFS support
-Date: Sat, 21 Apr 2001 01:55:56 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
-In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
+	id <S132226AbRDTXxj>; Fri, 20 Apr 2001 19:53:39 -0400
+Received: from stanis.onastick.net ([207.96.1.49]:28426 "EHLO
+	stanis.onastick.net") by vger.kernel.org with ESMTP
+	id <S132186AbRDTXxC>; Fri, 20 Apr 2001 19:53:02 -0400
+Date: Fri, 20 Apr 2001 19:52:53 -0400
+From: Disconnect <lkml@sigkill.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01042101555600.03154@blackbox>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Athlon problem report summary
+Message-ID: <20010420195253.A20176@sigkill.net>
+In-Reply-To: <E14p894-00009E-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14p894-00009E-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where does write support for NTFS stand at the moment?  I noticed that it's
-> still marked "Dangerous" in the kernel configuration.  This is important to
-> me because it looks like I'll have to start using it next week.  My office
-> laptop is going to be "upgraded" from Windows 98 to 2000.  Of course, I
-> hardly ever boot into Windows any more since installing a Linux partition
-> last year.  But our corporate email standard forces me to use Lotus Notes,
-> which I run under Wine.   The Notes executables and databases are installed
-> on my Windows partition.  The upgrade, though, will involve wiping the hard
-> drive, allocating the whole drive to a single NTFS partition, and
-> reinstalling Notes after installing Windows 2000 .  That means bye-bye
-> FAT32 partition and hello NTFS.  I can't mount it read-only because I'll
-> still have to update my Notes databases from Linux.  So how risky is this?
+Addendum to 1. So far everyone (at least on LKML) who has had the
+crash-immediatly-do-not-pass-go issues has been using an iwill kk266 (or
+kk266r, IIRC) mobo.
 
-I would not recommend enabling NTFS write support for the moment...
-Why don't you install Windows 2000 on a FAT32 partition (choose FAT32 during 
-installation)?
-It's no problem running Win2k on a FAT32 partition if you don't need NTFS 
-ACLs.
+Have we gotten any fix, other than not using K7 optimizations?
 
->
-> Also, I'll have to recreate my Linux partitions after the upgrade.  Does
-> anyone know if FIPS can split a partition safely that was created under
-> Windows 2000/NT?  It worked fine for Windows 98, but I'm a little worried
-> about what might happen if I try to use it on an NTFS partition.
-This will not work AFAIK
->
-> I'd appreciate any advice or help anyone can give me.  There's just no way
-> I can stand going back to using anything but Linux for my daily work.
->
-> Wayne
->
+I'm willing to keep trying new patches, if necessary.  (And for that
+matter, the box is on dialup behind masq, but if you are interested I can
+set up an account.  No serial console, no remote power cycle, so I'm not
+sure how much good it'll do, but it's an option if you want/need it.)
 
- Regards,
-   Robert
+On Mon, 16 Apr 2001, Alan Cox did have cause to say:
+
+> There appear to be two common threads to this
+> 
+> 1.  'It runs if I don't use Athlon optimisations'
+> 
+> This one is compiler independant. It seems to be unrelated to obvious 
+> candidates like vesafb. It isnt related to CPU version. Every victim has a 
+> VIA chipset machine.
+> 
+> 
+> 2.  'My athlon box is fine until I am swapping' {and using DMA}
+> 
+> Compiler independant, CPU version independant. All victims have a VIA chipset.
+> This one may be linked to the reported problems with VIA PCI. Two of the 
+> reporters found disabling IDE DMA fixed this one
+> 
+> 
+> Nobody using an AMD chipset has reported either problem.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+---
+   _.-=<Disconnect>=-._
+|     dis@sigkill.net    | And Remember...
+\  shawn@healthcite.com  / He who controls Purple controls the Universe..
+ PGP Key given on Request  Or at least the Purple parts!
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1 [www.ebb.org/ungeek]
+GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
+E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
+X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
+------END GEEK CODE BLOCK------

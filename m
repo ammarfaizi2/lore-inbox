@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTDUSrV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbTDUSqI
+	id S261977AbTDUSxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTDUSxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:46:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20682 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261722AbTDUSqD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:46:03 -0400
-Date: Mon, 21 Apr 2003 19:58:06 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new system call mknod64
-Message-ID: <20030421185806.GP10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030421193546.A10287@infradead.org> <Pine.LNX.4.44.0304211141590.9109-100000@home.transmeta.com> <20030421194749.A10963@infradead.org>
+	Mon, 21 Apr 2003 14:53:25 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:44298 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261977AbTDUSw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:52:28 -0400
+Date: Mon, 21 Apr 2003 20:04:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Olien <dmo@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, marcelo@conectiva.com.br,
+       alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DAC960 open with O_NONBLOCK
+Message-ID: <20030421200430.A11175@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Olien <dmo@osdl.org>, marcelo@conectiva.com.br,
+	alan@redhat.com, linux-kernel@vger.kernel.org
+References: <20030421172402.GA26863@osdl.org> <20030421183752.A8782@infradead.org> <20030421190111.GA27126@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030421194749.A10963@infradead.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030421190111.GA27126@osdl.org>; from dmo@osdl.org on Mon, Apr 21, 2003 at 12:01:11PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 07:47:49PM +0100, Christoph Hellwig wrote:
-> On Mon, Apr 21, 2003 at 11:44:59AM -0700, Linus Torvalds wrote:
-> > We HAVE to do the mapping somewhere. Old applications only use the lower 
-> > 16 bits, and that's just something that MUST NOT be broken. 
-> > 
-> > The question is only _where_ (not whether) we do the mapping. Right now we 
-> > keep "dev_t" in teh same format as we give back to user space, and thus we 
-> > always map into that format internally. But we don't have to: we can have 
-> > an internal format that is different from the one we show users.
+On Mon, Apr 21, 2003 at 12:01:11PM -0700, Dave Olien wrote:
+> > What applications?
 > 
-> Why do we need to do a mapping?  Old applications just won't see the
-> high bits (they're mapped to whatever overflow value) - values that
-> fit into the old 16bit range should never be remapped.
+> John Kamp has run across a libhd applcation from Suse that hit this bug.
+> It's some kind of hardware detection application.  It opens devices with
+> O_NONBLOCK.  But, it doesn't in fact use the DAC960 pass-through commands.
 
-Why?  Whenever we deal with fs code, we _do_ map anyway (bytesex, if nothing
-else).  Ditto for any network filesystems.
+Do you have source to it?
 
-Let's go for 32:32 internal and simply map upon mknod(2) and friends.
-On the syscall boundary.  End of problem.
+> The Mylex web page has a RAID management application for DAC960 on Linux that
+> is available only in BINARY form.  Unfortunately, it requires
+> a Windows front-end to provide a GUI.  So, I haven't actually experimented
+> with it. If any application uses the pass-through commands, this would likely
+> be it.  But since no one has complained about this being broken, it may
+> indicate no one is using this application.
+
+Hmm, breaking it wouldn't be nice, but if they're not willing to
+release an updated version we'll just need a LD_PRELOAD wrapper
+that maps the open to a new mangment device.
+
+> The pass-through behavior could be made available either through
+> a /proc or a sysfs file.
+
+My preference would be a char device (miscdev)
+
+> A related question, why does linux 2.5 continue to have a "struct file *"
+> argument to driver release methods? As far as I can tell, that argument
+> is always NULL?
+
+->release will change to struct gendisk * at some point.  Touching
+it before to just remove the struct file * sounds like a bad idea.
+

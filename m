@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268792AbRHKTcE>; Sat, 11 Aug 2001 15:32:04 -0400
+	id <S268834AbRHKULB>; Sat, 11 Aug 2001 16:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268809AbRHKTbz>; Sat, 11 Aug 2001 15:31:55 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59024 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S268792AbRHKTbn>; Sat, 11 Aug 2001 15:31:43 -0400
-Date: Sat, 11 Aug 2001 15:31:40 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@touchme.toronto.redhat.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel lockups on dual-Athlon board -- help wanted
-In-Reply-To: <20010811125035.A6428@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0108111527360.15826-100000@touchme.toronto.redhat.com>
+	id <S268837AbRHKUKv>; Sat, 11 Aug 2001 16:10:51 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:6411 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S268834AbRHKUKa>;
+	Sat, 11 Aug 2001 16:10:30 -0400
+Date: Sat, 11 Aug 2001 13:10:40 -0700 (PDT)
+From: Paul Buder <paulb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Large ramdisk crashes 2.4.8
+Message-ID: <Pine.LNX.4.33.0108111309170.19041-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Aug 2001, Eric S. Raymond wrote:
+A large ramdisk will either crash or make useless a
+2.4.8 kernel.  I did the following.
 
-> Server case.  Seems to be running pretty cool -- the processor heatsinks
-> are warm to the touch but not hot.  We've got a power-supply fan, two coolers,
-> and two case fans.  Did you find you needed more than that?
+I cleared out buffered memory by running this till it
+appropiately died.
+perl -e "$x='x' x 10000 while 1"
 
-Depends on how many drives you've got in the case.  The dual Athlon I'm
-using has three case fans: two pulling air out from just below the
-power supply and one drawing air into the case at the front.  The only
-crashes I've experienced on the machine were caused by kernel bugs. =)
+top then said I was using 7 megs of ram on my 128 meg box.
 
-		-ben
+I then did
 
--- 
-"The world would be a better place if Larry Wall had been born in
-Iceland, or any other country where the native language actually
-has syntax" -- Peter da Silva
+mke2fs /dev/ram0 70000
+mount /dev/ram0 /mnt
+dd if=/dev/zero of=/mnt/junk bs=1024000 count=100
+
+Usually at this point my system was not totally crashed but may as well
+have been.  I could usually ping the box.  I could sometimes switch
+virtual consoles though I couldn't log in.  I could press keys and they
+would display on the console.  That's about it.  Once I got a kernel
+panic. I also tried allocating 500 megs on a 1 gig box I have available
+to me with similar results.
+
+I reported similar problems with 2.4.[4-7] though the symptoms were
+a little different.  At this point I've consigned myself to wasting
+2/3 of my memory.  I won't report further on this issue unless someone
+is interested.
+
 

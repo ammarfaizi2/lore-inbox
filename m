@@ -1,177 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRAMSLP>; Sat, 13 Jan 2001 13:11:15 -0500
+	id <S130194AbRAMSWj>; Sat, 13 Jan 2001 13:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbRAMSLF>; Sat, 13 Jan 2001 13:11:05 -0500
-Received: from icemserv.folkwang.uni-essen.de ([132.252.170.129]:40718 "EHLO
-	icemserv.folkwang.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S129704AbRAMSKq>; Sat, 13 Jan 2001 13:10:46 -0500
-Message-ID: <3A609A55.7F80CF31@folkwang.uni-essen.de>
-Date: Sat, 13 Jan 2001 19:11:33 +0100
-From: Jörn Nettingsmeier 
-	<nettings@folkwang.uni-essen.de>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test13-pre3 i686)
+	id <S129735AbRAMSWT>; Sat, 13 Jan 2001 13:22:19 -0500
+Received: from denise.shiny.it ([194.20.232.1]:34323 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S130194AbRAMSWR>;
+	Sat, 13 Jan 2001 13:22:17 -0500
+Message-ID: <3A608538.4D9CF077@denise.shiny.it>
+Date: Sat, 13 Jan 2001 11:41:28 -0500
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.1-pre1 ppc)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: jayts@bigfoot.com, lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>, xpert@xfree86.org,
-        "mcrichto@mpp.ecs.umass.edu" <mcrichto@mpp.ecs.umass.edu>,
-        alsa-devel@alsa-project.org
-Subject: video drivers hog pci bus ? [was:[linux-audio-dev] low-latency 
- scheduling patch for 2.4.0]
-In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM <200101110312.UAA06343@toltec.metran.cx> <3A5D994A.1568A4D5@uow.edu.au>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: axboe@suse.de
+CC: linux-kernel@vger.kernel.org
+Subject: blk-13B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[alsa folks, i'd appreciate a comment on this thread from
-linux-audio-dev]
 
-hello everyone !
+Hi!
 
-in a post related to his latest low-latency patch, andrew morton
-gave a pointer to
-http://www.zefiro.com/vgakills.txt , which addresses the problem of
-dropped samples due to agressive video drivers hogging the pci bus
-with retry attempts to optimize benchmark results while producing a
-"zipper" noise, e.g. when moving windows around with the mouse while
-playing a soundfile.
-some may have tried fiddling with the "pci retry" option in the
-XF86Config (see the linux audio quality howto by paul winkler at
-http://www.linuxdj.com/audio/quality for details).
+I found the time to make some tests with 2.4 and the blk-13B patch.
+It performs very well, no process starvation, no missed merges,
+etc., but sometimes it happens dbflush and kswapd start eating
+100% CPU for about 20-30 secs.:
 
-i recall some people having reported mysterious l/r swaps w/ alsa
-drivers on some cards, and iirc, most of these reports were not
-easily reproduced and explained. 
-the zefiro paper states that the zefiro cards would swap channels
-occasionally under the circumstances mentioned. it sounds probable
-to me that all drivers using interleaved data would suffer from this
-problem.
+ 11:02am  up 18 min,  5 users,  load average: 2.74, 1.97, 1.15
+66 processes: 60 sleeping, 6 running, 0 zombie, 0 stopped
+CPU states:  2.7% user, 97.2% system,  0.0% nice,  0.0% idle
+Mem:  189568K av, 188520K used,   1048K free, 209144K shrd,   1168K buff
+Swap: 262136K av,      0K used, 262136K free                122764K cached
 
-can some more experienced people comment on this ?
-is my assumption correct that the bus hogging behaviour is affected
-by the pci_retry option ?
-
-btw: the text only mentions pci video cards. will agp cards also
-clog the pci bus ?
-
-please give some detail in your answers - i would like to include
-this in the linux-audio-dev faq and resources pages. (so chances are
-you will only have to answer this once :)
+ PID USER   PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
+   3 root    20   0     0    0     0 SW      0 45.1  0.0   0:21 kswapd
+   5 root    14   0     0    0     0 RW      0 44.5  0.0   0:29 bdflush
+ 606 Giu      9   0   464  464   352 R       0  3.6  0.2   0:02 cp
+ 543 Giu      9   0   604  604   472 S       0  1.9  0.3   0:14 vmstat
 
 
-sorry if this has been dealt with before, i seem to have trouble to
-follow all my mailing lists...
+vmstat doesn't show anything strange at the same time:
+
+   procs                    memory    swap          io     system         cpu
+ r  b  w  swpd  free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  0  0    0   1048   1304 122564   0   0  8960  4486  156   771  11  25  64
+ 3  0  0    0   1048   1304 122564   0   0  9856  4996  123   622   3  30  67
+ 1  0  1    0   1048   1304 122564   0   0  4096  1867   62   431   1  76  23
+ 2  0  1    0   1048   1304 122560   0   0  1920   963   26   130   1  99   0
+ 4  1  2    0   1048   1304 122564   0   0  1536   647  164   271   3  97   0
+ 2  0  2    0   1048   1304 122564   0   0   760   516  139   482   6  94   0
+ 1  1  2    0   1048   1304 122560   0   0   896   461  275   932  10  90   0
+ 1  0  2    0   1048   1304 122552   0   0   672   452  130   988   7  93   0
+ 1  0  2    0   1048   1304 122552   0   0   896   520  180  1905  11  89   0
+ 2  0  2    0   1052   1304 122552   0   0   512   515   26   462   4  96   0
+ 1  1  2    0   1048   1304 122556   0   0   740   519  109   428   1  99   0
+ 3  0  1    0   1048   1228 122624   0   0  1052   516   23   175   4  96   0
+
+The scsi driver reported it was writing large contiguous blocks and, 30secs
+later, a few 10s of smaller non mergeable block. It's ok IMO.
+ps doesn't show anything useful:
+
+[Giu@Jay Giu]$ ps -xao cmd,wchan
+CMD              WCHAN
+init             do_select
+[keventd]        context_thread
+[kswapd]         -
+[kreclaimd]      kreclaimd
+[bdflush]        -
+[kupdate]        kupdate
+[khubd]          usb_hub_thread
 
 
-regards,
+The test is a large file copy from the HD to my MO. During the cp and
+now there's nothing on the swap.
+My config:
 
-jörn
+PowerPC 750, 192MB ram, 256MB swap, kernel 2.4.0-bitkeeper (the official
+2.4 doesn't compile) + blk-13B, Adaptec 2930U, gcc 2.95.3. The rest is a
+2.2.x distribution.
 
 
-Andrew Morton wrote:
-> 
-> >
-> > > A patch against kernel 2.4.0 final which provides low-latency
-> > > scheduling is at
-> > >
-> > >       http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
-> > >
-> > > Some notes:
-> > >
-> > > - Worst-case scheduling latency with *very* intense workloads is now
-> > >   0.8 milliseconds on a 500MHz uniprocessor.
-> Neither, I think.
-> 
-> We can't apply some patch and say "there; it's low-latency".
-> 
-> We (or "he") need to decide up-front that Linux is to become
-> a low latency kernel. Then we need to decide the best way of
-> doing that.
-> 
-> Making the kernel internally preemptive is probably the best way of
-> doing this.  But it's a *big* task to which must beard-scratching must
-> be put.  It goes way beyond the preemptive-kernel patches which have
-> thus far been proposed.
-> 
-> I could propose a simple patch for 2.4 (say, the ten most-needed
-> scheduling points).  This would get us down to maybe 5-10 milliesconds
-> under heavy load (10-20x improvement).
-> 
-> That would probably be a great and sufficient improvement for
-> the HA heartbeat monitoring apps, the database TP monitors,
-> the QuakeIII players and, of course, people who are only
-> interested in audio record and playback - I'd need advice
-> from the audio experts for that.
-> 
-> I hope that one or more of the desktop-oriented Linux distributors
-> discover that hosing HTML out of gigE ports is not really the
-> One True Appplication of Linux, and that they decide to offer
-> a low-latency kernel for the other 99.99% of Linux users.
-> >
-> > Well it's extremely nice to see NFS included at least.  I was really
-> > worried about that one.  What about Samba?  (Keeping in mind that
-> > serious "professional" musicians will likely have their Linux systems
-> > networked to a Windows box, at least until they have all the necessary
-> > tools on Linux.
-> 
-> > > - If you care about latency, be *very* cautious about upgrading to
-> > >   XFree86 4.x.  I'll cover this issue in a separate email, copied
-> > >   to the XFree team.
-> 
-> I haven't gathered the energy to send it.
-> 
-> The basic problem with many video cards is this:
-> 
-> Video adapters have on-board command FIFOs.  They also
-> have a "FIFO has spare room" control bit.
-> 
-> If you write to the FIFO when there is no spare room,
-> the damned thing busies the PCI bus until there *is*
-> room.  This can be up to twenty *milliseconds*.
-> 
-> This will screw up realtime operating systems,
-> will cause network receive overruns, will screw
-> up isochronous protocols such as USB and 1394
-> and will of course screw up scheduling latency.
-> 
-> In xfree3 it was OK - the drivers polled the "spare room"
-> bit before writing.  But in xfree4 the drivers are starting
-> to take advantage of this misfeature.  I am told that
-> a significant number of people are backing out xfree4
-> upgrades because of this.  For audio.
-> 
-> The manufacturers got caught out by the trade press
-> in '98 and '99 and they added registry flags to their
-> drivers to turn off this obnoxious behaviour.
-> 
-> What needs to happen is for the xfree guys to add a
-> control flag to XF86Config for this.  I believe they
-> have - it's called `PCIRetry'.
-> 
-> I believe PCIRetry defaults to `off'.  This is bad.
-> It should default to `on'.
-> 
-> You can read about this minor scandal at the following
-> URLs:
-> 
->         http://www.zefiro.com/vgakills.txt
->         http://www.zdnet.com/pcmag/news/trends/t980619a.htm
->         http://www.research.microsoft.com/~mbj/papers/tr-98-29.html
-> 
-> So,  we need to talk to the xfree team.
-> 
-> Whoops!  I accidentally Cc'ed them :-)
-> 
-> -
-
--- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://www.folkwang.uni-essen.de/~nettings/
+Bye.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

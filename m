@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261483AbREQSqj>; Thu, 17 May 2001 14:46:39 -0400
+	id <S261487AbREQSst>; Thu, 17 May 2001 14:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261485AbREQSq3>; Thu, 17 May 2001 14:46:29 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:1686 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261483AbREQSqV>; Thu, 17 May 2001 14:46:21 -0400
-Date: Thu, 17 May 2001 20:46:16 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac10
-Message-ID: <20010517204616.K754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 17, 2001 at 05:45:38PM +0100
+	id <S261489AbREQSsl>; Thu, 17 May 2001 14:48:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261487AbREQSsa>; Thu, 17 May 2001 14:48:30 -0400
+Date: Thu, 17 May 2001 14:47:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.4 failure to compile
+In-Reply-To: <9e15g9$tcj$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1010517144217.2854A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 05:45:38PM +0100, Alan Cox wrote:
-> 2.4.4-ac10
+On 17 May 2001, H. Peter Anvin wrote:
 
-I think someone forgot this little return. It removes the
-following warning:
+> Followup to:  <3B040C80.C2A7BC6@sun.com>
+> By author:    Tim Hockin <thockin@sun.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > The aic7xxx assembler requiring libdb1 is a bungle.  Getting the headers
+> > for that right on various distros is not easy.  Add to that it requires
+> > YACC, when most people have bison (yes, a shell script is easy to make, but
+> > not always an option). 
+> > 
+> 
+> Most people have both.  However, if your distribution installs bison
+> and not yacc and does *NOT* install the "bison as yacc" wrapper, you
+> should complain to your distributor.
+> 
+> As far as "not always an option", that's ridiculous.  If there really
+> isn't someone around who can install it globally, then put it in ~/bin
+> and set your PATH.
+> 
+> The command "yacc" should be expected to work.  This is as insane as
+> the flamage in the cdrecord documentation about Linux installing GNU
+> make as "make".
+> 
+> 	-hpa
 
-serial.c:4208: warning: control reaches end of non-void function
+I have both. I also have `flex`, but not `lex'. `lex' is a simlink to
+flex. What this compile wanted is some header files in expects for
+`yacc` that are not present. And they don't come with the `bison`
+distribution. Maybe they came with `yacc` years ago? Anyway there
+are some poor assumptions being made in the source Makefile.
+
+It would be nice to have the 'microcode' assembler running for
+aic7xxx since it is now required for the thing to load.
 
 
---- linux-2.4.4-ac10/drivers/char/serial.c	Thu May 17 20:41:05 2001
-+++ linux-2.4.4-ac10-ioe/drivers/char/serial.c	Thu May 17 20:35:53 2001
-@@ -4205,6 +4205,7 @@
- {
- 	__set_current_state(TASK_UNINTERRUPTIBLE);
- 	schedule_timeout(HZ/10);
-+   return 0;
- }
- 
- /*
+Cheers,
+Dick Johnson
 
-Regards
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Ingo Oeser
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

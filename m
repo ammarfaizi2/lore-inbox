@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130504AbRCINSz>; Fri, 9 Mar 2001 08:18:55 -0500
+	id <S130505AbRCIN1Z>; Fri, 9 Mar 2001 08:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130503AbRCINSo>; Fri, 9 Mar 2001 08:18:44 -0500
-Received: from h24-67-108-36.cg.shawcable.net ([24.67.108.36]:384 "EHLO
-	ogah.cgma1.ab.wave.home.com") by vger.kernel.org with ESMTP
-	id <S130497AbRCINSh>; Fri, 9 Mar 2001 08:18:37 -0500
-Date: Fri, 9 Mar 2001 06:10:56 -0700
-From: Harold Oga <ogah@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12 (vt82c686 info)
-Message-ID: <20010309061056.A1018@ogah.cgma1.ab.wave.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010307201437.A5030@suse.cz> <Pine.LNX.3.95.1010307131509.31180A-100000@scsoftware.sc-software.com> <20010308091706.B799@suse.cz> <20010308113542.B745@ogah.cgma1.ab.wave.home.com> <20010308215448.A391@suse.cz>
-Mime-Version: 1.0
+	id <S130503AbRCIN1P>; Fri, 9 Mar 2001 08:27:15 -0500
+Received: from viper.haque.net ([64.0.249.226]:17292 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S130497AbRCIN1F>;
+	Fri, 9 Mar 2001 08:27:05 -0500
+Message-ID: <3AA8DA0C.D4AF7FF5@haque.net>
+Date: Fri, 09 Mar 2001 08:26:36 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Graham Murray <graham@webwayone.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <Pine.LNX.4.32.0103081124210.9614-100000@viper.haque.net> <m3g0gnfcol.fsf@gmlinux.webwayone.co.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010308215448.A391@suse.cz>; from vojtech@suse.cz on Thu, Mar 08, 2001 at 09:54:48PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 09:54:48PM +0100, Vojtech Pavlik wrote:
->On Thu, Mar 08, 2001 at 11:35:42AM -0700, Harold Oga wrote:
->
->> On Thu, Mar 08, 2001 at 09:17:06AM +0100, Vojtech Pavlik wrote:
->> >On Wed, Mar 07, 2001 at 01:23:49PM +0000, John Heil wrote:
->> >Make sure you use the latest 2.4.2-acxx drivers. Most other versions of
->> >my drivers have little bugs in the 686b support. Harmless but somewhat
->> >annoying.
->> Hi,
->>    Hmm, last I checked, Alan had only included v3.21 of your VIA ide
->> driver in the 2.4.2-acxx series, which still had some minor problems with
->> the 686B.  These didn't clear up until v4.3 of the driver.
->
->3.21 has these fixes in it. It's series 3 because it doesn't include the
->PCI speed measurement feature.
-Hi,
-   Hmm, ok, I'll have to go back and try it again, because I could have
-sworn these fixes were not in 3.21.
+Graham Murray wrote:
+> Does making a patch necessarily require modifying the source code?
+> Back in my days as a mainframe systems programmer (ICL VME/B), most OS
+> patches were made to the binary image, either in the file or to the
+> loaded virtual memory image.
 
--Harold
+Hmm. I guess you have something there. I come from a Mac background and
+some patches I've seen to 'hack' a feature into one of Apple's drivers
+has been one that modifies the resource fork of the driver file. The
+person who made this mod of course didn't have access to the source
+code.
+
 -- 
-"Life sucks, deal with it!"
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

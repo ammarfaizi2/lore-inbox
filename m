@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbRERRDI>; Fri, 18 May 2001 13:03:08 -0400
+	id <S261172AbRERRJS>; Fri, 18 May 2001 13:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261167AbRERRC6>; Fri, 18 May 2001 13:02:58 -0400
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:60936 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S261165AbRERRCp>; Fri, 18 May 2001 13:02:45 -0400
-Date: Fri, 18 May 2001 12:43:55 -0400
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Christoph Hellwig <hch@munchkin.spectacle-pond.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Michael Meissner <meissner@spectacle-pond.org>,
-        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-Message-ID: <20010518124355.A20191@munchkin.spectacle-pond.org>
-In-Reply-To: <20010518105353.A13684@thyrsus.com> <E150mKO-0007FF-00@the-village.bc.nu> <20010518120434.F14309@thyrsus.com> <20010518180909.A10357@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010518180909.A10357@caldera.de>; from hch@ns.caldera.de on Fri, May 18, 2001 at 06:09:09PM +0200
+	id <S261198AbRERRJA>; Fri, 18 May 2001 13:09:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13574 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261172AbRERRIp>;
+	Fri, 18 May 2001 13:08:45 -0400
+Date: Fri, 18 May 2001 14:08:29 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Chris Evans <chris@scary.beasts.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.33.0105180734360.579-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0105181403280.5531-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 18, 2001 at 06:09:09PM +0200, Christoph Hellwig wrote:
-> Aunt Tillie shouldn't try to manually configure a kernel.
+On Fri, 18 May 2001, Mike Galbraith wrote:
+> On Thu, 17 May 2001, Rik van Riel wrote:
+> > On Thu, 17 May 2001, Mike Galbraith wrote:
+> >
+> > > Only doing parallel kernel builds.  Heavy load throughput is up,
+> > > but it swaps too heavily.  It's a little too conservative about
+> > > releasing cache now imho. (keeping about double what it should be
+> > > with this load.. easily [thump] tweaked;)
+> >
+> > "about double what it should be" ?
+> 
+> Do you think there's 60-80mb of good cachable data? ;-)  The "double"
+> is based upon many hundreds of test runs.  I "know" that performance
+> is best with this load when the cache stays around 25-35Mb.  I know
+> this because I've done enough bend adjusting to get throughput to
+> within one minute of single task times to have absolutely no doubt.
+> I can get it to 30 seconds with much obscene tweaking, and have done
+> it with zero additional overhead for make -j 30 ten times in a row.
+> (that kernel was.. plain weird. perfect synchronization.. voodoo!)
 
-Ummm, maybe Aunt Tillie wants to learn how to configure a kernel....  After
-all, all of us at one point in time were newbies in terms of configuring
-kernels, etc.
+Ahhh, I see.  Remember that the "cached" figure you are
+seeing also includes swap-cached data from the gccs, which
+results from kswapd scanning the processes, clearing the
+PTE and, a bit later, the process grabbing the page again.
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+I suspect that if the gccs _just_ fit in memory, you can
+get some extra performance by mercilessly eating from the
+cache and keeping the ggcs in memory. However, I also have
+the sneaking suspicion that this is not the best tactic for
+all workloads ;)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277178AbRJLDcn>; Thu, 11 Oct 2001 23:32:43 -0400
+	id <S277191AbRJLDqQ>; Thu, 11 Oct 2001 23:46:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277183AbRJLDcc>; Thu, 11 Oct 2001 23:32:32 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:6647 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S277178AbRJLDcS>; Thu, 11 Oct 2001 23:32:18 -0400
-Date: Thu, 11 Oct 2001 21:32:11 -0600
-From: "'adilger@turbolabs.com'" <adilger@turbolabs.com>
-To: Xuan Baldauf <xuan--lkml@baldauf.org>
-Cc: Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic swap prioritizing
-Message-ID: <20011011213211.P8382@turbolinux.com>
-Mail-Followup-To: Xuan Baldauf <xuan--lkml@baldauf.org>,
-	Venkatesh Ramamurthy <Venkateshr@ami.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9E013@ATL_MS1> <20011010095536.C10443@turbolinux.com> <3BC63D38.AF65AAF5@baldauf.org>
+	id <S277194AbRJLDqG>; Thu, 11 Oct 2001 23:46:06 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:33396 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277191AbRJLDp4>; Thu, 11 Oct 2001 23:45:56 -0400
+Date: Fri, 12 Oct 2001 05:45:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Oleg A. Yurlov" <kris@spylog.com>
+Cc: linux-kernel@vger.kernel.org, mantel@suse.de
+Subject: Re: 2.4.7 from updates for SuSE 7.2 - crash.
+Message-ID: <20011012054558.W714@athlon.random>
+In-Reply-To: <159543829765.20011011233216@spylog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BC63D38.AF65AAF5@baldauf.org>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <159543829765.20011011233216@spylog.com>; from kris@spylog.com on Thu, Oct 11, 2001 at 11:32:16PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 12, 2001  02:45 +0200, Xuan Baldauf wrote:
-> > I'd rather just have the statistic data in a regular file for ALL disks,
-> > and then send it to the kernel via ioctl or write to a special file that
-> > the kernel will read from.  I don't think it is critical to have this
-> > data right at boot time, since it would only be used for optimizing I/O
-> > access and would not be required for a disk to actually work.
+On Thu, Oct 11, 2001 at 11:32:16PM +0400, Oleg A. Yurlov wrote:
 > 
-> why do you want to separate statistics data out? The statistics are not
-> about disk throughput, head seek times, etc. They are just about the time
-> between "needing a page" and "getting that page", which is very abstract.
-> Let's call it the swapin-delay. It does not only depend on disk-throughput
-> and head seek times, but also on "device business".
+>         Hi, Hubert, Andrea and all,
+> 
+>         My server crashed again...
+> 
+>         Symptom: procfs die, processes unaccessible...
 
-What I am saying is that such information is useful for ALL devices, and
-not just swap devices.  There was a long thread from Daniel Phillips
-where he was working on (1) a few months ago.  Why is this data useful?
+could be the down_read recursion. Many bugs are been fixed after 2.4.7.
 
-1) You have dirty pages in RAM, when should you write them?  The current
-   system is to delay the write as long as possible in case the dirty
-   pages are discarded (e.g. temp file) before they need to be written.
-   However, if the disk is idle during this time, then doing the write
-   immediately will not impose extra overhead, and will mean that the
-   dirty page could be freed quickly if there was a need for memory.
-2) Swap or MD RAID 1 load balancing.  Which device should you write to
-   (swap) or read from (RAID 1)?  If you know how fast/busy each device
-   is, you can make a better decision on this instead of round-robin.
-3) Guaranteed rate I/O.  For XFS/XLV on SGI IRIX, you can request a
-   guaranteed I/O rate for a specific time period (e.g. to record video
-   or capture data from an experiment) and the system will tell you if
-   it is possible or not.  In the IRIX case, they had data on each
-   drive to tell them what the performance is in advance, while Linux
-   would need to do a drive-by-drive benchmark instead.
+Can you try if you can reproduce with Hubert's latest kernel based on
+2.4.12aa1? thanks!
 
-A lot of the data needed for this is already part of "sard", but that
-is only reporting the data to user space, while some of the above
-decisions need to be done inside the kernel on a continuous basis.
-
-Note that I'm NOT saying that having all of this data will improve
-system performance (it may slow it down from overhead), but I was just
-advocating a broader view of what could be done (and what has already
-been done in related areas).
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Andrea

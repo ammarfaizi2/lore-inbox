@@ -1,55 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131830AbRCXVr5>; Sat, 24 Mar 2001 16:47:57 -0500
+	id <S131820AbRCXVqR>; Sat, 24 Mar 2001 16:46:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131831AbRCXVrr>; Sat, 24 Mar 2001 16:47:47 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:49929 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S131830AbRCXVrd>; Sat, 24 Mar 2001 16:47:33 -0500
-To: "Zack Weinberg" <zackw@stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <20010323201122.Y699@stanford.edu>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: "Zack Weinberg"'s message of "Fri, 23 Mar 2001 20:11:22 -0800"
-Date: 24 Mar 2001 15:46:51 -0600
-Message-ID: <vbavgoyvnzo.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S131831AbRCXVqI>; Sat, 24 Mar 2001 16:46:08 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:17166 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S131820AbRCXVp5>; Sat, 24 Mar 2001 16:45:57 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200103242145.WAA24380@green.mif.pg.gda.pl>
+Subject: [BUG] problem with pci=biosirq
+To: linux-kernel@vger.kernel.org (kernel list)
+Date: Sat, 24 Mar 2001 22:45:50 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Zack Weinberg" <zackw@stanford.edu> writes:
-> 
-> Let me inject some information about what gcc's doing in each version.
+Hi,
 
-Thanks...  very useful information.
+   While attempting to use pci=biosirq kernel parameter in 2.4.3pre6 (same
+observed with ac20) I've got the following oops (manually rewritten) during
+3c59x network adapter (compiled into kernel) initialization:
 
-> 2.95.3 allocates its memory via a bunch of 'obstacks' which,
-> underneath, get memory from malloc, and therefore brk(2).  I'm very
-> surprised to see it had ~250 vmas; it should be more like 10.
+Unable to handle kernel paging request at virtual address 0000dde5
+ printing eip:
+c00fde03
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c00fde03>]
+EFLAGS: 00010292
+eax: 00000009   ebx: 0000dde5   ecx: 00000c0a   edx: c1170cc9
+esi: c02964f0   edi: 00000000   ebp: 00000000   esp: c1177e92
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c1177000)
+Stack: 00000cc9 64f00000 0000c029 7eb40000 0030c117 def80000 0c0ac117 0cc90000
+       deba0000 0000c00f 64f00000 0000c029 7ed80000 0030c117 0c010000 0c0ac117
+       b10c0000 dd410000 b10fc00f 0c0a0c00 c00fdba2 eecc0206 0010c010 000c0000
+Call Trace: [<def80000>] [<deba0000>] [<dd410000>] [<eecc0206>] [<f32f0000>] [<f523c117>] [<def8c029>]
 
-You are correct.  My "maps" numbers for 2.96 and 3.0 are correct (at
-least within an order of magnitude), but I must have plucked the
-number for 2.95.3 out of thin air---there are only ~10 maps, as you
-predict.
+          [and long, probably infinite trace here...]
 
-> In conclusion, I think that GCC's allocator still makes a good case
-> for merging vmas.
+Unfortunately ksymoops tracing gives no effect as the problem seems to
+appear in a BIOS call. Some printk() debugging shows trace:
 
-Maybe.  It looks like the performance drop is quite sharp as a
-function of vma count.  In another note to the list, I observed no
-system time change (not even a half a second) using GCC 3.0 on my
-gtk-- test case between 2.4.2 and 2.4.3-pre7, even though the vma
-count dropped from ~200 to ~15.  On the other hand, 2.96 dropped from
->3000 to ~10 and dropped from a system time of 2m13s to a system time
-of 41sec (in line with the 3.0 and 2.95.3 system times).
+vortex_init()
+  ...
+    vortex_init_one()            [ drivers/net/3c59x.c ]
+      pci_enable_device()        [ drivers/pci/pci.c ]
+        pcibios_enable_device()  [ arch/i386/kernel/pci-pc.c ]
+          pcibios_enable_irq()   [ arch/i386/kernel/pci-irq.c ]
+            pcibios_lookup_irq() [ arch/i386/kernel/pci-irq.c ]
+              [ pci-irq.c:555:   r->set(pirq_router_dev, dev, pirq, newirq) ]
+              pirq_bios_set()    [ arch/i386/kernel/pci-irq.c ]
+                pcibios_set_irq_routing(..., 0, 12)
+                                 [ arch/i386/kernel/pci-pc.c ]
 
-Given your data, it'll really depend on where the performance hit is
-taken.  If it's taken at 4000 vmas, then it'll take a 500 meg arena
-under 3.0 before the patch makes a difference.  It it's taken at 1000
-vmas, then we'll see it around 125 megs, and it'll really make a big
-difference in some of the test cases people are talking about.
+What is the reason of this situation:
+1. pci=biosirq option is generally broken,
+2. my BIOS is not compatible with pci=biosirq kernel parameter,
+3. pcibios_set_irq_routing() call with pin=0 is incorrect,
+4. ... another problem ?
 
-Kevin <buhr@stat.wisc.edu>
+
+My PCI bus works at 30MHz and its configuration:
+
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV] (rev b3)
+	Subsystem: Acer Laboratories Inc. [ALi]: Unknown device 1531
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 32 set
+
+00:02.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev b4)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
+	Latency: 0 set
+
+00:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II] (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc.: Unknown device 1100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 set
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at ed000000 (32-bit, prefetchable)
+	Region 1: Memory at efffc000 (32-bit, non-prefetchable)
+	Region 2: Memory at ef000000 (32-bit, non-prefetchable)
+	Expansion ROM at effe0000 [disabled]
+
+00:06.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 3 min, 8 max, 64 set
+	Interrupt: pin A routed to IRQ 12
+	Region 0: I/O ports at ee80
+	Expansion ROM at effd0000 [disabled]
+
+00:0b.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 2 min, 4 max, 32 set
+	Interrupt: pin A routed to IRQ 0
+	Region 4: I/O ports at ffa0
+
+00:0f.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03) (prog-if 10 [OHCI])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 set
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at efffb000 (32-bit, non-prefetchable)
+
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

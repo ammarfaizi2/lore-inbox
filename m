@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130803AbRASUQZ>; Fri, 19 Jan 2001 15:16:25 -0500
+	id <S131063AbRASUSh>; Fri, 19 Jan 2001 15:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131063AbRASUQP>; Fri, 19 Jan 2001 15:16:15 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:8977 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130803AbRASUQC>;
-	Fri, 19 Jan 2001 15:16:02 -0500
+	id <S130399AbRASUS1>; Fri, 19 Jan 2001 15:18:27 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:10001 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131063AbRASUSP>;
+	Fri, 19 Jan 2001 15:18:15 -0500
 From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101192003.XAA25191@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: raj@cup.hp.COM (Rick Jones)
-Date: Fri, 19 Jan 2001 23:03:19 +0300 (MSK)
+Message-Id: <200101192018.XAA25263@ms2.inr.ac.ru>
+Subject: Re: Is sendfile all that sexy?
+To: zippel@fh-brandenburg.DE (Roman Zippel)
+Date: Fri, 19 Jan 2001 23:18:00 +0300 (MSK)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A68908C.3F3FE453@cup.hp.com> from "Rick Jones" at Jan 19, 1 10:15:04 pm
+In-Reply-To: <Pine.GSO.4.10.10101190951390.23899-100000@zeus.fh-brandenburg.de> from "Roman Zippel" at Jan 19, 1 01:45:01 pm
 X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,30 +20,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> the business about the last 1100ish bytes of a 4096 byte send being
-> delayed by nagle only implies that the stack's implementation of nagle
-> was broken and interpreting it on a per-segment rather than a per-send
-> basis. 
-+
-> software, or the host TCP stack. otherwise, the persistent connections
-> would have worked just fine.
+> It's about direct i/o from/to pages,
 
-Exactly.
+Yes. Formally, there are no problems to send to tcp directly from io space.
 
 
-But, actually, there exist the situation (in http-1.1, but not in the nature,
-as it is now 8)), when explicit push is required even with ideal nagling.
-
-Look: http-1.1, asynchronous one, the first request is sent, but not acked.
-Time to send the second one, but it is blocked by Nagle. If there is no
-third request, the pipe stalls. Seems, this situation will be usual,
-when http-1.1 will start to be used by clients, because of dependencies
-between replys (references) frequently move it to http-1.0 synchronous
-mode, but with some data in flight. See?
-
-Solution is evident. On such kind of connections explicit push
-must be made as soon as we complete some request _and_ there are no
-more pending requests in queue.
+But could someone explain me one thing. Does bus-mastering
+from io really work? And if it does, is it enough fast?
+At least, looking at my book on pci, I do not understand
+how such transfers are able to use bursts. MRM is banned for them...
 
 Alexey
 -

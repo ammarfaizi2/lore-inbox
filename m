@@ -1,72 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUA2R2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 12:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUA2R2H
+	id S266298AbUA2RZY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 12:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUA2RZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 12:28:07 -0500
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:40595 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S266215AbUA2R1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 12:27:52 -0500
-Date: Thu, 29 Jan 2004 18:25:11 +0100
-From: Guido Guenther <agx@sigxcpu.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6.2-rc2, rivafb]: GeForce4 440 Go 64M overflows fb_fix_screeninfo.id
-Message-ID: <20040129172511.GA959@bogon.ms20.nix>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 29 Jan 2004 12:25:24 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:42644 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266298AbUA2RYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 12:24:31 -0500
+Message-ID: <401941C4.4070502@nortelnetworks.com>
+Date: Thu, 29 Jan 2004 12:24:20 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, mj@ucw.cz
+Subject: question about PCI setup with multiple CPUs on the PCI bus(es)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We have an interesting scenario thats causing us some headaches, and 
+before we go and re-invent the wheel, I've been asked to see if there's 
+any others that have had to do something similar.
 
-Hi,
-fb_fix_screeninfo has space for 15 characters but riva/fbdev.c tries to
-copy more into it in case of the above card (and therefore corrupts
-memory). The result looks like:
-rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (nVidiaGeForce4-4\224, 32MB @ 0x94000000)
-                                                               ^^^^^
-Possible fix attached. This also overwrites the initial "nVidia" in
-rivafb_fix.id making the output the same as in 2.4 (and using strlcpy
-makes sure we don't overflow again). With this patch:
+We have a main board with a processor on it and a number of PCI buses 
+connected via bridges, with various devices on the buses.  There are a 
+number of PMC slots on two of the buses two which are connected PMC 
+processor boards, each of which has a cpu, memory, various devices, and 
+a PCI bridge.
 
-rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (GeForce4-440-GO-M64, 32MB @ 0x94000000)
+The problem we are running into is as follows:
+1) the main board boots up, enumerates and configures the pci device 
+space, and boots the daughterboards
+2) the daughterboards boot up, enumerate and (re)configure the pci 
+device space (differently than the cpu on the mainboard), and screw 
+everything up
 
-Can this go in?
- -- Guido
+We changed to kernel on the daughterboards to not touch PCI at all, and 
+everything worked fine.  However, one of the daughterboards (which is on 
+its own pci bus separate from the others) needs to control two PCI devices.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="rivafb-fix-ident.diff"
+We tried to modify the PCI code to just go out and discover what was in 
+PCI space, not configure any of it.  However, as it did this it 
+reprogrammed the PCI bridges, wrecking the configuration that the cpu on 
+the main board expected.
 
---- ../benh-rsync-2.6-clean/include/linux/fb.h	2003-12-24 11:31:18.000000000 +0100
-+++ include/linux/fb.h	2004-01-28 20:35:24.000000000 +0100
-@@ -114,7 +114,7 @@
- 
- 
- struct fb_fix_screeninfo {
--	char id[16];			/* identification string eg "TT Builtin" */
-+	char id[32];			/* identification string eg "TT Builtin" */
- 	unsigned long smem_start;	/* Start of frame buffer mem */
- 					/* (physical address) */
- 	__u32 smem_len;			/* Length of frame buffer mem */
---- ../benh-rsync-2.6-clean/drivers/video/riva/fbdev.c	2003-12-24 08:30:11.000000000 +0100
-+++ drivers/video/riva/fbdev.c	2004-01-28 21:04:29.000000000 +0100
-@@ -1867,7 +1867,7 @@
- 		goto err_out_kfree1;
- 	memset(info->pixmap.addr, 0, 64 * 1024);
- 
--	strcat(rivafb_fix.id, rci->name);
-+	strlcpy(rivafb_fix.id, rci->name, sizeof(rivafb_fix.id));
- 	default_par->riva.Architecture = rci->arch_rev;
- 
- 	default_par->Chipset = (pd->vendor << 16) | pd->device;
+Surely we aren't the only people that want to put multiple CPUs on a 
+single PCI space.  How have people handled this in the past?  Ideally 
+what I'm looking for is a CONFIG_NO_MANGLE_PCI or something to that 
+effect. As a last resort we are considering hardcoding the bus/device 
+topology for the two drivers on special daughterboard, but this seems 
+really kludgy.
 
---XsQoSWH+UP9D9v3l--
+Anyone have any advice?
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

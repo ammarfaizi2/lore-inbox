@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315616AbSFERSa>; Wed, 5 Jun 2002 13:18:30 -0400
+	id <S315629AbSFERV2>; Wed, 5 Jun 2002 13:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSFERS3>; Wed, 5 Jun 2002 13:18:29 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:15777 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315616AbSFERS1>; Wed, 5 Jun 2002 13:18:27 -0400
-Message-ID: <3CFE47D1.A4A3D0B4@nortelnetworks.com>
-Date: Wed, 05 Jun 2002 13:18:09 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S315630AbSFERV1>; Wed, 5 Jun 2002 13:21:27 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:65029 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315629AbSFERV0>; Wed, 5 Jun 2002 13:21:26 -0400
+Date: Wed, 5 Jun 2002 10:21:19 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbdev updates.
+In-Reply-To: <20020605175013.G10293@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0206051020150.24667-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: packets being dropped in IP stack but no error counts incrementing?
-In-Reply-To: <3CFD01F8.B69152E4@nortelnetworks.com> <3CFD9B9C.1050906@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> I am not sure the UDP drop counters are available.  If you do
-> find them, I'm interested in them too!
 
-Well, I've found an entry in /proc that has some information.  The entry is:
+> On Wed, Jun 05, 2002 at 09:39:48AM -0700, James Simmons wrote:
+> > Since no one has complianed for some time I like to push the next set of
+> > changes to Linus. Anyone with objections please give a yell.
+>
+> A small suggestion - could you post diffstat -p1 output with your patch
+> announcements please?
 
-/proc/net/softnet_stat
+Patch at http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
+
+diffstat results:
+
+ drivers/video/Config.in     |   40
+ drivers/video/Makefile      |   28
+ drivers/video/anakinfb.c    |    4
+ drivers/video/aty128fb.c    |    5
+ drivers/video/cfbcopyarea.c |    4
+ drivers/video/cfbimgblt.c   |   10
+ drivers/video/clps711xfb.c  |    3
+ drivers/video/cyber2000fb.c |    5
+ drivers/video/dn_accel.h    |    9
+ drivers/video/dn_cfb4.c     |  492 -----
+ drivers/video/dn_cfb8.c     |  540 ------
+ drivers/video/dnfb.c        |  535 +-----
+ drivers/video/fbcmap.c      |    2
+ drivers/video/fbmem.c       |    3
+ drivers/video/maxinefb.c    |  290 ---
+ drivers/video/neofb.c       | 3639 ++++++++++++++++++++------------------------
+ drivers/video/neofb.h       |  291 ---
+ drivers/video/pm2fb.c       |  745 ++++++---
+ drivers/video/pmag-ba-fb.c  |  343 ----
+ drivers/video/pmagb-b-fb.c  |  344 ----
+ drivers/video/skeletonfb.c  |    2
+ drivers/video/tdfxfb.c      | 2434 ++++++++---------------------
+ drivers/video/tx3912fb.c    |  566 ++----
+ drivers/video/tx3912fb.h    |  128 -
+ drivers/video/vfb.c         |    4
+ include/video/neomagic.h    |  264 +++
+ include/video/pm2fb.h       |  222 ++
+ include/video/tx3912.h      |   62
+ 28 files changed, 4034 insertions(+), 6980 deletions(-)
 
 
-The first two columns are:
-
-total
-dropped
-
-
-In this case, dropped is the number of messages dropped due to the softnet_data
-queue being full.  I have actually hit this under high load.
-
-I'm still looking for socket/protocol specific stuff though.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

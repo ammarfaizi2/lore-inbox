@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbTALXmg>; Sun, 12 Jan 2003 18:42:36 -0500
+	id <S267651AbTALXgQ>; Sun, 12 Jan 2003 18:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267653AbTALXmg>; Sun, 12 Jan 2003 18:42:36 -0500
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:25762 "EHLO
-	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267650AbTALXmf>; Sun, 12 Jan 2003 18:42:35 -0500
-Date: Sun, 12 Jan 2003 18:46:51 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <33142.62.98.226.220.1042414777.squirrel@webmail.roma2.infn.it>
-To: Emiliano Gabrielli <emiliano.gabrielli@roma2.infn.it>
-Cc: aaronl@vitelus.com, riel@conectiva.com.br, matti.aarnio@zmailer.org,
-       linux-kernel@vger.kernel.org
-Reply-to: robw@optonline.net
-Message-id: <1042415211.3162.225.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
- <20030112211530.GP27709@mea-ext.zmailer.org>
- <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
- <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com>
- <1042407845.3162.131.camel@RobsPC.RobertWilkens.com>
- <20030112214937.GM31238@vitelus.com>
- <1042409239.3162.136.camel@RobsPC.RobertWilkens.com>
- <20030112221802.GN31238@vitelus.com>
- <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
- <20030112225228.GP31238@vitelus.com>
- <1042413101.3162.184.camel@RobsPC.RobertWilkens.com>
- <33142.62.98.226.220.1042414777.squirrel@webmail.roma2.infn.it>
+	id <S267652AbTALXgQ>; Sun, 12 Jan 2003 18:36:16 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:17932 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267651AbTALXgO>; Sun, 12 Jan 2003 18:36:14 -0500
+Date: Mon, 13 Jan 2003 00:44:55 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
+Message-ID: <20030112234455.GC29758@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030106235817.GI10752@merlin.emma.line.org> <Pine.LNX.4.10.10301061614530.421-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10301061614530.421-100000@master.linux-ide.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 18:39, Emiliano Gabrielli wrote:
-> Now I understand the reason of your trollness !!
+On Mon, 06 Jan 2003, Andre Hedrick wrote:
 
-Enough with the personal attacks.. They get you know where, I'm not
-botherred by them, and they clog the list.
+> On Tue, 7 Jan 2003, Matthias Andree wrote:
+> 
+> > On Sun, 05 Jan 2003, Richard Stallman wrote:
+> > 
+> > > Developing programs does not "cost money"--that is just one way to do
+> > > it.  But sometimes a person is in a position where he can develop a
+> > > certain program only if he makes it non-free to raise money.  If you
+> > > are in such a position, unless you are going to make the program free
+> > > software soon after, then the best thing you can do is not develop it
+> > > at all.  Someone else will develop a free program to do the job.
+> > > Freedom is worth the wait.
+> > 
+> > Oh, but my backup can't just wait because the hard disk is
+> > likely to die before someone comes up with a free software that does
+> > better than Tivoli although this is sorta fragile on the systems I
+> > maintain. Are you going to sponsor for RAID-1 for the meanwhile, until
+> > the wait pays off?
+> 
+> Well for a price you could back up around the world, and have unlimited
+> amounts of storage per license and have unlimited (loads will limit the
+> unlimited) clients and have interoporability today.  But it is not free
+> now, but stood a strong chance of happening in 6mo for the basics.  The
+> serious core costly features would take longer to recover.  May 18mo of
+> the next feature, and finally 36mo for the end game.
+> 
+> This is in flux now because ....
 
--Rob
+Just in case: this was directed towards Richard Stallman, and was meant
+to convey the idea that free software of the future doesn't solve the
+problem I have today.
 
+
+Andre, your efforts, ideas and projects are much appreciated, and I've
+seen them underestimated, and while I have often (in private, without
+telling anyone, luckily) suspected they wouldn't work out that well,
+they all proved me wrong and worked MUCH better than I expected.
+
+Don't let your work get peed on by people who want you out of business
+or who don't recognize your achievements.
+
+-- 
+Matthias Andree

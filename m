@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUIJP4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267537AbUIJP7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267517AbUIJP4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUIJPwl
+	id S267537AbUIJP7j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUIJP4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:52:41 -0400
-Received: from sccmmhc91.asp.att.net ([204.127.203.211]:62351 "EHLO
-	sccmmhc91.asp.att.net") by vger.kernel.org with ESMTP
-	id S267497AbUIJPu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:50:58 -0400
-Date: Fri, 10 Sep 2004 10:50:40 -0500 (EST)
-Message-Id: <20040910.105040.30177815.wscott@bitmover.com>
-To: miller@techsource.com
-Cc: reiser@namesys.com, Peter.Foldiak@st-andrews.ac.uk, jamie@shareable.org,
-       bunk@fs.tum.de, viro@parcelfarce.linux.theplanet.co.uk,
-       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-From: Wayne Scott <wscott@bitmover.com>
-In-Reply-To: <4141CCA2.9010005@techsource.com>
-References: <1094797973.4838.4.camel@almond.st-and.ac.uk>
-	<4141504B.8030104@namesys.com>
-	<4141CCA2.9010005@techsource.com>
-X-Mailer: Mew version 4.0.65 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Fri, 10 Sep 2004 11:56:37 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:22537 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267490AbUIJPzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:55:21 -0400
+Date: Fri, 10 Sep 2004 16:55:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: tty ldisc locking/ordering
+Message-ID: <20040910165520.A25852@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <20040910153810.GA7431@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040910153810.GA7431@devserv.devel.redhat.com>; from alan@redhat.com on Fri, Sep 10, 2004 at 11:38:10AM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Timothy Miller <miller@techsource.com>
-> Everyone likes ':', so we'd have "problem/shoe:size".  (Don't bother to 
-> complain about files which have : in them, because I already know it 
-> sucks, but it's an example.)
+On Fri, Sep 10, 2004 at 11:38:10AM -0400, Alan Cox wrote:
+> +In order to remove a line discipline call tty_register_ldisc passing NULL.
+> +In ancient times this always worked. In modern times the function will
+> +return -EBUSY if the ldisc is currently in use. Since the ldisc referencing
+> +code manages the module counts this should not usually be a concern.
 
-[[ I just joined this discussion, so pardon if this is already known.]]
+So what is a module supposed to do if this fails?  It's usually called from
+module_exit so there's no way to recover.
 
-One advantage of ':' is that portable programs already have to avoid
-it because of NTFS alternate data streams:
-  http://www.diamondcs.com.au/index.php?page=archive&id=ntfs-streams
+> +Three calls are now provided
+> +
+> +	ldisc = tty_ldisc_ref(tty);
+> +
+> +takes a handle to the line discipline in the tty and returns it. If no ldisc
+> +is currently attached or the ldisc is being closed and re-opened at this
+> +point then NULL is returned. While this handle is held the ldisc will not
+> +change or go away.
+> +
+> +	tty_ldisc_deref(ldisc)
 
-For example on an XP box with NTFS:
+We tend to call these _get/_put just about everywhere else in the kernel,
+maybe some consisteny is a good idea?
 
-$ mkdir j
-$ cd j
-$ echo hi > foo:bar
-$ ls -l
-total 0
--rw-r--r--    1 wscott   Administ        0 Sep 10 10:45 foo
-$ cat foo
-$ cat foo:bar
-hi
-$ rm foo
-$ cat foo:bar
-cat: foo:bar: No such file or directory
-
--Wayne

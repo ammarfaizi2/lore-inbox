@@ -1,45 +1,57 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155256AbPFQIax>; Thu, 17 Jun 1999 04:30:53 -0400
-Received: by vger.rutgers.edu id <S154989AbPFQIac>; Thu, 17 Jun 1999 04:30:32 -0400
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:61059 "EHLO rrzs2.rz.uni-regensburg.de") by vger.rutgers.edu with ESMTP id <S155104AbPFQIaT>; Thu, 17 Jun 1999 04:30:19 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.rutgers.edu
-Date: Thu, 17 Jun 1999 10:29:47 +0200
+Received: by vger.rutgers.edu via listexpand id <S156411AbPFTOea>; Sun, 20 Jun 1999 10:34:30 -0400
+Received: by vger.rutgers.edu id <S156121AbPFTOeK>; Sun, 20 Jun 1999 10:34:10 -0400
+Received: from ECE.CMU.EDU ([128.2.236.200]:38940 "EHLO ece.cmu.edu") by vger.rutgers.edu with ESMTP id <S156205AbPFTOeD>; Sun, 20 Jun 1999 10:34:03 -0400
+Date: Sun, 20 Jun 1999 10:32:51 -0400 (EDT)
+From: John Peter DeVale <jdevale@ece.cmu.edu>
+Reply-To: devale@cmu.edu
+To: Brian <signal@shreve.net>
+cc: linux-kernel@vger.rutgers.edu
+Subject: Re: crashme and other programs
+In-Reply-To: <Pine.LNX.4.10.9906170830481.31278-100000@mercury.shreve.net>
+Message-ID: <Pine.OSF.4.10.9906201020570.8763-100000@haddock.ece.cmu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: tracing "lost_ticks" in 2.2.9 on a slow machine
-X-mailer: Pegasus Mail for Windows (v3.01d)
-Message-ID: <166B49CD5B5A@rkdvmks1.ngate.uni-regensburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello,
+Brian,
 
-I'm seeking for some advice: I run my old PC (a 16MHz 386/SX, 
-possibly the absolute low-end until I disable the "turbo") with Linux 
-2.2.9 as a time server (my boss won't donate a machine). With ntpd-
-4.0.92 and a DCF77 reference clock the machine can keep time within 
-2ms (in the last two weeks).
+Crashme was written by George Carrette.  Info and source can be had at :
 
-Unfortunately some debugging code from PPSkit-0.7.0 indicates that
-``ticks'' in update_wall_time() is 2 quite frequently, even if the 
-machine is idle. Running one program I saw a value of "4"...
+http://people.delphi.com/gjc/crashme.html
 
-This is not very encouraging.  I'd like to find out what parts of the 
-kernel disable interrupt processing for that long, but I'm not good 
-enough with the assembler facts:
+In essence, it creates a random data stream and tells the system to try
+and execute it.  Like the mythical infinite number of monkeys, it will
+occasionally generate stuff that will trigger system failures.
 
-I'd like to modify the interrupt enabling code (restore_flags) to 
-check the value of the lost_ticks, and if it's high, it should 
-display the address where the instruction pointer is.
+John
 
-Can anybody tell me how to do that?
+Righteous convert to the Rebel Alliance
+ "Train me, Yoda" ;-|
 
-(I'm not subscribed to the list, so please CC: any replies, please)
 
-Regards,
-Ulrich
+
+On Thu, 17 Jun 1999, Brian wrote:
+
+> 
+> I am looking for programs or a suite of tests to totally pound my system
+> and try to get it to hicup.  I have heard of "crashme", and some other
+> tests, does anyone have any links to point me in the right direction?
+> 
+> Brian
+> 
+> 
+> -----------------------------------------------------
+> Brian Feeny (BF304)     signal@shreve.net   
+> 318-222-2638 x 109	http://www.shreve.net/~signal      
+> Network Administrator   ShreveNet Inc. (ASN 11881) 	      
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.rutgers.edu
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 
 -

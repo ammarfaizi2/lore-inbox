@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRB1Rzr>; Wed, 28 Feb 2001 12:55:47 -0500
+	id <S129126AbRB1SE5>; Wed, 28 Feb 2001 13:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbRB1Rzh>; Wed, 28 Feb 2001 12:55:37 -0500
-Received: from oker.escape.de ([194.120.234.254]:29054 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id <S129078AbRB1RzU>;
-	Wed, 28 Feb 2001 12:55:20 -0500
-To: linux-lvm@sistina.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [linux-lvm] Bugs in LVM and ext2: patch for LVM
-In-Reply-To: <200102272007.f1RK7aM27545@webber.adilger.net> <m21ysi3m0z.fsf@isnogud.escape.de>
-From: Urs Thuermann <urs@isnogud.escape.de>
-Date: 28 Feb 2001 18:53:33 +0100
-In-Reply-To: <m21ysi3m0z.fsf@isnogud.escape.de>; from Urs Thuermann on 28 Feb 2001 15:44:12 +0100
-Message-ID: <m21ysik82q.fsf_-_@isnogud.escape.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S129134AbRB1SEr>; Wed, 28 Feb 2001 13:04:47 -0500
+Received: from emcmail.lss.emc.com ([168.159.48.78]:22703 "EHLO emc.com")
+	by vger.kernel.org with ESMTP id <S129126AbRB1SEg>;
+	Wed, 28 Feb 2001 13:04:36 -0500
+Message-ID: <3A9D3C9E.6090807@emc.com>
+Date: Wed, 28 Feb 2001 12:59:58 -0500
+From: Ric Wheeler <ric@emc.com>
+Reply-To: ric@emc.com
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.10 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David L. Nicol" <david@kasey.umkc.edu>
+CC: Zack Brown <zbrown@tumblerings.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-cluster@nl.linux.org
+Subject: Re: Will Mosix go into the standard kernel?
+In-Reply-To: <Pine.LNX.3.96.1010227091255.780M-100000@renegade> <3A9C1A3A.8BC1BCF2@kasey.umkc.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urs Thuermann <urs@isnogud.escape.de> writes:
+There are two parts of MOSIX that deal with file systems.
+In MOSIX, every migrated process leaves a proxy at its creation (home)
+node that services all system call requests, including IO calls.
 
-> I've read lots of EXT2 and LVM src code and I think it turns out that
-> there is a bug in both.  Andreas has already given the fix for the
-> ext2, a suggestion for LVM is below (sorry, no patch, I really know to
-> little about all the block sizes and buffers of block devices).
+What newer versions of MOSIX did is to add the "DFSA" (direct file
+system access) layer that allows MOSIX to support executing file
+system calls locally for migrated process when they are against a
+cache coherent, cluster file system (think GFS).  When this was put
+in MOSIX, they also did a write through, non-caching file system to
+test their DFSA code called MFS.
 
-Despite my limited knowledge of the src code for buffering and block
-devices I have made an patch which fixes the LVM problem for me.  I'm
-not 100% sure it is correct and if it is the clean solution.  Some
-kernel god should therefore take a look on it.  At least I have
-running it here in my kernel.
+Both the MOSIX team and the global file system group have been involved
+in getting their stuff to play nicely together.
+
+ric
 
 
---- linux-2.4.2/drivers/md/lvm.c.orig	Wed Feb 28 18:27:40 2001
-+++ linux-2.4.2/drivers/md/lvm.c	Wed Feb 28 17:00:25 2001
-@@ -376,6 +376,8 @@
- static struct hd_struct lvm_hd_struct[MAX_LV];
- static int lvm_blocksizes[MAX_LV] =
- {0,};
-+static int lvm_hardsizes[MAX_LV] =
-+{0,};
- static int lvm_size[MAX_LV] =
- {0,};
- static struct gendisk lvm_gendisk =
-@@ -3035,11 +3037,12 @@
- 		lvm_gendisk.part[i].start_sect = -1;	/* avoid partition check */
- 		lvm_size[i] = lvm_gendisk.part[i].nr_sects = 0;
- 		lvm_blocksizes[i] = BLOCK_SIZE;
-+		lvm_hardsizes[i] = BLOCK_SIZE;
- 	}
- 
- 	blk_size[MAJOR_NR] = lvm_size;
- 	blksize_size[MAJOR_NR] = lvm_blocksizes;
--	hardsect_size[MAJOR_NR] = lvm_blocksizes;
-+	hardsect_size[MAJOR_NR] = lvm_hardsizes;
- 
- 	return;
- } /* lvm_gen_init() */
+
+

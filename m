@@ -1,91 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSJTN6m>; Sun, 20 Oct 2002 09:58:42 -0400
+	id <S262653AbSJTOWU>; Sun, 20 Oct 2002 10:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262650AbSJTN6m>; Sun, 20 Oct 2002 09:58:42 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:45069 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S262648AbSJTN6l>;
-	Sun, 20 Oct 2002 09:58:41 -0400
-Date: Sun, 20 Oct 2002 16:04:44 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Laramie Leavitt <laramie.leavitt@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error compiling 2.5.43 Alpha.
-Message-ID: <20021020140444.GX30418@lug-owl.de>
-Mail-Followup-To: Laramie Leavitt <laramie.leavitt@attbi.com>,
-	linux-kernel@vger.kernel.org
-References: <OFEJKOGEKOCPKMCJDFCEKECGCAAA.laramie.leavitt@attbi.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aIPTgi9H47uqouUT"
-Content-Disposition: inline
-In-Reply-To: <OFEJKOGEKOCPKMCJDFCEKECGCAAA.laramie.leavitt@attbi.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+	id <S262670AbSJTOWT>; Sun, 20 Oct 2002 10:22:19 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:46825 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262653AbSJTOWS>; Sun, 20 Oct 2002 10:22:18 -0400
+Date: Sun, 20 Oct 2002 12:28:02 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jim Houston <jim.houston@attbi.com>
+cc: linux-kernel@vger.kernel.org, <mingo@elte.hu>, <andrea@suse.de>,
+       <jim.houston@ccur.com>, <akpm@digeo.com>, <conman@kolivas.net>
+Subject: Re: [PATCH] Re: Pathological case identified from contest
+In-Reply-To: <200210200319.g9K3J5s07242@linux.local>
+Message-ID: <Pine.LNX.4.44L.0210201214010.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Oct 2002, Jim Houston wrote:
 
---aIPTgi9H47uqouUT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 	I'm punishing processes that actually get to run rather
+> 	than rewarding proceses that sleep.
 
-On Fri, 2002-10-18 00:26:40 -0700, Laramie Leavitt <laramie.leavitt@attbi.c=
-om>
-wrote in message <OFEJKOGEKOCPKMCJDFCEKECGCAAA.laramie.leavitt@attbi.com>:
->=20
-> gcc -Wp,-MD,arch/alpha/kernel/.irq_alpha.o.d -D__KERNEL__ -Iinclude -Wall=
- -W
-> strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-ali=
-asi
-> ng -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=3Dev56 -Wa,-mev6 -nostd=
-inc -
-> iwithprefix include    -DKBUILD_BASENAME=3Dirq_alpha   -c -o
-> arch/alpha/kernel/irq_alpha.o arch/alpha/kernel/irq_alpha.c
-> In file included from arch/alpha/kernel/irq_alpha.c:15:
-> arch/alpha/kernel/irq_impl.h: In function `alpha_do_profile':
-> arch/alpha/kernel/irq_impl.h:50: `prof_buffer' undeclared (first use in t=
-his
-> function)
-> arch/alpha/kernel/irq_impl.h:50: (Each undeclared identifier is reported
-> only once
-> arch/alpha/kernel/irq_impl.h:50: for each function it appears in.)
-> arch/alpha/kernel/irq_impl.h:61: `prof_shift' undeclared (first use in th=
-is
-> function)
-> arch/alpha/kernel/irq_impl.h:67: `prof_len' undeclared (first use in this
-> function)
-> make[1]: *** [arch/alpha/kernel/irq_alpha.o] Error 1
+Sounds good...
 
-Add "#include <linux/profile.h>" near the top to
-=2E/linux/arch/alpha/kernel/irq_impl.h. Sorry, no patch this time...
+>  static inline unsigned int task_timeslice(task_t *p)
+>  {
+> -	return BASE_TIMESLICE(p);
+> +	/*
+> +	 * The more favorable priority the shorter the time slice.
+> +	 * For 100 Hz clock this gives a range 10 - 191 ms.
+> +	 * For 1000 Hz clock this gives 1 - 157 ms.
+> +	 */
+> +	if (HZ > 100)
+> +		return(((p)->prio - MAX_RT_PRIO)*4 + 1);
+> +	else
+> +		return(((p)->prio - MAX_RT_PRIO)/2 + 1);
+>  }
 
-By the way, accepting little patching, recent 2.5.x kernels do run fine
-on my systems (AXPpci33 aka. noname and Miata).
+It'd be fun if this code also worked for values of HZ not
+equal to 100 or 1000.  Better put HZ somewhere in this
+calculation and make it HZ-independant.
 
-MfG, JBG
+> + * The rq->prio_ind is used to raise/rotate the priority of all of the
+> + * processes in the run queue.  I know this  sounds like a pyramid scheme.
+> + * This increase in priority is balanced by two feedback mechanisms.
+> + * First processes which consume there timeslice are moved to a lower
+> + * priority queue.  To continue the pyramid analogy we make the time
+> + * slice smaller for more favorable priorities.
 
---=20
-   - Eine Freie Meinung in einem Freien Kopf f=FCr
-   - einen Freien Staat voll Freier B=FCrger
-   						Gegen Zensur im Internet
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+Sounds like a good strategy, at least in theory.  I suspect
+it'll balance itself well enough to also work in practice.
 
---aIPTgi9H47uqouUT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> + * The rotate_rate is the rate at which the priorities of processes
+> + * in the run queue increase.  With the initial HZ/10 guess a process
+> + * will go from the worst dynamic priority to the best in 4 seconds.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+How long does it take for a best priority process to go
+down ?
 
-iD8DBQE9srf8Hb1edYOZ4bsRAijHAKCP8jW7HDyPCzXiUmO3B76ZVeaoBgCeODwD
-UQfzMSzUc4h+TkJGod8Z/kA=
-=1sri
------END PGP SIGNATURE-----
+Or, for how much time can a newly started CPU hog starve
+an older process ?   This is important to know since eg.
+a newly started Mozilla could starve an already running
+movie player.
 
---aIPTgi9H47uqouUT--
+> +	if (HZ > 100) {
+> +		hl = 2000;	/* half life of 2 seconds at HZ=1000 */
+> +		as = -23;	/* 64*1024*log(0.5)/hl */
+> +	} else {
+> +		hl = 200;	/* half life of 2 seconds at HZ=100 */
+> +		as = -229;	/* 64*1024*log(0.5)/hl */
+> +	}
+
+Same comment as before, HZ > 100 doesn't mean that HZ == 1000 ;)
+
+I'm about to be dragged off to lunch now, so I haven't looked in
+detail at the rest of this function. Not yet, at least.
+
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

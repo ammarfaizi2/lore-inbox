@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267495AbUHPJuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUHPKAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267495AbUHPJuW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267501AbUHPJuV
+	id S267504AbUHPKAf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 06:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267506AbUHPKAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:50:21 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:19973 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267495AbUHPJuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:50:18 -0400
-Date: Mon, 16 Aug 2004 10:50:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20040816105014.A9367@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org> <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org> <Pine.LNX.4.58.0408161019040.21177@skynet>
+	Mon, 16 Aug 2004 06:00:35 -0400
+Received: from ohm.divmod.com ([198.49.126.192]:16532 "HELO divmod.com")
+	by vger.kernel.org with SMTP id S267504AbUHPKAc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 06:00:32 -0400
+Subject: inconsistency in thread/signal interaction in 2.6.5 and previous
+	vs. 2.6.6 and later (possibly a bug?)
+From: Glyph Lefkowitz <glyph@divmod.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Divmod, LLC
+Date: Mon, 16 Aug 2004 06:01:05 -0400
+Message-Id: <1092650465.3394.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0408161019040.21177@skynet>; from airlied@linux.ie on Mon, Aug 16, 2004 at 10:30:55AM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 1.5.92.1 
+Content-Transfer-Encoding: 7bit
+x-divmod-processed: Mon, 16 Aug 2004 10:00:31 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 10:30:55AM +0100, Dave Airlie wrote:
-> >
-> > Eeek, doing different styles of probing is even worse than what you did
-> > before.  Please revert to pci_find_device() util you havea proper common
-> > driver ready.
-> 
-> There was nothing wrong with what we did before it just happened to work
-> like 2.4. we are now acting like real 2.6 drivers,
+Hello Kernel People,
 
-no, now you're acting like an even more broken driver, preventing a fbdev
-driver to be loaded afterwards and doing all kinds of funny things.  Please
-revert to the old method until you have a common pci_driver for fbdev and dri.
+Firstly, here is a brief example of some code that behaves very
+differently on 2.6.5 and 2.6.6:
+
+http://www.twistedmatrix.com/users/glyph/signal-bug.c
+
+I have verified that it says "Completed" on kernel 2.6.5, 2.6.3 and
+2.6.1, and says "Died" on 2.6.6, 2.6.7 and 2.6.8.1, so I am pretty sure
+the difference is between 2.5.6 and 2.6.6.
+
+As far as I understand it, kernel 2.6.5 would not deliver a signal to
+anyone upon thread termination, but kernel 2.6.6 will deliver a SIGHUP
+to the process's main thread, if the multi-threaded process's
+controlling terminal is a pty.
+
+This is most likely a muddled explanation, and it is certainly
+incomplete.  Please read the code to see what I mean.  I am not the sort
+of person who would normally be posting to the kernel mailing list, or
+even writing code in C, for that matter.
+
+I upgraded to the debian kernel 2.6.7 from 2.6.5; this had the
+unfortunate side-effect of breaking Emacs integration with my unit
+tests.  It also seems to cause certain problems with the Conch SSH
+server ( http://www.twistedmatrix.com/products/conch ) but I believe
+emacs has rather a larger installed base.
+
+Before anyone else has to tell me - yes, I am well aware that I should
+not be sticking my hand into the signals/threads interaction blender if
+I can avoid it, but in this case I can't :-).
+
+On 2.6.5 and previous, the unit tests would run correctly; they all
+passed.  On 2.6.7, the tests would run correctly *on a terminal*, but
+they would fail about halfway through if run in a 'M-x compile' buffer
+in emacs.  Coincidentally, they would fail at about the point where one
+of the tests spawned a few threads to test the thread-safety of an API,
+then immediately shut them down as part of the test-cleanup.  Kaboom.
+
+If it helps to know, asynchronous processes in emacs (e.g. M-x compile,
+eshell) will get a SIGHUP if a thread terminates, but synchronous
+processes (e.g. M-x shell-command, C-c C-c in a Python buffer) will not.
+The critical difference between these *seems* to be the creation of a
+PTY for a controlling terminal.
+
+I am sorry I cannot accompany this with a patch to fix it.  I am curious
+though, is this even a bug, or just a stricter reading of some POSIX
+threading standard?
 

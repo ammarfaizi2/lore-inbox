@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288866AbSAEQoa>; Sat, 5 Jan 2002 11:44:30 -0500
+	id <S288868AbSAEQ4n>; Sat, 5 Jan 2002 11:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288865AbSAEQoV>; Sat, 5 Jan 2002 11:44:21 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:2835 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S288866AbSAEQoL>; Sat, 5 Jan 2002 11:44:11 -0500
-Date: Sat, 5 Jan 2002 08:44:07 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: "Gabor Z. Papp" <gzp@myhost.mynet>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: X and console paralell
-In-Reply-To: <20020105080009.GI22314@gzp2.gzp>
-Message-ID: <Pine.LNX.4.10.10201050839540.32301-100000@www.transvirtual.com>
+	id <S288871AbSAEQ4d>; Sat, 5 Jan 2002 11:56:33 -0500
+Received: from mustard.heime.net ([194.234.65.222]:17636 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S288868AbSAEQ4a>; Sat, 5 Jan 2002 11:56:30 -0500
+Date: Sat, 5 Jan 2002 17:55:28 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Craig Knox <crg@monster.gotadsl.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Error loading e1000.o - symbol not found
+In-Reply-To: <1010177662.1089.42.camel@crgs.lowerrd.prv>
+Message-ID: <Pine.LNX.4.30.0201051755070.10133-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 4 Jan 2002, Craig Knox wrote:
 
-On Sat, 5 Jan 2002, Gabor Z. Papp wrote:
+> On Fri, 2002-01-04 at 20:49, Roy Sigurd Karlsbakk wrote:
+> > > Is /usr/include/asm is also linked to /usr/src/linux/include/asm?
+> >
+> > it wasn't ...
+> >
+> > Do I have to re-make the kernel after this?
+>
+> Just remaking the module will (hopefully) work.
 
-> * Mark Vojkovich <mvojkovich@nvidia.com>:
-> 
-> | > Plugging extra USB keyboard and mouse would solve the
-> | > problem, and I would be able to run X and console
-> | > simultanously?
-> | 
-> |    No, both the console and X need a VT.  As far as I can tell
-> | Linux only lets you have one VT active at any time.  You can
-> | have a different mouse and keyboard used by the console and
-> | by X (in theory at least), but I don't think that solves the
-> | mutual exclusivity of VTs.  
-> | 
-> |    Some people may have kernel hacks to allow this sort of
-> | thing, but I haven't been keeping track of this stuff.  It's
-> | not an area that I've been involved in.
-> 
-> Any idea? Basically I would like to run 2 monitor, one for X
-> and one for console paralell, with 1 keyboard/mouse.
-> Switching between them like with one monitor, but when no
-> work on the one, I would like to keep the signal on the
-> unused monitor, eg I would like to see the (not blank) screen.
+didn't ...
+Do you have any other ideas?
 
-With the standard linux kernel it is true. You can't have true
-multidesktop systems. The console system is not designed for it. 
-One it has lots of global variables including locking. Second the 
-keyboard driver can't send keyboard input from different keyboards
-to different VTs. Can it be done? Yes but it requires a console system
-rewrite. Has it been done? Yes I have done it:
+thanks, anyway.
 
-http://linuxconsole.sf.net
+roy
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
-Will it go into 2.5.X? Well I have piece by piece putting the new console
-code into the dj tree to slowly be intergrated into Linus tree. 
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264963AbTLFIYq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbTLFIYq
+	id S264969AbTLFIvp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 03:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbTLFIvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:24:46 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:27661 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264963AbTLFIYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:24:45 -0500
-Date: Sat, 6 Dec 2003 09:20:11 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chuck Lever <cel@citi.umich.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4 read ahead never reads the last page in a file
-Message-ID: <20031206082011.GD11325@alpha.home.local>
-References: <Pine.BSO.4.33.0312031800270.24127-100000@citi.umich.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSO.4.33.0312031800270.24127-100000@citi.umich.edu>
-User-Agent: Mutt/1.4i
+	Sat, 6 Dec 2003 03:51:45 -0500
+Received: from stinkfoot.org ([65.75.25.34]:41615 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S264969AbTLFIvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 03:51:43 -0500
+Message-ID: <3FD1994C.10607@stinkfoot.org>
+Date: Sat, 06 Dec 2003 03:54:36 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031103
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tero Knuutila <tero1001@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: cdrecord hangs my computer
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com> <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chuck,
+Linus Torvalds wrote:
+> 
+> On Sat, 6 Dec 2003, Tero Knuutila wrote:
+> 
+>>My system hangs everytime I try to  burn my .wav files to cd with cdrecord.
+>>Usually few tracks go succesfully but then everything stops. Even the mouse
+>>won't move and powerbutton does not affect.
+> 
+> 
+> Is this with ide-scsi? If so, does the appended patch help?
+> 
+> If not, we really need a whole lot more information (hw config, messages
+> etc).
+> 
+> 		Linus
 
-I've run 2.4.23 both vanilla and patched, and I confirm a win on NFS reads.
-I tested from 1 to 6 parallel reads consisting of md5sum of kernel includes :
-  time find include -type f | xargs md5sum >/dev/null &
-Results below :
+I've noted this at boot several times with 2.6.0-test11
 
-processes   2.4.23       2.4.23-patched
-    1       11.5         11.45
-    2       12.82        12.68
-    3       14.7         14.4
-    4       17.8         17.3
-    5       21.5         21.0
-    6       25.7         25.0  => server is saturated 100% sys
-    7       29.3         29.0  => server is saturated 100% sys
+Dec  4 23:59:21 e-d0uble kernel: ide-scsi is deprecated for cd burning! 
+Use ide-cd and give dev=/dev/hdX as device
 
-Fileset contain 7346 files totalizing 29952 kB.
-So there's a gain of nearly 3% in the best case (6 processes). Not bad.
-I suspect that I could also gain slightly more by patching the server too.
+Removing the ide-cd bootparams: (I didn't try the patch)
 
-Cheers,
-Willy
+Cdrecord 2.00.3 seems to like the sony-dru500a, denoted as 
+--dev=/dev/hdc, I burned several disks this way.
+crdao and growisofs don't like to parse /dev/hdc as an argumenet, but 
+I'm sure these are easily fixed.
 
+Ethan

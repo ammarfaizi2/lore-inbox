@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUEaAhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264484AbUEaAmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264482AbUEaAhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 20:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUEaAhJ
+	id S264484AbUEaAmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 20:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUEaAmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 20:37:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:16819 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264482AbUEaAhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 20:37:06 -0400
-Subject: Re: [PATCH] Fix typo in pmac_zilog
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       rmk+serial@arm.linux.org.uk
-In-Reply-To: <20040530173252.4a040e99.davem@redhat.com>
-References: <1085715655.6320.138.camel@gaston>
-	 <20040529234258.42a2dc64.davem@redhat.com>
-	 <1085901218.10399.11.camel@gaston>
-	 <20040530173252.4a040e99.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1085963459.2248.29.camel@gaston>
+	Sun, 30 May 2004 20:42:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8672 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264484AbUEaAmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 20:42:21 -0400
+Date: Mon, 31 May 2004 02:42:18 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
+       benh@kernel.crashing.org
+Subject: Re: Crash in 2.6.6-rc3-mm1 (SiS/Radeon)
+Message-ID: <20040531004217.GM13111@fs.tum.de>
+References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> <1082971956.24569.2.camel@pandora> <1083063853.24569.88.camel@pandora> <20040501120843.GG2541@fs.tum.de> <1083660105.9822.186.camel@pandora>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 31 May 2004 10:30:59 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1083660105.9822.186.camel@pandora>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-31 at 10:32, David S. Miller wrote:
-> On Sun, 30 May 2004 17:13:38 +1000
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > There is a deadlock issue. I triggered once when I had a bug where the
-> > driver was flooding the input with zero's. All serial drivers seem to be
-> > affected. Apparently, tty_flip_* may call back into your write() routine
-> 
-> Yes indeed, one code path is:
->
-> .../...
+Hi Oliver,
 
-Yup, another one is when echo is enabled, you may call back into write.
+first of all sorry for my very late answer.
 
-> It seems lots of serial drivers have this bug, even 8250.c :-)
+It seems the crash I experienced was caused by something else, and not 
+by your AGP patch.
 
-Yes, I told Russell about it.
+cu
+Adrian
 
-> I'll fix up the Sparc drivers meanwhile.
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

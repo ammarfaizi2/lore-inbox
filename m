@@ -1,123 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUHGF7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUHGGMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266258AbUHGF7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 01:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUHGF7A
+	id S266271AbUHGGMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 02:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUHGGMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 01:59:00 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:60945 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S266258AbUHGF64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 01:58:56 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [fastroute] more cleanups.
-Date: Sat, 7 Aug 2004 07:58:44 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_U+GFBHCom718K1U"
-Message-Id: <200408070758.44525.pluto@pld-linux.org>
+	Sat, 7 Aug 2004 02:12:37 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:4573 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266271AbUHGGMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 02:12:32 -0400
+Date: Fri, 6 Aug 2004 23:10:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20040806231013.2b6c44df.pj@sgi.com>
+In-Reply-To: <200408061730.06175.efocht@hpce.nec.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erich Focht wrote:
+> we (NEC) are also a potential user of this patch
 
---Boundary-00=_U+GFBHCom718K1U
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Good - welcome.
 
-<davem@nuts.davemloft.net>
-	[NET]: Kill NET_FASTROUTE, does nothing and suffers from major bitrot.
-	Based up suggestion/changes from Jeff Garzik.
-	Signed-off-by: David S. Miller <davem@redhat.com>
 
---Boundary-00=_U+GFBHCom718K1U
-Content-Type: application/x-bzip2;
-  name="fastroute-cleanup.patch.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="fastroute-cleanup.patch.bz2"
+> I think cpusets and CKRM should be
+> made to come together. One of CKRM's user interfaces is a filesystem
+> with the file-tree representing the class hierarchy. It's the same for
+> cpusets.
 
-QlpoOTFBWSZTWRMUATkAbcTfgAIweG//93/v/+C////wYBs/O+a3wADufAzYGcABAyL0y0pTcp3M
-27NFsLWt251ecABfABvR9NFB8jQAoUUDQ0M7DviKeTQEyaTGIRmqgaAAADIAAAJTRoRUTImmSYT1
-AANAAAAAABIKIjRNNRiQeiMQNANAGgA0AAJU/1UmiTKamnigAAAAAAAAAARUkM0Sn4p6mmKeiabS
-b1IMjTymaT0hp6noNJkAFRSBACCYITQU8RPSPUNNGNQ0D1DJ6ajohEck0qf5CQ/CpEi1jK1+nh8v
-4yQjvukkIskH50S0C0ztkEUBCHGnrsgQj7c3gwm/7uHkvFGQF52kkBUiCTwavMgiT4BLkEVDbRRN
-sGbuNcvjKIAjVy7KTGIIlqoJbDIgiYkEj60EfUEj26cd0IjH7/GSEdbaQiDBUVYXKjBIGzfbDJ5U
-e/fjPyxn493JKYK5t2y3+WZZ8F6Odxx/Lzcsbs3n40kCPxfodrQhNoEJ/Z8vtAIVrFgxWMV9uMYr
-F/Pd497PkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAe5sAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADuZLcfjf6fGQImLGPp92Tg/L29pAie
-emHoufty/Qdmq/Njqrmw07mXc4jaQVXGAiQBETDmt6t7eEETjQRJlFV0AgifLDX6TDoM8PbFzdNz
-O6/BVVP5s20b+c7xd5s3SrRJ83guTeVXaxdS5QkkKh5qkyu7S2axndSs46p87tLVVbOc5eUzDq1z
-M1uOV28V6Thpl4ZYzhLzrqtopOb7WvtOw4cgxs5vbvvcvuG6WWX0wxgxxXWO30273CM4dju7kZ0M
-zpmcuG+8h9rd6X3pvTmWTmZneczmjHW9K5e0tWzG22/fjXXHaQ80RFERURHwxCI/wyzCRohEeEN6
-CKk/MhEVAhZ+54xBBEo2g5ooInIGc4b/nkK7MUDFSEnsSflPv/BT1/A+Lb18q+jlXyr7rrMaTcvU
-MyXFp9bOLljLqqHMnNq+2mqo5PeU3uzkyxEyjl7TZRrq7FEzSRhPVnRrTmrJZ0qe9nMczyYQlKiZ
-JyaMT2YzJt3TU0pjlEqEKE+1MIxEPCQvkjKxZamrMZy2qutUzWcL6uZMJWTSJ2nKYpqaJSVY3Z43
-Z411zujTMhEYIRHp5c0Ij6Dh4/r+oaFJHiUa5KqqqqqqqqSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSTarFTIg+B/IhSilFMFGDBS
-U7GDIZGBRMymDIlKUwUpgjMyKYIpgwZEoopSmCmDBgMGBSUwKYJTBgyMGAyMEUhgwYJmYMGRkZDM
-pTBmZFKZijBgMEDAQEe5z4F5Xy1S+7krJu8Y93bcq5nFsu0916O1KxbLtPdejtSsTAI+HwkIPwon
-EpKRRypBgUKSQpGeS/yyEZkoSkRKTKiMFCiUSiklFJSjgQiPPw88vT1+JTh8K2FlWWPN0qQ9OXOp
-CSEUPiWLJUkkkjECEZBCEdhoFECEfQIEI0KQkJCsgIINtz11Q5qZ+N+CyXaamcSx01mU2sqapFVl
-Zl21lTVIqss7EclKSPqQiOw+cJHAzkbDG5d6ERnDcb2EwLPkgjJuQRlJhgJGNVzARBMej0CSS51C
-odQ3IlTkahKEmk5kcaMMMKQkiw3iQajRWDwpHHhvEgolQNAnEypYcBnpo8Qrc3KomZLDCsd4/EEF
-oOVMVECUEarqYgs8P+h5APTwGRxxxzlyu7gSQkhJDtCBtvAoa64EeIc1KojgcCSArrJRNEAUUIRz
-jgfBTGnrECQsygsLbSsAoiCBib9ITLdBiARqRWxASMGDGNDQ3BLZeYJCiL8fcfK3VJt0Ntsbg+QI
-CCC/VnoXta8vDlT78Or5W3E3GZzje371VRKqZUiqauISTGWeNc+hCI0dE1QiOuf1oRHw9ltrVqDj
-Hf6wO90mrGNVxwarr4nGN9wA71ZsxmvOrlW+Le3kkhJI6jczh8u9bbdTUqrLLc+Gq4nI00qgPd4t
-8YxXO5IowcXEALCwb10uNWphjes5Bhg7ushyriret6NtjG26VK1pptttpqhsIOHLbE+OytspsbbY
-/pB6gCIPL2TsrJ77fMlCMdBJN7ej2oMEQ0lEpIUpKBT6vHKlh6Y4HrDs7AM1rbbpWbMCQkcrW22q
-zZjtrVtsdOfJhnWg1W+NtgEtrNm82sxttjKGEW0KCVtNrZ6QW9wOhAaAT7RJJYHh5Yd9b8uqPevd
-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
+Hmmm ... this suggestion worries me, for a couple of reasons.
 
---Boundary-00=_U+GFBHCom718K1U--
+Just because cpusets and CKRM both have a hierarchy represented in a
+file system doesn't mean it is, or can be, the same file system.  Not
+all trees are the same.
+
+Perhaps someone more expert in CKRM can help here.  The cpuset hierarchy
+has some strict semantics:
+ 1) Any cpusets CPUs and Memory must be a subset of its parents.
+ 2) A cpuset may be exclusive for CPU or Memory only if its parent is.
+ 3) A CPU or Memory exclusive cpuset may not overlap its siblings.
+
+See the routine kernel/cpuset.c:validate_change() for the exact
+coding of these rules.
+
+If we followed your suggestion, Erich, would these rules still hold?
+I can't imagine that the CKRM folks have any existing hierarchies with
+these particular rules.  They would need to if we went this way.
+
+On the flip side, what additional rules, if any, would CKRM impose
+on this hierarchy?
+
+The other reason that this suggestion worries me is a bit more
+philosophical.  I'm sure that for all the other, well known,
+resources that CKRM manages, no one is proposing replacing whatever
+existing names and mechanisms exist for those resources, such as
+bandwidth, compute cycles, memory, ...  Rather I presume that CKRM
+provides an additional resource management layer on top of the
+existing resources, which retain their classic names and apparatus.
+
+What you seem to be suggesting here, especially with this nice
+picture from your next post:
+
+        The files in cpusets are:
+         - cpus: list of CPUs in that cpuset
+         - mems: list of Memory Nodes in that cpuset
+         - cpu_exclusive flag: is cpu placement exclusive?
+         - mem_exclusive flag: is memory placement exclusive?
+         - tasks: list of tasks (by pid) attached to that cpuset
+        The files in a CKRM class directory:
+         - stats   : statistics (not needed for cpusets)
+         - shares  : could contain cpus, mems, cpu_exclusive, mem_exclusive
+         - members : same as reading /dev/cpusets/.../tasks
+         - target  : same as writing /dev/cpusets/.../tasks
+
+        Changing the "shares" would mean something like
+          echo "cpus +6-10" > .../shares
+
+would remove the cpuset specific interface forever, leaving it only
+visible via a more generic "shares, members, target" interface suitable
+for abstract resource management.
+
+I am afraid that this would make it harder for new users of cpusets to
+figure them out.  Just cpusets by themselves add a new and strange layer
+of abstraction, that will require a little bit of head scratching (as
+Martin Bligh can testify to, from recent experience ;) for those
+administering and managing the big iron where cpusets will be useful. 
+
+To add yet another layer of abstractions on top of that, from the CKRM
+world, might send quite a few users into mental overload, doing the
+usual stupid things we all do when we have given up on understanding and
+are just thrashing about, trying to get something to work.
+
+I think we are onto something useful here, the hierarchical organizing
+of compute resources of CPU and Memory, which will become increasingly
+relevant in the coming years, with bigger machines and more complex
+compute and memory architectures.
+
+I'd hate to see cpusets hidden behind resource management terms from day
+one.
+
+And, looking at it from the CKRM side (not sure I can, I'll try ...)
+would it not seem a bit odd to a CKRM user that just one of the resource
+types managed, these cpusets, had no apparent existence outside of the
+CKRM hierarchy, unlike all the other resources, which existed a priori,
+and, I presume, continue their independent existance?
+
+Obviously, I could use a little CKRM expertise here.
+
+But my inclination is to continue to view these two projects as separate,
+with the potential that CKRM will someday add cpusets to the resource types
+that it can manage.
+
+Thank-you.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbTLAKLc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 05:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTLAKLc
+	id S262776AbTLAKIO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 05:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTLAKIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 05:11:32 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:38529 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262794AbTLAKLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 05:11:30 -0500
-Date: Mon, 1 Dec 2003 02:11:18 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Christian Axelsson <smiler@lanil.mine.nu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB mass-storage hell
-Message-ID: <20031201101118.GA23531@one-eyed-alien.net>
-Mail-Followup-To: Christian Axelsson <smiler@lanil.mine.nu>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3FCB001C.7000705@lanil.mine.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-In-Reply-To: <3FCB001C.7000705@lanil.mine.nu>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Mon, 1 Dec 2003 05:08:14 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:49607 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262776AbTLAKIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 05:08:13 -0500
+Date: Mon, 1 Dec 2003 11:08:17 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] sched-HT-2.6.0-test11-A5
+In-Reply-To: <1027750000.1069604762@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.58.0312011102540.3323@earth>
+References: <20031117021511.GA5682@averell>
+ <3FB83790.3060003@cyberone.com.au><20031117141548.GB1770@colin2.muc.de>
+ <Pine.LNX.4.56.0311171638140.29083@earth><20031118173607.GA88556@colin2.muc.de>
+ <Pine.LNX.4.56.0311181846360.23128@earth><20031118235710.GA10075@colin2.muc.de>
+ <3FBAF84B.3050203@cyberone.com.au><501330000.1069443756@flay>
+ <3FBF099F.8070403@cyberone.com.au><1010800000.1069532100@[10.10.2.4]>
+ <3FC01817.3090705@cyberone.com.au><3FC0A0C2.90800@cyberone.com.au>
+ <Pine.LNX.4.56.0311231300290.16152@earth> <1027750000.1069604762@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 23 Nov 2003, Martin J. Bligh wrote:
 
-Look at sysfs and the lsscsi application.
+> > have you seen my HT scheduler patches, in particular the HT scheduler
+> > in Fedora Core 1, which is on top of a pretty recent 2.6 scheduler? Works
+> > pretty well.
+> 
+> Do you have a pointer to an updated patch? I haven't seen a version of
+> that for a while, and would like to play with it.
 
-Matt
+i've uploaded the HT scheduler patch against 2.6.0-test11 to:
 
-On Mon, Dec 01, 2003 at 09:47:24AM +0100, Christian Axelsson wrote:
-> I have this USB harddrive and a USB mp3-player, when I plug them in=20
-> would like them to be mounted at /mnt/hd and /mnt/mp3 by auto.
-> Is this possible using 2.6 and some supermount-like daemon?
->=20
-> Also, the device I plugin first becomes /dev/sda1 and the second=20
-> /dev/sda2 (using devfs) so I cant rely upon device names here to do=20
-> anything. Is there any ID of the USB-device aviable somewhere that can=20
-> be of any use?
->=20
-> --=20
-> Christan Axelsson
-> smiler@lanil.mine.nu
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+    redhat.com/~mingo/O(1)-scheduler/sched-HT-2.6.0-test11-A5
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+note, the patch includes a fix to sync wakeups, which might hurt lat_ctx.  
+I've attached the fix against vanilla 2.6.0-test11 as well.
 
-I need a computer?
-					-- Customer
-User Friendly, 2/19/1998
+	Ingo
 
---cWoXeonUoKmBZSoM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/yxPGIjReC7bSPZARAoA8AKDW+GAgBHalXv1p+H2tAybquPuk2wCfeQCs
-tyzEjZH2x5prEZX0U37jCGw=
-=BL8b
------END PGP SIGNATURE-----
-
---cWoXeonUoKmBZSoM--
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -646,7 +646,7 @@ repeat_lock_task:
+ 				 */
+ 				p->activated = -1;
+ 			}
+-			if (sync)
++			if (sync && (task_cpu(p) == smp_processor_id()))
+ 				__activate_task(p, rq);
+ 			else {
+ 				activate_task(p, rq);

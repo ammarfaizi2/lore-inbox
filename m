@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSFHLYY>; Sat, 8 Jun 2002 07:24:24 -0400
+	id <S317395AbSFHL1L>; Sat, 8 Jun 2002 07:27:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSFHLYX>; Sat, 8 Jun 2002 07:24:23 -0400
-Received: from pD9E2320A.dip.t-dialin.net ([217.226.50.10]:38356 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317399AbSFHLYW>; Sat, 8 Jun 2002 07:24:22 -0400
-Date: Sat, 8 Jun 2002 05:23:16 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Michael De Nil <linux@aerythmic.be>
-cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/input/mice problem with 2.4.19-pre9 & 10
-In-Reply-To: <Pine.LNX.4.44.0206081137310.32319-100000@LiSa>
-Message-ID: <Pine.LNX.4.44.0206080522040.15675-100000@hawkeye.luckynet.adm>
+	id <S317396AbSFHL1K>; Sat, 8 Jun 2002 07:27:10 -0400
+Received: from web14403.mail.yahoo.com ([216.136.174.60]:5971 "HELO
+	web14403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317395AbSFHL1J>; Sat, 8 Jun 2002 07:27:09 -0400
+Message-ID: <20020608112710.23692.qmail@web14403.mail.yahoo.com>
+Date: Sat, 8 Jun 2002 04:27:10 -0700 (PDT)
+From: manjuanth n <manju_tt@yahoo.com>
+Subject: need help
+To: linux-kernel@vger.kernel.org
+Cc: manju_tt@yahoo.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dear sir,
+ we have SAN environment  with hitachi  storage box
+and  brocade  switch. we are trying to  install Linux 
+with  qlogic  HBA card.  we  are facing strange 
+problems 
+1. If  we  disable LUN 0  we will not be able to see
+any LUNs on liunx  machine
+2. If we  enable  LUN 0  we can  see all the  LUNS 
+but  it  should be in sequence  i.e LUN0 ,1,2 , 3  etc
+if we disable  LUN 3  we will not be able  to see LUNS
+4 and  the  rest
+ Is the  above things  are limitation of linux.
+Linux  machine is  running with  2.4.18 kernel
 
-On Sat, 8 Jun 2002, Michael De Nil wrote:
-> When I move my mouse while catting /dev/input/mice, nothing appears ...
-> 
-> Other USB-device work...
+Is there any solutions for  these problems? 
 
-Please try /dev/input/mouse0.
+Thanks and Regards
+Manjuanth
 
-[thunder@hawkeye.luckynet.adm /usr/src/thunder-2.5.20] (0) ls -l /dev/input/
-total 0
-crw-r--r--    1 root     root      13,  63 Dec 31  1969 mice
-crw-r--r--    1 root     root      13,  32 Dec 31  1969 mouse0
-[thunder@hawkeye.luckynet.adm /usr/src/thunder-2.5.20] (0)
 
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

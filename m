@@ -1,129 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbTCKMIi>; Tue, 11 Mar 2003 07:08:38 -0500
+	id <S262915AbTCKMa6>; Tue, 11 Mar 2003 07:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262910AbTCKMIi>; Tue, 11 Mar 2003 07:08:38 -0500
-Received: from pusa.informat.uv.es ([147.156.10.98]:13477 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP
-	id <S262905AbTCKMIg>; Tue, 11 Mar 2003 07:08:36 -0500
-Date: Tue, 11 Mar 2003 13:19:16 +0100
-To: linux-kernel@vger.kernel.org
-Subject: is irq smp affinity good for anything?
-Message-ID: <20030311121916.GA12625@pusa.informat.uv.es>
-References: <20030310222222.GA26247@pusa.informat.uv.es>
+	id <S262914AbTCKMa6>; Tue, 11 Mar 2003 07:30:58 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:48650 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S262915AbTCKMa5>; Tue, 11 Mar 2003 07:30:57 -0500
+Date: Tue, 11 Mar 2003 15:39:49 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: jamal <hadi@cyberus.ca>
+Cc: raarts@office.netland.nl, Linus Torvalds <torvalds@transmeta.com>,
+       david.knierim@tekelec.com, alexander@netintact.se,
+       Donald Becker <becker@scyld.com>, Greg KH <greg@kroah.com>,
+       Jeff Garzik <jgarzik@pobox.com>, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org, Robert Olsson <Robert.Olsson@data.slu.se>
+Subject: Re: [fixed] Re: PCI init issues
+Message-ID: <20030311153949.A24078@jurassic.park.msu.ru>
+References: <Pine.LNX.4.44.0303041046370.1426-100000@home.transmeta.com> <3E6601A3.2010201@netland.nl> <20030307221916.A3679@localhost.park.msu.ru> <20030310134122.S88416@shell.cyberus.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030310222222.GA26247@pusa.informat.uv.es>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030310134122.S88416@shell.cyberus.ca>; from hadi@cyberus.ca on Mon, Mar 10, 2003 at 01:43:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 10, 2003 at 01:43:50PM -0500, jamal wrote:
+> Is there more testing youd like to see done?
 
+Yes, it would be interesting to test this on similar motherboards
+(with E7500 chipset) which do work without that patch, just to make
+sure it doesn't break something.
 
-if IRQ affinity cannot help in interrupt latency and
-interrupt auto/balancing get's the same throughtput 
-as irq binding... what is irq smp affinity for???
+> Could we get this patch in to Marcello for inclusion in the pre 2.4.21?
 
-from this mail from intel
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.0/1886.html
-I understand that intel's interrupt auto/balancing works equal that manually
-tunning the interrupts....
+Why not, but I'd like to clean it up first (will do in a next
+couple of days).
 
-so?
-
-	Ulisses
-
-
-
-On Mon, Mar 10, 2003 at 11:22:22PM +0100, uaca@alumni.uv.es wrote:
-> 
-> Hi all
-> 
-> I have measured interrupt latency of a bi-processor system with akpm's intlat/timepeg
-> utilities and kernel 2.4.20. The system uses is a two-way PIII@800Mhz
-> -- Intel motherboard, ISP 2100 if I remember ok, with a SCSI disk on a aic-7896
-> 
-> I tried to know if I could reduce the latency of an interrupt handler by
-> binding this handler to a particular cpu and not allowing any other
-> interrupt to execute in that cpu.
-> 
-> I found that overall latency increases, but also the latency on both cpus,
-> that is, I could not reduce the latency on the interrupt I was interested
-> 
-> I also tried to disallowing just scsi & ethernet handlers to execute on the
-> cpu in wich I'm binding the interrupt handler I'm insterested with, I get
-> similar results
-> 
-> the interrupt handler I'm interested with is an ATM card receiving
-> around 6000 interrupts/second
-> 
-> any comment will be greatly appreciated
-> 
-> Thanks in advance
-> 
-> 
-> I attach a sample table
-> 
-> 	Ulisses
-> 
->                 Debian GNU/Linux: a dream come true
-> -----------------------------------------------------------------------------
-> "Computers are useless. They can only give answers."            Pablo Picasso
-> 
-> --->	Visita http://www.valux.org/ para saber acerca de la	<---
-> --->	Asociación Valenciana de Usuarios de Linux		<---
-> 
-> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-> 
-> bound-*      -> binding irq's to specific cpu's
-> not_bound-*  -> default irq balancing
-> idle-*       -> no extra load, just receiving interrupts, and using irq balancing 
->                 (not tcpdumping from the device)
-> 
-> *-round?     -> same test, just another sample
-> 
-> The following loads were added:
-> 
-> */cpu_io_load* -> adding a process load, and another process doing intensive I/O (write) +tcpdump
-> */cpu_load*    -> process load +tcpdump
-> */io_load*     -> I/O load +tcpdump
-> */no_load*     -> just tcpdump (always running on the ATM card)
-> 
-> time unit is microseconds
-> 
-> <config name>                                <cpu0>      <cpu1>     <both cpu>   <running time>
-> bound-round1/cpu_io_load.conf-capturando-atm 72721403.12 32011026.4 104732430.03 334000000
-> bound-round1/cpu_load.conf-capturando-atm 17330835.03 22209536.73 39540372.14 301000000
-> bound-round1/io_load.conf-capturando-atm 26490926.85 35473241.13 61964168.45 332000000
-> bound-round1/no_load.conf-capturando-atm 17723058.55 24066995.44 41790054.28 300000000
-> bound-round2/cpu_io_load.conf-capturando-atm 70139325.9899999 31673560.18 101812886.64 332000000
-> bound-round2/cpu_load.conf-capturando-atm 20834850.44 22103680.54 42938531.31 300000000
-> bound-round2/io_load.conf-capturando-atm 25995860.86 35030250.99 61026112.51 331000000
-> bound-round2/no_load.conf-capturando-atm 16926317.67 22890716.86 39817034.87 300000000
-> not_bound-round1/cpu_io_load.conf-capturando-atm 27857114.18 30214652.36 58071767.23 330000000
-> not_bound-round1/cpu_load.conf-capturando-atm 17861389.71 17826837.68 35688227.83 300000000
-> not_bound-round1/io_load.conf-capturando-atm 28921009.86 30368027.35 59289037.74 329000000
-> not_bound-round1/no_load.conf-capturando-atm 17095881.6 17804144.4 34900026.4 301000000
-> not_bound-round2/cpu_io_load.conf-capturando-atm 28958809.19 29576235.94 58535045.78 333000000
-> not_bound-round2/cpu_load.conf-capturando-atm 17654701.15 19004883.19 36659584.82 301000000
-> not_bound-round2/io_load.conf-capturando-atm 30383447.95 31634551.35 62017999.99 332000000
-> not_bound-round2/no_load.conf-capturando-atm 18103003.63 17573932.55 35676936.69 300000000
-> idle-round1/no_load.conf-idle 0 0 16030718.21 300000000
-> idle-round2/no_load.conf-idle 0 0 16106698.44 300000000
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+Ivan.

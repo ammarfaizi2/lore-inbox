@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284538AbRLRSlp>; Tue, 18 Dec 2001 13:41:45 -0500
+	id <S284518AbRLRSlo>; Tue, 18 Dec 2001 13:41:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284467AbRLRSkW>; Tue, 18 Dec 2001 13:40:22 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:40709 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S284545AbRLRSim>;
-	Tue, 18 Dec 2001 13:38:42 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112181837.VAA10394@ms2.inr.ac.ru>
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-To: Mika.Liljeberg@nokia.com
-Date: Tue, 18 Dec 2001 21:37:41 +0300 (MSK)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <F5FEAC407A690E42BD26E4F14530194229055F@esebe002.NOE.Nokia.com> from "Mika.Liljeberg@nokia.com" at Dec 18, 1 11:33:51 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S284537AbRLRSke>; Tue, 18 Dec 2001 13:40:34 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:2264 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S284538AbRLRSjd>; Tue, 18 Dec 2001 13:39:33 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D803@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'James A Sutherland'" <james@sutherland.net>,
+        Alexander Viro <viro@math.psu.edu>
+Cc: "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Booting a modular kernel through a multiple streams file
+Date: Tue, 18 Dec 2001 09:47:58 -0800
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> From: James A Sutherland [mailto:james@sutherland.net]
+> > Had you actually looked at initrd-related code?  I had and 
+> "bloody mess"
+> > is the kindest description I've been able to come up with.  
+> Even after
+> > cleanups and boy, were they painful...
+> 
+> With a choice between that, or teaching lilo, grub etc how to 
+> link modules - 
+> and how to read NTFS and XFS, and losing the ability to boot 
+> from fat, minix 
+> etc floppies, tftp or nfs servers - almost any level of 
+> existing nastiness 
+> would be preferable to that sort of insane codebloat!
 
-> from the SYN exchange (about 200 ms). So, something is wrong?
+1) GRUB can already do this
+2) Each bootloader doesn't need to link, the kernel includes the linker.
+(which after it does its job can be discarded and insmod used later on)
+3) Seeing how ugly everyone seems to think initrd is, this seems like a
+worthwhile option to consider.
 
-Well, the guess was right and this is pleasant.
-
-The only minor :-) question remained is to guess how rto could happen
-to be at this value. I will think. Well, if you have some guesses,
-please, tell me. Is this intel btw? I just see that other side
-sends bogus misaligned tcp options... not a problem, but it can
-be reason of funnyies with some probability.
-
-Alexey
+Regards -- Andy

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132805AbRDIRg6>; Mon, 9 Apr 2001 13:36:58 -0400
+	id <S132807AbRDIRk2>; Mon, 9 Apr 2001 13:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132806AbRDIRgs>; Mon, 9 Apr 2001 13:36:48 -0400
-Received: from mp-217-231-38.daxnet.no ([193.217.231.38]:38951 "EHLO
-	pilt.home.garstad.net") by vger.kernel.org with ESMTP
-	id <S132805AbRDIRgg> convert rfc822-to-8bit; Mon, 9 Apr 2001 13:36:36 -0400
-Message-ID: <006101c0c11b$a0a46520$01000001@pompel>
-From: "Ola Garstad" <olag@eunet.no>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: Reiser FS doesn't work with 2.4.4-pre1?
-Date: Mon, 9 Apr 2001 19:36:33 +0200
+	id <S132809AbRDIRkS>; Mon, 9 Apr 2001 13:40:18 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:49315 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132807AbRDIRkF>; Mon, 9 Apr 2001 13:40:05 -0400
+Message-ID: <3AD1F315.2B4ED639@uow.edu.au>
+Date: Mon, 09 Apr 2001 10:36:21 -0700
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+To: "Eloy A. Paris" <eparis@andrew.cmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Processes hanging in D state in 2.4.3 - any findings?
+In-Reply-To: <20010409114828.A25594@antenas>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After patching from 2.4.3 to 2.4.4-pre1 my reiserfs volumes failed to mount.
+"Eloy A. Paris" wrote:
+> 
+> Hi guys,
+> 
+> I have seen several messages posted to l-k about people reporting
+> processes (mozilla most of the time) hanging in the D state in 2.4.3,
+> but I haven't seen someone posting a possible explanation or solution
+> to the problem.
 
-I checked that reiserfs was included and tried to load the module manualy. This gave this result:
+It's due to problems in the rw_semaphore implementation.  These
+were basically unused for a year, then a couple of weeks ago
+we started using them, and the problems came to light.
 
-lib/modules/2.4.4-pre1/kernel/fs/reiserfs/reiserfs.o: unresolved symbol strstr
-/lib/modules/2.4.4-pre1/kernel/fs/reiserfs/reiserfs.o: insmod /lib/modules/2.4.4-pre1/kernel/fs/reiserfs/reiserfs.o failed
-/lib/modules/2.4.4-pre1/kernel/fs/reiserfs/reiserfs.o: insmod reiserfs failed
+> Anyone knows where does the problem lie, or a workaround for the
+> problem? I hate going through the fsck that happens when umount fails
+> because processes are in the D state...
 
+I put out a patch yesterday which will fix the problem.  Discussions
+are ongoing...
 
-
-
+-

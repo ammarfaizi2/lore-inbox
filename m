@@ -1,85 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVBVXOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVBVXPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVBVXOy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVBVXOx
+	id S261335AbVBVXPo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 18:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVBVXPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:14:53 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:22441 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261335AbVBVXOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:14:10 -0500
-Subject: Re: JFFS2 Extended attributes support & SELinux in handhelds
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: familiar-dev@handhelds.org, selinux@tycho.nsa.gov,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       familiar@handhelds.org, handhelds@handhelds.org,
-       kernel-discuss@handhelds.org, oe@handhelds.org, agruen@suse.de,
-       Russell Coker <rcoker@redhat.com>
-In-Reply-To: <1109096502.7813.5.camel@windu.rchland.ibm.com>
-References: <1109089039.4100.114.camel@localhost.localdomain>
-	 <1109096502.7813.5.camel@windu.rchland.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GIpU+2InhgwMn2MGFZRL"
-Date: Wed, 23 Feb 2005 00:13:37 +0100
-Message-Id: <1109114017.4100.139.camel@localhost.localdomain>
+	Tue, 22 Feb 2005 18:15:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:9431 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261335AbVBVXP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 18:15:26 -0500
+Date: Tue, 22 Feb 2005 15:20:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: olof@austin.ibm.com (Olof Johansson)
+Cc: jamie@shareable.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
+Message-Id: <20050222152027.7ace52e8.akpm@osdl.org>
+In-Reply-To: <20050222224256.GA31341@austin.ibm.com>
+References: <20050222190646.GA7079@austin.ibm.com>
+	<20050222115503.729cd17b.akpm@osdl.org>
+	<20050222210752.GG22555@mail.shareable.org>
+	<Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
+	<20050222223457.GK22555@mail.shareable.org>
+	<20050222224256.GA31341@austin.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+olof@austin.ibm.com (Olof Johansson) wrote:
+>
+> +		inc_preempt_count();
+> +		ret = get_user(curval, (int __user *)uaddr1);
+> +		dec_preempt_count();
 
---=-GIpU+2InhgwMn2MGFZRL
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+That _should_ generate a might_sleep() warning, except it looks like we
+forgot to add a check to get_user().
 
-El mar, 22-02-2005 a las 12:21 -0600, Josh Boyer escribi=F3:
-> You should send this to the JFFS2 development list.  The xattr support
-> is probably a JFFS3 candidate.
->=20
-> The mtd tree is the most current.  Any development would probably get
-> the most benefit from being done there.  Especially since JFFS3 doesn't
-> exist anywhere else :).
-
-As we have talked in #mtd, I've moved everything to JFFS3 code and
-re-worked the pretty basic stuff that was already done, as a really
-dirty night-hack.
-
-I hadn't time to fix the remaining errors (no, it's not a working
-patch), nor the remaining "stolen" ReiserFS code that needs to be
-modified in order to make JFFS3 happy with it (priv. directory handling
-in xattr initialization, etc).
-I'm going to have limited time for it, I have exams these two weeks and
-also finish some other work in progress.
-
-I've uploaded a patch that applies to 2.6.11-rc4 tree, with latest mtd
-tree included.
-
-http://pearls.tuxedo-es.org/patches/mtd-jffs3-xattr-20050222-2.6.11-rc4.pat=
-ch
-(998Kb)
-
-I would appreciate any collaboration and help with it.
-
-Cheers, thanks in advance and enjoy (not working) it.
-:)
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-GIpU+2InhgwMn2MGFZRL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCG7yhDcEopW8rLewRAsCcAJ0VszZeor6cyo4agnO8yTvmfkOJWACeM3yo
-WOcOVilekHd0pQYJaGjmBJA=
-=uEtg
------END PGP SIGNATURE-----
-
---=-GIpU+2InhgwMn2MGFZRL--
-
+It would be better to use __copy_from_user_inatomic() here, I think.

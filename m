@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264832AbUEYJtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUEYJ7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264832AbUEYJtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 05:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbUEYJtw
+	id S264827AbUEYJ7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 05:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYJ7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 05:49:52 -0400
-Received: from web13906.mail.yahoo.com ([216.136.175.69]:4868 "HELO
-	web13906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264833AbUEYJtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 05:49:35 -0400
-Message-ID: <20040525094933.37642.qmail@web13906.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Tue, 25 May 2004 02:49:33 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: Multicast problems between 2.4.20 and 2.4.21?
-To: Frank Lind <flind@haystack.mit.edu>, linux-kernel@vger.kernel.org
-Cc: knobi@knobisoft.de
-In-Reply-To: <40B25CFA.3000105@haystack.mit.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 May 2004 05:59:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53699 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264827AbUEYJ66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 05:58:58 -0400
+Date: Tue, 25 May 2004 02:58:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding slow down
+Message-Id: <20040525025826.6c31c71f.akpm@osdl.org>
+In-Reply-To: <20040525114258.GA6674@elte.hu>
+References: <20040524062754.GO1833@holomorphy.com>
+	<20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
+	<20040524005331.71465614.akpm@osdl.org>
+	<20040525103238.GA4212@elte.hu>
+	<20040525022941.62ab4cc4.akpm@osdl.org>
+	<20040525114258.GA6674@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Frank Lind <flind@haystack.mit.edu> wrote:
-> Hi,
-> 
-> Was there ever a resolution to the multicast issues with kernels
-> beyond 
-> 2.4.20?
+Ingo Molnar <mingo@elte.hu> wrote:
 >
-Hi Frank,
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Ingo Molnar <mingo@elte.hu> wrote:
+> > >
+> > >  with the patch below we will print a big fat warning. (I did not want to
+> > >  deny idle=poll altogether - future HT implementations might work fine
+> > >  with polling idle.)
+> > 
+> > idle=poll is handy when profiling the kernel with oprofile
+> > clock-unhalted events.  Because if you use the normal halt-based idle
+> > loop no profile "ticks" are accounted to idle time at all and the
+> > results are really hard to understand.
+> 
+> it makes it a bit more plausible, but kernel profiling based on ticks in
+> a HT environment is still quite unreliable, even with idle=poll. The HT
+> cores will yield to each other on various occasions - like spinlock
+> loops. This disproportionatly increases the hits of various looping
+> functions, creating false impressions of lock contention where there's
+> only little contention. Plus idle=poll is a constant ~20% performance
+> drain on the non-idle HT core, further distorting the profile. HT makes
+> profiling really hard, no matter what.
 
- no real resolution in my case, just a gross hack :-) With help from
-some network folks and a lot of experiments we found out that somehow
-IGMPv3 did cause the problems. The new protocol was introduced in
-2.4.20 or 2.4.21.
+But often one is looking for relativities rather than real absolute
+numbers.  (In which case the absent idle time doesn't matter, but it freaks
+me out...)
 
- The problem only shows up when using MC groups different from
-224.0.0.1. Assuming the correctness of the IGMPv3 code, the suspects
-were the switch (some CISCO 6000, with the latest - v3 capable-
-Firmware) or the network card (tg3). *I* am almost sure it is not the
-card. Exchanging the driver from a "working" kernel into the new kernel
-(and vice versa) did not change anything. The new kernel did not work
-with the old driver, and the old kernel worked fine with the new
-driver. So it is likely the switch.
+> but ... we agree on the warning printk, right?
 
- Solution for me was to force IGMPv2 instead of v3. The patch for taht
-looks like:
-
---- ../../../linux-2.4.23/net/ipv4/igmp.c       Fri Nov 28 19:26:21
-2003
-+++ ./igmp.c    Fri Jan  9 16:59:21 2004
-@@ -124,8 +124,13 @@
-
- #define IGMP_V1_SEEN(in_dev) ((in_dev)->mr_v1_seen && \
-                time_before(jiffies, (in_dev)->mr_v1_seen))
-+#if 0
- #define IGMP_V2_SEEN(in_dev) ((in_dev)->mr_v2_seen && \
-                time_before(jiffies, (in_dev)->mr_v2_seen))
-+#else
-+#define IGMP_V2_SEEN(in_dev) (1)
-+#endif
-+
-
- The same problem occured on another cluster (again tg3 cards - maybe
-there is something ...) and an HP/Procurve-41xx switch. Here we just
-switched to using 224.0.0.1 to solve the problem (we could not reboot
-to use a patched kernel).
-
-B^hCheers
-Martin
-
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+yup.

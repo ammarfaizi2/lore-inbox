@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTBTRMh>; Thu, 20 Feb 2003 12:12:37 -0500
+	id <S266285AbTBTRU7>; Thu, 20 Feb 2003 12:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbTBTRMh>; Thu, 20 Feb 2003 12:12:37 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63760 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S266161AbTBTRMf>; Thu, 20 Feb 2003 12:12:35 -0500
-Date: Thu, 20 Feb 2003 18:21:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: PaceBlade broken acpi/memory map
-Message-ID: <20030220172144.GA15016@elf.ucw.cz>
+	id <S266233AbTBTRUE>; Thu, 20 Feb 2003 12:20:04 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:5782 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265402AbTBTRS5>;
+	Thu, 20 Feb 2003 12:18:57 -0500
+Date: Thu, 20 Feb 2003 12:28:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Alex Larsson <alexl@redhat.com>, procps-list@redhat.com,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+Message-ID: <20030220172857.GH9800@gtf.org>
+References: <Pine.LNX.4.44.0302200902260.2493-100000@home.transmeta.com> <Pine.LNX.4.44.0302201810160.32017-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0302201810160.32017-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Feb 20, 2003 at 06:14:38PM +0100, Ingo Molnar wrote:
+> On Thu, 20 Feb 2003, Linus Torvalds wrote:
+> > It would just be _so_ much nicer if the threads would show up as
+> > subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable,
+> > and just generally more sane.
+> 
+> Al says that this cannot be done sanely, and is fraught with security
+> problems. I'd vote for it if it were possible. Al?
 
-I have PaceBlade here, and its memory map is wrong, which leads to
-ACPI refusing to load. [It does not mention "ACPI data" in the memory
-map at all!]
+Having the kernel automatically manage creation/destruction of
+directories is the sticking point, AFAIK.
 
-And when I work around that, it crashes in processing _STA/_INI
-methods. [Anyone from PaceBlade listening?]
+Why not use the "squid method"?  Create directories 00..FF, and sort the
+pids/tids into buckets that way.  Then you are not creating and
+destroying directories all the time.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+	Jeff
+
+
+

@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129107AbRBQJxZ>; Sat, 17 Feb 2001 04:53:25 -0500
+	id <S130143AbRBQJ7G>; Sat, 17 Feb 2001 04:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129204AbRBQJxP>; Sat, 17 Feb 2001 04:53:15 -0500
-Received: from mercury.ST.HMC.Edu ([134.173.57.219]:2052 "HELO
-	mercury.st.hmc.edu") by vger.kernel.org with SMTP
-	id <S129107AbRBQJxB>; Sat, 17 Feb 2001 04:53:01 -0500
-From: Nate Eldredge <neldredge@hmc.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14990.18933.849551.526672@mercury.st.hmc.edu>
-Date: Sat, 17 Feb 2001 01:52:53 -0800
+	id <S129204AbRBQJ64>; Sat, 17 Feb 2001 04:58:56 -0500
+Received: from p3EE3C95E.dip.t-dialin.net ([62.227.201.94]:14596 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S130143AbRBQJ6n>; Sat, 17 Feb 2001 04:58:43 -0500
+Date: Sat, 17 Feb 2001 10:58:40 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.1ac17 hang on mounting loopback fs
-X-Mailer: VM 6.76 under Emacs 20.5.1
+Subject: Re: IBM-DTLA-307045 very slow under 2.2.x
+Message-ID: <20010217105840.B1436@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010217011854.B719@daikokuya.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010217011854.B719@daikokuya.demon.co.uk>; from neil@daikokuya.demon.co.uk on Sat, Feb 17, 2001 at 01:18:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one should be easy to track down, it's reproducible (2 for 2 so
-far).
+On Sat, 17 Feb 2001, Neil Booth wrote:
 
-Kernel 2.4.1ac17 compiled by gcc 2.95.2.
+> I have a SOYO "SY-5EMA+ Super 7" motherboard, with a K6-2 processor.
+> The 45 Gig IBM drive hangs the BIOS if I let it autodetect it, so I
+> turn off autodetection for IDE2 primary where it sits.  This is probably
+> not relevant.
 
-Scenario: In single-user mode; only user process running is /bin/bash
-(pid 1).  Only fs'es mounted are / (ro), /spare (rw) (both ext2),
-/proc.
+Not really. IBM has software which can make the drive available if you
+need the BIOS to detect (if you want to boot from it) which "works for
+my sister", on an old PCChips M577 (IBM 6x86 MX/233).
 
-# mount -t ext2 -o loop /spare/i486-linuxaout.img /spare/mnt
-loop: enabling 8 loop devices
+> My problem is that "hdparm -tT dev/hdc" gives atrocious
+> performance:-
+> 
+> /dev/hdc:
+>  Timing buffered disk reads:  64 MB in 22.81 seconds =  2.81 MB/sec
 
-then it hangs.  No ctrl-C etc.
+It's very low. I've never tried hooking my IBM to my Tyan Trinity K6-2
+board because, reportedly, that one crashes with drives larger than 36
+GB as well (Award 4.51 crap), and the board only has FreeBSD on its
+attached disks.
 
-I did Ctrl+ScrollLock.  The entry for mount had the following (copied
-manually):
+sudo /sbin/hdparm -X69 -t /dev/hde
 
-mount D C7E33E78 5012  23   1  (NOTLB)
-Call trace: c012f17a c0130167 c0151dc1 c01267af c0133102 c013331c
-c0108e84 c0133e65 c0133c9c [maybe 3cac] c013401c c0108d43
+/dev/hde:
+ setting xfermode to 69 (UltraDMA mode5)
+ Timing buffered disk reads:  64 MB in  1.79 seconds = 35.75 MB/sec
 
-Appropriate lines of System.map, in order:
+/dev/hde:
+ setting xfermode to 66 (UltraDMA mode2)
+ Timing buffered disk reads:  64 MB in  2.70 seconds = 23.70 MB/sec
 
-c012f110 T __wait_on_buffer
-c0130124 T bread
-c0151d0c T ext2_read_super
-c0126740 T kmalloc
-c0132ffc t read_super
-c01331d0 t get_sb_bdev
-c0108e50 t error_code
-c0133cec T do_mount
-c0133c4c t copy_mount_options [in either case]
-c0133fa0 T sys_mount
-c0108d10 T system_call
+This is on a Promise PDC 20265R. On VIA, you might not get more than
+like 18 MB/s.
 
-The image file in question is ext2, about 20 MB, 1K blocksize.  loop.o
-is compiled as a module.
+> hda: QUANTUM FIREBALL CR13.0A, 12416MB w/418kB Cache, CHS=1582/255/63
+> hdc: IBM-DTLA-307045, 43979MB w/1916kB Cache, CHS=5606/255/63
 
-Incidentally this also happened under more normal circumstances, when
-it tried to mount the fs from fstab.  I haven't yet booted without
-mounting that fs.
+It does not tell anything about DMA here,
 
-Btw, this machine has a FIC PA-2013 motherboard with VIA chipset, and
-I have CONFIG_IDEDMA_PCI_AUTO enabled.  But this doesn't seem like the
-other trouble such machines were having.
+> Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YM0YML23878
+> Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+> RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+> BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
+> CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
+> IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+> PIO modes: pio0 pio1 pio2 pio3 pio4 
+> DMA modes: mdma0 mdma1 *mdma2 udma0 udma1 udma2 udma3 udma4 udma5 
+> 
+> Trying to set the DMA mode with -X34 and -d1 seems to have no effect.
 
-I'm happy to provide more info, test patches, etc.  Please CC me
-directly if convenient as I can only read the list through a web
-gateway, which is slow.
+but here, it's using multi-word DMA. Why don't you set UDMA? Try -X66
+-d1.
+
+If your kernel does not have the IDE patches, get them from
+ftp.XX.kernel.org/pub/linux/kernel/people/hedrick/ and rebuild your
+kernel and see if that helps.
 
 -- 
-
-Nate Eldredge
-neldredge@hmc.edu
+Matthias Andree

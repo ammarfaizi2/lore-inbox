@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVBUSCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVBUSLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbVBUSCS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 13:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVBUSCS
+	id S262059AbVBUSLb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 13:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVBUSLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 13:02:18 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:20242 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262056AbVBUSCR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 13:02:17 -0500
-Message-ID: <421A2355.1030605@domdv.de>
-Date: Mon, 21 Feb 2005 19:07:17 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Mon, 21 Feb 2005 13:11:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58322 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262059AbVBUSL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 13:11:28 -0500
+Date: Mon, 21 Feb 2005 18:11:06 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>, Oliver Neukum <oliver@neukum.org>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6: drivers/input/power.c is never built
+In-Reply-To: <1108794519.4098.24.camel@desktop.cunningham.myip.net.au>
+Message-ID: <Pine.LNX.4.56.0502211810360.13423@pentafluge.infradead.org>
+References: <047401c515bb$437b5130$0f01a8c0@max>  <20050218213801.GA3544@ucw.cz>
+ <20050218233148.GA1628@elf.ucw.cz>  <200502182158.34910.dtor_core@ameritech.net>
+ <1108794519.4098.24.camel@desktop.cunningham.myip.net.au>
 MIME-Version: 1.0
-To: Alex Adriaanse <alex.adriaanse@gmail.com>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Odd data corruption problem with LVM/ReiserFS
-References: <93ca3067050220212518d94666@mail.gmail.com>	 <4219C811.5070906@domdv.de> <93ca30670502210844578dce95@mail.gmail.com>
-In-Reply-To: <93ca30670502210844578dce95@mail.gmail.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Adriaanse wrote:
-> The weird thing is I did not see any I/O errors in my logs, and
-> running find on /var worked without a problem.  By the way, did you
-> take any DM snapshots when you experienced that corruption?
 
-No, no snapshots. Just working find on a large dataset (source tree, 
-about 16GB). The fun part is that I got the I/O errors for varying 
-diretories and 'ls'-sing thes directories after find failed, too. 
-However a follow-up tar to the ieee1394 disk to salvage the data 
-actually could access all data correctly. One day before I did 
-experience the same symptom but did reboot. This caused actual damage 
-all over the place and I had to restore from the last checkpoint I made.
+> > I think we need a generic way of delivering system status changes to
+> > userspace. Something like acpid but bigger than that, something not
+> > so heavily oriented on ACPI. I wonder if that kernel connector patch
+> > should be looked at.
+> 
+> Absolutely. I've been thinking about this too, but haven't yet found the
+> time to put it down on paper/email yet.
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Checkout DBUS. Its very nice. 

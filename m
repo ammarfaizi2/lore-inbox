@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTDGDmz (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTDGDmy (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:42:54 -0400
-Received: from chii.cinet.co.jp ([61.197.228.217]:45441 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263239AbTDGDlS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:41:18 -0400
-Date: Mon, 7 Apr 2003 12:50:59 +0900
+	id S263241AbTDGDpo (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTDGDpo (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:45:44 -0400
+Received: from chii.cinet.co.jp ([61.197.228.217]:47233 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263241AbTDGDpC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:45:02 -0400
+Date: Mon, 7 Apr 2003 12:54:36 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Simmons <jsimmons@infradead.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (4/9) DMA
-Message-ID: <20030407035059.GD4840@yuzuki.cinet.co.jp>
+Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (6/9) japanese "kanji"
+Message-ID: <20030407035436.GF4840@yuzuki.cinet.co.jp>
 References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -21,928 +22,637 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.66-ac2. (4/9)
+against 2.5.66-ac2. (6/9)
 
-DMA support for PC98.
-For fix differences of IO port assign and memory addressing.
-PC98 has 'page register' to expand DMA accesible address.
+Add japanese kanji character support to PC98 console.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux-2.5.66-bk8/include/asm-i386/dma.h linux98-2.5.66-bk8/include/asm-i386/dma.h
---- linux-2.5.66-bk8/include/asm-i386/dma.h	2003-04-02 22:10:44.000000000 +0900
-+++ linux98-2.5.66-bk8/include/asm-i386/dma.h	2003-04-02 22:31:58.000000000 +0900
-@@ -1,298 +1,10 @@
--/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-- * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-- * Written by Hennus Bergman, 1992.
-- * High DMA channel support & info by Hannu Savolainen
-- * and John Boyd, Nov. 1992.
-- */
--
- #ifndef _ASM_DMA_H
- #define _ASM_DMA_H
+diff -Nru linux/drivers/char/console_macros.h linux98/drivers/char/console_macros.h
+--- linux/drivers/char/console_macros.h	2003-03-23 21:55:14.000000000 +0900
++++ linux98/drivers/char/console_macros.h	2003-03-24 00:13:03.000000000 +0900
+@@ -69,6 +69,16 @@
+ #define complement_mask (vc_cons[currcons].d->vc_complement_mask)
+ #define s_complement_mask (vc_cons[currcons].d->vc_s_complement_mask)
+ #define hi_font_mask	(vc_cons[currcons].d->vc_hi_font_mask)
++#define kanji_mode     (vc_cons[currcons].d->vc_kanji_mode)
++#define s_kanji_mode   (vc_cons[currcons].d->vc_s_kanji_mode)
++#define kanji_char1    (vc_cons[currcons].d->vc_kanji_char1)
++#define translate_ex   (vc_cons[currcons].d->vc_translate_ex)
++#define G0_charset_ex  (vc_cons[currcons].d->vc_G0_charset_ex)
++#define G1_charset_ex  (vc_cons[currcons].d->vc_G1_charset_ex)
++#define saved_G0_ex    (vc_cons[currcons].d->vc_saved_G0_ex)
++#define saved_G1_ex    (vc_cons[currcons].d->vc_saved_G1_ex)
++#define kanji_jis_mode (vc_cons[currcons].d->vc_kanji_jis_mode)
++#define s_kanji_jis_mode (vc_cons[currcons].d->vc_s_kanji_jis_mode)
  
--#include <linux/config.h>
--#include <linux/spinlock.h>	/* And spinlocks */
--#include <asm/io.h>		/* need byte IO */
--#include <linux/delay.h>
--
--
--#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
--#define dma_outb	outb_p
--#else
--#define dma_outb	outb
--#endif
--
--#define dma_inb		inb
--
--/*
-- * NOTES about DMA transfers:
-- *
-- *  controller 1: channels 0-3, byte operations, ports 00-1F
-- *  controller 2: channels 4-7, word operations, ports C0-DF
-- *
-- *  - ALL registers are 8 bits only, regardless of transfer size
-- *  - channel 4 is not used - cascades 1 into 2.
-- *  - channels 0-3 are byte - addresses/counts are for physical bytes
-- *  - channels 5-7 are word - addresses/counts are for physical words
-- *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-- *  - transfer count loaded to registers is 1 less than actual count
-- *  - controller 2 offsets are all even (2x offsets for controller 1)
-- *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-- *  - page registers for 0-3 use bit 0, represent 64K pages
-- *
-- * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-- * Note that addresses loaded into registers must be _physical_ addresses,
-- * not logical addresses (which may differ if paging is active).
-- *
-- *  Address mapping for channels 0-3:
-- *
-- *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-- *    |  ...  |   |  ... |   |  ... |
-- *    |  ...  |   |  ... |   |  ... |
-- *    |  ...  |   |  ... |   |  ... |
-- *   P7  ...  P0  A7 ... A0  A7 ... A0   
-- * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-- *
-- *  Address mapping for channels 5-7:
-- *
-- *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-- *    |  ...  |   \   \   ... \  \  \  ... \  \
-- *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-- *    |  ...  |     \   \   ... \  \  \  ... \
-- *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-- * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-- *
-- * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-- * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-- * the hardware level, so odd-byte transfers aren't possible).
-- *
-- * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-- * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-- * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-- *
-- */
--
--#define MAX_DMA_CHANNELS	8
--
--/* The maximum address that we can perform a DMA transfer to on this platform */
--#define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
--
--/* 8237 DMA controllers */
--#define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
--#define IO_DMA2_BASE	0xC0	/* 16 bit master DMA, ch 4(=slave input)..7 */
--
--/* DMA controller registers */
--#define DMA1_CMD_REG		0x08	/* command register (w) */
--#define DMA1_STAT_REG		0x08	/* status register (r) */
--#define DMA1_REQ_REG            0x09    /* request register (w) */
--#define DMA1_MASK_REG		0x0A	/* single-channel mask (w) */
--#define DMA1_MODE_REG		0x0B	/* mode register (w) */
--#define DMA1_CLEAR_FF_REG	0x0C	/* clear pointer flip-flop (w) */
--#define DMA1_TEMP_REG           0x0D    /* Temporary Register (r) */
--#define DMA1_RESET_REG		0x0D	/* Master Clear (w) */
--#define DMA1_CLR_MASK_REG       0x0E    /* Clear Mask */
--#define DMA1_MASK_ALL_REG       0x0F    /* all-channels mask (w) */
--
--#define DMA2_CMD_REG		0xD0	/* command register (w) */
--#define DMA2_STAT_REG		0xD0	/* status register (r) */
--#define DMA2_REQ_REG            0xD2    /* request register (w) */
--#define DMA2_MASK_REG		0xD4	/* single-channel mask (w) */
--#define DMA2_MODE_REG		0xD6	/* mode register (w) */
--#define DMA2_CLEAR_FF_REG	0xD8	/* clear pointer flip-flop (w) */
--#define DMA2_TEMP_REG           0xDA    /* Temporary Register (r) */
--#define DMA2_RESET_REG		0xDA	/* Master Clear (w) */
--#define DMA2_CLR_MASK_REG       0xDC    /* Clear Mask */
--#define DMA2_MASK_ALL_REG       0xDE    /* all-channels mask (w) */
--
--#define DMA_ADDR_0              0x00    /* DMA address registers */
--#define DMA_ADDR_1              0x02
--#define DMA_ADDR_2              0x04
--#define DMA_ADDR_3              0x06
--#define DMA_ADDR_4              0xC0
--#define DMA_ADDR_5              0xC4
--#define DMA_ADDR_6              0xC8
--#define DMA_ADDR_7              0xCC
--
--#define DMA_CNT_0               0x01    /* DMA count registers */
--#define DMA_CNT_1               0x03
--#define DMA_CNT_2               0x05
--#define DMA_CNT_3               0x07
--#define DMA_CNT_4               0xC2
--#define DMA_CNT_5               0xC6
--#define DMA_CNT_6               0xCA
--#define DMA_CNT_7               0xCE
--
--#define DMA_PAGE_0              0x87    /* DMA page registers */
--#define DMA_PAGE_1              0x83
--#define DMA_PAGE_2              0x81
--#define DMA_PAGE_3              0x82
--#define DMA_PAGE_5              0x8B
--#define DMA_PAGE_6              0x89
--#define DMA_PAGE_7              0x8A
--
--#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
--#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
--#define DMA_MODE_CASCADE 0xC0   /* pass thru DREQ->HRQ, DACK<-HLDA only */
--
--#define DMA_AUTOINIT	0x10
--
--
--extern spinlock_t  dma_spin_lock;
--
--static __inline__ unsigned long claim_dma_lock(void)
--{
--	unsigned long flags;
--	spin_lock_irqsave(&dma_spin_lock, flags);
--	return flags;
--}
--
--static __inline__ void release_dma_lock(unsigned long flags)
--{
--	spin_unlock_irqrestore(&dma_spin_lock, flags);
--}
--
--/* enable/disable a specific DMA channel */
--static __inline__ void enable_dma(unsigned int dmanr)
--{
--	if (dmanr<=3)
--		dma_outb(dmanr,  DMA1_MASK_REG);
--	else
--		dma_outb(dmanr & 3,  DMA2_MASK_REG);
--}
--
--static __inline__ void disable_dma(unsigned int dmanr)
--{
--	if (dmanr<=3)
--		dma_outb(dmanr | 4,  DMA1_MASK_REG);
--	else
--		dma_outb((dmanr & 3) | 4,  DMA2_MASK_REG);
--}
--
--/* Clear the 'DMA Pointer Flip Flop'.
-- * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-- * Use this once to initialize the FF to a known state.
-- * After that, keep track of it. :-)
-- * --- In order to do that, the DMA routines below should ---
-- * --- only be used while holding the DMA lock ! ---
-- */
--static __inline__ void clear_dma_ff(unsigned int dmanr)
--{
--	if (dmanr<=3)
--		dma_outb(0,  DMA1_CLEAR_FF_REG);
--	else
--		dma_outb(0,  DMA2_CLEAR_FF_REG);
--}
--
--/* set mode (above) for a specific DMA channel */
--static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
--{
--	if (dmanr<=3)
--		dma_outb(mode | dmanr,  DMA1_MODE_REG);
--	else
--		dma_outb(mode | (dmanr&3),  DMA2_MODE_REG);
--}
--
--/* Set only the page register bits of the transfer address.
-- * This is used for successive transfers when we know the contents of
-- * the lower 16 bits of the DMA current address register, but a 64k boundary
-- * may have been crossed.
-- */
--static __inline__ void set_dma_page(unsigned int dmanr, char pagenr)
--{
--	switch(dmanr) {
--		case 0:
--			dma_outb(pagenr, DMA_PAGE_0);
--			break;
--		case 1:
--			dma_outb(pagenr, DMA_PAGE_1);
--			break;
--		case 2:
--			dma_outb(pagenr, DMA_PAGE_2);
--			break;
--		case 3:
--			dma_outb(pagenr, DMA_PAGE_3);
--			break;
--		case 5:
--			dma_outb(pagenr & 0xfe, DMA_PAGE_5);
--			break;
--		case 6:
--			dma_outb(pagenr & 0xfe, DMA_PAGE_6);
--			break;
--		case 7:
--			dma_outb(pagenr & 0xfe, DMA_PAGE_7);
--			break;
--	}
--}
--
--
--/* Set transfer address & page bits for specific DMA channel.
-- * Assumes dma flipflop is clear.
-- */
--static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
--{
--	set_dma_page(dmanr, a>>16);
--	if (dmanr <= 3)  {
--	    dma_outb( a & 0xff, ((dmanr&3)<<1) + IO_DMA1_BASE );
--            dma_outb( (a>>8) & 0xff, ((dmanr&3)<<1) + IO_DMA1_BASE );
--	}  else  {
--	    dma_outb( (a>>1) & 0xff, ((dmanr&3)<<2) + IO_DMA2_BASE );
--	    dma_outb( (a>>9) & 0xff, ((dmanr&3)<<2) + IO_DMA2_BASE );
--	}
--}
--
--
--/* Set transfer size (max 64k for DMA0..3, 128k for DMA5..7) for
-- * a specific DMA channel.
-- * You must ensure the parameters are valid.
-- * NOTE: from a manual: "the number of transfers is one more
-- * than the initial word count"! This is taken into account.
-- * Assumes dma flip-flop is clear.
-- * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-- */
--static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
--{
--        count--;
--	if (dmanr <= 3)  {
--	    dma_outb( count & 0xff, ((dmanr&3)<<1) + 1 + IO_DMA1_BASE );
--	    dma_outb( (count>>8) & 0xff, ((dmanr&3)<<1) + 1 + IO_DMA1_BASE );
--        } else {
--	    dma_outb( (count>>1) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
--	    dma_outb( (count>>9) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
--        }
--}
--
--
--/* Get DMA residue count. After a DMA transfer, this
-- * should return zero. Reading this while a DMA transfer is
-- * still in progress will return unpredictable results.
-- * If called before the channel has been used, it may return 1.
-- * Otherwise, it returns the number of _bytes_ left to transfer.
-- *
-- * Assumes DMA flip-flop is clear.
-- */
--static __inline__ int get_dma_residue(unsigned int dmanr)
--{
--	unsigned int io_port = (dmanr<=3)? ((dmanr&3)<<1) + 1 + IO_DMA1_BASE
--					 : ((dmanr&3)<<2) + 2 + IO_DMA2_BASE;
--
--	/* using short to get 16-bit wrap around */
--	unsigned short count;
--
--	count = 1 + dma_inb(io_port);
--	count += dma_inb(io_port) << 8;
--	
--	return (dmanr<=3)? count : (count<<1);
--}
--
--
--/* These are in kernel/dma.c: */
--extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
--extern void free_dma(unsigned int dmanr);	/* release it again */
--
--/* From PCI */
--
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
-+#ifdef CONFIG_X86_PC9800
-+#include <asm-i386/mach-pc9800/mach_dma.h>
- #else
--#define isa_dma_bridge_buggy 	(0)
-+#include <asm-i386/mach-default/mach_dma.h>
+ #define vcmode		(vt_cons[currcons]->vc_mode)
+ 
+diff -Nru linux/drivers/char/vt.c linux98/drivers/char/vt.c
+--- linux/drivers/char/vt.c	2003-03-23 21:55:14.000000000 +0900
++++ linux98/drivers/char/vt.c	2003-03-24 00:13:03.000000000 +0900
+@@ -155,6 +155,10 @@
+ static void blank_screen(unsigned long dummy);
+ static void gotoxy(int currcons, int new_x, int new_y);
+ static void save_cur(int currcons);
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons);
++static void restore_cur_kanji(int currcons);
++#endif
+ static void reset_terminal(int currcons, int do_clear);
+ static void con_flush_chars(struct tty_struct *tty);
+ static void set_vesa_blanking(unsigned long arg);
+@@ -439,6 +443,25 @@
+ 		do_update_region(currcons, (unsigned long) p, count);
+ }
+ 
++#ifdef CONFIG_KANJI
++/* can called form keyboard.c */
++void do_change_kanji_mode(int currcons, unsigned long mode)
++{
++	switch (mode) {
++	case 0:
++		kanji_mode = EUC_CODE;
++		break;
++	case 1:
++		kanji_mode = JIS_CODE;
++		break;
++	case 2:
++		kanji_mode = SJIS_CODE;
++		break;
++	}
++	kanji_char1 = 0;
++}
++#endif /* CONFIG_KANJI */
++
+ /* used by selection: complement pointer position */
+ void complement_pos(int currcons, int offset)
+ {
+@@ -1103,6 +1126,9 @@
+ 				translate = set_translate(charset == 0
+ 						? G0_charset
+ 						: G1_charset,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = (charset == 0 ? G0_charset_ex : G1_charset_ex);
++#endif
+ 				disp_ctrl = 0;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1111,6 +1137,9 @@
+ 				  * chars < 32 be displayed as ROM chars.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1119,6 +1148,9 @@
+ 				  * high bit before displaying as ROM char.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 1;
+ 				break;
+@@ -1332,6 +1364,22 @@
+ 		case 14: /* set vesa powerdown interval */
+ 			vesa_off_interval = ((par[1] < 60) ? par[1] : 60) * 60 * HZ;
+ 			break;
++#ifdef CONFIG_KANJI
++		case 98:
++			if (par[1] < 10) /* change kanji mode */
++				do_change_kanji_mode(currcons, par[1]); /* 0208 */
++			else if (par[1] == 10) { /* save restore kanji mode */
++				switch (par[2]) {
++				case 1:
++					save_cur_kanji(currcons);
++					break;
++				case 2:
++					restore_cur_kanji(currcons);
++					break;
++				}
++			}
++			break;
++#endif /* CONFIG_KANJI */
+ 	}
+ }
+ 
+@@ -1409,8 +1457,26 @@
+ 	need_wrap = 0;
+ }
+ 
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons)
++{
++        s_kanji_mode = kanji_mode;
++        s_kanji_jis_mode = kanji_jis_mode;
++}
++
++static void restore_cur_kanji(int currcons)
++{
++        kanji_mode = s_kanji_mode;
++        kanji_jis_mode = s_kanji_jis_mode;
++        kanji_char1 = 0;
++}
++#endif
++
+ enum { ESnormal, ESesc, ESsquare, ESgetpars, ESgotpars, ESfunckey,
+ 	EShash, ESsetG0, ESsetG1, ESpercent, ESignore, ESnonstd,
++#ifdef CONFIG_KANJI
++	ESsetJIS, ESsetJIS2,
++#endif
+ 	ESpalette };
+ 
+ /* console_sem is held (except via vc_init()) */
+@@ -1420,9 +1486,18 @@
+ 	bottom		= video_num_lines;
+ 	vc_state	= ESnormal;
+ 	ques		= 0;
++#ifdef CONFIG_KANJI
++	translate	= set_translate(JP_MAP, currcons);
++	translate_ex    = 0;
++	G0_charset      = JP_MAP;
++	G0_charset_ex   = 0;
++	G1_charset      = GRAF_MAP;
++	G1_charset_ex   = 0;
++#else
+ 	translate	= set_translate(LAT1_MAP,currcons);
+ 	G0_charset	= LAT1_MAP;
+ 	G1_charset	= GRAF_MAP;
++#endif
+ 	charset		= 0;
+ 	need_wrap	= 0;
+ 	report_mouse	= 0;
+@@ -1464,6 +1539,12 @@
+ 	bell_pitch = DEFAULT_BELL_PITCH;
+ 	bell_duration = DEFAULT_BELL_DURATION;
+ 
++#ifdef CONFIG_KANJI
++	kanji_mode = EUC_CODE;
++	kanji_char1 = 0;
++	kanji_jis_mode = JIS_CODE_ASCII;
++#endif
++
+ 	gotoxy(currcons,0,0);
+ 	save_cur(currcons);
+ 	if (do_clear)
+@@ -1506,11 +1587,17 @@
+ 	case 14:
+ 		charset = 1;
+ 		translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G1_charset_ex;
++#endif
+ 		disp_ctrl = 1;
+ 		return;
+ 	case 15:
+ 		charset = 0;
+ 		translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G0_charset_ex;
++#endif
+ 		disp_ctrl = 0;
+ 		return;
+ 	case 24: case 26:
+@@ -1567,6 +1654,11 @@
+ 		case ')':
+ 			vc_state = ESsetG1;
+ 			return;
++#ifdef CONFIG_KANJI
++		case '$':
++			vc_state = ESsetJIS;
++			return;
++#endif
+ 		case '#':
+ 			vc_state = EShash;
+ 			return;
+@@ -1816,8 +1908,25 @@
+ 			G0_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G0_charset = USER_MAP;
+-		if (charset == 0)
++#ifdef CONFIG_KANJI
++		G0_charset_ex = 0;
++		if (c == 'J')
++			G0_charset = JP_MAP;
++		else if (c == 'I'){
++			G0_charset = JP_MAP;
++			G0_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 0) {
+ 			translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G0_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
+ 		vc_state = ESnormal;
+ 		return;
+ 	case ESsetG1:
+@@ -1829,10 +1938,51 @@
+ 			G1_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G1_charset = USER_MAP;
+-		if (charset == 1)
++#ifdef CONFIG_KANJI
++		G1_charset_ex = 0;
++		if (c == 'J')
++			G1_charset = JP_MAP;
++		else if (c == 'I') {
++			G1_charset = JP_MAP;
++			G1_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 1) {
+ 			translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G1_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
++		vc_state = ESnormal;
++		return;
++#ifdef CONFIG_KANJI
++	case ESsetJIS:
++		if (c == '@')
++			kanji_jis_mode = JIS_CODE_78;
++		else if (c == 'B')
++			kanji_jis_mode = JIS_CODE_83;
++		else if (c == '('){
++			vc_state = ESsetJIS2;
++			return;
++		} else {
++		vc_state = ESnormal;
++		return;
++		}
+ 		vc_state = ESnormal;
++		kanji_char1 = 0;
+ 		return;
++	case ESsetJIS2:
++		if (c == 'D'){
++			kanji_jis_mode = JIS_CODE_90;
++			kanji_char1 = 0;
++		}
++		vc_state = ESnormal;
++		return;
++#endif /* CONIFG_KANJI */
+ 	default:
+ 		vc_state = ESnormal;
+ 	}
+@@ -1864,7 +2014,7 @@
+ 	}
  #endif
  
- #endif /* _ASM_DMA_H */
-diff -Nru linux-2.5.66-bk8/include/asm-i386/mach-default/mach_dma.h linux98-2.5.66-bk8/include/asm-i386/mach-default/mach_dma.h
---- linux-2.5.66-bk8/include/asm-i386/mach-default/mach_dma.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.66-bk8/include/asm-i386/mach-default/mach_dma.h	2003-04-02 22:31:58.000000000 +0900
-@@ -0,0 +1,298 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
-+ */
-+
-+#ifndef _ASM_MACH_DMA_H
-+#define _ASM_MACH_DMA_H
-+
-+#include <linux/config.h>
-+#include <linux/spinlock.h>	/* And spinlocks */
-+#include <asm/io.h>		/* need byte IO */
-+#include <linux/delay.h>
-+
-+
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
-+#endif
-+
-+#define dma_inb		inb
-+
-+/*
-+ * NOTES about DMA transfers:
-+ *
-+ *  controller 1: channels 0-3, byte operations, ports 00-1F
-+ *  controller 2: channels 4-7, word operations, ports C0-DF
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channel 4 is not used - cascades 1 into 2.
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - channels 5-7 are word - addresses/counts are for physical words
-+ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - controller 2 offsets are all even (2x offsets for controller 1)
-+ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  A7 ... A0  A7 ... A0   
-+ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-+ *
-+ *  Address mapping for channels 5-7:
-+ *
-+ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-+ *    |  ...  |   \   \   ... \  \  \  ... \  \
-+ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-+ *    |  ...  |     \   \   ... \  \  \  ... \
-+ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-+ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-+ *
-+ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-+ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-+ * the hardware level, so odd-byte transfers aren't possible).
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-+ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-+ *
-+ */
-+
-+#define MAX_DMA_CHANNELS	8
-+
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
-+
-+/* 8237 DMA controllers */
-+#define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
-+#define IO_DMA2_BASE	0xC0	/* 16 bit master DMA, ch 4(=slave input)..7 */
-+
-+/* DMA controller registers */
-+#define DMA1_CMD_REG		0x08	/* command register (w) */
-+#define DMA1_STAT_REG		0x08	/* status register (r) */
-+#define DMA1_REQ_REG            0x09    /* request register (w) */
-+#define DMA1_MASK_REG		0x0A	/* single-channel mask (w) */
-+#define DMA1_MODE_REG		0x0B	/* mode register (w) */
-+#define DMA1_CLEAR_FF_REG	0x0C	/* clear pointer flip-flop (w) */
-+#define DMA1_TEMP_REG           0x0D    /* Temporary Register (r) */
-+#define DMA1_RESET_REG		0x0D	/* Master Clear (w) */
-+#define DMA1_CLR_MASK_REG       0x0E    /* Clear Mask */
-+#define DMA1_MASK_ALL_REG       0x0F    /* all-channels mask (w) */
-+
-+#define DMA2_CMD_REG		0xD0	/* command register (w) */
-+#define DMA2_STAT_REG		0xD0	/* status register (r) */
-+#define DMA2_REQ_REG            0xD2    /* request register (w) */
-+#define DMA2_MASK_REG		0xD4	/* single-channel mask (w) */
-+#define DMA2_MODE_REG		0xD6	/* mode register (w) */
-+#define DMA2_CLEAR_FF_REG	0xD8	/* clear pointer flip-flop (w) */
-+#define DMA2_TEMP_REG           0xDA    /* Temporary Register (r) */
-+#define DMA2_RESET_REG		0xDA	/* Master Clear (w) */
-+#define DMA2_CLR_MASK_REG       0xDC    /* Clear Mask */
-+#define DMA2_MASK_ALL_REG       0xDE    /* all-channels mask (w) */
-+
-+#define DMA_ADDR_0              0x00    /* DMA address registers */
-+#define DMA_ADDR_1              0x02
-+#define DMA_ADDR_2              0x04
-+#define DMA_ADDR_3              0x06
-+#define DMA_ADDR_4              0xC0
-+#define DMA_ADDR_5              0xC4
-+#define DMA_ADDR_6              0xC8
-+#define DMA_ADDR_7              0xCC
-+
-+#define DMA_CNT_0               0x01    /* DMA count registers */
-+#define DMA_CNT_1               0x03
-+#define DMA_CNT_2               0x05
-+#define DMA_CNT_3               0x07
-+#define DMA_CNT_4               0xC2
-+#define DMA_CNT_5               0xC6
-+#define DMA_CNT_6               0xCA
-+#define DMA_CNT_7               0xCE
-+
-+#define DMA_PAGE_0              0x87    /* DMA page registers */
-+#define DMA_PAGE_1              0x83
-+#define DMA_PAGE_2              0x81
-+#define DMA_PAGE_3              0x82
-+#define DMA_PAGE_5              0x8B
-+#define DMA_PAGE_6              0x89
-+#define DMA_PAGE_7              0x8A
-+
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_MODE_CASCADE 0xC0   /* pass thru DREQ->HRQ, DACK<-HLDA only */
-+
-+#define DMA_AUTOINIT	0x10
-+
-+
-+extern spinlock_t  dma_spin_lock;
-+
-+static __inline__ unsigned long claim_dma_lock(void)
-+{
-+	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
-+}
-+
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
-+
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	if (dmanr<=3)
-+		dma_outb(dmanr,  DMA1_MASK_REG);
-+	else
-+		dma_outb(dmanr & 3,  DMA2_MASK_REG);
-+}
-+
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	if (dmanr<=3)
-+		dma_outb(dmanr | 4,  DMA1_MASK_REG);
-+	else
-+		dma_outb((dmanr & 3) | 4,  DMA2_MASK_REG);
-+}
-+
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	if (dmanr<=3)
-+		dma_outb(0,  DMA1_CLEAR_FF_REG);
-+	else
-+		dma_outb(0,  DMA2_CLEAR_FF_REG);
-+}
-+
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	if (dmanr<=3)
-+		dma_outb(mode | dmanr,  DMA1_MODE_REG);
-+	else
-+		dma_outb(mode | (dmanr&3),  DMA2_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, char pagenr)
-+{
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(pagenr, DMA_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(pagenr, DMA_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(pagenr, DMA_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(pagenr, DMA_PAGE_3);
-+			break;
-+		case 5:
-+			dma_outb(pagenr & 0xfe, DMA_PAGE_5);
-+			break;
-+		case 6:
-+			dma_outb(pagenr & 0xfe, DMA_PAGE_6);
-+			break;
-+		case 7:
-+			dma_outb(pagenr & 0xfe, DMA_PAGE_7);
-+			break;
-+	}
-+}
-+
-+
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
-+{
-+	set_dma_page(dmanr, a>>16);
-+	if (dmanr <= 3)  {
-+	    dma_outb( a & 0xff, ((dmanr&3)<<1) + IO_DMA1_BASE );
-+            dma_outb( (a>>8) & 0xff, ((dmanr&3)<<1) + IO_DMA1_BASE );
-+	}  else  {
-+	    dma_outb( (a>>1) & 0xff, ((dmanr&3)<<2) + IO_DMA2_BASE );
-+	    dma_outb( (a>>9) & 0xff, ((dmanr&3)<<2) + IO_DMA2_BASE );
-+	}
-+}
-+
-+
-+/* Set transfer size (max 64k for DMA0..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+        count--;
-+	if (dmanr <= 3)  {
-+	    dma_outb( count & 0xff, ((dmanr&3)<<1) + 1 + IO_DMA1_BASE );
-+	    dma_outb( (count>>8) & 0xff, ((dmanr&3)<<1) + 1 + IO_DMA1_BASE );
-+        } else {
-+	    dma_outb( (count>>1) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
-+	    dma_outb( (count>>9) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
-+        }
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
-+ *
-+ * Assumes DMA flip-flop is clear.
-+ */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	unsigned int io_port = (dmanr<=3)? ((dmanr&3)<<1) + 1 + IO_DMA1_BASE
-+					 : ((dmanr&3)<<2) + 2 + IO_DMA2_BASE;
-+
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
-+
-+	count = 1 + dma_inb(io_port);
-+	count += dma_inb(io_port) << 8;
-+	
-+	return (dmanr<=3)? count : (count<<1);
-+}
-+
-+
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
-+
-+/* From PCI */
-+
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
-+#endif
-+
-+#endif /* _ASM_MACH_DMA_H */
-diff -Nru linux-2.5.66-bk8/include/asm-i386/mach-pc9800/mach_dma.h linux98-2.5.66-bk8/include/asm-i386/mach-pc9800/mach_dma.h
---- linux-2.5.66-bk8/include/asm-i386/mach-pc9800/mach_dma.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.66-bk8/include/asm-i386/mach-pc9800/mach_dma.h	2003-04-02 22:31:58.000000000 +0900
-@@ -0,0 +1,258 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
-+ *
-+ * Modified for PC-9800 sub architecture by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+
-+#ifndef _ASM_MACH_DMA_H
-+#define _ASM_MACH_DMA_H
-+
-+#include <linux/config.h>
-+#include <linux/spinlock.h>	/* And spinlocks */
-+#include <asm/io.h>		/* need byte IO */
-+#include <linux/delay.h>
-+
-+
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
-+#endif
-+
-+#define dma_inb		inb
-+
-+/*
-+ * NOTES about DMA transfers:
-+ *
-+ *  controller 1: channels 0-3, byte operations, ports 01-1F
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - transfers must not cross physical 64K (0-3) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A31 ... A24 A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  P7 ... P0   A7 ... A0  A7 ... A0   
-+ * |   Ex Page  |    Page   | Addr MSB  | Addr LSB |  (DMA registers)
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more.
-+ *
-+ */
-+
-+#define MAX_DMA_CHANNELS	4
-+
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (~0UL)
-+
-+/* 8237 DMA controllers */
-+#define IO_DMA1_BASE	0x01	/* 8 bit DMA, channels 0..3 */
-+#define IO_DMA2_BASE	0x00	/* none */
-+
-+/* DMA controller registers */
-+#define DMA1_CMD_REG		0x11	/* command register (w) */
-+#define DMA1_STAT_REG		0x11	/* status register (r) */
-+#define DMA1_REQ_REG            0x13    /* request register (w) */
-+#define DMA1_MASK_REG		0x15	/* single-channel mask (w) */
-+#define DMA1_MODE_REG		0x17	/* mode register (w) */
-+#define DMA1_CLEAR_FF_REG	0x19	/* clear pointer flip-flop (w) */
-+#define DMA1_TEMP_REG           0x1B    /* Temporary Register (r) */
-+#define DMA1_RESET_REG		0x1B	/* Master Clear (w) */
-+#define DMA1_CLR_MASK_REG       0x1D    /* Clear Mask */
-+#define DMA1_MASK_ALL_REG       0x1F    /* all-channels mask (w) */
-+
-+#define DMA2_CMD_REG		0x00	/* none */
-+#define DMA2_STAT_REG		0x00	/* none */
-+#define DMA2_REQ_REG            0x00    /* none */
-+#define DMA2_MASK_REG		0x00	/* none */
-+#define DMA2_MODE_REG		0x00	/* none */
-+#define DMA2_CLEAR_FF_REG	0x00	/* none */
-+#define DMA2_TEMP_REG           0x00    /* none */
-+#define DMA2_RESET_REG		0x00	/* none */
-+#define DMA2_CLR_MASK_REG       0x00    /* none */
-+#define DMA2_MASK_ALL_REG       0x00    /* none */
-+
-+#define DMA_ADDR_0              0x01    /* DMA address registers */
-+#define DMA_ADDR_1              0x05
-+#define DMA_ADDR_2              0x09
-+#define DMA_ADDR_3              0x0D
-+#define DMA_ADDR_4              0x00    /* none */
-+#define DMA_ADDR_5              0x00    /* none */
-+#define DMA_ADDR_6              0x00    /* none */
-+#define DMA_ADDR_7              0x00    /* none */
-+
-+#define DMA_CNT_0               0x03    /* DMA count registers */
-+#define DMA_CNT_1               0x07
-+#define DMA_CNT_2               0x0B
-+#define DMA_CNT_3               0x0F
-+#define DMA_CNT_4               0x00    /* none */
-+#define DMA_CNT_5               0x00    /* none */
-+#define DMA_CNT_6               0x00    /* none */
-+#define DMA_CNT_7               0x00    /* none */
-+
-+#define DMA_PAGE_0              0x27    /* DMA page registers */
-+#define DMA_PAGE_1              0x21
-+#define DMA_PAGE_2              0x23
-+#define DMA_PAGE_3              0x25
-+#define DMA_PAGE_5              0x00    /* none */
-+#define DMA_PAGE_6              0x00    /* none */
-+#define DMA_PAGE_7              0x00    /* none */
-+
-+#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
-+#define DMA_Ex_PAGE_1		0xe07
-+#define DMA_Ex_PAGE_2		0xe09
-+#define DMA_Ex_PAGE_3		0xe0b
-+
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_MODE_CASCADE 0x00   /* none */
-+
-+#define DMA_AUTOINIT	0x10
-+
-+
-+extern spinlock_t  dma_spin_lock;
-+
-+static __inline__ unsigned long claim_dma_lock(void)
-+{
-+	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
-+}
-+
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
-+
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr,  DMA1_MASK_REG);
-+}
-+
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr | 4,  DMA1_MASK_REG);
-+}
-+
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	dma_outb(0,  DMA1_CLEAR_FF_REG);
-+}
-+
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	dma_outb(mode | dmanr,  DMA1_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
-+{
-+	unsigned char low=pagenr&0xff;
-+	unsigned char hi=pagenr>>8;
-+
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(low, DMA_PAGE_0);
-+			dma_outb(hi, DMA_Ex_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(low, DMA_PAGE_1);
-+			dma_outb(hi, DMA_Ex_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(low, DMA_PAGE_2);
-+			dma_outb(hi, DMA_Ex_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(low, DMA_PAGE_3);
-+			dma_outb(hi, DMA_Ex_PAGE_3);
-+			break;
-+	}
-+}
-+
-+
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
-+{
-+	set_dma_page(dmanr, a>>16);
-+	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA1_BASE );
-+	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA1_BASE );
-+}
-+
-+
-+/* Set transfer size (max 64k for DMA0..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+	count--;
-+	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA1_BASE );
-+	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA1_BASE );
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
-+ *
-+ * Assumes DMA flip-flop is clear.
-+ */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
-+
-+	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA1_BASE);
-+	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA1_BASE) << 8;
-+	
-+	return count;
-+}
-+
-+
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
-+
-+/* From PCI */
-+
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
-+#endif
-+
-+#endif /* _ASM_MACH_DMA_H */
-diff -Nru linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
---- linux/include/asm-i386/scatterlist.h	2002-04-15 04:18:52.000000000 +0900
-+++ linux98/include/asm-i386/scatterlist.h	2002-04-17 10:37:22.000000000 +0900
-@@ -1,6 +1,8 @@
- #ifndef _I386_SCATTERLIST_H
- #define _I386_SCATTERLIST_H
+-	int c, tc, ok, n = 0, draw_x = -1;
++	int c, tc = 0, ok, n = 0, draw_x = -1;
+ 	unsigned int currcons;
+ 	unsigned long draw_from = 0, draw_to = 0;
+ 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
+@@ -1921,48 +2071,151 @@
+ 		hide_cursor(currcons);
  
-+#include <linux/config.h>
+ 	while (!tty->stopped && count) {
++		int realkanji = 0;
++		int kanjioverrun = 0;
+ 		c = *buf;
+ 		buf++;
+ 		n++;
+ 		count--;
+ 
+-		if (utf) {
+-		    /* Combine UTF-8 into Unicode */
+-		    /* Incomplete characters silently ignored */
+-		    if(c > 0x7f) {
+-			if (utf_count > 0 && (c & 0xc0) == 0x80) {
+-				utf_char = (utf_char << 6) | (c & 0x3f);
+-				utf_count--;
+-				if (utf_count == 0)
+-				    tc = c = utf_char;
+-				else continue;
+-			} else {
+-				if ((c & 0xe0) == 0xc0) {
+-				    utf_count = 1;
+-				    utf_char = (c & 0x1f);
+-				} else if ((c & 0xf0) == 0xe0) {
+-				    utf_count = 2;
+-				    utf_char = (c & 0x0f);
+-				} else if ((c & 0xf8) == 0xf0) {
+-				    utf_count = 3;
+-				    utf_char = (c & 0x07);
+-				} else if ((c & 0xfc) == 0xf8) {
+-				    utf_count = 4;
+-				    utf_char = (c & 0x03);
+-				} else if ((c & 0xfe) == 0xfc) {
+-				    utf_count = 5;
+-				    utf_char = (c & 0x01);
+-				} else
+-				    utf_count = 0;
+-				continue;
+-			      }
+-		    } else {
+-		      tc = c;
+-		      utf_count = 0;
+-		    }
+-		} else {	/* no utf */
+-		  tc = translate[toggle_meta ? (c|0x80) : c];
+-		}
++#ifdef CONFIG_KANJI
++		if (vc_state == ESnormal && !disp_ctrl) {
++			switch (kanji_jis_mode) {
++			case JIS_CODE_78:
++			case JIS_CODE_83:
++			case JIS_CODE_90:
++				if (utf)
++					break;
++				if (c >= 127 || c <= 0x20) {
++					kanji_char1 = 0;
++					break;
++				}
++				if (kanji_char1) {
++					tc = (((unsigned int)kanji_char1) << 8) |
++                        (((unsigned int)c) & 0x007f);
++					kanji_char1 = 0;
++					realkanji = 1;
++				} else {
++					kanji_char1 = ((unsigned int)c) & 0x007f;
++					continue;
++				} 
++				break;
++			case JIS_CODE_ASCII:
++			default:
++				switch (kanji_mode) {
++				case SJIS_CODE:
++					if (kanji_char1) {
++                        if ((0x40 <= c && c <= 0x7E) ||
++                            (0x80 <= c && c <= 0xFC)) {
++							realkanji = 1;
++							/* SJIS to JIS */
++							kanji_char1 <<= 1; /* 81H-9FH --> 22H-3EH */
++							/* EOH-EFH --> C0H-DEH */
++							c -= 0x1f;         /* 40H-7EH --> 21H-5FH */
++							/* 80H-9EH --> 61H-7FH */
++							/* 9FH-FCH --> 80H-DDH */
++							if (!(c & 0x80)) {
++								if (c < 0x61)
++									c++;
++								c += 0xde;
++							}
++							c &= 0xff;
++							c += 0xa1;
++							kanji_char1 += 0x1f;
++							tc = (kanji_char1 << 8) + c;
++							tc &= 0x7f7f;
++							kanji_char1 = 0;
++                        }
++					} else {
++                        if ((0x81 <= c && c <= 0x9f) ||
++                            (0xE0 <= c && c <= 0xEF)) {
++							realkanji = 1;
++							kanji_char1 = c;
++							continue;
++                        } else if (0xA1 <= c && c <= 0xDF) {
++							tc = (unsigned int)translations[JP_MAP][c];
++							goto hankana_skip;
++                        }
++					}
++					break;
++				case EUC_CODE:
++					if (utf)
++                        break;
++					if (c <= 0x7f) {
++                        kanji_char1 = 0;
++                        break;
++					}
++					if (kanji_char1) {
++                        if (kanji_char1 == 0x8e) {  /* SS2 */
++							/* realkanji ha tatenai */
++							tc = (unsigned int)translations[JP_MAP][c];
++							kanji_char1 = 0;
++							goto hankana_skip;
++                        } else {
++							tc = (((unsigned int)kanji_char1) << 8) |
++								(((unsigned int)c) & 0x007f);
++							kanji_char1 = 0;
++							realkanji = 1;
++                        }
++					} else {
++                        kanji_char1 = (unsigned int)c;
++                        continue;
++					}
++					break;
++				case JIS_CODE:
++					/* to be supported */
++					break;
++				} /* switch (kanji_mode) */
++			} /* switch (kanji_jis_mode) */
++		} /* if (vc_state == ESnormal) */
 +
- struct scatterlist {
-     struct page		*page;
-     unsigned int	offset;
-@@ -8,6 +10,10 @@
-     unsigned int	length;
++#endif /* CONFIG_KANJI */
++		if (!realkanji) {
++			if (utf) {
++			    /* Combine UTF-8 into Unicode */
++			    /* Incomplete characters silently ignored */
++			    if(c > 0x7f) {
++				if (utf_count > 0 && (c & 0xc0) == 0x80) {
++					utf_char = (utf_char << 6) | (c & 0x3f);
++					utf_count--;
++					if (utf_count == 0)
++					    tc = c = utf_char;
++					else continue;
++				} else {
++					if ((c & 0xe0) == 0xc0) {
++					    utf_count = 1;
++					    utf_char = (c & 0x1f);
++					} else if ((c & 0xf0) == 0xe0) {
++					    utf_count = 2;
++					    utf_char = (c & 0x0f);
++					} else if ((c & 0xf8) == 0xf0) {
++					    utf_count = 3;
++					    utf_char = (c & 0x07);
++					} else if ((c & 0xfc) == 0xf8) {
++					    utf_count = 4;
++					    utf_char = (c & 0x03);
++					} else if ((c & 0xfe) == 0xfc) {
++					    utf_count = 5;
++					    utf_char = (c & 0x01);
++					} else
++					    utf_count = 0;
++					continue;
++				      }
++			    } else {
++			      tc = c;
++			      utf_count = 0;
++			    }
++			} else {	/* no utf */
++#ifdef CONFIG_KANJI
++			  tc = translate[(toggle_meta || translate_ex) ? (c | 0x80) : c];
++#else
++			  tc = translate[toggle_meta ? (c|0x80) : c];
++#endif
++			}
++		} /* if (!realkanji) */
++#ifdef CONFIG_KANJI
++	hankana_skip:
++#endif
+ 
+                 /* If the original code was a control character we
+                  * only allow a glyph to be displayed if the code is
+@@ -1979,43 +2232,71 @@
+                                          : CTRL_ACTION) >> c) & 1)))
+                         && (c != 127 || disp_ctrl)
+ 			&& (c != 128+27);
++                ok |= realkanji;
+ 
+ 		if (vc_state == ESnormal && ok) {
+-			/* Now try to find out how to display it */
+-			tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
+-			if ( tc == -4 ) {
++			if (!realkanji) {
++				/* Now try to find out how to display it */
++				tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
++				if ( tc == -4 ) {
+                                 /* If we got -4 (not found) then see if we have
+                                    defined a replacement character (U+FFFD) */
+-                                tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
++       	                         tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
+ 
+ 				/* One reason for the -4 can be that we just
+ 				   did a clear_unimap();
+ 				   try at least to show something. */
+-				if (tc == -4)
+-				     tc = c;
+-                        } else if ( tc == -3 ) {
++					if (tc == -4)
++					     tc = c;
++				} else if ( tc == -3 ) {
+                                 /* Bad hash table -- hope for the best */
+-                                tc = c;
+-                        }
+-			if (tc & ~charmask)
+-                                continue; /* Conversion failed */
++					tc = c;
++				}
++				if (tc & ~charmask)
++					continue; /* Conversion failed */
++			} /* !realkanji */
+ 
+ 			if (need_wrap || decim)
+ 				FLUSH
+ 			if (need_wrap) {
+ 				cr(currcons);
+ 				lf(currcons);
++				if (kanjioverrun) {
++					x++;
++					pos += 2;
++					kanjioverrun = 0;
++				}
+ 			}
+ 			if (decim)
+ 				insert_char(currcons, 1);
++#ifndef CONFIG_KANJI
+ 			scr_writew(himask ?
+ 				     ((attr << 8) & ~himask) + ((tc & 0x100) ? himask : 0) + (tc & 0xff) :
+ 				     (attr << 8) + tc,
+ 				   (u16 *) pos);
++#else /* CONFIG_KANJI */
++			if (realkanji) {
++				tc = ((tc >> 8) & 0xff) | ((tc << 8) & 0xff00); 
++				*((u16 *)pos) = (tc - 0x20) & 0xff7f;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++				x ++;
++				pos += 2;
++				*((u16 *)pos) = (tc - 0x20) | 0x80;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			} else {
++				*((u16 *)pos) = tc & 0x00ff;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			}
++#endif /* !CONFIG_KANJI */
+ 			if (DO_UPDATE && draw_x < 0) {
+ 				draw_x = x;
+ 				draw_from = pos;
++				if (realkanji) {
++					draw_x --;
++					draw_from -= 2;
++				}
+ 			}
++#ifndef CONFIG_KANJI
+ 			if (x == video_num_columns - 1) {
+ 				need_wrap = decawm;
+ 				draw_to = pos+2;
+@@ -2023,6 +2304,16 @@
+ 				x++;
+ 				draw_to = (pos+=2);
+ 			}
++#else /* CONFIG_KANJI */
++			if (x >= video_num_columns - 1) {
++				need_wrap = decawm;
++				kanjioverrun = x - video_num_columns + 1;
++				draw_to = pos + 2;
++			} else {
++				x++;
++				draw_to = (pos += 2);
++			}
++#endif /* !CONFIG_KANJI */
+ 			continue;
+ 		}
+ 		FLUSH
+diff -Nru linux-2.5.65-bk4/drivers/video/console/Kconfig linux98-2.5.65-bk4/drivers/video/console/Kconfig
+--- linux-2.5.65-bk4/drivers/video/console/Kconfig	2003-03-23 21:55:14.000000000 +0900
++++ linux98-2.5.65-bk4/drivers/video/console/Kconfig	2003-03-24 00:18:45.000000000 +0900
+@@ -109,6 +109,10 @@
+ 	bool "Enable 32-bit access to text video RAM"
+ 	depends on GDC_CONSOLE
+ 
++config KANJI
++	bool "Japanese Kanji support"
++	depends on X86_PC9800
++
+ config DUMMY_CONSOLE
+ 	bool
+ 	depends on PROM_CONSOLE!=y || VGA_CONSOLE!=y || SGI_NEWPORT_CONSOLE!=y 
+diff -Nru linux/include/linux/console_struct.h linux98/include/linux/console_struct.h
+--- linux/include/linux/console_struct.h	2003-03-23 22:22:05.000000000 +0900
++++ linux98/include/linux/console_struct.h	2003-03-24 00:13:03.000000000 +0900
+@@ -94,6 +94,18 @@
+ 	struct vc_data **vc_display_fg;		/* [!] Ptr to var holding fg console for this display */
+ 	unsigned long	vc_uni_pagedir;
+ 	unsigned long	*vc_uni_pagedir_loc;  /* [!] Location of uni_pagedir variable for this console */
++#ifdef CONFIG_KANJI
++	unsigned char   vc_kanji_char1;
++	unsigned char   vc_kanji_mode;
++	unsigned char   vc_kanji_jis_mode;
++	unsigned char   vc_s_kanji_mode;
++	unsigned char   vc_s_kanji_jis_mode;
++	unsigned int    vc_translate_ex;
++	unsigned char   vc_G0_charset_ex;
++	unsigned char   vc_G1_charset_ex;
++	unsigned char   vc_saved_G0_ex;
++	unsigned char   vc_saved_G1_ex;
++#endif /* CONFIG_KANJI */
+ 	/* additional information is in vt_kern.h */
  };
  
-+#ifdef CONFIG_X86_PC9800
-+#define ISA_DMA_THRESHOLD (0xffffffff)
-+#else
- #define ISA_DMA_THRESHOLD (0x00ffffff)
-+#endif
+diff -Nru linux/include/linux/consolemap.h linux98/include/linux/consolemap.h
+--- linux/include/linux/consolemap.h	Sat Oct 19 13:02:34 2002
++++ linux98/include/linux/consolemap.h	Mon Oct 21 14:19:31 2002
+@@ -7,6 +7,7 @@
+ #define GRAF_MAP 1
+ #define IBMPC_MAP 2
+ #define USER_MAP 3
++#define JP_MAP 4
  
- #endif /* !(_I386_SCATTERLIST_H) */
-diff -Nru linux/kernel/dma.c linux98/kernel/dma.c
---- linux/kernel/dma.c	2002-08-11 10:41:22.000000000 +0900
-+++ linux98/kernel/dma.c	2002-08-21 09:53:59.000000000 +0900
-@@ -9,6 +9,7 @@
-  *   [It also happened to remove the sizeof(char *) == sizeof(int)
-  *   assumption introduced because of those /proc/dma patches. -- Hennus]
-  */
-+#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -62,10 +63,12 @@
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 },
-+#ifndef CONFIG_X86_PC9800
- 	{ 1, "cascade" },
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 }
-+#endif
- };
- 
+ struct vc_data;
  

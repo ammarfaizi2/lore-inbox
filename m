@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSLASiz>; Sun, 1 Dec 2002 13:38:55 -0500
+	id <S262326AbSLASrM>; Sun, 1 Dec 2002 13:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262324AbSLASiz>; Sun, 1 Dec 2002 13:38:55 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:12520 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262322AbSLASiy>; Sun, 1 Dec 2002 13:38:54 -0500
-Cc: Greg KH <greg@kroah.com>, <linux-security-module@wirex.com>,
-       <linux-kernel@vger.kernel.org>
-References: <Mutt.LNX.4.44.0212020441560.19785-100000@blackbird.intercode.com.au>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: James Morris <jmorris@intercode.com.au>
-Subject: Re: [RFC] LSM fix for stupid "empty" functions
-Date: Sun, 01 Dec 2002 19:46:02 +0100
-Message-ID: <873cph37dh.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
- Intelligence, i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262360AbSLASrM>; Sun, 1 Dec 2002 13:47:12 -0500
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:63104
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S262326AbSLASrL>; Sun, 1 Dec 2002 13:47:11 -0500
+Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: xizard@enib.fr
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3DEA322B.40204@enib.fr>
+References: <3DEA322B.40204@enib.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1038768875.12518.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 01 Dec 2002 12:54:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@intercode.com.au> writes:
+On Sun, 2002-12-01 at 10:00, XI wrote:
+> Hi,
+> [1] With kernel-2.4.19 and kernel-2.4.20 the sound stutter, sizzle
+> 
+> [2] The problem seems be correlated with my PCI graphic card (matrox
+> G200 PCI) and my sound card (sound blaster live 5.1).
+> In fact every time I listen music and that something appens on my screen
+> (moving a window, watching a movie) the sound stutter.
 
-> On Sun, 1 Dec 2002, Greg KH wrote:
->
->> On Sun, Dec 01, 2002 at 05:59:10PM +0100, Olaf Dietsche wrote:
->> > >  	VERIFY_STRUCT(struct security_operations, ops, err);
->> > 
->> > This shouldn't be necessary anymore.
->> 
->> Good point, I'll remove it.  It was a hack anyway :)
->> 
->
-> I think we still want to make sure that the module author has explicitly
-> accounted for all of the hooks, in case new hooks are added.
+I had a similar problem. Turned out to be where my TV card was plugged
+into + my mixer settings. I had the tv sound out plugged into mic,
+instead of line in. Using aumix I was able to figure out that changing
+which input was allowed to recored got rid of the noise. Have you
+attempted such trouble shooting?
 
-VERIFY_STRUCT() now verifies, wether security_fixup_ops() has done its
-job. So it does no harm, but it is useless, nevertheless.
+> I think the first thing I should do is to try different kernel version
+> in order to find when this problem appeared first.
 
-If you want to check, wether a module has been recompiled, you should
-add a length/sizeof(struct security_operations) parameter.
-
-Regards, Olaf.
+--The GrandMaster

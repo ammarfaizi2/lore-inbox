@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTJZTH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 14:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTJZTH3
+	id S263453AbTJZT21 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 14:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTJZT21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 14:07:29 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:9702 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263427AbTJZTH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 14:07:28 -0500
-Date: Sun, 26 Oct 2003 21:07:07 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Hans Reiser <reiser@namesys.com>
-Cc: ndiamond@wta.att.ne.jp, vitaly@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, results end
-Message-ID: <20031026190707.GC14147@linuxhacker.ru>
-References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60> <3F9BA98B.20408@namesys.com> <200310261259.h9QCxhWv004314@car.linuxhacker.ru> <3F9BB870.1010500@namesys.com> <20031026123925.GA6412@linuxhacker.ru> <3F9BF5BE.9030601@namesys.com> <20031026171348.GA14147@linuxhacker.ru> <3F9C107D.3040401@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F9C107D.3040401@namesys.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 26 Oct 2003 14:28:27 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:55781 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263453AbTJZT20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 14:28:26 -0500
+Date: Mon, 27 Oct 2003 08:28:14 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [Swsusp-devel] Announce: Swsusp-2.0-2.6-alpha1
+In-reply-to: <200310261250.36616.aviram@jenik.com>
+To: Aviram Jenik <aviram@jenik.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>
+Message-id: <1067196494.14422.203.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1067064107.1974.44.camel@laptop-linux>
+ <200310261250.36616.aviram@jenik.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi.
 
-On Sun, Oct 26, 2003 at 09:20:45PM +0300, Hans Reiser wrote:
-> >Everything else should be handled
-> >by reiserfsprogs anyway. Without reiserfsprogs support (which was ready 
-> >too),
-> If it isn't included in what we release, the job isn't done, and the 
-> work is useless.  I don't know why people think that if they have 
-> written a patch that they and only they know where to get and how to 
-> apply, something useful has been done.
+I forgot to mention that you need to echo 1 > /proc/swsusp/enable_escape
+for pressing escape to work. (It's mentioned in
+Documentation/power/swsusp.txt).
 
-The kernel patch was handed to Vitaly with instructions on how to apply and
-how to use. (And Vitaly added necessary support to reiserfsprogs, without
-which this patch would be useless)
-Now the decision of whenever to release this piece of code (the patch and
-the reiserfsprogs parts) is not mine.
+Sorry.
 
-Bye,
-    Oleg
+Nigel
+
+On Sun, 2003-10-26 at 23:50, Aviram Jenik wrote:
+> Hi,
+> 
+> I tried swsusp on 2.6.0-test9. Patch was applied cleanly, but for compilation 
+> to work I needed to apply Pavel's scsi one-liner patch.
+> 
+> I tried hibernation with echo > /proc/swsusp/activate, but it was stuck on 
+> "Freezing processes: Waiting for activity to finish".
+> 
+> On Saturday 25 October 2003 08:41, Nigel Cunningham wrote:
+> >
+> > In addition, you may see freezing failures. If
+> > the process hangs at 'Freezing processes: Waiting for activity to
+> > finish' or 'Syncing remaining I/O', try pressing escape once. 
+> 
+> I tried several times pressing "ESC", but nothing happened. 'l' and 'r' did 
+> change the display, but there was nothing in the logs (I had to do a cold 
+> reboot).
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132500AbRDQBgF>; Mon, 16 Apr 2001 21:36:05 -0400
+	id <S132502AbRDQBhZ>; Mon, 16 Apr 2001 21:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132502AbRDQBfz>; Mon, 16 Apr 2001 21:35:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11528 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132500AbRDQBfq>;
-	Mon, 16 Apr 2001 21:35:46 -0400
-Date: Mon, 16 Apr 2001 19:37:20 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ksi@cyberbills.com (Sergey Kubushin), linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac7
-Message-ID: <20010416193720.G31698@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	ksi@cyberbills.com (Sergey Kubushin), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31ksi3.0104160910330.20561-100000@nomad.cyberbills.com> <E14pBgV-0000Vy-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S132503AbRDQBhR>; Mon, 16 Apr 2001 21:37:17 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:1547 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S132502AbRDQBhA>;
+	Mon, 16 Apr 2001 21:37:00 -0400
+Message-ID: <3ADB9E59.B4EF71CC@megapathdsl.net>
+Date: Mon, 16 Apr 2001 18:37:29 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get 
+ better audio.
+In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <15067.37887.604760.637443@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14pBgV-0000Vy-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 16, 2001 at 05:16:58PM +0100
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Apr 16, 2001 at 05:16:58PM +0100, Alan Cox escreveu:
-> > gcc -D__KERNEL__ -I/tmp/build-kernel/usr/src/linux-2.4.3ac7/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /tmp/build-kernel/usr/src/linux-2.4.3ac7/include/linux/modversions.h   -c -o cycx_x25.o cycx_x25.c
-> > cycx_x25.c: In function `new_if':
-> > cycx_x25.c:364: structure has no member named `port'
+"David S. Miller" wrote:
 > 
-> Fixed in my working tree. The Sangoma patch Linus merged accidentally backed out
-> support for a competing product.
+> Miles Lane writes:
+>  > There is one major shortcoming of the recordings.
+>  > Usually, only the comments of the presenter(s)
+>  > can be heard.
+> 
+> The problem is that nobody wants to wait for one of the microphones to
+> go across the entire room before they can begin speaking, this is what
+> was happening.  Sometimes there was a dialogue going on between three
+> people sitting at tables, there were 2 microphones to go around...
+> 
+> One solution I've seen sort of work is to have 2 standing fixed
+> microphones in the isles, but this only really functions correctly
+> for a Q&A type session after a presentation.
+> 
+> It does not work in a relaxed "people sit at tables and comment
+> at arbitrary points in time during a talk" setting such as the
+> kernel summit.  Besides putting a microphone at every table (which
+> isn't all that practical honestly) I can't come up with a solution.
 
-Thanks, I'm to busy now, but I would submit a patch getting those fields
-back in wanrouter.h.
+I agree that this is another important issue.  It's most 
+important in these events that the flow and exchange of ideas 
+proceed unhindered.  I do believe there is a way to record the
+dialog without introducing significant impediments, though.
 
-- Arnaldo
+What usually is done these days, when a few groups of people
+need to hold a conference call, for example, is that a few 
+omni-directional microphones are used (these are the sort of 
+spaceship-looking things that get placed in the center of a 
+large table around which the groups sit).  There are drawbacks 
+with this, in that, for a large group, there's signal loss if 
+current speaker does not face the microphone.  However, these 
+microphones do a pretty good job of picking up voice audio in 
+a 360 degree radius.
+
+There would need to be some post-event sound mixing.  For example,
+if you have ten tables, each with its own omni-directional table
+microphone, plus unidirectional microphones for the presenter(s),
+you'd need to mix the signals from the microphones or perhaps
+switch between the various microphone recordings and adjust for 
+volume differences.  You'd likely get the best recording from
+the table microphone a particular participant was sitting at.
+You'd also likely get much stronger signals from the presenter's
+microphone.
+
+What say you all?
+
+Cheers,
+	Miles

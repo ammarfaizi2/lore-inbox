@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbTFKBAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 21:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTFKBAY
+	id S263273AbTFKBA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 21:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTFKBA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 21:00:24 -0400
-Received: from itaqui.terra.com.br ([200.176.3.19]:16288 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262818AbTFKBAV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 21:00:21 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: madalin mihailescu <madalinn2000@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Help
-Date: Tue, 10 Jun 2003 22:14:24 -0300
-User-Agent: KMail/1.5.1
-References: <20030606055547.51802.qmail@web11003.mail.yahoo.com>
-In-Reply-To: <20030606055547.51802.qmail@web11003.mail.yahoo.com>
+	Tue, 10 Jun 2003 21:00:28 -0400
+Received: from smtp01.web.de ([217.72.192.180]:49953 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263273AbTFKBAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 21:00:23 -0400
+Message-ID: <002b01c32fb6$beb6cbf0$3c02a8c0@saint1>
+From: "Gregor Essers" <gregor.essers@web.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Via KT400 and AGP 8x Support
+Date: Wed, 11 Jun 2003 03:14:02 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200306102214.24758.lucasvr@gobolinux.org>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.0
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In wich Kerneltree will this implented ?
+2.4.x or 2.5.x ?
 
-You can make use of the __setup() macro. A very simple example is given in the 
-devfs source code, on the base.c file.
+Ati-Drivers will not install or Run on 2.5.70 (its clear ;) )
+and 2.4.20 and 2.4.21-pre7
 
-Kind regards,
-Lucas
+At the End of the XFree Log will come this (2.4.21-pre7) :
 
 
-On Friday 06 June 2003 02:55, madalin mihailescu wrote:
-> I have a project: implementing four page-out
-> alghorythms. I want to be able to select one of them
-> at reboot as the first thing I do.
->
-> I’m thinking of using a variable, but I don’t know
-> where to put it.
->
-> 10x
->
-> Madalin
->
->
-> __________________________________________________
-> Yahoo! Plus - For a better Internet experience
-> http://uk.promotions.yahoo.com/yplus/yoffer.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+(II) fglrx(0): Desc: ATI Fire GL DRM kernel module
+(II) fglrx(0): Kernel Module version matches driver.
+(II) fglrx(0): Kernel Module Build Time Information:
+(II) fglrx(0): Build-Kernel UTS_RELEASE: 2.4.20-9
+(II) fglrx(0): Build-Kernel MODVERSIONS: yes
+(II) fglrx(0): Build-Kernel __SMP__: no
+(II) fglrx(0): Build-Kernel PAGE_SIZE: 0x1000
+(II) fglrx(0): [drm] register handle = 0xe9000000
+(EE) fglrx(0): [agp] unable to acquire AGP, error "xf86_ENODEV"
+(EE) fglrx(0): cannot init AGP
+
+The init will not or can not detect the AGP-Adapture Size.
+
+
+Regards 
+
+Gregor Essers
+
+PS: System is 
+
+AMD XP 2000+
+Radeon 9700Pro
+1 GB Ram
+Redhat 9 
+Epox 8K9A2 Mainboard (KT400)
 

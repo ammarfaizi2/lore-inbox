@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTIYU1g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 16:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTIYU1g
+	id S261845AbTIYU2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 16:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbTIYU2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 16:27:36 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:42651 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261844AbTIYU1f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 16:27:35 -0400
-Date: Thu, 25 Sep 2003 13:27:29 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: log-buf-len dynamic
-Message-ID: <20030925202729.GA21654@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org> <20030925122838.A16288@discworld.dyndns.org> <20030925182921.GA18749@work.bitmover.com> <Pine.LNX.4.58.0309251313560.7784@dlang.diginsite.com>
-Mime-Version: 1.0
+	Thu, 25 Sep 2003 16:28:03 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:20622 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S261845AbTIYU17 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 16:27:59 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in vanilla 2.4.22 serial-usb driver
+References: <87llsdy01v.fsf@ceramic.fifi.org>
+	<20030925185039.GB29088@kroah.com>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 25 Sep 2003 13:27:57 -0700
+In-Reply-To: <20030925185039.GB29088@kroah.com>
+Message-ID: <87eky4hauq.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0309251313560.7784@dlang.diginsite.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't, it's mostly C code in BK itself and it is in a higher 
-performance commercial version of BK that we haven't released yet.
+Greg KH <greg@kroah.com> writes:
 
-On Thu, Sep 25, 2003 at 01:15:38PM -0700, David Lang wrote:
-> Larry, have you or could you publish the BK->?? export code?, This way
-> even if you do not host the exported stuff it would be trivial for a
-> person who is willing to use bk to setup a server to mirror any 'bk-only'
-> project.
+> On Wed, Sep 24, 2003 at 09:17:00PM -0700, Philippe Troin wrote:
+> > This happened at the end of a Palm sync.
+> > The machine went on, but USB is not irresponsive to USB attach/detach
+> > since khubd is dead. The USB low-level driver is UHCI_ALT, compiled
+> > in-kernel.
+> 
+> This should be fixed in the 2.4.23-pre tree now.  If you want, you can
+> try applying the patch at:
+> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-serial-02-2.4.23-pre3.patch
+> if you don't want the whole -pre tree.
+
+That's what I had figured out from looking at the 23rcX changelogs and
+diffs.
+
+> > BTW, is there any way to restart khubd without rebooting?
+> 
+> Nope, sorry.
+
+Are there any technical reasons behind that, or that just that it is
+not implemented?
+ 
+> Let me know if this doesn't solve the problem for you.
+
+I won't be able to test until later today, but I will let you know.
+
+Thanks,
+Phil.

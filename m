@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316982AbSFFO4d>; Thu, 6 Jun 2002 10:56:33 -0400
+	id <S316991AbSFFPUn>; Thu, 6 Jun 2002 11:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316986AbSFFO4c>; Thu, 6 Jun 2002 10:56:32 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:51473 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316982AbSFFO4b>; Thu, 6 Jun 2002 10:56:31 -0400
-Date: Thu, 6 Jun 2002 15:56:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: More fbdev to pull
-Message-ID: <20020606155621.C21322@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0206051410040.7204-100000@www.transvirtual.com>
+	id <S316992AbSFFPUm>; Thu, 6 Jun 2002 11:20:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:10767 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S316991AbSFFPUl>; Thu, 6 Jun 2002 11:20:41 -0400
+Date: Thu, 6 Jun 2002 12:00:23 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: matt@theBachChoir.org.uk, dean-list-linux-kernel@arctic.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre10-ac2
+Message-ID: <20020606150022.GN1068@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, matt@theBachChoir.org.uk,
+	dean-list-linux-kernel@arctic.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206051204070.11987-100000@twinlark.arctic.org> <Pine.LNX.4.44.0206061110410.16548-100000@jester.mews> <20020606.031417.60563717.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 06:48:00AM -0700, James Simmons wrote:
->    Now for the new rounds of updates. Please pull the fbdev BK updates and
-> bug fixes.
+Em Thu, Jun 06, 2002 at 03:14:17AM -0700, David S. Miller escreveu:
+>    From: Matt Bernstein <matt@theBachChoir.org.uk>
+>    Date: Thu, 6 Jun 2002 11:11:09 +0100 (BST)
 > 
-> http://fbdev.bkbits.net:8080/fbdev-2.5
-> 
-> Standard diff:
-> 
-> http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
+>    Since when was it OK to do a parallel make dep?
+>    
+> I've been doing that successfully for a long time now.
+> It has always worked as far as I can remember..
 
-diffstat output would be useful.  Can you make it part of your standard
-mailings please?  That way, individual framebuffer maintainers know
-whether they need to bother looking or not.
+/me too, doing that for ages without a single problem.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+- Arnaldo

@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUJWKhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUJWKhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUJWKhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 06:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266768AbUJWKeb
+	id S266768AbUJWKhL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 06:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266802AbUJWKek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:34:31 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:57709 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266891AbUJWK3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:29:33 -0400
-Message-ID: <417A3288.1000303@yahoo.com.au>
-Date: Sat, 23 Oct 2004 20:29:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Page Allocation Failures Return With 2.6.9+TSO patch.
-References: <Pine.LNX.4.61.0410230435150.4620@p500> <417A2106.7010804@yahoo.com.au> <Pine.LNX.4.61.0410230522040.639@p500> <417A251A.2040209@yahoo.com.au> <Pine.LNX.4.61.0410230558060.639@p500>
-In-Reply-To: <Pine.LNX.4.61.0410230558060.639@p500>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 06:34:40 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:20102 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267283AbUJWK16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:27:58 -0400
+Date: Sat, 23 Oct 2004 12:29:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
+Message-ID: <20041023102909.GD30270@elte.hu>
+References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <32871.192.168.1.5.1098491242.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32871.192.168.1.5.1098491242.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> It does not seem like they do, but they cannot be good...
-> 
 
-It seems almost inevitable that they'll happen, especially if a module
-is loaded after boot (this is actually somewhere that incremental min
-will help "echo some number > /proc/sys/vm/lower_zone_protection").
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-But from the code, the failures really won't hurt at all. It might
-double the number of interrupts coming from your soundcard, but I
-dare say you would never be able to notice a difference.
+> Regarding the jackd -R issue, I was trying to capture some debug data
+> via netconsole on my laptop (P4/UP) running RT-U10.2, and when the
+> system freezes as reported before, I was able to kick the SysRq+T.
+> But, instead of a task trace list, I get the following:
+> 
+> SysRq : <3>BUG: sleeping function called from invalid context IRQ 1(776)
+> at kernel/mutex.c:37
+> in_atomic():1 [00000001], irqs_disabled():1
+>  [<c0104ee4>] dump_stack+0x1e/0x20 (20)
+>  [<c0114a23>] __might_sleep+0xb2/0xc7 (36)
+>  [<c012c0f2>] _mutex_lock+0x39/0x5e (28)
 
-> I have applied the following patches
-> 
-> 1] TSO patch
-> 2] rollup.patch
-> 
-> Rebooting now and will alert the list if/when I receive more page 
-> allocation failures.
-> 
-> FYI - I started getting these with 2.6.9.
-> 
-> (However, it was always possible on the Dell Optiplex GX1 to create page 
-> allocation failure with: ifconfig eth0 mtu 9000), however, on a 
-> higher-end machine (2.6GHZ, 2GB ram, etc) ifconfig eth0 mtu 9000 worked 
-> fine.
-> 
-> Is it something with the architecture of the box bus/box?
-> 
+> preempt count: 00000002
+> . 2-level deep critical section nesting:
+> .. entry 1: __sysrq_lock_table+0x12/0x14 [<c01f482b>] /
+> (__handle_sysrq+0x1a/0xed [<c01f482b>])
+> .. entry 2: print_traces+0x16/0x48 [<c0104ee4>] / (dump_stack+0x1e/0x20
 
-No, probably just different configurations or memory usage patterns
-of the kernel, maybe different drivers, etc.
+does the patch below help?
 
-> Why does it tend to affect one machine and not the other?
-> 
+	Ingo
 
-Again, luck of the draw mainly. My patch should definitely help the
-TSO allocation failures (it probably won't fix the sound buffer alloc
-failure though, now that I've looked at it).
+--- linux/drivers/char/sysrq.c.orig
++++ linux/drivers/char/sysrq.c
+@@ -252,7 +252,7 @@ static struct sysrq_key_op sysrq_kill_op
+ 
+ 
+ /* Key Operations table and lock */
+-static DECLARE_RAW_SPINLOCK(sysrq_key_table_lock);
++static DECLARE_SPINLOCK(sysrq_key_table_lock);
+ #define SYSRQ_KEY_TABLE_LENGTH 36
+ static struct sysrq_key_op *sysrq_key_table[SYSRQ_KEY_TABLE_LENGTH] = {
+ /* 0 */	&sysrq_loglevel_op,

@@ -1,104 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263212AbVAFXX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263200AbVAFXpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbVAFXX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 18:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbVAFXU0
+	id S263200AbVAFXpb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 18:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbVAFXpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 18:20:26 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:51615 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263207AbVAFXQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 18:16:36 -0500
-Message-Id: <200501062316.j06NFP900855@www.watkins-home.com>
-From: "Guy" <bugzilla@watkins-home.com>
-To: "'Mike Hardy'" <mhardy@h3c.com>, "'Jesper Juhl'" <juhl-lkml@dif.dk>
-Cc: "'Andrew Walrond'" <andrew@walrond.org>, <linux-raid@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: No swap can be dangerous (was Re: swap on RAID (was Re: swp - Re: ext3 journal on software raid))
-Date: Thu, 6 Jan 2005 18:15:18 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 6 Jan 2005 18:45:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1212 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261196AbVAFXm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 18:42:29 -0500
+Date: Thu, 6 Jan 2005 15:46:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Cc: bzolnier@gmail.com, drab@kepler.fjfi.cvut.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: APIC/LAPIC hanging problems on nForce2 system.
+Message-Id: <20050106154650.33c3b11c.akpm@osdl.org>
+In-Reply-To: <41DD537B.9030304@gmx.de>
+References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
+	<41DC1AD7.7000705@gmx.de>
+	<Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
+	<41DC2113.8080604@gmx.de>
+	<Pine.LNX.4.60.0501051821430.25946@kepler.fjfi.cvut.cz>
+	<41DC2353.7010206@gmx.de>
+	<Pine.LNX.4.60.0501060046450.26952@kepler.fjfi.cvut.cz>
+	<41DCFEF0.5050105@gmx.de>
+	<58cb370e05010605527f87297e@mail.gmail.com>
+	<41DD537B.9030304@gmx.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <41DDC25C.2040404@h3c.com>
-Thread-Index: AcT0Q7r33D0WvEF1RPWnO9m4fh9ruQAAacOw
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I MUST/SHOULD have swap space....
-Maybe I will create a RAM disk and use it for swap!  :)  :)  :)
+"Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
+>
+> This patch applies the Nforce2 C1 halt disconnect fix, no matter if
+> disconnect is enabled of not. I don't know whether checking the whole
+> affected byte is necessary or the nibble would be enough (I am no Nvidia
+> engineer).
 
-Guy
+The patch doesn't apply to the current tree.  Here's what we currently have:
 
------Original Message-----
-From: linux-raid-owner@vger.kernel.org
-[mailto:linux-raid-owner@vger.kernel.org] On Behalf Of Mike Hardy
-Sent: Thursday, January 06, 2005 5:58 PM
-To: Jesper Juhl
-Cc: Andrew Walrond; linux-raid@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: No swap can be dangerous (was Re: swap on RAID (was Re: swp -
-Re: ext3 journal on software raid))
+static void __init pci_fixup_nforce2(struct pci_dev *dev)
+{
+	u32 val, fixed_val;
+	u8 rev;
 
+	pci_read_config_byte(dev, PCI_REVISION_ID, &rev);
 
+	/*
+	 * Chip  Old value   New value
+	 * C17   0x1F0FFF01  0x1F01FF01
+	 * C18D  0x9F0FFF01  0x9F01FF01
+	 *
+	 * Northbridge chip version may be determined by
+	 * reading the PCI revision ID (0xC1 or greater is C18D).
+	 */
+	fixed_val = rev < 0xC1 ? 0x1F01FF01 : 0x9F01FF01;
 
-Jesper Juhl wrote:
-> On Thu, 6 Jan 2005, Andrew Walrond wrote:
-> 
-> 
->>On Thursday 06 January 2005 17:46, Mike Hardy wrote:
->>
->>>You are correct that I was getting at the zero swap argument - and I
->>>agree that it is vastly different from simply not expecting it. It is
->>>important to know that there is no inherent need for swap in the kernel
->>>though - it is simply used as more "memory" (albeit slower, and with
->>>some optimizations to work better with real memory) and if you don't
->>>need it, you don't need it.
->>>
->>
->>If I recollect a recent thread on LKML correctly, your 'no inherent need
-for 
->>swap' might be wrong.
->>
->>I think the gist was this: the kernel can sometimes needs to move bits of 
->>memory in order to free up dma-able ram, or lowmem. If I recall correctly,
+	pci_read_config_dword(dev, 0x6c, &val);
 
->>the kernel can only do this move via swap, even if there is stacks of free
+	/*
+	 * Apply fixup only if C1 Halt Disconnect is enabled
+	 * (bit28) because it is not supported on some boards.
+	 */
+	if ((val & (1 << 28)) && val != fixed_val) {
+		printk(KERN_WARNING "PCI: nForce2 C1 Halt Disconnect fixup\n");
+		pci_write_config_dword(dev, 0x6c, fixed_val);
+	}
+}
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2, pci_fixup_nforce2);
 
->>(non-dmaable or highmem) memory.
->>
->>I distinctly remember the moral of the thread being "Always mount some
-swap, 
->>if you can"
->>
->>This might have changed though, or I might have got it completely wrong. -
-
->>I've cc'ed LKML incase somebody more knowledgeable can comment...
->>
-> 
-> 
-> http://kerneltrap.org/node/view/3202
-> 
-
-Interesting - I was familiar with the original swappiness thread 
-(http://kerneltrap.org/node/view/3000) but haven't seen anything since 
-then (I mainly follow via kernel-traffic - enjoyable, but nowhere near 
-real time). There's clearly been a bunch more discussion...
-
-Not to rehash the performance arguments, but it appears from my read of 
-the kernel trap page referenced above that the primary argument for swap 
-is still the performance argument - I didn't see anything referencing 
-swap being necessary to move DMAable ram or lowmem. Was that posted 
-previously on linux-kernel but not on kerneltrap?
-
-I'm still under the impression that "to swap or not" is a 
-performance/policy/risk-management question, not a correctness question. 
-If I'm wrong, I'd definitely like to know...
-
--Mike
--
-To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+If you think this still needs fixing, please submit a new patch.  I think
+we'd need to see a better explanation of the rationale for the change as
+well, please.  What it does, why, how, etc.

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279754AbRKIJaq>; Fri, 9 Nov 2001 04:30:46 -0500
+	id <S279768AbRKIJas>; Fri, 9 Nov 2001 04:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279768AbRKIJa1>; Fri, 9 Nov 2001 04:30:27 -0500
-Received: from [194.213.32.133] ([194.213.32.133]:31873 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S279739AbRKIJaU>;
-	Fri, 9 Nov 2001 04:30:20 -0500
-Date: Thu, 8 Nov 2001 12:39:38 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Kevin Easton <s3159795@student.anu.edu.au>
-Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Re: Scheduling of low-priority background processes
-Message-ID: <20011108123938.A45@toy.ucw.cz>
-In-Reply-To: <20011106190757.A28090@beernut.flames.org.au> <20011106202212.A28518@beernut.flames.org.au>
+	id <S279739AbRKIJa2>; Fri, 9 Nov 2001 04:30:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17416 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279754AbRKIJaU>; Fri, 9 Nov 2001 04:30:20 -0500
+Date: Fri, 9 Nov 2001 10:30:13 +0100
+From: Jan Kara <jack@suse.cz>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large files and filesystem block size
+Message-ID: <20011109103013.B1734@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.30.0111081553470.1479-100000@mustard.heime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011106202212.A28518@beernut.flames.org.au>; from s3159795@student.anu.edu.au on Tue, Nov 06, 2001 at 08:22:12PM +1100
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0111081553470.1479-100000@mustard.heime.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> I foolishly muttered:
+  Hello,
+
+> I'm setting up a server serving large >=1GB files. I spoke to this guy
+> that just finished his PhD on the subject
+> (http://ConfMan.unik.no/~paalh/index2.html) , and he said he'd managed to
+> increase the throughput by using a 64kB block size on the files system.
+> This testing was done on NetBSD (as far as I can remember).
 > 
-> > What if the SCHED_IDLE behaviour only applies when the process 
-> > is in userspace? Couldn't scheduler compare the process's 
-> > instruction pointer against the kernel/user break point, and 
-> > if the process is in the kernel, then just treat it like a 
-> > normal process? 
-> 
-> ...eek.   I clearly wasn't thinking straight with that one.  There
-> isn't a (non-disgusting) way of determining in the scheduler if a
-> process is executing a syscall apart from sys_sched_yield, is there.
+> Does anyone know of a file system that supports large files, large
+> filesystems and large block sizes?
+  Linux doesn't support larger block size than page size (ie. 4 KB on i386).
 
-Actually, something similar was implemented. New process flag was added,
-and when process did syscall, it lost SCHED_IDLE flag, and it was returned
-to it when it went back to userland.
+> Does any of you have any theories if his practice in using larger block
+> sizes will have the same impact on performance in Linux as it had in BSD?
+  I think performance will improve but only for large files (but that's
+probably what you want).
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

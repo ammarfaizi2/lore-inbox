@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318514AbSGSJud>; Fri, 19 Jul 2002 05:50:33 -0400
+	id <S318493AbSGSJyW>; Fri, 19 Jul 2002 05:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318515AbSGSJuc>; Fri, 19 Jul 2002 05:50:32 -0400
-Received: from imeil.udg.es ([130.206.45.97]:15782 "EHLO imeil.udg.es")
-	by vger.kernel.org with ESMTP id <S318514AbSGSJu3>;
-	Fri, 19 Jul 2002 05:50:29 -0400
-Date: Fri, 19 Jul 2002 11:56:41 +0200 (CEST)
-From: Giro <giro@hades.udg.es>
-To: support <support@promise.com.tw>
-Cc: "Alan Cox (Linux Kernel)" <alan@lxorguk.ukuu.org.uk>,
-       "Marcelo (Linux Kernel)" <marcelo@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update
-In-Reply-To: <Pine.LNX.4.30.0207191151230.15842-100000@hades.udg.es>
-Message-ID: <Pine.LNX.4.30.0207191154280.16106-100000@hades.udg.es>
+	id <S318494AbSGSJyW>; Fri, 19 Jul 2002 05:54:22 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:37508 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S318493AbSGSJyV>; Fri, 19 Jul 2002 05:54:21 -0400
+Date: Fri, 19 Jul 2002 02:55:13 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] export serio_interrupt for modules
+Message-ID: <Pine.LNX.4.44.0207190247480.4771-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002, Giro wrote:
 
->
-> I test this patch, and have compile problem with one } on ide.c
+In order to use serio drivers as modules, like i8042, serio_interrupt 
+needs to be exported.  Unresolved symbols result otherwise.  Patch follows.
 
-Sorry error on line 918
+Craig Kulesa
+Steward Observatory
 
-and more errors:
-drivers/ide/idedriver.o: In function `ide_error':
-drivers/ide/idedriver.o(.text+0x3b37): undefined reference to
-`pdc202xx_marvell_idle'
-
-
-i use 2.4.18 + patch-2.4.19-rc2 + patch-2.4.19-rc2-ac2 +
-promise-patch-2.4.19-rc2-ac2
-
-i supous it is correct?
-
-
-Giro
-
-
-
->
-
->
-giro
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-*******************************************************************************
-  David Gironella Casademont
-  Estudiant Informatica de Sistemes - Universitat de Girona
-  Administrador d'Hades root@hades.udg.es
-  Secretari Associació d'Estudiants d'Informàtica de Girona AEIGI
-  AEIGi Web - http://www.aeigi.org
-  Giro Web - http://hades.udg.es/~giro
-*******************************************************************************
-
-
-
+diff -uNr linux-2.5.26-rmap13b/drivers/input/serio/serio.c linux-2.5.26-rmap13b-slablru/drivers/input/serio/serio.c
+--- linux-2.5.26-rmap13b/drivers/input/serio/serio.c	Thu Jul 18 03:03:28 2002
++++ linux-2.5.26-rmap13b-slablru/drivers/input/serio/serio.c	Thu Jul 18 10:07:39 2002
+@@ -49,6 +49,7 @@
+ EXPORT_SYMBOL(serio_open);
+ EXPORT_SYMBOL(serio_close);
+ EXPORT_SYMBOL(serio_rescan);
++EXPORT_SYMBOL(serio_interrupt);
+ 
+ static struct serio *serio_list;
+ static struct serio_dev *serio_dev;
 

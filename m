@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbTD2V0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbTD2V0I
+	id S261847AbTD2VXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbTD2VXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:26:08 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:30653 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261854AbTD2V0G (ORCPT
+	Tue, 29 Apr 2003 17:23:14 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:57266 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261847AbTD2VXK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:26:06 -0400
-Date: Tue, 29 Apr 2003 14:40:04 -0700
+	Tue, 29 Apr 2003 17:23:10 -0400
+Date: Tue, 29 Apr 2003 14:37:12 -0700
 From: Greg KH <greg@kroah.com>
-To: oliver@neukum.name
+To: David Brownell <david-b@pacbell.net>
 Cc: Max Krasnyansky <maxk@qualcomm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-usb-devel@lists.sourceforge.net
-Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Message-ID: <20030429214004.GA8891@kroah.com>
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <20030429211550.GA8669@kroah.com> <200304292334.19447.oliver@neukum.org>
+Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
+Message-ID: <20030429213712.GA8810@kroah.com>
+References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <3EAEF11B.4070000@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304292334.19447.oliver@neukum.org>
+In-Reply-To: <3EAEF11B.4070000@pacbell.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 29, 2003 at 11:34:19PM +0200, Oliver Neukum wrote:
+On Tue, Apr 29, 2003 at 02:39:39PM -0700, David Brownell wrote:
 > 
-> > +int usb_init_urb(struct urb *urb)
-> > +{
-> > +	if (!urb)
-> > +		return -EINVAL;
-> > +	memset(urb, 0, sizeof(*urb));
-> > +	urb->count = (atomic_t)ATOMIC_INIT(1);
-> > +	spin_lock_init(&urb->lock);
-> > +
-> > +	return 0;
-> > +}
+> > I was actually going to ask you guys if you'd be interested
+> > in generalizing this _urb_queue() stuff that I have for
+> > other drivers. Current URB api does not provide any interface
+> > for queueing/linking/etc of URBs in the _driver_ itself.
 > 
-> Greg, please don't do it this way. Somebody will
-> try to free this urb. If the urb is part of a structure
-> this must not lead to a kfree. Please init it to some
-> insanely high dummy value in this case.
+> I only saw fragments of the original patch -- could you be just
+> a bit more specific?
 
-We can't init it to a high value, if we want to use it ourself in
-usb_alloc_urb().
+The whole patch can be seen at:
+	http://marc.theaimsgroup.com/?l=bk-commits-head&m=105158631404987
 
-And yes, I agree this is a very dangerous function to use on your own,
-I thought I conveyed that in the documentation for the function.
-
-But if we don't have such a function, then people like Max will just
-roll their own, like he just did :)
-
-Might as well make it easy for him to shoot himself in the foot if he
-really wants to...
 
 thanks,
 

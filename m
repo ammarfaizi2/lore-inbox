@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287116AbSABWoy>; Wed, 2 Jan 2002 17:44:54 -0500
+	id <S287139AbSABWsE>; Wed, 2 Jan 2002 17:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287101AbSABWoo>; Wed, 2 Jan 2002 17:44:44 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:19984 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287116AbSABWog>; Wed, 2 Jan 2002 17:44:36 -0500
-Date: Wed, 2 Jan 2002 14:48:13 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Peter Osterlund <petero2@telia.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] scheduler fixups ...
-In-Reply-To: <m28zbgpeqf.fsf@pengo.localdomain>
-Message-ID: <Pine.LNX.4.40.0201021438500.1034-100000@blue1.dev.mcafeelabs.com>
+	id <S287134AbSABWrz>; Wed, 2 Jan 2002 17:47:55 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:46604 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S287143AbSABWrj>;
+	Wed, 2 Jan 2002 17:47:39 -0500
+Message-ID: <3C338DCC.3020707@free.fr>
+Date: Wed, 02 Jan 2002 23:46:36 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: esr@thyrsus.com
+Cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102164757.A16976@thyrsus.com> <Pine.LNX.4.33.0201022305090.427-100000@Appserv.suse.de> <20020102170833.A17655@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Jan 2002, Peter Osterlund wrote:
+Eric S. Raymond wrote:
 
-> Davide Libenzi <davidel@xmailserver.org> writes:
->
-> > a still lower ts
->
-> This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
-> run two cpu hogs at nice values 0 and 19 respectively, the niced task
-> will get approximately 20% cpu time (on x86 with HZ=100) and this
-> patch will give even more cpu time to the niced task. Isn't 20% too
-> much?
+> [...]
 
-The problem is that with HZ == 100 you don't have enough granularity to
-correctly scale down nice time slices. Shorter time slices helps the
-interactive feel that's why i'm pushing for this. Anyway i'm currently
-running experiments with 30-40ms time slices. Another thing to remember is
-that cpu hog processes will sit at dyn_prio 0 while processes like for
-example gcc during a kernel build will range between 5-8 to 36 and in this
-case their ts is actually doubled by the fact that they can require
-another extra ts. For all processes that does not sit at dyn_prio 0 ( 90%
-) the nice tasks cpu time is going to be half.
+> 
+> But this is not a bad reason.  Allowing people to avoid running suid 
+> programs is a *good* reason.
+> 
 
+Usually yes. But for a code that simply parses /dev/kmem content without 
+taking args...
 
+Just took a quick look at dmidecode.c and auditing this code doesn't 
+seem out of reach.
 
+What's the difference security-wise between running this code in kernel 
+space and in a suid prog? Avoiding loading libraries?
 
-- Davide
+Frankly I don't see the point.
 
+LB.
 

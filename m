@@ -1,95 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbULaAvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbULaBG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbULaAvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 19:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbULaAvG
+	id S261802AbULaBG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 20:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbULaBG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 19:51:06 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:21078 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261801AbULaAu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 19:50:56 -0500
-Message-ID: <41D4A2A6.3060607@tls.msk.ru>
-Date: Fri, 31 Dec 2004 03:51:50 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 30 Dec 2004 20:06:26 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:5323 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S261802AbULaBGV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 20:06:21 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: initramfs: is it supposed to work?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Linux 2.6.10-ac1
+Date: Thu, 30 Dec 2004 20:06:19 -0500
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1104103881.16545.2.camel@localhost.localdomain> <200412300005.31211.gene.heskett@verizon.net> <1104430176.2446.3.camel@localhost.localdomain>
+In-Reply-To: <1104430176.2446.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412302006.19872.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.52.185] at Thu, 30 Dec 2004 19:06:20 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to play with initramfs (aka cpio "image") and 2.6.10
-kernel, and have several questions, main of them is whenever
-it is supposed to work at all at this stage.
+On Thursday 30 December 2004 18:38, Alan Cox wrote:
 
-By replacing "standard" initrd filesystem (be it romfs, cramfs,
-or even ext2), when it works with /sbin/init started with pid=1
-and does pivot_root() after mounting real root, with a cpio image
-containing all the same files (plus /init which is just a link
-to /sbin/init), I managed to get it to boot just fine (I used a
-little shell script to generate the cpio archive, quite similar
-to what usr/gen_init_cpio.c does -- fun excersise in shell
-programming).  So far so good.
+Thanks for the reply Alan, I appreciate it.
 
-But now, the only problem left is that the kernel does not want
-to do the last step: to umount the /initrd (which is initramfs
-after pivot_root) after booting: kernel enters an endless loop
-inside umount() syscall somewhere (system locks up completely
-and starts "eating" cpu which is quite visible on a laptop:
-the fans starts rotating after about half a minute after entering
-the umount() call), not even responding to sysrq requests.
+>On Iau, 2004-12-30 at 05:05, Gene Heskett wrote:
+>> some sort of an error message that looks like it may be memory
+>> related.  There's a pair of half giggers in here, running at 333
+>> fsb, but they are supposedly rated for a 400 mhz fsb. Thats
+>> presumably because I have turned on the MCE stuffs.
+>
+>MCE's generally come from the processor. To decode it you need to
+> know what CPU and then get the manuals out and decode the bits.
+>
+>> Dec 29 23:44:09 coyote kernel: MCE: The hardware reports a non
+>> fatal, correctable incident occurred on CPU 0. Dec 29 23:44:09
+>> coyote kernel: Bank 2: d40040000000017a
+>>
+>> And I've not seen that before.  Does it have a simple and correct
+>> answer?
+>
+>Its unhappy about something, but whatever is causing it isn't fatal.
+>Previously its been unhappy but not telling you ..
 
-Maybe I did something wrong when creating the initramfs image
-(it is normal cpio archive, and gen_init_cpio.c does the same
-thing given the same set of files).  I tried both with and
-without the root entry in the archive (gen_init_cpio.c does
-not include the entry for /, and there's nothing in docs,
-in early-userspace/buffer-format.txt, about this one) -- the
-same effect, endless loop when trying to umount(/initrd).
+Thats what I thought too Alan, after I'd connected the dots, so I 
+turned the nonfatal exceptions off.  I'll give memtest86 another 
+chance to break it sometime next week.  This is NOT ecc memory that I 
+know of although I paid nearly $80 per half gig when I bought it last 
+spring.  Theres a gig of it in here, and only two addresses were 
+being reported, one in each bank.  If mapped directly, are those 
+addresses even in that gig of ram?  Thats too big a hex number for my 
+calculator.  Or is there a way to use the dmesg data to define that?
 
-After looking at this more closely (but still "outside" the
-kernel), I noticied several more "issues" (or is it the same?).
-Namely, /proc/mounts contains different things when using one
-of the 3 different "boot methods":
+Dumb question, could this memory be on the video card?  Its an ATI 
+9200SE 128 meg card, your basic $85 commodity card there days.
 
-o When booting the "old way", with root=real_root, and when
-/linuxrc gets executed with pid != 1, /proc/mounts contains
-just one entry for root, which is the right one:
-  /dev/hda1 / ext3 rw 0 0
-
-o When booting the "new way", whth root=/dev/ram0 and /sbin/init
-from initrd running with pid = 1 and doing pivot_root and execing
-real /sbin/init, there are 2 entries for root in /proc/mounts:
-  rootfs / rootfs rw 0 0
-  /dev/hda1 / ext3 rw 0 0
-or, sometimes, it is like
-  rootfs / rootfs rw 0 0
-  /dev/root / ext3 rw 0 0
--- this one probably is due to devfs.  (on debian with their initrd
-stuff it looks even worse, something like
-  rootfs / rootfs rw 0 0
-  /dev2/root2 / ext3 rw 0 0
-).
-o And finally, when booting the "right way", using initramfs where
-/init gets executed with pid=1 and should do the same pivot_root
-and things like that, before the umount loop mentioned above,
-it looks almost right:
-  rootfs /initrd rootfs ro 0 0
-  /dev/hda1 / ext3 rw 0 0
-(this is where eg umount from busybox chokes, also entering
-endless loop.. but tha's a different story, it's an obvious
-bug in busybox.. however in order to fix it properly one have
-to know which cases like the 3 mentioned above are possible).
-
-When the "rootfs" thing enters into the game?
-In which cases which lines will be present in /proc/mounts?
-And, is initramfs supposed to work now?
-
-Thank you.
-
-/mjt
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

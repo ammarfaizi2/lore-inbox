@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319448AbSILGQT>; Thu, 12 Sep 2002 02:16:19 -0400
+	id <S319450AbSILGSh>; Thu, 12 Sep 2002 02:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319449AbSILGQT>; Thu, 12 Sep 2002 02:16:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19686 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S319448AbSILGQS>;
-	Thu, 12 Sep 2002 02:16:18 -0400
-Date: Thu, 12 Sep 2002 08:20:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] highmem I/O for ide-pmac.c
-Message-ID: <20020912062057.GK30234@suse.de>
-References: <15743.15275.412038.388540@argo.ozlabs.ibm.com> <20020911130209.GL1089@suse.de> <15744.12392.868240.502920@argo.ozlabs.ibm.com>
+	id <S319451AbSILGSh>; Thu, 12 Sep 2002 02:18:37 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:48057 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319450AbSILGSg>;
+	Thu, 12 Sep 2002 02:18:36 -0400
+Date: Thu, 12 Sep 2002 08:23:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USER_HZ & NTP problems
+Message-ID: <20020912082307.E18918@ucw.cz>
+References: <fokkensr@fokkensr.vertis.nl> <200209112236.g8BMaMMD016898@pincoya.inf.utfsm.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15744.12392.868240.502920@argo.ozlabs.ibm.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209112236.g8BMaMMD016898@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Wed, Sep 11, 2002 at 06:36:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12 2002, Paul Mackerras wrote:
-> Jens Axboe writes:
-> 
-> > Doesn't look like it's needed at all, at least you never turn on highmem
-> > I/O with ide_toggle_bounce() :-)
-> 
-> Foo, neither I do. :(
-> 
-> > BTW, it would be ok to export that from ide-dma.c instead of duplicating
-> > it in ide-pmac.
-> 
-> Looking at it again, both ide_build_sglist and ide_raw_build_sglist do
-> *almost* what we want.  If ide-pmac used hwif->sg_table instead of
-> pmif->sg_table, and if ide_[raw_]build_sglist were exported and took
-> the maximum number of entries as a parameter instead of using the
-> PRD_ENTRIES constant, then ide-pmac wouldn't need to have its own
-> versions of those routines.  Would those changes be OK?
+On Wed, Sep 11, 2002 at 06:36:22PM -0400, Horst von Brand wrote:
 
-Sounds like a perfectly fine change to me.
+> Rolf Fokkens <fokkensr@fokkensr.vertis.nl> said:
+> > On Tuesday 10 September 2002 08:09, Vojtech Pavlik wrote:
+> > > Actually, the clock true frequency is 1193181.8 Hz, although most
+> > > manuals say 1.19318 MHz, which, because truncating more digits, also
+> > > correct. But 1193180 Hz isn't. If you're trying to count the time
+> > > correctly, you should better use 1193182 Hz if staying in integers.
+> > 
+> > I copied the clock frequency from the kernel source, timex.h defines:
+> > 
+> > #define CLOCK_TICK_RATE 1193180
+> > 
+> > If what you're saying is correct, timex.h uses the wrong value as wel I guess.
+> 
+> I'd be _really_ surprised if that number is within 1% (+-11932 or so)
+> correct, an error in the last digit (0.0001%) is surely lost. 
 
-> Ben, any reason why we have to use pmif->sg_table rather than
-> hwif->sg_table?
-
-Looks identical to me. hwif->sg_table is kmalloc'ed sg list of
-PRD_ENTRIES (256), pmif->sg_table is kmalloc'ed ditto of MAX_DCMDS (256)
-entries.
+Well, the xtal is usually to be specified with a +-50ppm error, though
+many have a larger error, but not too much larger - less than 200ppm, so
+you can stay surprised, it's within +-0.02% worst case. 2 at the last
+place is about 1.5ppm. This is about five seconds a month.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs

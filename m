@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbTIBHGs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 03:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTIBHGs
+	id S263580AbTIBHXL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 03:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTIBHXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 03:06:48 -0400
-Received: from [212.34.184.41] ([212.34.184.41]:13741 "EHLO mail.hometree.net")
-	by vger.kernel.org with ESMTP id S263563AbTIBHGr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 03:06:47 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: bandwidth for bkbits.net (good news)
-Date: Tue, 2 Sep 2003 07:06:27 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bj1fhj$its$4@tangens.hometree.net>
-References: <20030830230701.GA25845@work.bitmover.com> <87llt9bvtc.fsf@deneb.enyo.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1062486387 19388 212.34.184.4 (2 Sep 2003 07:06:27 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 2 Sep 2003 07:06:27 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Tue, 2 Sep 2003 03:23:11 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:34823 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263580AbTIBHXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 03:23:09 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>, Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Subject: Re: 2.4.22pre7aa1: unresolved in sk98lin
+Date: Tue, 2 Sep 2003 09:20:08 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, cgoos@syskonnect.de, mlindner@syskonnect.de,
+       linux@syskonnect.de
+References: <20030719013223.GA31330@dualathlon.random> <3F1C763E.78D67BC3@eyal.emu.id.au> <20030901234600.GA11503@dualathlon.random>
+In-Reply-To: <20030901234600.GA11503@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309020920.08259.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> writes:
+On Tuesday 02 September 2003 01:46, Andrea Arcangeli wrote:
 
->do this for a T1 customer (typically, it requires "unusual"
->configuration of vital production routers with the fat pipes).
+Hi Andrea,
 
-You need a shaper connected to the ISP backbone which shapes the
-outgoing traffic for you and a border router which talks to the T1
-(C17xx or C26xx). Normally, if your ISP has some sort of clue, you
-will also need a bastion router which can handle backbone <-> 100 MBit
-traffic and does dynamic routing updates (EGP or OSPF) to the ISP
-backbone (A C26xx or C37xx).
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.22-pre7-aa1/kernel/drivers/net/sk98lin/sk98lin.o
+> > depmod:         __udivdi3
+> There are several functions triggering this problem, and it's a mainline
+> 2.4 problem (I don't see anything specific to my tree).
+> I'm CCing the authors of the driver, is there a new version or are we the
+> first triggering it? I can fix it myself but I'd prefer to avoid any
+> duplication since it's not a one liner.
 
-This isn't your run-of-the-mill setup but I know of plenty ISPs here
-that will happily sell you this and also the consulting needed to
-plan, setup and operate the link. However, you won't get it for
-$199/month. :-)
+the problem is _was_ the sk98lin driver, but this problem is gone for a very 
+long time now. 2.4.23-pre* will get an update in the next days with sk98lin 
+v6.17 (current 6.02 is in mainline) and the problem is gone with it.
 
-	Regards
-		Henning
+Or at least, I don't get the unresolved symbols problem with it ;)
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+ciao, Marc
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
-"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
-      -- AOL CD when played backwards  (User Friendly - 200-10-15)

@@ -1,77 +1,225 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264395AbTKUSMt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 13:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTKUSMt
+	id S264411AbTKUSpl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 13:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTKUSpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 13:12:49 -0500
-Received: from relay-3m.club-internet.fr ([194.158.104.42]:7573 "EHLO
-	relay-3m.club-internet.fr") by vger.kernel.org with ESMTP
-	id S264395AbTKUSMr convert rfc822-to-8bit (ORCPT
+	Fri, 21 Nov 2003 13:45:40 -0500
+Received: from uirapuru.fua.br ([200.129.163.1]:22470 "EHLO uirapuru.fua.br")
+	by vger.kernel.org with ESMTP id S264411AbTKUSpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 13:12:47 -0500
-From: pinotj@club-internet.fr
-To: akpm@osdl.org, manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Fri, 21 Nov 2003 19:12:43 CET
-Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet1.1069438363.27768.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 21 Nov 2003 13:45:34 -0500
+Message-ID: <18299.200.212.156.130.1069436828.squirrel@webmail.ufam.edu.br>
+Date: Fri, 21 Nov 2003 15:47:08 -0200 (BRST)
+Subject: Adding process physical memoy detailed info in /proc/PID/status
+From: edjard@ufam.edu.br
+To: linux-kernel@vger.kernel.org
+Cc: Mauricio.Lin@indt.org.br, Allan.Bezerra@indt.org.br
+User-Agent: SquirrelMail/1.4.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----Message d'origine----
->Date: Wed, 19 Nov 2003 18:09:43 -0800
->De: Andrew Morton <akpm@osdl.org>
->A: pinotj@club-internet.fr
->Copie à: linux-kernel@vger.kernel.org
->Sujet: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-[...]
->Well it's interesting that it is repeatable.
+Hi There,
+
+We needed to add a detailed info about the physical memory space
+allocated for a given process PID in the /proc/PID/status, similar
+to the pmap of Solaris. Although you may argue the reasons
+of doing that, we are building a performance tool analyser which
+needs such info.
+
+We think this may be of use to someone else. We're not sure whether
+the proper place to do that is in the kernel or via module. Anyway,
+below is the patch, followed by an example, of a new output for
+/proc/PID/status
+
+Thanks for any comment,
+
+BR,
+
+Edjard
+-----------------------------------------------
+10LE/INdT - Labaratorio de Linux
+JOSE - Jungle Open Source dEvelopers
+Manaus, Amazon - Brazil
+-----------------------------------------------
+
+
+--- linux/fs/proc/task_mmu.c	2003-10-25 14:43:00.000000000 -0400
++++ linux/fs/proc/task_mmu.c-10LE	2003-11-21 13:51:42.000000000 -0400
+@@ -3,44 +3,87 @@
+ #include <linux/seq_file.h>
+ #include <asm/uaccess.h>
+
++
++void phys_size_10LE(struct mm_struct *mm, unsigned long start_address,
+unsigned long end_address, unsigned long *size) {
++  pgd_t *my_pgd;
++  pmd_t *my_pmd;
++  pte_t *my_pte;
++  unsigned long page;
++
++  for (page = start_address; page < end_address; page += PAGE_SIZE) {
++    my_pgd = pgd_offset(mm, page);
++    if (pgd_none(*my_pgd) || pgd_bad(*my_pgd)) break;
++    my_pmd = pmd_offset(my_pgd, page);
++    if (pmd_none(*my_pmd) || pmd_bad(*my_pmd)) break;
++    my_pte = pte_offset_map(my_pmd, page);
++    if (pte_present(*my_pte)) {
++      *size += PAGE_SIZE;
++    }
++  }
++}
++
+ char *task_mem(struct mm_struct *mm, char *buffer)
+ {
+-	unsigned long data = 0, stack = 0, exec = 0, lib = 0;
+-	struct vm_area_struct *vma;
+-
+-	down_read(&mm->mmap_sem);
+-	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+-		unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
+-		if (!vma->vm_file) {
+-			data += len;
+-			if (vma->vm_flags & VM_GROWSDOWN)
+-				stack += len;
+-			continue;
+-		}
+-		if (vma->vm_flags & VM_WRITE)
+-			continue;
+-		if (vma->vm_flags & VM_EXEC) {
+-			exec += len;
+-			if (vma->vm_flags & VM_EXECUTABLE)
+-				continue;
+-			lib += len;
+-		}
+-	}
+-	buffer += sprintf(buffer,
+-		"VmSize:\t%8lu kB\n"
+-		"VmLck:\t%8lu kB\n"
+-		"VmRSS:\t%8lu kB\n"
+-		"VmData:\t%8lu kB\n"
+-		"VmStk:\t%8lu kB\n"
+-		"VmExe:\t%8lu kB\n"
+-		"VmLib:\t%8lu kB\n",
+-		mm->total_vm << (PAGE_SHIFT-10),
+-		mm->locked_vm << (PAGE_SHIFT-10),
+-		mm->rss << (PAGE_SHIFT-10),
+-		data - stack, stack,
+-		exec - lib, lib);
+-	up_read(&mm->mmap_sem);
+-	return buffer;
++  unsigned long data = 0, stack = 0, exec = 0, lib = 0;
++  unsigned long phys_data = 0, phys_stack = 0, phys_exec = 0, phys_lib = 0;
++  unsigned long phys_brk = 0;
++  struct vm_area_struct *vma;
++  down_read(&mm->mmap_sem);
++  for (vma = mm->mmap; vma; vma = vma->vm_next) {
++    unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
++
++    if (!vma->vm_file) {
++      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_data);
++      if (vma->vm_flags & VM_GROWSDOWN) {
++	stack += len;
++	phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_stack);
++      }
++      else {
++	data += len;
++      }
++      continue;
++    }
++
++    if (vma->vm_flags & VM_WRITE)
++      continue;
++
++    if (vma->vm_flags & VM_EXEC) {
++      exec += len;
++      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_exec);
++      if (vma->vm_flags & VM_EXECUTABLE) {
++	continue;
++      }
++      lib += len;
++      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_lib);
++    }
++  }
++  phys_size_10LE(mm, mm->start_brk, mm->brk, &phys_brk);
++  buffer += sprintf(buffer,
++		    "VmSize:\t%8lu kB\n"
++		    "VmLck:\t%8lu kB\n"
++		    "VmRSS:\t%8lu kB\n"
++		    "VmData:\t%8lu kB\n"
++		    "PhysicalData:\t%8lu kB\n"
++		    "VmStk:\t%8lu kB\n"
++		    "PhysicalStk:\t%8lu kB\n"
++		    "VmExe:\t%8lu kB\n"
++		    "PhysicalExe:\t%8lu kB\n"
++		    "VmLib:\t%8lu kB\n"
++		    "PhysicalLib:\t%8lu kB\n"
++		    "VmHeap: \t%8lu KB\n"
++		    "PhysicalHeap: \t%8lu KB\n",
++		    mm->total_vm << (PAGE_SHIFT-10),
++		    mm->locked_vm << (PAGE_SHIFT-10),
++		    mm->rss << (PAGE_SHIFT-10),
++		    data, (phys_data - phys_stack) >> 10,
++		    stack, phys_stack >> 10,
++		    exec - lib, (phys_exec - phys_lib) >> 10,
++		    lib, phys_lib >> 10,
++		    (mm->brk - mm->start_brk) >> 10,
++		    phys_brk >> 10
++		    );
++  up_read(&mm->mmap_sem);
++  return buffer;
+ }
+
+ unsigned long task_vsize(struct mm_struct *mm)
+
+
+---------------------  END OF PATCH -----------------------------
+
+
+Here is an output of a new /proc/PID/stat
+
+Originally the command 'cat /proc/PID/status' does not provide the
+information in physical memory of the process with PID. As you can see in
+the example below physical memory allocation is detailed.
 >
->First thing to do is to eliminate hardware failures:
+> $ cat /proc/1718/status
+> Name:        opera
+> State:        S (sleeping)
+> SleepAVG:        101%
+> Tgid:        1718
+> Pid:        1718
+> PPid:        1631
+> TracerPid:        0
+> Uid:        500        500        500        500
+> Gid:        501        501        501        501
+> FDSize:        256
+> Groups:        501
+> VmSize:           35792 kB
+> VmLck:                kB
+> VmRSS:           21156 kB
+> VmData:            5920 kB
+> PhysicalData:            5556 kB
+> VmStk:              68 kB
+> PhysicalStk:              40 kB
+> VmExe:            5124 kB
+> PhysicalExe:            3408 kB
+> VmLib:           19244 kB
+> PhysicalLib:           10240 kB
+> HeapSize:             5184 KB
+> PhysicalHeap:             5124 KB
+> Threads:        1
+> SigPnd:        0000000000000000
+> ShdPnd:        0000000000000000
+> SigBlk:        0000000100000000
+> SigIgn:        8000000010001000
+> SigCgt:        0000000080010000
+> CapInh:        0000000000000000
+> CapPrm:        0000000000000000
+> CapEff:        0000000000000000
 >
->1: Is the oops always the same, or does the machine crash in other ways,
->   with different backtraces?
->
->2: Try running memtest86 on that machine for 12 hours or more.
->
->3: Can the problem be reproduced on other machines?
->
->4: try a different compiler version.
-
-First, some results about some tests (not finish yet)
-
-0. Increase verbosity of the printk (thanks to Manfred):
-(compilation of kernel)
-slab: double free detected in cache 'buffer_head', objp c4c8e3d8, objnr 10,
-slabp c4c8e000, s_mem c4c8e180, bufctl ffffffff.
-(compilation of firebird)
-slab: double free detected in cache 'pte_chain', objp c18a6600, objnr 10,
-slabp c18a6000, s_mem c18a6100, bufctl ffffffff.
-
-1. Reproductibility : yes, it oops each time I try to compile a kernel, for example, at around 75% of the task.
-Always oops if I try to compile during a quite long time
-One funny thing, though. I got one oops without freeze. After error of gcc, I went back to the shell but when I called ksymoops 2 commands later, everything freezed.
-About the backtrace, well I'm not sure. Are you talking about what follow the `call trace` etc ? The problem is the system don't have always the time to flush everything to the log, I often got only the printk. But I always got the cache_flusharray thing in first position.
-
-2. Test mem (not yet, I need some time). But as I said, I never had oops before, with 2.6.0-test from 4 to 9. I compiled all my LFS with 2.6.0-test9 vanilla without problem.
-3. Change compiler: confirm same problem with gcc 2.95.3, 3.2.3, 3.3.1
-x. ACPI: same oops with `acpi=off pci=noacpi` at boot
-
-Summary: Oops reproductible when heavy load, bug in mm/slab.c
-Don't have this problem with 2.6.0-test9 and prior
-Problem appears in the last patches, before 15 november
-(cset-20031115_0206) so I looked for something wrong.
-
-I tried to remove some of the last patches (mm/ioremap.c, 
-mm/filemap.c, mm/memory.c) but still got oops.
-Should be another patch. Which one else can I remove to test ?
-
-Regards,
-
-Jerome
 

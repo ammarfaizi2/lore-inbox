@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTI1NzM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 09:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTI1NzM
+	id S262540AbTI1Nyw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 09:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbTI1Nyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 09:55:12 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:28165 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S262567AbTI1NzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 09:55:05 -0400
-Date: Sun, 28 Sep 2003 15:54:52 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.local
-To: Oliver Pitzeier <oliver@linux-kernel.at>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.6.0-test6
-In-Reply-To: <200309281216.h8SCGWsl026399@indianer.linux-kernel.at>
-Message-ID: <Pine.LNX.4.44.0309281548060.30451-100000@cola.local>
+	Sun, 28 Sep 2003 09:54:52 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:42368 "HELO
+	develer.com") by vger.kernel.org with SMTP id S262540AbTI1Nyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 09:54:50 -0400
+Message-ID: <3F76E81F.2050002@develer.com>
+Date: Sun, 28 Sep 2003 15:54:39 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030918
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <20030928135046.A30736@flint.arm.linux.org.uk>
+In-Reply-To: <20030928135046.A30736@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Sep 2003, Oliver Pitzeier wrote:
+Russell King wrote:
 
-> Hi folks/Linus!
-> 
-<snip>
-> It work's on my Intel machine, but on Alpha, I get this:
-> <snip>
-<snip, snip>
-> fs/built-in.o: In function `smb_fill_super':
-> fs/built-in.o(.text+0xc9618): undefined reference to `low2highuid'
-> fs/built-in.o(.text+0xc9624): undefined reference to `low2highuid'
-> fs/built-in.o(.text+0xc963c): undefined reference to `low2highuid'
-> fs/built-in.o(.text+0xc9640): undefined reference to `low2highuid'
-> make: *** [.tmp_vmlinux1] Error 1
+>>>Bernardo Innocenti:
+>>>  o GCC 3.3.x/3.4 compatiblity fix in include/linux/init.h
+>>
+>>This change breaks 2.95 for some source files, because <linux/init.h> doesn't
+>>include <linux/compiler.h>. Do you want to have the missing include added to
+>><linux/init.h>, or to the individual source files that need it?
 
-This patch should solve this.
+The golden rule of C headers says that each file should stand
+on its own, so that you have no errors when compiling the header
+alone.
 
-Linus, please apply unless you dislike OLD_TO_NEW_GID.
-smbfs is the only user of it and could check CONFIG_UID16 itself.
+This is the trivial fix. Sorry for not noticing before.
 
-/Urban
-
---- linux-2.6.0-test5-smbfs/fs/smbfs/inode.c-orig	Fri Sep 26 21:06:55 2003
-+++ linux-2.6.0-test5-smbfs/fs/smbfs/inode.c	Fri Sep 26 20:58:00 2003
-@@ -551,8 +551,8 @@
- 	if (ver == SMB_MOUNT_OLDVERSION) {
- 		mnt->version = oldmnt->version;
+--- include/linux/init.h.orig	2003-09-28 15:48:06.000000000 +0200
++++ include/linux/init.h	2003-09-28 15:48:10.000000000 +0200
+@@ -2,6 +2,7 @@
+ #define _LINUX_INIT_H
  
--		mnt->uid = low2highuid(oldmnt->uid);
--		mnt->gid = low2highuid(oldmnt->gid);
-+		mnt->uid = OLD_TO_NEW_UID(oldmnt->uid);
-+		mnt->gid = OLD_TO_NEW_GID(oldmnt->gid);
+ #include <linux/config.h>
++#include <linux/compiler.h>
  
- 		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
- 		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
---- linux-2.6.0-test5-smbfs/include/linux/highuid.h-orig	Fri Sep 26 21:07:34 2003
-+++ linux-2.6.0-test5-smbfs/include/linux/highuid.h	Fri Sep 26 21:07:42 2003
-@@ -56,6 +56,8 @@
- #define SET_GID16(var, gid)	var = high2lowgid(gid)
- #define NEW_TO_OLD_UID(uid)	high2lowuid(uid)
- #define NEW_TO_OLD_GID(gid)	high2lowgid(gid)
-+#define OLD_TO_NEW_UID(uid)	low2highuid(uid)
-+#define OLD_TO_NEW_GID(gid)	low2highgid(gid)
- 
- /* specific to fs/stat.c */
- #define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = high2lowuid(uid)
-@@ -69,6 +71,8 @@
- #define SET_GID16(var, gid)	do { ; } while (0)
- #define NEW_TO_OLD_UID(uid)	(uid)
- #define NEW_TO_OLD_GID(gid)	(gid)
-+#define OLD_TO_NEW_UID(uid)	(uid)
-+#define OLD_TO_NEW_GID(gid)	(gid)
- 
- #define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = (uid)
- #define SET_OLDSTAT_GID(stat, gid)	(stat).st_gid = (gid)
+ /* These macros are used to mark some functions or 
+  * initialized data (doesn't apply to uninitialized data)
+
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+
 

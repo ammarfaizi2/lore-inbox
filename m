@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278719AbRJTDZF>; Fri, 19 Oct 2001 23:25:05 -0400
+	id <S278720AbRJTDfh>; Fri, 19 Oct 2001 23:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278720AbRJTDY4>; Fri, 19 Oct 2001 23:24:56 -0400
-Received: from marine.sonic.net ([208.201.224.37]:21781 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S278719AbRJTDYm>;
-	Fri, 19 Oct 2001 23:24:42 -0400
-Date: Fri, 19 Oct 2001 20:24:42 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [patch] ip autoconfig for PCMCIA NICs
-Message-ID: <20011019202442.A2666@sonic.net>
-In-Reply-To: <3BD092A6.26A1CFE9@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BD092A6.26A1CFE9@zip.com.au>; from akpm@zip.com.au on Fri, Oct 19, 2001 at 01:52:54PM -0700
+	id <S278721AbRJTDfR>; Fri, 19 Oct 2001 23:35:17 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:4110 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S278720AbRJTDfG>; Fri, 19 Oct 2001 23:35:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Martin Devera <devik@cdi.cz>
+Subject: Re: DOT call graphs of Rik and AA VMs
+Date: Sat, 20 Oct 2001 05:36:03 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.0.20011019235606.00a43a80@pop.mail.yahoo.com> <Pine.LNX.4.10.10110200120060.321-100000@luxik.cdi.cz> <3BD0BB14.C49E612C@zip.com.au>
+In-Reply-To: <3BD0BB14.C49E612C@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011020033530Z16013-4005+775@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19, 2001 at 01:52:54PM -0700, Andrew Morton wrote:
+On October 20, 2001 01:45 am, Andrew Morton wrote:
+> Martin Devera wrote:
+> > 
+> > Hi,
+> > 
+> > While I tried to understand MM in 2.4 kernels I decided to create call
+> > graph of it (in DOT). It could help everyone who tries to understand it.
+> > 
+> > At least they are very nice :) You can also see difference in complexity
+> > of both VMs.
+> > 
+> > http://luxik.cdi.cz/~devik/mm.htm
+> > 
 > 
-> This all works fine.  However it probably breaks something, but the rather
-> unilluminating comment
-> 
-> #ifdef CONFIG_PCMCIA
->         init_pcmcia_ds();               /* Do this last */
-> #endif
-> 
-> doesn't tell us what.
+> Oh my that is cute.     Will you be publishing the gcc patch
+> and perl script sometime?
 
-I'm not sure about the origin of the comment.  But I can think of one
-reason for starting PCMCIA after at least other device drivers have
-started: since the kernel generally relies on individual drivers to
-announce their resource allocations, there is no way to reliably do
-resource allocation for hot plug devices before non-hot-plug devices
-have enumerated what resources they're already using.
+Oh yes, it's really lovely.  An great starting point for reverse-enginee^W^W 
+understanding both VM designs.
 
-> Now, every time I try to understand the relationship between socket
-> services, card services, socket drivers and driver services my brain
-> bursts.  Could some kind soul please what these things do, and how
-> they fit together?   Thanks.
+--
+Daniel
 
-Card services manages a few things for PCMCIA client drivers: hot plug
-event handling, resource allocation, PCMCIA bus configuration, Card
-Information Structure parsing, and some abstractions for talking to
-memory cards.  The Linux version, in the pcmcia_core module, is based
-heavily on the PCMCIA standard documents.  Socket services is the
-PCMCIA standard API for talking to socket drivers; Linux does not
-really implement this API and there's a simpler interface between
-pcmcia_core and socket drivers.  The Linux driver services layer, in
-the "ds" module, supplies a few things for managing device drivers:
-stuff for keeping track of which drivers manage which cards, and which
-logical devices are associated with which cards and drivers.  It also
-provides a user mode pseudo-device for some Card Services functions.
-
-This stuff is also explained in the intro of the Linux PCMCIA
-Programmer's Guide.
-
--- Dave

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311240AbSCQBVN>; Sat, 16 Mar 2002 20:21:13 -0500
+	id <S311242AbSCQB2D>; Sat, 16 Mar 2002 20:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311242AbSCQBUx>; Sat, 16 Mar 2002 20:20:53 -0500
-Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:26317 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311240AbSCQBUr>;
-	Sat, 16 Mar 2002 20:20:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: 2.4.18 Preempt Freezeups
-Date: Sun, 17 Mar 2002 02:14:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
-        Mikael Pettersson <mikpe@csd.uu.se>,
-        linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C9153A7.292C320@ianduggan.net> <E16mObg-0000mZ-00@starship> <20020316181338.A26242@hq.fsmlabs.com>
-In-Reply-To: <20020316181338.A26242@hq.fsmlabs.com>
+	id <S311241AbSCQB1x>; Sat, 16 Mar 2002 20:27:53 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:62222 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S311242AbSCQB1m>;
+	Sat, 16 Mar 2002 20:27:42 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16mPFW-0000mo-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15507.60617.911732.176262@argo.ozlabs.ibm.com>
+Date: Sun, 17 Mar 2002 12:09:29 +1100 (EST)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <Pine.LNX.4.33.0203161238510.32013-100000@penguin.transmeta.com>
+In-Reply-To: <15507.44228.577059.711997@napali.hpl.hp.com>
+	<Pine.LNX.4.33.0203161238510.32013-100000@penguin.transmeta.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 17, 2002 02:13 am, yodaiken@fsmlabs.com wrote:
-> On Sun, Mar 17, 2002 at 01:33:04AM +0100, Daniel Phillips wrote:
-> > On March 16, 2002 01:40 am, yodaiken@fsmlabs.com wrote:
-> > > 
-> > > Without preempt:
-> > > 	x = movefrom processor register;
-> 		// if preemption is on, we can be preempted and restart
-> 		// on another processor so x will be wrong
-> > >         do_something with x
-> > > 
-> > > is safe in SMP
-> > > With [preempt] it requires a lock.
-> > 
-> > It must be a trick question.  Why would it?
-> 
-> See comment.
+Linus Torvalds writes:
 
-Which processor register were you thinking of?  Surely not anything in the 
-general register set, and otherwise, it's just another example of per-cpu 
-data.  It needs to be protected, and the protection is lightweight.
+> Which brings us back to the whole reason for the discussion: this is not a 
+> theoretical argument. Look at the POWER4 numbers, and _shudder_ at the 
+> expense of cache invalidation.
 
--- 
-Daniel
+Go a little easy, the ppc64 port is still young and there are still
+lots of places where it can use some serious optimization.  This is
+one of them.
+
+In principle the expense of invalidating the hash-table entries should
+be able to be reduced to at most one store for every time we write to
+a PTE in the linux page tables.  We currently don't have quite enough
+information made available to the architecture code to achieve that.
+In particular I think it would help if set_pte could be given the
+mm_struct and the virtual address, then set_pte could fairly easily
+invalidate the hash-table entry (if any) corresponding to the PTE
+being changed.  Would you consider a patch along these lines?
+
+Another alternative would be to make flush_tlb_mm doing the
+change-the-VSIDs trick and then get the idle task to flush the stale
+hash table entries.  We would need something like a bitmap showing
+which PTEs had corresponding hash-table entries so that we didn't
+waste time searching for hash-table entries that weren't there.
+
+Paul.

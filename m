@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130446AbRDWULJ>; Mon, 23 Apr 2001 16:11:09 -0400
+	id <S130493AbRDWUO7>; Mon, 23 Apr 2001 16:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129359AbRDWULA>; Mon, 23 Apr 2001 16:11:00 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:43026 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S129282AbRDWUKv>;
-	Mon, 23 Apr 2001 16:10:51 -0400
-Date: Mon, 23 Apr 2001 21:12:38 +0100
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Idea: Encryption plugin architecture for file-systems
-Message-ID: <20010423211237.I26083@vnl.com>
-In-Reply-To: <NFBBIDPOFIIFCBDDFGLEGEMICCAA.nagytam@rerecognition.com> <01042121404701.08246@antares>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <01042121404701.08246@antares>; from s-jaschke@t-online.de on Sat, Apr 21, 2001 at 09:40:47PM +0200
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S129359AbRDWUOu>; Mon, 23 Apr 2001 16:14:50 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:49927 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130493AbRDWUOo>; Mon, 23 Apr 2001 16:14:44 -0400
+Message-ID: <3AE48D23.4A13FB91@folkwang-hochschule.de>
+Date: Mon, 23 Apr 2001 22:14:27 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
+	<nettings@folkwang-hochschule.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jochen@tolot.escape.de, linux-kernel@vger.kernel.org
+Subject: 2.4.4-pre6 does not compile
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Talk about syncronicity... I had just last week asked
-about the pro's and con's on this on the crypto list and
-have heard nothing at all back. So I'll drop the body
-of that message in here:
+jochen wrote:
+ 
+> 
+>               Hi,
+> 
+>       2.4.4-pre6 actually is the 4th 2.4.4pre-Patch that does not compile
+>       without further patching on my system. :-(
+> 
+> 
+>       ld -m elf_i386 -T /usr/src/linux-2.4.4-pre6/arch/i386/vmlinux.lds -e stext 
+>       arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+>               --start-group \
+>               arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o 
+>       ipc/ipc.o \
+>               drivers/block/block.o drivers/char/char.o drivers/misc/misc.o 
+>       drivers/net/net.o drivers/media/media.o  drivers/ide/idedriver.o 
+>       drivers/scsi/scsidrv.o drivers/scsi/aic7xxx/aic7xxx_drv.o drivers/cdrom/driver.o 
+>       drivers/pci/driver.o drivers/video/video.o \
+>               net/network.o \
+>               /usr/src/linux-2.4.4-pre6/arch/i386/lib/lib.a 
+>       /usr/src/linux-2.4.4-pre6/lib/lib.a /usr/src/linux-2.4.4-pre6/arch/i386/lib/lib.a \
+>               --end-group \
+>               -o vmlinux
+>       /usr/src/linux-2.4.4-pre6/lib/lib.a(rwsem.o): In function `__rwsem_do_wake':
+>       rwsem.o(.text+0x30): undefined reference to `__builtin_expect'
+>       rwsem.o(.text+0x73): undefined reference to `__builtin_expect'
+>       make: *** [vmlinux] Error 1
 
---
-I've got a crypto loopback running directly on a /dev/md0
-partition and then the file system on top of that. I'm
-interested in what the feelings of others are on the
-trade offs of doing it this way.
 
-Is there something to be gained by adding a file system
-layer between the /dev/md0 and the loopback file as far
-as error recovery is concerned?
+same problem here.
+i'm using
+# gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.2/specs
+gcc version 2.95.2 19991024 (release)
 
-Do I actually gain performance (as I am guessing currently
-that I do) by eliminating one layer?
+and this one has successfully built the last couple of kernels. if
+compiler requirements have changed, may i humbly suggest to add this
+to the pre-patch logfile ?
 
-It's just a plaything right now, but I'd be interested
-in some feedback on the wisdom of it before I actually
-use this on something important. So just to reiterated:
+btw: i have installed clean vanilla sources. the only  possible
+source of pollution was my old .config, which i copied into the tree
+before making menuconfig. but this has always worked before.
 
-                               fs
-          fs                c. loopback
-        c. loopback  vs        fs
-         raid1                raid1
-        disk disk           disk disk
+regards,
 
-where fs = ext2 until this evening when I replace it
-with reiserfs.
---
+jörn
 
-And update by saying I've got reiserfs working on top
-of it with no problems. But I'm still just that wee
-bit nervous about the approach even though it works.
-
-What happens if I get one bad disk sector in a partition?
-What is the difference in data loss between encrypting
-on the bare partition versus having say, a reiserfs
-under you?
-
-(Obviously RAID doesn't save you. It will just merrily
-reproduce the bad sector on the mirror disk)
+(please cc: me, i only read the archives, which have some lag.
+thanks.)
 
 -- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------
+Jörn Nettingsmeier     
+home://Kurfürstenstr.49.45138.Essen.Germany      
+phone://+49.201.491621
+http://www.folkwang.uni-essen.de/~nettings/
+http://www.linuxdj.com/audio/lad/

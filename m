@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293026AbSB1CEd>; Wed, 27 Feb 2002 21:04:33 -0500
+	id <S293131AbSB1CKT>; Wed, 27 Feb 2002 21:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293130AbSB1CDq>; Wed, 27 Feb 2002 21:03:46 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:37636 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S293126AbSB1CDM>; Wed, 27 Feb 2002 21:03:12 -0500
-Date: Thu, 28 Feb 2002 03:03:05 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Karl <ktatgenhorst@earthlink.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel module ethics.
-Message-ID: <20020228020304.GA1215@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20020228005152.GB8858@arthur.ubicom.tudelft.nl> <NDBBJHDEALBBOIDJGBNNCEOFCFAA.ktatgenhorst@earthlink.net>
-Mime-Version: 1.0
+	id <S293133AbSB1CI3>; Wed, 27 Feb 2002 21:08:29 -0500
+Received: from c007-h011.c007.snv.cp.net ([209.228.33.217]:49892 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S293149AbSB1CG7>;
+	Wed, 27 Feb 2002 21:06:59 -0500
+X-Sent: 28 Feb 2002 02:06:52 GMT
+Message-ID: <3C7D90BC.394C1E2A@bigfoot.com>
+Date: Wed, 27 Feb 2002 18:06:52 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.21pre2-Ole i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: disk transfer speed problem
+In-Reply-To: <3C7D4666.6D35B124@pcnet.ro>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NDBBJHDEALBBOIDJGBNNCEOFCFAA.ktatgenhorst@earthlink.net>
-User-Agent: Mutt/1.3.27i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 08:03:31PM -0500, Karl wrote:
-> >>A couple of months ago Larry McVoy gave this excellent advice:
+>  #dmesg|grep UDMA
+> hda: 14668290 sectors (7510 MB) w/418KiB Cache, CHS=913/255/63, UDMA(66)
+> (this is the boot disk)
 > 
->  >> If you really want to know where you stand, it'll cost you around
->  >> $15K and that, in my opinion, is fine. If it isn't worth $15K to
->  >> protect your code then it is worth so little to you that there really
->  >> is no good reason not to just GPL it from the start.
-> 
->     I hope this is not to ignorant a question: From your post I do not
-> understand what costs around $15k (yes generally I understand protecting
-> source) but specifically, is this for patent, copyright or some strange
-> relicensing fee. Not that I am interested in that line of action, but just
-> the ambiguity piqued my interest. I would appreciate any level of
-> elaboration.
+> hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
+> UDMA(100
+> hdd: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
+> UDMA(100)
 
-It'll cost you around $15k to let a lawyer figure out if a binary-only
-or partly binary-only driver is a legal risk for you.
+Please post dmesg, /proc/pci and chipset info from /proc/ide.  Also,
+what is result from 'hdparm -tT /dev/hda'?
 
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+rgds,
+tim.
+--

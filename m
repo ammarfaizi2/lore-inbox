@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267226AbTAAN3X>; Wed, 1 Jan 2003 08:29:23 -0500
+	id <S267228AbTAANiy>; Wed, 1 Jan 2003 08:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267227AbTAAN3X>; Wed, 1 Jan 2003 08:29:23 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:57022 "EHLO
+	id <S267229AbTAANiy>; Wed, 1 Jan 2003 08:38:54 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:59582 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267226AbTAAN3W>; Wed, 1 Jan 2003 08:29:22 -0500
-Date: Wed, 1 Jan 2003 14:37:46 +0100
+	id <S267228AbTAANix>; Wed, 1 Jan 2003 08:38:53 -0500
+Date: Wed, 1 Jan 2003 14:47:17 +0100
 From: Tomas Szepe <szepe@pinerecords.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5: make gigabit ethernet into a real submenu
-Message-ID: <20030101133746.GD14184@louise.pinerecords.com>
-References: <20030101131925.GA14184@louise.pinerecords.com> <Pine.LNX.4.44.0301010824510.11858-100000@dell>
+Subject: [PATCH] only show arcnet submenu if arcnet is selected
+Message-ID: <20030101134717.GE14184@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301010824510.11858-100000@dell>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [rpjday@mindspring.com]
->
-> ... <snip> ...
-> 
-> perhaps a trivial question:  the first patch you sent out was against
-> the Config.in file, which made perfect sense to me.  this patch
-> is against the "Kconfig" file.  i'm not sure what that means,
-> i see no such file.  (then again, being a kernel newbie, i probably
-> just don't understand some of the fundamentals.)
+Trivial: This is a follow-up to your "Gigabit Ethernet submenu" precedent.
 
-The first patch (Config.in) went to Marcelo, the 2.4 maintainer.
-The second patch (Kconfig) went to Linus, the 2.5 maintainer.
-
-The kernel config system has been significantly reworked and improved
-during 2.5 development.  Think of Kconfig as Config.in replacement.
+Only show the arcnet submenu if the arcnet entry is selected.
 
 -- 
 Tomas Szepe <szepe@pinerecords.com>
+
+diff -urN a/drivers/net/arcnet/Kconfig b/drivers/net/arcnet/Kconfig
+--- a/drivers/net/arcnet/Kconfig	2002-10-31 02:33:49.000000000 +0100
++++ b/drivers/net/arcnet/Kconfig	2003-01-01 14:43:32.000000000 +0100
+@@ -2,10 +2,8 @@
+ # Arcnet configuration
+ #
+ 
+-menu "ARCnet devices"
+-	depends on NETDEVICES
+-
+ config ARCNET
++	depends on NETDEVICES
+ 	tristate "ARCnet support"
+ 	---help---
+ 	  If you have a network card of this type, say Y and check out the
+@@ -27,6 +25,9 @@
+ 	  module, say M here and read <file:Documentation/modules.txt> as well
+ 	  as <file:Documentation/networking/net-modules.txt>.
+ 
++menu "ARCnet devices"
++	depends on ARCNET
++
+ config ARCNET_1201
+ 	tristate "Enable standard ARCNet packet format (RFC 1201)"
+ 	depends on ARCNET

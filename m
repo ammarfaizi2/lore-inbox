@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266972AbSKUTXw>; Thu, 21 Nov 2002 14:23:52 -0500
+	id <S267003AbSKUT34>; Thu, 21 Nov 2002 14:29:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbSKUTXw>; Thu, 21 Nov 2002 14:23:52 -0500
-Received: from ppp-217-133-220-209.dialup.tiscali.it ([217.133.220.209]:17308
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S266972AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
-Subject: Re: [patch] threading enhancements, tid-2.5.48-C0
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0211211050380.3577-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0211211050380.3577-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/UMkz16AH9YwFFDMfaNT"
-Organization: 
-Message-Id: <1037907039.1767.129.camel@home.ldb.ods.org>
+	id <S266994AbSKUT34>; Thu, 21 Nov 2002 14:29:56 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:46746 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S266980AbSKUT3x>; Thu, 21 Nov 2002 14:29:53 -0500
+Date: Thu, 21 Nov 2002 11:36:54 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+Message-ID: <20021121193653.GC770@nic1-pc.us.oracle.com>
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <3DDBC0D9.5030904@mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 21 Nov 2002 20:30:41 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDBC0D9.5030904@mvista.com>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 20, 2002 at 10:05:29AM -0700, Steven Dake wrote:
+> per-device structure.  This would allow a RAID volume to be locked to a 
+> specific host, allowing the ability for true multihost operation.
 
---=-/UMkz16AH9YwFFDMfaNT
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	Locking to a specific host isn't the only thing to do though.
+Allowing multiple hosts to share the disk is quite interesting as well.
 
-> this method is quite dangerous as the register usage is largely ad-hoc in
-> the x86 lowlevel code. Eg. your %ebx use clashes with that of kernel
-> threads, which also go through ret_from_fork.
-Yes, I realize that it was a bad idea, since bloat in task_struct can be
-avoided by putting clear_tid in an union other temporary data (e.g.
-*link_count), without using arch-specific code (and this is a obviously
-a separate patch).
+Joel
 
 
---=-/UMkz16AH9YwFFDMfaNT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+ The zen have a saying:
+ "When you learn how to listen, ANYONE can be your teacher."
 
-iD8DBQA93TRedjkty3ft5+cRAmQ/AKCK7SPP/PGvE/EE9NJKqYSDNaNlEACgrHIk
-6xrtig9bCzO9KL6hPqTWGLs=
-=cBcR
------END PGP SIGNATURE-----
-
---=-/UMkz16AH9YwFFDMfaNT--
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

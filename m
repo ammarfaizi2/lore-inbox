@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVA0COS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVA0CSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVA0COS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVAZXqR
+	id S261807AbVA0CSP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVAZXnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:46:17 -0500
-Received: from alog0267.analogic.com ([208.224.222.43]:43392 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261981AbVAZTK0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:10:26 -0500
-Date: Wed, 26 Jan 2005 14:09:40 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Rik van Riel <riel@redhat.com>
-cc: Bryn Reeves <breeves@redhat.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       James Antill <james.antill@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-In-Reply-To: <Pine.LNX.4.61.0501261353260.5677@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.61.0501261407120.18468@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> 
- <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com> 
- <41F7D4B0.7070401@nortelnetworks.com> <1106762261.10384.30.camel@breeves.surrey.redhat.com>
- <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
- <Pine.LNX.4.61.0501261353260.5677@chimarrao.boston.redhat.com>
+	Wed, 26 Jan 2005 18:43:21 -0500
+Received: from mail.joq.us ([67.65.12.105]:40412 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261805AbVAZSzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 13:55:54 -0500
+To: hihone@bigpond.net.au
+Cc: Ingo Molnar <mingo@elte.hu>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+	<41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au>
+	<20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au>
+	<87acqwnnx1.fsf@sulphur.joq.us> <41F7DA1B.5060806@bigpond.net.au>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 26 Jan 2005 12:57:28 -0600
+In-Reply-To: <41F7DA1B.5060806@bigpond.net.au> (Cal's message of "Thu, 27
+ Jan 2005 04:57:47 +1100")
+Message-ID: <87vf9km31j.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005, Rik van Riel wrote:
+Cal <hihone@bigpond.net.au> writes:
 
-> On Wed, 26 Jan 2005, linux-os wrote:
+> Jack O'Quin wrote:
+>> I notice that JACK's call to mlockall() is failing.  This is one
+>> difference between your system and mine (plus, my machine is UP).
+>> As an experiment, you might try testing with `ulimit -l unlimited'.
 >
->> Wrong! A returned value of 0 is perfectly correct for mmap()
->> when mapping a fixed address. The attached code shows it working
->  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> I went for the panic retraction on the first report when I saw the
+> failures in the log.  With ulimit -l unlimited, jack seems
+> happier. Before the change, ulimit -l showed 32.
 >
-> The code that is patched is only run in case of a non-MAP_FIXED
-> mmap() call...
+> At what feels like approaching the end of the run, it still goes clunk
+> totally so, dead and gone!
 >
+> <http://www.graggrag.com/200501270420-oops/>
+>
+> I'll re-read the mails that have gone by, and think about the next step.
 
-That's good then. I needed to make sure. Lots of embedded stuff
-peeks and pokes at ix86 low-memory physical addresses.
+You seem to have eliminated the mlock() failure as the cause of this
+crash.  It should not have caused it anyway, but it *was* one
+noticeable difference between your tests and mine.  Since
+do_page_fault() appears in the backtrace, that is useful to know.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+The other big difference is SMP.  What happens if you build a UP
+kernel and run it on your SMP machine?
+-- 
+  joq

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318176AbSHMPsS>; Tue, 13 Aug 2002 11:48:18 -0400
+	id <S318186AbSHMPwM>; Tue, 13 Aug 2002 11:52:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318186AbSHMPsS>; Tue, 13 Aug 2002 11:48:18 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7173 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S318176AbSHMPsR>;
-	Tue, 13 Aug 2002 11:48:17 -0400
-Date: Tue, 13 Aug 2002 08:48:28 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>
-Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
-In-Reply-To: <200208131413.g7DEDd502174@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L2.0208130847380.5175-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318189AbSHMPwM>; Tue, 13 Aug 2002 11:52:12 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:37896 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318186AbSHMPwM>;
+	Tue, 13 Aug 2002 11:52:12 -0400
+Date: Tue, 13 Aug 2002 18:04:15 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Greg Banks <gnb@alphalink.com.au>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [patch] config language dep_* enhancements
+Message-ID: <20020813180415.B1357@mars.ravnborg.org>
+Mail-Followup-To: Greg Banks <gnb@alphalink.com.au>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+References: <20020808151432.GD380@cadcamlab.org> <Pine.LNX.4.44.0208081142390.23063-100000@chaos.physics.uiowa.edu> <20020808164742.GA5780@cadcamlab.org> <20020809041543.GA4818@cadcamlab.org> <3D53D50D.7FA48644@alphalink.com.au> <20020809161046.GB687@cadcamlab.org> <3D579629.32732A73@alphalink.com.au> <20020812154721.GA761@cadcamlab.org> <3D587BA7.1D640926@alphalink.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D587BA7.1D640926@alphalink.com.au>; from gnb@alphalink.com.au on Tue, Aug 13, 2002 at 01:23:19PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, James Bottomley wrote:
+On Tue, Aug 13, 2002 at 01:23:19PM +1000, Greg Banks wrote:
+> 
+> 977    missing-experimental-tag
+> 113    spurious-experimental-tag
+> 145    variant-experimental-tag
+> 30     inconsistent-experimental-tag
+> 13     missing-obsolete-tag
+> 41     spurious-obsolete-tag
+> 25     variant-obsolete-tag
+How about extending the language (side effect) to automagically append
+(EXPERIMENTAL) or (OBSOLETE) to the menu line, if dependent on
+those special tags?
 
-| > > -             if (ret) {
-| > > +             if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
-| >
-| > Do you really need to hardcode this values ?
-|
-| We have no #defines for the asc and ascq codes (they are interpreted in
-| constants.c but the values are hardcoded in there too).  There is a #define
-| for sense_key 0x05 as ILLEGAL_REQUEST in scsi/scsi.h, but these #defines have
-| annoyed a lot of people by being rather namespace polluting.
-
-and that's precisely the wrong attitude IMO.
-
-I was glad to see that Marcelo asked about the hardcoded values.
-They hurt.
-
--- 
-~Randy
-
+	Sam

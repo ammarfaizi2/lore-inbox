@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282803AbRK0Eti>; Mon, 26 Nov 2001 23:49:38 -0500
+	id <S282805AbRK0FEj>; Tue, 27 Nov 2001 00:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282802AbRK0Et1>; Mon, 26 Nov 2001 23:49:27 -0500
-Received: from zero.tech9.net ([209.61.188.187]:35849 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282800AbRK0EtV>;
-	Mon, 26 Nov 2001 23:49:21 -0500
-Subject: Re: a nohup-like interface to cpu affinity
-From: Robert Love <rml@tech9.net>
-To: Linux maillist account <l-k@mindspring.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
-In-Reply-To: <E16744i-0004zQ-00@localhost>
-	<Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
-	<1006472754.1336.0.camel@icbm> <E16744i-0004zQ-00@localhost> 
-	<5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 26 Nov 2001 23:49:48 -0500
-Message-Id: <1006836589.842.4.camel@phantasy>
+	id <S282802AbRK0FEa>; Tue, 27 Nov 2001 00:04:30 -0500
+Received: from fluent1.pyramid.net ([206.100.220.212]:31015 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S282804AbRK0FER>; Tue, 27 Nov 2001 00:04:17 -0500
+Message-Id: <4.3.2.7.2.20011126204425.00bcdbd0@10.1.1.42>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 26 Nov 2001 21:04:03 -0800
+To: Steve Underwood <steveu@coppice.org>, linux-kernel@vger.kernel.org
+From: Stephen Satchell <satch@concentric.net>
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <3C02F2EC.7010809@coppice.org>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
+ <20011124103642.A32278@vega.ipal.net>
+ <20011124184119.C12133@emma1.emma.line.org>
+ <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
+ <4.3.2.7.2.20011124150445.00bd4240@10.1.1.42>
+ <3C002D41.9030708@zytor.com>
+ <0f050uosh4lak5fl1r07bs3t1ecdonc4c0@4ax.com>
+ <002f01c176d4$f79a3f70$0201a8c0@HOMER>
+ <p05100301b82887aff497@[207.213.214.37]>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-26 at 23:41, Linux maillist account wrote:
-> Robert and Ingo,
-> A nohup-like interface to the cpu affinity service would be useful.  It 
-> could work like the following example:
-> 
->     $ cpuselect -c 1,3-5 gcc -c module.c
-> 
-> which would restrict this instantiation of gcc and all of its children to 
-> cpus 1,3,4, and 5.  This tool can be implemented in a few lines of C, with
-> either /proc or syscall as the underlying implementation.
+At 09:57 AM 11/27/01 +0800, Steve Underwood wrote:
+>Quite true. The drives really need to get an "oh heck, the power's about 
+>to die. Quick, tidy up" signal from the outside world (like down the 
+>ribbon). Cheap, at the limit, PSUs probably couldn't give enough notice to 
+>be very helpful. Server grade ones should - they can usually ride over 
+>brief hiccups in the power, so they should be able to give a few 10s of ms 
+>notice before the regulated power lines start to droop. Perhaps the ATA 
+>command set should include such a feature, so the OS could take 
+>instruction from the hardware on the power situation, and tell the drives 
+>what to do.
 
-I can see the use for this, but you can also just do `echo whatever >
-/proc/123/affinity' once it is running ... not a big deal.
+Looking at the various interface specifications, both SCSI and ATA have the 
+ability to signal to the drive that the power is going, and do it in such a 
+way that the drive would have at least 10 milliseconds from the time the 
+hardware signal is received by the drive before +5 and +12 go out of 
+specification.
 
-It is automatically inherited by its children.
+This time is based on the specifications for ATX power supplies, as I 
+assume most modern boxes that are used for production applications would be 
+using an ATX power supply or similar.  Lest you think this lets older 
+systems off the hook, the 1981 IBM PC Technical Reference describes (in 
+looser language) a similar requirement.
 
-> On another subject -- capabilities -- any process should be able to reduce 
-> the number of cpus in its own cpu affinity mask without any special
-> permission.  To add cpus to a reduced mask, or to change the cpu affinity
-> mask of other processes, should  require the appropriate capability, be it
-> CAP_SYS_NICE, CAP_SYS_ADMIN, or whatever is decided.
+The question remains whether (1) modern motherboards and SCSI controllers 
+pass through the POWER-OK signal to the RESET- line (IDE/ATA) and RSET 
+(SCSI), and (2) the hard drives respond intelligently to power-failure 
+indications.
 
-My patch already does this.  If the user writing the affinity entry is
-the same as the user of the task in question, everything is fine.  If
-the user possesses the CAP_SYS_NICE bit, he can set any task's
-affinity.  See the patch.
+Telling the difference between a bus-reset event and a panic reset would be 
+easy:  if the reset signal is asserted for more than a millisecond or two 
+(such as when the POWER-OK signal from the power supply goes away) then the 
+box is in a power panic situation.  Preventing spurious power panics is the 
+responsibility of the power supply designer, particularly if the supply 
+uses a large energy-storage capacitor designed to let the system ride out 
+power-switching events without hiccup.
 
-	Robert Love
+Suggestion to the people contributing to ATA-7:  write some language that 
+talks specifically about power-failure scenarios, and define a power-crisis 
+state based on the signals available to the drives from ATA interfaces to 
+determine that a power-crisis event has occurred.  If the committee would 
+sit still for it, make it a separate section that appears in the table of 
+contents.
+
+Suggestion to the people contributing to SCSI standards:  ditto.
+
+Satch
 

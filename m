@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270796AbRHXCkD>; Thu, 23 Aug 2001 22:40:03 -0400
+	id <S270818AbRHXDRd>; Thu, 23 Aug 2001 23:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270800AbRHXCjz>; Thu, 23 Aug 2001 22:39:55 -0400
-Received: from smarty.smart.net ([207.176.80.102]:5392 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S270796AbRHXCjq>;
-	Thu, 23 Aug 2001 22:39:46 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200108240301.XAA15384@smarty.smart.net>
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Thu, 23 Aug 2001 23:01:35 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010823191423.I14302@cpe-24-221-152-185.az.sprintbbd.net> from "Tom Rini" at Aug 23, 2001 07:14:23 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S270819AbRHXDRY>; Thu, 23 Aug 2001 23:17:24 -0400
+Received: from hq2.fsmlabs.com ([209.155.42.199]:17422 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S270818AbRHXDRP>;
+	Thu, 23 Aug 2001 23:17:15 -0400
+Date: Thu, 23 Aug 2001 21:13:17 -0600
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: kfree safe in interrupt context?
+Message-ID: <20010823211316.A5916@hq2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15YR0Y-0007fD-00@localhost>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 19, 2001 at 09:44:45PM +1000, Rusty Russell wrote:
+> In message <20010817211406.A21326@hq2> you write:
+> > Seems like calling kfree from interrupt context should
+> > be ok, but is it? 
+> > If it is safe, is this considered a good thing  or not?
 > 
-> On Thu, Aug 23, 2001 at 10:25:17PM -0400, Rick Hohensee wrote:
->  
-> > Throwing in Python is going to hurt me.
+> Yes, and it logically has to be, as kmalloc(..., GFP_ATOMIC) is safe
+> from interrupt context.
 > 
-> Then either help out the people trying to do it in C, or maintain a fwd
-> compatible version of 'config'/'oldconfig'.
+> The network code does this all the time, for example.
 > 
-> -- 
-> Tom Rini (TR1265)
-> http://gate.crashing.org/~trini/
-> 
+> Hope that helps,
 
-google for 
-
-cLIeNUX Cheap Quick Dirty kernel config
-
-Rick Hohensee
+It does, but Alan answered first and also much more
+eloquently. -)
 
 
-www.			cLIeNUX                          .com
+
+
 

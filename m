@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbTB0Ja2>; Thu, 27 Feb 2003 04:30:28 -0500
+	id <S262469AbTB0JhU>; Thu, 27 Feb 2003 04:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTB0Ja2>; Thu, 27 Feb 2003 04:30:28 -0500
-Received: from [202.181.238.133] ([202.181.238.133]:18832 "EHLO debian.org.hk")
-	by vger.kernel.org with ESMTP id <S262289AbTB0Ja2>;
-	Thu, 27 Feb 2003 04:30:28 -0500
-Message-ID: <3E5DDCE7.2040100@linux.org.hk>
-Date: Thu, 27 Feb 2003 17:39:51 +0800
-From: Ben Lau <benlau@linux.org.hk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+	id <S262500AbTB0JhU>; Thu, 27 Feb 2003 04:37:20 -0500
+Received: from ims21.stu.nus.edu.sg ([137.132.14.228]:39455 "EHLO
+	ims21.stu.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S262469AbTB0JhS> convert rfc822-to-8bit; Thu, 27 Feb 2003 04:37:18 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre5
-References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Param-oldstyle.patch
+Date: Thu, 27 Feb 2003 17:47:22 +0800
+Message-ID: <720FB032F37C0D45A11085D881B03368A2B32C@MBXSRV24.stu.nus.edu.sg>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Param-oldstyle.patch
+Thread-Index: AcLeRTkpHRXIzg1HQUqZIKBL3dtKYQ==
+From: "Eng Se-Hsieng" <g0202512@nus.edu.sg>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Feb 2003 09:47:22.0650 (UTC) FILETIME=[39F89FA0:01C2DE45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dear all,
 
-   I have tried to compile the -pre5 with IEEE1394
-support and i got the following error:
+I receive the following error message while compiling an 'old-style'
+driver in 2.5.59:
+'MOD_IN_USE': undeclared function
 
- gcc -D__KERNEL__ -I/usr/src/2.4.21pre5/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i386
--DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=raw1394  -c
--o raw1394.o raw1394.c
- In file included from raw1394.c:50:
- raw1394.h:167: field `tq' has incomplete type
- raw1394.c: In function `__alloc_pending_request':
- raw1394.c:110: warning: implicit declaration of function `HPSB_INIT_WORK'
- raw1394.c:118: confused by earlier errors, bailing out
- make[2]: *** [raw1394.o] Error 1
- make[2]: Leaving directory `/usr/src/2.4.21pre5/drivers/ieee1394'
- make[1]: *** [_modsubdir_ieee1394] Error 2
- make[1]: Leaving directory `/usr/src/2.4.21pre5/drivers'
- make: *** [_mod_drivers] Error 2
+However, when applying 'param-oldstyle.patch.gz' to support old-style
+"MODULE_PARM" declarations, I get
 
-The definition of hpsb_queue_struct was missing
-in the -pre5. I found that it did exist on -pre4
+Patching file include/linux/module.h
+Reversed (or previously applied) patch detected! Assume -R? [n]
 
-/usr/src/2.4.21pre4/drivers/ieee1394/ieee1394_types.h:45:#define
-hpsb_queue_struct tq_struct
+I think that if the patch had already been applied, I should get an
+option: 
+[]config OBSOLETE_MODPARM 
 
+But my current kernel configuration looks like this and I can't find
+[]config OBSOLETE_MODPARM anywhere:
+
+[Y]Enable loadable module support
+	[Y] Module unloading
+		[]Forced module unloading
+	[Y] Kernel module loader
+
+I would be grateful for any advice on how to successfully apply the
+patch and compile this device driver for 2.5.59.
+
+Thank you.
+
+Regards,
+Se-Hsieng
 
 

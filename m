@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266589AbUBDUwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266587AbUBDUuL
+	id S266513AbUBDVLD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 16:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUBDVKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:50:11 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:27646 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266590AbUBDUsF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:48:05 -0500
-Date: Thu, 05 Feb 2004 09:49:36 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: ext3 on raid5 failure
-In-reply-to: <4020D9A5.2040109@basmevissen.nl>
-To: Bas Mevissen <ml@basmevissen.nl>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jan Dittmer <j.dittmer@portrix.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1075927775.2037.136.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <400A5FAA.5030504@portrix.net>
- <20040118180232.GD1748@srv-lnx2600.matchmail.com>
- <20040119153005.GA9261@thunk.org> <4010D9C1.50508@portrix.net>
- <20040127190813.GC22933@thunk.org> <401794F4.80701@portrix.net>
- <20040129114400.GA27702@thunk.org> <4020BA67.9020604@basmevissen.nl>
- <1075887812.2518.125.camel@laptop-linux> <4020D9A5.2040109@basmevissen.nl>
+	Wed, 4 Feb 2004 16:10:50 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:50665 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266513AbUBDVKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 16:10:11 -0500
+Subject: strange error messages with ide-cd in 2.6.2
+From: Julien Langer <jlanger@zigweb.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1075929005.1311.11.camel@moeff>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 04 Feb 2004 22:10:06 +0100
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:b0db08a687644468549cd788b9c03e48
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-05 at 00:38, Bas Mevissen wrote:
-> You are reading everything, I beleave :-)
+Since 2.6.2 I get the following messages every time when I load the
+ide-cd module:
 
-Not everything! I have my email client set up to highlight messages that
-mention suspend or swsusp. :>
+hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest
+Error }
+hdd: status error: error=0x20LastFailedSense 0x02 
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: ATAPI reset complete
+.
+.
+.
+hdd: ATAPI 40X CD-ROM CD-R/RW drive, 2048kB Cache
 
-Nigel
+These error messages repeat ca 10 times
 
-> The superblock was fine. There was just a short file system check when 
-> booting again. I only noticed it a day later when the news reader didn't 
-> want to start anymore.
+What's wrong there? I didn't get these messages with 2.6.1.
+My IDE controller is a VIA vt82c686a
 
-Okay. Apparently not suspend related then.
+Please CC me, I'm not on the list.
 
-> But thanks for thinking!
-
-You're welcome.
-
-Nigel
+Thanks in advance
+Julien Langer
 

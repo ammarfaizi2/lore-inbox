@@ -1,85 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315172AbSEEC51>; Sat, 4 May 2002 22:57:27 -0400
+	id <S315175AbSEEDEu>; Sat, 4 May 2002 23:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315175AbSEEC50>; Sat, 4 May 2002 22:57:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23826 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315172AbSEEC5Z>;
-	Sat, 4 May 2002 22:57:25 -0400
-Message-ID: <3CD4A00E.7B709CC1@zip.com.au>
-Date: Sat, 04 May 2002 19:59:26 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Introduce fs/inode.c/init_address_space().
-In-Reply-To: <E174BdQ-0005tz-00@storm.christs.cam.ac.uk>
+	id <S315809AbSEEDEt>; Sat, 4 May 2002 23:04:49 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:33540 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315175AbSEEDEs>;
+	Sat, 4 May 2002 23:04:48 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa2 
+In-Reply-To: Your message of "Sun, 05 May 2002 09:34:25 +1000."
+             <3CD47001.4DF960D2@eyal.emu.id.au> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 05 May 2002 13:04:37 +1000
+Message-ID: <2661.1020567877@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> 
-> Hi, the below patch adds a new exported functon init_address_space() and
-> two inline helpers to share code between it and inode_init_once() and
-> alloc_inode().
-> 
-> This function allows file systems to initialize private address spaces
-> without the need to know about the address space internals.
+On Sun, 05 May 2002 09:34:25 +1000, 
+Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
+>I agree with this. However, since this driver cannot be built, and
+>since the latest modutils will exit badly for unresolved, I strongly
+>believe that the comx driver should not be offered (disable it in
+>the Config.in) until it is fixed - 2.4 being a stable kernel.
+>
+>I had to wrap 'depmod' with a script to ignore failures in order
+>to get through a full build (which includes the kernel plus a few
+>extra modules like NVdriver, dc395, lm_sensors).
 
-Looks good to me, Anton.  Assuming it boots and runs and stuff ;)
+You should not have to wrap depmod.  Standard 2.4.* modutils returns 0
+for unresolved errors, for compatibility with previous behaviour.  You
+have to do depmod -u to get a non-zero return code.  The -u flag was
+added in modutils 2.4.7 and defaults to off.  In modutils 2.5 it will
+default to on, that will break code that relies on the existing
+behaviour.  I will not change modutils default behaviour in 2.4.
 
-Maybe sometime we should allocate the address_space separately
-from the inode - may get better slab packing.  But that's a 
-separate exercise.
+So why is your version of depmod breaking?  Either you are specifying
+-u or your distribution has hacked depmod to default -u to on.  Check
+depmod.c for variable flag_unresolved_error, it should default to 0.
 
-> Andrew, not sure what you have in mind for the future of ra_pages, so for
-> now I am just passing in the super block to init_address_space. Is that
-> ok?
-
-I'll test it a bit. 
-
-The "future of ra_pages" is worth discussion.  We have all these
-lovely abstraction layers in the kernel but unfortunately, the
-real world sometimes comes up and whacks you in the head.  The very
-high-level code needs to know stuff about the very low-level device.
-
-The case in point is the chosen device readahead.  It lives in the
-request queue, so it is device-wide, which is logical.
-
-Also, the high-level code needs to know the answer to the question
-"is there currently a pdflush thread writing to this device"?  And
-again, that is a device-wide thing which needs visibility at very
-high levels.  It's a waste of resources to have more than one
-pdflush thread blocked against a request queue. 
-
-At present I have all this dopey code in there with superblock flags
-and local flags and stuff which tries to prevent the kernel from
-launching multiple pdflush threads against the same device.  It doesn't
-work very well.  It needs a device-wide test-and-set flag in the request
-queue.
-
-So for this, `unsigned int ra_pages' will become `struct backing_device_info'
-or somesuch.  It will hold ra_pages and the pdflush exclusion flag.
-
-
-One other thing which high-level code needs to know about the underlying
-device is the nominal write bandwidth.  If we know this then we can start
-to make better writeback throttling decisions - avoid flooding the
-machine with data which is dirty against really slow devices.  That will
-be a complex task, but struct backing_device_info is the place to keep that
-information.
-
-So ra_pages is a damn great layering violation, one which we simply
-have to have.  The aim is to encapsulate that in as clean a way as
-we can, in a way which is also useful to non-request_queue-backed
-address_spaces.  Such as NFS.   At present, NFS shares default_ra_pages
-with all other non-request_queue-backed address_spaces.  But it could
-define its own ra_pages (later backing_device_info) and make its
-address_spaces point at that at inode init time.
-
-
--

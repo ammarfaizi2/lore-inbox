@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVATQIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVATQKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbVATQIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVATQGl
+	id S262193AbVATQKz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVATQI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:06:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22976 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262179AbVATQFi (ORCPT
+	Thu, 20 Jan 2005 11:08:58 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:51728 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S262181AbVATQHg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:05:38 -0500
-Date: Thu, 20 Jan 2005 08:05:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, peterc@gelato.unsw.edu.au,
-       tony.luck@intel.com, dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
-In-Reply-To: <20050120031854.GA8538@taniwha.stupidest.org>
-Message-ID: <Pine.LNX.4.58.0501200752280.8178@ppc970.osdl.org>
-References: <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu>
- <20050118014752.GA14709@cse.unsw.EDU.AU> <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
- <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
- <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
- <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
- <20050120031854.GA8538@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Jan 2005 11:07:36 -0500
+Subject: [patch 1/1] kbuild: no redundant srctree in tags file
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it, sam@ravnborg.org
+From: blaisorblade@yahoo.it
+Date: Thu, 20 Jan 2005 17:19:47 +0100
+Message-Id: <20050120161948.43FF722157@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Cc: Sam Ravnborg <sam@ravnborg.org>
 
-On Wed, 19 Jan 2005, Chris Wedgwood wrote:
->
-> On Wed, Jan 19, 2005 at 07:01:04PM -0800, Andrew Morton wrote:
-> 
-> > ... how about we simply nuke this statement:
-> >
-> > Chris Wedgwood <cw@f00f.org> wrote:
-> > >
-> > >  	if (!spin_is_locked(&p->sighand->siglock) &&
-> > >  -				!rwlock_is_locked(&tasklist_lock))
-> > >  +				!rwlock_write_locked(&tasklist_lock))
-> >
-> > and be done with the whole thing?
-> 
-> I'm all for killing that.  I'll happily send a patch once the dust
-> settles.
+Avoid cluttering the tags/TAGS generated file with $(srctree) in the paths if
+this is not needed.
 
-How about I just kill it now, so that it just doesn't exist, and the dust 
-(from all the other things) can settle where it will?
+This has two advantages:
 
-In fact, I think I will remove the whole "rwlock_is_locked()" thing and 
-the only user, since it's all clearly broken, and regardless of what we do 
-it will be something else. That will at least fix the current problem, and 
-only leave us doing too many bus accesses when BKL_PREEMPT is enabled.
+* 1) Saving about 20M on the size of the resulting tags file (which are used
+currently to store the absolute path of the file names rather than the
+relative one) when KBUILD_OUTPUT is not set.
 
-		Linus
+* 2)  Keeping the tags file valid when the directory is renamed.
+
+No change is done for who does make tags O=..., if this is wanted (I would
+find that incommodous and non-typical for a developer, but anyway I've not
+ruined functionality in that case).
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.11-paolo/Makefile |   22 ++++++++++++++++------
+ 1 files changed, 16 insertions(+), 6 deletions(-)
+
+diff -puN Makefile~kbuild-no-redundant-srctree-in-tags-file Makefile
+--- linux-2.6.11/Makefile~kbuild-no-redundant-srctree-in-tags-file	2005-01-19 20:09:07.000000000 +0100
++++ linux-2.6.11-paolo/Makefile	2005-01-19 20:09:07.000000000 +0100
+@@ -1133,20 +1133,30 @@ endif # KBUILD_EXTMOD
+ # Generate tags for editors
+ # ---------------------------------------------------------------------------
+ 
++#We want __srctree to totally vanish out when KBUILD_OUTPUT is not set
++#(which is the most common case IMHO) to avoid unneeded clutter in the big tags file.
++#Adding $(srctree) adds about 20M on i386 to the size of the output file!
++
++ifeq ($(KBUILD_OUTPUT),)
++__srctree =
++else
++__srctree = $(srctree)/
++endif
++
+ define all-sources
+-	( find $(srctree) $(RCS_FIND_IGNORE) \
++	( find $(__srctree) $(RCS_FIND_IGNORE) \
+ 	       \( -name include -o -name arch \) -prune -o \
+ 	       -name '*.[chS]' -print; \
+-	  find $(srctree)/arch/$(ARCH) $(RCS_FIND_IGNORE) \
++	  find $(__srctree)arch/$(ARCH) $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find $(srctree)/security/selinux/include $(RCS_FIND_IGNORE) \
++	  find $(__srctree)security/selinux/include $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find $(srctree)/include $(RCS_FIND_IGNORE) \
++	  find $(__srctree)include $(RCS_FIND_IGNORE) \
+ 	       \( -name config -o -name 'asm-*' \) -prune \
+ 	       -o -name '*.[chS]' -print; \
+-	  find $(srctree)/include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
++	  find $(__srctree)include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find $(srctree)/include/asm-generic $(RCS_FIND_IGNORE) \
++	  find $(__srctree)include/asm-generic $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print )
+ endef
+ 
+_

@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSE2URL>; Wed, 29 May 2002 16:17:11 -0400
+	id <S315459AbSE2USe>; Wed, 29 May 2002 16:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSE2URK>; Wed, 29 May 2002 16:17:10 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:55313 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315458AbSE2URJ>; Wed, 29 May 2002 16:17:09 -0400
-Date: Wed, 29 May 2002 21:17:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.19
-Message-ID: <20020529211702.E30585@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S315462AbSE2USd>; Wed, 29 May 2002 16:18:33 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:25617 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315459AbSE2USb>; Wed, 29 May 2002 16:18:31 -0400
+Message-ID: <3CF5377C.777FB41D@linux-m68k.org>
+Date: Wed, 29 May 2002 22:18:04 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+In-Reply-To: <Pine.LNX.4.21.0205291440420.17583-100000@serv> <1022684357.4123.219.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following change appeared in 2.5.19:
+Hi,
 
-xx- a/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
-xx+ b/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
-@@ -1729,9 +1729,8 @@
- }
+Alan Cox wrote:
 
- static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
--// Not yet
--//     { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
--//             PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
-+       { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
-+               PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
-        { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
-                PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
-        { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
+> > 1. We are talking about a free software project here!
+> > 2. They asked a lawyer, here is the result:
+> >    http://lwn.net/2002/0131/a/rtai-24.1.8.php3
+> 
+> So why is he still moaning. He's got a legal opinion that he can use
+> binary apps on RTAI without paying the license. What else does he want ?
 
-This is completely wrong - the driver has been tested NOT to work on
-the Integraphics 1682.  As such, please do uncomment these lines.
+That Victor acknowledges that this is correct legal advice and he will
+accept that?
+Instead we see statements like this: "it would still not be permitted to
+link binary modules into the derived program without our permission. 
+RTAI "user space"  to me, does not escape this issue."
+How will he do this? To our knowledge applications don't infringe the
+patent and he can't change the kernel license. What does he know that we
+don't know?
 
-In addition, I'm disappointed that no one forwarded the patch for
-maintainer approval PRIOR to submitting it to Linus.
+Let me quote from Victor's FAQ:
+"If you want to mix GPL and non-GPL software under unmodified Open
+RTLinux, you may be able to do so as well, but we suggest caution. The
+intent of our license and the GPL itself is to permit reciprocal sharing
+of software technology. If you have software that you prefer not to make
+available to others, then you may be able to take advantage of the
+"unmodified Open RTLinux" provisions of our license or you may need to
+use RTLinux/Pro."
+In other word: if you want to be safe, use the license or buy our
+product. Other options are not mentioned. What has the user to be
+cautioned of, when he mixes the GPL with the LGPL? In my understanding
+these are subtle, but clear threats against unauthorized use of the
+patent.
+It's nice that he wants to help the GPL, but we should refuse such help.
+I would do quite a lot to promote the GPL, but I would never force
+people to use the GPL. It's very important that people do this out of
+their free will and Victor doesn't offer much choice here. A patent is a
+very dangerous tool, it gives you an exclusive right, which must not be
+abused.
 
-Linus, I request that you apply the following patch.  Thanks.
-
---- orig/drivers/video/cyber2000fb.c	Mon May  6 16:54:10 2002
-+++ linux/drivers/video/cyber2000fb.c	Mon May 13 10:48:13 2002
-@@ -1729,8 +1729,9 @@
- }
- 
- static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
--	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
-+// Not yet
-+//	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
-+//		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
- 	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
- 	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+bye, Roman

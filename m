@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269493AbUJFVlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269517AbUJFVlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269493AbUJFVlT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269492AbUJFViU
+	id S269517AbUJFVlv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269504AbUJFVlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 17:38:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18614 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269493AbUJFVdx (ORCPT
+	Wed, 6 Oct 2004 17:41:40 -0400
+Received: from relay.pair.com ([209.68.1.20]:24332 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269531AbUJFVjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 17:33:53 -0400
-Date: Wed, 6 Oct 2004 14:33:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Kilian <kilian@bobodyne.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Solaris developer wants a Linux Mentor for drivers.
-Message-ID: <20041006213325.GA25817@kroah.com>
-References: <200410061821.i96IL9a07610@raceme.attbi.com>
+	Wed, 6 Oct 2004 17:39:37 -0400
+X-pair-Authenticated: 68.42.66.6
+Subject: Re: PROBLEM: shutdown fails with 2.6.9-rc3
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Charles Johnston <charles@infoplatter.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097093201.3008.2.camel@mercury>
+References: <1097090983.10141.3.camel@athena.fprintf.net>
+	 <1097093201.3008.2.camel@mercury>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 06 Oct 2004 17:39:35 -0400
+Message-Id: <1097098775.9535.0.camel@athena.fprintf.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410061821.i96IL9a07610@raceme.attbi.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 01:21:09PM -0500, Alan Kilian wrote:
-> Forwarded message:
-> > From: Greg KH <greg@kroah.com>
+On Wed, 2004-10-06 at 14:06 -0600, Charles Johnston wrote:
+> On Wed, 2004-10-06 at 13:29, Daniel Gryniewicz wrote:
+> > Hi, all.
 > > 
-> > Why not 2.6?  No new Linux distros are shipping 2.4 kernels anymore...
+> > I just upgraded to 2.6.9-rc3 from a 2.6.8.1 based kernel, and my laptop
+> > is no longer powering off.  Sometimes, the screen powers off, sometimes
+> > it sits there saying "Power Down",  but in either case, the power LED is
+> > still lit, and a hard power-off is necessary.  This did not happen with
+> > 2.6.8.1.  I tried booting with acpi=off (as there was a report of
+> > shutdown weirdness due to acpi on 2.6.9-rc1), but that did not help.
+> > 
+> > I have a Dell Inspiron 8600 laptop, with a Pentium-M 1500, and Centrino
+> > chipset.  Attached is lscpi, cpuinfo, /proc/modules, and config for the
+> > 2.6.9-rc3 kernel that fails.
+> > 
+> > Linux version 2.6.9-rc3 (dang@athena) (gcc version 3.4.2 (Gentoo Linux
+> > 3.4.2-r2, ssp-3.4.1-1, pie-8.7.6.5)) #1 Wed Oct 6 15:02:35 EDT 2004
+> > 
+> > Daniel
 > 
->   Well, I down loaded and installed RedHat-9 5 weeks ago, and it
->   is a 2.4 kernel, so I thought that would be fine.
->   (See what a novice I am?)
-
-Heh, Red Hat 9 is quite old now (a few years old I think.)  Try the
-latest Red Hat Fedora Core 2 for a more up to date distro if you like to
-use Red Hat.
-
-> > And a PCI bus driver?  
-> > What kind of hardware is this?  
-> > Is this a driver for a pci card, or a pci bus controller?
+> I have the same machine and experienced the same problem starting with
+> 2.6.9-rc1.
 > 
->   This is a driver for talking to my hardware which is a PCI bus card.
-
-So, it's a card, not a PCI bus controller, right?  That's much simpler.
-
->   This card has 5 large FPGAs, SRAM and dram on it which is used to
->   accelerate bioinformatics search algorithms.
+> The solution is to disable APIC and IO-APIC support.  The reason why it
+> now has problems is the black-list with the Inspiron on it was removed.
 > 
->   The card works under Sun Solaris and Windows/2000, and of course,
->   we would like to add Linux to the list.
 > 
->   Eventually, I'll need to support DMA to and from the card, but
->   I can get by for a while just doing single-dword I/O.
-> 
->   I just hacked in dev->bus->ops->read_dword(dev,1,&retval);
->   and I can read memory on the card! (Well, things don't crash anyway)
+> Charles
 
-What's wrong with using readl() instead?  Use pci_read_config_dword() if
-you want access to the config space.
+Thanks, that worked.
 
->   If this is absolutely the wrong way to do this, please let me know!
-> 
->   Note: I have no idea what the second parameter to read_dword() is!
-
-Try getting a copy of the Linux Device Drivers book (it's also online if
-you don't want to buy it) and taking a look at the pci chapter.  It
-should help you out.
-
-Do you have a pointer to your Linux driver that we might be able to help
-you out with?
-
-Good luck,
-
-greg k-h
+Daniel

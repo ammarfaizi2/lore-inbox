@@ -1,147 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbTFSBq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265695AbTFSBq2
+	id S265693AbTFSBop (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbTFSBop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:46:28 -0400
-Received: from adsl-157-201-192.dab.bellsouth.net ([66.157.201.192]:60127 "EHLO
-	midgaard.us") by vger.kernel.org with ESMTP id S265694AbTFSBqE
+	Wed, 18 Jun 2003 21:44:45 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58871 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265693AbTFSBon
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:46:04 -0400
-Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
-From: Andreas Boman <aboman@midgaard.us>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306191112.49621.kernel@kolivas.org>
-References: <200306190043.14291.kernel@kolivas.org>
-	 <200306190938.04430.kernel@kolivas.org>
-	 <1055983621.1753.23.camel@asgaard.midgaard.us>
-	 <200306191112.49621.kernel@kolivas.org>
+	Wed, 18 Jun 2003 21:44:43 -0400
+Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+	sks
+From: Robert Love <rml@tech9.net>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Andrew Morton'" <akpm@digeo.com>,
+       "'george anzinger'" <george@mvista.com>,
+       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
 Content-Type: text/plain
-Message-Id: <1055988042.703.21.camel@asgaard.midgaard.us>
+Message-Id: <1055987915.8770.15.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 18 Jun 2003 22:00:42 -0400
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 18 Jun 2003 18:58:35 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-18 at 21:12, Con Kolivas wrote:
-> On Thu, 19 Jun 2003 10:47, Andreas Boman wrote:
-> > On Wed, 2003-06-18 at 19:38, Con Kolivas wrote:
-> > > On Thu, 19 Jun 2003 08:59, Andreas Boman wrote:
-> > > > On Wed, 2003-06-18 at 18:43, Con Kolivas wrote:
-> > > > > On Thu, 19 Jun 2003 03:59, Andreas Boman wrote:
-> > > > > > On Wed, 2003-06-18 at 10:43, Con Kolivas wrote:
-> > > > > > > --BEGIN PGP SIGNED MESSAGE--
-> > > > > > > Hash: SHA1
-> > > > > > >
-> > > > > > > Hi Ingo, all
-> > > > > > >
-> > > > > > > While messing with the interactivity code I found what appears to
-> > > > > > > be an uninitialised variable (p->sleep_avg), which is responsible
-> > > > > > > for all the boost/penalty in the scheduler. Initialising this
-> > > > > > > variable to 0 seems to have made absolutely massive improvements
-> > > > > > > to system responsiveness under load and completely removed audio
-> > > > > > > skips up to doing a make -j64 on my uniprocessor P4 (beyond which
-> > > > > > > swap starts being used), without changing the scheduler
-> > > > > > > timeslices. This seems to help all 2.4 O(1) based kernels as
-> > > > > > > well. Attached is a patch against 2.5.72 but I'm not sure about
-> > > > > > > the best place to initialise it.
-> > > > > >
-> > > > > > Applying this ontop of 2.5.72-mm1 causes more xmms/mpg321/ogg123
-> > > > > > skipping than with plain -mm1 here. make -j20 on my up athlon 1900+
-> > > > > > with 512M ram causes extreme skipping until the make is killed.
-> > > > > > With plain -mm1 I may get _one_ skip at the very begining of a song
-> > > > > > during make -j20 (about 50% of the time). Plain -mm1 stops skipping
-> > > > > > after 10-15 sec of playback of a song, and even switching desktops
-> > > > > > after that doesnt cause skips, with or without make -j20 running
-> > > > > > (switching to/from desktops with apps like mozilla, evolution etc.
-> > > > > > will cause skips during the first 10-15 sec of a song regardless
-> > > > > > what I do it seems).
-> > > > > >
-> > > > > > Renicing xmms to -15 doesnt change anything with either kernel.
-> > > > >
-> > > > > Hmm. I got too excited with the fact it improved so much on the 2.4
-> > > > > O(1)
-> > > >
-> > > > Well, I got very exited when I saw your post ;) I guess this is a
-> > > > problem all us UP desktop users would like too see solved.
-> > > >
-> > > > > kernels that I didn't try it hard enough on the 2.5 kernels. I have
-> > > > > had people quietly telling me that it isn't uninitialised, but that I
-> > > > > am simply resetting it with this patch on new forked processes. It
-> > > > > seems the extra changes to the 2.5 scheduler make this patch make
-> > > > > things worse?
-> > > >
-> > > > Yeah, I poked around a bit after I sent my earlier mail to see what may
-> > > > be going on and noticed that too. (In activate_task() and sched_exit()
-> > > > and some other place iirc)
-> > > >
-> > > > > I need more testing of the 2.4 one as well to see if it was just my
-> > > > > combination of hardware and kernel that was better with this...
-> > > >
-> > > > I suspect that is the case, yes, or I got unlucky with mine since it
-> > > > was extremely bad during the make -j. I'll see if I can get a 2.4.21-ck
-> > > > patched up with some other things I need here, and try to reproduce my
-> > > > results. That should tell us if it is infact scheduler differences or
-> > > > our different setups.
-> > >
-> > > I had another look at 2.5 and noticed the max sleep avg is set to 10
-> > > seconds instead of 2 seconds in 2.4. This could make a _big_ difference
-> > > to new forked tasks if they all start out penalised as most
-> > > non-interactive. It can take 5 times longer before they get the balance
-> > > right. Can you try with this set to 2 or even 1 second on 2.5?
-> >
-> > Ahh, thanks Con, setting MAX_SLEEP_AVG to 2 *almost* removes all xmms
-> > skipping here, a song *may* skip during desktop switches sometime during
-> > the first 5 sec or so of playback IFF make -j20 is running. On a mostly
-> > idle box (well LoadAvg 3 or so is mostly idle isnt it? ;) desktop
-> > switching doesnt cause skips anymore 8)
-> 
-> That's nice; a MAX_SLEEP_AVG of 1 second will shorten that 5 seconds to half 
-> that as well. What you describe makes perfect sense given that achieving a 
-> balance is an exponential function where the MSA is the time constant.
+On Wed, 2003-06-18 at 18:44, Perez-Gonzalez, Inaky wrote:
 
-Right.
+> Now that we are at that, it might be wise to add a higher-than-anything
+> priority that the kernel code can use (what would be 100 for user space,
+> but off-limits), so even FIFO 99 code in user space cannot block out
+> the migration thread, keventd and friends.
 
-> > Doing make -j20 and staying on the same desktop doesnt cause any
-> > skipping at all (but it didnt cause much skipping at all on plain
-> > 2.5.72-mm1 either).
-> 
-> So it is better than the default mm1? (doesnt cause any vs didnt cause much)
+I did this about a year ago, and it is merged into the kernel.
 
-Yes.
+See MAX_USER_RT_PRIO and MAX_RT_PRIO in <linux/sched.h>.
 
-> > I also applied your p->sleep_avg = 0; stuff (keeping MAX_SLEEP_AVG 2 and
-> > HZ 1000) and it behaved just like I described earlier (songs started
-> > after the make never stop skipping).
-> 
-> Well anything started will be penalised initially as being completely 
-> non-interactive with the p->sleep_avg = 0. This seems to work fine for normal 
-> usage patterns I've found on -ck1, as after a short while it gets a bonus up 
-> to interactive. But you say that doesn't happen on 2.5?
+We just need to change MAX_RT_PRIO to, say, (MAX_USER_RT_PRIO + 10).
 
-It doesnt seem like it, xmms gets completely starved. A song started
-before the make -j plays through fine while songs started after the make
--j just skip perpetually until I kill the player or the make.
+The one kicker is if we end up changing the size of BITMAP_SIZE, the
+default sched_find_first_bit() will break and we will need to implement
+a new one. I did a generic one, as well as code to detect at
+compile-time which to use, but the optimized one is a lot nicer. On
+32-bit machines, the BITMAP_SIZE ends up being 160-bits
+(5*sizeof(unsigned long)) so there are about 20 extra priority levels
+one can add "for free."
 
-> > I am fairly sure the winner for me here was the MAX_SLEEP_AVG since I
-> > have fiddled with HZ before without it making big noticable differences.
-> 
-> Yes you're confirming pretty much what I'm finding now that I've played with 
-> it a lot more.
-> 
-> > I havent gotten a 2.4 kernel patched up yet (lazy), but I'll get that
-> > done and see how that sleep_avg patch behaves here then.
-> 
-> Shouldn't be any different than what you've described on 2.5 now, if you make 
-> CHILD_PENALTY match that on 2.5 (is 50 in 2.5, was 95 in -ck1)
-
-Right, I'll take a look at all thoose magic numbers so I'll have the
-same settings.
-
-	Andreas
-
+	Robert Love
 

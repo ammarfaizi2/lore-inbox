@@ -1,104 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVCVVVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVCVVWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVCVVVM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVCVVVM
+	id S261992AbVCVVWU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:22:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVCVVVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:21:12 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43714 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261972AbVCVVUy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:20:54 -0500
-Message-ID: <42408D97.7000806@tmr.com>
-Date: Tue, 22 Mar 2005 16:26:47 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 22 Mar 2005 16:21:24 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:29164 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261971AbVCVVVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:21:10 -0500
+Date: Tue, 22 Mar 2005 22:21:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: linux-os <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lseek on /proc/kmsg
+In-Reply-To: <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com>
+ <Pine.LNX.4.61.0503222020470.32461@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
 MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: "J.A. Magallon" <jamagallon@able.es>, Dan Maas <dmaas@maasdigital.com>,
-       linux-kernel@vger.kernel.org, tmv@comcast.net
-Subject: Re: Distinguish real vs. virtual CPUs?
-References: <88056F38E9E48644A0F562A38C64FB600448EE27@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB600448EE27@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->  
-> 
-> 
->>This is 2xXeonHT, is, 4 cpus on 2 packages:
->>
->>cat /proc/cpuinfo:
->>
->>processor	: 0
->>...
->>physical id	: 0
->>siblings	: 2
->>core id		: 0
->>cpu cores	: 1
->>
->>processor	: 1
->>...
->>physical id	: 0
->>siblings	: 2
->>core id		: 0
->>cpu cores	: 1
->>
->>processor	: 2
->>...
->>physical id	: 3
->>siblings	: 2
->>core id		: 3
->>cpu cores	: 1
->>
->>processor	: 3
->>...
->>physical id	: 3
->>siblings	: 2
->>core id		: 3
->>cpu cores	: 1
->>
->>So something like:
->>
->>cat /proc/cpuinfo | grep 'core id' | uniq | wc -l
->>
->>would give you the number of packages or 'real cpus'. Then you have to
->>choose which ones are unrelated. Usually evens are siblings of 
->>odds, but
->>I won't trust on it...
->>
-> 
-> 
-> Number of unique physical id will tell you the number of physical CPU
-> packages in the system.
+> Gawd, you are a hacker. I already have to suck on pipes
+> because I can't seek them. Now, I can't even seek a
+> file-system???!!
 
-For some Intel processors... Tom Vier just posted his cpuinfo which 
-shows all of his processors, which he notes are in separate sockets, are 
-identified as physical zero. I didn't find any Intel systems which 
-lacked unique physical ID, but clearly that's not true everywhere.
+Here goodie goodie...
 
-It's not clear if that's bizarre practice on AMD system boards or if 
-it's mis-reported. Of course Tom may be running a NUMA setup, in which 
-case I won't guess what's expected to be displayed. I've added him to 
-the CC list, in hopes of comment.
+diff -pdru linux-2.6.11.4/fs/proc/kmsg.c linux-2.6.11-AS9/fs/proc/kmsg.c
+--- linux-2.6.11.4/fs/proc/kmsg.c       2005-03-21 20:14:58.000000000 +0100
++++ linux-2.6.11-AS9/fs/proc/kmsg.c     2005-03-22 21:28:40.000000000 +0100
+@@ -46,10 +46,15 @@ static unsigned int kmsg_poll(struct fil
+        return 0;
+ }
 
-> Number of unique core id will tell you the total number of CPU cores in
-> the system.
-> Number of processor will tell you the total number of logical CPUs on
-> the system.
-> 
-> Then to find out the matching pairs, 
-> - to pair up all HT siblings on a core: Processors that have same "core
-> id" are HT siblings in a core.
-> - to pair up all CPUs in a package: Processors that have same "physical
-> id" are all the CPUs belonging to the same physical package.
++static loff_t kmsg_seek(struct file *filp, loff_t offset, int origin) {
++    if(origin != 2 /* SEEK_END */ || offset < 0) { return -ESPIPE; }
++    return do_syslog(5, NULL, 0);
++}
+
+ struct file_operations proc_kmsg_operations = {
+        .read           = kmsg_read,
+        .poll           = kmsg_poll,
+        .open           = kmsg_open,
+        .release        = kmsg_release,
++        .llseek         = kmsg_seek,
+ };
 
 
+Works so far that do_syslog is called with the correct parameters --
+however, that does not work. (Did I discover a bug?)
+
+# rcsyslog stop;  # so that kmsg is not slurped by someone else
+# perl -le 'open X,"</proc/kmsg";seek X,0,2;print read X,$b,3'
+
+the perl command should block, because with the seek(), we've just emptied the 
+syslog ring buffer. Obviously, it does not, and read() succeeds - prints 3.
+Any hints on what's wrong here?
+
+
+Jan Engelhardt
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me

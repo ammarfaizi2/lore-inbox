@@ -1,83 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287681AbSAXMUp>; Thu, 24 Jan 2002 07:20:45 -0500
+	id <S287657AbSAXMWp>; Thu, 24 Jan 2002 07:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287676AbSAXMUh>; Thu, 24 Jan 2002 07:20:37 -0500
-Received: from gw.wmich.edu ([141.218.1.100]:60309 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S287657AbSAXMUU> convert rfc822-to-8bit;
-	Thu, 24 Jan 2002 07:20:20 -0500
-Subject: Re: amd athlon cooling on kt266/266a chipset
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0201241212250.7304-100000@infcip10.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201241212250.7304-100000@infcip10.uni-trier.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.1 
-Date: 24 Jan 2002 07:19:09 -0500
-Message-Id: <1011874755.22707.17.camel@psuedomode>
-Mime-Version: 1.0
+	id <S287676AbSAXMW2>; Thu, 24 Jan 2002 07:22:28 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56331 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287657AbSAXMVT>;
+	Thu, 24 Jan 2002 07:21:19 -0500
+Date: Thu, 24 Jan 2002 10:21:04 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: <info@global-digicom.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: White Paper on the Linux kernel VM?
+In-Reply-To: <200201241206.g0OC66E10502@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33L.0201241017430.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-24 at 06:19, Daniel Nofftz wrote:
-> On Thu, 24 Jan 2002, Norbert Preining wrote:
-> 
-> > Hi Daniel!
-> >
-> > You wrote:
-> > > 2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
-> > >    in the kernel config
-> >
-> > Why is it necessary to activate acpi which makes apm not working,
-> > and therefor poweroff etc. acpi is long from working/stable and
-> > the support for various actions too are missing.
-> >
-> > >From the patch I do not see why it is specific to acpi?
-> >
-> > Best wishes
-> 
-> hi norbert!
-> 
-> ok ... i  tested it:
-> patch activted:
-> apm activated -> prozessor idle calls : 42°C when idle
-> acpi activated -> prozessor c1/c2 states: 35°C when idle
-> 
-> under load:
-> apm activated -> 47°C kernel compiling after 2 min
-> acpi activated -> 43°C kernel compiling after 2 min
-> 
-> (kernel compiling only lasts about 3 min ... so no larger load intervalls
-> are avaible at the moment ... )
-> 
-> so ... you could use apm ... but acpi proofs to be better in power saveing
-> with the "disconnectenable when STPGNT detected" bit set ...
-> maybe apm is not working at all .. .cause at the moment i see that the
-> temperature does not drop at all after finishing the kernel ... it looks
-> like that the 42°C only where cause it was fresh rebooted from the acpi
-> power saving mode
+On Thu, 24 Jan 2002, Denis Vlasenko wrote:
+> On 24 January 2002 01:36, info@global-digicom.com wrote:
+> > I am interested in reviewing the technical specifications on the Linux
+> > kernel VM. As there has been much controversy of late on this subject, it
 
-You should check your /var/log/messages directly for this nifty little
-message. 
-kernel: ACPI: APM is already active, exiting
+> It was said that code is sufficient, you can read it and ask questions
+> on lkml if you will find difficult to swallow parts. You may spot some
+> bugs also, that will be very good! Linux kernel needs peer review!
 
-If you compiled in apm at the time you did that test,  acpi wasn't even
-active and thus the special athlon disconnect patch wasn't even
-working.   So all of that better cooling would be psychoschomatic.  
-Wouldn't be the first time better cooling/performance was all in the
-head of the person using the hardware...although if you didn't have apm
-compiled in then none of this matters and it was all working. But i
-doubt that is true due to the 42C idle after some use no matter which
-kernel was being used.  
+I don't agree with this.  If you don't have documentation, you
+only know what the code does, not what it's supposed to do.
 
+This means not only does it become harder to understand things,
+it also becomes much harder to verify that the code is doing
+the right thing.
 
-Furthermore, I haven't heard of anyone where the patch actually makes an
-improvement in temp with the patch.  But i have heard of people saying
-it affected performance detrimentally. If it is helping and the cpu fans
-decrease due to the lower temp, add fan speeds in different loads/temps
-to reflect this.  
-lowering the fan speed and thus noise is more than a welcome change.    
+> Writing docs wastes developer's time: they will write how they want VM to
+> operate or how they think it operates (while some bug can make actual VM
+> operate differently) instead of improving/debugging current VM code.
 
+On the contrary.  I have found that updating the documentation
+of a function before fixing the code helps to keep me focussed
+on letting this function do the exact right thing.
+
+Working the other way around often leads to the "wait a moment,
+shouldn't I catch this special case ??" thing and at times to
+spagetti code.
+
+Writing the documentation first makes it easier to realise that
+some functionality doesn't belong in a function and needs to be
+abstracted out, which I'm doing at a nice rate in the -rmap VM.
+
+> Yes, it is not an easy path to VM doc. :-)
+
+Just download the -rmap patch and start reading.
+It's not _that_ hard ;)
+
+cheers,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

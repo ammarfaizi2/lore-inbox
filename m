@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264935AbTLWDrT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 22:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTLWDrS
+	id S264922AbTLWDi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 22:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbTLWDi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 22:47:18 -0500
-Received: from 12-211-66-152.client.attbi.com ([12.211.66.152]:22925 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S264935AbTLWDrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 22:47:17 -0500
-Message-ID: <3FE7BAC4.2040901@comcast.net>
-Date: Mon, 22 Dec 2003 19:47:16 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us
+	Mon, 22 Dec 2003 22:38:27 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:17530 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264922AbTLWDi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 22:38:26 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Thomas Molina <tmolina@cablespeed.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: synaptics mouse jitter in 2.6.0
+Date: Mon, 22 Dec 2003 22:38:17 -0500
+User-Agent: KMail/1.5.4
+References: <Pine.LNX.4.58.0312222127530.18261@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0312222127530.18261@localhost.localdomain>
 MIME-Version: 1.0
-To: Nicklas Bondesson <nikomail@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
- (PDC20271)
-References: <BAY8-DAV33OyDc41W2u00002b2b@hotmail.com>
-In-Reply-To: <BAY8-DAV33OyDc41W2u00002b2b@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312222238.17076.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicklas Bondesson wrote:
-> The patch did not work for me, in fact there was no change at all (anything
-> affected to me). The Promise ataraid driver never gets loaded.
-> 
-> /Nicke 
+On Monday 22 December 2003 09:40 pm, Thomas Molina wrote:
+> I am running Fedora Core 1 updated on a Presario 12XL325 laptop.  For a
+> long time during the 2.5 series I couldn't use the synaptics support. 
+> As a result, I haven't tested this for some time.  I just compiled a
+> fresh 2.6.0 tree, included synaptics support and now I am getting mouse
+> jitter.
+>
+> The easiest way to see this is to open Mozilla and go to a page with a
+> lot of text links such as a news site with links to a number of
+> stories. With synaptics support compiled in I get side to side jitter
+> when moving the mouse over a link.  It looks as if my finger has a
+> nervous twitch in it.  Then, when I take my finger off the touchpad to
+> click on the link, the mouse cursor jumps about an eighth of an inch in
+> a random direction.  It is very annoying since the jump takes it off
+> the link and I can't click on it.
+>
+> Compiling synaptics support out gets me back to a stable mouse cursor.
 
-Not sure what else to try. I see that you've already posted to the ata-raid
-list, so I'd hope that somebody else would reply from there. The pdcraid driver
-has not received much attention lately, so it may very well be broken for your
-configuration. Promise has released a binary/source combo driver similar to
-Nvidia's that will still work in 2.4 - you might give that a try. I have a
-PDC20276 based onboard raid setup, however, I use 2.6 with device mapper to use
-it. It's a bit of a pain to setup ATM - especially if you want to boot from it,
-but it can be done. Good luck,
+Right, I think I see it. The mousedev module does not do any smoothing
+of the reported coordinates which would cause the jitter you are seeing.
+Normally drivers do 3- or 4-point average.
 
--Walt
+I'll cook up something to fix it. Meanwhile could you give a try Peter
+Osterlund XFree86 Synaptics driver:
+http://w1.894.telia.com/~u89404340/touchpad/index.html
 
-
+Dmitry

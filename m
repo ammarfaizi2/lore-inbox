@@ -1,85 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUJHKAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUJHKBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268368AbUJHKAP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJHKAP
+	id S268421AbUJHKBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268445AbUJHKBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:00:15 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:58451 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268368AbUJHKAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:00:06 -0400
-Message-ID: <416663B7.5000901@yahoo.com.au>
-Date: Fri, 08 Oct 2004 19:53:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 8 Oct 2004 06:01:33 -0400
+Received: from mail2.nexpoint.net ([128.121.4.6]:35594 "HELO
+	mail2.nexpoint.net") by vger.kernel.org with SMTP id S268421AbUJHKBJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:01:09 -0400
+Message-ID: <4166655F.3090506@hacman.nu>
+Date: Fri, 08 Oct 2004 04:01:03 -0600
+From: noir@hacman.nu
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Erich Focht <efocht@hpce.nec.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041007105425.02e26dd8.pj@sgi.com> <1344740000.1097172805@[10.10.2.4]> <200410081123.45762.efocht@hpce.nec.com>
-In-Reply-To: <200410081123.45762.efocht@hpce.nec.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.26 kernel BUG at dcache.c:653!
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich Focht wrote:
-> On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
-> 
->>It all just seems like a lot of complexity for a fairly obscure set of
->>requirements for a very limited group of users, to be honest. Some bits
->>(eg partitioning system resources hard in exclusive sets) would seem likely
->>to be used by a much broader audience, and thus are rather more attractive.
-> 
-> 
-> May I translate the first sentence to: the requirements and usage
-> models described by Paul (SGI), Simon (Bull) and myself (NEC) are
-> "fairly obscure" and the group of users addressed (those mainly
-> running high performance computing (AKA HPC) applications) is "very
-> limited"? If this is what you want to say then it's you whose view is
-> very limited. Maybe I'm wrong with what you really wanted to say but I
-> remember similar arguing from your side when discussing benchmark
-> results in the context of the node affine scheduler.
-> 
-> This "very limited group of users" (small part of them listed in
-> www.top500.org) is who drives computer technology, processor design,
-> network interconnect technology forward since the 1950s. Their
-> requirements on the operating system are rather limited and that might
-> be the reason why kernel developers tend to ignore them. All that
-> counts for HPC is measured in GigaFLOPS or TeraFLOPS, not in elapsed
-> seconds for a kernel compile, AIM-7, Spec-SDET or Javabench. The way
-> of using these machines IS different from what YOU experience in day
-> by day work and Linux is not yet where it should be (though getting
-> close). Paul's endurance in this thread is certainly influenced by the
-> perspective of having to support soon a 20x512 CPU NUMA cluster at
-> NASA...
-> 
-> As a side note: put in the right context your statement on fairly
-> obscure requirements for a very limited group of users is a marketing
-> argument ... against IBM.
-> 
-> Thanks ;-)
-> Erich
-> 
+This is my first post ever to a mailing list, so I hope I do alright.
+The system was idling when it just hung. After a reboot, I get the 
+following error with seemingly no way to get into my system.
 
-With all due respect, Linux gets driven as much from the bottom up
-as it does from the top down I think. Compared to desktop and small
-servers, yes you are obscure :)
+kernel BUG at dcache.c:653!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c014a122>]    Not tainted
+EFLAGS: 00010207
+eax: 00000000    ebx: 00000000    ecx: d7fbd7e0    edx: 00000000
+esi: d7fbd7b0    edi: d7fbd7b0    ebp: d7fbd7b0    esp: d7fe5eb4
+ds: 0018    es: 0018    ss: 0018
+Process swapper (pid: 1, stackpage=d7fe50000)
+Stack: d7c2e060 d7fbd7b0 c0173374 d7fbd7b0 00000000 fffffff4 d7c2e0cc 
+d7c2e060
+        c014148a d7c2e060 d7fbd7b0 00000000 d7c4100c d7fbd740 d7fe5f74 
+c0141ae6
+        d7fbd740 d7fe5f0c 00000000 00000001 d7c2e060 00000000 d7c41005 
+00000007
+Call Trace:    [<c0173374>] [<c014148a>] [<c0141ae6>] [<c0141db9>] 
+[<c0105000>]
+   [<c01421c4>] [<c01d8463>] [<c01d781d>] [<c0105000>] [<c01369ae>] 
+[<c0136d5b>]
+   [<c0108d73>] [<c0105000>] [<c01050ad>] [<c0107343>] [<c0105060>]
 
-My view on it is this, we can do *exclusive* dynamic partitioning
-today (we're very close to it - it wouldn't add complexity in the
-scheduler to support it). You can also hack up a fair bit of other
-functionality with cpu affinity masks.
+Code: 0f 0b 8d 02 ba d4 2d c0 85 db 74 12 8b 43 10 8d 53 10 89 48
+  <0>Kernel panic: Attempted to kill init!
 
-So with any luck, that will hold you over until everyone working on
-this can agree and produce a nice implementation that doesn't add
-complexity to the normal case (or can be configured out), and then
-pull it into the kernel.
+If there is any needed information that I have excluded, please let me 
+know and I will put it up as soon as possible.

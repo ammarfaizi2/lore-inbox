@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbREXOgH>; Thu, 24 May 2001 10:36:07 -0400
+	id <S262052AbREXOi1>; Thu, 24 May 2001 10:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262052AbREXOf5>; Thu, 24 May 2001 10:35:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30483 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262045AbREXOfl>; Thu, 24 May 2001 10:35:41 -0400
-Subject: Re: Transmeta Crusoe support?
-To: jeffchua@silk.corp.fedex.com (Jeff Chua)
-Date: Thu, 24 May 2001 15:33:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel), jchua@fedex.com (Jeff Chua)
-In-Reply-To: <Pine.LNX.4.33.0105241809180.1129-100000@boston.corp.fedex.com> from "Jeff Chua" at May 24, 2001 06:25:26 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262061AbREXOiR>; Thu, 24 May 2001 10:38:17 -0400
+Received: from waste.org ([209.173.204.2]:34111 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262052AbREXOiD>;
+	Thu, 24 May 2001 10:38:03 -0400
+Date: Thu, 24 May 2001 09:39:35 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Marko Kreen <marko@l-t.ee>
+cc: Edgar Toernig <froese@gmx.de>, Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device
+ arguments from lookup)
+In-Reply-To: <20010524094717.A23722@l-t.ee>
+Message-ID: <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152wAq-00053X-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Question is whether I need to recompile everything (kernel and binaries)
-> on my current 586 platform in order to move to Crusoe?
+On Thu, 24 May 2001, Marko Kreen wrote:
 
-No. Crusoe should work out of the box in that sense. Its actually however
-not brilliantly documented for things like longrun mode where folks have
-actually been poking around the acpi data in order to find out how the thing
-works... thats the ironic part 8)
+> On Thu, May 24, 2001 at 02:23:27AM +0200, Edgar Toernig wrote:
+> > Daniel Phillips wrote:
+> > > > > It's going to be marked 'd', it's a directory, not a file.
+> > > >
+> > > > Aha.  So you lose the S_ISCHR/BLK attribute.
+> > >
+> > > Readdir fills in a directory type, so ls sees it as a directory and does
+> > > the right thing.  On the other hand, we know we're on a device
+> > > filesystem so we will next open the name as a regular file, and find
+> > > ISCHR or ISBLK: good.
+> >
+> > ??? The kernel may know it, but the app?  Or do you really want to
+> > give different stat data on stat(2) and fstat(2)?  These flags are
+> > currently used by archive/backup prgs.  It's a hint that these files
+> > are not regular files and shouldn't be opened for reading.
+> > Having a 'd' would mean that they would really try to enter the
+> > directory and save it's contents.  Don't know what happens in this
+> > case to your "special" files ;-)
+>
+> IMHO the CHR/BLK is not needed.  Think of /proc.  In the future,
+> the backup tools will be told to ignore /dev, that's all.
 
-> 
+The /dev dir should not be special. At least not to the kernel. I have
+device files in places other than /dev, and you probably do too (hint:
+anonymous FTP).
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

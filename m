@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270728AbRHKGir>; Sat, 11 Aug 2001 02:38:47 -0400
+	id <S270730AbRHKHGp>; Sat, 11 Aug 2001 03:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270729AbRHKGih>; Sat, 11 Aug 2001 02:38:37 -0400
-Received: from demai05.mw.mediaone.net ([24.131.1.56]:23025 "EHLO
-	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
-	id <S270728AbRHKGiT>; Sat, 11 Aug 2001 02:38:19 -0400
-Message-Id: <200108110638.f7B6cSh26238@demai05.mw.mediaone.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Brian <hiryuu@envisiongames.net>
-To: Nico Schottelius <nicos@pcsystems.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: multiply NULL pointer
-Date: Sat, 11 Aug 2001 02:38:46 -0400
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <3B72BA01.34D2A67F@pcsystems.de>
-In-Reply-To: <3B72BA01.34D2A67F@pcsystems.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S270731AbRHKHGf>; Sat, 11 Aug 2001 03:06:35 -0400
+Received: from [24.64.63.13] ([24.64.63.13]:60393 "EHLO
+	smail-cal.shawcable.com") by vger.kernel.org with ESMTP
+	id <S270730AbRHKHGW>; Sat, 11 Aug 2001 03:06:22 -0400
+Date: Sat, 11 Aug 2001 00:07:30 -0700 (PDT)
+From: Daniel Bertrand <d.bertrand@ieee.org>
+Subject: Re: [Emu10k1-devel] [PATCH] emu10k1 againt kernel 2.4.8
+In-Reply-To: <Pine.LNX.4.33.0108110626300.1487-200000@localhost.localdomain>
+X-X-Sender: <d_bertra@kilrogg>
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+Cc: linux-kernel@vger.kernel.org,
+        emu10k1-devel <emu10k1-devel@opensource.creative.com>
+Message-id: <Pine.LNX.4.33.0108110000300.32369-100000@kilrogg>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Run a few of those through ksymoops (see REPORTING-BUGS) so we can see 
-where (in what function) the errors occurred and what functions led to 
-that call.
+Hi,
 
-I'm curious if the issues are related to the oops messages I'm getting on 
-our web server.
+Here's an 'emergency' tarball of the userland tools to go with it:
 
-	-- Brian
+http://opensource.creative.com/~dbertrand/emu-tools-0.9.tar.gz
 
-On Thursday 09 August 2001 12:27 pm, Nico Schottelius wrote:
-> Hello!
+
+
+
+On Sat, 11 Aug 2001, Rui Sousa wrote:
+
 >
-> Running a p2 400 mhz box with a 3com 3c905, with
-> _very_ heavy nfs traffic and disc io the following NULL
-> pointers were produced. I attached the whole dmesg output.
-> If more informations are needed, I will send them.
+> Patch against kernel 2.4.8:
+> 1. Fixes makefiles changes (can now be compiled as a module).
+> 2. Reverts addition of joystick.c
+> 3. Enables emu10k1 sequencer support.
+> 4. Adds documentation for the driver new features.
 >
-> After every NULL pointer printed on the console
-> I took a new dmesg, so the one with the highest number
-> should be relevant.
+> Please apply,
 >
-> The file PSAUX_DMESG2 shows what was still living after
-> DMESG2.
+> Rui Sousa
 >
-> Sincerly,
->
-> Nico
+
+-- 
+Daniel Bertrand
+

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317619AbSGJUx1>; Wed, 10 Jul 2002 16:53:27 -0400
+	id <S317622AbSGJVBQ>; Wed, 10 Jul 2002 17:01:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317621AbSGJUx1>; Wed, 10 Jul 2002 16:53:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5137 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317619AbSGJUx0>; Wed, 10 Jul 2002 16:53:26 -0400
-Subject: Re: [STATUS 2.5]  July 10, 2002
-To: kessler@us.ibm.com (Larry Kessler)
-Date: Wed, 10 Jul 2002 22:15:45 +0100 (BST)
-Cc: garloff@suse.de (Kurt Garloff), alan@lxorguk.ukuu.org.uk (Alan Cox),
-       joe.perches@spirentcom.com (Perches Joe), thunder@ngforever.de,
-       bunk@fs.tum.de, boissiere@adiglobal.com, linux-kernel@vger.kernel.org,
-       Martin.Bligh@us.ibm.com ('Martin.Bligh@us.ibm.com'),
-       rusty@rustcorp.com.au (Rusty Russell)
-In-Reply-To: <3D2C88B2.FF9ECD5C@us.ibm.com> from "Larry Kessler" at Jul 10, 2002 12:19:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S317623AbSGJVBP>; Wed, 10 Jul 2002 17:01:15 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:63997 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317622AbSGJVBO>; Wed, 10 Jul 2002 17:01:14 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 10 Jul 2002 15:01:53 -0600
+To: Marc-Christian Petersen <mcp@linux-systeme.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: htree directory indexing 2.4.18-2 BUG with highmem and also high i/o
+Message-ID: <20020710210153.GA1045@clusterfs.com>
+Mail-Followup-To: Marc-Christian Petersen <mcp@linux-systeme.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+References: <200207092333.01130.mcp@linux-systeme.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17SOoL-0007q9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200207092333.01130.mcp@linux-systeme.de>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Kurt Garloff wrote:
-> > If you want translated kernel messages, use message IDs, that can be parsed
-> > and translated in userspace, 
+On Jul 09, 2002  23:33 +0200, Marc-Christian Petersen wrote:
+> Hi Daniel,
 > 
-> Agreed.
+> I've found a bug with htree directory indexing patch and
+> highmem enabled (64GB). This is with 2.4.18 and htree patch
+> 2.4.18-2. Oops appears if accessing an ext2 partition with ls
+> or doing "who/w" in the directory of the ext2 partition.
 
-> What's been discussed with Rusty Russell (and I believe he has 
-> discussed this with Alan) is not modifying the printks, but providing
-> logging macros that keep the format string separate from the vararg list
-> (but written to a log file as a single event record).
+The ext2 htree patch probably needs to add a "kmap()" and "kunmap()"
+in the function that reads a page and scans the directory for the
+name it is looking for.  I can't be any more specific than this
+right now since I only have the ext3 version of this patch, and it
+does not have page-cache based directories (it is still using the
+buffer cache).
 
-You need a bit more than that. You need a consistent way to report
-an IRQ number, a device name, a PCI object etc. That does mean tidying up
-printk but not in a bad way. One can imagine either
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-	"%s", irq_name(irq)
-
-or
-	"%I", irq
-
-type solutions

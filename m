@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288325AbSAQIhq>; Thu, 17 Jan 2002 03:37:46 -0500
+	id <S288339AbSAQIkG>; Thu, 17 Jan 2002 03:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288333AbSAQIhi>; Thu, 17 Jan 2002 03:37:38 -0500
-Received: from mail.keay.uk.net ([195.224.50.100]:43788 "EHLO mail.keay.uk.net")
-	by vger.kernel.org with ESMTP id <S288325AbSAQIhY>;
-	Thu, 17 Jan 2002 03:37:24 -0500
-Subject: Error compiling tdfxfb in 2.5.3-pre1
-From: Daniel Wong <nimrod@nixhelp.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Jan 2002 03:42:08 -0500
-Message-Id: <1011256932.500.0.camel@stupid>
+	id <S288334AbSAQIj4>; Thu, 17 Jan 2002 03:39:56 -0500
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:46861 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288333AbSAQIjj>; Thu, 17 Jan 2002 03:39:39 -0500
+Date: Thu, 17 Jan 2002 16:40:42 +0800
+From: Barry Wu <wqb123@yahoo.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: where can I get some docs about linux smp?
+X-mailer: FoxMail 3.0 beta 2 [cn]
 Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020117083946Z288333-13996+7405@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling kernel 2.5.3-pre1, there is a small compile error i get
-compiling tdfxfb, which could be fixed by simply changing the '-1' to 
-'NODEV' (line 1978, drivers/video/tdfxfb.c).
+Hi, all,
 
-By the way, i suspect that other framebuffer drivers may not compile.
+Thanks for your help. Now I know that around 4 procs, linux
+can work well. Because I am new to linux SMP, where can
+I get some docs. about linux SMP. Or only read source code
+to do the research.
+If someone knows, please help me. Thanks in advance!
+
+Barry
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

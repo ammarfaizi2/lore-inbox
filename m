@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbUC3FRx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUC3FRx
+	id S262768AbUC3F1P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 00:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUC3F1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:17:53 -0500
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:1912 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262814AbUC3FRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:17:52 -0500
-Message-ID: <406902F7.8030805@yahoo.com.au>
-Date: Tue, 30 Mar 2004 15:17:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Tue, 30 Mar 2004 00:27:15 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:64742 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262768AbUC3F1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 00:27:14 -0500
+Date: Tue, 30 Mar 2004 06:27:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [andrea@suse.de: Re: 2.6.5-rc2-aa vma merging]
+In-Reply-To: <20040329223307.GH3808@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403300613280.20766-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel thread scheduling question
-References: <4068F3E7.9060005@candelatech.com>
-In-Reply-To: <4068F3E7.9060005@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> I have a kernel thread that I would like to have run at least
-> every 1-2 miliseconds.
+On Tue, 30 Mar 2004, Andrea Arcangeli wrote:
+> On Mon, Mar 29, 2004 at 08:44:25PM +0100, Hugh Dickins wrote:
 > 
-> I think I would be happy if there were a way to have the
-> process yield/schedule() at least once per ms with the
-> understanding that it would get to wake again 1-2ms later.
-> Is there a way to do such a thing without hacking up the
-> scheduler code?
+> > So I assume that what's there is needed, and the example below
+> > does looks plausible enough: add page, fill it, protect it, ...
 > 
-> I have tried 2.6.4 with pre-empt, and setting the thread priority
-> to -18, but I still see cases where the process is starved for 20+
-> milliseconds every 3-5 seconds or so.  Other than this single
-> process, there is not a big load on the system.
-> 
+> this will work perfect, absolutely perfect. You didn't read my code well
+> enough.
 
-Use realtime scheduling. sched_setscheduler (2) is a good
-place to start.
+Sure, and I most certainly haven't read your future code well enough.
+Your present implementation, one vma per page (in that real case where
+vmas are properly merged by mainline or anonmm), is far from perfect.
+
+anon_vma has surprised me more than once by working smoothly just
+where I thought it must go wrong.  Please do surprise me again:
+write that code and post the patch which resolves this doubt.
+
+Thanks,
+Hugh
 

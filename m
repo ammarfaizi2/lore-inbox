@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263250AbRFGVgv>; Thu, 7 Jun 2001 17:36:51 -0400
+	id <S263254AbRFGVil>; Thu, 7 Jun 2001 17:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263251AbRFGVgl>; Thu, 7 Jun 2001 17:36:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22023 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263250AbRFGVgd>; Thu, 7 Jun 2001 17:36:33 -0400
-Date: Thu, 7 Jun 2001 17:00:42 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Shane Nay <shane@minirl.com>
-Cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <0106071431441C.32519@compiler>
-Message-ID: <Pine.LNX.4.21.0106071659400.1156-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263266AbRFGVib>; Thu, 7 Jun 2001 17:38:31 -0400
+Received: from ibis.worldnet.net ([195.3.3.14]:11530 "EHLO ibis.worldnet.net")
+	by vger.kernel.org with ESMTP id <S263254AbRFGViQ>;
+	Thu, 7 Jun 2001 17:38:16 -0400
+User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
+Date: Thu, 07 Jun 2001 23:37:01 +0200
+Subject: Re: temperature standard - global config option?
+From: Chris Boot <bootc@worldnet.fr>
+To: David Rees <dbr@greenhydrant.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-ID: <B745C09D.F8BF%bootc@worldnet.fr>
+In-Reply-To: <20010607094418.A23719@greenhydrant.com>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+>>> Kelvins good idea in general - it is always positive ;-)
+>>> 
+>>> 0.01*K fits in 16 bits and gives reasonable range.
+>>> 
+>>> but may be something like K<<6 could be a option? (to allow use of shifts
+>>> instead of muls/divs). It would be much more easier to extract int part.
+>>> 
+>>> just my 2 eurocents.
+>> 
+>> Why not make it in Celsius ? Is more easy to read it this way.
+> 
+> It's easier for you as a user to read, but slightly harder to deal with inside
+> the code.  
+> It's really a user-space issue, inside the kernel should be as standardized as
+> possible, and
+> Kelvins make the most sense there.
 
-On Thu, 7 Jun 2001, Shane Nay wrote:
+OK, I think by now we've all agreed the following:
+ - The issue is NOT displaying temperatures to the user, but a userspace
+   program reading them from the kernel.  The userspace program itself can
+   do temperature conversions for the user if he/she wants.
+ - The most preferable units would be decikelvins, as the value can give a
+   relatively precise as well as wide range of numbers ranging from absolute
+   zero to about 6340 degrees Celsius ((65535 / 10) - 273) which is well
+   within anything that a computer can operate.  It also gives us a good
+   base for all sorts of other temperature sensing devices.
 
-> (Oh, BTW, I really appreciate the work that people have done on the VM, but 
-> folks that are just talking..., well, think clearly before you impact other 
-> people that are writing code.)
+Do we all agree on those now?
 
-If all the people talking were reporting results we would be really happy. 
+-- 
+Chris Boot
+bootc@worldnet.fr
 
-Seriously, we really lack VM reports.
+#define QUESTION ((2b) || (!2b))
 

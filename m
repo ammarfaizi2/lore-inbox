@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKSOtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUKSOzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUKSOtb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUKSOtb
+	id S261433AbUKSOzH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUKSOzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:49:31 -0500
-Received: from zamok.crans.org ([138.231.136.6]:31948 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261431AbUKSOt1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:49:27 -0500
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <greg@kroah.com>,
-       Hotplug Devel <linux-hotplug-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 046 release
-References: <20041118224411.GA10876@kroah.com>
-	<87sm76oz9z.fsf@barad-dur.crans.org>
-	<1100875339.18701.3.camel@localhost.localdomain>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Fri, 19 Nov 2004 15:49:25 +0100
-In-Reply-To: <1100875339.18701.3.camel@localhost.localdomain> (Kay Sievers's
-	message of "Fri, 19 Nov 2004 15:42:19 +0100")
-Message-ID: <87654199my.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 Nov 2004 09:55:07 -0500
+Received: from janus2.sad.it ([192.106.213.194]:30404 "HELO sad.it")
+	by vger.kernel.org with SMTP id S261433AbUKSOzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:55:03 -0500
+Date: Fri, 19 Nov 2004 15:54:51 +0100
+From: Fabrizio Tivano <fabrizio@sad.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random freeze on CS 5530
+Message-Id: <20041119155451.79342c54.fabrizio@sad.it>
+In-Reply-To: <1100864979.8135.7.camel@localhost.localdomain>
+References: <20041118103222.044722e8.fabrizio@sad.it>
+	<1100797521.6005.22.camel@localhost.localdomain>
+	<20041119102441.7933c72b.fabrizio@sad.it>
+	<1100864979.8135.7.camel@localhost.localdomain>
+Organization: SAD Trasporto Locale s.p.a.
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers <kay.sievers@vrfy.org> disait dernièrement que :
+On Fri, 19 Nov 2004 11:49:42 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Fri, 2004-11-19 at 12:26 +0100, Mathieu Segaud wrote:
->> seems like these changes broke something in rules applying to eth* devices.
->> the rules put and still working with udev 045 have no effect, now....
->> not so inconvenient now that I've got just one card in my box, but I guess
->> it could be a show-stopper for laptop users.
->> 
->> My rules which can be found at the end of /etc/udev/rules.d/50-udev.rules are:
->> 
->> KERNEL="eth*", SYSFS{address}="00:10:5a:49:36:d8", NAME="external"
->> KERNEL="eth*", SYSFS{address}="00:50:04:69:db:56", NAME="private"
->> KERNEL="eth*", SYSFS{address}="00:0c:6e:e4:2c:81", NAME="dmz"
->
-> This should fix it.
+> On Gwe, 2004-11-19 at 09:24, Fabrizio Tivano wrote:
+> > and generally changing the disk with new one fix the problem.
+> > In some of these pcs I've  already changed the hdd 3,4 times.
+> > ...it's possible that i have  some hundred of buggy hdds?
+> 
+> Does the problem go away when the disk is changed and return when the 
+> old disk is put back  ?
+> 
 
-will report success as soon as I create the ebuild, test it and I submit it to
-greg-kh.
-btw, thanks for the quick answer.
-
--- 
-... mindreading equipment is currently classified CIA property at
-best (hello echelon!)
-
-	- Alan Cox on linux-kernel
-
+When i change the disk, with new one,
+ the problem seems to be apparently 
+solved, but after some (random) time it reappears . 

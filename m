@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130115AbQKUXss>; Tue, 21 Nov 2000 18:48:48 -0500
+	id <S131181AbQKUXws>; Tue, 21 Nov 2000 18:52:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131181AbQKUXsi>; Tue, 21 Nov 2000 18:48:38 -0500
-Received: from jalon.able.es ([212.97.163.2]:49397 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130115AbQKUXsX>;
-	Tue, 21 Nov 2000 18:48:23 -0500
-Date: Wed, 22 Nov 2000 00:18:13 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-Message-ID: <20001122001813.A1356@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <20001121235529.E925@werewolf.able.es> <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet>; from tigran@veritas.com on Wed, Nov 22, 2000 at 00:04:53 +0100
-X-Mailer: Balsa 1.0.0
+	id <S130510AbQKUXwj>; Tue, 21 Nov 2000 18:52:39 -0500
+Received: from 213-120-136-183.btconnect.com ([213.120.136.183]:49924 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S131181AbQKUXwd>;
+	Tue, 21 Nov 2000 18:52:33 -0500
+Date: Tue, 21 Nov 2000 23:22:52 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test11] show_mem() to dump free pages
+In-Reply-To: <Pine.LNX.4.21.0011212210270.780-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0011212321400.950-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Nov 2000, Tigran Aivazian wrote:
 
-On Wed, 22 Nov 2000 00:04:53 Tigran Aivazian wrote:
-> On Tue, 21 Nov 2000, J . A . Magallon wrote:
+> Hi Linus,
 > 
-> Quite the contrary. The patch seems correct and useful to me. What do you
-> think is wrong with it? (Linus accepted megabytes worth of the above in
-> the past...)
+> In arch/i386/mm/init.c:show_mem() we calculate the number of free pages
+> but don't printk it out. Therefore, we must either a) remove the variable
+> and the calculation or b) make use of it. I think b) is obviously better.
 > 
+> The patch below was tested under 2.4.0-test11.
 
-Sorry, i should look at the rest of the code. Seeing only that, is seems like
-that variables have to hold an initial value of zero, and the patch relies
-on the ANSI behaviour of the compiler that auto-initializes them to 0.
-I have seen many compilers break ANSI rules in optimized mode. Typical
-runs-fine-in-debug-mode-but-breaks-on-production-release.
-One other point for info would be gcc specs.
+apparently, IA64, SuperH and S390 architectures are just as broken as i386
+wrt not showing 'free'in show_mem() so here is more complete patch which
+covers all architectures:
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
-Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
+--- linux/arch/ia64/mm/init.c	Tue Oct 10 01:54:56 2000
++++ work/arch/ia64/mm/init.c	Tue Nov 21 23:18:31 2000
+@@ -264,6 +264,7 @@
+ 			shared += page_count(mem_map + i) - 1;
+ 	}
+ 	printk("%d pages of RAM\n", total);
++	printk("%d free pages\n", free);
+ 	printk("%d reserved pages\n", reserved);
+ 	printk("%d pages shared\n", shared);
+ 	printk("%d pages swap cached\n", cached);
+--- linux/arch/s390/mm/init.c	Mon Oct 16 20:58:51 2000
++++ work/arch/s390/mm/init.c	Tue Nov 21 23:19:51 2000
+@@ -211,6 +211,7 @@
+                         shared += atomic_read(&mem_map[i].count) - 1;
+         }
+         printk("%d pages of RAM\n",total);
++        printk("%d free pages\n",free);
+         printk("%d reserved pages\n",reserved);
+         printk("%d pages shared\n",shared);
+         printk("%d pages swap cached\n",cached);
+--- linux/arch/sh/mm/init.c	Mon Oct 16 20:58:51 2000
++++ work/arch/sh/mm/init.c	Tue Nov 21 23:20:28 2000
+@@ -169,6 +169,7 @@
+ 			shared += page_count(mem_map+i) - 1;
+ 	}
+ 	printk("%d pages of RAM\n",total);
++	printk("%d free pages\n",free);
+ 	printk("%d reserved pages\n",reserved);
+ 	printk("%d pages shared\n",shared);
+ 	printk("%d pages swap cached\n",cached);
+--- arch/i386/mm/init.c.0	Tue Nov 21 22:00:52 2000
++++ arch/i386/mm/init.c	Tue Nov 21 22:00:36 2000
+@@ -221,6 +221,7 @@
+ 	}
+ 	printk("%d pages of RAM\n", total);
+ 	printk("%d pages of HIGHMEM\n",highmem);
++	printk("%d free pages\n",free);
+ 	printk("%d reserved pages\n",reserved);
+ 	printk("%d pages shared\n",shared);
+ 	printk("%d pages swap cached\n",cached);
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

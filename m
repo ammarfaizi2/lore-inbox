@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTFXWHF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 18:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTFXWHE
+	id S263171AbTFXWLR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 18:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTFXWLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 18:07:04 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:23305 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262714AbTFXWFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 18:05:44 -0400
-Date: Wed, 25 Jun 2003 00:03:31 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br, kpfleming@cox.net, stoffel@lucent.com,
-       gibbs@scsiguy.com, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-ID: <20030624220331.GB2019@alpha.home.local>
-References: <20030509150207.3ff9cd64.skraw@ithnet.com> <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com> <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com> <20030624174331.GA31650@alpha.home.local> <20030624232609.5887c159.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030624232609.5887c159.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	Tue, 24 Jun 2003 18:11:17 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:28940 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S263171AbTFXWLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 18:11:15 -0400
+Message-ID: <3EF8D3A9.4040109@techsource.com>
+Date: Tue, 24 Jun 2003 18:41:45 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: John Bradford <john@grabjohn.com>, felipe_alfaro@linuxmail.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler & interactivity improvements
+References: <200306231244.h5NCiE1Q000920@81-2-122-30.bradfords.org.uk> <20030623163234.GA1184@hh.idb.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 11:26:09PM +0200, Stephan von Krawczynski wrote:
- 
-> sorry, you probably misunderstood my flaky explanation. What I meant was not a
-> cached block from the _tape_ (obviously indeed a char-type device) but from the
-> 3ware disk (i.e. the other side of the verification). Consider the tape
-> completely working, but the disk data corrupt (possibly not from real reading
-> but from corrupted cache).
 
-Ah, OK ! I didn't understand this. You're right, this is also a possibility.
-Perhaps a tar cf - /mnt/3ware | chkblk would get evidence of somme corruption ?
 
-<...snip... OK for these points ...>
- 
-> Hm, interestingly the former freeze bug (solved by marcelo through backout of
-> some patch in rc8) did not show up in UP. Since then I did not test UP any
-> more. The problem itself does not necessarily point to flaky hardware, as I
-> would have no idea how bad cache can only show up during a tape verification,
-> that does not sound all that reasonable.
+Helge Hafting wrote:
+> On Mon, Jun 23, 2003 at 01:44:14PM +0100, John Bradford wrote:
+> 
+>>Well, no, opaque window moving is fine if the CPU isn't at 100%.  If
+>>it is, I'd rather see choppy window movements than have a server
+>>application starved of CPU.  That's just my preference, though.
+>>
+> 
+> That could be an interesting hack to a window manager - 
+> don't start the move in opaque mode when the load is high.
 
-OK, I agree. And right after posting, I remembered that if this was the case,
-you should also see some MCEs which doesn't seem to be your case.
-
-> More likely could be a SMP race anywhere from nfs-server, 3ware disk driver to
-> page cache, or not?
-
-fairly possible. That's also what Justin suggested in the past, BTW :-)
-
-Cheers,
-Willy
+This isn't really an issue if the graphics engine is doing the work and 
+the X server doesn't busy-wait on the bitblt to finish (ie. does DMA or 
+calls ioctl to sleep until command-fifo-has-free-space interrupt).
 

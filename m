@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbTCaVcS>; Mon, 31 Mar 2003 16:32:18 -0500
+	id <S261863AbTCaVyv>; Mon, 31 Mar 2003 16:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261867AbTCaVcR>; Mon, 31 Mar 2003 16:32:17 -0500
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:25534 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261866AbTCaVcQ>; Mon, 31 Mar 2003 16:32:16 -0500
-Date: Mon, 31 Mar 2003 23:02:51 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-Message-ID: <20030331230251.F626@nightmaster.csn.tu-chemnitz.de>
-References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331052214.GV13178@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030331052214.GV13178@holomorphy.com>; from wli@holomorphy.com on Sun, Mar 30, 2003 at 09:22:14PM -0800
-X-Spam-Score: -32.5 (--------------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *190746-0000At-00*u9LRCJTlqFE*
+	id <S261868AbTCaVyv>; Mon, 31 Mar 2003 16:54:51 -0500
+Received: from dyn-ctb-210-9-246-105.webone.com.au ([210.9.246.105]:8964 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S261863AbTCaVyu>;
+	Mon, 31 Mar 2003 16:54:50 -0500
+Message-ID: <3E88BAF9.8040100@cyberone.com.au>
+Date: Tue, 01 Apr 2003 08:02:33 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: erik@hensema.net, linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz> <slrnb8gbfp.1d6.erik@bender.home.hensema.net> <3E8845A8.20107@aitel.hist.no>
+In-Reply-To: <3E8845A8.20107@aitel.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi William,
-hi Andrea,
+Helge Hafting wrote:
 
-On Sun, Mar 30, 2003 at 09:22:14PM -0800, William Lee Irwin III wrote:
-> Miscellaneous side effects happen, like follow_page() and
-> get_user_pages() need to return pfn's instead of struct pages.
+> Erik Hensema wrote:
+> [...]
+>
+>> Helge Hafting already pointed out that writing out the data earlier 
+>> isn't
+>> desirable. The problem isn't in the waiting: the problem is in the 
+>> writing.
+>> I think the current kernel tries to write too much data too fast when
+>> there's absolutely no reason to do so. It should probably gently 
+>> write out
+>> small amounts of data until there is a more pressing need for memory.
+>>
+> I don't think the problem is "writing a large chunk", rather that this
+> chunk is scheduled for writing a bit too late.  Memory is filling up
+> and the process producing data us throttled while waiting for
+> the write to free up pages.  Then the "huge chunk" of pages is released,
+> and memory is allowed to fill up for too long again.
+>
+> Seem to me the correct solution is to start writing out
+> things long before memory gets so full that we need to
+> throttle the producer. 
 
-Hmm, but you know, that users of get_user_pages() play games with
-pages? They need to lock them into memory, mark them eventually
-dirty, map them to a struct scatterlist and much more.
+I haven't thought about this much, but it seems to me that
+doing writeout whenever the disk would otherwise be idle
+(and we have dirty memory to write out) would be a good
+solution.
 
-I worked on an API (I called it the page-walk-api), to make this
-more and more transparent. 
-
-So if this work will go into 2.6.x, then the page-walk-API will
-be needed, or else the driver writers playing tricks with
-virtual<->physical<->bus address conversions will go nuts.
-
-So which kernel is the target of this development?
-
-Regards
-
-Ingo Oeser

@@ -1,103 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263723AbUAMB6i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 20:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUAMB55
+	id S263646AbUAMB5q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 20:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUAMB5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 20:57:57 -0500
-Received: from felinemenace.org ([65.248.4.252]:8078 "EHLO felinemenace.org")
-	by vger.kernel.org with ESMTP id S263642AbUAMB5m (ORCPT
+	Mon, 12 Jan 2004 20:57:46 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:35261 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263646AbUAMB5f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 20:57:42 -0500
-Date: Mon, 12 Jan 2004 01:48:19 -0800
-From: andrewg@felinemenace.org
-To: linux-kernel@vger.kernel.org
-Subject: Capability problems in 2.6.1?
-Message-ID: <20040112094819.GA25633@felinemenace.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Jan 2004 20:57:35 -0500
+Message-Id: <200401130155.i0D1tYZ06053@owlet.beaverton.ibm.com>
+To: marcello.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: New entry for Documentation for 2.4.25 (iostats.txt)
+Date: Mon, 12 Jan 2004 17:55:32 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is similar to the iostats.txt I created for 2.6.
 
-	I seem to be having problems with getting capabilities to work
-correctly under 2.6.1. This is the code I'm using to drop it with.
+Rick
 
-#define HIGHSEC (CAP_TO_MASK(CAP_FOWNER) | CAP_TO_MASK(CAP_LINUX_IMMUTABLE) |\
-                CAP_TO_MASK(CAP_NET_ADMIN) | CAP_TO_MASK(CAP_SYS_MODULE) |\
-                CAP_TO_MASK(CAP_SYS_RAWIO) | CAP_TO_MASK(CAP_SYS_PACCT) |\
-                CAP_TO_MASK(CAP_SYS_ADMIN) | CAP_TO_MASK(CAP_SYS_BOOT) |\
-                CAP_TO_MASK(CAP_SYS_TIME) | CAP_TO_MASK(CAP_NET_RAW) |\
-                CAP_TO_MASK(CAP_SYS_TTY_CONFIG) | CAP_TO_MASK(CAP_IPC_OWNER) |\
-                CAP_TO_MASK(CAP_KILL) | CAP_TO_MASK(CAP_SETPCAP) |\
-                CAP_TO_MASK(CAP_NET_BROADCAST) | CAP_TO_MASK(CAP_SYS_CHROOT) |\
-                CAP_TO_MASK(CAP_SYS_PTRACE) | CAP_TO_MASK(CAP_SYS_NICE) |\
-                CAP_TO_MASK(CAP_SYS_RESOURCE) | CAP_TO_MASK(CAP_MKNOD))
-
-        if(current->pid != 1) {
-                printk(KERN_INFO "sys_chroot(%s): HIGHSEC mask: %08x, cap_permitted: %08x, cap_inheritable: %08x, cap_effective: %08x\n", filename, HIGHSEC, current->cap_permitted, current->cap_inheritable, current->cap_effective);
-
-                current->cap_permitted = cap_drop(current->cap_permitted, HIGHSEC);
-                current->cap_inheritable = cap_drop(current->cap_inheritable, HIGHSEC);
-                current->cap_effective = cap_drop(current->cap_effective, HIGHSEC);
-
-                printk(KERN_INFO "sys_chroot(%s): HIGHSEC mask: %08x, cap_permitted: %08x, cap_inheritable: %08x, cap_effective: %08x\n", filename, HIGHSEC, current->cap_permitted, current->cap_inheritable, current->cap_effective);
-
-        }
-
-To test, I chroot a process, and check the /proc/self/status flag, and attempt
-mounting/dismounting a filesystem (which should fail, since we are taking 
-CAP_SYS_ADMIN away.). I've tried various combinations of LSM selections, but
-this doesn't seem to help. I edited capability.h to change the effective set
-had SET_PCAP. (Yes, I realise I should set the allowed capabilities ;) not the
-opposite)
-
-My results:	
-
-CONFIG_SECURITY=n
-	Causes the chrooted process mask to be 0xffffffff, and operations are 
-	performed fine.
-	
-CONFIG_SECURITY=y
-	Causes the chrooted process mask to be 0xf00044d7, and operations are
-	performed fine.
-
-CONFIG_SECURITY=y && CONFIG_SECURITY_CAPABILITIES=m
-	When unloaded: 
-		Causes the chrooted process mask to be 0xf00044d7, and 
-		operations are preformed fine.		
-
-	When loaded:
-		Causes the chrooted process mask to be 0xffffffff, and 
-		operations are preformed fine.
-
-	When unloaded:
-		Causes the chrooted process mask to be 0xf00044d7, and
-		operations are preformed fine. (I made sure capability and
-		common cap where removed.)
-
-	When just commoncap is loaded:
-		Causes the chrooted process mask to be 0xf00044d7, and
-		operations are preformed fine. 
-
-CONFIG_SECURITY=y && CONFIG_SECURITY_CAPABILITIES=y
-	Causes the chrooted process mask to be 0xffffffff, and operations are
-	performed fine.
-
-It also appears securebits.h has something to do with the whole thing as well,
-but I don't know. If I've missed something that causes capabilities to work in
-the 2.4 (or how I remember :/) series, I'd appreciate it if anyone could 
-point it out.
-
-Otherwise, does it look like this is a bug, and possibly a bad one since
-people could/would assume it would work the same as 2.4, and there previously
-capability restricted binds and wu-ftpds are now open?
-
-Thanks in advance,
-Andrew Griffiths
-
-P.S I'm not subscribed, but I'd appreciate it if you could cc me in any replies,
-thanks.
+diff -rupN linux-2.4.24/Documentation/iostats.txt linux-2.4.24-rl/Documentation/iostats.txt
+--- linux-2.4.24/Documentation/iostats.txt	Wed Dec 31 16:00:00 1969
++++ linux-2.4.24-rl/Documentation/iostats.txt	Mon Jan 12 17:49:18 2004
+@@ -0,0 +1,85 @@
++I/O statistics fields
++---------------
++
++Last modified Jan 12, 2004
++
++Since 2.4.20 (and some versions before, with patches), more extensive
++disk statistics have been introduced to help measure disk activity. Tools
++such as sar and iostat typically interpret these and do the work for you,
++but in case you are interested in creating your own tools, the fields
++are explained here.
++
++The information is found as additional fields in /proc/partitions.
++Here's an example of the format
++
++   3     0   39082680 hda 446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
++   3     1    9221278 hda1 35486 0 35496 38030 0 0 0 0 0 38030 38030
++
++The statistics fields are those after the device name. In the above
++example, the first field of statistics would be 446216.  All fields
++except field 9 are cumulative since boot.  Field 9 should go to zero
++as I/Os complete; all others only increase.  Yes, these are 32 bit
++unsigned numbers, and on a very busy or long-lived system they may
++wrap. Applications should be prepared to deal with that; unless your
++observations are measured in large numbers of minutes or hours, they
++should not wrap twice before you notice them.
++
++Each set of stats only applies to the indicated device; if you want
++system-wide stats you'll have to find all the devices and sum them all up.
++
++Field  1 -- # of reads issued
++    This is the total number of reads completed successfully.
++Field  2 -- # of reads merged, field 6 -- # of writes merged
++    Reads and writes which are adjacent to each other may be merged for
++    efficiency.  Thus two 4K reads may become one 8K read before it is
++    ultimately handed to the disk, and so it will be counted (and queued)
++    as only one I/O.  This field lets you know how often this was done.
++Field  3 -- # of sectors read
++    This is the total number of sectors read successfully.
++Field  4 -- # of milliseconds spent reading
++    This is the total number of milliseconds spent by all reads (as
++    measured from __make_request() to end_that_request_last()).
++Field  5 -- # of writes completed
++    This is the total number of writes completed successfully.
++Field  7 -- # of sectors written
++    This is the total number of sectors written successfully.
++Field  8 -- # of milliseconds spent writing
++    This is the total number of milliseconds spent by all writes (as
++    measured from __make_request() to end_that_request_last()).
++Field  9 -- # of I/Os currently in progress
++    The only field that should go to zero. Incremented as requests are
++    given to appropriate request_queue_t and decremented as they finish.
++Field 10 -- # of milliseconds spent doing I/Os
++    This field is increases so long as field 9 is nonzero.
++Field 11 -- weighted # of milliseconds spent doing I/Os
++    This field is incremented at each I/O start, I/O completion, I/O
++    merge, or read of these stats by the number of I/Os in progress
++    (field 9) times the number of milliseconds spent doing I/O since the
++    last update of this field.  This can provide an easy measure of both
++    I/O completion time and the backlog that may be accumulating.
++
++To avoid introducing performance bottlenecks, no locks are held while
++modifying these counters.  This implies that minor inaccuracies may be
++introduced when changes collide, so (for instance) adding up all the
++read I/Os issued per partition should equal those made to the disks ...
++but due to the lack of locking it may only be very close.
++
++
++Disks vs Partitions
++-------------------
++In 2.4, the same statistics are collected about partitions as about whole
++disks.  In theory, the fields in the partitions should sum up to the
++fields in the corresponding whole disk, but in practice since grabbing
++locks is purposely avoided during both stat collection and stat reporting
++in favor of speed, there may be minor inconsistencies.
++
++
++Additional notes
++----------------
++As an artifact, less comprehensive disk statistics also appear in
++/proc/stat for whole disks.  These were removed in 2.6 but are unlikely
++to disappear in 2.4's lifetime.  If you are writing a new application,
++you would do well, however, to consider them deprecated so that your
++application is more easily ported to 2.6 and beyond.
++
++-- ricklind@us.ibm.com

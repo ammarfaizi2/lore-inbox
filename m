@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132473AbRDNQMY>; Sat, 14 Apr 2001 12:12:24 -0400
+	id <S132484AbRDNQ2q>; Sat, 14 Apr 2001 12:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132478AbRDNQMO>; Sat, 14 Apr 2001 12:12:14 -0400
-Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:18448 "EHLO
-	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
-	id <S132473AbRDNQMC>; Sat, 14 Apr 2001 12:12:02 -0400
-Date: Sat, 14 Apr 2001 19:12:00 +0300 (EET DST)
-From: Samuli Kaski <samkaski@cs.Helsinki.FI>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: pci SDSL card
-In-Reply-To: <20010413100138.A1272@dandelion.darkorb.net>
-Message-ID: <Pine.LNX.4.30.0104141908100.21238-100000@melkinkari.cs.Helsinki.FI>
+	id <S132220AbRDNQ2g>; Sat, 14 Apr 2001 12:28:36 -0400
+Received: from gear.torque.net ([204.138.244.1]:25098 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S132483AbRDNQ2W>;
+	Sat, 14 Apr 2001 12:28:22 -0400
+Message-ID: <3AD87A7D.BB66C5DA@torque.net>
+Date: Sat, 14 Apr 2001 12:27:41 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac4 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        Matt Domsch <Matt_Domsch@Dell.com>
+Subject: Re: [RFC][PATCH] adding PCI bus information to SCSI layer
+In-Reply-To: <E14oBtM-0003fN-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Xpeed X200/300. Go to http://www.xpeed.com/Products/x300/300ds.pdf
+Alan Cox wrote:
+> 
+> > Also ISA adapters are not the only non-PCI adapters,
+> > there are the growing band of pseudo adapters that
+> > may or may not have a PCI bus at the bottom of some
+> > other protocol stack.
+> 
+> An ioctl might be better. We already have an ioctl for querying the lun
+> information for a disk. We could also return the bus information for its
+> controller(s) [remember multipathing]
 
-Kernel support for the cards appeared in
+Both 'cat /proc/scsi/scsi' and ioctls used on
+fds belonging to the existing upper level drivers
+(e.g. sd and sr) have a problem as far as getting
+HBA environment information: there needs to be at
+least one SCSI device (target) connected to the
+HBA. With no SCSI devices connected, there is no 
+fd to do an ioctl on. [The same problem arises
+if a device is there but marked offline, has an
+exclusive lock on it, ...]
 
-ftp://ftp.cs.helsinki.fi/pub/Software/Linux/Kernel/people/alan/2.2.18pre/pre-patch-2.2.18-18.gz
+Perhaps Matt could look at the approach I have taken
+with the scsimon experimental upper level driver.
+Scsimon was originally designed to get scsi based
+information to the /sbin/hotplug mechanism. It also
+supplies ioctls to probe HBAs as well as SCSI devices.
+More information about it can be found at:
+  http://www.torque.net/scsi/scsimon.html
 
-I guess it hasn't been ported to 2.4 yet.
+It should not be difficult to add HBA PCI bus information
+to scsimon (after the Scsi_Host structure is expanded to
+hold that information).
 
-	Samuli
-
-On Fri, 13 Apr 2001, Gabriel Rocha wrote:
-
-> does anyone know of a linux supported, pci SDSL card? I see a couple that are windows based, but nothing on those and linux...thanks in advance. --gabe
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Doug Gilbert

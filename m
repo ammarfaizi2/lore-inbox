@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318274AbSHPHrr>; Fri, 16 Aug 2002 03:47:47 -0400
+	id <S316786AbSHPHo0>; Fri, 16 Aug 2002 03:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318275AbSHPHrr>; Fri, 16 Aug 2002 03:47:47 -0400
-Received: from f159.law15.hotmail.com ([64.4.23.159]:40976 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S318274AbSHPHrq>;
-	Fri, 16 Aug 2002 03:47:46 -0400
-X-Originating-IP: [202.56.162.141]
-From: "Misha Alex" <misha_zant@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 16 Aug 2002 07:51:37 +0000
+	id <S316789AbSHPHo0>; Fri, 16 Aug 2002 03:44:26 -0400
+Received: from smtp.hexanet.fr ([81.23.32.141]:18698 "EHLO smtp.hexanet.fr")
+	by vger.kernel.org with ESMTP id <S316786AbSHPHoZ>;
+	Fri, 16 Aug 2002 03:44:25 -0400
+Date: Fri, 16 Aug 2002 09:48:19 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: ben@beroul.uklinux.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
+Message-Id: <20020816094819.160d5e33.khali@linux-fr.org>
+Organization: linux-fr
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-portbld-freebsd4.5)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F159156pqkw3Wctbnyd0000b29b@hotmail.com>
-X-OriginalArrivalTime: 16 Aug 2002 07:51:38.0132 (UTC) FILETIME=[C02A0540:01C244F9]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello.
 
-Hi,
-   1)How do convert C,H,S into bytes.
-     How can one read in linux if we know the C,H,S.
+> I'm getting errors with kernel 2.4.19 when reading a data CD-R burnt
+> under Windows (using Adaptec DirectCD). Kernel 2.2.20 reads the same
+> CD with no problems, as does Windows XP.
 
-      Also i tried the linear addressing linear = c*H*S + h*S +s -1 .But 
-linear or linear*512 never gave me the exact byte offset to seek.
+Could you please try to read the same CD-R with kernel 2.4.18? If you
+still can't read the CD, try with kernel 2.4.17, and so on back to
+2.2.20, so we have a chance to find the change causing the problem. (Be
+careful to skip problematic kernels, 2.4.15 and 2.4.11 come to mind.)
 
-I am working in linux and using a hexeditor to seek .How many exact bytes 
-should i seek to find out the extended partition.I read the MBR and found 
-the exteneded partiton.
-00 01 01 00 02 fe 3f 01 3f 00 00 00 43 7d 00 00
-80 00 01 02 0b fe bf 7e 82 7d 00 00 3d 26 9c 00
-00 00 81 7f 0f fe ff ff bf a3 9c 00 f1 49 c3 01
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+(Note also that a dicotomic search may be more efficient. I let you
+decide.)
 
-
-See the third column it is 0f(extended windows).The cylinder is 639(7f81 h)
-and sector is 1 .I don't know where to exactly read for the next partiton.
-The byte offset for finding out the next partitions.
-
-If i open hda3(Mind you hda3 is an extended partition on hda) with a
-hexeditor i get
-
-00 01 81 7f 83 fe ff 7d 3f 00 00 00 00 82 3e 00
-00 00 c1 7e 05 fe ff ff 3f 82 3e 00 7e 04 7d 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-.Now the first partition is of type 83 which is linux and the next
-extended partition is of type 05(extended) and cylinder894 and sec1.
-
-
-
-*************************************
-How do i find the next chain of extended partitions.I mean how do i convert 
-cylinder 894 ,sec1 and head 0 into absolute bytes so that i can hexdump the 
-next partition table for finding out ?
-************************************
-
-Thank you,
-Misha
-
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
-
+-- 
+Jean Delvare

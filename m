@@ -1,103 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbTABGdy>; Thu, 2 Jan 2003 01:33:54 -0500
+	id <S266041AbTABGmE>; Thu, 2 Jan 2003 01:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbTABGdy>; Thu, 2 Jan 2003 01:33:54 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:4384 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266006AbTABGdw>;
-	Thu, 2 Jan 2003 01:33:52 -0500
+	id <S266069AbTABGmE>; Thu, 2 Jan 2003 01:42:04 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:33820 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266041AbTABGmD>;
+	Thu, 2 Jan 2003 01:42:03 -0500
 From: <Hell.Surfers@cwctv.net>
-To: mtanski@wideopenwest.com, david.lang@digitalinsight.com, paul@clubi.ie,
+To: andersen@codepoet.org, billh@gnuppy.monkey.org, paul@clubi.ie,
        riel@conectiva.com.br, linux-kernel@vger.kernel.org, rms@gnu.org
-Date: Thu, 2 Jan 2003 06:41:29 +0000
-Subject: [OT] Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Date: Thu, 2 Jan 2003 06:48:33 +0000
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 MIME-Version: 1.0
 X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="1041489689168"
-Message-ID: <0c1060439060213DTVMAIL5@smtp.cwctv.net>
+ boundary="1041490113993"
+Message-ID: <0a9503844060213DTVMAIL4@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1041489689168
+--1041490113993
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Sounds better... But still incorrectly licensed.
+I say we start a driver based on the UTAHs. MR. Anderson had a good schedule :), knock knock neo... ;-))
 
 Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
 
-On 	Thu, 2 Jan 2003 01:34:05 -0500 	Milosz Tanski <mtanski@wideopenwest.com> wrote:
+On 	Wed, 1 Jan 2003 23:12:33 -0700 	Erik Andersen <andersen@codepoet.org> wrote:
 
---1041489689168
+--1041490113993
 Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Thu, 2 Jan 2003 06:34:33 +0000
+	 Thu, 2 Jan 2003 06:13:35 +0000
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265880AbTABG0n>; Thu, 2 Jan 2003 01:26:43 -0500
+	id <S265725AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbTABG0n>; Thu, 2 Jan 2003 01:26:43 -0500
-Received: from gtwy.nap.wideopenwest.com ([64.233.207.11]:51710 "EHLO
-	pop-1.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id <S265880AbTABG0m>; Thu, 2 Jan 2003 01:26:42 -0500
-Received: from Milosz.home (d60-243-182.try.wideopenwest.com [65.60.182.243])
-	by pop-1.dnv.wideopenwest.com (8.11.6/8.11.6) with SMTP id h026Zhq28455;
-	Thu, 2 Jan 2003 00:35:43 -0600
-Date: Thu, 2 Jan 2003 01:34:05 -0500
-From: Milosz Tanski <mtanski@wideopenwest.com>
-To: david.lang@digitalinsight.com, paul@clubi.ie,
-	riel@conectiva.com.br, linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: [OT] Re: Why is Nvidia given GPL'd code to use in closed source
- drivers?
-Message-Id: <20030102013405.4f0d3417.mtanski@wideopenwest.com>
-In-Reply-To: <0a5713612060213DTVMAIL4@smtp.cwctv.net>
-References: <0a5713612060213DTVMAIL4@smtp.cwctv.net>
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S265754AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
+Received: from codepoet.org ([166.70.99.138]:8417 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S265725AbTABGEC>;
+	Thu, 2 Jan 2003 01:04:02 -0500
+Received: by winder.codepoet.org (Postfix, from userid 1000)
+	id 2CF801579E0; Wed,  1 Jan 2003 23:12:33 -0700 (MST)
+Date: Wed, 1 Jan 2003 23:12:33 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Paul Jakma <paul@clubi.ie>, Rik van Riel <riel@conectiva.com.br>,
+	Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org, rms@gnu.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030102061233.GA20916@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Bill Huey <billh@gnuppy.monkey.org>, Paul Jakma <paul@clubi.ie>,
+	Rik van Riel <riel@conectiva.com.br>, Hell.Surfers@cwctv.net,
+	linux-kernel@vger.kernel.org, rms@gnu.org
+References: <Pine.LNX.4.50L.0301011439540.2429-100000@imladris.surriel.com> <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org> <20030102013736.GA2708@gnuppy.monkey.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.AOJAPq3(Fx/cu4"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030102013736.GA2708@gnuppy.monkey.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
---=.AOJAPq3(Fx/cu4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Wed Jan 01, 2003 at 05:37:36PM -0800, Bill Huey wrote:
+> Obviously a GPL rewrite of this would entail a lot of replicated effort
+> and would also depend on things that are incomplete, non-existent and
+> don't have a lot direct interest from the GPL community. 3D isn't a hot
+> commodity in Linux, FreeBSD unlike with dedicated SGI machines (although
+> faded).
 
-There is (was) an effort for opensource 3d drivers (including nvidia
-ones), infact i rember they got quake II and III working in 32bit color
-mode, if i rember correctly. If you go grieff, then go visit
-http://utah-glx.sourceforge.net/ and help out. Make the drivers better
-then the nvidia ones (ya right!) so they will be forced to use your code
-on other paltforms (and then nvidia would be forced to use it, and thus
-open up their code). I'll see you in two years, when you fully complete
-the drivers? Ok, bye. 
+Ahh, but replicated effort is something that open source people
+do very well at indeed.  If nvidia provided non-functional GPL
+source code with all the proprietary 3rd party bits ripped out, 
+I would expect a hoard of developers would jump at the chance to
+fixup the non-functional mess, clean it up, reimplement all the
+missing proprietary bits.  I'd bet you $20 US we could have a
+functional driver within 2 weeks.  And have a high quality driver
+roughly equal to their proprietary one within 6 months.  Thats
+the way things work around these parts of the net.  I bought a
+copy of Quake when they GPLd their code to show support.  I
+similarly bought a copy of Quake II after they GPLd their code.
+If Nvidia released their code under the GPL, I'd buy one of their
+cards.  As is, I'm sticking with my ATI card...
 
-P.S: I think the code there is under a BSD (BSDish, MITish licence,
-....).
+ -Erik
 
---=.AOJAPq3(Fx/cu4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+E91iNciXfIswNe8RAodlAKCKh++frVrz7sdNRviSUPUtnBDkhwCeI1MF
-vsY6OAW4tVQrfPkUa1IfzCo=
-=Jf1b
------END PGP SIGNATURE-----
-
---=.AOJAPq3(Fx/cu4--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---1041489689168--
+--1041490113993--
 
 

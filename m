@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311706AbSCNSTR>; Thu, 14 Mar 2002 13:19:17 -0500
+	id <S311707AbSCNSTR>; Thu, 14 Mar 2002 13:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311707AbSCNSTI>; Thu, 14 Mar 2002 13:19:08 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:5393 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S311706AbSCNSS7>; Thu, 14 Mar 2002 13:18:59 -0500
-Message-ID: <3C90E983.5AC769B8@ngforever.de>
-Date: Thu, 14 Mar 2002 11:18:43 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
-X-Accept-Language: en
+	id <S311709AbSCNSTH>; Thu, 14 Mar 2002 13:19:07 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:41369 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S311707AbSCNSTB>;
+	Thu, 14 Mar 2002 13:19:01 -0500
+Message-ID: <3C90E994.2030702@candelatech.com>
+Date: Thu, 14 Mar 2002 11:19:00 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-CC: root@chaos.analogic.com, Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-Content-Type: text/plain; charset=us-ascii
+To: Larry McVoy <lm@bitmover.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 and BitKeeper
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
-> On Thu, 14 Mar 2002, Martin Wilck wrote:
-> 
-> 
-> >Hello,
-> >
-> >the BIOS on our machines (Phoenix) uses IO-port 0x80 for storing
-> >POST codes, not only during sytem startup, but also for messages
-> >generated during SMM (system management mode) operation.
-> >I have been told other BIOSs do the same.
-> >
-> >Unfortunately we can't read this information because Linux uses
-> >port 80 as "dummy" port for delay operations. (outb_p and friends,
-> >actually there seem to be a more hard-coded references to port
-> >0x80 in the code).
-> >
-> >It seems this problem was always there, just nobody took notice of it yet
-> >(at least in our company). Sometimes people wondered about the weird POST
-> >codes displayed in the LCD panel, but who cares once the machine is up...
-> >
-> >Would it be too outrageous to ask that this port number be changed, or
-> >made configurable?
-> >
-> >Martin
-> 
-> This is a 'N' year-old question. Do you know of a port that is
-> guaranteed to exist on the Intel/PC/AT class machine? If so, submit
-> a patch.  I proposed using 0x19h (DMA scratch register) several
-> years ago, but it was shot down for some reason. Then I proposed
-> 0x42 (PIT Misc register), that too was declared off-limits. So
-> I suggested that the outb to 0x80 be changed to an inp, saving 
-> %eax on the stack first. That too was shot down. So, you try
-> something... and good luck.
-I also remember this been discussed anually. Making it configurable with
-a warning might be a solution, but that's nothing we could decide. Maybe
-add a config option? It night be a [DANGEROUS] one, so the guys and gals
-who might compile are warned of changing this.
-I think the problem is that on PC arch anything is quite limited.
 
-Thunder
+Larry McVoy wrote:
+
+
+> Hi, Linus & Marcelo agreed that the right place for this is
+> 
+> 	bk://linux.bkbits.net/linux-2.4
+
+
+I did a clone with this.  However, I see no files, only
+directories.  The files do seem to be in the SCCS directories,
+but I don't know how to make them appear in their normal place.
+
+The command I ran was:
+  bk clone bk://linux24.bkbits.net/linux-2.4
+
+Here is what the resulting linux-2.4 directory looked like:
+
+[greear@grok bk]$ cd linux-2.4/
+[greear@grok linux-2.4]$ ls -alt
+total 64
+drwxrwxr-x    6 greear   greear       4096 Mar 14 11:03 BitKeeper
+drwxrwxr-x   16 greear   greear       4096 Mar 14 11:03 .
+drwxrwxr-x    5 greear   greear       4096 Mar 14 11:03 scripts
+drwxrwxr-x   29 greear   greear       4096 Mar 14 11:03 net
+drwxrwxr-x    3 greear   greear       4096 Mar 14 11:03 lib
+drwxrwxr-x    3 greear   greear       4096 Mar 14 11:03 mm
+drwxrwxr-x   24 greear   greear       4096 Mar 14 11:03 include
+drwxrwxr-x    3 greear   greear       4096 Mar 14 11:03 init
+drwxrwxr-x    3 greear   greear       4096 Mar 14 11:03 ipc
+drwxrwxr-x    3 greear   greear       4096 Mar 14 11:03 kernel
+drwxrwxr-x   46 greear   greear       4096 Mar 14 11:02 fs
+drwxrwxr-x   40 greear   greear       4096 Mar 14 11:01 drivers
+drwxrwxr-x   17 greear   greear       4096 Mar 14 10:58 arch
+drwxrwxr-x   29 greear   greear       4096 Mar 14 10:57 Documentation
+drwxrwxr-x    2 greear   greear       4096 Mar 14 10:57 SCCS
+drwxrwxr-x    3 greear   greear       4096 Mar 14 10:57 ..
+[greear@grok linux-2.4]$
+
+What am I missing?
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

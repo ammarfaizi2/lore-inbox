@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136104AbREJMJT>; Thu, 10 May 2001 08:09:19 -0400
+	id <S136135AbREJMJU>; Thu, 10 May 2001 08:09:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136135AbREJMJI>; Thu, 10 May 2001 08:09:08 -0400
+	id <S136106AbREJMJD>; Thu, 10 May 2001 08:09:03 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:61671 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136145AbREJMDQ>;
-	Thu, 10 May 2001 08:03:16 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105100721.f4A7LoN9021455@webber.adilger.int>
-Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-In-Reply-To: "from (env: adilger) at May 9, 2001 03:22:10 pm"
-To: phillips@bonn-fries.net
-Date: Thu, 10 May 2001 01:21:50 -0600 (MDT)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	by vger.kernel.org with ESMTP id <S136104AbREJMDO>;
+	Thu, 10 May 2001 08:03:14 -0400
+Date: Thu, 10 May 2001 14:10:50 +0530
+From: Dipankar Sarma <dipankar@sequent.com>
+To: "Andrew M. Theurer" <atheurer@austin.ibm.com>
+Cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        samba-technical <samba-technical@samba.org>
+Subject: Re: [Lse-tech] Re: Linux 2.4 Scalability, Samba, and Netbench
+Message-ID: <20010510141050.D928@in.ibm.com>
+Reply-To: dipankar@sequent.com
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com> <20010509095658.B1150@w-mikek2.sequent.com> <3AF97EBB.9F0ABE9A@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3AF97EBB.9F0ABE9A@austin.ibm.com>; from atheurer@austin.ibm.com on Wed, May 09, 2001 at 12:30:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I previously wrote:
-> I was looking at the new patch, and I saw something that puzzles me.
-> Why do you set the EXT2_INDEX_FL on a new (empty) directory, rather
-> than only setting it when the dx_root index is created?
-> 
-> Setting the flag earlier than that makes it mostly useless, since it
-> will be set on basically every directory.  Not setting it would also
-> make your is_dx() check simply a check for the EXT2_INDEX_FL bit (no
-> need to also check size).
-> 
-> Also no need to set EXT2_COMPAT_DIR_INDEX until such a time that we have
-> a (real) directory with an index, to avoid gratuitous incompatibility
-> with e2fsck.
+Hello Andrew,
 
-I have changed the code to do the following:
-- If the COMPAT_DIR_INDEX flag is set at mount/remount time, set the
-  INDEX mount option (the same as "mount -o index").  This removes
-  the need to specify the "-o index" option each time for filesystems
-  which already have indexed directories.
-- New directories NEVER have the INDEX flag set on them.
-- If the INDEX mount option is set, then when directories grow past 1
-  block (and have the index added) they will get the directory INDEX
-  flag set and turn on the superblock COMPAT_DIR_INDEX flag (if off).
+You would need contact one of the administrators of the LSE project for this.
+You would need a developer id for uploading. You can get all the information 
+from http://sourceforge.net/projects/lse/.
 
-This means that you can have common code for indexed and non-indexed ext2
-filesystems, and the admin either needs to explicitly set COMPAT_DIR_INDEX
-in the superblock or mount with "-o index" (and create a directory > 1 block).
+I think it will be very helpful to have the results including lockmeter
+and kernprof data available in lse.sourceforge.net.
 
-I have also added some tricks to ext2_inc_count() and ext2_dec_count() so
-that indexed directories are not subject to the EXT2_LINK_MAX.  I've done
-the same as reiserfs, and set i_nlink = 1 if we overflow EXT2_LINK_MAX
-(which has been increased to 65500 for indexed directories). Apparently
-i_nlink = 1 is the right think to do w.r.t. find and other user tools.
-
-Patches need some light testing before being posted.
-
-Cheers, Andreas
+Thanks
+Dipankar
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Dipankar Sarma  <dipankar@sequent.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+On Wed, May 09, 2001 at 12:30:35PM -0500, Andrew M. Theurer wrote:
+> I do have kernprof ACG and lockmeter for a 4P run.  We saw no
+> significant problems with lockmeter.  csum_partial_copy_generic was the
+> highest % in profile, at 4.34%.  I'll see if we can get some space on
+> http://lse.sourceforge.net to post the test data.
+> 
+> Andrew Theurer
+> 
+> Mike Kravetz wrote:
+> > 
+> > On Wed, May 09, 2001 at 11:29:22AM -0500, Andrew M. Theurer wrote:
+> > >
+> > > I am evaluating Linux 2.4 SMP scalability, using Netbench(r) as a
+> > > workload with Samba, and I wanted to get some feedback on results so
+> > > far.
+> > 
+> > Do you have any kernel profile or lock contention data?
+> > 
+> > --
+> > Mike Kravetz                                 mkravetz@sequent.com
+> > IBM Linux Technology Center
+> 
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/lse-tech
+

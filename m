@@ -1,66 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTIEJYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 05:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTIEJYJ
+	id S262420AbTIEJWl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 05:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbTIEJWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 05:24:09 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:44524 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262261AbTIEJYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 05:24:03 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Fri, 5 Sep 2003 11:24:00 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: marcelo@conectiva.com.br, mason@suse.com, green@namesys.com, akpm@osdl.org,
-       andrea@suse.de, alan@lxorguk.ukuu.org.uk, tejun@aratech.co.kr,
-       chris@memtest86.com
-Subject: Re: 2.4.22-pre lockups (case closed)
-Message-Id: <20030905112400.087e3fb6.skraw@ithnet.com>
-In-Reply-To: <1060952100.5046.2.camel@tiny.suse.com>
-References: <20030814084518.GA5454@namesys.com>
-	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
-	<20030814194226.2346dc14.skraw@ithnet.com>
-	<1060913337.1493.29.camel@tiny.suse.com>
-	<20030815122827.067bd429.skraw@ithnet.com>
-	<1060952100.5046.2.camel@tiny.suse.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 5 Sep 2003 05:22:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13836 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262420AbTIEJWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 05:22:36 -0400
+Date: Fri, 5 Sep 2003 10:22:31 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Move MODULE_ALIAS_LDISC to tty_ldisc.h
+Message-ID: <20030905102231.D27623@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linus Torvalds <torvalds@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+While trying to build bk-curr from yesterday, I encounter the following:
 
-I would like to give you the last update on the story:
+  CC      drivers/input/serio/serport.o
+drivers/input/serio/serport.c:27: parse error before numeric constant
+drivers/input/serio/serport.c:27: warning: type defaults to `int' in declaration of `MODULE_ALIAS_LDISC'
+drivers/input/serio/serport.c:27: warning: function declaration isn't a prototype
+drivers/input/serio/serport.c:27: warning: data definition has no type or storage class
 
-short: hardware problem
+This seems to be defined in asm-i386/termios.h:
 
-long:
-The box had two different types of RAM (both registered ECC) in it. Two were 1
-GByte, four were 256 MByte to a total of 3 GByte. I had to find out that the
-box runs flawlessly when using only the GByte modules _or_ only the 256 MByte
-modules, but not the mix. All modules are from same vendor. The problem in
-mixed setup does not show up in UP mode (memtest works!). It does not even show
-up straight away, it takes days, but it is always there.
-In fact - even though having sunk weeks of work - I am pretty happy that it
-turned out not to be a kernel problem.
-For the other setups that showed SMP-specific weirdness TeJun may have found
-interesting explanations. I updated them all to 2.4.22 and have not seen any
-problem yet.
-For me it was really interesting to see that reiserfs setups obviously have a
-completely different memory footprint than ext3, and altogether there seems a
-remarkable difference between later kernels and former. The problem showed up
-very seldom on 2.4.21 and below but within 2 days with 2.4.22.
-Thanks to all who lend me their ears on the topic and sorry for wasting the
-time.
+#define MODULE_ALIAS_LDISC(ldisc) \
+        MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
 
-Regards,
-Stephan
+Why is this defined in the per-architecture asm/ header files rather
+than the linux/ header files?  It surely can't be something which is
+architecture specific.
 
-PS: Obviously there are seldom cases where SMP support in memtest _could_ make
-a difference ;-)
+Here's a patch which moves it to a more sensible location:
+
+===== include/linux/tty_ldisc.h 1.3 vs edited =====
+--- 1.3/include/linux/tty_ldisc.h	Wed Feb 19 02:59:04 2003
++++ edited/include/linux/tty_ldisc.h	Fri Sep  5 10:02:02 2003
+@@ -138,4 +138,7 @@
+ 
+ #define LDISC_FLAG_DEFINED	0x00000001
+ 
++#define MODULE_ALIAS_LDISC(ldisc) \
++	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
++
+ #endif /* _LINUX_TTY_LDISC_H */
+===== include/asm-i386/termios.h 1.4 vs edited =====
+--- 1.4/include/asm-i386/termios.h	Thu Sep  4 07:40:16 2003
++++ edited/include/asm-i386/termios.h	Fri Sep  5 10:02:02 2003
+@@ -102,8 +102,6 @@
+ #define user_termios_to_kernel_termios(k, u) copy_from_user(k, u, sizeof(struct termios))
+ #define kernel_termios_to_user_termios(u, k) copy_to_user(u, k, sizeof(struct termios))
+ 
+-#define MODULE_ALIAS_LDISC(ldisc) \
+-	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _I386_TERMIOS_H */
+===== include/asm-sparc/termios.h 1.6 vs edited =====
+--- 1.6/include/asm-sparc/termios.h	Thu Sep  4 12:16:09 2003
++++ edited/include/asm-sparc/termios.h	Fri Sep  5 10:03:14 2003
+@@ -169,9 +169,6 @@
+ 	0; \
+ })
+ 
+-#define MODULE_ALIAS_LDISC(ldisc) \
+-	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
+-
+ #endif	/* __KERNEL__ */
+ 
+ #endif /* _SPARC_TERMIOS_H */
+===== include/asm-sparc64/termios.h 1.6 vs edited =====
+--- 1.6/include/asm-sparc64/termios.h	Thu Sep  4 12:16:09 2003
++++ edited/include/asm-sparc64/termios.h	Fri Sep  5 10:03:14 2003
+@@ -168,9 +168,6 @@
+ 	0; \
+ })
+ 
+-#define MODULE_ALIAS_LDISC(ldisc) \
+-	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
+-
+ #endif	/* __KERNEL__ */
+ 
+ #endif /* _SPARC64_TERMIOS_H */
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core
+
 

@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSDCOau>; Wed, 3 Apr 2002 09:30:50 -0500
+	id <S311834AbSDCOyI>; Wed, 3 Apr 2002 09:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311756AbSDCOak>; Wed, 3 Apr 2002 09:30:40 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:57544 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S311749AbSDCOad>; Wed, 3 Apr 2002 09:30:33 -0500
-Date: Wed, 3 Apr 2002 16:17:31 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Chris Wilson <chris@jakdaw.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4/i845 Strange clock drifting
-In-Reply-To: <20020403151012.5061d247.chris@jakdaw.org>
-Message-ID: <Pine.LNX.4.44.0204031613160.2309-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311884AbSDCOyA>; Wed, 3 Apr 2002 09:54:00 -0500
+Received: from quechua.inka.de ([212.227.14.2]:7786 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S311834AbSDCOwy>;
+	Wed, 3 Apr 2002 09:52:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ext2 vs. ext3 recovery after crash
+In-Reply-To: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com>
+Message-Id: <20020403145248.EBBD7B7802@dungeon.inka.de>
+Date: Wed,  3 Apr 2002 16:52:48 +0200 (CEST)
+From: aj@dungeon.inka.de (Andreas Jellinghaus)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Chris Wilson wrote:
+>I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
+>crashes every time I log out of X.
 
-> I've got a 1U 2.0 Ghz P4 rackmount server with an i845 chipset and have
-> noticed some strange issues with the timer. For the most part it keeps
-> time perfectly... but pretty often (tens of times each day) it'll have
-> drifted anything from a few seconds to a few minutes - during a 10 minute
-> period. It's always behind-time - so perhaps this is something to do with
-> the P4's throttling stuff? Has anyone else seen similar?
+There is an Inspirion C600?
+i have a litutude c600, and it works fine.
 
-The throttle is not supposed to affect the TSC, and only takes affect 
-when overheating.
+beside an issue with the graphic(*), it works very fine.
 
-> I tried to use 2.5.7-dj2 with Zwane Mwaikambo's thermal LVT support in
-> there but it didn't detect a local APIC on bootup (!) - I'm guessing there
-> needs to be an APIC for Zwane's stuff? When I tried to switch back to
-
--dj2 P4 thermal patch is a bit broken (my bad), but the fact that it 
-doesn't detect an APIC means that code would, erm do interesting things...
-
-	Zwane
-
--- 
-http://function.linuxpower.ca
-		
+andreas
+(*) sometimes with dvd/avi/video software and with opening/closeing the
+display and with changeing to console/back to x, the screen gets wiered:
+in a vertical cut, maybe 30% of the middle of the screen is missing,
+filled with a duplication of the right part. everything still works, but
+that 30% of the screen is not shown. after a reboot everything is ok,
+sometimes a close display/open display helps.
 

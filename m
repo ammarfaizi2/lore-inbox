@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbRAEC7i>; Thu, 4 Jan 2001 21:59:38 -0500
+	id <S129460AbRAEDGv>; Thu, 4 Jan 2001 22:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129757AbRAEC72>; Thu, 4 Jan 2001 21:59:28 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:8737 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129655AbRAEC7S>;
-	Thu, 4 Jan 2001 21:59:18 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
+	id <S129703AbRAEDGl>; Thu, 4 Jan 2001 22:06:41 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:35597 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129460AbRAEDG1>; Thu, 4 Jan 2001 22:06:27 -0500
+Message-ID: <3A553A03.DCFBCB9@easypenguin.co.uk>
+Date: Fri, 05 Jan 2001 03:05:40 +0000
+From: Jon Masters <jonathan@easypenguin.co.uk>
+Organization: http://www.jonmasters.org.uk
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.0 is available 
-Date: Fri, 05 Jan 2001 13:59:12 +1100
-Message-ID: <14993.978663552@kao2.melbourne.sgi.com>
+Subject: Crypto in 2.4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
 
-Content-Type: text/plain; charset=us-ascii
+I am aware of work being done to create crypto patches for 2.4 however I
+am wondering what kind of time scale is likely to be involved before a
+patch for 2.4.0 becomes available and, more importantly, when such a
+patch will be suitable for daily use (disclaimers withstanding
+obviously).
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+Let's just say I'm cautious after a bad experience with one of the
+previous dud patch releases :P
 
-modutils-2.4.0.tar.gz           Source tarball, includes RPM spec file
-modutils-2.4.0-1.src.rpm        As above, in SRPM format
-modutils-2.4.0-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
-modutils-2.4.0-1.sparc.rpm      Compiled for combined sparc 32/64
-patch-2.4.0-persistent.gz	Adds persistent data and generic string
-				support to kernel 2.4.0.
+Thanks,
+	Jonathan.
 
-Changelog extract
+P.S. Congrats to everyone involved with 2.4 - I guess the
+"vapourwareists" finally got what they wanted.
 
-	* Clone from modutils 2.3.24.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE6VTh8i4UHNye0ZOoRArO+AJ9JLhwmcwBWeZJDUpiS66W8lONsxgCfRl1U
-YVvqJZzTbl5ewcc6vI0juFA=
-=wKRG
------END PGP SIGNATURE-----
-
+-- 
+ ________oooo_________ jonathan@jonmasters.org.uk _________oooo________
+| Technical, Easy Penguin.  +44 777 61 31337       GPG keys available. |
+|"And am I, who lived but for my country"         [quote: Robert Emmet]|
+ --------oooo-------- http://www.jonmasters.org.uk --------oooo--------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

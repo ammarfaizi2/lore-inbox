@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263386AbTHWRAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbTHWQ5x
+	id S263580AbTHWSeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 14:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbTHWSeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 12:57:53 -0400
-Received: from kom-pc-aw.ethz.ch ([129.132.66.20]:35302 "HELO
-	kom-pc-aw.ethz.ch") by vger.kernel.org with SMTP id S263428AbTHWPMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 11:12:02 -0400
-Date: Sat, 23 Aug 2003 17:12:00 +0200
-From: Arno Wagner <wagner@tik.ee.ethz.ch>
+	Sat, 23 Aug 2003 14:34:18 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:36104 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S264280AbTHWSeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 14:34:01 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: MAINTAINERS has obsolete entry
-Message-ID: <20030823151200.GA4266@tik.ee.ethz.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: 2.6.0-test3-bk8: sensor chips write value problem
+Date: Sat, 23 Aug 2003 22:34:05 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308232232.39261.arvidjaar@mail.ru>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Elizabeth Chastain is no longer a Maintainer for anything,
-yet still in the MAINTAINERS file for
- 
-   KERNEL BUILD
+Using ASUS as99127f chip, attempt to write any value in in_minN or in_maxN 
+results in funny value set:
 
-Regards,
-Arno Wagner
+{pts/1}% cat /sys/bus/i2c/devices/0-002d/in_*2
+3472
+3632
+2976
+{pts/1}% sudo zsh -c 'echo 3000 > /sys/bus/i2c/devices/0-002d/in_min2'
+{pts/1}% cat /sys/bus/i2c/devices/0-002d/in_*2
+3472
+3632
+400
 
-----
-From: Michael Elizabeth Chastain <mec@shout.net>
-To: wagner@tik.ee.ethz.ch
-Subject: Re: BUG: 2.6.0-test3: dmesg size still too small
-X-Virus-Scanned: by AMaViS new-20020517
-X-Spam-Status: No, hits=-2.6 required=5.0
-        tests=BAYES_20
-        version=2.54
-X-Spam-Level: 
-X-Spam-Checker-Version: SpamAssassin 2.54 (1.174.2.17-2003-05-11-exp)
+{pts/1}% cat /sys/bus/i2c/devices/0-002d/name
+as99127f
+{pts/1}% cat /sys/class/i2c-adapter/i2c-0/device/name
+SMBus I801 adapter at e800
 
-Hi,
+the same runs just fine under 2.4 (with libsensors).
 
-I am no longer active in kernel dvelopment.
+also, setting temp_{min.max}N works just fine under 2.6
 
-You could try the main linux-kernel development list.
-
-Michael C
-
-
--- 
-Arno Wagner, Communication Systems Group, ETH Zuerich, wagner@tik.ee.ethz.ch
-GnuPG:  ID: 1E25338F  FP: 0C30 5782 9D93 F785 E79C  0296 797F 6B50 1E25 338F
-----
-For every complex problem there is an answer that is clear, simple, 
-and wrong. -- H L Mencken
+-andrey

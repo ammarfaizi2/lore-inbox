@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVCUSTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVCUSXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVCUSTY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 13:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCUSTY
+	id S261356AbVCUSXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 13:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVCUSXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 13:19:24 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:7174 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261445AbVCUSTP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 13:19:15 -0500
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] FAT: Fix msdos ->[ac]{date,time}
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 22 Mar 2005 03:19:08 +0900
-Message-ID: <87is3k276r.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 21 Mar 2005 13:23:33 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:38099 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S261356AbVCUSXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 13:23:13 -0500
+Date: Mon, 21 Mar 2005 13:22:54 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] alpha build fixes
+Message-ID: <20050321182254.GA12553@havoc.gtf.org>
+References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net> <1111416728.14833.20.camel@localhost.localdomain> <20050321181618.GA7136@twiddle.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321181618.GA7136@twiddle.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MSDOS doesn't have ->adate and ->c{date,time}, those should be filled
-by zero.
+On Mon, Mar 21, 2005 at 10:16:18AM -0800, Richard Henderson wrote:
+> On Mon, Mar 21, 2005 at 02:52:10PM +0000, Alan Cox wrote:
+> > The issue is bigger - it's needed for the CMD controllers on PA-RISC for
+> > example it appears - and anything else where IDE legacy IRQ is wired
+> > oddly.
+> 
+> Sure, but who queries this information?  That's my question.
 
-This fixes my recent changes.
+IDE drivers.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+Since its a detail that varies widely depending on platform, the arch
+should either provide it or at least have a way to override it.
 
- fs/msdos/namei.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+linux/pci.h would be fine place for the "generic version arch overrides
+with HAVE_ARCH_PCI_IDE_IRQ", or we could fix the asm-generic header to
+not need #ifdefs in -your- source just to be usable.
 
-diff -puN fs/msdos/namei.c~fat_msdos-zeroed-adate fs/msdos/namei.c
---- linux-2.6.12-rc1/fs/msdos/namei.c~fat_msdos-zeroed-adate	2005-03-20 02:59:21.000000000 +0900
-+++ linux-2.6.12-rc1-hirofumi/fs/msdos/namei.c	2005-03-20 02:59:21.000000000 +0900
-@@ -266,9 +266,11 @@ static int msdos_add_entry(struct inode 
- 		de.attr |= ATTR_HIDDEN;
- 	de.lcase = 0;
- 	fat_date_unix2dos(ts->tv_sec, &time, &date);
--	de.time = de.ctime = time;
--	de.date = de.cdate = de.adate = date;
-+	de.cdate = de.adate = 0;
-+	de.ctime = 0;
- 	de.ctime_cs = 0;
-+	de.time = time;
-+	de.date = date;
- 	de.start = cpu_to_le16(cluster);
- 	de.starthi = cpu_to_le16(cluster >> 16);
- 	de.size = 0;
-_
+	Jeff
+
+
+

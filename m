@@ -1,73 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTFBN1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 09:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbTFBN1c
+	id S262320AbTFBNc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 09:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTFBNc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 09:27:32 -0400
-Received: from main.gmane.org ([80.91.224.249]:7371 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262319AbTFBN1b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 09:27:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Thomas Backlund" <tmb@iki.fi>
-Subject: Re: [PATCH 2.4.21-rc6-ac1] vesafb fixes...
-Date: Mon, 2 Jun 2003 16:40:02 +0300
-Message-ID: <bbfjv8$gpe$1@main.gmane.org>
-References: <200306011930.02086.tmb@iki.fi>
-X-Complaints-To: usenet@main.gmane.org
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 2 Jun 2003 09:32:58 -0400
+Received: from ik-dynamic-66-102-74-246.kingston.net ([66.102.74.246]:19975
+	"EHLO linux.interlinx.bc.ca") by vger.kernel.org with ESMTP
+	id S262320AbTFBNc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 09:32:56 -0400
+Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
+From: "Brian J. Murrell" <brian@interlinx.bc.ca>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+References: <200306012308.h51N8K6j001404@harpo.it.uu.se>
+	 <1054511535.6676.85.camel@pc>
+	 <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fOp4BSGZ06AOUTWQ3YAA"
+Message-Id: <1054561578.22451.19.camel@pc>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3-1mdk (Preview Release)
+Date: 02 Jun 2003 09:46:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-AARGH...
-I forgot to rediff...,
-but since it seems to break the bootsplash,
-the vesafb.c.diff needs more work...
+--=-fOp4BSGZ06AOUTWQ3YAA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-but the vesafb.txt.diff should be applied...
+On Mon, 2003-06-02 at 00:50, Zwane Mwaikambo wrote:
+> I agree with doing the clear apic capability flag,
 
-"Thomas Backlund" <tmb@iki.fi> wrote in message
-news:200306011930.02086.tmb@iki.fi...
-> Here are 2 patches...
->
-> The "vesafb.txt.diff" removes duplicate text in the documentation...
->
-> The "vesafb.c.diff" changes the following:
->  - it adds "* 2" to the video_size calculation to remap enough memory
->    to do double buffering
->
->  - to make sure that our double buffering calculation does not remap
->    more memory than old cards actually have it uses the "old" code:
->
-> if video_size > (screen_info.lfb_size * 65536)
-> video_size = screen_info.lfb_size * 65536;
->
+Indeed.  I sure does seem to be the right way to go.
 
-Stupid typos... :-(
+>  Brian how does this=20
+> fare? This patch alone should fix it.
 
-I am using:
-if (video_size > (screen_info.lfb_size * 65536))
-        video_size = screen_info.lfb_size * 65536;
+It looks good and will try it out.  But before I do, should not:
 
+	set_bit(X86_FEATURE_APIC, &disabled_x86_caps);
 
->  - and last but not least it changes my override to work both ways,
->    so that the user can specify less or more memory to be remapped
->
->
-> I earlier got a comment that this double buffering thing is not needed,
-> but IMHO there will always be cards out there that are to new, so they
-> dont have driver support (yet), or they are too "weird" so the only thing
-> the user has to rely on is the vesafb driver, and I like the idea to get
-> atleast this support "out of the box"...
->
+also be done?
 
- Best Regards
+>=20
+> Index: linux-2.5/arch/i386/kernel/apic.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
+> retrieving revision 1.54
+> diff -u -p -B -r1.54 apic.c
+> --- linux-2.5/arch/i386/kernel/apic.c	31 May 2003 19:01:05 -0000	1.54
+> +++ linux-2.5/arch/i386/kernel/apic.c	2 Jun 2003 03:50:31 -0000
+> @@ -609,7 +609,7 @@ static int __init detect_init_APIC (void
+> =20
+>  	/* Disabled by DMI scan or kernel option? */
+>  	if (dont_enable_local_apic)
+> -		return -1;
+> +		goto no_apic;
+> =20
+>  	/* Workaround for us being called before identify_cpu(). */
+>  	get_cpu_vendor(&boot_cpu_data);
+> @@ -665,6 +665,7 @@ static int __init detect_init_APIC (void
+>  	return 0;
+> =20
+>  no_apic:
+> +	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+>  	printk("No local APIC present or hardware disabled\n");
+>  	return -1;
+>  }
 
- Thomas
+b.
 
+--=20
+Brian J. Murrell <brian@interlinx.bc.ca>
 
+--=-fOp4BSGZ06AOUTWQ3YAA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+21Uql3EQlGLyuXARAr6dAKCXsXhhnjJ/JpCUpniOW0bSlNaiKwCfTUqR
+8eloROxk2UM4smCc2futom0=
+=+lTm
+-----END PGP SIGNATURE-----
+
+--=-fOp4BSGZ06AOUTWQ3YAA--

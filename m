@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131431AbRBQBZK>; Fri, 16 Feb 2001 20:25:10 -0500
+	id <S130811AbRBQBav>; Fri, 16 Feb 2001 20:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131420AbRBQBZA>; Fri, 16 Feb 2001 20:25:00 -0500
-Received: from jalon.able.es ([212.97.163.2]:11971 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131400AbRBQBYo>;
-	Fri, 16 Feb 2001 20:24:44 -0500
-Date: Sat, 17 Feb 2001 02:24:36 +0100
+	id <S130356AbRBQBac>; Fri, 16 Feb 2001 20:30:32 -0500
+Received: from jalon.able.es ([212.97.163.2]:22211 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131385AbRBQBaV>;
+	Fri, 16 Feb 2001 20:30:21 -0500
+Date: Sat, 17 Feb 2001 02:30:14 +0100
 From: "J . A . Magallon" <jamagallon@able.es>
-To: Wolfgang Teichmann <wal_teichmann@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.0/1/1-ac15 and ncr53c810a
-Message-ID: <20010217022436.A968@werewolf.able.es>
-In-Reply-To: <3A8DCE7D.3747DB41@t-online.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: gcc-2.96 and kernel
+Message-ID: <20010217023014.C968@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A8DCE7D.3747DB41@t-online.de>; from wal_teichmann@t-online.de on Sat, Feb 17, 2001 at 02:06:05 +0100
 X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 02.17 Wolfgang Teichmann wrote:
-> Hello,
-> 
-> I have problems using my scanner (HP C6270A connected to ncr53c810a)
-> with xsane.
-> 
-> I always get the error message:
-> 
-> error during read: Error during device I/O
-> 
-> 
-> Feb 15 23:57:27 localhost kernel: Attached scsi generic sg2 at scsi0,
-> channel 0, id 4, lun 0, type 3
+(I suppose people track this info, but a remark never hurts...)
 
-Try disabling 'Initiate sync negotitation' in the card BIOS for the ID of
-the scanner.
+Just updated Mandrake gcc to gcc-2.96-0.37mdk. Interesting point:
+* Thu Feb 15 2001 David BAUDENS <baudens@mandrakesoft.com> 2.96-0.37mdk
+
+- Fix build on PPC :)
+
+* Thu Feb 15 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.96-0.36mdk
+
+- Break build on PPC ;).
+- Red Hat patches, Jakub Jelinek (rel74) 5 new patches :
+  - fix last cpp patch so that no whitespace is inserted at start of line
+    if last macro expansion resulted in no tokens (Neil Booth)
+  - fix ICE during printing warning about overloading decisions (#23584)
+  - honor no implicit extern "C" on linux in cpp
+  - fix layout of __attribute((packed)) enums in bitfields (showing up
+    in Linux DAC960 driver)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+..
+
+The last thing remaining to recommend 2.96 ? Who knows...
 
 -- 
 J.A. Magallon                                                      $> cd pub

@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbUCOQsj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 11:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUCOQsj
+	id S262706AbUCORGM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbUCORGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 11:48:39 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:37650 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262641AbUCOQsh
+	Mon, 15 Mar 2004 12:06:12 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:12527 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262706AbUCORGD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 11:48:37 -0500
-Subject: [PATCH] Do not include linux/irq.h from linux/netpoll.h
-From: Ian Campbell <icampbell@arcom.com>
-To: netdev@oss.sgi.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1079369568.19012.100.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Mar 2004 16:52:50 +0000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Mar 2004 16:52:54.0781 (UTC) FILETIME=[F61B22D0:01C40AAD]
+	Mon, 15 Mar 2004 12:06:03 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: =?CP 1252?q?S=F8ren=20Hansen?= <sh@warma.dk>
+Subject: Re: UID/GID mapping system
+Date: Mon, 15 Mar 2004 11:05:36 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <1078775149.23059.25.camel@luke> <04031207520900.07660@tabby> <1079103602.1571.26.camel@quaoar>
+In-Reply-To: <1079103602.1571.26.camel@quaoar>
+MIME-Version: 1.0
+Message-Id: <04031511053600.13518@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 12 March 2004 09:00, Søren Hansen wrote:
+> fre, 2004-03-12 kl. 14:52 skrev Jesse Pollard:
+> > > Let's just for a second assume that I'm the slow one here. Why is the
+> > > world a less secure place after this system is incorporated into the
+> > > kernel?
+> >
+> > Because a rogue client will have access to every uid on the server.
+>
+> As opposed to now when a rogue client is very well contained?
+>
+> > Mapping provides a shield to protect the server.
+>
+> A mapping system could provide extra security if implemented on the
+> server. That's true. This is, however, not what I'm trying to do. This
+> system is NOT a security related one (it doesn't increase nor decrease
+> security), but rather a convenience related one.
 
-(I hope netdev is the right place for netpoll stuff)
+Then it becomes an identity mapping (as in 1:1) and is therefore
+not usefull.
 
-It seems that the changeset at
-http://www.kernel.org/pub/linux/kernel/v2.6/testing/cset/cset-jgarzik@redhat.com|ChangeSet|20040302073919|27676.txt breaks the current BK tree build for ARM.
+If you are doing double mapping, then I (as a server administrator)
+would not export the filesystem to you.
 
-The culprit would appear to be the addition of a 
-	#include <linux/netpoll.h>
-to net/core/dev.c which in turn pulls in <linux/irq.h> which (as Russell
-King notes in a comment therein) should not be included from generic
-code.
+The current situation is always a 1:1 mapping (NFS version < 4). Therefore
+any filesystem export is by definition within the same security domain.
 
->From what I can tell from the netpoll code used to call the drivers irq
-handler to simulate a poll but now it uses the poll_controller function,
-therefore I don't think the linux/irq.h needs to be included any longer.
-The patch below removes the include.
+If you as an administrator of a client host violate the UIDs assigned to
+you (by hiding the audit trail), then you are violating the rules established
+in that security domain; and should not be trusted - and the client host
+should not have an available export.
 
-I successfully built an ARM kernel with NETCONSOLE and NETPOLL enabled,
-although I was not able to test it since my network driver has no poll
-method.
-
-Cheers,
-Ian.
-
-Index: linux-2.6-bkpxa/include/linux/netpoll.h
-===================================================================
---- linux-2.6-bkpxa.orig/include/linux/netpoll.h        2004-03-15 15:03:30.000000000 +0000
-+++ linux-2.6-bkpxa/include/linux/netpoll.h     2004-03-15 16:24:25.000000000 +0000
-@@ -9,7 +9,6 @@
-  
- #include <linux/netdevice.h>
- #include <linux/interrupt.h>
--#include <linux/irq.h>
- #include <linux/list.h>
-  
- struct netpoll;
-
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
-
+It is never necessary to map on a client. It means that the server has been
+improperly setup, or that the client is not within the proper security domain.

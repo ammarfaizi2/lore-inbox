@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbSKJUKd>; Sun, 10 Nov 2002 15:10:33 -0500
+	id <S262859AbSKJUQX>; Sun, 10 Nov 2002 15:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265150AbSKJUKd>; Sun, 10 Nov 2002 15:10:33 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:28691 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S265140AbSKJUKc>;
-	Sun, 10 Nov 2002 15:10:32 -0500
-Date: Sun, 10 Nov 2002 21:16:46 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Voyager subarchitecture for 2.5.46
-Message-ID: <20021110201645.GI835@marowsky-bree.de>
-References: <20021110191822.GA1237@elf.ucw.cz> <Pine.LNX.4.44.0211101127460.9581-100000@home.transmeta.com> <20021110194204.GF3068@atrey.karlin.mff.cuni.cz> <6usmy99osn.fsf@zork.zork.net>
+	id <S262886AbSKJUQX>; Sun, 10 Nov 2002 15:16:23 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:44747 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262859AbSKJUQW>;
+	Sun, 10 Nov 2002 15:16:22 -0500
+Date: Sun, 10 Nov 2002 21:23:04 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Thor Kristoffersen <Thor.Kristoffersen@nr.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with VT8235 + DMA patch + PlexWriter W2410
+Message-ID: <20021110212304.A15619@ucw.cz>
+References: <200211101934.gAAJYZt09539@triumph.nr.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6usmy99osn.fsf@zork.zork.net>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200211101934.gAAJYZt09539@triumph.nr.no>; from Thor.Kristoffersen@nr.no on Sun, Nov 10, 2002 at 08:34:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-11-10T20:02:00,
-   Sean Neakums <sneakums@zork.net> said:
+On Sun, Nov 10, 2002 at 08:34:35PM +0100, Thor Kristoffersen wrote:
 
-> > I believe you need it system-global. If task A tells task B "its
-> > 10:30:00" and than task B does gettimeofday and gets "10:29:59", it
-> > will be confused for sure.
-> Hence the requirement that it be monotonically increasing.
+> I have tried, without success, to get a PlexWriter PX-W2410A (IDE/ATAPI CD
+> burner) to work with an MSI KT3 Ultra2 (KT333/VT8235) and Vojtech Pavlik's
+> DMA patch.  Any attempt to access the CD burner produces lots of messages
+> like these:
+> 
+> hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdc: drive not ready for command
+> hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdc: drive not ready for command
+> hdc: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> hdc: status error: error=0x54
+> hdc: drive not ready for command
+> 
+> The problem seems to be largely independent of the kernel version.  I have
+> tried 2.4.19, 2.4.20-preXX, and 2.5.46, with the same results.
+> 
+> Simply turning off DMA for the CD burner does not make it work: the
+> problem persists as long as the patch is present.  On the other hand, a
+> different CD burner (Sony CRX-140E) works just fine with the same
+> mainboard, with the patch present.
 
-Processes expecting time to increase strictly monotonically across process
-boundaries will enjoy life in cluster settings or when the admin adjusts the
-time.
+Does the drive work without the patch? If yes, please send me 'hdparm -i
+/edv/hdc', 'lspci -vvxxx' for both the cases with and without the patch,
+and 'cat /proc/ide/via' for the case with the patch. I'll check if all
+the timings programmed really are correct.
 
-In short, those programs are already broken.
+Maybe we have a candidate for drive PIO timing black list. 
 
-Of course, physically that should be true, Star Trek or not ;), but it is a
-really hard promise to keep across multiple nodes (think Mosix, CC/NC-NUMA or
-even real clusters which distributed processing).
-
-Serializing all gettimeofday() calls via a single counter at least is a rather
-bad idea.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+(check: no overclocking takes place on your machine, right?)
 
 -- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+Vojtech Pavlik
+SuSE Labs

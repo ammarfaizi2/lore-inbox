@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263068AbUJ1X0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUJ1X0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbUJ1X0h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbUJ1XZK
+	id S263095AbUJ1X0g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUJ1XYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:25:10 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55058 "HELO
+	Thu, 28 Oct 2004 19:24:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41746 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263070AbUJ1XW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:22:56 -0400
-Date: Fri, 29 Oct 2004 01:22:20 +0200
+	id S263068AbUJ1XTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:19:08 -0400
+Date: Fri, 29 Oct 2004 01:18:37 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] serial_core.c: remove an unused function
-Message-ID: <20041028232220.GI3207@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] scsi/aic7xxx/aic79xx_osm.c: remove an unused function
+Message-ID: <20041028231837.GG3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -25,70 +26,63 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hash: SHA1
 
 The patch below removes an unused function from 
-drivers/serial/serial_core.c
+drivers/scsi/aic7xxx/aic79xx_osm.c
 
 
 diffstat output:
- drivers/serial/serial_core.c |   40 -----------------------------------
- 1 files changed, 40 deletions(-)
+ drivers/scsi/aic7xxx/aic79xx_osm.c |   26 --------------------------
+ 1 files changed, 26 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/serial/serial_core.c.old	2004-10-28 23:28:48.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/serial/serial_core.c	2004-10-28 23:28:58.000000000 +0200
-@@ -444,46 +444,6 @@
+- --- linux-2.6.10-rc1-mm1-full/drivers/scsi/aic7xxx/aic79xx_osm.c.old	2004-10-28 23:24:54.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-10-28 23:25:28.000000000 +0200
+@@ -549,10 +549,6 @@
+ static __inline void ahd_linux_run_device_queues(struct ahd_softc *ahd);
+ static __inline void ahd_linux_unmap_scb(struct ahd_softc*, struct scb*);
+ 
+- -static __inline int ahd_linux_map_seg(struct ahd_softc *ahd, struct scb *scb,
+- -		 		      struct ahd_dma_seg *sg,
+- -				      dma_addr_t addr, bus_size_t len);
+- -
+ static __inline void
+ ahd_schedule_completeq(struct ahd_softc *ahd)
+ {
+@@ -711,28 +707,6 @@
+ 	}
  }
  
- static inline int
-- -__uart_user_write(struct uart_port *port, struct circ_buf *circ,
-- -		  const unsigned char __user *buf, int count)
+- -static __inline int
+- -ahd_linux_map_seg(struct ahd_softc *ahd, struct scb *scb,
+- -		  struct ahd_dma_seg *sg, dma_addr_t addr, bus_size_t len)
 - -{
-- -	unsigned long flags;
-- -	int c, ret = 0;
+- -	int	 consumed;
 - -
-- -	if (down_interruptible(&port->info->tmpbuf_sem))
-- -		return -EINTR;
+- -	if ((scb->sg_count + 1) > AHD_NSEG)
+- -		panic("Too few segs for dma mapping.  "
+- -		      "Increase AHD_NSEG\n");
 - -
-- -	while (1) {
-- -		int c1;
-- -		c = CIRC_SPACE_TO_END(circ->head, circ->tail, UART_XMIT_SIZE);
-- -		if (count < c)
-- -			c = count;
-- -		if (c <= 0)
-- -			break;
+- -	consumed = 1;
+- -	sg->addr = ahd_htole32(addr & 0xFFFFFFFF);
+- -	scb->platform_data->xfer_len += len;
 - -
-- -		c -= copy_from_user(port->info->tmpbuf, buf, c);
-- -		if (!c) {
-- -			if (!ret)
-- -				ret = -EFAULT;
-- -			break;
-- -		}
-- -		spin_lock_irqsave(&port->lock, flags);
-- -		c1 = CIRC_SPACE_TO_END(circ->head, circ->tail, UART_XMIT_SIZE);
-- -		if (c1 < c)
-- -			c = c1;
-- -		memcpy(circ->buf + circ->head, port->info->tmpbuf, c);
-- -		circ->head = (circ->head + c) & (UART_XMIT_SIZE - 1);
-- -		spin_unlock_irqrestore(&port->lock, flags);
-- -		buf += c;
-- -		count -= c;
-- -		ret += c;
-- -	}
-- -	up(&port->info->tmpbuf_sem);
+- -	if (sizeof(dma_addr_t) > 4
+- -	 && (ahd->flags & AHD_39BIT_ADDRESSING) != 0)
+- -		len |= (addr >> 8) & AHD_SG_HIGH_ADDR_MASK;
 - -
-- -	return ret;
+- -	sg->len = ahd_htole32(len);
+- -	return (consumed);
 - -}
 - -
-- -static inline int
- __uart_kern_write(struct uart_port *port, struct circ_buf *circ,
- 		  const unsigned char *buf, int count)
- {
+ /******************************** Macros **************************************/
+ #define BUILD_SCSIID(ahd, cmd)						\
+ 	((((cmd)->device->id << TID_SHIFT) & TID) | (ahd)->our_id)
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgX8smfzqmE8StAARAqE1AJ9dRUsN9r2xdA9EFQN5/fHXicotmgCdGx+4
-jnmHYPR4TUjMXwXiN2btqDs=
-=PE8M
+iD8DBQFBgX5NmfzqmE8StAARAoCsAKCuy7T+IJ9js2t0WiSg1Gd7trtmpQCfQvx3
+HRTI5tHz4pLvSK3WEMq8rzw=
+=fG4o
 -----END PGP SIGNATURE-----

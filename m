@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULQNyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbULQOPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbULQNyB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 08:54:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbULQNyB
+	id S261199AbULQOPq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 09:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbULQOPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 08:54:01 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:22938 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261159AbULQNx7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 08:53:59 -0500
-Message-Id: <200412171353.iBHDrueP007296@laptop11.inf.utfsm.cl>
-To: firnnauriel <rinoa012000@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bcopy and page faults 
-In-Reply-To: Message from firnnauriel <rinoa012000@yahoo.com> 
-   of "Wed, 15 Dec 2004 23:40:04 -0800." <20041216074004.46385.qmail@web53304.mail.yahoo.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 17 Dec 2004 10:53:55 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 17 Dec 2004 09:15:46 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:42665 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261199AbULQOPl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 09:15:41 -0500
+Subject: Re: [PATCH] Split bprm_apply_creds into two functions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <1103145355.32732.55.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1103292602.3437.40.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 17 Dec 2004 09:10:02 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-firnnauriel <rinoa012000@yahoo.com> said:
-> In general, is there a correlation between the number
-> of page faults occurred in the system and bcopy's
-> performance?
+On Thu, 2004-12-16 at 13:25, Serge E. Hallyn wrote:
+> Thanks.  Here is an updated patch.
+> 
+> -serge
+> 
+> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-No.
+Ok with me.  Chris, would it help alleviate your concerns to give the
+hook a clearer name and description, e.g. bprm_post_apply_creds and move
+the discussion about performing other state changes on the process like
+closing descriptors from the current description of bprm_apply_creds to
+it?
 
->               If the page fault is high, will the
-> bcopy's performance become slower? Kindly enlighten me
-> on this. If you can provide a URL that will support
-> your answer, I will really appreciate it. Thank you
-> very much!
-
-bcopy(3) copies stuff inside a process. If the memory areas copied from/to
-are available in RAM, the copy will go at full speed. If not, there will be
-delays (due to paging, etc). Now, the system might be paging like mad, but
-the memory _this_ process requires is available (== full speed bcopy), or
-there might be almost no paging activity, but the pages required for the
-copy aren't in RAM (== slowest possible).
-
-PS: Consider using memcpy(3), bcopy is non-standard.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

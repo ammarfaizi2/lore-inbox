@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUAMLwW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 06:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbUAMLwW
+	id S264137AbUAMLtz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 06:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbUAMLty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 06:52:22 -0500
-Received: from mail.poliba.it ([193.204.49.50]:50612 "EHLO mail.poliba.it")
-	by vger.kernel.org with ESMTP id S264261AbUAMLwR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 06:52:17 -0500
-Date: Tue, 13 Jan 2004 12:45:49 +0100
-From: "Angelo Dell'Aera" <buffer@sniffo.org>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix a drivers/char/isicom.c compile warning
-Message-Id: <20040113124549.229429b3.buffer@sniffo.org>
-In-Reply-To: <20040113003828.GO18853@conectiva.com.br>
-References: <20040113000055.GU9677@fs.tum.de>
-	<20040113001746.GN18853@conectiva.com.br>
-	<20040113002318.GV9677@fs.tum.de>
-	<20040113003828.GO18853@conectiva.com.br>
-Organization: Antifork Research, Inc.
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-PGP-Program: GNU Privacy Guard (http://www.gnupg.org)
-X-PGP-PublicKey: http://buffer.antifork.org/privacy/buffer-gpg.asc
-X-PGP-Fingerprint: 48CC B0D8 C394 CD30 355F E36D A4E3 48CF 19C1 5CA2
-X-Operating-System: GNU-Linux
+	Tue, 13 Jan 2004 06:49:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31760 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264137AbUAMLtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 06:49:52 -0500
+Date: Tue, 13 Jan 2004 11:49:48 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Outstanding fixups (was: Re: [PROBLEM] ircomm ioctls)
+Message-ID: <20040113114948.B2975@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040113113650.A2975@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jan 13, 2004 at 11:36:51AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Jan 13, 2004 at 11:36:51AM +0000, Russell King wrote:
+> ircomm needs updating to use the tiocmset/tiocmget driver calls.  Could
+> you see if the following patch solves your problem please?
 
-On Mon, 12 Jan 2004 22:38:28 -0200
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+And as a follow up, there are about 30 other drivers which still
+reference TIOCM{GET,SET,BIC,BIS} most of which won't work.  Some of
+them include drivers that were dumped into drivers/serial (despite
+not using the serial_core stuff.)
 
->> I thought about it, but I wasn't sure whether changing a driver to be 
->> more readable in _one_ place and making the code there different from 
->> the coding style used in the rest of the driver is really an 
->> improvement (and no, I don't want to clean the whole driver...)?
->
->Humm, IMHO it is better to get it with mixed style as long as the changes that
->"break" the style are for the correct style, but this, of course, for purely
->unmaintained stuff, like... isicom.c :-) For maintained stuff it becomes a
->pain in the ass for the maintainer, that should try to follow CodingStyle, but
->as we know, not always do.
+The list currently looks like this.  Some of these drivers have been
+updated since the change was made back in April, but it seems that
+this particular update was missed.
 
-I started cleaning isicom.c in such a way as to be more "CodingStyle 
-compliant" but it's a hard pain... the fix from Adrian is still in.
-Hope to release it in a reasonable time.
+I'm going to work through this list and update these drivers today.
+However, I will be unable to test most if not all of these drivers.
 
-Regards. 
+drivers/char/rio/rio_linux.c
+drivers/char/amiserial.c
+drivers/char/cyclades.c
+drivers/char/epca.c
+drivers/char/esp.c
+drivers/char/ip2main.c
+drivers/char/isicom.c
+drivers/char/istallion.c
+drivers/char/moxa.c
+drivers/char/mxser.c
+drivers/char/pcxx.c
+drivers/char/riscom8.c
+drivers/char/rocket.c
+drivers/char/serial167.c
+drivers/char/sh-sci.c
+drivers/char/specialix.c
+drivers/char/stallion.c
+drivers/char/sx.c
+drivers/isdn/i4l/isdn_tty.c
+drivers/macintosh/macserial.c
+drivers/net/wan/pc300_tty.c
+drivers/s390/net/ctctty.c
+drivers/sbus/char/aurora.c
+drivers/serial/68360serial.c
+drivers/serial/mcfserial.c
+drivers/tc/zs.c
+drivers/usb/serial/ftdi_sio.c
+drivers/usb/serial/io_edgeport.c
 
-- --
-
-Angelo Dell'Aera 'buffer' 
-Antifork Research, Inc.	  	http://buffer.antifork.org
-
-PGP information in e-mail header
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAA9ptpONIzxnBXKIRAhlqAJ9jefAfKxXeLJYb0SCpqBp8EGfN0QCfdvuo
-ToB15Ba8cV73AMOpbcjAe4I=
-=fXgy
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270779AbRIAOmk>; Sat, 1 Sep 2001 10:42:40 -0400
+	id <S270796AbRIAPDQ>; Sat, 1 Sep 2001 11:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270774AbRIAOmb>; Sat, 1 Sep 2001 10:42:31 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:22484 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S270758AbRIAOmX>; Sat, 1 Sep 2001 10:42:23 -0400
-Date: Sat, 1 Sep 2001 16:42:38 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFD] readonly/read-write semantics
-Message-ID: <20010901164238.P9870@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <OF8E62B3C8.CD1E8E23-ON87256AB9.007E8B1A@boulder.ibm.com> <Pine.GSO.4.21.0109010015380.15931-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0109010015380.15931-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Sep 01, 2001 at 12:23:05AM -0400
+	id <S270773AbRIAPDH>; Sat, 1 Sep 2001 11:03:07 -0400
+Received: from imo-r06.mx.aol.com ([152.163.225.102]:17645 "EHLO
+	imo-r06.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S270774AbRIAPC6>; Sat, 1 Sep 2001 11:02:58 -0400
+From: Floydsmith@aol.com
+Message-ID: <93.f9abf44.28c252b0@aol.com>
+Date: Sat, 1 Sep 2001 11:03:12 EDT
+Subject: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
+To: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
+CC: Floydsmith@aol.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: AOL 4.0 for Windows 95 sub 14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 01, 2001 at 12:23:05AM -0400, Alexander Viro wrote:
-> > 2) I'd like to see a readonly mount state defined as "the filesystem will
-> > not change.  Period."  Not for system calls in progress, not for cache
-> > synchronization, not to set an "unmounted" flag, not for writes that are
-> > queued in the device driver or device.  (That last one may stretch
-> > feasability, but it's a worthy goal anyway).
-> 
-> It doesn't work.  Think of r/o mounting of remote filesystem.  Do you
-> suggest that it should make it impossible to change from other clients?
+Now, I can get everything (my ide ls-120 and ide HP 8Gig tape) to work in 
+2.2.18. I can also get both to work in 2.4.4 (and earlier 2.4.x) but only 
+with what I believe is an unnecessay "workarround" - namely by configuring 
+IDESCSI into the kernel (SCSI emulation) and then using boot param 
+hdc=ide-scsi. However, I feel, that I should not have to do that with any 
+kernel (that is, SCSI emulation should be optional for this device) because 
+this was the case for 2.2.18.
 
-It's sufficient for local file systems. Or see it this way: The
-machine, that mounted it r/o will NOT write to it until it is
-mounted r/w again.
+If I try not to use SCSI emulation for all 2.4.x kernels (including:
+Kernel 2.4.9-ac5 on  i686
+then
+ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
+tar: /dev/ht0: Cannot read: Input/output error
+(writes work OK though)
 
-I also like the "kill/finish all outstanding writes" idea (kill
-or finish should depend on the MNT_FORCE option). Once we've
-implemented it, forcible unmount becomes trivial ;-)
+As mentioned above, scsi emulation works for 2.4.4 (reads and writes). But if 
+turned on in 2.4.9-ac5, then I get
+/dev/st0: No such device
+So, with kernels above 2.4.4, I can't use the drive at all (or at least can't 
+"read" with it which makes it useless).
 
-Forcible unmount is high on the wish list of several admins I
-know.
+The ideal situtation (at least for me) would be to have 2.4.x  kernels behave 
+like the 2.2.x ones, that is, scsi emulation would not need to be turned on 
+for these ide drives (that is, it would be optional) and I would go back to 
+using /dev/ht0.
 
-Regards
-
-Ingo Oeser
+Floyd,

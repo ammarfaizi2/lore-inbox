@@ -1,239 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264487AbTFYDvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 23:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTFYDvN
+	id S263848AbTFYDsk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 23:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTFYDsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 23:51:13 -0400
-Received: from dm5-202.slc.aros.net ([66.219.220.202]:26254 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S264487AbTFYDvB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 23:51:01 -0400
-Message-ID: <3EF91F73.5080109@aros.net>
-Date: Tue, 24 Jun 2003 22:05:07 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 24 Jun 2003 23:48:40 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:18442 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S263848AbTFYDsf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 23:48:35 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 24 Jun 2003 21:02:13 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
+To: linux-kernel@vger.kernel.org
+Subject: i2c. busted in 2.5 as well?
+In-Reply-To: <Pine.LNX.4.53.0306241926100.596@jordan.eng.nateng.com>
+Message-ID: <Pine.LNX.4.53.0306242100310.596@jordan.eng.nateng.com>
+References: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241836510.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241843570.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241850070.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241855410.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241926100.596@jordan.eng.nateng.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: [PATCH] nbd driver for 2.5+: cleanup PARANOIA usage & code
-Content-Type: multipart/mixed;
- boundary="------------070109080403060408000709"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070109080403060408000709
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This fifth patch cleans up usage of the PARANOIA sanity checking macro 
-and code. This patch modifies both drivers/block/nbd.c and 
-include/linux/nbd.h. It's intended to be applied incrementally on top of 
-my fourth patch (4.1 really if you count the memset addition as .1's 
-worth) that simply removed unneeded blksize_bits field. Again, I wanted 
-to get this smaller change out of the way before my next patch will is 
-much more major. Comments welcome.
+New problem, the 2.4.x kernels, showed all 5 adapters in /proc/pci
+2.5.73 shows all 5, but only names 4, as shown below: {0059}
 
---------------070109080403060408000709
-Content-Type: text/plain;
- name="nbd-patch5"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd-patch5"
+root@snapshot:/usr/src/linux-2.5.73/Documentation/i2c# cat
+/proc/bus/pci/devices
+0000    11063189        0       e0000008        00000000        00000000
+00000000        00000000        0000000000000000     08000000
+00000000        00000000        00000000        00000000        00000000
+00000000        agpgart-via
+0008    1106b168        0       00000000        00000000        00000000
+00000000        00000000        0000000000000000     00000000
+00000000        00000000        00000000        00000000        00000000
+00000000
+0030    109e036e        11      dfdff008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        bttv
+0031    109e0878        11      dfdfd008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        btaudio
+0038    109e036e        12      dfdfe008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        bttv
+0039    109e0878        12      dfdfb008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        btaudio
+0040    109e036e        13      dfdfc008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        bttv
+0041    109e0878        13      dfdf9008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        btaudio
+0050    109e036e        11      dfdfa008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        bttv
+0051    109e0878        11      dfdf7008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000        btaudio
+0058    109e036e        12      dfdf8008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000
+0059    109e0878        12      dfdf5008        00000000        00000000
+00000000        00000000        0000000000000000     00001000
+00000000        00000000        00000000        00000000        00000000
+00000000
+0080    11063038        15      00000000        00000000        00000000
+00000000        0000e401        0000000000000000     00000000
+00000000        00000000        00000000        00000020        00000000
+00000000
+0081    11063038        15      00000000        00000000        00000000
+00000000        0000e801        0000000000000000     00000000
+00000000        00000000        00000000        00000020        00000000
+00000000
+0082    11063038        15      00000000        00000000        00000000
+00000000        0000ec01        0000000000000000     00000000
+00000000        00000000        00000000        00000020        00000000
+00000000
+0083    11063104        15      dfffff00        00000000        00000000
+00000000        00000000        0000000000000000     00000100
+00000000        00000000        00000000        00000000        00000000
+00000000
+0088    11063177        0       00000000        00000000        00000000
+00000000        00000000        0000000000000000     00000000
+00000000        00000000        00000000        00000000        00000000
+00000000        vt596 smbus
+0089    11060571        0       00000000        00000000        00000000
+00000000        0000fc01        0000000000000000     00000000
+00000000        00000000        00000000        00000010        00000000
+00000000        VIA IDE
+0090    11063065        17      0000e001        dffffe00        00000000
+00000000        00000000        0000000000000000     00000100
+00000100        00000000        00000000        00000000        00000000
+00000000        via-rhine
+0100    10025157        10      d0000008        0000c801        dfef0000
+00000000        00000000        00000000dfec0000     08000000
+00000100        00010000        00000000        00000000        00000000
+00020000        radeonfb
 
-diff -urN linux-2.5.73-p4.1/drivers/block/nbd.c linux-2.5.73-p5/drivers/block/nbd.c
---- linux-2.5.73-p4.1/drivers/block/nbd.c	2003-06-24 15:33:30.000000000 -0600
-+++ linux-2.5.73-p5/drivers/block/nbd.c	2003-06-24 21:44:14.114372240 -0600
-@@ -35,13 +35,13 @@
-  * 03-06-23 Enhance diagnostics support. <ldl@aros.net>
-  * 03-06-24 Remove unneeded blksize_bits field from nbd_device struct.
-  *   <ldl@aros.net>
-+ * 03-06-24 Cleanup PARANOIA usage & code. <ldl@aros.net>
-  *
-  * possible FIXME: make set_sock / set_blksize / set_size / do_it one syscall
-  * why not: would need verify_area and friends, would share yet another 
-  *          structure with userland
-  */
- 
--#define PARANOIA
- #include <linux/major.h>
- 
- #include <linux/blk.h>
-@@ -64,9 +64,12 @@
- #include <asm/uaccess.h>
- #include <asm/types.h>
- 
-+/* Define PARANOIA in linux/nbd.h to turn on extra sanity checking */
- #include <linux/nbd.h>
- 
-+#ifdef PARANOIA
- #define LO_MAGIC 0x68797548
-+#endif
- 
- #ifdef NDEBUG
- #define dprintk(flags, fmt...)
-@@ -99,8 +102,10 @@
-  */
- static spinlock_t nbd_lock = SPIN_LOCK_UNLOCKED;
- 
-+#ifdef PARANOIA
- static int requests_in;
- static int requests_out;
-+#endif
- 
- #ifndef NDEBUG
- static const char *ioctl_cmd_to_ascii(int cmd)
-@@ -397,7 +402,9 @@
- {
- 	struct request *req;
- 
-+#ifdef PARANOIA
- 	BUG_ON(lo->magic != LO_MAGIC);
-+#endif
- 	while ((req = nbd_read_stat(lo)) != NULL)
- 		nbd_end_request(req);
- 	printk(KERN_NOTICE "%s: req should never be null\n",
-@@ -409,7 +416,9 @@
- {
- 	struct request *req;
- 
-+#ifdef PARANOIA
- 	BUG_ON(lo->magic != LO_MAGIC);
-+#endif
- 
- 	do {
- 		req = NULL;
-@@ -448,7 +457,9 @@
- 			goto error_out;
- 
- 		lo = req->rq_disk->private_data;
-+#ifdef PARANOIA
- 		BUG_ON(lo->magic != LO_MAGIC);
-+#endif
- 		if (!lo->file) {
- 			printk(KERN_ERR "%s: Request when not-ready\n",
- 					lo->disk->disk_name);
-@@ -463,7 +474,9 @@
- 				goto error_out;
- 			}
- 		}
-+#ifdef PARANOIA
- 		requests_in++;
-+#endif
- 
- 		req->errors = 0;
- 		spin_unlock_irq(q->queue_lock);
-@@ -522,11 +535,13 @@
- {
- 	struct nbd_device *lo = inode->i_bdev->bd_disk->private_data;
- 
-+#ifdef PARANOIA
- 	if (lo->refcnt <= 0) {
- 		printk(KERN_ALERT "%s: nbd_release: refcount(%d) <= 0\n",
- 				lo->disk->disk_name, lo->refcnt);
- 		BUG();
- 	}
-+#endif
- 	lo->refcnt--;
- 	dprintk(DBG_RELEASE, "%s: nbd_release: refcnt=%d\n",
- 			lo->disk->disk_name, lo->refcnt);
-@@ -540,6 +555,9 @@
- 	int error;
- 	struct request sreq ;
- 
-+#ifdef PARANOIA
-+	BUG_ON(lo->magic != LO_MAGIC);
-+#endif
- 	/* Anyone capable of this syscall can do *real bad* things */
- 	dprintk(DBG_IOCTL, "%s: nbd_ioctl cmd=%s(0x%x) arg=%lu\n",
- 			lo->disk->disk_name, ioctl_cmd_to_ascii(cmd), cmd, arg);
-@@ -642,13 +660,17 @@
- 	case NBD_CLEAR_QUE:
- 		nbd_clear_que(lo);
- 		return 0;
--#ifdef PARANOIA
- 	case NBD_PRINT_DEBUG:
-+#ifdef PARANOIA
- 		printk(KERN_INFO "%s: next = %p, prev = %p. Global: in %d, out %d\n",
--		       inode->i_bdev->bd_disk->disk_name, lo->queue_head.next,
--		       lo->queue_head.prev, requests_in, requests_out);
--		return 0;
-+			inode->i_bdev->bd_disk->disk_name, lo->queue_head.next,
-+			lo->queue_head.prev, requests_in, requests_out);
-+#else
-+		printk(KERN_INFO "%s: next = %p, prev = %p\n",
-+			inode->i_bdev->bd_disk->disk_name,
-+			lo->queue_head.next, lo->queue_head.prev);
- #endif
-+		return 0;
- 	}
- 	return -EINVAL;
- }
-@@ -671,10 +693,12 @@
- 	int err = -ENOMEM;
- 	int i;
- 
-+#ifdef PARANOIA
- 	if (sizeof(struct nbd_request) != 28) {
- 		printk(KERN_CRIT "nbd: Sizeof nbd_request needs to be 28 in order to work!\n" );
- 		return -EIO;
- 	}
-+#endif
- 
- 	for (i = 0; i < MAX_NBD; i++) {
- 		struct gendisk *disk = alloc_disk(1);
-@@ -708,7 +732,9 @@
- 		struct gendisk *disk = nbd_dev[i].disk;
- 		nbd_dev[i].refcnt = 0;
- 		nbd_dev[i].file = NULL;
-+#ifdef PARANOIA
- 		nbd_dev[i].magic = LO_MAGIC;
-+#endif
- 		nbd_dev[i].flags = 0;
- 		spin_lock_init(&nbd_dev[i].queue_lock);
- 		INIT_LIST_HEAD(&nbd_dev[i].queue_head);
-diff -urN linux-2.5.73-p4.1/include/linux/nbd.h linux-2.5.73-p5/include/linux/nbd.h
---- linux-2.5.73-p4.1/include/linux/nbd.h	2003-06-24 08:00:41.000000000 -0600
-+++ linux-2.5.73-p5/include/linux/nbd.h	2003-06-24 21:48:44.697043654 -0600
-@@ -7,6 +7,7 @@
-  *            layer code.
-  * 2003/06/24 Louis D. Langholtz <ldl@aros.net>
-  *            Removed unneeded blksize_bits field from nbd_device struct.
-+ *            Cleanup PARANOIA usage & code.
-  */
- 
- #ifndef LINUX_NBD_H
-@@ -28,16 +29,12 @@
- 	NBD_CMD_DISC = 2
- };
- 
--
--#ifdef PARANOIA
--extern int requests_in;
--extern int requests_out;
--#endif
--
- #define nbd_cmd(req) ((req)->cmd[0])
--
- #define MAX_NBD 128
- 
-+/* Define PARANOIA to include extra sanity checking code in here & driver */
-+#define PARANOIA
-+
- struct nbd_device {
- 	int refcnt;	
- 	int flags;
-@@ -46,7 +43,9 @@
- #define NBD_WRITE_NOCHK 0x0002
- 	struct socket * sock;
- 	struct file * file; 	/* If == NULL, device is not ready, yet	*/
-+#ifdef PARANOIA
- 	int magic;		/* FIXME: not if debugging is off	*/
-+#endif
- 	spinlock_t queue_lock;
- 	struct list_head queue_head;/* Requests are added here...	*/
- 	struct semaphore tx_lock;
 
---------------070109080403060408000709--
+On Tue, 24 Jun 2003, Sir Ace wrote:
 
+>
+> I doubled the original lines to this:
+> #define I2C_ALGO_MAX    8               /* control memory consumption   */
+> #define I2C_ADAP_MAX    32
+> #define I2C_DRIVER_MAX  32
+> #define I2C_CLIENT_MAX  64
+> #define I2C_DUMMY_MAX 8
+>
+> and it did not fix my problem....  This is starting to appear
+> non-trivial..
+>
+> Help?
+>
+>   -- Sir Ace
+>
+> On Tue, 24 Jun 2003, Sir Ace wrote:
+>
+> >
+> > Ok, wrong again, the line directly above it:
+> > #define I2C_ALGO_MAX    4               /* control memory consumption   */
+> >
+> > That is my problem, so is it safe to up that value.
+> >   {Yes my final answer}
+> >
+> > {grin}
+> >
+> >   -- Sir Ace
+> >
+> > On Tue, 24 Jun 2003, Sir Ace wrote:
+> >
+> > >
+> > > Man how many times can I reply to my own post?
+> > > Anyway I found this:
+> > >
+> > > linux/i2c.h:#define I2C_ADAP_MAX        16
+> > >
+> > > Is there a danger is setting it to say 32?
+> > > {or 31 if there is a high bit problem}?
+> > >
+> > >
+> > >
+> > > On Tue, 24 Jun 2003, Sir Ace wrote:
+> > >
+> > > >
+> > > > Nope sory, that was wrong... I should have read the rest of the code...
+> > > > Any ideas yet? {grin}
+> > > >
+> > > > On Tue, 24 Jun 2003, Sir Ace wrote:
+> > > >
+> > > > >
+> > > > > It looks like the offending code might be in:
+> > > > > i2c-algo-bit.c
+> > > > >
+> > > > > in function:
+> > > > > static int test_bus(struct i2c_algo_bit_data *adap, char* name) {
+> > > > >
+> > > > >
+> > > > > I'm no coder but it looks like it is limited to 4 devices as a hardcode?
+> > > > > anyone know of a way to do it so that it does:
+> > > > >
+> > > > > for x := {n devices} do
+> > > > >   crap
+> > > > >
+> > > > > On Tue, 24 Jun 2003, Sir Ace wrote:
+> > > > >
+> > > > > >
+> > > > > > I have 5 vidcapture cards, all of which show up in /proc/pci
+> > > > > > Only the first 4 show up in /proc/bus/i2c*
+> > > > > >
+> > > > > > I tried this on 2 completely unidentical systems, and both 2.4.21, and
+> > > > > > 2.4.20
+> > > > > >
+> > > > > > I verified that all 5 cards are actually good... {before people start
+> > > > > > pointing fingers}
+> > > > > >
+> > > > > > Where do I need to start looking to fix it?
+> > > > > > -
+> > > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > > > >
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > > >
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUEEWu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUEEXGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbUEEWu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUEEWu4
+	id S264763AbUEEXGx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 19:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbUEEXGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:50:56 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:18911 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264835AbUEEWuy
+	Wed, 5 May 2004 19:06:52 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7567 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264763AbUEEXGs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:50:54 -0400
-Date: Wed, 5 May 2004 17:50:53 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: PCI devices with no PCI_CACHE_LINE_SIZE implemented
-Message-ID: <20040505225053.GB2283@lists.us.dell.com>
-References: <20040429195301.GB15106@lists.us.dell.com> <20040505223102.GF30003@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 May 2004 19:06:48 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Thu, 6 May 2004 01:04:55 +0200
+User-Agent: KMail/1.5.3
+References: <200405051312.30626.dominik.karall@gmx.net> <20040505043002.2f787285.akpm@osdl.org> <c7bin8$fg7$1@gatekeeper.tmr.com>
+In-Reply-To: <c7bin8$fg7$1@gatekeeper.tmr.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040505223102.GF30003@kroah.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405060104.55340.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 03:31:02PM -0700, Greg KH wrote:
-> On Thu, Apr 29, 2004 at 02:53:01PM -0500, Matt Domsch wrote:
-> > a) need this be a warning, wouldn't KERN_DEBUG suffice, if a message
-> > is needed at all?  This is printed in pci_generic_prep_mwi().
-> 
-> Yes, we should make that KERN_DEBUG.  I don't have a problem with that.
-> Care to make a patch?
+On Wednesday 05 of May 2004 22:31, Bill Davidsen wrote:
+> Andrew Morton wrote:
+> > Dominik Karall <dominik.karall@gmx.net> wrote:
+> >>On Wednesday 05 May 2004 10:31, you wrote:
+> >>>+make-4k-stacks-permanent.patch
+> >>>
+> >>> Fill my inbox.
+> >>
+> >>Hi Andrew!
+> >>
+> >>Is there any reason why this patch was applied? Because NVidia users
+> >> can't work with the original drivers now without removing this patch
+> >> every time.
+> >
+> > We need to push this issue along quickly.  The single-page stack
+> > generally gives us a better kernel and having the stack size configurable
+> > creates pain.
+>
+> Add my voice to those who don't think 4k stacks are a good idea as a
+> default, they break some things and seem to leave other paths (as others
+> have noted) on the edge. I'm not sure what you have in mind as a "better
+> kernel" but I'd rather have a worse kernel and not have to check 4k
+> stack as a possible problem before looking at other things if I get bad
+> behaviour.
+>
+> Reliability first, performance later. We've lived with the config for a
+> while, pain there is better than pain at runtime.
 
-Patch for 2.4.27-pre1 appended.
+Opposite opinion here.
 
-Thanks,
-Matt
+If you want 100% reliability you shouldn't use -mm in the first place.
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Making 4kb stacks default in -mm is very good idea so it will get necessary
+testing and fixing before being integrated into mainline.
 
-===== drivers/pci/pci.c 1.47 vs edited =====
---- 1.47/drivers/pci/pci.c	Mon Sep 22 07:27:35 2003
-+++ edited/drivers/pci/pci.c	Wed May  5 17:49:13 2004
-@@ -943,7 +943,7 @@
- 	if (cacheline_size == pci_cache_line_size)
- 		return 0;
- 
--	printk(KERN_WARNING "PCI: cache line size of %d is not supported "
-+	printk(KERN_DEBUG "PCI: cache line size of %d is not supported "
- 	       "by device %s\n", pci_cache_line_size << 2, dev->slot_name);
- 
- 	return -EINVAL;
+Please also note that users of binary only modules always have choice:
+- new kernels without binary only modules
+- old kernels with binary only modules
+
+It is really that simple.
+
+Regards,
+Bartlomiej
+

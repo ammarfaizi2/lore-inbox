@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUD3Pfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUD3Pp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUD3Pfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 11:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUD3Pfo
+	id S263089AbUD3Pp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 11:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUD3Pp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 11:35:44 -0400
-Received: from rtp-iport-1.cisco.com ([64.102.122.148]:33423 "EHLO
-	rtp-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S263028AbUD3Pfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 11:35:41 -0400
-X-BrightmailFiltered: true
-To: bart@samwel.tk
-Cc: Timothy Miller <miller@techsource.com>, Paul Jackson <pj@sgi.com>,
-       vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
-       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <40904A84.2030307@yahoo.com.au>
-	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	<20040429133613.791f9f9b.pj@sgi.com> <409175CF.9040608@techsource.com>
-	<20040429144737.3b0c736b.pj@sgi.com> <40917F1E.8040106@techsource.com>
-	<20040429154632.4ca07cf9.pj@sgi.com> <40918AD2.9060602@techsource.com>
-	<1083328293.2204.53.camel@samwel.tk>
-From: Clay Haapala <chaapala@cisco.com>
-Organization: Cisco Systems, Inc. SRBU
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
- lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
- do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
- rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
- E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
- V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
- VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
- rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
- wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
- jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
- w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
- yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
- 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
-Date: Fri, 30 Apr 2004 10:35:31 -0500
-In-Reply-To: <1083328293.2204.53.camel@samwel.tk> (Bart Samwel's message of
- "Fri, 30 Apr 2004 14:31:34 +0200")
-Message-ID: <yquj65bhtr5o.fsf@chaapala-lnx2.cisco.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.5 (chayote, linux)
+	Fri, 30 Apr 2004 11:45:27 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:6354 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263089AbUD3PpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 11:45:25 -0400
+Message-ID: <40927417.6040100@nortelnetworks.com>
+Date: Fri, 30 Apr 2004 11:43:19 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+CC: Jeff Garzik <jgarzik@pobox.com>, Marc Boucher <marc@linuxant.com>,
+       Sean Estabrooks <seanlkml@rogers.com>, koke@sindominio.net,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, riel@redhat.com,
+       david@gibson.dropbear.id.au, torvalds@osdl.org, miller@techsource.com,
+       paul@wagland.net
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet>
+In-Reply-To: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Apr 2004, Bart Samwel uttered the following:
+Tigran Aivazian wrote:
+> On Fri, 30 Apr 2004, Jeff Garzik wrote:
 > 
-> Thought experiment: what would happen when you set the hypothetical
-> cpu-nice and io-nice knobs very differently?
+>>DriverLoader significantly lowers that cost, while not providing an open 
+>>source solution at all.
 > 
-Dunno why, but this talk of knobs makes me think of the "effects-mix"
-knob on my bass amp that controls how much effects-loop signal is
-mixed with the "dry" guitar signal.
+> 
+> Ah, I see.... that makes a HUGE difference. Now I understand what the fuss
+> is all about. So, that is why everyone jumped on Marc Boucher's throat
+> trying to annihilate, humiliate, frighten by unsubstantiated allegations
+> and generally grind him into tiny specks of dust, at the same time falsely
+> pretending that all the fuss was only about that silly '\0' byte they 
+> left in their license string (I wish they knew better not to do that --- 
+> there are millions of ways to achieve what they want).
 
-Getting back to kernel talk, we have a "swappiness" knob, right?
-Should there be, or is there already, a way to dynamically vary the
-effect of swappiness [within a range], based on some monitored system
-characteristics such as keyboard/mouse (HID) input or some other
-identifiable profile?  Perhaps this is similar to nice/fairness logic
-in the process schedulers.
+Your statement is unsubstantiated.  Many companies try to work around the GPL, or walk very close 
+(and often over) the fine line of compliance.  They want to get something for nothing, because 
+that's what companies are there for--to make money.  There aren't very many altruistic for-profit 
+companies.
 
-Using HID as a profile, if I'm up late working on a paper in OO and
-using a browser like Mozilla when updatedb fires up, the fact that
-there is recent keyboard/mouse input has been seen would modify
-swappiness down.
+Personally, what sticks in my craw is the fact that this company did something wrong, and then tried 
+to defend its actions by claiming that it was to make it easier for the customer.  That excuse 
+doesn't wash--what they did was *illegal*.  The fact that it also makes it harder to get open-source 
+drivers is a side effect for me.
 
-However, if I've fallen asleep in my chair for an hour when updatedb
-fires up, no recent input events will have been detected, and updatedb
-gets the high range of swappiness effect.  If I happen to wake up in
-the middle of it, I just have to accept it'll take time to wake my
-apps up, but at least they will get progressively more responsive as I
-use 'em.
+Chris
 
-I use the term "profile" because I wouldn't want to have just HID
-events be the trigger.  If a machine's main use is database or
-web-serving, perhaps the appropriate events to monitor would be, say,
-traffic on specified TCP ports or network interfaces.
 
-The amount of extra work should be no more than what goes on with
-entropy generation, I would think.
--- 
-Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
-   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
-  "Oh, *that* Physics Prize.  Well, I just substituted 'stupidity' for
-      'dark matter' in the equations, and it all came together."
+

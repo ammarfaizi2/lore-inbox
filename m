@@ -1,204 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUACSyj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 13:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUACSyj
+	id S263734AbUACTBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 14:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUACTBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 13:54:39 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:29760 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S263697AbUACSyE
+	Sat, 3 Jan 2004 14:01:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32786 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263734AbUACTBB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 13:54:04 -0500
-Subject: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-r1EJH17FbMRP2raUydKs"
-Message-Id: <1073075108.9851.16.camel@localhost>
+	Sat, 3 Jan 2004 14:01:01 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Which .config processor for Centaur VIA Samual 2 stepping 03?
+Date: Sat, 03 Jan 2004 14:01:09 -0500
+Organization: TMR Associates, Inc
+Message-ID: <bt72qv$chk$2@gatekeeper.tmr.com>
+References: <200312131430.40731.andrew@walrond.org> <20031213154201.GA13269@redhat.com>
 Mime-Version: 1.0
-Date: Sat, 03 Jan 2004 19:52:36 +0100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1073155743 12852 192.168.12.10 (3 Jan 2004 18:49:03 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20031213154201.GA13269@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
 
---=-r1EJH17FbMRP2raUydKs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> C3-2 is for Nehemiah. It signifies that we should use SSE instead of 3dnow.
 
-Hi...
+Good thing to put in the help for the options?
 
-I notice a severe speed regression with 2.6 and working in e.g. xterm on
-X11 (no framebuffer device in use). It is all about scrolling speed. I
-used to type e.g. just dmesg in a fullscreen xterm (or MGT) in 2.4 and
-the whole output was there lightning fast, i.e. 
-
-in 2.4:
-=======
-time dmesg
-real    0m0.096s
-user    0m0.007s
-sys     0m0.005s
-
-in 2.6 (first run)
-======
-time dmesg
-[...]
-real    0m3.054s
-user    0m0.008s
-sys     0m0.008s
-
-in 2.6 (second run)
-===================
-dmesg >d
-time cat d
-real    0m0.096s
-user    0m0.002s
-sys 0m0.005s
-
-in 2.6 (third run)
-==================
-time dmesg
-real    0m0.095s
-user    0m0.007s
-sys     0m0.004s
-
-So it is like 30 times slower on 2.6. when running for the first time...
-this also happens if I do e.g. find ./ and watch the output pass by... 
-
-This is without preemption on powerpc...
-
-Anyone else with that problem - ideas of the cause ?
-
-Soeren.
-
---=-r1EJH17FbMRP2raUydKs
-Content-Disposition: attachment; filename=config.gz
-Content-Type: application/x-gzip; name=config.gz
-Content-Transfer-Encoding: base64
-
-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
-
---=-r1EJH17FbMRP2raUydKs--
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVADN0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVADN1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVADN0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVADN0d
+	id S261623AbVADN1G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVADN0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:26:33 -0500
-Received: from holomorphy.com ([207.189.100.168]:45190 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261625AbVADNYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:24:01 -0500
-Date: Tue, 4 Jan 2005 05:14:16 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
-       Rik van Riel <riel@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104131416.GF2708@holomorphy.com>
-References: <20050103153438.GF2980@stusta.de> <1697129508.20050102210332@dns.toxicfilms.tv> <1104767943.4192.17.camel@laptopd505.fenrus.org> <41D9D69C.1070002@tmr.com> <1104824557.4215.1.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104824557.4215.1.camel@laptopd505.fenrus.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 08:26:51 -0500
+Received: from smtp.telefonica.net ([213.4.129.135]:37040 "EHLO
+	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S261623AbVADNX4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 08:23:56 -0500
+Message-ID: <41DA79EB.20102@telefonica.net>
+Date: Tue, 04 Jan 2005 12:11:39 +0100
+From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 resuming laptop from suspension f*cks usb subsystem
+References: <41D2C4FA.7010806@telefonica.net> <20050103220704.GB25250@elf.ucw.cz>
+In-Reply-To: <20050103220704.GB25250@elf.ucw.cz>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, someone wrote:
->>> The joint approach also has major advantages, even for quality:
->>> All testing happens on the same codebase. 
->>> Previously, the testing focus was split between the stable and unstable
->>> branch, to the detriment of *both*.
 
-At some point in the past, someone else wrote:
->> You think so? I think the number of people testing the 2.4.xx-rc 
->> versions AND the 2.6.xx-bkN versions is a small (nonzero) percentage of 
->> total people trying any new release. I think people test what they plan 
->> to use, so there's less competition for testers than you suggest. People 
->> staying with 2.4 test that, people wanting or needing to move forward 
->> test 2.6.
+>>In 2.6.10, resuming from suspend mode just (randomly) crashes the USB 
+>>subsystem, and I get the same messages (not sure about the whole message 
+>>but the "-84" part really is there) over and over again until I reboot.
+>>    
+>>
+>
+>Does it still happen with noapic? 2.6.10 has some interrupt related
+>problems with APIC...
+>
+>								Pavel
+>  
+>
+I have just rebooted 2.6.10 with this LILO command line
 
-On Tue, Jan 04, 2005 at 08:42:36AM +0100, Arjan van de Ven wrote:
-> Actually I suspect the number of people testing 2.4.xx-rc is *really*
-> small now. My point however was more towards a 2.6 / 2.7 split, where
-> the people who want to test newest do 2.7 while people who want to test
-> stable test 2.6; right now those two groups test basically the same
-> codebase.
+    LILO Boot: Linux-2.6.10 noapic
 
-But this is a good thing; new code should meet the prior standards
-of stability and correctness as should the tree at all times. Efforts
-to recover it once it is lost to a large degree are doomed.
+and if that disables APIC, then I've got the same problem. After 
+suspending the laptop
+two times, I get the same lines (described below) and the usb system 
+goes nuts. After
+removing & inserting uhci_hcd everything works fine again.
 
+The lines are (endless loop):
+drivers/usb/input/hid-core.c: input irq status -84 received
 
--- wli

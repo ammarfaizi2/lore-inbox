@@ -1,91 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310924AbSCHP6H>; Fri, 8 Mar 2002 10:58:07 -0500
+	id <S310923AbSCHQDI>; Fri, 8 Mar 2002 11:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310926AbSCHP56>; Fri, 8 Mar 2002 10:57:58 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:55457 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S310924AbSCHP5l>;
-	Fri, 8 Mar 2002 10:57:41 -0500
-Message-ID: <3C88DFC9.8060907@sgi.com>
-Date: Fri, 08 Mar 2002 09:59:05 -0600
-From: Stephen Lord <lord@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
+	id <S310927AbSCHQCr>; Fri, 8 Mar 2002 11:02:47 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:37273 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S310923AbSCHQCq>; Fri, 8 Mar 2002 11:02:46 -0500
+Date: Fri, 8 Mar 2002 17:48:06 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: dalecki@evision-ventures.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.6 IDE 18
+Message-ID: <Pine.LNX.4.44.0203081745490.24533-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: svetljo <galia@st-peter.stw.uni-erlangen.de>
-CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.18-rc4-aa1 XFS oopses caused by cpio
-In-Reply-To: <1015580766.20800.3.camel@svetljo.st-peter.stw.uni-erlangen.de> <3C88B612.1070206@sgi.com> <3C88C9A1.5070502@st-peter.stw.uni-erlangen.de> <3C88CB1C.90203@sgi.com>
-Content-Type: multipart/mixed;
- boundary="------------040807060906000606030200"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040807060906000606030200
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-W:     http://www.kernel.org/pub/linux/kernel/people/hedrick/
+-W:     http://www.linux-ide.org/
+-W:     http://www.linuxdiskcert.org/
+-S:     Maintained
++W:     http://www.dalecki.de
++S:     Developement
 
-Stephen Lord wrote:
+Normally the website points to a direct link where you can get the latest 
+IDE goodies, you might wanna change that or adjust your URL accordingly. 
 
->>
-> Ah, so you ran growfs on the filesystem, thats the key here. It looks 
-> like the new code
-> does not handle growfs correctly, the structure which is null is not 
-> allocated in the
-> expansion case. I should have a fix shortly.
->
-> Steve
+Regards,
+	Zwane
 
-Hi,
-
-Can you try and repeat with this patch, it should apply reasonably 
-cleanly to the aa tree.
-
-Steve
-
-
-
---------------040807060906000606030200
-Content-Type: text/plain;
- name="growfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="growfs.patch"
-
-
-===========================================================================
-Index: linux/fs/xfs/xfs_alloc.c
-===========================================================================
-
-2234a2235,2236
-> 		pag->pagb_list = kmem_zalloc(XFS_PAGB_NUM_SLOTS *
-> 					sizeof(xfs_perag_busy_t), KM_SLEEP);
-
-===========================================================================
-Index: linux/fs/xfs/xfs_mount.c
-===========================================================================
-
-151,152c151,153
-< 			kmem_free(mp->m_perag[agno].pagb_list,
-< 			  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
----
-> 			if (mp->m_perag[agno].pagb_list)
-> 				kmem_free(mp->m_perag[agno].pagb_list,
-> 				  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
-877,881d877
-< 	for (agno = 0; agno < sbp->sb_agcount; agno++) {
-< 		mp->m_perag[agno].pagb_count = 0;
-< 		mp->m_perag[agno].pagb_list = kmem_zalloc(XFS_PAGB_NUM_SLOTS *
-< 					sizeof(xfs_perag_busy_t), KM_SLEEP);
-< 	}
-1066,1067c1062,1064
-< 		kmem_free(mp->m_perag[agno].pagb_list,
-< 		  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
----
-> 		if (mp->m_perag[agno].pagb_list)
-> 			kmem_free(mp->m_perag[agno].pagb_list,
-> 			  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
-
---------------040807060906000606030200--
 

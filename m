@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUIIVdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUIIVig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUIIVdr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 17:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUIIVbF
+	id S266275AbUIIVig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 17:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUIIVav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 17:31:05 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:12799 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267999AbUIIV0L (ORCPT
+	Thu, 9 Sep 2004 17:30:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33254 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266275AbUIIVYV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 17:26:11 -0400
-Date: Thu, 9 Sep 2004 23:25:07 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040909212507.GA32276@k3.hellgate.ch>
-Mail-Followup-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-	James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch>
+	Thu, 9 Sep 2004 17:24:21 -0400
+Date: Thu, 9 Sep 2004 14:28:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+Message-Id: <20040909142801.5cfa32d1.akpm@osdl.org>
+In-Reply-To: <1094760584.15210.1.camel@localhost.localdomain>
+References: <20040903120957.00665413@mango.fruits.de>
+	<20040904195141.GA6208@elte.hu>
+	<20040905140249.GA23502@elte.hu>
+	<20040906110626.GA32320@elte.hu>
+	<1094626562.1362.99.camel@krustophenia.net>
+	<20040909192924.GA1672@elte.hu>
+	<20040909130526.2b015999.akpm@osdl.org>
+	<1094760584.15210.1.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909205531.GA17088@k3.hellgate.ch>
-X-Operating-System: Linux 2.6.9-rc1-bk13 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 Sep 2004 22:55:31 +0200, Roger Luethi wrote:
-> I used a somewhat different approach in my development tree (not
-> SELinuxy, though): Most fields were world readable, some required
-> credentials.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> I would still expect the only thing to materially improve swap latency
+> to be a log structured swap, possibly with a cleaner which tidies
+> together pages that are referenced together.
+> 
 
-I forgot to mention that you can see the remnants of that approach in
-<linux/nproc.h>: I used two bits of the field ID to define per-field
-access restrictions (NPROC_PERM_USER, NPROC_PERM_ROOT).
+Maybe.  It'd be nice to show some benefit from the "organise pages by
+virtual address" patch first.
 
-Roger
+But then, maybe that doesn't help because there is little correlation
+between address congruency and time-of-reference.  That's hard to believe
+though.
+
+hm.  The patch _does_ do what I wanted it to do.  Maybe I tested it with
+silly workloads.
+
+> 
+> You also want contiguous runs of at least 64K and probaly a lot more on
+> bigger memory systems. 
+
+I used 1MB.
+
++/*
++ * We divide the swapdev into 1024 kilobyte chunks.  We use the cookie and the
++ * upper bits of the index to select a chunk and the rest of the index as the
++ * offset into the selected chunk.
++ */
++#define CHUNK_SHIFT	(20 - PAGE_SHIFT)
+

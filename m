@@ -1,91 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267468AbUHJPyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUHJP6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267468AbUHJPyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 11:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUHJPxC
+	id S267483AbUHJP6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 11:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUHJP6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 11:53:02 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:6899 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S267468AbUHJPuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 11:50:20 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5704DE6124@exa-atlanta>
-From: "Moore, Eric Dean" <Emoore@lsil.com>
-To: Adrian Bunk <bunk@fs.tum.de>, Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: RE: 2.6.8-rc3: MPT Fusion compile error with PROC_FS=n
-Date: Tue, 10 Aug 2004 11:42:17 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 10 Aug 2004 11:58:13 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:27068 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S267480AbUHJP5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 11:57:08 -0400
+Date: Tue, 10 Aug 2004 17:57:01 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dsaxena@plexity.net, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+Message-ID: <20040810155701.GB21534@louise.pinerecords.com>
+References: <20040810001316.GA7292@plexity.net> <1092096699.14934.4.camel@localhost.localdomain> <20040810021209.GA10495@plexity.net> <1092138774.16979.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092138774.16979.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to fix this reported bug, as well a misc fix's and
-enhancements highlighted in release notes found at this URL:
+On Aug-10 2004, Tue, 12:52 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.6-kernel/3.01.15/
+> > Files w/o spaces look better and is easier to work with if running 
+> > from cmd line, but if we ignore the "prettyness" issue, we should at 
+> > least try to be consistent. Either we have spaces and _all_ driver 
+> > names are in the format "xxx IDE", "xxx i2c", etc, or we don't allow
+> > space at all. 
+> Any command line tool has to be robust for space handling anyway.
 
-This patch is made against the 3.01.09 driver.
-Also - this driver has just completed testing in the LSI labs.
+Sure, but while with a GUI you can click on almost anything, on the
+command line spaces in filenames have always been a real pain in
+the ass, so let's not pretend otherwise.
 
-
-Eric Moore
-LSI Logic
-
-
-
-On Friday, August 06, 2004 1:58 PM, Adrian Bunk wrote:
-> 
-> The "MPT Fusion driver 3.01.09 update" in 2.6.8-rc causes the 
-> following 
-> compile error with CONFIG_PROC_FS=n:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC [M]  drivers/message/fusion/mptbase.o
-> drivers/message/fusion/mptbase.c: In function `mptbase_probe':
-> drivers/message/fusion/mptbase.c:1394: `procmpt_iocinfo_read' 
-> undeclared 
-> (first use in this function)
-> drivers/message/fusion/mptbase.c:1394: (Each undeclared identifier is 
-> reported only once
-> drivers/message/fusion/mptbase.c:1394: for each function it 
-> appears in.)
-> drivers/message/fusion/mptbase.c:1399: `procmpt_summary_read' 
-> undeclared 
-> (first use in this function)
-> drivers/message/fusion/mptbase.c: In function `mpt_do_ioc_recovery':
-> drivers/message/fusion/mptbase.c:1626: warning: `r' might be used 
-> uninitialized in this function
-> drivers/message/fusion/mptbase.c: In function `GetIocFacts':
-> drivers/message/fusion/mptbase.c:2419: warning: unknown 
-> conversion type 
-> character `z' in format
-> drivers/message/fusion/mptbase.c:2419: warning: too many 
-> arguments for 
-> format
-> make[3]: *** [drivers/message/fusion/mptbase.o] Error 1
-> 
-> <--  snip  -->
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+Tomas Szepe <szepe@pinerecords.com>

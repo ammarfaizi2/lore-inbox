@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319542AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
+	id <S319544AbSH3Ky0>; Fri, 30 Aug 2002 06:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319543AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:28398
+	id <S319545AbSH3Ky0>; Fri, 30 Aug 2002 06:54:26 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:29166
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319542AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
-Subject: Re: [PATCH] 6/41 sound/oss/pss.c - convert cli to spinlocks
+	id <S319544AbSH3KyZ>; Fri, 30 Aug 2002 06:54:25 -0400
+Subject: Re: PROBLEM: nfs & "Warning - running *really* short on DMA buffers"
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: pwaechtler@mac.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020830074730.GF19611@louise.pinerecords.com>
-References: <200208292154.g7TLs5ZH003520@smtp-relay02.mac.com> 
-	<20020830074730.GF19611@louise.pinerecords.com>
+To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D6F34B1.29073.4DAAB0@localhost>
+References: <3D6F34B1.29073.4DAAB0@localhost>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 30 Aug 2002 11:56:58 +0100
-Message-Id: <1030705018.3196.7.camel@irongate.swansea.linux.org.uk>
+Date: 30 Aug 2002 11:58:54 +0100
+Message-Id: <1030705134.3180.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-30 at 08:47, Tomas Szepe wrote:
-> > static pss_confdata *devc = &pss_data;
->                            ^ ^
-> > +static spinlock_t lock=SPIN_LOCK_UNLOCKED;
-> 
-> > 				if (!pss_put_dspword(devc, *data++)) {
->                                                           ^
-> > +					spin_unlock_irqrestore(&lock,flags);
-> 
-> 
-> Would you please take care not to clutter the original sources with
-> lines in a different C formatting style?
+On Fri, 2002-08-30 at 08:02, Pedro M. Rodrigues wrote:
+>    Hello to all! While preparing to migrate some servers to Redhat 
+> 7.3 and doing some nfs tests before deployment i came across this 
+> "Warning - running *really* short on DMA buffers" error message 
+> repeated several times in dmesg and /var/log/messages. Something like 
+> this:
 
-When you've ported that much code to a new locking mechanism then you
-can moan. If he wants to take on the old OSS code and making it work in
-the 2.5 universe as far as I (as the ex OSS code maintainer) am concened
-he can format it how he likes
+They are warnings not fatal, at most they slowed you down due to lack of
+resources. You might want to tune the vm settings to keep more pages
+reserved for atomic allocation
 

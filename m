@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312917AbSDOQSb>; Mon, 15 Apr 2002 12:18:31 -0400
+	id <S312927AbSDOQTk>; Mon, 15 Apr 2002 12:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312920AbSDOQSa>; Mon, 15 Apr 2002 12:18:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35593 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312917AbSDOQSa>;
-	Mon, 15 Apr 2002 12:18:30 -0400
-Date: Mon, 15 Apr 2002 18:18:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Aaron Tiensivu <mojomofo@mojomofo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-ID: <20020415161833.GV12608@suse.de>
-In-Reply-To: <20020415125606.GR12608@suse.de> <02db01c1e498$7180c170$58dc703f@bnscorp.com>
+	id <S312920AbSDOQTj>; Mon, 15 Apr 2002 12:19:39 -0400
+Received: from ns.suse.de ([213.95.15.193]:62224 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312927AbSDOQTi>;
+	Mon, 15 Apr 2002 12:19:38 -0400
+Date: Mon, 15 Apr 2002 18:19:34 +0200
+From: Dave Jones <davej@suse.de>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>,
+        linux-kernel@vger.kernel.org
+Subject: Re: error compiling 2.5.8
+Message-ID: <20020415181934.K32185@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020415161601.31430a76.Corporal_Pisang@Counter-Strike.com.my> <Pine.LNX.4.44.0204151054240.13828-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15 2002, Aaron Tiensivu wrote:
-> Simple question but hopefully it has a simple answer.. is there a command
-> you can issue or flag you can look for from the output of hdparm to tell if
-> your hard drive is capable of TCQ before installing the patch? I have a few
-> IBM drives that I'm sure have TCQ abilities but I don't trust them as far as
-> I can throw them (being Hungarian and cursed) but I'd like to give TCQ a
-> whirl on my WD 120GB drives that should work OK, if they support TCQ..
-> 
-> Sorry if it's already been asked.. :)
+ >   Avoid a compile-time warning in bluesmoke.c
+ >   (intel_thermal_interrupt() defined but not used)
 
-It has not been asked :-)
-
-You can run a IDENTIFY_DEVICE from user space with the task ioctls and
-look at word 83 -- bit 1 and 14 must be set for TCQ to be supported. If
-you give me the model identifier from the IBM drive, I can tell you if
-it has tcq or not...
-
-I'll write a small util to detect this tomorrow and send it to you + the
-list.
-
-I thought only the IBM's had TCQ, but I got one report today indicating
-that some WD do too.
+I already sent Linus an update for this (and a few other bits),
+fixing it in a different way. (CONFIG_MPENTIUM4), although it
+should probably be a CONFIG_P4_THERMAL or the likes.
 
 -- 
-Jens Axboe
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

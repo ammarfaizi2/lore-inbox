@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262574AbRE3CWv>; Tue, 29 May 2001 22:22:51 -0400
+	id <S262568AbRE3CZk>; Tue, 29 May 2001 22:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbRE3CWl>; Tue, 29 May 2001 22:22:41 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:59153 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S262574AbRE3CWg>; Tue, 29 May 2001 22:22:36 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Frank Davis <fdavis112@juno.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac4 es1371.o unresolved symbols 
-In-Reply-To: Your message of "Tue, 29 May 2001 21:56:51 -0400."
-             <381058575.991187817702.JavaMail.root@web649-wra> 
+	id <S262579AbRE3CZa>; Tue, 29 May 2001 22:25:30 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:25071 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262568AbRE3CZS>;
+	Tue, 29 May 2001 22:25:18 -0400
+Date: Tue, 29 May 2001 19:25:16 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: jt@hpl.hp.com, Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net #9
+Message-ID: <20010529192516.A14915@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com> <3B145127.5B173DFF@mandrakesoft.com> <20010529190152.A14806@bougret.hpl.hp.com> <3B14572E.47218B5@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 30 May 2001 12:22:29 +1000
-Message-ID: <13865.991189349@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B14572E.47218B5@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 29, 2001 at 10:13:02PM -0400
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 May 2001 21:56:51 -0400 (EDT), 
-Frank Davis <fdavis112@juno.com> wrote:
->     While 'make modules_install' on 2.4.5-ac4, I received the following error:
->depmod: *** Unresolved symbols in /lib/modules/2.4.5-ac4/kernel/drivers/sound/es1371.o
->depmod:  gameport_register_port_Rsmp_aa96bd99
->depmod:  gameport_unregister_port_Rsmp_ec101047
+On Tue, May 29, 2001 at 10:13:02PM -0400, Jeff Garzik wrote:
+> *shrug*  Well, if you want to go against the kernel standard that's fine
+> with me.  I won't put Andrzej's changes to your drivers upstream.  You
+> are going to continually see patches to clean that up, though, because
+> it makes the end user's kernel smaller.  Please consider noting this
+> special case in a comment in each of your drivers "do not clean up
+> static initializers" or similar.
+> 
+> It's really a pain in the ass to remember special cases like this, so
+> please reconsider.  Being not-like-the-others is detrimental to the long
+> term maintainability of the overall kernel.
+> 
+> Regards,
+> 
+> 	Jeff
 
-Need more info.
-  cd 2.4.5-ac4
-  grep 'gameport_.*register_port' /proc/ksyms System.map
-  sed -ne '/^CONFIG/s/CONFIG_//p' .config
+	I agree with you on the special case. I don't like it
+either. Anyway, most patch to my drivers are applied wether I like it
+or not, so I guess that I should be happy that I was notified and I
+should sut up my big mouth because it won't make a difference.
+	If I reject the patch now, I will be applied behind my
+back. Been there, done that.
+	In other words : yes, please apply the patch.
 
+	Jean

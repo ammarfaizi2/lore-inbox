@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbRBCKHo>; Sat, 3 Feb 2001 05:07:44 -0500
+	id <S129511AbRBCKKY>; Sat, 3 Feb 2001 05:10:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbRBCKHe>; Sat, 3 Feb 2001 05:07:34 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:52852 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129524AbRBCKH1>; Sat, 3 Feb 2001 05:07:27 -0500
-Date: Sat, 3 Feb 2001 04:07:25 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: Adding PCMCIA support to the kernel tree -- developers needed.
-In-Reply-To: <3A7BB31D.CA1AF3E4@megapathdsl.net>
-Message-ID: <Pine.LNX.3.96.1010203040618.29269C-100000@mandrakesoft.mandrakesoft.com>
+	id <S129547AbRBCKKF>; Sat, 3 Feb 2001 05:10:05 -0500
+Received: from barnowl.demon.co.uk ([158.152.23.247]:41994 "EHLO
+	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129584AbRBCKJ4>; Sat, 3 Feb 2001 05:09:56 -0500
+Mail-Copies-To: never
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fix for include/linux/fs.h in 2.4.0 kernels
+In-Reply-To: <14353.981190742@ocs3.ocs-net>
+From: Graham Murray <graham@barnowl.demon.co.uk>
+Date: 03 Feb 2001 10:09:39 +0000
+In-Reply-To: <14353.981190742@ocs3.ocs-net> (Keith Owens's message of "Sat, 03 Feb 2001 19:59:02 +1100")
+Message-ID: <m28znoulgc.fsf@barnowl.demon.co.uk>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Miles Lane wrote:
-> I asked David Hinds to write up an outline of the things that
-> will be needed to get PCMCIA support cleanly and completely
-> integrated into the kernel tree.
+Keith Owens <kaos@ocs.com.au> writes:
+
+> This has all been thrashed out before.  Read the threads
 > 
-> David has expressed that he'll not be able to participate in
-> this work.  He has his hands full with his day job and his 
-> role as maintainer/developer of the pcmcia-cs package.
-[...]
-> Anyone willing to sign up for some of this effort?
+> http://www.mail-archive.com/linux-kernel@vger.rutgers.edu/2000-month-07/msg04096.html
+> http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg18256.html
 
-I'll convert all the network drivers once a design is agreed upon.
-
-	Jeff
-
-
-
-
+I don't think that these address my question. I was asking about when
+building (upgrading) glibc from source. I believe that the glibc
+headers are "derived" from the kernel against which it is built. So,
+irrespective of what the glibc maintainers do, would it be advisable
+for the user to remove the symlinks and copy the directories from the
+kernel tree and into /usr/include?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

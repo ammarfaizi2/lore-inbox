@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVADKFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVADKIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVADKFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 05:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVADKFz
+	id S261598AbVADKIl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVADKIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 05:05:55 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:26296 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261596AbVADKFs (ORCPT
+	Tue, 4 Jan 2005 05:08:41 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:44709 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261598AbVADKIg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 05:05:48 -0500
-Date: Tue, 4 Jan 2005 11:05:23 +0100
+	Tue, 4 Jan 2005 05:08:36 -0500
+Date: Tue, 4 Jan 2005 11:08:10 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Paul Davis <paul@linuxaudiosystems.com>
-Subject: Re: Latency results with 2.6.10 - looks good
-Message-ID: <20050104100523.GB14787@elte.hu>
-References: <1104348820.5218.42.camel@krustophenia.net> <1104549524.3803.28.camel@krustophenia.net>
+To: Josh Aas <josha@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove outdated/misleading CPU scheduler comments
+Message-ID: <20050104100810.GC14787@elte.hu>
+References: <41D5A17D.6070606@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1104549524.3803.28.camel@krustophenia.net>
+In-Reply-To: <41D5A17D.6070606@sgi.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -34,38 +32,12 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+* Josh Aas <josha@sgi.com> wrote:
 
-> Followup: other audio users have confirmed that 2.6.10 is the best
-> release yet latency-wise.  It works most of the time at 64 frames
-> (~1.33ms latency).
-> 
-> Now, the bad news: there are still enough xruns to make it not quite
-> good enough for, say, a recording studio; as we all know with realtime
-> constraints the worst case scenario is important.  As expected the RT
-> kernel beats it by a wide margin.  I have attached some numbers,
-> excerpted from a post by Rui on the JACK list.  The JACK test used was
-> described previously on this list.
-> 
-> Ingo, what are your plans for pushing more of the RT patch set
-> upstream? It seems that the soft/hardirq threading and voluntary
-> preemption (turning the might_sleep checks into preemption points) are
-> required to further improve the latency of the standard kernel.  These
-> are well tested at this point and also zero cost for users who don't
-> enable them. I think if these features go upstream before 2.6.11 then
-> we can say all of the issues Paul raised, in that post months ago that
-> led to the VP patches, will be put to rest.
+> This patch removes two outdated/misleading comments from the CPU scheduler.
 
-for 2.6.11 we have dozens of scheduler patches queued in -mm that do
-half of the work necessary for the rest of -RT. I'll split out more
-stuff from -RT once the scheduler queue in -mm gets smaller (i.e. once
-it gets merged upstream), but there's a natural limit to the rate of
-merging in a given subsystem, if we push things too hard it will
-deteriorate.
+> Signed-off-by: Josh Aas <josha@sgi.com>
 
-also, there's the necessary merging of preempt-bkl patch. It makes
-little sense to add the more advanced stuff when the BKL is allowed to
-generate up to ~200 milliseconds latencies. Hardirq and softirq
-threading would be the next step after that point.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
 	Ingo

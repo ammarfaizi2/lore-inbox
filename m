@@ -1,74 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSFCDtt>; Sun, 2 Jun 2002 23:49:49 -0400
+	id <S314077AbSFCDuz>; Sun, 2 Jun 2002 23:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSFCDts>; Sun, 2 Jun 2002 23:49:48 -0400
-Received: from matrix.seed.net.tw ([192.72.81.219]:35600 "EHLO
-	mail.seed.net.tw") by vger.kernel.org with ESMTP id <S313867AbSFCDts>;
-	Sun, 2 Jun 2002 23:49:48 -0400
-Message-ID: <01bd01c20ab1$ece95900$c0cca8c0@promise.com.tw>
-From: "Hank Yang" <hanky@promise.com.tw>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <andre@linuxdiskcert.org>,
-        <marcelo@conectiva.com.br>
-Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <arjanv@redhat.com>, "Linus Chen" <linusc@promise.com.tw>,
-        "Crimson Hung" <crimsonh@promise.com.tw>,
-        "Jenny Liang" <jennyl@promise.com.tw>, <jordanr@promise.com>
-In-Reply-To: <E16lBmI-0006nf-00@the-village.bc.nu> <039701c20892$3940ca30$c0cca8c0@promise.com.tw> <1022855592.4124.415.camel@irongate.swansea.linux.org.uk>
-Subject: Re: [PATCH] 2.4.19pre9 in pdc202xx.c bug
-Date: Mon, 3 Jun 2002 11:51:19 +0800
-MIME-Version: 1.0
+	id <S317262AbSFCDuy>; Sun, 2 Jun 2002 23:50:54 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:31616 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S314077AbSFCDuw>; Sun, 2 Jun 2002 23:50:52 -0400
 Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivangurdiev@linuxfreemail.com>
+Reply-To: ivangurdiev@linuxfreemail.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.5.20 - compile error, mp_ioapic_routing on a uniprocessor machine
+Date: Sat, 1 Jun 2002 21:51:18 -0600
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200206012151.18394.ivangurdiev@linuxfreemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dears.
+make[1]: Entering directory `/usr/src/linux-2.5.20/arch/i386/kernel'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.20/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon     
+-DKBUILD_BASENAME=mpparse  -c -o mpparse.o mpparse.c
+mpparse.c: In function `mp_parse_prt':
+mpparse.c:1120: warning: implicit declaration of function `mp_find_ioapic'
+mpparse.c:1123: `mp_ioapic_routing' undeclared (first use in this function)
+mpparse.c:1123: (Each undeclared identifier is reported only once
+mpparse.c:1123: for each function it appears in.)
+mpparse.c:1147: warning: implicit declaration of function 
+`io_apic_set_pci_routing'
+make[1]: *** [mpparse.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.20/arch/i386/kernel'
+make: *** [arch/i386/kernel] Error 2
 
-    There is something wrong in drivers/ide/pdc202xx.c ide driver.
-Andre Hedrick has merged ide stuff to 2.4.18 kernel that released for
-RedHat 7.3, SuSE 8.0 and Mandrake 8.2. That has a bug inside to
-harmful our company.
+========================
+Relevant CONFIG.H:
 
-First, in pdc202xx_dmaproc() function.
+#define CONFIG_MK7 1
+#undef  CONFIG_SMP
+#define CONFIG_X86_UP_APIC 1
+#undef  CONFIG_X86_UP_IOAPIC
+#define CONFIG_X86_LOCAL_APIC 1
+#define CONFIG_ACPI 1
+#undef  CONFIG_ACPI_HT_ONLY
+#define CONFIG_ACPI_BOOT 1
+#define CONFIG_ACPI_BUS 1
+#define CONFIG_ACPI_INTERPRETER 1
+#define CONFIG_ACPI_EC 1
+#define CONFIG_ACPI_POWER 1
+#define CONFIG_ACPI_PCI 1
+#define CONFIG_ACPI_SLEEP 1
+#define CONFIG_ACPI_SYSTEM 1
+#undef  CONFIG_ACPI_AC
+#undef  CONFIG_ACPI_BATTERY
+#undef  CONFIG_ACPI_BUTTON
+#define CONFIG_ACPI_FAN 1
+#define CONFIG_ACPI_PROCESSOR 1
+#define CONFIG_ACPI_THERMAL 1
+#undef  CONFIG_ACPI_DEBUG
 
-Our source code is:
-unsigned long atapi_port =high_16+ 0x20 + (hwif->channel ? 0x04 : 0x00);
+if-def trouble again?
 
-2.4.19pre8(RedHat 7.3, SuSE 8.0 and Mandrake 8.2) is:
-unsigned long atapi_reg = high_16 + (hwif->channel ? 0x24 : 0x00);
+i apologize if you have problems cc-ing...
+linuxfreemail is not working correctly, it appears.
+I read the LKML archives so I'll get any replies by HTML if not otherwise :)
 
-The Primary channel get wrong address, So this cause our PDC20265/67
-couldn't
-work on Primary channel with LBA48 drives.
-Andre, I think this is your mistake, Could you please kind to fix it?
 
-Second, our PDC20262 controller do not support LBA48 with hardware48hack
-function. Please fix it in pdc202xx_dmaproc() function also.
 
-Third, I told Alan before.
-In pdc202xx_new_tune_chipset() function.
-We need to set timing for only ATA133 drives exist on both channel.
-If not ATA133 drives exists, we do not need to set timing here.
-Please update this function also.
-
-Fourth.
-I hope can add quirk drives list to pdc202xx.c below
-"QUANTUM FIREBALLP KA9.1"
-"QUANTUM FIREBALLP KX13.6"
-please append these if you are in available.
-
-The last.
-I hope you guys could help us to notice RedHat, SuSE, Mandrake and
-etc to fix this bug as soon as possible.
-
-Thanks in advance and sincerely
-Hank Yang
 
 
 

@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUAXF7z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 00:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUAXF7z
+	id S266872AbUAXGCk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 01:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266873AbUAXGCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 00:59:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57536 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266870AbUAXF7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 00:59:54 -0500
-Date: Fri, 23 Jan 2004 22:00:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: s_kieu@hotmail.com
-Cc: haiquy@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm1 pppd: page allocation failure
-Message-Id: <20040123220055.78ad46fb.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0401241236230.29380@darkstar.example.net>
-References: <Pine.LNX.4.53.0401241236230.29380@darkstar.example.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 24 Jan 2004 01:02:40 -0500
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:19108 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266872AbUAXGC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 01:02:27 -0500
+Subject: =?ISO-8859-1?Q?Re=B2?= : Alsa create high problems...
+From: Eddahbi Karim <installation_fault_association@yahoo.fr>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0401230957131.1875@pnote.perex-int.cz>
+References: <1074382859.29525.20.camel@gamux>
+	 <1074839589.8684.1.camel@gamux>
+	 <Pine.LNX.4.58.0401230936130.1875@pnote.perex-int.cz>
+	 <Pine.LNX.4.58.0401230957131.1875@pnote.perex-int.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Installation Fault
+Message-Id: <1074924064.3799.17.camel@gamux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 24 Jan 2004 07:01:04 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-haiquy@yahoo.com wrote:
->
-> 
-> Hi,
-> 
-> This did not happen with 2.6.1-mm4 . The system is still running fine
-> at the moment but I find several message in the dmesg output
-> 
-> pppd: page allocation failure. order:4, mode:0xd0
-> Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
+Le ven 23/01/2004 à 09:57, Jaroslav Kysela a écrit :
+> On Fri, 23 Jan 2004, Jaroslav Kysela wrote:
 
-Please enable CONFIG_KALLSYMS to get a symbolic trace and resend that.
+> > Ok, let's go. Can you try which files exactly affects the playback?
+> > If you find one file, can you remove code step-by-step from routines in 
+> > linux/sound/core/pcm.c snd*read() functions (locate function by strings
+> > in the proc file).
+> > 
+> > I suspect that snd_pcm_stream_lock_irq() and snd_pcm_stream_unlock_irq() 
+> > will affect this (note that you must remove these calls together).
+> 
+> Also enabling CONFIG_DEBUG_SPINLOCK in your kernel setup might help us.
+> 
 
+Ok,
+
+So... I've located the file which unlocks the problem while 1 second.
+It's /proc/asound/card0/pcm0p/sub0/status.
+
+The function in pcm.c is :
+snd_pcm_substream_proc_status_read
+
+I remove it from the routines, it doesn't settle the problem but it
+removes /proc/asound/card0/pcm0p/sub0/status which let me without any
+way to solve the sound problem anymore (unless kill :P).
+
+I'll try to remove both lock/unlock irq functions and I'll tell you the
+problem.
+
+Btw I can't do any report from my kernel 2.6.2-rc1 because the ACPI
+seems broken again and my modem don't work so I need to reboot on my
+2.6.0 for reporting ;)
+
+-- 
+Eddahbi Karim <installation_fault_association@yahoo.fr>
+Installation Fault
 

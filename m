@@ -1,38 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278842AbRJZTFw>; Fri, 26 Oct 2001 15:05:52 -0400
+	id <S278940AbRJZTOe>; Fri, 26 Oct 2001 15:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278892AbRJZTFn>; Fri, 26 Oct 2001 15:05:43 -0400
-Received: from lsd.nurk.org ([208.8.184.53]:37003 "HELO lsd.nurk.org")
-	by vger.kernel.org with SMTP id <S278842AbRJZTFc>;
-	Fri, 26 Oct 2001 15:05:32 -0400
-Date: Fri, 26 Oct 2001 12:06:44 -0700 (PDT)
-From: Sean Swallow <sean@swallow.org>
+	id <S278958AbRJZTOY>; Fri, 26 Oct 2001 15:14:24 -0400
+Received: from gte1-22.ce.ftel.net ([206.24.95.226]:15342 "EHLO spinics.net")
+	by vger.kernel.org with ESMTP id <S278940AbRJZTOI>;
+	Fri, 26 Oct 2001 15:14:08 -0400
+From: ellis@spinics.net
+Message-Id: <200110261914.f9QJEhl23383@spinics.net>
+Subject: SCN2681
 To: linux-kernel@vger.kernel.org
-Subject: 3Com PCI 3c905C Tornado with later kernels
-Message-ID: <Pine.LNX.4.40.0110261142110.1175-100000@lsd.nurk.org>
+Date: Fri, 26 Oct 2001 12:14:43 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-List,
-
-I am having a problem with a 3c905C and later kernels (2.4.9, 2.4.12 and
-2.4.13).  When I try to use my 3c905C with these kernels I get this error
-message:
-
-Cannot open netlink socket: Address family not supported by protocol
-
-Kernel 2.4.7 works fine with this nic tho. I also tried this on another
-machine with the same results.
-
-Any suggestions?
-
-thank you,
-
--- 
-Sean J. Swallow
-pgp (6.5.2) keyfile @ https://nurk.org/keyfile.txt
-
+Anybody know of a serial driver for the scn2681 chip?
 

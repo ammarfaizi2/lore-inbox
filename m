@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268222AbTALEA3>; Sat, 11 Jan 2003 23:00:29 -0500
+	id <S268221AbTALD7R>; Sat, 11 Jan 2003 22:59:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268227AbTALEA1>; Sat, 11 Jan 2003 23:00:27 -0500
-Received: from ldap.somanetworks.com ([216.126.67.42]:11150 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S268222AbTALD7S>; Sat, 11 Jan 2003 22:59:18 -0500
-Date: Sat, 11 Jan 2003 23:08:01 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Rob Wilkens <robw@optonline.net>
-cc: J Sloan <joe@tmsusa.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Noise on lkml (was Re: Nvidia and its choice to read the
- GPL "differently")
-In-Reply-To: <1042341484.1033.119.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.44.0301112302460.9854-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268222AbTALD7R>; Sat, 11 Jan 2003 22:59:17 -0500
+Received: from h80ad2641.async.vt.edu ([128.173.38.65]:24960 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S268221AbTALD7O>; Sat, 11 Jan 2003 22:59:14 -0500
+Message-Id: <200301120407.h0C47oLE030404@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Christoph Hellwig <hch@lst.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] don't create regular files in devfs 
+In-Reply-To: Your message of "Sat, 11 Jan 2003 20:56:00 +0100."
+             <20030111205600.A25947@lst.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030111205600.A25947@lst.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1023107510P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 11 Jan 2003 23:07:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2003, Rob Wilkens wrote:
+--==_Exmh_1023107510P
+Content-Type: text/plain; charset=us-ascii
 
-> On Sat, 2003-01-11 at 20:44, J Sloan wrote:
-> > I won't even begin to put together a point by
-> > point correction, it's all too tedious, and it's
-> > possible that you are here just to annoy and
-> > wear down the developers anyway -
-> 
-> I've only written a total of maybe 5-6 messages to the list, and maybe 4
-> of them were off topic because of a previous off-topic message by
-> somebody else (such as yours).
-[snip]
+On Sat, 11 Jan 2003 20:56:00 +0100, Christoph Hellwig said:
+> Even more devfs creptomancy :)
 
-FYI, looking in my l-k folder, with the next message you sent, you have
-posted 22 messages in the last 3 days, only 3 of which had subject lines
-not related to the ongoing flamewar.
+> Get rid of it.
 
-Scott
+> -	printk(KERN_INFO 
+> -		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n", 
+> -		MICROCODE_VERSION);
 
-
+Did you intend to nuke this too?  Personally, I prefer having all the
+drivers tell me what they are....
 -- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
 
+--==_Exmh_1023107510P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+IOoWcC3lWbTT17ARAqOyAKC31QG64ZtLMH/rKcwwPg6E0ZWs7QCgiUYo
+R8u1Naje9bQoKiiNDdNaYNQ=
+=/bw/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1023107510P--

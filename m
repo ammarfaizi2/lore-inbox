@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268295AbRHJNw1>; Fri, 10 Aug 2001 09:52:27 -0400
+	id <S268285AbRHJN4H>; Fri, 10 Aug 2001 09:56:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268287AbRHJNwT>; Fri, 10 Aug 2001 09:52:19 -0400
-Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:42253 "HELO
-	caesar.lynix.com") by vger.kernel.org with SMTP id <S268149AbRHJNwP>;
-	Fri, 10 Aug 2001 09:52:15 -0400
-Date: Fri, 10 Aug 2001 09:53:13 +0000
-From: Subba Rao <subba9@home.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Half Duplex and Zero Copy IP
-Message-ID: <20010810095313.A6219@home.com>
-Reply-To: Subba Rao <subba9@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S268182AbRHJNz5>; Fri, 10 Aug 2001 09:55:57 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:9095 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268149AbRHJNzv>; Fri, 10 Aug 2001 09:55:51 -0400
+Date: Fri, 10 Aug 2001 14:56:02 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Writes to mounted devices containing file-systems.
+In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
+Message-ID: <Pine.SOL.3.96.1010810143222.9790A-100000@draco.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 10 Aug 2001, Richard B. Johnson wrote:
+> Is it possible that Linux could decline to write to a device that
+> contains mounted file-systems? OTW, don't allow raw writes to
+> devices or partitions if they are mounted; writes could only
+> be through the file-systems themselves.
 
-I have 2 3Com NICs on my system. They are 3c905C Tornado PCI cards.
-The drivers are compiled into the kernel (Slackware 8.0 with kernel 2.4.7).
+Policy is not something we want in the kernel. Detection and prevention of
+writing happens in programs trying to write. E.g. mkntfs will detect that
+a partition you are trying to format is mounted and refuse to write to it;
+but it provides a "force" switch if you really wanted to do it... I can
+think of situations where I really want to write to a mounted fs
+(admittedly they not standard use but still I might want to do it).
 
-One of the interfaces will be used as a sniffer interface (without IP address)
-and a very high traffic pipes. I do not wish to loose any packets coming to this
-interface. Is it better if I initialize the interface in HALF DUPLEX mode? If yes,
-how do I set the card to HALF DUPLEX mode? How can I find out the HW (NIC) settings
-on the system?
+Anyway, the kernel could never provide you with ultimate security without
+sacrificing all functionality. Once they get in, they will get root and
+once they have root you have lost, you need to have a system without a
+root user and with nobody having capabilities to do things like load
+modules, etc... There are so many local exploits that you would lose
+for sure. If the attacker cannot write to raw device, he will unmount and
+then write to it or he will load a module to send commands to your HD at
+ATAPI or SCSI level and kill your hd that way...
 
-Another question about 3Com NICs, do they perform zero-copy IP? I read that
-the performance improves a lot WITHOUT zero-copy IP.
+[snip destruction of your data]
 
-Thanks for any info.
+Why don't you increase security on your machine? - For example do you
+really need to run sendmail listenting on port 25? Systems seem to run
+quite happily without sendmail listening. All internal use happens
+through direct invokation of sendmail binary but YMMV. At least does it
+have to listen to anything other than 127.0.0.1?
+
+[snip a lot of horror story about company]
+
+As others have suggested already, it sounds like you want to start looking
+for alternative employment...
+
+Best regards,
+
+	Anton
 -- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Subba Rao
-subba9@home.com
-http://members.home.net/subba9/
-
-GPG public key ID 27FC9217
-Key fingerprint = 2B4C 498E 1860 5A2B 6570  5852 7527 882A 27FC 9217

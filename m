@@ -1,90 +1,198 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291736AbSBAMTO>; Fri, 1 Feb 2002 07:19:14 -0500
+	id <S291733AbSBAMPY>; Fri, 1 Feb 2002 07:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291739AbSBAMTF>; Fri, 1 Feb 2002 07:19:05 -0500
-Received: from mons.uio.no ([129.240.130.14]:29899 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S291736AbSBAMSx>;
-	Fri, 1 Feb 2002 07:18:53 -0500
+	id <S291736AbSBAMPF>; Fri, 1 Feb 2002 07:15:05 -0500
+Received: from mail1.infineon.com ([192.35.17.229]:21907 "EHLO
+	mail1.infineon.com") by vger.kernel.org with ESMTP
+	id <S291733AbSBAMOz>; Fri, 1 Feb 2002 07:14:55 -0500
+X-Envelope-Sender-Is: tdsc.af@infineon.com (at relayer mail1.infineon.com)
+Message-ID: <3C5A86B2.FE64D41@infineon.com>
+Date: Fri, 01 Feb 2002 13:14:42 +0100
+From: TDSCAF <tdsc.af@infineon.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15450.34719.324396.430917@charged.uio.no>
-Date: Fri, 1 Feb 2002 13:18:39 +0100
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.3]  VFS fix for open(".") breakage under
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: linux-kernel@vger.kernel.org
+CC: Fluegel Albert <Albert.Fluegel.GP@mchr2.siemens.de>
+Subject: Re: autofs4 problem
+In-Reply-To: <3C1E245C.4D44542F@mchr2.siemens.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-distributed filesystems
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Hi,
+
+i posted the stuff below several weeks ago. Now we observed
+a phenomenon related to system time. So a basic question:
+Could it be, autofs4 gets screwed up, when an ntpd modifies
+the system time without slew i.e. as a step wider than
+several seconds ?
+
+Thanks in advance, please respond to Albert.Fluegel.GP@mchr2.siemens.de
+
+ Albert
 
 
-The following is the fix for the open(".")/open("..") problems
-that are hitting distributed file systems such as OpenGFS, and NFS.
+Fluegel Albert wrote:
+> 
+> Hello,
+> 
+> i have a really severe autofs4 problem. Kernel is 2.4.7,
+> Redhat-7.0, Hardware is a Fujitsu/Siemens HPC Line dual
+> Processor, so kernel is built with SMP turned on. automounter
+> Daemon is 4.0.0pre10 . gcc is 2.96:
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+> gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)
+> RAM is 2 GB, CPU: Pentium III (Coppermine), 256 kb Cache,
+> Boot disk is an IDE disk, a SCSI Symbios 53c1010 hostadapter and
+> a connected additional disk is installed, but not used, the
+> SCSI-adapter driver isn't loaded. IDE controller is
+> ServerWorks OSB4.
+> 
+> I'm desperately trying to find the reason for my quite
+> reproducible problem (it's not the locking thing in the kernel
+> that has been fixed since quite a while)
+> 
+> Assume an map like that:
+> 
+> kaefer -rw /tmp2 kaefer:/tmp2
+> gustav -rw /tmp2 gustav:/tmp2
+> distel -rw /tmp2 distel:/tmp2
+> averna -rw /tmp2 averna:/tmp2
+> solp1 -rw /tmp2 solp1:/tmp2
+> ...
+> host-1 -rw /tmp2 host-1:/tmp2
+> host-2 -rw /tmp2 host-2:/tmp2
+> ...
+> 
+> i.e. all of those hosts have a /tmp2 directory, that is exported
+> properly. Automounter Daemon runs with the following args:
+> 
+> automount -t 1 /mnt/my-subdir yp map-name grpid,hard,nodevs,nosymlink
+> 
+> (or with file instead yp, makes no difference)
+> 
+> Basically we don't want a timeout, which is that short. But it
+> helps to reproduce the problem within minutes. Otherwise it
+> shows up after some hours, what is not acceptable for users
+> with long-running compute jobs. The software accesses the
+> /tmp2 directories and home-direcotries (also autofs-Mounted)
+> from time to time and once within a few hours the users see
+> either a "Permission denied" or "Directory does not exist".
+> And this happens with that stress test, too. Assume the following
+> script:
+> 
+> #!/bin/sh
+> 
+> # build a list of files to touch within one command
+> I=1
+> while [ $I -le 32 ] ; do
+>   FILES="$FILES /mnt/my-subdir/host-$I/tmp2/affile"
+>   I=`expr $I + 1`
+> done
+> 
+> while true ; do
+>   echo 'trying to touch and ls'
+>   touch $FILES
+>   if [ $? -ne 0 ] ; then
+>     exit 1
+>   fi
+>   ls -ld $FILES
+> 
+>   date
+> 
+>   /bin/rm -f /tmp/bla
+>   head -4c /dev/random > /tmp/bla
+>   RANDNUM=`sum /tmp/bla | awk '{print $1}'`
+>   WAITTIME=`expr '(' $RANDNUM ')' / 2 + 980000`
+> 
+> # random sleep time between 980 ms and ~ 1020 with script
+> # interpretatin ... delay - neglible
+> 
+>   ls -ld $FILES>/dev/null
+>   usleep $WAITTIME
+> done
+> 
+> What i try to achieve with that random delay is, that
+> during expire of the 32 mounts another access to them
+> occurs and this in fact happens quite frequently, some-
+> times leading to the mentioned error message during
+> touch, followed by the exit 1, sometimes not. I wouldn't
+> have a problem, if the problem showed up only under this
+> stress test, but it's happening also under `normal'
+> circumstances. This test runs between few seconds and
+> several (say, 20) minutes until failing. It is not
+> depending on the kind of NFS-Server. This can be either
+> a Linux or Sun machine. No notable difference. I tcpdumped
+> the network traffic. No clue. Or better: i can see, that
+> no new mount request is leaving the machine directed to
+> the server, that supplies one of the directories. Sometimes
+> the touch complains about olny one missing directory,
+> sometimes about 8 or so, in successive order (e.g.:
+> /mnt/my-subdir/host-7/tmp2 through /mnt/my-subdir/host-12/tmp2 )
+> 
+> I suspect, that the autofs4 returns from the revalidate thinking,
+> sth has been or is mounted, but has not in reality or has been
+> expired in the meantime. I experimented a lot. I modified
+> the daemon to serialize the mounts, not just fork and
+> report to the kernel, when done. Didn't help. Have a lot
+> of strace output about that. Looks all ok. So i suspected,
+> it's the kernel autofs4. Found several things, that looked
+> weird to me and modified them, but no success. What i tried
+> (please don't laugh, maybe some of the stuff is ridiculous):
+> 
+> * protected the queues linked list using a spinlock during
+>   traversal and modification against parallel accesses
+> 
+> * modified the autofs4_wait function in several more ways
+>   to have the queues list distinguish between the different
+>   notification requests. (If thought it might be a problem,
+>   that a mount request is being added, but finding an expire
+>   request, thinking 'oh, we have that already, can jump on the
+>   request for mount', though in fact waiting for expire, but i
+>   was wrong here, one more time)
+> 
+> * added an additional flag, cause i thought, it might happen
+>   during execution of the first lines of try_to_fill_dentry,
+>   where the dcache is not yet locked, that the test for
+>   AUTOFS_INF_EXPIRING fails and one thread/CPU walks on
+>   through the function while another CPU works in parallel
+>   on an ioctl-issued autofs4_expire_multi and before setting
+>   the flag, the other thread has passed the if. I added another
+>   flag, that is set in try_to_fill_dentry and checked in
+>   the autofs4_expire_multi to avoid, that the mountpoint in
+>   question will be expired, when not expected to expire.
+>   But this wasn't the problem either.
+> 
+> I have tons of syslog and strace -f output of the daemon, but
+> no more clues here.
+> 
+> This problem is quite a show-stopper here, otherwise we must
+> set the expire time to infinite, what is not really desirable
+> or we must use the userspace amd :-(
+> 
+> Any hint how to narrow the problem is appreciated.
+> 
+> Thanks for reading and with kindest regards,
+> 
+>  Albert
+> 
+> --
+> Albert Flügel              Tel.:   +49-89-636-27690
+> science+computing AG       Fax.:   +49-89-636-21950
+> bei: Infineon AG           D1:     +49-171-3698673
+> E-Mail:                    Albert.Fluegel.gp@mchr2.siemens.de
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The problem is that in the case where the final element of a path is
-'.' or '..', then link_path_walk() does not actually check that the
-resulting dentry is valid.
-
-For the case of NFS, this results in 2 breakages:
-
-  - Resulting dentry may be stale, and so the open() may succeed, but
-    still results in an invalid file.
-
-  - Attribute and data cache checking upon open(), which is normally
-    done as part of the lookup process, gets circumvented, and so you
-    end up with strange inconsistencies.
-    Typical result is 'ls -l' returning "file 'blah' does not exist"
-    errors.
-
-Cheers,
-  Trond
-
-
-diff -u --recursive --new-file linux-2.5.3/fs/namei.c linux-2.5.3-cto/fs/namei.c
---- linux-2.5.3/fs/namei.c	Tue Jan 15 22:53:51 2002
-+++ linux-2.5.3-cto/fs/namei.c	Fri Feb  1 13:00:39 2002
-@@ -457,7 +457,7 @@
- 	while (*name=='/')
- 		name++;
- 	if (!*name)
--		goto return_base;
-+		goto return_reval;
- 
- 	inode = nd->dentry->d_inode;
- 	if (current->link_count)
-@@ -576,7 +576,7 @@
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
- 			case 1:
--				goto return_base;
-+				goto return_reval;
- 		}
- 		if (nd->dentry->d_op && nd->dentry->d_op->d_hash) {
- 			err = nd->dentry->d_op->d_hash(nd->dentry, &this);
-@@ -627,6 +627,19 @@
- 			nd->last_type = LAST_DOT;
- 		else if (this.len == 2 && this.name[1] == '.')
- 			nd->last_type = LAST_DOTDOT;
-+return_reval:
-+		/*
-+		 * We bypassed the ordinary revalidation routines.
-+		 * Check the cached dentry for staleness.
-+		 */
-+		dentry = nd->dentry;
-+		if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-+			err = -ESTALE;
-+			if (!dentry->d_op->d_revalidate(dentry, 0)) {
-+				d_invalidate(dentry);
-+				break;
-+			}
-+		}
- return_base:
- 		return 0;
- out_dput:
+-- 
+Albert Flügel              Tel.:   +49-89-636-27690
+science+computing AG       Fax.:   +49-89-636-21950
+bei: Infineon AG           D1:     +49-171-3698673
+E-Mail:                    Albert.Fluegel.gp@mchr2.siemens.de
+Technical Project Leader TDSC

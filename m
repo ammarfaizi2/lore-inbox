@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbREVQ7f>; Tue, 22 May 2001 12:59:35 -0400
+	id <S262658AbREVRDz>; Tue, 22 May 2001 13:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbREVQ7Y>; Tue, 22 May 2001 12:59:24 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:17031 "EHLO
-	nynetops04.e-steel.com") by vger.kernel.org with ESMTP
-	id <S262658AbREVQ7I>; Tue, 22 May 2001 12:59:08 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
-Subject: Re: Carefull: The Mawanella message has a virus with it. (
-Date: 22 May 2001 12:59:02 -0400
-Organization: e-STEEL Netops news server
-Message-ID: <m3lmnpl3qh.fsf@shookay.e-steel.com>
-In-Reply-To: <A9A0BD39062FD411847B0000F6F13B7202F57AAE@SERVMSG3>
-NNTP-Posting-Host: shookay.e-steel.com
+	id <S262665AbREVRDp>; Tue, 22 May 2001 13:03:45 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:31247 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S262653AbREVRDe>;
+	Tue, 22 May 2001 13:03:34 -0400
+Date: Tue, 22 May 2001 20:03:20 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Tony Hoyle <tmh@magenta-netlogic.com>,
+        "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-ppp@vger.kernel.org
+Subject: Re: ECN is on!
+Message-ID: <20010522200320.O5947@mea-ext.zmailer.org>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net> <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu> <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca> <3B0A8D16.2050400@magenta-netlogic.com> <200105221623.f4MGNTa02164@mobilix.atnf.CSIRO.AU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: nynetops04.e-steel.com 990547059 9054 192.168.3.43 (22 May 2001 15:57:39 GMT)
-X-Complaints-To: news@nynetops04.e-steel.com
-NNTP-Posting-Date: 22 May 2001 15:57:39 GMT
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Content-Disposition: inline
+In-Reply-To: <200105221623.f4MGNTa02164@mobilix.atnf.CSIRO.AU>; from rgooch@ras.ucalgary.ca on Tue, May 22, 2001 at 12:23:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-etienne.baudrillard@ftms.fr ("BAUDRILLARD ETIENNE") writes:
+  FOLKS, I HAVE ALL THE TIME USED 'Reply-To:' HEADER POINTING
+  TO  linux-kernel -- INSTEAD OF ALL THE LISTS...
 
-> Carefull: The Mawanella message has a virus with it. (Mawanella.vbs)
+  If you want to continue this, do it there.
+  (Before I decide to taboo "Re: ECN is on!" subject line..)
 
-Because I presume that most of us use Unix, we do not really care... Thanks
-anyway!
--- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+
+On Tue, May 22, 2001 at 12:23:29PM -0400, Richard Gooch wrote:
+...
+> Well, while that would be somewhat satisfying, there is a problem if
+> the message gets corrupted by this. And since some people send to the
+> list without being subscribed (or, like me, have duplicate filtering),
+> they'll never see that their message was mangled as it passed through
+> the list.
+> 
+> Nope, a bounce is better. If you're going to do these things, feedback
+> is essential. The bounce isn't meant to offend the sender, it's
+> designed to let them know what's happening.
+
+	The only GOOD time to bounce is at SMTP reception
+	into VGER, not latter.  It doesn't have facilities
+	to do all what Majordomo taboo filters do now.
+	(Just because I have been lazy and haven't done
+	 any such content filters for vger.)
+
+	With ECN on, emailed bounce messages won't (necessarily)
+	make it to the sender at all.
+
+	Majordomo's filter bounces the message to be approved
+	by list owner -- who usually uses the 'D' key to my
+	knowledge.
+
+> 				Regards,
+> 
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+
+/Matti Aarnio

@@ -1,77 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S276157AbUKBAAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUKAX4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S276157AbUKBAAF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 19:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S290579AbUKAX4n
+	id S266692AbUKAX4W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S383770AbUKAXzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:56:43 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.71]:20904 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266282AbUKAXqq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 18:46:46 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>, adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] Help re Frame Buffer/Console Problems
-Date: Tue, 2 Nov 2004 07:46:24 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-fbdev-devel@lists.sourceforge.net, jsimmons@infradead.org,
-       geert@linux-m68k.org, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-       wli@holomorphy.com
-References: <Pine.LNX.4.10.10411011719270.2438-100000@mtfhpc.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.10.10411011719270.2438-100000@mtfhpc.demon.co.uk>
+	Mon, 1 Nov 2004 18:55:18 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:63634 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266692AbUKAXsD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 18:48:03 -0500
+Date: Mon, 01 Nov 2004 15:47:23 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@novell.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+Message-ID: <176650000.1099352843@flay>
+In-Reply-To: <20041101223419.GG3571@dualathlon.random>
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200411020746.27871.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 November 2004 01:32, Mark Fortescue wrote:
-> Hi all,
->
-> Thanks for the info Antonino. I see you spotted my typing error. Yes it is
-> the 2.6.10-rc1-bk6 kernel. The oter error is the 2.2.8.1. It should be
-> 2.6.8.1.
->
-> The cgthree driver does not currently set up the all->info.var.red,
-> all->info.var.green or all->info.var.blue structures. Putting a value of 8
-> in the length field of these structures (correct for the cgthree) does get
-> me my logo back but I am still getting black on black text. It makes it
-> very difficult to read. It is begining to look like there is something
-> werid going on with the colour pallet stuf for PSEUDO_COLOUR.
->
+Apologies to akpm if you're not getting this directly ... OSDL is spitting
+my email back as spam.
 
-I doubt that the problem is at the driver layer since you were able to
-see the logo. It's probably higher up.
+> On Mon, Nov 01, 2004 at 10:03:56AM -0800, Martin J. Bligh wrote:
+>> [..] it was to stop cold
+>> allocations from eating into hot pages [..]
+> 
+> exactly, and I believe that hurts. bouncing on the global lock is going to
+> hurt more than preserving an hot page (at least on a 512-way). Plus the
+> cold page may very soon become hot too.
 
-Try this mod, hardwire the foreground color to 0x07.
+? which global lock are we talking about now? the buddy allocator? mmm,
+yes, might well do. OTOH, with hot/cold pages the lock should hardly
+be contended at all (512-ways scare me, yes ... but they're broken in
+lots of other ways ;-) ... do we have lockmeter data from one?
+ 
+> Plus you should at least allow an hot allocation to eat into the cold
+> pages (which didn't happen IIRC).
 
-Edit drivers/video/console/bitblit.c:bit_putcs() and change this line:
+I think the hotlist was set to refill from the cold list before it refilled
+from the buddy ... or it was at one point.
+ 
+> I simply believe using the lru ordering is a more efficient way to
+> implement hot/cold behaviour and it will save some minor ram too (with
+> big lists the reservation might even confuse the oom conditions, if the
+> allocation is hot, but the VM frees in the cold "stopped" list). I know
+> the cold list was a lot smaller so this is probably only a theoretical
+> issue.
 
-image.fg_color = fg;
-image.bg_color = bg;
+well, it'd only save RAM in theory on SMP systems where the load was
+very unevenly distributed across CPUs ... it's out of the reserved pool.
 
-to
+>> Yeah, we got bugger-all benefit out of it. The only think it might do
+>> is lower the latency on inital load-spikes, but basically you end up
+>> paying the cache fetch cost twice. But ... numbers rule - if you can come
+>> up with something that helps a real macro benchmark, I'll eat my non-existant
+>> hat ;-)
+> 
+> I've no idea if it will help... I only knows it helps the micro ;), but I
+> don't measure any slowdown.
+> 
+> Note that my PG_zero will boost 200% the micro benchmark even without
+> the idle zeroing enabled, if a big app quits all ptes will go in PG_zero
+> quicklist and the next 2M allocation of anonymous memory won't require
+> clearing. That has no downside at all. That's not something that can be
+> achieved with slab, plus slab wastes ram as well and it has more
+> overhead than PG_zero.
 
-image.fg_color = 0x07070707;
-image.bg_color = 0x0;
+Let's see what it does on the macro-benchmarks ;-)
 
-You can also try the reverse:
-
-image.fg_color = 0x0;
-image.bg_color = 0x07070707
-
-If you get visible text, the problem is either in fbcon.c or vt.c.
-
-Tony
-
+M.
 

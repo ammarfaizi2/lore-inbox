@@ -1,39 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318163AbSGPU6j>; Tue, 16 Jul 2002 16:58:39 -0400
+	id <S317986AbSGPUzc>; Tue, 16 Jul 2002 16:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSGPU6i>; Tue, 16 Jul 2002 16:58:38 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:64241 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318163AbSGPU53>; Tue, 16 Jul 2002 16:57:29 -0400
-Subject: Re: Tyan s2466 stability
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kurt Garloff <kurt@garloff.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020716205113.GC23954@nbkurt.etpnet.phys.tue.nl>
-References: <Pine.LNX.4.33.0207161020280.2603-100000@tyan.doghouse.com>
-	<1026834468.2119.61.camel@irongate.swansea.linux.org.uk> 
-	<20020716205113.GC23954@nbkurt.etpnet.phys.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Jul 2002 23:10:46 +0100
-Message-Id: <1026857446.1688.76.camel@irongate.swansea.linux.org.uk>
+	id <S317990AbSGPUy6>; Tue, 16 Jul 2002 16:54:58 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:11480 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317984AbSGPUxm>;
+	Tue, 16 Jul 2002 16:53:42 -0400
+Date: Tue, 16 Jul 2002 13:56:38 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] : ir255_nsc_speed-4.diff
+Message-ID: <20020716135638.F28412@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-16 at 21:51, Kurt Garloff wrote:
-> > I've seen it with IDE burners too. I don't know what the cause is
-> 
-> Strange SMI stuff, maybe?
-> Bugs with PCI arbitration that are recovered from but take time?
-> 
-> You've probably already looked into those, though.
+ir255_nsc_speed-4.diff :
+----------------------
+	o [FEATURE] Cleanly change speed back to 9600bps
+	o [CORRECT] Change speed under spinlock/irq disabled
 
-I've read the errata but thats not given me any clues. The box is fast,
-including PCI bandwidth measurements but neither PCI card or SCSI
-streaming to tape or CD-R works well. The motherboard IDE works a treat
-and the 64bit slots give me excellent performance (but thats a raid card
-so I can't yet use it for tape)
 
+diff -u -p linux/include/net/irda/nsc-ircc.d2.h linux/include/net/irda/nsc-ircc.h
+--- linux/include/net/irda/nsc-ircc.d2.h	Mon Jul 15 16:13:58 2002
++++ linux/include/net/irda/nsc-ircc.h	Mon Jul 15 16:18:55 2002
+@@ -253,6 +253,7 @@ struct nsc_ircc_cb {
+ 	
+ 	__u32 flags;               /* Interface flags */
+ 	__u32 new_speed;
++	int speed_cnt;		   /* Number of frames before speed change */
+ 	int index;                 /* Instance index */
+ 
+         struct pm_dev *dev;
+diff -u -p linux/drivers/net/irda/nsc-ircc.d2.c linux/drivers/net/irda/nsc-ircc.c
+--- linux/drivers/net/irda/nsc-ircc.d2.c	Mon Jul 15 15:42:50 2002
++++ linux/drivers/net/irda/nsc-ircc.c	Tue Jul 16 10:43:37 2002
+@@ -953,6 +953,7 @@ static void nsc_ircc_change_dongle_speed
+  *
+  *    Change the speed of the device
+  *
++ * This function *must* be called with irq off and spin-lock.
+  */
+ static void nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 speed)
+ {
+@@ -1048,7 +1049,6 @@ static void nsc_ircc_change_speed(struct
+     	
+ 	/* Restore BSR */
+ 	outb(bank, iobase+BSR);
+-	netif_wake_queue(dev);
+ 	
+ }
+ 
+@@ -1074,20 +1074,30 @@ static int nsc_ircc_hard_xmit_sir(struct
+ 
+ 	netif_stop_queue(dev);
+ 		
++	/* Make sure tests *& speed change are atomic */
++	spin_lock_irqsave(&self->lock, flags);
++	
+ 	/* Check if we need to change the speed */
+ 	speed = irda_get_next_speed(skb);
+ 	if ((speed != self->io.speed) && (speed != -1)) {
+-		/* Check for empty frame */
++		/* Check for empty frame. */
+ 		if (!skb->len) {
+-			nsc_ircc_change_speed(self, speed); 
++			/* If we just sent a frame, we get called before
++			 * the last bytes get out (because of the SIR FIFO).
++			 * If this is the case, let interrupt handler change
++			 * the speed itself... Jean II */
++			if (self->io.direction == IO_RECV)
++				nsc_ircc_change_speed(self, speed); 
++			else
++				self->new_speed = speed;
++			spin_unlock_irqrestore(&self->lock, flags);
+ 			dev_kfree_skb(skb);
++			netif_wake_queue(dev);
+ 			return 0;
+ 		} else
+ 			self->new_speed = speed;
+ 	}
+ 
+-	spin_lock_irqsave(&self->lock, flags);
+-	
+ 	/* Save current bank */
+ 	bank = inb(iobase+BSR);
+ 	
+@@ -1126,20 +1136,34 @@ static int nsc_ircc_hard_xmit_fir(struct
+ 
+ 	netif_stop_queue(dev);
+ 	
++	/* Make sure tests *& speed change are atomic */
++	spin_lock_irqsave(&self->lock, flags);
++
+ 	/* Check if we need to change the speed */
+ 	speed = irda_get_next_speed(skb);
+ 	if ((speed != self->io.speed) && (speed != -1)) {
+-		/* Check for empty frame */
++		/* Check for empty frame. */
+ 		if (!skb->len) {
+-			nsc_ircc_change_speed(self, speed); 
++			/* If we are currently transmitting, defer to
++			 * interrupt handler. - Jean II */
++			if(self->tx_fifo.len == 0)
++				nsc_ircc_change_speed(self, speed); 
++			else {
++				self->new_speed = speed;
++				self->speed_cnt = self->tx_fifo.len;
++			}
++			spin_unlock_irqrestore(&self->lock, flags);
+ 			dev_kfree_skb(skb);
++			netif_wake_queue(dev);
+ 			return 0;
+-		} else
++		} else {
+ 			self->new_speed = speed;
++			/* Save the number of frames currently in the fifo
++			 * so that we know *when* to change the speed. */
++			self->speed_cnt = self->tx_fifo.len + 1;
++		}
+ 	}
+ 
+-	spin_lock_irqsave(&self->lock, flags);
+-
+ 	/* Save current bank */
+ 	bank = inb(iobase+BSR);
+ 
+@@ -1334,16 +1358,23 @@ static int nsc_ircc_dma_xmit_complete(st
+ 		self->stats.tx_packets++;
+ 	}
+ 
+-	/* Check if we need to change the speed */
+-	if (self->new_speed) {
+-		nsc_ircc_change_speed(self, self->new_speed);
+-		self->new_speed = 0;
+-	}
+-
+ 	/* Finished with this frame, so prepare for next */
+ 	self->tx_fifo.ptr++;
+ 	self->tx_fifo.len--;
+ 
++	/* Check if we need to change the speed.
++	 * Do it after self->tx_fifo.len--; to avoid races with
++	 * nsc_ircc_hard_xmit_fir().
++	 * We do it synchronous to the packets in the fifo, so that's
++	 * why we wait for the right frame to do it. - Jean II */
++	if ((self->new_speed) && (--self->speed_cnt == 0)) {
++		/* There seem to be some issue with corrupting the
++		 * frame just before a speed change. Workaround. Jean II */
++		udelay(100);
++		nsc_ircc_change_speed(self, self->new_speed);
++		self->new_speed = 0;
++	}
++
+ 	/* Any frames to be sent back-to-back? */
+ 	if (self->tx_fifo.len) {
+ 		nsc_ircc_dma_xmit(self, iobase);
+@@ -1634,7 +1665,12 @@ static void nsc_ircc_sir_interrupt(struc
+ 	}
+ 	/* Check if transmission has completed */
+ 	if (eir & EIR_TXEMP_EV) {
+-		/* Check if we need to change the speed? */
++		/* Turn around and get ready to receive some data */
++		self->io.direction = IO_RECV;
++		self->ier = IER_RXHDL_IE;
++		/* Check if we need to change the speed?
++		 * Need to be after self->io.direction to avoid race with
++		 * nsc_ircc_hard_xmit_sir() - Jean II */
+ 		if (self->new_speed) {
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), Changing speed!\n");
+ 			nsc_ircc_change_speed(self, self->new_speed);
+@@ -1649,9 +1685,6 @@ static void nsc_ircc_sir_interrupt(struc
+ 				return;
+ 			}
+ 		}
+-		/* Turn around and get ready to receive some data */
+-		self->io.direction = IO_RECV;
+-		self->ier = IER_RXHDL_IE;
+ 	}
+ 
+ 	/* Rx FIFO threshold or timeout */

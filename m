@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbRAJQ2c>; Wed, 10 Jan 2001 11:28:32 -0500
+	id <S130886AbRAJQcW>; Wed, 10 Jan 2001 11:32:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130886AbRAJQ2W>; Wed, 10 Jan 2001 11:28:22 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:51725 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S130026AbRAJQ2J> convert rfc822-to-8bit; Wed, 10 Jan 2001 11:28:09 -0500
-Message-ID: <3A5C8D2F.79D0A9A5@aixigo.de>
-Date: Wed, 10 Jan 2001 17:26:23 +0100
-From: Tobias Haustein <T.Haustein@aixigo.de>
-Organization: aixigo AG
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.13 i686)
+	id <S132038AbRAJQcM>; Wed, 10 Jan 2001 11:32:12 -0500
+Received: from saraksh.alkar.net ([195.248.191.65]:22799 "EHLO smtp3.alkar.net")
+	by vger.kernel.org with ESMTP id <S130886AbRAJQcC>;
+	Wed, 10 Jan 2001 11:32:02 -0500
+Message-ID: <3A5C8DE7.C9237D88@namesys.botik.ru>
+Date: Wed, 10 Jan 2001 19:29:27 +0300
+From: "Vladimir V. Saveliev" <vs@namesys.botik.ru>
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0-test10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel shouldn't wait for any key in case of error
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Chris Mason <mason@suse.com>
+CC: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect 
+ SuSELinux)
+In-Reply-To: <205320000.979142950@tiny>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Chris Mason wrote:
 
-I found that the kernel (checked on 2.2.16 and 2.2.17) contains at least
-two calls to wait_for_keypress (in drivers/block/rd.c and fs/super.c).
-This is very annoying if you're running a server farm that is located in
-another building.
+> On Wednesday, January 10, 2001 07:02:08 PM +0300 "Vladimir V. Saveliev"
+> <vs@namesys.botik.ru> wrote:
+>
+> > Hi
+> >
+> > Chris Mason wrote:
+> >
+> >> On Wednesday, January 10, 2001 02:32:09 AM +0100 Marc Lehmann
+> >> <pcg@goof.com> wrote:
+> >>
+> >> >>> EIP; c013f911 <filldir+20b/221>   <=====
+> >> > Trace; c013f706 <filldir+0/221>
+> >> > Trace; c0136e01 <reiserfs_getblk+2a/16d>
+> >>
+> >> The buffer reiserfs is sending to filldir is big enough for
+> >> the huge file name, so I think the real fix should be done in VFSland.
+> >>
+> >> But, in the interest of providing a quick, obviously correct fix, this
+> >> reiserfs only patch will refuse to create file names larger
+> >> than 255 chars, and skip over any directory entries larger than
+> >> 255 chars.
+> >>
+> >
+> > Hmm, wouldn't it make existing long named files unreachable?
+> >
+>
+> Yes, that was intentional.  We can make a different version of the patch
+> that changes reiserfs_find_entry to allow opening the large filenames for
+> delete and such.  But, as a quick fix, I wanted to close all possible paths
+> to the long names.
+>
 
-I'd propose a configuration option that allows a user to decide whether
-the kernel is allowed to wait for "any key". Another solution would be
-to provide a timeout.
+Sorry, I still do not understand what you are fixing :)
+
+Btw, I do not see how does fs/readdir.c:fillonedir (I am looking at
+2.4.0-test10) check that buffer provided by user is long enough to keep the
+name in. (that is old_readdir looks broken for me - am I missing something?)
+Whereas filldir seems to check whether there is enough space left in the
+buffer.
+
+Thanks,
+vs
 
 
-Ciao,
-
-Tobias Haustein
-
---
-Dipl. Inform. Tobias Haustein
-
-aixigo AG - Financial Research and Education
-Schloﬂ-Rahe-Straﬂe 15, 52072 Aachen, Germany
-Phone +49 (241) 93 67 37 - 40, Fax +49 (241) 93 67 37 - 99
-E-Mail T.Haustein@aixigo.de, Web http://www.aixigo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

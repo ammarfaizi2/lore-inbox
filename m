@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263958AbTDNVbg (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTDNVbg (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:31:36 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:58299 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263958AbTDNVba (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 17:31:30 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
+	id S263737AbTDNVeN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263739AbTDNVeN (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:34:13 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:18953
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263737AbTDNVeM 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:34:12 -0400
 Subject: Re: [RFC] /sbin/hotplug multiplexor
-Date: Mon, 14 Apr 2003 23:43:17 +0200
-User-Agent: KMail/1.5
+From: Robert Love <rml@tech9.net>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
 Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20030414190032.GA4459@kroah.com> <200304142311.01245.oliver@neukum.org> <20030414213054.GA5700@kroah.com>
-In-Reply-To: <20030414213054.GA5700@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <3E9B2720.7020803@cox.net>
+References: <20030414190032.GA4459@kroah.com>
+	 <200304142209.56506.oliver@neukum.org> <20030414203328.GA5191@kroah.com>
+	 <200304142311.01245.oliver@neukum.org>  <3E9B2720.7020803@cox.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050356754.3664.82.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 14 Apr 2003 17:45:54 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304142343.17802.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-04-14 at 17:24, Kevin P. Fleming wrote:
 
-> > Well, for a little elegance you might introduce subdirectories for each
-> > type of hotplug event and use only them.
->
-> No, that's for the individual scripts/programs to decide.  For example,
-> that's what the current hotplug scripts do, but that's not at all what
-> the udev program wants to do.
+> Personally, this is one reason why I'd much rather see a daemon-based model 
+> where each interested daemon can "subscribe" to the messages it is interested 
+> in. It's very possible (and likely, i.e. udev) that the steps involved for the 
+> daemon to respond to the hotplug event are so lightweight that creating a 
+> subprocess to handle them would be very wasteful.
 
-So have them put a symlink into each subdirectory. This is the way it's
-done for init since times immemorial.
+This screams for d-bus.
 
-	Regards
-		Oliver
+I spent the weekend reading about it and I spoke with some of the d-bus
+hackers.
+
+It is really neat and certainly something we should look into.
+
+See http://www.freedesktop.org/software/dbus/
+
+	Robert Love
+
 

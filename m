@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbUKLAp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbUKLAbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbUKLAp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbUKLAmF
+	id S262477AbUKLAbm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbUKLA2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 19:42:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63973 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262451AbUKLAjo (ORCPT
+	Thu, 11 Nov 2004 19:28:49 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:59078 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262431AbUKLA1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 19:39:44 -0500
-Date: Thu, 11 Nov 2004 16:39:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org, gniibe@fsij.org
-Subject: Re: [PATCH 2.6.10-rc1 1/2] [m32r] Update for m32r-g00ff
-Message-Id: <20041111163927.1edcd1c9.akpm@osdl.org>
-In-Reply-To: <20041111.221223.596521517.takata.hirokazu@renesas.com>
-References: <20041111.221136.576022723.takata.hirokazu@renesas.com>
-	<20041111.221223.596521517.takata.hirokazu@renesas.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Nov 2004 19:27:53 -0500
+Message-ID: <41940384.1000409@g-house.de>
+Date: Fri, 12 Nov 2004 01:27:48 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
+       Greg KH <greg@kroah.com>
+Subject: Re: Oops in 2.6.10-rc1 (almost solved)
+References: <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <4191530D.8020406@g-house.de> <20041109234053.GA4546@lists.us.dell.com> <20041111224331.GA31340@lists.us.dell.com>
+In-Reply-To: <20041111224331.GA31340@lists.us.dell.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takata <takata@linux-m32r.org> wrote:
->
->  - Position-independent zImage support;
->    this aims at removing constraints of zImage(vmlinuz)'s location.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This generates a reject against Linus's current tree, in
-arch/m32r/boot/compressed/Makefile
+Matt Domsch schrieb:
+> 
+> As Linus points out, those are the magic numbers in EDD for number of
+> device entries stored.  Your BIOS seems to be reporting that is has
+> more devices than it does, or the EDD assembly is horked in a way I
+> have not yet deciphered.
 
-Please always generate diffs against current bitkeeper, or against the
-latest diff from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
-2.6.10-rc1 is too old: we're currently showing a ten megabyte diff against
-2.6.10-rc1.
+actually, my BIOS is even to old for e.g. ACPI, with latest firmware
+installed. i had no issues so far with the board/bios, but perhaps this is
+no longer true. however, it's still strange that this thing is only
+triggerd with you change and CONFIG_EDD=y.
 
+> 
+> I haven't been able to find a solution to your problem yet, and given
+> some external time constraints I've got, won't be able to look into
+> this again for another week or more.
 
-I resolved the reject as below.  It might be wrong.
+nevermind then. as nobody else seem to be bothered by this i am happy with
+the workarund (CONFIG_EDD=n) and since the lkml-archives exist we could
+get back to it when it's bothering more people (n>1)
 
---- 25/arch/m32r/boot/compressed/Makefile~m32r-update-for-m32r-g00ff	2004-11-11 16:35:23.789252008 -0800
-+++ 25-akpm/arch/m32r/boot/compressed/Makefile	2004-11-11 16:35:23.800250336 -0800
-@@ -5,10 +5,10 @@
- #
- 
- targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o \
--		   m32r-sio.o piggy.o vmlinux.lds
-+		   piggy.o vmlinux.lds
- EXTRA_AFLAGS	:= -traditional
- 
--OBJECTS = $(obj)/head.o $(obj)/misc.o $(obj)/m32r_sio.o
-+OBJECTS = $(obj)/head.o $(obj)/misc.o
- 
- #
- # IMAGE_OFFSET is the load offset of the compression loader
-@@ -28,6 +28,8 @@ $(obj)/vmlinux.bin: vmlinux FORCE
- $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,gzip)
- 
-+CFLAGS_misc.o += -fpic
-+
- LDFLAGS_piggy.o := -r --format binary --oformat elf32-m32r-linux -T
- OBJCOPYFLAGS += -R .empty_zero_page
- 
+thank you for your time,
+Christian.
+- --
+BOFH excuse #396:
 
+Mail server hit by UniSpammer.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBlAOE+A7rjkF8z0wRAkyLAJ4uy4LYBHWk8Wxwr/heQRVm7VOXfwCfW30C
+Zv1RdMYf1VOBEGkUnkQ+k0Q=
+=f2hG
+-----END PGP SIGNATURE-----

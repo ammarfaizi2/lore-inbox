@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUG1V7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUG1WEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUG1V7b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUG1V6E
+	id S264377AbUG1WEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUG1WEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:58:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29411 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265119AbUG1V5k (ORCPT
+	Wed, 28 Jul 2004 18:04:16 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:13283 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264377AbUG1WEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:57:40 -0400
-Date: Wed, 28 Jul 2004 15:00:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: olh@suse.de, linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
-       Sylvain Munaut <tnt@246tNt.com>
-Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14
- check
-Message-Id: <20040728150052.4effe78a.akpm@osdl.org>
-In-Reply-To: <20040728154630.GN10891@smtp.west.cox.net>
-References: <20040728154630.GN10891@smtp.west.cox.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jul 2004 18:04:14 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] don't pass mem_map into init functions
+Date: Wed, 28 Jul 2004 14:58:37 -0700
+User-Agent: KMail/1.6.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-mm <linux-mm@kvack.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1091048123.2871.435.camel@nighthawk>
+In-Reply-To: <1091048123.2871.435.camel@nighthawk>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407281458.37344.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org> wrote:
->
-> The following patch does three things.  First, it removes all instances
-> of:
-> ifeq ($(CONFIG_FOO),y)
-> AFLAGS += -Wa,-mfoo
-> endif
-> 
-> and makes us set them once in arch/ppc/Makefile, via
-> aflags-$(CONFIG_FOO), just like we do for CFLAGS.  Next it adds a test
-> for gcc-3.4 and binutils-2.14.  The problem with this combination is
-> that the -many flag is broken in binutils-2.14 and gcc-3.4 will pass it
-> down, causing other flags to be overridden and the compile to fail.
-> Changing gcc or binutils versions fixes this.  Finally, it changes
-> places in the Makefiles where we did:
-> ifeq ($(CONFIG_FOO),y)
-> obj-$(CONFIG_BAR) += foo_bar.o
-> endif
-> into
-> obj-$(CONFIG_FOO) += $(bar-y)
-> bar-$(CONFIG_BAR) += foo_bar.o
+On Wednesday, July 28, 2004 1:55 pm, Dave Hansen wrote:
+> Compile tested on SMP x86 and NUMAQ.  I plan to give it a run on ppc64
+> in a bit.  I'd appreciate if one of the ia64 guys could make sure it's
+> OK for them as well.
 
-Unfortunately this has significant clashes with the mpc52xx bk tree
-which I'm carrying.
+It *looks* ok.  I'll give it a whirl to make sure.
 
-That patch has been sitting around for several weeks now - can we get it
-merged up first?
-
+Jesse

@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUI0RgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUI0Rtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266674AbUI0RgG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 13:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUI0RgG
+	id S266839AbUI0Rtb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 13:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUI0Rtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 13:36:06 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:40078 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S266674AbUI0RgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 13:36:01 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux PM core problems
-Date: Mon, 27 Sep 2004 19:34:32 +0200
-User-Agent: KMail/1.6.2
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>, Pavel Machek <pavel@suse.cz>,
-       "" <greg@kroah.com>
-References: <Pine.LNX.4.44L0.0409252323180.15218-100000@netrider.rowland.org> <200409270952.35467.david-b@pacbell.net> <Pine.LNX.4.50.0409270953140.32506-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0409270953140.32506-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 27 Sep 2004 13:49:31 -0400
+Received: from loncoche.terra.com.br ([200.154.55.229]:56731 "EHLO
+	loncoche.terra.com.br") by vger.kernel.org with ESMTP
+	id S266839AbUI0Rt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 13:49:29 -0400
+Date: Mon, 27 Sep 2004 13:53:30 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5]: usb-serial cleanup.
+Message-Id: <20040927135330.428851a9.lcapitulino@conectiva.com.br>
+Organization: Conectiva S/A.
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409271934.32759.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 27. September 2004 19:02 schrieb Patrick Mochel:
-> 
-> On Mon, 27 Sep 2004, David Brownell wrote:
-> 
-> > What, the audience that understands USB shouldn't be expected
-> > to (a) discuss USB-related PM issues, except on non-USB lists; or
-> > (b) involve developers who know other parts of PM?  Nonsense.
-> 
-> I didn't say that. But, the thread (especially given the Subject) is about
-> how the core works. And, most of the relevant USB people seem to be on
-> linux-kernel, or can easily be cc'd as well. And, what about Benh, who has
-> suffered through this problems on ppc for just as long?
+ Hi Greg,
 
-OK, the cc list can easily be extended.
+ I did some trivial cleanup in usb-serial subsystem code
+(drivers/usb/serial/usb-serial.c).
 
-[..]
-> > There's been a notable lack of discussion about USB-related PM issues,
-> > except in these recent threads.  So "read the archives" isn't constructive.
-> 
-> This thread seems to lack USB-centricity. I know you've read the archives
-> and have participated in the discussions. But most, if not all, of the
-> ideas have come up in one form or another (though many with poor timing).
-> We're re-hashing the same discussion over and over. Not that that is a bad
-> thing, because eventually someone will get sick of reading it all just fix
-> the stupid code.
-> 
-> My issue is that core problems are being talked about on a splinter list
-> and they should move to linux-kernel. But, if we're going to do that, it's
-> imperative to understand the history and the context, and know that we
-> have the same problem as we did 4 years ago (albeit with a different
-> playing field).
+ The main change is the first patch, which moves the search
+in device list out of usb_serial_probe(). It is the first
+of some patches to make usb_serial_probe() more simple (today
+it is an very big function).
 
-Why? What makes this field so hard?
-Would you be happy if we listed the problems USB has with the current code?
+ I'm sending only one patch for usb_serial_probe() organization
+because I'm not certain if is the better/right thing to do, so,
+comments and flames are welcome. :)
 
-	Regards
-		Oliver
+ Well, hope some of the patches to be applyed.
+
+ Summary:
+
+[PATCH 1/5]: usb-serial: Moves the search in device list out of usb_serial_probe().
+[PATCH 2/5]: usb-serial: create_serial() return value trivial fix.
+[PATCH 3/5]: usb-serial: return_serial() trivial cleanup.
+[PATCH 4/5]: usb-serial: usb_serial_register() cleanup.
+[PATCH 5/5]: usb-serial: Add module version information.
+
+OBS: The patches are against 2.6.9-rc2-mm4, because your last
+USB tree is there.
+
+ Thanks,

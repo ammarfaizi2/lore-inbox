@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRJaV5g>; Wed, 31 Oct 2001 16:57:36 -0500
+	id <S273854AbRJaWFq>; Wed, 31 Oct 2001 17:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274194AbRJaV51>; Wed, 31 Oct 2001 16:57:27 -0500
-Received: from patan.Sun.COM ([192.18.98.43]:60553 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S273854AbRJaV5Q>;
-	Wed, 31 Oct 2001 16:57:16 -0500
-Message-ID: <3BE07669.5FF78E63@sun.com>
-Date: Wed, 31 Oct 2001 14:08:41 -0800
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12C5_V i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: p_gortmaker@yahoo.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        torvalds@transmeta.com, alan@redhat.com
-Subject: [PATCH] don't reset alarm interrupt on RTC
-Content-Type: multipart/mixed;
- boundary="------------AB321144391FE811EAB37727"
+	id <S273996AbRJaWFh>; Wed, 31 Oct 2001 17:05:37 -0500
+Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:33497 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S273854AbRJaWFc>;
+	Wed, 31 Oct 2001 17:05:32 -0500
+Date: Wed, 31 Oct 2001 23:06:08 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13-smp oops.
+Message-ID: <20011031230608.C6285@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: andersg@0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------AB321144391FE811EAB37727
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+hi,
 
-All,
+I got lots of oopses yesterday on my dual-pII-server running 2.4.13-lvm101rc4.
+The problem are that the oopses from the different proccesors are
+interleaved and cant easily be decoded. should i try to decode them?
+intresting things are that "VFS: Close: file count is 0" messages and a
+"eth0: card reports no resources." apprears between the oopses too.
 
-Attached is a 1-liner to not clear the Alarm-Int-Enable bit automatically
-on the RTC device.  This makes wake-on-alarm possible.
+the oopsen are available at http://0x63.nu/oops20011030.txt
 
-Please let me know if there is a problem with it.  This is against 2.4.13
-for inclusion in 2.4.14.
+the first calltrace decodes to:
 
-Tim
+>>EIP; c0124c70 <lock_vma_mappings+10/28>   <=====
+Trace; c0125ec0 <exit_mmap+80/118>
+Trace; c0115dd6 <mmput+4a/64>
+Trace; c011a18a <do_exit+ba/250>
+Trace; c011a346 <sys_exit+e/10>
+Trace; c0106d7a <system_call+32/38>
+Code;  c0124c70 <lock_vma_mappings+10/28>
+00000000 <_EIP>:
+Code;  c0124c70 <lock_vma_mappings+10/28>   <=====
+   0:   8b 40 08                  mov    0x8(%eax),%eax   <=====
+Code;  c0124c72 <lock_vma_mappings+12/28>
+   3:   8b 90 ac 00 00 00         mov    0xac(%eax),%edx
+Code;  c0124c78 <lock_vma_mappings+18/28>
+   9:   85 d2                     test   %edx,%edx
+Code;  c0124c7a <lock_vma_mappings+1a/28>
+   b:   74 0a                     je     17 <_EIP+0x17> c0124c86 <lock_vma_mappings+26/28>
+Code;  c0124c7c <lock_vma_mappings+1c/28>
+   d:   f0 fe 4a 2c               lock decb 0x2c(%edx)
+Code;  c0124c80 <lock_vma_mappings+20/28>
+  11:   0f 88 b7 00 00 00         js     ce <_EIP+0xce> c0124d3e <sys_brk+92/e8>
+
+And the first on the other cpu to:
+
+>>EIP; c01338b0 <sys_read+28/c4>   <=====
+Trace; c0106d7a <system_call+32/38>
+Code;  c01338b0 <sys_read+28/c4>
+00000000 <_EIP>:
+Code;  c01338b0 <sys_read+28/c4>   <=====
+   0:   8b 50 08                  mov    0x8(%eax),%edx   <=====
+Code;  c01338b2 <sys_read+2a/c4>
+   3:   8b 73 20                  mov    0x20(%ebx),%esi
+Code;  c01338b6 <sys_read+2e/c4>
+   6:   8b 7b 24                  mov    0x24(%ebx),%edi
+Code;  c01338b8 <sys_read+30/c4>
+   9:   83 ba a8 00 00 00 00      cmpl   $0x0,0xa8(%edx)
+Code;  c01338c0 <sys_read+38/c4>
+  10:   74 2e                     je     40 <_EIP+0x40> c01338f0 <sys_read+68/c4>
+Code;  c01338c2 <sys_read+3a/c4>
+  12:   8b 82 00 00 00 00         mov    0x0(%edx),%eax
+  
+  
+
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------AB321144391FE811EAB37727
-Content-Type: text/plain; charset=us-ascii;
- name="drivers_char_rtc.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="drivers_char_rtc.c.diff"
 
-diff -ruN dist-2.4.13+patches/drivers/char/rtc.c linux-2.4/drivers/char/rtc.c
---- dist-2.4.13+patches/drivers/char/rtc.c	Mon Oct  1 16:43:52 2001
-+++ linux-2.4/drivers/char/rtc.c	Mon Oct 29 11:07:42 2001
-@@ -560,7 +560,7 @@
- 	spin_lock_irq(&rtc_lock);
- 	tmp = CMOS_READ(RTC_CONTROL);
- 	tmp &=  ~RTC_PIE;
--	tmp &=  ~RTC_AIE;
-+	//tmp &=  ~RTC_AIE;
- 	tmp &=  ~RTC_UIE;
- 	CMOS_WRITE(tmp, RTC_CONTROL);
- 	CMOS_READ(RTC_INTR_FLAGS);
-
---------------AB321144391FE811EAB37727--
+//anders/g
 

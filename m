@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278886AbRJVUak>; Mon, 22 Oct 2001 16:30:40 -0400
+	id <S278883AbRJVUgV>; Mon, 22 Oct 2001 16:36:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278896AbRJVUaV>; Mon, 22 Oct 2001 16:30:21 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6927 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S278893AbRJVUaO>; Mon, 22 Oct 2001 16:30:14 -0400
-Date: Mon, 22 Oct 2001 18:30:38 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: PinkFreud <pf-kernel@mirkwood.net>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S278882AbRJVUgL>; Mon, 22 Oct 2001 16:36:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61198 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278891AbRJVUfx>; Mon, 22 Oct 2001 16:35:53 -0400
 Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.20.0110221617470.309-100000@eriador.mirkwood.net>
-Message-ID: <Pine.LNX.4.33L.0110221829330.22127-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+To: ttsig@tuxyturvy.com (Tom Sightler)
+Date: Mon, 22 Oct 2001 21:42:20 +0100 (BST)
+Cc: tudorb@pikka.net (Tudor Bosman), linux-kernel@vger.kernel.org
+In-Reply-To: <010a01c15b33$79fedc90$2a040a0a@zeusinc.com> from "Tom Sightler" at Oct 22, 2001 03:55:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vlts-0003Gu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, PinkFreud wrote:
+> Everyone wants to bring up the Sklyarov case, but he didn't just expose the
+> weakness of the code, his company actively sold a product for financial gain
+> that circumvented the protection.  While I still don't think the Sklyarov
 
-> You're preaching to the choir here.  By withholding these
-> changes from US citizens, you're not going to pressure any
-> politicians.
-
-Pressuring US politicians is a job for US citizens.
-
-Why are you asking Alan to risk prison _and_ pressure
-US politicians?  That's something you, as a resident
-of the USA, should be doing yourself.
-
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
+The Felten case is the more relevant one. 

@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319140AbSHGS7Q>; Wed, 7 Aug 2002 14:59:16 -0400
+	id <S319179AbSHGSsv>; Wed, 7 Aug 2002 14:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319141AbSHGS7P>; Wed, 7 Aug 2002 14:59:15 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:47375 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S319140AbSHGS7O>; Wed, 7 Aug 2002 14:59:14 -0400
-Date: Wed, 7 Aug 2002 20:02:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Alexandre Julliard <julliard@winehq.com>
-Subject: Re: [patch] tls-2.5.30-A1
-Message-ID: <20020807200251.A13605@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	Alexandre Julliard <julliard@winehq.com>
-References: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>
+	id <S319180AbSHGSsv>; Wed, 7 Aug 2002 14:48:51 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:898 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S319179AbSHGSss>;
+	Wed, 7 Aug 2002 14:48:48 -0400
+Date: Wed, 7 Aug 2002 20:51:05 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: davidsen@tmr.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Why 'mrproper'?
+Message-ID: <20020807185105.GA268@win.tue.nl>
+References: <20020807170041.GA259@win.tue.nl> <Pine.LNX.4.44.0208071111110.10270-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>; from mingo@elte.hu on Wed, Aug 07, 2002 at 08:10:40PM +0200
+In-Reply-To: <Pine.LNX.4.44.0208071111110.10270-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 08:10:40PM +0200, Ingo Molnar wrote:
+On Wed, Aug 07, 2002 at 11:13:47AM -0600, Thunder from the hill wrote:
+
+> On Wed, 7 Aug 2002, Andries Brouwer wrote:
+> > Funny that you ask this question first now.
+> > mrproper came in 0.99p7
+> > distclean came in 0.99p14 as a synonym for mrproper.
 > 
-> the attached patch (against BK-curr + Luca Barbieri's two TLS patches)  
-> does two things:
+> "Mr. President, this is not exactly true."
 > 
->  - it implements a second TLS entry for Wine's purposes.
+> The 'distclean' target also removes ...
 
-The sys_set_thread_area interface gets worse with every patch you post..
-
-Why do you really need a magic multiplexer syscall (you could have just
-used prctl if you don't need a sane interface..)?
-
-What about a proper interface like:
-
-asmlinkage int
-sys_set_thread_area(int entry, unsigned long base, int writeable)
-
-instead?
-
+Read my letter again. Then check your sources.
+Then see that what I wrote is exactly true.

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275178AbRJKIwV>; Thu, 11 Oct 2001 04:52:21 -0400
+	id <S274034AbRJKIyM>; Thu, 11 Oct 2001 04:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274964AbRJKIwN>; Thu, 11 Oct 2001 04:52:13 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:54155 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S274174AbRJKIwF>;
-	Thu, 11 Oct 2001 04:52:05 -0400
-Message-ID: <64157.212.247.172.29.1002790304.squirrel@webmail.stesmi.com>
-Date: Thu, 11 Oct 2001 10:51:44 +0200 (CEST)
-Subject: =?iso-8859-1?Q?Re:_Uhhuh.._2.4.12?=
-From: "=?iso-8859-1?Q?Stefan_Smietanowski?=" <stesmi@stesmi.com>
-To: <twaugh@redhat.com>
-In-Reply-To: <20011011095018.N10562@redhat.com>
-In-Reply-To: <20011011095018.N10562@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: stesmi@stesmi.com
-X-Mailer: SquirrelMail (version 1.2.0 [rc1])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S274133AbRJKIyB>; Thu, 11 Oct 2001 04:54:01 -0400
+Received: from trantor.dso.org.sg ([192.190.204.1]:24533 "EHLO
+	trantor.dso.org.sg") by vger.kernel.org with ESMTP
+	id <S274034AbRJKIx4>; Thu, 11 Oct 2001 04:53:56 -0400
+Date: Thu, 11 Oct 2001 16:56:36 +0800
+From: Richard Shih-Ping Chan <cshihpin@dso.org.sg>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Richard Chan <cshihpin@dso.org.sg>, linux-kernel@vger.kernel.org
+Subject: Re: -ac10,-ac11 no boot on SMP PentiumII box
+Message-ID: <20011011165636.B1174@cshihpin.dso.org.sg>
+In-Reply-To: <20011011110327.B25934@cshihpin.dso.org.sg> <E15rZx5-0002H4-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15rZx5-0002H4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Oct 11, 2001 at 08:08:19AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
->> Hmm. Does that mean that 2.4.x-ac will become the standard tree or ?
->
-> No, it means that I have to write out 'I will not edit patches by hand
-> without testing them' a thousand times, _without_ using cut and
-> paste..
-
-Wow. What a job. Why don't you code instead ? :)
-
-// Stefan
+I've narrowed it down to the change between 2.4.10-ac8 and 
+-ac9. Maybe it has something to do with CONFIG_X86_PPRO_FENCE?
 
 
+On Thu, Oct 11, 2001 at 08:08:19AM +0100, Alan Cox wrote:
+> > Normally I would expect "Calibrating delay loop..." but no go.
+> > 
+> > Last -ac kernel tried was 2.4.9-ac10 with success.
+> > 2.4.10 stock also works.
+> > 
+> > Has anything affected the CPU startup code?
+> 
+> Not that I am aware of. There are some locking changes in specific cases
+> but I tested that still booted on my dual PPro
+> 
+> Alan
 
+-- 
+Richard Chan <cshihpin@dso.org.sg>
+DSO National Laboratories
+20 Science Park Drive
+Singapore 118230
+Tel: 7727045
+Fax: 7766476

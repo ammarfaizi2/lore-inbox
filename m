@@ -1,55 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136492AbREDUTC>; Fri, 4 May 2001 16:19:02 -0400
+	id <S136501AbREDUXw>; Fri, 4 May 2001 16:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136501AbREDUSw>; Fri, 4 May 2001 16:18:52 -0400
-Received: from colargol.tihlde.hist.no ([158.38.48.10]:56073 "HELO tihlde.org")
-	by vger.kernel.org with SMTP id <S136492AbREDUSS>;
-	Fri, 4 May 2001 16:18:18 -0400
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: added a new feature: disable pc speaker
-In-Reply-To: <8340.988979784@ocs3.ocs-net> <03wv7xm085.fsf@colargol.tihlde.org>
-	<3AF30C5F.7445714F@pcsystems.de>
-From: Oystein Viggen <oysteivi@tihlde.org>
-Organization: Tihlde
-X-Spook: Soviet Treasury Waco, Texas Khaddafi Janet Reno security Croatian 
-X-URL: http://www.tihlde.org/~oysteivi/
-X-Phone-Number: +47 97 11 48 58
-X-Address: Tordenskioldsgt. 12, 7012 Trondheim, Norway
-X-MSMail-Priority: High
-X-Face: R=b-K(^1#]KR?6moG:Wrc/t>p)?p`?bgHg36M3hZ>^?\akat3!nX*8xZpIvZrI#]ZzN`I<+
- L{8#pdH*1SOB$Zu-_e1<>iE$5cGiLhRem.ct.QtE=&v@9\S_6slX4='![%,F3^&ed5Y5g-#!N'Lr[s
- &Gfs3c}pYq^oUo{8l-qD87s[P1~+f([41~gD}Pj)nX|KcVv;tF4IIx%pnN\UL|SNT
-Date: 04 May 2001 22:18:16 +0200
-In-Reply-To: <3AF30C5F.7445714F@pcsystems.de>
-Message-ID: <03snikna0n.fsf@colargol.tihlde.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S136502AbREDUXm>; Fri, 4 May 2001 16:23:42 -0400
+Received: from bitmover.com ([207.181.251.162]:25361 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S136501AbREDUXa>;
+	Fri, 4 May 2001 16:23:30 -0400
+Date: Fri, 4 May 2001 13:23:26 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux@3ware.com
+Subject: Re: 3ware 6410 RAID 10 performance?
+Message-ID: <20010504132326.H6437@work.bitmover.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux@3ware.com
+In-Reply-To: <20010504130103.T22922@work.bitmover.com> <20010504131239.G6437@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20010504131239.G6437@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Nico Schottelius: 
+And yet more data -
 
-> Can somebody give me a hint where to find documentation about
-> sysctl and howto use/program that ?
-> This is what Simon and David suggested.
+Under 2.2.15 using 3ware's driver rather than the one shipped with the
+kernel, one complete read goes at 35MB/sec (nice).  The second one starts
+out there and then drops down to 4MB/sec at the 1.2GB offset.
+
+Here's the cool part - if I unmount, rmmod the driver, insmod, mount, and
+then run again, I get exactly the same behavior as above.
+
+This starts to sound like some resource in the kernel or the card are
+getting used up and removing the card frees them.
+
+Has anyone seen this besides me?
+
+On Fri, May 04, 2001 at 01:12:39PM -0700, Larry McVoy wrote:
+> More data:
 > 
-> But as long as I am not able to make sysctl's, I would like
-> to add this feature under the General setup.
+> the test file is 2GB in size.
+> When I do a reboot and time the reading of the entire file,
+> the first time the performance is great, 27MB.
+> The second time it sucks, 2.7MB.
+> I tried clearing memory by allocating and pounding on an array of 512MB 
+> (size of main mem), that clears out memory but the performance still 
+> sucks.
+> Unmounting and remounting the drive does not help.
 > 
-> What do you think ?
+> Any ideas?
+> 
+> On Fri, May 04, 2001 at 01:01:03PM -0700, Larry McVoy wrote:
+> > I'm looking for people who know about the 3ware 6410 driver.  I've got one
+> > of these and sometimes it goes fast and sometimes it doesn't.  The bad 
+> > case seems to happen after memory has a lot of cached blocks in it.
+> > 
+> > I've tried 2.2.15, 2.4.4, and 2.4.3-ac9 and they all behave pretty similarly.
+> > 
+> > I'm most interested in seeing this fixed in the 2.4 series so if there is
+> > someone who wants to go into a test/debug cycle with me, speak up.  I'd
+> > really like this thing to work well.
+> > 
+> > hardware config:
+> > 
+> > K7 @ 750Mhz
+> > ASUS K7V motherboard
+> > 512MB
+> > 4x 3c905
+> > boot disk on the motherboard
+> > 4 WD 40GB 7200 drives on one 3ware 6410
+> > matrox g200 AGP
+> > -- 
+> > ---
+> > Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-A sysctl would be a lot nicer for distributions, as one could ship a
-standard nosound setup and letting people enable it in rc.sysctl or
-whatever.  This would save you from hearing the clueless users who just
-installed linux (RH 7.2 :) for the first time going *beep* *beep* *beep*
-for hours.
-
-For people who compile their own kernels, a compile time option should
-be quite enough, though.
-
-Oystein
 -- 
-This message was generated by a flock of happy penguins.
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,29 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbTEEPD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 11:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbTEEPD7
+	id S261216AbTEEPNT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 11:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTEEPNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 11:03:59 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:59284 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262305AbTEEPD6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 11:03:58 -0400
-Date: Mon, 5 May 2003 17:16:19 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: C99 initialisers in 2.4?
-Message-ID: <Pine.LNX.4.51.0305051714510.26731@dns.toxicfilms.tv>
+	Mon, 5 May 2003 11:13:19 -0400
+Received: from pop.gmx.de ([213.165.64.20]:5706 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261216AbTEEPNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 11:13:18 -0400
+Message-ID: <3EB68273.90905@gmx.net>
+Date: Mon, 05 May 2003 17:25:39 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: Terje Eggestad <terje.eggestad@scali.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The disappearing sys_call_table export.
+References: <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no> <20030505135211.A21658@infradead.org> <1052142082.2821.169.camel@pc-16.office.scali.no> <20030505144353.B23483@infradead.org> <1052142626.2821.173.camel@pc-16.office.scali.no> <20030505145519.A23727@infradead.org> <3EB674F7.8060807@gmx.net> <20030505153414.A24056@infradead.org>
+In-Reply-To: <20030505153414.A24056@infradead.org>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Hellwig wrote:
+> On Mon, May 05, 2003 at 04:28:08PM +0200, Carl-Daniel Hailfinger wrote:
+> 
+>>LSM?
+> 
+> LSM is explicitly not syscall hooks.  And educated readers of lkml should
 
-I am not sure about C99 initialisers in 2.4.
-Do we want them in 2.4?
-What is the status on this?
+Yes, sorry, I mixed that up with an old Usenix paper.
 
-Regards,
-Maciej
+> know my opinion on LSM...
+
+Um yeah.
+/me puts on asbestos suit
+I remember your patch to remove the nested syscall (sys_security) for
+LSM quite well.
+
+Carl-Daniel
+

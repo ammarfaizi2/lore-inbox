@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266831AbRGLVx4>; Thu, 12 Jul 2001 17:53:56 -0400
+	id <S266780AbRGLVxR>; Thu, 12 Jul 2001 17:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266830AbRGLVxr>; Thu, 12 Jul 2001 17:53:47 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:22400 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S266795AbRGLVxi>;
-	Thu, 12 Jul 2001 17:53:38 -0400
-Message-ID: <XFMail.20010712145643.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S266795AbRGLVw4>; Thu, 12 Jul 2001 17:52:56 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:30226
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S266780AbRGLVws>; Thu, 12 Jul 2001 17:52:48 -0400
+Date: Thu, 12 Jul 2001 17:51:17 -0400
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, Lance Larsh <llarsh@oracle.com>
+cc: Brian Strand <bstrand@switchmanagement.com>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+Message-ID: <384750000.994974677@tiny>
+In-Reply-To: <3B4E173E.74144A96@namesys.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Date: Thu, 12 Jul 2001 14:56:43 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Cleaned /dev/epoll patch ...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The /dev/epoll patch has been cleaned and slightly changed :
 
+On Friday, July 13, 2001 01:31:42 AM +0400 Hans Reiser <reiser@namesys.com> wrote:
 
-1) moved the file callback list handling from fs/file.c to fs/fcblist.c
+> Lance, I would appreciate it if you would be more careful to identify that you are using O_SYNC,
+> which is a special case we are not optimized for, and which I am frankly skeptical should be used at
+> all by an application instead of using fsync judiciously.  It is rare that an application is
+> inherently completely incapable of ever having two I/Os not be serialized, and using O_SYNC to force
+> every IO to be serialized rather than picking and choosing when to use fsync, well, I have my doubts
+> frankly.  If a user really needs every operation to be synchronous, they should buy a system with an
+> SSD for the journal from applianceware.com (they sell them tuned to run ReiserFS), or else they are
+> just going to go real slow, no matter what the FS does.
+> 
 
-2) moved the functions definitions from include/linux/file.h to
-        include/linux/fcblist.h
+There is no reason for reiserfs to be 5 times slower than ext2 at anything ;-)  
+Regardless of if O_SYNC is a good idea or not.  I should have optimized the
+original code for this case, as oracle is reason enough to do it.
 
-3) renamed the patch from /dev/poll to /dev/epoll ( event poll )
-
-4) renamed the devpoll.c(.h) files into eventpoll.c(.h)
-
-5) configuration variable from CONFIG_DEVPOLL to CONFIG_EVENTPOLL
-
-6) fixed a locking issue on SMP
-
-7) kmalloc/vmalloc switch for big chunks of mem
-
-8) increased the maximum number of fds to 128000 ( maybe I'll change this to be
-        unbounded )
-
-9) changed device MINOR to 124
-
-
-
-
-You can find the patch and the test software here :
-
-http://www.xmailserver.org/linux-patches/nio-improve.html
-
-
-
-
-- Davide
+-chris
 

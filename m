@@ -1,93 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130018AbRBEXxR>; Mon, 5 Feb 2001 18:53:17 -0500
+	id <S130685AbRBEX5t>; Mon, 5 Feb 2001 18:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135951AbRBEXxH>; Mon, 5 Feb 2001 18:53:07 -0500
-Received: from mail09.voicenet.com ([207.103.0.35]:52162 "HELO
-	mail09.voicenet.com") by vger.kernel.org with SMTP
-	id <S130018AbRBEXw7>; Mon, 5 Feb 2001 18:52:59 -0500
-Message-ID: <3A7F3CD7.620AF808@voicenet.com>
-Date: Mon, 05 Feb 2001 18:52:55 -0500
-From: safemode <safemode@voicenet.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
-X-Accept-Language: en
+	id <S131983AbRBEX5j>; Mon, 5 Feb 2001 18:57:39 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:23826 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130685AbRBEX53>; Mon, 5 Feb 2001 18:57:29 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Byron Stanoszek <gandalf@winds.org>
+Date: Tue, 6 Feb 2001 10:57:09 +1100 (EST)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /proc/meminfo displays incorrect memory sizes
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14975.15829.623996.534161@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
+In-Reply-To: message from Byron Stanoszek on Monday February 5
+In-Reply-To: <Pine.LNX.4.21.0102051728340.1460-100000@winds.org>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I personally have no way of knowing if it's giving incorrect numbers for
-cache and buffers and used and such ..  but as for total memory,
-something is wrong.  lm sensors tells me i have 288MB of ram, the bootup
-messages say i have 288MB of memory with 4MB being used by the kernel
-and my bios says i have 288MB.   /proc/meminfo, however, says i have
-@167MB.  Is this  correct?  and why ?
-i'm using 2.2.19-pre7   I have agpgart and mtrr compiled in
+On Monday February 5, gandalf@winds.org wrote:
+> Seems recently, on both redhat 6.1 and 7.0 using kernel 2.4.1-ac3, I
+> ran into this problem:
+> 
+> Stopping NFS says the following in the kernel logs:
+> 
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> nfsd: terminating on signal 9
+> svc: server socket destroy delayed
+> 
+> And restarting NFS has the following error message:
+> 
+> root:~> /etc/rc.d/init.d/nfs start
+> Starting NFS services:                                     [  OK  ]
+> Starting NFS quotas:                                       [  OK  ]
+> Starting NFS mountd:                                       [  OK  ]
+> Starting NFS daemon: nfssvc: Address already in use
+>                                                            [FAILED]
 
-< from dmesg >
-Memory: 290412k/294848k available (864k kernel code, 412k reserved,
-3112k data, 48k init)
-Dentry hash table entries: 65536 (order 7, 512k)
-Buffer cache hash table entries: 524288 (order 9, 2048k)
-Page cache hash table entries: 131072 (order 7, 512k)
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 232M
-agpgart: Detected Via Apollo KX133 chipset
-agpgart: AGP aperture is 64M @ 0xd0000000
-bttv: driver version 0.7.54 loaded
-bttv: using 8 buffers with 2080k (16640k total) for
-capture                     that adds to  31.148MB  (used)
+How repeatable is this?  Is the server SMP?
 
-@288MB full    @284MB useable
+There does seem to be a possible problem with sk_inuse not being
+updated atomically, so a race between an increment and a decrement
+could lose one of them.
+svc_sock_release seems to often be called with no more protection than
+the BKL, and it decrements sk_inuse.
 
-< from sensors >
-Adapter: SMBus vt82c596 adapter at 5000
-Algorithm: Non-I2C SMBus adapter
-Memory type:            SDRAM DIMM SPD
-SDRAM Size (MB):        128
+svc_sock_enqueue, on the other hand increments sk_inuse, and is
+protected by sv_lock, but not, I think, by the BKL, as it is called by
+a networking layer callback.  So there might be a possibility for a
+race here.
 
-eeprom-i2c-2-51
-Adapter: SMBus vt82c596 adapter at 5000
-Algorithm: Non-I2C SMBus adapter
-Memory type:            SDRAM DIMM SPD
-SDRAM Size (MB):        64
+The attached patch might fix it, so if you are having reproducable
+problems, it might be worth applying this patch.
 
-eeprom-i2c-2-52
-Adapter: SMBus vt82c596 adapter at 5000
-Algorithm: Non-I2C SMBus adapter
-Memory type:            SDRAM DIMM SPD
-SDRAM Size (MB):        64
+Trond: any comments?
 
-eeprom-i2c-2-53
-Adapter: SMBus vt82c596 adapter at 5000
-Algorithm: Non-I2C SMBus adapter
-Memory type:            SDRAM DIMM SPD
-SDRAM Size (MB):
-32                                                   that adds to 288
+NeilBrown
 
+[ a better fix would be to make sk_inuse atomic_t ]
 
- </proc/meminfo >
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  280281088 276422656  3858432 86532096 69550080 108240896
-Swap: 139821056        0 139821056
-MemTotal:    273712 kB
-MemFree:       3768 kB
-MemShared:    84504 kB
-Buffers:      67920 kB
-Cached:      105704 kB
-SwapTotal:   136544 kB
-SwapFree:    136544 kB
-
-
-that is about  267MB total
-
-
-
-anyone?
-
+--- net/sunrpc/svcsock.c	2001/02/05 23:45:54	1.1
++++ net/sunrpc/svcsock.c	2001/02/05 23:48:12
+@@ -211,16 +211,22 @@
+ svc_sock_release(struct svc_rqst *rqstp)
+ {
+ 	struct svc_sock	*svsk = rqstp->rq_sock;
++	struct svc_serv	*serv = svsk->sk_server;
+ 
+ 	if (!svsk)
+ 		return;
+ 	svc_release_skb(rqstp);
+ 	rqstp->rq_sock = NULL;
++
++	spin_lock_bh(&serv->sv_lock);
+ 	if (!--(svsk->sk_inuse) && svsk->sk_dead) {
++		spin_unlock_bh(&serv->sv_lock);
+ 		dprintk("svc: releasing dead socket\n");
+ 		sock_release(svsk->sk_sock);
+ 		kfree(svsk);
+ 	}
++	else
++		spin_unlock_bh(&serv->sv_lock);
+ }
+ 
+ /*
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

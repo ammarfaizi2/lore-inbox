@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292657AbSCRTqY>; Mon, 18 Mar 2002 14:46:24 -0500
+	id <S292666AbSCRTvO>; Mon, 18 Mar 2002 14:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292617AbSCRTqI>; Mon, 18 Mar 2002 14:46:08 -0500
-Received: from vocord.rt.mipt.ru ([194.85.82.184]:517 "HELO gleam.rt.mipt.ru")
-	by vger.kernel.org with SMTP id <S292555AbSCRTpQ>;
-	Mon, 18 Mar 2002 14:45:16 -0500
-Date: Mon, 18 Mar 2002 22:45:02 +0300
-From: Andrey Ulanov <drey@au.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] UFS bugfix, blocksize=16384
-Message-ID: <20020318194502.GA18238@gleam.rt.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S292594AbSCRTuy>; Mon, 18 Mar 2002 14:50:54 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:33550 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S292555AbSCRTuw>; Mon, 18 Mar 2002 14:50:52 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7715@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: PCI drivers - memory mapped vs. I/O ports
+Date: Mon, 18 Mar 2002 11:50:41 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/fs/ufs/super.c.old    Mon Feb 25 22:38:09 2002
-+++ linux/fs/ufs/super.c        Mon Mar 18 22:42:52 2002
-@@ -654,8 +654,8 @@
-        uspi->s_fshift = fs32_to_cpu(sb, usb1->fs_fshift);
+If a PCI device can be programmed equally well via I/O port space or memory
+space, what are the reasons to chose one space over the other when writing
+the driver?
 
-        if (uspi->s_bsize != 4096 && uspi->s_bsize != 8192
--         && uspi->s_bsize != 32768) {
--               printk("ufs_read_super: fs_bsize %u != {4096, 8192, 32768}\n", uspi->s_bsize);
-+         && uspi->s_bsize != 16384 && uspi->s_bsize != 32768) {
-+               printk("ufs_read_super: fs_bsize %u != {4096, 8192, 16384, 32768}\n", uspi->s_bsize)                goto failed;
-        }
-        if (uspi->s_fsize != 512 && uspi->s_fsize != 1024
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 
--- 
-with best regards, Andrey Ulanov.
-drey<at>au.ru
+

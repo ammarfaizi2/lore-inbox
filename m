@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289399AbSAJLKX>; Thu, 10 Jan 2002 06:10:23 -0500
+	id <S289400AbSAJLLG>; Thu, 10 Jan 2002 06:11:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289398AbSAJLKO>; Thu, 10 Jan 2002 06:10:14 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:53345 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289397AbSAJLKG>; Thu, 10 Jan 2002 06:10:06 -0500
-Date: Thu, 10 Jan 2002 12:09:26 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-Message-ID: <20020110120926.J3357@inspiron.school.suse.de>
-In-Reply-To: <20020109132148.C12609@redhat.com> <200201091928.g09JSdH23535@eng2.beaverton.ibm.com> <20020110111825.C3357@inspiron.school.suse.de> <20020110112225.S19814@suse.de> <20020110114704.I3357@inspiron.school.suse.de> <20020110115151.T19814@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020110115151.T19814@suse.de>; from axboe@suse.de on Thu, Jan 10, 2002 at 11:51:51AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289398AbSAJLKo>; Thu, 10 Jan 2002 06:10:44 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17860 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289397AbSAJLKX>;
+	Thu, 10 Jan 2002 06:10:23 -0500
+Date: Thu, 10 Jan 2002 14:07:42 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] minor sched-E1 tweaks and questions
+In-Reply-To: <E16OWCo-0000YO-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0201101403060.2371-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 11:51:51AM +0100, Jens Axboe wrote:
-> On Thu, Jan 10 2002, Andrea Arcangeli wrote:
-> > On Thu, Jan 10, 2002 at 11:22:25AM +0100, Jens Axboe wrote:
-> > > On Thu, Jan 10 2002, Andrea Arcangeli wrote:
-> > > > On Wed, Jan 09, 2002 at 11:28:39AM -0800, Badari Pulavarty wrote:
-> > > > > Ben,
-> > > > > 
-> > > > > By any chance do you have a list of drivers that assume this ?
-> > > > > What does it take to fix them ? 
-> > > > > 
-> > > > > I think Jens BIO changes for 2.5 will fix this problem. But 2.4
-> > > > > needs a solution in this area too. This patch showed significant
-> > > > > improvement for database workloads. 
-> > > > 
-> > > > I didn't checked the implementation but as far as the blkdev is
-> > > > concerned the b_size changes without notification as soon as you
-> > > > 'mkfs -b somethingelse' and then mount the fs. So it cannot break
-> > > > as far I can tell. The only important thing is that b_size stays
-> > > > between 512 and 4k.
-> > > 
-> > > The concern is/was differently sized buffer_heads in the same
-> > > request, ie b_size changing as you iterate through the chunks of one
-> > > request.
-> > 
-> > ok, I don't expect problems there. It can happen for example if you
-> > create a snapshot with 4k and then you switch back the original volume
-> > to 1k. the physical volume will get mixed b_size colaesced into the
-> > same request.
-> 
-> Well I don't expect problems either, however Jeff Merkey did report them
-> but see my previous mail on that (validity of that report is
-> questionable).
-> 
-> I still wouldn't feel to good doing this, and just because snapshotting
-> opens the possibility for this to happen doesn't mean it a) ever
-> triggered in real life, and b) works on all devices.
 
-fair enough. one way to do it certainly safely is to add a bitflag to
-the struct blkkdev.
+On Thu, 10 Jan 2002, Rusty Russell wrote:
 
-Andrea
+> > > Q. How can this happen in expire_task():
+> > > 	if (p->array != rq->active) {
+> > > 		p->need_resched = 1;
+> > > 		return;
+> > > 	}
+> >
+> > if a task gets delayed by some really heavy IRQ load and the timer
+> > interrupt hits the task twice.
+>
+> Hmm... still don't see it.  update_process_times() surely doesn't
+> re-enter?  And another CPU cannot load_balance() p (== current) away
+> from us.
+
+the issue is when a task has not rescheduled yet even though the previous
+timer tick has has told it to do so. Then we'll have the p->array !=
+rq->active condition. If some other event (like a heavy SCSI irq or
+something else) delays the task from getting into the scheduler for more
+than a jiffy, we can get an expire_task() call again - and hit the
+condition.
+
+this situation is especially likely to happen with HZ=1024 or higher.
+
+> Another question:
+>
+> 		context_switch(prev, next);
+> 		/*
+> 		 * The runqueue pointer might be from another CPU
+> 		 * if the new task was last running on a different
+> 		 * CPU - thus re-load it.
+> 		 */
+> 		barrier();
+> 		rq = this_rq();
+> 	}
+> 	spin_unlock_irq(&rq->lock);
+>
+> I do not understand this comment.  How can rq (ie. smp_processor_id())
+> change?  Nothing sleeps here, and if it DID change, the
+> spin_unlock_irq() would be wrong...
+
+the 'rq' variable is not 'constant' across context-switch if you look at
+what happens on the CPU - we switch away from a task into some other task.
+That other task might have a much older 'rq' variable on its kernel stack,
+which might be invalid, if the (now executing) task was load-balanced over
+to this CPU.
+
+>  } runqueues [NR_CPUS] __cacheline_aligned;
+>
+> You want each entry in the array to be aligned, not the whole array!
+
+hm, right you are. Will be in my next patch.
+
+	Ingo
+

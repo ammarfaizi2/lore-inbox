@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264622AbTFANkM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 09:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbTFANkM
+	id S264601AbTFANwu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 09:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTFANwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 09:40:12 -0400
-Received: from lvs00-fl.valueweb.net ([216.219.253.199]:57016 "EHLO
-	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S264622AbTFANkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 09:40:07 -0400
-Message-ID: <3EDA0555.6000202@coyotegulch.com>
-Date: Sun, 01 Jun 2003 09:53:25 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+	Sun, 1 Jun 2003 09:52:50 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:3525 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S264601AbTFANwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 09:52:45 -0400
+Date: Sun, 1 Jun 2003 07:06:02 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Larry McVoy <lm@bitmover.com>, Steven Cole <elenstev@mesatop.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Question about style when converting from K&R to ANSI C.
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com>
-In-Reply-To: <20030601132626.GA3012@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030601140602.GA3641@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Willy Tarreau <willy@w.ods.org>, Larry McVoy <lm@bitmover.com>,
+	Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <20030601134942.GA10750@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030601134942.GA10750@alpha.home.local>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
->>Proposed conversion:
->>
->>int foo(void)
->>{
->>   	/* body here */
->>}	
+> > Sometimes it is nice to be able to see function names with a 
+> > 
+> > 	grep '^[a-zA-Z].*(' *.c
 > 
-> which is why I've always preferred
-> 
-> int
-> foo(void)
-> {
-> 	/* body here */
-> }	
-> 
-> Is there some reason that I'm missing that the kernel folks like it the other
-> way?  
+> This will return 'int foo(void)', what's the problem ?
 
-Just my personal opinion:
+You get a lot of other false hits, like globals.  I don't feel strongly
+about this, I'm more wondering why this style was choosen.  The way
+I showed is pretty common,  it's sort of the "Unix" way (it's how the
+original Unix guys did it, how BSD did it, and how the GNU guys do it), so
+it's a somewhat surprising difference.  I've never understood the logic.
+The more I think about it the less I understand it, doing it that way
+means you are more likely to have to wrap a function definition which
+is ugly:
 
-The return value is part of the function signature; placing it on a 
-separate line implies a disconnect between the return value and the rest 
-of the declaration.
+static inline int cdrom_write_check_ireason(ide_drive_t *drive, int len, int ireason)
+{
+}
 
-It's a matter of psychology; your mileage may vary.
+vs
 
+static inline int
+cdrom_write_check_ireason(ide_drive_t *drive, int len, int ireason)
+{
+}
+
+It may be just what you are used to but I also find that when reading lots
+of code it is nice to have it look like
+
+return type
+function_name(args)
+
+because the function_name() stands out more, it's always at the left side so
+I tend to parse it a little more quickly.
+
+Don't get me wrong, I'm not arguing that you should go reformat all your
+code (I tend to agree with Linus, if it's not your code, don't stick your
+fingers in there just because you want to reformat it).  All I'm doing
+is trying to understand why in this instance did Linux diverage from 
+common practice.  
 -- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,65 +1,41 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160422AbQHBGmM>; Wed, 2 Aug 2000 02:42:12 -0400
-Received: by vger.rutgers.edu id <S160421AbQHBGlY>; Wed, 2 Aug 2000 02:41:24 -0400
-Received: from hog.ctrl-c.liu.se ([130.236.252.129]:1972 "HELO t1.ctrl-c.liu.se") by vger.rutgers.edu with SMTP id <S160420AbQHBGkn>; Wed, 2 Aug 2000 02:40:43 -0400
-Date: 2 Aug 2000 06:52:26 -0000
-Message-ID: <20000802065226.29333.qmail@t1.ctrl-c.liu.se>
-From: wingel@t1.ctrl-c.liu.se
-To: David.Howells@nexor.co.uk
-Cc: linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160394AbQHBJIb>; Wed, 2 Aug 2000 05:08:31 -0400
+Received: by vger.rutgers.edu id <S160368AbQHBJIW>; Wed, 2 Aug 2000 05:08:22 -0400
+Received: from enterprise.cistron.net ([195.64.68.33]:4700 "EHLO enterprise.cistron.net") by vger.rutgers.edu with ESMTP id <S160309AbQHBJIK>; Wed, 2 Aug 2000 05:08:10 -0400
+From: miquels@cistron.nl (Miquel van Smoorenburg)
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Newsgroups: linux.kernel
-In-Reply-To: <20000801073357Z157113-15702+213@vger.rutgers.edu>
-References: <7iw6lD2Xw-B@khms.westfalen.de>
-Organization: 
+Date: 2 Aug 2000 09:28:58 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <8m8pkq$p1r$1@enterprise.cistron.net>
+References: <7iw6kYsXw-B@khms.westfalen.de> <20000801023027.23228.qmail@t1.ctrl-c.liu.se> <20000801185531.B2091@thune.mrc-home.org> <8m7pci$fbt$1@cesium.transmeta.com>
+X-Trace: enterprise.cistron.net 965208538 25659 195.64.65.200 (2 Aug 2000 09:28:58 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-David.Howells@nexor.co.uk wrote:
-
->Kai Henningsen wrote:
->> I notice just about everybody suggesting absolute paths.
->>
->> Try relative paths or environment variables instead. This has the  
->> advantage of working anywhere you damn well please.
+In article >8m7pci$fbt$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>Followup to:  <20000801185531.B2091@thune.mrc-home.org>
+>By author:    Mike Castle <dalgoda@ix.netcom.com>
+>In newsgroup: linux.dev.kernel
+>> 
+>> If they are so stable, then why does it matter which version of the kernel
+>> glibc was built against and why aren't those kernel headers good enough to
+>> accomplish what automounter needs?
+>> 
 >
->Relative to what? Which environment variables? Who sets these variables?
+>They usually are just fine.  However, if the automount protocol is
+>updated, we don't want to *have* to sit through a full glibc release
+>cycle.
 
-Relative to the current directory of course.
+It sounds like autofs should come with it's own copy of the
+needed definitions and header files then. Now if there were 20
+applications all using the autofs interface to the kernel then
+it would be different, but if it's just one standard implementation..
 
-I've been propagating for this too, since it makes life so much easier
-for people compiling multiple versions of the kernel.
-
-The idea is that you tell people to untar the sources for whatever kernel
-related packages at the same place they untarred the kernel sources.  For
-most users this will mean /usr/src (i.e. on a RedHat system).
-
-So for the simple case:
-
-    /usr/src/linux
-    /usr/src/pcmcia-cs
-    /usr/src/my-whizbang-adapter
-
-and the pcmcia-cs and whizbang packages simply have line in Makefile saying:
-
-    KERNELDIR=../linux
-
-For somebody who's playing around with multiple kernels, it would
-look something like this:
-
-    /usr/src/kernel-2.2.16/linux
-    /usr/src/kernel-2.2.16/pcmcia-cs
-    /usr/src/kernel-2.2.16/my-whizbang-adapter
-
-    /usr/src/kernel-2.2.17pre3/linux
-    /usr/src/kernel-2.2.17pre3/pcmcia-cs
-    /usr/src/kernel-2.2.17pre3/my-whizbang-adapter
-
-And this will work with _no_ modifications to the sources and without
-any need to set environment variables.  How much easier can it get?
-
-    /Christer
+Mike.
 -- 
-"Just how much can I get away with and still go to heaven?"
+Cistron Certified Internetwork Expert #1. Think free speech; drink free beer.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

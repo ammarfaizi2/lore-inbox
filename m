@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVBOTvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVBOTy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVBOTvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVBOTug
+	id S261854AbVBOTy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVBOTwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:50:36 -0500
-Received: from ext-ch1gw-6.online-age.net ([64.37.194.14]:15279 "EHLO
-	ext-ch1gw-6.online-age.net") by vger.kernel.org with ESMTP
-	id S261850AbVBOTtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:49:05 -0500
-From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Tue, 15 Feb 2005 20:48:13 +0100
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give	dev=/dev/hdX as device
-Message-ID: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
-References: <1108426832.5015.4.camel@bastov> <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org> <1108486952.4618.10.camel@localhost.localdomain>
+	Tue, 15 Feb 2005 14:52:00 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:61887 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261856AbVBOTvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:51:08 -0500
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+From: Lee Revell <rlrevell@joe-job.com>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: prakashp@arcor.de, paolo.ciarrocchi@gmail.com, gregkh@suse.de,
+       pmcfarland@downeast.net, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050215004329.5b96b5a1.diegocg@gmail.com>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
+	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
+	 <1108422240.28902.11.camel@krustophenia.net>
+	 <20050215004329.5b96b5a1.diegocg@gmail.com>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 14:51:06 -0500
+Message-Id: <1108497066.7826.33.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108486952.4618.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 05:02:35PM +0000, Alan Cox wrote:
-> On Maw, 2005-02-15 at 02:25, Randy.Dunlap wrote:
-> > It means:  don't use the ide-scsi driver.  Support for it is
-> > lagging (not well-maintained) because it's really not needed for
-> > burning CDs.  Just use the ide-cd driver (module) and
-> > specify the CD burner device as /dev/hdX.
+On Tue, 2005-02-15 at 00:43 +0100, Diego Calleja wrote:
+> There's stuff that it could be done in the kernel to help improving those numbers,
+> IMHO.
 > 
-> This information is unfortunately *WRONG*. The base 2.6 ide-cd driver is
-> vastly inferior to ide-scsi. The ide-scsi layer knows about proper error
-> reporting, end of media and other things that ide-cd does not.
-> 
-> The -ac ide-cd knows some of the stuff that ide-cd needs to and works
-> with various drive/disk combinations the base code doesn't but ide-scsi
-> still handles CD's better.
-> 
-> Alan
+> xp logs all the io done the first two minutes after booting. The next time it boots
+> it tries to read all those files at once so the programs will find stuff in memory
+> instead of having to do lots of small seeks.
 
-I can confirm that. Creating a correct  iso image from a CD is a
-major pain w/o ide-scsi. Depending on what one has done before the iso
-image is missing some data at the end most of the time.
-(paired with lots of kernel error messages)
+Thanks for the detailed explanation.  ISTR hearing that some of the
+distros are working on similar solutions.  Now this would be a big win,
+as anyone who has seen how much faster XP boots than Win2K can tell you.
+And would certainly require kernel support.
 
-Testing was done here using Joerg Schilling's sdd:
+Of course resuming from suspend will always be faster than booting but
+for the forseeable future we will have to reboot from time to time.  And
+XP's boot time currently is way, way better than ours.  FWIW, OSX still
+takes forever to boot so we are not the only ones with this problem.
 
-sdd ivsize=`isosize /dev/cdxxx` if=/dev/cdxxx of=/dev/null \
-	bs=<several block sizes from 2048 up tried,does not matter>
+I wonder if XP's solution is patented.
 
-and most of the time it results in bad iso images....
+Lee
 
-Gretings
-Karl
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47

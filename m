@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291796AbSBHUgB>; Fri, 8 Feb 2002 15:36:01 -0500
+	id <S291800AbSBHUjC>; Fri, 8 Feb 2002 15:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291788AbSBHUc0>; Fri, 8 Feb 2002 15:32:26 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:2636 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S291797AbSBHUbw>;
-	Fri, 8 Feb 2002 15:31:52 -0500
-Date: Fri, 8 Feb 2002 13:31:03 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus' email account is full. - Fwd: Mail System Error - Returned Mail
-Message-ID: <20020208133103.P15496@lynx.turbolabs.com>
-Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
+	id <S291801AbSBHUiD>; Fri, 8 Feb 2002 15:38:03 -0500
+Received: from f29.law11.hotmail.com ([64.4.17.29]:21767 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S291800AbSBHUhF>;
+	Fri, 8 Feb 2002 15:37:05 -0500
+X-Originating-IP: [156.153.254.10]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: linux-kernel@vger.kernel.org, tigran@veritas.com
+Subject: KSTK_EIP and KSTK_ESP
+Date: Fri, 08 Feb 2002 12:36:59 -0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Fri, Feb 08, 2002 at 08:19:15PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; format=flowed
+Message-ID: <F29wLdDnNMZr4DwRMLj000174e4@hotmail.com>
+X-OriginalArrivalTime: 08 Feb 2002 20:36:59.0607 (UTC) FILETIME=[5B6C4670:01C1B0E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 08, 2002  20:19 +0000, Anton Altaparmakov wrote:
-> Linus' email account appears to be full if we can believe this returned email:
-> 
-> >From: Mail Administrator <Postmaster@transmet.com>
-                                        ^^^^^^^^ not transmetA.com
+Do we really need these defines, I found that it
+is not used anywhere and defined as deadbeef on
+some architectures. Does it make sense to remove
+these variables from the kernel source?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Balbir
+
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

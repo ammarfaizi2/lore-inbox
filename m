@@ -1,43 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136567AbREIPvh>; Wed, 9 May 2001 11:51:37 -0400
+	id <S136573AbREIP4h>; Wed, 9 May 2001 11:56:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136571AbREIPv2>; Wed, 9 May 2001 11:51:28 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:521 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136567AbREIPvN>; Wed, 9 May 2001 11:51:13 -0400
-Message-ID: <3AF967B5.E9FD1223@redhat.com>
-Date: Wed, 09 May 2001 11:52:21 -0400
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
+	id <S136576AbREIP42>; Wed, 9 May 2001 11:56:28 -0400
+Received: from mons.uio.no ([129.240.130.14]:48369 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S136573AbREIP4S>;
+	Wed, 9 May 2001 11:56:18 -0400
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Benedict Bridgwater <bennyb@ntplx.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine
-In-Reply-To: <E14xWDP-0002dE-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <15097.26760.222369.483083@charged.uio.no>
+Date: Wed, 9 May 2001 17:55:52 +0200
+To: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        NFS maillist <nfs@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Linux-2.4.4 flush out dirty NFS pages on munmap()
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> The tables are then described by the $PIRQ table in the BIOS. We use that to
-> load the mapping registers in the PCI bridge (and also to read them). If the
-> tables are wrong then we will mismap interrupt INTA-D lines to IRQ lines.
-> 
-> IRQ11 appearing on IRQ10 sounds exactly like the INTA-D line setting for IRQ
-> 11 is wrong and we connected it to IRQ 10
+Hi Alan and Linus,
 
-Which brings me back to my question in my previous email.  Why are we
-remapping working configs again?  I'm at a loss here.  This isn't a hot plug
-capably motherboard, we don't have to worry about new PCI cards getting thrown
-in, and yet we are remapping the IRQs.  Why?
+ The Suse people have identified a problem with shared mmap() under
+Linux 2.4.
 
--- 
+Basically it boils down to the fact that we want to commit pages to
+the server when we munmap() both in order to ensure that they are
+flushed out with the correct credentials (page launder is too
+unreliable in that respect), and to ensure that file close-to-open
+cache consistency is maintained.
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+The following patch by Andrea passes the test that Kurt Garloff put
+out on Linux Kernel, both on my setup and on his. As you can see it
+hooks the vm_ops and installs a vma close method that calls
+filemap_fdatasync() for us, then flushes out those pages and puts them
+on the clean_pages list.
+I also added in similar protection around the locking code. I'm not
+sure if anybody is using locking + shared mmap(), but if they do, then
+we want to try to ensure data cache consistency.
+
+Please note: there remains a question about what to do when
+page_launder() clears the PG_dirty bit for us, and yet writepage()
+receives an error. I'm nervous about just automatically marking the
+page as dirty again, as that could easily lead to infinite loops. For
+the moment, therefore, I'd prefer to delay making a decision about
+that case...
+
+Cheers,
+  Trond
+
+diff -u --recursive --new-file linux-2.4.4/fs/nfs/file.c linux-2.4.4-mmap/fs/nfs/file.c
+--- linux-2.4.4/fs/nfs/file.c	Fri Feb  9 20:29:44 2001
++++ linux-2.4.4-mmap/fs/nfs/file.c	Wed May  9 17:30:26 2001
+@@ -39,6 +39,7 @@
+ static ssize_t nfs_file_write(struct file *, const char *, size_t, loff_t *);
+ static int  nfs_file_flush(struct file *);
+ static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
++static void nfs_file_close_vma(struct vm_area_struct *);
+ 
+ struct file_operations nfs_file_operations = {
+ 	read:		nfs_file_read,
+@@ -57,6 +58,11 @@
+ 	setattr:	nfs_notify_change,
+ };
+ 
++static struct vm_operations_struct nfs_file_vm_ops = {
++	nopage:		filemap_nopage,
++	close:		nfs_file_close_vma,
++};
++
+ /* Hack for future NFS swap support */
+ #ifndef IS_SWAPFILE
+ # define IS_SWAPFILE(inode)	(0)
+@@ -104,6 +110,21 @@
+ 	return result;
+ }
+ 
++static void nfs_file_close_vma(struct vm_area_struct * vma)
++{
++	struct inode * inode;
++
++	inode = vma->vm_file->f_dentry->d_inode;
++
++	if (inode->i_state & I_DIRTY_PAGES) {
++		filemap_fdatasync(inode->i_mapping);
++		down(&inode->i_sem);
++		nfs_wb_all(inode);
++		up(&inode->i_sem);
++		filemap_fdatawait(inode->i_mapping);
++	}
++}
++
+ static int
+ nfs_file_mmap(struct file * file, struct vm_area_struct * vma)
+ {
+@@ -115,8 +136,11 @@
+ 		dentry->d_parent->d_name.name, dentry->d_name.name);
+ 
+ 	status = nfs_revalidate_inode(NFS_SERVER(inode), inode);
+-	if (!status)
++	if (!status) {
+ 		status = generic_file_mmap(file, vma);
++		if (!status)
++			vma->vm_ops = &nfs_file_vm_ops;
++	}
+ 	return status;
+ }
+ 
+@@ -283,9 +307,11 @@
+ 	 * Flush all pending writes before doing anything
+ 	 * with locks..
+ 	 */
+-	down(&filp->f_dentry->d_inode->i_sem);
++	filemap_fdatasync(inode->i_mapping);
++	down(&inode->i_sem);
+ 	status = nfs_wb_all(inode);
+-	up(&filp->f_dentry->d_inode->i_sem);
++	up(&inode->i_sem);
++	filemap_fdatawait(inode->i_mapping);
+ 	if (status < 0)
+ 		return status;
+ 
+@@ -300,10 +326,12 @@
+ 	 */
+  out_ok:
+ 	if ((cmd == F_SETLK || cmd == F_SETLKW) && fl->fl_type != F_UNLCK) {
+-		down(&filp->f_dentry->d_inode->i_sem);
++		filemap_fdatasync(inode->i_mapping);
++		down(&inode->i_sem);
+ 		nfs_wb_all(inode);      /* we may have slept */
++		up(&inode->i_sem);
++		filemap_fdatawait(inode->i_mapping);
+ 		nfs_zap_caches(inode);
+-		up(&filp->f_dentry->d_inode->i_sem);
+ 	}
+ 	return status;
+ }

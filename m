@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUHFI3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUHFIcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUHFI3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 04:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUHFI1E
+	id S268094AbUHFIcC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 04:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268046AbUHFIcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 04:27:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:59088 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268046AbUHFI0Q (ORCPT
+	Fri, 6 Aug 2004 04:32:02 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:20401
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S268094AbUHFI2a convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 04:26:16 -0400
-Date: Fri, 6 Aug 2004 10:27:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, vda@port.imtp.ilyichevsk.odessa.ua,
-       gene.heskett@verizon.net, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: Possible dcache BUG
-Message-ID: <20040806082728.GB8279@elte.hu>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408042216.12215.gene.heskett@verizon.net> <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org> <200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408050913320.24588@ppc970.osdl.org> <20040805180634.GA26732@elte.hu> <Pine.LNX.4.58.0408051144520.24588@ppc970.osdl.org> <20040806073739.GA6617@elte.hu> <20040806004231.143c8bd2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806004231.143c8bd2.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 6 Aug 2004 04:28:30 -0400
+Message-ID: <4113412C.4020004@bio.ifi.lmu.de>
+Date: Fri, 06 Aug 2004 10:28:28 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408060814.i768E3Pw005213@burner.fokus.fraunhofer.de>
+In-Reply-To: <200408060814.i768E3Pw005213@burner.fokus.fraunhofer.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joerg Schilling wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > [btw., it would be nice to dump
-> >  instructions prior the crash point so that we could know precisely what
-> >  prefetch instruction the kernel included.]
+> Before you are making the wrong conclsuions, I encourage you to read RFC-2822
+> and to find somebody who is able to explain you the difference between the
+> words "must" and "should" when used in standards....
 > 
-> I've had a patch (from Keith) to do that in -mm for over a year, and
-> ksymoops has supported it for that long.  But I think Linus has some
-> problem-which-I-never-understood with the whole idea.
+> Sorry for the typo in the last mail, it must of course not be "shall" but 
+> "should" ;-) Jörg
 
-There were some more naive patches around previously i believe and those
-problems are solved in this patch: the dump splits the pre-crash and
-post-crash instruction stream decoding, so crash-EIP decoding is never
-unreliable.
+May it be must, shall or should... Your mail client destroys the thread
+structure and it would indeed help everbody trying to follow the discussion
+if you could try to change it...
 
->  25-akpm/arch/i386/kernel/traps.c |   18 ++++++++++--------
->  1 files changed, 10 insertions(+), 8 deletions(-)
+cu,
+Frank
 
-a strong ack from me.
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

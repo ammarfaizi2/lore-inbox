@@ -1,58 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267812AbRGWDwr>; Sun, 22 Jul 2001 23:52:47 -0400
+	id <S267815AbRGWEXc>; Mon, 23 Jul 2001 00:23:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267813AbRGWDwi>; Sun, 22 Jul 2001 23:52:38 -0400
-Received: from mnh-1-29.mv.com ([207.22.10.61]:52236 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S267812AbRGWDw2>;
-	Sun, 22 Jul 2001 23:52:28 -0400
-Message-Id: <200107230508.AAA04621@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.44-2.4.7
-Mime-Version: 1.0
+	id <S267816AbRGWEXW>; Mon, 23 Jul 2001 00:23:22 -0400
+Received: from smarty.smart.net ([207.176.80.102]:53253 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S267815AbRGWEXL>;
+	Mon, 23 Jul 2001 00:23:11 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200107230439.AAA19725@smarty.smart.net>
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+To: linux-kernel@vger.kernel.org
+Date: Mon, 23 Jul 2001 00:39:16 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Jul 2001 00:08:04 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-The user-mode port of 2.4.7 is available.
+What if Forth only had one stack?
 
-In a minor packaging breakthrogh, a .deb for UML is now available.
+Looking at optimizations and calling conventions, I did some gas/cpp
+macros that implement caller-hikes, callee passes. The caller makes the
+space for the callee's stack frame, but it's up to the callee to populate
+it if necessary. Sometimes it isn't. In assembly the current context can
+see the whole stack, and "osimpa" macros not all included here make the
+parent frame, the current frame, and the most recently exited child frame
+3 sets of named locals. This is in conjunction with x86 RET imm16 , which
+does a stack frame drop for free. I got the Ackerman function, a nasty
+little recursion excercise, and rather C's home court, about 50% faster
+than Gcc 3.0 -O3 -fomit-frame-pointer. The Gcc version does optimize out
+the two tail recursions, leaving one non-tail recursion. I beat that with
+all 3 tail recursions remaining in my code. i.e. this is the first version
+that worked. I stared at this monster for 2 full days looking for where I
+had written "increment" instead of "decrement". Now it appears to produce
+the correct results.
 
-The UML block driver now supports a read-write COW layer above a shared 
-read-only filesystem.  This allows multiple UMLs to boot off the same 
-filesystem.  See http://user-mode-linux.sourceforge.net/shared_fs.html for
-more information.
+..........................................................................
 
-The ppc port is now fully merged.
+#define cell    4
+#define cells   *4
+#define sM       4 (%esp)
+#define sN       8 (%esp)
+                                        /* some of the parent's locals */
+#define pM      ((def_hike +2)  cells) (%esp)
+#define pN      ((def_hike +3)  cells) (%esp)
 
-The pid file and mconsole socket are now located in a directory defined 
-by the UML umid.
 
-There is now IO memory emulation.  This allows a host file to be mapped by a
-UML driver, which can provide whatever interface it wants to that file to 
-UML processes.  This is a first step towards doing hardware driver development
-under UML.
+#define def(routine,HIKE)                       \
+        def_hike    =       HIKE    ;       \
+        .globl routine                  ;       \
+        routine:
 
-gdbs are now killed properly.
+#define fed             ret $(def_hike cells)
 
-A nasty bug involving a misunderstanding with FASTCALL was fixed.
+#define child(callee)   child_hike = callee ## _hike
 
-Block devices and network devices are now pluggable from the mconsole - they
-can be added to and removed from a running system.  See 
-http://user-mode-linux.sourceforge.net/mconsole.html for more information.
+#define hike(by)        subl $(by cells) , %esp
 
-SIGHUP no longer causes UML to go crazy.
+#define do(callee)              \
+        hike(def_hike)   ;\
+        call callee
+                                /* Asmacs exerpts as pertains */
+#define testsubtract    cmpl
+#define ifzero          jz
+#define decrement       decl
+#define increment       incl
+#define to              ,
+#define with            ,
+#define copy            movl
+#define A               %eax
 
-The project's home page is http://user-mode-linux.sourceforge.net
+def(Ack,2)
+testsubtract $0 with pM
+ifzero                                          alpha
+        testsubtract $0 with pN
+        ifzero                          beta
+#                               return( Ack(M - 1, Ack(M, (N - 1))) );
+                copy pN to A
+                decrement A
+                copy A to sN
+                copy pM to A
+                copy A to sM
+                        do(Ack)
+                copy A to sN
+                decrement sM
+                        do(Ack)
+                                fed
+#                                        return( N + 1 );
+alpha:  copy pN to A                                    # M=0
+        increment A
+                        fed
+#                                       return( Ack(M - 1, 1) );
+beta:   copy $1 to sN                                   # N=0
+        copy  pM to A
+        decrement A
+        copy A to sM
+                do(Ack)
+                        fed
 
-Downloads are available at 
-	http://sourceforge.net/project/showfiles.php?group_id=429
-	ftp://ftp.nl.linux.org/pub/uml/
-	http://uml-pub.ists.dartmouth.edu/uml/
+#___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___
 
-				Jeff
+def(main,2)                                     # known OK
+        copy $2 to sM
+        copy $8 to sN
+        do(Ack)
+                        fed
 
+
+
+/* Rick Hohensee 2001 */
+
+
+/* The Ackerman function in GNU gas with cpp macros for "asmacs"
+verbosifications and "osimpa" caller-hikes, callee-passes subroutine
+parameter passing
+
+Parts of asmacs, osimpa.cpp and local renamings included in this file for
+clarity.
+
+ osimpa stuff, with locals names to reflect the C code example and osimpa
+callee-passes, i.e. pM instead of Pa, sM instead of a, etc.
+
+The full asmacs is in Janet_Reno and H3sm. osimpa isn't out yet.
+*/
+ 
+....................................................................
+
+I compared this to the C version on Bagley's language shootout
+page by hacking that down to use
+
+<snip>
+
+main () {
+return Ack(3,8);
+}
+
+so it just returns the low byte of the result, as does my code.
+
+C can pick this up after the expressions are parsed. Whereas this models
+"stack-array plus accumulator", that's actually less aggravation to
+program directly than Forth stack manipulations (well, maybe), so I'll
+probably code this on top of shasm without an expression parser. osimpa
+stands for "one stack in memory plus accumulator".
+
+Rick Hohensee
+			www.clienux.com

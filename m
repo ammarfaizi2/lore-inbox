@@ -1,127 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUHWSKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUHWSN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUHWSKg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 14:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHWSKg
+	id S266365AbUHWSN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 14:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUHWSN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 14:10:36 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3715 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265139AbUHWSKH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:10:07 -0400
-Date: Mon, 23 Aug 2004 14:09:27 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Andreas Dilger <adilger@clusterfs.com>,
-       Jean-Luc Cooke <jlcooke@certainkey.com>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
-       netdev@oss.sgi.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] enhanced version of net_random()
-In-Reply-To: <20040823100547.33b7a448@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.53.0408231338370.8564@chaos>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
- <20040820175952.GI5806@certainkey.com> <20040820185956.GV8967@schnapps.adilger.int>
- <Pine.LNX.4.53.0408201518250.25319@chaos> <20040823100547.33b7a448@dell_ss3.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Aug 2004 14:13:56 -0400
+Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:19328 "EHLO
+	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
+	id S266273AbUHWSMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:12:05 -0400
+Date: Mon, 23 Aug 2004 10:12:05 -0800
+From: Christopher Swingley <cswingle@iarc.uaf.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Oops during mkfs, SMP Opteron, 2.6.8.1 / -mm4
+Message-ID: <20040823181204.GB2519@iarc.uaf.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
+X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
+X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
+X-Editor: VIM [http://www.vim.org]
+X-message-flag: Consider Linux: fast, reliable, secure & free!
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Aug 2004, Stephen Hemminger wrote:
+Greetings!
 
->
-> > The attached code will certainly work on Intel machines. It is
-> > in the public domain, having been modified by myself to produce
-> > a very long sequence...
-> >
-> > I wouldn't suggest converting it to 'C' because the rotation
-> > takes many CPU instructions when one tries to do the test, shift,
-> > and OR in 'C',
-> >
->
-> My choice of PRNG was not random. I am not a mathematician (IANAM),
-> but what I was looking for was:
->
-> + well researched
-> + fast
-> + good distribution
-> + small seed (since per cpu)
-> + Free and open
->
-> The second version uses tausworthe because it was the fastest in the GNU scientific
-> library and had good properties.
->
-> See:
->
-> http://www1.physik.tu-muenchen.de/~gammel/matpack/html/LibDoc/Numbers/Random.html
-> ----------
-> Returns integer pseudorandom numbers uniformly distributed within [0,4294967295].
-> The period length is approximately 288 (which is 3*1026).
->
-> This is Pierre L'Ecuyer's 1996 three-component Tausworthe generator "taus88"
->
-> This generator is very fast and passes all standard statistical tests.
->
-> P. L'Ecuyer, Maximally equidistributed combined Tausworthe generators, Mathematics of Computation 65, 203-213 (1996), see Figure 4.
-> P. L'Ecuyer, Random number generation, chapter 4 of the Handbook on Simulation, Ed. Jerry Banks, Wiley, 1997.
-> --------
-> http://www.gnu.org/software/gsl/manual/gsl-ref_17.html
->
-> Performance
-> The following table shows the relative performance of a selection the available random number generators. The fastest simulation quality generators are taus, gfsr4 and mt19937. The generators which offer the best mathematically-proven quality are those based on the RANLUX algorithm.
->
-> 1754 k ints/sec,    870 k doubles/sec, taus
-> 1613 k ints/sec,    855 k doubles/sec, gfsr4
-> 1370 k ints/sec,    769 k doubles/sec, mt19937
->  565 k ints/sec,    571 k doubles/sec, ranlxs0
->  400 k ints/sec,    405 k doubles/sec, ranlxs1
->  490 k ints/sec,    389 k doubles/sec, mrg
->  407 k ints/sec,    297 k doubles/sec, ranlux
->  243 k ints/sec,    254 k doubles/sec, ranlxd1
->  251 k ints/sec,    253 k doubles/sec, ranlxs2
->  238 k ints/sec,    215 k doubles/sec, cmrg
->  247 k ints/sec,    198 k doubles/sec, ranlux389
->  141 k ints/sec,    140 k doubles/sec, ranlxd2
->
-> 1852 k ints/sec,    935 k doubles/sec, ran3
->  813 k ints/sec,    575 k doubles/sec, ran0
->  787 k ints/sec,    476 k doubles/sec, ran1
->  379 k ints/sec,    292 k doubles/sec, ran2
+I'm getting a kernel oops (manually typed in at the bottom) when I try 
+to make an ext3 (or ext2) filesystem on a large (999 GB) RAID array.  I 
+get the same oops whether the disks are set up as a hardware RAID (3Ware 
+7000 series) or software RAID-5.  The oops is 100% repeatable, and 
+always happens at the same place during mkfs.
 
+The system is a dual Opteron system with an MSI mainboard.  The drives 
+are SATA drives plugged into a 3Ware 7000 series RAID controller.
 
-The rnd that I submitted is fast. That's all. For communications
-it has been found to be good enough. Remember the saying; "Better
-is the enemy of good enough". It obviously can't have a period
-of better than 2^32 and, in fact, it has a period of:
+I get the oops with both 2.6.8.1 and 2.6.8.1-mm4.
 
-	4294896635 [0xfffeebfb].
+If more information would be helpful, just let me know!
 
-This generates 199,962,632 integers per second on this 2.8 GHz machine.
-This is a callable procedure that uses a pointer to private
-data. The speed could be improved if this overhead is not required.
+Here's the manually typed in oops:
 
-The distribution has also been found to be good enough for spread-
-spectrum use. There are no missing codes although a sorted-
-list of return values will show that there are some values (codes)
-that are generated close together, in other words some people
-expect that if you get a return code of '1', the next one won't
-be '2', but something "very far away". This generator seems
-to work more like "real world" noise sources except that such
-noise sources may give you duplicate values, which this won't.
+Unable to handle kernel paging request at 0000000000200e6f RIP:
+<ffffffff80157081>{kmem_getpages+129}
+PML4 1fdcd9067 PGD 1fe351067 PMD 0
+Oops: 0000 [1] SMP
+CPU 1
+Modules linked in: 8139too mii crc32 tg3
+Pid: 1719, comm: mkfs.ext3 Not tainted 2.6.8.1
+RIP: 0010:[<ffffffff80157081>] <ffffffff80157081>{kmem_getpages+129}
+RSP: 0018:00000101fe38bb88  EFLAGS: 00010213
+RAX: ffffffff7fffffff RXB: 00000101fffc9680 RCX: 00000000001fffff
+RDX: 0000010000011400 RSI: 0000010000011740 RDI: 0000010000011c00
+RBP: 00000101fffc9680 R08: 000001016bc1e000 R09: 000001016c331310
+R10: 00000101fffc96a8 R11: 00000101fffc96b8 R12: 0000000000000050
+R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000010
+FS:  0000002a95bcf380(0000) GS:ffffffff8050f100(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000000000200e6f CR3: 00000000dfeca000 CR4: 00000000000006e0
+Process mkfs.ext3 (pid: 1719, threadinfo 00000101fe38a000, task 00000100099229f0)
+Stack: 000001016c3f4000 0000000000000000 0000000000000050 ffffffff80157eb0
+       00000050fe38bda1 00000101fffc9680 00000101fffc9698 0000000000000050
+       0000010005f92658 0000000000000001
+Call Trace:<ffffffff80157eb0>{cache_grow+176} <ffffffff801580cf>{cache_alloc_refill+383}
+       <ffffffff80158396>{kmem_cache_alloc+54} <ffffffff80175161>{alloc_buffer_head+17}
+       <ffffffff8017290a>{create_buffers+42} <ffffffff801732a6>{create_empty_buffers+22}
+       <ffffffff8017370f>{__block_prepare_write+175} <ffffffff80177b10>{blkdev_get_block+0}
+       <ffffffff801538e2>{__alloc_pages+818} <ffffffff8017419a>{block_prepare_write+26}
+       <ffffffff80151593>{generic_file_aio_write_nolock+1315}
+       <ffffffff80263617>{write_chan+311} <ffffffff8026370c>{write_chan+556}
+       <ffffffff80151a37>{generic_file_write_nolock+103} <ffffffff8012f860>{default_wake_function+0}
+       <ffffffff802634e0>{write_chan+0} <ffffffff80178b5a>{blkdev_file_write+26}
+       <ffffffff80170497>{vfs_write+199} <ffffffff801705c3>{sys_write+83}
+       <ffffffff8010ed4a>{system_call+126}
 
-Depending upon how much time you wish to waste for making it
-better than "good enough", this can be cascaded to give a
-period of any length (you use one generator to produce the
-"magic number" for another, etc.)
+Code: 48 8b 91 70 0e 00 00 76 07 b8 00 00 00 80 eb 0a 48 b8 00 00
+RIP <ffffffff80157081>{kmem_getpages+129} RSP <00000101fe38bb88>
+CR2: 0000000000200e6f
 
+Thanks!
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Chris
+-- 
+Christopher S. Swingley          email: cswingle@iarc.uaf.edu (work)
+Intl. Arctic Research Center            cswingle@gmail.com (personal)
+University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
 

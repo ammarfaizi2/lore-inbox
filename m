@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTBSVrw>; Wed, 19 Feb 2003 16:47:52 -0500
+	id <S261934AbTBSV6I>; Wed, 19 Feb 2003 16:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTBSVrv>; Wed, 19 Feb 2003 16:47:51 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:26507 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S261900AbTBSVrv>; Wed, 19 Feb 2003 16:47:51 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261963AbTBSV6I>; Wed, 19 Feb 2003 16:58:08 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:48390 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261934AbTBSV6H>; Wed, 19 Feb 2003 16:58:07 -0500
+Date: Thu, 20 Feb 2003 07:07:48 +0900 (JST)
+Message-Id: <20030220.070748.127370664.yoshfuji@wide.ad.jp>
+To: davem@redhat.com, toml@us.ibm.com, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPSec protocol application order
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <20030219.133906.127189630.davem@redhat.com>
+References: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
+	<20030219.133906.127189630.davem@redhat.com>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15955.64983.947830.240943@wombat.chubb.wattle.id.au>
-Date: Thu, 20 Feb 2003 08:57:43 +1100
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-In-Reply-To: <20030219073221.GR29983@holomorphy.com>
-References: <20030219073221.GR29983@holomorphy.com>
-X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "William" == William Lee Irwin, <William> writes:
+In article <20030219.133906.127189630.davem@redhat.com> (at Wed, 19 Feb 2003 13:39:06 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
 
-William> Hi, I have the sam eproblem here, but ACPI is definetly not
-William> configured...  Any idea else ?
+> setkey is for manual keying and debugging.  Therefore, disallowing
+> experimenting with non-rfc-compliant orderings seems to lack purpose
+> to me.
 
+I'm for davem.  Setkey is very flexible manual-keying tool and
+we should not limit this flexibility.
 
-I see this regularly if I've forgotten to configure in the input layer
-or any consoles.  At least one console device has to be in-kernel
-otherwise I see the hang mentioned.
-
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+--yoshfuji

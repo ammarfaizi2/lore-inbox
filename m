@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTJ0MQU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 07:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTJ0MQU
+	id S261661AbTJ0M0i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 07:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbTJ0M0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 07:16:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22283 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261605AbTJ0MQT (ORCPT
+	Mon, 27 Oct 2003 07:26:38 -0500
+Received: from ns.suse.de ([195.135.220.2]:57996 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261661AbTJ0M0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 07:16:19 -0500
-Date: Mon, 27 Oct 2003 12:16:09 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: fsstress causes memory leak in test6, test8
-Message-ID: <20031027121609.GA27611@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Burton Windle <bwindle@fint.org>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.58.0310251842570.371@morpheus> <20031026170241.628069e3.akpm@osdl.org>
+	Mon, 27 Oct 2003 07:26:38 -0500
+Date: Mon, 27 Oct 2003 13:26:35 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, simon.roscic@chello.at,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [2.6.0-test8/9] ethertap oops
+Message-ID: <20031027122635.GB16013@wotan.suse.de>
+References: <L1fo.3gb.9@gated-at.bofh.it> <m3ekwz7h3z.fsf@averell.firstfloor.org> <20031026234828.2cb1f746.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031026170241.628069e3.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031026234828.2cb1f746.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 26, 2003 at 05:02:41PM -0800, Andrew Morton wrote:
+On Sun, Oct 26, 2003 at 11:48:28PM -0800, David S. Miller wrote:
+> On Sun, 26 Oct 2003 23:45:52 +0100
+> Andi Kleen <ak@muc.de> wrote:
+> 
+> > diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o linux-2.6.0test7mm1-averell/drivers/net/ethertap.c
+> > --- linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11 04:12:33.000000000 +0200
+> > +++ linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26 23:41:17.000000000 +0100
+> 
+> This part looks good, applied.
 
- > It is not a "leak" as such - the dentries will get shrunk in normal usage
- > (create enough non-dir dentries and the "leaked" directory dentries will
- > get reclaimed).  The really deep directories which fsstress creates
- > demonstrated the bug.
+I don't know if it actually fixed the bug, I did not test it
+(sorry, should have stated that in the original mail)
+But at least it should printk now instead of crashing.
 
-This could explain the random reiserfs oopses/hangs I was seeing several
-months back after running fsstress for a day or so. The reiser folks
-were scratching their heads, and we even put it down to flaky hardware
-or maybe even a CPU bug back then.
-
- > Given that it took a year for anyone to notice, it's probably best that
- > this not be included for 2.6.0.
-
-I agree in a "lets get 2.6 out the door" sense, but once thats 'out
-there' a user-level DoS should be fixed up pretty quickly.
-The paranoid could always run 2.6-mm I guess 8-)
-
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk
+-Andi

@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266564AbSLPL6e>; Mon, 16 Dec 2002 06:58:34 -0500
+	id <S266643AbSLPL5h>; Mon, 16 Dec 2002 06:57:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266627AbSLPL6e>; Mon, 16 Dec 2002 06:58:34 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:40907 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S266564AbSLPL6c>; Mon, 16 Dec 2002 06:58:32 -0500
-Date: Tue, 17 Dec 2002 00:57:32 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Greg KH <greg@kroah.com>, Colin Paul Adams <colin@colina.demon.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Alcatel speedtouch USB driver and SMP.
-Message-ID: <3880000.1040039852@localhost.localdomain>
-In-Reply-To: <20021216051300.GB12884@kroah.com>
-References: <m3n0n7hi52.fsf@colina.demon.co.uk>
- <20021215075913.GB2180@kroah.com> <m3hedfhd5l.fsf@colina.demon.co.uk>
- <20021216051300.GB12884@kroah.com>
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+	id <S266650AbSLPL5h>; Mon, 16 Dec 2002 06:57:37 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:4356 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S266643AbSLPL5g>;
+	Mon, 16 Dec 2002 06:57:36 -0500
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, bcollins@debian.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Linux v2.5.52
+References: <Pine.LNX.4.44.0212151930120.12906-100000@penguin.transmeta.com>
+	<20021216102639.A27589@infradead.org>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20021216102639.A27589@infradead.org>
+Date: 16 Dec 2002 07:05:24 -0500
+Message-ID: <m37keagoe3.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a binary only one from Alcatel themselves, which only works on one 
-2.2 kernel and one (old) 2.4 kernel, the other is on SourceForge, and is 
-also GPL.
+>>>>> "CH" == Christoph Hellwig <hch@infradead.org> writes:
 
-Andrew, who's just set up one himself on 2.4 and will try 2.5 when enough 
-else behaves.
+Linus> Ben Collins <bcollins@debian.org>: o IEEE-1394/Firewire update
 
---On Sunday, December 15, 2002 21:13:00 -0800 Greg KH <greg@kroah.com> 
-wrote:
+CH> This merge looks fishy.  It seems to be yet another let's throw my CVS
+CH> repo in merge and backs out Al's work yo get rid of lots of devfs crap.
 
-> On Sun, Dec 15, 2002 at 08:58:14AM +0000, Colin Paul Adams wrote:
->> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
->>
->>     Greg> On Sun, Dec 15, 2002 at 07:10:33AM +0000, Colin Paul Adams
->>     Greg> wrote:
->>     >> Can anyone tell me if the speedtouch driver is SMP safe yet?
->>
->>     Greg> Which driver?  I know of at least 3 different ones :(
->>
->> drivers/usb/misc/speedtouch.c
->
-> Ah good, you're using one that the source is available for :)
-> I think the developer has said it will work on SMP machines, but what
-> problems are you having, and have you asked the author of the code?
->
->> Where are the others?
->
-> I don't know, but I know they are out there...
->
-> thanks,
->
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+FWIW (which may be little) the ieee1394 code in 2.5.51 simply does not
+work and the svn tree (same code as in 2.5.52) does.  For those of us
+who depend on sbp2 for day-to-day functionality it makes current 2.5
+possible....
 
+That said, less divergence between Linus' bk tree and linux1394.org's
+svn tree would be welcome.
+
+-JimC
 

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277975AbRJRTJB>; Thu, 18 Oct 2001 15:09:01 -0400
+	id <S277986AbRJRTNv>; Thu, 18 Oct 2001 15:13:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277985AbRJRTIv>; Thu, 18 Oct 2001 15:08:51 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:17423 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S277975AbRJRTIi>;
-	Thu, 18 Oct 2001 15:08:38 -0400
-Date: Thu, 18 Oct 2001 22:09:08 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Mike Borrelli <mike@nerv-9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input on the Non-GPL Modules
-Message-ID: <20011018220908.A24643@mea-ext.zmailer.org>
-In-Reply-To: <Pine.BSD.4.21.0110181150210.8832-100000@dsl092-007-245.sfo1.dsl.speakeasy.net>
-Mime-Version: 1.0
+	id <S278001AbRJRTNm>; Thu, 18 Oct 2001 15:13:42 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:51642 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S277986AbRJRTN1>; Thu, 18 Oct 2001 15:13:27 -0400
+Message-ID: <3BCF2A44.60B295FD@nortelnetworks.com>
+Date: Thu, 18 Oct 2001 15:15:16 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: kuznet@ms2.inr.ac.ru
+Subject: how to see manually specified proxy arp entries using "ip neigh" 
+         command?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSD.4.21.0110181150210.8832-100000@dsl092-007-245.sfo1.dsl.speakeasy.net>; from mike@nerv-9.net on Thu, Oct 18, 2001 at 11:52:36AM -0700
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 11:52:36AM -0700, Mike Borrelli wrote:
-> Where (in the conceptual layering of the kernel) does the code cease to be
-> a derived work and become a "normal use" as allowed in the clase added by
-> Linus:
-> 
->   NOTE! This copyright does *not* cover user programs that use kernel
->   services by normal system calls - this is merely considered normal use
->   of the kernel, and does *not* fall under the heading of "derived work".
 
-  "XFree86 server" is "normal use", as is XFree86 loadable device driver,
-  but kernel DRI driver module is not.
 
-> Cheers,
-> -Mike
+I (and others) have asked this a couple times here and on the netdev list, and
+so far nobody has answered it (not even negatively).
 
-/Matti Aarnio
+If I manually set some proxy arp entries and then list the arp entries, the
+manually set ones do not show up when using "ip neigh" but they do show up with
+the "arp" command.
+
+Is there any way to see them using "ip neigh"?  If not, are there any plans to
+enable this?
+
+If not, I may have to look at adding support for this, and this is why I'm
+wondering.
+
+Thanks,
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315975AbSEZVvM>; Sun, 26 May 2002 17:51:12 -0400
+	id <S316051AbSEZV7L>; Sun, 26 May 2002 17:59:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315985AbSEZVvL>; Sun, 26 May 2002 17:51:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34321 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315975AbSEZVvK>;
-	Sun, 26 May 2002 17:51:10 -0400
-Message-ID: <3CF15989.D6AA332C@zip.com.au>
-Date: Sun, 26 May 2002 14:54:17 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Peter J. Braam" <braam@clusterfs.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [patch 11/18] dirsync
-In-Reply-To: <3CF14973.B61EF771@zip.com.au> <20020526093637.V32110@lustre.cfs> <3CF15838.FE768070@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316078AbSEZV7K>; Sun, 26 May 2002 17:59:10 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:11963 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316051AbSEZV7K>; Sun, 26 May 2002 17:59:10 -0400
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Larry McVoy <lm@bitmover.com>, yodaiken@fsmlabs.com,
+        Roman Zippel <zippel@linux-m68k.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Sun, 26 May 2002 17:45:50 EDT."
+             <3CF1578E.774DF802@opersys.com> 
+Date: Sun, 26 May 2002 23:58:31 +0200
+Message-Id: <20020526215836.412A611972@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+In message <3CF1578E.774DF802@opersys.com> Karim Yaghmour wrote:
 > 
-> "Peter J. Braam" wrote:
-> >
-> > Hi
-> >
-> > I think this patch is actually pretty important - could we please have
-> > this, or something like this?
-> >
-> 
-> Well `-o sync' will give the same result.  dirsync is just a speedup.
-> 
-> I should have mentioned: untarring a kernel tree with dirsync is 4x to
-> 5x faster than `-o sync', but still tons slower (5x?) than default.
+> I don't feel the need to impress you Larry, but I do actually expect to
+> obtain actual answers as Victor himself promissed and I would invite
+> everyone wanting to hear those answers to speak up.
 
-grr.  On ext2.  
+A definitive statement from Victor  would  indeed  be  VERY  helpful.
+Maybe we all are just mis-interpreting him.
 
-On ext3, dirsync _is_ sync for journalled and ordered modes.  If you
-run a commit, you sync the entire fs, end of story.  So dirsync on ext3
-really only makes a difference in writeback mode.
+Victor: It cannot be _that_ difficult to reply  to  each  of  Karim's
+questions with a clear "Yes" or "No". Please reply!
 
--
+Wolfgang Denk
+
+-- 
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+It is wrong always, everywhere and for everyone to  believe  anything
+upon  insufficient  evidence.  - W. K. Clifford, British philosopher,
+circa 1876

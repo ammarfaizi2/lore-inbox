@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRADWth>; Thu, 4 Jan 2001 17:49:37 -0500
+	id <S129428AbRADWuR>; Thu, 4 Jan 2001 17:50:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRADWt1>; Thu, 4 Jan 2001 17:49:27 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:4101 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129428AbRADWtP>; Thu, 4 Jan 2001 17:49:15 -0500
-Date: Thu, 4 Jan 2001 23:45:23 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010104234522.H888@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010104213355.707A651AA@Nicole.muc.suse.de> <Pine.LNX.3.95.1010104155136.18796A-100000@chaos.analogic.com>
+	id <S129523AbRADWuI>; Thu, 4 Jan 2001 17:50:08 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:18440 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129428AbRADWtg>;
+	Thu, 4 Jan 2001 17:49:36 -0500
+Date: Thu, 4 Jan 2001 23:49:28 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Asang K Dani <asang@yahoo.com>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: generic_file_write code segment in 2.2.18
+Message-ID: <20010104234928.A5198@gruyere.muc.suse.de>
+In-Reply-To: <20010104052948.12042.qmail@web2303.mail.yahoo.com> <20010104085137.A18532@gruyere.muc.suse.de> <20010104224234.B1290@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010104155136.18796A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Jan 04, 2001 at 03:59:40PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <20010104224234.B1290@redhat.com>; from sct@redhat.com on Thu, Jan 04, 2001 at 10:42:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 03:59:40PM -0500, Richard B. Johnson wrote:
-> Well they do! It's just not allowed for us (the users) to know that they
-> __didn't__ run completely out of power!  If the thing is so dead
-> that it won't recharge, it still has 'power' (enough to keep static RAM
-> alive). Just remove the battery, wait about 120 seconds for a capacitor
-> to discharge,  and, zap, no more stored phone numbers. Static RAM with
-> an electrolytic capacitor, isolated with a diode, takes so little power
-> that you can normally change defective batteries if you don't take
-> too long.
+On Thu, Jan 04, 2001 at 10:42:34PM +0000, Stephen C. Tweedie wrote:
+> No, because then you'd be skipping the updatepage() call if we took a
+> fault mid-copy after copying some data.  That would imply you had
+> dirtied the page cache without an updatepage().
+> 
+> The current behaviour should just result in a short IO, which should
+> be fine.
 
-<offtopic>
-Not over here in Europe where we use GSM phones. The phone numbers,
-phone settings, and SMS (Small Message Services) messages are all
-stored in the flash memory on the SIM (Subscriber Identity Module, a
-1x2.5 cm chip card).
-</offtopic>
+The problem is that the short write is not reported to the caller, even when only
+zero bytes are copied (the page is corrupted anyways though because cfu 
+zeros the uncopied rest).  
 
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

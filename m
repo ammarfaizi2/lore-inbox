@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130417AbRCEUkH>; Mon, 5 Mar 2001 15:40:07 -0500
+	id <S130416AbRCEUfh>; Mon, 5 Mar 2001 15:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130418AbRCEUj6>; Mon, 5 Mar 2001 15:39:58 -0500
-Received: from [199.239.160.155] ([199.239.160.155]:31873 "EHLO
-	tenchi.datarithm.net") by vger.kernel.org with ESMTP
-	id <S130417AbRCEUjn>; Mon, 5 Mar 2001 15:39:43 -0500
-Date: Mon, 5 Mar 2001 12:39:07 -0800
-From: Robert Read <rread@datarithm.net>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        John Kodis <kodis@mail630.gsfc.nasa.gov>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>, bug-bash@gnu.org
-Subject: Re: binfmt_script and ^M
-Message-ID: <20010305123907.C6400@tenchi.datarithm.net>
-Mail-Followup-To: Pozsar Balazs <pozsy@sch.bme.hu>,
-	Paul Flinders <P.Flinders@ftel.co.uk>,
-	Jeff Mcadams <jeffm@iglou.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	John Kodis <kodis@mail630.gsfc.nasa.gov>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, bug-bash@gnu.org
-In-Reply-To: <3AA3BC4E.FA794103@ftel.co.uk> <Pine.GSO.4.30.0103051954420.25495-100000@balu>
+	id <S130417AbRCEUf1>; Mon, 5 Mar 2001 15:35:27 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:14440 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S130416AbRCEUfU>; Mon, 5 Mar 2001 15:35:20 -0500
+Date: Mon, 5 Mar 2001 21:19:10 +0100
+From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
+To: Jim Breton <jamesb-kernel@alongtheway.com>
+Cc: Wade Hampton <whampton@staffnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: eject weirdness on NEC disc changer, kernel 2.4.2
+Message-ID: <20010305211910.A13054@frodo.uni-erlangen.de>
+In-Reply-To: <20010304205046.15690.qmail@alongtheway.com> <3AA3DE27.E34DD4B3@staffnet.com> <20010305190930.2759.qmail@alongtheway.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.30.0103051954420.25495-100000@balu>; from pozsy@sch.bme.hu on Mon, Mar 05, 2001 at 07:58:52PM +0100
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010305190930.2759.qmail@alongtheway.com>; from jamesb-kernel@alongtheway.com on Mon, Mar 05, 2001 at 07:09:30PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 05, 2001 at 07:58:52PM +0100, Pozsar Balazs wrote:
-> 
-> And what does POSIX say about "#!/bin/sh\r" ?
-> In other words: should the kernel look for the interpreter between the !
-> and the newline, or [the first space or newline] or the first whitespace?
-> 
-> IMHO, the first whitespace. Which means that "#!/bin/sh\r" should invoke
-> /bin/sh. (though it is junk).
-> 
+On Mon, 05 Mar 2001, Jim Breton wrote:
 
-The line terminator, '\n', is what terminates the interpreter.  White
-space (in this case, only ' ' and '\t') is used to seperate the
-arguments to the interpreter.  This allows scripts to pass args to
-intepreters, as in #!/usr/bin/per -w or #!/usr/bin/env perl -w
+> I have had a similar problem in the past where, for example, after
+> cancelling a burn session with cdrecord I am unable to eject the disc.
+> However that was on kernel 2.2.x and using "real" scsi (not ide-scsi).
 
-So is '\r' a line terminator? For Linux, no.  Should '\r' seperate
-arguments?  No, that would be very strange.
+This was a bug in cdrecord which used generic scsi access to lock the
+drive. The kernel cannot notice this. AFAIK this bug is fixed in
+cdrecord.
 
-robert
-
+Walter

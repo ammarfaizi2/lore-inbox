@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269623AbUI3Xt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269620AbUI3X4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269623AbUI3Xt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 19:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269624AbUI3Xt6
+	id S269620AbUI3X4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 19:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269624AbUI3X4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 19:49:58 -0400
-Received: from [193.29.205.125] ([193.29.205.125]:20657 "EHLO s1.conecto.pl")
-	by vger.kernel.org with ESMTP id S269623AbUI3Xth convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 19:49:37 -0400
-From: Marcin =?iso-8859-2?q?Gibu=B3a?= <mg@iceni.pl>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Windows Logical Disk Manager error
-Date: Fri, 1 Oct 2004 01:49:18 +0200
-User-Agent: KMail/1.7
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <200409231254.12287@senat> <1096287833.8148.53.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1096287833.8148.53.camel@imp.csi.cam.ac.uk>
+	Thu, 30 Sep 2004 19:56:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64939 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269620AbUI3X4b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 19:56:31 -0400
+Date: Thu, 30 Sep 2004 16:56:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: CaT <cat@zip.com.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: promise controller resource alloc problems with ~2.6.8
+In-Reply-To: <20040930233048.GC7162@zip.com.au>
+Message-ID: <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
+References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org>
+ <20040930233048.GC7162@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200410010149.19951@senat>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Volume3 is a simple one partition volume which is the second LDM
-> partition on your other harddisk.  You can just mount that with the vfat
-> driver.
 
-Yep, it's working.
 
-> Volume6 is a two partition concatenated volume mad up of partitions sda4
-> (109GiB) and sda2 (32kiB!) (in this order!) on the disk you sent me the
-> ldm dump from.  You should assemble this as described for Volume2 and
-> then mount the created MD device with the ntfs driver.
+On Fri, 1 Oct 2004, CaT wrote:
+> 
+> I have the one from 2.6.9-rc2-bk8 available to me (last time I booted I
+> had time to grab lots of things) so I've attached that and the current
+> one. If you need the rc3 it'll need to wait another 8 hours or so as I'm
+> currently away from the PC.
 
-Maybe I should explain what is my disc layout...
-Volume2 is one partition, and Volume6 is mounted as one of its directories, 
-something like:
+This is enough, I think, although I'd also like to get the output from 
+/sbin/lspci just to clarify what the devices are.
 
-D:\  <- Volume2
-D:\download <- Volume6
+In 2.6.8 (working), you had:
 
-Volume6 works fine without using software raid though.  Volume2 does not.
+	1080-10bf : 0000:00:0d.0
+	  1080-1087 : ide2
+	  1088-108f : ide3
+	  1090-10bf : PDC20267
+	10c0-10cf : 0000:00:14.1
+	  10c0-10c7 : ide0
+	  10c8-10cf : ide1
 
-> Let me know how it goes.  Both success and failures are interesting to
-> me as I do not remember anyone actually having had spanned ldm volumes
-> before so it would be nice to know it all works...
+while in the nonworking setup the PCI code allowed 0:14.1 to be allocated 
+_inside_ device 0:0d.0, like this:
 
-I've tried the following:
+	1080-10bf : 0000:00:0d.0
+	  10a0-10af : 0000:00:14.1
+	    10a0-10a7 : ide0
+	    10a8-10af : ide1
 
-# mdadm --build /dev/md1 -l linear -n 2 /dev/sda1 /dev/sda3
-mdadm: array /dev/md1 built and started.
-# mount /dev/md1 /mnt/d
-# ls /mnt/d
-ls: reading directory /mnt/d: Input/output error
+which looks rather bogus. In fact, it looks like the device was mis-setup 
+by the BIOS, and that the PCI resource changes allowed that broken setup.
 
-dmesg output:
-NTFS volume version 3.1.
-NTFS-fs error (device md1): ntfs_readdir(): Actual VCN (0x6e68dc76fa7923) of 
-index buffer is different from expected VCN (0x4). Directory inode 0x5 is 
-corrupt or driver bug.
+The reason for that is the change in "arch/i386/pci/i386.c" to use 
+"insert_resource()" instead of "request_resource()", which in turn is 
+because we wanted to insert PCI resources _inside_ the system resources 
+reserved by ACPI.
 
--- 
-mg
+HOWEVER, we do _not_ want to allow insertion of PCI resources inside other 
+PCI resources, and while this normally shouldn't happen, it definitely can 
+happen if the BIOS has set things up incorrectly in the first place. As 
+appears to be the case in your setup.
+
+Now, the reason for using "insert_resource()" in arch/i386/pci/i386.c 
+should go away with Shaohua Li's patch, so I'd love to hear if applying 
+Li's patch _and_ making the "insert_resource()" be a "request_resource()" 
+fixes the problem for you.
+
+I bet it will.
+
+Greg, we kind of left the ACPI resource management breakage pending, and 
+clearly we need some resolution. Comments?
+
+		Linus

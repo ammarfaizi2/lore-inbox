@@ -1,71 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbSK0Nnp>; Wed, 27 Nov 2002 08:43:45 -0500
+	id <S262662AbSK0NrW>; Wed, 27 Nov 2002 08:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262646AbSK0Nnp>; Wed, 27 Nov 2002 08:43:45 -0500
-Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:51376 "EHLO
-	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S262631AbSK0Nno>; Wed, 27 Nov 2002 08:43:44 -0500
-From: =?iso-8859-1?q?K=E5re=20S=E4rs?= <Kare.Sars@lmf.ericsson.se>
-Reply-To: Kare.Sars@lmf.ericsson.se
-Organization: Oy LM Ericsson Ab
-To: Rui Prior <rprior@inescn.pt>
-Subject: nicstar ATM bug patch
-Date: Wed, 27 Nov 2002 15:50:45 +0200
-User-Agent: KMail/1.4.3
-Cc: mitch@sfgoth.com, Christoph Hellwig <hch@lst.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_LGM87GHWADTRF7HRSFZ5"
-Message-Id: <200211271550.45445.Kare.Sars@lmf.ericsson.se>
+	id <S262664AbSK0NrW>; Wed, 27 Nov 2002 08:47:22 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:13478 "HELO soulinfo")
+	by vger.kernel.org with SMTP id <S262662AbSK0NrV>;
+	Wed, 27 Nov 2002 08:47:21 -0500
+Date: Wed, 27 Nov 2002 21:52:23 +0800
+From: hugang <hugang@soulinfo.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: tux@sentinel.dk, linux-kernel@vger.kernel.org
+Subject: Re: Limiting max cpu usage per user (old Conectiva patch)
+Message-Id: <20021127215223.429d5ae6.hugang@soulinfo.com>
+In-Reply-To: <Pine.LNX.4.44L.0211271008370.4103-100000@imladris.surriel.com>
+References: <3DE49A66.4020208@sentinel.dk>
+	<Pine.LNX.4.44L.0211271008370.4103-100000@imladris.surriel.com>
+X-Mailer: Sylpheed version 0.8.5claws126 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+=?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA: ?= Rik van Riel <riel@conectiva.com.br>
+=?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA: ?= tux@sentinel.dk
+=?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA: ?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Nov 2002 10:08:56 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
---------------Boundary-00=_LGM87GHWADTRF7HRSFZ5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+>  It's on my patches page:
+> 
+>  	http://surriel.com/patches/
+> 
+>  cheers,
+The patch is works. Here is the test.
+w.c
+-------
+#include <stdio.h>
+main()
+{
+while(1);
+}
 
-Hi!
+-------
+start 5 w as normal user..
+start 5 w as root user.
 
-I'm not sure who to send this patch to, but here goes.
+Enabel the fairsched 
+echo 1 > /proc/sys/kernel/fairsched
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+  976 root      20   0   248  248   204 R    13.1  0.0   0:28 w
+  974 root      20   0   248  248   204 R    12.9  0.0   0:28 w
+  975 root      20   0   248  248   204 R    12.9  0.0   0:28 w
+  973 root      17   0   248  248   204 R    12.5  0.0   0:29 w
+  972 root      14   0   248  248   204 R    11.9  0.0   0:30 w
+  968 hugang    20   0   252  252   208 R     7.1  0.0   0:18 w
+  970 hugang    20   0   252  252   208 R     7.1  0.0   0:17 w
+  967 hugang    20   0   252  252   208 R     5.9  0.0   0:19 w
+  969 hugang    20   0   252  252   208 R     5.9  0.0   0:17 w
+  966 hugang    14   0   252  252   208 R     5.9  0.0   0:20 w
 
-I have encountered a bug in the nicstar ATM driver for linux.
-If you open a CBR TX only connection on a specific vpi/vci and later open a RX 
-only connection on the same vpi/vci, the RX connection will overwrite the 
-pointer to the SCQ of the TX connection. This changes the cell rate of the TX 
-channel and what is worse is that when the TX connection is closed we get a 
-segmentationfault and the TX part of the vpi/vci remains reserved.
+Disabel the fairsched
+echo 0 > /proc/sys/kernel/fairsched
+  969 hugang    16   0   252  252   208 R     9.7  0.0   0:20 w
+  970 hugang    16   0   252  252   208 R     9.7  0.0   0:19 w
+  966 hugang    16   0   252  252   208 R     9.5  0.0   0:23 w
+  974 root      16   0   248  248   204 R     9.5  0.0   0:32 w
+  968 hugang    16   0   252  252   208 R     9.5  0.0   0:20 w
+  975 root      16   0   248  248   204 R     9.5  0.0   0:32 w
+  976 root      16   0   248  248   204 R     9.5  0.0   0:32 w
+  972 root      16   0   248  248   204 R     9.5  0.0   0:34 w
+  967 hugang    16   0   252  252   208 R     9.1  0.0   0:21 w
+  973 root      16   0   248  248   204 R     8.9  0.0   0:33 w
 
-The bug in the driver is that if the opened channel is not TX CBR, the driver 
-assumes it is TX UBR. I have attached a patch that adds a check for TX UBR. 
-The patch is against RedHat kernel 2.4.18-3. I have checked linux vanilla 
-kernels 2.4.19 and 2.5.49 and not found a fix.
-
-
-Kåre Särs
-
-
---------------Boundary-00=_LGM87GHWADTRF7HRSFZ5
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="nicstar_ubr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="nicstar_ubr.patch"
-
---- linux/drivers/atm/nicstar.c	Wed Oct 16 15:45:13 2002
-+++ linux/drivers/atm/nicstar.c	Wed Oct 16 15:46:10 2002
-@@ -1597,7 +1597,7 @@
-          
- 	 fill_tst(card, n, vc);
-       }
--      else /* not CBR */
-+      else if (vcc->qos.txtp.traffic_class == ATM_UBR)
-       {
-          vc->cbr_scd = 0x00000000;
- 	 vc->scq = card->scq0;
-
---------------Boundary-00=_LGM87GHWADTRF7HRSFZ5--
-
+-- 
+		- Hu Gang

@@ -1,131 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268183AbTALADs>; Sat, 11 Jan 2003 19:03:48 -0500
+	id <S268186AbTALAHX>; Sat, 11 Jan 2003 19:07:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268186AbTALADr>; Sat, 11 Jan 2003 19:03:47 -0500
-Received: from r2n112.mistral.cz ([62.245.77.112]:15488 "EHLO ppc.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S268183AbTALADq>;
-	Sat, 11 Jan 2003 19:03:46 -0500
-Date: Sun, 12 Jan 2003 01:11:46 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: marcelo@conectiva.com.br
-Cc: deller@gmx.de, lkml <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] non-G450/G550 build of matroxfb in 2.4.21-pre3 (was Re: Linux 2.4.21-pre3)
-Message-ID: <20030112001146.GB1650@ppc.vc.cvut.cz>
-References: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva> <200301112315.11415.deller@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301112315.11415.deller@gmx.de>
-User-Agent: Mutt/1.4i
+	id <S268188AbTALAHX>; Sat, 11 Jan 2003 19:07:23 -0500
+Received: from very.disjunkt.com ([195.167.192.238]:1233 "EHLO disjunkt.com")
+	by vger.kernel.org with ESMTP id <S268186AbTALAHV> convert rfc822-to-8bit;
+	Sat, 11 Jan 2003 19:07:21 -0500
+Date: Sun, 12 Jan 2003 01:14:03 +0100 (CET)
+From: Jean-Daniel Pauget <jd@disjunkt.com>
+X-X-Sender: jd@mint
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Another holiday, another set of tg3 releases.
+Message-ID: <Pine.LNX.4.51.0301120101210.1290@mint>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 11:15:11PM +0100, Helge Deller wrote:
-> On Monday 06 January 2003 22:32, Marcelo Tosatti wrote:
-> > So here goes -pre3...
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.4.21-pre3/kernel/drivers/video/matrox/matroxfb_DAC1064.o
-> depmod:         g450_mnp2f
-> depmod:         matroxfb_g450_setpll_cond
-> depmod:         matroxfb_g450_setclk
 
-Hi Marcelo,
-  please apply patch below.
+on 2002-12-30, Jeff Garzik <jgarzik@pobox.com> wrote :
 
-Use g450/g550 related code only if we are building driver supporting
-g450/g550. Otherwise we end up with couple of undefined symbols
-related to the G450 PLL.
+> Another holiday, another set of tg3 releases.
 
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+    in my seek for unexpected freeze of my box (not yet figured which
+    hardware is involved exactly) I updated to tg3-1.2a and applied
+    both tg3-1.2a-00_irqsave and tg3-1.2a-01_mask_rewrite.
+    as a result, after working a few seconds the network card freezes, and
+    no ifupdown would permit any recovery.
 
-diff -urdN linux/drivers/video/matrox/matroxfb_DAC1064.c linux/drivers/video/matrox/matroxfb_DAC1064.c
---- linux/drivers/video/matrox/matroxfb_DAC1064.c	2003-01-12 00:43:23.000000000 +0100
-+++ linux/drivers/video/matrox/matroxfb_DAC1064.c	2003-01-12 00:55:38.000000000 +0100
-@@ -276,6 +276,7 @@
- 	hw->MXoptionReg = mx;
- }
- 
-+#ifdef CONFIG_FB_MATROX_G450
- static void g450_set_plls(WPMINFO2) {
- 	u_int32_t c2_ctl;
- 	unsigned int pxc;
-@@ -365,6 +366,7 @@
- 		}
- 	}
- }
-+#endif
- 
- void DAC1064_global_init(WPMINFO2) {
- 	struct matrox_hw_state* hw = &ACCESS_FBINFO(hw);
-@@ -372,6 +374,7 @@
- 	hw->DACreg[POS1064_XMISCCTRL] &= M1064_XMISCCTRL_DAC_WIDTHMASK;
- 	hw->DACreg[POS1064_XMISCCTRL] |= M1064_XMISCCTRL_LUT_EN;
- 	hw->DACreg[POS1064_XPIXCLKCTRL] = M1064_XPIXCLKCTRL_PLL_UP | M1064_XPIXCLKCTRL_EN | M1064_XPIXCLKCTRL_SRC_PLL;
-+#ifdef CONFIG_FB_MATROX_G450
- 	if (ACCESS_FBINFO(devflags.g450dac)) {
- 		hw->DACreg[POS1064_XPWRCTRL] = 0x1F;	/* powerup everything */
- 		hw->DACreg[POS1064_XOUTPUTCONN] = 0x00;	/* disable outputs */
-@@ -420,7 +423,9 @@
- 		}
- 		/* Now set timming related variables... */
- 		g450_set_plls(PMINFO2);
--	} else {
-+	} else
-+#endif
-+	{
- 		if (ACCESS_FBINFO(outputs[1]).src == MATROXFB_SRC_CRTC1) {
- 			hw->DACreg[POS1064_XPIXCLKCTRL] = M1064_XPIXCLKCTRL_PLL_UP | M1064_XPIXCLKCTRL_EN | M1064_XPIXCLKCTRL_SRC_EXT;
- 			hw->DACreg[POS1064_XMISCCTRL] |= GX00_XMISCCTRL_MFC_MAFC | G400_XMISCCTRL_VDO_MAFC12;
-@@ -622,6 +627,7 @@
- 	.compute = m1064_compute,
- };
- 
-+#ifdef CONFIG_FB_MATROX_G450
- static int g450_compute(void* out, struct my_timming* m) {
- #define minfo ((struct matrox_fb_info*)out)
- 	if (m->mnp < 0) {
-@@ -639,6 +645,7 @@
- 	.name	 = "Primary output",
- 	.compute = g450_compute,
- };
-+#endif
- 
- #endif /* NEED_DAC1064 */
- 
-@@ -821,6 +828,7 @@
- #endif
- 
- #ifdef CONFIG_FB_MATROX_G100
-+#ifdef CONFIG_FB_MATROX_G450
- static void g450_mclk_init(WPMINFO2) {
- 	/* switch all clocks to PCI source */
- 	pci_write_config_dword(ACCESS_FBINFO(pcidev), PCI_OPTION_REG, ACCESS_FBINFO(hw).MXoptionReg | 4);
-@@ -938,6 +946,10 @@
- 	
- 	return;
- }
-+#else
-+static inline void g450_preinit(WPMINFO2) {
-+}
-+#endif
- 
- static int MGAG100_preinit(WPMINFO2) {
- 	static const int vxres_g100[] = {  512,        640, 768,  800,  832,  960,
-@@ -975,9 +987,12 @@
- 	ACCESS_FBINFO(capable.plnwt) = ACCESS_FBINFO(devflags.accelerator) == FB_ACCEL_MATROX_MGAG100
- 			? ACCESS_FBINFO(devflags.sgram) : 1;
- 
-+#ifdef CONFIG_FB_MATROX_G450
- 	if (ACCESS_FBINFO(devflags.g450dac)) {
- 		ACCESS_FBINFO(outputs[0]).output = &g450out;
--	} else {
-+	} else
-+#endif
-+	{
- 		ACCESS_FBINFO(outputs[0]).output = &m1064;
- 	}
- 	ACCESS_FBINFO(outputs[0]).src = MATROXFB_SRC_CRTC1;
+    on the other hand, with only the first patch tg3-1.2a-00_irqsave, things
+    seems ok and I'm waiting for my machine to freeze... ...or not. (the freeze
+    frequency is ~10hours )...
+
+    though, on your page you mention a fifth patch concerning mtu, as I'm
+    running with an unusual mtu of 1452 because of internet over internet
+    encapsulation on my DSL, maybe I'm concerned ?
+
+    here-below my /proc/pci
+
+--
+Quand les plombs pêtent : « Ðïsjüñ£t.¢¤× »
+
+--
+
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 2).
+      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 2).
+      Master Capable.  Latency=64.  Min Gnt=8.
+  Bus  0, device  29, function  0:
+    USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 2).
+      IRQ 11.
+      I/O at 0xd800 [0xd81f].
+  Bus  0, device  29, function  1:
+    USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 2).
+      IRQ 5.
+      I/O at 0xd400 [0xd41f].
+  Bus  0, device  29, function  2:
+    USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 2).
+      IRQ 9.
+      I/O at 0xd000 [0xd01f].
+  Bus  0, device  29, function  7:
+    USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 2).
+      Non-prefetchable 32 bit memory at 0xe5800000 [0xe58003ff].
+  Bus  0, device  30, function  0:
+    PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 130).
+      Master Capable.  No bursts.  Min Gnt=6.
+  Bus  0, device  31, function  0:
+    ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 2).
+  Bus  0, device  31, function  1:
+    IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 2).
+      IRQ 9.
+      I/O at 0x0 [0x7].
+      I/O at 0x0 [0x3].
+      I/O at 0x0 [0x7].
+      I/O at 0x0 [0x3].
+      I/O at 0xf000 [0xf00f].
+      Non-prefetchable 32 bit memory at 0x10000000 [0x100003ff].
+  Bus  0, device  31, function  5:
+    Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 2).
+      I/O at 0xa800 [0xa8ff].
+      I/O at 0xa400 [0xa43f].
+      Non-prefetchable 32 bit memory at 0xe4000000 [0xe40001ff].
+      Non-prefetchable 32 bit memory at 0xe3800000 [0xe38000ff].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev 163).
+      IRQ 11.
+      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xe6000000 [0xe6ffffff].
+      Prefetchable 32 bit memory at 0xe8000000 [0xefffffff].
+      Prefetchable 32 bit memory at 0xe7800000 [0xe787ffff].
+  Bus  2, device   3, function  0:
+    FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 128).
+      IRQ 5.
+      Master Capable.  Latency=32.  Max Lat=32.
+      Non-prefetchable 32 bit memory at 0xe5000000 [0xe50007ff].
+      I/O at 0xb800 [0xb87f].
+  Bus  2, device   5, function  0:
+    Ethernet controller: Broadcom Corporation NetXtreme BCM5702X Gigabit Ethernet (rev 2).
+      IRQ 10.
+      Master Capable.  Latency=64.  Min Gnt=64.
+      Non-prefetchable 64 bit memory at 0xe4800000 [0xe480ffff].
+

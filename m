@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265623AbUAGWVq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 17:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUAGWVq
+	id S265655AbUAGWYL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 17:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbUAGWYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 17:21:46 -0500
-Received: from colo.lackof.org ([198.49.126.79]:15757 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S265623AbUAGWVo (ORCPT
+	Wed, 7 Jan 2004 17:24:11 -0500
+Received: from ida.rowland.org ([192.131.102.52]:28164 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265655AbUAGWYI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 17:21:44 -0500
-Date: Wed, 7 Jan 2004 15:21:42 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, jeremy@sgi.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-Message-ID: <20040107222142.GB14951@colo.lackof.org>
-References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+	Wed, 7 Jan 2004 17:24:08 -0500
+Date: Wed, 7 Jan 2004 17:24:08 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: Inconsistency in sysfs behavior?
+In-Reply-To: <20040107215624.GC1083@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0401071712550.1589-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 07:02:06PM +0000, Matthew Wilcox wrote:
-> So we want a pci_set_relaxed() macro / function() to set this bit
-> (otherwise dozens of drivers will start to try to set the bit themselves,
-> badly).  If this bit *isn't* set, setting the bit in the transaction will have
-> no effect, right?
+On Wed, 7 Jan 2004, Greg KH wrote:
 
-I think that's correct if the platform chipset ignores RO signal
-by default. I'm not real comfortable with that assumption though.
-I want the driver to advertise to PCI services the intent to use
-RO capability.
-
-> How about always setting the bit in readb() and having a readb_ordered()
-> which doesn't set the bit in the transaction?
-
-I was under the impression the driver can't control RO for
-each transaction though. The PCI-X device controls which
-transactions set RO "signal" in the PCI-X command on read-return.
-The Read-Return is a seperate transaction from the Read-Request.
-
-If anyone has data that specific devices are "smart" and set/clear
-RO appropriately, it would be safe to enable RO for them.
-
-On HP ZX1, the "Allow Relaxed Ordering" is only implemented for outbound
-DMA/PIO Writes *while they pass through the ZX1 chip*. Ie RO bit settings
-don't explicitly apply since we aren't talking about PCI-X bus transactions
-even though the system chipset needs to honor PCI-X rules.
-
-> That way, drivers which
-> call pci_set_relaxed() have the responsibility to verify they're not
-> relying on these semantics and use readb_ordered() in any places that
-> they are.
-
-if new variants of readb() are ok, then yours sounds better.
-
-But I wasn't too keen on introducing readb variants to solve what
-looks like a DMA flushing problem. I've come to the conclusion
-that systems which implement (and enable) RO for inbound DMA are
-effectively not coherent. The data the CPU expects to be visible is not.
-
-DMA-mapping.txt already has support (pci_dma_sync_xx() or pci_dma_unmap_xx())
-to deal with common forms off non-coherence and syncronize caches
-for streaming mappings but not for consistent mappings.
-DMA-ABI.txt (2.6 only) has a method to handle non-coherent systems and
-I have to reread/study it to see if the provided interface is sufficient
-for the case of relaxed ordering.  Jesse, have you looked at this already?
-
-hth,
-grant
-
-> No doubt you're going to smack this idea down by telling me what SN2
-> firmware currently does ...
+> On Wed, Jan 07, 2004 at 04:50:24PM -0500, Alan Stern wrote:
+> > 
+> > I had in mind approaching this the opposite way.  Instead of trying to 
+> > make open directories also pin a kobject, why not make open attribute 
+> > files not pin them?
+> > 
+> > It shouldn't be hard to avoid any errors; in fact I had a patch from some
+> > time ago that would do the trick (although in a hacked-up kind of way).  
+> > The main idea is to return -ENXIO instead of calling the show()/store()
+> > routines once the attribute has been removed.
 > 
-> -- 
-> "Next the statesmen will invent cheap lies, putting the blame upon 
-> the nation that is attacked, and every man will be glad of those
-> conscience-soothing falsities, and will diligently study them, and refuse
-> to examine any refutations of them; and thus he will by and by convince 
-> himself that the war is just, and will thank God for the better sleep 
-> he enjoys after this process of grotesque self-deception." -- Mark Twain
+> And you can do this without adding another lock, race free?
+
+I used dentry->d_inode->i_sem.  While I'm not very familiar with the ins
+and outs of the filesystem code, that ought to be safe enough.
+
+The real problem was finding a way to indicate that the file was
+disconnected from its kobject.  I did that by setting
+dentry->d_inode->i_mode to 0.  (I didn't want to erase dentry->d_fsdata
+for fear that it might be needed somewhere else.)  That's definitely not a
+good way; it was intended only for my proof-of-principle.  No doubt
+someone else could do a much better job.
+
+Alan Stern
+

@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275865AbSIUCz1>; Fri, 20 Sep 2002 22:55:27 -0400
+	id <S275867AbSIUD07>; Fri, 20 Sep 2002 23:26:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275866AbSIUCz1>; Fri, 20 Sep 2002 22:55:27 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:59349 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S275865AbSIUCz0>; Fri, 20 Sep 2002 22:55:26 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0A5389A5@orsmsx108.jf.intel.com>
-From: "Rhoads, Rob" <rob.rhoads@intel.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [ANNOUNCE] Linux Hardened Device Drivers Project 
-Date: Fri, 20 Sep 2002 20:00:26 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S275868AbSIUD07>; Fri, 20 Sep 2002 23:26:59 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:29965 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275867AbSIUD07>;
+	Fri, 20 Sep 2002 23:26:59 -0400
+Date: Fri, 20 Sep 2002 20:31:38 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Brad Hards <bhards@bigpond.net.au>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+Message-ID: <20020921033137.GA26017@kroah.com>
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com> <200209200656.23956.bhards@bigpond.net.au> <20020919230643.GD18000@kroah.com> <3D8B884A.7030205@pacbell.net> <20020920231112.GC24813@kroah.com> <3D8BDF9A.305@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D8BDF9A.305@pacbell.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Obvious this is a way for the telecom folks to get something 
-> for free that
-> really should be paid for by funding the project with CASH.  
-> Or funding (a) startup(s) related to generating such support.
->
-> Regardless, it takes (fill in the blank) to boldly ask people 
-> to add APIs
-> for an industry who is only interested in using and not contributing.
-> Prove that all the stuff which is going to be plugged into these
-> security-hole^Wbug-generators^Wfeatures will be scheduled for 
-> open source.
-
-This project is open to anyone who wants to participate and is
-being paid for by Intel and a host of other companies. The 
-idea is to enable Linux to play in the Carrier space with all
-the work given away under the GPL.
-
-> Or this another attempt to try and take over the license and shove BSD
-> down the piles?
-
-The project is open and released under the terms of the GPL. 
-
+On Fri, Sep 20, 2002 at 07:55:22PM -0700, David Brownell wrote:
 > 
-> Pointed Blunt Raw, but nice.
-> 
-> Regards,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> PS: I see a lot of "wants", are there any "gives" ?
+> How about a facility to create the character (or block?) special file
+> node right there in the driverfs directory?  Optional of course.
 
-What paying professional developers to work on an Open Source project 
-and giving their work away under the terms of the GPL isn't enough?
+No, Linus has stated that this is not ok to do.  See the lkml archives
+for the whole discussion about this.
 
-+=+=+
-Rob Rhoads                     mailto:rob.rhoads@intel.com
-Staff Software Engineer        office: 503-677-5498
-Telecom Software Platforms     
-Intel Communications Group
+thanks,
 
-This email message solely contains my own personal views, and not
-necessarily those of my employer.
-
+greg k-h

@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130653AbQLSXlL>; Tue, 19 Dec 2000 18:41:11 -0500
+	id <S130063AbQLTACv>; Tue, 19 Dec 2000 19:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130749AbQLSXkx>; Tue, 19 Dec 2000 18:40:53 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:3079 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130653AbQLSXkj>; Tue, 19 Dec 2000 18:40:39 -0500
-Date: Tue, 19 Dec 2000 17:05:16 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Hinds <dhinds@valinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
-Message-ID: <20001219170516.A2039@vger.timpanogas.org>
-In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6> <20001218154033.C11728@valinux.com> <20001219114614.A12948@valinux.com> <20001219154129.A1763@vger.timpanogas.org> <20001219135114.B13184@valinux.com>
+	id <S130011AbQLTACc>; Tue, 19 Dec 2000 19:02:32 -0500
+Received: from smtp4.vol.cz ([195.250.128.84]:62213 "EHLO smtp4.vol.cz")
+	by vger.kernel.org with ESMTP id <S129997AbQLTACW>;
+	Tue, 19 Dec 2000 19:02:22 -0500
+Date: Wed, 20 Dec 2000 00:12:39 +0100
+From: Stanislav Brabec <utx@penguin.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Norbert Warmuth <nwarmuth@privat.circular.de>,
+        linux-kernel@vger.kernel.org, Tim Gerla <timg@means.net>
+Subject: Re: ATAPI: audio CD still stops on >> (fast forward, 2.4.0-test12)
+Message-ID: <20001220001239.A8593@utx.cz>
+In-Reply-To: <20001216145940.C471@suse.de> <Pine.LNX.4.30.0012181835390.27844-100000@floh.privat.circular.de> <20001218185613.A473@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001219135114.B13184@valinux.com>; from dhinds@valinux.com on Tue, Dec 19, 2000 at 01:51:14PM -0800
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001218185613.A473@suse.de>; from axboe@suse.de on Mon, Dec 18, 2000 at 06:56:13PM +0100
+X-Accept-Language: cs, sk, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 01:51:14PM -0800, David Hinds wrote:
-> On Tue, Dec 19, 2000 at 03:41:29PM -0700, Jeff V. Merkey wrote:
+Jens Axboe wrote (Mon Dec 18 2000, 18:56:13 GMT):
+> On Mon, Dec 18 2000, Norbert Warmuth wrote:
+> > On Sat, 16 Dec 2000, Jens Axboe wrote:
+> > > > But problem with >> (fast forward playng of short samples) still remains
+> > > > on some audio CD's.
+> > > > Dec 15 12:17:25 utx kernel:   "47 00 00 00 02 00 3c 3a ff 00 00 00 "
+> > > 							   ^^
+> > > This is the same case that Miles reported, it's very odd how that 8th
+> > > byte gets screwed somehow... But I know about this, I just haven't tracked
+> > > this down yet.
 > > 
-> > On a related topic, the 3c575_cb driver on an IBM Thinkpad 765D is getting
-> > tx errors on the 2.2.18 kernel with PCMCIA services 3.1.22.
-> > 
-> > Card is a 3Com 3CCFE575BT Cyclone Cardbus Adapter.
-> > 
-> > Error is:
-> > 
-> > eth0:  transmit timed out, tx_status 00 status e000.
-> >   diagnostics net 0cc2 media a800 dma 000000a0
+> > At least Stanislav's problem is a userland problem. Sometimes tcd/gtcd
+> > (the software Stanislav uses to play CDs) miscalculates frame values. A
+> > patch to tcd is available at http://bugs.gnome.org/db/33/33600.html.
 > 
-> What host bridge is in the 765D?  Is it perhaps a TI 1131 rev 1, or
-> something else?  Also, try adding:
+> Ah interesting, I _bet_ this is also what everybody else is seeing!
 > 
 
-/proc/bus/pccard/00/info reports TI 1130 chipset.
+I have tested this patch and there is my result:
 
->   module "3c575_cb" opts "down_poll_rate=0"
 
-Adding this does not fix the problem, but does cause a little more
-error info to get printed.  Now in addition to the original message,
-I am also seeing:
+Linux kernel patch solves the problem of stopping while playing after
+2min 40sec.
 
-eth0: Tx ring full, refusing to send buffer.
+gnome-media/tcd/linux-cdrom.c with fix http://bugs.gnome.org/db/33/33600.html
+solves the problem of fast-fwd. Even on older kernels ffwd works OK.
 
-Looks like some type of interrupt problem.  I am available to assist 
-you in debugging this problem.
+Both these were two independent bugs, one in kernel, second in tcd.
 
-Jeff
 
-> 
-> to /etc/pcmcia/config.opts and see if that makes any difference.
-> 
-> -- Dave
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+I have looked into GNOME CVS and nobody have yet comitted this patch
+into CVS, so I am doing it.
+
+Can anybody close the bug in GNOME bug tracking system?
+
+
+SW:
+Linux & (g)tcd
+
+HW:
+Cyrix686MX200
+ATAPI CD-ROM Mitsumi FX400E (4x speed)
+CD Banco de Gaia / Last Train to Lhasa (CD 1) / track 1
+
+-- 
+Stanislav Brabec
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

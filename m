@@ -1,46 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136459AbREDRVV>; Fri, 4 May 2001 13:21:21 -0400
+	id <S136465AbREDR2v>; Fri, 4 May 2001 13:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136465AbREDRVL>; Fri, 4 May 2001 13:21:11 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:48855 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S136459AbREDRU7>;
-	Fri, 4 May 2001 13:20:59 -0400
-Message-ID: <3AF2E4F1.6C5BE7FC@mandrakesoft.com>
-Date: Fri, 04 May 2001 13:20:49 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S136466AbREDR2l>; Fri, 4 May 2001 13:28:41 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:30482 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136465AbREDR2b>; Fri, 4 May 2001 13:28:31 -0400
+Date: Fri, 4 May 2001 10:28:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <200105041140.NAA03391@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.21.0105041015520.521-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adam <adam@vbfx.com>, linux-kernel@vger.kernel.org,
-        "Michael K. Johnson" <johnsonm@redhat.com>
-Subject: Re: dhcp problem with realtek 8139 clone with rh 7.1
-In-Reply-To: <E14vj1d-0007es-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+On Fri, 4 May 2001, Rogier Wolff wrote:
+>
+> Linus Torvalds wrote:
+> > 
+> > Ehh. Doing that would be extremely stupid, and would slow down your boot
+> > and nothing more.
 > 
-> > I've had the same problem with the 8139too drivers and DHCP.  The reason
-> > I figure it must be the drivers is because in the 2.4.3 kernel, I'm able
-> > to use the 8139too drivers with DHCP without any problems.  In 2.4.4 it
-> > locks my system.
-> 
-> Multiple such reports - seems the 8139too update broke stuf - any ideas Jeff,
-> should I revert to the 2.4.3 one ?
+> Ehhh, Linus, Linearly reading my harddisk goes at 26Mb per second.
 
-I would say if Monday comes by without hearing from me, yes. It fixes
-some people, breaks others :/
+You obviously didn't read my explanation of _why_ it is stupid.
 
-I've already got a fix on the dhcp breakage -- need to lock and unlock
-EEprom before setting certain registers, and I am working on the other
-problem (symptom: 'partner ability 0000' even when a link is present).
+> By analyzing my boot process I determine that 50M of my disk is used
+> during boot. I can then reshuffle my disk to have that 50M of data at
+> the beginning and reading all that into 50M of cache, I can save
+> thousands of 10ms seeks.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+No. Have you _tried_ this?
+
+What the above would do is to move 50M of the disk into the buffer cache.
+
+Then, a second later, when the boot proceeds, Linux would start filling
+the page cache.
+
+BY READING THE CONTENTS FROM DISK AGAIN!
+
+In short, by doing a "dd" from the disk, you would _not_ help anything at
+all. You would only make things slower, by reading things twice.
+
+The Linux buffer cache and page cache are two separate entities. They are
+not synchronized, and they are indexed through totally different
+means. The page cache is virtually indexed by <inode,pagenr>, while
+the
+buffer cache is indexed by <dev,blocknr,blocksize>. 
+
+> Is this simply: Don't try this then? 
+
+Try it. You will see. 
+
+You _can_ actually try to optimize certain things with 2.4.x: all
+meta-data is still in the buffer cache in 2.4.x, so what you could do is
+to lay out the image so that the metadata is at the front of the disk,
+and do the "dd" to cache just the metadata. Even then you need to be
+careful, and make sure that the "dd" uses the same block size as the
+filesystem will use.
+
+And even that will largely stop working very early in 2.5.x when the
+directory contents and possibly inode and bitmap metadata moves into the
+page cache.
+
+Now, you may ask "why use the page cache at all then"? The answer is that
+the page cache is a _lot_ faster to look up, exactly because of the
+virtual indexing (and also because the data structure is much better
+designed - fixed-size entities with none of the complexities of the buffer
+cache. The buffer cache needs to be able to do IO, while the page cache is
+_only_ a cache and does that one thing really well - doing IO is a
+completely separate issue with the page cache).
+
+Now, if you want to speed up accesses, there are things you can do. You
+can lay out the filesystem in the access order - trace the IO accesses at
+bootup ("which file, which offset, which metadata block?") and lay out the
+blocks of the files in exactly the right order. Then you will get linear
+reads _without_ doing any "dd" at all.
+
+Now, laying out the filesystem that way is _hard_. No question about it.
+It's kind of equivalent to doing a filesystem "defreagment" operation,
+except you use a different sorting function (instead of sorting blocks
+linearly within each file, you sort according to access order).
+
+		Linus
+

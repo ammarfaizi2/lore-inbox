@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbUJYUAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUJYT75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbUJYUAA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUJYTzQ
+	id S261302AbUJYT75 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 15:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUJYTzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 15:55:16 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:6385 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261279AbUJYTud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 15:50:33 -0400
-Message-ID: <417D5903.6090106@acm.org>
-Date: Mon, 25 Oct 2004 14:50:27 -0500
-From: Corey Minyard <minyard@acm.org>
+	Mon, 25 Oct 2004 15:55:35 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43409 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261278AbUJYTuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 15:50:32 -0400
+Message-ID: <417D5991.3050003@tmr.com>
+Date: Mon, 25 Oct 2004 15:52:49 -0400
+From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
- kernels
-References: <417D2305.3020209@acm.org.suse.lists.linux.kernel> <p73u0sik2fa.fsf@verdi.suse.de>
-In-Reply-To: <p73u0sik2fa.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Hans Reiser <reiser@namesys.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org><20041022032039.730eb226.akpm@osdl.org> <4179425A.3080903@namesys.com>
+In-Reply-To: <4179425A.3080903@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to the comments in 2.4, this code causes the NMI to be 
-re-asserted if another NMI occurred while the NMI handler was running.  
-I have no idea how twiddling with these CMOS registers causes this to 
-happen, but that is supposed to be the intent.  I don't think it has 
-anything to do with delays.
+Hans Reiser wrote:
 
-I would like to know what this code really does before removing it.
+> I would like to encourage its inclusion as an experimental filesystem 
+> BEFORE vendors ship it. I think first putting experimental stuff in the 
+> kernels used by hackers makes sense. I think it creates more of a 
+> community.
 
--Corey
+I think -mm *is* what is run by hackers. That said, do you really think 
+that it is stable with 4k stack? (that's a real question, it wasn't for 
+me in 2.6.8-mm? when I briefly tried it).
 
-Andi Kleen wrote:
+I see the major benefits to people running heavy i/o load, like database 
+and servers. And those are the users with the most to lose if it still 
+has residual learning experiences.
 
->Corey Minyard <minyard@acm.org> writes:
->
->  
->
->>I had a customer on x86 notice that sometimes offset 0xf in the CMOS
->>RAM was getting set to invalid values.  Their BIOS used this for
->>information about how to boot, and this caused the BIOS to lock up.
->>
->>They traced it down to the following code in arch/kernel/traps.c (now
->>in include/asm-i386/mach-default/mach_traps.c):
->>
->>    outb(0x8f, 0x70);
->>    inb(0x71);              /* dummy */
->>    outb(0x0f, 0x70);
->>    inb(0x71);              /* dummy */
->>    
->>
->
->Just use a different dummy register, like 0x80 which is normally used
->for delaying IO (I think that is what the dummy access does) 
->
->But I'm pretty sure this NMI handling is incorrect anyways, its
->use of bits doesn't match what the datasheets say of modern x86
->chipsets say. Perhaps it would be best to just get rid of 
->that legacy register twiddling completely.
->
->I will also remove it from x86-64.
->
->-Andi
->  
->
+I do think that akpm is capable of deciding when it should go in without 
+all this politicing, and I doubt he or Linus care if it makes a vendor 
+kernel first, considering all the things in vendor kernels which NEVER 
+get to mainline.
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

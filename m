@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318542AbSHPQ0c>; Fri, 16 Aug 2002 12:26:32 -0400
+	id <S318599AbSHPQaB>; Fri, 16 Aug 2002 12:30:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318546AbSHPQ0c>; Fri, 16 Aug 2002 12:26:32 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:30434 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S318542AbSHPQ0a>; Fri, 16 Aug 2002 12:26:30 -0400
-Date: Fri, 16 Aug 2002 17:30:13 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
-Message-ID: <20020816173013.A858@kushida.apsleyroad.org>
-References: <20020816151911.A590@kushida.apsleyroad.org> <Pine.LNX.4.44.0208161639150.29243-100000@localhost.localdomain>
+	id <S318601AbSHPQaB>; Fri, 16 Aug 2002 12:30:01 -0400
+Received: from waste.org ([209.173.204.2]:2776 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318599AbSHPQaA>;
+	Fri, 16 Aug 2002 12:30:00 -0400
+Date: Fri, 16 Aug 2002 11:33:49 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with random.c and PPC
+Message-ID: <20020816163349.GG5418@waste.org>
+References: <200208151514.51462.henrique@cyclades.com> <20020815190336.GN22974@opus.bloom.county> <20020815195933.GW9642@clusterfs.com> <20020815210449.GA26993@opus.bloom.county> <ajhlp8$qse$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208161639150.29243-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Aug 16, 2002 at 04:48:46PM +0200
+In-Reply-To: <ajhlp8$qse$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> there are some practical problems with making the notification a futex,
-> not a simple flag. Eg. futexes right now do not force any lock-counter
-> format upon userspace. Futexes can be used as mutexes, conditional
-> variables, read-write locks, all of which have different atomic counter
-> formats and uses.
+On Thu, Aug 15, 2002 at 06:50:32PM -0700, H. Peter Anvin wrote:
+> Followup to:  <20020815210449.GA26993@opus.bloom.county>
+> By author:    Tom Rini <trini@kernel.crashing.org>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Ah, thanks.  In that case, no.  It doesn't look like the input-layer USB
+> > keyboards contribute to entropy (but mice do), and I don't think the ADB
+> > ones do.  I'll take a crack at adding this to keyboards monday maybe.
+> > 
+> 
+> Be careful... USB devices are *always* going to speak at the same
+> place in the USB cycle... I believe that is 1 ms.  Thus,
+> submillisecond resolution is *not* random.
 
-Agreed; futexes are lovely because they are so generic.
+Currently not a problem for anyone except X86, as they'll only use HZ
+resolution. But the same problem exists on regular mice and keyboards,
+which are typically scanned for events at a fixed rate.
 
-> By doing the TID-release notification via a futex the actual format of
-> the lock is forced, which is a cleanliness problem. Just writing $0 to
-> the TID pointer is a robust thing on the other hand.
+This is just the tip of the iceberg for problems with entropy
+accounting. I've got some free time today, I'll try to clean up my
+patches for this.
 
-Quite.  There is no lock; the the futex is used in its purest form, as
-a wait queue.
-
-      TID  = thread is alive
-      zero = thread is gone
-
-There's no "lock-counter format", because this isn't a lock -- it's a
-wakeup.  There no need for atomicity either, because the listener only
-reads, it doesn't write.  I'm not sure if a PROT_SEM word is required
-for cache coherency, but if it is, your current implementation requires
-one too.
-
-Here's a synchronous thread_join-style waiter; it is architecture-neutral:
-
-	while (tid = *tid_address) != 0)
-		retval = sys_futex (tid_address, FUTEX_WAIT, tid, 0);
-
--- Jamie
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

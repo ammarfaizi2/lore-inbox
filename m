@@ -1,50 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSEHRHQ>; Wed, 8 May 2002 13:07:16 -0400
+	id <S314681AbSEHRH0>; Wed, 8 May 2002 13:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314681AbSEHRHP>; Wed, 8 May 2002 13:07:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59403 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314514AbSEHRHN>; Wed, 8 May 2002 13:07:13 -0400
-Date: Wed, 8 May 2002 18:07:05 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Patrick Mochel <mochel@osdl.org>,
-        Thunder from the hill <thunder@ngforever.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020508180705.B18698@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205071245370.4189-100000@hawkeye.luckynet.adm> <Pine.LNX.4.33.0205071238000.6307-100000@segfault.osdl.org> <200205072203.g47M3o002102@vindaloo.ras.ucalgary.ca> <20020508091442.A16868@flint.arm.linux.org.uk> <200205081607.g48G7in11351@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
+	id <S314787AbSEHRH0>; Wed, 8 May 2002 13:07:26 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:23784 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314681AbSEHRHW>;
+	Wed, 8 May 2002 13:07:22 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15577.23356.338023.88947@napali.hpl.hp.com>
+Date: Wed, 8 May 2002 10:07:08 -0700
+To: Dave Engebretsen <engebret@vnet.ibm.com>
+Cc: justincarlson@cmu.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, anton@samba.org, davidm@hpl.hp.com,
+        ak@suse.de
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <3CD943CE.296717DF@vnet.ibm.com>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 10:07:44AM -0600, Richard Gooch wrote:
-> Russell King writes:
-> > Really?  What about the case of the missing BKL for device opens that
-> > you haven't really commented on?
-> 
-> I did comment to you, privately, saying I was waiting to see what the
-> consensus was on the issue of whether to move the BKL or not. I'll be
-> sending a patch later this week to fix it.
+>>>>> On Wed, 08 May 2002 10:27:10 -0500, Dave Engebretsen <engebret@vnet.ibm.com> said:
 
-Yes, and hey, we still have the problem a week layer, even after the
-discussion went dead.
+  Dave> I am curious what the definition of memory barriers is for
+  Dave> IA64, Sparc, and x86-64.
 
-> > Seems like devfs _still_ has locking problems.
-> 
-> A pretty minor one, given the comment I was responding to: "devfs is
-> unfixable". I've noticed that even Al has gone quiet on the "devfs
-> races" issue, now that the new code is in place :-)
+I'm not sure it's enough to look just at the memory barriers.  The
+barriers only make sense within the memory ordering model defined for
+each architecture.  For ia64, this is defined in Section 4.4.7 of
+the System Architecture Guide, which is available at:
 
-Never the less, your comment about "no locking problems" is inaccurate.
-devfs is calling at least one part of the kernel without obeying the
-existing locking rules.  That's definitely a devfs bug.
+ http://developer.intel.com/design/itanium/downloads/24531803s.htm
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+  Dave> From what I can tell, sparc and x86-64 are like alpha and map
+  Dave> directly
+  Dave> to the existing mb, wmb, and rmb semantics, incluing ordering
+  Dave> between system memory and I/O space.  Is that an accurate
+  Dave> assesment?
 
+  Dave> IA64 has both the mf and mf.a instructions, one for system
+  Dave> memory the other for I/O space.
+
+The ia64 memory ordering model is quite orthogonal to the one that
+Linux uses (which is based on the Alpha instructions): Linux
+distinguishes between read and write memory barriers.  ia64 uses an
+acquire/release model instead.  An acquire orders all *later* memory
+accesses and a release orders all *earlier* accesses (regardless of
+whether they are reads or writes).  Another difference is that the
+acquire/release semantics is attached to load/store instructions,
+respectively.  This means that in an ideal world, ia64 would rarely
+need to use the memory barrier instruction.
+
+Now, finding a way to abstract all the differences accross
+architectures in a way that's easy to use and allows for optimal
+implementation on each architecture may not be easy.  This problem
+also shows up with user-level thread libraries and I have had on and
+off discussions about this with Hans Boehm, but neither of us has
+really had time to work on it seriously.  In truth, it is also the
+case that for Itanium and Itanium 2, the cost of "mf" is small enough
+that there hasn't been a huge need to get this exactly right.  But
+when reworking the memory ordering model of Linux, it might just as
+well be taken into account.
+
+  Dave> What is required for ordering
+  Dave> of references between the spaces?  That is not clear to me
+  Dave> looking at the ia64 headers.
+
+Look at Table 4-15 in the above document (on page 2-70).  I/O space is
+simply a memory-mapped region that is mapped uncached.  In the table,
+the row "Sequential" refers to uncached memory.  The quick summary is
+that normal loads/stores to memory are not automatically ordered with
+respect to accesses to uncached memory.
+
+I'm also discussing some of these issues in my book
+(http://www.lia64.org/book/) in the Device I/O chapter, but the
+architecture manual mentioned above is of course the ultimate source
+if you want all the gory details.
+
+	--david

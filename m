@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274757AbRKGUPU>; Wed, 7 Nov 2001 15:15:20 -0500
+	id <S280943AbRKGUTK>; Wed, 7 Nov 2001 15:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280824AbRKGUPL>; Wed, 7 Nov 2001 15:15:11 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:45840 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S274757AbRKGUOy>; Wed, 7 Nov 2001 15:14:54 -0500
-Date: Wed, 7 Nov 2001 21:14:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jonas Diemer <diemer@gmx.de>
-Cc: Linux Kermel ML <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686 timer bugfix incomplete
-Message-ID: <20011107211445.A2286@suse.cz>
-In-Reply-To: <20011107125012.6b1fbdc3.diemer@gmx.de> <E161RcS-0003x8-00@the-village.bc.nu> <20011107202546.A1939@suse.cz> <20011107204800.70b91985.diemer@gmx.de>
+	id <S280824AbRKGUTA>; Wed, 7 Nov 2001 15:19:00 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36347 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280943AbRKGUSv>;
+	Wed, 7 Nov 2001 15:18:51 -0500
+Date: Wed, 7 Nov 2001 13:18:33 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resiserfs vs xfs
+Message-ID: <20011107131833.G5922@lynx.no>
+Mail-Followup-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0111071558090.29292-100000@mustard.heime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011107204800.70b91985.diemer@gmx.de>; from diemer@gmx.de on Wed, Nov 07, 2001 at 08:48:00PM +0100
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0111071558090.29292-100000@mustard.heime.net>; from roy@karlsbakk.net on Wed, Nov 07, 2001 at 04:00:55PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 08:48:00PM +0100, Jonas Diemer wrote:
-> On Wed, 7 Nov 2001 20:25:46 +0100
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> ...
-> > The bug #2 can trigger the test for #1, because the timer is read just
-> > after the timer interrupt happens and thus the value is usually around
-> > 11920, which, plus 256 is larger than 11920.
-> > 
-> 
-> so why don't you simply add a new option to the config file, that says "work
-> around Via 686a bug"? that way, only ppl who have the bug need the fix.
-> 
-> ...
-> > Only timer.c and apic.c do proper locking.
-> > 
-> 
-> well, but as I said, the workaround in arch/i386/kernel/time.c is incomplete, at
-> least in linus' kernel tree!
-> 
-> > The problem is how to work around the bugs 1) and 2) reliably and
-> > without too much performance impact. I haven't found a feasible way to
-> > do that yet.
-> 
-> well, just use the option described above. that way, ppl that need the fix can
-> choose to use it (at a cost of performance), others simply don't need checking.
-> 
-> -jonas
-> 
-> PS: CC me in your answers plz, I am not subscribed to the list.
+On Nov 07, 2001  16:00 +0100, Roy Sigurd Karlsbakk wrote:
+> I just set up a RedHat 7.2 box with ext3, and after a few tests/chrashes,
+> I see no difference at all. After a chrash, it really wants to run fsck
+> anyway.
 
-The VIA bug isn't a problem: The fix doesn't cause performance problems
-to people unaffected by the bug, it just prints an annoying message to
-people who see it triggered by bug #2 (Neptune).
+If you are getting a real* fsck for an "ext3" filesystem there are two
+possibilities:
 
-The Neptune bug (which seems much more widespread than expected) is a
-much larger problem - it's hard to detect without performance
-degradation and currently it isn't known which chipsets are affected. It
-is known that Intel Mercury and Intel Neptune (old P6 chipsets) are. But
-how about others ... ?
+1) You actually have ext2, not ext3 - check /proc/mounts to be sure.
+2) After 20 (by default) crashes, ext3 filesystems are fsck'd anyways.
+   This is NOT because ext3 is bad/unreliable, but because hardware,
+   RAM, kernels can be bad.  Use "tune2fs -c 50" to change this interval
+   to every 50 mounts.  It is a bad idea to turn it off completely.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+(*) Note that e2fsck WILL run on each boot, but will only recover the journal
+    and clean up orphan inodes.  That will take < 2 seconds, and is not a sign
+    that something is wrong with the filesystem.
+
+> I've tried ReiserFS before, with no fsck after chrashes - is this
+> because ReiserFS is better, or is it more like a hope-it's-ok-thinkig?
+
+The latter - Hans and other reiserfs folks acknowledge that reiserfsck
+is NOT safe enough to run on each boot, so they don't suggest running it
+unless you have a problem.  e2fsck IS very good, so it can run on each
+boot.  There are still lots of problems reported with reiserfs, and Hans
+acknowledges that many of them are due to memory/hardware/kernel problems,
+so it IS still a good idea to run fsck periodically at boot, but reiserfsck
+cannot do that yet.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

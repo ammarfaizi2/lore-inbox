@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSHXTMU>; Sat, 24 Aug 2002 15:12:20 -0400
+	id <S316667AbSHXUJz>; Sat, 24 Aug 2002 16:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSHXTMU>; Sat, 24 Aug 2002 15:12:20 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:58272 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S316610AbSHXTMT>; Sat, 24 Aug 2002 15:12:19 -0400
-Message-ID: <20020824191628.17121.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S316672AbSHXUJz>; Sat, 24 Aug 2002 16:09:55 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17139 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316667AbSHXUJz>; Sat, 24 Aug 2002 16:09:55 -0400
+Subject: Re: IDE janitoring comments
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020824151558.26134@192.168.4.1>
+References: <20020824151558.26134@192.168.4.1>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Cc: rcastro@users.sourceforge.net
-Date: Sun, 25 Aug 2002 03:16:28 +0800
-Subject: dbench test
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 24 Aug 2002 21:14:11 +0100
+Message-Id: <1030220051.3196.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I've just ran a few test "dbench" based against:
-- 2.4.18
-- 2.4.18 + compressed cache -0.24pre3
-- 2.4.19
-- 2.5.31
+On Sat, 2002-08-24 at 16:15, Benjamin Herrenschmidt wrote:
+>  - Do we really want to keep all those _P versions around ?
+> A quick grep showed _only_ by the non-portable x86 specific
+> recovery timer stuff that taps ISA timers (well, I think ports
+> 0x40 and 0x43 and an ISA timer). I would strongly suggest to
 
-Ok, I know that dbench is not a "good" test,
-but it should be at least a good stress test.
-I got neither oops nor BUG().
+I'd like to keep them around for the moment. They should be using
+udelay() but thats a general issue with _p inb/outb etc.
 
-Each test has been ran twice.
-Here it goes the results:
+> After much thinking about the above, I came to the conslusion
+> we probably want to just kill all the IN_BYTE, OUT_BYTE, etc.
 
-2.4.18
-Istances Throughput
-8 	 25.1022
-16 	 20.3833
-24 	 18.0078
-32 	 13.6657
-
-2.4.18 -0.24pre3 (64MiB of cc)
-Istances Throughput
-8 	 28.5116
-16 	 27.5003
-24 	 24.6963
-32 	 16.423
-
-2.4.19
-Istances Throughput
-8 	 25.5343
-16 	 20.7133
-24 	 16.2473
-32 	 14.2351
-
-2.5.31
-Istances Throughput
-8 	 30.6827
-16 	 18.2236
-24 	 14.6759
-32 	 12.7659
-
-Ciao,
-         Paolo
--- 
-Get your free email from www.linuxmail.org 
+Agreed entirely
 
 
-Powered by Outblaze
+> Also, getting rid of the _P version would make things a lot
+> easier as well here too.
+
+What currently uses the _P versions ?
+

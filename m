@@ -1,70 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312515AbSC3TqP>; Sat, 30 Mar 2002 14:46:15 -0500
+	id <S312505AbSC3TvG>; Sat, 30 Mar 2002 14:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312509AbSC3TqF>; Sat, 30 Mar 2002 14:46:05 -0500
-Received: from www.wen-online.de ([212.223.88.39]:27410 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S312505AbSC3Tpt>;
-	Sat, 30 Mar 2002 14:45:49 -0500
-Date: Sat, 30 Mar 2002 20:47:37 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vfs_unlink() >=2.5.5-pre1 question
-In-Reply-To: <Pine.GSO.4.21.0203301321090.2590-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10203302034380.296-100000@mikeg.wen-online.de>
+	id <S312509AbSC3Tuz>; Sat, 30 Mar 2002 14:50:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17671 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312505AbSC3Tue>;
+	Sat, 30 Mar 2002 14:50:34 -0500
+Message-ID: <3CA616B2.1F0D8A76@zip.com.au>
+Date: Sat, 30 Mar 2002 11:49:06 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: rwhron@earthlink.net
+CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.19-pre5
+In-Reply-To: <20020330135333.A16794@rushmore>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Mar 2002, Alexander Viro wrote:
-
-> On Sat, 30 Mar 2002, Mike Galbraith wrote:
+rwhron@earthlink.net wrote:
 > 
-> > On Sat, 30 Mar 2002, Mike Galbraith wrote:
-> > 
-> > > Hi,
-> > > 
-> > > d_delete() doesn't appear to ever create negative dentries when
-> > > called via vfs_unlink() due to the extra reference on the dentry.
-> > > In fact, a printk() in the d_delete() spot never ever triggers...
-> > 
-> > Well shoot.  I guess I've chased this about as far as I can, and
-> > hope this thread wasn't a total waste.  I found a better way to
-> > get my rm -r to work as before fwiw.  Rewinding the directory on
-> > seek failure (yeah, could do in three lines, but not the point)
-> > works, but is kinda b0rken.  I think the only interesting thing
-> > in the below is the FIXME :)) but I'll post it anyway.
+> > This release has -aa writeout scheduling changes, which should improve IO
+> > performance (and interactivity under heavy write loads).
 > 
-> Your patch is broken.  FWIW, there are several real issues:
+> > _Please_ test that extensively looking for any kind of problems
+> > (performance, interactivity, etc).
+> 
+> 2.4.19-pre5 shows a lot of improvement in the tests
+> I run.  dbench 128 throughput up over 50%
+> 
+> dbench 128 processes
+> 2.4.19-pre4              8.4 ****************
+> 2.4.19-pre5             13.2 **************************
 
-I'm not in the least suprised.  (Actually, I'm rather pleased with
-that assesment;)
+dbench throughput is highly dependent upon the amount of memory
+which you allow it to use.  -pre5 is throttling writers based
+on the amount of dirty buffers, not the amount of dirty+locked
+buffers.   Hence this change.
 
-> 	a) d_delete() being called too early in vfs_unlink().  Not a big
-> deal, it's easy to move outside of dget()/dput().  However, you _can't_
+It's worth noting that balance_dirty() basically does this:
 
-Ok, at least here I was onto something.
+	if (dirty_memory > size-of-ZONE_NORMAL * ratio)
+		write_stuff();
 
-> expect unlink() to make dentry negative.  It's always possible that it
-> will be left positive and unhashed - that's what we have to do if file
-> we are unlinking is opened.
+That's rather irrational, because most of the dirty buffers
+will be in ZONE_HIGHMEM.  So hmmmm.  Probably we should go
+across all zones and start writeout if any of them is getting
+full of dirty data.  Which may not make any difference....
 
-This one I'll have to fiddle with (thanks!).  I was just looking at
-the behavior delta, missing any real understanding of the 'why'.
+> Tiobench sequential writes:
+> 10-20% more throughput and latency is lower.
 
-> 	b) rm -rf expecting offsets in directory to stay stable after
-> unlink().  B0rken, complain to GNU folks.  Sorry, I'm not touching that
-> code - GNU fileutils source is too yucky.
+The bdflush changes mean that we're doing more write-behind.
+So possibly write throughput only *seems* to be better,
+because more of it is happening after the measurement period
+has ended.  It depends whether tiobench is performing an
+fsync, and is including that fsync time in its reporting.
+It should be.
 
-That was my starting point. (I kinda agree, but it's better than anything
-_I_ could write from scratch, so..)
+> Tiobench Sequential reads
+> Down 7-8%.
 
-> 	c) dcache_readdir() behaviour.  There was an old patch that makes
-> it slightly more forgiving; I'll dig it out.
+Dunno.  I can't immediately thing of anything in pre5
+which would cause this.
+ 
+> Andrew Morton's read_latency2 patch improves tiobench
+> sequential reads and writes by 10-35% in the tests I've
+> run.  More importantly, read_latency2 drops max latency
+> with 32-128 tiobench threads from 300-600+ seconds
+> down to 2-8 seconds.  (2.4.19-pre5 is still unfair
+> to some read requests when threads >= 32)
 
-I'd love to see it
+These numbers are surprising.  The get_request starvation
+change should have smoothed things out.   Perhaps there's
+something else going on, or it's not working right.  If
+you could please send me all the details to reproduce this
+I'll take a look.  Thanks.
 
-	-Mike
+> I'm happy with pre5 and hope more chunks of -aa show
+> up in pre6.  Maybe Andrew will update read_latency2 for
+> inclusion in pre6. :)  It helps tiobench seq writes too.
+> dbench goes down a little though.
 
+http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/
+
+
+Nice testing report, BTW.  As we discussed off-list, your
+opinions, observations and summary are even more valuable than
+columns of numbers :)
+
+Have fun with that quad, but don't break it.
+
+I'll get the rest of the -aa VM patches up at the above URL
+soonish.  I seem to have found a nutty workload which is returning
+extremely occasional allocation failures for GFP_HIGHUSER
+requests, which will deliver fatal SIGBUS at pagefault time.
+There's plenty of swap available, so this is a snag.
+
+-

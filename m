@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbUBEKAM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 05:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUBEKAM
+	id S264583AbUBEJze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 04:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUBEJze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 05:00:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11536 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263760AbUBEKAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 05:00:09 -0500
-Date: Thu, 5 Feb 2004 10:00:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Thu, 5 Feb 2004 04:55:34 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:28909 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264583AbUBEJzd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 04:55:33 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16418.4883.428169.211475@laputa.namesys.com>
+Date: Thu, 5 Feb 2004 12:55:31 +0300
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-Message-ID: <20040205100004.A5426@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>
 References: <20040205014405.5a2cf529.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>; from akpm@osdl.org on Thu, Feb 05, 2004 at 01:44:05AM -0800
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 01:44:05AM -0800, Andrew Morton wrote:
->  bk-netdev.patch
+Andrew Morton writes:
+ > 
+ > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
+ > 
+ > 
+ > - Merged some page reclaim fixes from Nick and Nikita.  These yield some
+ >   performance improvements in low memory and heavy paging situations.
 
-Does this include the changes to all those PCMCIA net drivers which
-Jeff has had for a while from me?
+----------------------------------------------------------------------
 
-I'd like to get those patches into mainline so I can close bugme bug
-1711, but I think Jeff's waiting for responses from the individual
-net driver maintainers first. ;(
+>From Jargon File (4.3.0, 30 APR 2001) [jargon]:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+  WOMBAT /wom'bat/ adj. [acronym: Waste Of Money, Brains, And Time]
+     Applied to problems which are both profoundly {uninteresting} in
+     themselves and unlikely to benefit anyone interesting even if solved.
+
+----------------------------------------------------------------------
+
+A reference to the "VM replacement research was finished in 60s", I
+presume.
+
+ > 
+ > - Various random fixes.
+
+Nikita.

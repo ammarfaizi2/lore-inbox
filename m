@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbTCJQTq>; Mon, 10 Mar 2003 11:19:46 -0500
+	id <S261340AbTCJQNd>; Mon, 10 Mar 2003 11:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbTCJQTq>; Mon, 10 Mar 2003 11:19:46 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:15630 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261352AbTCJQTp>; Mon, 10 Mar 2003 11:19:45 -0500
-Date: Mon, 10 Mar 2003 11:30:07 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S261341AbTCJQNd>; Mon, 10 Mar 2003 11:13:33 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25733 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261340AbTCJQNc>;
+	Mon, 10 Mar 2003 11:13:32 -0500
+Date: Mon, 10 Mar 2003 09:59:42 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Ben Collins <bcollins@debian.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] [PATCH] Device removal callback
-Message-ID: <20030310163007.GA555@phunnypharm.org>
-References: <20030309181413.GA492@phunnypharm.org> <Pine.LNX.4.33.0303100939001.1002-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303100939001.1002-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030310010232.GB16134@phunnypharm.org>
+Message-ID: <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 09:45:12AM -0600, Patrick Mochel wrote:
-> 
-> > So, here's my simple patch. I'd really like this to be applied to the
-> > proper kernel. I really can't see how the driver model is working
-> > without walking children on unregister, but this atleast allows you to
-> > handle it yourself.
-> 
-> The assumption is that the bus driver will take care of cleaning up all 
-> the children before unregistering the parent. This place a bit more 
-> responsibility on the bus driver, but it keeps it simple in the core. 
-> 
-> That's not to say that it can't change in the future, but I don't want to 
-> take that step right now. There are a lot of implications WRT locking and 
-> recursion that need to be worked out, and I'd rather wait on making these 
-> kind of core changes.
 
-That's fine, I can deal with that. But this patch only allows you to add
-a ->remove member to a device, which will aide in ensuring that.
-Currently there's not even a check in the driver core for whether a
-device has children when it is removed. Adding the remove function will
-make it easier for the bus to validate a device, sanity check it, and
-cleanup after it before it gets demolished from the core.
+> Instead I now do this, with the patch.
+> 
+> void ieee1394_remove_node(struct device *dev)
+> {
+> 	list_for_each(..., &ne->device.children) {
+> 		device_unregister(list_to_dev(lh));
+> 	}
+> }
+> 
+> ...
+> 	/* Where the dev is created */
+> 	...
+> 	ne->device.remove = ieee1394_remove_node;
+> 	device_register(&ne->device);
+> 
+> Now, no matter where it's called from, doing...
+> 
+> 	device_unregister(&ne->device);
+> 
+> ...will make sure my remove callback is executed, so the children
+> devices get unregistered aswell. I extend this to the host device
+> and I have a recursive remocal scheme that is safe no matter where my
+> devices get unregistered. Whole lot simpler that adding in a lot of
+> failsafe's and checks.
 
-Maybe you need to {get,put}_device() wrap the call to remove, but that
-shouldn't be a big problem with locking (really, the patch is simple).
+But, you can do exactly the same with just a few added lines in the 
+ieee1394 core - just have a wrapper that calls ->remove() (in the 1394 
+device structure), then calls device_unregister() for the device.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Your ->remove() can do anything you like, including removing all the 
+children, much as I assume it does now. So, behavior is exactly as you 
+want, and it keeps it out of the core for now. 
+
+I much prefer this, as I would like to see it eventually, but I'd rather
+see the implications worked out before it's generalized.
+
+Thanks,
+
+
+	-pat
+

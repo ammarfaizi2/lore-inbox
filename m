@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270593AbRHTPfU>; Mon, 20 Aug 2001 11:35:20 -0400
+	id <S271310AbRHTPjj>; Mon, 20 Aug 2001 11:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271283AbRHTPfJ>; Mon, 20 Aug 2001 11:35:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:55738 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S270593AbRHTPez>;
-	Mon, 20 Aug 2001 11:34:55 -0400
-Date: Mon, 20 Aug 2001 10:35:04 -0500
+	id <S271307AbRHTPj3>; Mon, 20 Aug 2001 11:39:29 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:30911 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S271318AbRHTPjT>;
+	Mon, 20 Aug 2001 11:39:19 -0400
+Date: Mon, 20 Aug 2001 10:39:20 -0500
 From: Dave McCracken <dmccr@us.ibm.com>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Prevent reuse of active thread group id
-Message-ID: <87110000.998321704@baldur>
+Subject: [PATCH] 2.4.9 Make thread group id visible in /proc/<pid>/status
+Message-ID: <92830000.998321960@baldur>
 X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -20,11 +20,11 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The thread group id of a task is initially assigned the value of that 
-task's pid, then is inherited for each child task created with 
-CLONE_THREAD.  This patch makes sure that the thread group id is never 
-re-used as another task's pid as long as there's an active task with that 
-tgid.
+It would be useful in many contexts to be able to see the thread group id. 
+This would make it easier to identify tasks that are part of a 
+multi-threaded process, at least for those that are using pthreads.  This 
+patch adds a TGid field to the status file.  This will not break ps, since 
+ps skips any field in status that it doesn't understand.
 
 Patch is below.
 
@@ -34,16 +34,22 @@ Dave McCracken
 Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
 dmccr@us.ibm.com                                        T/L   678-3059
 
-====================
+==========================
 
---- linux-2.4.9/./kernel/fork.c	Tue Jul 17 20:23:28 2001
-+++ linux-2.4.9-tgid/./kernel/fork.c	Mon Aug 20 10:28:22 2001
-@@ -101,6 +101,7 @@
- 		for_each_task(p) {
- 			if(p->pid == last_pid	||
- 			   p->pgrp == last_pid	||
-+			   p->tgid == last_pid	||
- 			   p->session == last_pid) {
- 				if(++last_pid >= next_safe) {
- 					if(last_pid & 0xffff8000)
+--- linux-2.4.9/./fs/proc/array.c	Thu Jul 26 15:42:56 2001
++++ linux-2.4.9-tgid/./fs/proc/array.c	Mon Aug 20 10:05:18 2001
+@@ -153,11 +153,12 @@
+ 		"State:\t%s\n"
+ 		"Pid:\t%d\n"
+ 		"PPid:\t%d\n"
++		"TGid:\t%d\n"
+ 		"TracerPid:\t%d\n"
+ 		"Uid:\t%d\t%d\t%d\t%d\n"
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+ 		get_task_state(p),
+-		p->pid, p->pid ? p->p_opptr->pid : 0, 0,
++		p->pid, p->pid ? p->p_opptr->pid : 0, p->tgid, 0,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+ 	read_unlock(&tasklist_lock);	
 

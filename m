@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284300AbSBGPqM>; Thu, 7 Feb 2002 10:46:12 -0500
+	id <S287002AbSBGPsC>; Thu, 7 Feb 2002 10:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287002AbSBGPqC>; Thu, 7 Feb 2002 10:46:02 -0500
-Received: from adsl-61-88-217.mia.bellsouth.net ([208.61.88.217]:35337 "HELO
-	thekeywestclassified.com") by vger.kernel.org with SMTP
-	id <S284300AbSBGPpz>; Thu, 7 Feb 2002 10:45:55 -0500
-From: "The Key West Classified" <miko@thekeywestclassified.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: This is a Florida Keys News FLash
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 7 Feb 2002 10:43:45 -0500
-Reply-To: "The Key West Classified" <miko@thekeywestclassified.com>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020207154558Z284300-13997+15284@vger.kernel.org>
+	id <S287348AbSBGPrw>; Thu, 7 Feb 2002 10:47:52 -0500
+Received: from trained-monkey.org ([209.217.122.11]:55559 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S287002AbSBGPrm>; Thu, 7 Feb 2002 10:47:42 -0500
+From: Jes Sorensen <jes@trained-monkey.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15458.41366.1639.628598@trained-monkey.org>
+Date: Thu, 7 Feb 2002 10:47:33 -0500
+To: Christian Hildner <christian.hildner@hob.de>
+Cc: davidm@hpl.hp.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-ia64] kmalloc() size-limitation
+In-Reply-To: <3C5F80F2.54AF98E3@hob.de>
+In-Reply-To: <3C3D6A89.27EAA4C7@hob.de>
+	<15421.61910.163437.45726@napali.hpl.hp.com>
+	<3C3ED5E7.8BA479B7@hob.de>
+	<15423.5404.65155.924018@napali.hpl.hp.com>
+	<3C43D6EC.74B4EC85@hob.de>
+	<d31yg1lzgm.fsf@lxplus052.cern.ch>
+	<3C5F80F2.54AF98E3@hob.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>>>> "Christian" == Christian Hildner <christian.hildner@hob.de> writes:
 
-Have you heard on the radio, 92.7, 93.5, 99.5! There is a NEW WEEKLY PAPER
-coming to town!
+Christian> Jes Sorensen schrieb:
+>> Because drivers needs to work on all architectures and relying on
+>> different hahavior from kmalloc() is bad.
 
-Yes! A new paper. It's called THE KEY WEST CLASSIFIED. 
+Christian> sorry for being unclear. I mean from increasing the kmalloc()
+Christian> size-limit all platforms would benefit.
 
-Any person can place a classified ad in our weekly published paper
-absolutely FREE!
-There is no catch, we generate our income through our business advertisers.
+Thats not really a good idea, and definately not something you want to
+rely on. A lot of architectures are still stuck with 4KB pages and
+trying to allocate 128KB on larger in one chunk is likely to fail after
+the system has been running for a while. On an ia64 with 16KB or 64KB
+pages it's fairly likely it will work, but this is not necessarily a
+good idea to do for other archs. If you need such a large block of
+memory, vmalloc() is the real way to go.
 
-Free classified ads are the essence of The Key West Classified. They are
-easy to place. 
-Just phone, fax or use our online form at www.thekeywestclassified.com
-
-  
-The first issue comes out on the 22nd of February. So act now and call to
-place a free ad today.
-Deadline is Monday the 18th of February at 12 noon.
-
-Phone:(305)293-1980 
-Fax:(305)293-1196
-
-The biggest free classified ad paper in the Florida Keys. 
-
-
-Thank you 
-
-Miko
+Jes

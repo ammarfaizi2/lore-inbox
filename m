@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266197AbUGJIuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUGJJV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266197AbUGJIuL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 04:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUGJIuL
+	id S266170AbUGJJV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 05:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUGJJV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 04:50:11 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:61368 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266197AbUGJIuH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 04:50:07 -0400
-Date: Sat, 10 Jul 2004 10:50:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Redeeman <lkml@metanurb.dk>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710085044.GA14262@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jul 2004 05:21:27 -0400
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:41192 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266170AbUGJJVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 05:21:03 -0400
+Message-Id: <200407100920.i6A9Kr808614@mail001.syd.optusnet.com.au>
+Content-Type: text/plain
 Content-Disposition: inline
-In-Reply-To: <20040710080234.GA25155@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+From: Robert Lowery <rlowery@optusnet.com.au>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Sat, 10 Jul 2004 19:20:53 +1000
+Subject: Re: Re: [OT] Belkin Bluetooth Access Point GPL violation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcel,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+At this point, I have not tried pulling the firmware apart, all I have done is telnetted into 
+it and poked around a bit.
 
-> * Redeeman <lkml@metanurb.dk> wrote:
+If I manage to get the kernel source, my next step will be to try and work out how to 
+pull apart their firmware and repackage it with a custom kernel.
+
+-Robert
+
+> Marcel Holtmann <marcel@holtmann.org> wrote:
 > 
-> > this all seems pretty cool... do you think you could make a patch
-> > against mm for this? it would be greatly apreciated
+> Hi Robert,
 > 
-> it should apply cleanly to 2.6.7-mm6. -mm7 already includes most of the
-> might_sleep() additions. I'll do a patch against -mm7 too.
-
-here's the patch against -mm7:
-
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-mm7-H3
-
-the patch got really small because most of the fixes and infrastructure
-enhancements that resulted out of this patch are in -mm7 already. It
-will get even smaller later on.
-
-	Ingo
+> > I recently purchase a Belkin Bluetooth Access Point with USB Print
+> > Server
+> > 
+> http://catalog.belkin.com/IWCatProductPage.process?Merchant_Id=&Section_
+> 
+> > Id=200583&pcount=&Product_Id=134669
+> > 
+> > By telnetting into it, I was able to find that it runs linux,
+> > specifically uClinux version 2.0.38.1pre7arm.
+> > 
+> > Investigating further, I found the device is made by
+> > www.rovingnetworks.com
+> > 
+> > The latest version of firmware may be obtained from
+> > http://www.belkin.com/firmware/bluetooth/f8t030/flash.bin or a beta
+> > version that includes PAN support at
+> > www.rovingnetworks.com/belkinpan4.bin
+> > 
+> > I contacted them at support@rovingnetworks.com  Mike Conrad replied 
+> to
+> > my request.
+> > 
+> > Initially, he said they wanted $5000 for a source code license.  When 
+> I
+> > Informed him of their GPL violation, he said
+> > "you could possibly have the linux os changes we made, but our 
+> bluetooth
+> > stack, for example, is not covered under the GPL. And we have special
+> > tools that enable web download, and  create the image that is loaded,
+> > etc."
+> > 
+> > Looking at the running system, it is not running any kernel modules, 
+> so
+> > I would expect the bluetooth stack to be compiled into the kernel
+> > proper, which in my understanding would mean they have to release the
+> > source.
+> 
+> may you tell me how you extracted the kernel and the filesystem from 
+> the
+> firmware files. I wanna take a look at it and find out what Bluetooth
+> stack they are using.
+> 
+> Regards
+> 
+> Marcel

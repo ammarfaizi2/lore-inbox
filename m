@@ -1,62 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271246AbRIJPSk>; Mon, 10 Sep 2001 11:18:40 -0400
+	id <S271226AbRIJPTA>; Mon, 10 Sep 2001 11:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271214AbRIJPSU>; Mon, 10 Sep 2001 11:18:20 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:26898 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S271165AbRIJPSP>; Mon, 10 Sep 2001 11:18:15 -0400
-Date: Mon, 10 Sep 2001 17:18:36 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010910171836.C26229@maggie.dt.e-technik.uni-dortmund.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010910100537.W26627@khan.acc.umu.se> <20010910122603.80CA4BC06C@spike.porcupine.org> <20010910145325.X26627@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010910145325.X26627@khan.acc.umu.se>; from tao@acc.umu.se on Mon, Sep 10, 2001 at 14:53:25 +0200
+	id <S271165AbRIJPSv>; Mon, 10 Sep 2001 11:18:51 -0400
+Received: from mout04.kundenserver.de ([195.20.224.89]:15482 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S271226AbRIJPSh>; Mon, 10 Sep 2001 11:18:37 -0400
+To: brianmc1@us.ibm.com, libc-alpha@sources.redhat.com,
+        linux-kernel@vger.kernel.org
+CC: wg@malloc.de
+Subject: SMP-ix86-threads-fork: Linux 2.4.x kernel problem identified [phantom read()]
+From: Wolfram Gloger <wg@malloc.de>
+X-URL: http://www.malloc.de/
+Message-Id: <E15gSpt-0008PG-00@mrvdom01.schlund.de>
+Date: Mon, 10 Sep 2001 17:18:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Sep 2001, David Weinehall wrote:
+[please CC me if you reply on the kernel mailing list, thx]
 
-> "[snip] old and the new stuff, please name precisely the objections
-> against portability and compatibility with FreeBSD 4.x aliasing."
->                                            ^^^^^^^^^^^^^^^^^^^^
-> This is what lead me to my conclusion. Care to clarify? If you simply
-> meant SIOCGIFNETMASK, why not write that instead instead of involving
-> FreeBSD 4.x?!
+Hi,
 
-Dave, I came up with that because the same piece of code I looked at
-choked on Linux 2.4, but not on FreeBSD 4.4-RC. I tracked this down,
-fixed it and sent the patch.  This can all be read from my posts to the
-thread.
+After several months of tests and debugging, I believe I've _finally_
+identified the nasty problem with my fork-malloc testcase,
 
-The issue here is:
+http://www.malloc.de/tests/fork-malloc.c
 
-1/ Linux returns ALL addresses to SIOCGIFCONF, no matter if these are visible
-to SIOCGIFNETMASK or not. Invisible addresses are the second and
-subsequent addresses added with ip addr add without using a distinct
-label. This means the innocent application that just feeds the
-SIOCGIFCONF results into SIOCGIFNETMASK will get the netmask for the
-first address. Of course, you can "filter" the addresses through
-SIOCGIFADDR and drop the duplicates after that, but why not fix it for
-the better?
+which in turn I am pretty sure is equivalent to Brian McCorkle and
+others' stressKernel problem.  The combination involved is
+threads/clone() (via LinuxThreads) and fork().
 
-2/ FreeBSD also uses IP aliases without "logical" interface names such
-as eth0:0
+On a variety of dual-ix86-SMP systems running Linux-2.4.[0-10pre]
+kernels (compiled with gcc-2.95.2 and gcc-2.95.4) it eventually
+happens that a read(fd, buf, sz) system call returns successfully but
+it _actually hasn't read any bytes into buf_ (maybe the bytes go
+somewhere else but I haven't determined where).  The file involved in
+this case is the manager pipe employed by LinuxThreads.
 
-3/ FreeBSD returns the netmask for the requested address, Linux returns
-the netmask for the first address of the interface.
+When this occurs within LinuxThreads, the buffer that is read into
+('request') in the manager is then _unchanged_ from the previous
+'thread create' request, and so a 'phantom thread' is created (bad),
+and the creating thread is restart()ed unconditionally (much worse,
+f.e. if it's waiting on a mutex).  The resulting crashes are
+practically impossible to debug, hiding the problem extremely well.
 
-4/ I sent a patch to enhance the compatibility with "nameless" IP
-aliases.
+I've now created a patch for glibc-2.2.4 (appended below, but should
+'work' for all recent glibcs), with which applied I'm eventually
+seeing "*** Bug" being printed when I run fork-malloc (see the URL
+above) on Dual-ix86 systems.  You can feel free to substitute any
+value for '0x123456' in the patch if you want to convince yourself of
+the bug.
 
-If you talk about NOT fixing the SIOCG* ioctl API, then fix SIOCGIFCONF
-to just return one address per interface regardless how many IPs it
-listens to.
+I tried hard to create a test case independent of LinuxThreads but
+have failed so far, sorry.  If you want to reproduce, you may have to
+be patient, sometimes I've seen the bug strike in a few minutes, but
+occasionally it can take up to 6 hours..
 
-But this has all been through. Reread my mails, please.
+Regards,
+Wolfram.
+
+--- linuxthreads/manager.c.orig	Mon Jul 23 19:54:13 2001
++++ linuxthreads/manager.c	Mon Sep 10 11:48:49 2001
+@@ -150,8 +150,18 @@
+     }
+     /* Read and execute request */
+     if (n == 1 && (ufd.revents & POLLIN)) {
+-      n = __libc_read(reqfd, (char *)&request, sizeof(request));
+-      ASSERT(n == sizeof(request));
++      int sz_read;
++      request.req_kind = 0x123456;
++      for (sz_read=0; sz_read<sizeof(request); sz_read+=n) {
++	n = __libc_read(reqfd, (char *)&request + sz_read,
++			sizeof(request) - sz_read);
++	if (n < 0)
++	  continue;
++      }
++      if(request.req_kind == 0x123456) {
++	write(2, "*** Bug\n", 8);
++	abort();
++      }
+       switch(request.req_kind) {
+       case REQ_CREATE:
+         request.req_thread->p_retcode =
+

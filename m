@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUK2LiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUK2LjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUK2LiV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUK2LiV
+	id S261682AbUK2LjM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUK2LjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:38:21 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:2495 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261673AbUK2LiU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:38:20 -0500
-Date: Mon, 29 Nov 2004 12:38:11 +0100 (MET)
-Message-Id: <200411291138.iATBcBiR007342@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc1 broke apmd
-Cc: pavel@ucw.cz
+	Mon, 29 Nov 2004 06:39:12 -0500
+Received: from pD9562C58.dip.t-dialin.net ([217.86.44.88]:36209 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261678AbUK2LjE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 06:39:04 -0500
+Date: Mon, 29 Nov 2004 12:36:13 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: davem@redhat.com, jgarzik@pobox.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove dp83840.h
+Message-ID: <20041129113613.GA2718@linux-mips.org>
+References: <20041129111943.GB9722@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041129111943.GB9722@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Starting with 2.6.10-rc1, date and time on my old APM-based
-laptop is messed up after a resume. Specifically, Emacs and
-xclock both make a huge forward leap and then stop updating
-their current time displays.
+On Mon, Nov 29, 2004 at 12:19:43PM +0100, Adrian Bunk wrote:
 
-The cause is the "jiffies += sleep_length * HZ;" addition
-to arch/i386/kernel/time.c:time_resume() which is in conflict
-with the hwlock --hctosys that the APM daemon normally does
-at resume.
+> dp83840.h is included once but none of the definitions it contains is 
+> actually used.
+> 
+> Is the patch below to remove it OK, or is there any usage planned?
 
-Preventing apmd from updating the system time does eliminate
-the problems I described, but this requires kernel-version
-dependent settings in user-space, which is ugly and fragile.
+I would suggest to keep the file as documentation of the DP83840.
 
-Just FYI. I don't have a nice solution yet.
-
-/Mikael
+  Ralf

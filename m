@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288811AbSBDJG0>; Mon, 4 Feb 2002 04:06:26 -0500
+	id <S288804AbSBDJgk>; Mon, 4 Feb 2002 04:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288804AbSBDJGR>; Mon, 4 Feb 2002 04:06:17 -0500
-Received: from mail.scram.de ([195.226.127.117]:49604 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S287868AbSBDJGK>;
-	Mon, 4 Feb 2002 04:06:10 -0500
-Date: Mon, 4 Feb 2002 10:06:02 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-To: Sten <sten@blinkenlights.nl>
-cc: <linux-kernel@vger.kernel.org>,
-        HP900 PARISC mailing list 
-	<parisc-linux@lists.parisc-linux.org>
-Subject: Re: IPv6 Sparc64
-In-Reply-To: <Pine.LNX.4.44-Blink.0202040829140.19625-100000@deepthought.blinkenlights.nl>
-Message-ID: <Pine.NEB.4.33.0202041002120.2571-100000@www2.scram.de>
+	id <S288814AbSBDJga>; Mon, 4 Feb 2002 04:36:30 -0500
+Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:2433 "EHLO
+	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S288804AbSBDJgR>; Mon, 4 Feb 2002 04:36:17 -0500
+Message-Id: <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
+Content-Type: text/plain; charset=US-ASCII
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Networkadministrator WH8/DD/Germany
+To: Jens Axboe <axboe@suse.de>, Erik Andersen <andersen@codepoet.org>,
+        "Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org
+Subject: Re: Asynchronous CDROM Events in Userland
+Date: Mon, 4 Feb 2002 10:33:44 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <20020204070414.GA19268@codepoet.org> <20020204085712.O29553@suse.de>
+In-Reply-To: <20020204085712.O29553@suse.de>
+X-PGP-fingerprint: 5A65 E2CC EB06 F110 4F45  AB34 DE58 C135 1361 35BD
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sten,
+Am Montag, 4. Februar 2002 08:57 schrieb Jens Axboe:
+> Yep, _no_ drives to date support queued event notification. However, a
+> polled approach is really not too bad -- it simply means that we'll push
+> it to user space instead. I've written a small utility for reference.
 
-> I have been trying to get ipv6 to work
-> on sparc64/kernel 2.4 but it looks like it
-> is broken somewhere in the kernel.
-> I was wondering if this was a known problem.
+You're wrong.
 
-> [root@towel ip]# ping6 ::1
-> PING ::1(::1) from ::1 : 56 data bytes
+PLEXTOR CD-R PX-W2410A
+media removal
+eject request
+media removal
+media removal
 
-It's the same on PARISC. However, on PARISC, although ping6 doesn't work,
-telnet etc do work, as well as pinging the PARISC box from an Intel or
-Alpha machine.
+HITACHI DVD-ROM GD-2500
+no media change
+new media
+media removal
 
-For now, i assume there might be an endianess issue in net/ipv6/raw.c
-somewhere... Has anyone tested IPv6 on m68k?
+Just my 2 cents.
 
-Cheers,
-Jochen
-
+-Gregor

@@ -1,349 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267613AbUHEJVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267394AbUHEJfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267613AbUHEJVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 05:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHEJVm
+	id S267394AbUHEJfB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 05:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267610AbUHEJfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 05:21:42 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:28071 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267613AbUHEJVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 05:21:08 -0400
-Date: Thu, 5 Aug 2004 14:54:00 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@muc.de, akpm@osdl.org,
-       suparna@in.ibm.com
-Subject: [1/3] kprobes-func-args-268-rc3.patch
-Message-ID: <20040805092400.GA2303@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 5 Aug 2004 05:35:00 -0400
+Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:16303 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267394AbUHEJe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 05:34:56 -0400
+Message-ID: <4111FF35.3040002@kolivas.org>
+Date: Thu, 05 Aug 2004 19:34:45 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org> <410F3423.3020409@yahoo.com.au> <cone.1091518501.973503.9648.502@pc.kolivas.org> <cone.1091519122.804104.9648.502@pc.kolivas.org> <41109FCC.4070906@yahoo.com.au> <20040804103143.GA13072@elte.hu> <cone.1091616443.996442.9775.502@pc.kolivas.org> <20040804124538.GA15505@elte.hu> <cone.1091674380.801763.9775.502@pc.kolivas.org> <4111F0FF.7090301@hist.no>
+In-Reply-To: <4111F0FF.7090301@hist.no>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAE07337E2849232F1B561AA7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAE07337E2849232F1B561AA7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Helge Hafting wrote:
+> Con Kolivas wrote:
+> 
+>> Ingo Molnar writes:
+>>
+>>>
+>>> * Con Kolivas <kernel@kolivas.org> wrote:
+>>>
+>>>>
+>>>> Can you define them please? I haven't had any reported to me.
+>>>
+>>>
+>>>
+>>> sure: take a process that uses 85% of CPU time (and sleeps 15% of the
+>>> time) if running on an idle system. Start just two of these hogs at
+>>> normal priority. 2.6.8-rc2-mm2 becomes almost instantly unusable even
+>>> over a text console: a single 'top' refresh takes ages, 'ls' displays
+>>> one line per second or so. Start more of these and the system
+>>> effectively locks up.
+>>
+>>
+>>
+>> It's only if I physically try and create such a test application that 
+>> I can reproduce it. I haven't found any real world load that does that 
+>> - but of course that doesn't mean I should discount it. However, 
+>> interactive mode off doesn't exhibit it and it should be easy enough 
+>> to fix for interactive mode on. Thanks for pointing it out.
+> 
+> 
+> I can easily imagine this sort of real-life application.  Anything that 
+> generate real-time data, such as sound or video for immediate playback 
+> will use some continous fraction of cpu, depending on how much data and 
+> how fast the cpu happens to be.   A scheduler with such
+> a problem will now and then cause trouble when some processor needs just 
+> the
+> "wrong" percentage of its capacity to run the task(s). Consider someone 
+> playing several video files until he exceeds the capacity of the 
+> machine. Video skipping frames is then ok, a frozen UI is not.  Or 
+> consider a multiuser machine running several games.  Or even a parallell 
+> kernel compile when the source isn't cached. The compiler(s) will work 
+> for a while, wait for disk for a while, work for a while . . .
 
-Hi,
+Your concerns are valid, and are relevant for _any_ scheduler design. 
+However none of these occur with staircase. Ingo is describing a special 
+case where it runs for more than 1ms and less than 10ms. Most things do 
+not run exactly in this manner, which is why you haven't seen it, and 
+neither have I till I created his test case.
 
-Below is the [1/3] kprobes-func-args-268-rc3.patch patch.
+As for the multiuser machine, this is actually an area where staircase 
+_excels_ at when put into non-interactive mode. The fact that 
+interactivity is not as good in interactive mode under load in a single 
+desktop mode doesn't really describe that interactivity is still 
+remarkably good considering how strict the cpu distribution is - and 
+that's by design. I have now a couple of users using staircase in 
+non-interactive mode sharing resources between up to 10 users happily, 
+where previously the mainline 2.6 kernel was unable to do this in a fair 
+manner.
 
-Please see the description of the patch for more details. 
+> 2.6.8-rc2-mm2 seems to work fine for me right now, but I hope there will 
+> be solutions for this sort of problem.
 
-Your comments are welcome!
+Great.
 
+> Helge Hafting
 
-Thanks 
-prasanna
+Cheers,
+Con
 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+--------------enigAE07337E2849232F1B561AA7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-func-args-268-rc3.patch"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFBEf83ZUg7+tp6mRURAtCJAJ9YYDvgzoo3O7Ign9ylQ1f49qbfvQCeIK9R
+RkM+1MOFv2VIIelZaeJ/FpM=
+=NSNx
+-----END PGP SIGNATURE-----
 
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-
-DESC
-Jumper Kernel Probes to access function arguments
-EDESC
-
-A special kprobe type which can be placed on function entry points,
-and employs a simple mirroring principle to allow seamless access 
-to the arguments of a function being probed. The probe handler 
-routine should have the same prototype as the function being probed.
-Currently implemented for x86.
-
-The way it works is that when the probe is hit, the breakpoint
-handler simply irets to the probe handler's eip while retaining
-register and stack state corresponding to the function entry.
-After it is done, the probe handler calls jprobe_return() which
-traps again to restore processor state and switch back to the
-probed function. Linus noted correctly at KS that we need to be 
-careful as gcc assumes that the callee owns arguments. For the
-time being we try to avoid tailcalls in the probe function; in 
-the long run we should probably also save and restore enough 
-stack bytes to cover argument space.
-
-Sample Usage:
-	static int jip_queue_xmit(struct sk_buff *skb, int ipfragok)
-	{
-		... whatever ...
-		jprobe_return();
-		/*No tailcalls please */
-		return 0;
-	}
-
-	struct jprobe jp = {
-		{.addr = (kprobe_opcode_t *) ip_queue_xmit},
-		.entry = (kprobe_opcode_t *) jip_queue_xmit
-	};
-	register_jprobe(&jp);
-
----
-
-
-
----
-
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-func-args-268-rc3 arch/i386/kernel/kprobes.c
---- linux-2.6.8-rc3/arch/i386/kernel/kprobes.c~kprobes-func-args-268-rc3	2004-08-06 04:38:38.991377216 -0700
-+++ linux-2.6.8-rc3-root/arch/i386/kernel/kprobes.c	2004-08-06 04:38:39.008374632 -0700
-@@ -16,11 +16,13 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-  *
-- * Copyright (C) IBM Corporation, 2002
-+ * Copyright (C) IBM Corporation, 2002, 2004
-  *
-  * 2002 	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-  *		Probes initial implementation ( includes contributions from
-  *		Rusty Russell).
-+ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
-+ *		interface to access function arguments.
-  */
- 
- #include <linux/config.h>
-@@ -28,6 +30,7 @@
- #include <linux/ptrace.h>
- #include <linux/spinlock.h>
- #include <linux/preempt.h>
-+#include <linux/module.h>
- 
- /* kprobe_status settings */
- #define KPROBE_HIT_ACTIVE	0x00000001
-@@ -35,6 +38,9 @@
- 
- static struct kprobe *current_kprobe;
- static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
-+static struct pt_regs kprobe_saved_regs;
-+static long *kprobe_saved_esp;
-+extern void show_registers(struct pt_regs *regs);
- 
- /*
-  * returns non-zero if opcode modifies the interrupt flag.
-@@ -90,6 +96,11 @@ int kprobe_handler(struct pt_regs *regs)
- 		if (p) {
- 			disarm_kprobe(p, regs);
- 			ret = 1;
-+		} else {
-+			p = current_kprobe;
-+			if (p->break_handler && p->break_handler(p, regs)) {
-+				goto ss_probe;
-+			}
- 		}
- 		/* If it's not ours, can't be delete race, (we hold lock). */
- 		goto no_kprobe;
-@@ -113,8 +124,12 @@ int kprobe_handler(struct pt_regs *regs)
- 	if(is_IF_modifier(p->opcode))
- 		kprobe_saved_eflags &= ~IF_MASK;
- 
--	p->pre_handler(p, regs);
-+	if (p->pre_handler(p, regs)) {
-+		/* handler has already set things up, so skip ss setup */
-+		return 1;
-+	}
- 
-+ss_probe:
- 	prepare_singlestep(p, regs);
- 	kprobe_status = KPROBE_HIT_SS;
- 	return 1;
-@@ -220,3 +235,59 @@ int kprobe_fault_handler(struct pt_regs 
- 	}
- 	return 0;
- }
-+
-+int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
-+{
-+	struct jprobe *jp = container_of(p, struct jprobe, kp);
-+
-+	kprobe_saved_regs = *regs;
-+	kprobe_saved_esp = &regs->esp;
-+	/*
-+	 * TBD: As Linus pointed out, gcc assumes that the callee
-+	 * owns the argument space and could overwrite it, e.g.
-+	 * tailcall optimization. So, to be absolutely safe
-+	 * should we also save and restore enough stack bytes
-+	 * to cover the argument area ? For the time being, we
-+	 * just warn against tailcalls in jprobe handlers and
-+	 * hope for the best.
-+	 */
-+	regs->eflags &= ~IF_MASK;
-+	regs->eip = (unsigned long)(jp->entry);
-+	return 1;
-+}
-+
-+void jprobe_return(void)
-+{
-+	preempt_enable_no_resched();
-+	asm volatile(
-+		"       xchgl   %%ebx,%%esp     \n"
-+		"       int3			\n"
-+		: : "b"(kprobe_saved_esp) : "memory");
-+}
-+void jprobe_return_end(void) {};
-+
-+EXPORT_SYMBOL_GPL(jprobe_return);
-+
-+int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
-+{
-+	u8 *addr = (u8 *)(regs->eip-1);
-+
-+	if ((addr > (u8 *)jprobe_return) && (addr < (u8 *)jprobe_return_end)) {
-+		if (&regs->esp != kprobe_saved_esp) {
-+			struct pt_regs *saved_regs = container_of(
-+				kprobe_saved_esp, struct pt_regs, esp);
-+			struct jprobe *jp = container_of(p, struct jprobe, kp);
-+
-+			printk("current esp %p does not match saved esp %p\n",
-+				&regs->esp, kprobe_saved_esp);
-+			printk("Saved registers for jprobe %p\n", jp);
-+			show_registers(saved_regs);
-+			printk("Current registers\n");
-+			show_registers(regs);
-+			BUG();
-+		}
-+		*regs = kprobe_saved_regs;
-+		return 1;
-+	}
-+	return 0;
-+}
-diff -puN include/linux/kprobes.h~kprobes-func-args-268-rc3 include/linux/kprobes.h
---- linux-2.6.8-rc3/include/linux/kprobes.h~kprobes-func-args-268-rc3	2004-08-06 04:38:38.995376608 -0700
-+++ linux-2.6.8-rc3-root/include/linux/kprobes.h	2004-08-06 04:38:39.009374480 -0700
-@@ -18,11 +18,13 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-  *
-- * Copyright (C) IBM Corporation, 2002
-+ * Copyright (C) IBM Corporation, 2002, 2004
-  *
-  * 2002 	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-  *		Probes initial implementation ( includes suggestions from
-  *		Rusty Russell).
-+ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
-+ *		interface to access function arguments.
-  */
- #include <linux/config.h>
- #include <linux/list.h>
-@@ -33,7 +35,8 @@
- struct kprobe;
- struct pt_regs;
- 
--typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
-+typedef int (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
-+typedef int (*kprobe_break_handler_t)(struct kprobe *, struct pt_regs *);
- typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
- 				      unsigned long flags);
- typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
-@@ -54,6 +57,10 @@ struct kprobe {
- 	  * Return 1 if it handled fault, otherwise kernel will see it. */
- 	kprobe_fault_handler_t fault_handler;
- 
-+	 /* ... called if breakpoint trap occurs in probe handler.
-+	  * Return 1 if it handled break, otherwise kernel will see it. */
-+	kprobe_break_handler_t break_handler;
-+
- 	/* Saved opcode (which has been replaced with breakpoint) */
- 	kprobe_opcode_t opcode;
- 
-@@ -61,6 +68,21 @@ struct kprobe {
- 	kprobe_opcode_t insn[MAX_INSN_SIZE];
- };
- 
-+/*
-+ * Special probe type that uses setjmp-longjmp type tricks to resume
-+ * execution at a specified entry with a matching prototype corresponding
-+ * to the probed function - a trick to enable arguments to become
-+ * accessible seamlessly by probe handling logic.
-+ * Note:
-+ * Because of the way compilers allocate stack space for local variables
-+ * etc upfront, regardless of sub-scopes within a function, this mirroring
-+ * principle currently works only for probes placed on function entry points.
-+ */
-+struct jprobe {
-+	struct kprobe kp;
-+	kprobe_opcode_t *entry; /* probe handling code to jump to */
-+};
-+
- #ifdef CONFIG_KPROBES
- /* Locks kprobe: irq must be disabled */
- void lock_kprobes(void);
-@@ -80,9 +102,18 @@ struct kprobe *get_kprobe(void *addr);
- 
- int register_kprobe(struct kprobe *p);
- void unregister_kprobe(struct kprobe *p);
-+
-+int setjmp_pre_handler(struct kprobe *, struct pt_regs *);
-+int longjmp_break_handler(struct kprobe *, struct pt_regs *);
-+int register_jprobe(struct jprobe *p);
-+void unregister_jprobe(struct jprobe *p);
-+void jprobe_return(void);
- #else
- static inline int kprobe_running(void) { return 0; }
- static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
- static inline void unregister_kprobe(struct kprobe *p) { }
-+static inline int register_jprobe(struct jprobe *p) { return -ENOSYS; }
-+static inline void unregister_jprobe(struct jprobe *p) { }
-+static inline void jprobe_return(void) { }
- #endif
- #endif /* _LINUX_KPROBES_H */
-diff -puN kernel/kprobes.c~kprobes-func-args-268-rc3 kernel/kprobes.c
---- linux-2.6.8-rc3/kernel/kprobes.c~kprobes-func-args-268-rc3	2004-08-06 04:38:38.999376000 -0700
-+++ linux-2.6.8-rc3-root/kernel/kprobes.c	2004-08-06 04:38:39.010374328 -0700
-@@ -16,11 +16,13 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-  *
-- * Copyright (C) IBM Corporation, 2002
-+ * Copyright (C) IBM Corporation, 2002, 2004
-  *
-  * 2002		Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-  *              Probes initial implementation (includes suggestions from
-  *              Rusty Russell).
-+ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
-+ *		interface to access function arguments.
-  */
- #include <linux/kprobes.h>
- #include <linux/spinlock.h>
-@@ -94,6 +96,20 @@ void unregister_kprobe(struct kprobe *p)
- 	spin_unlock_irq(&kprobe_lock);
- }
- 
-+int register_jprobe(struct jprobe *jp)
-+{
-+	/* Todo: Verify probepoint is a function entry point */
-+	jp->kp.pre_handler = setjmp_pre_handler;
-+	jp->kp.break_handler = longjmp_break_handler;
-+
-+	return register_kprobe(&jp->kp);
-+}
-+
-+void unregister_jprobe(struct jprobe *jp)
-+{
-+	unregister_kprobe(&jp->kp);
-+}
-+
- static int __init init_kprobes(void)
- {
- 	int i;
-@@ -109,3 +125,5 @@ __initcall(init_kprobes);
- 
- EXPORT_SYMBOL_GPL(register_kprobe);
- EXPORT_SYMBOL_GPL(unregister_kprobe);
-+EXPORT_SYMBOL_GPL(register_jprobe);
-+EXPORT_SYMBOL_GPL(unregister_jprobe);
-
-_
-
---tKW2IUtsqtDRztdT--
+--------------enigAE07337E2849232F1B561AA7--

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266303AbSKGCt7>; Wed, 6 Nov 2002 21:49:59 -0500
+	id <S266306AbSKGC7M>; Wed, 6 Nov 2002 21:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266304AbSKGCt7>; Wed, 6 Nov 2002 21:49:59 -0500
-Received: from dp.samba.org ([66.70.73.150]:10428 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266303AbSKGCt6>;
-	Wed, 6 Nov 2002 21:49:58 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266307AbSKGC7L>; Wed, 6 Nov 2002 21:59:11 -0500
+Received: from redtux.demon.co.uk ([158.152.117.135]:53004 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266306AbSKGC7L>; Wed, 6 Nov 2002 21:59:11 -0500
+Subject: problem with unresolved symbols 2.5.46
+From: mike <mike@redtux.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15817.54799.955377.260781@argo.ozlabs.ibm.com>
-Date: Thu, 7 Nov 2002 13:55:11 +1100
-To: Jens Axboe <axboe@suse.de>, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: [PATCH] Fix typo in sl82c105.c driver
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Organization: 
+Message-Id: <1036638165.19136.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 07 Nov 2002 03:04:11 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a minor typo in sl82c105.c which stops it from
-compiling.
+I am, getting the following error at the end of a kernel compile
 
-Jens and/or Linus, please apply.
+make -f scripts/Makefile.modinst obj=arch/i386/lib
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.46; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.46/kernel/drivers/char/raw.o
+depmod: 	blkdev_ioctl
 
-Paul.
+I have tried with gcc 3.2 and 2.96 no difference
 
-diff -urN linux-2.5/drivers/ide/pci/sl82c105.c pmac-2.5/drivers/ide/pci/sl82c105.c
---- linux-2.5/drivers/ide/pci/sl82c105.c	2002-10-12 14:40:28.000000000 +1000
-+++ pmac-2.5/drivers/ide/pci/sl82c105.c	2002-10-30 12:32:48.000000000 +1100
-@@ -284,7 +284,7 @@
- 
- static int __devinit sl82c105_init_one(struct pci_dev *dev, const struct pci_device_id *id)
- {
--	ide_pci_device_t *d = &slc82c105_chipsets[id->driver_data];
-+	ide_pci_device_t *d = &sl82c105_chipsets[id->driver_data];
- 	if (dev->device != d->device)
- 		BUG();
- 	ide_setup_pci_device(dev, d);
+-- 
+Linux, Gnome what more do you need
+http://www.redtux.demon.co.uk

@@ -1,54 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261326AbTC3XIY>; Sun, 30 Mar 2003 18:08:24 -0500
+	id <S261313AbTC3Xei>; Sun, 30 Mar 2003 18:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261327AbTC3XIY>; Sun, 30 Mar 2003 18:08:24 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55680
-	"EHLO x30.random") by vger.kernel.org with ESMTP id <S261326AbTC3XIX>;
-	Sun, 30 Mar 2003 18:08:23 -0500
-Date: Mon, 31 Mar 2003 01:19:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-Message-ID: <20030330231945.GH2318@x30.local>
-References: <20030328040038.GO1350@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261316AbTC3Xei>; Sun, 30 Mar 2003 18:34:38 -0500
+Received: from slarti.muc.de ([193.149.48.10]:50698 "HELO slarti.muc.de")
+	by vger.kernel.org with SMTP id <S261313AbTC3Xee>;
+	Sun, 30 Mar 2003 18:34:34 -0500
+From: Stephan Maciej <stephanm@muc.de>
+Date: Sun, 30 Mar 2003 22:05:06 +0200
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030328040038.GO1350@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.66 & 2.4.20] Fix sys_sethostname() and sys_setdomainname()
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_y30h+0J/yb/aXru"
+Message-Id: <200303302205.06770.stephanm@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Didn't you break the linux x86 ABI in mmap? the file offset must be a
-multiple of the softpagesize and binary apps can break with -EINVAL with
-pgcl. The workaround is to allocate it in anon mem but it's not coherent
-if somebody does a change to the binary with MAP_SHARED, so still broken
-semantics. In theory we could also have aliasing in the cache, but it
-doesn't seem a good idea.
 
-Since you have access to such a machine, can you please try to boot
-2.4.21pre5aa2 on such a machine? That must boot just fine too according
-to my math, however, there will be little normal zone left, compared to
-your kernel with pgcl. But 700M of normal zone are still nothing versus
-the 64G of ram, what I mean is that even pgcl isn't guaranteeing general
-purpose usability of the box (despite making it much more usable).
+--Boundary-00=_y30h+0J/yb/aXru
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Note that 2.5 mem_map is bigger due rmap, my 2.4 w/o the rmap slowdown
-should boot just fine w/o pgct that breaks the linux x86 ABI and in turn
-binary apps at runtime.
+Hi,
 
-I believe pgcl is very interesting for x86 long term, and for all archs
-not providing a flexible hard-page-size. The larger softpagesize can
-increase performance, 4k page size is too small these days, especially
-on a 64bit arch, infact this softpagesize feature would be most
-interesting for x86-64 even in the long term (for a totally different
-reason of why you find it most interesting today on the 32bit x86 64G
-boxes ;). so it sounds like a good thing to have for mainline >=2.5
-regardless. All it matters is that you don't try to make the page
-allocator returning anything smaller than the softpagesize to avoid
-losing reliability of allocations for core data structures.
+a long time ago someone mentioned that sethostname() and setdomainname() 
+properly return -EFAULT when passing an invalid pointer to the new name, but 
+instead of leaving the fields in system_utsname unchanged the nodename and 
+domainname are set to an empty string.
 
-Andrea
+The behaviour of sys_sethostname() can be verified using the attached program 
+(sethostname.c); sys_setdomainname() is almost the same so I guess that it 
+has the same defect :-)
+
+The attached patches fix this. 
+
+Stephan
+
+--Boundary-00=_y30h+0J/yb/aXru
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="sethostanddomainname-2.5.66.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="sethostanddomainname-2.5.66.diff"
+
+--- kernel/sys.c~unmodified	2003-03-30 21:33:17.000000000 +0200
++++ kernel/sys.c	2003-03-30 21:43:20.000000000 +0200
+@@ -1154,14 +1154,18 @@
+ asmlinkage long sys_sethostname(char *name, int len)
+ {
+ 	int errno;
++	char tmp[__NEW_UTS_LEN];
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	if (len < 0 || len > __NEW_UTS_LEN)
+ 		return -EINVAL;
++	
+ 	down_write(&uts_sem);
+ 	errno = -EFAULT;
+-	if (!copy_from_user(system_utsname.nodename, name, len)) {
++
++	if (!copy_from_user(tmp, name, len)) {
++		memcpy(system_utsname.nodename, tmp, len);
+ 		system_utsname.nodename[len] = 0;
+ 		errno = 0;
+ 	}
+@@ -1193,6 +1197,7 @@
+ asmlinkage long sys_setdomainname(char *name, int len)
+ {
+ 	int errno;
++	char tmp[__NEW_UTS_LEN];
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+@@ -1201,10 +1206,13 @@
+ 
+ 	down_write(&uts_sem);
+ 	errno = -EFAULT;
+-	if (!copy_from_user(system_utsname.domainname, name, len)) {
+-		errno = 0;
++
++	if (!copy_from_user(tmp, name, len)) {
++		memcpy(system_utsname.domainname, tmp, len);
+ 		system_utsname.domainname[len] = 0;
++		errno = 0;
+ 	}
++
+ 	up_write(&uts_sem);
+ 	return errno;
+ }
+
+--Boundary-00=_y30h+0J/yb/aXru
+Content-Type: text/x-csrc;
+  charset="us-ascii";
+  name="sethostname.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="sethostname.c"
+
+
+#include <linux/utsname.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+int main()
+{
+  int retval;
+  char hostname[__NEW_UTS_LEN];
+
+  // Print out current hostname
+  if ((retval = gethostname(hostname, __NEW_UTS_LEN)) == -1) {
+    printf("call to gethostname() failed, retval=%d: %s\n", retval, strerror(errno));
+    return 1;
+  };
+  
+  printf("gethostname()=\"%s\"\n", hostname);
+
+  // Set "new" hostname
+  if ((retval = sethostname((char *)-1, 10)) != -1) {
+    // We really EXPECT this to fail!
+    printf("The Penguin is in trouble!\n");
+    return 2;
+  } else
+    printf("sethostname(INVALID, 10)=%d (error \"%s\")\n", retval, strerror(errno));
+
+  // And now once again:
+  if ((retval = gethostname(hostname, __NEW_UTS_LEN)) == -1) {
+    printf("call to gethostname() failed, retval=%d: %s\n", retval, strerror(errno));
+    return 1;
+  };
+  
+  printf("gethostname()=\"%s\"\n", hostname);
+
+  return 0;
+};
+
+--Boundary-00=_y30h+0J/yb/aXru
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="sethostanddomainname-2.4.20.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="sethostanddomainname-2.4.20.diff"
+
+--- kernel/sys.c~unmodified	2003-03-30 21:51:07.000000000 +0200
++++ kernel/sys.c	2003-03-30 21:53:01.000000000 +0200
+@@ -1026,6 +1026,7 @@
+ asmlinkage long sys_sethostname(char *name, int len)
+ {
+ 	int errno;
++	char tmp[__NEW_UTS_LEN];
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+@@ -1033,7 +1034,8 @@
+ 		return -EINVAL;
+ 	down_write(&uts_sem);
+ 	errno = -EFAULT;
+-	if (!copy_from_user(system_utsname.nodename, name, len)) {
++	if (!copy_from_user(tmp, name, len)) {
++		memcpy(system_utsname.nodename, tmp, len);
+ 		system_utsname.nodename[len] = 0;
+ 		errno = 0;
+ 	}
+@@ -1065,6 +1067,7 @@
+ asmlinkage long sys_setdomainname(char *name, int len)
+ {
+ 	int errno;
++	char tmp[__NEW_UTS_LEN];
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+@@ -1073,9 +1076,10 @@
+ 
+ 	down_write(&uts_sem);
+ 	errno = -EFAULT;
+-	if (!copy_from_user(system_utsname.domainname, name, len)) {
+-		errno = 0;
++	if (!copy_from_user(tmp, name, len)) {
++		memcpy(system_utsname.domainname, tmp, len);
+ 		system_utsname.domainname[len] = 0;
++		errno = 0;
+ 	}
+ 	up_write(&uts_sem);
+ 	return errno;
+
+--Boundary-00=_y30h+0J/yb/aXru--
+

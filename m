@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265340AbUBPEIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 23:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUBPEIT
+	id S265339AbUBPEPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 23:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUBPEPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 23:08:19 -0500
-Received: from topaz.cx ([66.220.6.227]:61888 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S265340AbUBPEIR (ORCPT
+	Sun, 15 Feb 2004 23:15:09 -0500
+Received: from [80.72.36.106] ([80.72.36.106]:49095 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S265339AbUBPEPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 23:08:17 -0500
-Date: Sun, 15 Feb 2004 23:08:11 -0500
-From: Chip Salzenberg <chip@pobox.com>
+	Sun, 15 Feb 2004 23:15:04 -0500
+Date: Mon, 16 Feb 2004 05:14:58 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30
-Message-ID: <20040216040811.GF3789@perlsupport.com>
-References: <E1AsO6X-0003hW-1u@tytlal> <200402151658.57710.bzolnier@elka.pw.edu.pl> <20040215163438.GC3789@perlsupport.com> <200402151808.42611.bzolnier@elka.pw.edu.pl> <20040216005523.GD3789@perlsupport.com> <40302783.6020505@pobox.com> <20040216033740.GE3789@perlsupport.com> <40303D59.4030605@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40303D59.4030605@pobox.com>
-X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Cc: Christophe Saout <christophe@saout.de>, linux-kernel@vger.kernel.org
+Subject: Re: dm-crypt using kthread
+In-Reply-To: <4030416E.9070805@pobox.com>
+Message-ID: <Pine.LNX.4.58.0402160510360.26082@alpha.polcom.net>
+References: <402A4B52.1080800@centrum.cz>  <1076866470.20140.13.camel@leto.cs.pocnet.net>
+  <20040215180226.A8426@infradead.org>  <1076870572.20140.16.camel@leto.cs.pocnet.net>
+  <20040215185331.A8719@infradead.org>  <1076873760.21477.8.camel@leto.cs.pocnet.net>
+  <20040215194633.A8948@infradead.org>  <20040216014433.GA5430@leto.cs.pocnet.net>
+  <20040215175337.5d7a06c9.akpm@osdl.org>  <Pine.LNX.4.58.0402160303560.26082@alpha.polcom.net>
+ <1076900606.5601.47.camel@leto.cs.pocnet.net> <Pine.LNX.4.58.0402160409190.26082@alpha.polcom.net>
+ <4030416E.9070805@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Jeff Garzik:
-> Other equally smart people argue that modern IDE disks reserve space for 
-> remapping bad sectors.  If you run out of sectors that the drive is 
-> willing to silently remap for you, you should toss the disk and buy a 
-> new one.
+On Sun, 15 Feb 2004, Jeff Garzik wrote:
 
-OK, I get the theory.  But AFAICT this drive hasn't remapped *any*
-sectors.  Yet.  (Which would not be impossible; it's a relatively
-new drive, a few months old at most.)  Quoting smartctl:
+> Grzegorz Kulewski wrote:
+> > Could somebody write dm-compress (compressing not encrypting)? Is it 
+> > technically possible (can device mapper handle different data size at 
+> > input, differet at output)? (I think there is compressing loop patch.)
+> > Could dm first compress data (even with weak algorithm), then encrypt, to 
+> > make statistical analysis harder?
+> 
+> 
+> It's certainly possible, but you have to consider that data transfer 
+> almost always should be considered in page-sized chunks.  For compress 
+> that would imply you would need to allocate/free blocks and similar 
+> duties that a filesystem must perform, simply because you do not have 
+> one-to-one correspondence with blocks being passed to you.
+> 
+> You also have to consider that the kernel may request one or more pages 
+> that are in the middle of a compressed run of pages.  For example, 
+> consider an algorithm that compresses 16 pages into a run of 4 pages. 
+> Later on, when the kernel requests (uncompressed) page 9, you likely 
+> need to read all 4 pages, and allocate 16 more pages for decompression. 
+>   So, reading 1 upper layer page required dm-compress tying up 20 pages.
+> 
 
-ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
-  5 Reallocated_Sector_Ct   0x0033   100   100   050    Pre-fail  Always       -       0
-196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       0
-197 Current_Pending_Sector  0x0032   100   100   000    Old_age   Always       -       3
-198 Offline_Uncorrectable   0x0030   100   100   000    Old_age   Offline      -       0
+Yes, I understand that (at least I think so...). But Knopix (and probably 
+other distros) use 2.4 with compressing loop patch, and I think somebody 
+at Gentoo is trying to port that patch to 2.6 for Gentoo's LiveCD... So it 
+was done somehow... (I do not know how, however.)
 
-This seems to suggest that there are three *candidate* sectors with
-reallocation pending, none of which have actually been remapped (yet).
-If so, drive replacement would perhaps be premature.
 
-I suppose it's time to read up on the details of the SMART spec.
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+Grzegorz Kulewski
+

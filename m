@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbTDUUuv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 16:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbTDUUuv
+	id S262024AbTDUUy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 16:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbTDUUy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 16:50:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:40919 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262502AbTDUUuu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 16:50:50 -0400
-Date: Mon, 21 Apr 2003 14:05:02 -0700
-From: Greg KH <greg@kroah.com>
-To: Hanno =?iso-8859-1?Q?B=F6ck?= <hanno@gmx.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
-Message-ID: <20030421210502.GA30225@kroah.com>
-References: <20030421214805.7de5e4f3.hanno@gmx.de>
+	Mon, 21 Apr 2003 16:54:56 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48091
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262024AbTDUUyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 16:54:52 -0400
+Subject: Re: [PATCH] Fix CPU Names in Kconfig
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030421205520.GA13940@averell>
+References: <20030421205520.GA13940@averell>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050955686.13841.0.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030421214805.7de5e4f3.hanno@gmx.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Apr 2003 21:08:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 09:48:05PM +0200, Hanno Böck wrote:
-> This patch against 2.5.68 adds support for some digital cameras.
-> Same patch is already applied to the 2.4-ac-series.
-> It is taken from the lycoris kernel-source.
+On Llu, 2003-04-21 at 21:55, Andi Kleen wrote:
+> OldXeon for the P3 based Xeons is a bit confusing, but we cannot 
+> fix the Intel marchitecture here.
 
-Any reason you are not sending these to the usb-storage author and
-maintainer?  Or at the least, the usb maintainer and linux-usb-devel
-list would like to see these.
+"Pentium II/III Xeon" v "Pentium IV Xeon"
 
-Also, I think I've commented on these patches before, and never got a
-response back from the last person who posted them...
+At least thats what ebay user seem to use to distinguish 8)
 
-thanks,
-
-greg k-h

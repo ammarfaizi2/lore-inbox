@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287995AbSACAOf>; Wed, 2 Jan 2002 19:14:35 -0500
+	id <S287976AbSACAOo>; Wed, 2 Jan 2002 19:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288055AbSACANH>; Wed, 2 Jan 2002 19:13:07 -0500
-Received: from dot.cygnus.com ([205.180.230.224]:11531 "HELO dot.cygnus.com")
-	by vger.kernel.org with SMTP id <S288039AbSACAIF>;
-	Wed, 2 Jan 2002 19:08:05 -0500
-Date: Wed, 2 Jan 2002 16:07:39 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: jtv <jtv@xs4all.nl>, Momchil Velikov <velco@fadata.bg>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102160739.A10659@redhat.com>
-Mail-Followup-To: Richard Henderson <rth@redhat.com>,
-	Tom Rini <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-	Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-	gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-	Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Corey Minyard <minyard@acm.org>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102232320.A19933@xs4all.nl> <20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103004514.B19933@xs4all.nl> <20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 05:01:18PM -0700
+	id <S287992AbSACAOh>; Wed, 2 Jan 2002 19:14:37 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:18379 "EHLO
+	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S288006AbSACANi>; Wed, 2 Jan 2002 19:13:38 -0500
+Message-ID: <3C33A22F.40906@videotron.ca>
+Date: Wed, 02 Jan 2002 19:13:35 -0500
+From: Roger Leblanc <r_leblanc@videotron.ca>
+Organization: General DataComm
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 05:01:18PM -0700, Tom Rini wrote:
-> Yes, but doesn't -ffreestanding imply that gcc _can't_ assume this is
-> the standard library...
+----- Original Message -----
+From: "Greg KH" <greg@kroah.com>
+To: "Roger Leblanc" <r_leblanc@videotron.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, January 02, 2002 9:40 AM
+Subject: Re: Deadlock in kernel on USB shutdown
 
-Ignore strcpy.  Yes, that's what visibly causing a failure here,
-but the bug is in the funny pointer arithmetic.  Leave that in
-there and the compiler _will_ bite your ass sooner or later.
 
 
-r~
+>> On Tue, Jan 01, 2002 at 04:48:41PM -0500, Roger Leblanc wrote:
+>
+>>> > Hi,
+>>> >
+>>> > I just compiled version 2.4.17 of the Linux kernel for my Pentium III.
+>>> > It is compiled with modular USB support so I can run my USB scanner (an
+>>> > Epson Perfection 1200U).
+>>> >
+>>> > The scanner works fine but the system freeses when I shut it down. I
+>>> > investigated a bit and found that in the file:
+>>> > <kernel_root>/drivers/usb/usb.c
+>>> > in function:
+>>> > usb_disconnect(struct usb_device **pdev)
+>>> >
+>>> > there is a call to function:
+>>> > usbdevfs_remove_device(dev)
+>>> > at line 2423.
+>>> >
+>>> > That is the exact point where it freeses. If I comment out that line,
+>>> > everything goes fine. I know! This is not the proper way to fix it! But
+>>> > at least, it fixes my problem. Since I'm not a kernel expert, I will
+>>> > leave it to you to find the right way to fix it.
+>>
+>>
+>> Does the system lock up when you unload the usbcore module by hand
+>> without shutting the system down?
+>>
+>> Are your init scripts unmounting the usbdevfs filesystem properly before
+>> trying to unload the usbcore module?
+>
+It doesn't get that far. The first thing my init script (or Mandrake 8.1 
+script) does at shutdown is to run modprobe -r on modules usb-ohci, 
+usb-uhci and uhci. The system freeses when it gets to usb-uhci. It does 
+it also if I run these commands on the command line.
+
+Thanks
+
+Roger
+
+
+

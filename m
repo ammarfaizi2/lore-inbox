@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292421AbSBZRjm>; Tue, 26 Feb 2002 12:39:42 -0500
+	id <S292422AbSBZRkd>; Tue, 26 Feb 2002 12:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292447AbSBZRja>; Tue, 26 Feb 2002 12:39:30 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:32411 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S292423AbSBZRij>; Tue, 26 Feb 2002 12:38:39 -0500
-Message-ID: <000901c1beec$6ac68940$030ba8c0@mistral>
-From: "Simon Turvey" <turveysp@ntlworld.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: IDE error on 2.4.17
-Date: Tue, 26 Feb 2002 17:38:35 -0000
+	id <S292429AbSBZRkD>; Tue, 26 Feb 2002 12:40:03 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:9149 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S292422AbSBZRjv>;
+	Tue, 26 Feb 2002 12:39:51 -0500
+Message-ID: <3C7BC858.5070400@tmsusa.com>
+Date: Tue, 26 Feb 2002 09:39:36 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Guido Volpi <lugburz@tiscalinet.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oproblem with nvidia driver
+In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a large file (4gigs) transfer using Samba attempts to access the file
-(also across Samba) resulted in lots of the following type of message.
+Guido Volpi wrote:
 
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=250746,
-sector=250680
-end_request: I/O error, dev 03:01 (hda), sector 250680
+>it's all right: nvidia modules depend only by nvidia, but i don't understand 
+>why a module that is perfect (or so) with 2.4.17 in 2.4.18-rc4 is no more 
+>usabily.
+>
 
-Can anyone point me in the direction of a reason/solution?
+I'm using 2.4.18-rc4+most of the -aa patches.
+nvidia works fine for me -
 
-Thanks,
-    Simon
+There are patches available that will break
+the nvidia driver without warning, but that's
+the problem with a binary driver - you have
+to be careful about what patches you apply,
+and you will lag the bleeding edge in some
+areas because of driver compatibility issues.
 
+Joe
 
 

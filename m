@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbULZDKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbULZDQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbULZDKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 22:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbULZDKK
+	id S261607AbULZDQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 22:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbULZDQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 22:10:10 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:30170 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261606AbULZDKF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 22:10:05 -0500
-Date: Sat, 25 Dec 2004 19:09:57 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: lease.openlogging.org is unreachable
-Message-ID: <20041226030957.GA8512@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com> <20041226011222.GA1896@work.bitmover.com>
+	Sat, 25 Dec 2004 22:16:37 -0500
+Received: from holomorphy.com ([207.189.100.168]:47302 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261607AbULZDQg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 22:16:36 -0500
+Date: Sat, 25 Dec 2004 19:16:20 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Message-ID: <20041226031620.GB771@holomorphy.com>
+References: <20041220125443.091a911b.akpm@osdl.org> <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com> <m1652q2fz1.fsf@clusterfs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041226011222.GA1896@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m1652q2fz1.fsf@clusterfs.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The interesting thing is that the code already has a backup in it and I just
-checked that code path and it works.
+William Lee Irwin III <wli@holomorphy.com> writes:
+[...]
+>> Lifting the artificial lowmem restrictions on blockdev mappings
+>> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
+>> problems, not that anything making that much sense could ever happen.
 
-Has anyone else been shut down because of lease.openlogging.org being down
-and if so what version of BK were you running please?
+On Sun, Dec 26, 2004 at 01:03:14AM +0300, Nikita Danilov wrote:
+> mapping->gfp_mask is used for other things beyond specifying a
+> zonelist. For example, file systems want all allocations inside a
+> transaction to be done with GFP_NOFS, which forces GFP_NOFS in
+> mapping->gfp_mask of meta-data address_spaces.
 
-It is true that both servers are at our offices so if the network had been
-down you would have been out of luck.  We'll create some more backups and
-scatter them around the US, that's no problem.  But if the logic in the 
-code to get them is busted then we need to fix that.
+It's news to me, but benign. ->gfp_mask appears to be folded into
+some bitflag word now so there wouldn't be an inode size reduction
+anyway. Per-mapping gfp masks sound like a poor fit from the above.
 
-Things should be stabilized now, the machine went up and down a few times
-after my last "it's OK mail", it turned out we had a dieing ethernet card;
-it's been replaced and we seem stable now.  
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+
+-- wli

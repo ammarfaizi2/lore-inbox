@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVA0RwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVA0R4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVA0RwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVA0Rtm
+	id S262682AbVA0R4o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVA0R4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:49:42 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:16824 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262694AbVA0RqJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:46:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: CELERON D Prescott Step C-0
-Date: Thu, 27 Jan 2005 09:45:14 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6003DDFFCD@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CELERON D Prescott Step C-0
-Thread-Index: AcUCHW0clyDsFpdnQ0abJeN3w10xmwCeRTnQ
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Robson Roberto Souza Peixoto" <robsonpeixoto@gmail.com>,
-       <camilot@terra.com.br>
-Cc: <linux-kernel@vger.kernel.org>, "Seth, Rohit" <rohit.seth@intel.com>
-X-OriginalArrivalTime: 27 Jan 2005 17:45:15.0630 (UTC) FILETIME=[F58F28E0:01C50497]
+	Thu, 27 Jan 2005 12:56:22 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:8652 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262682AbVA0Ryn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 12:54:43 -0500
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a  
+	threading error
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <41F85CAB.40009@comcast.net>
+References: <217740000.1106412985@[10.10.2.4]>	<41F30E0A.9000100@osdl.org>
+	 <1106482954.1256.2.camel@tux.rsn.bth.se>
+	 <20050126132504.3295e07d@dxpl.pdx.osdl.net>  <41F85CAB.40009@comcast.net>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 10:54:31 -0700
+Message-Id: <1106848472.3397.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am seeing crashes in FC4 rawhide with the 2.6.xx kernel in FC4 rawhide
+as well. However, I only see  it if I start, and then try to save the
+document (without or without changes).. i.e. saving a new document... I
+may see this under saving as as well, but I rarely do that so I don't
+know. (AMD Athlon here, not Athlon64)
 
-Hi,
+That is the ONLY crash I see.
 
-Can you please make sure you are running with the latest microcode for
-this CPU (you can find it here: http://www.urbanmyth.org/microcode/).
-Let me know if the problem still persists.
+Trever
 
-Thanks,
-Venki
+On Wed, 2005-01-26 at 22:14 -0500, Parag Warudkar wrote:
+> Stephen Hemminger wrote:
+> 
+> >On my laptop with Fedora Core 3, OpenOffice 1.0.1, 1.0.4 and the pre 2.0 version
+> >all work fine running 2.6.10-FCxx kernel but get a SEGV when running on 2.6.11-rc1 or 2.6.11-rc2
+> >
+> >Any hints?
+> >  
+> >
+> Works fine here -  FC3-x86 on Athlon64 and 2.6.11-rc2 stock. Both  OO.o 
+> 1.1.3 and latest M69 run fine.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+--
+"The idea that Bill Gates has appeared like a knight in shining armour
+to lead all customers out of a mire of technological chaos neatly
+ignores the fact that it was he who, by peddling second-rate technology,
+led them into it in the first place." -- Douglas Adams, on Windows '95.
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Robson Roberto Souza Peixoto
->Sent: Monday, January 24, 2005 5:59 AM
->To: linux-kernel@vger.kernel.org
->Subject: Re: CELERON D Prescott Step C-0
->
->I have the same problem here too. 
->I using 2.4.25.
->
->Robson.
->
->
->
->On Sat, 22 Jan 2005 18:43:32 Camilo Telles wrote
->
->
->> Sirs,
->
->> There is a bug in the CELERON D Prescott C-0 that prevents this
->> processor to reboot the machine. This processor hangs when you try to
->> reboot the machine. The people from ECS had already released in
->> 2005/01/11 a BIOS update that covers this problem to the motherboard
->> 648FX-A2(PCB:1.0).
->> Here is the update description of the BIOS:
->
-><snip>
->
->> Camilo
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->

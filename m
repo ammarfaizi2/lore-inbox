@@ -1,57 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266858AbUHOUDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHOUHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266858AbUHOUDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUHOUDc
+	id S266864AbUHOUHK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHOUHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:03:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37326 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266858AbUHOUDa (ORCPT
+	Sun, 15 Aug 2004 16:07:10 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:47764 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266864AbUHOUHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:03:30 -0400
-Date: Sun, 15 Aug 2004 13:01:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Santiago Leon <santil@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] ibmveth bug fixes 4/4
-Message-Id: <20040815130145.794615d8.akpm@osdl.org>
-In-Reply-To: <41190E97.2050705@us.ibm.com>
-References: <41190E97.2050705@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Aug 2004 16:07:05 -0400
+Date: Sun, 15 Aug 2004 13:06:21 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte
+In-Reply-To: <411F7067.8040305@colorfullife.com>
+Message-ID: <Pine.LNX.4.58.0408151304190.2470@schroedinger.engr.sgi.com>
+References: <411F7067.8040305@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Leon <santil@us.ibm.com> wrote:
->
-> his patch adds a memory barrier to ensure synchronization with the 
->  hypervisor (and avoid a panic when the hypervisor is halfway through 
->  writing to the descriptor). It also removes an unnecessary check that is 
->  flawed anyway because the value can change between the atomic_inc() and 
->  the assert. Please apply.
-> 
-> ...
->  @@ -733,6 +732,8 @@
->   
->   		if(ibmveth_rxq_pending_buffer(adapter)) {
->   			struct sk_buff *skb;
->  +
->  +			rmb();
+On Sun, 15 Aug 2004, Manfred Spraul wrote:
 
-Please always add a comment when adding such a barrier - it is otherwise
-quite impossible for the reader to work out what it is doing in there.
+> Very odd. Why do you see a problem with the page_table_lock but no
+> problem from the mmap semaphore?
 
-Also, please in future avoid giving your patches subjects such as "ibmveth
-bug fixes 4/4".  Remember that the Subject: in your email will be carried
-through into kernel bitkeeper and it should be meaningful.
-
-I relabelled these four patches as
-
-	ibmveth: module tag fixes
-	ibmveth: race fixes
-	ibmveth: hypervisor return value fix
-	ibmveth: add memory barrier for hypervisor synchronisation
-
-Thanks.
+Because there is a only a down_read() call for the mmap semaphore before
+invoking handle_mm_fault. This is a rw semaphore which means that multiple
+processors/processes may be entering handle_mm_fault with a read lock on
+the mmap semaphore.

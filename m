@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316008AbSEJTKj>; Fri, 10 May 2002 15:10:39 -0400
+	id <S316019AbSEJTMV>; Fri, 10 May 2002 15:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316019AbSEJTKi>; Fri, 10 May 2002 15:10:38 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18962 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316008AbSEJTKi>; Fri, 10 May 2002 15:10:38 -0400
-Date: Fri, 10 May 2002 15:07:14 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Robert Love <rml@tech9.net>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: x86 question: Can a process have > 3GB memory?
-In-Reply-To: <1020980411.880.93.camel@summit>
-Message-ID: <Pine.LNX.3.96.1020510145244.14035A-100000@gatekeeper.tmr.com>
+	id <S316081AbSEJTMU>; Fri, 10 May 2002 15:12:20 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:51186 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S316019AbSEJTMT>; Fri, 10 May 2002 15:12:19 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15580.7052.396951.568702@wombat.chubb.wattle.id.au>
+Date: Sat, 11 May 2002 05:12:12 +1000
+To: Jeremy Andrews <jeremy@kerneltrap.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: <20020510084713.43ce396e.jeremy@kerneltrap.org>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 May 2002, Robert Love wrote:
+>>>>> "Jeremy" == Jeremy Andrews <jeremy@kerneltrap.org> writes:
 
-> All 32-bit architectures have a 4GB address space, 64-bit architectures
-> obviously have a much bigger one (depends on the arch how many bits are
-> used for the address space).
-> 
-> PPC obviously does not have the dumb physical memory limitations x86
-> has, however.
+Jeremy> Peter, Out of curiousity, what then does the new filesystem
+Jeremy> limit become, on a 64-bit system?  Will all filesystems
+Jeremy> support your changes?
 
-As others have noted, the recent ia32 chips support 36 (or more) bits of
-physical memory, and there is even code to use it AFAIK in the current
-kernel. It would be possible to allow program access to this RAM, although
-both Kernel and gcc support would be needed. M$ had "huge" memory models
-to go over 64k in the old 8086 days, doing loads of segment registers.
- 
-> Anyhow, Rik's mmap trick will work on any arch, not just x86.
+This depends on the file system.
+See
+	 http://www.gelato.unsw.edu.au/~peterc/lfs.html
+(which I'm intending to update next week, after some testing to
+check the new limits with my new code -- I found the 1TB limit in
+the generic code (someone using a signed int instead of unsigned long))
 
-Rik's mmap trick is like the dancing elephant, "the wonder is not that he
-does it well but that he does it at all." In the first place most
-programmers could not get the code to work reliably in a realistic time
-frame (if at all) due to complexity, and if they did the implementation
-would not be usefully fast for random access, which is why you use memory
-in the most cases. 
+There are three different limits that apply:
 
-Imagine *a++ = *b++ with four system calls per byte. Or imagine an FFT,
-where even if you could do range checking to see if mmap() was needed you
-would still add multiples to the integer portion, and probably beat the
-cache to a pulp.
+ --- The physical layout on disc (e.g., ext2 uses 32-bit for block
+     numbers within a file system; thus the max size is
+     (2^32-1)*block_size;  although it's theoretically possible to use
+     larger blocksizes, the current toolchain has a maximum of 4k,
+     thus the largest size of an ext[23] filesystem is ((2^32)-1)*4k
+     bytes --- around 16TB)
 
-As a technique for special applications and programmers it works well, but
-as a general solution it is totally impractical in both time to code and
-time to run. Not to mention portability issues to 64 bit hardware, where
-you need still other code unless you want to run multiples slower.
+     It's extremely unlikely that you'd want to use a non-journalled
+     file system on such a large partition, so your best bets are
+     reiserfs, jfs or XFS.  jfs and xfs work well on enormous
+     partitions on other platforms; the current version of reiserfs is
+     somewhat limited, but version 4 will allow larger file systems.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 
+ --- Limitations imposed by the partitioning scheme.
+     As far as I know, only the EFI GUID partitioning scheme uses
+     64-bit block offsets, so under any other scheme you're limited to
+     2^32 or 2^31 blocks per disc; some use the underlying hardware
+     sector size, some use a block size that's  multiple of this.
+
+ --- The page cache limit (which on a 32-bit system is 16TB; on a 64
+     bit system is 18 EB
+
+
+Jeremy>   Mind if I quote what you say on my webpage?
+
+Go ahead
+
+--
+Peter Chubb
+peterc@gelato.unsw.edu.au	http://www.gelato.unsw.edu.au

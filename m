@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265169AbTLZL4z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 06:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbTLZL4z
+	id S265171AbTLZMOn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 07:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTLZMOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 06:56:55 -0500
-Received: from holomorphy.com ([199.26.172.102]:18860 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265169AbTLZL4y (ORCPT
+	Fri, 26 Dec 2003 07:14:43 -0500
+Received: from [66.98.192.92] ([66.98.192.92]:45790 "EHLO svr44.ehostpros.com")
+	by vger.kernel.org with ESMTP id S265171AbTLZMOn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 06:56:54 -0500
-Date: Fri, 26 Dec 2003 03:56:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org, Rohit Seth <rohit.seth@intel.com>
-Subject: Re: 2.6.0 Huge pages not working as expected
-Message-ID: <20031226115647.GH27687@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-	linux-kernel@vger.kernel.org, Rohit Seth <rohit.seth@intel.com>
-References: <20031226105433.GA25970@axis.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Dec 2003 07:14:43 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: linux-kernel@vger.kernel.org
+Subject: kgdb-x86_64-1.6 for kernel 2.4.23
+Date: Fri, 26 Dec 2003 17:44:30 +0530
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031226105433.GA25970@axis.demon.co.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312261744.30948.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 26, 2003 at 10:54:33AM +0000, Nick Craig-Wood wrote:
-> I wrote a little test program to show the benefits of huge pages by
-> reducing TLB thrashing - it fills up 16 MB with sequential numbers
-> then adds them with different strides - very much the sort of thing
-> FFTs do.  However huge pages show a performance decrease not increase
-> for large strides!  For smaller ones there is a small speedup.
-> I've been testing on
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
+Hi,
 
-P-III has something like 2 TLB entries usable for large pages.
-I recommend trying this again on a P-IV.
+I have started maintaining kgdb for x86_64 architecture at 
+http://kgdb.sourceforge.net/
 
+Current kgdb-x86_64 version is 1.6. It features console messages through gdb.
+-- 
+Amit Kale
+EmSysSoft (http://www.emsyssoft.com)
+KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
 
--- wli

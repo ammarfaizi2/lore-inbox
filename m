@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265677AbSLJTyR>; Tue, 10 Dec 2002 14:54:17 -0500
+	id <S265708AbSLJT5B>; Tue, 10 Dec 2002 14:57:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265681AbSLJTyR>; Tue, 10 Dec 2002 14:54:17 -0500
-Received: from mail1.dac.neu.edu ([129.10.1.75]:9990 "EHLO mail1.dac.neu.edu")
-	by vger.kernel.org with ESMTP id <S265677AbSLJTyQ>;
-	Tue, 10 Dec 2002 14:54:16 -0500
-Message-ID: <3DF64852.9030006@ccs.neu.edu>
-Date: Tue, 10 Dec 2002 15:02:26 -0500
-From: Stan Bubrouski <stan@ccs.neu.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Love <rml@ufl.edu>
-CC: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.51 with contest
-References: <200212102245.19862.conman@kolivas.net>	 <3DF621D0.6040505@ccs.neu.edu> <1039545941.1831.849.camel@phantasy>
-In-Reply-To: <1039545941.1831.849.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265711AbSLJT5B>; Tue, 10 Dec 2002 14:57:01 -0500
+Received: from D01b4.pppool.de ([80.184.1.180]:10391 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265708AbSLJT5A>; Tue, 10 Dec 2002 14:57:00 -0500
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+From: Daniel Egger <degger@fhm.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1039539080.14302.29.camel@irongate.swansea.linux.org.uk>
+References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
+	 <20021210055215.GA9124@suse.de>  <1039504941.30881.10.camel@sonja>
+	 <1039539080.14302.29.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QEHMVEKr2bxxu35dPe8V"
+Organization: 
+Message-Id: <1039549178.7224.7.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 10 Dec 2002 20:39:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Tue, 2002-12-10 at 12:18, Stan Bubrouski wrote:
-> 
-> 
->>I know this has been brought up before, but
->>these don't seem to mean much unless you
->>include 2.4.20 in the comaprison.
-> 
-> 
-> Comparing this to 2.4 achieves nothing because so much changed.
 
-I disagree, 2.4.20 is the current stable kernel, it would
-be nice to see how it compares to the current development,
-what's faster, what's not... from Con's previous results
-we can see that some things are indeed not as fast in 2.5.x
-as in 2.4.x.  It's just nice to be able to see the whole
-picture.  I often follow these threads for just this purpose.
+--=-QEHMVEKr2bxxu35dPe8V
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--Stan
+Am Die, 2002-12-10 um 17.51 schrieb Alan Cox:
 
-> 
-> The point of these benchmarks are not marketing, but to find
-> improvements or regressions from one version to the next and find out
-> what caused them.
-> 
-> Comparing the kernel to 2.4 has some uses (i.e. finding micro-ops) but
-> Con's mission is much different (and imo more useful).
-> 
-> 	Robert Love
-> 
+> Well if you optimise for ppro it won't actually always work.=20
 
+Yeah, I had to learn earlier that it seems to support certain=20
+kind of cmovs but certainly not all of them and some other
+instructions seem also to be missing.
 
+> Also thescheduling seems to be best with 486.
+> Remember the C3 is a single issue risc processor.
+
+Do you have pointers to some optimisation manual or whatever?
+gcc currently defines the c3 as 486+mmx+3dnow however I doubt=20
+that this model is entirely correct and as such leaves some=20
+space for improvements.
+
+> --=20
+> Servus,
+>        Daniel
+
+--=-QEHMVEKr2bxxu35dPe8V
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA99kL6chlzsq9KoIYRAn7lAKDl5iHhDDN8qvttpgZCAmDFHCdPngCg1Par
+YC/MiKbWxD8cd6b5gjpfOlw=
+=3cQP
+-----END PGP SIGNATURE-----
+
+--=-QEHMVEKr2bxxu35dPe8V--
 

@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVAODEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVAODRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVAODEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 22:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVAODEq
+	id S262195AbVAODRN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 22:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVAODRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 22:04:46 -0500
-Received: from evtexc09.relay.danahertm.com ([129.196.229.156]:39218 "EHLO
-	evtexc09.relay.danahertm.com") by vger.kernel.org with ESMTP
-	id S262112AbVAODEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 22:04:39 -0500
-Date: Fri, 14 Jan 2005 19:04:51 -0800 (PST)
-From: David Dyck <david.dyck@fluke.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Steffen Moser <lists@steffen-moser.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-rc2
-In-Reply-To: <Pine.LNX.4.51.0501141853270.222@dd.tc.fluke.com>
-Message-ID: <Pine.LNX.4.51.0501141903040.223@dd.tc.fluke.com>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de>
- <20050114231712.GH3336@logos.cnet> <Pine.LNX.4.51.0501141853270.222@dd.tc.fluke.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Jan 2005 03:08:54.0937 (UTC) FILETIME=[8C112090:01C4FAAF]
+	Fri, 14 Jan 2005 22:17:12 -0500
+Received: from bromo.msbb.uc.edu ([129.137.3.146]:14790 "HELO
+	bromo.msbb.uc.edu") by vger.kernel.org with SMTP id S262195AbVAODQ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 22:16:56 -0500
+To: alan@lxorguk.ukuu.org.uk, howarth@bromo.msbb.uc.edu
+Subject: Re: usb key oddities with 2.6.10-ac9
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20050115031532.DAA6F1DC100@bromo.msbb.uc.edu>
+Date: Fri, 14 Jan 2005 22:15:32 -0500 (EST)
+From: howarth@bromo.msbb.uc.edu (Jack Howarth)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005 at 18:58 -0800, David Dyck <david.dyck@fluke.com> wrote:
+Alan,
+    I don't see any changes in how Fedora's 2.6.10 kernels are built 
+that should effect USB hotplugging. The previous kernel I was using
+shows...
 
-> On Fri, 14 Jan 2005 at 21:17 -0200, Marcelo Tosatti <marcelo.tosatti@cyclad...:
->
-> > David, this also fix your problem.
->
->
-> Sorry, no
->
-> I tried your patch to drivers/char/tty_io.c
-> (using EXPORT_SYMBOL instead of EXPORT_SYMBOL_GPL)
->
->  heading back to 2.4.29-pre2...
->      David
+grep HOT config-2.6.7-1.494.2.2smp      
+CONFIG_HOTPLUG=y
+CONFIG_HOTPLUG_PCI=y
+# CONFIG_HOTPLUG_PCI_FAKE is not set
+CONFIG_HOTPLUG_PCI_COMPAQ=m
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+CONFIG_HOTPLUG_PCI_IBM=m
+# CONFIG_HOTPLUG_PCI_ACPI is not set
+# CONFIG_HOTPLUG_PCI_CPCI is not set
+CONFIG_HOTPLUG_PCI_PCIE=m
+CONFIG_HOTPLUG_PCI_PCIE_POLL_EVENT_MODE=y
+CONFIG_HOTPLUG_PCI_SHPC=m
+CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE=y
+CONFIG_DM_SNAPSHOT=m
+CONFIG_USB_STORAGE_JUMPSHOT=y
 
-I noticed when booting 2.4.29-pre2 that I getting
-other unresolved symbols
+and their new 2.6.10 based kernels show...
 
-$ cd /lib/modules/2.4.29-pre2/kernel/fs/isofs
-$ sudo insmod isofs.o
+grep HOT config-2.6.10-1.9_FC2smp
+CONFIG_HOTPLUG=y
+CONFIG_HOTPLUG_PCI=y
+# CONFIG_HOTPLUG_PCI_FAKE is not set
+CONFIG_HOTPLUG_PCI_COMPAQ=m
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+CONFIG_HOTPLUG_PCI_IBM=m
+CONFIG_HOTPLUG_PCI_ACPI=m
+CONFIG_HOTPLUG_PCI_ACPI_IBM=m
+# CONFIG_HOTPLUG_PCI_CPCI is not set
+CONFIG_HOTPLUG_PCI_PCIE=m
+# CONFIG_HOTPLUG_PCI_PCIE_POLL_EVENT_MODE is not set
+CONFIG_HOTPLUG_PCI_SHPC=m
+# CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE is not set
+CONFIG_DM_SNAPSHOT=m
+CONFIG_USB_STORAGE_JUMPSHOT=y
 
-isofs.o: unresolved symbol zlib_inflate_workspacesize_Rce5ac24f
-isofs.o: unresolved symbol zlib_inflateEnd_R9ef45f92
-isofs.o: unresolved symbol zlib_inflate_R64cf8602
-isofs.o: unresolved symbol zlib_inflateInit__R456e911d
-
-I don't know if these are related
+Is there anything I can modify (without rebuilding the kernel) that
+will fire off dmsegs from the kernel for the calls it makes to 
+execute /sbin/hotplug? Perhaps I can see some difference in how or
+when hotplug is called by the kernel for usb devices?
+                 Jack
+ps Fedora did switch with 2.6.10 from using usbdevfs to using usbfs
+but they modified their initscripts package to handle that change.

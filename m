@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbULNTeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbULNTeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbULNTeb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULNTeb
+	id S261206AbULNTeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 14:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbULNTeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:34:31 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:11167 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261625AbULNTeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:34:21 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <20041214132834.GA32390@elte.hu>
-References: <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-	 <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-	 <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
-	 <20041207141123.GA12025@elte.hu>  <20041214132834.GA32390@elte.hu>
+	Tue, 14 Dec 2004 14:34:16 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:62892 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261632AbULNTdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 14:33:51 -0500
+Subject: Re: Anticipatory prefaulting in the page fault handler V2
+From: Adam Litke <agl@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Akinobu Mita <amgta@yacht.ocn.ne.jp>, nickpiggin@yahoo.com.au,
+       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
+       benh@kernel.crashing.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+	 <156610000.1102546207@flay>
+	 <Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com>
+	 <200412132330.23893.amgta@yacht.ocn.ne.jp>
+	 <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>
+	 <8880000.1102976179@flay>
+	 <Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Tue, 14 Dec 2004 14:34:13 -0500
-Message-Id: <1103052853.3582.46.camel@localhost.localdomain>
+Organization: IBM
+Message-Id: <1103052678.28318.446.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Dec 2004 13:31:19 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[RFC]
+Just to add another data point:  This works on my 4-way ppc64 (Power4)
+box.  I am seeing no degradation when running this on kernbench (which
+is expected).  For the curious, here are the results:
 
-Ingo,
+Kernbench results with anon-prefault:
+349.86user 49.64system 1:57.85elapsed 338%CPU (0avgtext+0avgdata 0maxresident)k
+349.65user 49.81system 1:58.31elapsed 337%CPU (0avgtext+0avgdata 0maxresident)k
+349.48user 50.00system 1:53.70elapsed 351%CPU (0avgtext+0avgdata 0maxresident)k
+349.73user 49.69system 1:57.67elapsed 339%CPU (0avgtext+0avgdata 0maxresident)k
+349.75user 49.85system 1:52.71elapsed 354%CPU (0avgtext+0avgdata 0maxresident)k
+Elapsed: 116.048s User: 349.694s System: 49.798s CPU: 343.8%
 
-Any thought about adding a one shot timer for the system? 
+Kernbench results without anon-prefault:
+350.86user 52.54system 1:53.45elapsed 355%CPU (0avgtext+0avgdata 0maxresident)k
+350.99user 52.36system 1:52.05elapsed 359%CPU (0avgtext+0avgdata 0maxresident)k
+350.92user 52.68system 1:54.14elapsed 353%CPU (0avgtext+0avgdata 0maxresident)k
+350.98user 52.38system 1:56.17elapsed 347%CPU (0avgtext+0avgdata 0maxresident)k
+351.16user 52.31system 1:53.90elapsed 354%CPU (0avgtext+0avgdata 0maxresident)k
+Elapsed: 113.942s User: 350.982s System: 52.454s CPU: 353.6%
 
-I know there's been talk about this in the mainline (actually going on
-right now in the dynamic Hz thread), but I figured that this would
-especially be good for a RT system and not be worried about the HZ
-settings.  
-
-An example would be to have the timer interrupt be implemented as a one
-shot timer, and be able to register actions to times with it.  The jiffy
-calculations could just be an event that is registered to go off once
-every HZ.  The timer interrupt would then just have to look at all the
-events that have expired (using something like the TSC to determine what
-expires), execute their registered actions, and if need be, the action
-could add itself back on the event queue (the jiffy timer would do
-this), and then the timer would set itself to go off at the next event.
-I believe something like this was done by the utime patch (now with the
-KURT project).
-
-This way the RT processes would not need to depend on the HZ settings.
-
-I'd be willing to implement this, since I'm doing it regardless for a
-client of mine. But I would like to know your input on this.
-
-Thanks,
-
--- Steve
+On Mon, 2004-12-13 at 19:32, Christoph Lameter wrote:
+> Changes from V1 to V2:
+> - Eliminate duplicate code and reorganize things
+> - Use SetReferenced instead of mark_accessed (Hugh Dickins)
+> - Fix the problem of the preallocation order increasing out of bounds
+> (leading to memory being overwritten with pointers to struct page)
+> - Return VM_FAULT_OOM if not able to allocate a single page
+> - Tested on i386 and ia64
+> - New performance test for low cpu counts (up to 8 so that this does not
+> seem to be too exotic)
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

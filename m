@@ -1,119 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUENVzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUENWNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUENVzi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 17:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUENVzi
+	id S263003AbUENWNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 18:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUENWNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 17:55:38 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:35007 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262972AbUENVzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 17:55:12 -0400
-Subject: Re: [PATCH] capabilites, take 2
-From: Albert Cahalan <albert@users.sf.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       luto@myrealbox.com, olaf+list.linux-kernel@olafdietsche.de,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <20040514141145.Z21045@build.pdx.osdl.net>
-References: <1084536213.951.615.camel@cube>
-	 <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <1084547976.952.644.camel@cube>
-	 <1084557969.18592.21.camel@moss-spartans.epoch.ncsc.mil>
-	 <1084555929.951.679.camel@cube>  <20040514141145.Z21045@build.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1084563151.955.695.camel@cube>
+	Fri, 14 May 2004 18:13:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36494 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263003AbUENWNN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 18:13:13 -0400
+Date: Fri, 14 May 2004 15:15:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: arjanv@redhat.com, benh@kernel.crashing.org, kronos@kronoz.cjb.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
+Message-Id: <20040514151520.65b31f62.akpm@osdl.org>
+In-Reply-To: <20040514114746.GB23863@wohnheim.fh-wedel.de>
+References: <20040513145640.GA3430@dreamland.darkstar.lan>
+	<1084488901.3021.116.camel@gaston>
+	<20040513182153.1feb488b.akpm@osdl.org>
+	<20040514094923.GB29106@devserv.devel.redhat.com>
+	<20040514114746.GB23863@wohnheim.fh-wedel.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 14 May 2004 15:32:32 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-14 at 17:11, Chris Wright wrote:
-> * Albert Cahalan (albert@users.sourceforge.net) wrote:
-> > On Fri, 2004-05-14 at 14:06, Stephen Smalley wrote:
-> > > You missed the point.  Capability scheme maps far too
-> > > many operations to a single capability; CAP_SYS_ADMIN
-> > > in Linux is a good example.
+Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+>
+> On Fri, 14 May 2004 11:49:23 +0200, Arjan van de Ven wrote:
+> > On Fri, May 14, 2004 at 11:47:39AM +0200, Andrew Morton wrote:
+> > > There's a `make buildcheck' target in -mm (from Arjan) into which we could
+> > > integrate such a tool.  Although probably it should be a different make
+> > > target.
 > > 
-> > What I said: lovely, but not exactly groundbreaking.
+> > I added it to buildcheck for now, based on Keith Owens' check-stack.sh
+> > script. I added a tiny bit of perl (shudder) to it to 
+> > 1) Make it print in decimal not hex
+> > 2) Filter the stack users to users of 400 bytes and higher
 > > 
-> > Suppose we break up CAP_SYS_ADMIN into 41 other bits.
-> > There you go. It's silly to argue that a system with
-> > more bits is some kind of major advance over one with
-> > just a few bits. There is a quality-of-implementation
-> > issue here, not some fundamental difference.
+> > I arbitrarily used 400; that surely is debatable.
 > 
-> Needing more bits isn't the only problem.
+> Keith' script has the major disadvantage of not working on anything
+> but i386.  Here is my old script that works on a few more.
 
-That's what much of the document went on about. The
-rest of the document was mostly generic MAC concepts.
+That's nice and simple.  All due respect to Keith, this is something
+which humans have a chance of understanding too ;)
 
-> > > TE model
-> > > defers organization of operations into equivalence
-> > > classes to the policy writer.
-> > 
-> > I don't see anything special here either. With a
-> > plain capability-bit system, you could allow for
-> > user-defined aliases that map to multiple bits.
-> > In some random /etc config file:
-> > 
-> > define ADMIN := FOO | BAR | BAZ
-> 
-> This doesn't effect the inflexibility of a single definition for domain
-> transistion that's inherent in the capabilty system.
+I removed the `vmlinux FORCE' targets from the makefile - that was forcing
+a full rebuild after I'd just done one.  Just let it check ./vmlinux and if
+it's not there, it errors out...
 
-Sure. I already noted this.
+It doesn't do modules, and hence requires a prior allyesconfig.  I think it
+would be better to do:
 
-> > Lack of granularity is an implementation detail.
-> > (Blame the SGI folks that wouldn't listen to me.)
-> > Lack of granularity is not a design flaw.
-> 
-> It's a design flaw.  More bits won't help.  There's an important missing
-> piece...credentials for both subject and object.  Both of which can be
-> dynamic, and differ per subject's view of an object.
+find . -name '*.o' | xargs objdump -d | perl scripts/checkstack.pl i386
 
-There is no meaningful object.
+but that produces slightly screwy output and, for some reason, duplicated
+output:
 
-subject: process 12345
-object: ??????
-operation: lock memory
 
-For a few capability bits, there is a meaningful object
-and you could use SELinux in place of the capability bits.
-For most of the capability bits, this is not the case.
+0x    387c zconf_fopen:					 sub    $0x101c,%esp
+0x     3c0 huft_build:					 sub    $0x5ac,%esp
+0x       0 huft_build:					 sub    $0x5ac,%esp
+0x       0 huft_build:					 sub    $0x59c,%esp
+0x     d30 inflate_dynamic:				 sub    $0x528,%esp
+0x    10f0 inflate_dynamic:				 sub    $0x528,%esp
+0x     c10 inflate_dynamic:				 sub    $0x524,%esp
+0x      23 zconfparse:					 sub    $0x50c,%esp
+   3:	81 ec fc 04 00 00    	sub    $0x4fc,%esp yyparse:	 sub    $0x4fc,%esp
+0x     f9c inflate_fixed:				 sub    $0x490,%esp
+0x     bdc inflate_fixed:				 sub    $0x490,%esp
+0x     abc inflate_fixed:				 sub    $0x490,%esp
+0x    3d54 conf_read:					 sub    $0x41c,%esp
+0x    fca0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
+0x    fc28 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
+0x    6c58 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
+0x   10448 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
+0x   104c0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
+0x    54e0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
+0x    5468 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
+0x    6cd0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
+0x    42db conf_write:					 sub    $0x30c,%esp
+0x      c8 nlmclnt_proc:				 sub    $0x280,%esp
+0x    1b54 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
+0x   1d074 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
+0x   761c8 nlmclnt_proc:				 sub    $0x280,%esp
+0x   1c854 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
+0x     4b8 nlmclnt_proc:				 sub    $0x280,%esp
+0x    1b54 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
 
-> > What I'm looking for:
-> > 
-> > 1. configure the kernel by ...
-> > 2. ensure that /bin/foo runs early in boot
-> > 3. put "blah blah blah" in /etc/foo.conf
-> > 
-> > That is, is there a small set of simple config files
-> > and binaries that I could just slap onto an existing
-> > system to ensure that a particular app is granted an
-> > extra capability bit?
-> > 
-> > If yes, then the ugly old-Oracle hack is not needed.
-> 
-> Nearly.  There's the minor issue that execve() clears that bit more
-> agressively than desired for non-root processes.  Otherwise pam can do
-> it with pam_cap.  Which is all we're trying to fix here.
 
-Stephen Smalley suggested that SELinux could take the
-place of our capability bits. So I'm asking how you do
-that, using the most minimal SELinux config.
-
-If he really has a way, then there is no need to change
-the execve() behavior in the Linux 2.6.x kernels.
-
-Perhaps we just need an LSM hook to re-add the capability
-bit after execve() drops it. That's a tiny change that
-doesn't affect any existing system.
-
+You wanna take a look at that please?
 
 

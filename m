@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264073AbUDVOkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264090AbUDVOlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264073AbUDVOkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 10:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264084AbUDVOkJ
+	id S264090AbUDVOlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 10:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUDVOlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 10:40:09 -0400
-Received: from dsl-gw-90.pilosoft.com ([69.31.90.1]:24538 "EHLO
-	paix.pilosoft.com") by vger.kernel.org with ESMTP id S264073AbUDVOkD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 10:40:03 -0400
-Date: Thu, 22 Apr 2004 10:37:42 -0400 (EDT)
-From: alex@pilosoft.com
-To: jamal <hadi@cyberus.ca>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-In-Reply-To: <1082644022.1099.40.camel@jzny.localdomain>
-Message-ID: <Pine.LNX.4.44.0404221030240.2738-100000@paix.pilosoft.com>
+	Thu, 22 Apr 2004 10:41:46 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:30994 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264083AbUDVOlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 10:41:02 -0400
+Message-ID: <4087DA1D.8050106@techsource.com>
+Date: Thu, 22 Apr 2004 10:43:41 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan De Luyck <lkml@kcore.org>
+CC: linux-kernel@vger.kernel.org, Joel Jaeggli <joelja@darkwing.uoregon.edu>
+Subject: Re: System hang with ATI's lousy driver
+References: <Pine.LNX.4.44.0404201216280.10469-100000@twin.uoregon.edu> <200404220718.40070.lkml@kcore.org>
+In-Reply-To: <200404220718.40070.lkml@kcore.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Apr 2004, jamal wrote:
 
-> Unless its a private network with locked vaults for the pipes, any
-> network is vulnerable. I am not trying to downplay the relevance of
-> this; all i am saying is it may a little overhyped with the media being
-> involved. Its infact harder to create this attack compared to a simple
-> SYN attack.
-Not quite. With a SYN you have to respond with exactly the same sequence 
-number as attacking host in order to establish connection. With RST, your 
-sequence number needs to be +- rwin in order to kill the connection. That 
-significantly reduces search space.
 
-> Unless i misunderstood: You need someone/thing to see about 64K packets
-> within a single flow to make the predicition so the attack is succesful.
-> Sure to have access to such capability is to be in a hostile path, no?
-> ;->
-No, you do not need to see any packet. 
-
-> > And it's not BGP specific.  You might be able to use this attack to
-> > split IRC networks, too.  However, it's a bit harder in this case
-> > because IRC servers usually use more random source ports.
+Jan De Luyck wrote:
+> On Tuesday 20 April 2004 21:28, Joel Jaeggli wrote:
 > 
-> Any long lived flow with close to fixed ports. FTP from kernel.org could
-> be vulnerable - get a better client and its just becomes a nuisance. 80%
-> of the internet traffic is still TCP/HTTP1.0 which is very short lived
-> (there could be changes lately - these are numbers from a while back)
-> i.e you wont see more than 8 packets i.e it is highly unlikely your
-> traffic there is affected even if you used fixed ports.
-Inter-provider BGP is long-lived with close to fixed ports, which is why 
-it has caused quite a stir.
+> 
+>>kernel drm + xfree86 driver will actually provide accelerated opengl
+>>support in Xwindows albiet without quite as many hardware features as the
+>>proprietary driver on all the rv2xx chipsets including the 9000 but not
+>>on the later models.
+>>
+>>kernel drm & radeonfb have been reported to not play very well with each
+>>other in other venues. vesafb is known to work in this situation though.
+> 
+> 
+> I have that particular setup running quite satisfactory now for a few months, 
+> using a Radeon 9000 Mobile chip. No problems at all.
+> 
 
-Nevertheless, number of packets to kill the session is still *large* 
-(under "best-case" for attacker, you need to send 2^30 packets)...
 
--alex
+I discovered why I thought the Mesa driver wasn't working.  It turns out 
+that kscreensaver is broken.  If I use xscreensaver, or the screen saver 
+starts from Gnome, or I run the OpenGL program stand-alone, everything 
+works fine.  But if I use KDE's screen saver program or it starts 
+automatically in KDE, OpenGL screen savers get all flickery, as if 
+double-buffering had been disabled.
+
+Apparently, this is a long out-standing bug in KDE.
+
+
+The only bit of this that is not off-topic is that ATI's proprietary 
+drivers are broken, because they don't get along with radeonfb.
 

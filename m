@@ -1,100 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131743AbQK0O6J>; Mon, 27 Nov 2000 09:58:09 -0500
+        id <S131214AbQK0O6t>; Mon, 27 Nov 2000 09:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131677AbQK0O6A>; Mon, 27 Nov 2000 09:58:00 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:18441 "EHLO
-        etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-        id <S131214AbQK0O5l>; Mon, 27 Nov 2000 09:57:41 -0500
-Date: Mon, 27 Nov 2000 15:26:35 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.2.17] yes: oops again in /proc/scsi/scsi
-Message-ID: <20001127152635.K18517@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Linux SCSI list <linux-scsi@vger.kernel.org>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001122020618.A1411@emma1.emma.line.org> <20001123010712.C32555@garloff.etpnet.phys.tue.nl> <20001127091005.A2973@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-        protocol="application/pgp-signature"; boundary="DN8g+DOX2TxGxleI"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001127091005.A2973@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Mon, Nov 27, 2000 at 09:10:05AM +0100
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+        id <S131989AbQK0O6j>; Mon, 27 Nov 2000 09:58:39 -0500
+Received: from ns.felk.cvut.cz ([147.32.80.9]:31750 "EHLO ns.felk.cvut.cz")
+        by vger.kernel.org with ESMTP id <S131214AbQK0O6D>;
+        Mon, 27 Nov 2000 09:58:03 -0500
+Date: Mon, 27 Nov 2000 15:28:01 +0100 (CET)
+From: "Pavel Pisa;research student" <pisa@waltz.felk.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.2-51 is buggy
+Message-ID: <Pine.LNX.4.04.10011271457360.6145-100000@fu.felk.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
---DN8g+DOX2TxGxleI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have used patch from GCC-PATCHES list
+posted by Bernd Schmidt <bernds at redhat dot com>.
+Because of high importance I am forwarding this patch to
+Linux-Kernel. Patch seems to solve problem.
 
-On Mon, Nov 27, 2000 at 09:10:05AM +0100, Matthias Andree wrote:
-> My previous mail was a tad too early. After I moved the bus back to the
-> Tekram DC-390U (sym53c8xx driver), I caught an oops again, and
-> rescan-scsi-bus.sh caught a SIGSEGV. There seems to be a kernel bug somew=
-here
-> in that SCSI handling stuff:
->=20
-> Unable to handle kernel NULL pointer dereference at virtual address 00000=
-052
-> current->tss.cr3 =3D 07106000, %%cr3 =3D 07106000
-> *pde =3D 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[sr_finish+112/388]
-> EFLAGS: 00010206
-> eax: 00000000   ebx: 00000054   ecx: 00000005   edx: c7f9cc00
-> esi: c629bd50   edi: c7f9cc40   ebp: 00000001   esp: c629bd3c
-> ds: 0018   es: 0018   ss: 0018
-> Process rescan-scsi-bus (pid: 2846, process nr: 23, stackpage=3Dc629b000)
-> Stack: 00000000 c7f88340 c02a9960 c629bd4c 00307273 c01fedaf c7f88700 c75=
-55de0
->        c629becc c01fedf3 00000000 00000000 c7f88340 00000000 c6e132c0 c02=
-cb0e0
->        c6e132c8 c0132793 c6e132c0 c629bda4 c629bda4 c0001a00 00020000 c63=
-532c0
-> Call Trace: [scan_scsis+491/1076] [scan_scsis+559/1076] [get_new_inode+14=
-7/312] [iget4+121/132] [vsprintf+720/764] [wake_up_process+64/76] [__wake_u=
-p+59/68]
-> Code: 80 48 52 20 a1 8c 99 2a c0 80 4c 18 16 08 a1 8c 99 2a c0 80
-> Using defaults from ksymoops -t elf32-i386 -a i386
+I have added warning print for case of problem,
+to find which parts of Linux kernel could be affected by this GCC
+bug. There are results:
 
-This time, I do not suspect the low-level driver. It mey very well be, that
-there's a subtile bug WRT add/remove-single-device housekeeping in the SCSI
-layer.
-You told that you did parallel rescan-scsi-bus.sh calls. That may have
-confused the kernel. Did the above oops happen without such abuse?
+linux-2.4.0-test10-pre?   compiled for K7
+make[2]: Entering directory `/usr/src/linux-2.4.0-t9/fs'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-t9/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -pipe  -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -fno-strict-aliasing    -c -o block_dev.o block_dev.c
+block_dev.c: In function `block_read':
+block_dev.c:311: warning: possible original gcc 2.95.2 error c/877
+make[2]: Entering directory `/usr/src/linux-2.4.0-t9/ipc'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-t9/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -pipe  -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -fno-strict-aliasing    -c -o msg.o msg.c
+msg.c: In function `sys_msgctl':
+msg.c:576: warning: possible original gcc 2.95.2 error c/877
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-t9/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -pipe  -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -fno-strict-aliasing    -c -o sem.o sem.c
 
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations <k.garloff@phys.tue.nl>   [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
- (See mail header or public key servers for PGP2 and GPG public keys.)
+I have run same compilation for 2.2.15 kernel compiled for K6
+make[2]: Entering directory `/usr/src/linux-2.2.15/fs'
+block_dev.c: In function `block_read':
+block_dev.c:304: warning: possible original gcc 2.95.2 error c/877
 
---DN8g+DOX2TxGxleI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I hope that my mail is not only waste of your time.
+These possible wrong compiled files could be sources of other
+false kernel related bugs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+If you have interest I will to try to compile 2.2.x and 2.4.0-x kernels
+for bare i586 to find more such problematic places.
 
-iD8DBQE6Im8bxmLh6hyYd04RApGXAKCl2o0Qs3NdPNE9U9nfBQUGyZYpjQCgwh6o
-Jg83qyxy1I8xqEWjfP3WbUQ=
-=3OC2
------END PGP SIGNATURE-----
+Best wishes 
+            Pavel Pisa
 
---DN8g+DOX2TxGxleI--
+PS: For faster response CC any reply directly to my address, please.
+
+-----------------------------------------------------------------------------
+To: aeb at cwi dot nl 
+Subject: Re: c/877: gcc 2.95.2 generates incorrect code on i386 
+From: Bernd Schmidt <bernds at redhat dot com> 
+Date: Fri, 24 Nov 2000 15:40:05 +0000 (GMT) 
+cc: gcc-gnats at gcc dot gnu dot org, gcc-prs at gcc dot gnu dot org, gcc-bugs at gcc dot gnu dot org, gcc-patches at gcc dot gnu dot
+    org 
+
+
+
+On 24 Nov 2000 aeb@cwi.nl wrote:
+
+> >Synopsis:       gcc 2.95.2 generates incorrect code on i386
+
+> It seems that a variable length shift of a long long
+> is miscompiled. This causes Linux kernel bugs.
+
+This is (as usual) a bug in reload.  We have two insns:
+
+(insn 69 67 70 (set (reg:QI 46)
+        (subreg:QI (reg:SI 43) 0))
+
+(insn 70 69 72 (set (reg:DI 44)
+        (ashiftrt:DI (reg:DI 44)
+            (reg:QI 46)))               (expr_list:REG_DEAD 46)
+
+Neither reg 46 nor reg 44 gets a hard register.  While processing insn 70,
+reload decides that it will need reg 2 (%cl) for reg 46, and reg 3/4
+(%ebx/%esi) for reg 44.  It also notices that the value of reg 44 is
+already available in reg 1/2 (%edx/%ecx), so it can avoid loading it from
+the stack and instead use reg 1/2 as overriding input.  It then notices
+that reg 46 dies in insn 70 and is set in insn 69, so it would be possible
+simply to replace the destination of insn 69 with the reload reg (%cl).
+
+The problem is that by changing insn 69 to store into %cl, the input
+override for the other reload gets clobbered.  Oops.  The function
+reload_reg_free_for_value_p doesn't test for this case.
+
+I'm currently bootstrapping with the patch below; I'll check it in (along
+with a testcase) once that finishes.  It won't apply cleanly to 2.95, but
+it should be quite easy to figure out how to apply it.  This is an obvious
+candidate should we decide to make a 2.95.3 release.
+
+(As a side note, this bug has nothing to do with the fact that there's a
+long long shift in this testcase, although I think I've noticed a bunch
+of potential bugs related to multiword values in the reload inheritance
+code while looking at this testcase...)
+
+
+Bernd
+
+        * reload1.c (conflicts_with_override): New function.
+        (emit_input_reload_insns): Use it to tighten test for validity
+        of substituting into output of previous insn.
+
+Index: reload1.c
+===================================================================
+RCS file: /cvs/gcc/egcs/gcc/reload1.c,v
+retrieving revision 1.241
+diff -u -p -r1.241 reload1.c
+--- reload1.c   2000/11/14 10:23:37     1.241
++++ reload1.c   2000/11/24 15:11:43
+@@ -417,6 +417,7 @@ static int reload_reg_reaches_end_p PARA
+                                                 enum reload_type));
+ static int allocate_reload_reg         PARAMS ((struct insn_chain *, int,
+                                                 int));
++static int conflicts_with_override     PARAMS ((rtx));
+ static void failed_reload              PARAMS ((rtx, int));
+ static int set_reload_reg              PARAMS ((int, int));
+ static void choose_reload_regs_init    PARAMS ((struct insn_chain *, rtx *));
+@@ -4882,6 +4883,21 @@ reload_reg_free_for_value_p (regno, opnu
+   return 1;
+ }
+ 
++/* Determine whether the reload reg X overlaps any rtx'es used for
++   overriding inheritance.  Return nonzero if so.  */
++
++static int
++conflicts_with_override (x)
++     rtx x;
++{
++  int i;
++  for (i = 0; i < n_reloads; i++)
++    if (reload_override_in[i]
++       && reg_overlap_mentioned_p (x, reload_override_in[i]))
++      return 1;
++  return 0;
++}
++
+ /* Give an error message saying we failed to find a reload for INSN,
+    and clear out reload R.  */
+ static void
+@@ -6215,6 +6231,7 @@ emit_input_reload_insns (chain, rl, old,
+           && dead_or_set_p (insn, old)
+           /* This is unsafe if some other reload
+              uses the same reg first.  */
++          && ! conflicts_with_override (reloadreg)
+           && reload_reg_free_for_value_p (REGNO (reloadreg),
+                                           rl->opnum,
+                                           rl->when_needed,
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

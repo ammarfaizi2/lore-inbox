@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286816AbRL1KV4>; Fri, 28 Dec 2001 05:21:56 -0500
+	id <S286815AbRL1KP0>; Fri, 28 Dec 2001 05:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286821AbRL1KVr>; Fri, 28 Dec 2001 05:21:47 -0500
-Received: from nta-monitor.demon.co.uk ([212.229.78.70]:17935 "EHLO
-	mercury.nta-monitor.com") by vger.kernel.org with ESMTP
-	id <S286816AbRL1KVe>; Fri, 28 Dec 2001 05:21:34 -0500
-Message-Id: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1>
-Date: Fri, 28 Dec 2001 10:18:20 +0000
-To: linux-kernel@vger.kernel.org
-From: Roy Hills <linux-kernel-l@nta-monitor.com>
-Subject: zImage not supported for 2.2.20?
+	id <S286816AbRL1KPQ>; Fri, 28 Dec 2001 05:15:16 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23566 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286815AbRL1KPN>; Fri, 28 Dec 2001 05:15:13 -0500
+Date: Fri, 28 Dec 2001 10:58:09 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011228095809.GB5294@emma1.emma.line.org>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011223174608.A25335@thyrsus.com> <E16JTce-0000cp-00@starship.berlin> <20011227112431.GA1582@msp-150.man.olsztyn.pl> <E16Jnci-000080-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E16Jnci-000080-00@starship.berlin>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using linux kernel 2.2.20 on my systems.  This works fine as a
-bzImage which most of my systems use, however one of my systems
-(a Toshiba Tecra laptop) needs to use zImage, and I find that 2.2.20
-does not work in this case, although previous versions e.g. 2.2.17 do.
+On Fri, 28 Dec 2001, Daniel Phillips wrote:
 
-When I look at the kernels with "file", I notice that the 2.2.20 kernel doesn't
-report zImage/bzImage like the older kernels did.  2.2.20 also omits the
-system that it was built on and the build date. E.g:
+> So would you be happy with kB -> 1,000 bytes, and KB -> 1024 bytes?  Likewise
+> mB for 1,000,000 bytes and MB for 1048576 bytes?
 
-$ file /boot/vmlinuz-2.2.*
-/boot/vmlinuz-2.2.19:     Linux kernel x86 boot executable bzImage, version 
-2.2.19
-  (root@mercury) #7 Fri No, RO-rootFS, root_dev=0x301, Normal VGA
-/boot/vmlinuz-2.2.20:     Linux kernel x86 boot executable RO-rootFS, 
-root_dev=0x3
-01, Normal VGA
+No way. m is the SI prefix for milli, one thousandth. (1/1000). K is the
+SI unit Kelvin (absolute temperature). Add to the confusion...
 
-$ file --version
-file-3.27
-magic data from /etc/magic:/usr/share/misc/magic
+-- 
+Matthias Andree
 
-I'm running Debian GNU/Linux 2.2r4 (potato) using monolithic kernels compiled
-from source.
-
-Is this the end of zImage support, or is there something else different 
-about the
-2.2.20 boot loading process that might be tickling the buggy hardware in my 
-Tecra?
-
-Regards,
-
-Roy Hills
---
-Roy Hills                                    Tel:   +44 1634 721855
-NTA Monitor Ltd                              FAX:   +44 1634 721844
-14 Ashford House, Beaufort Court,
-Medway City Estate,                          Email: Roy.Hills@nta-monitor.com
-Rochester, Kent ME2 4FA, UK                  WWW:   http://www.nta-monitor.com/
-
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264025AbTIIRBS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 13:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTIIRBS
+	id S264170AbTIIRHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 13:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIIRHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 13:01:18 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:33215 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S264025AbTIIRBR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 13:01:17 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Markus =?iso-8859-1?q?H=E4stbacka?= <midian@ihme.org>
-Subject: Re: Nforce2
-Date: Tue, 9 Sep 2003 18:01:17 +0100
-User-Agent: KMail/1.5.9
-References: <1063114472.589.4.camel@midux>
-In-Reply-To: <1063114472.589.4.camel@midux>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 9 Sep 2003 13:07:13 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55820 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S264170AbTIIRHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 13:07:09 -0400
+Path: Home.Lunix!not-for-mail
+Subject: Re: Sensors and linux 2.6.0-test4-bk8 question
+Date: Tue, 9 Sep 2003 17:06:04 +0000 (UTC)
+Organization: lunix confusion services
+References: <1062934034.7923.2.camel@rousalka.dyndns.org>
+    <bjfho6$k3j$1@post.home.lunix> <20030907173515.GA15338@_orming>
+    <bjg3oc$hu1$1@post.home.lunix>
+NNTP-Posting-Host: ns.home.lunix
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309091801.17024.alistair@devzero.co.uk>
+Content-Type: text/plain; charset=us-ascii
+X-Trace: quasar.home.lunix 1063127164 18260 10.0.0.20 (9 Sep 2003 17:06:04
+    GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Tue, 9 Sep 2003 17:06:04 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:265326
+X-Mailer: Perl5 Mail::Internet v1.51
+Message-Id: <bjl19s$hqk$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 September 2003 14:34, Markus Hästbacka wrote:
-> Still problems with nvidia-agp on 2.6.0-test5(-mm1). I can't track down
-> the problem because my box needs a hard reboot. My card is nvidia. So
-> they should work together. On 2.4.23-pre3, there's no problem anymore.
-> Works fine, but why not in 2.6.0-test5? Any ideas why it crashes? Any
-> fix? If you need me to investigate more. Tell me how.
+In article <bjg3oc$hu1$1@post.home.lunix>,
+	linux-kernel@ton.iguana.be (Ton Hospel) writes:
 
-I get similar crashes with minion.de's patches and the nForce2 AGPGART. I'm in 
-the process of tracking it down.
+> See http://www.xs4all.nl/~thospel/ASIS/bin/psensors
 
-For the moment you can just disable AGPGART in your kernel and use the 
-provided NVAGP, Option "NvAGP" "1" in your XF86Config. You will get AGP 8x in 
-XFree86, which is probably all you want.
-
-[alistair] 06:00 PM [~] uname -r
-2.6.0-test5-mm1
-
-[alistair] 06:00 PM [~] cat /proc/driver/nvidia/version
-NVRM version: NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496  Wed Jul 16 
-19:03:09 PDT 2003
-GCC version:  gcc version 3.3.1
-
-[alistair] 06:00 PM [~] cat /proc/driver/nvidia/agp/status
-Status:          Enabled
-Driver:          NVIDIA
-AGP Rate:        8x
-Fast Writes:     Disabled
-SBA:             Disabled
-
-Cheers,
-Alistair.
+An updated, documented and bugfixed version (0.02) of the program to 
+report sysfs based sensors values was just put on that site.

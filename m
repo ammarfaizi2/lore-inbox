@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265612AbTGLNVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 09:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265617AbTGLNVT
+	id S265639AbTGLNfu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbTGLNfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 09:21:19 -0400
-Received: from RJ161046.user.veloxzone.com.br ([200.149.161.46]:4339 "EHLO
-	mf.dnsalias.org") by vger.kernel.org with ESMTP id S265612AbTGLNVS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 09:21:18 -0400
-Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-From: Miguel Freitas <miguel@cetuc.puc-rio.br>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Jul 2003 10:43:10 -0300
-Message-Id: <1058017391.1197.24.camel@mf>
+	Sat, 12 Jul 2003 09:35:50 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:26385 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265639AbTGLNfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 09:35:44 -0400
+Date: Sat, 12 Jul 2003 15:50:24 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: AMD 53C974 based SCSI adapter (was: Linux 2.5.75)
+Message-ID: <20030712135024.GC1902@merlin.emma.line.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Davide,
+On Thu, 10 Jul 2003, Linus Torvalds wrote:
 
-I've found your SCHED_SOFTRR patch pretty interesting, the idea sounds
-amazingly simple and effective :)
+> Ok. This is it. We (Andrew and me) are going to start a "pre-2.6" series,
+> where getting patches in is going to be a lot harder. This is the last
+> 2.5.x kernel, so take note.
 
-Some months ago i did experiments with multimedia performance on linux
-kernel and ideas on what could be improved.
-
-http://cambuca.ldhs.cetuc.puc-rio.br/~miguel/multimedia_sim/
-
-I think it should be a general consensus that joe user must not need to
-patch his kernel or run the multimedia player as root just to be able to
-watch videos with good quality.
-
-As a xine developer i'm very interested in help improving that
-situation. Please let me know if you think this patch has chance of
-being accepted into main tree, we can add support in xine for it.
-
-regards,
-
-Miguel
-
+The AMD PCscsiII chip, commonly referred to as AM53C974, and supported
+in 2.4 by two drivers, am53c974 and tmscsim, still isn't working with
+2.5.75, neither driver compiles (built-in). (This is on akpm's must-fix v6.)

@@ -1,78 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263432AbTHXLiY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 07:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTHXLiY
+	id S263372AbTHXLeG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 07:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbTHXLeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 07:38:24 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:43237 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263432AbTHXLiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 07:38:22 -0400
-Date: Sun, 24 Aug 2003 13:32:25 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0-test3 zoran driver update
-Message-ID: <20030824133225.A24289@electric-eye.fr.zoreil.com>
-References: <1061414594.1320.97.camel@localhost.localdomain> <20030821010812.A6961@electric-eye.fr.zoreil.com> <1061684006.4302.251.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Aug 2003 07:34:06 -0400
+Received: from coderock.org ([193.77.147.115]:63492 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S263372AbTHXLeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 07:34:03 -0400
+From: Domen Puncer <domen@coderock.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.0-test4][Bug 976] modprobe pcnet32 (no card) then ns83820 (card present) causes oops
+Date: Sun, 24 Aug 2003 13:33:58 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1061684006.4302.251.camel@localhost.localdomain>; from rbultje@ronald.bitfreak.net on Sun, Aug 24, 2003 at 06:23:40AM +0200
+Message-Id: <200308241333.58457.domen@coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje <rbultje@ronald.bitfreak.net> :
-[avoid code duplication in {adv7170/adv7175/bt819/saa7111/saa7185}_write_block]
-> I'm wondering how. I could make an inline function that each of them
-> includes (but that doesn't decrease binary size, code is still
-> duplicated), or I could make a parent module (and I don't want to do
-> that). The only bad thing of the current way is the maintainance, but I
-> don't really mind.
+Hi.
 
-These functions differ only in:
+The problem in pcnet32 is, that it doesn't unregister pci, if there's no
+hardware.
 
-struct XXX *encoder = i2c_get_clientdata(client);
-       ^^^
-[...]
-                        do {
-                                block_data[msg.len++] =
-                                    encoder->reg[reg++] = data[1];
-                                    ^^^^^^^^^ 
-[...]
-                        if ((ret =
-                             XXX_write(client, reg, *data++)) < 0)
-                             ^^^^^^^^^
+This patch solves the problem.
+As Barry K. Nathan reported, it also works if you have the card.
 
-Make i2c_get_clientdata() return a generic container struct which
-provides instance specific methods to retrieve the "reg" member and
-the XXX_write() function. Init these in XXX_detect_client() just
-before i2c_set_clientdata() and it is done.
+Feedback welcome.
 
-Patches that remove code used to make Penguin #0 happy. We want an happy
-Penguin #0, don't we ? :o)
 
-> Does it matter if I just keep it the way it is right now? I don't really
-> mind at all.
+        Domen
 
-Your choice. As a maintainer, you can say "It would be great. Volunteer
-anyone ?" and see voluteer appearing.
 
-[...]
-> I'm moving some things explicitely to the long-term list, btw, that's on
-> purpose. It'd be cool to handle the new DMA/PCI subsystem, but we've got
-> many things to work on, some of which are more important than this.
+--- linux-2.6.0-test4-clean/drivers/net/pcnet32.c	2003-08-24 11:42:49.000000000 +0200
++++ linux-2.6.0-test4/drivers/net/pcnet32.c	2003-08-24 11:42:38.000000000 +0200
+@@ -1726,6 +1726,7 @@
+ /* An additional parameter that may be passed in... */
+ static int debug = -1;
+ static int tx_start_pt = -1;
++static int pcnet32_have_pci;
+ 
+ static int __init pcnet32_init_module(void)
+ {
+@@ -1738,7 +1739,8 @@
+ 	tx_start = tx_start_pt;
+ 
+     /* find the PCI devices */
+-    pci_module_init(&pcnet32_driver);
++    if (!pci_module_init(&pcnet32_driver))
++	pcnet32_have_pci = 1;
+ 
+     /* should we find any remaining VLbus devices ? */
+     if (pcnet32vlb)
+@@ -1747,7 +1749,7 @@
+     if (cards_found)
+ 	printk(KERN_INFO PFX "%d cards_found.\n", cards_found);
+     
+-    return cards_found ? 0 : -ENODEV;
++    return (pcnet32_have_pci + cards_found) ? 0 : -ENODEV;
+ }
+ 
+ static void __exit pcnet32_cleanup_module(void)
+@@ -1765,6 +1767,9 @@
+ 	free_netdev(pcnet32_dev);
+ 	pcnet32_dev = next_dev;
+     }
++
++    if (pcnet32_have_pci)
++	pci_unregister_driver(&pcnet32_driver);
+ }
+ 
+ module_init(pcnet32_init_module);
 
-Ok, I'll check http://mjpeg.sourceforge.net/driver-zoran/development.php and
-try to kill one or two simple, self-contained, tasks.
-
-[part-time kernel involvement]
-
-Same thing here.
-
-Regards
-
---
-Ueimor

@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbTJTJMx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 05:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbTJTJMw
+	id S262456AbTJTJX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 05:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTJTJX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 05:12:52 -0400
-Received: from main.gmane.org ([80.91.224.249]:30896 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262468AbTJTJMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 05:12:51 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 20 Oct 2003 05:23:26 -0400
+Received: from web11103.mail.yahoo.com ([216.136.131.150]:43656 "HELO
+	web11103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262456AbTJTJXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 05:23:24 -0400
+Message-ID: <20031020092323.82601.qmail@web11103.mail.yahoo.com>
+Date: Mon, 20 Oct 2003 11:23:23 +0200 (CEST)
+From: =?iso-8859-1?q?an7?= <an3h0ny@yahoo.fr>
+Subject: Network implementation
 To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Suspend with 2.6.0-test7-mm1
-Date: Mon, 20 Oct 2003 11:12:48 +0200
-Message-ID: <yw1xptgsb7cf.fsf@users.sourceforge.net>
-References: <3F93A093.9060800@2gen.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:+Kbi7U5lGBftNqgE4I5J/F2IV6Q=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman <david@2gen.com> writes:
 
-> I've been playing with the suspend features of 2.6.0-test7-mm1 and I
-> can't get it to work. When I do "echo -n standby > /sys/power/state",
-> the screen flickers briefly and then the system is back to normal. In
-> the logs I see the following message:
-> 
-> Now, I wonder, what is causing the kernel to exit from the suspend
-> immediately? Is it error in suspend code, drivers that doesn't support
-> suspend or some program that is interrupting the sleep? How do I debug
-> this further?
+Hi, i am a french engineer who has some work to do on
+TCP/IP implementation in the linux kernel.
 
-I've seen this, too.  Try "sleep 1; echo -n standby > /sys/power/state".  
-I theory I thought of, is that the system suspends before you have
-time to release the enter key, and the key release triggers a wakeup.
-Does this seem reasonable to those more knowledgeable?
+I have three questions on it :
 
--- 
-Måns Rullgård
-mru@users.sf.net
+1) What are the advantages of using a ring buffer for
+receiving and queuing packets ?
 
+2) in tcp_minisocks.c in linux i get, in the function
+which handles segment arrival in FIN_WAIT_2 state : 
+
+if (th->syn && !before(TCP_SKB_CB(skb)->seq,
+tw->rcv_nxt))
+                         goto kill_with_rst;
+
+Just to confirm : in the state FIN_WAIT_2 a SYN
+segment is automatically killed by a RST, unless its
+sequence number is superior to the waited sequence
+number. But in this case , what happens ? I think the
+RFC tells to send a ACK. Am i right ?
+
+3) the function tcp_recv_skb() (tcp.c)
+
+struct sk_buff *tcp_recv_skb(struct sock *sk, u32 seq,
+u32 *off)
+1383 {
+1384         struct sk_buff *skb;
+1385         u32 offset;
+1386 
+1387         skb_queue_walk(&sk->receive_queue, skb) {
+1388                 offset = seq -
+TCP_SKB_CB(skb)->seq;
+1389                 if (skb->h.th->syn)
+1390                         offset--;
+1391                 if (offset < skb->len ||
+skb->h.th->fin) {
+1392                         *off = offset;
+1393                         return skb;
+1394                 }
+1395         }
+1396         return NULL;
+1397 }
+
+ 
+I just can't understand the role of offset (and thus,
+i can't undersand why it is decremented with a syn
+segment, and why we can return the skb structure when
+we have an offset inferior to the skb len, or a FIN
+segment)
+
+Could you help please ?
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

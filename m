@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbUDGRgP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 13:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263862AbUDGRgP
+	id S263884AbUDGRlF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 13:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUDGRlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 13:36:15 -0400
-Received: from penguin.gktech.net ([207.170.199.12]:41733 "EHLO gktech.net")
-	by vger.kernel.org with ESMTP id S263861AbUDGRgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 13:36:13 -0400
-Date: Wed, 7 Apr 2004 10:36:05 -0700 (PDT)
-From: Bryan Koschmann - GKT <gktnews@gktech.net>
-To: Andi Kleen <ak@muc.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: amd64 questions
-In-Reply-To: <m3zn9o58n0.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.30.0404071015000.17695-100000@penguin.gktech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Apr 2004 13:41:05 -0400
+Received: from quimby.programmfabrik.de ([193.108.181.138]:44048 "EHLO
+	quimby.programmfabrik.de") by vger.kernel.org with ESMTP
+	id S263884AbUDGRlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 13:41:01 -0400
+Subject: cp fails in this symlink case, kernel 2.4.25, reiserfs + ext2
+From: Martin Rode <martin.rode@zeroscale.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Zeroscale GmbH & Co.
+Message-Id: <1081359310.1212.537.camel@marge.pf-berlin.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 07 Apr 2004 19:35:11 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Apr 2004, Andi Kleen wrote:
-> Debian seems to have some unique problems in the way they handle AMD64
-> compared to other distributions. I would not trust what you read
-> there, they make it much more complicated than it really is. The right
-> forum would have been discuss@x86-64.org
+Dear developers,
 
-I was hoping that was the case. I wouldn't think the only way would be so
-"rigged". I will check out the x86-64 list, thanks for that.
+After 10 years with linux I am happy I can report something :-). 
 
-> It's that way. You just need a 64bit capable cross compiler to compile
-> the kernel, which is not that difficult to build from sources. You can also
-> find binaries for that at
-> ftp://ftp.suse.com/pub/suse/x86_64/supplementary/CrossTools/8.1-i386/
-> (usable with rpm2cpio on non RPM distributions). Then you can
-> cross compile the kernel in the normal way with
-> make ARCH=x86_64 CROSS_COMPILE=x86_64-linux-
+I don't know 100% if is a bug, but I think it is.
 
-Great, much better than I had hoped. I always build from source, I'm
-guessing I can find something on freshmeat.
+The example below fails on reiserfs as well as on ext2 for me. I dont
+think it should fail, or am I missing something? 
 
-> A few programs (namely iptables and ipsec tools) need to be used
-> as 64bit programs because the 32bit emulation doesn't work for them.
-> ipchains works though.
+Please cc me personally, I am not a subscriber.
 
-Okay, thanks for the tip, that probably would have gotten me when I
-started installing.
+Kernel testet: 2.4.[25|19]
+Filesystems testet: reiserfs, ext2
 
-Thanks for all the information Andi, it was extremely helpful!
+Take Care,
+Martin
 
-	Bryan
+
+How to reproduce:
+-----------------
+
+In any directory try this:
+
+1) mkdir -p alpha/gamma beta
+2) (cd alpha; ln -s ../beta .; ln -s gamma latest;)
+3) echo "Test" > alpha/gamma/myfile
+
+4) Check
+apu:/home/martin/tmp/bug# find -exec file {} \;
+.: directory
+./alpha: directory
+./alpha/gamma: directory
+./alpha/gamma/myfile: ASCII text
+./alpha/beta: symbolic link to `../beta'
+./alpha/latest: symbolic link to `gamma'
+./beta: directory
+
+5) cp fails
+apu:/home/martin/tmp/bug# (cd alpha/beta; cp ../latest/myfile .)
+cp: cannot stat `../latest/myfile': No such file or directory
+
+6) cp ok
+apu:/home/martin/tmp/bug# (cd alpha/; cp latest/myfile beta && echo
+"ok")
+ok
+
+
 

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUCCTko (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 14:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUCCTkn
+	id S262565AbUCCTns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 14:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbUCCTn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 14:40:43 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:52359 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S262560AbUCCTkm (ORCPT
+	Wed, 3 Mar 2004 14:43:28 -0500
+Received: from ns.suse.de ([195.135.220.2]:21183 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262567AbUCCTnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 14:40:42 -0500
-Date: Wed, 3 Mar 2004 11:40:34 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-hotplug-devel@vger.kernel.org, greg@kroach.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION/PROPOSAL] udev (fwd)
-Message-ID: <20040303194034.GA4681@hockin.org>
-References: <Pine.LNX.4.58.0403032023090.1319@alpha.polcom.net>
-Mime-Version: 1.0
+	Wed, 3 Mar 2004 14:43:21 -0500
+To: Billy Rose <billyrose@cox-internet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel mode console
+References: <200403022152.06950.billyrose@cox-internet.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Mar 2004 18:18:34 +0100
+In-Reply-To: <200403022152.06950.billyrose@cox-internet.com.suse.lists.linux.kernel>
+Message-ID: <p73fzcp4zo5.fsf@brahms.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403032023090.1319@alpha.polcom.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 08:27:17PM +0100, Grzegorz Kulewski wrote:
-> So, (sorry if it was asked 100000000 times...
+Billy Rose <billyrose@cox-internet.com> writes:
 
-it has been
+> i have some bandwidth i can dedicate to writting a kernel module that provides 
+> a command interpreter running in kernel space (think of it as the god mode 
+> console in quake). the purpose for this would be primarily aimed at the 
+> kernel developers so they can reach in and grab variables, dump certain 
+> sections of memory, walk memory, dump code segments, dump processes 
+> (including the kernel data structures for them), anything else i/you can 
+> think of. is this a waste of time, or would that get used?
 
-> ... but) why when kernel detects new device or module is loaded, no device 
-> file in sysfs is created? The device files in /dev would be only links to 
-> these in /sys. 
+It sounds like you're trying to reinvent kdb, sysrq, kgdb, lcrash/crash,
+gdb vmlinux /proc/vmlinux
 
-What mode should be applied to these files?  That alone is enough to make
-one stop and reconsider the idea.
+-Andi

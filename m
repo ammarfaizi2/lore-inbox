@@ -1,95 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTLAWPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 17:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTLAWPa
+	id S264095AbTLAWAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 17:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTLAWAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 17:15:30 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:14265 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264231AbTLAWP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 17:15:28 -0500
-Date: Mon, 1 Dec 2003 19:13:03 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Bryan Whitehead <driver@jpl.nasa.gov>
-Cc: yocum@fnal.gov, nathans@sgi.com, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS for 2.4
-Message-Id: <20031201191303.201b32c6.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <3FCBB790.1030503@jpl.nasa.gov>
-References: <20031201062052.GA2022@frodo>
-	<3FCBABD9.70309@fnal.gov>
-	<3FCBB790.1030503@jpl.nasa.gov>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Dec 2003 17:00:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6597 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264095AbTLAWAm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 17:00:42 -0500
+Message-ID: <3FCBB9F3.6050000@pobox.com>
+Date: Mon, 01 Dec 2003 17:00:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg Stark <gsstark@mit.edu>
+CC: Samuel Flory <sflory@rackable.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet>	<3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv>	<3FCBB15F.7050505@rackable.com> <87ad6ccixk.fsf@stark.dyndns.tv>
+In-Reply-To: <87ad6ccixk.fsf@stark.dyndns.tv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Dec 2003 13:50:08 -0800, Bryan Whitehead wrote:
->I'd like to "third" this request. Have a large amount of data here on 
->XFS with v2.4 kernel.
->
->Would be nice to be able to use pre-release 2.4 for testing without 
->having to manually hack in XFS paches from SGI for the odd reject...
->
+Greg Stark wrote:
+> Is there any documentation about what libata is and what it does differently
+> from the stock kernel? Why is it being developed separately instead of as a
 
-Yes, exactly. 
+Nothing "different" from the stock kernel; this is how all drivers are 
+developed.  libata is the Serial ATA driver for Linux.  Some chipsets -- 
+ICH5 and VIA SATA notably -- look so much like PATA that it's easy to 
+let the existing drivers/ide driver use them.  You won't get SATA 
+hotplug or similar SATA-only features, but as long as you can access 
+your SATA hard drive, who cares?  :)
 
-Ok the XFS changes some vfs code, but works OK, and is in the -ac and -ck trees.
+libata is in the "stock" 2.6 kernel, FWIW, too.
 
-And another point is make the possiblility to add some patchs such as security
-without hunks failed, and another funny hacks.
-
-And the majority of distros include it.
-
-Another vote.
-
-chau,
- djgera
+	Jeff
 
 
->Dan Yocum wrote:
->> Marcelo,
->> 
->> We (Fermilab) second this request.  We won't be touching 2.6 until it's 
->> really stable (read as, Red Hat comes out with an official distro that 
->> has it built in), and we already have *a lot* of XFS filesystems here 
->> (~>300TB) running on 2.4 kernels.  It would be very, very nice to have 
->> it in the 2.4 tree without having to pull it from SGI.
->> 
->> Thanks,
->> Dan
->> 
->> 
->> Nathan Scott wrote:
->> 
->>> Hi Marcelo,
->>>
->>> Please do a
->>>
->>>     bk pull http://xfs.org:8090/linux-2.4+coreXFS
->>>
->>> This will merge the core 2.4 kernel changes required for supporting
->>> the XFS filesystem, as listed below.  If this all looks acceptable,
->>> then please also pull the filesystem-specific code (fs/xfs/*)
->>>
->>>     bk pull http://xfs.org:8090/linux-2.4+justXFS
->>>
->>> cheers.
->>>
->> 
->
->
->-- 
->Bryan Whitehead
->SysAdmin - JPL - Interferometry and Large Optical Systems
->Phone: 818 354 2903
->driver@jpl.nasa.gov
 
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+

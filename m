@@ -1,116 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUL3TTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbUL3TTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbUL3TTo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 14:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUL3TTn
+	id S261699AbUL3TTe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 14:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUL3TTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 14:19:43 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:4835 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261700AbUL3TTf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 14:19:35 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 30 Dec 2004 11:19:30 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0412301112150.2193@bigblue.dev.mdolabs.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
- <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
-  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
-  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
- <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
- <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Thu, 30 Dec 2004 14:19:34 -0500
+Received: from av1-2-sn1.fre.skanova.net ([81.228.11.108]:40871 "EHLO
+	av1-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261699AbUL3TTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 14:19:31 -0500
+To: Mateusz.Blaszczyk@nask.pl
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: [pktcdvd] Badness in fork.c:91 then Oops
+References: <Pine.GSO.4.58.0412301854420.2875@boromir>
+From: Peter Osterlund <petero2@telia.com>
+Date: 30 Dec 2004 20:19:19 +0100
+In-Reply-To: <Pine.GSO.4.58.0412301854420.2875@boromir>
+Message-ID: <m3acrvh9vs.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Dec 2004, Linus Torvalds wrote:
+Mateusz.Blaszczyk@nask.pl writes:
 
-> On Wed, 29 Dec 2004, Davide Libenzi wrote:
-> > 
-> > I think same. My test simply let the function processing to let thru and 
-> > reach the fake signal sending point.
+> PKTCDVD seems to create some badness in kernel/fork, line 91:
 > 
-> No, your test-case doesn't even send a signal at all, because your
-> test-program just uses a PTRACE_SINGLESTEP without any "send signal" - so
-> "exit_code" will be zero after the debuggee gets released from the
-> "ptrace_notify()", and the suspect code will never be executed..
+> I loaded pktcdvd manaully end everything was fine
 > 
-> The problem I think I see (and which the comment alludes to) is that if
-> the controlling process continues the debuggee with a signal, we'll be
-> doing the wrong thing: the code in do_syscall_trace() will take that
-> signal (in "current->exit_code") and send it as a real signal to the
-> debuggee, but since it is debugged, it will be caught (again) by the
-> controlling process, which apparently in the case of Wine gets very
-> confused.
+> Dec 30 08:32:46 localhost kernel: pktcdvd: v0.2.0a 2004-07-14 Jens Axboe (axboe@suse.de) and petero2@telia.com
 > 
-> So I _think_ the problem happens for the following schenario:
->  - wine for some reason does a PTRACE_SINGLESTEP over a system call
->  - after the single-step, wine ends up trying to get the sub-process to 
->    enter a signal handler with ptrace( PTRACE_CONT, ... sig)
->  - the normal ptrace path (where we trap a signal - see kernel/signal.c 
->    and the "ptrace_stop()" logic) handles this correctly, but 
->    do_syscall_trace() will do a "send_sig()"
->  - we'll try to handle the signal when returning to the traced process
->  - now "get_signal_to_deliver()" will invoce the ptrace logic AGAIN, and 
->    call ptrace_stop() for this fake signal, and we'll report a new event 
->    to the controlling process.
+> Then I tried to map cd drive using udftools' pktsetup (v.1.0.3b):
+> 
+> Dec 30 08:33:27 localhost kernel: cdrom: This disc doesn't have any tracks I recognize!
+> Dec 30 08:33:27 localhost kernel: Badness in __put_task_struct at kernel/fork.c:91
+...
+> Dec 30 08:05:52 localhost kernel: Software Suspend Core.
+> Dec 30 08:05:52 localhost kernel: Software Suspend text mode support loaded.
+> Dec 30 08:05:52 localhost kernel: Software Suspend LZF Compression Driver registered.
+> Dec 30 08:05:52 localhost kernel: Software Suspend Swap Writer registered.
 
-Make sense to me. What about the one below? The problem is though, that we 
-have two different events here. One is the single step trap and the other 
-one is the signal. And according to the comment, strace want something 
-different from SIGTRAP to continue with signal. So it wants the double 
-event we are actually sending (ptrace_notify + send_sig). OTOH Wine does 
-not seem to like the double event thingy. Hmm ...?
+It's actually the swsusp 2 patches that don't handle the pktcdvd
+driver correctly. The kthread_run() function was changed, but the
+pktcdvd driver wasn't updated accordingly. I think this patch will fix
+the problem.
 
-
-
-- Davide
-
-
-
---- ptrace.c.orig	2004-12-30 10:29:11.000000000 -0800
-+++ ptrace.c	2004-12-30 11:11:23.000000000 -0800
-@@ -573,18 +573,14 @@
- 		return;
- 	if (!(current->ptrace & PT_PTRACED))
- 		return;
--	/* the 0x80 provides a way for the tracing parent to distinguish
--	   between a syscall stop and SIGTRAP delivery */
--	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
--				 !test_thread_flag(TIF_SINGLESTEP) ? 0x80 : 0));
+--- linux/drivers/block/pktcdvd.c.old	2004-12-30 20:11:54.400478672 +0100
++++ linux/drivers/block/pktcdvd.c	2004-12-30 20:12:09.617165384 +0100
+@@ -2364,7 +2364,7 @@
+ 	pkt_init_queue(pd);
  
--	/*
--	 * this isn't the same as continuing with a signal, but it will do
--	 * for normal use.  strace only continues with a signal if the
--	 * stopping signal is not SIGTRAP.  -brl
--	 */
- 	if (current->exit_code) {
--		send_sig(current->exit_code, current, 1);
-+		ptrace_notify(current->exit_code);
- 		current->exit_code = 0;
-+	} else {
-+		/* the 0x80 provides a way for the tracing parent to distinguish
-+		   between a syscall stop and SIGTRAP delivery */
-+		ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
-+					 !test_thread_flag(TIF_SINGLESTEP) ? 0x80 : 0));
- 	}
- }
+ 	atomic_set(&pd->cdrw.pending_bios, 0);
+-	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
++	pd->cdrw.thread = kthread_run(kcdrwd, pd, PF_SYNCTHREAD, "%s", pd->name);
+ 	if (IS_ERR(pd->cdrw.thread)) {
+ 		printk("pktcdvd: can't start kernel thread\n");
+ 		ret = -ENOMEM;
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268963AbRHBOhv>; Thu, 2 Aug 2001 10:37:51 -0400
+	id <S268942AbRHBOea>; Thu, 2 Aug 2001 10:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268961AbRHBOhb>; Thu, 2 Aug 2001 10:37:31 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:4623 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268958AbRHBOhT>; Thu, 2 Aug 2001 10:37:19 -0400
-Date: Thu, 2 Aug 2001 08:37:20 -0600
-Message-Id: <200108021437.f72EbKw18361@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
-In-Reply-To: <200108020751.f727pnMf010874@webber.adilger.int>
-In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
-	<200108020751.f727pnMf010874@webber.adilger.int>
+	id <S268945AbRHBOeU>; Thu, 2 Aug 2001 10:34:20 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53265 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268942AbRHBOeI>; Thu, 2 Aug 2001 10:34:08 -0400
+Subject: Re: kernel gdb for intel
+To: baccala@freesoft.org (Brent Baccala)
+Date: Thu, 2 Aug 2001 15:35:48 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <no.id> from "Brent Baccala" at Aug 02, 2001 03:01:50 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15SJZk-0000hw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
-> Richard writes:
-> >   Hi, all. Below is my second cut of a patch that adds support for
-> > large numbers of SCSI discs (approximately 2144). I'd like people to
-> > try this out. I've fixed a couple of "minor" typos that happened to
-> > disable sd detection. I've also tested this patch: it works fine on my
-> > 3 drive system. In addition, I've switched to using vmalloc() for key
-> > data structures, so the kmalloc() limitations shouldn't hit us. I've
-> > added an in_interrupt() test to sd_init() just in case.
-> 
-> The real question is whether this code is limited to adding only SCSI
-> major numbers, or if it could be used to assign major numbers to
-> other subsystems (sorry I haven't looked at the code yet)?
+> - doesn't support SMP, since I don't have an Intel SMP box.  I'd guess
+> what you'd want it to do is an smp_call_function that would halt all the
+> processors and put them into some tight little loop while gdb fiddles
+> things.  ideas?
 
-This patch leverages some new infrastructure that I developed in a
-recent devfs patch, and Linus included that in 2.4.7. The key
-functions are <devfs_alloc_major> and <devfs_dealloc_major>. I wrote
-these functions primarily for block drivers (although you can allocate
-char majors as well, keeping in mind there are far fewer left
-unassigned), which due to our aging block I/O layer require majors.
+With the old old stuff (pre 2.0) gdb stubs I ended up with two copies, one
+per cpu on two serial ports. I found that most useful since I could force
+events to happen.
 
-So, yes, you can already patch other subsystems to dynamically assign
-major numbers in 2.4.7. I'd like to see people do that. My patch for
-sd.c can also serve as a demonstration on how to use the new API.
+Looks nice to me but about the only way you are likely to get Linus to take
+in kernel debugging patches is to turn them into hex and disguise them as USB 
+firmware ;)
 
->  From our discussion last week, it _should_ be able to assign major
-> numbers to other systems like EVMS, which you would probably want to
-> use on top of those 2144 SCSI disks anyways.  However, since you are
-> billing this as the "2144 SCSI disk patch", I thought I would
-> confirm.
-
-This patch only touches sd.c. But everything you need for other
-drivers is already in 2.4.7. Go forth and allocate!
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Alan

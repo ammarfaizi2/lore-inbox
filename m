@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbSKTDtE>; Tue, 19 Nov 2002 22:49:04 -0500
+	id <S265681AbSKTD46>; Tue, 19 Nov 2002 22:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265661AbSKTDtE>; Tue, 19 Nov 2002 22:49:04 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:20237 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265643AbSKTDtD>; Tue, 19 Nov 2002 22:49:03 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB195C@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Barry K. Nathan'" <barryn@pobox.com>,
-       Manish Lachwani <manish@Zambeel.com>
-Cc: "'Steven Timm'" <timm@fnal.gov>, linux-kernel@vger.kernel.org
-Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
-Date: Tue, 19 Nov 2002 19:55:55 -0800
+	id <S265683AbSKTD46>; Tue, 19 Nov 2002 22:56:58 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:62854 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265681AbSKTD45>; Tue, 19 Nov 2002 22:56:57 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 19 Nov 2002 20:04:33 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <20021120030919.GA9007@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I have done the experiment where if the operating temperature is 50 C
-or lesser, there are far lesser errors. However, I also found that the power
-supply we were using was weak and if too many drives seek at the same time,
-the power supply was not able to deliver current causing such errors. 
+On Wed, 20 Nov 2002, Jamie Lokier wrote:
 
-After correcting the power supplies, there was one more problem with the
-shorting of the leads of the disk controller. On shorting, the current was
-drained from that path and enough current could not be delivered to the
-drive that was seeking. However, in case of onboard IDE controllers, I dont
-thiks that would apply ...
+> I have a question about:
+>
+> > struct epoll_fd {
+> > 	int fd;
+> > 	unsigned short events;
+> > 	unsigned short revents;
+> > 	__uint64_t obj;
+> > };
+>
+> What value does the `fd' field have when a file descriptor being
+> polled has been renumbered (by dup/close or dup2/close or
+> fcntl(F_DUPFD)/close or passing through a unix domain socket)?
+>
+> If we are honest, the `obj' field is absolutely essential as its the
+> only value which uniquely identifies the file descriptor if you have
+> done anything unusual with the fds.
+>
+> The `fd' field, on the other hand, is not guaranteed to correspond
+> with the correct file descriptor number.  So.... perhaps the structure
+> should contain an `obj' field and _no_ `fd' field?
+>
+> This doesn't affect applications.  Those which use `obj' for something
+> interesting (i.e. a pointer) will have the `fd' value stored in the
+> pointed-to data structure, while simple applications can just store
+> the original `fd' value in `obj' in the first place.
+
+It's OK. I agree. We can remove the fd from inside the structure and have :
+
+struct epoll_event {
+	unsigned short events;
+	unsigned short revents;
+	__uint64_t obj;
+};
+
+int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents,
+               int timeout);
+
+
+And the lower size of the structure will help to reduce the amount of
+memory transfered to userspace. I just saw that adding the extra "obj"
+member lowered performance of about 15% with crazy tests like Ben's
+pipetest. This because it creates, on my machine, more than 400000 events
+per second, and saving memory bandwidth on such conditions is a must. With
+the "more human" http test performance are about the same.
 
 
 
------Original Message-----
-From: Barry K. Nathan [mailto:barryn@pobox.com]
-Sent: Tuesday, November 19, 2002 7:48 PM
-To: Manish Lachwani
-Cc: 'Steven Timm'; linux-kernel@vger.kernel.org
-Subject: Re: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
+
+- Davide
 
 
-On Tue, Nov 19, 2002 at 04:08:22PM -0800, Manish Lachwani wrote:
-> I have seen this errors on Seagate ST380021A 80 GB drive on a large scale
-in
-> our storage systems that make use of 3ware controllers. Seagate claims the
-> following reasons:
-> 
-> 1. Weak Power supply
-> 2. tempeature and heat
-> 3. vibration
-
-You might want to pay particular attention to #2. See below.
-
-> Although, the maxtor 160 GB drives do not show such problems at all. Such
-> problems can be eliminated though. From the SMART data, get the bad
-sectors
-> and remap them by writing to the raw device. Those pending sectors will
-get
-> remapped. However, the problems will persist with these drives. In our
-> boxes, the operating temperature is abt 55 C ...
-
-Unless they're really really new, the 160GB Maxtor drives are 5400RPM
-so they put out far less heat. (The fact that the Maxtors are ball-bearing,
-vs. the Seagates' fluid bearings, also helps in this regard --
-fluid-bearing drives tend to dissipate more heat.)
-
-55 C is technically within the Seagate specs, but it's arguably a bit on
-the high side. If possible, it might be interesting to bring it the
-temperature down several degrees and see if the reliability improves.
-
--Barry K. Nathan <bnathan@math.uci.edu>

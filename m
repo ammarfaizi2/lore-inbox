@@ -1,304 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312928AbSDBUzr>; Tue, 2 Apr 2002 15:55:47 -0500
+	id <S312925AbSDBU7H>; Tue, 2 Apr 2002 15:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312927AbSDBUz3>; Tue, 2 Apr 2002 15:55:29 -0500
-Received: from mail5.svr.pol.co.uk ([195.92.193.20]:46612 "EHLO
-	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S312925AbSDBUzU>; Tue, 2 Apr 2002 15:55:20 -0500
-Message-Id: <200204022057.g32KvgA01029@ariel.scotclimb.org>
-From: Mark Anderson <mark@scotclimb.org.uk>
-Reply-To: mark@scotclimb.org.uk
-To: linux-kernel@vger.kernel.org
-Subject: OOPS Problem Report 
-Date: Tue, 2 Apr 2002 21:57:35 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S312931AbSDBU65>; Tue, 2 Apr 2002 15:58:57 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:58240 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S312925AbSDBU6y>; Tue, 2 Apr 2002 15:58:54 -0500
+Date: Tue, 2 Apr 2002 16:01:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Evan Harris <eharris@puremagic.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with scsi tape drives (2.4.18) and soft error count (BusLogic, AIC7xxx)
+In-Reply-To: <Pine.LNX.4.33.0204021416450.1454-100000@kinison.puremagic.com>
+Message-ID: <Pine.LNX.3.95.1020402155215.6919A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Apr 2002, Evan Harris wrote:
 
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-Hi..
-
-My kernel 2.4.18 is "oopsing" all over the place. Usually it happens once (to
-any process) then several other processes will oops immediately afterwards
-(like 'login' or 'sh') before it settles down again. Sometimes it crashes and
-hangs and other times it causes the process to seg fault if I run it again..
-
-I suspect that this has something to do with my motherboard which has just
-changed from a KT7 to a KT7A. The other changed components are the MAXTOR HDD
-(previous drive was an older Seagate UDMA33) and the CPU (previously an AMD 
-Duron 700). Harware setup as follows:
-
-I have tried recompiling the kernel source about 30 times with known good
-configurations etc. I have also tested the RAM in my machine (though its the
-same chips as before).
-
-I have attached the results from several ksymoops reports for different
-oopses. Unfortunately there is nothing on the "Code: " line for the oopses
-(Bad EIP value).
-
-Is there anything else I can do?
-
-thanks in advance,
-
-Mark
-
-Harware Details:
---------
-
-Linux ariel 2.4.18 #1 Thu Mar 28 11:54:32 GMT 2002 i686 unknown
-ABIT KT7A Board (VIA vt82c686b)
-gcc version 2.96
-
-AMD Duron 1000MHz
-192MB RAM
-3Dfx Voodoo3 2000 16MB AGP
-Maxtor DX540 UDMA100 40GB HDD
-
-Excerpt from boot messages:
-
-Disabling VIA memory write queue: [55] 89->09
-PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-Applying VIA southbridge workaround.
-...
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
-hda: Maxtor 4D040H2, ATA DISK drive
-hdb: CD-W512EB, ATAPI CD/DVD-ROM drive
-hdc: IDE/ATAPI CD-ROM 40X, ATAPI CD/DVD-ROM drive
--- 
-
-Mark Anderson
-Email: mark@scotclimb.org.uk
-PGP Public Key: www.scotclimb.org.uk/markpubkey.asc
-
-Scottish Climbing Archive
-WWW: www.scotclimb.org.uk
+> 
+> I've had a long time problem with trying to get the total soft error count
+> from tape devices when using the kernel provided tape interface.
+> Hopefully, someone here can shed some light on the problem.  Using several
+> different DAT and DLT tape drives, the behavior seems the same.
+> 
+> I'm trying to figure out how to retrieve the soft error count from a tape
+> drive after having performed a backup.  It helps me to gauge when a tape
+> needs to be retired, and I'm used to being able to get the total soft error
+> count from other backup software packages for dos/windows.
+> 
+> mt apparently queries the soft error count, but it always seems to be zero.
+> I've dug into the problem a bit, and it seems that mt reports zero because
+> the tape drive has had it checked and cleared by the kernel at every drive
+> operation.  Is there any place in the kernel that this information is stored
+> so that it may be retrieved?
 
 
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="Oops4.out"
-Content-Transfer-Encoding: base64
-Content-Description: Ksymoops output
-Content-Disposition: attachment; filename="Oops4.out"
+Not really. The soft error count is preserved across the 'correct' kinds
+of open/close operations. To use `mt` to get the count and, to preserve
+the state of the tape machine, you need to do your open/close against
+the minor number that has the high-bit set:
 
-a3N5bW9vcHMgMi4zLjQgb24gaTY4NiAyLjQuMTguICBPcHRpb25zIHVzZWQKICAgICAtdiAvdXNy
-L2xvY2FsL3NyYy9rZXJuZWwvbGludXgvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1rIC9wcm9j
-L2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpCiAgICAgLW8g
-L2xpYi9tb2R1bGVzLzIuNC4xOC8gKGRlZmF1bHQpCiAgICAgLW0gL3Vzci9sb2NhbC9zcmMva2Vy
-bmVsL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkKCiA8MT5VbmFibGUgdG8gaGFuZGxlIGtl
-cm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDFjMDAKMDAwMDFjMDAK
-KnBkZSA9IDAwMDAwMDAwCk9vcHM6IDAwMDAKQ1BVOiAgICAwCkVJUDogICAgMDAxMDpbPDAwMDAx
-YzAwPl0gICAgVGFpbnRlZDogUCAKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMDIwMgplYXg6IDAwMDAwMDAxICAgZWJ4OiBjMDMw
-ZmQwMCAgIGVjeDogMDAwMDAwMWMgICBlZHg6IGNlODM0MDAwCmVzaTogMDAwMDAwMWMgICBlZGk6
-IDAwMDAwMDIwICAgZWJwOiAwMDAwMGIwYyAgIGVzcDogYzQwOWJkZTAKZHM6IDAwMTggICBlczog
-MDAxOCAgIHNzOiAwMDE4ClByb2Nlc3Mga21haWwgKHBpZDogMTI4OCwgc3RhY2twYWdlPWM0MDli
-MDAwKQpTdGFjazogYzEyOWYwYzAgYzAxMmEyZDMgYzAzMGZkMDAgMDAwMDAwMDAgYzQwOWEwMDAg
-MDAwMDAxMWEgMDAwMDAxZDIgYzAyYjE3MjggCiAgICAgICBjMTMwNzFkMCBjNjk0ODNkNCBjMTMw
-NjFkMCAwMDAwMDAwMSAwMDAwMDAyMCAwMDAwMDFkMiAwMDAwMDAwNiAwMDAwODQ4ZSAKICAgICAg
-IGMwMTJhNDQ2IDAwMDAwMDA2IDAwMDAwMDBhIGMwMmIxNzI4IDAwMDAwMDA2IDAwMDAwMWQyIGMw
-MmIxNzI4IDAwMDAwMDAwIApDYWxsIFRyYWNlOiBbPGMwMTJhMmQzPl0gWzxjMDEyYTQ0Nj5dIFs8
-YzAxMmE0YmM+XSBbPGMwMTJhZDYxPl0gWzxjMDEyYWZjYj5dIAogICBbPGMwMTIxYWEzPl0gWzxj
-MDEyMWY2ND5dIFs8YzAxMjFiODg+XSBbPGMwMTFjNmZmPl0gWzxjMDExMTNiYj5dIFs8YzAxYWFi
-OGI+XSAKICAgWzxjMDExMWI4MD5dIFs8YzAxMWJkMWI+XSBbPGMwMTFiNWU5Pl0gWzxjMDExMWY2
-MT5dIFs8YzAxMTEyNDA+XSBbPGMwMTA2ZTJjPl0gCkNvZGU6ICBCYWQgRUlQIHZhbHVlLgoKPj5F
-SVA7IDAwMDAxYzAwIEJlZm9yZSBmaXJzdCBzeW1ib2wgICA8PT09PT0KVHJhY2U7IGMwMTJhMmQz
-IDxzaHJpbmtfY2FjaGUrMmIzLzJmMD4KVHJhY2U7IGMwMTJhNDQ2IDxzaHJpbmtfY2FjaGVzKzU2
-LzkwPgpUcmFjZTsgYzAxMmE0YmMgPHRyeV90b19mcmVlX3BhZ2VzKzNjLzYwPgpUcmFjZTsgYzAx
-MmFkNjEgPGJhbGFuY2VfY2xhc3N6b25lKzUxLzFhMD4KVHJhY2U7IGMwMTJhZmNiIDxfX2FsbG9j
-X3BhZ2VzKzExYi8xODA+ClRyYWNlOyBjMDEyMWFhMyA8ZG9fbm9fcGFnZSs4My8xMTA+ClRyYWNl
-OyBjMDEyMWY2NCA8X192bWFfbGluays2NC9jMD4KVHJhY2U7IGMwMTIxYjg4IDxoYW5kbGVfbW1f
-ZmF1bHQrNTgvYzA+ClRyYWNlOyBjMDExYzZmZiA8c2VuZF9zaWduYWwrMmYvMTAwPgpUcmFjZTsg
-YzAxMTEzYmIgPGRvX3BhZ2VfZmF1bHQrMTdiLzRhYj4KVHJhY2U7IGMwMWFhYjhiIDxiYXRjaF9l
-bnRyb3B5X3Byb2Nlc3MrYWIvYjA+ClRyYWNlOyBjMDExMWI4MCA8cHJvY2Vzc190aW1lb3V0KzAv
-NTA+ClRyYWNlOyBjMDExYmQxYiA8dGltZXJfYmgrMjFiLzI2MD4KVHJhY2U7IGMwMTFiNWU5IDx0
-cXVldWVfYmgrMTkvMjA+ClRyYWNlOyBjMDExMWY2MSA8c2NoZWR1bGUrMmUxLzMxMD4KVHJhY2U7
-IGMwMTExMjQwIDxkb19wYWdlX2ZhdWx0KzAvNGFiPgpUcmFjZTsgYzAxMDZlMmMgPGVycm9yX2Nv
-ZGUrMzQvM2M+Cgo=
+# file /dev/st*
+st0:    character special (9/0)
+st1:    character special (9/1)
+st3:    character special (9/128)
 
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="Oops5.out"
-Content-Transfer-Encoding: base64
-Content-Description: Ksymoops output
-Content-Disposition: attachment; filename="Oops5.out"
+Instead of using /dev/st0, you would use (on this machine) /dev/st3.
 
-a3N5bW9vcHMgMi4zLjQgb24gaTY4NiAyLjQuMTguICBPcHRpb25zIHVzZWQKICAgICAtdiAvdXNy
-L2xvY2FsL3NyYy9rZXJuZWwvbGludXgvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1rIC9wcm9j
-L2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpCiAgICAgLW8g
-L2xpYi9tb2R1bGVzLzIuNC4xOC8gKGRlZmF1bHQpCiAgICAgLW0gL3Vzci9sb2NhbC9zcmMva2Vy
-bmVsL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkKClVuYWJsZSB0byBoYW5kbGUga2VybmVs
-IHBhZ2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMjgwMAowMDAwMjgwMAoqcGRl
-ID0gMDAwMDAwMDAKT29wczogMDAwMApDUFU6ICAgIDAKRUlQOiAgICAwMDEwOls8MDAwMDI4MDA+
-XSAgICBUYWludGVkOiBQIApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkz
-ODYgLWEgaTM4NgpFRkxBR1M6IDAwMDEwMjAyCmVheDogMDAwMDAwMDEgICBlYng6IGMwMzBmZDAw
-ICAgZWN4OiAwMDAwMDAyOCAgIGVkeDogY2U4MzQwMDAKZXNpOiAwMDAwMDAyOCAgIGVkaTogMDAw
-MDAwMjAgICBlYnA6IDAwMDAwOWFkICAgZXNwOiBjMmJkM2Q3NApkczogMDAxOCAgIGVzOiAwMDE4
-ICAgc3M6IDAwMTgKUHJvY2VzcyBnZWRpdCAocGlkOiAxOTY2LCBzdGFja3BhZ2U9YzJiZDMwMDAp
-ClN0YWNrOiBjMTI5ZWI0MCBjMDEyYTJkMyBjMDMwZmQwMCAwMDAwMDAwMCBjMmJkMjAwMCAwMDAw
-MDBmNyAwMDAwMDFkMiBjMDJiMTcyOCAKICAgICAgIGMxMzA2ZjE4IGMzYjk1MDAwIGMxMzA2OWM4
-IDAwMDAwMDAxIDAwMDAwMDIwIDAwMDAwMWQyIDAwMDAwMDA2IDAwMDA3NDE0IAogICAgICAgYzAx
-MmE0NDYgMDAwMDAwMDYgMDAwMDAwMGUgYzAyYjE3MjggMDAwMDAwMDYgMDAwMDAxZDIgYzAyYjE3
-MjggMDAwMDAwMDAgCkNhbGwgVHJhY2U6IFs8YzAxMmEyZDM+XSBbPGMwMTJhNDQ2Pl0gWzxjMDEy
-YTRiYz5dIFs8YzAxMmFkNjE+XSBbPGMwMTJhZmNiPl0gCiAgIFs8YzAxMjNhZjE+XSBbPGMwMTIz
-Yjc5Pl0gWzxjMDEyNGU2Yj5dIFs8YzAxMjFhNmY+XSBbPGMwMTIxYjg4Pl0gWzxjMDEzOGEyZT5d
-IAogICBbPGMwMTExM2JiPl0gWzxjMDExYjVlOT5dIFs8YzAxMTg1ZmI+XSBbPGMwMTE4NTBmPl0g
-WzxjMDEyMWU2MD5dIFs8YzAxMTdiNzI+XSAKICAgWzxjMDExMTI0MD5dIFs8YzAxMDZlMmM+XSAK
-Q29kZTogIEJhZCBFSVAgdmFsdWUuCgo+PkVJUDsgMDAwMDI4MDAgQmVmb3JlIGZpcnN0IHN5bWJv
-bCAgIDw9PT09PQpUcmFjZTsgYzAxMmEyZDMgPHNocmlua19jYWNoZSsyYjMvMmYwPgpUcmFjZTsg
-YzAxMmE0NDYgPHNocmlua19jYWNoZXMrNTYvOTA+ClRyYWNlOyBjMDEyYTRiYyA8dHJ5X3RvX2Zy
-ZWVfcGFnZXMrM2MvNjA+ClRyYWNlOyBjMDEyYWQ2MSA8YmFsYW5jZV9jbGFzc3pvbmUrNTEvMWEw
-PgpUcmFjZTsgYzAxMmFmY2IgPF9fYWxsb2NfcGFnZXMrMTFiLzE4MD4KVHJhY2U7IGMwMTIzYWYx
-IDxwYWdlX2NhY2hlX3JlYWQrNjEvYzA+ClRyYWNlOyBjMDEyM2I3OSA8cmVhZF9jbHVzdGVyX25v
-bmJsb2NraW5nKzI5LzQwPgpUcmFjZTsgYzAxMjRlNmIgPGZpbGVtYXBfbm9wYWdlKzEwYi8yMTA+
-ClRyYWNlOyBjMDEyMWE2ZiA8ZG9fbm9fcGFnZSs0Zi8xMTA+ClRyYWNlOyBjMDEyMWI4OCA8aGFu
-ZGxlX21tX2ZhdWx0KzU4L2MwPgpUcmFjZTsgYzAxMzhhMmUgPGxpbmtfcGF0aF93YWxrKzYzZS83
-MDA+ClRyYWNlOyBjMDExMTNiYiA8ZG9fcGFnZV9mYXVsdCsxN2IvNGFiPgpUcmFjZTsgYzAxMWI1
-ZTkgPHRxdWV1ZV9iaCsxOS8yMD4KVHJhY2U7IGMwMTE4NWZiIDxiaF9hY3Rpb24rMWIvNTA+ClRy
-YWNlOyBjMDExODUwZiA8dGFza2xldF9oaV9hY3Rpb24rM2YvNjA+ClRyYWNlOyBjMDEyMWU2MCA8
-c3lzX2JyaytjMC9mMD4KVHJhY2U7IGMwMTE3YjcyIDxzeXNfdGltZSsxMi81MD4KVHJhY2U7IGMw
-MTExMjQwIDxkb19wYWdlX2ZhdWx0KzAvNGFiPgpUcmFjZTsgYzAxMDZlMmMgPGVycm9yX2NvZGUr
-MzQvM2M+Cgo=
+So, if you do your I/O and status through /dev/st3, you will get
+meaningful information. Once you close /dev/st0, all history is
+lost (correctly). Note that if you do I/O through /dev/st3, the
+tape will not automatically rewind on close. You will need to
+use `mt` for that.
 
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="Oops2.out"
-Content-Transfer-Encoding: base64
-Content-Description: Ksymoops output
-Content-Disposition: attachment; filename="Oops2.out"
+Cheers,
+Dick Johnson
 
-a3N5bW9vcHMgMi4zLjQgb24gaTY4NiAyLjQuMTguICBPcHRpb25zIHVzZWQKICAgICAtdiAvdXNy
-L2xvY2FsL3NyYy9rZXJuZWwvbGludXgvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1rIC9wcm9j
-L2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpCiAgICAgLW8g
-L2xpYi9tb2R1bGVzLzIuNC4xOC8gKGRlZmF1bHQpCiAgICAgLW0gL3Vzci9sb2NhbC9zcmMva2Vy
-bmVsL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkKCiA8MT5VbmFibGUgdG8gaGFuZGxlIGtl
-cm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDExMDAKMDAwMDExMDAK
-KnBkZSA9IDAwMDAwMDAwCk9vcHM6IDAwMDAKQ1BVOiAgICAwCkVJUDogICAgMDAxMDpbPDAwMDAx
-MTAwPl0gICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMDIwMgplYXg6IDAwMDAwMDAxICAgZWJ4OiBjMDMw
-ZmQwMCAgIGVjeDogMDAwMDAwMTEgICBlZHg6IGNlODM0MDAwCmVzaTogMDAwMDAwMTEgICBlZGk6
-IDAwMDAwMDIwICAgZWJwOiAwMDAwMDdjNiAgIGVzcDogYzliZjlkYTgKZHM6IDAwMTggICBlczog
-MDAxOCAgIHNzOiAwMDE4ClByb2Nlc3MgeHNyaSAocGlkOiA5MDAsIHN0YWNrcGFnZT1jOWJmOTAw
-MCkKU3RhY2s6IGMxMmEwMTgwIGMwMTJhMmQzIGMwMzBmZDAwIDAwMDAwMDAwIGM5YmY4MDAwIDAw
-MDAwMGM3IDAwMDAwMWQyIGMwMmIxNzI4IAogICAgICAgYzEzMDcxZDAgY2I1M2I1ODQgYzEzMDYy
-NTggMDAwMDAwMDEgMDAwMDAwMjAgMDAwMDAxZDIgMDAwMDAwMDYgMDAwMDVkM2MgCiAgICAgICBj
-MDEyYTQ0NiAwMDAwMDAwNiAwMDAwMDAwZCBjMDJiMTcyOCAwMDAwMDAwNiAwMDAwMDFkMiBjMDJi
-MTcyOCAwMDAwMDAwMCAKQ2FsbCBUcmFjZTogWzxjMDEyYTJkMz5dIFs8YzAxMmE0NDY+XSBbPGMw
-MTJhNGJjPl0gWzxjMDEyYWQ2MT5dIFs8YzAxMmFmY2I+XSAKICAgWzxjMDEyNGUxYj5dIFs8YzAx
-MjE5YjQ+XSBbPGMwMTIxYTUxPl0gWzxjMDEyMWY2ND5dIFs8YzAxMjFiODg+XSBbPGMwMTIyNGFm
-Pl0gCiAgIFs8YzAxMTEzYmI+XSBbPGMwMTI5MmM2Pl0gWzxjMDEyMmMzNT5dIFs8YzAxMjJjODU+
-XSBbPGMwMTExMjQwPl0gWzxjMDEwNmUyYz5dIApDb2RlOiAgQmFkIEVJUCB2YWx1ZS4KCj4+RUlQ
-OyAwMDAwMTEwMCBCZWZvcmUgZmlyc3Qgc3ltYm9sICAgPD09PT09ClRyYWNlOyBjMDEyYTJkMyA8
-c2hyaW5rX2NhY2hlKzJiMy8yZjA+ClRyYWNlOyBjMDEyYTQ0NiA8c2hyaW5rX2NhY2hlcys1Ni85
-MD4KVHJhY2U7IGMwMTJhNGJjIDx0cnlfdG9fZnJlZV9wYWdlcyszYy82MD4KVHJhY2U7IGMwMTJh
-ZDYxIDxiYWxhbmNlX2NsYXNzem9uZSs1MS8xYTA+ClRyYWNlOyBjMDEyYWZjYiA8X19hbGxvY19w
-YWdlcysxMWIvMTgwPgpUcmFjZTsgYzAxMjRlMWIgPGZpbGVtYXBfbm9wYWdlK2JiLzIxMD4KVHJh
-Y2U7IGMwMTIxOWI0IDxkb19hbm9ueW1vdXNfcGFnZSszNC9hMD4KVHJhY2U7IGMwMTIxYTUxIDxk
-b19ub19wYWdlKzMxLzExMD4KVHJhY2U7IGMwMTIxZjY0IDxfX3ZtYV9saW5rKzY0L2MwPgpUcmFj
-ZTsgYzAxMjFiODggPGhhbmRsZV9tbV9mYXVsdCs1OC9jMD4KVHJhY2U7IGMwMTIyNGFmIDxkb19t
-bWFwX3Bnb2ZmKzNmZi80YjA+ClRyYWNlOyBjMDExMTNiYiA8ZG9fcGFnZV9mYXVsdCsxN2IvNGFi
-PgpUcmFjZTsgYzAxMjkyYzYgPGttZW1fY2FjaGVfZnJlZSsxODYvMjEwPgpUcmFjZTsgYzAxMjJj
-MzUgPGRvX211bm1hcCsyMzUvMjUwPgpUcmFjZTsgYzAxMjJjODUgPHN5c19tdW5tYXArMzUvNjA+
-ClRyYWNlOyBjMDExMTI0MCA8ZG9fcGFnZV9mYXVsdCswLzRhYj4KVHJhY2U7IGMwMTA2ZTJjIDxl
-cnJvcl9jb2RlKzM0LzNjPgoK
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="Oops3.out"
-Content-Transfer-Encoding: base64
-Content-Description: Ksymoops output
-Content-Disposition: attachment; filename="Oops3.out"
+                 Windows-2000/Professional isn't.
 
-a3N5bW9vcHMgMi4zLjQgb24gaTY4NiAyLjQuMTguICBPcHRpb25zIHVzZWQKICAgICAtdiAvdXNy
-L2xvY2FsL3NyYy9rZXJuZWwvbGludXgvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1rIC9wcm9j
-L2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpCiAgICAgLW8g
-L2xpYi9tb2R1bGVzLzIuNC4xOC8gKGRlZmF1bHQpCiAgICAgLW0gL3Vzci9sb2NhbC9zcmMva2Vy
-bmVsL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkKClVuYWJsZSB0byBoYW5kbGUga2VybmVs
-IHBhZ2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMTAwMAowMDAwMTAwMAoqcGRl
-ID0gMDAwMDAwMDAKT29wczogMDAwMApDUFU6ICAgIDAKRUlQOiAgICAwMDEwOls8MDAwMDEwMDA+
-XSAgICBOb3QgdGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkz
-ODYgLWEgaTM4NgpFRkxBR1M6IDAwMDEwMjAyCmVheDogMDAwMDAwMDEgICBlYng6IGMwMzBmZDAw
-ICAgZWN4OiAwMDAwMDAxMCAgIGVkeDogY2U4MzQwMDAKZXNpOiAwMDAwMDAxMCAgIGVkaTogMDAw
-MDAwMjAgICBlYnA6IDAwMDAwN2MzICAgZXNwOiBjOWJmZGRlMApkczogMDAxOCAgIGVzOiAwMDE4
-ICAgc3M6IDAwMTgKUHJvY2VzcyBrZG1kZXNrdG9wIChwaWQ6IDg5OSwgc3RhY2twYWdlPWM5YmZk
-MDAwKQpTdGFjazogYzEyYTAxYzAgYzAxMmEyZDMgYzAzMGZkMDAgMDAwMDAwMDAgYzliZmMwMDAg
-MDAwMDAwYzYgMDAwMDAxZDIgYzAyYjE3MjggCiAgICAgICBjMTMwNmJlOCBjMmQ2NjAwMCBjMTMw
-NjdhOCAwMDAwMDAwMSAwMDAwMDAyMCAwMDAwMDFkMiAwMDAwMDAwNiAwMDAwNWQxYyAKICAgICAg
-IGMwMTJhNDQ2IDAwMDAwMDA2IDAwMDAwMDBkIGMwMmIxNzI4IDAwMDAwMDA2IDAwMDAwMWQyIGMw
-MmIxNzI4IDAwMDAwMDAwIApDYWxsIFRyYWNlOiBbPGMwMTJhMmQzPl0gWzxjMDEyYTQ0Nj5dIFs8
-YzAxMmE0YmM+XSBbPGMwMTJhZDYxPl0gWzxjMDEyYWZjYj5dIAogICBbPGMwMTIxYWEzPl0gWzxj
-MDEyMWY2ND5dIFs8YzAxMjFiODg+XSBbPGMwMTIyNGFmPl0gWzxjMDExMTNiYj5dIFs8YzAxMGI0
-YWU+XSAKICAgWzxjMDEyNmMyOT5dIFs8YzAxMTEyNDA+XSBbPGMwMTA2ZTJjPl0gCkNvZGU6ICBC
-YWQgRUlQIHZhbHVlLgoKPj5FSVA7IDAwMDAxMDAwIEJlZm9yZSBmaXJzdCBzeW1ib2wgICA8PT09
-PT0KVHJhY2U7IGMwMTJhMmQzIDxzaHJpbmtfY2FjaGUrMmIzLzJmMD4KVHJhY2U7IGMwMTJhNDQ2
-IDxzaHJpbmtfY2FjaGVzKzU2LzkwPgpUcmFjZTsgYzAxMmE0YmMgPHRyeV90b19mcmVlX3BhZ2Vz
-KzNjLzYwPgpUcmFjZTsgYzAxMmFkNjEgPGJhbGFuY2VfY2xhc3N6b25lKzUxLzFhMD4KVHJhY2U7
-IGMwMTJhZmNiIDxfX2FsbG9jX3BhZ2VzKzExYi8xODA+ClRyYWNlOyBjMDEyMWFhMyA8ZG9fbm9f
-cGFnZSs4My8xMTA+ClRyYWNlOyBjMDEyMWY2NCA8X192bWFfbGluays2NC9jMD4KVHJhY2U7IGMw
-MTIxYjg4IDxoYW5kbGVfbW1fZmF1bHQrNTgvYzA+ClRyYWNlOyBjMDEyMjRhZiA8ZG9fbW1hcF9w
-Z29mZiszZmYvNGIwPgpUcmFjZTsgYzAxMTEzYmIgPGRvX3BhZ2VfZmF1bHQrMTdiLzRhYj4KVHJh
-Y2U7IGMwMTBiNGFlIDxvbGRfbW1hcCtmZS8xNDA+ClRyYWNlOyBjMDEyNmMyOSA8c3lzX21wcm90
-ZWN0KzEwOS8xZjg+ClRyYWNlOyBjMDExMTI0MCA8ZG9fcGFnZV9mYXVsdCswLzRhYj4KVHJhY2U7
-IGMwMTA2ZTJjIDxlcnJvcl9jb2RlKzM0LzNjPgoK
-
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="Oops1.out"
-Content-Transfer-Encoding: base64
-Content-Description: Ksymoops output
-Content-Disposition: attachment; filename="Oops1.out"
-
-a3N5bW9vcHMgMi4zLjQgb24gaTY4NiAyLjQuMTguICBPcHRpb25zIHVzZWQKICAgICAtdiAvdXNy
-L2xvY2FsL3NyYy9rZXJuZWwvbGludXgvdm1saW51eCAoc3BlY2lmaWVkKQogICAgIC1rIC9wcm9j
-L2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpCiAgICAgLW8g
-L2xpYi9tb2R1bGVzLzIuNC4xOC8gKGRlZmF1bHQpCiAgICAgLW0gL3Vzci9sb2NhbC9zcmMva2Vy
-bmVsL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkKCiA8MT5VbmFibGUgdG8gaGFuZGxlIGtl
-cm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDEyMDAKMDAwMDEyMDAK
-KnBkZSA9IDAwMDAwMDAwCk9vcHM6IDAwMDAKQ1BVOiAgICAwCkVJUDogICAgMDAxMDpbPDAwMDAx
-MjAwPl0gICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
-Mi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMDIwMgplYXg6IDAwMDAwMDAxICAgZWJ4OiBjMDMw
-ZmQwMCAgIGVjeDogMDAwMDAwMTIgICBlZHg6IGNlODM0MDAwCmVzaTogMDAwMDAwMTIgICBlZGk6
-IDAwMDAwMDIwICAgZWJwOiAwMDAwMDdjNSAgIGVzcDogY2FjOWJkNzQKZHM6IDAwMTggICBlczog
-MDAxOCAgIHNzOiAwMDE4ClByb2Nlc3MgbG9naW4gKHBpZDogNTI5LCBzdGFja3BhZ2U9Y2FjOWIw
-MDApClN0YWNrOiBjMTJhMDE0MCBjMDEyYTJkMyBjMDMwZmQwMCBjYjA0YWQ1YyBjYWM5YTAwMCAw
-MDAwMDBjNyAwMDAwMDFkMiBjMDJiMTcyOCAKICAgICAgIGNiMDRhZDVjIDAwMmVmMTQwIGMxMzA3
-YmU4IDAwMDAwMDAwIDAwMDAwMDIwIDAwMDAwMWQyIDAwMDAwMDA2IDAwMDA1ZDNhIAogICAgICAg
-YzAxMmE0NDYgMDAwMDAwMDYgMDAwMDAwMGQgYzAyYjE3MjggMDAwMDAwMDYgMDAwMDAxZDIgYzAy
-YjE3MjggMDAwMDAwMDAgCkNhbGwgVHJhY2U6IFs8YzAxMmEyZDM+XSBbPGMwMTJhNDQ2Pl0gWzxj
-MDEyYTRiYz5dIFs8YzAxMmFkNjE+XSBbPGMwMTJhZmNiPl0gCiAgIFs8YzAxMjNhZjE+XSBbPGMw
-MTIzYjc5Pl0gWzxjMDEyNGU2Yj5dIFs8YzAxMjkyYzY+XSBbPGMwMTIxYTZmPl0gWzxjMDEyMWY2
-ND5dIAogICBbPGMwMTIxYjg4Pl0gWzxjMDEyMjRhZj5dIFs8YzAxMTEzYmI+XSBbPGMwMTBiNGFl
-Pl0gWzxjMDEwYjRkNj5dIFs8YzAxMjZjMjk+XSAKICAgWzxjMDExMTI0MD5dIFs8YzAxMDZlMmM+
-XSAKQ29kZTogIEJhZCBFSVAgdmFsdWUuCgo+PkVJUDsgMDAwMDEyMDAgQmVmb3JlIGZpcnN0IHN5
-bWJvbCAgIDw9PT09PQpUcmFjZTsgYzAxMmEyZDMgPHNocmlua19jYWNoZSsyYjMvMmYwPgpUcmFj
-ZTsgYzAxMmE0NDYgPHNocmlua19jYWNoZXMrNTYvOTA+ClRyYWNlOyBjMDEyYTRiYyA8dHJ5X3Rv
-X2ZyZWVfcGFnZXMrM2MvNjA+ClRyYWNlOyBjMDEyYWQ2MSA8YmFsYW5jZV9jbGFzc3pvbmUrNTEv
-MWEwPgpUcmFjZTsgYzAxMmFmY2IgPF9fYWxsb2NfcGFnZXMrMTFiLzE4MD4KVHJhY2U7IGMwMTIz
-YWYxIDxwYWdlX2NhY2hlX3JlYWQrNjEvYzA+ClRyYWNlOyBjMDEyM2I3OSA8cmVhZF9jbHVzdGVy
-X25vbmJsb2NraW5nKzI5LzQwPgpUcmFjZTsgYzAxMjRlNmIgPGZpbGVtYXBfbm9wYWdlKzEwYi8y
-MTA+ClRyYWNlOyBjMDEyOTJjNiA8a21lbV9jYWNoZV9mcmVlKzE4Ni8yMTA+ClRyYWNlOyBjMDEy
-MWE2ZiA8ZG9fbm9fcGFnZSs0Zi8xMTA+ClRyYWNlOyBjMDEyMWY2NCA8X192bWFfbGluays2NC9j
-MD4KVHJhY2U7IGMwMTIxYjg4IDxoYW5kbGVfbW1fZmF1bHQrNTgvYzA+ClRyYWNlOyBjMDEyMjRh
-ZiA8ZG9fbW1hcF9wZ29mZiszZmYvNGIwPgpUcmFjZTsgYzAxMTEzYmIgPGRvX3BhZ2VfZmF1bHQr
-MTdiLzRhYj4KVHJhY2U7IGMwMTBiNGFlIDxvbGRfbW1hcCtmZS8xNDA+ClRyYWNlOyBjMDEwYjRk
-NiA8b2xkX21tYXArMTI2LzE0MD4KVHJhY2U7IGMwMTI2YzI5IDxzeXNfbXByb3RlY3QrMTA5LzFm
-OD4KVHJhY2U7IGMwMTExMjQwIDxkb19wYWdlX2ZhdWx0KzAvNGFiPgpUcmFjZTsgYzAxMDZlMmMg
-PGVycm9yX2NvZGUrMzQvM2M+Cgo=
-
---------------Boundary-00=_ZVKY6I99TW3OB4RR2EHA--

@@ -1,58 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261841AbSJNDFi>; Sun, 13 Oct 2002 23:05:38 -0400
+	id <S261803AbSJNDRy>; Sun, 13 Oct 2002 23:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbSJNDFi>; Sun, 13 Oct 2002 23:05:38 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:49848 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261841AbSJNDFh>; Sun, 13 Oct 2002 23:05:37 -0400
-Date: Sun, 13 Oct 2002 20:09:23 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Greg KH <greg@kroah.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Summit support for 2.5 [0/4]
-Message-ID: <1928331494.1034539762@[10.10.2.3]>
-In-Reply-To: <20021014022515.GB1768@kroah.com>
-References: <20021014022515.GB1768@kroah.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S261808AbSJNDRy>; Sun, 13 Oct 2002 23:17:54 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:21244 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S261803AbSJNDRw>; Sun, 13 Oct 2002 23:17:52 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <15786.14523.6938.812495@wombat.chubb.wattle.id.au>
+Date: Mon, 14 Oct 2002 13:23:39 +1000
+To: torvalds@transmeta.com
+CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au, axboe@suse.de
+Subject: [PATCH] Fix Raid0 again.
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> PS. This distros want Summit to autodetect for their install kernels,
->> which is what the x86_summit switch is for.
-> 
-> Why?  Can't summit boot just fine on a i386 UP kernel?  Then they can
-> look at the chipset id and determine that they should install a
-> summit-built kernel, right?
 
-Probably could, but that's what they asked for. Maybe they don't mean
-install kernel, but just running kernel in general. I presume they
-don't want to maintain a seperate kernel just for Summit.
+Raid0 can't accept I/O requests that span a chunk boundary, as each
+chunk goes to a different underlying queue.
+
+The appended patch registers a `mergeable' function with the device
+queue, to prevent requests being merged if the merged request would
+span a chunk boundary.
+
+I'm assuming that the most restrictive queueing parameters are those
+of the raid0 code itself; if that isn't the case, then extra code has
+to be added to reflect the most limiting case from the underlying
+devices up into the raid0 device's queue.
+
+If raid0 is on top of SCSI or ATA discs, or loopback-mounted
+files, the assumption will almost always hold.
+
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5-import/drivers/md/raid0.c linux-2.5-mdfix/drivers/md/raid0.c
+--- linux-2.5-import/drivers/md/raid0.c	Mon Oct 14 10:32:35 2002
++++ linux-2.5-mdfix/drivers/md/raid0.c	Mon Oct 14 11:46:53 2002
+@@ -162,6 +162,29 @@
+ 	return 1;
+ }
  
-> Can this just be CONFIG_SUMMIT?  I think most of these fixes need to be
-> around for the ia64 version too :(
-
-Nope, this is all under the i386 arch tree. ia64 can do what they
-please, as far as I'm concerned.
-
-> As we're going to end up with a mess of a ifdef nest over time with new
-> archs added, how about something like this (completly untested):
-
-Yeah, that was a quick hack by some idiot who doesn't speak much make ;-)
-I'll steal Kai's thing from later in this thread.
-
-> Other than that, looks like a good start to me (oh your email client is
-> wrapping lines of the patch...)
-
-Yeah, home email is borked for that, sorry. I'll do it properly when I
-submit it.
-
-M.
-
++/**
++ *	raid0_mergeable_bvec -- tell bio layer if a two requests can be merged
++ *	@q: request queue
++ *	@bio: the buffer head that's been built up so far
++ *	@biovec: the request that could be merged to it.
++ *
++ *	Return 1 if the merge is not permitted (because the
++ *	result would cross a chunk boundary), 0 otherwise.
++ */
++static int raid0_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
++{
++	mddev_t *mddev = q->queuedata;
++	sector_t block;
++	unsigned int chunk_size;
++	unsigned int bio_sz;
++
++	chunk_size = mddev->chunk_size >> 10;
++	block = bio->bi_sector >> 1;
++	bio_sz = (bio->bi_size + biovec->bv_len) >> 10;
++
++	return chunk_size < ((block & (chunk_size - 1)) + bio_sz);
++}
++
+ static int raid0_run (mddev_t *mddev)
+ {
+ 	unsigned  cur=0, i=0, nb_zone;
+@@ -233,6 +256,8 @@
+ 		conf->hash_table[i++].zone1 = conf->strip_zone + cur;
+ 		size -= (conf->smallest->size - zone0_size);
+ 	}
++	blk_queue_max_sectors(&mddev->queue, mddev->chunk_size >> 9);
++	blk_queue_merge_bvec(&mddev->queue, raid0_mergeable_bvec);
+ 	return 0;
+ 
+ out_free_zone_conf:
+@@ -262,13 +287,6 @@
+ 	return 0;
+ }
+ 
+-/*
+- * FIXME - We assume some things here :
+- * - requested buffers NEVER bigger than chunk size,
+- * - requested buffers NEVER cross stripes limits.
+- * Of course, those facts may not be valid anymore (and surely won't...)
+- * Hey guys, there's some work out there ;-)
+- */
+ static int raid0_make_request (request_queue_t *q, struct bio *bio)
+ {
+ 	mddev_t *mddev = q->queuedata;
+@@ -291,8 +309,8 @@
+ 		hash = conf->hash_table + x;
+ 	}
+ 
+-	/* Sanity check */
+-	if (chunk_size < (block & (chunk_size - 1)) + (bio->bi_size >> 10))
++	/* Sanity check -- queue functions should prevent this happening */
++	if (unlikely(chunk_size < (block & (chunk_size - 1)) + (bio->bi_size >> 10)))
+ 		goto bad_map;
+  
+ 	if (!hash)

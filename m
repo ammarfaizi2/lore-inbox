@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbRDFBx4>; Thu, 5 Apr 2001 21:53:56 -0400
+	id <S130532AbRDFCAh>; Thu, 5 Apr 2001 22:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130531AbRDFBxq>; Thu, 5 Apr 2001 21:53:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19724 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S130507AbRDFBxa>; Thu, 5 Apr 2001 21:53:30 -0400
-Date: Thu, 5 Apr 2001 21:45:22 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3 fails to boot with initrd - solved
-Message-ID: <Pine.LNX.3.96.1010405214420.18763A-100000@gatekeeper.tmr.com>
+	id <S130768AbRDFCAT>; Thu, 5 Apr 2001 22:00:19 -0400
+Received: from adsl-63-194-96-244.dsl.snlo01.pacbell.net ([63.194.96.244]:61445
+	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
+	id <S130532AbRDFCAF>; Thu, 5 Apr 2001 22:00:05 -0400
+Message-ID: <3ACD22E6.72143666@bigfoot.com>
+Date: Thu, 05 Apr 2001 18:59:02 -0700
+From: Mark McClelland <mmcclell@bigfoot.com>
+X-Mailer: Mozilla 4.61 [en] (OS/2; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Gustavsson <cyrano@algonet.se>, LKML <linux-kernel@vger.kernel.org>
+CC: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
+Subject: Re: ov511 problem
+In-Reply-To: <Pine.LNX.4.21.0104052311590.2324-100000@lillan>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PROBLEM:
+ov511 supports compression, but it doesn't always work yet. Even with
+compression, you will only get 12-15 FPS at 640x480 at most. USB just can't do
+better than that with this type of compression algorithm.
 
-  kernel 2.4.3 will not boot on systems with initrd files
+If you want to try compression, use the "compress=1" and "ttpp=1" parameters
+with the ov511 1.35 module. You will likely get garbage, but this will give you
+an idea of what the frame rate will be like once I have it working.
 
-DESCRIPTION
+Erik Gustavsson wrote:
 
-  Building kernel 2.4.3 and attempting to boot it failed. The problem
-turned out to be in the modutils-2.4.5 rpm for i386.
+> On Thu, 5 Apr 2001, Thomas Speck wrote:
+>
+> IIRC the driver doesn't support compression, and there is no way you can
+> get 640x480 uncompressed at 30 fps over USB...
+>
+> > I am trying to get working a Spacec@m 300 (USB) by Trust. I tried this
+> > under 2.2.18 and 2.4.3. In order to get the camera detected I can use the
+> > usb-uhci or uhci module (the result is the same). The camera gets detected
+> > (some OV7610 gets probed - I don't know if this is the correct one) and
+> > after loading the ov511 module I get the picture of the camera displayed
+> > with xawt-3.38 (resolution 640x480 - the camera is able to this).
+> > The problem I am running into is that the framerate is extremely slow
+> > (maybe 3 fps), however, from the specifications it should work with 30
+> > fps. My system is a Pentium II with 300 Mhz. Some Miro TV card with a
+> > BT848 chip works fine with the bttv driver.
+> > Do you have any idea ?
+> > If you need more info, just let me know. I am also willing to do some
+> > tests...
 
-DETAIL
+--
+Mark McClelland
+mmcclell@bigfoot.com
 
-  After building the 2.4.3 kernel and moving the boot modules to the
-initrd image, it was noted the the system stopped when trying to load
-modules for the root filesystem device. First solution attempted was to
-get the i386 rpm from kernel.org for the latest (2.4.5) modutils and
-install, copying the insmod program to the initrd image.
-
-  This fails, with the message "insmod: no such program" at boot.
-Examination showed that the binary provided was not static linked. Got
-the source from kernel.org and built. By default this still isn't static
-linked! Changed the common Makfile to set LDFLAGS to "-static -s" and
-built again. After install and copy to initrd image this resulted in a
-bootable system.
-
-  While it is possible to copy the libraries needed to the initrd image,
-it becomes larger than the default ramdisk size (at least on my system).
-And including the drivers in the kernel hurts portability and makes the
-kernel too large to boot from floppy.
-
-SYSTEMS AFFECTED
-
-  Redhat 7.x and similar using configurations which have the root device
-driver loaded from modules.
-
-SUGGESTED FIX
-
-  None needed, but the kernel "Changes" file should include a note that
-people using initrd will need to rebuild them static along with the note
-that a newer modutils is needed. Even for people who build their own
-initrd files, this is NOT obvious!
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

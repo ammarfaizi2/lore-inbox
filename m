@@ -1,61 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265609AbUBGEU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 23:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265788AbUBGEU4
+	id S265852AbUBGEhE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 23:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUBGEhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 23:20:56 -0500
-Received: from hostmaster.org ([80.110.173.103]:31361 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S265609AbUBGEUw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 23:20:52 -0500
-Subject: 2.6.2: still no working de21041 driver
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gfvttDL9ZpeaLnunfk8g"
-Message-Id: <1076127649.1936.19.camel@hostmaster.org>
+	Fri, 6 Feb 2004 23:37:04 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50332
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265852AbUBGEg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 23:36:58 -0500
+Date: Sat, 7 Feb 2004 05:36:55 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>, Rik van Riel <riel@redhat.com>,
+       Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
+       johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040207043655.GE31926@dualathlon.random>
+References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com> <20040206154906.GS31926@dualathlon.random> <4024333B.6020805@redhat.com> <20040207021954.GD31926@dualathlon.random> <20040207033759.GA8384@nevyn.them.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Sat, 07 Feb 2004 05:20:49 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040207033759.GA8384@nevyn.them.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 06, 2004 at 10:37:59PM -0500, Daniel Jacobowitz wrote:
+> On Sat, Feb 07, 2004 at 03:19:55AM +0100, Andrea Arcangeli wrote:
+> > > The official kernel might have the vdso at a fixed address part no part
+> > > of the ABI requires this address and so anybody with some security
+> > > conscience can change the kernel to randomize the vdso address.  It's
+> > > not my or Ingo's fault that Linus doesn't like the exec-shield code
+> > > which would introduce the randomization.  The important aspect is that
+> > > we can add vdso randomization and nothing else needs changing.  The same
+> > > libc will run6 on a stock kernel and the one with the randomized vdso.
+> > > This is not the case on x86-64 where the absolute address for the
+> > > gettimeofday is used.
+> > 
+> > I don't know exactly what your "randomization exec-shield" code is doing
+> > either. the way I understand what you wrote is that you want to relocate
+> > the vsyscall trasparently without glibc knowledge, so in short you're
+> > saying that you don't care to randomize everything in the userspace
+> > executable address space, you only care to relocate the vgettimeofday
+> > bytecode, not the rest of the vsyscall pieces. So with your solution
+> > you'll still have "fixed" addresses in the address space that will allow
+> > an attacker to execute vgettimeofday, just like glibc can execute it
+> > without noticing the actual function was relocated. As far as glibc
+> > won't notice that vgettimeofday has been relocated by your
+> > "exec-shield", it means the attacker as well can execute it just fine.
+> 
+> You might want to stop and take a look at the way this works on i386
+> before you argue with Ulrich any more about it.
+> 
+> Specifically, the vsyscall DSO is constructed as a normal ELF image,
+> and its base address is passed to glibc as an AT_SYSINFO tag in the
+> application's auxv vector.  Glibc source code has absolutely no
+> knowledge of the base address, which in fact has changed at least three
+> times since it was created.
 
---=-gfvttDL9ZpeaLnunfk8g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+(changing three times is worthless in terms of security, all computers
+runs the same bzImage so it's not changing, anyways as Ulrich said this
+can be fixed transparently in "their" kernel)
 
-Hi,
+The idea of randomizing the base address in kernel is not different from
+generating it in glibc and asking the kernel to relocate. this mean it
+probably won't be an environment variable but a root system wide sysctl
+to control the randomization (so I find it less flexible, though it's
+probably simpler to implement). But regardless my point is that the last
+patch posted by john is not the way to go. glibc should call into a
+fixed _offset_, the base address after all doesn't matter much if it's
+generated by kernel or glibc, so I don't care if it's the kernel
+randomizing, my whole point is that glibc must keep calling
+vgettimeofday _direct_ without passing through the vsyscall wrapper
+where all the other syscalls are passing through. there is not point to
+pass through a wrapper when you can speed it up using a _fixed_ offset.
 
-unfortunately there is still no working driver for the Digital Equipment
-Corporation DECchip 21041 card in in kernel 2.6.2.
+Glibc needs an hardcoded _fixed_ like in a stone table of offsets (yeah
+they're not "addresses" like in x86-64, but still they're fixed and
+glibc knows about each vsyscall). If we want to implement it the same
+way in x86-64 too (randomizing in kernel and passing down the random
+base address from kernel instead of generating it in glibc), it maybe
+troublesome for compatibility, however I don't care that much about it,
+as far as there is a table of hardcoded like in a stone offsets for each
+vsyscall, to call it directly, without a table or wrapper. I preferred
+the generation of the address in glibc (where the randomizing code must
+already exist to randomize everything else including the .text of the
+normally non relocatable binary) that was also backwards compatible, but
+this is not the bit I care about. The bit I care about is that glibc
+should know about the vsyscall to be efficient, and that the offsets
+should be fixed.
 
-The de4x5 driver used to work with 2.4.* but causes a lockup immediately
-after bringing up the interface when SMP is enabled, it does not even
-produce an oops message anymore. See
-http://bugzilla.kernel.org/show_bug.cgi?id=3D1855
+And as said the randomization in x86 will be a joke to bruce force so
+this randomization issue mostly matters for x86-64.
 
-With the de2104x driver I can get the network interface up but it fails
-to receive any packets.
-
-Tom
-
-
---=-gfvttDL9ZpeaLnunfk8g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQEVAwUAQCRnoWD1OYqW/8uJAQL8gQf9GFP0ocSpiI25UMiVp4awf668FhwUltc4
-LQbM5k+GGhhQc2fq08Kz7FT90HWemt9HTi7QqTvgqK3Nr/Jh4pZH0r8D932SHCVN
-tXHtEghnQdoml8HwRY3LzqW2RWoC00drYg3wO8+B0VyXY3vcgYW7HfoU0YcFxyXg
-5dsQq0MPa0gZ9Osz+DZTxAFOzvHIP+IKYqOkxkeJHKyZQ2tqYhiyelLqCa+n/wn0
-I0CCyqrVcP3KQLgPs86kX5Z1Bj28VUtFBKu1GBAqo5wVaP3MvjKlEw8zXMTl24Gq
-DALBaoBT7CppqpuMrupGswnVORZeLnTDKJIRPki8WyGxcyjxuQapAQ==
-=kczn
------END PGP SIGNATURE-----
-
---=-gfvttDL9ZpeaLnunfk8g--
-
+I'd like to know if people dislikes the mremap for the vsyscalls, and if
+they prefer the randomization code duplicated in kernel breaking
+backwards compatibility with current production x86-64 glibc.

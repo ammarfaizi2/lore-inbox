@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318112AbSGWQXJ>; Tue, 23 Jul 2002 12:23:09 -0400
+	id <S318132AbSGWQYr>; Tue, 23 Jul 2002 12:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318119AbSGWQXJ>; Tue, 23 Jul 2002 12:23:09 -0400
-Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:23289 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S318112AbSGWQXJ>; Tue, 23 Jul 2002 12:23:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ghozlane Toumi <ghoz@sympatico.ca>
-To: George France <france@handhelds.org>,
-       "Martin Brulisauer" <martin@uceb.org>,
-       "Oliver Pitzeier" <o.pitzeier@uptime.at>
-Subject: Re: kbuild 2.5.26 - arch/alpha
-Date: Tue, 23 Jul 2002 12:24:07 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200207211354.g6LDsADU005586@alder.intra.bruli.net> <3D3D6B3B.25754.1392D3FD@localhost> <02072311055101.22920@shadowfax.middleearth>
-In-Reply-To: <02072311055101.22920@shadowfax.middleearth>
+	id <S318133AbSGWQYr>; Tue, 23 Jul 2002 12:24:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:55726 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318132AbSGWQYq>;
+	Tue, 23 Jul 2002 12:24:46 -0400
+Date: Tue, 23 Jul 2002 18:26:36 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] big IRQ lock removal, 2.5.27-G0
+Message-ID: <Pine.LNX.4.44.0207231821430.17887-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020723162621.PPBU11295.tomts20-srv.bellnexxia.net@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 July 2002 11:05, George France wrote:
 
-> 2.6.x will run on alpha.  There are still a handfull of people that still
-> activly maintian Linux on Alpha.   Since there is only a few people that
-> activly work on Alpha, they tend to chose a kernel versions, then work with
-> that version for a while until it is stable.  In the past few months most
-> of the efforts have been spent on 2.4.9.  Currently there have been
-> discussions in regard to:
+the -G0 irqlock patch can be found at:
 
-Just out of curiosity, on what mailing lists discussions are taking place ?
-I'm subscribed to some alpha mailing lists, but still, most of the kernel 
-patches for alpha I see are comming from LKML ...
+   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-G0
+
+Changes in -G0:
+
+ - fix buggy in_softirq(). Fortunately the bug made the test broader,
+   which didnt result in algorithmical breakage, just suboptimal
+   performance.
+
+ - move do_softirq() processing into irq_exit() => this also fixes the
+   softirq processing bugs present in apic.c IRQ handlers that did not
+   test for softirqs after irq_exit().
+
+ - simplify local_bh_enable().
+
+Changes in -F9:
+
+ - replace all instances of:
+
+	local_save_flags(flags);
+	local_irq_disable();
+
+   with the shorter form of:
+
+	local_irq_save(flags);
+
+  about 30 files are affected by this change.
+
+Changes in -F8:
+
+ - preempt/hardirq/softirq count separation, cleanups.
+
+ - skbuff.c fix.
+
+ - use irq_count() in scheduler_tick()
+
+Changes in -F3:
+
+ - the entry.S cleanups/speedups by Oleg Nesterov.
+
+ - a rather critical synchronize_irq() bugfix: if a driver frees an 
+   interrupt that is still being probed then synchronize_irq() locks up.
+   This bug has caused a spurious boot-lockup on one of my testsystems,
+   ifconfig would lock up trying to close eth0.
+
+ - remove duplicate definitions from asm-i386/system.h, this fixes 
+   compiler warnings.
+
+	Ingo
 
 
-Thanks, 
-
-ghoz

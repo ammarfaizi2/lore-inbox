@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135216AbREICdK>; Tue, 8 May 2001 22:33:10 -0400
+	id <S135789AbREICfA>; Tue, 8 May 2001 22:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135789AbREICdA>; Tue, 8 May 2001 22:33:00 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:32682 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S135216AbREICcx>;
-	Tue, 8 May 2001 22:32:53 -0400
-Date: Tue, 8 May 2001 22:31:23 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: <netdev@oss.sgi.com>
-cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.rutgers.edu>,
-        Sally Floyd <floyd@aciri.org>, <kk@teraoptic.com>, <jitu@aciri.org>
-Subject: ECN: Volunteers needed
-Message-ID: <Pine.GSO.4.30.0105082145200.447-100000@shell.cyberus.ca>
+	id <S135793AbREICev>; Tue, 8 May 2001 22:34:51 -0400
+Received: from waulogy.Stanford.EDU ([128.12.53.47]:45833 "EHLO
+	waulogy.stanford.edu") by vger.kernel.org with ESMTP
+	id <S135789AbREICeg>; Tue, 8 May 2001 22:34:36 -0400
+Newsgroups: su.class.cs99q
+Date: Tue, 8 May 2001 19:32:55 -0700 (PDT)
+From: david chan <dmchan@stanford.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Ingo Molnar <mingo@redhat.com>, Carsten Paeth <calle@calle.in-berlin.de>,
+        Karsten Keil <kkeil@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] RAID5 NULL Checking Bug Fix
+Message-ID: <Pine.LNX.4.30.0105081923540.21906-100000@waulogy.stanford.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Folks,
+Hi,
+In drivers/md/raid5.c, the author does not check to see if alloc_page() returns
+NULL. This patch also adds checks that return 1 (following the
+error-path convention in the respective function).
 
-ECN is about to become a Proposed Standard RFC. Thanks to
-efforts from the Linux community, a few issues were discovered
-in the course of deploying the code. Special kudos go to Alexey
-Kuznetsov and David Miller.
+Please discard this e-mail if this patch is irrelevant to you. I just
+tried to be thorough.
 
-I wont go into details of the issues other than to say some
-midlle-box vendors in the past have associated the semantics of the
-natural-language English word "reserved" to have a different meaning.
-visit Jeff Garzik's ECN-under-Linux Unofficial Vendor Support Page
-at: http://gtf.org/garzik/ecn/ for more details
+Thank you,
+David Chan
 
-Sally Floyd explains best why it is wrong for vendors of middle boxes to
-be doing this in the draft to be found at:
-ftp://ftp.normos.org/ietf/internet-drafts/draft-floyd-tcp-reset-00.txt
+---snip----
+--- drivers/md/raid5.c.orig	Tue May  8 19:17:22 2001
++++ drivers/md/raid5.c	Tue May  8 19:20:07 2001
+@@ -157,17 +157,21 @@
+ 		memset(bh, 0, sizeof (struct buffer_head));
+ 		init_waitqueue_head(&bh->b_wait);
+ 		page = alloc_page(priority);
++		if (!page)
++			goto nomem_path;
+ 		bh->b_data = page_address(page);
+-		if (!bh->b_data) {
+-			kfree(bh);
+-			return 1;
+-		}
++		if (!bh->b_data)
++			goto nomem_path;
+ 		atomic_set(&bh->b_count, 0);
+ 		bh->b_page = page;
+ 		sh->bh_cache[i] = bh;
 
-So why am i posting this?
+ 	}
+ 	return 0;
++
++nomem_path:
++	kfree(bh);
++	return 1;
+ }
 
-This is to solicit volunteers who will help removing the remaining cruft.
-Some vendors (special positive mention goes to CISCO) have released
-patches which are unfortunately not being propagated by some of the
-site owners.
-Help is needed to contact these site owners and politely using a standard
-email ask them that their site was non-conformant.
-Point them to Sally's draft and the fact that ECN is becoming standard
-in the next week or so. Also to Jeff's ECN-under-Linux Unofficial
-Vendor Support Page, and to encourage them to have their firewall
-or load-balancer upgraded.
-I suppose the first volunteer needed is to draft such an email. We have to
-be polite and persistent for this to work.
-
-Jitendra Padhye at ACIRI is running weekly tests to detect offending
-sites. Most recent results can be found at:
-http://www.aciri.org/tbit/ecn_test3A.html
-Any site with the word "RST" on the line should be considered
-non-conformant.
-
-Volunteers please send an email to ecn@gtf.org with subject "interested in
-volunteering"
-
-Flames etc please redirect to netdev (since that's the only list i am on).
-as well make sure you cc the other people (other than linux-kernel and
-linux-net)
-
-cheers,
-jamal
-
-
+ static struct buffer_head *raid5_build_block (struct stripe_head *sh, int i);
+---snip---
 

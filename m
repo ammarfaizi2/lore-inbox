@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129231AbQKXQLZ>; Fri, 24 Nov 2000 11:11:25 -0500
+        id <S129325AbQKXQ3S>; Fri, 24 Nov 2000 11:29:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129325AbQKXQLQ>; Fri, 24 Nov 2000 11:11:16 -0500
-Received: from columba.EUR.3Com.COM ([161.71.169.13]:26063 "EHLO
-        columba.eur.3com.com") by vger.kernel.org with ESMTP
-        id <S129231AbQKXQK4>; Fri, 24 Nov 2000 11:10:56 -0500
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-To: I+D <jbertran@cirsa.com>
-cc: "'rminnich@lanl.gov'" <rminnich@lanl.gov>,
+        id <S129737AbQKXQ3I>; Fri, 24 Nov 2000 11:29:08 -0500
+Received: from [195.77.234.5] ([195.77.234.5]:16908 "HELO ntdes.cirsa.com")
+        by vger.kernel.org with SMTP id <S129325AbQKXQ3F>;
+        Fri, 24 Nov 2000 11:29:05 -0500
+Message-ID: <01C05636.8794C2F0@wsi_joan.UNIDESA_RD>
+From: Joan Bertran <jbertran@cirsa.com>
+To: "'Jon Burgess'" <Jon_Burgess@eur.3com.com>
+Cc: "'rminnich@lanl.gov'" <rminnich@lanl.gov>,
         "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Message-ID: <802569A1.00542593.00@notesmta.eur.3com.com>
-Date: Fri, 24 Nov 2000 15:13:03 +0000
-Subject: Re: Booting AMD Elan520 without BIOS
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: RE: Booting AMD Elan520 without BIOS
+Date: Fri, 24 Nov 2000 16:49:35 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
->    The last message I see is "Calibrating delay loop"
->(I see this thaks to the Jtag debugger for Elan520 because
->I haven't configured the VGA board yet).
+> -----Mensaje original-----
+> De: Jon Burgess [mailto:Jon_Burgess@eur.3com.com]
+> Enviado el: viernes 24 de noviembre de 2000 16:40
+> Para: joan_bertran%DESAR@cirsa.com
+> Cc: 'rminnich@lanl.gov'; 'linux-kernel@vger.kernel.org'
+> Asunto: Re: Booting AMD Elan520 without BIOS
+> 
+> 
+> 
+> I've seen this on a board with a BIOS problem. I think it is 
+> caused because 
+> the
+> Kernel is in a loop waiting for a timer interrupt to occur. If the 
+> interrupt
+> never arrives it loops forever.
+> 
+>      Jon
+> 
+> 
+ I think so, because I've read somewhere the kernel needs interrupts 
+configured, but as kernel configures i8259 I don't know what is necessary,
+the IDT with interrupt service routines ?, sommething special about the chipset ?
 
-I've seen this on a board with a BIOS problem. I think it is caused because the
-Kernel is in a loop waiting for a timer interrupt to occur. If the interrupt
-never arrives it loops forever.
-
-     Jon
-
-
-
-
-PLANET PROJECT will connect millions of people worldwide through the combined
-technology of 3Com and the Internet. Find out more and register now at
-http://www.planetproject.com
+			Joan Bertran.
 
 
 -

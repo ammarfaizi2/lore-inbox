@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272566AbRHaDZ5>; Thu, 30 Aug 2001 23:25:57 -0400
+	id <S272568AbRHaD0I>; Thu, 30 Aug 2001 23:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272501AbRHaDZr>; Thu, 30 Aug 2001 23:25:47 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:37391 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S272496AbRHaDZg>;
-	Thu, 30 Aug 2001 23:25:36 -0400
-Message-Id: <200108310325.f7V3Pge00680@thor.mesatop.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Albert Cranford <ac9410@bellsouth.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch]: incorrect e2fsprog data from ver_linux script
-Date: Thu, 30 Aug 2001 21:24:19 -0400
-X-Mailer: KMail [version 1.2.3]
-In-Reply-To: <3B8EF06D.24BAB4AF@bellsouth.net>
-In-Reply-To: <3B8EF06D.24BAB4AF@bellsouth.net>
+	id <S272501AbRHaDZ6>; Thu, 30 Aug 2001 23:25:58 -0400
+Received: from mail.caymail.com ([199.227.10.105]:1227 "HELO pop1.netcis.com")
+	by vger.kernel.org with SMTP id <S272496AbRHaDZt>;
+	Thu, 30 Aug 2001 23:25:49 -0400
+Date: Thu, 30 Aug 2001 23:20:07 -0700
+From: Jeremiah Johnson <miah@netcis.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Jeremiah Johnson <miah@netcis.com>
+Organization: NETCIS International Corporation
+X-Priority: 3 (Normal)
+Message-ID: <8477538250.20010830232007@netcis.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9 UDP broke?
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 August 2001 10:03 pm, Albert Cranford wrote:
-> Hello Alan/Linus,
-> Ted suggested I pass this onto your for 2.2 and 2.4
-> Please apply small patch to both releases.
-> Thanks,
-> Albert
->
->
-> -------- Original Message --------
-> Subject: incorrect e2fsprog data from ver_linux script
-> Date: Thu, 30 Aug 2001 10:08:27 -0400
-> From: Albert Cranford <ac9410@bellsouth.net>
-> To: tytso@valinux.com, tytso@mit.edu
->
-> Hello Ted,
-> I'm not sure when incorrect e2fsprog info started popping
-> up from the linux/scripts/ver_linux script, but what do
-> you think about submitting this patch to Linus?
-> Later,
-> Albert
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: MD5
 
-Hmm, this worked for e2fsprogs 1.22, e2fsprogs 1.23 was released
-8-15-01 according to Sourceforge.
+Hello linux-kernel,
 
-I applied your fix, and yes it now works for 1.23:
+  I am having very strange problems with 2.4.9 and UDP.  Basically,
+  anything using UDP wont work.  Anything using TCP/ICMP works fine.
+  I am not even enabling any kind of firewall code in the kernel so
+  that shouldn't be the issue, and I have looked at pretty much
+  everything I can think of to resolve this issue.  Can anybody either
+  point me in the right direction or if needed request specific info
+  to fix the problem?
 
-[root@localhost linux]# sh scripts/ver_linux
-[irrelevant stuff snipped]
-modutils               2.4.3
-e2fsprogs              1.23
-reiserfsprogs          3.x.0i
+- --
+Best regards,
+ Jeremiah                          mailto:miah@netcis.com
 
-Ok, so far so good.  Now checking ver_linux shipped with 2.4.9-ac5
-[root@localhost linux]# sh scripts/ver_linux.ac5
-[irrelevant stuff snipped]
-modutils               2.4.3
-e2fsprogs              tune2fs
-reiserfsprogs          3.x.0i
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6
 
-Yep, it's broken for e2fsprogs 1.23 all right.
+iQEVAwUAO48sm5HTj7BlqKb5AQGOpQgApna8Qr9qqHsQFRb2hCYYvgOere09U1Sf
+iWDVFXJSpR452/sZnURsaoR8FNiVfTK4OkeCtp12ufr5AKfF+1PX3uflHj9vmesT
+Hz5MVE4N7kN7NeJ3pfFsMLDpcVV52w+2R9vqsX4Dk3t4DubwPO2vXv3ND2rNjXCX
+CCFOcZK2kFxgitpICQpT5/KnvBoRMj84HGH2Co3i0IYRBOTQ/U506Hy6gbjhgTER
+9BbqtTuSkEwo90Ryp3WLIGGyjPn0qgRoaBxYlAm+2wVR3thGTQGQy0tU373sJxUC
+woh2ELHAK312vGCXbncXQ57pkU168QcEH5uzLL00/1QWILwtPa4MSA==
+=roGe
+-----END PGP SIGNATURE-----
 
-Now, I installed e2fsprogs 1.22, and your new version breaks:
-
-[root@localhost linux]# sh scripts/ver_linux  <--- with your patch
-[irrelevant stuff snipped]
-modutils               2.4.3
-e2fsprogs              tune2fs
-reiserfsprogs          3.x.0i
-
-and the old version (old as in 2.4.9-ac5) works for e2fsprogs 1.22
-[root@localhost linux]# sh scripts/ver_linux.ac5
-[irrelevant stuff snipped]
-modutils               2.4.3
-e2fsprogs              1.22
-reiserfsprogs          3.x.0i
-
-So, this patch breaks the ver_linux script for 1.22, and 1.21 (I checked
-this too).  If someone wants to fix this right, please jump in.
-
-Steven

@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbULGCqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbULGCtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbULGCqp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 21:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbULGCqp
+	id S261745AbULGCtE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 21:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbULGCtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 21:46:45 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:34522 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261739AbULGCqm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 21:46:42 -0500
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Karsten Desler <kdesler@soohrt.org>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
+	Mon, 6 Dec 2004 21:49:04 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:22781 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261745AbULGCs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 21:48:56 -0500
+Date: Mon, 6 Dec 2004 18:52:18 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Phil Oester <kernel@linuxace.com>
+Cc: shemminger@osdl.org, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20041207002012.GB30674@quickstop.soohrt.org>
-References: <20041206224107.GA8529@soohrt.org>
-	 <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net>
-	 <20041207002012.GB30674@quickstop.soohrt.org>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1102387595.1088.48.camel@jzny.localdomain>
+Subject: Re: Recent select() handling change breaks Poptop
+Message-ID: <20041207025218.GB61527@gaz.sfgoth.com>
+References: <20041207003525.GA22933@linuxace.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 06 Dec 2004 21:46:35 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041207003525.GA22933@linuxace.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Mon, 06 Dec 2004 18:52:19 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Your numbers are very suspect. You may be having other issues in the
-box. You should be able to do much higher packet rates even with
-iptables compiled in.
-Some numbers at:
-
-http://www.suug.ch/sucon/04/slides/pkt_cls.pdf
-
-If all you need is std filtering then consider using tc actions.
-I do have a suspicion that your problem has to do with your machine
-more than it does with Linux.
-
-cheers,
-jamal
-
-On Mon, 2004-12-06 at 19:20, Karsten Desler wrote:
-> Bernd Eckenfels <ecki-news2004-05@lina.inka.de> wrote:
-> > In article <20041206224107.GA8529@soohrt.org> you wrote:
-> > > Removing the iptables rules helps reducing the load a little, but the
-> > > majority of time is still spent somewhere else.
-> > 
-> > In handling Interrupts. Are those equally sidtributed on eth0 and eth1?
+Phil Oester wrote:
+> -       .poll =         datagram_poll,
+> +       .poll =         udp_poll,
 > 
-> Yes they are.
+> makes the Poptop server work again.
 > 
-> Thanks,
->  Karsten
-> 
->            CPU0       CPU1       
->   0:  117199776  133677244    IO-APIC-edge  timer
->   1:          0          9    IO-APIC-edge  i8042
->   8:          0          4    IO-APIC-edge  rtc
->   9:          0          0   IO-APIC-level  acpi
-> 169:        139  893669684   IO-APIC-level  eth0
-> 177:  919803109      30665   IO-APIC-level  eth1
-> 209:     414257     413316   IO-APIC-level  libata
-> NMI:          0          0 
-> LOC:  250918849  250918819 
-> ERR:          0
-> MIS:          0
-> 
-> 
+> Any ideas?
 
+That's very strange.  It would be helpful if you could gather:
+  1. strace of the server, both working and broken
+  2. a "tcpdump -nvv" of its udp traffic (ideally captured from a seperate
+     server, but from the server would probably be OK too)
+
+Most of the discussion of this change was on the netdev mailing list, it
+would probably be best to send this information there.
+
+-Mitch

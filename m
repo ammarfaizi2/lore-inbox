@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUJIUrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUJIUrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUJIUrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUJIUrZ
+	id S267416AbUJIUrz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUJIUrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:47:25 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:34946 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S267417AbUJIUq7
+	Sat, 9 Oct 2004 16:47:49 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:33154 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S267416AbUJIUqp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:46:59 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproductions.com
+	Sat, 9 Oct 2004 16:46:45 -0400
+From: Matt <matt@lpbproductions.com>
+Reply-To: matt@lpbproductions.com
 To: Jan Dittmer <jdittmer@ppp0.net>
 Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
+Date: Sat, 9 Oct 2004 13:47:56 -0700
 User-Agent: KMail/1.7
 Cc: Ed Schouten <ed@il.fontys.nl>, linux-kernel@vger.kernel.org, akpm@osdl.org
 References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210> <200410091315.10988.lkml@lpbproductions.com> <41684BC1.5000500@ppp0.net>
 In-Reply-To: <41684BC1.5000500@ppp0.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Sat, 9 Oct 2004 13:48:08 -0700
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410091348.09537.lkml@lpbproductions.com>
+Content-Disposition: inline
+Message-Id: <200410091347.57256.matt@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

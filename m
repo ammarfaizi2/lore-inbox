@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRHUWjk>; Tue, 21 Aug 2001 18:39:40 -0400
+	id <S271880AbRHUWku>; Tue, 21 Aug 2001 18:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271880AbRHUWjb>; Tue, 21 Aug 2001 18:39:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31650 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271859AbRHUWjV>;
-	Tue, 21 Aug 2001 18:39:21 -0400
-Date: Tue, 21 Aug 2001 15:39:34 -0700 (PDT)
-Message-Id: <20010821.153934.112610604.davem@redhat.com>
+	id <S271875AbRHUWkk>; Tue, 21 Aug 2001 18:40:40 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:56297 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271859AbRHUWkb>;
+	Tue, 21 Aug 2001 18:40:31 -0400
+Date: Tue, 21 Aug 2001 23:40:43 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 To: linux-kernel@vger.kernel.org
-CC: axboe@suse.de
-Subject: [UPDATE] PCI64 patch 2.4.9-2
-From: "David S. Miller" <davem@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Theodore Tso <tytso@mit.edu>
+Subject: /dev/random entropy calcs - patch [not related to net devices]
+Message-ID: <9547398.998437243@[169.254.198.40]>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+1. Anyone have a problem with using xtime rather
+   than jiffies on architectures which don't support cycle
+   counters? (completely untested patch attached to illustrate)
 
-I posted a new revision of the pci64 patches:
+2. Anyone have any problem changing fs/proc/proc_misc.c to
+   register /proc/interrupts to be 0600 instead of 0644 to help
+   prevent entropy attacks that way?
 
-ftp.kernel.org/pub/linux/kernel/people/davem/PCI64/pci64-2.4.9-2.patch.{gz,bz2}
+--
+Alex Bligh
 
-Changes:
+--- drivers/char/random.c.keep       Sat Feb 17 00:02:36 2001
++++ drivers/char/random.c     Tue Aug 21 23:19:17 2001
+@@ -710,16 +710,27 @@
+        int             entropy = 0;
 
-	1) Fix 64-bit addressing capability detection
-	   in SunGEM driver, only SunGEM PCI boards
-	   can do it.  Sun onboard and PPC GEMs cannot.
-	2) Add pci64_*() variants of PCI pool allocation
-	   and freeing.
-	3) Document #2
+ #if defined (__i386__)
++       /* If possible, use the clock cycle counter */
+        if ( test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability) ) {
+                __u32 high;
+                __asm__(".byte 0x0f,0x31"
+                        :"=a" (time), "=d" (high));
+                num ^= high;
+        } else {
+-               time = jiffies;
++               time = (__u32)(xtime.tv_usec) ^ (__u32)(xtime.tv_sec);
+        }
+ #else
+-       time = jiffies;
++       /* If we can't get the clock cycle counter, get the number
++        * of elapsed microseconds. Note:
++        * - we don't need the xtime spinlock as we are only reading
++        *   one half (even then, the odd SMP race is only going to
++        *   add to entropy)
++        * - this may indeed wrap; but so could the original cycle
++        *   counter, and as us occur less frequently than clock cycles,
++        *   it's less of a problem. In any case it would underestimate
++        *   entropy on a wrap.
++        */
++       time = (__u32)(xtime.tv_usec) ^ (__u32)(xtime.tv_sec);
+ #endif
 
-Later,
-David S. Miller
-davem@redhat.com
+        /*
+

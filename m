@@ -1,94 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSFUQOE>; Fri, 21 Jun 2002 12:14:04 -0400
+	id <S316300AbSFUQMz>; Fri, 21 Jun 2002 12:12:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSFUQOE>; Fri, 21 Jun 2002 12:14:04 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:37115 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316667AbSFUQOB> convert rfc822-to-8bit; Fri, 21 Jun 2002 12:14:01 -0400
-From: "KV FRANCE" <kvfrance.14@wanadoo.fr>
-Subject: =?iso-8859-1?Q?=E0=20l'attention=20du=20Bureau=20d'=E9tudes=20automatismes=20-=20Proposition=20d'envoi=20d'un=20nouveau=20catalogue=20de=20composants?=
-Date: Fri, 21 Jun 2002 17:16:33 +0200
-Mime-Version: 1.0
-X-Mailer: Robot-Mail de ABS
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Message-ID: <20020621181344.5B8A3022.A39CFCAF@192.168.1.15>
-To: <linux-kernel@vger.kernel.org>
+	id <S316667AbSFUQMy>; Fri, 21 Jun 2002 12:12:54 -0400
+Received: from ierw.net.avaya.com ([198.152.13.101]:41093 "EHLO
+	ierw.net.avaya.com") by vger.kernel.org with ESMTP
+	id <S316300AbSFUQMx>; Fri, 21 Jun 2002 12:12:53 -0400
+Date: Fri, 21 Jun 2002 16:12:56 -0600 (MDT)
+From: "Bhavesh P. Davda" <bhavesh@avaya.com>
+X-X-Sender: bhavesh@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk, <torvalds@transmeta.com>
+Subject: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.2.21
+Message-ID: <Pine.LNX.4.44.0206211558070.6781-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Jun 2002 16:12:54.0550 (UTC) FILETIME=[7FF93360:01C2193E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A l'attention du Responsable du Bureau d'études automatismes - Merci de bien vouloir apporter votre 
-attention à ce message.
 
-Bonjour,
+The 2.2.21 kernel was behaving incorrectly for SCHED_FIFO and SCHED_RR 
+scheduling.
 
-Nous avons le plaisir de vous proposer de vous envoyer gratuitement notre nouveau catalogue de 330 
-pages.
-Pour l'obtenir, retournez-nous cet email avec votre nom et vos coordonnées postales, en stipulant 
-"Demande de catalogue" sur la ligne objet de votre email ou faxez nous en retour cet email, sans 
-omettre de nous préciser votre nom et coordonnées postales .
+The correct behaviour for SCHED_FIFO is priority preemption: run to 
+completion, or system call, or preemption by higher priority process. The 
+correct behaviour for SCHED_RR is the same as SCHED_FIFO for the 
+preemption case, or run for a time slice, and go to the back of the run 
+queue for that priority.
 
-Vous y trouverez l'essentiel de notre fabrication, à savoir :
+More details can be found at:
 
-1) Vérins et actionneurs pneumatiques
-Les versions standard VDMA, CNOMO, ISO mais également des versions plus spécifiques telles :
-vérins stoppeurs, vérins séparateurs, vérins plats bitiges, VDMA pour automatismes rapides, brides 
-tournantes automatiques, tables de translation, vérins sans tige, amortisseurs hydrauliques de fin de 
-course, vérins de bridage, vérins compacts, pinces à prise parallèle ou angulaire, vérins et tables rotatifs
+http://www.opengroup.org/onlinepubs/7908799/xsh/realtime.html
 
-2) Nos composants de "la technique du vide" : pompe à vide Venturi en aluminium, PVC ou inox et 
-ventouses en 9 différents matériaux, mais également des composants plus spécifiques comme :
-- nos venturi en ligne universels, réglables pour s'adapter à l'application et qui peuvent aspirer des 
-poussières ou particules sans se colmater et sans l'aide de filtres (gamme VDF de 110 à 3600 NL/min)
-- nos buses de transport pneumatique pour l'alimentation de machines, l'évacuation de déchets ou le 
-transport de poudres, granulés et objets (gamme DF, d'un passage de 3 à 75 mm) - A utiliser en fixe sur 
-une machine ou éventuellement en outil manuel
-- nos buses de soufflage pour souffler très efficacement sans danger, sans bruit et avec une très faible 
-consommation d'air comprimé.
+This is a small patch, but fixes the behaviour for SCHED_FIFO and SCHED_RR 
+scheduling in the 2.2.21 kernel. It also improves the efficiency of the 
+kernel by NOT calling schedule() for every tick for a SCHED_FIFO process.
 
-3) Distributeurs pneumatiques
-Les versions standard ISO ou à raccordement direct mais également des versions plus spécifiques telles 
-:
-distributeurs sur embase à haute fiabilité, à commande électrique antidéflagrante EEx ia ou m, à 
-commande par diaphragme pour la détection de pression ou dépression, à commande mécanique 
-assistée à très haute sensibilité, à commande mécanique renforcée ...
-
-4) Nos propositions d'études de schéma et réalisations pneumatiques en collaboration avec vos 
-services, sous forme de coffrets ou intégration sur bloc gravé en aluminium. Nous avons une bonne 
-expérience dans ce domaine pour des réalisations en rapport avec les matériels de transport ferroviviaire 
-ou routier, l'instrumentation, le médical, le contrôle d'inertage en chimie ...
-
-5) Electrovannes tous fluides ou pour applications pneumatiques standard de M3 à 3/8
-
-6) Electrovannes pour procédés industriels de 1/4 à 3"
-
-7) Nos équipements de traitement de l'air comprimé : filtres, régulateurs, lubrificateurs, mise sous pression 
-progressive
-
-8) Nos raccords pneumatiques instantanés ou à coiffe, tuyau technique et divers accessoires
-
-9) Diverses informations concernant les applications pneumatiques, de tables de correspondance 
-d'unités dans de nombreux domaines, les équivalences métriques des filets BSP, des tables de 
-puissance de vérins selon la pression l'alésage et le modèle ...
-
-Nous sommes présents depuis plus de 10 ans en France, mais également sur tous les continents. Nous 
-souhaitons établir des relations durables avec toujours plus d'utilisateurs. Nous pouvons travailler en 
-direct avec vos services pour une meilleures rapidité de consultation technique (ou parfois un meilleur 
-coût) ou par l'intermédiaire de nos distributeurs régionaux agréés.
-
-Souhaitant que cette information puisse vous être utile pour mener à bien vos réalisations de machines,
-
-Veuillez agréer, Madame, Monsieur, nos respectueuses salutations.
-
-KV FRANCE
-Olivier CHEVALLIER - Directeur commercial
-ZI - Rue de la Résistance
-14400 BAYEUX - FRANCE
-Tel : 02 31 22 22 22 - Fax 02 31 22 22 49
-
-Visitez notre site : http://www.kvglobal.com
+--
+Bhavesh P. Davda
+Avaya, Inc.
+bhavesh@avaya.com
 
 
+diff -aur linux-2.2.21/kernel/sched.c linux-2.2.21-bpd/kernel/sched.c
+--- linux-2.2.21/kernel/sched.c	Sun Mar 25 09:37:40 2001
++++ linux-2.2.21-bpd/kernel/sched.c	Fri Jun 21 09:54:55 2002
+@@ -749,7 +749,16 @@
+ 	/* Default process to select.. */
+ 	next = idle_task(this_cpu);
+ 	c = -1000;
+-	if (prev->state == TASK_RUNNING)
++	/* 
++	 * If a SCHED_RR task has exhausted its time slice, 
++	 * it is at the back of the runqueue, even if it is
++	 * still running. On the other hand, if a SCHED_RR task
++	 * is still running and still has time left in its
++	 * time slice, then it is still the first process in its
++	 * priority band, so it will run next if it is the first
++	 * highest priority SCHED_RR task
++	 */
++	if ((prev->state == TASK_RUNNING) && (prev->policy != SCHED_RR))
+ 		goto still_running;
+ still_running_back:
+ 
+@@ -1492,7 +1501,12 @@
+ 		p->counter -= ticks;
+ 		if (p->counter < 0) {
+ 			p->counter = 0;
+-			p->need_resched = 1;
++			/* SCHED_FIFO is priority preemption, so this is
++			 * not the place to reschedule it
++			 */
++			if (p->policy != SCHED_FIFO) {
++				p->need_resched = 1;
++			}
+ 		}
+ 		if (p->priority < DEF_PRIORITY)
+ 			kstat.cpu_nice += user;
+@@ -1785,8 +1799,6 @@
+ 	retval = 0;
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+-	if (p->next_run)
+-		move_first_runqueue(p);
+ 
+ 	current->need_resched = 1;
 

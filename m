@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUI1OkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267808AbUI1Okp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267810AbUI1OkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 10:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUI1OfW
+	id S267808AbUI1Okp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 10:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUI1OkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 10:35:22 -0400
-Received: from 60.Red-213-97-200.pooles.rima-tde.net ([213.97.200.60]:45194
-	"EHLO marlow.intranet.hisitech.com") by vger.kernel.org with ESMTP
-	id S267866AbUI1Oen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 10:34:43 -0400
-Message-ID: <41597679.7090406@apache.org>
-Date: Tue, 28 Sep 2004 16:34:33 +0200
-From: Santiago Gala <sgala@apache.org>
-Organization: Apache Software Foundation
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040917)
+	Tue, 28 Sep 2004 10:40:12 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:11749 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S267808AbUI1Oix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 10:38:53 -0400
+Message-ID: <41596F7F.1000905@drdos.com>
+Date: Tue, 28 Sep 2004 08:04:47 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.8-rc2-mm4 does not link (PPC)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ankit Jain <ankitjain1580@yahoo.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: processor affinity
+References: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
+In-Reply-To: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ankit Jain wrote:
 
-It looks like a trivial error: a structure used in PCI architecture
-independent code (quirks.c) gets defined (only) in i386 architecture
-(raw_pci_ops). I'm not an expert and cannot help to define this under
-ppc arch:
+Here's a real good description in a patent owned by Novell on the subject.
 
-drivers/built-in.o(.text+0x350a): In function `quirk_pcie_aspm_read':
-: undefined reference to `raw_pci_ops'
-drivers/built-in.o(.text+0x351e): In function `quirk_pcie_aspm_read':
-: undefined reference to `raw_pci_ops'
-drivers/built-in.o(.text+0x3566): In function `quirk_pcie_aspm_write':
-: undefined reference to `raw_pci_ops'
-drivers/built-in.o(.text+0x35a6): In function `quirk_pcie_aspm_write':
-: undefined reference to `raw_pci_ops'
-make: *** [.tmp_vmlinux1] Error 1
+Jeff
 
-I sent a typo for rc2-mm2. Just to report that it never booted after
-the typo was corrected. hard freeze.
+http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=/netahtml/search-bool.html&r=2&f=G&l=50&co1=AND&d=ptxt&s1=merkey.INZZ.&OS=IN/merkey&RS=IN/merkey
 
-Regards
-Santiago
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBWXZ4ZAeG2a2/nhoRAuGTAJ0RKnoCJ6nE2w2/OIrh1j3a2OwZgACcDWSU
-wvvtDnuhiF+jen7KZgWsfrg=
-=AHg8
------END PGP SIGNATURE-----
+>hi
+>
+>what is meant by processor affinity?
+>
+>if somebody know anythiung about it?
+>
+>or tell me the correct mailing list...
+>
+>thanks
+>
+>ankit
+>
+>________________________________________________________________________
+>Yahoo! Messenger - Communicate instantly..."Ping" 
+>your friends today! Download Messenger Now 
+>http://uk.messenger.yahoo.com/download/index.html
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

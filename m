@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSLQIlx>; Tue, 17 Dec 2002 03:41:53 -0500
+	id <S261330AbSLQIrW>; Tue, 17 Dec 2002 03:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbSLQIlx>; Tue, 17 Dec 2002 03:41:53 -0500
-Received: from smtp.wp.pl ([212.77.101.161]:61223 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id <S261322AbSLQIlx>;
-	Tue, 17 Dec 2002 03:41:53 -0500
-Message-ID: <005601c2a5a9$912b8640$110011ac@home.sitech.pl>
-From: "plachninka" <plachninka@wp.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: mkinitrd: binary operator expacted
-Date: Tue, 17 Dec 2002 09:52:01 +0100
+	id <S261353AbSLQIrW>; Tue, 17 Dec 2002 03:47:22 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52751
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261330AbSLQIrV>; Tue, 17 Dec 2002 03:47:21 -0500
+Date: Tue, 17 Dec 2002 00:52:44 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: edward.kuns@rockwellfirstpoint.com, linux-kernel@vger.kernel.org
+Subject: Re: i845PE chipset and 20276 Promise Controller boot failure with
+ 2.4.20-ac2
+In-Reply-To: <200212170646.gBH6kCs16053@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.10.10212170051360.31876-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-ChangeAV: 0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-Can anyone tell me what means following message:
+On Tue, 17 Dec 2002, Denis Vlasenko wrote:
 
-[root@tilda plachnina]# /sbin/mkinitrd initrd-2.4.18-18.7.xsmp.img
-2.4.18-18.7.xsmp
+> On 16 December 2002 21:09, edward.kuns@rockwellfirstpoint.com wrote:
+> > acted exactly the same.  So then I added a bunch of printk's to see
+> > if I could localize where it was hanging and it died immediately
+> > after displaying info about the PIIX driver.
+> 
+> Way to go man! This will save tons of time for IDE folks if everyone
+> who has problems go that far in debugging.
+> If you'll play with printk a bit more, you will find it.
 
-/sbin/mkinitrd: [:
-/lib/modules/2.4.18-18.7.xsmp/./kernel/drivers/scsi/aic7xxx/aic7xxx.o:
-binary operator expected
+Really I am now curious as to when it first showed up.
+This i845 has been a royal pain!
 
-
-I  fight with aic7xxx module since 1 month...
-
-regards
-
-Mariusz Bozewicz
-
+Andre Hedrick
+LAD Storage Consulting Group
 

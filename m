@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261493AbTCZHVj>; Wed, 26 Mar 2003 02:21:39 -0500
+	id <S261498AbTCZHfN>; Wed, 26 Mar 2003 02:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261498AbTCZHVi>; Wed, 26 Mar 2003 02:21:38 -0500
-Received: from sj-core-2.cisco.com ([171.71.177.254]:37603 "EHLO
-	sj-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S261493AbTCZHVi>; Wed, 26 Mar 2003 02:21:38 -0500
-Message-Id: <5.1.0.14.2.20030326182627.0387b1a0@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 26 Mar 2003 18:31:31 +1100
-To: Matt Mackall <mpm@selenic.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: [PATCH] ENBD for 2.5.64
-Cc: Jeff Garzik <jgarzik@pobox.com>, ptb@it.uc3m.es,
-       Justin Cormack <justin@street-vision.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030326055525.GA20244@waste.org>
-References: <3E81132C.9020506@pobox.com>
- <200303252053.h2PKrRn09596@oboe.it.uc3m.es>
- <3E81132C.9020506@pobox.com>
+	id <S261499AbTCZHfN>; Wed, 26 Mar 2003 02:35:13 -0500
+Received: from [12.47.58.111] ([12.47.58.111]:24790 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S261498AbTCZHfM>; Wed, 26 Mar 2003 02:35:12 -0500
+Date: Tue, 25 Mar 2003 23:46:54 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: David van Hoose <davidvh@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66 crashes and lockups (modutils & gdm-binary)
+Message-Id: <20030325234654.4da45b2e.akpm@digeo.com>
+In-Reply-To: <3E8155B1.5000506@cox.net>
+References: <3E8155B1.5000506@cox.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2003 07:46:17.0200 (UTC) FILETIME=[C8942F00:01C2F36B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:55 PM 25/03/2003 -0600, Matt Mackall wrote:
-> > Yeah, iSCSI handles all that and more.  It's a behemoth of a
-> > specification.  (whether a particular implementation implements all that
-> > stuff correctly is another matter...)
+David van Hoose <davidvh@cox.net> wrote:
 >
->Indeed, there are iSCSI implementations that do multipath and
->failover.
+> I never had any problems with any kernel before 2.5.66 (beta or stable) 
+> locking up or crashing.
+> I activated the NMI watchdog and still have been getting some really 
+> massive lockups, but now I'm getting some crash dumps. Attached is a 
+> group of snippets from my /var/log/messages from a couple of bootups.
+> 
+> If any information is needed, just ask.
+> 
 
-iSCSI is a transport.
-logically, any "multipathing" and "failover" belongs in a layer above it -- 
-typically as a block-layer function -- and not as a transport-layer function.
-
-multipathing belongs elsewhere -- whether it be in MD, LVM, EVMS, DevMapper 
--- or in a commercial implementation such as Veritas VxDMP, HDS HDLM, EMC 
-PowerPath, ...
-
->Both iSCSI and ENBD currently have issues with pending writes during
->network outages. The current I/O layer fails to report failed writes
->to fsync and friends.
-
-these are not "iSCSI" or "ENBD" issues.  these are issues with VFS.
-
-
-cheers,
-
-lincoln.
-
+What module is being modprobed at the time of the crash?

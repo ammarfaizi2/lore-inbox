@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319267AbSH2RSq>; Thu, 29 Aug 2002 13:18:46 -0400
+	id <S319272AbSH2R1K>; Thu, 29 Aug 2002 13:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319268AbSH2RSq>; Thu, 29 Aug 2002 13:18:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:34316 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S319267AbSH2RSp>;
-	Thu, 29 Aug 2002 13:18:45 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
-References: <20020829031008.T7920@devserv.devel.redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0208290955280.2070-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Aug 2002 19:23:07 +0200
-In-Reply-To: Linus Torvalds's message of "29 Aug 2002 18:57:01 +0200"
-Message-ID: <p737ki9shok.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S319273AbSH2R1K>; Thu, 29 Aug 2002 13:27:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:52493 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S319272AbSH2R1J>;
+	Thu, 29 Aug 2002 13:27:09 -0400
+Date: Thu, 29 Aug 2002 10:30:14 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: "Mikolaj J. Habryn" <dichro-evo@rcpt.to>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.32 floppy init and misc fixes
+In-Reply-To: <15725.63043.601068.257742@kim.it.uu.se>
+Message-ID: <Pine.LNX.4.33L2.0208291008050.2390-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Thu, 29 Aug 2002, Mikael Pettersson wrote:
 
-> On Thu, 29 Aug 2002, Jakub Jelinek wrote:
-> > 
-> > Well, IMHO at least for the more recent GCC versions kernel
-> > should leave the job to GCC (ie. either just prototype str* functions,
-> > or define them to __builtin_str* variants).
-> 
-> I agree. That x86 strlen() inline is from 1991 with fixes ever after, and 
-> pre-dates gcc having any support for inline at all. We're much more likely 
-> to be better off just removing it these days. Is somebody willing to 
-> compare code quality? I wouldn't be in the least surprised if gcc did a 
-> better job these days..
+| Floppy has many more problems.
+| Repeadedly loading and unloading the floppy.o module corrupts
+| sys_device data structures.
+| Writing to floppy can give ENOSPC errors even though space exists.
+| Writing to floppy can OOPS the kernel due to a NULL pointer error.
+| VFS-over-floppy corrupts data since 2.5.13.
+| Putting lilo on ext2 on floppy can cause a kernel hang due to an
+| infinite loop of "buffer layer error".
+|
+| I have a patch which fixes the {,un}register_sys_device() bugs, NULL
+| queue bug, zero i_size bug, and fixes read/write enough that raw media
+| access (e.g. tar or dd to/from /dev/fd0) works. It's in the 2.5-dj tree,
+| and separately in <http://www.csd.uu.se/~mikpe/linux/patches/2.5/>.
+|
+| I havent' pushed this to Linus since it's meaningless as long as
+| the VFS data corruption exists. It was broken by blkdev/VFS changes,
+| but those responsible haven't yet bothered to repair it.
 
-It does a better job for near all the string.h stuff. x86-64 just uses
-the builtins. Only exception  is memcpy, where it likes to call out of line 
-memcpy when it is not absolutely sure about all the alignments 
-(especally lots of casting causes that) 
+I would add one more: select delay timings are same as in 2.4:
+#define SEL_DLY (2*HZ/100)
+but HZ is not the same as in 2.4...
 
-Still having an empty (or the one from x86-64 ;) string.h should be fine.
+-- 
+~Randy
 
--Andi

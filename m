@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTJ3A5w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 19:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTJ3A5w
+	id S262095AbTJ3AzR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 19:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTJ3AzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 19:57:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:18870 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262101AbTJ3A5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 19:57:48 -0500
-Date: Wed, 29 Oct 2003 16:57:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: "Guo, Min" <min.guo@intel.com>, linux-raid@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Lars Marowsky-Bree <lmb@suse.de>,
-       "Ling, Xiaofeng" <xiaofeng.ling@intel.com>,
-       Mark Bellon <mbellon@mvista.com>, linux-kernel@vger.kernel.org,
-       cgl_discussion@osdl.org, Steven Dake <sdake@mvista.com>
-Subject: Re: [cgl_discussion] Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Message-ID: <20031030005704.GA2143@kroah.com>
-References: <3ACA40606221794F80A5670F0AF15F840215DC2F@pdsmsx403.ccr.corp.intel.com> <20031029190421.GA4173@kroah.com> <20031030003720.GA6000@penguin.co.intel.com>
-Mime-Version: 1.0
+	Wed, 29 Oct 2003 19:55:16 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:22737 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262095AbTJ3AzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 19:55:10 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: trelane@digitasaru.net
+Date: Thu, 30 Oct 2003 11:54:41 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031030003720.GA6000@penguin.co.intel.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16288.24913.844699.956689@notabene.cse.unsw.edu.au>
+Cc: Dax Kelson <dax@gurulabs.com>, Hans Reiser <reiser@namesys.com>,
+       andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: message from Joseph Pingenot on Wednesday October 29
+References: <3F9F7F66.9060008@namesys.com>
+	<20031029224230.GA32463@codepoet.org>
+	<3FA0475E.2070907@namesys.com>
+	<1067466349.3077.274.camel@mentor.gurulabs.com>
+	<20031030002005.GC3094@digitasaru.net>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 29, 2003 at 04:37:20PM -0800, Rusty Lynch wrote:
+On Wednesday October 29, trelane@digitasaru.net wrote:
 > 
-> In the past we experimented with udev, and even did a little work on
-> sysfsutils (which I though udev was using, but looking at udev-005 I still
-> see the libsysfs directory.)
+> Regardless, it's an interesting idea, and one which might be fruitful.  
+> 
+> I give you then two bits: our treatment of the tech and the reality of their
+>   tech:
+> 
+> 00: ISVAPOR | TAKESEROUSLY
+> 01: ISVAPOR | IGNORE
+> 10: NOTVAPOR | TAKESERIOUSLY
+> 11: NOTVAPOR | IGNORE
+> 
+> If we come up with a working implementation and it *is* just vaporware, then
+>   we're ahead.
+> We're way ahead.
+>   
+> If we merely dismiss it as vaporware and it turns out to be,
+> no net change.
+...snip...
+> Conclusion: best to take it seriously and work on it; those two cases
+>   are the most optimal.
+> 
 
-Yes, udev uses libsysfs, and your (Intel's) help on libsysfs is greatly
-appreciated.
+Sounds like the same argument that is used in "Pascal's Wager" for
+belief in God, and I seriously don't think the argument works in
+either case.  (note that I'm not making a statement about the
+conclusion in either case, only about the arguement).
 
-> I see the the TODO list in udev-005.  Are all these items wide open, or have
-> people already spoken for some parts?  Maybe you have a couple of items you 
-> consider higher priority?
-
-Hm, some of those things on the TODO list are already done (latest
-libsysfs, man page, and a few others.)  But no, they are all pretty much
-wide open, feel free to jump in with whatever you feel like helping out
-with.
-
-thanks,
-
-greg k-h
+NeilBrown

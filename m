@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbUBPRNv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 12:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbUBPRNu
+	id S265895AbUBPRJn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 12:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUBPRJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 12:13:50 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:17602 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S265682AbUBPRMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 12:12:08 -0500
-Subject: Re: kthread, signals and PF_FREEZE (suspend)
-From: Christophe Saout <christophe@saout.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>,
-       pavel@suse.cz
-In-Reply-To: <20040216165329.GB17323@mail.shareable.org>
-References: <1076890731.5525.31.camel@leto.cs.pocnet.net>
-	 <20040216034251.0912E2C0F8@lists.samba.org>
-	 <20040216165329.GB17323@mail.shareable.org>
-Content-Type: text/plain
-Message-Id: <1076951524.5881.1.camel@leto.cs.pocnet.net>
+	Mon, 16 Feb 2004 12:09:43 -0500
+Received: from ns.suse.de ([195.135.220.2]:15278 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265895AbUBPRJl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 12:09:41 -0500
+Date: Mon, 16 Feb 2004 20:13:34 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ben Collins <bcollins@debian.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: [PATCH] Disable useless bootmem warning
+Message-Id: <20040216201334.07ab2aa8.ak@suse.de>
+In-Reply-To: <20040216165211.GC2389@phunnypharm.org>
+References: <20040216180028.06402e70.ak@suse.de>
+	<20040216165211.GC2389@phunnypharm.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 16 Feb 2004 18:12:05 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mo, den 16.02.2004 schrieb Jamie Lokier um 17:53:
+On Mon, 16 Feb 2004 11:52:11 -0500
+Ben Collins <bcollins@debian.org> wrote:
 
-> Rusty Russell wrote:
-> > > That means that signal_pending() will return true for that process which
-> > > will make kthread stop the thread.
-> > 
-> > Yes, the way they are currently coded.  I had assumed that spurious
-> > signals do not occur.
+> > I've never seen a bug uncovered by this warning too. I considered to disable it 
+> > by passing a special array of "ok to reserve twice" regions, but on second thought 
+> > it is just best to remove it completely. Reserving things twice is not usually
+> > an error.
 > 
-> Yowch.  Does suspend mean this warning in futex_wait is wrong?
+> I have. When I was working to get sparc64 booting from alternate memory
+> (other than 0x0 physical), those messages helped me a lot.
 > 
-> 	/* A spurious wakeup should never happen. */
-> 	WARN_ON(!signal_pending(current));
-> 	return -EINTR;
+> Maybe make it ifdef'd by CONFIG_DEBUG_BOOTMEM (which is an option that I
+> know sparc and sparc64 already have).
 
-I just tried it on my notebook. It works, no warning.
+That would be fine by me too.  Anything, as long as I don't have to see them ;-)
 
-I don't know how things work exactly. There is some stuff in the arch
-signal.c in do_signal that also handles PF_FREEZE.
+Here's a new patch.
 
+-Andi
 
+diff -u linux-2.6.2-work32/mm/bootmem.c-o linux-2.6.2-work32/mm/bootmem.c
+--- linux-2.6.2-work32/mm/bootmem.c-o	2004-02-11 22:06:58.000000000 +0100
++++ linux-2.6.2-work32/mm/bootmem.c	2004-02-16 20:11:10.000000000 +0100
+@@ -91,8 +91,11 @@
+ 	if (end > bdata->node_low_pfn)
+ 		BUG();
+ 	for (i = sidx; i < eidx; i++)
+-		if (test_and_set_bit(i, bdata->node_bootmem_map))
++		if (test_and_set_bit(i, bdata->node_bootmem_map)) { 
++#ifdef CONFIG_DEBUG_BOOTMEM
+ 			printk("hm, page %08lx reserved twice.\n", i*PAGE_SIZE);
++#endif
++		}
+ }
+ 
+ static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)

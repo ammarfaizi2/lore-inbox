@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266475AbUAIKEo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 05:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUAIKEo
+	id S266478AbUAIKOB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 05:14:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUAIKOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 05:04:44 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:27022 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S266475AbUAIKEm
+	Fri, 9 Jan 2004 05:14:01 -0500
+Received: from w100.z064003144.sjc-ca.dsl.cnc.net ([64.3.144.100]:43489 "EHLO
+	adrian.mariani.ws") by vger.kernel.org with ESMTP id S266478AbUAIKN7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 05:04:42 -0500
-Date: Fri, 9 Jan 2004 12:04:15 +0200 (EET)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Thomas Graham <lkthomas@sml.dyndns.org>
-cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bridge-utils update for 2.6 ?
-In-Reply-To: <2363.192.168.0.97.1073642603.squirrel@sml.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0401091203540.28409@hosting.rdsbv.ro>
-References: <1059.192.168.0.97.1073611363.squirrel@sml.dyndns.org>   
- <3FFE3157.9030307@osdl.org> <2363.192.168.0.97.1073642603.squirrel@sml.dyndns.org>
+	Fri, 9 Jan 2004 05:13:59 -0500
+Message-ID: <3FFE7EE6.5020001@mariani.ws>
+Date: Fri, 09 Jan 2004 02:13:58 -0800
+From: Gianni Mariani <gianni@mariani.ws>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Repost: Possible SMP Race - 2.4.20-8smp - RH9 ?
+References: <3FFAE969.1080302@mariani.ws>
+In-Reply-To: <3FFAE969.1080302@mariani.ws>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Thomas Graham wrote:
-
-> my god, what protocol could I use for STP replacement after it's removed
-> from the kernal code then ?!
-
-The userlevel one. ;)
+Gianni Mariani wrote:
 
 >
-> > Thomas Graham wrote:
-> >
-> >> does anyone know if there have any new update patch for Bridge-utils on
-> >> 2.6.0kernel ?!
-> >> http://bridge.sourceforge.net/download.html <--- this is the web site
-> >
-> > Existing 2.4 kernels work on 2.6, no API changes.
-> > I am planning on an update later when STP is moved out of the kernel.
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+> I'm confident that the test code (cpulat.cpp) is fine.
 >
->
-> --
-> HK Celtic Orchestra leader and coordanator: Thomas Graham Lau
-> Phone number: 852-93239670    (24hours a day, 7days a week non-stop phone)
-> Web site: http://sml.dyndns.org
-> Email: lkthomas@sml.dyndns.org
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Seems like a nasty bug in the kernel to me.  I havn't tried 2.4.24 yet.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+OK - It's probably a nasty bug in the 2.4.20 kernel since I can't 
+reproduce the problem with the 2.4.24 kernel.
+
+
+

@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLKIVN>; Mon, 11 Dec 2000 03:21:13 -0500
+	id <S129523AbQLKIcQ>; Mon, 11 Dec 2000 03:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQLKIVD>; Mon, 11 Dec 2000 03:21:03 -0500
-Received: from nycsmtp3fb.rdc-nyc.rr.com ([24.29.99.80]:28433 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S129345AbQLKIU5>;
-	Mon, 11 Dec 2000 03:20:57 -0500
-Message-ID: <000b01c06346$f8680100$0ac809c0@hotmail.com>
-From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
-To: "Peter Samuelson" <peter@cadcamlab.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <001f01c06323$db434d00$0ac809c0@hotmail.com> <20001211001723.Z6567@cadcamlab.org>
-Subject: Re: Unable to compile the 2.2.18 kernel
-Date: Mon, 11 Dec 2000 02:50:02 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S130216AbQLKIcH>; Mon, 11 Dec 2000 03:32:07 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:7832 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S129523AbQLKIbw>;
+	Mon, 11 Dec 2000 03:31:52 -0500
+Message-ID: <3A34898A.8629587F@alsa-project.org>
+Date: Mon, 11 Dec 2000 09:00:10 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: Richard Henderson <rth@twiddle.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2*PATCH] alpha I/O access and mb()
+In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net> <3A334F7C.3205A3DF@alsa-project.org> <20001210104413.A31257@twiddle.net> <3A33D3A7.FCD55F4@alsa-project.org> <20001210124918.A31383@twiddle.net> <3A33F448.258A731@alsa-project.org> <20001210161955.A31596@twiddle.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  I missed that this time when I modified the Makefile.  I didn't pay
-close attention to the new script code in there to check for the kernel
-compiler.
 
+Before of all I want to publicly apologize with Richard as never my
+intention was to exacerbate him.
 
------ Original Message -----
-From: "Peter Samuelson" <peter@cadcamlab.org>
-To: "Anthony Barbachan" <barbacha@hinako.ambusiness.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Linux Kernel Mailing List"
-<linux-kernel@vger.kernel.org>
-Sent: Monday, December 11, 2000 1:17 AM
-Subject: Re: Unable to compile the 2.2.18 kernel
+> 
+> On Sun, Dec 10, 2000 at 10:23:20PM +0100, Abramo Bagnara wrote:
+> > asm/io.h uses out of line function only when CONFIG_ALPHA_GENERIC is
+> > defined, otherwise it uses (take writel as an example) __raw_writel that
+> > IMHO need to be defined in core_t2.h.
+> 
+> Perhaps you should _show_ an actual failure rather than just guessing.
 
+I've not access to this specific hardware but I was trying to fix the
+alpha case wrt write[bwlq] function as I've had a lot of trouble with
+ALSA drivers and 2.2 (that still now is broken wrt mb() and I've sent a
+patch to Alpha Processor guys). This is the reason why I've given a look
+to 2.4.
 
->
-> [Anthony Barbachan]
-> > I am unable to compile the latest kernel.  I have attached my kernel
-> > configuration and a copy of the output of where the compile fails.  I
-> > am looking into what is causing the compile failure, but have not
-> > been able to figure it out yet.  Still looking though.
->
-> It looks like you overrode the 'CC' make variable, either by editing
-> the toplevel Makefile or at the command line.  This works fine in 2.4,
-> but in 2.2 you need to pass extra flags to the compiler:
->
->   make zImage
-CC="/usr/local/gcc-2.7.2.3/bin/gcc -I$(pwd)/include -D__KERNEL__"
->
-> ...for example.
->
-> Peter
->
+> 
+> You are wildly incorrect asserting that out of line functions are used
+> only with CONFIG_ALPHA_GENERIC.  You should examine
+> 
+> #ifndef __raw_writel
+> # define __raw_writel(v,a)  ___raw_writel((v),(unsigned long)(a))
+> #endif
+> 
+> and suchlike definitions.
 
+Now I understand, thanks.
 
+I see that some core*.h leaves out of line some functions because they
+are more complex than a choosen threshold.
+
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project is            http://www.alsa-project.org
+sponsored by SuSE Linux    http://www.suse.com
+
+It sounds good!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

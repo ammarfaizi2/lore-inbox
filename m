@@ -1,68 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293175AbSBQQba>; Sun, 17 Feb 2002 11:31:30 -0500
+	id <S293647AbSBRELq>; Sun, 17 Feb 2002 23:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293176AbSBQQbV>; Sun, 17 Feb 2002 11:31:21 -0500
-Received: from p5080D25A.dip.t-dialin.net ([80.128.210.90]:16906 "EHLO
-	alpha.bocc.de") by vger.kernel.org with ESMTP id <S293175AbSBQQbL>;
-	Sun, 17 Feb 2002 11:31:11 -0500
-Date: Sun, 17 Feb 2002 17:30:55 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@alpha.bocc.de
-To: Sten <sten@blinkenlights.nl>
-cc: linux-kernel@vger.kernel.org,
-        HP900 PARISC mailing list 
-	<parisc-linux@lists.parisc-linux.org>
-Subject: Re: [parisc-linux] Re: IPv6 Sparc64
-In-Reply-To: <Pine.LNX.4.44-Blink.0202041155020.19625-100000@deepthought.blinkenlights.nl>
-Message-ID: <Pine.LNX.4.43.0202171727570.30347-100000@alpha.bocc.de>
+	id <S293649AbSBRELh>; Sun, 17 Feb 2002 23:11:37 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:269 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S293647AbSBRELd>; Sun, 17 Feb 2002 23:11:33 -0500
+Date: Mon, 18 Feb 2002 01:02:07 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        lkml <linux-kernel@vger.kernel.org>, rsf@us.ibm.com,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: [TEST] page tables filling non-highmem
+In-Reply-To: <E16cd5S-0000Ij-00@starship.berlin>
+Message-ID: <Pine.LNX.4.21.0202180100430.24710-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sten,
 
-On Mon, 4 Feb 2002, Sten wrote:
 
-> On Mon, 4 Feb 2002, Jochen Friedrich wrote:
+On Mon, 18 Feb 2002, Daniel Phillips wrote:
+
+> On February 18, 2002 02:38 am, Andrea Arcangeli wrote:
+> > On Fri, Feb 15, 2002 at 09:59:45AM +0100, Daniel Phillips wrote:
+> > > On February 15, 2002 05:51 am, William Lee Irwin III wrote:
+> > > > The following testcase brought down 2.4.17 mainline on an
+> > > > 8-way P-III 700MHz machine with 12GB of RAM. The last thing
+> > > > logged from it was a LowFree of 2MB with 9GB of highmem free
+> > > > after something like 6-8 hours of pounding away, at which
+> > > > time the machine stopped responding (IIRC it was given ~12
+> > > > hours to echo another character).
+> > > > 
+> > > > This testcase is a blatant attempt to fill the direct-mapped
+> > > > portion of the kernel virtual address space with process pagetables.
+> > > > It was suspected such a thing was happening in another failure scenario
+> > > > which is what motivated me to devise this testcase. I believe a fix
+> > > > already exists (i.e. aa's ptes in highmem stuff) though I've not yet
+> > > > verified its correct operation here.
+> > > 
+> > > As you described it to me on irc, this demonstration turns up a
+> > > considerably worse problem than just having insufficient space for
+> > > page tables - the system locks up hard instead of doing anything
+> > > reasonable on page table-related oom.  It's wrong that the system
+> > > should behave this way, it is after all, just an oom.
+> > > 
+> > > Now that basic stability issues seem to be under control, perhaps
+> > > it's time to give the oom problem the attention it deserves?
+> > 
+> > My tree doesn't lock up hard even without pte-highmem applied.  The task
+> > gets killed.
 > 
-> > > I have been trying to get ipv6 to work
-> > > on sparc64/kernel 2.4 but it looks like it
-> > > is broken somewhere in the kernel.
-> > > I was wondering if this was a known problem.
-> >
-> > > [root@towel ip]# ping6 ::1
-> > > PING ::1(::1) from ::1 : 56 data bytes
-> >
-> > It's the same on PARISC. However, on PARISC, although ping6 doesn't work,
-> > telnet etc do work, as well as pinging the PARISC box from an Intel or
-> > Alpha machine.
+> Well, the obvious question is: Why Isn't It In Mainline???
 > 
-> The reason I ask this is because I have been trying to setup a
-> tunnel, and I cant get it to work either with ifconfig or iproute.
+> > backout pte-highmem, try the same testcase again on my tree
+> > and you'll see. The oom handling in mainline is deadlock prone, I always
+> > known this and that's why I always rejected it. Nobody but me
+> > acklowledged this problem
 > 
-> [root@towel ip]# ip tunnel add blink mode sit remote x.x.x.x dev
-> eth0
-> ioctl: Invalid argument
+> Lots of people acknowleged it, it seems just one guy fixed it.
+> 
+> > and I spent quite an amount of time convincing
+> > mainline maintainers about those deadlock flaws of the mainline approch
+> > but I failed so I giveup waiting for a report like this, just like with
+> > all the other stuff that is now in my vm patch, 90% of it I tried to
+> > push it separately into mainline before having to accumulate it.
+> 
+> What I'd suggest is, just post a list of each item outstanding item that
+> haven't been pushed to mainline, and an explanation of which problem it
+> fixes.
+> 
+> Incorrect oom accounting has been a bleeding wound for well over a year,
+> and if you've got a fix that's provably correct...
+> 
+> Marcelo??  Is this just a stupid communication problem?
 
-At least on PARISC, this turned out to be an glibc issue. With the latest 
-glibc from debian unstable, ping6 is now working OK:
+Andrew talked with me about merging parts of -aa VM into mainline.
 
-# ping6 -n www.kame.net
-PING www.kame.net(3ffe:501:4819:2000:203:47ff:fea5:3257) from 
-3ffe:400:470:4:a00:9ff:fe17:ca3d : 56 data bytes
-64 bytes from 3ffe:501:4819:2000:203:47ff:fea5:3257: icmp_seq=1 ttl=53 
-time=592
-ms
-64 bytes from 3ffe:501:4819:2000:203:47ff:fea5:3257: icmp_seq=2 ttl=53 
-time=609
-ms
-
---- www.kame.net ping statistics ---
-3 packets transmitted, 2 received, 33% loss, time 2022ms
-rtt min/avg/max/mdev = 592.367/601.114/609.862/8.781 ms
- 
-Cheers,
-Jochen
+I guess he will be doing the job during the 2.4.19-pre cycle. Am I right
+Andrew? 
 

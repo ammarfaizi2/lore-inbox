@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbUBXPj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbUBXPj4
+	id S262285AbUBXPqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUBXPqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:39:56 -0500
-Received: from hera.kernel.org ([63.209.29.2]:44166 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262275AbUBXPjy (ORCPT
+	Tue, 24 Feb 2004 10:46:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:54731 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262285AbUBXPq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:39:54 -0500
+	Tue, 24 Feb 2004 10:46:29 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: BOOT_CS
-Date: Tue, 24 Feb 2004 15:39:51 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c1fr87$r2a$1@terminus.zytor.com>
-References: <20040224100530.68794.qmail@web11805.mail.yahoo.com>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Why are 2.6 modules so huge?
+Date: Tue, 24 Feb 2004 16:46:19 +0100
+Message-ID: <yw1x1xokcwfo.fsf@kth.se>
+References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1077637191 27723 63.209.29.3 (24 Feb 2004 15:39:51 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 24 Feb 2004 15:39:51 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 217.28.33.247
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:ndEQHvHjEBkCCKmhejSAd2V5hFU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040224100530.68794.qmail@web11805.mail.yahoo.com>
-By author:    =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-In newsgroup: linux.dev.kernel
-> 
->   The other problem is for the people who want to check the validity
->  of the RAM disk before starting Linux - for instance by checking
->  the CRC32 of the decompressed RAM disk - and stop the boot process
->  before it is too late - i.e. in the bootloader when you can select
->  another kernel version / initrd to load.
->   You cannot place the decompressed initrd at a maximum address before
->  knowing its decompressed size - the address to place it is the max
->  address (or the end of free RAM) minus ramdisk size if I remember
->  correctly. That is working for so long loading the decompressed
->  initrd after few Mb after the last kernel byte (so that the kernel
->  will move it where it wants - no need to move it twice) that I do
->  not remember the details. Did you changed this part?
-> 
+Ian Soboroff <ian.soboroff@nist.gov> writes:
 
-If you absolutely want to do this -- for pretty much no reason -- you
-can either decompress it twice, decompress it to nowhere (after all,
-the kernel will decompress it when it starts) or move it into place
-before starting the kernel.
+> Can anyone help me understand why 2.6-series kernel modules are so
+> huge?
+>
+> 2.6.3/kernel/fs/vfat:
+> total 288
+> -rw-r--r--    1 root     root       289086 Feb 24 10:09 vfat.ko
 
-	-hpa
+My 2.6.3 vfat.ko is 15365 bytes.  Maybe you enabled kernel debugging
+symbols.
+
+-- 
+Måns Rullgård
+mru@kth.se
+

@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263386AbREXFlz>; Thu, 24 May 2001 01:41:55 -0400
+	id <S263379AbREXFlz>; Thu, 24 May 2001 01:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263379AbREXFlf>; Thu, 24 May 2001 01:41:35 -0400
-Received: from nwcst330.netaddress.usa.net ([204.68.23.75]:9862 "HELO
-	nwcst330.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S263402AbREXFlY> convert rfc822-to-8bit; Thu, 24 May 2001 01:41:24 -0400
-Message-ID: <20010524054123.994.qmail@nwcst330.netaddress.usa.net>
+	id <S263382AbREXFlg>; Thu, 24 May 2001 01:41:36 -0400
+Received: from wwcst269.netaddress.usa.net ([204.68.23.14]:27056 "HELO
+	wwcst269.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S263404AbREXFlZ> convert rfc822-to-8bit; Thu, 24 May 2001 01:41:25 -0400
+Message-ID: <20010524054123.19472.qmail@wwcst269.netaddress.usa.net>
 Date: 23 May 2001 23:41:23 MDT
 From: Blesson Paul <blessonpaul@usa.net>
 To: linux-kernel@vger.kernel.org

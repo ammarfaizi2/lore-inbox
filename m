@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288734AbSADT3v>; Fri, 4 Jan 2002 14:29:51 -0500
+	id <S288726AbSADTdV>; Fri, 4 Jan 2002 14:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288732AbSADT3l>; Fri, 4 Jan 2002 14:29:41 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:1192 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S288729AbSADT3f>;
-	Fri, 4 Jan 2002 14:29:35 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A5A@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Bernd Eckenfels'" <usenet2001-12@lina.inka.de>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Two hdds on one channel - why so slow?
-Date: Fri, 4 Jan 2002 11:29:17 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S288732AbSADTdM>; Fri, 4 Jan 2002 14:33:12 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:1666 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S288726AbSADTdI>;
+	Fri, 4 Jan 2002 14:33:08 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 4 Jan 2002 19:32:34 GMT
+Message-Id: <UTC200201041932.TAA226337.aeb@cwi.nl>
+To: Nikita@Namesys.COM, jgarzik@mandrakesoft.com
+Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
+Cc: alessandro.suardi@oracle.com, andries.brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because Firewire is Consumer electronics and nearly dead. Dont now of
-> Enterpise Solutions with Firewire. Besides there is no 
-> switching support for it.
+> (I suggested having init_special_inode taking a kdev_t argument as its
+> third arg, but viro yelled at me :))
 
-Also the bandwidth differences :
+Yes. If you think that a kdev_t is a pointer to a struct with
+device information, then having a kdev_t there is wrong,
+because a special device node can have arbitrary major,minor
+not necessarily belonging to any device, so rdev should just
+have the numbers.
 
-Firewire (Generation 1, what you can get now) is 400Mbit/s
-FC Gen 1 is 100MByte/s
-Gen 2 is 200MByte/s
-(OK, I know those last two numbers are right, but I don't
-know what the NAMES of the standards are :)
-
-Firewire isn't even supposed to be in the same league! :)
-
-Dana Lacoste
-Ottawa, Canada
+Andries

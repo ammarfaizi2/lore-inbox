@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbTAPKDj>; Thu, 16 Jan 2003 05:03:39 -0500
+	id <S266078AbTAPKSo>; Thu, 16 Jan 2003 05:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbTAPKDi>; Thu, 16 Jan 2003 05:03:38 -0500
-Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:5512 "EHLO
-	columba.www.eur.3com.com") by vger.kernel.org with ESMTP
-	id <S265987AbTAPKDi>; Thu, 16 Jan 2003 05:03:38 -0500
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+	id <S266081AbTAPKSo>; Thu, 16 Jan 2003 05:18:44 -0500
+Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:9927 "EHLO
+	mail.et6.tu-harburg.de") by vger.kernel.org with ESMTP
+	id <S266078AbTAPKSn>; Thu, 16 Jan 2003 05:18:43 -0500
+Subject: Promise SuperTrak SX6000 w/ kernel 2.4.20
+From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
 To: linux-kernel@vger.kernel.org
-cc: raul@pleyades.net
-Message-ID: <80256CB0.00381BB6.00@notesmta.eur.3com.com>
-Date: Thu, 16 Jan 2003 10:12:23 +0000
-Subject: Re: Changing argv[0] under Linux.
+Content-Type: text/plain
+Organization: Technical University Hamburg-Harburg
+Message-Id: <1042712859.14520.39.camel@antares.et6.tu-harburg.de>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 16 Jan 2003 11:27:39 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+we are using a Promise SuperTrak RAID controller together with the
+integrated i2o-drivers in the linux kernel 2.4.18. Everything works fine
+so far.
 
-> Any suggestion on how to get the binary name from the core image?
+Now we wanted to upgrade to kernel 2.4.20. Configuration was unchanged.
+But now the system hangs at boot time:
 
-How about:
+When the IDE driver is loaded, it finds the system disk /dev/hda just
+like before. But with 2.4.20 the IDE driver also finds disks /dev/hde,
+/dev/hdf and so on which belong to the raid system. At this point many
+"interrupt lost" messages appear on the screen and the system hangs. It
+never gets far enough to load i2o.
 
-exec("/proc/self/exe", ...)
+Any ideas?
 
-I found something like this handy when writing an self extracting compressed
-executable a while ago.
+Thanks,
 
-     Jon
-
+Sebastian
 

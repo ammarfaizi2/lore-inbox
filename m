@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
+	id <S263342AbTBNR6S>; Fri, 14 Feb 2003 12:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261645AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:31616 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261581AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
-Date: Fri, 14 Feb 2003 19:03:20 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Larry Hileman <LHileman@snapappliance.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about 48 bit IDE on 2.4.18 kernel
-Message-ID: <20030214180320.GG200@louise.pinerecords.com>
-References: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
+	id <S264001AbTBNR6S>; Fri, 14 Feb 2003 12:58:18 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:61140 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id <S263342AbTBNR6R>;
+	Fri, 14 Feb 2003 12:58:17 -0500
+Subject: Re: modutils that works with 2.4 and 2.5?
+From: Dax Kelson <dax@gurulabs.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030214060024.GC9578@actcom.co.il>
+References: <1045162343.1311.7.camel@mentor> 
+	<20030214060024.GC9578@actcom.co.il>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Feb 2003 11:12:03 -0700
+Message-Id: <1045246324.1301.1.camel@mentor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [LHileman@snapappliance.com]
+On Thu, 2003-02-13 at 23:00, Muli Ben-Yehuda wrote:
+> On Thu, Feb 13, 2003 at 11:52:23AM -0700, Dax Kelson wrote:
+> > Does such a thing exist?
+> > 
+> > I would like to help out testing 2.5, but I need to still use 2.4 as
+> > well.
 > 
-> Moving to 2.4.20/21 is a large effort here.  If I need to implement
-> the larger drives in 2.4.18, I'd like to make sure that this
-> has not already been done and that I have the latest code.
+> Rusty's modutils package maintains the old modutils binaries and falls
+> back to them if it discovers that you're running a 2.4 system.
 
-Well, the patches to the IDE layer in patch-2.4.19 & patch-2.4.20
-are both relatively numerous and large, but should still be quite
-straightforward to extract, given you're good with various diff
-utils.  The block layer changes that Alan mentions will be minimal
-and probably easy to trace.
+Does it do this discovery at install time, or at each boot?
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+
+

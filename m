@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262817AbSJFAB4>; Sat, 5 Oct 2002 20:01:56 -0400
+	id <S262815AbSJFABq>; Sat, 5 Oct 2002 20:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262818AbSJFAB4>; Sat, 5 Oct 2002 20:01:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12040 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262817AbSJFABz>; Sat, 5 Oct 2002 20:01:55 -0400
-Date: Sat, 5 Oct 2002 17:09:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Peter Osterlund <petero2@telia.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-In-Reply-To: <m2r8f47af4.fsf@p4.localdomain>
-Message-ID: <Pine.LNX.4.44.0210051659530.1587-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262817AbSJFABq>; Sat, 5 Oct 2002 20:01:46 -0400
+Received: from holomorphy.com ([66.224.33.161]:61651 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262815AbSJFABp>;
+	Sat, 5 Oct 2002 20:01:45 -0400
+Date: Sat, 5 Oct 2002 17:05:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, akpm@zip.com.au
+Subject: 2.5.40 snapshot ia32 discontig compilefix
+Message-ID: <20021006000533.GE12432@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@zip.com.au
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Encountered while attempting to compile a recent snapshot.
+MAP_NR_DENSE() is not currently used so either of ->spanned_pages
+or ->present_pages would be acceptable, and they should hopefully be
+identical -- if not so, then other setup code is incorrect.
 
-On 6 Oct 2002, Peter Osterlund wrote:
->
-> My PCMCIA network card no longer works. During boot, I see this
-> message:
-> 
->         ds: no socket drivers loaded
-> 
-> It worked in 2.5.39. Also this patch helps, although I don't
-> understand why it is now needed:
+akpm, I'm not sure of the state of your pending queue, so if this is
+already fixed there just ignore it.
 
-The PCMCIA code does initializations in the wrong order, and
-asynchronously (ie from multiple different threads). And init_pcmcia_ds()  
-really depends on the actual low-level drivers having had time to
-register, since the PCMCIA code never had any sane way to inform the DS 
-layer that a new client driver had registered. 
 
-Thus the delay by init_pcmcia_ds() - to give time for drivers to 
-initialize. And the yenta driver needs some time.. That time apparently 
-went up a bit, probably due to the tq/work changes.
+Bill
 
-The _right_ thing to do is to not have init_pcmcia_ds() depend on 
-low-level drivers being initialized, but instead do that DS thing 
-_early_, and then when each driver initializes it would tell the DS layer. 
-But that's not how the PCMCIA code was organized..
-
-		Linus
-
+--- linux-old/arch/i386/mm/discontig.c	Thu Sep 19 14:26:01 2002
++++ linux-wli/arch/i386/mm/discontig.c	Sat Oct  5 16:54:46 2002
+@@ -258,7 +258,7 @@
+ 		unsigned long node_pfn, node_high_size, zone_start_pfn;
+ 		struct page * zone_mem_map;
+ 		
+-		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].size;
++		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].spanned_pages;
+ 		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
+ 		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_pfn;
+ 

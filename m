@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263386AbTJUU6x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbTJUU6q
+	id S263431AbTJUVEv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTJUVEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:58:46 -0400
-Received: from mail.kroah.org ([65.200.24.183]:62627 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263387AbTJUU6O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:58:14 -0400
-Date: Tue, 21 Oct 2003 13:56:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
-       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
-Subject: Re: [ANNOUNCE] udev 003 release
-Message-ID: <20031021205653.GA2374@kroah.com>
-References: <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com> <1066696767.10221.164.camel@nosferatu.lan> <20031021005025.GA28269@kroah.com> <1066698679.10221.178.camel@nosferatu.lan> <20031021024322.GA29643@kroah.com> <1066707482.10221.243.camel@nosferatu.lan> <20031021174426.GA1497@kroah.com> <1066767647.11872.152.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1066767647.11872.152.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Oct 2003 17:04:50 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25860 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263431AbTJUVEs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 17:04:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Circular Convolution scheduler
+Date: 21 Oct 2003 20:54:46 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bn46em$j0d$1@gatekeeper.tmr.com>
+References: <bn3ur5$htf$1@gatekeeper.tmr.com> <Pine.LNX.4.53.0310211607110.19990@chaos>
+X-Trace: gatekeeper.tmr.com 1066769686 19469 192.168.12.62 (21 Oct 2003 20:54:46 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 10:20:47PM +0200, Martin Schlemmer wrote:
-> > > Also, I am using ramfs for now to do the device nodes, and have not
-> > > looked at minimal /dev layout, although I guess it is not that minimal,
-> > > as even the input drivers lack udev (sysfs) support currently it seems.
-> > > Wat was the last eta for initramfs again ?
-> > 
-> > initramfs is in the kernel, you use it to boot already :)
-> > 
-> 
-> OK ... I do though remember you saying it should be possible to have
-> initramfs get the initial /dev going ... any docs on that ?
+In article <Pine.LNX.4.53.0310211607110.19990@chaos>,
+Richard B. Johnson <root@chaos.analogic.com> wrote:
+| On Tue, 21 Oct 2003, bill davidsen wrote:
 
-Other than the source in the kernel, no, sorry.
+| Isn't scheduling something that's supposed to
+| be deterministic? I think your "nice marketing
+| name that sounds very technical" scheduler would
+| put policy in absolutely the wrong place.
 
-greg k-h
+Well the circular... is certainly not in any way mine, although I find
+it interesting. I think that using policy to produce a deterministic
+result is just what you get by tuning any scheduler, from Ingo, Con,
+Nick, or anyone else. Putting the bias in the algorithm is another way
+to do it, assuming that's what you meant.
+
+| We need less heuristics in the kernel, not more.
+| Already, we don't know anything about the time
+| necessary to guarantee much of anything. This
+| impacts data-base programs that are trying to
+| find safe intervals, guaranteed to be restartable.
+| 
+| Also, the "circular convolution theorem", from
+| which I would guess the name was scrounged, does
+| not relate in any imaginable way to kernel scheduling.
+| The name is a misnomer when used in this context.
+| That theorem states simply that what can be done
+| with a DFT can be undone using the same mechanism.
+
+Don't expect me to defend it, not my idea. I hold that the next major
+advance will come from having VM, elevator, and scheduler all sharing
+hints, but I have no proposal on that, by any name.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

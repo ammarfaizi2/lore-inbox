@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263934AbTJ1LKM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 06:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTJ1LKM
+	id S263923AbTJ1K7r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 05:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbTJ1K7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 06:10:12 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:31136 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S263934AbTJ1LKH
+	Tue, 28 Oct 2003 05:59:47 -0500
+Received: from not.theboonies.us ([66.139.79.224]:15325 "EHLO
+	not.theboonies.us") by vger.kernel.org with ESMTP id S263923AbTJ1K7p
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 06:10:07 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: status of ipchains in 2.6?
-Date: Tue, 28 Oct 2003 11:10:05 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bnliqd$sq6$1@news.cistron.nl>
-References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com> <20031028015032.734caf21.davem@redhat.com>
-Mime-Version: 1.0
+	Tue, 28 Oct 2003 05:59:45 -0500
+Message-ID: <1067342997.3f9e5c95beefb@mail.theboonies.us>
+Date: Tue, 28 Oct 2003 06:09:57 -0600
+To: linux-kernel@vger.kernel.org
+Subject: gcc 3.2+ alignment issue with 2.6 kernel (was Re: 2.6.0-test6 + fb
+	patch = dead PowerBook)
+References: <1067021062.3f9973069378a@mail.theboonies.us>
+	<1067035133.3f99a9fd94647@mail.theboonies.us>
+In-Reply-To: <1067035133.3f99a9fd94647@mail.theboonies.us>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1067339405 29510 62.216.29.200 (28 Oct 2003 11:10:05 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 193.224.42.5
+From: David Eger <random-temp_addy-1067947802.46b228@theboonies.us>
+X-Delivery-Agent: TMDA/0.84 (Tim Tam)
+X-Primary-Address: random@theboonies.us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031028015032.734caf21.davem@redhat.com>,
-David S. Miller <davem@redhat.com> wrote:
->linux-kernel is always the wrong place to report networking
->problems, most networking developers do not read linux-kernel.
->They do read netdev@oss.sgi.com so please post things there.
+FYI:
 
-netdev@oss.sgi.com doesn't have an official webpage anywhere
-to tell you that it even exists. No info on how to subscribe
-or what the rules of the list are.
+My issue seems to be a bad interaction of new versions of gcc (me gcc-3.2.3, him
+gcc-3.3.1) with alignments in the kernel.  My problems have gone away with the
+following patch presented on linuxppc-dev by Sam Ravnborg.  I do not know if
+other platforms are affected, so similar patches might be needed elsewhere.
 
-On http://oss.sgi.com/ the netdev list is not mentioned at all.
+Why this misalignment would turn my machine into a brick even through reboots...
+I do not know. 
 
-I can't find a mailinglist archive of netdev.
+-Eger David
 
-I'd like to read netdev but I'm not sure to subscribe since
-as I said info on it is basically non-existing.
 
-Perhaps SGI could create a "netdev" page somewhere on
-oss.sgi.com, link to it from "projects lists" or "newsgroups
-and mailinglists", and resurrect the archive ? Please ?
+===== arch/ppc/kernel/vmlinux.lds.S 1.24 vs edited =====
+--- 1.24/arch/ppc/kernel/vmlinux.lds.S Fri Sep 12 18:26:52 2003
++++ edited/arch/ppc/kernel/vmlinux.lds.S Sun Oct 12 20:17:25 2003
+@@ -47,13 +47,17 @@
 
-Mike.
+.fixup : { *(.fixup) }
+
+- __start___ex_table = .;
+- __ex_table : { *(__ex_table) }
+- __stop___ex_table = .;
++ __ex_table : {
++ __start___ex_table = .;
++ *(__ex_table)
++ __stop___ex_table = .;
++ }
+
+- __start___bug_table = .;
+- __bug_table : { *(__bug_table) }
+- __stop___bug_table = .;
++ __bug_table : {
++ __start___bug_table = .;
++ *(__bug_table)
++ __stop___bug_table = .;
++ }
+
+/* Read-write section, merged into data segment: */
+. = ALIGN(4096);
 

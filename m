@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265076AbTIJAXo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 20:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTIJAXo
+	id S265090AbTIJA1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 20:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIJA1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 20:23:44 -0400
-Received: from gprs150-72.eurotel.cz ([160.218.150.72]:4992 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265076AbTIJAXm (ORCPT
+	Tue, 9 Sep 2003 20:27:22 -0400
+Received: from gprs150-72.eurotel.cz ([160.218.150.72]:6272 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265090AbTIJA1V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 20:23:42 -0400
-Date: Wed, 10 Sep 2003 02:19:56 +0200
+	Tue, 9 Sep 2003 20:27:21 -0400
+Date: Wed, 10 Sep 2003 02:27:10 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: Patrick Mochel <mochel@osdl.org>
 Cc: Linux usb mailing list <linux-usb-devel@lists.sourceforge.net>,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: Driver model problems in -test5: usb this time
-Message-ID: <20030910001955.GF217@elf.ucw.cz>
+Subject: Re: Driver model problems in -test5: usb this time
+Message-ID: <20030910002709.GG217@elf.ucw.cz>
 References: <20030909230118.GF211@elf.ucw.cz> <Pine.LNX.4.44.0309091628000.695-100000@cherise>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -39,43 +39,11 @@ Hi!
 > narrow down which patch causes the problem or verify that it appears on a 
 > standard kernel release.
 
-Here's patch that should fix it. [First part of first hunk defitely
-triggered twice during suspend, and made machine survive that.] Please
-apply,
-
-									Pavel
-
---- clean/drivers/usb/core/usb.c	2003-09-09 12:45:35.000000000 +0200
-+++ linux/drivers/usb/core/usb.c	2003-09-10 02:16:10.000000000 +0200
-@@ -1429,9 +1429,11 @@
- 		return 0;
- 
- 	intf = to_usb_interface(dev);
-+	if (!dev->driver)
-+		return 0;
- 	driver = to_usb_driver(dev->driver);
- 
--	if (driver && driver->suspend)
-+	if (driver->suspend)
- 		return driver->suspend(intf, state);
- 	return 0;
- }
-@@ -1446,9 +1448,11 @@
- 		return 0;
- 
- 	intf = to_usb_interface(dev);
-+	if (!dev->driver)
-+		return 0;
- 	driver = to_usb_driver(dev->driver);
- 
--	if (driver && driver->resume)
-+	if (driver->resume)
- 		return driver->resume(intf);
- 	return 0;
- }
-
-
-
+To follow up myself, patch attached to message sent about 5 minutes
+ago indeed fixes the oops. [USB still does not survive suspend/resume,
+but at least the kernel survives. Probably pm_send_all() stuff needs
+to be cleaned up before USB can be fixed.]
+								Pavel
 -- 
 When do you have a heart between your knees?
 [Johanka's followup: and *two* hearts?]

@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTJFABb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 20:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbTJFABb
+	id S263906AbTJFAKW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 20:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263907AbTJFAKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 20:01:31 -0400
-Received: from glangrak.cable.icemark.net ([62.2.156.54]:36571 "EHLO
-	glangrak.internal.icemark.net") by vger.kernel.org with ESMTP
-	id S263902AbTJFAB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 20:01:28 -0400
-Date: Mon, 6 Oct 2003 02:01:26 +0200 (CEST)
-From: beh@icemark.net
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.5/2.6 keyboard issues  (was: Linux 2.5 (>>2.5.62)/2.6 keyboard
- oddity)
-Message-ID: <Pine.LNX.4.58.0310060145100.946@berenium.icemark.net>
+	Sun, 5 Oct 2003 20:10:22 -0400
+Received: from EPRONET.01.dios.net ([65.222.230.105]:16514 "EHLO
+	mail.eproinet.com") by vger.kernel.org with ESMTP id S263906AbTJFAKR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 20:10:17 -0400
+Date: Sun, 5 Oct 2003 19:37:42 -0400 (EDT)
+From: "Mark W. Alexander" <slash@dotnetslash.net>
+To: Matthias Urlichs <smurf@smurf.noris.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5 & test6 cd burning/scheduler/ide-scsi.c bug
+In-Reply-To: <pan.2003.10.04.15.19.41.905451@smurf.noris.de>
+Message-ID: <Pine.LNX.4.44.0310051928440.25623-100000@llave.eproinet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 4 Oct 2003, Matthias Urlichs wrote:
 
-I have tried to find out something more regarding the keyboard
-oddity I mentioned in an earlier thread. For that cause, I have
-compiled a number of kernels between 2.5.62 (the one that used to
-work) and 2.6.0-test6 (the one causing the problems) in order to
-find out, where those issues started...
+> Hi, Zwane Mwaikambo wrote:
+> 
+> >>  This is my first bug submission, so please have patience with my noobness :)
+> > 
+> > The general consensus is that you should be using the direct ATAPI 
+> > interface for cd-writing in 2.6.
+> 
+> That doesn't change the fact that programs which worked perfectly well
+> under 2.4.xx now hang, instead of either working perfectly ;-) or getting
+> hit with an error, or at least a deprecation warning.
 
-Now I can definitely nail these problems down to a specific kernel
-version: the problem first appeared in 2.5.65 (2.5.64 works; 2.5.65
-displays the same keyboard problem, that also shows up in
-2.6.0-test6; also those kernels tested between 2.5.65 and
-2.6.0-test6 all show the same problems).
+The first problem is that those applications need to be notified that
+"the times, they are a changin'." I suggest you submit bug reports to
+them so they can at least fail hard and be given time to prepare for
+the 2.6 way.
 
-Unfortunately, I don't know much about kernel hacking - a quick
-glance into patch-2.5.65 did not seem to change any keyboard
-related code (no files in drives/input/keyboard changed in that
-release)...
+Second, it would be helpfull if somewhere in Documentation there was a
+list of applications and what levels support the direct ATAPI
+interface. I, too, am keeping ide_scsi arround. Sometimes I can play
+DVD's without it, sometimes I have to manually futz with what modules
+are loaded to get it to work without it, sometime I just can't get it
+to work with out it. I suspect it's the arbitrary sequence of things I
+do that hit the CD and I'm basicaly doing battle with the kernel
+module loader.
 
+In a nutshell, if I knew which application revs supported the ATAPI
+interface I'd go get them and just be done with it.
 
-Any clue, which changes in 2.5.65 could have introduced the
-keyboard problems?
+mwa
+-- 
+Mark W. Alexander
+slash@dotnetslash.net
 
-(Or - is there maybe a new configuration option, that would need to
-be set for the keyboard to operate properly in later kernels?)
-
-
-
-
-    Benedikt
-
-
-PATRIOT, n.  One to whom the interests of a part seem superior to those
-       of the whole.  The dupe of statesmen and the tool of conquerors.
-			(Ambrose Bierce, The Devil's Dictionary)

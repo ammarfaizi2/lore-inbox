@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265923AbSKFSMn>; Wed, 6 Nov 2002 13:12:43 -0500
+	id <S265932AbSKFS31>; Wed, 6 Nov 2002 13:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265922AbSKFSMm>; Wed, 6 Nov 2002 13:12:42 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:20210 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265921AbSKFSMk>;
-	Wed, 6 Nov 2002 13:12:40 -0500
-MIME-Version: 1.0
+	id <S265946AbSKFS31>; Wed, 6 Nov 2002 13:29:27 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:20986 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S265932AbSKFS30>;
+	Wed, 6 Nov 2002 13:29:26 -0500
+Date: Wed, 6 Nov 2002 19:36:03 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: xmb <xmb@kick.sytes.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question about switching to a fresh kernel tree
+Message-ID: <20021106183602.GC5219@pasky.ji.cz>
+Mail-Followup-To: xmb <xmb@kick.sytes.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <2147483647.1036611045@[192.168.1.2]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15817.23845.227983.58235@napali.hpl.hp.com>
-Date: Wed, 6 Nov 2002 10:19:17 -0800
-From: David Mosberger <davidm@napali.hpl.hp.com>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: [patch] let binfmt_misc optionally preserve argv[1]
-Reply-to: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <2147483647.1036611045@[192.168.1.2]>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Dear diary, on Wed, Nov 06, 2002 at 07:30:45PM CET, I got a letter,
+where xmb <xmb@kick.sytes.net> told me, that...
+> Yo,
+> 
+> to switch to a completly new and fresh kernel src tree, but using the old 
+> configs... would it be enough to copy the old .config and Makefile to the 
+> new tree
 
-Below is a patch which makes it possible for binfmt_misc to optionally
-preserve the contents of argv[1].  This is needed for building
-accurate simulators which are invoked via binfmt_misc.  I had brought
-up this patch a while ago (see URL below) and there was no negative
-feedback (OK, there was no feedback at all... ;-).
+Copy the .config and then do make oldconfig in the new tree. README could be
+interesting reading for you, BTW ;-).
 
-The patch is trivial and the new behavior is triggered only if the
-letter "P" (for "preserve") is appended to the binfmt_misc
-registration string, so it shold be completely safe.
-
-Thanks,
-
-	--david
-
-http://groups.google.com/groups?q=mosberger+binfmt_misc&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=200209092241.g89MfPS5001013%40napali.hpl.hp.com&rnum=1
-
-diff -Nru a/fs/binfmt_misc.c b/fs/binfmt_misc.c
---- a/fs/binfmt_misc.c	Tue Sep 24 22:09:20 2002
-+++ b/fs/binfmt_misc.c	Tue Sep 24 22:09:20 2002
-@@ -36,6 +36,7 @@
- static int enabled = 1;
+-- 
  
- enum {Enabled, Magic};
-+#define MISC_FMT_PRESERVE_ARGV0 (1<<31)
- 
- typedef struct {
- 	struct list_head list;
-@@ -124,7 +125,9 @@
- 	bprm->file = NULL;
- 
- 	/* Build args for interpreter */
--	remove_arg_zero(bprm);
-+	if (!(fmt->flags & MISC_FMT_PRESERVE_ARGV0)) {
-+		remove_arg_zero(bprm);
-+	}
- 	retval = copy_strings_kernel(1, &bprm->filename, bprm);
- 	if (retval < 0) goto _ret; 
- 	bprm->argc++;
-@@ -289,6 +292,11 @@
- 	*p++ = '\0';
- 	if (!e->interpreter[0])
- 		goto Einval;
-+
-+	if (*p == 'P') {
-+		p++;
-+		e->flags |= MISC_FMT_PRESERVE_ARGV0;
-+	}
- 
- 	if (*p == '\n')
- 		p++;
+				Petr "Pasky" Baudis
+.
+This host is a black hole at HTTP wavelengths. GETs go in, and nothing
+comes out, not even Hawking radiation.
+                -- Graaagh the Mighty on rec.games.roguelike.angband
+.
+Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

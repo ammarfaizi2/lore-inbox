@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUBRAJT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266544AbUBRAJR
+	id S266883AbUBRAVz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265908AbUBRATl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:09:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63693 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266775AbUBRAIn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:08:43 -0500
-Date: Wed, 18 Feb 2004 00:08:42 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Alex Belits <abelits@phobos.illtel.denver.co.us>,
-       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
-Message-ID: <20040218000842.GT8858@parcelfarce.linux.theplanet.co.uk>
-References: <1077021379.6605.42.camel@ulysse.olympe.o2t> <Pine.LNX.4.58.0402171135180.10406@es1840.belits.com> <200402172256.30397.robin.rosenberg.lists@dewire.com>
+	Tue, 17 Feb 2004 19:19:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25306 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265925AbUBRARr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:17:47 -0500
+Date: Tue, 17 Feb 2004 16:19:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: paulmck@us.ibm.com
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-Id: <20040217161929.7e6b2a61.akpm@osdl.org>
+In-Reply-To: <20040217124001.GA1267@us.ibm.com>
+References: <20040216190927.GA2969@us.ibm.com>
+	<20040217073522.A25921@infradead.org>
+	<20040217124001.GA1267@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402172256.30397.robin.rosenberg.lists@dewire.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 10:56:30PM +0100, Robin Rosenberg wrote:
-> 
-> Again users want characters, not bytes. Here up in the north we are among the
-> lucky ones that can still read a partially unlegible file name, because enough many
-> characters are usually just ascii. If a name was encoded in SJIS and you see them
-> interpreted as UTF-8 you'll a a string of pure garbage and you need to ask a bit
-> twiddler for help in decoding it simply becase ASCII characters are not likely to be
-> among the characters.
+"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+>
+> IBM shipped the promised SAN Filesystem some months ago.
 
-What I see is a string of pure garbage _here_.  On l-k.  Large part of that
-garbage obviously coming from kooks with agenda.  Could we please take that
-shite to more appropriate place?  Alt.sex.encodings.byte.byte.byte, whatever.
+Neat, but it's hard to see the relevance of this to your patch.
+
+I don't see any licensing issues with the patch because the filesystem
+which needs it clearly meets Linus's "this is not a derived work" criteria.
+
+And I don't see a technical problem with the export: given that we export
+truncate_inode_pages() it makes sense to also export the corresponding
+pagetable shootdown function.
+
+Yes, this is a sensitive issue.  Can we please evaluate it strictly
+according to technical and licensing considerations?
+
+Having said that, what concerns issues remain with Paul's patch?
+
+Thanks.

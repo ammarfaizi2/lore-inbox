@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbULWAh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbULWAjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbULWAh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 19:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbULWAh0
+	id S262107AbULWAjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 19:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbULWAia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 19:37:26 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13581 "HELO
+	Wed, 22 Dec 2004 19:38:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14861 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262091AbULWAhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 19:37:04 -0500
-Date: Thu, 23 Dec 2004 01:37:01 +0100
+	id S262096AbULWAhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 19:37:10 -0500
+Date: Thu, 23 Dec 2004 01:37:07 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] char/pcmcia/synclink_cs.: make some functions static (fwd)
-Message-ID: <20041223003701.GB5217@stusta.de>
+Cc: R.E.Wolff@BitWizard.nl, io8-linux@specialix.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/specialix.c: misc cleanups (fwd)
+Message-ID: <20041223003707.GD5217@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,133 +31,185 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Sun, 5 Dec 2004 18:10:47 +0100
+Date:	Sun, 5 Dec 2004 18:16:04 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] char/pcmcia/synclink_cs.: make some functions static
+To: R.E.Wolff@BitWizard.nl
+Cc: io8-linux@specialix.co.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/specialix.c: misc cleanups
 
-[ first mail included the wrong patch ]
-
-The patch below makes some needlessly global functions static.
+The patch below includes cleanups including the following:
+- remove the unused global function specialix_setup
+- merge specialix_init_module into specialix_init
+- rename specialix_exit_module to specialix_exit
+- make some needlessly global code static
 
 
 diffstat output:
- drivers/char/pcmcia/synclink_cs.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/char/specialix.c |   91 +++++++++++----------------------------
+ 1 files changed, 27 insertions(+), 64 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/char/pcmcia/synclink_cs.c.old	2004-11-07 00:36:23.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/pcmcia/synclink_cs.c	2004-11-07 00:39:15.000000000 +0100
-@@ -923,7 +923,7 @@
- /* Return next bottom half action to perform.
-  * or 0 if nothing to do.
+--- linux-2.6.10-rc1-mm3-full/drivers/char/specialix.c.old	2004-11-07 00:55:20.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/specialix.c	2004-11-07 01:37:43.000000000 +0100
+@@ -315,7 +315,7 @@
+ 
+ 
+ /* Set the IRQ using the RTS lines that run to the PAL on the board.... */
+-int sx_set_irq ( struct specialix_board *bp)
++static int sx_set_irq ( struct specialix_board *bp)
+ {
+ 	int virq;
+ 	int i;
+@@ -379,7 +379,7 @@
+ }
+ 
+ 
+-int read_cross_byte (struct specialix_board *bp, int reg, int bit)
++static int read_cross_byte (struct specialix_board *bp, int reg, int bit)
+ {
+ 	int i;
+ 	int t;
+@@ -878,7 +878,7 @@
+  *  Routines for open & close processing.
   */
--int bh_action(MGSLPC_INFO *info)
-+static int bh_action(MGSLPC_INFO *info)
+ 
+-void turn_ints_off (struct specialix_board *bp)
++static void turn_ints_off (struct specialix_board *bp)
  {
- 	unsigned long flags;
- 	int rc = 0;
-@@ -1017,7 +1017,7 @@
+ 	if (bp->flags & SX_BOARD_IS_PCI) {
+ 		/* This was intended for enabeling the interrupt on the
+@@ -889,7 +889,7 @@
+ 	(void) sx_in_off (bp, 0); /* Turn off interrupts. */
  }
  
- /* eom: non-zero = end of frame */ 
--void rx_ready_hdlc(MGSLPC_INFO *info, int eom) 
-+static void rx_ready_hdlc(MGSLPC_INFO *info, int eom) 
+-void turn_ints_on (struct specialix_board *bp)
++static void turn_ints_on (struct specialix_board *bp)
  {
- 	unsigned char data[2];
- 	unsigned char fifo_count, read_count, i;
-@@ -1079,7 +1079,7 @@
- 	issue_command(info, CHA, CMD_RXFIFO);
- }
- 
--void rx_ready_async(MGSLPC_INFO *info, int tcd) 
-+static void rx_ready_async(MGSLPC_INFO *info, int tcd) 
- {
- 	unsigned char data, status;
- 	int fifo_count;
-@@ -1153,7 +1153,7 @@
+ 	if (bp->flags & SX_BOARD_IS_PCI) {
+ 		/* play with the PCI chip. See comment above. */
+@@ -2094,41 +2094,34 @@
  }
  
  
--void tx_done(MGSLPC_INFO *info) 
-+static void tx_done(MGSLPC_INFO *info) 
- {
- 	if (!info->tx_active)
- 		return;
-@@ -1190,7 +1190,7 @@
- 	}
- }
- 
--void tx_ready(MGSLPC_INFO *info) 
-+static void tx_ready(MGSLPC_INFO *info) 
- {
- 	unsigned char fifo_count = 32;
- 	int c;
-@@ -1239,7 +1239,7 @@
- 	}
- }
- 
--void cts_change(MGSLPC_INFO *info) 
-+static void cts_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->cts_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1276,7 +1276,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void dcd_change(MGSLPC_INFO *info) 
-+static void dcd_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->dcd_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1310,7 +1310,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void dsr_change(MGSLPC_INFO *info) 
-+static void dsr_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->dsr_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1325,7 +1325,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void ri_change(MGSLPC_INFO *info) 
-+static void ri_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->ri_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -2955,7 +2955,7 @@
- 
- /* Called to print information about devices
+-#ifndef MODULE
++static int iobase[SX_NBOARD]  = {0,};
++
++static int irq [SX_NBOARD] = {0,};
++
++module_param_array(iobase, int, NULL, 0);
++module_param_array(irq, int, NULL, 0);
++
+ /*
+- * Called at boot time.
++ * You can setup up to 4 boards.
++ * by specifying "iobase=0xXXX,0xXXX ..." as insmod parameter.
++ * You should specify the IRQs too in that case "irq=....,...". 
+  * 
+- * You can specify IO base for up to SX_NBOARD cards,
+- * using line "specialix=0xiobase1,0xiobase2,.." at LILO prompt.
+- * Note that there will be no probing at default
+- * addresses in this case.
++ * More than 4 boards in one computer is not possible, as the card can
++ * only use 4 different interrupts. 
+  *
+- */ 
+-void specialix_setup(char *str, int * ints)
+-{
+-	int i;
+-        
+-	for (i=0;i<SX_NBOARD;i++) {
+-		sx_board[i].base = 0;
+-	}
+-
+-	for (i = 1; i <= ints[0]; i++) {
+-		if (i&1)
+-			sx_board[i/2].base = ints[i];
+-		else
+-			sx_board[i/2 -1].irq = ints[i];
+-	}
+-}
+-#endif
+-
+-/* 
+- * This routine must be called by kernel at boot time 
   */
--int mgslpc_read_proc(char *page, char **start, off_t off, int count,
-+static int mgslpc_read_proc(char *page, char **start, off_t off, int count,
- 		 int *eof, void *data)
+ static int __init specialix_init(void)
  {
- 	int len = 0, l;
-@@ -3212,7 +3212,7 @@
- module_init(synclink_cs_init);
- module_exit(synclink_cs_exit);
+ 	int i;
+ 	int found = 0;
  
--void mgslpc_set_rate(MGSLPC_INFO *info, unsigned char channel, unsigned int rate) 
-+static void mgslpc_set_rate(MGSLPC_INFO *info, unsigned char channel, unsigned int rate) 
- {
- 	unsigned int M, N;
- 	unsigned char val;
-@@ -3248,7 +3248,7 @@
++	if (iobase[0] || iobase[1] || iobase[2] || iobase[3]) {
++		for(i = 0; i < SX_NBOARD; i++) {
++			sx_board[i].base = iobase[i];
++			sx_board[i].irq = irq[i];
++		}
++	}
++
+ 	printk(KERN_INFO "sx: Specialix IO8+ driver v" VERSION ", (c) R.E.Wolff 1997/1998.\n");
+ 	printk(KERN_INFO "sx: derived from work (c) D.Gorodchanin 1994-1996.\n");
+ #ifdef CONFIG_SPECIALIX_RTSCTS
+@@ -2148,7 +2141,7 @@
+ 	{
+ 		struct pci_dev *pdev = NULL;
  
- /* Enabled the AUX clock output at the specified frequency.
-  */
--void enable_auxclk(MGSLPC_INFO *info)
-+static void enable_auxclk(MGSLPC_INFO *info)
- {
- 	unsigned char val;
+-		i=0;
++		i = 0;
+ 		while (i < SX_NBOARD) {
+ 			if (sx_board[i].flags & SX_BOARD_PRESENT) {
+ 				i++;
+@@ -2181,38 +2174,8 @@
+ 
+ 	return 0;
+ }
+-
+-int iobase[SX_NBOARD]  = {0,};
+-
+-int irq [SX_NBOARD] = {0,};
+-
+-module_param_array(iobase, int, NULL, 0);
+-module_param_array(irq, int, NULL, 0);
+-
+-/*
+- * You can setup up to 4 boards.
+- * by specifying "iobase=0xXXX,0xXXX ..." as insmod parameter.
+- * You should specify the IRQs too in that case "irq=....,...". 
+- * 
+- * More than 4 boards in one computer is not possible, as the card can
+- * only use 4 different interrupts. 
+- *
+- */
+-static int __init specialix_init_module(void)
+-{
+-	int i;
+-
+-	if (iobase[0] || iobase[1] || iobase[2] || iobase[3]) {
+-		for(i = 0; i < SX_NBOARD; i++) {
+-			sx_board[i].base = iobase[i];
+-			sx_board[i].irq = irq[i];
+-		}
+-	}
+-
+-	return specialix_init();
+-}
  	
+-static void __exit specialix_exit_module(void)
++static void __exit specialix_exit(void)
+ {
+ 	int i;
+ 	
+@@ -2226,7 +2189,7 @@
+ 	
+ }
+ 
+-module_init(specialix_init_module);
+-module_exit(specialix_exit_module);
++module_init(specialix_init);
++module_exit(specialix_exit);
+ 
+ MODULE_LICENSE("GPL");
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

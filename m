@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264913AbTLHAzO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 19:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbTLHAzN
+	id S265150AbTLHBMD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 20:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTLHBMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 19:55:13 -0500
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:27277 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264913AbTLHAyo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 19:54:44 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Santiago Garcia Mantinan <manty@manty.net>,
-       Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Subject: Re: Synaptics PS/2 driver and 2.6.0-test11
-Date: Sun, 7 Dec 2003 19:54:31 -0500
-User-Agent: KMail/1.5.4
-Cc: Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org
-References: <20031130214612.GP2935@mail.muni.cz> <20031207194404.GC13201@mail.muni.cz> <20031207221056.GA2990@man.beta.es>
-In-Reply-To: <20031207221056.GA2990@man.beta.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 7 Dec 2003 20:12:03 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.31]:52180 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265150AbTLHBMB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 20:12:01 -0500
+Date: Mon, 8 Dec 2003 02:11:54 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 - fork, dup, dup2 oddities
+Message-ID: <20031208011154.GK13201@mail.muni.cz>
+References: <20031207210305.GE13201@mail.muni.cz> <20031208004655.GA23644@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200312071954.31897.dtor_core@ameritech.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031208004655.GA23644@kroah.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 December 2003 05:10 pm, Santiago Garcia Mantinan wrote:
-> Sorry, I didn't notice this thread till now...
->
-> > But why it does not hurt with kernel 2.4.22? Moreover how ACPI BIOS
-> > influences synaptics driver? I do not see any BIOS call there...
->
-> I have this problem reported as bug 1093 at bugme.osdl.org, my laptop
-> is an ACER with intel chipset.
->
-> The problem will happen even if you only check the batery status once a
-> day, at that time, you can get the lost sync thing in 2.6, but not in
-> 2.2, so the problem is not with the gnome applet, in fact I'm seing it
-> under icewm and I have been able to reproduce it without any battery
-> applet or anything like that, only running the "acpi -V" command each
-> minute in a cron, that suffices for getting the errors.
->
-> I believe that this should be solved, in 2.6, as it certainly doesn't
-> happen on 2.4, if you want more info look at bug #1093 at
-> bugme.osdl.org or if you need more details just ask for them.
->
-> Hope this helps.
->
-> Regards...
+On Sun, Dec 07, 2003 at 04:46:55PM -0800, Greg KH wrote:
+> The ttyUSB* nodes right now have a bug that prevents more than one
+> open() to work properly.  Well actually, the bug is on the close()
+> part...
+> 
+> Anyway, can you try the patch I posted here yesterday?  A copy of it is
+> below.  It should fix this bug.  Please let me know either way.
 
-The difference is that GPM (I assume you are using it to get Synaptics
-support) only logs "protocol violations" when in debug mode, and then it
-only checks 2 first bytes. The XFree driver does check the protocol but
-its messages usually don't show up in the syslog. In other words in-kernel
-Synaptics driver just makes the problem apparent it seems.
+Thanks, this patch works for me. pppd now correctly connect via ttyUSB. 
 
->From what I saw in one case where Synaptics was loosing sync it looked
-like 2 first bytes of the 6 byte packet were lost (psmouse never got them).
-Would be interesting to compile i8042.c with debug and see the full flow 
-of a problem system...
+However similar patch will be need for ircomm-tty. That is not functional as
+well.
 
-Dmitry
+-- 
+Luká¹ Hejtmánek

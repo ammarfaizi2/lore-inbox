@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264238AbRGDGYD>; Wed, 4 Jul 2001 02:24:03 -0400
+	id <S266514AbRGDGan>; Wed, 4 Jul 2001 02:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265967AbRGDGXx>; Wed, 4 Jul 2001 02:23:53 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:1043 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S264238AbRGDGXr>;
-	Wed, 4 Jul 2001 02:23:47 -0400
-Date: Wed, 4 Jul 2001 00:24:36 -0600
-From: Cort Dougan <cort@fsmlabs.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Message-ID: <20010704002436.C1294@ftsoj.fsmlabs.com>
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010703233605.A1244@zalem.puupuu.org>; from galibert@pobox.com on Tue, Jul 03, 2001 at 11:36:05PM -0400
+	id <S266510AbRGDGad>; Wed, 4 Jul 2001 02:30:33 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:30748 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266514AbRGDGaW>; Wed, 4 Jul 2001 02:30:22 -0400
+Date: Wed, 4 Jul 2001 08:29:04 +0200 (MEST)
+From: Armin Schindler <mac@melware.de>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+cc: <acs@sysgo.de>
+Subject: Checking 'hlt' instruction
+Message-ID: <Pine.LNX.4.31.0107040821020.24472-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There isn't such a crippling difference between straight-line and code with
-unconditional branches in it with modern processors.  In fact, there's very
-little measurable difference.
+Hi all,
 
-If you're looking for something to blame hurd performance on I'd suggest
-the entire design of Mach, not inline asm vs procedure calls.  Tossing a
-few context switches into calls is a lot more expensive.
+I have a problem with the startup of my 2.4.3 kernel on
+a STPC Atlas (486), it hangs on the 'hlt' check.
 
-} > In other words, if you know the push sequence of your C compiler's
-} > function calls, you don't need asm("");.
-} 
-} You are very much forgetting _inline_ asm.  And if you think that's
-} unimportant for performance, well, as Al would say, go back playing
-} with Hurd.
+With a standard BIOS it works, but I'm writing my own
+bootloader to remove the BIOS, which works pretty good
+so far.
+
+Only when I use the 'no-hlt' parameter the kernel boots.
+
+Can someone tell me what settings of a x86 causes the
+CPU to halt forever on a 'hlt' instruction, which the
+kernel doesn't set correctly at boot time and the BIOS
+needs to do ?
+
+Thanx,
+Armin
+

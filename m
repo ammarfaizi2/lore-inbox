@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUJEK5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUJELAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268947AbUJEK5l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 06:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUJEK5k
+	id S268968AbUJELAr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUJELAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 06:57:40 -0400
-Received: from mail.gmx.net ([213.165.64.20]:50914 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268947AbUJEK5i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 06:57:38 -0400
-X-Authenticated: #4399952
-Date: Tue, 5 Oct 2004 13:12:37 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T0
-Message-ID: <20041005131237.63378c53@mango.fruits.de>
-In-Reply-To: <Pine.LNX.4.58.0410050257400.5641@devserv.devel.redhat.com>
-References: <20040919122618.GA24982@elte.hu>
-	<414F8CFB.3030901@cybsft.com>
-	<20040921071854.GA7604@elte.hu>
-	<20040921074426.GA10477@elte.hu>
-	<20040922103340.GA9683@elte.hu>
-	<20040923122838.GA9252@elte.hu>
-	<20040923211206.GA2366@elte.hu>
-	<20040924074416.GA17924@elte.hu>
-	<20040928000516.GA3096@elte.hu>
-	<20041003210926.GA1267@elte.hu>
-	<20041004215315.GA17707@elte.hu>
-	<Pine.LNX.4.58.0410050257400.5641@devserv.devel.redhat.com>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 5 Oct 2004 07:00:47 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:65198 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S268968AbUJELAo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:00:44 -0400
+Date: Tue, 5 Oct 2004 12:59:18 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Matthias Bernges <mbernges@rumms.uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.6.x maybe r8169 (maybe disk related as well)
+Message-ID: <20041005105918.GA31831@electric-eye.fr.zoreil.com>
+References: <200410050836.i958atFM000889@rumms.uni-mannheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410050836.i958atFM000889@rumms.uni-mannheim.de>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Oct 2004 03:02:05 -0400 (EDT)
-Ingo Molnar <mingo@redhat.com> wrote:
+Matthias Bernges <mbernges@rumms.uni-mannheim.de> :
+[...]
+> since I use the Realtek 8169 Network card I get a kernel Oops
+> after which the kernel hangs completly.
+> I tried Kernel 2.6.6, 2.6.7 and 2.6.8.1. It appears randomly but
+> only if the machine has high load and high network traffic.
 
-> i've released the -T0 VP patch:
+Can you give 2.6.9-rc3 a try ?
 
->  - fix !4K stack compilation breakage (reported by Lee Revell)
+[...]
+> >>EIP; c0271498 <SELECT_DRIVE+18/50>   <=====
+> 
+> >>edi; c15eb220 <pg0+113d220/3fb50000>
+> >>esp; c0497f80 <per_cpu__tvec_bases+ec0/1008>
+> 
+> Code;  c0271498 <SELECT_DRIVE+18/50>
+> 00000000 <_EIP>:
+> Code;  c0271498 <SELECT_DRIVE+18/50>   <=====
+>    0:   8b 46 60                  mov    0x60(%esi),%eax   <=====
+> Code;  c027149b <SELECT_DRIVE+1b/50>
+>    3:   ba 3c 00 00 00            mov    $0x3c,%edx
 
-I still need to enable 4k stacks to get it to build [see error below w/o 4k
-stacks].
+Your ata subsytem does not seem happy.
 
-But xrun hell is no more [as opposed to S8 and S9]. jackd seems to run fine
-again. I suspect the reverted scheduler changes to have fixed this
-[uneducated guess], since in S8 and S9 the system behaved all different
-[sloppy X when compiling stuff. jackd producing xruns although everything is
-setup for ll ok].
+Can you provide:
+- a short description of the system;
+- the revision of your compiler;
+- lspci -vx output;
+- /sbin/lsmod output;
+- complete dmesg after boot;
+- vmstat 1 for a few seconds during network load;
+- the content of /proc/interrupts adter a few seconds of network load.
 
-flo
-
-  CC      arch/i386/kernel/irq.o
-arch/i386/kernel/irq.c:205: error: redefinition of `is_irq_stack_ptr'
-include/asm/hardirq.h:25: error: `is_irq_stack_ptr' previously defined here
-arch/i386/kernel/irq.c: In function `is_irq_stack_ptr':
-arch/i386/kernel/irq.c:209: error: `hardirq_stack' undeclared (first use in this function)
-arch/i386/kernel/irq.c:209: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/irq.c:209: error: for each function it appears in.)
-arch/i386/kernel/irq.c:212: error: `softirq_stack' undeclared (first use in this function)
-make[1]: *** [arch/i386/kernel/irq.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+--
+Ueimor

@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUH3G27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267438AbUH3GdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267330AbUH3G27 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 02:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267438AbUH3G27
+	id S267438AbUH3GdG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 02:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267461AbUH3GdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 02:28:59 -0400
-Received: from codepoet.org ([166.70.99.138]:17572 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S267330AbUH3G25 (ORCPT
+	Mon, 30 Aug 2004 02:33:05 -0400
+Received: from nysv.org ([213.157.66.145]:24778 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S267438AbUH3GdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 02:28:57 -0400
-Date: Mon, 30 Aug 2004 00:28:56 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.8.1
-Message-ID: <20040830062856.GA10475@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org
-References: <200408292232.14446.mmazur@kernel.pl>
+	Mon, 30 Aug 2004 02:33:02 -0400
+Date: Mon, 30 Aug 2004 09:31:16 +0300
+To: Hubert Chan <hubert@uhoreg.ca>
+Cc: reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040830063116.GF26192@nysv.org>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <4131074D.7050209@namesys.com> <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org> <4131A3B2.30203@namesys.com> <20040829104413.GE871@zip.com.au> <87fz65wt82.fsf@uhoreg.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408292232.14446.mmazur@kernel.pl>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <87fz65wt82.fsf@uhoreg.ca>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Aug 29, 2004 at 10:32:13PM +0200, Mariusz Mazur wrote:
-> Nothing special, really. One bigger change - on archs that have >1 possible
-> page sizes (PAGE_SIZE definition in asm/page.h) we're now using a call to
-> libc's getpagesize(), so don't count on it being static on archs like ia64.
+On Sun, Aug 29, 2004 at 05:05:17PM -0400, Hubert Chan wrote:
+>Reiserfs list, and I don't think there was much consensus that came out
 
-I really do not like this change.  Since PAGE_SIZE has always
-been a constant, the change you have made is likely to break a
-fair amount of code, basically any code doing stuff like:
+It's like Gentoo users and patch sets ;)
 
-	static int* foo[PAGE_SIZE];
+>of it.  Currently for Reiser4, AFAIK, the "metas" name is a compile-time
+>option that you can change by changing a #define, if you're worried
+>about name clashes.
 
-Your change will result in cryptic errors such as
+http://mjt.nysv.org/reiser/reiser4.metas.patch
 
-    "error: variable-size type declared outside of any function"
-    "error: storage size of `foo' isn't constant"
+-- 
+mjt
 
-depending on whether the declaration is outside a function or in one.
-I think it would be much better to either
-
-    a) remove PAGE_SIZE or make using it an error somehow,
-
-    b) make PAGE_SIZE an install time config option
-
-    c) declare that on architectures such as mips that support
-       variable PAGE_SIZE values, the libc kernel headers shall
-       always provide the largest fixed size value of PAGE_SIZE
-       supported for that architecture and everyone just agrees
-       that using PAGE_SIZE rather than getpagesize(2) or
-       sysconf(_SC_PAGESIZE) is generally a bad idea.  It should
-       be the largest value supported on that architecture, since
-       the the only cost of always using the largest possible
-       value is wasted ram, whereas the cost of always using the
-       smallest value is segfaults.
-
-With any of the above 3 suggestions, things will either just
-work, or the user will get a descriptive error message.
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

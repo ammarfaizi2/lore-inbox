@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUASRTV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 12:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUASRTV
+	id S265389AbUASRSi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 12:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUASRSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 12:19:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15273 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261957AbUASRTP (ORCPT
+	Mon, 19 Jan 2004 12:18:38 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:28846 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S265389AbUASRSg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 12:19:15 -0500
-Date: Mon, 19 Jan 2004 09:15:13 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Atro.Tossavainen@helsinki.fi
-Cc: atossava@cc.helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Panic reading EFS CDs on SCSI CD drives through loop
-Message-Id: <20040119091513.073d66fc.rddunlap@osdl.org>
-In-Reply-To: <200401191145.i0JBjOsv013637@kruuna.Helsinki.FI>
-References: <200401191145.i0JBjOsv013637@kruuna.Helsinki.FI>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 19 Jan 2004 12:18:36 -0500
+Subject: ALSA vs. OSS
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y+UsjW/TIxyJNPp4I9qI"
+Message-Id: <1074532714.16759.4.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 19 Jan 2004 19:18:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jan 2004 13:45:24 +0200 (EET) Atro Tossavainen <atossava@cc.helsinki.fi> wrote:
 
-| [1.] Reading files from EFS CD through loop-mounted SCSI CD causes panic
-| 
-| [2.] I am attempting to read Silicon Graphics IRIX installation CDs on
-|      SCSI CD drives, either real SCSI or emulated IDE-SCSI drives.
-| 
-|      Since SCSI CD-ROMs can't set blocksize (IDE-SCSI emulated drives
-|      included), I would usually do this with an IDE drive, disabling
-|      ide-scsi temporarily if applicable.  However, the following article
-| 
-|      http://groups.google.fi/groups?selm=8765hq3j2u.fsf%40ID-48333.user.dfncis.de
-| 
-|      claims that by using the loop interface, it should be possible to
-|      use EFS CDs with SCSI drives, too.
-| 
-|      I have tried this as follows:
-| 
-|      losetup /dev/loop0 /dev/scd0
-|      mount -r -t efs /dev/loop0 /cdrom
-|      cd /cdrom
-|      tar cf - . | tar xv -C/somewhere/else -f-
-| 
-|      It reads a few files, then panics on a large file.  If I am running
-|      X11, the only symptom I see is that the machine freezes totally and
-|      the Caps Lock and Scroll Lock lights on the keyboard start blinking.
-|      If I'm in the text console, it displays the message:
-| 
-| Kernel panic: scsi_free:Trying to free unused memory
+--=-y+UsjW/TIxyJNPp4I9qI
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Are there some other messages associated with this, like
-a BUG or stack dump?  Those could be helpful.
+Hello list,
+I wonder what's the difference with ALSA and OSS. I have tried both,
+someone may say that ALSA is much better than OSS, but with my
+experience with ALSA I wouldn't say that, I would probably say it should
+be removed from the kernel totally.
 
---
-~Randy
-Everything is relative.
+So, what are the reasons for ALSA to become "default" in 2.6?
+I know it gives somekind of nice features, but ALSA didn't let me to
+open two sound sources (like XMMS and Quake3) at the same time, so I
+guess it is not really done yet, or is it?
+
+Ignore this if you don't care.
+Thanks,
+Markus.
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
+
+--=-y+UsjW/TIxyJNPp4I9qI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBADBFq3+NhIWS1JHARAoD7AJwLUs44+K7sunEL03rLlVAkLlvxfQCgg+kf
+BP7JBXCn3DeJrM5rMXC5me8=
+=IQQg
+-----END PGP SIGNATURE-----
+
+--=-y+UsjW/TIxyJNPp4I9qI--
+

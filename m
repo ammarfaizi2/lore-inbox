@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267125AbTBUEXl>; Thu, 20 Feb 2003 23:23:41 -0500
+	id <S267131AbTBUEa2>; Thu, 20 Feb 2003 23:30:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267126AbTBUEXl>; Thu, 20 Feb 2003 23:23:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41933 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267125AbTBUEXk>;
-	Thu, 20 Feb 2003 23:23:40 -0500
-Date: Thu, 20 Feb 2003 20:17:49 -0800 (PST)
-Message-Id: <20030220.201749.75380162.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, aeb@cwi.nl
-Subject: Re: sendmsg and IP_PKTINFO
+	id <S267128AbTBUEa2>; Thu, 20 Feb 2003 23:30:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49357 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267126AbTBUEa1>;
+	Thu, 20 Feb 2003 23:30:27 -0500
+Date: Thu, 20 Feb 2003 20:24:38 -0800 (PST)
+Message-Id: <20030220.202438.10564686.davem@redhat.com>
+To: ak@suse.de
+Cc: sim@netnation.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15957.41515.937965.343498@notabene.cse.unsw.edu.au>
-References: <20030218.155651.108799644.davem@redhat.com.suse.lists.linux.kernel>
-	<p73wujwy98p.fsf@amdsimf.suse.de>
-	<15957.41515.937965.343498@notabene.cse.unsw.edu.au>
+In-Reply-To: <20030220093422.GA16369@wotan.suse.de>
+References: <p73r8a3xub5.fsf@amdsimf.suse.de>
+	<20030220092043.GA25527@netnation.com>
+	<20030220093422.GA16369@wotan.suse.de>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,14 +24,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Fri, 21 Feb 2003 14:51:07 +1100
+   From: Andi Kleen <ak@suse.de>
+   Date: Thu, 20 Feb 2003 10:34:22 +0100
+
+   On Thu, Feb 20, 2003 at 01:20:43AM -0800, Simon Kirby wrote:
+   > Hmm...and this is considered desired behavior?  It seems like an odd way
+   > of handling packets intended to test latency and reliability. :)
    
-   As far as I can tell, control message are currently defined for:
-      IPv4,
-      IPv6,
-      SOL_HCI - some bluetooth thing
-      SOL_SOCKET (which don't seem to be clearly documented in socket(7))
-   
-Also, control messages are used for AF_UNIX to pass file descriptors
-around.
+   IP is best-effort. Dropping packets in odd cases to make locking simpler
+   is not unreasonable. Would you prefer an slower kernel?
+
+True.
+
+But this is a quality of implementation issue and I doubt the kernel
+would be slower if we fixed this silly behavior.
+
+Frankly, the locking is due to lazyness, rather than a specific design
+decision.  So let's fix it.

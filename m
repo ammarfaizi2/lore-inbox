@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266067AbRHAJb4>; Wed, 1 Aug 2001 05:31:56 -0400
+	id <S266150AbRHAJkG>; Wed, 1 Aug 2001 05:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266150AbRHAJbq>; Wed, 1 Aug 2001 05:31:46 -0400
-Received: from secure.webhotel.net ([195.41.202.80]:57890 "HELO
-	secure.webhotel.net") by vger.kernel.org with SMTP
-	id <S266133AbRHAJbh>; Wed, 1 Aug 2001 05:31:37 -0400
-X-BlackMail: 213.237.118.153, there,  <snowwolf@one2one-networks.com>, 213.237.118.153
-X-Authenticated-Timestamp: 11:21:52(CEST) on August 01, 2001
-Content-Type: text/plain;
-  charset="utf-8"
-From: Allan Sandfeld Jensen <snowwolf@one2one-networks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Wheel mice on thinkpad ps/2
-Date: Wed, 1 Aug 2001 11:13:44 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linuxconsole-dev@lists.sourceforge.net
+	id <S266158AbRHAJj5>; Wed, 1 Aug 2001 05:39:57 -0400
+Received: from t2.redhat.com ([199.183.24.243]:41717 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S266150AbRHAJjt>; Wed, 1 Aug 2001 05:39:49 -0400
+Message-ID: <3B67CE6A.A670093E@redhat.com>
+Date: Wed, 01 Aug 2001 10:39:54 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20010801093139Z266133-28344+31@vger.kernel.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: booting SMP P6 kernel on P4 hangs.
+In-Reply-To: <Pine.LNX.4.21.0107310705580.1374-100000@penguin.homenet> <200107311757.f6VHvWH01678@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-I've solved a long standing problem with using an extended mouse over the 
-ps/2 port on a thinkpad.  (search deja, I found bugreports dating back to 
-1998, all unanswered)
-I discovered there is a "smart" device called a trackpoint controller, that 
-accumulates movement from both the trackpoints and the external mouse. 
-Provided it understands the external mouse! (it only understand standard 
-mice) A quick hack is disabling the trackpoint controller by sending 0xe2 
-0x4e, but a more general solution would be to write a linux driver that 
-autodetected a trackpoint controller with external mouse and disabled it.  In 
-that way it would be transparant to userspace drivers.
+Linus Torvalds wrote:
+> 
+> In article <Pine.LNX.4.21.0107310705580.1374-100000@penguin.homenet> you write:
+> >
+> >Isn't SMP P6 kernel supposed to boot fine on a P4? Btw, booting with
+> >"nosmp" works but booting with "noapic" hangs just the same.
+> 
+> It should boot, and it looks like the problem may be a bad MP table.
 
-The easiest for my would be writing it into pc_keyb.c but that's not 
-appropiate. So where should I place the driver? 
-If I want advanced functionality, where I instead demultiplexes the 
-trackpoint and the external mouse into a /dev/psaux1 and -2, I need to take 
-over the aux interrupthandler. Otherwise I can just speak through the 
-standard psaux. 
-And what of the new input-class, should all inputdevices eventually move over 
-there, or just USB? 
+Oh it is. And it's due to a recommendation Intel makes to bios writers. 
+As a result, every P4 I've encountered shares this bug. Intel knows it's
+an invalid MP table, but refuses to change the recommendation.
 
-regards
--Allan
+Now all Linux installers that decide to install a SMP kernel if they
+encounter
+a MPTABLE already have a "except if it's a P4" exception nowadays..
+
+Greetings,
+   Arjan van de Ven

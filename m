@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTLPT5q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 14:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTLPT5q
+	id S262174AbTLPT6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 14:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTLPT6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 14:57:46 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:2313 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id S262164AbTLPT5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 14:57:44 -0500
-Message-ID: <3FDF63A2.9090205@enterprise.bidmc.harvard.edu>
-Date: Tue, 16 Dec 2003 14:57:22 -0500
-From: "Kristofer T. Karas" <ktk@ENTERPRISE.BIDMC.HARVARD.EDU>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 14:58:16 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:59838 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262174AbTLPT6K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 14:58:10 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Bob <recbo@nishanet.com>
+Subject: Re: IRQ disabled (SATA) on NForce2 and my theory
+Date: Tue, 16 Dec 2003 21:00:25 +0100
+User-Agent: KMail/1.5.4
+References: <frodoid.frodo.87wu8zzgly.fsf@usenet.frodoid.org> <200312151555.51845.bzolnier@elka.pw.edu.pl> <3FDE8258.4050801@nishanet.com>
+In-Reply-To: <3FDE8258.4050801@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Linux 2.4.24-pre1: Instant reboot
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312162100.25609.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, et al,
+On Tuesday 16 of December 2003 04:56, Bob wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> >On Monday 15 of December 2003 07:06, Bob wrote:
+> >>sii chips have a long history of needing to
+> >>hdparm off the unmask interrupt feature.
+> >>
+> >>I don't know about that chip but for
+> >>sii680 there is a special option "-p9"
+> >>for hdparm which is to say pio mode 9
+> >>is a special instruction in addition to
+> >>standard hdparm opt "-u0" turning off
+> >>irq unmask.
+> >
+> >There is no such thing as 'special option "-p9"' for sii680.
+>
+> Passing PIO mode 9 to sii680 will make it do udma133 with
+> unmask off, same as "-X70 -u0". What sii did was to make a
+> bug a feature by embedding their own special pio mode for the
+> well-known cmdxxx unmask off requirement.
 
-Just wanted to report an instantaneous reboot problem with 2.4.24-pre1.
+Please point me to the code or documentation...
 
-I don't even see any printk's to the screen; as soon as LILO is finished 
-loading the new kernel, the screen blanks and the BIOS goes through its 
-boot sequence again.  Since I seem to be the only one reporting this to 
-LKML, I suspect I'll have to back out various patches to try to track 
-this down. :-P
+> Making A Bug A Feature is begging for "deprecation".
+>
+> Since -p9 was only documented to set u133 and unmask off,
 
-I'm using the same .config as in 2.4.23 with new questions left at their 
-defaults (e.g. XFS=n, OOM_KILLER=n).  I've had no problems with this 
-otherwise rock-stable platform for all varieties of 2.4.x, save for some 
-early USB EHCI issues long ago.
+Where is it documented?
 
-At work now, so I don't have a full .config handy, but:
-* Slackware 8.1 based; glibc 2.2.5; gcc 2.95.3
-* Soltek SL-75DRV2 (UP, Athlon XP 1700, VIA KT266A [VT8366A/VT8233])
-* Root = ext3 on IDE partition
-* DevFS, DevPTS, IDE-SCSI=cdrom0, USBStorage, USB EHCI, VFAT
-* RadeonFB, IPTables, Realtek-8139
-Everything else in .config is pretty vanilla (e.g. Linus defaults or 
-thereabouts).
+> making a bug a feature, non-bug features are not user-expected
+> to be set without using other(normal) hdparm options, so
+> somebody might as well "man hdparm" and bypass the silly
+> kludge which probably was an internal office joke anyway.
 
-Kris
+Are you talking about drivers/ide/pci/siimage.c driver or something else?
+
+> -Bob
+>
+> >>/sbin/hdparm -d1 -c1 -p9 -X70 -u0 -k0 -i $a
+> >
+> >-X70 is only valid if your device is UDMA133.
+> >
+> >--bart
 

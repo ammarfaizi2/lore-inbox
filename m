@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269583AbTHHH5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 03:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270208AbTHHH5s
+	id S270208AbTHHIAN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 04:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270272AbTHHIAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 03:57:48 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:13843 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269583AbTHHH5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 03:57:47 -0400
-Date: Fri, 8 Aug 2003 03:45:57 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jasper Spaans <jasper@vs19.net>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Fri, 8 Aug 2003 04:00:13 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:44989 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S270208AbTHHIAK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 04:00:10 -0400
+Date: Fri, 8 Aug 2003 10:00:08 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Message-ID: <20030808080008.GA7237@spaans.vs19.net>
+Mime-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <20030808074009.GC2886@suse.de>
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.14.2.cvs.20030804
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Mail-From: spaans@spaans.vs19.net
 Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-In-Reply-To: <20030808073344.GB6637@spaans.vs19.net>
-Message-ID: <Pine.LNX.4.53.0308080344260.30770@montezuma.mastecende.com>
-References: <20030807180032.GA16957@spaans.vs19.net>
- <Pine.LNX.4.53.0308072139320.12875@montezuma.mastecende.com>
- <20030808065230.GA5996@spaans.vs19.net> <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com>
- <20030808073344.GB6637@spaans.vs19.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Jul 28 22:52:54 EDT 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Aug 2003, Jasper Spaans wrote:
+On vrijdag, aug 8, 2003, at 09:40 Europe/Amsterdam, Jens Axboe wrote:
+> _Who cares_? People going nuts with spelling changes was bad (and
+> disruptive) enough,
 
-> On Fri, Aug 08, 2003 at 02:57:15AM -0400, Zwane Mwaikambo wrote:
-> > > > > It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
-> > I know it wasn't purely cosmetic but i just wish we could use the proper 
-> > spelling instead of US English. No i'm not trolling.
-> 
-> I totally agree with you on that and I do have the diff doing lying around
-> here. Good fuel for a flamefest. I guess our benevolent dictator needs to
-> decide on this issue :)
+Obviously, you don't. What happened to good old Gründlichkeit? ;)
 
-Apparently he decided a while ago. bah, i hope this doesn't mean a barrage 
-of US spelling patches.
+> being overly pedantic with us vs uk spelling is an
+> even bigger waste of time imho.
 
+Yep.
+
+> It's not like people don't understand
+> what is there.  And it's not like it adds any extra value to the 
+> kernel.
+
+This holds for about 90% of that patch (with which I mean to the use of 
+flavou?r/ in non-code); the 10% where it does matter (and thus adds 
+value) is what I'm trying to get some consensus on.
+
+
+VrGr,
 -- 
-function.linuxpower.ca
+Jasper Spaans               http://jsp.vs19.net/contact/

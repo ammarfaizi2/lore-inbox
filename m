@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268314AbUIGSYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUIGSYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268314AbUIGSYf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUIGSXb
+	id S268334AbUIGSYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268356AbUIGSWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:23:31 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:47182 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S268372AbUIGSUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:20:40 -0400
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [patch 1/1] uml: no extraversion in arch/um/Makefile for mainline
-Date: Tue, 7 Sep 2004 20:16:01 +0200
-User-Agent: KMail/1.6.1
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-References: <20040906173524.EE034B977@zion.localdomain> <20040906193620.A8502@infradead.org>
-In-Reply-To: <20040906193620.A8502@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409072016.01749.blaisorblade_spam@yahoo.it>
+	Tue, 7 Sep 2004 14:22:48 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64903 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268334AbUIGSSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:18:09 -0400
+Message-Id: <200409071815.i87IFseF004907@laptop11.inf.utfsm.cl>
+To: Hans Reiser <reiser@namesys.com>
+cc: Spam <spam@tnonline.net>, Christer Weinigel <christer@weinigel.se>,
+       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Tue, 07 Sep 2004 11:05:39 MST." <413DF873.1090304@namesys.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 07 Sep 2004 14:15:54 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 September 2004 20:36, Christoph Hellwig wrote:
-> Could you please fix UML to not use ghash.h and remove that one before
-> playing with new toys?  This has been requested a few times now.
-Yes, I can try - but I'd like to know the exact reason (I'm not developing UML 
-as long as Jeff does).
+Hans Reiser <reiser@namesys.com> said:
+> Horst von Brand wrote:
+> >Spam <spam@tnonline.net> said:
+> >>Christer Weinigel <christer@weinigel.se> said:
 
-My idea is that ghash.h is just trivial boilerplate which does not deserve 
-generalized code, so that even rewriting the same exact code without using 
-those macros (and maybe embedding some assumptions about this usage) would be 
-a fine solution; also, there is just one user of it 
-(arch/um/kernel/physmem.c, with just one hash defined), so it shouldn't be 
-hard.
+[...]
 
-However, if the problem with ghash.h is different, I need more explainations.
+> >>>2. How do we want to expose named streams?
+
+> >>>   One suggestion is file-as-directory in some form.
+
+> >Which is broken, as it forbids hard links to files.
+
+> No, it forbids hard links to the directory aspect of the file-directory 
+> duality.
+
+How do you distinguish a "hard link to the directory personality" from
+"hard link to the file personality"? And how do you make sure that only one
+of them can be followed if you go to the directory, while allowing several
+to the exact same file?!
+
+> >Now you have 3 principal types of objects: Directories, containers (files
+> >with streams), and files (no streams).
+
+> No, the reiser4 design supports only files and directories, but makes 
+> them able to do what people use streams for.
+
+I.e., you have files/directories with/without "use as streams" stuff. 4
+types (or uses) of things.
+
+> The reiser4 design is based on a hatred of streams, and a desire to show 
+> that adding more features to files and directories makes streams 
+> unnecessary.
+
+Trade one ugly wart for others...
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

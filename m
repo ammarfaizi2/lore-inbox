@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131524AbRCNTqh>; Wed, 14 Mar 2001 14:46:37 -0500
+	id <S131527AbRCNTrh>; Wed, 14 Mar 2001 14:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131525AbRCNTq1>; Wed, 14 Mar 2001 14:46:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10112 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131524AbRCNTqW>; Wed, 14 Mar 2001 14:46:22 -0500
-Date: Wed, 14 Mar 2001 14:44:18 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Lars Kellogg-Stedman <lars@larsshack.org>
-cc: Christoph Hellwig <hch@caldera.de>, John Jasen <jjasen1@umbc.edu>,
-        linux-kernel@vger.kernel.org, AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
-In-Reply-To: <Pine.LNX.4.30.0103141410360.2004-100000@flowers.house.larsshack.org>
-Message-ID: <Pine.LNX.3.95.1010314143853.1825A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131528AbRCNTr2>; Wed, 14 Mar 2001 14:47:28 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:34045 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131525AbRCNTrM>; Wed, 14 Mar 2001 14:47:12 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103141945.f2EJjF410285@webber.adilger.int>
+Subject: Re: (struct dentry *)->vfsmnt;
+In-Reply-To: <3AAFC708.752B2819@austin.ibm.com> from Dave Kleikamp at "Mar 14,
+ 2001 01:31:20 pm"
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Date: Wed, 14 Mar 2001 12:45:15 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Mar 2001, Lars Kellogg-Stedman wrote:
+David Kleikamp writes:
+> AIX stores all of this information in the LVM, not in the filesystem. 
+> The filesystem itself has nothing to do with importing and exporting
+> volume groups.  Having the information stored as part of LVM's metadata
+> allows the utilities to only deal with LVM instead of every individual
+> file system.
 
-> > Put LABEL=<label set with e2label> in you fstab in place of the device name.
-> 
-> Which is great, for filesystems that support labels.  Unfortunately,
-> this isn't universally available -- for instance, you cannot mount
-> a swap partition by label or uuid, so it is not possible to completely
-> isolate yourself from the problems of disk device renumbering.
-> 
-> -- Lars
-> 
-> -- 
-> Lars Kellogg-Stedman <lars@larsshack.org>
-> 
-When my BIOS finds IDE disks, it starts at the lowest address of
-the port. It then looks for the first master, then the slave(s), etc.
-Then it tries the second, etc.
+So you are saying that mount(8) writes into a field in the LVM LVCB or
+something?  Might be possible on Linux LVM as well...
 
-When my SCSI BIOS finds disks, it starts at the first controller,
-the first LUN, the first drive, etc.
-
-This used to even be the way disks were located by the kernel
-drivers. Now, these are found in some "random" order.
-
-If whatever is causing the "random" order was fixed, put back like
-it used to be, etc., we wouldn't have these problems.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

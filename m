@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTDPQda (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTDPQd3
+	id S264477AbTDPQbt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTDPQbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:33:29 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41367 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264482AbTDPQdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:33:07 -0400
-Date: Wed, 16 Apr 2003 18:44:40 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: ltp-coverage@lists.sourceforge.net,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ltp-coverage] 2.5.67-gcov and 2.4.20-gcov
-Message-ID: <20030416164440.GB2305@wohnheim.fh-wedel.de>
-References: <1050502803.8637.1094.camel@plars>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1050502803.8637.1094.camel@plars>
-User-Agent: Mutt/1.3.28i
+	Wed, 16 Apr 2003 12:31:49 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2821 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264477AbTDPQbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:31:34 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] kdevt-diff
+Date: 16 Apr 2003 09:43:04 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b7k16o$6r2$1@cesium.transmeta.com>
+References: <20030414175141.GS4917@ca-server1.us.oracle.com> <Pine.LNX.4.44.0304141056450.19302-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 April 2003 09:20:02 -0500, Paul Larson wrote:
+Followup to:  <Pine.LNX.4.44.0304141056450.19302-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
 > 
-> The Linux Kernel GCOV patch has a new home.  It will now be available
-> from the Linux Test Project site at: http://ltp.sourceforge.net.
+> (My prefernce for the 32-bit version would be 12+20 bits, but it's not a
+> very strong one, and it doesn't really matter for the kernel proper, so I
+> think Andries who has been tirelessly working on this for five years or
+> more gets the final say on it).
 > 
-> This release updates the gcov-kernel patches and utilities for 2.5.67
-> and 2.4.20 kernels, and includes some minor bugfixes.
-> 
-> The Linux Kernel GCOV patch allows utilization of the gcov tool
-> against a running kernel.  This is different from most other profiling
-> methods because it can easily tell you things like: which lines of code
-> are executed, how many times they are executed, and how often different
-> branches are taken.
 
-Excuse me for being lazy. Does this already cover ppc? I submitted a
-patch over some other channels some time ago.
+I think 12+20 is a good choice for the 32-bit version (NFSv2 and those
+guys.)
 
-Jörn
-
+	-hpa
 -- 
-Simplicity is prerequisite for reliability.
--- Edsger W. Dijkstra
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269485AbUI3Urb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269500AbUI3Uq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269485AbUI3Urb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269505AbUI3UrQ
+	id S269500AbUI3Uq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3Uoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:47:16 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:31685 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S269498AbUI3UpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:45:22 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: (Test) it8212 driver for 2.6.9rc3
-Date: Thu, 30 Sep 2004 22:45:18 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20040930184535.GA31197@devserv.devel.redhat.com> <200409302218.48115.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200409302218.48115.bzolnier@elka.pw.edu.pl>
+	Thu, 30 Sep 2004 16:44:30 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:15523 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S269181AbUI3Ulf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:41:35 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9-rc3
+Date: Thu, 30 Sep 2004 16:41:29 -0400
+User-Agent: KMail/1.7
+Cc: Marcel Holtmann <marcel@holtmann.org>, Tom Duffy <Tom.Duffy@sun.com>
+References: <Pine.LNX.4.58.0409292036010.2976@ppc970.osdl.org> <200409300120.05524.gene.heskett@verizon.net> <1096521895.5181.5.camel@pegasus>
+In-Reply-To: <1096521895.5181.5.camel@pegasus>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409302245.18866.bzolnier@elka.pw.edu.pl>
+Content-Disposition: inline
+Message-Id: <200409301641.29662.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.8.60] at Thu, 30 Sep 2004 15:41:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 30 September 2004 01:24, Marcel Holtmann wrote:
+>Hi Gene,
+>
+>> >> Ok, this 2.6.9 cycle is getting too long, but here's a -rc3 and
+>> >> hopefully we're getting there now.
+>> >
+>> >   CC [M]  drivers/isdn/capi/capi.o
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c: In
+>> > function `handle_minor_send':
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:538:
+>> >warning: cast from pointer to integer of different size
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c: In
+>> > function `capi_recv_message':
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
+>> >error: `tty' undeclared (first use in this function)
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
+>> >error: (Each undeclared identifier is reported only once
+>> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
+>> >error: for each function it appears in.)
+>> >make[4]: *** [drivers/isdn/capi/capi.o] Error 1
+>> >make[3]: *** [drivers/isdn/capi] Error 2
+>> >make[2]: *** [drivers/isdn] Error 2
+>> >make[1]: *** [drivers] Error 2
+>> >make: *** [_all] Error 2
+>> >-
+>>
+>> Please start from the 2.6.8.tar.gz tarball, Tom.  This looks like
+>> you may started from the 2.6.8.1.tar.gz.
+>
+>no. It is a problem of the TTY locking fixes from Alan.
+>
+>Regards
+>
+>Marcel
+>
+Odd, here I'm using both seriel ports, ah, wait a min.
 
-[ I was so shocked that I forgot about it ]
+Could a fubar'd amdump run have occured if there was traffic on the 
+seriel port the ups is attached to, like a quick message that there 
+had been a power failure, shutdown was eminent, but it came back in 
+about 2 seconds?  There was nothing in the logs.  Humm, lemme fire up 
+the bulldog and see if that screws things up.
 
-Please
+That didn't seem to, and everything I looked at looked nominal, 
+including its own log.
 
-- merge+describe needed IDE core changes
-- fix coding style and whitespace damage
-- kill useless DECLARE_ITE_DEV macro
-- add __init to it8212_ide_init()
+The other seriel port is being used for my X10 stuff, but that would 
+also be logged and there is nothing there either.
 
-and I will _happily_ merge this driver into ide-dev-2.6.
+How does this TTY locking thing manifest itself?
 
-Thanks,
-Bartlomiej
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

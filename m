@@ -1,133 +1,208 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131023AbRAWWQC>; Tue, 23 Jan 2001 17:16:02 -0500
+	id <S131227AbRAWWQC>; Tue, 23 Jan 2001 17:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAWWPy>; Tue, 23 Jan 2001 17:15:54 -0500
-Received: from netcore.fi ([193.94.160.1]:18444 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S131527AbRAWWMk>;
-	Tue, 23 Jan 2001 17:12:40 -0500
-Date: Wed, 24 Jan 2001 00:12:35 +0200 (EET)
-From: Pekka Savola <pekkas@netcore.fi>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-net@vger.kernel.org>
-Subject: PACKET_MR_PROMISC doesn't set IFF_PROMISC
-Message-ID: <Pine.LNX.4.31.0101240002380.29105-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131023AbRAWWPx>; Tue, 23 Jan 2001 17:15:53 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:52565
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129983AbRAWWPh>; Tue, 23 Jan 2001 17:15:37 -0500
+Date: Tue, 23 Jan 2001 23:15:30 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/inia100.c cleanup (241p9)
+Message-ID: <20010123231530.H607@jaquet.dk>
+In-Reply-To: <20010123004242.O602@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010123004242.O602@jaquet.dk>; from rasmus@jaquet.dk on Tue, Jan 23, 2001 at 12:42:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, Jan 23, 2001 at 12:42:42AM +0100, Rasmus Andersen wrote:
 
-Using recent libpcap/tcpdump versions and packet socket mode in
-promiscuous mode.
+(This is another updated patch with the comments from my earlier mail
+still valid.)
 
-The kernel doesn't set IFF_PROMISC flag on the interfaces in promiscuous
-mode when PACKET_MR_PROMISC is used to put them there.  This happens
-with both 2.2 and 2.4. The traditional 2.0 kernel approach works.
 
-So, 'ifconfig' doesn't report interfaces in promisc mode due to packet
-socket mode as PROMISC.
 
-This appears to be a design decision or bug in net/core/dev.c.
-
-Shouldn't the kernel keep track of IFF_PROMISC?
+--- linux-ac10-clean/drivers/scsi/inia100.c	Sun Nov 12 04:01:11 2000
++++ linux-ac10/drivers/scsi/inia100.c	Tue Jan 23 21:23:47 2001
+@@ -119,7 +119,6 @@
+ static void inia100_intr6(int irq, void *dev_id, struct pt_regs *);
+ static void inia100_intr7(int irq, void *dev_id, struct pt_regs *);
+ 
+-static void inia100_panic(char *msg);
+ void inia100SCBPost(BYTE * pHcb, BYTE * pScb);
+ 
+ /* ---- EXTERNAL VARIABLES ---- */
+@@ -192,8 +191,10 @@
+ *****************************************************************************/
+ void inia100_setup(char *str, int *ints)
+ {
+-	if (setup_called)
+-		inia100_panic("inia100: inia100_setup called twice.\n");
++	if (setup_called) {
++		printk(KERN_ERR "inia100: inia100_setup called twice.\n");
++		return;
++	}
+ 
+ 	setup_called = ints[0];
+ 	setup_str = str;
+@@ -204,8 +205,8 @@
+  Description	: This function will scan PCI bus to get all Orchid card
+  Input		: None.
+  Output		: None.
+- Return		: SUCCESSFUL	- Successful scan
+-		  ohterwise	- No drives founded
++ Return		: n > 0	- n adapters found
++		  0	- No drives found
+ *****************************************************************************/
+ int orc_ReturnNumberOfAdapters(void)
+ {
+@@ -261,9 +262,9 @@
+ 					bPCIBusNum = pdev->bus->number;
+ 					bPCIDeviceNum = pdev->devfn;
+ 					dRegValue = pci_resource_start(pdev, 0);
+-					if (dRegValue == -1) {	/* Check return code            */
++					if (dRegValue == 0) {	/* Check return code            */
+ 						printk("\n\rinia100: orchid read configuration error.\n");
+-						return (0);	/* Read configuration space error  */
++						return (iAdapters);	/* Read configuration space error  */
+ 					}
+ 
+ 					/* <02> read from base address + 0x50 offset to get the wBIOS balue. */
+@@ -281,10 +282,6 @@
+ 					base = wBASE & PAGE_MASK;
+ 					page_offset = wBASE - base;
+ 
+-					/*
+-					 * replace the next line with this one if you are using 2.1.x:
+-					 * temp_p->maddr = ioremap(base, page_offset + 256);
+-					 */
+ 					wBASE = ioremap(base, page_offset + 256);
+ 					if (wBASE) {
+ 						wBASE += page_offset;
+@@ -314,6 +311,7 @@
+ 	struct Scsi_Host *hreg;
+ 	U32 sz;
+ 	U32 i;			/* 01/14/98                     */
++	U32 n;
+ 	int ok = 0, iAdapters;
+ 	ULONG dBiosAdr;
+ 	BYTE *pbBiosAdr;
+@@ -354,7 +352,7 @@
+ 		sz = orc_num_scb * sizeof(ORC_SCB);
+ 		if ((pHCB->HCS_virScbArray = (PVOID) kmalloc(sz, GFP_ATOMIC | GFP_DMA)) == NULL) {
+ 			printk("inia100: SCB memory allocation error\n");
+-			return (0);
++			goto err_out;
+ 		}
+ 		memset((unsigned char *) pHCB->HCS_virScbArray, 0, sz);
+ 		pHCB->HCS_physScbArray = (U32) VIRT_TO_BUS(pHCB->HCS_virScbArray);
+@@ -363,8 +361,7 @@
+ 		sz = orc_num_scb * sizeof(ESCB);
+ 		if ((pHCB->HCS_virEscbArray = (PVOID) kmalloc(sz, GFP_ATOMIC | GFP_DMA)) == NULL) {
+ 			printk("inia100: ESCB memory allocation error\n");
+-			/* ?? does pHCB->HCS_virtScbArray leak ??*/
+-			return (0);
++			goto err_kfree;
+ 		}
+ 		memset((unsigned char *) pHCB->HCS_virEscbArray, 0, sz);
+ 		pHCB->HCS_physEscbArray = (U32) VIRT_TO_BUS(pHCB->HCS_virEscbArray);
+@@ -378,15 +375,14 @@
+ 
+ 		if (init_orchid(pHCB)) {	/* Initial orchid chip    */
+ 			printk("inia100: initial orchid fail!!\n");
+-			return (0);
++			goto err_kfreeII;
+ 		}
+-		request_region(pHCB->HCS_Base, 256, "inia100");	/* Register */
++		if (!request_region(pHCB->HCS_Base, 256, "inia100"))	/* Register */
++			goto err_kfreeII;
+ 
+ 		hreg = scsi_register(tpnt, sizeof(ORC_HCS));
+-		if (hreg == NULL) {
+-			release_region(pHCB->HCS_Base, 256);	/* Register */
+-			return 0;
+-		}
++		if (hreg == NULL)
++			goto err_release;
+ 		hreg->io_port = pHCB->HCS_Base;
+ 		hreg->n_io_port = 0xff;
+ 		hreg->can_queue = orc_num_scb;	/* 03/05/98                   */
+@@ -436,8 +432,8 @@
+ 			ok = request_irq(pHCB->HCS_Intr, inia100_intr7, SA_INTERRUPT | SA_SHIRQ, "inia100", hreg);
+ 			break;
+ 		default:
+-			inia100_panic("inia100: Too many host adapters\n");
+-			break;
++			printk(KERN_WARNING"inia100: Too many host adapters\n");
++			goto err_unregister;
+ 		}
+ 
+ 		if (ok < 0) {
+@@ -453,13 +449,34 @@
+ 					printk("         Contact author.\n");
+ 				}
+ 			}
+-			inia100_panic("inia100: driver needs an IRQ.\n");
++			goto err_unregister;
+ 		}
+ 	}
+ 
+ 	tpnt->this_id = -1;
+ 	tpnt->can_queue = 1;
+ 	return 1;
++
++ err_unregister:
++	scsi_unregister(hreg);
++ err_release:
++	release_region(pHCB->HCS_Base, 256);
++ err_kfreeII:
++	kfree(pHCB->HCS_virEscbArray);
++ err_kfree:
++	kfree(pHCB->HCS_virScbArray);
++ err_out: 
++#ifdef MMAPIO
++	for(n=i; n<orc_num_ch; n++) {
++		unsigmed long base = inia100_adpt[n].ADPT_BASE & PAGE_MASK;
++		unsigned long page_offset = inia100_adpt[n].ADPT_BASE - base;
++		iounmap( base, page_offset+256);
++	}
++#endif
++
++	if (i > 0)
++		return 1;
++	return 0;
+ }
+ 
+ /*****************************************************************************
+@@ -775,15 +792,6 @@
+ static void inia100_intr7(int irqno, void *dev_id, struct pt_regs *regs)
+ {
+ 	subIntr(&orc_hcs[7], irqno);
+-}
+-
+-/* 
+- * Dump the current driver status and panic...
+- */
+-static void inia100_panic(char *msg)
+-{
+-	printk("\ninia100_panic: %s\n", msg);
+-	panic("inia100 panic");
+ }
+ 
+ /*
 
 -- 
-Pekka Savola                  "Tell me of difficulties surmounted,
-Netcore Oy                    not those you stumble over and fall"
-Systems. Networks. Security.   -- Robert Jordan: A Crown of Swords
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
----------- Forwarded message ----------
-Date: Tue, 23 Jan 2001 13:34:53 -0800 (PST)
-From: Guy Harris <guy@netapp.com>
-To: Pekka Savola <pekkas@netcore.fi>
-Cc: robbi8 <robbi8@gblx.net>, tcpdump-workers@tcpdump.org
-Subject: Re: [tcpdump-workers] concerns about tcpdump
-
-> On Tue, 23 Jan 2001, Pekka Savola wrote:
->
-> > On Tue, 23 Jan 2001, robbi8 wrote:
-> > > Greetings,
-> > >  I sent the below over a week ago and haven't heard a response. I just
-> > > wanted to see if you received it and if you had seen similar issues.
-> >
-> > Thisi is a problem with ifconfig in net-tools package I believe, not
-> > tcpdump, as the kernel log shows:
-> >
-> > device eth0 entered promiscuous mode
-> > device eth0 left promiscuous mode
-> >
-> > I haven't really dug into this deeper.
->
-> Whoops.
->
-> This is an issue with tcpdump/libpcap after all I suppose, caused by the
-> fact that new packet socket mode is used for 2.2+ kernel.
->
-> In libpcap/pcap-linux.c:
->
-> ---
->                        mr.mr_type    = promisc ?
->                                 PACKET_MR_PROMISC : PACKET_MR_ALLMULTI;
-> ---
->
-> IFF_PROMISC is not set,
-
-It's not supposed to be set.
-
-The correct way to put into promiscuous mode the device to which a
-PF_PACKET socket is to do a SOL_PACKET/PACKET_ADD_MEMBERSHIP
-"setsockopt()" call with PACKET_MR_PROMISC as the argument (see the
-"packet(7)" man page), and that's what libpcap is doing.
-
-The old way of directly setting IFF_PROMISC had problems - to quote the
-comment at the front of "pcap-linux.c":
-
- *   - We have to set the interface's IFF_PROMISC flag ourselves, if
- *     we're to run in promiscuous mode, which means we have to turn
- *     it off ourselves when we're done; the kernel doesn't keep track
- *     of how many sockets are listening promiscuously, which means
- *     it won't get turned off automatically when no sockets are
- *     listening promiscuously.  We catch "pcap_close()" and, for
- *     interfaces we put into promiscuous mode, take them out of
- *     promiscuous mode - which isn't necessarily the right thing to
- *     do, if another socket also requested promiscuous mode between
- *     the time when we opened the socket and the time when we close
- *     the socket.
-
-With the new mechanism, the kernel *does* keep track of how many
-requests for promiscuous mode there were, so that libpcap doesn't have
-to turn promiscuous mode off by itself.
-
-The kernel code appears to set the IFF_PROMISC flag in the "flags" field
-of the "struct device" structure for the interface - see
-"dev_set_promiscuity()" in "net/core/dev.c".
-
-However, the code to handle SIOCGIFFLAGS doesn't return the IFF_PROMISC
-flag from that field, ti returns the IFF_PROMISC flag from the "gflags"
-field - see "dev_ifsioc()" in "net/core/dev.c".
-
-"dev_change_flags()" (also in "net/core/dev.c") does appear to set the
-IFF_PROMISC flag in "gflags" if the "flags" argument has it set; it then
-calls "dev_set_promiscuity()".
-
-However, the code to handle PACKET_MR_PROMISC directly calls
-"dev_set_promiscuity()"; it doesn't set the "gflags" bit.
-
-This means that only promiscuity requested by SIOCSIFFLAGS will show up
-in SIOCGIFFLAGS, not promiscuity requested by PACKET_MR_PROMISC.
-
-This may be intentional; if anybody doesn't like that behavior, they
-should take it up with the Linux networking folk - I don't think libpcap
-should use the deprecated SOCK_PACKET mechanism merely so that
-"ifconfig" will report PROMISC on interfaces on which promiscuous
-captures are being done, especially given that there are *other*
-versions of libpcap that use PF_PACKET sockets as well (e.g., the
-versions with Alexey Kuznetzov's patches - the Red Hat 6.1 and later,
-and SuSE 6.whatever and later, distributions have those patches
-applied).
-
+If we do not succeed, then we run the risk of failure.
+		-- Vice President Dan Quayle, to the Phoenix Republican
+		   Forum, March 1990
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292461AbSCDQVS>; Mon, 4 Mar 2002 11:21:18 -0500
+	id <S292475AbSCDQ0s>; Mon, 4 Mar 2002 11:26:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292466AbSCDQVI>; Mon, 4 Mar 2002 11:21:08 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:11966 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S292461AbSCDQU5>; Mon, 4 Mar 2002 11:20:57 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Robert Love <rml@tech9.net>
-Subject: Re: latency & real-time-ness.
-Date: Mon, 4 Mar 2002 17:20:41 +0100
-X-Mailer: KMail [version 1.3.9]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200203041720.41169.Dieter.Nuetzel@hamburg.de>
+	id <S292466AbSCDQ0i>; Mon, 4 Mar 2002 11:26:38 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:14772 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292395AbSCDQ0T>; Mon, 4 Mar 2002 11:26:19 -0500
+Date: Mon, 4 Mar 2002 17:26:17 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
+Message-ID: <20020304172617.B1648@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020304.041252.13772021.davem@redhat.com> <20020304164453.A27587@stud.ntnu.no> <3C83993A.94FE655E@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C83993A.94FE655E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 04, 2002 at 10:56:42AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Montag, 4. März 2002 03:45:27, Robert Love wrote:
-> On Sun, 2002-03-03 at 22:32, Ben Greear wrote:
->
-> > I found this patch:
-> > preempt-kernel-rml-2.4.19-pre2-ac2-1.patch
-> >
-> > It applied cleanly...looks like maybe this isn't
-> > the low-latency patch though now that I look at
-> > it a little closer.
->
-> Right, it is not.  It is the preemptive kernel patch.  More information
-> can be found at http://tech9.net/rml/linux
+Jeff Garzik:
+> And, what MTU are you using?  You may have answered this earlier and I
+> forgot :)  If you -are- on a gigabit network, then you [currently] must
+> manually enable an MTU of 9000 (jumbo frames).
 
-Robert I am running 2.4.19-pre2-ac2 + preemption + lock-break.
-It is very snappy due to lock-break I think.
-But lock-break failed on vmscan.c and I didn't apply it by hand this time.
-There was another fail but it was small and easily fixable.
-We need a new lock-break, soon.
+First mail with MTU 9000, tg3 in both ends:
 
-Sadly it is relative hard to put sched-O1-2.4.18-pre8-K3.patch and preemption 
-on top of 2.4.19pre2aa1 which I did for several weeks before. The throughput 
-with -aa VM maintenance is much better then with -ac.
+test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./lat_tcp 129.241.56.160
+TCP latency using 129.241.56.160: 146.3539 microseconds
 
-Latest -aa is 2.4.18-pre8-K3-VM-24-preempt-lock.
 
-Regards,
-	Dieter
+However, there seems to be a problem with the bw_tcp-tool, cause it just
+hangs, trying to strace it won't gimme me much usefull info about why it
+hangs either. (it worked like a charm with 1500 MTUs).
 
+Ok, right now I just tried the nttcp tool (which I used to benchmark this
+driver in an earlier posting), it seems like there's a bug with MTU 9000 and
+TCP:
+
+[this is UDP, works like a charm]
+kiwi:/usr/src# /root/nttcp-1.47/nttcp -t -u -v 129.241.56.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=10519
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1: Pid=3197,
+InetPeer= 1)
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1:
+Optionline="nttcp@-r@)
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=dataport: 5038)
+nttcp-l: send window size = 65535
+nttcp-l: receive window size = 65535
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-l: transmitted 8388608 bytes
+l  8388608    0.07    0.02    993.7049   3355.4432    2051  30369.89
+102550.0
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: got EOF
+nttcp-1: received 0 bytes
+1             0.07    0.00      0.0000      0.0000       1     14.64
+100000.0
+nttcp-1: exiting
+
+[and this is TCP, doesn't exactly work like a charm]
+kiwi:/usr/src# /root/nttcp-1.47/nttcp -t -v 129.241.56.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=10520
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1: Pid=3198,
+InetPeer= 1)
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1:
+Optionline="nttcp@-r@)
+nttcp-l: from 129.241.56.161: "129.241.56.161" (=dataport: 5038)
+nttcp-l: send window size = 27900
+nttcp-l: receive window size = 87380
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: accept from 129.241.56.160
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: send window size = 27900
+nttcp-1: receive window size = 87380
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
+
+[cause here it hangs]
+
+
+I can still stop the program with CTRL-C, so I dont' know what it is,
+someone enlighten me, please? :)  
+
+-- 
+Thomas

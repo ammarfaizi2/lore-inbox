@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317947AbSFSRan>; Wed, 19 Jun 2002 13:30:43 -0400
+	id <S317948AbSFSRgH>; Wed, 19 Jun 2002 13:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317948AbSFSRam>; Wed, 19 Jun 2002 13:30:42 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7437 "HELO
+	id <S317949AbSFSRgG>; Wed, 19 Jun 2002 13:36:06 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13838 "HELO
 	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317947AbSFSRal>; Wed, 19 Jun 2002 13:30:41 -0400
-Date: Wed, 19 Jun 2002 14:18:31 -0300 (BRT)
+	id <S317948AbSFSRgF>; Wed, 19 Jun 2002 13:36:05 -0400
+Date: Wed, 19 Jun 2002 14:35:45 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [PATCH] (2/2) reverse mappings for current 2.5.23 VM
-In-Reply-To: <E17Kipf-0000uu-00@starship>
-Message-ID: <Pine.LNX.4.44L.0206191417290.2598-100000@imladris.surriel.com>
+To: Dave Jones <davej@suse.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+       Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Linus Torvalds <torvalds@transmeta.com>,
+       <rwhron@earthlink.net>
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+In-Reply-To: <20020619191136.H29373@suse.de>
+Message-ID: <Pine.LNX.4.44L.0206191429300.2598-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -22,30 +24,37 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jun 2002, Daniel Phillips wrote:
+On Wed, 19 Jun 2002, Dave Jones wrote:
+> On Wed, Jun 19, 2002 at 07:00:57PM +0200, Daniel Phillips wrote:
+>  > > ...Hope this is of use to someone!  It's certainly been a fun and
+>  > > instructive exercise for me so far.  ;)
+>  > It's intensely useful.  It changes the whole character of the VM discussion
+>  > at the upcoming kernel summit from 'should we port rmap to mainline?' to 'how
+>  > well does it work' and 'what problems need fixing'.  Much more useful.
+>
+> Absolutely.  Maybe Randy Hron (added to Cc) can find some spare time
+> to benchmark these sometime before the summit too[1]. It'll be very
+> interesting to see where it fits in with the other benchmark results
+> he's collected on varying workloads.
 
-> > > 2.5.23-rmap (this patch -- "rmap-minimal"):
-> > > Total kernel swapouts during test = 24068 kB
-> > > Total kernel swapins during test  =  6480 kB
-> > > Elapsed time for test: 133 seconds
-> > >
-> > > 2.5.23-rmap13b (Rik's "rmap-13b complete") :
-> > > Total kernel swapouts during test = 40696 kB
-> > > Total kernel swapins during test  =   380 kB
-> > > Elapsed time for test: 133 seconds
+Note that either version is still untuned and rmap for 2.5
+still needs pte-highmem support.
 
-> You might conclude from the above that the lru+rmap is superior to
-> aging+rmap: while they show the same wall-clock time, lru+rmap consumes
-> considerably less disk bandwidth.  Naturally, it would be premature to
-> conclude this from one trial on one load.
+I am encouraged by Craig's test results, which show that
+rmap did a LOT less swapin IO and rmap with page aging even
+less. The fact that it did too much swapout IO means one
+part of the system needs tuning but doesn't say much about
+the thing as a whole.
 
-On the contrary, aging+rmap shows a lot less swapins.
+In fact, I have a feeling that our tools are still too
+crude, we really need/want some statistics of what's
+happening inside the VM ... I'll work on those shortly.
 
-The fact that it has more swapouts than needed means
-we need to fix one aspect of the thing (page_launder),
-it doesn't mean we should get rid of the whole thing.
+Once we do have the tools to look at what's happening
+inside the VM we should be much better able to tune the
+right places inside the VM.
 
-kind regards,
+regards,
 
 Rik
 -- 

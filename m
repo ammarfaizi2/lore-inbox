@@ -1,88 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUFADnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264874AbUFADqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbUFADnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 23:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUFADnl
+	id S264874AbUFADqF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 23:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUFADqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 23:43:41 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:40844 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264874AbUFADng (ORCPT
+	Mon, 31 May 2004 23:46:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38530 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S264874AbUFADpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 23:43:36 -0400
-Message-Id: <200406010343.i513hAak005922@zeus.kernel.org>
-From: hodri meydan <harbiciyiz@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: harbiciyiz@hotmail.com
-Subject: =?utf-7?q?YA_S=DDZ=DDN_HORTUMCULARA_NE_DEMEL=DD=3F_SAYIN_BAKAN!?=
-Date: Tue, 01 Jun 2004 06:44:17 +0300
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="eee1c273-c58d-4690-a278-bae38c397e15"
+	Mon, 31 May 2004 23:45:50 -0400
+Subject: Re: Linux 2.6.7-rc2 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1086061487.3436.2.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 31 May 2004 20:44:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-This is a multi-part message in MIME format
---eee1c273-c58d-4690-a278-bae38c397e15
-Content-Type: text/plain; charset=utf-7
-Content-Transfer-Encoding: quoted-printable
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
+2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-Merhaba.
-Bant dan yay=FDnlanan TEKE TEK' de program=FDnda Say=FDn ekonomiden sorumlu =
-bakan, Tasarruf Sigorta Fonuna devredilen bat=FDk banka sahiplerine ve bu =
-bankalar=FDn alacakl=FD oldu=F0u ki=FEilere hi=E7bir ayr=FDm yap=FDlmadan =
-devletin mal=FDn=FD hortumlayanlardan hesap sorulacakt=FDr, kimseye farkl=FD =
-ve imtiyazl=FD muamele yoktur demektedir.
-Peki, say=FDn bakan a=E7=FDklas=FDn o zaman;
-AKP genel merkezine 6 adet Clio sembol ve Fort Transit T280 arac=FD kiralad=FD=
-klar=FD VER=DD B=DDL=DD=DE=DDM
-1-Tasarruf Mevduat=FD Sigorta Fonuna devredilen bat=FDk bankalardan olan S=FC=
-merbank'a ORNAS bilgisayar olarak, bor=E7lu olan ve hakk=FDnda g=FDyabi =
-tutuklama karar=FD olan Azmi ORKUN' nun hala haz=FDrda annesi, karde=FEi ve =
-eni=FEtelerinin =FCzerine kay=FDtl=FD olup, kira s=F6zle=FEmesinin yap=FD=
-lmas=FDndan sadece 10 g=FCn =F6nce Veri bili=FEim =FEirketinin =FEirket i=FE=
-tigal alan=FDna eklenmi=FE ve o g=FCne kadar hi=E7bir =FEekilde kiralama i=FE=
-i yapmam=FD=FE bu ki=FEilere parti kanal=FDyla ara=E7 kiralamas=FD 3 y=FDll=FD=
-k yap=FDlmam=FD=FE m=FDd=FDr.
-2- Hala haz=FDrda =C7etin Eme=E7 Bulvar=FD 2.cad. No.12/8 adresinde, s=F6z=FC=
-m ona aranan Azmi Orkun,   Devlete olan bor=E7lar=FDn=FD ka=E7=FDrmak i=E7in =
-9 ay =F6nceye kadar yeni =FEafak gazetesinin de Ankara Temsilcili=F0inin =
-bulundu=F0u binay=FD Albayraklara yada yak=FDnlar=FDna devretmemi=FE midir?
-3.AKP nin bu veri bili=FEim le yapt=FD=F0=FD ara=E7 kiralama i=FEi s=F6zle=FE=
-mesinde, imzas=FD bulunan, partiye s=F6z=FCm ona teklif veren ABDULLAH G=DC=
-ND=DCZ, (me=FEhur M=FCsl=FCm G=FCnd=FCz=FCn =F6z ye=F0eni,) hangi vas=FDfla =
-veri bili=FEim ad=FDna, AKP'yle bu s=F6zle=FEmeyi imzalam=FD=FEt=FDr.
-Bu s=F6zle=FEmeler hangi bankalara verilip =F6z sermayesi olmayan, 2 arac=FDn =
-finans bank(yada Pamukbank) 2 arac=FDn =FEeker bank,2 arac=FDnda i=FE =
-bankas=FDndan kimlerin kefaletiyle ve yedi eminli=F0iyle al=FDn=FDp Ankara =
-Neziro=F0lu otomobile kimlerin kredi =E7ekerek =F6dedi=F0i, bu kadar aczi yet =
-i=E7inde olan bu =FEirkete bu i=FElerin neden ve kimler kollanarak yap=FDld=FD=
-=F0=FDn=FD sormak gerekir 
-4-AKP i=E7inde Say=FDn Erdo=F0an'a ba=F0l=FD medya Tan=FDt=FDmda =E7al=FD=FE=
-an =DDbrahim Bayram kanal=FDyla, parti i=E7ine sokulan Abdullah G=FCnd=FCz'=FC=
- Egemen Ba=F0=FD=FE ba=FEta olmak =FCzere, her kap=FDy=FD a=E7mak i=E7in, =
-yukarda bahsedilen ve i=FEi Bilgisayar sat=FD=FE=FD olan VER=DD B=DDL=DD=DE=DD=
-M, sonradan VER=DD RENT A CAR, VER=DD MOB=DDLYA DEKORASYON, gibi, Serkan =
-Akg=FCn, =D6zg=FCr Bakar, Abdullah G=FCnd=FCz, L=FCtfi G=FCnd=FCz gibi 1 =
-seneye kadar =F6nce a=E7l=FDktan nefesleri kokan bu =FEah=FDslar, devlete =
-borcundan dolay=FD yaz=FDhane de delikten bakmadan kap=FD a=E7amayan bu ki=FE=
-iler acaba bug=FCn AKP taraf=FDndan ni=E7in korunup, =E7e=FEitli i=FElerle =
-ba=F0lant=FD kurdurularak sizce devlet bir =FEekilde hortumlat=FDlm=FDyor mu? =
-Bu ki=FEilerin ba=FEta uyu=FEturucuyla ve ge=E7mi=FElerindeki karanl=FDk i=FE=
-lere bak=FDlmadan devlet b=FCy=FCklerinin bu kadar yak=FDnlar=FDnda cirit =
-atmas=FD acaba sizden olduklar=FD i=E7in midir?
-5-23 EV 698 plakal=FD Ba=FEbakanl=FDk =D6zel Arac=FDd=FDr Kart=FD bulunan =
-ara=E7 kime ni=E7in, ne ama=E7la =E7=FDkart=FDlarak verilmi=FEtir.
-Say=FDn Bakan, sizin hortumcunuz, sizin adamlar=FDn=FDz=FDn i=FEbitiricili=F0=
-i konu oldu mu?
-Bakal=FDm ne diyecek siniz. =C7=FCnk=FC bu =FEah=FDslar=FD ve yapt=FDklar=FD =
-i=FEleri gene Tan=FDt=FDm ve Medyadan sorumlu Say=FDn Murat Mercan beye tam 1 =
-seneye yak=FDn bir zaman =F6nce t=FCm yapt=FDklar=FDn=FD ve ne =FEekilde bir =
-=E7eteyle parti i=E7ine s=FDzd=FDklar=FDn=FD bildirdim, ama sizin olan=FD =
-size bildirmi=FEim me=F0er.
-NOT: Bu bilgilerin yani partiyle yap=FDlm=FD=FE alt=FDnda Abdullah G=FCnd=FCz =
-imzal=FD 3 y=FDll=FDk ara=E7 kira s=F6zle=FEmesi, 23 EV 698 plakal=FD araca =
-=E7=FDkart=FDlm=FD=FE Ba=FEbakanl=FDk =D6zel Arac=FDd=FDr kart=FD ve bunlar=FD=
-n t=FCm pis i=FElerine ait bilgi elimde mevcut olup Mail adresime d=F6n=FC=
-ld=FC=F0=FCnde ilgililere fakslanabilir.   
---eee1c273-c58d-4690-a278-bae38c397e15--
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+
 

@@ -1,90 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUGMA2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUGMAYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUGMA2R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 20:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUGMA11
+	id S264538AbUGMAYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 20:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGMAYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 20:27:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60375 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264531AbUGMA0K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 20:26:10 -0400
-Date: Mon, 12 Jul 2004 17:24:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org, florin@sgi.com,
-       linux-audio-dev@music.columbia.edu
-Subject: Re: desktop and multimedia as an afterthought?
-Message-Id: <20040712172458.2659db52.akpm@osdl.org>
-In-Reply-To: <200407122354.i6CNsNqS003382@localhost.localdomain>
-References: <1089665153.1231.88.camel@cube>
-	<200407122354.i6CNsNqS003382@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jul 2004 20:24:09 -0400
+Received: from mail3.speakeasy.net ([216.254.0.203]:44008 "EHLO
+	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S264538AbUGMAWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 20:22:36 -0400
+Date: Mon, 12 Jul 2004 17:22:30 -0700
+Message-Id: <200407130022.i6D0MUdI023333@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jim Paradis <jparadis@redhat.com>, Andrew Cagney <cagney@redhat.com>
+Subject: [PATCH] x86-64 singlestep through sigreturn system call
+X-Zippy-Says: Th' PINK SOCK... soaking... soaking... soaking...  Th' PINK
+   SOCK... washing... washing... washing...  Th' PINK
+   SOCK... rinsing... rinsing... rinsing...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Davis <paul@linuxaudiosystems.com> wrote:
->
-> >It's too bad that the multimedia community didn't participate
-> >much during the 2.5.xx development leading up to 2.6.0. If they
-> >had done so, the situation might be different today. Fortunately,
-> >fixing up the multimedia problems isn't too risky to do during
-> >the stable 2.6.xx series.
-> 
-> I regret that this description is persisting here. "We" (the audio
-> developer community) did not participate because it was made clear
-> that our needs were not going to be considered. We were told that the
-> preemption patch was sufficient to provide "low latency", and that
-> rescheduling points dotted all over the place was bad engineering
-> (probably true). With this as the pre-rendered verdict, there's not a
-> lot of point in dedicating time to tracking a situation that clearly
-> is not going to work.
+With Davide Libenzi's patch for i386 and my follow-on patch for x86-64's
+ia32 support, single-stepping through any system call correctly traps
+immediately on return to user mode.  I still don't know why the same
+problem doesn't arise for `syscall'/`sysret' on native 64-bit x86-64, and
+would like someone to point me at what I misunderstood in the chip manuals.
 
-No, this is wrong.  2.6+preempt can satisfy your latency requirements
-without any scheduling points.  All it requires is that the long-held locks
-be addressed.  I've already done a metric ton of work in that area (notably
-removal of the buffer_head LRUs and rewriting the truncate code) but more
-apparently remains to be done.  We know that reiserfs has problems.
+But, there is a problem in the case of the rt_sigreturn system call on
+native x86-64.  When using PTRACE_SINGLESTEP to step into an rt_sigreturn
+system call and the sigcontext being restored does not have TF set in its
+%eflags, then we miss the single-step trap.  This makes gdb unhappy.
 
-But what can I do?  I set up a preempt-on-ext3 test box, thrash the crap
-out of it and see 300 usecs worst-case latency.  So I am left empty-handed,
-wondering what on earth is happening out there.
+Here is a test program to run under gdb.  Set a breakpoint on "keeper".
+When SIGSEGV hits, just continue to let the program handle it.  When you
+get into "keeper", do "display/i $pc" to see what's going on and then do
+"stepi" repeatedly to get out of the handler and into the signal handler
+trampoline as it makes the rt_sigreturn system call.  When you step into
+the `syscall' instruction, you will lose control.  Rather than stopping
+immediately, the program will reexecute the faulting instruction and take a
+second SIGSEGV.
 
-I am deeply skeptical about claims that autoregulated swappiness can make
-any difference.
+	#include <signal.h>
+	#include <stdlib.h>
+	#include <string.h>
 
-I am deeply skeptical about claims that CPU scheduler changes make any
-difference.  A scheduler change shouldn't improve responsiveness of
-!SCHED_OTHER tasks at all, so perhaps there are application priority
-inversion problems, or applications aren't setting SCHED_FIFO/RR correctly.
-I do not know.
+	extern void
+	keeper (int sig)
+	{
+	}
 
-I am also fairly skeptical about claims that voluntary-preempt helps,
-because it only pops a couple of locks, and I doubt that testers are
-hitting the code paths which those changes address anyway.
+	volatile long v1 = 0;
+	volatile long v2 = 0;
+	volatile long v3 = 0;
 
-So Something Is Up, and I don't know what it is.
+	extern long
+	bowler (void)
+	{
+	  /* Try to read address zero.  Do it in a slightly convoluted way so
+	     that more than one instruction is used.  */
+	  return *(char *) (v1 + v2 + v3);
+	}
 
-Please double-check that there are no priority inversion problems and that
-the application is correctly setting the scheduling policy and that it is
-mlocking everything appropriately.
+	int
+	main ()
+	{
+	  static volatile int i;
 
-And please ensure that people are setting xrun_debug, and are sending
-reports.
+	  struct sigaction act;
+	  memset (&act, 0, sizeof act);
+	  act.sa_handler = keeper;
+	  sigaction (SIGSEGV, &act, NULL);
 
-> The kernel is not going to provide adequate latency for multimedia
-> needs without either (1) latency issues being front and center in
-> every kernel developer's mind, which seems unlikely and/or (2)
-> conditional rescheduling points added to the kernel, which appears to
-> require non-mainstreamed patches.
-> 
+	  bowler ();
+	  return 0;
+	}
 
-Nope, the conditional rescheduling points provide zero benefit on a
-preemptible kernel.
 
-Something weird is happening, I don't know what it is, I cannot reproduce
-it and I need help understanding what it is, OK?  The sooner we can do
-that, the sooner it gets fixed up.
+This patch fixes the problem by forcing a fake single-step trap at the end
+of rt_sigreturn when PTRACE_SINGLESTEP was used to enter the system call.
+
+
+Thanks,
+Roland
+
+
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+
+Index: linux-2.6/arch/x86_64/kernel/signal.c
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/arch/x86_64/kernel/signal.c,v
+retrieving revision 1.23
+diff -b -p -u -r1.23 signal.c
+--- linux-2.6/arch/x86_64/kernel/signal.c 31 May 2004 03:08:04 -0000 1.23
++++ linux-2.6/arch/x86_64/kernel/signal.c 12 Jul 2004 22:14:07 -0000
+@@ -92,6 +92,7 @@ static int
+ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, unsigned long *prax)
+ {
+ 	unsigned int err = 0;
++	unsigned int caller_eflags;
+ 
+ 	/* Always make any pending restarted system calls return -EINTR */
+ 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+@@ -112,6 +113,7 @@ restore_sigcontext(struct pt_regs *regs,
+ 	{
+ 		unsigned int tmpflags;
+ 		err |= __get_user(tmpflags, &sc->eflags);
++		caller_eflags = regs->eflags;
+ 		regs->eflags = (regs->eflags & ~0x40DD5) | (tmpflags & 0x40DD5);
+ 		regs->orig_rax = -1;		/* disable syscall checks */
+ 	}
+@@ -128,6 +130,22 @@ restore_sigcontext(struct pt_regs *regs,
+ 	}
+ 
+ 	err |= __get_user(*prax, &sc->rax);
++
++	if (!err && unlikely(caller_eflags & X86_EFLAGS_TF) &&
++	    (current->ptrace & (PT_PTRACED|PT_DTRACE)) == (PT_PTRACED|PT_DTRACE)) {
++		/*
++		 * If ptrace single-stepped into the sigreturn system call,
++		 * then fake a single-step trap before we resume the restored
++		 * context.
++		 */
++		siginfo_t info;
++		info.si_signo = SIGTRAP;
++		info.si_errno = 0;
++		info.si_code = TRAP_BRKPT;
++		info.si_addr = (void *)regs->rip;
++		force_sig_info(SIGTRAP, &info, current);
++	}
++
+ 	return err;
+ 
+ badframe:

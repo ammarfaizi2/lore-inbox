@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265086AbTIDOnf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbTIDOnf
+	id S265172AbTIDOta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbTIDOta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:43:35 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:24330 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S265086AbTIDOne
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:43:34 -0400
-Date: Thu, 4 Sep 2003 15:43:32 +0100
-From: John Levon <levon@movementarian.org>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] synclinkmp.c 2.4.23-pre3
-Message-ID: <20030904144332.GA26973@compsoc.man.ac.uk>
-References: <1062685785.2181.5.camel@diemos>
+	Thu, 4 Sep 2003 10:49:30 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:29445 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265172AbTIDOt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 10:49:28 -0400
+Subject: [PATCH] fix remap of shared read only mappings
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 04 Sep 2003 10:49:18 -0400
+Message-Id: <1062686960.1829.11.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062685785.2181.5.camel@diemos>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19uvKe-000Etb-HZ*9aTioyl6s8g*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 09:29:45AM -0500, Paul Fulghum wrote:
+When mmap MAP_SHARED is done on a file, it gets marked with VM_MAYSHARE
+and, if it's read/write, VM_SHARED.  However, if it is remapped with
+mremap(), the MAP_SHARED is only passed into the new mapping based on
+VM_SHARED.  This means that remapped read only MAP_SHARED mappings lose
+VM_MAYSHARE.  This is causing us a problem on parisc because we have to
+align all shared mappings carefully to mitigate cache aliasing problems.
 
-> * add MODULE_LICENSE() macro
-> 
-> Please apply
+The fix is to key passing the MAP_SHARED flag back into the remapped are
+off VM_MAYSHARE not VM_SHARED.
 
-Why is it wrapped inside #ifdef MODULE_LICENSE ? It's in current 2.4 and
-current 2.6, no ? When would it ever not be defined ?
+James
 
-regards
-john
+===== mremap.c 1.32 vs 1.33 =====
+--- 1.32/mm/mremap.c	Thu Aug  7 12:29:10 2003
++++ 1.33/mm/mremap.c	Sun Aug 24 06:50:10 2003
+@@ -420,7 +420,7 @@
+ 	if (flags & MREMAP_MAYMOVE) {
+ 		if (!(flags & MREMAP_FIXED)) {
+ 			unsigned long map_flags = 0;
+-			if (vma->vm_flags & VM_SHARED)
++			if (vma->vm_flags & VM_MAYSHARE)
+ 				map_flags |= MAP_SHARED;
+ 
+ 			new_addr = get_unmapped_area(vma->vm_file, 0, new_len,
 
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287710AbSA1X45>; Mon, 28 Jan 2002 18:56:57 -0500
+	id <S287781AbSA1X5j>; Mon, 28 Jan 2002 18:57:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287781AbSA1X4r>; Mon, 28 Jan 2002 18:56:47 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:16466 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S287710AbSA1X4b>; Mon, 28 Jan 2002 18:56:31 -0500
-Date: Tue, 29 Jan 2002 00:57:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Daniel Jacobowitz <dan@debian.org>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH?] Crash in 2.4.17/ptrace
-Message-ID: <20020129005736.I1309@athlon.random>
-In-Reply-To: <3C55C2AB.AE73A75D@zip.com.au> <20020128221529.24108@smtp.wanadoo.fr>
+	id <S287770AbSA1X51>; Mon, 28 Jan 2002 18:57:27 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:38280
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287794AbSA1X5V>; Mon, 28 Jan 2002 18:57:21 -0500
+Date: Mon, 28 Jan 2002 18:57:32 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CNML2-2.2.0 is available
+Message-ID: <20020128185732.A27982@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020128221529.24108@smtp.wanadoo.fr>; from benh@kernel.crashing.org on Mon, Jan 28, 2002 at 11:15:28PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 11:15:28PM +0100, Benjamin Herrenschmidt wrote:
-> >Well, get_user_pages is used by several parts of the kernel.
-> >In the O_DIRECT/map_user_kiobuf case, we could end up asking
-> >the disk controller to perform busmastering against the video
-> >PCI device, which will probably explode somewhere down the chain.
-> 
-> Well... not sure. I'd like this to be doable. I have worked
-> on some high-end broadcast video stuffs in the past, and we
-> did intensive use of direct bus master from the disk controller
-> to the framebuffer linear aperture. Actually, we even controlled
+The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
 
-you can do direct DMA to framebuffer on most sane hardware, yes.  But
-the kiobuf structure on 2.4 doesn't allow that, it only works with valid
-'page structures' not physical addresses. This is valid for both rawio
-and O_DIRECT. The MM part is the same for both of course.
+Release 2.2.0: Mon Jan 28 18:33:25 EST 2002
+	* Resync with 2.5.3-pre5 and 2.4.18-pre7.
+	* Symbol files are split up per directory now.
+	* More order dependencies removed in the compiler.
 
-Andrea
+The bug queue contains one unconfirmed report of compilation trouble 
+from the Embedded Debian folks.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

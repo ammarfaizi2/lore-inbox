@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbTKHRxE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 12:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTKHRxE
+	id S261928AbTKHRuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 12:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTKHRuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 12:53:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59018 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261914AbTKHRxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 12:53:02 -0500
-Date: Sat, 8 Nov 2003 09:52:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ragnar Hojland Espinosa <ragnar@linalco.com>
-cc: Bill Davidsen <davidsen@tmr.com>, John Bradford <john@grabjohn.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <20031108150654.GA19980@linalco.com>
-Message-ID: <Pine.LNX.4.44.0311080950520.2787-100000@home.osdl.org>
+	Sat, 8 Nov 2003 12:50:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24708 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261928AbTKHRuF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 12:50:05 -0500
+Message-ID: <3FAD2CB6.5070508@pobox.com>
+Date: Sat, 08 Nov 2003 12:49:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+CC: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@redhat.com>
+Subject: Re: libata testing on new machine with ICH5 and PDC20318
+References: <3FACC17C.7070901@backtobasicsmgmt.com>
+In-Reply-To: <3FACC17C.7070901@backtobasicsmgmt.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 8 Nov 2003, Ragnar Hojland Espinosa wrote:
+Kevin P. Fleming wrote:
+> I'm building a new server to go into a colo facility in about six weeks; 
+> the machine will have an Intel motherboard with an ICH5R (although I 
+> won't use the RAID features) and a Promise SATA150 TX4 (no RAID 
+> support). All six SATA ports will have Seagate 160GB Barracuda drives 
+> attached, and I plan on using software RAID-5 and LVM2 on top of the array.
 > 
-> Well, I hope its in better state than the Mitsumi driver, because last
-> time I tried it was broken (oopsed in a simple cat) since a 2.3.xx
-> IIRC [0]
+> I will be building the system using 2.6.0-test9, so will be using libata 
+> to drive the disks. If there's anything I can help with 
+> debugging/testing the ICH and/or Promise SATA drivers let me know... I 
+> see that recently Jeff posted a small patch for some SATA reset issues 
+> against -test9, so I'll certainly start out with that included.
 
-Since 2._3_.xx?
 
-> [0]  Tracked it down to a -pre if anyone is interested and its still
->      broken.. 
+The ICH5 should be fine.  You may need to twiddle BIOS setup options, 
+some users have reported that both drivers/ide and libata fail in 
+certain BIOS modes.  "Enhanced - SATA only" is usually the preferred 
+mode, where feasible.
 
-Quite frankly, if it's literally been broken since 2.3.x, I think the best 
-thing to do would be to remove the driver entirely.
+You need to make sure you get the Promise SATA fixes I just pushed to 
+Linus.  Presumably they will be available in the next 2.6.0-testX BK 
+snapshot on ftp.kernel.org, tonight or the next night.
 
-Yeah, there's probably a fair number of those old CD-ROM drivers that 
-nobody uses with modern kernels (ie they might be used on some router that 
-hasn't been touched in forever, still running 2.2.x on a 8MB 386SX-16).
+	Jeff
 
-		Linus
+
 

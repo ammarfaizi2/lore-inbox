@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265847AbTF3SdU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 14:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbTF3SdT
+	id S264754AbTF3Sg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 14:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbTF3Sg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 14:33:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48077 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265847AbTF3SdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 14:33:18 -0400
-Date: Mon, 30 Jun 2003 20:47:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What did I miss?
-Message-ID: <20030630184733.GI282@fs.tum.de>
-References: <20030630161112.GB24137@rdlg.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030630161112.GB24137@rdlg.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Jun 2003 14:36:27 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:48870 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264754AbTF3SgT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 14:36:19 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] ethtool_ops
+Date: Mon, 30 Jun 2003 11:46:16 -0700
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107DA41@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ethtool_ops
+Thread-Index: AcM/JQbIMszpaCqQS+WgOt2bqBeAkAAERo+Q
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Matthew Wilcox" <willy@debian.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jun 2003 18:46:17.0164 (UTC) FILETIME=[E3A728C0:01C33F37]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 12:11:12PM -0400, Robert L. Harris wrote:
+> On Fri, Jun 06, 2003 at 01:17:46PM -0700, Feldman, Scott wrote:
+> > * On get_gregs, for example, would it make sense to ->get_drvinfo
+> >   so you'll know regdump_len and therefore can kmalloc an 
+> ethtool_regs
+> >   with enough space to pass to ->get_regs?  Keep the kmalloc and
+> >   kfree together.  Same for self_test, get_strings, and get_stats.
+> >   For get_strings, size = max{n_stats, testinfo_len)*sizeof(u64).
 > 
-> 2.4.21-ac3 kernel.  Compiling it without module support and alot of
-> devices.  I'm getting this:
->...
->         -o vmlinux
-> drivers/net/net.o(.data+0x854): undefined reference to `local symbols in
-> discarded section .text.exit'
-> make: *** [vmlinux] Error 1
+> That would be one possibility, but get_drvinfo is quite 
+> heavyweight. I think I'd prefer to not do that unless there's 
+> a strong feeling about thing.
+
+I'm pretty sure you want to do this.  The less work done in the drivers,
+the better.  See Jeff's response on this as well.
+ 
+> > * Can we get an HAVE_ETHTOOL_OPS defined in netdevice.h to support
+> >   backward compat?
 > 
-> 
-> 
-> (Please ignore CR wrapping by VI).
-> 
-> WTF is broken?  No obvious error messages outside a reference to net.o.
-> I've tried enabling and removing different options but this doesn't seem
-> to go away.  Any idea what option/driver is horked up?
+> I'm hoping to avoid that by getting compatibility code merged 
+> into 2.4.22.
 
-Please send your .config.
+I'm not sure what compatibility code you're referring to.  We need to
+target older kernels with the same code base, so a simple
+HAVE_ETHTOOL_OPS would make this easy.  I'd really like to move over to
+ethtool_ops for e100/e1000/ixgb, but it's problematic if we need to
+manage multiple code bases.
 
-> Robert
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-scott

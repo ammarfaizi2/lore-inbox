@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUGVUB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267191AbUGVUCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUGVUB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 16:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUGVUB5
+	id S267191AbUGVUCb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 16:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbUGVUCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 16:01:57 -0400
-Received: from av9-2-sn1.fre.skanova.net ([81.228.11.116]:26510 "EHLO
-	av9-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S267186AbUGVUBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 16:01:54 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.de>
-Subject: Problem with snd_atiixp in 2.6.8-rc2 (and a workaround)
-From: Peter Osterlund <petero2@telia.com>
-Date: 22 Jul 2004 22:01:49 +0200
-Message-ID: <m37jsv3j6a.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jul 2004 16:02:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39358 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267191AbUGVUC2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 16:02:28 -0400
+Date: Thu, 22 Jul 2004 16:01:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: corbet@lwn.net, linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-Id: <20040722160112.177fc07f.akpm@osdl.org>
+In-Reply-To: <20040722193337.GE19329@fs.tum.de>
+References: <40FEEEBC.7080104@quark.didntduck.org>
+	<20040721231123.13423.qmail@lwn.net>
+	<20040721235228.GZ14733@fs.tum.de>
+	<20040722025539.5d35c4cb.akpm@osdl.org>
+	<20040722193337.GE19329@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The snd_atiixp module in the 2.6.8-rc2 kernel doesn't work on my
-Compaq Presario R3000 (R3057EA) computer. When I load the module,
-the kernel reports:
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> my personal opinon is that this new development model isn't a good 
+> idea from the point of view of users:
+> 
+> There's much worth in having a very stable kernel. Many people use for 
+> different reasons self-compiled ftp.kernel.org kernels. 
 
-ACPI: PCI interrupt 0000:00:14.5[B] -> GSI 5 (level, low) -> IRQ 5
-ATI IXP AC97 controller: probe of 0000:00:14.5 failed with error -13
+Well.  We'll see.  2.6 is becoming stabler, despite the fact that we're
+adding features.
 
-The reason it fails is that snd_ac97_mixer() fails for the second
-codec (ie when i==1). The patch below makes my sound card work, but
-that patch was just based on wild guesses and is probably not
-correct.
-
-lspci reports:
-
-00:14.5 Multimedia audio controller: ATI Technologies Inc IXP150 AC'97 Audio Controller
-        Subsystem: Hewlett-Packard Company: Unknown device 006b
-        Flags: bus master, 66Mhz, slow devsel, latency 64, IRQ 5
-        Memory at e8003000 (32-bit, non-prefetchable)
-
-Any idea how to fix this the right way?
-
----
-
- linux-petero/sound/pci/atiixp.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
-diff -puN sound/pci/atiixp.c~r3000-sound-workaround sound/pci/atiixp.c
---- linux/sound/pci/atiixp.c~r3000-sound-workaround	2004-07-22 21:41:18.804609120 +0200
-+++ linux-petero/sound/pci/atiixp.c	2004-07-22 21:41:50.549783120 +0200
-@@ -1387,12 +1387,13 @@ static int __devinit snd_atiixp_mixer_ne
- 		ac97.num = i;
- 		ac97.scaps = AC97_SCAP_SKIP_MODEM;
- 		if ((err = snd_ac97_mixer(pbus, &ac97, &chip->ac97[i])) < 0) {
--			if (chip->codec_not_ready_bits)
-+			if (chip->codec_not_ready_bits) {
- 				/* codec(s) was detected but not available.
- 				 * return the error
- 				 */
--				return err;
--			else {
-+				chip->ac97[i] = NULL; /* to be sure */
-+				continue;
-+			} else {
- 				/* codec(s) was NOT detected, so just ignore here */
- 				chip->ac97[i] = NULL; /* to be sure */
- 				snd_printd("atiixp: codec %d not found\n", i);
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+I wouldn't be averse to releasing a 2.6.20.1 which is purely stability
+fixes against 2.6.20 if there is demand for it.  Anyone who really cares
+about stability of kernel.org kernels won't be deploying 2.6.20 within a
+few weeks of its release anyway, so by the time they doodle over to
+kernel.org they'll find 2.6.20.2 or whatever.

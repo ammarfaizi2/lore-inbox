@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUGAE7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263942AbUGAE6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUGAE7r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 00:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGAE7q
+	id S263942AbUGAE6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 00:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGAE6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 00:59:46 -0400
-Received: from lakermmtao02.cox.net ([68.230.240.37]:7390 "EHLO
-	lakermmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S263971AbUGAE7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 00:59:38 -0400
-In-Reply-To: <20040701041158.GE1564@mail.shareable.org>
-References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com> <20040701032606.GA1564@mail.shareable.org> <00345FCC-CB11-11D8-947A-000393ACC76E@mac.com> <20040701041158.GE1564@mail.shareable.org>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <736E7483-CB1B-11D8-947A-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Testing PROT_NONE and other protections, and a surprise
-Date: Thu, 1 Jul 2004 00:59:36 -0400
-To: Jamie Lokier <jamie@shareable.org>
-X-Mailer: Apple Mail (2.618)
+	Thu, 1 Jul 2004 00:58:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48585 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263942AbUGAE6l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 00:58:41 -0400
+Date: Wed, 30 Jun 2004 21:57:25 -0700
+From: Greg KH <greg@kroah.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How NOT to have already compiled modules (auto)load?
+Message-ID: <20040701045725.GC2150@kroah.com>
+References: <40E37954.3080201@thinrope.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40E37954.3080201@thinrope.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 01, 2004, at 00:11, Jamie Lokier wrote:
-> Can you confirm in a simple way that mapping a file, or some anonymous
-> memory, without PROT_READ, really isn't writable under MacOS X?  Can
-> you confirm it with a word write, if that would be relevant?
+On Thu, Jul 01, 2004 at 11:39:16AM +0900, Kalin KOZHUHAROV wrote:
+> Sorry for the fuzzy subject, I couldn't formulate it better.
+> 
+> I was trying to find info on that on Google, man and Documentation/*, but 
+> to no avail...
+> 
+> I have a laptop with USB CD-ROM that is very rarely attached/used.
+> I have sr_mod, etc. compiled as modules.
+> On every boot it gets autoloaded, despite the fact that CD-ROM is not 
+> connected (no, I don't have another).
+> 
+> My question is is there any good(tm) way to prevent this?
+> One way I could think is to rename the module, but that is a bit bad.
+> Is there a way to blacklist some modules?
 
-I hope I didn't make some stupid mistake in my program, but here it is, 
-and
-here are my results.  I'll probably go file a bug with Apple now :-D
+/etc/hotplug/blacklist will prevent the hotplug scripts from loading the
+module automatically.
 
-zeus:~ kylemoffett$ cat >testp.c
-#include <sys/types.h>
-#include <sys/mman.h>
+Hope this helps,
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-
-int main(int argc, char **argv) {
-         long x = 100;
-         void *mem;
-         fprintf(stderr,"Starting...\n");
-         mem = mmap(0,4096,PROT_WRITE,MAP_ANON|MAP_SHARED,-1,0);
-         fprintf(stderr,"Mapped memory!\n");
-         if (mem == 0) return 1;
-         fprintf(stderr,"Address is %lx\n",(unsigned long)mem);
-         ((long *)mem)[1] = x;
-         fprintf(stderr,"Done!!!\n");
-         return 0;
-}
-^D
-zeus:~ kylemoffett$ gcc testp.c -o testp
-zeus:~ kylemoffett$ ./testp
-Starting...
-Mapped memory!
-Address is 4000
-Bus error
-zeus:~ kylemoffett$
-
-Cheers,
-Kyle Moffett
-
+greg k-h

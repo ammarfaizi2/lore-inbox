@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbSKEI6A>; Tue, 5 Nov 2002 03:58:00 -0500
+	id <S264828AbSKEI4Y>; Tue, 5 Nov 2002 03:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264831AbSKEI6A>; Tue, 5 Nov 2002 03:58:00 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:48014 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264690AbSKEI55>;
-	Tue, 5 Nov 2002 03:57:57 -0500
-Date: Tue, 5 Nov 2002 14:35:53 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Oliver Xymoron <oxymoron@waste.org>,
-       Dave Anderson <anderson@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net,
-       lkcd-general-admin@lists.sourceforge.net,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Matt D. Robinson" <yakker@aparity.com>
-Subject: Re: [lkcd-general] Re: What's left over.
-Message-ID: <20021105143553.A11120@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <Pine.LNX.4.44.0211040727330.771-100000@home.transmeta.com> <1036429035.1718.99.camel@irongate.swansea.linux.org.uk>
+	id <S264829AbSKEI4Y>; Tue, 5 Nov 2002 03:56:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51205 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264828AbSKEI4X>; Tue, 5 Nov 2002 03:56:23 -0500
+Date: Tue, 5 Nov 2002 09:02:56 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.45 odd deref in serial_in
+Message-ID: <20021105090256.A17931@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@holomorphy.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211042323410.27141-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1036429035.1718.99.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 04, 2002 at 04:40:11PM +0000
+In-Reply-To: <Pine.LNX.4.44.0211042323410.27141-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Mon, Nov 04, 2002 at 11:27:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 04:40:11PM +0000, Alan Cox wrote:
-> Let me ask another question here
-> 
-> Other than "register_reboot_notifier()" and adding a 
-> "register_exception_notifier()" chain what else does a dump tool need.
-> Register_exception_notifier seems to solve about 90% of the insmod gdb 
-> problem space as well ?
-> 
-> 
+On Mon, Nov 04, 2002 at 11:27:28PM -0500, Zwane Mwaikambo wrote:
+> The only modifications to this code are a slightly hacked up nmi watchdog 
+> timer.
 
-I had tried to list these in an earlier mail, added a few more
-comments now marked by ">>"
+Well, Andi Kleen reported that serial_in appears in his boot time
+profile after a boot.
 
-1.Enabling IPI to collect CPU state on all processors in the
-  system right when dump is triggered (may not be a normal
-  situation, so NMIs where supported are the best option)
+Depending on the baud rate used, serial console printk spends time
+spinning waiting for the serial port to send characters.  The slower
+the baud rate, obviously the longer it spins.
 
-  >> set/register_nmi_callback could also help in part (though 
-  >> synchronization issues need to be thought through so that
-  >> the effect on regular system operation is as low as possible), 
-  >> but we also need an interface to generate the NMI ipi when
-  >> required, and something that generalises on all architectures.
+Andi tried to suggest ways to make serial console asynchronous so we
+didn't have to spin, but any solution in that direction means that we:
 
-2.Ability to quiesce (silence) the system before dumping 
-  (and if in non-disruptive mode, then restore it back)
- >> smp_call_function may not the ideal option for many situations
- >> - in general we would like to have a separate "force" path
- >> available for some troublesome situations, and it would be 
- >> nice to be able to tackle non-disruptive (but accurate) dumping
- >> as well.
+a) have to rely on interrupts running
+b) have to buffer the data somewhere, which may possibly fill up and
+   then what do we do with the printk message
 
- >> maybe 1 & 2 can be combined in some form
- >> Dump should preferably not overlap with a regularly used IPI.
- 
-3. Calls into dump from kernel paths (panic, oops, sysrq
-   etc). 
+Bear in mind that dropping random printk messages because we've filled
+a buffer isn't acceptable.  Also note that the behaviour in this area
+hasn't changed since 2.4 times.
 
-   >> This is where your register_xxx_notifier(s) fit in
-
-4. Exports of symbols to help with physical memory 
-   traversal and verification
-
-   >> Covers what Andi Kleen referred to as 
-   >> iterate_over_memmap_and_give_me_type()
-   >> (a way to figure out the type of memory - true ram or other)
-
-Regards
-Suparna
-
+Obviously, the way to reduce the time spent writing console messages to
+the serial port is to increase the baud rate. 8)
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

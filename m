@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270752AbTHFNUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 09:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTHFNUO
+	id S269144AbTHFNTa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 09:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270752AbTHFNTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 09:20:14 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:18570 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S270752AbTHFNUH (ORCPT
+	Wed, 6 Aug 2003 09:19:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:20190 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269144AbTHFNT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 09:20:07 -0400
-Date: Wed, 6 Aug 2003 18:55:40 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: aio: current status
-Message-ID: <20030806132540.GB11814@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <5bf1952c7ebb0bea68a1503057a2dbc1@alumnos.uc3m.es> <1060120389.14649.31.camel@ibm-c.pdx.osdl.net>
+	Wed, 6 Aug 2003 09:19:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [Swsusp-devel] Re: [PATCH] Allow initrd_load() before
+ software_resume() (version 2)
+Date: Wed, 06 Aug 2003 15:16:19 +0200
+Message-ID: <yw1xsmofvsd8.fsf@users.sourceforge.net>
+References: <20030801002742.1033FE8003AE@mwinf0502.wanadoo.fr> <1059700691.1750.1.camel@laptop-linux>
+ <20030801103054.9E75F30003B9@mwinf0201.wanadoo.fr>
+ <1059734493.11684.0.camel@laptop-linux> <20030806113045.GB583@elf.ucw.cz>
+ <1060170451.5848.2.camel@laptop.fenrus.com>
+ <20030806125749.GA6875@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060120389.14649.31.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:lnJzHc2X0zCCXeUtDomrh13or8o=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 02:53:09PM -0700, Daniel McNeil wrote:
-> I've been testing AIO using Andrew's -mm kernels which includes
-> many AIO patches.  I've written some copy tests using AIO.
+Pavel Machek <pavel@ucw.cz> writes:
 
-We were planning to put together an AIO web page to make it 
-easier to have an at-a-glance status and links to patches and
-resources. Are your copy tests available somewhere ? It'd
-be nice to have a link to it, so people can try it out.
+>> > > Okay. I hadn't tried it yet. I'll happily take up the barrow for you and
+>> > > push it to Pavel and Linus with the rest, if you like.
+>> > 
+>> > Don't even think about that.
+>> > 
+>> > It is not safe to run userspace *before* doing resume. You don't want
+>> > to see problems this would bring in. Forget it.
+>> > 			
+>> so how do you resume from a partition on a device mapper volume?
+>> 
+>> (and yes I basically agree with your sentiment though)
+>
+> I know very little about DM, its very well possible that resume from
+> it is not supported.
 
-Regards
-Suparna
+Since DM requires some userspace program to set up the mappings, it
+seems to me that it wouldn't work to resume from a DM volume.  I'd
+much appreciate if it would work, somehow.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Måns Rullgård
+mru@users.sf.net
 

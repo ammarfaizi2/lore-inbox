@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285834AbRLYUPC>; Tue, 25 Dec 2001 15:15:02 -0500
+	id <S285792AbRLYUWe>; Tue, 25 Dec 2001 15:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285812AbRLYUOx>; Tue, 25 Dec 2001 15:14:53 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:21523 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S285792AbRLYUOd>;
-	Tue, 25 Dec 2001 15:14:33 -0500
-Message-ID: <3C28DE28.1090503@free.fr>
-Date: Tue, 25 Dec 2001 21:14:32 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011220
-X-Accept-Language: en-us
+	id <S285812AbRLYUWZ>; Tue, 25 Dec 2001 15:22:25 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:13952
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S285792AbRLYUWK>;
+	Tue, 25 Dec 2001 15:22:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Schrotenboer <adam@tabris.net>
+Organization: Dome-S-Isle Data
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17rc2aa1 - blocking(?) in /proc
+Date: Tue, 25 Dec 2001 15:22:05 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011219161610.I1395@athlon.random>
+In-Reply-To: <20011219161610.I1395@athlon.random>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: esr@thyrsus.com, Steven Cole <scole@lanl.gov>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <20011220135213.B18128@thyrsus.com> <3C273028.6070305@free.fr> <20011225112535.A45@toy.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011225202206.EEBC6FB81B@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+I booted into 2.4.17-rc2aa1(compiled w/ gcc-3.0.3), and after an hour of 
+uptime or so, was unable to read anything in /proc (top locked, procinfo, and 
+I couldn't kill them b/c killall and pidof would lock as well)
 
->  
-> Heh, is it kiB or KiB?
+I made only one mod. I changed HZ to 1024, but I don't think that should have 
+done it.
 
+I figure either a problem in gcc 3.0.3, or a kernel bug.
 
-Don't know, didn't read IEC 60027-2. From Steven first post on the 
-subject and Configure.help content, I must be wrong and it is KiB.
+Ideas?
 
-Lionel.
-
+---
+tabris

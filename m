@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263042AbTCWMHx>; Sun, 23 Mar 2003 07:07:53 -0500
+	id <S263037AbTCWMH0>; Sun, 23 Mar 2003 07:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263044AbTCWMHx>; Sun, 23 Mar 2003 07:07:53 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:18658 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S263042AbTCWMHu>; Sun, 23 Mar 2003 07:07:50 -0500
-Message-ID: <20030323121850.48607.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S263040AbTCWMH0>; Sun, 23 Mar 2003 07:07:26 -0500
+Received: from sysdoor.net ([62.212.103.239]:55565 "EHLO celia")
+	by vger.kernel.org with ESMTP id <S263037AbTCWMHZ>;
+	Sun, 23 Mar 2003 07:07:25 -0500
+Date: Sun, 23 Mar 2003 13:18:18 +0100
+From: Michael Vergoz <mvergoz@sysdoor.com>
+To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: inet_addr Equivalent
+Message-Id: <20030323131818.0a66b59a.mvergoz@sysdoor.com>
+In-Reply-To: <F110LwR2ozm2F4mOKbA0000952b@hotmail.com>
+References: <F110LwR2ozm2F4mOKbA0000952b@hotmail.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Subodh S" <subodh_s_1975@mail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Date: Sun, 23 Mar 2003 07:18:50 -0500
-Subject: Servicing of requests
-X-Originating-Ip: 203.124.128.117
-X-Originating-Server: ws1-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Whenever I read data of 'x'k size using one read() system call, I find batches of some 'y' no. of make_requests calls followed by the same no. of end_io's. Something like :
-make_req
-make_req
-make_req
-end_io
-end_io
-end_io
-make_req
-make_req
-make_req
-end_io
-end_io
-end_io
+Look at : 
+/* Convert from presentation format of an Internet number in buffer
+   starting at CP to the binary network format and store result for
+   interface type AF in buffer starting at BUF.  */
+extern int inet_pton (int __af, __const char *__restrict __cp,
+                      void *__restrict __buf) __THROW;
 
-The output above gives me an idea that 3(hypothetical no.) buffer_heads above form a request.
-(since 1 make_request corresponds to 1 buffer_head) and maybe since 1 request is serviced at a time I can see 3 make_req's together. Is my understanding right ??
+If it doesn't work look in the libc source code :)
 
-But, I have read that sd uses some optimization algorithm to club requests so that the disk seek time is reduced. In which case since all requests are to adjecents sectors it should create a single request of all 'x'k assuming 1 buffer_head is of size 1k.
+regards,
+Michael
 
-Does this make sense ??
+On Sun, 23 Mar 2003 07:32:05 +0000
+"shesha bhushan" <bhushan_vadulas@hotmail.com> wrote:
 
--subodh
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+> 
+> Hi all,
+> 
+> IF i want to use the inet_addr in kernel modules, then how to use. What is 
+> the equivalent function to this or which is the header file that I have to 
+> include. If I include "arpa/inet.h" and compile as kernel module, I gives 
+> whole bunch of errors.
+> 
+> So please help me how to convert doted IP address to unsigned long inside 
+> kernel modules. All help is very mucg apperciated.
+> 
+> Tahnking You
+> Shesha
+> 
+> 
+> 
+> 
+> 
+> _________________________________________________________________
+> Get more buddies in your list. Win prizes http://messenger.msn.co.in/promo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

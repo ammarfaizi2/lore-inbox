@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318256AbSIEUgC>; Thu, 5 Sep 2002 16:36:02 -0400
+	id <S318269AbSIEUlT>; Thu, 5 Sep 2002 16:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318257AbSIEUgC>; Thu, 5 Sep 2002 16:36:02 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:2824 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318256AbSIEUgB>; Thu, 5 Sep 2002 16:36:01 -0400
-Message-ID: <3D77C0A7.F74A89D0@zip.com.au>
-Date: Thu, 05 Sep 2002 13:37:59 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S318268AbSIEUlS>; Thu, 5 Sep 2002 16:41:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11274 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318265AbSIEUlR>; Thu, 5 Sep 2002 16:41:17 -0400
+Date: Thu, 5 Sep 2002 13:48:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: One more bio for for floppy users in 2.5.33..
+In-Reply-To: <3D77B1EF.97B1FDDD@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0209051339310.9149-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <3D77BB7C.5F20939F@zip.com.au> <15735.48664.951983.418842@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> 
-> >>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
-> 
->      > It's a bit worrisome if NFS is dependent upon successful
->      > pagecache takedown in invalidate_inode_pages.
-> 
-> Why? We don't use all that buffer crap, so in principle
-> invalidate_inode_page() is only supposed to fail for us if
-> 
->   - page is locked (i.e. new read in progress or something like that)
->   - page is refcounted (by something like mmap()).
 
-    - someone took a temporary ref on the page.
+Btw, the update to do partial completion will need a few more fixes: right
+now the different callers of "bio->bi_end_io(bio)" are not very careful
+about updating the bio information, since no bi_end_io() function has had
+any reason to care before.
 
-    Possibly it is the deferred LRU addition code.  Try running
-    lru_add_drain() before invalidate_inode_pages().
- 
-> neither of which should be the case here.
+That turns the 2-liner patch into slightly more, since for example the 
+failure cases in __make_request() need to make sure that they pass in the 
+right size/sector count. So the
 
-Probably, it worked OK with the global locking because nobody was taking
-a temp ref against those pages.
+		....
+	end_io:
+		bio->bi_end_io(bio);
+		return 0;
 
-Please tell me exactly what semantics NFS needs in there.  Does
-truncate_inode_pages() do the wrong thing?
+would become something like
+
+		....
+	end_io:
+		bio->bi_size = 0;
+		bio->bi_end_io(bio, nr_sectors);
+		return 0;
+
+if we had this interface.
+
+To avoid those kinds of silly bugs and to avoid havind the bi_end_io() 
+function have to look up all the bio information, maybe the end_io calling 
+convention really should be
+
+	void bio_end_io(struct bio *bio,
+		unsigned int completed,
+		unsigned int left, 
+		unsigned int uptodate);
+
+and then a failure would just be
+
+	bio->bi_end_io(bio, nr_sectors, 0, 0);
+
+and the end-io function would have all the information it needs to decide 
+how much has been done / is left undone directly in the arguments.
+
+One final question would be whether we would want to make all of these
+byte counts, for some future networked block device where we might be
+getting the completions back in odd-sized chunks, for example? Right now
+much of the bio code already is able to handle byte-sized stuff, and it 
+might be nice to not have to maintain byte counts in NBD if the bio layer 
+already does it anyway..
+
+		Linus
+

@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbTFZBDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 21:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTFZBCu
+	id S265291AbTFZBOX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 21:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTFZBOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 21:02:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:64730 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265247AbTFZBAm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 21:00:42 -0400
-Date: Wed, 25 Jun 2003 18:14:40 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Schwartz <davids@webmaster.com>
-Cc: Larry McVoy <lm@bitmover.com>, Robert White <rwhite@casabyte.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030626011440.GB17417@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Schwartz <davids@webmaster.com>,
-	Larry McVoy <lm@bitmover.com>, Robert White <rwhite@casabyte.com>,
-	linux-kernel@vger.kernel.org
-References: <20030625210944.GB11956@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKMEOBDOAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEOBDOAA.davids@webmaster.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 25 Jun 2003 21:14:23 -0400
+Received: from relay1.enom.com ([66.150.5.205]:42251 "EHLO Relay1.enom.com")
+	by vger.kernel.org with ESMTP id S265291AbTFZBOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 21:14:22 -0400
+Message-ID: <20030625182834-050000041>
+Message-ID: <3EFA4C3D.5040506@homemail.com>
+Date: Thu, 26 Jun 2003 11:28:29 +1000
+From: "D. Sen" <dsen@homemail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Scott McDermott <vaxerdec@frontiernet.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi on 2.4.21 (on IBM Thinkpad T30)
+References: <3EF753EC.9080807@homemail.com> <3EFA2B83.3090305@homemail.com> <20030625193829.M9583@newbox.localdomain> <20030625163936-113600041>
+In-Reply-To: <20030625163936-113600041>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Jun 2003 01:28:34.0272 (UTC) FILETIME=[426CCE00:01C33B82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 04:05:01PM -0700, David Schwartz wrote:
-> 
-> > The fact that you aren't someone who has run a business doesn't, as you
-> > say, necessarily mean that you are less skilled but it certainly, without
-> > any room for disagreement, means you are less experienced.  Experience is
-> > a valuable thing, to me if not to you.  A very valuable thing.  I'm not
-> > discounting your words, I've read them, thought about them, and decided
-> > that I value them less than I value information coming from people with
-> > experience in running a business.
-> 
-> 	If I see an argument, I don't give a damn who made it. I evaluate the
-> argument based upon its merits. If I'm not competent to evaluate the
-> argument on its merits, I'm not competent to have an opinion at all.
+I think you are saying that its not a module. Here is another report of 
+a similar problem to mine:
 
-Couldn't agree more.  The part you don't seem to want to accept is that 
-I don't agree with the merits of the arguments presented.  And my view
-is based on real world experience versus the theoretical views of the
-people making the arguments.
+http://www.music.columbia.edu/pipermail/linux-audio-user/2003-June/005119.html
 
-That doesn't make me right, it just makes quite likely that I'm right
-based on past history.  Experience almost always wins over theory.
-Not always but so far noone has presenting anything compelling which
-suggests the theory beats experience in this case, IMO.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+He eventually solved the problem by making sure the ssci support wasnt 
+built as modules. (Follow the thread above).
+
+There definitely seems to be a problem. If its not a problem but rather 
+a feature then I would like to know more about why we need to compile it 
+into the kernel...(i.e. what do we gain )..
+
+Scott McDermott wrote:
+> whoops forgot to add you to CC list as per your request
+> 
+> To linux-kernel@vger.kernel.org on Wed 25/06 19:38 -0400:
+> 
+>>D. Sen on Thu 26/06 09:08 +1000:
+>>
+>>>>>Kernel 2.4.21 causes hangs and/or ooops during boot up
+>>>>>if I have a "probeall scsi_hostadapter ide-scsi" in my
+>>>>>/etc/modules.conf. If I take out that line and
+>>>>>manually load the module after the laptop has booted,
+>>>>>everything is fine.
+>>>>
+>>>>I probably have the same CD-RW that you do (in the T30)
+>>>>and I just use hdc=ide-scsi on kernel command line, no
+>>>>need for manually loading. Works fine but don't try
+>>>>burning with magicdev running :)
+>>>
+>>>Do you have ide-scsi built as a module though?
+>>
+>>Yes.  It works fine, I just tried with cdrdao using
+>>generic-mmc driver.  I have nothing at all in modules.conf
+>>related to cd, ide, or scsi.
+> 
+> 
+> 
+
+
+

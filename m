@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVADApq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVADAdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVADApq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVADAeK
+	id S262057AbVADAdP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVADA3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:34:10 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:46035 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261970AbVACXlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:41:31 -0500
-Subject: RE: How to add/drop SCSI drives from within the driver?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, brking@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
-       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
-       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CACD@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CACD@exa-atlanta>
-Content-Type: text/plain
-Date: Mon, 03 Jan 2005 17:40:10 -0600
-Message-Id: <1104795610.5506.75.camel@mulgrave>
+	Mon, 3 Jan 2005 19:29:23 -0500
+Received: from thunk.org ([69.25.196.29]:63392 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262048AbVADA2R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:28:17 -0500
+Date: Mon, 3 Jan 2005 19:24:52 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
+       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050104002452.GA8045@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
+	Diego Calleja <diegocg@teleline.es>,
+	Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com,
+	aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+	linux-kernel@vger.kernel.org
+References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com> <20050103183621.GA2885@thunk.org> <20050103185927.C3442@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050103185927.C3442@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 18:02 -0500, Bagalkote, Sreenivas wrote:
-> o    Everybody understands that as long as the SCSI scan/rescan is triggered
-> by 
-> the management app, there is no getting around knowing HCTL mapping. The app
-> must know the HCTL quad of a logical drive.
+On Mon, Jan 03, 2005 at 06:59:27PM +0000, Russell King wrote:
+> On Mon, Jan 03, 2005 at 01:36:21PM -0500, Theodore Ts'o wrote:
+> > This is the model that we used with the
+> > 2.3.x series, where the time between releases was often quite short.
+> > That worked fairly well, but we stopped doing it when the introduction
+> > of BitKeeper eliminated the developer synch-up problem.  But perhaps
+> > we've gone too far between 2.6.x releases, and should shorten the time
+> > in order to force more testing.  
+> 
+> It is also the model we used until OLS this year - there was a 2.6
+> release about once a month prior to OLS.  Post OLS, it's now once
+> every three months or there abouts, which, IMO is far too long.
 
-Actually, if that's all you're trying to do, what about
+I was thinking more about every week or two (ok, two releases in a day
+like we used to do in the 2.3 days was probably too freequent :-), but
+sure, even going to a once-a-month release cycle would be better than
+the current 3 months between 2.6.x releases.
 
-echo '- - -' > /sys/class/scsi_host/host<n>/scan
-
-That'll trigger a rescan of the entire card and the device will be found
-and added?
-
-Then, if you simply publish your LD number as an extra parameter of the
-device, you can look through /sys to find it.
-
-James
-
-
+						- Ted

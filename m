@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263451AbTEMUb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263445AbTEMUb2
+	id S263422AbTEMU3P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTEMU3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:31:28 -0400
-Received: from mcomail02.maxtor.com ([134.6.76.16]:48401 "EHLO
-	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
-	id S263451AbTEMUa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:30:56 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D347@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>, Jeff Garzik <jgarzik@pobox.com>
-Cc: Jens Axboe <axboe@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       Oleg Drokin <green@namesys.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.69, IDE TCQ can't be enabled
-Date: Tue, 13 May 2003 14:43:50 -0600
+	Tue, 13 May 2003 16:29:14 -0400
+Received: from pat.uio.no ([129.240.130.16]:22660 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263422AbTEMU2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:28:53 -0400
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16065.21671.726.285224@charged.uio.no>
+Date: Tue, 13 May 2003 22:25:10 +0200
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: trond.myklebust@fys.uio.no, Daniel Jacobowitz <dan@debian.org>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <3EC1525F.7020801@nortelnetworks.com>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+	<shswugvjcy9.fsf@charged.uio.no>
+	<20030513155901.GA26116@nevyn.them.org>
+	<16065.6462.15209.428226@charged.uio.no>
+	<3EC1525F.7020801@nortelnetworks.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Chris Friesen <cfriesen@nortelnetworks.com> writes:
 
+     > Is hard,intr okay from this perspective?
 
------Original Message-----
->From: Andre Hedrick [mailto:andre@linux-ide.org]
->Sent: Tuesday, May 13, 2003 2:29 PM
->To: Jeff Garzik
->Cc: Jens Axboe; Dave Jones; Mudama, Eric; Oleg Drokin; Bartlomiej
->Zolnierkiewicz; Alan Cox; Oliver Neukum; lkhelp@rekl.yi.org;
->linux-kernel@vger.kernel.org
->Subject: Re: 2.5.69, IDE TCQ can't be enabled
->
->This is the last time I got TAG running clean!
->Proof you have zero gain on writes and huge gains on reads.
+Yes.
 
-Of course there's no gain on writes with write cache enabled, that is
-obvious:
-
-It is nearly impossible for a drive to cache random reads, therefore they
-have the greatest performance penalty due to seeks and rotational latency.
-That is why queueing improves random reads so much.
-
-Repetitive and Sequential reads should see no benefit at all from queueing,
-since the virtually-zero-size drive cache actually hits its locality
-(spatial or temporal) cases for these commands.
-
-Similarly, any write with the drive's write cache enabled will see zero or
-near-zero benefit from queueing writes.  The only reason to use queued
-writes is so you can intermingle them with queued reads without flushing
-your tags.
-
-If you disable write cache on the drive (Journalling/RAID environments) then
-you'll see performance nearly identical to reads, which then can benefit by
-queueing to the same degree.
-
->Still it is a lame protocol.
-
-I don't necessarilly disagree, however I'm not on T13 and didn't have any
-input.
-
---eric
+Cheers,
+  Trond

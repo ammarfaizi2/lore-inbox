@@ -1,33 +1,55 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTECBZF (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 2 May 2003 21:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbTECBZF
+	id S263549AbTENSLb (ORCPT <rfc822;akpm@zip.com.au>);
+	Wed, 14 May 2003 14:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263550AbTENSLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 21:25:05 -0400
-Received: from [61.145.129.66] ([61.145.129.66]:48908 "ehlo mailcenter.com.cn")
-	by vger.kernel.org with ESMTP id S263195AbTECBZF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 21:25:05 -0400
-From: "ALYAKOUBI CORP." <alyakoubi@mailcenter.com.cn>
-Subject: high profit USB Flash disk stock lots
+	Wed, 14 May 2003 14:11:31 -0400
+Received: from 200-158-110-238.splicenet.com.br ([200.158.110.238]:46605 "HELO
+	wallstreetfitness.com.br") by vger.kernel.org with SMTP
+	id S263549AbTENSLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 14:11:30 -0400
+From: "pztlistasegmentada ngs" <yvllistasegmentada@ig.com.br>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: alyakoubi@mailcenter.com.cn
-Date: Sat, 3 May 2003 09:43:53 +0800
-X-Priority: 2
-X-Mailer: Foxmail 4.1 [cn]
-Message-Id: <S263195AbTECBZF/20030503012505Z+2173@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=20otjkrav-mag=E2?=  =?ISO-8859-1?Q?=20gr=E1tis...?= mnx
+Content-Transfer-Encoding: Quoted-Printable
+MIME-Version: 1.0
+Message-Id: <S263549AbTENSLa/20030514181130Z+9292@vger.kernel.org>
+Date: Wed, 14 May 2003 14:11:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
-We have some USB Flash disk stock lots for sell. At the same time, we can offer you MP3+USB Flash disk, card reader, hard disk case, TV game.Please review our website for pictures: www.isav.com.cn. 
-We welcome your inquiry for further details.
-Best regards!
-Susan Song, Overseas Dept.
-TOPBAND ELECTRONICS & TECHNOLOGY CO.,LTD
-4/F, B Block Tsinghua University Institute, Hi-Tech Industrial Park, Shenzhen, 518057, China
-Direct line: 0086-755-26719852
-Email: alyakoubi@mailcenter.com.cn / susansong@topband-e.com
-Website: www.isav.com.cn
+ACADEMIA WALL STREET FITNESS.
+
+GANHE SEM QUALQUER CUSTO VOCÊ E SUA FAMILIA:
+
+UMA SEMANA DE GINÁSTICA 
+(local, Step, Alongamento, Abdominal, Pump, Aeroboxe, Aeróbahia). 
+UMA SEMANA DE SAUNA.
+UMA SEMANA DE MUSCULAÇÃO.
+UMA SEMANA DE SPINNING.
+UMA SEMANA DE JIU-JITSU.
+UMA SEMANA DE CAPOEIRA.
+DUAS SEMANAS DE KRAV-MAGÁ.
+
+NÃO COBRAMOS MATRICULA,
+E VOCÊ GANHA TAMBÉM UMA CARTEIRINHA DA ACADEMIA.
+
+SE VOCÊ GOSTAR E TORNAR-SE  ALUNO,
+NO MÊS DO SEU ANIVERSARIO A  ACADEMIA LHE PRESENTEIA COM UM MÊS DE GINÁSTICA E MUSCULAÇÃO DE  GRAÇA.
+
+(temos o menor preço da cidade a partir de R$ 1,73 reais ao dia, valido para musculação, ginástica e sauna, todos os dias horários livre de 06:00 ás 22:00 horas)
+
+
+WALL STREET FITNESS
+AV: DO CONTORNO 8000 PRIMEIRO ANDAR.
+BAIRRO STO AGOSTINHO (em frente ao Colégio Loyola).
+Temos convenio com os estacionamentos: (REALPARK e MULTIPARK R$ 1.20 A HORA).
+BELO HORIZONTE MG
+TEL: 33357227 E 32916590.
+
+Um e-mail não poderá ser considerado spam enquanto inclua uma forma de ser removido. Caso não queira mais receber as notícias, por favor, enviar o mesmo digitando cancelamento e queira nos desculpar o transtorno.
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.463 / Virus Database: 262 - Release Date: 22/4/2003
 

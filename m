@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131261AbRBWEiF>; Thu, 22 Feb 2001 23:38:05 -0500
+	id <S130934AbRBWEu5>; Thu, 22 Feb 2001 23:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131363AbRBWEh4>; Thu, 22 Feb 2001 23:37:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44813 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131261AbRBWEhm>; Thu, 22 Feb 2001 23:37:42 -0500
-Date: Thu, 22 Feb 2001 20:37:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
-cc: linux-kernel@vger.kernel.org
+	id <S131286AbRBWEuq>; Thu, 22 Feb 2001 23:50:46 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:33288 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S130934AbRBWEub>; Thu, 22 Feb 2001 23:50:31 -0500
+Message-ID: <003501c09d53$9087d000$1601a8c0@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Jeff Lessem" <Jeff.Lessem@Colorado.EDU>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200102220719.AAA398825@ibg.colorado.edu> <000201c09d0c$d53a73c0$25040a0a@zeusinc.com>  <200102230327.UAA452494@ibg.colorado.edu>
 Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x 
-In-Reply-To: <200102230406.VAA454821@ibg.colorado.edu>
-Message-ID: <Pine.LNX.4.10.10102222033060.19705-100000@penguin.transmeta.com>
+Date: Thu, 22 Feb 2001 23:45:51 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I took your advice and used the kernel drivers from 2.4.2.  I built
+> the Cardbus and i82365 drivers into the kernel.  This shows the exact
+> same behavior, after a power-on reboot I get:
 
+You don't need the i82365 driver, only the Cardbus (yenta) driver.  I don't
+think this would cause your problem, but it's possible, maybe try without
+it.
 
-On Thu, 22 Feb 2001, Jeff Lessem wrote:
-> 
-> No problem, the listings are below.  Both listings were done on a
-> freshly booted system.  The only difference in system states was that
-> the i82365 modules had loaded.
+> and though the cardmgr loads it does not respond to card events,
+> i.e. inserting a card produces *no* effect, there is not a beep, or
+> any logged messages.  Rebooting with 2.2.17 fixes the problem and
+> 2.4.2 then works again.  It looks to me like something in the PCI bus
+> isn't setup correctly by the 2.4 kernels, but chasing that down is way
+> beyond my ability, hence the post to linux-kernel.
 
-Hmm.. You shouldn't be loading any i82365 module at all. You should load
-the "yenta_socket" module. 
+What's strange is that I have the exact same type of machine and I don't see
+this problem, could you forward me your kernel config as well?  I'll compare
+that, and your info from your previous message to mine and see if we can
+find a difference.
 
-One of the major differences between working and non-working is that the
-non-working thing doesn't have the PCI latency register set. The yenta
-driver explicitly sets the latency and cache size numbers, so it reall
-ylook slike you should just use that driver and it should work.
+Later,
+Tom
 
-		Linus
 

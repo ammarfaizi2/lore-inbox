@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbULPBbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbULPBbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbULPBbx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 20:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbULPB3E
+	id S262628AbULPBbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbULPB3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:29:04 -0500
-Received: from gprs215-43.eurotel.cz ([160.218.215.43]:48258 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262594AbULPB1J (ORCPT
+	Wed, 15 Dec 2004 20:29:31 -0500
+Received: from mail.tmr.com ([216.238.38.203]:64701 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S262612AbULPB1O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 20:27:09 -0500
-Date: Thu, 16 Dec 2004 02:26:27 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Andi Kleen <ak@suse.de>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-Message-ID: <20041216012627.GA6462@elf.ucw.cz>
-References: <20041215114916.GB1232@elf.ucw.cz> <E1CekDZ-0005ZY-00@mta1.cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CekDZ-0005ZY-00@mta1.cl.cam.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 15 Dec 2004 20:27:14 -0500
+Message-ID: <41C0E66E.20000@tmr.com>
+Date: Wed, 15 Dec 2004 20:35:42 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Alessandro Amici <alexamici@fastwebnet.it>,
+       Miguel Angel Flores <maf@sombragris.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel development environment
+References: <41B22EDE.2060009@stud.feec.vutbr.cz><41B1F97A.80803@sombragris.com> <1102200355.28776.58.camel@krustophenia.net>
+In-Reply-To: <1102200355.28776.58.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > BTW if you merge xen as separate architecture, it will be *very* hard
-> > to merge it back to i386. That patch would be huge, and would need to
-> > go in "atomically".
+Lee Revell wrote:
+> On Sat, 2004-12-04 at 22:40 +0100, Michal Schmidt wrote:
 > 
-> I don't see it like that. While continuing to track changes in
-> i386/x86_64, we'd restructure the code under arch xen such that
-> it could build (or even boot) time switch between running native
-> and over Xen. At some point the arch directory could then be
-> renamed.  This would be a big project, and one that would involve
-> a lot more people than just the Xen team. Because the x86
+>>Lee Revell wrote:
+>>
+>>>In case you did not get the joke, Mozilla Mail is one of the WORST mail
+>>>clients for handling kernel patches.  See the list archives.
+>>
+>>Mozilla works fine if you send patches as attachments.
+>>
+> 
+> 
+> I still say it's broken.
+> 
+> http://lkml.org/lkml/2004/10/22/488
 
-So you plan to
+The process of drag and drop converts tabs to blanks, among other evils. 
+You are arguing about the best way to do the wrong thing, like rewriting 
+a bubble sort in assembler. The correct tool is attach to preserve 
+whatever is in the original.
 
-merge arch/xen
-
-then modify arch/xen to do all arch/i386 can do
-
-then rm -rf arch/i386, mv arch/xen arch/i386? Well, I'd say that's
-rather ambitious plan....
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262329AbREROSZ>; Fri, 18 May 2001 10:18:25 -0400
+	id <S262336AbREROVp>; Fri, 18 May 2001 10:21:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262332AbREROSP>; Fri, 18 May 2001 10:18:15 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10423 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262329AbREROSG>; Fri, 18 May 2001 10:18:06 -0400
-Date: Fri, 18 May 2001 15:17:50 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Michael Meissner <meissner@spectacle-pond.org>
-Cc: Miles Lane <miles@megapathdsl.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010518151750.A10515@redhat.com>
-In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it> <3B0261EC.23BE5EF0@idb.hist.no> <031ypp1oi2.fsf@colargol.tihlde.org> <3B028063.67442F62@idb.hist.no> <990030651.932.3.camel@agate> <20010516121815.B16609@munchkin.spectacle-pond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262340AbREROVf>; Fri, 18 May 2001 10:21:35 -0400
+Received: from 202-123-209-152.outblaze.com ([202.123.209.152]:22461 "EHLO
+	mg.hk5.outblaze.com") by vger.kernel.org with ESMTP
+	id <S262335AbREROVT>; Fri, 18 May 2001 10:21:19 -0400
+Message-ID: <20010518142110.29102.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010516121815.B16609@munchkin.spectacle-pond.org>; from meissner@spectacle-pond.org on Wed, May 16, 2001 at 12:18:15PM -0400
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+X-Mailer: MIME-tools 4.104 (Entity 4.117)
+From: "Joshua Corbin" <jcorbin@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 18 May 2001 22:21:09 +0800
+Subject: FIC AD11(AMD 761/VIA 686B) AGP port not supported
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The Motherboard is a FIC AD11(AMD 761/VIA 686B chipset).  Vid-card is a radeon 32M ddr model.
 
-On Wed, May 16, 2001 at 12:18:15PM -0400, Michael Meissner wrote:
+Whenever I startx with the radeon driver, the machine hangs, forced to use reset switch, not even C-A-Del works.  But with the generic vga driver I get all of 16 colors at less than 640x480.
 
-> With the current LABEL= support, you won't be able to mount the disks with
-> duplicate labels, but you can still mount them via /dev/sd<xxx>.
+Here are relevant dmesg lines:
+agpgart: Maximum main memory to use for agp memory: 94M
+agpgart: Unsupported AMD chipset (device id: 700e), you might want to try agp_try_unsupported=1.
+agpgart: no supported devices found.
 
-Or you can fall back to mounting by UUID, which is globally unique and
-still avoids referencing physical location.  You also don't need to
-manually set LABELs for UUID to work: all e2fsprogs over the past
-couple of years have set UUID on partitions, and e2fsck will create a
-new UUID if it sees an old filesystem that doesn't already have one.
+What does agp_try_unsupported mean?  Where do I set this setting?
 
-Cheers,
- Stephen
+and relevant lspci:
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700e (rev 12)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 32 set
+	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+	Region 1: Memory at e3100000 (32-bit, prefetchable) [size=4K]
+	Region 2: I/O ports at d000 [disabled] [size=4]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=15 SBA+ 64bit- FW+ Rate=421
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=
+
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700f
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 set
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000c000-0000cfff
+	Memory behind bridge: e0000000-e1ffffff
+	Prefetchable memory behind bridge: d8000000-dfffffff
+	BridgeCtl: Parity- SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+Also attached are the full dmesg and lspci output.
+
+Please help, as it is I am force to use windows to get anything done (that too needed updated drivers before it would work properly).
+
+Thanks in advance -- Josh
+
+-- 
+
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

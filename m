@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSARVzm>; Fri, 18 Jan 2002 16:55:42 -0500
+	id <S290848AbSARWAW>; Fri, 18 Jan 2002 17:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290848AbSARVzc>; Fri, 18 Jan 2002 16:55:32 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:47627 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S290843AbSARVzX>; Fri, 18 Jan 2002 16:55:23 -0500
-Date: Fri, 18 Jan 2002 21:55:15 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Dan Malek <dan@embeddededge.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-Message-ID: <20020118215515.K2059@flint.arm.linux.org.uk>
-In-Reply-To: <20020118130209.J14725@altus.drgw.net> <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com> <20020118212949.H2059@flint.arm.linux.org.uk> <3C4897BD.1080503@embeddededge.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C4897BD.1080503@embeddededge.com>; from dan@embeddededge.com on Fri, Jan 18, 2002 at 04:46:37PM -0500
+	id <S290851AbSARWAM>; Fri, 18 Jan 2002 17:00:12 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:42760 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S290848AbSARWAE>; Fri, 18 Jan 2002 17:00:04 -0500
+Message-ID: <3C489AD9.8010307@lexus.com>
+Date: Fri, 18 Jan 2002 13:59:53 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: lathi@seapine.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: rm-ing files with open file descriptors
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(CC list trimmed)
+Normal unix behaviour -
 
-On Fri, Jan 18, 2002 at 04:46:37PM -0500, Dan Malek wrote:
-> Russell King wrote:
-> > ..... The problem currently is
-> > that there is no way for the page table allocation functions to know
-> > that they should be using atomic and emergency pool memory allocations.
-> 
-> Hmmm...I thought they already do this.  I always assumed the gfp_flag passed
-> into alloc_pages would find its way all of the way through the page table
-> allocation as well.  You just have to be ready to handle the case where
-> it returns with an -ENOMEM :-).
+It's always been that way....
 
-I refer you to your nearest function prototype for pte_alloc_one()
-rather than alloc_pages().
+jjs
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Doug Alcorn wrote:
+
+>I had a weird situation with my application where the user deleted all
+>the database files while the app was still reading and writing to the
+>opened file descriptor.  What was weird to me was that the app didn't
+>complain.  It just went merrily about it's business as if nothing were
+>wrong.  Of course, after the app shut down all it's data was lost.
+>
+>Since I didn't expect this behavior I wrote a simple little program to
+>test it[1].  Sure enough, you can rm a file that has opened file
+>descriptors and no errors are generated.  Interestingly, sun solaris
+>does the same thing.  Since this is the case, I thought this might be
+>a feature instead of a bug (ms-win doesn't allow the rm).  So, my
+>question is where is this behavior defined?  Is it a kernel issue?
+>Does POSIX define this behavior?  Is it a libc issue?  
+>
+>I tried to google this, but couldn't think of the right terms to
+>describe it.  As I'm not on lkm, I would appreciate a CC: to
+><doug@lathi.net>.
+>
+
 

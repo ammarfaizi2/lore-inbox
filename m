@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTIZQLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 12:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbTIZQLG
+	id S261512AbTIZQS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 12:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTIZQS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 12:11:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30114 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261347AbTIZQLF (ORCPT
+	Fri, 26 Sep 2003 12:18:59 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:2054 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261512AbTIZQS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 12:11:05 -0400
-Date: Fri, 26 Sep 2003 09:10:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 26 Sep 2003 12:18:57 -0400
+Date: Fri, 26 Sep 2003 18:18:53 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Syscall security
-Message-ID: <20030926091046.A24375@osdlab.pdx.osdl.net>
-References: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>; from maze@cela.pl on Fri, Sep 26, 2003 at 04:05:50PM +0200
+In-Reply-To: <Pine.LNX.4.56.0309260746140.1924@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.44.0309261814450.6080-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Maciej Zenczykowski (maze@cela.pl) wrote:
-> I'm wondering if there is any way to provide per process bitmasks of 
-> available/illegal syscalls.  Obviously this should most likely be 
-> inherited through exec/fork.
+> I beieve that what you're trying to do is a little bit more complicated
+> then simply blocking a few system calls. There are security softwares
+> doing this but they do more then blindly blocking system calls. Parameters
+> of the system call do matter in this scenario. For example you don't want
+> to block every write(), since the application you're trying to control
+> must be able to write on its own installation dir for example. They do
 
-A simple LSM module can do this for you.  It will have a little
-more overhead than denying at the syscall entry point, but it's
-certainly going to be more flexible.
+Actually in this case all disk-access (and net-access) is illegal, and 
+we're running in an empty chroot environment anyway. :)  We're not really 
+running aps - they're more along the lines of CPU calculation pipes - data 
+in -> calc in system memory -> data out.
 
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> this by running the given application and "learning" system calls and
+> params to create a per-application policy. Every behaviour that violates
+> the policy trigger an event to the user running it (with a
+> "human readable" description of what is happening) and the user can either
+> accept it (by trainig the policy) or reject it.
+
+I'm afraid this has to run without user-intervention and the policy is 
+trivial - allow mem-management (brk/mmap...) + exit + read stdin + write 
+stdout.
+
+Thx,
+MaZe.
+

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbTHTWnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 18:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbTHTWnH
+	id S262293AbTHTWwK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 18:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTHTWwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 18:43:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8606 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262301AbTHTWnE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 18:43:04 -0400
-Date: Wed, 20 Aug 2003 15:35:48 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][2.4 PATCH] source address selection for ARP requests
-Message-Id: <20030820153548.60e0cbd8.davem@redhat.com>
-In-Reply-To: <20030820222710.GC734@alpha.home.local>
-References: <1061320363.3744.14.camel@athena.fprintf.net>
-	<Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
-	<20030820100044.3127d612.davem@redhat.com>
-	<3F43B389.5060602@candelatech.com>
-	<20030820104831.6235f3b9.davem@redhat.com>
-	<20030820213443.GA23939@alpha.home.local>
-	<20030820144711.13ea5f38.davem@redhat.com>
-	<20030820222710.GC734@alpha.home.local>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 20 Aug 2003 18:52:10 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:17162
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262293AbTHTWwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 18:52:06 -0400
+Date: Wed, 20 Aug 2003 15:52:00 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Sergey Spiridonov <spiridonov@gamic.com>, linux-kernel@vger.kernel.org
+Subject: Re: how to turn off, or to clear read cache?
+Message-ID: <20030820225200.GB1040@matchmail.com>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Sergey Spiridonov <spiridonov@gamic.com>,
+	linux-kernel@vger.kernel.org
+References: <3F4360F0.209@gamic.com> <200308201311.h7KDBgL20530@Port.imtp.ilyichevsk.odessa.ua> <20030820224628.GA24639@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030820224628.GA24639@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003 00:27:10 +0200
-Willy Tarreau <willy@w.ods.org> wrote:
+On Wed, Aug 20, 2003 at 11:46:28PM +0100, Jamie Lokier wrote:
+> Denis Vlasenko wrote:
+> > On 20 August 2003 14:52, Sergey Spiridonov wrote:
+> > > I need to make some performance tests. I need to switch off or to clear 
+> > > read cache, so that consequent reading of the same file will take the 
+> > > same amount of time.
+> > 
+> > umount/mount cycle will do it, as well as intentional OOMing the box
+> > (from non-root account please;)
+> 
+> umount/mount is impractical when you're testing performance on a big
+> filesystem, which is always being used (e.g. /home).
+> 
+> I'm fairly sure that -o remount used to have this side effect, in fact
+> I used it quite a lot for that purpose, so it should be possible to
+> make it work again, or add a -o flushcache option.
 
-> +	if (in_dev == NULL)
-> +		in_dev_put(in_dev);
-
-What the heck is this? :-)
+Won't that hold a lot of locks, and possibly pause the system until the
+flushing is complete?  Hopefully, in 2.6 this doesn't call lock_kernel...

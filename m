@@ -1,98 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131525AbRAUJqh>; Sun, 21 Jan 2001 04:46:37 -0500
+	id <S131604AbRAUJxR>; Sun, 21 Jan 2001 04:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131604AbRAUJq0>; Sun, 21 Jan 2001 04:46:26 -0500
-Received: from styx.suse.cz ([195.70.145.226]:6909 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S131525AbRAUJqQ>;
-	Sun, 21 Jan 2001 04:46:16 -0500
-Date: Sun, 21 Jan 2001 10:46:06 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
-Message-ID: <20010121104606.A398@suse.cz>
-In-Reply-To: <20010120215641.A1818@suse.cz> <Pine.LNX.4.10.10101201301200.657-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101201301200.657-100000@master.linux-ide.org>; from andre@linux-ide.org on Sat, Jan 20, 2001 at 02:57:07PM -0800
+	id <S132249AbRAUJxI>; Sun, 21 Jan 2001 04:53:08 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:62892 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131604AbRAUJwt>; Sun, 21 Jan 2001 04:52:49 -0500
+Date: Sun, 21 Jan 2001 09:52:36 +0000 (GMT)
+From: James Sutherland <mandrake@cam.ac.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Roman Zippel <zippel@fh-brandenburg.de>,
+        Kai Henningsen <kaih@khms.westfalen.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.10.10101201629110.10849-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0101210945220.8238-100000@dax.joh.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001 at 02:57:07PM -0800, Andre Hedrick wrote:
+On Sat, 20 Jan 2001, Linus Torvalds wrote:
 
-> Vojtech, I worry that the dynamic timing that you are calculating could
-> bite you. 
+>
+>
+> On Sat, 20 Jan 2001, Roman Zippel wrote:
+> >
+> > On Sat, 20 Jan 2001, Linus Torvalds wrote:
+> >
+> > > But point-to-point also means that you don't get any real advantage from
+> > > doing things like device-to-device DMA. Because the links are
+> > > asynchronous, you need buffers in between them anyway, and there is no
+> > > bandwidth advantage of not going through the hub if the topology is a
+> > > pretty normal "star" kind of thing. And you _do_ want the star topology,
+> > > because in the end most of the bandwidth you want concentrated at the
+> > > point that uses it.
+> >
+> > I agree, but who says, that the buffer always has to be the main memory?
+>
+> It doesn't _have_ to be.
+>
+> But think like a good hardware designer.
+>
+> In 99% of all cases, where do you want the results of a read to end up?
+> Where do you want the contents of a write to come from?
+>
+> Right. Memory.
 
-Well, I know this. But I fear hardcoded timings won't really help here,
-unles everyone out there ran their chipsets at 33 MHz, in which case the
-calculation gains the exact same results (you can compare that) as the
-hardcoded numbers for UDMA timings.
+For many applications, yes - but think about a file server for a moment.
+99% of the data read from the RAID (or whatever) is really aimed at the
+appropriate NIC - going via main memory would just slow things down.
 
-> Timings are exact especially at modes 3/4/5 the margins go to
-> an effective zero for varition or wiggle room.  The state diagrams from
-> Quantum that created the Ultra DMA 0,1,2,3,4,5 show how darn tight it
-> constrained.  You need to assume absolutes because the various board
-> makers screw up the skew tables by the PCB lane traces.
-> 
-> By assuming only absolutes, all vendors that do bad designs will show and
-> the user can not and "should" not be allowed to hold the driver in a state
-> that can damage filesystems or lock the box.  Since I have never addressed
-> this issue in public it is no obvious why I hardcoded timings and did not
-> let tehm float, but I hope it is clearer now.
+Take a heavily laden webserver. With a nice intelligent NIC and RAID
+controller, you might have the httpd write the header to this NIC, then
+have the NIC and RAID controller handle the sendfile operation themselves
+- without ever touching the OS with this data.
 
-Ok, the VIA driver from clean 2.2.18 does nothing. It doesn't even use
-hardcoded timings. It doesn't touch any timing tables. It just blindly
-enables prefetch and writeback in the chips. The thing works because it
-relies on BIOS to set things up correctly, and this is often the case,
-yes.
+> Now, optimize for the common case. Make the common case go as fast as
+> you can, with as little latency and as high bandwidth as you can.
+>
+> What kind of hardware would _you_ design for the point-to-point link?
+>
+> I'm claiming that you'd do a nice DMA engine for each link point. There
+> wouldn't be any reason to have any other buffers (except, of course,
+> minimal buffers inside the IO chip itself - not for the whole packet, but
+> for just being able to handle cases where you don't have 100% access to
+> the memory bus all the time - and for doing things like burst reads and
+> writes to memory etc).
+>
+> I'm _not_ seeing the point for a high-performance link to have a generic
+> packet buffer.
 
-> chipset ---\
->             |
->             \---------IDC-header
-> 
-> chipset ---+
->            |
->            +----------IDC-header
-> 
-> These are nearly the same but the corners cause bounce and iCRC's
+I'd agree with that, but I would want peripherals to be able to send data
+to each other without touching the host memory - think about playing video
+files with an accelerator (just pipe the files from disk to the
+accelerator), music with an "intelligent" sound card (just pipe the music
+to the card), video capture, file servers, CD burning...
 
-Well, there are other ways the motherboard maker can screw up the
-traces, and often this happens:
+Having an Ethernet-style point-to-point "network" (everything connected as
+a star, with something intelligent in the middle to direct the data where
+it needs to go) makes sense, but don't assume everything is heading for
+the host's memory. DMA straight to/from a "switch" would be a nice
+solution, though...
 
-chipset --------\
-                |
-chipset ------\ |
-              | \------ header
-              \-------- header
 
-So the different traces have different lengths and thus some bits arrive
-earlier than others to the header, causing the same CRC errors.
+James.
 
-Also it seems that some boards don't use exactly 33.3 MHz PCI clock, but
-something like 33.7 or even more, which causes some drives to fail with
-them if the chipset is set to the 0xe0 (2 pciclk/ideclk) value.
-
-This is because they use very cheap base 14MHz crystals.
-
-As I said before - if you leave 'idebus' at 33, the calculated timings
-are exactly the same as the hardcoded values would be (I think there is
-a difference in PIO2 mode, where the calculation gives a slightly larger
-active time and shorter recovery, but this is OK with the specs).
-
-And this is also why the cheaply made motherboards fail. (They don't
-care to make that VIA UDMA66 ide working correctly when they have a
-UDMA100 HPT370 onboard)?
-
-... btw, if we ever implement UDMA slowdown code based on CRC errors, we
-should differentiate between CRC errors on read and CRC errors on write,
-because each are caused by a different problem ...
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

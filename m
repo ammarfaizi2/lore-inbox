@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGVKe>; Wed, 7 Feb 2001 16:10:34 -0500
+	id <S129481AbRBGVPz>; Wed, 7 Feb 2001 16:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129536AbRBGVKY>; Wed, 7 Feb 2001 16:10:24 -0500
-Received: from colorfullife.com ([216.156.138.34]:9227 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129032AbRBGVKS>;
-	Wed, 7 Feb 2001 16:10:18 -0500
-Message-ID: <3A81B9C8.476E66CF@colorfullife.com>
-Date: Wed, 07 Feb 2001 22:10:32 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: single copy pipe/fifo
-In-Reply-To: <3A81AE75.3CEF5577@colorfullife.com> <14977.46399.167035.94694@pizda.ninka.net>
+	id <S129224AbRBGVPp>; Wed, 7 Feb 2001 16:15:45 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:20996 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129786AbRBGVPd>; Wed, 7 Feb 2001 16:15:33 -0500
+Date: Thu, 8 Feb 2001 00:12:02 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Grant Grundler <grundler@cup.hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 pdev_enable_device() call in setup-bus.c
+Message-ID: <20010208001202.A976@jurassic.park.msu.ru>
+In-Reply-To: <200102071950.LAA05408@milano.cup.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200102071950.LAA05408@milano.cup.hp.com>; from grundler@cup.hp.com on Wed, Feb 07, 2001 at 11:50:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Manfred Spraul writes:
->  > * if you run 2 instances on a dual cpu P II/350 it's a big win, but if
->  > you run only one instance, then the bw_pipe processes will jump from one
->  > cpu to the other and it's only a small improvement (~+15%).
-> 
-> wake_up_interruptible_sync is meant specifically to avoid
-> this cpu hopping behavior.
->
-I use it whereever possible, but in this case it's not possible:
-pipe is empty.
+On Wed, Feb 07, 2001 at 11:50:52AM -0800, Grant Grundler wrote:
+> Can you explain why pci_assign_unassigned_resources()
+> calls pdev_enable_device() for every PCI device instead
+> of having each PCI *driver* call pci_enable_device()
+> as part of driver initialization?
 
-process 1 (on cpu 1)
-	write(fd,buf,64kB).
-	* creates kiobuf
-	* sleeps.
+Mainly because there are driverless devices like display adapters,
+PCI bridges, or PCI devices with legacy drivers (IDE, for example).
 
-process 2 (on cpu 1)
-	read(fd,buf,64kB).
-	* reads the data
-	* now it must wake up, but it will return from the syscall, thus
-wake_up_interruptible().
-	* wakeup notices that cpu1 is busy and sends process 1 to cpu 2
-	* read returns
-	read(fd, buf, 64kB)
-	* no data waiting, sleeps.
+OTOH, pdev_enable_device() most likely will be removed, but
+it's 2.5 material.
 
-process 1 (on cpu 2)
-	* write returns
-	write(fd, buf, 64 kB)
-	* creates kiobuf
-	* wake_up_interruptible_sync(), since it will schedule
-	* schedule()
-but now schedule will pull process 2 to cpu 2
-
-I haven't verified the sequence with kdb, but I'm certain that this
-happens.
-
---
-	Manfred
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

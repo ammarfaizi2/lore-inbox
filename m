@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbUL0RQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUL0RSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbUL0RQu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 12:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUL0RQu
+	id S261932AbUL0RSq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 12:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbUL0RSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 12:16:50 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:5062 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261931AbUL0RQq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 12:16:46 -0500
-Message-ID: <41D0437D.4070508@Verizon.Net>
-Date: Mon, 27 Dec 2004 09:16:45 -0800
-From: "Christopher R. Thompson" <Christoffur050@Verizon.Net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Mon, 27 Dec 2004 12:18:46 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:57809 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261932AbUL0RSh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 12:18:37 -0500
+Message-ID: <41D043AC.2070203@trash.net>
+Date: Mon, 27 Dec 2004 18:17:32 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>
-Subject: Re: SATA status report updated, dev guide posted
-References: <41D00A13.5060700@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Maillist netdev <netdev@oss.sgi.com>
+Subject: Re: PATCH: kmalloc packet slab
+References: <1104156983.20944.25.camel@localhost.localdomain>
+In-Reply-To: <1104156983.20944.25.camel@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [4.27.2.67] at Mon, 27 Dec 2004 11:16:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would anyone care to brief me on issue #1 of the ICH5 status report?
+Alan Cox wrote:
+> The networking world runs in 1514 byte packets pretty much all the time.
+> This adds a 1620 byte slab for such objects and is one of the internally
+> generated Red Hat patches we use on things like Fedora Core 3. Original:
+> Arjan van de Ven.
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-http://linux.yyz.us/sata/sata-status.html#ich5
+Why 1620 bytes ? Most drivers allocate packet_size + 2 bytes.
+dev_alloc_skb adds another 16 bytes, finally alloc_skb adds
+sizeof(struct skb_shared_info). So we get:
 
-Is this something that a novice like me could track down and fix?
+(32bit): 1514b + 2b + 16b + 160b = 1692b
+(64bit): 1514b + 2b + 16b + 312b = 1844b
 
-I seem to currently have the ICH5 chip and the probing problem at hand.
+On paths using alloc_skb instead of dev_alloc_skb it's 16 bytes
+less, but 1620 bytes is still too small for full-sized packets.
 
-Jeff Garzik wrote:
-
-> A few minor updates to the Linux SATA status reports posted at
->
->     http://linux.yyz.us/sata/
->
-> Most notable is the new 'sata devel resources' page, 
-> http://linux.yyz.us/sata/devel.html which attempts to group key ATA 
-> knowledge in a single location.  Comments and additions are requested. 
-> Also, public links to old SFF docs are requested.
->
->     Jeff
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+Regards
+Patrick

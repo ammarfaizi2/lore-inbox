@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130661AbRCPQyz>; Fri, 16 Mar 2001 11:54:55 -0500
+	id <S130721AbRCPQ7f>; Fri, 16 Mar 2001 11:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130681AbRCPQyq>; Fri, 16 Mar 2001 11:54:46 -0500
-Received: from ip165-227.fli-ykh.psinet.ne.jp ([210.129.165.227]:51139 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S130636AbRCPQy2>;
-	Fri, 16 Mar 2001 11:54:28 -0500
-Message-ID: <3AB24511.EA8BD2A2@yk.rim.or.jp>
-Date: Sat, 17 Mar 2001 01:53:37 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: ja, en
+	id <S130722AbRCPQ7Z>; Fri, 16 Mar 2001 11:59:25 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:56501 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130721AbRCPQ7U>;
+	Fri, 16 Mar 2001 11:59:20 -0500
+Date: Fri, 16 Mar 2001 11:58:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jeff Dike <jdike@karaya.com>
+cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
+        engler@csl.Stanford.EDU, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] big stack variables 
+In-Reply-To: <200103161757.MAA01897@ccure.karaya.com>
+Message-ID: <Pine.GSO.4.21.0103161154060.12618-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: scsi_scan problem.
-In-Reply-To: <3AB028BE.E8940EE6@redhat.com> <20010314213543.A30816@devserv.devel.redhat.com> <3AB030F6.246C6F23@redhat.com>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I have an "old" Nakamichi CD changer.
-("old" might be important consideration here. )
-
-Should I test the patch submitted and report what I found ?
-(Or maybe I don't have to bother at this stage at all
-and  simply wait for the 2.5 development and debugging cycle?)
 
 
+On Fri, 16 Mar 2001, Jeff Dike wrote:
 
+> +#endif
+> +#ifdef CONFIG_STDIO_CONSOLE
+> +	stdio_console_init();
+>  #endif
+
+Erm... That piece is UML-only.
+
+ObUML: something fishy happens in UML with multiple exec() in PID 1. Try to
+say "telinit u" (or just boot with init=/bin/sh and say exec /sbin/init)
+and you've got a nice panic()...
 

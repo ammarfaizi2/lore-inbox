@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbUB1AX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbUB1AUP
+	id S263227AbUB1AX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbUB1AUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:20:15 -0500
-Received: from hell.org.pl ([212.244.218.42]:8979 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S263234AbUB1AS1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 19:18:27 -0500
-Date: Sat, 28 Feb 2004 01:18:30 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: APM suspend causes uninterruptible sleep
-Message-ID: <20040228001830.GA27828@hell.org.pl>
-References: <1tLo4-3qF-9@gated-at.bofh.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1tLo4-3qF-9@gated-at.bofh.it>
-User-Agent: Mutt/1.4.2i
+	Fri, 27 Feb 2004 19:20:33 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:25214 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263228AbUB1ASI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 19:18:08 -0500
+Date: Fri, 27 Feb 2004 19:18:03 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Paolo Ornati <ornati@fastwebnet.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x: iowait problem while burning a CD
+In-Reply-To: <200402271802.51604.ornati@fastwebnet.it>
+Message-ID: <Pine.LNX.4.44.0402271915590.1747-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Keith Duthie:
-> Between alsa-driver 0.9.4 and alsa-driver 0.9.5 the change below was made.
-> Since then, suspending with a program outputting to the pcm device
-> causes that program to enter the uninterruptible sleep state. Reverting
-> this patch fixes the problem. The problem exists in 0.9.5 through 1.0.2c.
+On Fri, 27 Feb 2004, Paolo Ornati wrote:
 
-Just FYI: a similar problem was introduced in intel8x0, also around that
-time. Note: the uninterruptible sleep issue only applies to the software
-using native ALSA, OSS emulation users seem to survive the suspend.
-Best regards,
+> trying to burn a CD "on the fly" I have noticed a strange thing. During the 
+> burning "iowait" remains enough low (~3%, MAX 10%) but, after a little 
+> time, it suddenly and quickly goes up to 80-90%: in this condition MKFS 
+> seems unable to fill the FIFO buffer as quickly as the CD-writer writes  
+
+> Any ideas?
+
+At that point, mkisofs is probably running into a bazillion
+small files, in subdirectories all over the place.
+
+Because a disk seek + track read takes 10ms, it's simply not
+possible to read more than maybe 100 of these small files a
+second, so mkisofs can't keep up.
+
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

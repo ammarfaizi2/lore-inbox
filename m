@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSHaJz5>; Sat, 31 Aug 2002 05:55:57 -0400
+	id <S317005AbSHaKHe>; Sat, 31 Aug 2002 06:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316997AbSHaJz5>; Sat, 31 Aug 2002 05:55:57 -0400
-Received: from smtp.mujoskar.cz ([217.77.161.140]:29947 "EHLO smtp.mujoskar.cz")
-	by vger.kernel.org with ESMTP id <S316996AbSHaJz5>;
-	Sat, 31 Aug 2002 05:55:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: smc-ircc freeze kernel
-Date: Sat, 31 Aug 2002 11:59:17 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S317025AbSHaKHd>; Sat, 31 Aug 2002 06:07:33 -0400
+Received: from e.kth.se ([130.237.48.5]:28938 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S317005AbSHaKHd>;
+	Sat, 31 Aug 2002 06:07:33 -0400
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Sync arch/alpha/kernel/entry.S with asm/unistd.h
+References: <yw1x8z2oca90.fsf@zaphod.guide>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 31 Aug 2002 12:11:53 +0200
+In-Reply-To: mru@users.sourceforge.net's message of "30 Aug 2002 23:22:35 +0200"
+Message-ID: <yw1xr8gfz6ae.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17l52I-0000NL-00@notas>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+mru@users.sourceforge.net (Måns Rullgård) writes:
 
-I use 2.4.19 kernel with notebook Dell Latitude CPx J650
+> This adds some (non-implemented) syscalls to entry.S with the same
+> numbers as in asm/unistd.h
 
-I modprobe these modules:
-irlan                  19252   0 (unused)
-smc-ircc                6720   1
-irport                  4856   0 [smc-ircc]
-irda                   81744   1 [irlan smc-ircc irport]
+I forgot to say the patch is against 2.4.19.
 
-kernel tells me:
-found SMC SuperIO Chip (devid=0x09 rev=08 base=0x03f0): FDC37N958FR
-SMC IrDA Controller found
- IrCC version 1.1, firport 0x290, sirport 0x3e8 dma=3, irq=0
-IrDA: Registered device irda0
-
-ifconfig tells me:
-irda0     Link encap:IrLAP  HWaddr 00:00:00:00
-          UP RUNNING NOARP  MTU:2048  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:8
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Base address:0x3e8
-
-then when I simply tells:
-ifconfig irda0 192.168.1.1 netmask 255.255.255.0
-my kernel freeze after 3 seconds and only numlock and scrolllock blinks
-
-I dont have any other computer on other side at the moment I write ifconfig.
-
-Thanks for solution
-
-Michal
+-- 
+Måns Rullgård
+mru@users.sf.net

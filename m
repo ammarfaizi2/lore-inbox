@@ -1,116 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261588AbSJAL6Z>; Tue, 1 Oct 2002 07:58:25 -0400
+	id <S261592AbSJAMN0>; Tue, 1 Oct 2002 08:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261589AbSJAL6Z>; Tue, 1 Oct 2002 07:58:25 -0400
-Received: from mail.internet-factory.de ([62.134.147.34]:32414 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S261588AbSJAL6X>; Tue, 1 Oct 2002 07:58:23 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <holger@lubitz.org>
-Newsgroups: lists.linux.kernel
-Subject: PIIX4 problem
-Date: Tue, 01 Oct 2002 14:03:51 +0200
-Organization: Internet Factory AG
-Message-ID: <3D998F27.2090403@lubitz.org>
-NNTP-Posting-Host: gatekeeper.webserv-it.de
+	id <S261590AbSJAMN0>; Tue, 1 Oct 2002 08:13:26 -0400
+Received: from pop016pub.verizon.net ([206.46.170.173]:24533 "EHLO
+	pop016.verizon.net") by vger.kernel.org with ESMTP
+	id <S261592AbSJAMNW>; Tue, 1 Oct 2002 08:13:22 -0400
+Message-Id: <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net>
+Date: Tue, 1 Oct 2002 08:31:05 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: KDSETKEYCODE work with new input layer?
+References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1033473829 24538 62.134.144.10 (1 Oct 2002 12:03:49 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 1 Oct 2002 12:03:49 GMT
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021001115413.B9131@ucw.cz>; from vojtech@suse.cz on Tue, Oct 01, 2002 at 11:54:13AM +0200
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop016.verizon.net from [141.150.241.241] at Tue, 1 Oct 2002 07:18:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Vojtech Pavlik wrote:
+> On Mon, Sep 30, 2002 at 10:40:10AM -0400, Skip Ford wrote:
+> 
+> > I can no longer change keycodes since switching to the new input layer.
+> > Has anyone been able to?
+> 
+> I've tested it and it should work. What exactly doesn't work for you?
+> What are you trying to do?
 
-I have the following weird problem with a BX-based Board (Asus P3B-F, P3 
-500 MHz (Katmai) Intel BX with PIIX4, latest BIOS 1008-004):
+I'm trying to assign keycodes using the kbd package.  Multimedia keys
+and some regular keys.  Here is one example.  The key I'm pressing is
+e05e.
 
-Kernel 2.2 (Debian Woody) works.
-Kernel 2.4 (Redhat 7.3, 8.0) doesn't work.
-Selfcompiled 2.4.19, 2.4.20-pre8: only work if I do _not_ compile PIIX4 
-support in.
+~# showkey
+kb mode was XLATE
 
-dmesg on successful boot with selfcompiled 2.4.20-pre8 without PIIX support:
+press any key (program terminates 10s after last keypress)...
+keycode 116 press
+keycode 116 release
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 21
-PIIX4: detected chipset, but driver not compiled in!
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
-hda: MAXTOR 6L040J2, ATA DISK drive
-hdb: LTN526, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-blk: queue c02d69e4, I/O limit 4095Mb (mask 0xffffffff)
-hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=4866/255/63, (U)DMA
-hdb: ATAPI 52X CD-ROM drive, 120kB Cache
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
-  hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 >
+~# getkeycodes
+Plain scancodes xx (hex) versus keycodes (dec)
+0 is an error; for 1-88 (0x01-0x58) scancode equals keycode
 
-Apart from the warning about the driver not being compiled in everything 
-runs fine. hdparm -I even tells me that both drives are running in UDMA 
-mode.
+ 0x58:   88  54  28  27   0  43   0   0
+ 0x60:   85  86  90  91  92  93  14  94
+ 0x68:   95  79   0  75  71 121   0 123
+ 0x70:   82  83  80  76  77  72   1  69
+ 0x78:   87  78  81  74  55  73  70  99
 
-This is the dmesg output for an unsuccessful boot with RedHat 8.0 
-(written down by hand, excuse the errors). Unsuccessful boots with 
-selfcompiled kernels with PIIX support look nearly identical except for 
-the blk: lines.
+Escaped scancodes e0 xx (hex)
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 21
-PIIX4: detected chipset, but driver not compiled in!
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
-hda: MAXTOR 6L040J2, ATA DISK drive
-hdb: LTN526, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-blk: queue c02e7ce4, I/O limit 4095Mb (mask 0xffffffff)
-hda: set_drive_speed_status: status = 0xff { Busy }
-blk: queue c02e7ce4, I/O limit 4095Mb (mask 0xffffffff)
-hda: status timeout
-hda: drive not ready for command
-hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=4866/255/63, (U)DMA
-hda: status timeout: status = 0xff { Busy }
-hda: drive not ready for command
-hdb: status timeout: status = 0xff { Busy }
-hdb: drive not ready for command
-hdb: ATAPI reset timed-out, status: 0xff
-hda: DMA disabled
-ide0: reset timed-out, status = 0xff
-hdb: status timeout: status = 0xff { Busy }
-hdb: drive not ready for command
-hdb: ATAPI reset timed-out, status = 0xff
-ide0: reset timed-out, status = 0xff
-end_request: I/O-error dev 0b:40 (hdb) sector 0
-hdb: ATAPI CD-ROM drive, 0kB Cache
+e0 00:  252   0   0  65  99   0   0   0
+e0 08:    0   0   0   0   0   0   0   0
+e0 10:    0   0   0   0   0   0   0   0
+e0 18:    0   0   0   0   0   0   0   0
+e0 20:    0   0   0   0   0   0   0   0
+e0 28:    0   0 251   0   0   0   0   0
+e0 30:    0   0   0   0   0   0   0   0
+e0 38:    0   0   0   0   0   0   0   0
+e0 40:    0   0   0   0   0   0   0   0
+e0 48:    0   0   0   0   0   0   0   0
+e0 50:    0   0   0   0   0   0   0   0
+e0 58:    0   0   0   0   0   0   0   0
+                                 ^^^     <-- e05e
+e0 60:  252 253   0   0   0   0   0   0
+e0 68:    0   0   0   0   0   0   0   0
+e0 70:  254   0   0   0   0   0   0   0
+e0 78:    0   0   0   0   0   0   0 255
 
-I tried all combinations of nodma,notune,noautotune (is it notune or 
-noautotune? conflicting documentation there...) for both ide0 and ide1 
-and even for individual drives (hdb=nodma etc.), the kernel ignored me. 
-Even disabling DMA in the BIOS still gave me
+~# setkeycodes e05e 89
+~# getkeycodes
+Plain scancodes xx (hex) versus keycodes (dec)
+0 is an error; for 1-88 (0x01-0x58) scancode equals keycode
 
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+ 0x58:   88  54  28  27   0  43   0   0
+ 0x60:   85  86  90  91  92  93  14  94
+ 0x68:   95  79   0  75  71 121   0 123
+ 0x70:   82  83  80  76  77  72   1  69
+ 0x78:   87  78  81  74  55  73  70  99
 
-Again - the strange thing is that it works just fine if I leave out 
-PIIX4 support and select only generic PCI busmaster DMA support. 
-However, I cannot use distribution kernels which have PIIX compiled in.
+Escaped scancodes e0 xx (hex)
 
-Is there a boot option to disable PIIX support?
+e0 00:  252   0   0  65  99   0   0   0
+e0 08:    0   0   0   0   0   0   0   0
+e0 10:    0   0   0   0   0   0   0   0
+e0 18:    0   0   0   0   0   0   0   0
+e0 20:    0   0   0   0   0   0   0   0
+e0 28:    0   0 251   0   0   0   0   0
+e0 30:    0   0   0   0   0   0   0   0
+e0 38:    0   0   0   0   0   0   0   0
+e0 40:    0   0   0   0   0   0   0   0
+e0 48:    0   0   0   0   0   0   0   0
+e0 50:    0   0   0   0   0   0   0   0
+e0 58:    0   0   0   0   0   0  89   0
+                                ^^^^     <-- e05e
+e0 60:  252 253   0   0   0   0   0   0
+e0 68:    0   0   0   0   0   0   0   0
+e0 70:  254   0   0   0   0   0   0   0
+e0 78:    0   0   0   0   0   0   0 255
 
-Thanks for any help,
-Holger
+~# showkey
+kb mode was XLATE
 
+press any key (program terminates 10s after last keypress)...
+keycode 116 press
+keycode 116 release
+
+----------------------------------------------------------
+The same thing happens with every key.  I've tried every config option
+that seems even remotely related to keyboards and nothing changes.  It's
+detected as:
+
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+
+It's a PS2 keyboard attached via PS2/AT adapter.  The actual changes I'm
+trying to make are the same ones I've been using through all of 2.4 and
+2.5
+
+-- 
+Skip

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUJRV3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUJRV3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267700AbUJRV3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 17:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUJRVZJ
+	id S267405AbUJRV3m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 17:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267535AbUJRV3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 17:25:09 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:55424 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S267405AbUJRVVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 17:21:40 -0400
-Date: Mon, 18 Oct 2004 16:21:38 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-In-Reply-To: <20041018210644.GA14072@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410181621100.1218@gradall.private.brainfood.com>
-References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
- <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
- <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
- <20041018145008.GA25707@elte.hu> <Pine.LNX.4.58.0410181249150.1218@gradall.private.brainfood.com>
- <20041018181826.GC2899@elte.hu> <Pine.LNX.4.58.0410181557190.1218@gradall.private.brainfood.com>
- <20041018210644.GA14072@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Oct 2004 17:29:08 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:57276 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S267508AbUJRV1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 17:27:12 -0400
+Subject: Re: [PATCH] add unschedule_delayed_work to the workqueue API
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
+In-Reply-To: <20041018142524.5b81a09a.akpm@osdl.org>
+References: <1098117067.2011.64.camel@mulgrave> 
+	<20041018142524.5b81a09a.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Oct 2004 16:26:57 -0500
+Message-Id: <1098134824.2011.322.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yOn Mon, 18 Oct 2004, Ingo Molnar wrote:
+On Mon, 2004-10-18 at 16:25, Andrew Morton wrote:
+> James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> >
+> > I'm in the process of moving some of our scsi timers which do more work
+> > than just a few lines of code into schedule_work() instead.  The problem
+> > is that the workqueue API lacks the equivalent of del_timer_sync(). 
+> 
+> The usual way of doing this is:
+> 
+> 	cancel_delayed_work(...);
 
-> > Too late, it's gone.  It'd be nice if there was some way to have
-> > history on that file.
->
-> well - if it's gone it's always replaced by a larger latency (if you use
-> the preempt_max_latency method), which in most cases is more interesting
-> than the one you wanted to save.
+That API doesn't seem to be in the vanilla kernel ... is it mm only?
 
-I reset the minimum to 50, and it's only gotten up to 83.
+> 	flush_workqueue(...);
+
+Yes, but the flush_workqueue() has you waiting until every piece of work
+on the workqueue has completed ... that creates an unacceptable delay in
+the routine that wants it either cancelled or run.
+
+James
+
+
+

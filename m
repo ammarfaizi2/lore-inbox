@@ -1,51 +1,534 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264375AbRGKSUH>; Wed, 11 Jul 2001 14:20:07 -0400
+	id <S264644AbRGKSVR>; Wed, 11 Jul 2001 14:21:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264942AbRGKST5>; Wed, 11 Jul 2001 14:19:57 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:19042 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S264375AbRGKSTu>; Wed, 11 Jul 2001 14:19:50 -0400
+	id <S264541AbRGKSVH>; Wed, 11 Jul 2001 14:21:07 -0400
+Received: from colorfullife.com ([216.156.138.34]:46596 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S264397AbRGKSUx>;
+	Wed, 11 Jul 2001 14:20:53 -0400
+Message-ID: <3B4C98DA.BC9ECE5@colorfullife.com>
+Date: Wed, 11 Jul 2001 20:20:10 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15180.39107.179401.666431@somanetworks.com>
-Date: Wed, 11 Jul 2001 14:19:47 -0400
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: "Richard Purdie" <rpurdie@bigfoot.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: <BUG Report: kernel BUG at slab.c:1062! from pppd with speedtouch drivers and pppoatm>
-In-Reply-To: <00c101c10a33$8a024920$0301a8c0@rpnet.com>
-In-Reply-To: <00c101c10a33$8a024920$0301a8c0@rpnet.com>
-X-Mailer: VM 6.90 under 21.2  (beta44) "Thalia" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [PATCH] natsemi compiler workaround & cleanup
+Content-Type: multipart/mixed;
+ boundary="------------FAB27239A9C021B21203DBD6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "RP" == Richard Purdie <rpurdie@bigfoot.com> writes:
+This is a multi-part message in MIME format.
+--------------FAB27239A9C021B21203DBD6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
- >> > I'm trying to get Linux to work with an Alcatel Speedtouch ADSL
- >> > USB
- RP> modem.
- >> > By executing the following script after boot up I get the BUG
- >> > message
- RP> after
- >> > running pppd.
- >>
- >> Have you tried asking the author of the speedtouch driver about
- >> this?
+The rx setup in init_ring() in drivers/net/natsemi.c in 2.4.6 is
+miscompiled by several gcc-2.95 versions.
 
- RP> I've sent him a copy of the bug report I submitted here. I'm
- RP> still unsure of where the problem lies. My machine is being
- RP> unpredictable even when the driver hasn't been loaded.
+I could reproduce it with 2.95.1, and I received bug reports with 
+gcc version 2.95.2 20000220 (Debian GNU/Linux)
+gcc 2.95.3 19991030 from Mandrake 7.2
 
-The BUG() invocation is a result of invalid flags being passed to
-kmem_cache_grow().
+egcs-1.12 and rh gcc 2.96-85 are not affected.
 
-The numeric values associated with things like GFP_ATOMIC changed in
-2.4.6.  Your problem is likely related to the use of modules built on
-something other than the kernel you're running.
+Symptom: receive process hangs after 2 packets.
 
-(I know this because I spent entirely too long debugging somebody's
-code yesterday that thought it was a good idea to have his own copies
-of the definitions of GFP_ATOMIC, et al.)
+The patch also cleans up the suspend/resume synchronization and removes
+2 superflous (& wrong) spin_unlock calls.
+
+--
+	Manfred
+--------------FAB27239A9C021B21203DBD6
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-natsemi"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-natsemi"
+
+--- 2.4/drivers/net/natsemi.c	Sat Jul  7 13:06:04 2001
++++ build-2.4/drivers/net/natsemi.c	Wed Jul 11 20:06:34 2001
+@@ -326,6 +326,8 @@
+ 	IntrNormalSummary=0x0251, IntrAbnormalSummary=0xED20,
+ };
+ 
++#define DEFAULT_INTR 0x00f1cd65
++
+ /* Bits in the RxMode register. */
+ enum rx_mode_bits {
+ 	AcceptErr=0x20, AcceptRunt=0x10,
+@@ -388,6 +390,7 @@
+ static int  eeprom_read(long ioaddr, int location);
+ static int  mdio_read(struct net_device *dev, int phy_id, int location);
+ static void natsemi_reset(struct net_device *dev);
++static void natsemi_stop_rxtx(struct net_device *dev);
+ static int  netdev_open(struct net_device *dev);
+ static void check_link(struct net_device *dev);
+ static void netdev_timer(unsigned long data);
+@@ -640,7 +643,26 @@
+ 	}
+ }
+ 
+-
++static void natsemi_stop_rxtx(struct net_device *dev)
++{
++	long ioaddr = dev->base_addr;
++	int i;
++
++	writel(RxOff | TxOff, ioaddr + ChipCmd);
++	for(i=0;i< NATSEMI_HW_TIMEOUT;i++) {
++		if ((readl(ioaddr + ChipCmd) & (TxOn|RxOn)) == 0)
++			break;
++		udelay(5);
++	}
++	if (i==NATSEMI_HW_TIMEOUT && debug) {
++		printk(KERN_INFO "%s: Tx/Rx process did not stop in %d usec.\n",
++				dev->name, i*5);
++	} else if (debug > 2) {
++		printk(KERN_DEBUG "%s: Tx/Rx process stopped in %d usec.\n",
++				dev->name, i*5);
++	}
++}
++
+ static int netdev_open(struct net_device *dev)
+ {
+ 	struct netdev_private *np = dev->priv;
+@@ -662,7 +684,9 @@
+ 		return i;
+ 	}
+ 	init_ring(dev);
++	spin_lock_irq(&np->lock);
+ 	init_registers(dev);
++	spin_unlock_irq(&np->lock);
+ 
+ 	netif_start_queue(dev);
+ 
+@@ -798,7 +822,7 @@
+ 	__set_rx_mode(dev);
+ 
+ 	/* Enable interrupts by setting the interrupt mask. */
+-	writel(IntrNormalSummary | IntrAbnormalSummary | 0x1f, ioaddr + IntrMask);
++	writel(DEFAULT_INTR, ioaddr + IntrMask);
+ 	writel(1, ioaddr + IntrEnable);
+ 
+ 	writel(RxOn | TxOn, ioaddr + ChipCmd);
+@@ -825,30 +849,51 @@
+ 	add_timer(&np->timer);
+ }
+ 
+-static void tx_timeout(struct net_device *dev)
++static void dump_ring(struct net_device *dev)
+ {
+ 	struct netdev_private *np = dev->priv;
+-	long ioaddr = dev->base_addr;
+-
+-	printk(KERN_WARNING "%s: Transmit timed out, status %8.8x,"
+-		   " resetting...\n", dev->name, (int)readl(ioaddr + TxRingPtr));
+ 
+-	{
++	if (debug > 2) {
+ 		int i;
+-		printk(KERN_DEBUG "  Rx ring %p: ", np->rx_ring);
+-		for (i = 0; i < RX_RING_SIZE; i++)
+-			printk(" %8.8x", (unsigned int)np->rx_ring[i].cmd_status);
+-		printk("\n"KERN_DEBUG"  Tx ring %p: ", np->tx_ring);
++		printk(KERN_DEBUG "  Tx ring at %8.8x:\n",
++			   (int)np->tx_ring);
+ 		for (i = 0; i < TX_RING_SIZE; i++)
+-			printk(" %4.4x", np->tx_ring[i].cmd_status);
+-		printk("\n");
++			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x %8.8x.\n",
++				   i, np->tx_ring[i].next_desc,
++				   np->tx_ring[i].cmd_status, np->tx_ring[i].addr);
++		printk(KERN_DEBUG "  Rx ring %8.8x:\n",
++			   (int)np->rx_ring);
++		for (i = 0; i < RX_RING_SIZE; i++) {
++			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x %8.8x.\n",
++				   i, np->rx_ring[i].next_desc,
++				   np->rx_ring[i].cmd_status, np->rx_ring[i].addr);
++		}
+ 	}
++}
++
++static void tx_timeout(struct net_device *dev)
++{
++	struct netdev_private *np = dev->priv;
++	long ioaddr = dev->base_addr;
++
++
++	disable_irq(dev->irq);
+ 	spin_lock_irq(&np->lock);
+-	natsemi_reset(dev);
+-	drain_ring(dev);
+-	init_ring(dev);
+-	init_registers(dev);
++	if (netif_device_present(dev)) {
++		printk(KERN_WARNING "%s: Transmit timed out, status %8.8x,"
++			   " resetting...\n", dev->name, readl(ioaddr + IntrStatus));
++		dump_ring(dev);
++
++		natsemi_reset(dev);
++		drain_ring(dev);
++		init_ring(dev);
++		init_registers(dev);
++	} else {
++		printk(KERN_WARNING "%s: tx_timeout while in suspended state?\n",
++		   		dev->name);
++	}
+ 	spin_unlock_irq(&np->lock);
++	enable_irq(dev->irq);
+ 
+ 	dev->trans_start = jiffies;
+ 	np->stats.tx_errors++;
+@@ -879,14 +924,17 @@
+ 	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 32);
+ 	np->rx_head_desc = &np->rx_ring[0];
+ 
++	/* Please be carefull before changing this loop - at least gcc-2.95.1
++	 * miscompiles it otherwise.
++	 */
+ 	/* Initialize all Rx descriptors. */
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
+-		np->rx_ring[i].next_desc = cpu_to_le32(np->ring_dma+sizeof(struct netdev_desc)*(i+1));
++		np->rx_ring[i].next_desc = cpu_to_le32(np->ring_dma
++				+sizeof(struct netdev_desc)
++				 *((i+1)%RX_RING_SIZE));
+ 		np->rx_ring[i].cmd_status = cpu_to_le32(DescOwn);
+ 		np->rx_skbuff[i] = NULL;
+ 	}
+-	/* Mark the last entry as wrapping the ring. */
+-	np->rx_ring[i-1].next_desc = cpu_to_le32(np->ring_dma);
+ 
+ 	/* Fill in the Rx buffers.  Handle allocation failure gracefully. */
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
+@@ -898,18 +946,18 @@
+ 		np->rx_dma[i] = pci_map_single(np->pci_dev,
+ 						skb->data, skb->len, PCI_DMA_FROMDEVICE);
+ 		np->rx_ring[i].addr = cpu_to_le32(np->rx_dma[i]);
+-		np->rx_ring[i].cmd_status = cpu_to_le32(DescIntr | np->rx_buf_sz);
++		np->rx_ring[i].cmd_status = cpu_to_le32(np->rx_buf_sz);
+ 	}
+ 	np->dirty_rx = (unsigned int)(i - RX_RING_SIZE);
+ 
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
+ 		np->tx_skbuff[i] = NULL;
+ 		np->tx_ring[i].next_desc = cpu_to_le32(np->ring_dma
+-					+sizeof(struct netdev_desc)*(i+1+RX_RING_SIZE));
++					+sizeof(struct netdev_desc)
++					 *((i+1)%TX_RING_SIZE+RX_RING_SIZE));
+ 		np->tx_ring[i].cmd_status = 0;
+ 	}
+-	np->tx_ring[i-1].next_desc = cpu_to_le32(np->ring_dma
+-					+sizeof(struct netdev_desc)*(RX_RING_SIZE));
++	dump_ring(dev);
+ }
+ 
+ static void drain_ring(struct net_device *dev)
+@@ -968,25 +1016,25 @@
+ 	np->tx_ring[entry].addr = cpu_to_le32(np->tx_dma[entry]);
+ 
+ 	spin_lock_irq(&np->lock);
+-
+-#if 0
+-	np->tx_ring[entry].cmd_status = cpu_to_le32(DescOwn | DescIntr | skb->len);
+-#else
+-	np->tx_ring[entry].cmd_status = cpu_to_le32(DescOwn | skb->len);
+-#endif
+-	/* StrongARM: Explicitly cache flush np->tx_ring and skb->data,skb->len. */
+-	wmb();
+-	np->cur_tx++;
+-	if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1) {
+-		netdev_tx_done(dev);
+-		if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1)
+-			netif_stop_queue(dev);
++	
++	if (netif_device_present(dev)) {
++		np->tx_ring[entry].cmd_status = cpu_to_le32(DescOwn | skb->len);
++		/* StrongARM: Explicitly cache flush np->tx_ring and skb->data,skb->len. */
++		wmb();
++		np->cur_tx++;
++		if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1) {
++			netdev_tx_done(dev);
++			if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1)
++				netif_stop_queue(dev);
++		}
++		/* Wake the potentially-idle transmit channel. */
++		writel(TxOn, dev->base_addr + ChipCmd);
++	} else {
++		dev_kfree_skb_irq(skb);
++		np->stats.tx_dropped++;
+ 	}
+ 	spin_unlock_irq(&np->lock);
+ 
+-	/* Wake the potentially-idle transmit channel. */
+-	writel(TxOn, dev->base_addr + ChipCmd);
+-
+ 	dev->trans_start = jiffies;
+ 
+ 	if (debug > 4) {
+@@ -1035,9 +1083,8 @@
+ 		/* The ring is no longer full, wake queue. */
+ 		netif_wake_queue(dev);
+ 	}
+-	spin_unlock(&np->lock);
+-
+ }
++
+ /* The interrupt handler does all of the Rx thread work and cleans up
+    after the Tx thread. */
+ static void intr_handler(int irq, void *dev_instance, struct pt_regs *rgs)
+@@ -1049,7 +1096,9 @@
+ 
+ 	ioaddr = dev->base_addr;
+ 	np = dev->priv;
+-
++	
++	if (!netif_device_present(dev))
++		return;
+ 	do {
+ 		/* Reading automatically acknowledges all int sources. */
+ 		u32 intr_status = readl(ioaddr + IntrStatus);
+@@ -1173,7 +1222,7 @@
+ 			np->rx_ring[entry].addr = cpu_to_le32(np->rx_dma[entry]);
+ 		}
+ 		np->rx_ring[entry].cmd_status =
+-			cpu_to_le32(DescIntr | np->rx_buf_sz);
++			cpu_to_le32(np->rx_buf_sz);
+ 	}
+ 
+ 	/* Restart Rx engine if stopped. */
+@@ -1229,20 +1278,20 @@
+ 
+ 	/* The chip only need report frame silently dropped. */
+ 	np->stats.rx_crc_errors	+= readl(ioaddr + RxCRCErrs);
+-	np->stats.rx_missed_errors	+= readl(ioaddr + RxMissed);
++	np->stats.rx_missed_errors += readl(ioaddr + RxMissed);
+ }
+ 
+ static struct net_device_stats *get_stats(struct net_device *dev)
+ {
+ 	struct netdev_private *np = dev->priv;
+ 
+-	/* The chip only need report frame silently dropped. */
+ 	spin_lock_irq(&np->lock);
+-	__get_stats(dev);
++	if (netif_running(dev) && netif_device_present(dev))
++		__get_stats(dev);
+ 	spin_unlock_irq(&np->lock);
+-
+ 	return &np->stats;
+ }
++
+ /* The little-endian AUTODIN II ethernet CRC calculations.
+    A big-endian version is also available.
+    This is slow but compact code.  Do not use this routine for bulk data,
+@@ -1335,13 +1384,13 @@
+ 	}
+ 	writel(rx_mode, ioaddr + RxFilterAddr);
+ 	np->cur_rx_mode = rx_mode;
+-	spin_unlock_irq(&np->lock);
+ }
+ static void set_rx_mode(struct net_device *dev)
+ {
+ 	struct netdev_private *np = dev->priv;
+ 	spin_lock_irq(&np->lock);
+-	__set_rx_mode(dev);
++	if (netif_device_present(dev))
++		__set_rx_mode(dev);
+ 	spin_unlock_irq(&np->lock);
+ }
+ 
+@@ -1408,48 +1457,49 @@
+ 	netif_stop_queue(dev);
+ 
+ 	if (debug > 1) {
+-		printk(KERN_DEBUG "%s: Shutting down ethercard, status was %4.4x.",
++		printk(KERN_DEBUG "%s: Shutting down ethercard, status was %4.4x.\n",
+ 			   dev->name, (int)readl(ioaddr + ChipCmd));
+ 		printk(KERN_DEBUG "%s: Queue pointers were Tx %d / %d,  Rx %d / %d.\n",
+ 			   dev->name, np->cur_tx, np->dirty_tx, np->cur_rx, np->dirty_rx);
+ 	}
+ 
+-	/* Disable interrupts using the mask. */
+-	writel(0, ioaddr + IntrMask);
+-	writel(0, ioaddr + IntrEnable);
+-	writel(2, ioaddr + StatsCtrl); 					/* Freeze Stats */
+-
+-	/* Stop the chip's Tx and Rx processes. */
+-	writel(RxOff | TxOff, ioaddr + ChipCmd);
+-
+ 	del_timer_sync(&np->timer);
+ 
+-#ifdef __i386__
+-	if (debug > 2) {
+-		int i;
+-		printk("\n"KERN_DEBUG"  Tx ring at %8.8x:\n",
+-			   (int)np->tx_ring);
+-		for (i = 0; i < TX_RING_SIZE; i++)
+-			printk(" #%d desc. %8.8x %8.8x.\n",
+-				   i, np->tx_ring[i].cmd_status, np->tx_ring[i].addr);
+-		printk("\n"KERN_DEBUG "  Rx ring %8.8x:\n",
+-			   (int)np->rx_ring);
+-		for (i = 0; i < RX_RING_SIZE; i++) {
+-			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x\n",
+-				   i, np->rx_ring[i].cmd_status, np->rx_ring[i].addr);
+-		}
++	disable_irq(dev->irq);
++	spin_lock_irq(&np->lock);
++	if (netif_device_present(dev)) {
++		writel(0, ioaddr + IntrMask);
++		writel(0, ioaddr + IntrEnable);
++		writel(2, ioaddr + StatsCtrl);		/* Freeze Stats */
++
++		natsemi_stop_rxtx(dev);
++		__get_stats(dev);
+ 	}
+-#endif /* __i386__ debugging only */
++	spin_unlock_irq(&np->lock);
+ 
++	/* race: shared irq and as most nics the DP83815
++	 * reports _all_ interrupt conditions in IntrStatus, even
++	 * disabled ones.
++	 * packet received after disable_irq, but before stop_rxtx
++	 * --> race. intr_handler would restart the rx process.
++	 * netif_device_{de,a}tach around {enable,free}_irq.
++	 */
++	netif_device_detach(dev);
++	enable_irq(dev->irq);
+ 	free_irq(dev->irq, dev);
++	netif_device_attach(dev);
++
++	dump_ring(dev);
+ 	drain_ring(dev);
+ 	free_ring(dev);
+ 
+-	/* Restore PME enable bit */
+-	writel(np->SavedClkRun, ioaddr + ClkRun);
++	if (netif_device_present(dev))  {
++		/* Restore PME enable bit */
++		writel(np->SavedClkRun, ioaddr + ClkRun);
+ #if 0
+-	writel(0x0200, ioaddr + ChipConfig); /* Power down Xcvr. */
++		writel(0x0200, ioaddr + ChipConfig); /* Power down Xcvr. */
+ #endif
++	}
+ 
+ 	return 0;
+ }
+@@ -1468,49 +1518,54 @@
+ 
+ #ifdef CONFIG_PM
+ 
++/*
++ * suspend/resume synchronization:
++ * entry points:
++ *   netdev_open, netdev_close, netdev_ioctl, set_rx_mode, intr_handler,
++ *   start_tx, tx_timeout
++ * - no function accesses the hardware without checking netif_device_present().
++ * 	the check occurs under spin_lock_irq(&np->lock);
++ * 	exceptions:
++ * 	* netdev_ioctl, netdev_open.
++ * 		net/core checks netif_device_present() before calling them.
++ *	* netdev_timer: timer stopped by natsemi_suspend.
++ *	* intr_handler: doesn't acquire the spinlock. suspend calls
++ *		disable_irq() to enforce synchronization.
++ *
++ * netif_device_detach must occur under spin_unlock_irq(), interrupts from a detached
++ * device would cause an irq storm.
++ */
++
+ static int natsemi_suspend (struct pci_dev *pdev, u32 state)
+ {
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 	struct netdev_private *np = dev->priv;
+ 	long ioaddr = dev->base_addr;
+ 
+-	netif_device_detach(dev);
+-	/* no more calls to tx_timeout, hard_start_xmit, set_rx_mode */
+ 	rtnl_lock();
+-	rtnl_unlock();
+-	/* noone within ->open */
+ 	if (netif_running (dev)) {
+-		int i;
+ 		del_timer_sync(&np->timer);
+-		/* no more link beat timer calls */
++
++		disable_irq(dev->irq);
+ 		spin_lock_irq(&np->lock);
+-		writel(RxOff | TxOff, ioaddr + ChipCmd);
+-		for(i=0;i< NATSEMI_HW_TIMEOUT;i++) {
+-			if ((readl(ioaddr + ChipCmd) & (TxOn|RxOn)) == 0)
+-				break;
+-			udelay(5);
+-		}
+-		if (i==NATSEMI_HW_TIMEOUT && debug) {
+-			printk(KERN_INFO "%s: Tx/Rx process did not stop in %d usec.\n",
+-					dev->name, i*5);
+-		} else if (debug > 2) {
+-			printk(KERN_DEBUG "%s: Tx/Rx process stopped in %d usec.\n",
+-					dev->name, i*5);
+-		}
+-		/* Tx and Rx processes stopped */
+ 
+ 		writel(0, ioaddr + IntrEnable);
+-		/* all irq events disabled. */
+-		spin_unlock_irq(&np->lock);
+-
+-		synchronize_irq();
++		natsemi_stop_rxtx(dev);
++		netif_stop_queue(dev);
++		netif_device_detach(dev);
+ 
++		spin_unlock_irq(&np->lock);
++		enable_irq(dev->irq);
++		
+ 		/* Update the error counts. */
+ 		__get_stats(dev);
+ 
+ 		/* pci_power_off(pdev, -1); */
+ 		drain_ring(dev);
++	} else {
++		netif_device_detach(dev);
+ 	}
++	rtnl_unlock();
+ 	return 0;
+ }
+ 
+@@ -1520,18 +1575,27 @@
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 	struct netdev_private *np = dev->priv;
+ 
+-	if (netif_running (dev)) {
++	rtnl_lock();
++	if (netif_device_present(dev))
++		goto out;
++	if (netif_running(dev)) {
+ 		pci_enable_device(pdev);
+ 	/*	pci_power_on(pdev); */
+ 		
+ 		natsemi_reset(dev);
+ 		init_ring(dev);
++		spin_lock_irq(&np->lock);
+ 		init_registers(dev);
++		netif_device_attach(dev);
++		spin_unlock_irq(&np->lock);
+ 
+ 		np->timer.expires = jiffies + 1*HZ;
+ 		add_timer(&np->timer);
++	} else {
++		netif_device_attach(dev);
+ 	}
+-	netif_device_attach(dev);
++out:
++	rtnl_unlock();
+ 	return 0;
+ }
+ 
+
+
+
+
+--------------FAB27239A9C021B21203DBD6--
+
+

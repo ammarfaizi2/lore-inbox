@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpHx6eg05fEOES5emS0/ghzZd7w==
+thread-index: AcQVpGnQpvrqQE+tQIWhs/JELbPr5Q==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 14:14:43 +0000
-Message-ID: <020501c415a4$7c7ad0e0$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 04:57:43 +0000
+Message-ID: <019c01c415a4$69d5b6d0$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 29 Mar 2004 16:42:16 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
+From: "Davide Libenzi" <davidel@xmailserver.org>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:42:48 +0100
-From: "Thomas Molina" <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
+X-X-Sender: davide@bigblue.dev.mdolabs.com
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Andrew Morton" <akpm@osdl.org>
-Subject: debug messages in 2.6.1-rc1-mm1
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+        <mingo@redhat.com>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] kthread_create 
+In-Reply-To: <Pine.LNX.4.44.0401032039350.2022-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN;
 	charset="US-ASCII"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:51.0921 (UTC) FILETIME=[7ECA1810:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:18.0390 (UTC) FILETIME=[6ACDAB60:01C415A4]
 
-I'm getting the following on my laptop while it is just sitting doing 
-nothing.  The connect/disconnect lines are from my wireless pcmcia card.  
-I'm not sure why I get so many of these messages.  My laptop is sitting 
-within five feet of the WAP, so there should'nt be any of these messages.  
-Also, they always used to go to /var/log/messages when they did happen.  I 
-have no idea where the debug message came from.
+On Sat, 3 Jan 2004, Davide Libenzi wrote:
 
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
- 00 00 <8b> 80 88 00 00 00 89 45 c0 b8 00 e0 ff ff 21 e0 ff 48 14 8b 40
- <6>note: pidof[1819] exited with preempt_count 1
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<c0125d8b>] __might_sleep+0xab/0xd0
- [<c012b353>] profile_exit_task+0x23/0x60
- [<c012d849>] do_exit+0x79/0x9f0
-[root@lap linux-2.6.0]# eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
-eth0: New link status: Disconnected (0002)
-eth0: New link status: Connected (0001)
+> On Sun, 4 Jan 2004, Rusty Russell wrote:
+> 
+> > In message <Pine.LNX.4.44.0401031021280.1678-100000@bigblue.dev.mdolabs.com> you write:
+> > > Rusty, I took a better look at the patch and I think we can have 
+> > > per-kthread stuff w/out littering the task_struct and by making the thing 
+> > > more robust.
+> > 
+> > Except sharing data with a lock is perfectly robust.
+> > 
+> > > We keep a global list_head protected by a global spinlock. We 
+> > > define a structure that contain all the per-kthread stuff we need 
+> > > (including a task_struct* to the kthread itself). When a kthread starts it 
+> > > will add itself to the list, and when it will die it will remove itself 
+> > > from the list.
+> > 
+> > Yeah, I deliberately didn't implement this, because (1) it seems like
+> > a lot of complexity when using a lock and letting them share a single
+> > structure works fine and is even simpler, and (2) the thread can't
+> > just "do_exit()".
+> > 
+> > You can get around (2) by having a permenant parent "kthread" thread
+> > which is a parent to all the kthreads (it'll get a SIGCHLD when
+> > someone does "do_exit()").  But the implementation was pretty ugly,
+> > since it involved having a communications mechanism with the kthread
+> > parent, which means you have the global ktm_message-like-thing for
+> > this...
+> 
+> You will lose in any case. What happens if the thread does do_exit() and 
+> you do kthread_stop() after that?
+> With the patch I posted to you, the kthread_stop() will simply miss the 
+> lookup and return -ENOENT.
 
+Nope, we are screwed in any case. Is it really important to give the 
+ability to do do_exit() for kthreads? I mean, why a simple return would 
+not work?
 
 
-	
+
+- Davide
+
 

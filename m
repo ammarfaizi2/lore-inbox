@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264125AbRFIH4D>; Sat, 9 Jun 2001 03:56:03 -0400
+	id <S264270AbRFIH7N>; Sat, 9 Jun 2001 03:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264262AbRFIHzy>; Sat, 9 Jun 2001 03:55:54 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:273 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S264125AbRFIHzk>;
-	Sat, 9 Jun 2001 03:55:40 -0400
-Date: Sat, 9 Jun 2001 04:55:36 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Derek Glidden <dglidden@illusionary.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <m1ofs15tm0.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.21.0106090455050.14934-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S264389AbRFIH6x>; Sat, 9 Jun 2001 03:58:53 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15880 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264270AbRFIH6m>; Sat, 9 Jun 2001 03:58:42 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: temperature standard - global config option?
+Date: 9 Jun 2001 00:58:27 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9fskv3$niq$1@cesium.transmeta.com>
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGMEOOCIAA.jcwren@jcwren.com> <200106090352.f593q7M491225@saturn.cs.uml.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jun 2001, Eric W. Biederman wrote:
-> Derek Glidden <dglidden@illusionary.com> writes:
+Followup to:  <200106090352.f593q7M491225@saturn.cs.uml.edu>
+By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
+In newsgroup: linux.dev.kernel
+> > 
+> > But in spite of all this, you're not really measure the critical
+> > temperature, which is junction tempature.  Yes, case tempature has *some*
 > 
-> > The problem I reported is not that 2.4 uses huge amounts of swap but
-> > that trying to recover that swap off of disk under 2.4 can leave the
-> > machine in an entirely unresponsive state, while 2.2 handles identical
-> > situations gracefully.  
+> There are processors with temperature measurement built right
+> into the silicon.
 > 
-> The interesting thing from other reports is that it appears to be
-> kswapd using up CPU resources.
 
-This part is being worked on, expect a solution for this thing
-soon...
+As far as I know, ALL current microprocessors do.
 
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

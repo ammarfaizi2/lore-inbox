@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbTLaTyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 14:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbTLaTyQ
+	id S265254AbTLaUBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 15:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbTLaUBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 14:54:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45452 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265251AbTLaTyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 14:54:15 -0500
-Date: Wed, 31 Dec 2003 11:54:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1-mm1 - ieee1394 broken again?
-Message-Id: <20031231115442.24df8501.akpm@osdl.org>
-In-Reply-To: <3FF2EFF3.6010001@gadsdon.giointernet.co.uk>
-References: <3FF2EFF3.6010001@gadsdon.giointernet.co.uk>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 Dec 2003 15:01:44 -0500
+Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:28200 "EHLO
+	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
+	id S265254AbTLaUBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 15:01:43 -0500
+Message-ID: <3FF32B26.1030006@planet.nl>
+Date: Wed, 31 Dec 2003 21:01:42 +0100
+From: Stef van der Made <svdmade@planet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031227
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ide-scsi for DI-30 and strange messages in dmesg
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Gadsdon <robert@gadsdon.giointernet.co.uk> wrote:
->
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->    printing eip:
->  c028301e
->  *pde = 00000000
->  Oops: 0000 [#1]
->  PREEMPT SMP
->  CPU:    1
->  EIP:    0060:[<c028301e>]    Not tainted VLI
->  EFLAGS: 00010282
->  EIP is at vt_ioctl+0x1e/0x1ec0
->  eax: 00000000   ebx: 00005401   ecx: bffffbec   edx: bffffbec
->  esi: c0283000   edi: cfb5b000   ebp: cf53b2c0   esp: cfb31eb0
->  ds: 007b   es: 007b   ss: 0068
->  Process rc (pid: 1467, threadinfo=cfb30000 task=cfb426c0)
->  Stack: cfb31f70 cffe6220 00000000 00000000 cf06ece0 cfd0c600 00000001 
->  cfb30000
->          cf0354f0 cf036cc0 4f106e70 c01520df cf036cc0 cf9e44a0 4f106e70 
->  00000000
->          cf0a7418 cf0354f0 00008802 cf036cc0 cf036ce0 cf9e44a0 cfb426c0 
->  c011beac
->  Call Trace:
->    [<c01520df>] handle_mm_fault+0x10f/0x1c0
->    [<c011beac>] do_page_fault+0x33c/0x530
->    [<c0160564>] dentry_open+0x1e4/0x230
->    [<c0283000>] vt_ioctl+0x0/0x1ec0
->    [<c027d9a0>] tty_ioctl+0x480/0x590
->    [<c01756a7>] sys_ioctl+0x117/0x2c0
 
-aargh, sorry.  You need to revert
+On a stock 2.6.0-mm2 kernel I see these 'dumps' into dmesg. I'm using a 
+onstream Di-30 on a Ak32E with a via chipset. Is this normal as I've 
+never seen this symptom before ?
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm1/broken-out/sysfs-add-vc-class.patch
+Thanks for your feedback,
 
-This is the totally weird tty oops which Greg and I have been starting
-at bemusedly for a few days.
+Stef
+
+Debug: sleeping function called from invalid context at kernel/sched.c:1814
+in_atomic():0, irqs_disabled():1
+Call Trace:
+ [<c011bc6b>] __might_sleep+0xab/0xd0
+ [<c011aa0f>] wait_for_completion+0x1f/0x100
+ [<c02343e1>] idetape_wait_for_request+0x71/0x90
+ [<c0235509>] idetape_wait_first_stage+0x69/0x70
+ [<c0235dd9>] idetape_get_logical_blk+0x139/0x260
+ [<c0238378>] idetape_chrdev_ioctl+0x268/0x380
+ [<c0165384>] sys_ioctl+0xf4/0x2b0
+ [<c032abbf>] syscall_call+0x7/0xb
+ 
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+request_module: failed /sbin/modprobe -- net-pf-10. error = 65280
+request_module: failed /sbin/modprobe -- net-pf-10. error = 65280
+request_module: failed /sbin/modprobe -- sound-slot-1. error = 65280
+Debug: sleeping function called from invalid context at kernel/sched.c:1814
+in_atomic():0, irqs_disabled():1
+Call Trace:
+ [<c011bc6b>] __might_sleep+0xab/0xd0
+ [<c011aa0f>] wait_for_completion+0x1f/0x100
+ [<c02343e1>] idetape_wait_for_request+0x71/0x90
+ [<c0235509>] idetape_wait_first_stage+0x69/0x70
+ [<c0235dd9>] idetape_get_logical_blk+0x139/0x260
+ [<c0238378>] idetape_chrdev_ioctl+0x268/0x380
+ [<c0165384>] sys_ioctl+0xf4/0x2b0
+ [<c032abbf>] syscall_call+0x7/0xb
+ 
 

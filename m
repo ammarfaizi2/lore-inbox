@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317496AbSFIBCQ>; Sat, 8 Jun 2002 21:02:16 -0400
+	id <S317492AbSFIBKj>; Sat, 8 Jun 2002 21:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317498AbSFIBCQ>; Sat, 8 Jun 2002 21:02:16 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:46349 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317496AbSFIBCP>;
-	Sat, 8 Jun 2002 21:02:15 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Resync with kbuild 2.5 
-In-Reply-To: Your message of "Sat, 08 Jun 2002 14:41:23 +0400."
-             <20020608104123.GA369@stingr.net> 
+	id <S317495AbSFIBKi>; Sat, 8 Jun 2002 21:10:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55569 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317492AbSFIBKi>;
+	Sat, 8 Jun 2002 21:10:38 -0400
+Date: Sun, 9 Jun 2002 02:10:38 +0100
+From: "Dr. David Alan Gilbert" <linux@spamtrap.treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: kernel ram testing
+Message-ID: <20020609011038.GA1078@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Jun 2002 11:02:04 +1000
-Message-ID: <30170.1023584524@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 01:53:38 up 13:21,  7 users,  load average: 2.72, 2.73, 2.73
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jun 2002 14:41:23 +0400, 
-Paul P Komkoff Jr <i@stingr.net> wrote:
->kbuild25-3.0-for-2.4.19-pre10-2.bz2
->kbuild25-3.0-for-2.4.19-pre10-ac2-2.bz2
->
->Resynched with latest kbuild 2.5 core-18, which fixes some bugs.
->Unfortunately, sourceforge version of kbuild*i386* still don't contain
->s/CC/CC_real/ "fix" for Makefile.defs.*config. Mine contains.
+Hi,
+  After a particularly odd experience with a duff dimm a few weeks ago*  I
+started thinking again about building continuous RAM testing into the kernel.
 
-Thanks for spotting that, the fix did not get backported from 2.5
-kernels.  New kbuild 2.5 patches for i386 on 2.4.18 and 2.4.19-pre10
-will be on sourceforge soon.  The update against kbuild 2.5
-i386-2.4.19-pre10-1 is :-
+I've so far put together a little piece of code that regularly checksums
+the kernel text (from _text to _etext).  But now I have some questions:
 
-Index: 19-pre10.2/arch/i386/Makefile.defs.noconfig
---- 19-pre10.2/arch/i386/Makefile.defs.noconfig Fri, 07 Jun 2002 18:29:03 +1000 kaos (linux-2.4/m/f/40_Makefile.d 1.7 644)
-+++ 19-pre10.2(w)/arch/i386/Makefile.defs.noconfig Sun, 09 Jun 2002 10:17:43 +1000 kaos (linux-2.4/m/f/40_Makefile.d 1.7 644)
-@@ -10,6 +10,8 @@
- # Note: When this is included by the top level Makefile, not all CFLAGS have been
- #       set.  Some CFLAGS cannot be set until after CROSS_COMPILE is stable, in
- #       particular CC still scans user space includes at this point.
-+#
-+# Use $(CC) in this file, not $(CC_real).
- 
- LDFLAGS			+= -m elf_i386
- OBJCOPYFLAGS		+= -O binary -R .note -R .comment -S
-Index: 19-pre10.2/arch/i386/Makefile.defs.config
---- 19-pre10.2/arch/i386/Makefile.defs.config Mon, 19 Nov 2001 15:25:43 +1100 kaos (linux-2.4/m/f/41_Makefile.d 1.2 644)
-+++ 19-pre10.2(w)/arch/i386/Makefile.defs.config Sun, 09 Jun 2002 10:17:43 +1000 kaos (linux-2.4/m/f/41_Makefile.d 1.2 644)
-@@ -11,6 +11,7 @@
- # ifneq ($(subst n,,$(CONFIG_xxx)),) is equivalent to the old
- # ifdef CONFIG_xxx but is CML2 compatible.
- #
-+# Use $(CC_real) in this file, not $(CC).
- 
- # Negated test, add to cflags if CONFIG_FRAME_POINTER is not set.
- ifeq ($(subst n,,$(CONFIG_FRAME_POINTER)),)
-@@ -50,11 +51,11 @@ ifneq ($(subst n,,$(CONFIG_MPENTIUM4)),)
- endif
- 
- ifneq ($(subst n,,$(CONFIG_MK6)),)
--  CFLAGS += $(shell if $(CC) -march=k6 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=k6"; else echo "-march=i586"; fi)
-+  CFLAGS += $(shell if $(CC_real) -march=k6 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=k6"; else echo "-march=i586"; fi)
- endif
- 
- ifneq ($(subst n,,$(CONFIG_MK7)),)
--  CFLAGS += $(shell if $(CC) -march=athlon -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=athlon"; else echo "-march=i686 -malign-functions=4"; fi) 
-+  CFLAGS += $(shell if $(CC_real) -march=athlon -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=athlon"; else echo "-march=i686 -malign-functions=4"; fi) 
- endif
- 
- ifneq ($(subst n,,$(CONFIG_MCRUSOE)),)
+ 1) _text and _etext seem to be defined differently on different
+ architectures (some don't define both).  Ideally I think I'd like just
+ the kernel text in a way that can be extracted with objdump at build
+ time (so I can calculate the sum then for comparison). Suggestions on
+ whether _text and _etext are appropriate would be useful.
 
+ 2) I want to test the rest of RAM as well - as much as possible,
+ repeatedly while the system is running.  I could repeatedly allocate,
+ test and deallocate a page. But will I keep getting the same page
+ rather than circling through the rest of RAM? Can I ask for particular
+ physical pages portably?
+
+ 3) I also want to test pages that are being used by the buffers and
+ processes; I'd really like to kick a page onto a different physical
+ page so I can test it - is this easily possible? (I could lock the
+ whole machine down, copy the page somewhere else and then test it, but
+ I fear this would take too long).
+
+
+At the moment my code lives in a kernel thread (kintegrityd) that runs
+and then sleeps for a while before running again (at lowest priority
+above idle). (I'm presently fiddling with this under user mode linux
+2.4.18).
+
+Thoughts and suggestions welcome.
+
+Dave
+
+(*) The DIMM appears, from memtest86, to have had an approximately 4MB
+range where one bit in 32bits (or was it perhaps wider) was stuck low.
+First noticed by a mismatch on md5sums of a downloaded debian package
+and by ' characters appearing in an od I did of the corrupted package on
+a machine that otherwise appeared stable.
+
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

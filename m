@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317534AbSGOQap>; Mon, 15 Jul 2002 12:30:45 -0400
+	id <S317512AbSGOQhU>; Mon, 15 Jul 2002 12:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317535AbSGOQao>; Mon, 15 Jul 2002 12:30:44 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:13477 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S317534AbSGOQam>; Mon, 15 Jul 2002 12:30:42 -0400
-Message-ID: <3D32F959.A43EFA72@nortelnetworks.com>
-Date: Mon, 15 Jul 2002 12:33:29 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S317536AbSGOQhT>; Mon, 15 Jul 2002 12:37:19 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:65154 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317512AbSGOQhS>; Mon, 15 Jul 2002 12:37:18 -0400
+Date: Mon, 15 Jul 2002 12:42:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Weber, Frank" <FWeber@ndsuk.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Process-wise swap-on/off option
+In-Reply-To: <1A961872F9CE0B4AB641DD256115865F225C5E@tornado.uk.nds.com>
+Message-ID: <Pine.LNX.3.95.1020715124057.21519A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Sandy Harris <pashley@storm.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch[ Simple Topology API
-References: <p73ofdbv1a4.fsf@oldwotan.suse.de>
-			<Pine.LNX.4.44.0207141156540.19060-100000@home.transmeta.com>
-			<20020714214334.A16892@wotan.suse.de> <m1k7nxpvlg.fsf@frodo.biederman.org> <3D32E97A.AD808E43@storm.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sandy Harris wrote:
+On Mon, 15 Jul 2002, Weber, Frank wrote:
 
-> I suspect latency may become an issue when more than one link is
-> involved and there can be contention.
+> Hello:
+> 
+> Is it possible to arrange that a Linux application 
+> (or one of its threads) has the ability to
+> 
+> 	"... lock (a certain) stack and data segment ... 
+> 	into memory so that it can't be swapped out"?
+> 
+> [This has been formulated as a requirement by one of 
+> our analysts.]
+> 
+> I have been told that this is unlikely (except by 
+> disabling swapout altogether (for all processes). 
+> 
+> Any hints as to where to look for a solution (i.e., 
+> pointers to documentation or manuals where the ifs 
+> and hows are explained) would be greatly appreciated.
+> 
+> Many thanks in advance,
+> F.P.Weber
 
-According to the AMD talk at OLS, worst case on a 4-way is better than current
-best-case on a uniprocessor athlon.
+Sure. mlock() and mlockall().
 
-> Beyond 8-way, you need glue logic (hypertransport switches?) and
-> latency seems bound to become an issue.
+Cheers,
+Dick Johnson
 
-Nope.  Just extend the ladder.  Each cpu talks to three other entities, either
-cpu or I/O.  Can be extended arbitrarily until latencies are too high.
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-Chris
+                 Windows-2000/Professional isn't.
 
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

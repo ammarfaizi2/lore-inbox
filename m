@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315665AbSECTVs>; Fri, 3 May 2002 15:21:48 -0400
+	id <S315666AbSECTY6>; Fri, 3 May 2002 15:24:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315667AbSECTVr>; Fri, 3 May 2002 15:21:47 -0400
-Received: from pc132.utati.net ([216.143.22.132]:33182 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S315665AbSECTVp>; Fri, 3 May 2002 15:21:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Sebastian Droege <sebastian.droege@gmx.de>
-Subject: Re: sis900 ethernet driver/IP stack getting REALLY confused...
-Date: Fri, 3 May 2002 09:23:16 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020503183407.AA9FC644@merlin.webofficenow.com> <20020503202352.04858a22.sebastian.droege@gmx.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020503194504.B353D644@merlin.webofficenow.com>
+	id <S315670AbSECTY5>; Fri, 3 May 2002 15:24:57 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:22281 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S315666AbSECTY4>; Fri, 3 May 2002 15:24:56 -0400
+Date: Fri, 3 May 2002 20:24:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Tony Luck <aegl@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
+Message-ID: <20020503202452.A31648@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Tony Luck <aegl@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020503200958.A30548@infradead.org> <Pine.LNX.3.95.1020503151302.8450A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 May 2002 02:23 pm, Sebastian Droege wrote:
+On Fri, May 03, 2002 at 03:17:35PM -0400, Richard B. Johnson wrote:
+> On Fri, 3 May 2002, Christoph Hellwig wrote:
+> 
+> > On Fri, May 03, 2002 at 03:01:48PM -0400, Richard B. Johnson wrote:
+> > > The other Unix's I've become familiar are Sun-OS, the
+> > 
+> > SunOS 5 uses separate address spaces on sparcv9 (32 and 64bit).
+> > The same is true for many Linux ports, e.g. sparc64 or s390.
+> > 
+> 
+> No no! I'm not talking about the physical address spaces. Many
+> CPUs have separate address spaces for separate functions. I'm
+> taking about the virtual address space that the process sees.
+> There are no holes in this virtual address space of SunOS, and
+> no "separate stuff" (I/O space) seen by a user-mode task.
 
-> Hi,
-> I have a very similar problem... when I ping the box with the sis900
-> ethernet adapter everything wents fine except ~3 % of the pings. This pings
-> need 10 times longer to get back to me than the other (eg. 72 ms <-> 1004
-> ms) There is no other network activity on the network
-> And sometimes I get corrupted echo replies when there is traffic over the
-> sis900...
->
-> I hope this helps somehow...
->
-> Bye
-
-Yeah, that's what I'm seeing here too.
-
-I'm 99% certain it's not a hardware problem, because:
-
-A) It occurs on multiple motherboards (built in sis900).
-
-B) A soft reboot makes the problem go away.
-
-C) Unplugging the cat 5 cable and plugging it back in makes the problem start 
-manifesting, until the next reboot.  (On the systems I've seen it on anyway, 
-I haven't tested otherwise healthy boxes to see if I can make them go nuts by 
-temporarily unplugging their ethernet cables, but if anybody thinks it would 
-help...)
-
-D) The problem itself is packets getting delayed ~10 seconds.  (I think the 
-ping corruption warning is just ping getting confused by the delay and 
-profound out-of-sequenceness, but in any case 10 second old packets aren't 
-interesting so if they went bad in storage it's a side issue...)
-
-That smells like a driver problem to me, but I can't honestly say I have too 
-much of a clue in this area.  I'm working with Advanced Clue Substitute at 
-best...
-
-Rob
+This thread was about separate user/kernel VIRTUAL address spaces.
+Not about holes, I/O spaces or other crap.

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282919AbRLGRTi>; Fri, 7 Dec 2001 12:19:38 -0500
+	id <S284090AbRLGRUS>; Fri, 7 Dec 2001 12:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284090AbRLGRT2>; Fri, 7 Dec 2001 12:19:28 -0500
-Received: from zero.tech9.net ([209.61.188.187]:58117 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282919AbRLGRTT>;
-	Fri, 7 Dec 2001 12:19:19 -0500
-Subject: Re: horrible disk thorughput on itanium
-From: Robert Love <rml@tech9.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200112071614.fB7GEQ514356@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <p73r8q86lpn.fsf@amdsim2.suse.de.suse.lists.linux.kernel>
-	<Pine.LNX.4.33.0112070710120.747-100000@mikeg.weiden.de.suse.lists.linux.ker
-	 nel> <9upmqm$7p4$1@penguin.transmeta.com.suse.lists.linux.kernel>
-	<p73n10v6spi.fsf@amdsim2.suse.de> 
-	<200112071614.fB7GEQ514356@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain
+	id <S284134AbRLGRUI>; Fri, 7 Dec 2001 12:20:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59916 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284090AbRLGRT7>; Fri, 7 Dec 2001 12:19:59 -0500
+Subject: Re: Problem Compiling iph5526 module
+To: wambolt@sysadminzone.com (David Wambolt)
+Date: Fri, 7 Dec 2001 17:29:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112080841510.14757-100000@defiant.sysadminzone.com> from "David Wambolt" at Dec 08, 2001 08:44:34 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 12:18:56 -0500
-Message-Id: <1007745537.828.15.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16COo9-0006Yf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 11:14, Richard Gooch wrote:
+> 7.3 for Sparc.  Everything runs great, except it does not come with a
+> precompiled version of the Interphase 5526 Fibre Channel module.  So I
+> figured I'd download the 2.4.16 kernel, enable the module and recompile
+> the kernel.  I've compiled kernels on x86 machines many times typically
+> with no problems, or at least problems I could fix.
 
-> This kind of thing should be covered by _REENTRANT. If you don't
-> compile with _REENTRANT (the default), then putc() should be the
-> unlocked version.
+The 5526 driver doesn't currently support the sparc platform.
 
-The link to the mailing list post from bug-glibc says otherwise, that is
-the problem.  Using the unlocked version isn't implied by not setting
-__REENTRANT.
+> depmod:         bus_to_virt_not_defined_use_pci_map
+> depmod:         virt_to_bus_not_defined_use_pci_map
 
-	Robert Love
+Its a deliberate error to indicate the driver uses old (and non portable)
+interfaces.
 
+Alan

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275693AbRKVKJI>; Thu, 22 Nov 2001 05:09:08 -0500
+	id <S275973AbRKVKOT>; Thu, 22 Nov 2001 05:14:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRKVKI6>; Thu, 22 Nov 2001 05:08:58 -0500
-Received: from ns.caldera.de ([212.34.180.1]:55683 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S275693AbRKVKIo>;
-	Thu, 22 Nov 2001 05:08:44 -0500
-Date: Thu, 22 Nov 2001 11:08:28 +0100
-Message-Id: <200111221008.fAMA8Sa04042@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: rusty@rustcorp.com.au (Rusty Russell)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updated parameter and modules rewrite (2.4.14)
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <E166p1R-0004ll-00@wagner>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S275843AbRKVKOI>; Thu, 22 Nov 2001 05:14:08 -0500
+Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:30499 "EHLO
+	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S275743AbRKVKNx>; Thu, 22 Nov 2001 05:13:53 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove needless BKL from release functions
+Date: Thu, 22 Nov 2001 11:12:16 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rick Lindsley <ricklind@us.ibm.com>
+In-Reply-To: <3BFC399A.3040101@us.ibm.com>
+In-Reply-To: <3BFC399A.3040101@us.ibm.com>
+MIME-Version: 1.0
+Message-Id: <01112211121601.00690@argo>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E166p1R-0004ll-00@wagner> you wrote:
-> Hi all,
->
->    http://ftp.kernel.org/pub/linux/kernel/people/rusty
->
-> 	Unified boot/module parameter and module loader rewrite
-> updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
-> contact for 10 days or so.
+> Many of these patches simply remove the BKL from the file.  This causes
+> no harm because the BKL was not really protecting anything, anyway.
+> Other patches try to actually fix the locking.  Some do this by making
+> use of atomic operations with the atomic_* functions, or the
+> (test|set)_bit functions.  Most of these patches replace uses of normal
+> integers which were used to keep open counts in the drivers.  In other
+> some cases, a spinlock was added when the atomic operations could not
+> guarantee proper serialization by themselves.  And, in very few cases,
+> the existing locking was extended to protect more things.  These cases
+> are very uncommon because locking is very uncommon in most of these
+> drivers.
 
-I absolutly oppose to the cosmetic naming changes.
+At least some of the removals in the input tree are probably wrong. You are 
+introducing a race with deregistering of input devices.
 
-Please let module be be initialized by module_init() and exited by
-module_exit().  We had a hard enough time to get it everywhere, not
-to mention the name makes a lot of sense.
-
-Also MODULE_PARAM should just stay, combined with Keith's proposal
-to use it at boottime aswell (as KBUILD_OBJECT.<paramname>).
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+	Regards
+		Oliver

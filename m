@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261481AbTCJVTD>; Mon, 10 Mar 2003 16:19:03 -0500
+	id <S261474AbTCJVRw>; Mon, 10 Mar 2003 16:17:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261483AbTCJVTD>; Mon, 10 Mar 2003 16:19:03 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:63362 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261481AbTCJVSt>; Mon, 10 Mar 2003 16:18:49 -0500
-Date: Mon, 10 Mar 2003 16:32:39 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Luben Tuikov <luben@splentec.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] coding style addendum
-In-Reply-To: <3E6CFC04.7000401@splentec.com>
-Message-ID: <Pine.LNX.3.95.1030310162308.14367A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261481AbTCJVRv>; Mon, 10 Mar 2003 16:17:51 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:10463 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261474AbTCJVRu>; Mon, 10 Mar 2003 16:17:50 -0500
+Date: Mon, 10 Mar 2003 22:28:15 +0100
+From: Andi Kleen <ak@muc.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic thread_info->status field.
+Message-ID: <20030310212815.GA30916@averell>
+References: <20030310.105659.57012503.davem@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0303101119220.2240-100000@home.transmeta.com.suse.lists.linux.kernel> <p737kb7542q.fsf@amdsimf.suse.de> <20030310.124502.115944935.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030310.124502.115944935.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Mar 2003, Luben Tuikov wrote:
+On Mon, Mar 10, 2003 at 12:45:02PM -0800, David S. Miller wrote:
+>    Turned out the 32bit ptrace unlazy FPU path shared two lines too many
+>    with with the 32bit signal FPU saving path and was resetting the
+>    used_fpu flag. Result was that the FPU state of the child could be
+>    reinitialized in some circumstances on ptrace accesses.
+> 
+> So what it depended upon was the FP control register state,
+> not the state of the individual FPU registers, across fork()
+> right?
 
-> Someone may find this helpful and descriptive of how kernel code
-> should be developed.
-[SNIPPED...]
+Yes. The IA32 ABI says the FPU registers are clobbered in a function
+call. And fork is a function call. Same with the SSE registers.
 
-> +      Make sure every module/subroutine hides something.
+Unfortunately it is much more expensive to save individual registers
+(SSE and x87 stack) than to just save everything using FXSAVE. 
+FXSAVE uses lazy saving and saves only the x87 registers that are
+actually uses.
 
-This is not correct. Well known example:
+For SSE registers it may make sense, but then FXSAVE does that already
+too and you always have to handle the x87 register stack too.
 
-#include <math.h>
+I doubt it would be a good idea to not use FXSAVE on i386. The microcode
+can do a better job here because it has more information. In addition
+it also promises to handle future new Intel registers transparently.
 
-double hypot(double x, double y) {
-    return sqrt((x * x) + (y * y));
-}
+x86-64 ABIs have similar semantics.
 
-This subroutine hides nothing. It receives input parameters
-and returns the result of its operations. Such a subroutine
-is properly implemented and should not be be forced to hide
-anything.
-
-The input parameters are copies, owned by the called function.
-They can be manipulated like local data and must not be required
-to be copied into "local data". The return value is also not
-locally stored and therefore not hidden. Your rule would require
-the replication of three floating-point variables NotGood(tm).
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-Andi 

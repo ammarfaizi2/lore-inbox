@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268947AbTBZVJ6>; Wed, 26 Feb 2003 16:09:58 -0500
+	id <S268925AbTBZVG3>; Wed, 26 Feb 2003 16:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268948AbTBZVJ6>; Wed, 26 Feb 2003 16:09:58 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:25293 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id <S268947AbTBZVJ5>;
-	Wed, 26 Feb 2003 16:09:57 -0500
-Message-ID: <6BD67FFB937FD411A04F00D0B74FE8780790C607@xrose06.rose.hp.com>
-From: "LEE,SCOTT (HP-Roseville,ex1)" <scott_lee@hp.com>
-To: "'Jens Axboe'" <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] ide write barriers
-Date: Wed, 26 Feb 2003 16:20:08 -0500
+	id <S268941AbTBZVG3>; Wed, 26 Feb 2003 16:06:29 -0500
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:28621
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id <S268925AbTBZVG1>; Wed, 26 Feb 2003 16:06:27 -0500
+Date: Wed, 26 Feb 2003 16:16:21 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
+Subject: Re: [BUG] 2.5.63: ESR killed my box!
+In-Reply-To: <5740000.1046293404@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0302261615330.8828-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Feb 26 2003, Scott Lee wrote:
-> > > The goal is to make the use of write
-> > > back cache enabled ide drives safe with journalled file systems.
-> > 
-> > Does this mean that having write caching enabled is not safe if you
-> > are using ext3 on an IDE drive?  Should "hdparm -W 0 
-> /dev/hda" be used
-> > for example.  (I see a 50% performance hit using "-W 0" 
-> when my box is
-> > under load.)  If this is the case, what is the root cause?  Do IDE
-> > drives reorder writes when they are cached?
+On Wed, 26 Feb 2003, Martin J. Bligh wrote:
+
+> The boot cpu *is* always CPU#0. It may not be physical apicid 0, but that
+> matters not. as long as the mpstables are correct. And we should bug out if
+> it's not (which is pretty stupid anyway ... we know what the boot cpu ID
+> is, we should just warn). This is how I fixed it for kexec:
 > 
-> As it stands, it's not safe to use write back caching on IDE drives.
-> When the write completes as seen from the fs, it's not on the platter
-> yet. That's a problem. And as you mention, there's no guarentee that
-> writes won't be reordered as well.
-> 
-> So yes, either use the barrier patch or disable write caching.
+> diff -urpN -X /home/fletch/.diff.exclude virgin/arch/i386/kernel/smpboot.c
+> nonzero_apicid/arch/i386/kernel/smpboot.c
+> --- virgin/arch/i386/kernel/smpboot.c	Sat Feb 15 16:11:40 2003
+> +++ nonzero_apicid/arch/i386/kernel/smpboot.c	Wed Feb 26 13:02:10 2003
+> @@ -951,6 +951,7 @@ static void __init smp_boot_cpus(unsigne
+>  	print_cpu_info(&cpu_data[0]);
+>  
+>  	boot_cpu_logical_apicid = logical_smp_processor_id();
+> +	boot_cpu_physical_apicid = hard_smp_processor_id();
+>  
+>  	current_thread_info()->cpu = 0;
+>  	smp_tune_scheduling();
 
-Unless I'm missing something the effect of write caching will be nil from a
-safety standpoint *if* the drive does *not* reorder writes.  If cached
-writes are written to the platter in order it seems that a loss of power
-will simply mean that from the platter perspective the system will look like
-the power was lost at "T-x" rather than "T" where "T" is actual time of the
-outage and "x" is the age of the oldest piece of cached data.  The net
-effect is that the filesystem should be in no worse shape than if there were
-no caching the power actually went out at "T-x".  (Unless of course I am
-missing something here.)
+But this patch is for smpboot.c, which is not even compiled in for a UP 
+kernel...
 
-If the cached writes can be reordered then of course it stands that caching
-would be unsafe.  Does anyone know if IDE drives do this?  I'm certainly no
-expert in this area but I thought only SCSI drives reordered operations.
+Both Rusty and I had problems with a UP+APIC kernel running on an SMP box.
 
-Also, do you happen to know if the barrier patch will apply cleanly to a RH
-2.4.18-rc1-ac2 kernel and function properly?
+Ion
 
-Regards,
-Scott Lee
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

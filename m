@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUGGRCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUGGRBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUGGRCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 13:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUGGRCL
+	id S265228AbUGGRBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 13:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUGGRBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 13:02:11 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:51142 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265233AbUGGRCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 13:02:02 -0400
-Date: Wed, 7 Jul 2004 13:04:45 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Davide Rossetti <davide.rossetti@roma1.infn.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MSI to memory?
-In-Reply-To: <40EBF07B.8040003@hist.no>
-Message-ID: <Pine.LNX.4.58.0407071302490.23212@montezuma.fsmlabs.com>
-References: <200407011215.59723.bjorn.helgaas@hp.com>
- <20040701115339.A4265@unix-os.sc.intel.com> <40EBED33.3050707@roma1.infn.it>
- <40EBF07B.8040003@hist.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jul 2004 13:01:41 -0400
+Received: from cmsrelay01.mx.net ([165.212.11.110]:17877 "HELO
+	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265226AbUGGRBi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 13:01:38 -0400
+X-USANET-Auth: 165.212.8.2     AUTO bradtilley@usa.net uwdvg002.cms.usa.net
+Date: Wed, 07 Jul 2004 13:01:35 -0400
+From: Brad Tilley <bradtilley@usa.net>
+To: Erik Mouw <erik@harddisk-recovery.com>, Brad Tilley <bradtilley@usa.net>
+Subject: Re: Directory where modules are loacted in 2.6.7 build
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: USANET web-mailer (CM.0402.7.09)
+Mime-Version: 1.0
+Message-ID: <808iggRBj8512S02.1089219695@uwdvg002.cms.usa.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, Helge Hafting wrote:
+Erik Mouw <erik@harddisk-recovery.com> wrote:
 
-> Davide Rossetti wrote:
->
-> > Rajesh Shah wrote:
-> >
-> >> What type of usage model did you have in mind to have the
-> >>
-> >> device write to memory instead of using MSI for interrupts?
-> >>
-> >>
-> > for instance for a fast wake-up trick. the driver loops on a memory
-> > location until the MSI write access changes the memory content...
->
-> Won't that put a bad load on the bus?  Someone else might need it:
-> * Another cpu in a smp system
-> * Any device doing bus-master transfers, even in a UP system
->
-> That polling loop had better be guaranteed to be _very_ short.
+> You need to be root to install the modules in /lib/modules using "make
+> modules_install", but everything else can be done as a normal user. If
+> you want to have them installed somewhere else, you don't need to be
+> root, btw, "make INSTALL_MOD_PATH=/tmp modules_install" will install
+> the modules in /tmp/lib/modules .
 
-mwait/monitor is best suited for such things and doesn't result in
-pounding on memory. Considering the box has MSI, there is a higher
-possibility of it also having the mwait/monitor instructions.
+Thank you. INSTALL_MOD_PATH is exactly what I needed.
 
-	Zwane
 

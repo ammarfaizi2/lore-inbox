@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbTLaS37 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 13:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbTLaS36
+	id S265225AbTLaSmB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 13:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbTLaSmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 13:29:58 -0500
-Received: from mail.actcom.co.il ([192.114.47.15]:28330 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S265218AbTLaS35
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 13:29:57 -0500
-Date: Wed, 31 Dec 2003 20:29:42 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-rc1-mm1
-Message-ID: <20031231182942.GA1718@actcom.co.il>
-References: <20031231004725.535a89e4.akpm@osdl.org>
+	Wed, 31 Dec 2003 13:42:01 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60630 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265225AbTLaSmA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 13:42:00 -0500
+Date: Wed, 31 Dec 2003 10:37:05 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] pci_set_dac helper
+Message-Id: <20031231103705.238ba07d.davem@redhat.com>
+In-Reply-To: <3FF2F57A.80801@pobox.com>
+References: <3FF2F57A.80801@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
-In-Reply-To: <20031231004725.535a89e4.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Dec 2003 11:12:42 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> It seems to me like a lot of drivers wind up getting their 
+> pci_set_dma_mask stuff wrong, occasionally in subtle ways.  So, I 
+> created a "give me 64-bit PCI DMA" helper function.
+> 
+> The attached patch demonstrates its use in tg3, from which the logic 
+> originated.  It also fixes a tiny bug in tg3, whereby it might return 
+> zero on error (rather than -EFOO) if the pci_set_dma_mask succeeds but 
+> pci_set_consistent_dma_mask fails.
 
-On Wed, Dec 31, 2003 at 12:47:25AM -0800, Andrew Morton wrote:
+I'm fine with the helper.
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-rc1/2=
-=2E6.0-rc1-mm1/
-
-[snip]=20
-=20
-> +trident-cleanup-B1-2.6.0.patch
->=20
->  Trident fbdev driver cleanups and fixes
-
-Just a tiny correction - this patch is for the trident OSS sound
-driver, not the trident fbdev driver.=20
-
-Cheers,=20
-Muli
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
-
-
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/8xWVKRs727/VN8sRAocCAKCDozK9FGImVccimw2eYG0neulmrwCdFEQF
-+B9KyqB26/zliaOAj/TqrCY=
-=EJCW
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--
+The tg3 error return bug you noticed is already fixed in the tg3
+updates I'm sending to Linus today.

@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310155AbSCKPXo>; Mon, 11 Mar 2002 10:23:44 -0500
+	id <S310162AbSCKPco>; Mon, 11 Mar 2002 10:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310157AbSCKPXZ>; Mon, 11 Mar 2002 10:23:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:55487 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310155AbSCKPXG>;
-	Mon, 11 Mar 2002 10:23:06 -0500
-Date: Mon, 11 Mar 2002 07:16:56 -0800 (PST)
-Message-Id: <20020311.071656.15433588.davem@redhat.com>
-To: Jay.Estabrook@compaq.com
-Cc: ink@jurassic.park.msu.ru, garloff@suse.de, jochen@scram.de,
-        linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: Busmaster DMA broken in 2.4.18 on Alpha
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020311100200.A1181@linux04.mro.cpqcorp.net>
-In-Reply-To: <20020311124511.J2346@nbkurt.etpnet.phys.tue.nl>
-	<20020311171058.A9038@jurassic.park.msu.ru>
-	<20020311100200.A1181@linux04.mro.cpqcorp.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310163AbSCKPcZ>; Mon, 11 Mar 2002 10:32:25 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:15031 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S310162AbSCKPcP>; Mon, 11 Mar 2002 10:32:15 -0500
+Message-Id: <200203111444.HAA11416@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Hans Reiser <reiser@namesys.com>, "Mark H. Wood" <mwood@IUPUI.Edu>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Date: Mon, 11 Mar 2002 08:29:56 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu> <3C8C95D8.2070601@namesys.com>
+In-Reply-To: <3C8C95D8.2070601@namesys.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jay Estabrook <Jay.Estabrook@compaq.com>
-   Date: Mon, 11 Mar 2002 10:02:00 -0500
-   
-   Since ISA devices don't have pci_dev structures, there's (currently)
-   no way to pass an ISA device-dependent DMA mask to the IOMMU routines.
-   Perhaps there needs to be an addition to the API that would allow
-   for this (pci_set_isa_device_dma_mask()) ???
+On Monday 11 March 2002 04:32 am, Hans Reiser wrote:
+> Mark H. Wood wrote:
+> >On Sun, 10 Mar 2002, Itai Nahshon wrote:
+> >>On Sunday 10 March 2002 10:36, Hans Reiser wrote:
+> >>>I think that if version control becomes as simple as turning on a plugin
+> >>>for a directory or file, and then adding a little to the end of a
+> >>>filename to see and list the old versions, Mom can use it.
+> >>
+> >>IIRC that was a feature in systems from DEC even before
+> >>VMS (I'm talking about the late 70's).  eg. file.txt;2 was revision 2
+> >>of file.txt.
+> >>
+> >>I don't know if this feature was in the file-system or in the text editor
+> >>that I have used.
+> >
+> >It's part of the TOPS-20 filesystem.  If you try to create a file which
+> >already exists, you get a new version of the file with length zero.  Each
+> >file has a version limit in its directory entry, and when the limit is
+> >exceeded the oldest version is automagically deleted.  The version limit
+> >is copied from the highest existing version to the new version, and the
+> >limit on the highest version determines whether old versions are dropped.
+>
+> If it isn't optional (on per file and/or per directory basis) for users,
+> it would be quite annoying.
+>
+> Hans
 
-What you could do currently is whip up a dummy pci_dev structure with
-the mask you want and pass that into the PCI dma routines.  So you
-could, for example, default to 24-bit DMA mask when you get "NULL"
-as pci_dev, but cook up a special one using a 32-bit DMA mask for the
-floppy ISA device in question.
+Quoting from "VMS General User's Manual", section 2.1.1 Filenames, Types,
+and Versions, "You can control the number of versions of a file by specifying 
+the /VERSION_LIMIT qualifier to the DCL commands CREATE/DIRECTORY, SET DIRECTORY, 
+and SET FILE."
 
-The idea in 2.5.x is to move to a generic struct device, at which time
-something like this can be done much more cleanly.
+It has been a while (about 12 years), but IIRC, you could set /VERSION_LIMIT=1 and
+effectively get rid of the annoying versions.  But some people, the Aunt Tillie
+types, were always tripping over their shoelaces and unintentially deleting files.
+For those people, the version feature probably seemed a blessing rather than a
+curse.
+
+Steven

@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbRB0NWC>; Tue, 27 Feb 2001 08:22:02 -0500
+	id <S129259AbRB0Ndj>; Tue, 27 Feb 2001 08:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRB0NVw>; Tue, 27 Feb 2001 08:21:52 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:44046 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129227AbRB0NVr>; Tue, 27 Feb 2001 08:21:47 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Wed, 28 Feb 2001 00:18:00 +1100
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-Message-ID: <20010228001800.C2207@linuxcare.com>
-In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S129290AbRB0Nd2>; Tue, 27 Feb 2001 08:33:28 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52493 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129259AbRB0NdP>; Tue, 27 Feb 2001 08:33:15 -0500
+Subject: Re: increasing the number of file descriptors
+To: rsaura@retevision.es
+Date: Tue, 27 Feb 2001 13:36:28 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, whawes@star.net
+In-Reply-To: <OFA7D9F891.904FF16B-ONC1256A00.0031BFB0@retevision.es> from "rsaura@retevision.es" at Feb 27, 2001 10:39:46 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Feb 27, 2001 at 10:02:11AM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14XkIo-0003Pc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>       Is there any /proc interface for increasing the number of file
+>       descriptors per process?
 
-Hi,
+No. Use rlimi.
 
-> I'm seeing odd behaviour with rsync over ssh between two x86 machines -
-> one if the is an UP PIII (Katmai) running 2.4.2 (isdn-gw) and the other
-> is an UP Pentium 75-200 (pilt-gw) running 2.2.15pre13 with some custom
-> serial driver hacks (for running Amplicon cards with their ISA interrupt-
-> sharing scheme).
+>       Must I recompile? maybe changes must be made to files_struct?
 
-What version of ssh are you using? Older versions would use blocking IO
-which would result in deadlocks (and angry emails wrongly blaming rsync :)
+Nope. Its all dynamic except for fd_set size, and you should be using poll()
+anyway ;)
 
-Anton

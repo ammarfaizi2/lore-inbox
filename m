@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUCJEDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 23:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCJEDY
+	id S262002AbUCJEH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 23:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCJEHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 23:03:24 -0500
-Received: from jozlin.snap.net.nz ([202.37.101.35]:32456 "EHLO
-	jozlin.snap.net.nz") by vger.kernel.org with ESMTP id S261942AbUCJEDS
+	Tue, 9 Mar 2004 23:07:22 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:50333 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261939AbUCJEGN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 23:03:18 -0500
-Date: Wed, 10 Mar 2004 17:08:49 +1300 (NZDT)
-From: Keith Duthie <psycho@albatross.co.nz>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Thomas Schlichter <thomas.schlichter@web.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix warning about duplicate 'const'
-In-Reply-To: <Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.53.0403101627040.4005@loki.albatross.co.nz>
-References: <200403090043.21043.thomas.schlichter@web.de>
- <20040308161410.49127bdf.akpm@osdl.org> <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
- <200403090217.40867.thomas.schlichter@web.de> <Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
+	Tue, 9 Mar 2004 23:06:13 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Wed, 10 Mar 2004 09:35:54 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403091459.54161.amitkale@emsyssoft.com> <20040309150632.GH15065@smtp.west.cox.net>
+In-Reply-To: <20040309150632.GH15065@smtp.west.cox.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403100935.55417.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Mar 2004, Linus Torvalds wrote:
+On Tuesday 09 Mar 2004 8:36 pm, Tom Rini wrote:
+> On Tue, Mar 09, 2004 at 02:59:54PM +0530, Amit S. Kale wrote:
+> [snip]
+>
+> > I attempted it and found that it works better than my expectation! I am
+> > attaching revised core-lite.patch with this email and sending
+> > i386-lite.patch as a reply.
+>
+> [snip]
+>
+> > Index: linux-2.6.4-rc2-bk3-kgdb/include/linux/kgdb.h
+>
+> [snip]
+>
+> > +#ifndef KGDB_MAX_NO_CPUS
+> > +#if CONFIG_NR_CPUS > 8
+> > +#error KGDB can handle max 8 CPUs
+> > +#endif
+> > +#define KGDB_MAX_NO_CPUS 8
+> > +#endif
+>
+> We need to remove all of that in favor of s/KGDB_MAX_NO_CPUS/NR_CPUS/g,
+> and remove the check on 8.
 
-> All that code was from early 2002 (around 2.4.9), so maybe somebody can
-> find the full discussion on the linux-kernel archives from January 2002 or
-> so?
+Yes. I'll do that.
+-Amit
 
-The thread in which the "const typeof" was introduced appears to be
-"[IDEA+RFC] Possible solution for min()/max() war" from August/September
-2001, and const typeof appears to have been introduced by Peter Breuer.
 
-The arguments appear to largely be about signedness at that point. Some
-mention is made of how bad -Wsign-compare is.
--- 
-Just because it isn't nice doesn't make it any less a miracle.
-     http://users.albatross.co.nz/~psycho/     O-   -><-

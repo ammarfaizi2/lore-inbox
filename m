@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263426AbTDCSsD 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:48:03 -0500
+	id S263435AbTDCSvK 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263417AbTDCSpO 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:45:14 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:54189 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id S263418AbTDCSnq 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:43:46 -0500
-X-Sieve: cmu-sieve 2.0
-Envelope-to: mbligh@localhost
-Delivery-date: Thu, 03 Apr 2003 09:56:00 -0800
-Date: Thu, 3 Apr 2003 09:55:34 -0800
-Message-Id: <200304031755.h33HtYU16043@bugme.osdl.org>
-From: bugme-daemon@osdl.org
-To: mbligh@aracnet.com
-X-Bugzilla-Reason: AssignedTo
-Subject: [Bug 538] New: Rebooting of pentium-I during initial booting phase.
-X-Resent-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id S263417AbTDCSsQ 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:48:16 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:28370 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S263425AbTDCSrp 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:47:45 -0500
+Date: Thu, 3 Apr 2003 20:01:10 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: riel@redhat.com, <linux-kernel@vger.kernel.org>, <linux390@de.ibm.com>
+Subject: Re: gcc-3.2 breaks rmap on s390x
+In-Reply-To: <20030403131054.B25676@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0304031954480.2237-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=538
+On Thu, 3 Apr 2003, Pete Zaitcev wrote:
+> 
+> the following patch seems to fix my rmap problems on s390x.
+> 
+> --- linux-2.4.20-2.1.24.z1/include/linux/mm.h	2003-03-27 21:30:09.000000000 -0500
+> +++ linux-2.4.20-2.1.24.z2/include/linux/mm.h	2003-04-02 20:26:11.000000000 -0500
+> @@ -376,8 +376,10 @@
+>  	 */
+>  #ifdef CONFIG_SMP
+>  	while (test_and_set_bit(PG_chainlock, &page->flags)) {
+> -		while (test_bit(PG_chainlock, &page->flags))
+> +		while (test_bit(PG_chainlock, &page->flags)) {
+>  			cpu_relax();
+> +			barrier();
+> +		}
+>  	}
+>  #endif
+>  }
 
-           Summary: Rebooting of pentium-I during initial booting phase.
-    Kernel Version: 2.5.65 (probably most versions of 2.5.x)
-            Status: NEW
-          Severity: normal
-             Owner: mbligh@aracnet.com
-         Submitter: robins.t@kutumb.org.in
+Isn't it rather odd that it should fix the problem you describe?
+because the barrier you're adding comes only in the exceptional path,
+when the lock was found already held.  I suppose the compiler is free
+to make the barrier more general than you've asked for, but it seems
+unsafe to rely on that.
 
-
-Distribution: linus kernel 2.5.65 (probably 2.5.x)
-
-Hardware Environment: 
-Pentium - I (120 MHz) with FO-OF Bug
-Motherboard Via - With DMA Problem ("nodma" option required in 2.4.x kernels)
-16mb RAM (EDO)
-
-Software Environment:
-Linus kernel 2.5.65
-
-Problem Description:
-The new kernel 2.5.65 reboots while booting process (in the very initial phase) making even noting the progress very difficult.
-The system is running fine with 2.4.21-pre5, with the option "nodma".
-
-Steps to reproduce:
-simply boot with 2.5.65!
-
-------- You are receiving this mail because: -------
-You are the assignee for the bug, or are watching the assignee.
-
-
+Hugh
 

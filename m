@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283612AbRK3NST>; Fri, 30 Nov 2001 08:18:19 -0500
+	id <S283657AbRK3NV3>; Fri, 30 Nov 2001 08:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283652AbRK3NSK>; Fri, 30 Nov 2001 08:18:10 -0500
-Received: from TK212017087078.teleweb.at ([212.17.87.78]:30450 "EHLO
-	elch.elche") by vger.kernel.org with ESMTP id <S283651AbRK3NSB>;
-	Fri, 30 Nov 2001 08:18:01 -0500
-Date: Fri, 30 Nov 2001 14:16:16 +0100
-From: Armin Obersteiner <armin@xos.net>
-To: Greg KH <greg@kroah.com>
-Cc: Armin Obersteiner <armin@xos.net>, linux-kernel@vger.kernel.org
-Subject: Re: usb slow in >2.4.10
-Message-ID: <20011130141616.B25328@elch.elche>
-In-Reply-To: <20011130040719.A21515@elch.elche> <20011129202959.B8633@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011129202959.B8633@kroah.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S283652AbRK3NVJ>; Fri, 30 Nov 2001 08:21:09 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:5651 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S283651AbRK3NVD>; Fri, 30 Nov 2001 08:21:03 -0500
+Message-ID: <3C07878E.2@namesys.com>
+Date: Fri, 30 Nov 2001 16:20:14 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: jose@iteso.mx, linux-kernel@vger.kernel.org
+Subject: Re: 32 bit UIDs on 2.4.14
+In-Reply-To: <E169lOX-00035g-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+Alan Cox wrote:
 
-sorry, with no error messages i totally forgot:
+>>  What is the trick to get more than 2^16 uids working on all services?=
+>>?
+>>
+>
+>2.4.x kernel
+>Glibc 2.2
+>Up to date pam modules
+>ext2/ext3 file system
+>
+>patches needed for quotas
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 06) (prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        I/O ports at cc00 [size=32]
+reiserfs also works, for 32 bit uids
 
-i beleive thats on the VT82C686 chip, isn't it?
+Hans
 
-Nov 24 12:52:21 elch kernel: uhci.c: USB Universal Host Controller Interface driver v1.1
-Nov 24 12:52:21 elch kernel: uhci.c: USB UHCI at I/O 0xd000, IRQ 9
-Nov 24 12:52:21 elch kernel: uhci.c: detected 2 ports
-
-for each of the 2 controllers.
-
-> On Fri, Nov 30, 2001 at 04:07:19AM +0100, Armin Obersteiner wrote:
-> > hi!
-> > 
-> > all my usb devices work, but they are very slow (12 times slower) with kernels
-> > 2.4.14 and higher. it definetly was ok with 2.4.10.
-> 
-> Which USB Host controller driver are you using?
-> 
-> thanks,
-> 
-> greg k-h
-
-MfG,
-	Armin Obersteiner
---
-armin@xos.net                        pgp public key on request        CU

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbRDCMHU>; Tue, 3 Apr 2001 08:07:20 -0400
+	id <S131158AbRDCMAu>; Tue, 3 Apr 2001 08:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131629AbRDCMHL>; Tue, 3 Apr 2001 08:07:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5381 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131606AbRDCMHE>; Tue, 3 Apr 2001 08:07:04 -0400
-Subject: Re: Larger dev_t
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Tue, 3 Apr 2001 13:06:33 +0100 (BST)
-Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        hpa@transmeta.com, linux-kernel@vger.kernel.org, tytso@MIT.EDU
-In-Reply-To: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Apr 03, 2001 12:09:11 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131564AbRDCMAl>; Tue, 3 Apr 2001 08:00:41 -0400
+Received: from k213a.lanhovi.ton.tut.fi ([193.166.80.217]:3726 "HELO
+	k213a.lanhovi.ton.tut.fi") by vger.kernel.org with SMTP
+	id <S131158AbRDCMAb>; Tue, 3 Apr 2001 08:00:31 -0400
+Date: Tue, 3 Apr 2001 14:59:44 +0300 (EEST)
+From: Sami Nieminen <samppa@k213a.lanhovi.ton.tut.fi>
+To: <linux-kernel@vger.kernel.org>
+Cc: <robert.holmberg@helsinki.fi>
+Subject: Re: BTTV problems in 2.4.3
+Message-ID: <Pine.LNX.4.30.0104031453450.374-100000@butthead.ton.tut.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kPZz-0007tk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Device numbers have to be uniqe only during one power on -> run ->
-> power off cycle. For the rest applications should store device
-> names instead anyway. The applications, that don't are buggy by
-> defintion.
+> I'm having some bttv problems in 2.4.3 (2.4.2 works fine). When my xawtv
+> window (or my fbtv resolution) gets to a certain point (like 768x576,
+> which is what I want, 640x480 is still fine) the right part of the tv
+> window is left black. I'm back to using 2.4.2 again, but I could produce a
+> screenshot if you want me to. We're not talking some small bar being left
+> black, but rather a small bar on the left showing 20-25% of the tv picture.
 
-Device numbers/names have to be constant in order to detect disk layout changes
-across boots.
+I have the same problem with 2.4.2-ac20 when using xawtv's overlay mode.
+When using grabdisplay mode the picture is fine. Also overlay looks good
+if I keep the window size small enough.
 
-Alan
+Sami
+
+-- 
+Whoa...I did a 'zcat /vmlinuz > /dev/audio' and I think I heard God...
 

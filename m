@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbTJIP1G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 11:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTJIP1G
+	id S262193AbTJIPqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 11:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTJIPqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 11:27:06 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:63674 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262186AbTJIP1C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 11:27:02 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
+	Thu, 9 Oct 2003 11:46:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40071 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262193AbTJIPqq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 11:46:46 -0400
+Date: Thu, 9 Oct 2003 16:46:42 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
+Message-ID: <20031009154641.GB7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031009024334.GA7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310081947330.19510-100000@home.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16261.32253.607756.900278@gargle.gargle.HOWL>
-Date: Thu, 9 Oct 2003 10:25:49 -0500
-To: James Morris <jmorris@redhat.com>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
-       <karim@opersys.com>, <bob@watson.ibm.com>
-Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
-In-Reply-To: <Pine.LNX.4.44.0310090943200.13537-100000@thoron.boston.redhat.com>
-References: <16259.10547.72758.205812@gargle.gargle.HOWL>
-	<Pine.LNX.4.44.0310090943200.13537-100000@thoron.boston.redhat.com>
-X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310081947330.19510-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris writes:
- > On Tue, 7 Oct 2003, Tom Zanussi wrote:
- > 
- > > This 4-part patch contains code for an interim version of relayfs (see
- > > Documentation below for a description of relayfs).
- > 
- > What is wrong with using Netlink sockets instead of this?
+On Wed, Oct 08, 2003 at 07:53:36PM -0700, Linus Torvalds wrote:
+> For 2.4.x it might also be a question of "which patch is smaller"  
+> (conceptually and in practice). I think they end up being exactly the same
+> in this case.
 
-Nothing, if they meet your needs.  One thing you can do with relayfs
-files is mmap() them.  That combined with the kernel-side API,
-designed to make writing data into buffers and transferring it as
-large blocks to user-space efficient and flexible, allows for
-high-speed, high-volume applications which I'm not sure Netlink was
-designed for.
+Unfortunately, they don't (AFAICS) ;-/
 
-relayfs can also be used in 'packet' mode, using read(2) to read data
-as it becomes available, so it can be used for low-speed, low-volume
-applications as well.  Also, some people might find the file-based
-approach more natural to deal with.  Personal preference, I suppose.
+BTW, there is another thing that feels odd - we start with IRQ_DISABLED
+set for everything and ->depth set to 0.  disable_irq(irq); enable_irq(irq);
+gets us into the state where
+	a) IRQ_DISABLED is reset
+	b) ->depth is 0.
+However, any subsequent register_irq();free_irq() gets us back to the
+IRQ_DISABLED being set and ->depth set to 0.
 
-Tom
+IOW, we have very odd rules of IRQ_DISABLED - when ->action is non-NULL,
+it's set iff ->depth is positive.  That's nice - if you call disable_irq(),
+you know that enable_irq() will undo the effects.
 
+*However*, if you have ->action == NULL, the state depends on history.
+Morover, once you've done disable_irq(), you have no way to undo all
+effects - enable_irq() will land you in a different state.
 
- > 
- > 
- > - James
- > -- 
- > James Morris
- > <jmorris@redhat.com>
- > 
- > 
- > 
+It gets particulary ugly when you consider modules - if you do disable_irq(),
+poke into the hardware and decide to bail out, there is no way to restore
+the original state on cleanup path.  Which leaves us with permanent effects
+of failed insmod.
 
--- 
-Regards,
+I'm not saying that it's necessary a bug (aside of the issues with
+IRQ_INPROGRESS), but it feels like a bug waiting to happen.  If we really
+don't care about interrupts arriving after e.g. such failed insmod, why don't
+we simply have enable_irq() check that ->action is non-NULL and reset
+IRQ_DISABLED only in that case?  Then it would really be an opposite
+of disable_irq() in all cases we care about.
 
-Tom Zanussi <zanussi@us.ibm.com>
-IBM Linux Technology Center/RAS
+I do realize that some code might rely on the current behaviour and call
+irq_disable();irq_enable() as a way to reset IRQ_DISABLED when ->action
+is NULL.   However, I'd argue that it's a kludge - note that simply calling
+enable_irq() will *not* work, you need to call disable_irq() first.  Which
+doesn't look like a sane interface...
 
+IOW, the question is: do we want enable_irq() to undo all effects of
+disable_irq()?  Whether the current behaviour is intentional or not,
+it's worth documenting, IMO...

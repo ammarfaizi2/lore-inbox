@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263109AbREWOlz>; Wed, 23 May 2001 10:41:55 -0400
+	id <S263110AbREWOrF>; Wed, 23 May 2001 10:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263108AbREWOlp>; Wed, 23 May 2001 10:41:45 -0400
-Received: from ns.suse.de ([213.95.15.193]:52495 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263107AbREWOlb>;
-	Wed, 23 May 2001 10:41:31 -0400
-Date: Wed, 23 May 2001 16:40:36 +0200
-From: Andi Kleen <ak@suse.de>
-To: =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sk_buff destructor in 2.2.18
-Message-ID: <20010523164036.A24809@gruyere.muc.suse.de>
-In-Reply-To: <20010523161654.C7531@pc8.lineo.fr> <20010523162739.A24463@gruyere.muc.suse.de> <20010523163758.C7823@pc8.lineo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010523163758.C7823@pc8.lineo.fr>; from christophe.barbe@lineo.fr on Wed, May 23, 2001 at 04:37:58PM +0200
+	id <S263112AbREWOqz>; Wed, 23 May 2001 10:46:55 -0400
+Received: from ns2.radioschefer.ch ([62.2.224.35]:32013 "EHLO
+	ns2.radioschefer.ch") by vger.kernel.org with ESMTP
+	id <S263110AbREWOqo>; Wed, 23 May 2001 10:46:44 -0400
+Message-ID: <3B0BCA91.32B334B8@bluewin.ch>
+Date: Wed, 23 May 2001 16:34:57 +0200
+From: Stephan Brauss <sbrauss@bluewin.ch>
+X-Mailer: Mozilla 4.75 [de]C-CCK-MCD DT  (Win95; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4 kernel freeze
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 23, 2001 at 04:37:58PM +0200, christophe barbé wrote:
-> It seems to not be the case, because my destructor is called.
+Hello,
 
-It is called, but you overwrote the kernel destructor and therefore
-broke the socket memory accounting completely; causing all kinds of 
-problems.
+I have an ASUS A7V133 (VIA VT8363A) with 5 PCI slots
+and I installed kernel 2.4.4.
+All runs fine when I only use PCI slots 1 to 3.
+When I use slots 4 or 5, the system
+freezes when data is passed to a device in one of
+these slots. I tested with a Promise Ultra100, an Intel
+Etherexpress Pro 100, and a DEC EtherWorks.
+The problem does not turn up in 2.4.0 and 2.2.18 (standard
+kernels from SuSE 7.1). I reproduced the error in a second
+simillar system with the same motherboard.
 
-> Could you point me the code where you think this method is already used?
+Maybe this information is usefull...
+If someone wants to know more details, please email me
+directly as I'm currently not subscribed to this list.
 
-net/core/sock.c
-
-
--Andi
-
+Stephan

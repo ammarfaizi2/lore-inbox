@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVC1PmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVC1PrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVC1PmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 10:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVC1PmR
+	id S261904AbVC1PrK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 10:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVC1PrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 10:42:17 -0500
-Received: from fire.osdl.org ([65.172.181.4]:18082 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261896AbVC1PmN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 10:42:13 -0500
-Message-ID: <4248258A.1060604@osdl.org>
-Date: Mon, 28 Mar 2005 07:40:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 28 Mar 2005 10:47:10 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:11197 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261904AbVC1PrG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 10:47:06 -0500
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86
+ segment register access)
+References: <20050326020506.GA8068@lucon.org>
+	<20050327222406.GA6435@lucon.org>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 28 Mar 2005 17:47:06 +0200
+In-Reply-To: <20050327222406.GA6435@lucon.org> (H. J. Lu's message of "Sun,
+ 27 Mar 2005 14:24:06 -0800")
+Message-ID: <m14qev3h8l.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Norberto Bensa <nbensa@gmx.net>
-CC: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK snapshots removed from kernel.org?
-References: <200503271414.33415.nbensa@gmx.net> <20050327210218.GA1236@ip68-4-98-123.oc.oc.cox.net> <200503281226.48146.nbensa@gmx.net>
-In-Reply-To: <200503281226.48146.nbensa@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norberto Bensa wrote:
-> Barry K. Nathan wrote:
-> 
->>On Sun, Mar 27, 2005 at 02:14:33PM -0300, Norberto Bensa wrote:
->>[quote rewrapped to keep it within 80 columns]
->>
->>
->>>Why were snapshots (-bk) removed from www.kernel.org? I can't see any
->>>relevant post in LKML.
->>
->>You can still get to the snapshots using this URL, but as I said, the
->>scripts are confused right now:
->>http://kernel.org/pub/linux/kernel/v2.6/snapshots/
-> 
-> 
-> Hm. No. I mean there are no more testing-bk snapshots. For example. I can't 
-> find 2.6.12-rc1-bk2.bz2; I have downloaded it on Saturday, but I can't find 
-> testing bk snapshots anymore. Is this what you are referring as "scripts are 
-> confused"? Or am I obliged to use bitkeeper from now on?
+"H. J. Lu" <hjl@lucon.org> writes:
+> The new assembler will disallow them since those instructions with
+> memory operand will only use the first 16bits. If the memory operand
+> is 16bit, you won't see any problems. But if the memory destinatin
+> is 32bit, the upper 16bits may have random values. The new assembler
 
-Did you look in
-http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/old/ ?
+Does it really have random values on existing x86 hardware?
 
--- 
-~Randy
+If it is a only a "theoretical" problem that does not happen
+in practice I would advise to not do the change.
+
+> will force people to use
+>
+> 	mov (%eax),%ds
+> 	movw (%eax),%ds
+> 	movw %ds,(%eax)
+> 	mov %ds,(%eax)
+>
+> Will it be a big problem for kernel people?
+
+Well, we re getting used to the tool chain regularly breaking
+perfectly good code.
+
+You would not get more than the usual curses and only waste
+a couple hundred man hours of testers worlwide scratching their heads
+why their kernel does not compile anymore. World economy 
+will probably survive ite  ;-)
+
+-Andi

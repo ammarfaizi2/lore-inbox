@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292337AbSBBSJV>; Sat, 2 Feb 2002 13:09:21 -0500
+	id <S292341AbSBBSLU>; Sat, 2 Feb 2002 13:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292336AbSBBSJM>; Sat, 2 Feb 2002 13:09:12 -0500
-Received: from gear.torque.net ([204.138.244.1]:22291 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S292332AbSBBSJD>;
-	Sat, 2 Feb 2002 13:09:03 -0500
-Message-ID: <3C5C2B17.289A3049@torque.net>
-Date: Sat, 02 Feb 2002 13:08:23 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3 i686)
-X-Accept-Language: en
+	id <S292332AbSBBSLN>; Sat, 2 Feb 2002 13:11:13 -0500
+Received: from thor.hol.gr ([194.30.192.25]:21989 "HELO thor.hol.gr")
+	by vger.kernel.org with SMTP id <S292341AbSBBSK5>;
+	Sat, 2 Feb 2002 13:10:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Panagiotis Moustafellos <panxer@hol.gr>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.2 cmpci.c Compilation error
+Date: Sat, 2 Feb 2002 20:01:26 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: syzygy <syzygy@pubnix.org>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI + IDE = HANG
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <02020220012604.00250@gryppas>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Baker wrote:
->I  have had a few random hangs with my machine since I added a maxtor 27
-> gig IDE drive to it.  I kept trying different combinations of bus
-> positions etc.  I figured it was flacky hardware or something.  I added
-> the drive in the early 2.4 series.  Recently I became slightly suspicious
-> of my Adaptec 2940U2W after reading all of the problems it had in the
-> early 2.4.  So I upgraded the bios and got kernel 2.4.17.  Though the
-> problem seems diminished it is certainly not gone...
-> 
-> Now for the kicker...  I found a 99% guarenteed way to hard lock my
-> box.  I tried ripping two cds at a time.  One on the ide bus and one on
-> the scsi.  Just a note the data is being stored to the maxtor 27 gig
-> mentioned above.  The reason I point to the IDE + SCSI combo is that I can
-> do two scsi cdroms ripping to the maxtor and it works much more
-> reliably.  I am under the impression that IDE CDROMs use the ide bus quite
-> heavily under ripping...
+Dear sirs,
+When i try to make bzImage the 2.5.2 kernel having enabled the following;
+CONFIG_SOUND=y
+CONFIG_SOUND_CMPCI=y
+CONFIG_SOUND_CMPCI_FM=y
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_MIDI=y
+CONFIG_SOUND_CMPCI_MPUIO=330
+CONFIG_SOUND_CMPCI_JOYSTICK=y
+CONFIG_SOUND_CMPCI_CM8738=y
+CONFIG_SOUND_CMPCI_SPDIFINVERSE=y
+CONFIG_SOUND_CMPCI_SPDIFLOOP=y
+CONFIG_SOUND_CMPCI_SPEAKERS=2
 
-Keith,
-Does turning off (or reducing the speed of) DMA to the
-IDE cdrom with either one of these commands help?
-    hdparm -d0 -c1 /dev/hdd 
-    hdparm -d 1 -X 34 /dev/hdd
-[This assumes the IDE cdrom is connected to /dev/hdd.]
+I get the following error;
+cmpci.c: In function `cm_open_mixdev':
+cmpci.c:1443: invalid operands to binary &
+cmpci.c: In function `cm_release_mixdev':
+cmpci.c:1457: warning: unused variable `s'
+cmpci.c: In function `cm_open':
+cmpci.c:2193: invalid operands to binary &
+cmpci.c: In function `cm_midi_open':
 
-Doug Gilbert
+and goes on for some more lines..
+Is this a known bug? could it be that some options are conflicting?
+Thanks in advance,
+
+-- 
+--
+Panagiotis Moustafellos
+(aka panXer)

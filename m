@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVBBS6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVBBS6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVBBS6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVBBSzz
+	id S262543AbVBBS6W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVBBS4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:55:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41349 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262510AbVBBStv (ORCPT
+	Wed, 2 Feb 2005 13:56:21 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:45000 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262553AbVBBSvY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:49:51 -0500
-Date: Wed, 2 Feb 2005 13:49:45 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: linux-os@analogic.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Joe User DOS kills Linux-2.6.10
-In-Reply-To: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0502021346150.14232@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 2 Feb 2005 13:51:24 -0500
+Date: Wed, 2 Feb 2005 19:51:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, andyw@pobox.com,
+       jgarzik@pobox.com
+Subject: Re: [patch libata-dev-2.6 1/1] libata: sync SMART ioctls with ATA pass thru spec (T10/04-262r7)
+Message-ID: <20050202185121.GX11484@suse.de>
+References: <20050202183753.GB17450@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202183753.GB17450@tuxdriver.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, linux-os wrote:
+On Wed, Feb 02 2005, John W. Linville wrote:
+> Update libata's SMART-related ioctl handlers to match the current
+> ATA command pass-through specification (T10/04-262r7).  Also change
+> related SCSI op-code definition to match current spec.
+> 
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
+> ---
+> Contact w/ spec author (Curtis Stevens @ Western Digital) indicates
+> that while a revision 8 of the spec is expected, that it is really
+> only a re-formatting of the text to match T10 requirements.  According
+> to Stevens, revision 8 is expected to be the last version of the spec.
+> 
+>  drivers/scsi/libata-scsi.c |    6 ++++--
+>  include/scsi/scsi.h        |    6 +++---
+>  2 files changed, 7 insertions(+), 5 deletions(-)
+> 
+> --- sata-smart-2.6/drivers/scsi/libata-scsi.c.orig	2005-02-01 16:24:01.687622085 -0500
+> +++ sata-smart-2.6/drivers/scsi/libata-scsi.c	2005-02-01 16:49:18.213876086 -0500
+> @@ -109,14 +109,16 @@ int ata_cmd_ioctl(struct scsi_device *sc
+>  			return -ENOMEM;
+>  
+>  		scsi_cmd[1]  = (4 << 1); /* PIO Data-in */
+> +		scsi_cmd[2]  = 0x0e;     /* no off.line or cc, read from dev,
+> +		                            block count in sector count field */
+>  		sreq->sr_data_direction = DMA_FROM_DEVICE;
+>  	} else {
+>  		scsi_cmd[1]  = (3 << 1); /* Non-data */
+> +		/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
+>  		sreq->sr_data_direction = DMA_NONE;
+>  	}
+>  
+>  	scsi_cmd[0] = ATA_16;
+> -	scsi_cmd[2] = 0x1f;     /* no off.line or cc, yes all registers */
+>  
+>  	scsi_cmd[4] = args[2];
+>  	if (args[0] == WIN_SMART) { /* hack -- ide driver does this too... */
+> @@ -179,7 +181,7 @@ int ata_task_ioctl(struct scsi_device *s
+>  	memset(scsi_cmd, 0, sizeof(scsi_cmd));
+>  	scsi_cmd[0]  = ATA_16;
+>  	scsi_cmd[1]  = (3 << 1); /* Non-data */
+> -	scsi_cmd[2]  = 0x1f;     /* no off.line or cc, yes all registers */
+> +	/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
+>  	scsi_cmd[4]  = args[1];
+>  	scsi_cmd[6]  = args[2];
+>  	scsi_cmd[8]  = args[3];
+> --- sata-smart-2.6/include/scsi/scsi.h.orig	2005-02-01 16:22:12.390234346 -0500
+> +++ sata-smart-2.6/include/scsi/scsi.h	2005-02-01 16:23:02.828491161 -0500
+> @@ -113,9 +113,9 @@ extern const char *const scsi_device_typ
+>  /* values for service action in */
+>  #define	SAI_READ_CAPACITY_16  0x10
+>  
+> -/* Temporary values for T10/04-262 until official values are allocated */
+> -#define	ATA_16		      0x85	/* 16-byte pass-thru [0x85 == unused]*/
+> -#define	ATA_12		      0xb3	/* 12-byte pass-thru [0xb3 == obsolete set limits command] */
+> +/* Values for T10/04-262r7 */
+> +#define	ATA_16		      0x85	/* 16-byte pass-thru */
+> +#define	ATA_12		      0xa1	/* 12-byte pass-thru */
 
-> When I compile and run the following program:
-
-> ./xxx `yes`
-
-It looks like the program itself doesn't matter, since it's
-bash that's eating up memory like crazy, until the point where
-it is OOM killed.
-
-   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-32191 riel      18   0  436m 126m  312 R 45.9 86.9   0:13.37 bash
-32222 riel      15   0  3276  148  124 S 39.0  0.1   0:09.79 yes
-
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34605780
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x2100101, Deferred sdb: sense key Medium Error
-
-Looks like your SCSI disk has some problems, you may want
-to try running 'badblocks' on the swap partition to verify
-that.  The VM doesn't appear to have a problem with your
-test program, in my quick runs here.
-
-ObLKML: I was running the test inside Xen, and that seemed
-to hold up fine too ;)
+Ehh are you sure that is correct? 0xa1 is the BLANK command, I would
+hate to think there would be a collision like that.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Jens Axboe
+

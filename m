@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269351AbUJFSUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269353AbUJFSYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269351AbUJFSUd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 14:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJFSUc
+	id S269353AbUJFSYi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 14:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJFSYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 14:20:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:24773 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269351AbUJFSU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 14:20:26 -0400
-Date: Wed, 6 Oct 2004 11:18:36 -0700
-From: Greg KH <greg@kroah.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041006181836.GA27300@kroah.com>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com> <20041006180145.GC10153@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
+	Wed, 6 Oct 2004 14:24:38 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:33997 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269357AbUJFSU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 14:20:56 -0400
+Message-Id: <200410061821.i96IL9a07610@raceme.attbi.com>
+Subject: Re: Solaris developer wants a Linux Mentor for drivers. 
+To: linux-kernel@vger.kernel.org
+Date: Wed, 6 Oct 2004 13:21:09 -0500 (CDT)
+From: kilian@bobodyne.com (Alan Kilian)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041006180145.GC10153@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 08:01:45PM +0200, J?rn Engel wrote:
-> On Wed, 6 October 2004 10:41:08 -0700, Greg KH wrote:
-> > 
-> > Good point.  So, should we do it in the kernel, in call_usermodehelper,
-> > so that all users of this function get it correct, or should I do it in
-> > userspace, in the /sbin/hotplug program?
-> > 
-> > Any opinions?
+Forwarded message:
+> From: Greg KH <greg@kroah.com>
 > 
-> Kernel.
-> 
-> Same reasoning as before, if someone comes along and creates a "much
-> better" /sbin/hotplug which doesn't handle it, things will break
-> again.
+> Why not 2.6?  No new Linux distros are shipping 2.4 kernels anymore...
 
-Ok, I buy it :)
+  Well, I down loaded and installed RedHat-9 5 weeks ago, and it
+  is a 2.4 kernel, so I thought that would be fine.
+  (See what a novice I am?)
 
-Care to send a patch to do this?
+> And a PCI bus driver?  
+> What kind of hardware is this?  
+> Is this a driver for a pci card, or a pci bus controller?
 
-thanks,
+  This is a driver for talking to my hardware which is a PCI bus card.
 
-greg k-h
+  This card has 5 large FPGAs, SRAM and dram on it which is used to
+  accelerate bioinformatics search algorithms.
+
+  The card works under Sun Solaris and Windows/2000, and of course,
+  we would like to add Linux to the list.
+
+  Eventually, I'll need to support DMA to and from the card, but
+  I can get by for a while just doing single-dword I/O.
+
+  
+
+  I just hacked in dev->bus->ops->read_dword(dev,1,&retval);
+  and I can read memory on the card! (Well, things don't crash anyway)
+
+  If this is absolutely the wrong way to do this, please let me know!
+
+  Note: I have no idea what the second parameter to read_dword() is!
+
+                            -Alan
+
+-- 
+- Alan Kilian <kilian(at)timelogic.com> 
+Director of Bioinformatics, TimeLogic Corporation 763-449-7622

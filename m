@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268337AbTCCERT>; Sun, 2 Mar 2003 23:17:19 -0500
+	id <S268325AbTCCEOL>; Sun, 2 Mar 2003 23:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268341AbTCCERS>; Sun, 2 Mar 2003 23:17:18 -0500
-Received: from holomorphy.com ([66.224.33.161]:36497 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268337AbTCCERS>;
-	Sun, 2 Mar 2003 23:17:18 -0500
-Date: Sun, 2 Mar 2003 20:27:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S268328AbTCCEOK>; Sun, 2 Mar 2003 23:14:10 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:15045
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268325AbTCCEN1>; Sun, 2 Mar 2003 23:13:27 -0500
+Date: Sun, 2 Mar 2003 23:21:58 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH][2.5][CHECKER] rtc locking
-Message-ID: <20030303042725.GN1195@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0303022317390.25240-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.50.0303022317390.25240-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Message-ID: <Pine.LNX.4.50.0303022321260.25240-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303022317390.25240-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 11:19:57PM -0500, Zwane Mwaikambo wrote:
-> Index: linux-2.5.62-numaq/drivers/char/rtc.c
-[... good patch]
+oops missing ampersand
 
-Do you think some kind of API safety (e.g. removing *_lock_irq() in
-favor of *_lock_irqsave()) would be worthwhile for catching these kinds
-of errors?
+Index: linux-2.5.62-numaq/drivers/char/rtc.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.62/drivers/char/rtc.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 rtc.c
+--- linux-2.5.62-numaq/drivers/char/rtc.c	18 Feb 2003 00:15:30 -0000	1.1.1.1
++++ linux-2.5.62-numaq/drivers/char/rtc.c	3 Mar 2003 04:21:09 -0000
+@@ -746,13 +746,15 @@
+ #else
+ 	unsigned char tmp;
+ 
+-	spin_lock_irq(&rtc_task_lock);
++	spin_lock_irq(&rtc_lock);
++	spin_lock(&rtc_task_lock);
+ 	if (rtc_callback != task) {
+-		spin_unlock_irq(&rtc_task_lock);
++		spin_unlock(&rtc_task_lock);
++		spin_unlock_irq(&rtc_lock);
+ 		return -ENXIO;
+ 	}
+ 	rtc_callback = NULL;
+-	spin_lock(&rtc_lock);
++	
+ 	/* disable controls */
+ 	tmp = CMOS_READ(RTC_CONTROL);
+ 	tmp &= ~RTC_PIE;
+@@ -765,8 +767,8 @@
+ 		del_timer(&rtc_irq_timer);
+ 	}
+ 	rtc_status &= ~RTC_IS_OPEN;
+-	spin_unlock(&rtc_lock);
+-	spin_unlock_irq(&rtc_task_lock);
++	spin_unlock(&rtc_task_lock);
++	spin_unlock_irq(&rtc_lock);
+ 	return 0;
+ #endif
+ }
 
-
-
--- wli
+-- 
+function.linuxpower.ca

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbTIEQV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 12:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTIEQV0
+	id S265691AbTIERTu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbTIERTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 12:21:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:51617 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262613AbTIEQTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 12:19:08 -0400
-Date: Fri, 5 Sep 2003 09:08:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Momes <momes@mundo-r.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB hang
-Message-ID: <20030905160815.GA1946@kroah.com>
-References: <200309041951.37523.momes@mundo-r.com>
+	Fri, 5 Sep 2003 13:19:50 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:41960 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S265691AbTIERTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 13:19:49 -0400
+Date: Fri, 5 Sep 2003 13:19:29 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andreas Jaeger <aj@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
+       rth@redhat.com, linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
+Message-ID: <20030905131929.Q11756@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <Pine.LNX.4.44.0309050735570.25313-100000@home.osdl.org> <ho65k76z9v.fsf@byrd.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309041951.37523.momes@mundo-r.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <ho65k76z9v.fsf@byrd.suse.de>; from aj@suse.de on Fri, Sep 05, 2003 at 05:17:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 07:51:37PM +0200, Momes wrote:
-> Hello:
-> I'm trying to compile new kernel 2.4.22 (with XFS patch) in my machine. The 
-> problem is that it always hangs when I plug in my USB keyboard.
-> My system needs "noapic" option in lilo.conf but it has always worked fined
-> up to kernel 2.4.21. I've searched the archives and also used Google without
-> found any answer, so decided to post my problem in the list with the hope
-> that someone can give some clue.
+On Fri, Sep 05, 2003 at 05:17:00PM +0200, Andreas Jaeger wrote:
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
-> The system always stops at this point:
+> > On Fri, 5 Sep 2003, Andi Kleen wrote:
+> >> 
+> >> Unfortunately the kernel doesn't compile with unit-at-a-time currently,
+> >> it cannot tolerate the reordering of functions in relation to inline
+> >> assembly.
+> >
+> > What is the problem exactly? Is it the exception table getting unordered?  
+> > We _could_ just sort it at boot-time (or, even better, at build time after
+> > the final link) instead...
 > 
-> "input: USB HID v1.00 Keyboard [BTC USB Keyboard] on usb2:3.0"
+> The problem is that unit-at-a-time sees all functions used and finds
+> some static functions/variables that are not called anywhere and
+> therefore drops them, making a smaller binary.  Since GCC does not
+> look into inline assembler, anything referenced from inline assembler
+> only, will be treated as not used and therefore removed.
+> 
+> You have to options:
+> - use attribute ((used)) (implemented since GCC 3.2) to tell GCC that
+>   a function/variable should never be removed
 
-If you boot without any USB devices plugged in, and then plug them in
-after boot, do you still have this problem?
+To be precise, implemented since GCC 3.2 for functions and since GCC 3.3
+for variables.
 
-And does this happen without the XFS patch?
-
-thanks,
-
-greg k-h
+	Jakub

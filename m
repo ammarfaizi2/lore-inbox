@@ -1,136 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317004AbSF0W0j>; Thu, 27 Jun 2002 18:26:39 -0400
+	id <S317007AbSF0WbW>; Thu, 27 Jun 2002 18:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSF0W0i>; Thu, 27 Jun 2002 18:26:38 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:3448 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317004AbSF0W0h>; Thu, 27 Jun 2002 18:26:37 -0400
-Date: Thu, 27 Jun 2002 23:28:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: vm fixes for 2.4.19rc1
-In-Reply-To: <20020627201413.GD1457@inspiron.ols.wavesec.org>
-Message-ID: <Pine.LNX.4.21.0206272241230.1023-100000@localhost.localdomain>
+	id <S317012AbSF0WbV>; Thu, 27 Jun 2002 18:31:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18821 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317007AbSF0WbU>;
+	Thu, 27 Jun 2002 18:31:20 -0400
+Date: Thu, 27 Jun 2002 15:33:33 -0700 (PDT)
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-X-Sender: <nivedita@w-nivedita2.des.beaverton.ibm.com>
+To: "Hurwitz Justin W." <hurwitz@lanl.gov>
+cc: Nivedita Singhvi <niv@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: zero-copy networking & a performance drop
+In-Reply-To: <Pine.LNX.4.44.0206271545220.17078-100000@alvie-mail.lanl.gov>
+Message-ID: <Pine.LNX.4.33.0206271513320.13651-100000@w-nivedita2.des.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jun 2002, Andrea Arcangeli wrote:
-> I will make a full vm update for 2.5 [in small pieces based on post-Andrew
-> split of the monolithic patch] in the next days anyways):
+On Thu, 27 Jun 2002, Hurwitz Justin W. wrote:
 
-Great!
-
-> diff -urNp 2.4.19rc1/mm/page_alloc.c 2.4.19rc1aa1/mm/page_alloc.c
-> --- 2.4.19rc1/mm/page_alloc.c	Tue Jun 25 23:56:23 2002
-> +++ 2.4.19rc1aa1/mm/page_alloc.c	Wed Jun 26 00:55:35 2002
-> @@ -82,8 +82,11 @@ static void __free_pages_ok (struct page
->  	/* Yes, think what happens when other parts of the kernel take 
->  	 * a reference to a page in order to pin it for io. -ben
->  	 */
-> -	if (PageLRU(page))
-> +	if (PageLRU(page)) {
-> +		if (unlikely(in_interrupt()))
-> +			BUG();
->  		lru_cache_del(page);
-> +	}
+> On Thu, 27 Jun 2002, Nivedita Singhvi wrote:
 > 
-> this adds a debugging check just in case.
-
-Well, of course I like this patch, having proposed it months ago.
-But the evidence for needing it seems to have died down, and I
-don't think -rc is the right time for adding a BUG() where you
-can almost always get away with such bad behaviour - I intended
-it for a diagnostic aid in the early stages of a release -
-but I'm happy to go whichever way Marcelo decides on it.
-
-> @@ -91,6 +94,8 @@ static void __free_pages_ok (struct page
->  		BUG();
->  	if (!VALID_PAGE(page))
->  		BUG();
-> +	if (PageSwapCache(page))
-> +		BUG();
+> [ snip ]
 > 
-> This resurrects a valid debugging check dropped in rc1.
-
-Sorry, Andrea, perhaps I should have copied you explicitly on my
-patch which dropped that check.  It is a valid check, yes, but it's
-a waste of space and time: remember that PageSwapCache(page) just
-checks whether page->mapping == &swapper_space (used to be a bitflag,
-yes, but not since last Autumn), and the BUG() you can just see above
-was if page->mapping was set at all.  One day, yes, PageSwapCache may
-become bitflag test again: then would be the time to add the test back.
-
-> @@ -280,10 +285,12 @@ static struct page * balance_classzone(z
->  						BUG();
->  					if (!VALID_PAGE(page))
->  						BUG();
-> +					if (PageSwapCache(page))
-> +						BUG();
+> > That said, rx has been slower than sends in most of our testing
+> > too. 
 > 
-> same as above. a page with page->mapping set cannot be freed, if it
-> happens it's a bug that we want to trap.
-
-As you say, same as above: again the BUG() you can just see at the top
-was on a test for whether page->mapping is set, so PageSwapCache test
-again redundant.  If compiler optimized it away, I'd leave it: but no.
-
->  					if (PageLocked(page))
->  						BUG();
->  					if (PageLRU(page))
-> -						BUG();
-> +						lru_cache_del(page);
-
-I was going to query this, but see later mail from you withdrawing it.
-
-> diff -urNp 2.4.19rc1/mm/swap_state.c 2.4.19rc1aa1/mm/swap_state.c
-> --- 2.4.19rc1/mm/swap_state.c	Tue Jan 22 12:55:27 2002
-> +++ 2.4.19rc1aa1/mm/swap_state.c	Wed Jun 26 00:48:13 2002
-> @@ -95,11 +95,8 @@ int add_to_swap_cache(struct page *page,
->   */
->  void __delete_from_swap_cache(struct page *page)
->  {
-> -	if (!PageLocked(page))
-> -		BUG();
->  	if (!PageSwapCache(page))
->  		BUG();
-> -	ClearPageDirty(page);
->  	__remove_inode_page(page);
->  	INC_CACHE_INFO(del_total);
->  }
+> Is this a documented/explained phemomenon? Or are you and I the only 
+> people experiencing it? Do we have any idea as to its cause (or is it 
+> inherent architecturally)? 
 > 
-> Here I play risky for a rc1, but it made perfect sense to me,
+> Cheers,
+> --Gus
 
-Yes and yes.  My comment when I weakened the __remove_inode_page BUG
-was "Remove the prior ClearPageDirty?  maybe but not without deeper
-thought: let stay for now."  I've not given it deep enough thought,
-and I'm not convinced you have yet: need to consider the peculiarities
-of mm/shmem.c, and the way clearing the flag lets the page be dirtied
-on to a list later.  My _guess_ is that it's fine to remove that
-ClearPageDirty in 2.4, but 2.5 a rather different case; but it
-seems to me a risky cleanup, not -rc material.  (But, sorry,
-maybe I'm just advertizing the shallowness of _my_ thought.)
 
-> @@ -114,9 +111,6 @@ void delete_from_swap_cache(struct page 
->  {
->  	swp_entry_t entry;
->  
-> -	if (!PageLocked(page))
-> -		BUG();
-> -
->  	block_flushpage(page, 0);
->  
->  	entry.val = page->index;
-> 
-> dropped also two pagelocked checks because there execute unconditionally
-> paths that checks the pagelocked bit at the lower layer.
+Well, briefly, completely speculatively, and possibly unhelpfully,
 
-I don't mind that removal if you leave the !PageLocked BUG test in
-__delete_from_swap_cache, but you've proposed to remove that one too?
+      - rx side processing can involve more work (stack length
+        is simply longer) and so can legitimately take longer.
+	This is especially true when options and out of order
+	packets are involved, and TCP fast path processing
+	on the rx side isnt taken. (I had done a breakdown 
+	of this based on some profiles last year, but dont
+	have that at the moment)
 
-Hugh
+      - rx side reassembly could cause longer delays in the
+        case of fragmentation
+
+      - scheduler comes slightly more into play on the rx
+        side for TCP, may be since we can put stuff on the backlog
+	or prequeue q's (waiting for a recvmsg()) (??). this is
+	again, very off the cuff and based on some profiles
+	I had seen on send/rx side with rx side scheduler 
+	showing up higher, and without having investigated 
+	further at the time..(long time ago, dont quote me, etc..)
+
+	
+there are possibly many different scenario's here, and
+I'm probably missing the most obvious causes...
+
+
+thanks,
+Nivedita
 

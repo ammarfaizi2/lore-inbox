@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbTEWXRC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 19:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264200AbTEWXRC
+	id S264201AbTEWXiq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 19:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTEWXiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 19:17:02 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:6148 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264198AbTEWXRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 19:17:01 -0400
-Subject: RE: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 23 May 2003 19:29:53 -0400
-Message-Id: <1053732598.1951.13.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 23 May 2003 19:38:46 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:38110 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264201AbTEWXip convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 19:38:45 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: /proc/kcore - how to fix it
+Date: Fri, 23 May 2003 16:51:43 -0700
+Message-ID: <DD755978BA8283409FB0087C39132BD101B00E0A@fmsmsx404.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /proc/kcore - how to fix it
+Thread-Index: AcMhc934SBFcZuadQCitOASEoIEewgAEV5bg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@linuxia64.org>,
+       <rmk@arm.linux.org.uk>, <davidm@napali.hpl.hp.com>, <akpm@digeo.com>
+X-OriginalArrivalTime: 23 May 2003 23:51:43.0637 (UTC) FILETIME=[43628450:01C32186]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    although I respect your maintainer's responsible and safe position, I'd like
-    to state that version 6.2.28 has been in the latest pre-releases for quite some
-    time, and the reason you invoked for removing it at -rc time was the lockups
-    people still encounter with the version present in -rc3, perhaps to a lesser
-    extent. These lockups *SEEM* to have vanished from 6.2.33 for people who
-    complained previously. Moreover, the lockup I encountered on my systems was
-    fixed and demonstrated by Justin to really be a locking bug, so this was not
-    just a "let's see how it behaves" fix.
-    
-I think there's some misunderstanding about what a release candidate
-is.  It's an attempt to see if a particular set of code is viable as the
-released product.  Any bugs reported against a rc that are deemed
-problems to the release need to be fixed, either by adding a simple and
-easily verifiable bug fix or by reverting the problem code.
+> One alternative I considered was to use just do a page table lookup.
+> But I fear that some architectures use direct mapping registers etc.
+> with mappings not in the page tables for the direct mapping, so it 
+> probably won't work for everybody.
 
-The bksend file on http://people.freebsd.org/~gibbs/linux/SRC/
-representing the requested updates is 475k compressed.  There's no
-definition of the phrase "simple and easily verifiable bug fix" I can
-encompass that could be applied to a chunk of code that size.
+You are right.  IA64 maps the kernel with some locked registers, so
+there are no pagetables to show that the mapping exists.
+ 
+> What I'm worrying about is that the kernel will oops when accessing
+> unmapped memory. That certainly should not happen.
 
-In these circumstances, absent a simple fix for the problem, the only
-choice seems to be reversion and trying to get the code base stable at
-the beginning of the next -pre, which is the current decision.
+Agreed.  Oops is always a bad thing.
 
-James
+> > /proc/kcore is a bit different because it's trying to present
+> > a regular file view, rather than a char-special file view to
+> > any tool that wants to use it.  If someone fixes up gdb, objdump,
+> > readelf, etc. then the macros can be easily removed to provide 1:1
+> > (though even then it isn't quite 1:1 ... offset in file would be
+> > "vaddr + elf_buflen" to allow space for the elf headers at the start
+> > of the file.
+> 
+> You're doing this to handle tools that have signedness bugs while
+> parsing core files? iirc gdb is clean. What other tools have the 
+> problem? 
 
+I don't know ... you'll have to dust off those fixes for /proc to let
+the negative file offsets get as far as the kcore.c code so we can
+see what utilities work.  In practice we probably don't care about
+anything other than gdb.
 
+-Tony

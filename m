@@ -1,199 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262937AbTJUE5U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 00:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTJUE5U
+	id S262859AbTJUEt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 00:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTJUEt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 00:57:20 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:10432 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262954AbTJUE5P
+	Tue, 21 Oct 2003 00:49:58 -0400
+Received: from dyn-ctb-210-9-241-130.webone.com.au ([210.9.241.130]:15621 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262859AbTJUEt4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 00:57:15 -0400
-Subject: Re: ACPI in -pre7 builds with -Os
-From: Len Brown <len.brown@intel.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-2vQa3wP/UFfRe7c34ivq"
-Organization: 
-Message-Id: <1066712230.2908.120.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Oct 2003 00:57:11 -0400
+	Tue, 21 Oct 2003 00:49:56 -0400
+Message-ID: <3F94BADF.6040104@cyberone.com.au>
+Date: Tue, 21 Oct 2003 14:49:35 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: venom@sns.it
+CC: Dave Olien <dmo@osdl.org>, rwhron@earthlink.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [BENCHMARK] I/O regression after 2.6.0-test5
+References: <Pine.LNX.4.43.0310200953480.26518-100000@cibs9.sns.it>
+In-Reply-To: <Pine.LNX.4.43.0310200953480.26518-100000@cibs9.sns.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Guys,
+If you have time, would you please try testing as-iosched.c from
+test5 in a later kernel (it won't go into test8-mm1 though).
 
---=-2vQa3wP/UFfRe7c34ivq
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Mon, 2003-10-13 at 19:14, J.A. Magallon wrote: 
-> Hi all...
-> 
-> $subject:
-> 
-> drivers/acpi/Makefile:
-> 
-> ACPI_CFLAGS := -Os
-> 
-> Uh ?
-
--0s saves us ~20% text size.
-
-cheers,
--Len
+Thanks
 
 
---=-2vQa3wP/UFfRe7c34ivq
-Content-Disposition: inline
-Content-Description: Forwarded message - acpi code size
-Content-Type: message/rfc822
+venom@sns.it wrote:
 
-Subject: acpi code size
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, linux-acpi <linux-acpi@intel.com>
-Cc: acpi-devel@lists.sourceforge.net
-Content-Type: multipart/mixed; boundary="=-kj50DVF4cRqzKl2qUddF"
-Organization: 
-Message-Id: <1066246567.2534.43.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 15 Oct 2003 15:36:09 -0400
-
-
---=-kj50DVF4cRqzKl2qUddF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-FYI,
-Building 2.4.23 with gcc -Os (as the source tree currently does) shrinks
-acpi text compared to gcc -O2.  How much -0s it saves depends on the
-version of gcc:
-
-
-19.5% gcc version 3.2.2 20030222 (RHL 9.0)
-20.6% gcc version 3.3.1 20030930 (Fedora Test3)
-
-as measured by text size for drivers/acpi.o with all modules excluded.
-
-cheers,
--Len
-
-attached the script I use to measure acpi size, and the results for -O2
-and -Os on gcc 3.3.1.
-
-
---=-kj50DVF4cRqzKl2qUddF
-Content-Disposition: attachment; filename=report.acpi.size
-Content-Type: text/plain; name=report.acpi.size; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#!/bin/bash
-# summarize the size of ACPI in Linux
-
-# ACPI kernel modules
-MODULE_FILES=
-#for MODULE in drivers/acpi/*.ko ; do
-#	if [ -f $MODULE ] ; then
-#		MODULE_FILES="$MODULE_FILES $MODULE"
-#	fi
-#done
-
-MODULE_LIST="ac asus_acpi battery button fan processor thermal toshiba_acpi"
-if [ "$MODULE_FILES" = "" ] ; then
-	DIR=drivers/acpi
-	for MODULE in $MODULE_LIST; do
-		if [ -f $DIR/$MODULE.o ] ; then
-			MODULE_FILES="$MODULE_FILES $DIR/$MODULE.o"
-		fi
-	done
-fi
-
-
-if [ "$MODULE_FILES" != "" ] ; then
-	echo Loadable Module Sizes:
-	size $MODULE_FILES
-	echo
-	echo Static Kernel Size:
-fi
-
-# ACPI obj files outside drivers/acpi
-STATIC_FILES=
-# acpi objects in base kernel
-for FILE in arch/i386/kernel/acpi/built-in.o arch/i386/kernel/acpi*.o ; do
-	if [ -f $FILE ] ; then
-		STATIC_FILES="$STATIC_FILES $FILE"
-	fi
-done
-
-
-# ACPI core driver
-DRIVER_DIR=drivers/acpi
-for DRIVER_OBJECT in acpi.o built-in.o ; do
-	if [ -f $DRIVER_DIR/$DRIVER_OBJECT ] ; then
-		STATIC_FILES="$STATIC_FILES $DRIVER_DIR/$DRIVER_OBJECT"
-	fi
-done
-
-
-NUM_FILES=`echo $STATIC_FILES | wc -w`
-if [ $NUM_FILES == 0 ] ; then
-	echo $0: no acpi code present
-elif [ $NUM_FILES == 1 ] ; then
-	size $STATIC_FILES
-else
-	size -t $STATIC_FILES
-fi
-
-
---=-kj50DVF4cRqzKl2qUddF
-Content-Disposition: attachment; filename=size.23.O2
-Content-Type: text/plain; name=size.23.O2; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Loadable Module Sizes:
-   text	   data	    bss	    dec	    hex	filename
-   1712	    212	     12	   1936	    790	drivers/acpi/ac.o
-   8628	    884	     24	   9536	   2540	drivers/acpi/asus_acpi.o
-   6220	    212	     12	   6444	   192c	drivers/acpi/battery.o
-   2532	    212	     24	   2768	    ad0	drivers/acpi/button.o
-   1423	    212	     12	   1647	    66f	drivers/acpi/fan.o
-   9643	    212	    172	  10027	   272b	drivers/acpi/processor.o
-   7543	    212	     16	   7771	   1e5b	drivers/acpi/thermal.o
-   3451	     72	     24	   3547	    ddb	drivers/acpi/toshiba_acpi.o
-
-Static Kernel Size:
-   text	   data	    bss	    dec	    hex	filename
-   3214	      8	    136	   3358	    d1e	arch/i386/kernel/acpi.o
-    917	     52	      0	    969	    3c9	arch/i386/kernel/acpi_wakeup.o
- 178384	   4194	   4888	 187466	  2dc4a	drivers/acpi/acpi.o
- 182515	   4254	   5024	 191793	  2ed31	(TOTALS)
-
---=-kj50DVF4cRqzKl2qUddF
-Content-Disposition: attachment; filename=size.23.Os
-Content-Type: text/plain; name=size.23.Os; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Loadable Module Sizes:
-   text	   data	    bss	    dec	    hex	filename
-   1294	    212	     12	   1518	    5ee	drivers/acpi/ac.o
-   7249	    884	     24	   8157	   1fdd	drivers/acpi/asus_acpi.o
-   5297	    212	     12	   5521	   1591	drivers/acpi/battery.o
-   2031	    212	     24	   2267	    8db	drivers/acpi/button.o
-   1098	    212	     12	   1322	    52a	drivers/acpi/fan.o
-   7905	    212	    172	   8289	   2061	drivers/acpi/processor.o
-   5894	    212	     16	   6122	   17ea	drivers/acpi/thermal.o
-   2669	     72	     24	   2765	    acd	drivers/acpi/toshiba_acpi.o
-
-Static Kernel Size:
-   text	   data	    bss	    dec	    hex	filename
-   3214	      8	    136	   3358	    d1e	arch/i386/kernel/acpi.o
-    917	     52	      0	    969	    3c9	arch/i386/kernel/acpi_wakeup.o
- 141584	   4194	   4888	 150666	  24c8a	drivers/acpi/acpi.o
- 145715	   4254	   5024	 154993	  25d71	(TOTALS)
-
---=-kj50DVF4cRqzKl2qUddF--
-
-
---=-2vQa3wP/UFfRe7c34ivq--
+>me too, on some self made db benchs on both mysql and postgresql,  testing, of
+>course, I/O.
+>
+>On Sun, 19 Oct 2003, Dave Olien wrote:
+>
+>
+>>Date: Sun, 19 Oct 2003 21:51:23 -0700
+>>From: Dave Olien <dmo@osdl.org>
+>>To: rwhron@earthlink.net
+>>Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+>>Subject: Re: [BENCHMARK] I/O regression after 2.6.0-test5
+>>
+>>
+>>Yup, we've seen similar regression on tiobench and reaim workloads.
+>>
+>>On Sun, Oct 19, 2003 at 08:37:45PM -0400, rwhron@earthlink.net wrote:
+>>
+>>>There was about a 50% regression in jobs/minute in AIM7
+>>>database workload on quad P3 Xeon.  The CPU time has not
+>>>gone up, so the extra run time is coming from something
+>>>else.  (I/O or I/O scheduler?)
+>>>
+>>>tiobench sequential reads has a significant regression too.
+>>>
+>>>Regression appears unrelated to filesystem type.
+>>>
+>>>dbench was not affected.
+>>>
+>>>The AIM7 was run on ext2.
+>>>
+>>>      
+>>>
 

@@ -1,31 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUKVNpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbUKVNr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUKVNpp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 08:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUKVNpZ
+	id S262102AbUKVNr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 08:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUKVNp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 08:45:25 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:27676 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262103AbUKVNnz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 08:43:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:return-path:from:to:subject:date:mime-version:content-type:x-mailer:x-mimeole:thread-index:message-id;
-        b=Hw00uFZmXVZ3kY2glJnAkU+VFxnnrIg10dmumw19Aza+D6EUJ6HUnBz6a7XUaT2S9aU9LvqeJn/edusse7zxJtx1VC69WW8EubWMHa5b9d5m00x/1fW2o+32d0bMTFNwKrO9Z7h+tVzd92NOgI0WtNOt/FSR847wkeyXslZ4mq0=
-From: =?iso-8859-1?Q?J=FCrgen_Otte?= <reviede@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: libata - support for PATA devices on promise TX2 controllers
-Date: Mon, 22 Nov 2004 14:43:32 +0100
+	Mon, 22 Nov 2004 08:45:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19460 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262111AbUKVNpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 08:45:44 -0500
+Date: Mon, 22 Nov 2004 14:45:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm3
+Message-ID: <20041122134540.GB19419@stusta.de>
+References: <20041121223929.40e038b2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcTQmUF6x7MVmh0cTpaBukxe0UXg1A==
-Message-ID: <41a1ed19.6b8b4567.0883.0000@smtp.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041121223929.40e038b2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See topic, is there anyone working on this already?
+On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
+>...
+> All 532 patches:
+>...
+> add-acpi-based-floppy-controller-enumeration.patch
+>   Add ACPI-based floppy controller enumeration.
+>...
 
+As far as I understood the discussion, this patch should be dropped.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

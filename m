@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbUAIVi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 16:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUAIVi4
+	id S264401AbUAIVjB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 16:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUAIVjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 16:38:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264442AbUAIViO (ORCPT
+	Fri, 9 Jan 2004 16:39:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264401AbUAIVhJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 16:38:14 -0500
-Date: Fri, 9 Jan 2004 13:35:18 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ian Pilcher <i.pilcher@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sysctl equivalent of "idle=poll"
-Message-Id: <20040109133518.59c44790.rddunlap@osdl.org>
-In-Reply-To: <3FFBA98D.1080901@comcast.net>
-References: <3FFBA98D.1080901@comcast.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 9 Jan 2004 16:37:09 -0500
+Date: Fri, 9 Jan 2004 13:38:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ncunningham@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, benh@kernel.crashing.org
+Subject: Re: PATCH 1/2: Make gotoxy & siblings use unsigned variables
+Message-Id: <20040109133823.6ba5bba8.akpm@osdl.org>
+In-Reply-To: <1073672901.2069.15.camel@laptop-linux>
+References: <1073672901.2069.15.camel@laptop-linux>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jan 2004 00:39:09 -0600 Ian Pilcher <i.pilcher@comcast.net> wrote:
+Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
+>
+> X-Mailer: Ximian Evolution 1.4.4-8mdk
 
-| The previous version of this patch didn't get any response, so on the
-| "no news is good news" theory ... Any comments before I send this off to
-| Marcelo?
-| 
-| This adds a new x86-only sysctl, /proc/sys/kernel/idle_poll, which does
-| basically the same thing as the "idle=poll" boot parameter (except that
-| it can be turned on and off).
-| 
-| This patch does not affect the ability of the APM and/or ACPI subsystems
-| to override the default idle function.  It adds one symbol,
-| pm_idle_poll, to the global namespace.
-| 
-| This patch applies cleanly to 2.4.23, 2.4.24, and 2.4.25-pre4.
+Gack.  My MUA (sylpheed) is unable to decrypt the plain text after whatever
+it is that Evolution did to it.  Please see if you can get Evolution to
+play more nicely with plain text, or use attachments.
 
-Hi Ian,
-Sorry for not replying sooner.
+I fixed that one up by hand.
 
-I don't see any problems with this patch itself, other than its
-justification.
-
-Why is a sysctl needed instead of using idle=X as a boot parameter?
-
-Does this fix a bug/oops that you were having?
-Or does it cover up a bug somewhere?
-
---
-~Randy
-MOTD:  Always include version info.
+Thanks.

@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUBVQNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 11:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUBVQLp
+	id S261687AbUBVQUI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 11:20:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUBVQUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 11:11:45 -0500
-Received: from mail01.hansenet.de ([213.191.73.61]:64695 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261685AbUBVQJW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 11:09:22 -0500
-From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Patch for ATI 9100 RS300
-Date: Sun, 22 Feb 2004 17:09:05 +0100
-User-Agent: KMail/1.6.1
-References: <403875CC.9010506@meerkatsoft.com>
-In-Reply-To: <403875CC.9010506@meerkatsoft.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_lQNOAphun7ORVEB";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402221709.09245.MalteSch@gmx.de>
+	Sun, 22 Feb 2004 11:20:08 -0500
+Received: from gprs148-229.eurotel.cz ([160.218.148.229]:50560 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261690AbUBVQOS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 11:14:18 -0500
+Date: Sun, 22 Feb 2004 17:12:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
+Message-ID: <20040222161254.GA1371@elf.ucw.cz>
+References: <40342BD5.9080105@snapgear.com> <20040219103900.GH17140@khan.acc.umu.se> <4034B2E5.1090505@snapgear.com> <20040219131317.GI17140@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040219131317.GI17140@khan.acc.umu.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Boundary-02=_lQNOAphun7ORVEB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> > David Weinehall wrote:
+> > >On Thu, Feb 19, 2004 at 01:21:57PM +1000, Greg Ungerer wrote:
+> > >>An update of the uClinux (MMU-less) fixups against 2.6.3.
+> > >>Nothing much new, just redone against 2.6.3.
+> > >>
+> > >>http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
+> > >
+> > >Any plans for a 2.6-version of the ARM-support?
+> > 
+> > Yes. There is some code available now, although it is not complete
+> > and doesn't fully work yet. It really needs more cleaning up before
+> > it will be interresting or useful to anyone.
+> 
+> Dang.  I wish I still had some arm-hardware to play with (no, I'm not
+> gonna sacrifice my Tungsten E for uClinux-work...)
 
-AFAIK the Radeon 9100 is the same as the 8500, at least I was able to use a=
-=20
-9100 BIOS on my 8500. The card ran without problems with XFree 4.3 .
-
-On Sunday 22 February 2004 10:26, Alex wrote:
-> Hi,
-> I am trying to build a new Kernel (2.4.x) for my XPC ST61G4 which uses
-> the ATI Raedon 9100 RS300 Chipset.
-> Does anyone know if this chipset will be supported by Linux and where I
-> can find a Patch for it?
->
-> Thanks
-> Alex
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
-
-
---Boundary-02=_lQNOAphun7ORVEB
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAONQl4q3E2oMjYtURAkxNAKCOf1O48XTf1BHbd3HpLqiHEak5VgCg5hb8
-rNG8Mlbm5v8Uh3kl8nXfxrM=
-=GTlx
------END PGP SIGNATURE-----
-
---Boundary-02=_lQNOAphun7ORVEB--
+Tungsten is Palm-clone, right? So they are using ARMs there, but
+unlike everyone other, mmu-less ARMs?
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

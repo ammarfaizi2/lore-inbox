@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbTEVE5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 00:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEVE5a
+	id S262273AbTEVE5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 00:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEVE5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 00:57:30 -0400
-Received: from CPE-203-45-136-67.qld.bigpond.net.au ([203.45.136.67]:8204 "EHLO
-	oxcoda.safenetbox.biz") by vger.kernel.org with ESMTP
-	id S262278AbTEVE53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 00:57:29 -0400
-Date: Thu, 22 May 2003 15:10:24 +1000
-From: Menno Smits <menno@netbox.biz>
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic with pptpd when mss > mtu
-Message-Id: <20030522151024.4a61c6a3.menno@netbox.biz>
-In-Reply-To: <20030521180917.6f524e6f.menno@netbox.biz>
-References: <20030521091442.1bfb41b6.menno@netbox.biz>
-	<20030520214301.A3632@google.com>
-	<20030521180917.6f524e6f.menno@netbox.biz>
-Organization: NetBox
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 22 May 2003 00:57:54 -0400
+Received: from CPE-203-51-25-146.nsw.bigpond.net.au ([203.51.25.146]:3968 "EHLO
+	didi") by vger.kernel.org with ESMTP id S262273AbTEVE5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 00:57:52 -0400
+Date: Thu, 22 May 2003 15:09:56 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: Robert White <rwhite@casabyte.com>,
+       Rik van Riel <riel@imladris.surriel.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: recursive spinlocks. Shoot.
+Message-ID: <20030522050956.GA273@didi>
+Mail-Followup-To: "Peter T. Breuer" <ptb@it.uc3m.es>,
+	Robert White <rwhite@casabyte.com>,
+	Rik van Riel <riel@imladris.surriel.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <3ECC4C3A.9000903@cyberone.com.au> <200305220442.h4M4gFM12023@oboe.it.uc3m.es>
 Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on SERVER01/Oxcoda/AU(Release 5.0.12  |February 13, 2003) at
- 22/05/2003 03:10:24 PM,
-	Serialize by Router on SERVER01/Oxcoda/AU(Release 5.0.12  |February 13, 2003) at
- 22/05/2003 03:10:25 PM,
-	Serialize complete at 22/05/2003 03:10:25 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305220442.h4M4gFM12023@oboe.it.uc3m.es>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Grab the latest ftp://ftp.samba.org/pub/unpacked/ppp which corrects both
-> > of the above problems.
+On Thu, May 22, 2003 at 06:42:15AM +0200, Peter T. Breuer wrote:
+> "Nick Piggin wrote:"
+> > Locking is an implementation issue, and as such I think you'll have
+> > to come up with a real problem or some real code. You must have some
+> > target problem in mind?
 > 
-> I'll try this and let you know how I go. 
+> I'll butt back in here.
+> 
+snip
 
-Works beautifully, once I'd figured out the correct pppd options to
-pass. Thank you. 
+> 
+> The result was a call from the block driver to the md driver with a
+> lock held, and a rather unexpected call back from the md driver that
+> impotently tried to take the same lock.
+> 
+> Same thread.
+>
 
-Curiously I couldn't get the server and client to use MS-CHAPv2 or
-MPPE unless the "require-mschap-v2" and "require-mppe" options were
-provided. I assumed the client and server would negotiate at the
-'highest' common authentication and encryption level. Instead I found
-I had to include these two options or else standard CHAP with no
-encryption was used (or the connection failed totally if Windows was
-told to _require_ encryption or MS-CHAP).
+OK, in this case, it didn't sound like your block driver
+expected to be re-entered. Lucky the problem immediately
+caused a deadlock ;)
 
-Some other observations:
+More seriously, lets say you get around the above with
+recursive locks:
 
-- pptp connections seem more reliable now. Previously it could take
-  several attempts before a PPTP connection could be established
-  (particularly from Win98?). This seems to be fixed with this
-  MPPE/MS-CHAP implementation or perhaps its something else in 2.4.2.
-  Either way, good stuff!
+Thread 1			Thread 2 (on another cpu)
+enter the block driver
+take the bd lock
+				issue an md ioctl
+				take the md lock
+				enter the block driver
+				spin on bd lock
+automatically call md ioctl
+spin on md lock
 
-- If I load the netfilter pptp connection tracking modules on the PPTP
-  server I can't connect at all from Win98. Win2k works fine. Will
-  test other clients soon. Lots of the following from poptop:
-
-        GRE: xmit failed from decaps_hdlc: Operation not permitted
-
-  ...even with no firewall rules active. Unload the conntrack modules
-  it works fine. Strange! Previously, with the third party MPPE
-  patches connection attempts were less reliable with the conntrack
-  modules loaded but were workable. This is probably out of the scope
-  of our discussion but any thoughts welcome :)
-
-Its great to have MPPE and MS-CHAPv2 support in the main pppd dist
-now... one less patch to worry about. Hopefully the MPPE kernel patch
-will make it to the mainline kernel soon too.
-
-Thanks for your help,
-Menno 
+So the problem needs a rethink.

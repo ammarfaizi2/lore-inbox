@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbSKIUuq>; Sat, 9 Nov 2002 15:50:46 -0500
+	id <S262664AbSKIU6f>; Sat, 9 Nov 2002 15:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262636AbSKIUuq>; Sat, 9 Nov 2002 15:50:46 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:19922 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262631AbSKIUuq>;
-	Sat, 9 Nov 2002 15:50:46 -0500
-Date: Sat, 9 Nov 2002 21:55:52 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: George France <france@handhelds.org>
-cc: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
-       axp-list mailing list <axp-list@redhat.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eliminate compile warnings
-In-Reply-To: <02110709222600.14483@shadowfax.middleearth>
-Message-ID: <Pine.GSO.4.21.0211092154230.20360-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262665AbSKIU6f>; Sat, 9 Nov 2002 15:58:35 -0500
+Received: from streefland.xs4all.nl ([213.84.249.15]:64640 "EHLO
+	zaphod.de.bilt") by vger.kernel.org with ESMTP id <S262664AbSKIU6e>;
+	Sat, 9 Nov 2002 15:58:34 -0500
+Date: Sat, 9 Nov 2002 22:05:18 +0100
+From: Dick Streefland <Dick.Streefland@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: aha152x_cs pcmcia in kernel instead of a module?
+Message-ID: <20021109210518.GA30144@streefland.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, George France wrote:
-> If there is no entry in the MAINTAINERS file, then it is Linus.  He did the Alpha port.
-> The first foray of Linux outside of the Intel architecture was to the Alpha processor.
+Is there a technical reason why the aha152x pcmcia driver must be
+built as a module, and cannot be compiled into the kernel? Other
+pcmcia drivers such as the 3c589 network driver can be compiled in.
 
-*beep* The m68k port is older, and IIRC the MIPS port is older as well. Those
-weren't started by Linus, though.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
-
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------

@@ -1,32 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266461AbUFUUzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUFUVHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266461AbUFUUzG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266462AbUFUUzG
+	id S266467AbUFUVHL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 17:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUFUVHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:55:06 -0400
-Received: from outmx009.isp.belgacom.be ([195.238.3.4]:4028 "EHLO
-	outmx009.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S266461AbUFUUzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:55:04 -0400
-Subject: Re: 2.6.7-mm1 I/O regression ?
-From: FabF <fabian.frederick@skynet.be>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1087859142.2331.30.camel@localhost.localdomain>
-References: <20040620174632.74e08e09.akpm@osdl.org>
-	 <1087859142.2331.30.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1087859914.2331.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 22 Jun 2004 01:18:34 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 17:07:11 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:31978 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266467AbUFUVHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 17:07:09 -0400
+Date: Mon, 21 Jun 2004 17:09:17 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: Kirill Korotaev <kksx@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: can TSC tick with different speeds on SMP?
+In-Reply-To: <200406211350.09295.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0406211707190.3273@montezuma.fsmlabs.com>
+References: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
+ <200406211350.09295.jamesclv@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, my clock seems running in double speed ?!!!! as related in other
-messages already :) so forget about this one :)
+On Mon, 21 Jun 2004, James Cleverdon wrote:
 
-Regards,
-FabF
+> IIRC, in the IA64 manuals Intel, by carefully not making any guarantees
+> to the contrary, reserved the right to have the TSC-equivalent register
+> not be synchronized either to the bus clock or the CPU clock.
+>
+> This doesn't directly apply to IA32, but may give a hint as to their
+> future intentions.
+
+The intel MP1.4 specification also allows for processors of
+varying capabilities, this would include different clock speeds resulting
+in differing TSC frequencies.
 

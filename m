@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129692AbRACS23>; Wed, 3 Jan 2001 13:28:29 -0500
+	id <S129716AbRACSnE>; Wed, 3 Jan 2001 13:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbRACS2T>; Wed, 3 Jan 2001 13:28:19 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:5371
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S129692AbRACS2M>; Wed, 3 Jan 2001 13:28:12 -0500
-Date: Wed, 3 Jan 2001 10:54:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-fbdev@vuser.vu.union.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [linux-fbdev] [PATCH] matroxfb as a module (PPC)
-Message-ID: <20010103105452.X26653@opus.bloom.county>
-In-Reply-To: <20010103091613.Q26653@opus.bloom.county> <Pine.LNX.4.05.10101031840410.611-100000@callisto.of.borg>
-Mime-Version: 1.0
+	id <S130075AbRACSmy>; Wed, 3 Jan 2001 13:42:54 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:25107 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129716AbRACSmp>;
+	Wed, 3 Jan 2001 13:42:45 -0500
+Message-ID: <3A536ADD.BB38E3C7@innominate.de>
+Date: Wed, 03 Jan 2001 19:09:33 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tobias Ringstrom <tori@tellus.mine.nu>, linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking 2.2 and 2.4 using hdparm and dbench 1.1
+In-Reply-To: <Pine.LNX.4.21.0101031755090.4448-200000@svea.tellus>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.05.10101031840410.611-100000@callisto.of.borg>; from geert@linux-m68k.org on Wed, Jan 03, 2001 at 06:44:59PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 06:44:59PM +0100, Geert Uytterhoeven wrote:
-> On Wed, 3 Jan 2001, Tom Rini wrote:
-> > Third, the nvram_read_byte needs to be protected by CONFIG_NVRAM.
-> 
-> I'd really like to move the nvram part to mac_fb_find_mode() in macmodes.c, so
-> it will work automagically for all drivers on PowerMac.
-> 
-> I'd also like to remove the `vmode' and `cmode' `video=' arguments, in favor of
-> the archictecture-neutral `<xres>x<yres>[-<bpp>][@<refresh>]' and
-> `<name>[-<bpp>][@<refresh>]' arguments (which already work on mac, BTW).
+Tobias Ringstrom wrote:
+> 3) The 2.2 kernels outperform the 2.4 kernels for few clients (see
+>    especially the "dbench 1" numbers for the PII-128M.  Oops!
 
-Quite wonderfully, almost.  My monitor (ViewSonic G810) claims it can do
-1280x1024@90, but when i boot with that on my x86 box, it comes up at 87.5
-or so (and shifted to the left ~1 penguin).  But anyways..
+I noticed that too.  Furthermore I noticed that the results of the more
+heavily loaded tests on the whole 2.4.0 series tend to be highly
+variable (usually worse) if you started by moving the whole disk through
+cache, e.g., fsck on a damaged filesystem.
 
-> You can already use `mac<vmode>' instead of `vmode:<vmode>'.
+> The reason for doing the benchmarks in the first place is that my 32MB P90
+> at home really does perform noticeably worse with samba using 2.4 kernels
+> than using 2.2 kernels, and that bugs me.  I have no hard numbers for that
+> machine (yet).  If they will show anything extra, I will post them here.
+> Btw, has anyone else noticed samba slowdowns when going from 2.2 to 2.4?
 
-Ah, is this documented anywhere?  I'm sure it'd make some peoples life
-easier.
+Again, yes, I saw that.
 
-> IMHO, the less PowerMac-specific code in _each_ driver, the better.
+> Wow!  You made it all the way down here.  Congratulations!  :-)
 
-I agree this sounds good.  I just think it's too late to do it now. :)
+Heh.  Yes, then I read it all again backwards.  I'll respectfully bow
+out of the benchmarking business now.  :-)
 
-The vmode/cmode/vesa number stuff should stick around in 2.4 (it's too late
-now to remove it) but documented as obsolete, and removed in 2.5.
+It would be great if you could track the ongoing progress - you could go
+so far as to automatically download the latest patch and rerun the
+tests.  (We have a script like that here to keep our lxr/cvs tree
+current.)  And yes, it gets more important to consider some of the other
+usage patterns so we don't end up with self-fullfilling prophecies.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+For benchmarking it would be really nice to have a way of emptying
+cache, beyond just syncing.  I took a look at that last week and
+unfortunately it's not trivial.  The things that have to be touched are
+optimized for the steady-state running case and tend to take their
+marching orders from global variables and embedded heuristics that you
+don't want to mess with.  Maybe I'm just looking at this problem the
+wrong way because the shortest piece of code I can imagine for doing
+this would be 1-200 lines long and would replicate a lot of the
+functionality of page_launder and flush_dirty_pages, in other words it
+would be a pain to maintain.
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSKZIiW>; Tue, 26 Nov 2002 03:38:22 -0500
+	id <S265587AbSKZIv0>; Tue, 26 Nov 2002 03:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSKZIiW>; Tue, 26 Nov 2002 03:38:22 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:24034 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S263256AbSKZIiW>; Tue, 26 Nov 2002 03:38:22 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: john slee <indigoid@higherplane.net>, Dennis Grant <trog@wincom.net>
-Subject: Re: A Kernel Configuration Tale of Woe
-Date: Tue, 26 Nov 2002 19:35:03 +1100
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org
-References: <3de26215.842.0@wincom.net> <20021126082059.GB7915@higherplane.net>
-In-Reply-To: <20021126082059.GB7915@higherplane.net>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S266295AbSKZIv0>; Tue, 26 Nov 2002 03:51:26 -0500
+Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:61454 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id <S265587AbSKZIvY>; Tue, 26 Nov 2002 03:51:24 -0500
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Tue, 26 Nov 2002 03:58:40 -0500
+To: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM][SOUND][2.5] - ALSA & OSS cannot find SBAWE32 Card
+Message-ID: <20021126085840.GA1033@zion.rivenstone.net>
+Mail-Followup-To: Shawn Starr <spstarr@sh0n.net>,
+	linux-kernel@vger.kernel.org
+References: <200211260258.05564.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
 Content-Disposition: inline
-Message-Id: <200211261935.03674.bhards@bigpond.net.au>
+In-Reply-To: <200211260258.05564.spstarr@sh0n.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Tue, 26 Nov 2002 19:21, john slee wrote:
-> On Mon, Nov 25, 2002 at 12:33:18PM -0500, Dennis Grant wrote:
-> [ snip long bits ]
->
-> a while back giacomo catenazzi (probably spelled wrong) hacked up some
-> goodies to autodetect what hardware driver options are appropriate for
-> your system, based on contents of various bits of /proc.  i haven't
-> heard anything about it in quite some time but it sure seems like this
-> would be the most appropriate tool for cases like yours.
-Giacomo Catenazzi is the author.
-It copped some of the CML2 fallout. See
-http://sourceforge.net/projects/kautoconfigure/
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Brad
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+On Tue, Nov 26, 2002 at 02:58:05AM -0500, Shawn Starr wrote:
+
+> ALSA device list:
+>    No soundcards found.
+>=20
+> dmesg 2.4.20-pre7 - OSS: - WORKS
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+
+    Me too!
+
+    In 2.5.47 mainline and 2.5.49-ac1 the ALSA drivers (either sb16 or
+sbawe) load but don't detect devices if PNP support is built in.  The
+same card (an awe64) works fine under 2.4.19.
+
+    Without PNP sb16 works (with only sb16 features) but sbawe will
+not load, complaining that it can't find the awe bits.
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE94zI3W6pHgIdAuOMRAjoLAJ49zdTawEedPe++1LZG4d4lZv0agwCfQ3dt
-mJW1+YduC+7TFcqmH2VF8EQ=
-=U4VP
+iD8DBQE94ze/Wv4KsgKfSVgRAsnEAJ45sZoBIIbjmD9QfcQO00mVZKPzWwCfXjHU
+kkR4761udQIyl9e1Jv0pMew=
+=ir5a
 -----END PGP SIGNATURE-----
 
+--u3/rZRmxL6MmkK24--

@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQLKUDP>; Mon, 11 Dec 2000 15:03:15 -0500
+	id <S129716AbQLKUGg>; Mon, 11 Dec 2000 15:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130251AbQLKUDF>; Mon, 11 Dec 2000 15:03:05 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:28214
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129387AbQLKUCv>; Mon, 11 Dec 2000 15:02:51 -0500
-Date: Mon, 11 Dec 2000 21:32:08 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Pavel Machek <pavel@suse.cz>, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove warning from drivers/net/hp100.c (240-test12-pre7)
-Message-ID: <20001211213208.B600@jaquet.dk>
-In-Reply-To: <20001208211908.D599@jaquet.dk> <20001209101924.A126@bug.ucw.cz> <20001209163740.U6567@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20001209163740.U6567@cadcamlab.org>; from peter@cadcamlab.org on Sat, Dec 09, 2000 at 04:37:40PM -0600
+	id <S130095AbQLKUG0>; Mon, 11 Dec 2000 15:06:26 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:64273 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129716AbQLKUGI>;
+	Mon, 11 Dec 2000 15:06:08 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200012111935.WAA11862@ms2.inr.ac.ru>
+Subject: Re: Bad behavior of recv on already closed sockets.
+To: dyp@perchine.COM (Denis Perchine)
+Date: Mon, 11 Dec 2000 22:35:21 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0012111103060F.18833@dyp.perchine.com> from "Denis Perchine" at Dec 11, 0 08:15:00 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 04:37:40PM -0600, Peter Samuelson wrote:
+Hello!
+
+> Looks like it tries to read on socket which is already closed from other
+> side. And it seems like recv did not return in this case. Is this OK, or
+> kernel bug?
+
+This smells like an unknown bug in kernel.
+
+It is unknown, hence there is no workaround (but upgrading to 2.4).
+
+It would be better to understand the issue f.e. trying to restore
+the history of this descriptor.
+
+
+> On the other side I see entries like this:
+> httpd      4260          root    4u  IPv4 12173018       TCP
+> 127.0.0.1:3994->127.0.0.1:5432 (CLOSE_WAIT)
 > 
-> [Pavel Machek]
-> > I'd say that warning is more acceptable than #ifdef... In cases where
-> > warnings can be eliminating without ifdefs, that's okay, but this...
-> 
-> In this case it is dead weight in the object file -- and for machines
-> that can least afford it (CONFIG_PCI=n is mostly for the low end,
-> right?).
+> And again. There is no any corresponding postmaster process. Does anyone has
+> such expirience before? And what can be the reason of such strange things.
 
-How about this patch? It moves the offending struct to the __init function
-where it is used and inside an existing #ifdef CONFIG_PCI. This would be
-up to the maintainer but since this is the only place the struct is used
-I think it is acceptable to move it from the top of the file.
+And this is bug in the application, which forgot to close file.
+Descriptor leakage in httpd or it is blocked at some another job.
 
-Comments?
+But remembering about the first case, I am not so sure.
+What does httpd make this time?
 
-
---- linux-240-t12-pre8-clean/drivers/net/hp100.c	Sat Nov  4 23:27:07 2000
-+++ linux/drivers/net/hp100.c	Mon Dec 11 21:23:12 2000
-@@ -265,13 +265,6 @@
- 
- #define HP100_EISA_IDS_SIZE	(sizeof(hp100_eisa_ids)/sizeof(struct hp100_eisa_id))
- 
--static struct hp100_pci_id hp100_pci_ids[] = {
--  { PCI_VENDOR_ID_HP, 		PCI_DEVICE_ID_HP_J2585A },
--  { PCI_VENDOR_ID_HP,		PCI_DEVICE_ID_HP_J2585B },
--  { PCI_VENDOR_ID_COMPEX,	PCI_DEVICE_ID_COMPEX_ENET100VG4 },
--  { PCI_VENDOR_ID_COMPEX2,	PCI_DEVICE_ID_COMPEX2_100VG }
--};
--
- #define HP100_PCI_IDS_SIZE	(sizeof(hp100_pci_ids)/sizeof(struct hp100_pci_id))
- 
- static int hp100_rx_ratio = HP100_DEFAULT_RX_RATIO;
-@@ -335,6 +328,13 @@
-   int ioaddr = 0;
- #ifdef CONFIG_PCI
-   int pci_start_index = 0;
-+
-+  static struct hp100_pci_id hp100_pci_ids[] = {
-+	  { PCI_VENDOR_ID_HP, 		PCI_DEVICE_ID_HP_J2585A },
-+	  { PCI_VENDOR_ID_HP,		PCI_DEVICE_ID_HP_J2585B },
-+	  { PCI_VENDOR_ID_COMPEX,	PCI_DEVICE_ID_COMPEX_ENET100VG4 },
-+	  { PCI_VENDOR_ID_COMPEX2,	PCI_DEVICE_ID_COMPEX2_100VG }
-+  };
- #endif
- 
- #ifdef HP100_DEBUG_B
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-It's a recession when your neighbour loses his job; it's a depression 
-when you lose yours. -- Harry S. Truman 
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

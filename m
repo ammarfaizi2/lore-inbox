@@ -1,104 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbUCXOne (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 09:43:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbUCXOnd
+	id S263733AbUCXOrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 09:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUCXOrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 09:43:33 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:16337 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263727AbUCXOna
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 09:43:30 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Kgdb-bugreport] Document hooks in kgdb
-Date: Wed, 24 Mar 2004 20:11:26 +0530
-User-Agent: KMail/1.5
-References: <20040319162009.GE4569@smtp.west.cox.net>
-In-Reply-To: <20040319162009.GE4569@smtp.west.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Mar 2004 09:47:09 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64142
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263733AbUCXOrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 09:47:06 -0500
+Date: Wed, 24 Mar 2004 15:47:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: nonlinear swapping w/o pte_chains [Re: VMA_MERGING_FIXUP and patch]
+Message-ID: <20040324144758.GE2065@dualathlon.random>
+References: <Pine.LNX.4.44.0403240931430.7474-100000@localhost.localdomain> <Pine.LNX.4.44.0403241214220.7669-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403242011.26314.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+In-Reply-To: <Pine.LNX.4.44.0403241214220.7669-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's a good idea. Go ahead.
--Amit
-On Friday 19 Mar 2004 9:50 pm, Tom Rini wrote:
-> Hi.  The following is my first attempt at documenting the hooks found in
-> the KGDB found on kgdb.sf.net.  I'm not quite sure about the description
-> of some of the optional hooks (used under hw breakpoints) so corrections
-> / suggestions welcome.  After I got done with it, it hit me that maybe I
-> should have done this in the code, and in DocBook format, so I'll go and
-> do that next...
->
-> <-- snip -->
-> This is an attempt to document the various architecture specific functions
-> that are part of KGDB.  There are a number of optional functions, depending
-> on hardware setps, for which empty defaults are provided.  There are also
-> functions which must be implemented and for which no default is provided.
->
-> The required functions are:
-> int kgdb_arch_handle_exception(int vector, int signo, int err_code,
-> 		char *InBuffer, char *outBuffer, struct pt_regs *regs)
-> 	This function MUST handle the 'c' and 's' command packets,
-> 	as well packets to set / remove a hardware breakpoint, if used.
->
-> void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-> 	Convert the ptrace regs in regs into what GDB expects to
-> 	see for registers, in gdb_regs.
->
-> void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct
-> task_struct *p) Like regs_to_gdb_regs, except that the process in p is
-> sleeping,
-> 	so we cannot get as much information.
->
-> void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-> 	Convert the GDB regs in gdb_regs into the ptrace regs pointed
-> 	to in regs.
->
-> The optional functions are:
-> int kgdb_arch_init(void) :
-> 	This function will handle the initalization of any architecture
-> 	specific hooks.  If there is a suitable early output driver,
-> 	kgdb_serial can be pointed at it now.
->
-> void kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
-> 	Write into buffer and information about the exception that has
-> 	occured that can be gleaned from exceptionNo and errorcode.
->
-> void kgdb_disable_hw_debug(struct pt_regs *regs)
-> 	Disable hardware debugging while we are in kgdb.
->
-> void kgdb_correct_hw_break(void)
-> 	A hook to allow for changes to the hardware breakpoint, called
-> 	after a single step (s) or continue (c) packet, and once we're about
-> 	to let the kernel continue running.
->
-> void kgdb_post_master_code(struct pt_regs *regs, int eVector, int err_code)
-> 	Store the raw vector and error, for later retreival.
->
-> void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
-> struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int
-> threadid) struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int
-> threadid) If we have a shadow thread (determined by setting
-> 	kgdb_ops->shadowth = 1), these functions are required to return
-> 	information about this thread.
+On Wed, Mar 24, 2004 at 12:18:12PM +0000, Hugh Dickins wrote:
+> This subtlety in try_to_unmap_nonlinear_pte:
+> 
+> 	page_map_lock(page);
+> 	/* check that we're not in between set_pte and page_add_rmap */
+> 	if (page_mapped(page)) {
+> 		unmap_pte_page(page, vma, address + offset, ptep);
+> 
+> Harmless, but isn't our acquisition of the page_table_lock guaranteeing
+> that it cannot be in between set_pte and page_add_rmap?
 
-An addition: shadow threads are needed to provide information not retrievable 
-by gdb. e.g. Backtraces beyond interrupt entrypoints, that aren't retrievable 
-in absence of debugging info for interrupt entrypoint code.
-
-Rest is fine.
--Amit
-
+I find that fragile, see the way I implemented do_anonymous_page, other
+places always do page_add_rmap under the page_table_lock, but there's no
+reason to require that, the swapout code already checks explicitly for
+page_mapped after taking the page_map_lock, it has to do that anyways,
+so I find it nicer to do it like the above and in do_anonymous_page.

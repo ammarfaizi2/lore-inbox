@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263832AbUCZAIu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbUCZAH6
+	id S263813AbUCZAIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbUCZAIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:07:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:32431 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263832AbUCYX6M (ORCPT
+	Thu, 25 Mar 2004 19:08:16 -0500
+Received: from waste.org ([209.173.204.2]:7066 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263813AbUCYX7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:58:12 -0500
-Date: Thu, 25 Mar 2004 15:57:40 -0800
-From: Greg KH <greg@kroah.com>
-To: James Lamanna <jamesl@appliedminds.com>
+	Thu, 25 Mar 2004 18:59:08 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Figuring out USB device locations
-Message-ID: <20040325235740.GA30964@kroah.com>
-References: <406314EF.7040304@appliedminds.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <406314EF.7040304@appliedminds.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <22.524465763@selenic.com>
+Message-Id: <23.524465763@selenic.com>
+Subject: [PATCH 22/22] /dev/random: update credits
+Date: Thu, 25 Mar 2004 17:57:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 09:20:47AM -0800, James Lamanna wrote:
-> Is there an easy way to find out what /dev entries usb devices get 
-> mapped to from userspace?
 
-"easy way" on 2.4?  No, sorry.  You need 2.6 to determine this in a
-simple manner.  But there are some files in the /proc/bus/usb/
-and /proc/bus/input/ directories that will help you out.
+/dev/random  update credits
 
-Good luck,
+Update dates, add contact info
 
-greg k-h
+
+ tiny-mpm/drivers/char/random.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN drivers/char/random.c~random-credit drivers/char/random.c
+--- tiny/drivers/char/random.c~random-credit	2004-03-20 13:38:53.000000000 -0600
++++ tiny-mpm/drivers/char/random.c	2004-03-20 13:38:53.000000000 -0600
+@@ -1,8 +1,8 @@
+ /*
+  * random.c -- A strong random number generator
+  *
+- * Version 1.89, last modified 19-Sep-99
+- * 
++ * Version 1.99  Matt Mackall <mpm@selenic.com> Oct 2003
++ *
+  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
+  * rights reserved.
+  *
+
+_

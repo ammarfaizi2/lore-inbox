@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275353AbSITXkH>; Fri, 20 Sep 2002 19:40:07 -0400
+	id <S275341AbSITXj5>; Fri, 20 Sep 2002 19:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275357AbSITXkH>; Fri, 20 Sep 2002 19:40:07 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:5762 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S275353AbSITXkG>; Fri, 20 Sep 2002 19:40:06 -0400
-Date: Fri, 20 Sep 2002 16:45:09 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020920234509.GA2810@gnuppy.monkey.org>
-References: <20020920120606.GA4961@gnuppy.monkey.org> <Pine.LNX.4.44.0209201658240.5862-100000@localhost.localdomain> <20020920215029.GB1527@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020920215029.GB1527@gnuppy.monkey.org>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id <S275353AbSITXj5>; Fri, 20 Sep 2002 19:39:57 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13699 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S275341AbSITXj4>;
+	Fri, 20 Sep 2002 19:39:56 -0400
+Date: Fri, 20 Sep 2002 16:46:30 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Brad Hards <bhards@bigpond.net.au>
+cc: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+In-Reply-To: <200209210922.41887.bhards@bigpond.net.au>
+Message-ID: <Pine.LNX.4.44.0209201635290.6409-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 02:50:29PM -0700, Bill Huey wrote:
-> > how frequently does the GC thread run?
+
+On Sat, 21 Sep 2002, Brad Hards wrote:
+
+> On Sat, 21 Sep 2002 06:42, David Brownell wrote:
+> > >>I wasn't joking about putting back the /proc/bus/usb/drivers file. This
+> > >> is really going to hurt us in 2.6.
+> >
+> > Considering that the main use of that file that I know about was
+> > implicit (usbfs is available if its files are present, another
+> > assumption broken in 2.5), I'm not sure I feel any pain... :-)
+> OK. Everytime someone goes "I've got usbfs loaded, and here is
+> /proc/bus/usb/devices, but can't send you /proc/bus/usb/drivers", I'll assume
+> that you two will answer the question.
 > 
-> Don't remember off hand, but it's like to be several times a second which is
-> often enough to be a problem especially on large systems with high load.
-> 
-> The JVM with incremental GC is being targetted for media oriented tasks
-> using the new NIO, 3d library, etc... slowness in safepoints would cripple it
-> for these tasks. It's a critical item and not easily address by the current
-> 1:1 model.
+> Helping people is hard. Please don't make it harder. :-(
 
-Also throwing a signal to get the ucontext is pretty a expensive way of getting
-it. But you folks know this already. Solaris threading has this via a some special
-libraries. For large number of actively running threads, say, executing in a middle
-of a method block it is potentially a huge problem for scalability.
+We definitely don't want to make it harder, for users or developers. We're 
+actually trying to make it easier for both, even though it may not be 
+apparent right now. 
 
-Again, it's a critical issue from what I see of this.
+Converting code to the driver model means we get to consolidate a lot of 
+similar yet disparate interfaces and code, which most people seem to 
+favor. 
 
-bill
+As far as userspace goes, there are tools being developed to extract 
+data from driverfs, to give users easy access to device and driver 
+attributes; the stuff that was encoded in various proc files. With these 
+tools, $user should be able to extract $data for $developer WRT $object. 
+
+And, they should work identically for any instance of an object type 
+that's encoded in driverfs: all devices or all bus types or all class 
+types, etc, will behave identicaly and give similar data. 
+
+For example, to extract the data you mention above, it would be something 
+like: 
+
+	$ lsbus usb devices > usb.info
+	$ lsbus usb drivers >> usb.info
+
+No, they're not done, and so I'm all talk about at this point. But, this 
+has been the plan all along..
+
+	-pat
 

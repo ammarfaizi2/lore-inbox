@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTKTXaR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbTKTXaR
+	id S263953AbTKTXcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 18:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKTXcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:30:17 -0500
-Received: from the-penguin.otak.com ([65.37.126.18]:3200 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id S263891AbTKTXaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:30:12 -0500
-Date: Thu, 20 Nov 2003 15:30:06 -0800
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Opps on boot 2.6.0-pre9-mm4
-Message-ID: <20031120233006.GA1331@the-penguin.otak.com>
-References: <20031120193318.GA5578@the-penguin.otak.com> <20031120131945.3cd35911.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031120131945.3cd35911.akpm@osdl.org>
-X-Operating-System: Linux 2.6.0-test9-mm4 on an i686
-User-Agent: Mutt/1.5.4i
+	Thu, 20 Nov 2003 18:32:41 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1038 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263953AbTKTXci
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 18:32:38 -0500
+Date: Thu, 20 Nov 2003 18:21:47 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HT enable on BIOS which doesn't supports it?
+In-Reply-To: <200311181645.02744.cijoml@volny.cz>
+Message-ID: <Pine.LNX.3.96.1031120181555.11021E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like it died inside the machine's BIOS.
-> 
-> Please try reverting the three pnp patches:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-3.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-2.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-1.patch
-> 
-> and let us know?
-> 
-I reverted these and it works great!
+On Tue, 18 Nov 2003, Michal Semler (volny.cz) wrote:
 
+> Hi, in my laptop Acer TravelMate242 I have HT enabled CPU,
+> 
+> but when I try start up with SMP or LocalAPIC kernel enabled, kernel freezes 
+> during boot time.
+> 
+> Is there any possibility to run HT enabled CPU on my laptop without BIOS 
+> support?
 
+You have HT, but only one sibling. You have the ability to share resources
+and no other sibling with whom to share them.
 
-> - Upgrade the bios
-The bios is the latest so updating it would not of been a option.
-
+Think of it as a bicycle built for two with only one rider. You can pedal
+from either seat but it won't go any faster.
 
 -- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://www.otak-k.com/~lawrence/
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

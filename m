@@ -1,107 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292952AbSCMKMr>; Wed, 13 Mar 2002 05:12:47 -0500
+	id <S292975AbSCMK5A>; Wed, 13 Mar 2002 05:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292957AbSCMKMb>; Wed, 13 Mar 2002 05:12:31 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:60945 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S292952AbSCMKMM>;
-	Wed, 13 Mar 2002 05:12:12 -0500
-Date: Wed, 13 Mar 2002 19:52:17 +1100
-From: Anton Blanchard <anton@samba.org>
-To: lse-tech@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: 10.31 second kernel compile
-Message-ID: <20020313085217.GA11658@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S292979AbSCMK4w>; Wed, 13 Mar 2002 05:56:52 -0500
+Received: from ev6.be.wanadoo.com ([195.74.212.41]:55825 "EHLO
+	ev6.be.wanadoo.com") by vger.kernel.org with ESMTP
+	id <S292975AbSCMK4n>; Wed, 13 Mar 2002 05:56:43 -0500
+Date: Wed, 13 Mar 2002 11:56:34 +0100 (CET)
+From: Francois Baligant <francois@ops.be.wanadoo.com>
+X-X-Sender: francois@speedy.noc.euronet.be
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] In 2.4.17 __free_pages_ok
+Message-ID: <Pine.LNX.4.44.0203131155560.13183-100000@speedy.noc.euronet.be>
+X-NCC-RegID: be.euronet
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Let the kernel compile benchmarks continue!
+Hi,
 
-hardware: 24 way logical partition, 1.1GHz POWER4, 60G RAM
+This is 2.4.17-0.18 from RedHat Rawhide on a very busy UP Intel Web server.
 
-kernel: 2.5.6 + ppc64 pagetable rework
+I have done quite a bit of search and found a thread about something
+that look similar here:
 
-kernel compiled: 2.4.18 x86 with Martin's config
+From: Hugh Dickins (hugh@veritas.com)
+Subject: Re: [PATCH] __free_pages_ok oops
+Newsgroups: linux.kernel
 
-compiler: gcc 2.95.3 x86 cross compiler
+Date: 2002-02-07 12:30:11 PST
+http://groups.google.com/groups?q=g:thl114668156d&hl=en&newwindow=1&selm=Pin
+e.LNX.4.21.0202071930320.1533-100000%40localhost.localdomain&rnum=33
+
+I checked in 2.4.18 and 2.4.19pre3, this particular patch didn't make it in.
+
+My question is:
+
+- Am I hit by the same bug ? If yes, Can I go with that particular patch ?
+
+kernel BUG at page_alloc.c:131!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012f92a>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000020   ebx: c152fcf8   ecx: 00000001   edx: 00002183
+esi: 00000000   edi: c1000030   ebp: 00000000   esp: c7f8fde8
+ds: 0018   es: 0018   ss: 0018
+Process httpd (pid: 22189, stackpage=c7f8f000)
+Stack: c02987bb 00000083 c11545c0 c11545f8 c1038030 c02c3408 c1528d30
+c013445d
+       d6149890 00100000 c9f4d4f4 0000f000 17b5f005 c0122e8f c152fcf8
+00000010
+       00000000 4022e000 d48b5400 4012e000 00000000 4022e000 d48b5400
+00000000
+Call Trace: [<c013445d>] page_remove_rmap [kernel] 0x5d
+[<c0122e8f>] do_zap_page_range [kernel] 0x18f
+[<c012feac>] __alloc_pages_limit [kernel] 0x7c
+[<c0123370>] zap_page_range [kernel] 0x50
+[<c0125a9d>] exit_mmap [kernel] 0xbd
+[<c0114796>] mmput [kernel] 0x26
+[<c01189a3>] do_exit [kernel] 0xb3
+[<c011dcb3>] collect_signal [kernel] 0x93
+[<c011dd6d>] dequeue_signal [kernel] 0x6d
+[<c0106da4>] do_signal [kernel] 0x234
+[<c0106275>] restore_sigcontext [kernel] 0x115
+[<c0106359>] sys_sigreturn [kernel] 0xb9
+[<c0106f2c>] signal_return [kernel] 0x14
+Code: 0f 0b 5f 5d 0f b6 43 25 89 f1 c6 43 24 05 89 dd 83 63 18 eb
+
+>>EIP; c012f92a <__free_pages_ok+11a/310>   <=====
+Trace; c013445d <page_remove_rmap+5d/70>
+Trace; c0122e8f <do_zap_page_range+18f/250>
+Trace; c012feac <__alloc_pages_limit+7c/b0>
+Trace; c0123370 <zap_page_range+50/80>
+Trace; c0125a9d <exit_mmap+bd/130>
+Trace; c0114796 <mmput+26/50>
+Trace; c01189a3 <do_exit+b3/1f0>
+Trace; c011dcb3 <collect_signal+93/e0>
+Trace; c011dd6d <dequeue_signal+6d/b0>
+Trace; c0106da4 <do_signal+234/2a0>
+Trace; c0106275 <restore_sigcontext+115/140>
+Trace; c0106359 <sys_sigreturn+b9/f0>
+Trace; c0106f2c <signal_return+14/18>
+Code;  c012f92a <__free_pages_ok+11a/310>
+00000000 <_EIP>:
+Code;  c012f92a <__free_pages_ok+11a/310>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012f92c <__free_pages_ok+11c/310>
+   2:   5f                        pop    %edi
+Code;  c012f92d <__free_pages_ok+11d/310>
+   3:   5d                        pop    %ebp
+Code;  c012f92e <__free_pages_ok+11e/310>
+   4:   0f b6 43 25               movzbl 0x25(%ebx),%eax
+Code;  c012f932 <__free_pages_ok+122/310>
+   8:   89 f1                     mov    %esi,%ecx
+Code;  c012f934 <__free_pages_ok+124/310>
+   a:   c6 43 24 05               movb   $0x5,0x24(%ebx)
+Code;  c012f938 <__free_pages_ok+128/310>
+   e:   89 dd                     mov    %ebx,%ebp
+Code;  c012f93a <__free_pages_ok+12a/310>
+  10:   83 63 18 eb               andl   $0xffffffeb,0x18(%ebx)
+
+regards,
+Francois
 
 
-# MAKE="make -j14" /usr/bin/time make -j14 bzImage
-...
-make[1]: Leaving directory `/home/anton/intel_kernel/linux/arch/i386/boot'
-130.63user 71.31system 0:10.31elapsed 1957%CPU (0avgtext+0avgdata 0maxresident)k
-
-
-Due to the final link and compress stage, there is a fair amount of idle
-time at the end of the run. Its going to be hard to push that number
-lower by adding cpus.
-
-The profile results below show that kernel time is dominated by the low
-level ppc64 pagetable management. We are working to correct this, a lot
-of the overhead in __hash_page should be gone soon. The rest of the
-profile looks pretty good, do_anonymous_page and lru_cache_add show
-up high as they did in Martin's results.
-
-Thanks to Milton Miller who helped with the benchmarking, and the ppc64
-team!
-
-Anton
---
-anton@samba.org
-anton@au.ibm.com
-
-201150 total                                      0.0668
-129051 .idled                                  
-
- 43586 .__hash_page                            ppc64 specific
-  6714 .local_flush_tlb_range                  ppc64 specific
-  2773 .local_flush_tlb_page                   ppc64 specific
-
-  2203 .do_anonymous_page                      
-  2059 .lru_cache_add                          
-  1379 .__copy_tofrom_user                     
-
-  1220 .hpte_create_valid_pSeriesLP            ppc64 LPAR specific
-
-  1039 .save_remaining_regs                    
-   871 .do_page_fault                          
-
-   575 .plpar_hcall                            ppc64 LPAR specific
-
-   554 .d_lookup                               
-   545 .rmqueue                                
-   482 .copy_page                              
-   475 .__strnlen_user                         
-   391 .__free_pages_ok                        
-   389 .zap_page_range                         
-   366 .atomic_dec_and_lock                    
-   296 .__find_get_page                        
-   287 .set_page_dirty                         
-   278 .page_cache_release                     
-   218 .handle_mm_fault                        
-   199 .__flush_dcache_icache                  
-   175 .schedule                               
-   173 .sys_brk                                
-   163 .exit_notify                            
-   156 .do_no_page                             
-   152 .lru_cache_del                          
-   147 .__wake_up                              
-   146 .copy_page_range                        
-   139 .ppc_irq_dispatch_handler               
-   135 .find_vma                               
-   131 .__lru_cache_del                        
-   128 .fget                                   
-   126 .link_path_walk                         
-   115 .do_generic_file_read                   
-   113 .pte_alloc_map                          
-   113 .filemap_nopage                         
-   109 .clear_user_page                        
-   106 .fput                                   
-   104 .__alloc_pages                          
-   101 .nr_free_pages                          
 

@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272216AbUKAWo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S378709AbUKAWqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272216AbUKAWo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 17:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S378317AbUKAWoW
+	id S378709AbUKAWqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 17:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S378441AbUKAWp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:44:22 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:53398 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S272216AbUKAUvo
+	Mon, 1 Nov 2004 17:45:27 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:34462 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266063AbUKAU4M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 15:51:44 -0500
-Date: Mon, 1 Nov 2004 12:51:43 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Marc Bevand <bevand_m@epita.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [rc4-amd64] RC4 optimized for AMD64
-In-Reply-To: <Pine.LNX.4.61.0411011233203.8483@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.61.0411011249550.25856@twinlark.arctic.org>
-References: <cm4moc$c7t$1@sea.gmane.org> <Pine.LNX.4.61.0411011233203.8483@twinlark.arctic.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Nov 2004 15:56:12 -0500
+Subject: [patch] inotify: change default number of queued events
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1099330316.12182.2.camel@vertex>
+References: <1099330316.12182.2.camel@vertex>
+Content-Type: text/plain
+Date: Mon, 01 Nov 2004 15:53:52 -0500
+Message-Id: <1099342432.31022.54.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hola, John.
+
+The default of 16384 maximum queued events is way too high.  That is a
+lot of physical memory that the user can pin.
+
+Attached patch takes it to 512.
+
+	Robert Love
 
 
-On Mon, 1 Nov 2004, dean gaudet wrote:
+change the default number of queued events down from 16384 to 512
 
-> On Mon, 1 Nov 2004, Marc Bevand wrote:
-> 
-> > I have just published a small paper about optimizing RC4 for
-> > AMD64 (x86-64). A working implementation is also provided:
-> > 
-> >   http://epita.fr/~bevand_m/papers/rc4-amd64.html
-> > 
-> > Kernel people may be interested given the fact that Linux
-> > already implements RC4.
-> 
-> you've made a non-portable flags assumption:
-> 
-> >       dec     %r11b
-> >       ror     $8,             %r8             # (ror does not change ZF)
-> >       jnz 1b
-> 
-> the contents of ZF are undefined after a rotation... most importantly 
-> they differ between p4 (ZF is set according to result) and k8 (ZF 
-> unchanged).
+Signed-Off-By: Robert Love <rml@novell.com>
 
-ack... it's too early on a monday morning -- i misread the documentation.  
-this ZF assumption is actually defined and portable... still kind of ugly.  
-how much benefit do you see?
+ drivers/char/inotify.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
--dean
+diff -urN linux-2.6.10-rc1-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-2.6.10-rc1-inotify/drivers/char/inotify.c	2004-11-01 15:50:36.163496688 -0500
++++ linux/drivers/char/inotify.c	2004-11-01 15:48:15.380898896 -0500
+@@ -921,7 +921,7 @@
+ 	if (ret)
+ 		return ret;
+ 
+-	sysfs_attrib_max_queued_events = 16384;
++	sysfs_attrib_max_queued_events = 512;
+ 
+ 	for (i = 0;inotify_device_attrs[i];i++)
+ 		device_create_file(inotify_device.dev, inotify_device_attrs[i]);
+
+

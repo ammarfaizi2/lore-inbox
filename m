@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271690AbRICNFS>; Mon, 3 Sep 2001 09:05:18 -0400
+	id <S271686AbRICNDh>; Mon, 3 Sep 2001 09:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271692AbRICNFI>; Mon, 3 Sep 2001 09:05:08 -0400
-Received: from mx2out.umbc.edu ([130.85.253.52]:58517 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S271690AbRICNEz>;
-	Mon, 3 Sep 2001 09:04:55 -0400
-Date: Mon, 3 Sep 2001 09:04:49 -0400
-From: "Lego Andy" <me@andy.cx>
-To: zheng baojian <bjzheng@ict.ac.cn>
-Cc: linux-kernel@vger.kernel.org, linux-mips@oss.sgi.com
-Subject: Re: start linux kernel in linux
-Message-Id: <20010903090449.54845a5c.me@andy.cx>
-In-Reply-To: <01090221320401.01071@bj>
-In-Reply-To: <01090221320401.01071@bj>
-Organization: X0
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S271690AbRICND1>; Mon, 3 Sep 2001 09:03:27 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:50953 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S271686AbRICNDQ>;
+	Mon, 3 Sep 2001 09:03:16 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15251.29253.68409.428884@tango.paulus.ozlabs.org>
+Date: Mon, 3 Sep 2001 22:06:29 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix include/linux/mc146818rtc.h
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the day of the Lord Sun, 2 Sep 2001 21:32:04 -0400 
-zheng baojian <bjzheng@ict.ac.cn> mentioned:
+include/linux/mc146818rtc.h declares a spinlock but doesn't include
+<linux/spinlock.h>.  This patch fixes that.
 
-> Hello:
-> 	Who try to do that:start another linux kernel in a running linux.
+Paul.
 
-There is a user space linux project somewhere...
-
-http://user-mode-linux.sourceforge.net/
-
-			Andy
-
---
- /\  |  | |~\  \  /      ------------------------------------------------
-/  \ |\ | |  |  \/      / e-mail: andy@x0.org  )\._.,--....,'``.
-|--| | \| |  |  /      /  ICQ: 27889915       /,   _.. \   _\  (`._ ,.
-|  | |  | |_/  /      /   http://andy.x0.org  `._.-(,_..'--(,_..'`-.;.'
-----------------------                                  
+diff -urN linux/include/linux/mc146818rtc.h linuxppc_2_4/include/linux/mc146818rtc.h
+--- linux/include/linux/mc146818rtc.h	Mon Apr  2 02:21:50 2001
++++ linuxppc_2_4/include/linux/mc146818rtc.h	Thu Aug 16 07:49:52 2001
+@@ -13,6 +13,7 @@
+ 
+ #include <asm/io.h>
+ #include <linux/rtc.h>			/* get the user-level API */
++#include <linux/spinlock.h>		/* spinlock_t */
+ #include <asm/mc146818rtc.h>		/* register access macros */
+ 
+ extern spinlock_t rtc_lock;		/* serialize CMOS RAM access */

@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbUKJTCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbUKJTI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbUKJTCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUKJTCZ
+	id S262099AbUKJTI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUKJTIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:02:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51107 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262031AbUKJTCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:02:21 -0500
-Date: Wed, 10 Nov 2004 11:01:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: hch@infradead.org, torvalds@osdl.org, davidm@snapgear.com,
-       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: [PATCH] VM routine fixes
-Message-Id: <20041110110145.3751ae17.akpm@osdl.org>
-In-Reply-To: <4530.1100093877@redhat.com>
-References: <20041109140122.GA5388@infradead.org>
-	<20041109125539.GA4867@infradead.org>
-	<200411081432.iA8EWfmh023432@warthog.cambridge.redhat.com>
-	<15068.1100008386@redhat.com>
-	<4530.1100093877@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Nov 2004 14:08:25 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:854 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262099AbUKJTIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:08:21 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net,
+       user-mode-linux-user@lists.sourceforge.net,
+       Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: 2.6.9-bb2 released.
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Date: Wed, 10 Nov 2004 20:07:46 +0100
+Content-Type: multipart/signed;
+  boundary="nextPart1356586.hH1RFF5opU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200411102008.02212.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> Compound pages seem to be in some way tied to the TLB entry coverage sizes
->  available (for hugetlb), so it's not obvious that it's permitted to have
->  compound pages not of these sizes, and as I need to allocate arbitrary
->  sizes...
+--nextPart1356586.hH1RFF5opU
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-We've considered enabling compound pages permanently.  We thought sparc64
-might want that, and it simplifies coverage testing.  But the
-conditionality has been left in for now as a microoptimisation.
+You can find all on http://www.user-mode-linux.org/~blaisorblade/.
 
->  If I am correct about this, then the !MMU problem would still exist - just
->  with adjacent sets of compound pages rather than adjacent sets of pages.
+Changes in both 2.6.9-bb2 against 2.6.9-bb1:
+=2D updated most bugs of -bb1 which were reported
+=2D fixed the Gentoo/NPTL issue, thanks to Bodo Stroesser (sorry for forget=
+ting=20
+the credit on the changelog, but I'm leaving for one day in a few minutes):
+but you must still compile Uml disabling CONFIG_MODE_TT (and obviously use =
+the=20
+SKAS patch you find on the same site).
 
-Why _does_ !CONFIG_MMU futz around with page counts in such weird ways
-anyway?  Why does it have requirements for higher-order pages which differ
-from !CONFIG_MMU?
+More info on the website "Changelog" page.
 
-If someone could explain the reasoning behind the current code, and the FRV
-enhancements then perhaps we could work something out.
+Distribution (like -bb1):
 
->  Compound pages might be nice, but they're overkill.
+* the patch are also in split-out form, both web-browsable and tarballed.
+* md5sums are available (to test with "md5sum -c *.md5").
 
-I don't expect they have significant performance overhead, because they'll
-only add cycles for higher-order pages.  They're rare, and are already
-rather inefficient.
+Any testing and report is welcome.
+
+Hope It Rocks!
+=2D-=20
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+
+--nextPart1356586.hH1RFF5opU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBkmcRqH9OHC+5NscRAhlgAJ9udAuPfVO+R1Kf90epy7CBlEqqGQCgjqty
+RF9jeeKvVYk8yJ3MhwcgsC4=
+=q6sS
+-----END PGP SIGNATURE-----
+
+--nextPart1356586.hH1RFF5opU--

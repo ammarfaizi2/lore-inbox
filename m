@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSIYOx0>; Wed, 25 Sep 2002 10:53:26 -0400
+	id <S261996AbSIYPER>; Wed, 25 Sep 2002 11:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261991AbSIYOxZ>; Wed, 25 Sep 2002 10:53:25 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:3089 "EHLO
-	rtr.ca") by vger.kernel.org with ESMTP id <S261847AbSIYOxZ>;
-	Wed, 25 Sep 2002 10:53:25 -0400
-Message-ID: <3D91CF1E.3080606@pobox.com>
-Date: Wed, 25 Sep 2002 10:58:38 -0400
-From: Mark Lord <mlord@pobox.com>
-Organization: Real-Time Remedies Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter <cogwepeter@cogweb.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hdparm -Y hangup
-References: <Pine.LNX.4.44.0209231556350.16402-100000@greenie.frogspace.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261999AbSIYPER>; Wed, 25 Sep 2002 11:04:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27274 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S261996AbSIYPEQ>; Wed, 25 Sep 2002 11:04:16 -0400
+Date: Wed, 25 Sep 2002 16:09:15 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Steve Underwood <steveu@coppice.org>, linux-kernel@vger.kernel.org
+Subject: Re: USB IEEE1284 gadgets and ppdev
+Message-ID: <20020925150915.GM9457@redhat.com>
+References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com> <3D91BF58.8080803@coppice.org> <20020925142757.GL9457@redhat.com> <20020925150129.GC30339@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6s2ZrHmC7gitT33w"
+Content-Disposition: inline
+In-Reply-To: <20020925150129.GC30339@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter wrote:
-> 
-> Clarification: is it the case that hdparm -Y (sleep) will cool the drive 
-> off better than hdparm -y (suspend)?
 
-In theory, -Y is capable of greater power (heat) savings than -y,
-but in practice this will be model-specific and probably
-will pale in comparism to the huge savings from -y alone.
+--6s2ZrHmC7gitT33w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 
-> I read somewhere that -Y only works on unmounted drives. This appears to 
-> be false. Comments?
+On Wed, Sep 25, 2002 at 08:01:29AM -0700, Greg KH wrote:
 
-It should work on the raw drive regardless.
+> I understand that the uss720 driver should register with parport, as
+> it is a USB to parallel port adapter, but the usblp driver should
+> not, as it is just a pass-through to a printer.  Do you see any
+> advantage to having usblp registering with parport?
 
-Cheers
--- 
-Mark Lord
-Real-Time Remedies Inc.
-mlord@pobox.com
+Well, it would mean that ppdev could use it.  I understand that only a
+few functions of a normal parallel port could be implemented (read,
+write, get status).
 
+Alternatively I suppose I could get libieee1284 to grok /dev/usb/lp*.
+Steve---would that solve the problem that you're running into?
+
+Tim.
+*/
+
+--6s2ZrHmC7gitT33w
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9kdGbtO8Ac4jnUq4RAsizAJ98va3psSXG8WYbtNg/TI/QBYyfGwCfSre6
+cinWaEthqfMftrHtbrrWAeQ=
+=Z+Mb
+-----END PGP SIGNATURE-----
+
+--6s2ZrHmC7gitT33w--

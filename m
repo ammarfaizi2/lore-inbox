@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131505AbRCNTch>; Wed, 14 Mar 2001 14:32:37 -0500
+	id <S131502AbRCNTbR>; Wed, 14 Mar 2001 14:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131506AbRCNTc2>; Wed, 14 Mar 2001 14:32:28 -0500
-Received: from mg03.austin.ibm.com ([192.35.232.20]:14807 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S131503AbRCNTcT>; Wed, 14 Mar 2001 14:32:19 -0500
-Message-ID: <3AAFC708.752B2819@austin.ibm.com>
-Date: Wed, 14 Mar 2001 13:31:20 -0600
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>,
-        Linux FS development list <linux-fsdevel@vger.kernel.org>
-Subject: Re: (struct dentry *)->vfsmnt;
-In-Reply-To: <200103141726.f2EHQoj09856@webber.adilger.int>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131503AbRCNTbI>; Wed, 14 Mar 2001 14:31:08 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:57752 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131502AbRCNTa6>;
+	Wed, 14 Mar 2001 14:30:58 -0500
+Date: Wed, 14 Mar 2001 20:29:53 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200103141929.UAA178418.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, rhw@MemAlpha.CX
+Subject: Re: [PATCH] Improved version reporting
+Cc: kaboom@gatech.edu, linux-kernel@vger.kernel.org, seberino@spawar.navy.mil
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AIX stores all of this information in the LVM, not in the filesystem. 
-The filesystem itself has nothing to do with importing and exporting
-volume groups.  Having the information stored as part of LVM's metadata
-allows the utilities to only deal with LVM instead of every individual
-file system.
+    From: Riley Williams <rhw@MemAlpha.CX>
 
-Andreas Dilger wrote:
-> 
-> Al writes:
-> > On Tue, 13 Mar 2001, Andreas Dilger wrote:
-> >
-> > > On AIX, it is possible to import a volume group, and it automatically
-> > > builds /etc/fstab entries from information stored in the fs.  Having the
-> > > "last mounted on" would have the mount point info, and of course LVM
-> > > would hold the device names.
-> >
-> > Wait a minute. What happens if you bring /home from one box to another,
-> > that already has /home? Corrupted /etc/fstab?
+[Yes, I wrote, replying to your mail, just because I happened
+to notice the incorrect or debatable lines in your patch.
+Let me cc the Changes maintainer - maybe Chris Ricker.]
 
-> For the same reason that the UUID and LABEL are stored in the superblock:
-> you want this infomation kept with the filesystem and not anywhere else,
-> otherwise it will quickly get out-of-date.  Wherever you mounted the
-> filesystem last is where it would be mounted if you import the VG on
-> another system.  You can obviously edit /etc/fstab afterwards if it is
-> wrong, and then remount the filesystem(s), and this will store the
-> correct mountpoint into the filesystem for the next vgimport.
+     >> -o  util-linux             2.10o                   # fdformat --version
+     >> +o  util-linux         #   2.10o        # fdformat --version
 
--- 
-David J. Kleikamp
-IBM Linux Technology Center
+     > Looking at fdformat to get the util-linux version is perhaps not
+     > the most reliable way - some people have fdformat from elsewhere.
+     > Using mount --version would be better - I am not aware of any
+     > other mount distribution.
+
+    RedHat distribute mount separately from util-linux and I wouldnae be
+    surprised if others do the same...
+
+I am not aware of any distribution that ships some version of
+util-linux, but replaces its mount part by an older version.
+I think that even in cases where, because of historical reasons, util-linux
+is repackaged in several parts, mount --version gives the right answer.
+
+     >> +In addition, it is wise to ensure that the following packages are
+     >> +at least at the versions suggested below, although these may not
+     >> +be required, depending on the exact configuration of your system:
+     >> +
+     >> +o  Console Tools      #   0.3.3        # loadkeys -V
+     >> +o  Mount              #   2.10e        # mount --version
+
+     > Concerning mount:
+     >
+     > (i) the version mentioned is too old,
+     > (ii) mount is in util-linux.
+
+    Not on RedHat systems.
+
+There is no other source. Some people like to repack but that
+has no influence on versions.
+
+     > Conclusion: the mount line should be deleted entirely.
+     > Concerning Console Tools: maybe kbd-1.05 is uniformly better.
+     > I am not aware of any reason to recommend the use of console-tools.
+
+    Neither am I. The ver_linux script has lines for determining the
+    versions for both Console Tools and Kbd but on EVERY system I've
+    tried, including Slackware, RedHat, Debian, Caldera, and SuSE based
+    ones, the line for determining Kbd versiondoesnae work. I've just
+    included the line that worked, and ignored the Kbd one as I can see no
+    point including something that doesnae work.
+
+You are mistaken, as is proved by the reports that contain a kbd line:
+a grep on linux-kernel for this Februari shows people with
+Kbd 0.96, 0.99 and 1.02.
+
+
+Andries
+

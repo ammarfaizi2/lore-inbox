@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTFFOSi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 10:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFFOSi
+	id S261743AbTFFOQT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 10:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTFFOQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 10:18:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:29866 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261706AbTFFOSh
+	Fri, 6 Jun 2003 10:16:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23968 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261702AbTFFOQS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 10:18:37 -0400
-Subject: Latest test runs by LTC test on 2.5.x
-From: Stephanie Glass <sglass@linuxtestproject.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jun 2003 09:34:19 -0500
-Message-Id: <1054910060.968.10.camel@saglasstest.austin.ibm.com>
+	Fri, 6 Jun 2003 10:16:18 -0400
+Date: Fri, 6 Jun 2003 15:29:51 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [PATCH] ethtool_ops
+Message-ID: <20030606142951.GB28581@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LTC test has updated the 2.5 test runs on both the ltp and osdl site.
- 
-The actual pages are for the LTP site at:
-http://ltp.sourceforge.net/execmatrix.php
-or OSDL site at:
-http://www.osdl.org/projects/26lnxstblztn/results/linstab-web/ltc/execut25_324rev1.html
 
-We were able to run several long runs (over 96 hours) on PPC64 as well
-as on IA32.  Runs were done on 2.5.70 (4), 2.5.69 (3), and 2.4.68 (1). 
-Some recent examples from the matrix are:
+The patch is 40k, so I'm not going to post it inline.
+http://ftp.linux.org.uk/pub/linux/willy/patches/ethtool.diff
 
-2.5.69  Pagepoker/Apache  IBM 7026 B80, 2-way, 3GB RAM default kernel
-config for PPC64 SuSE SLES 8 for PPC64 181 hours  Completed
-successfully. 
+Right now, each network driver which supports the ethtool ioctl has its
+own implementation of everything from decoding which ethtool ioctl it is,
+copying data to and from userspace, marshalling and unmarshalling data
+from ethtool packets, etc.  The current setup makes it impossible to
+use alternative interfaces to get at the same data (eg sysfs) and it's
+not exactly typesafe.
 
-2.5.69  ltp 2 instances  IBM 7026 B80, 2-way, 3GB RAM default kernel
-config for PPC64 SuSE SLES 8 for PPC64 336 hours  Completed successfully
-with no new errors from ltp. 
+This patch introduces ethtool_ops and converts tg3 to use it.
+Drivers don't access userspace on their own under this scheme; they
+just do the requested operation and return the appropriate value(s).
+Compile-tested only; design approved by jgarzik.  Comments welcomed.
 
-Stephanie Glass
-
-
-
- 
-
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

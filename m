@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310602AbSCPUkx>; Sat, 16 Mar 2002 15:40:53 -0500
+	id <S310613AbSCPUky>; Sat, 16 Mar 2002 15:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310613AbSCPUkq>; Sat, 16 Mar 2002 15:40:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24073 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310625AbSCPUjr>; Sat, 16 Mar 2002 15:39:47 -0500
-Date: Sat, 16 Mar 2002 12:38:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: <yodaiken@fsmlabs.com>, Andi Kleen <ak@suse.de>,
-        Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <200203162036.g2GKaL513580@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0203161236160.32013-100000@penguin.transmeta.com>
+	id <S310622AbSCPUks>; Sat, 16 Mar 2002 15:40:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31242 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310602AbSCPUk3>; Sat, 16 Mar 2002 15:40:29 -0500
+Subject: Re: debugging eth driver
+To: pmanolov@lnxw.com (Petko Manolov)
+Date: Sat, 16 Mar 2002 20:56:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C93945A.8040305@lnxw.com> from "Petko Manolov" at Mar 16, 2002 10:52:10 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16mLDs-00078o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 16 Mar 2002, Richard Gooch wrote:
+> > Keep an eye on /proc/net/snmp
 > 
-> These are contiguous physical pages, or just logical (virtual) pages?
+> It isn't very readable format..  Any other way or i have to
+> read the code and see what the messages mean?
 
-Contiguous virtual pages, but discontiguous physical pages.
-
-The advantage being that you only need one set of virtual tags per "wide" 
-entry, and you just fill the whole wide entry directly from the cacheline 
-(ie the TLB entry is not really 32 bits any more, it's a full cacheline).
-
-The _real_ advantage being that it should be totally invisible to 
-software. I think Intel does something like this, but the point is, I 
-don't even have to know, and it still works.
-
-			Linus
-
+Read the SNMP specification - its dumped by standard SNMP MIB entry

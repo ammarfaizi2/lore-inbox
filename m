@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSKNECa>; Wed, 13 Nov 2002 23:02:30 -0500
+	id <S262414AbSKNEAZ>; Wed, 13 Nov 2002 23:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbSKNEC3>; Wed, 13 Nov 2002 23:02:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:62417 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262859AbSKNEC1>;
-	Wed, 13 Nov 2002 23:02:27 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Remove BUG in cpu_up 
-In-reply-to: Your message of "Wed, 13 Nov 2002 22:18:59 CDT."
-             <Pine.LNX.4.44.0211132217580.24523-100000@montezuma.mastecende.com> 
-Date: Thu, 14 Nov 2002 16:08:30 +1100
-Message-Id: <20021114040920.CF9B82C0F7@lists.samba.org>
+	id <S262430AbSKNEAZ>; Wed, 13 Nov 2002 23:00:25 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7115 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262414AbSKNEAX>;
+	Wed, 13 Nov 2002 23:00:23 -0500
+Date: Wed, 13 Nov 2002 20:05:14 -0800 (PST)
+Message-Id: <20021113.200514.09647794.davem@redhat.com>
+To: rddunlap@osdl.org
+Cc: jgarzik@pobox.com, vda@port.imtp.ilyichevsk.odessa.ua,
+       acme@conectiva.com.br, linux-kernel@vger.kernel.org,
+       intrnl_edu@ilyichevsk.odessa.ua
+Subject: Re: dmesg of 2.5.45 boot on NFS client
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L2.0211130827590.31388-100000@dragon.pdx.osdl.net>
+References: <3DD27C0C.70506@pobox.com>
+	<Pine.LNX.4.33L2.0211130827590.31388-100000@dragon.pdx.osdl.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0211132217580.24523-100000@montezuma.mastecende.com> 
-you write:
-> On Thu, 14 Nov 2002, Rusty Russell wrote:
-> 
-> > It is bloody convoluted.  Hmm, the arch needs to wait before returning
-> > "success" on __cpu_up.
-> 
-> What if the processor never comes up? Whats wrong with doing this async?
+   From: "Randy.Dunlap" <rddunlap@osdl.org>
+   Date: Wed, 13 Nov 2002 08:29:13 -0800 (PST)
 
-What's wrong with doing it sync?  Are you in a hurry? 8)
+   On Wed, 13 Nov 2002, Jeff Garzik wrote:
+   
+   | Addressing only this specific issue, and not the larger $thread issue...
+   |
+   | Depends on what driver and version you are using.  It is preferred these
+   | days to force the media using ethtool.
+   
+   That's news to me.  "preferred" by whom?  certainly not by real users ??
+   It should just work.
+   
+ethtool is the preferred way to modify any ethernet device parameter
+whatsoever.  It is the king of net device APIs for such operations.
 
-That's what the return code is *for*...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbUAWRFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266601AbUAWRFH
+	id S266602AbUAWROM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 12:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUAWROM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:05:07 -0500
-Received: from gprs154-79.eurotel.cz ([160.218.154.79]:2432 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262569AbUAWRFB (ORCPT
+	Fri, 23 Jan 2004 12:14:12 -0500
+Received: from tristate.vision.ee ([194.204.30.144]:31179 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S266602AbUAWROJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:05:01 -0500
-Date: Fri, 23 Jan 2004 18:04:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp vs  pgdir
-Message-ID: <20040123170446.GA726@elf.ucw.cz>
-References: <1074833921.975.197.camel@gaston> <20040123073426.GA211@elf.ucw.cz> <1074843781.878.1.camel@gaston> <20040123075451.GB211@elf.ucw.cz> <Pine.LNX.4.50.0401230759180.11276-100000@monsoon.he.net> <1074874219.835.32.camel@gaston> <Pine.LNX.4.50.0401230839420.11276-100000@monsoon.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0401230839420.11276-100000@monsoon.he.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 23 Jan 2004 12:14:09 -0500
+Message-ID: <4011565B.1030304@vision.ee>
+Date: Fri, 23 Jan 2004 19:14:03 +0200
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040111 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Badness in futex_wait 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > Wait... wait... If the whole linear mapping isn't mapped by this flat
-> > pgdir, then we have a problem, since the MMU will have to go down the
-> > kernel pagetables to actually access the pages data when copying them
-> > around... but at this point, we are overriding the boot kernel page
-> > tables with the loader ones, so ...
-> 
-> A new pgdir is allocated on resume that does not overlap with any pages
-> being restored. See relocate_pagedir() in the code..
+Don't now if this is useful or indicates any possible problems at all, 
+but found this in kern.log:
 
-Perhaps this should serve as a warning to people trying to understand
-swsusp.c?
+Jan 20 18:33:30 horizon kernel: Badness in futex_wait at kernel/futex.c:509
+Jan 20 18:33:31 horizon kernel: Call Trace:
+Jan 20 18:33:31 horizon kernel:  [futex_wait+414/416] futex_wait+0x19e/0x1a0
+Jan 20 18:33:31 horizon kernel:  [default_wake_function+0/32] 
+default_wake_function+0x0/0x20
+Jan 20 18:33:31 horizon kernel:  [default_wake_function+0/32] 
+default_wake_function+0x0/0x20
+Jan 20 18:33:31 horizon kernel:  [do_futex+112/128] do_futex+0x70/0x80
+Jan 20 18:33:31 horizon kernel:  [sys_futex+268/304] sys_futex+0x10c/0x130
+Jan 20 18:33:31 horizon kernel:  [sysenter_past_esp+67/101] 
+sysenter_past_esp+0x43/0x65
 
-								Pavel
+2.5 days later machine hanged (but propably due to being nForce2 based).
 
---- tmp/linux/kernel/power/swsusp.c	2004-01-23 17:59:36.000000000 +0100
-+++ linux/kernel/power/swsusp.c	2004-01-23 17:58:58.000000000 +0100
-@@ -107,6 +107,10 @@
-    time of suspend, that must be freed. Second is "pagedir_nosave", 
-    allocated at time of resume, that travels through memory not to
-    collide with anything.
-+
-+   Warning: this is even more evil than it seems. Pagedirs this files
-+   talks about are completely different from page directories used by
-+   MMU hardware.
-  */
- suspend_pagedir_t *pagedir_nosave __nosavedata = NULL;
- static suspend_pagedir_t *pagedir_save;
+Kernel version: 2.6.1-rc1-mm1
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Lenar

@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271000AbUJUWIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270984AbUJUWDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271000AbUJUWIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 18:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbUJUWGk
+	id S270984AbUJUWDy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 18:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271010AbUJUWBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 18:06:40 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:48262 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S271000AbUJUWBN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 18:01:13 -0400
-Message-ID: <41783132.1040705@rtr.ca>
-Date: Thu, 21 Oct 2004 17:59:14 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
+	Thu, 21 Oct 2004 18:01:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47789 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S270984AbUJUWA1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:00:27 -0400
+Date: Thu, 21 Oct 2004 15:00:14 -0700
+Message-Id: <200410212200.i9LM0EWM023663@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE
- CF adaptor
-References: <41780393.3000606@rtr.ca>	 <58cb370e041021121317083a3a@mail.gmail.com> <41781B13.3030803@rtr.ca>	 <58cb370e041021134269c05f17@mail.gmail.com> <4178232B.5000506@rtr.ca> <58cb370e0410211451560cb53a@mail.gmail.com>
-In-Reply-To: <58cb370e0410211451560cb53a@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include all vmas with unbacked pages in ELF core dumps
+In-Reply-To: Linus Torvalds's message of  Thursday, 21 October 2004 13:01:44 -0700 <Pine.LNX.4.58.0410211259400.2145@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+Emacs: well, why *shouldn't* you pay property taxes on your editor?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Not adding new users is sufficient for now.
+> 
+> 
+> On Thu, 21 Oct 2004, Hugh Dickins wrote:
+> > 
+> > 	if (!vma->anon_vma)
+> > 		return 0;
+> 
+> Ok. So the end result ends up pretty simple:
+> 
+> 	static int maydump(struct vm_area_struct *vma)
+> 	{
+> 	        /* Do not dump I/O mapped devices, shared memory, or special mappings */        
+> 	        if (vma->vm_flags & (VM_IO | VM_SHARED | VM_RESERVED))
+> 	                return 0;
+> 
+> 	        /* If it hasn't been written to, don't write it out */
+> 	        if (!vma->anon_vma)
+> 	                return 0;
+> 
+> 	        return 1;
+> 	}
+> 
+> does this make everybody happy?
 
-It's amazing just how far we've come in ten years.
+I expect that has the same result as my patch (which tested vma->vm_file
+instead of vma->vm_flags & VM_SHARED).  It produces the same good results
+on the simple tests I've done (for glibc's RELRO segments).
 
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+
+Thanks,
+Roland

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbTJMWjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 18:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTJMWjP
+	id S262062AbTJMWnX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 18:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTJMWnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 18:39:15 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:31376 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262072AbTJMWjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 18:39:13 -0400
-Date: Tue, 14 Oct 2003 00:39:11 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-Message-ID: <20031013223911.GB14152@merlin.emma.line.org>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031013140858.GU1107@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031013140858.GU1107@suse.de>
-User-Agent: Mutt/1.5.4i
+	Mon, 13 Oct 2003 18:43:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:5318 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262062AbTJMWnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 18:43:21 -0400
+X-Authenticated: #555711
+From: "Sebastian Piecha" <spi@gmxpro.de>
+To: <Andrew_Purtell@NAI.com>, <linux-kernel@vger.kernel.org>
+Date: Tue, 14 Oct 2003 00:43:31 +0200
+MIME-Version: 1.0
+Subject: RE: [INFO] gcc versions used to compile a kernel
+Message-ID: <3F8B46B3.8606.12527B8F@localhost>
+In-reply-to: <613FA566484CA74288931B35D971C77E0366FF@losexmb1.corp.nai.org>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Oct 2003, Jens Axboe wrote:
+On 13 Oct 2003 at 15:22, Andrew_Purtell@NAI.com wrote:
 
-> Forward ported and tested today (with the dummy ext3 patch included),
-> works for me. Some todo's left, but I thought I'd send it out to gauge
-> interest. TODO:
+> Depending on the particulars of your distribution, you might need to
+> upgrade your binutils:
 > 
-> - Detect write cache setting and only issue SYNC_CACHE if write cache is
->   enabled (not a biggy, all drives ship with it enabled)
+>    ftp://ftp.gnu.org/pub/gnu/binutils
+> 
+> 
+> Andrew Purtell                             SMTP: andrew_purtell@nai.com
 
-Yup, and I disable it on all drives at boot time at the latest.
+I'm using binutils version 2.13.
 
-Is there a status document that lists
+Mit freundlichen Gruessen/Best regards,
+Sebastian Piecha
 
-- what SCSI drivers support write barriers
-  (I'm interested in sym53c8xx_2 if that matters)
+EMail: spi@gmxpro.de
 
-- what IDE drivers support write barriers
-  (VIA for AMD and Intel for PII/PIII/P4 chip sets here)
-
-- what file systems know how to utilize write barriers (other than
-  reiserfs ;-) - what does "dummy ext3 patch" mean?

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbUKVOgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbUKVOgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbUKVOgR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 09:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbUKVOeg
+	id S261435AbUKVOgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 09:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUKVOen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 09:34:36 -0500
-Received: from mail.convergence.de ([212.227.36.84]:3977 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S262106AbUKVOMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 09:12:55 -0500
-Date: Mon, 22 Nov 2004 15:16:07 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Takashi Iwai <tiwai@suse.de>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: modprobe + request_module() deadlock
-Message-ID: <20041122141607.GA21184@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Gerd Knorr <kraxel@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
-	Takashi Iwai <tiwai@suse.de>,
-	"Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122102502.GF29305@bytesex>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 22 Nov 2004 09:34:43 -0500
+Received: from mail.timesys.com ([65.117.135.102]:4229 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262112AbUKVOSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 09:18:34 -0500
+Message-ID: <41A1F4B2.10401@timesys.com>
+Date: Mon, 22 Nov 2004 09:16:18 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bill Huey (hui)" <bhuey@lnxw.com>
+CC: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, john cooper <john.cooper@timesys.com>
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+References: <Pine.OSF.4.05.10411212107240.29110-100000@da410.ifa.au.dk> <20041122092302.GA7210@nietzsche.lynx.com>
+In-Reply-To: <20041122092302.GA7210@nietzsche.lynx.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2004 14:11:54.0750 (UTC) FILETIME=[386061E0:01C4D09D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(someone dropped me off the Cc: list for this thread :-(, which is
-doubly bad because I'm not subscribed to lkml :-(( )
+Bill Huey (hui) wrote:
 
-Gerd Knorr wrote:
-> > The traditional way to do this has been to have saa7134-empress do its
-> > own probe, and likewise saa7134-dvb.
-> 
-> They can't actually probe themself.  It's _one_ PCI device (driven by
-> the saa7134 module) which can handle (among other v4l-related things)
-> the DMA transfer of mpeg streams.  That can be used in different ways
-> (or not at all) and the different use cases are handled by the
-> sub-modules.
-> 
-> So the way it is intended to work is that saa7134 has the pci table and
-> gets autoloaded by hotplug, it will have a look at the hardware and then
-> load either saa7134-empress or saa7134-dvb or none of them, so you'll
-> get everything nicely autoloaded.
+> IMO, their needs to be statistical code in the mutex itself so that it can
+> measure the frequency of PI events as well as depth of the inheritance
+> chains and all data structure traversals. The problem with writing that
+> stuff now is that there isn't proper priority propagation through the entire
+> dependency chain in any mutex code that I've publically seen yet.> Patching
+> this instrumentation in a mutex require a mutex with this built in
+> functionality. IMO, PI should be considered a kind of contention overload
+> condition and really a kind of fallback device to deal with these kind
+> of exceptional circumstances.
 
-The saa7146 driver seems to have a working solution for this
-problem: The PCI ids are registered to the subdrivers (e.g. dvb-ttpci
-or mxb)  so that these are loaded via hotplug. They then register to the
-saa7146 core as an "extension" module, and the core then does the probing.
-Grep for saa7146_register_extension().
+I'd hazard a guess the reason existing implementations do not
+do this type of dependency-chain closure is the complexity of a
+general approach.  Getting correct behavior and scaling on SMP
+require some restrictions of how lock ownership is maintained,
+otherwise fine grained locking is not possible.  Another likely
+reason is the fact more mechanism is getting put in place for
+less likely inversion scenarios.  And when those scenarios do
+exist the cost of effecting promotion closure may well be
+greater than allowing the priority inversions to subside.
+However this point of diminishing returns is application
+dependent so there is no single, simple solution.
 
-Johannes
+That said I don't see anything in the current work which precludes
+doing any of the above.  To my eyes, the groundwork is already
+in place.
+
+-john
+
+
+-- 
+john.cooper@timesys.com

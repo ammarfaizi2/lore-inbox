@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269441AbUI3Tdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269457AbUI3ThM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269441AbUI3Tdx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 15:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269442AbUI3Tdx
+	id S269457AbUI3ThM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 15:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269452AbUI3ThM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 15:33:53 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:13247 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S269441AbUI3Tdu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 15:33:50 -0400
-Date: Thu, 30 Sep 2004 21:33:45 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com, sam@ravnborg.org, arnold@skeeve.com
-Subject: Re: [patch 2.4] menuconfig fix crash due to infinite recursion
-Message-ID: <20040930193345.GA1848@stro.at>
-References: <20040929161905.GK1835@stro.at>
+	Thu, 30 Sep 2004 15:37:12 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:17808 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269442AbUI3ThK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 15:37:10 -0400
+Subject: Re: Serial driver hangs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
+	<roland.cassebohm@VisionSystems.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1096571398.1938.112.camel@deimos.microgate.com>
+References: <200409281734.38781.roland.cassebohm@visionsystems.de>
+	 <200409291607.07493.roland.cassebohm@visionsystems.de>
+	 <1096467951.1964.22.camel@deimos.microgate.com>
+	 <200409301816.44649.roland.cassebohm@visionsystems.de>
+	 <1096571398.1938.112.camel@deimos.microgate.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096569273.19487.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040929161905.GK1835@stro.at>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 30 Sep 2004 19:34:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2004-09-30 at 20:09, Paul Fulghum wrote:
+> The gaping hole in the flip buffer scheme is
+> flush_to_ldisc() can be called from hard IRQ
+> context while ldisc->receive_buf() is running.
 
- gawk(1) tells that getline "returns 0 on end of file and -1 on an error."
- in current script for menuconfig if getline has an error,
- it is still treated as true, fix _both_ of its invocations.
- 
- 2.6 don't use that script anymore.
- fix suggestion from Aharon Robbins <arnold@skeeve.com>
- debian bts has 2 bugs open concerning that issue,
- this is the one containing belows fix:
- http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=147469
- 
- [TM] tested.
- menuconfig still works for me. ;)
- 
-
-
---- a/scripts/Menuconfig	2002-08-03 02:39:46.000000000 +0200
-+++ b/scripts/Menuconfig	2004-09-30 21:29:21.000000000 +0200
-@@ -714,7 +714,7 @@ BEGIN {
- 
- function parser(ifile,menu) {
- 
--	while (getline <ifile) {
-+	while ((getline <ifile) > 0) {
- 		if ($1 == "mainmenu_option") {
- 			comment_is_option = "1"
- 		}
-@@ -761,7 +761,7 @@ BEGIN {
- 
- function parser(ifile,menu) {
- 
--	while (getline <ifile) {
-+	while ((getline <ifile) > 0) {
- 		if ($0 ~ /^#|$MAKE|mainmenu_name/) {
- 			printf("") >>menu
- 		}
- 
- 
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+This is strictly forbidden and always has been. I've no
+plan to touch that restriction merely to re-educate 
+any offender
 

@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276505AbRJGSAL>; Sun, 7 Oct 2001 14:00:11 -0400
+	id <S276511AbRJGSCL>; Sun, 7 Oct 2001 14:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276511AbRJGSAB>; Sun, 7 Oct 2001 14:00:01 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:57841 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276505AbRJGR7r>;
-	Sun, 7 Oct 2001 13:59:47 -0400
-Date: Sun, 7 Oct 2001 19:59:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-Message-ID: <20011007195928.D726@athlon.random>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com> <20011005024526.E724@athlon.random> <20011004213507.B1032@w-mikek2.sequent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011004213507.B1032@w-mikek2.sequent.com>; from kravetz@us.ibm.com on Thu, Oct 04, 2001 at 09:35:07PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S276519AbRJGSCB>; Sun, 7 Oct 2001 14:02:01 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:54278 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S276511AbRJGSBr>; Sun, 7 Oct 2001 14:01:47 -0400
+Reply-To: <frey@scs.ch>
+From: "Martin Frey" <frey@scs.ch>
+To: <becker@scyld.com>, <jgarzik@mandrakesoft.com>,
+        <tjeerd.mulder@fujitsu-siemens.com>, <torvalds@transmeta.com>,
+        <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Fix for drivers/net/natsemi.c on 64 bit platforms
+Date: Sun, 7 Oct 2001 14:01:54 -0400
+Message-ID: <011d01c14f5a$27c8da50$6a876ace@SCHLEPPDOWN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 09:35:07PM -0700, Mike Kravetz wrote:
-> [..] the pipe routines only call
-> the non-synchronous form of wake_up. [..]
+Hi,
 
-Ok I see, I overlooked that when we don't need to block we wakeup-async.
+the natsemi.c Ethernet driver cuts the upper bits of
+the address when accessing the EEPROM. Changing "int ee_addr"
+to "long ee_addr" in eeprom_read() fixes the problem for me on Alpha.
+The Bug is in the 2.2.x driver from Donald as
+well as in the 2.4.x driver. I tested the patch
+only on 2.4.x however, since it is actually trivial, I guess
+it will also work for Donalds version.
 
-So first of all it would be interesting to change the token passed
-thorugh the pipe so that it always fills in the PAGE_SIZE pipe buffer so
-that the task goes to sleep before reading from the next pipe in the
-ring.
+Here is the patch for 2.4.10:
+--- linux-2.4.10/drivers/net/natsemi.c  Tue Aug 14 13:14:12 2001
++++ linux-2.4.10.digitalpw/drivers/net/natsemi.c        Fri Oct  5 13:25:59 2001
+@@ -633,7 +633,7 @@
+ {
+        int i;
+        int retval = 0;
+-       int ee_addr = addr + EECtrl;
++       long ee_addr = addr + EECtrl;
+        int read_cmd = location | EE_ReadCmd;
+        writel(EE_Write0, ee_addr);
 
-And if we want to optimize the current benchmark (with the small token that
-triggers the async-wakeup and it always goes to sleep in read() rather
-than write()) we'd need to invalidate a basic point of the scheduler
-that have nothing to do with IPI reschedule, the point to invalidate is
-that if the current task (the one that is running wake_up()) has a small
-avg_slice we'd better not reschedule the wakenup task on a new idle cpu
-but we'd better wait the current task to go away instead. Unless I'm
-missing something this should fix lmbench in its current implementation.
+and here for the driver on the Scyld page:
+--- natsemi.c.orig      Sun Oct  7 13:49:03 2001
++++ natsemi.c   Sun Oct  7 13:49:16 2001
+@@ -499,7 +499,7 @@
+ {
+        int i;
+        int retval = 0;
+-       int ee_addr = addr + EECtrl;
++       long ee_addr = addr + EECtrl;
+        int read_cmd = location | EE_ReadCmd;
+        writel(EE_Write0, ee_addr);
 
-Andrea
+Regards, Martin
+
+-- 
+Supercomputing Systems AG       email: frey@scs.ch
+Martin Frey                     web:   http://www.scs.ch/~frey/
+at Compaq Computer Corporation  phone: +1 603 884 4266
+ZKO2-3R75, 110 Spit Brook Road, Nashua, NH 03062
+

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275125AbTHGHEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 03:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275126AbTHGHEA
+	id S275193AbTHGH1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 03:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275200AbTHGH1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 03:04:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60904 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275125AbTHGHEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 03:04:00 -0400
-Date: Thu, 7 Aug 2003 00:05:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test2-mm5
-Message-Id: <20030807000542.5cbf0a56.akpm@osdl.org>
-In-Reply-To: <28050000.1060237907@[10.10.2.4]>
-References: <20030806223716.26af3255.akpm@osdl.org>
-	<28050000.1060237907@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 7 Aug 2003 03:27:53 -0400
+Received: from angband.namesys.com ([212.16.7.85]:3763 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S275193AbTHGH1w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 03:27:52 -0400
+Date: Thu, 7 Aug 2003 11:27:51 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs4
+Message-ID: <20030807072751.GA23912@namesys.com>
+References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F31DFCC.6040504@cornell.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> I get lots of these .... (without 4/4 turned on)
-> 
->   Badness in as_dispatch_request at drivers/block/as-iosched.c:1241
+Hello!
 
-yes, it happens with aic7xxx as well.  Sorry about that.
+On Thu, Aug 07, 2003 at 01:12:44AM -0400, Ivan Gyurdiev wrote:
 
-You'll need to revert 
+> >Why do people ever want a "converter"?
+> That's been discussed before.
+> Because people don't have the resources (hard disk space, tape drives, 
+> money)  to backup their data, and might still be interested in testing a 
+> new filesystem. They might be willing to take a risk with the new fs 
+> and converter. Amazing as it may sound, people do that. I am such a 
+> tester, and I'd find a converter to be a useful tool. But since the 
+> previous discussion on the subject concluded it'd be really hard to 
+> impossible to write one, I guess I'll have to settle for new hard drive(s).
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm5/broken-out/as-no-trinary-states.patch
+This is no longer true.
+There is sort of "universal" fs convertor for linux that can convert almost
+any fs to almost any other fs.
+The only requirement seems to be that both fs types should have read/write support in Linux.
+http://tzukanov.narod.ru/convertfs/
+
+Bye,
+    Oleg

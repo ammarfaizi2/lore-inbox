@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbTADWyf>; Sat, 4 Jan 2003 17:54:35 -0500
+	id <S261693AbTADXBz>; Sat, 4 Jan 2003 18:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbTADWyf>; Sat, 4 Jan 2003 17:54:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20353
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261660AbTADWye>; Sat, 4 Jan 2003 17:54:34 -0500
-Subject: Re: [PATCHSET] Multiarch kconfig cleanup
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-In-Reply-To: <Pine.GSO.4.21.0301042310210.10296-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0301042310210.10296-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041724010.2555.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 04 Jan 2003 23:46:51 +0000
+	id <S261721AbTADXBz>; Sat, 4 Jan 2003 18:01:55 -0500
+Received: from mailhost.bonet.ac ([194.165.224.191]:33425 "EHLO
+	mailhost.bonet.ac") by vger.kernel.org with ESMTP
+	id <S261693AbTADXBz>; Sat, 4 Jan 2003 18:01:55 -0500
+From: "Alfred M. Szmidt" <ams@kemisten.nu>
+To: schottelius@wdt.de
+CC: bug-fileutils@gnu.org, linux-kernel@vger.kernel.org
+In-reply-to: <20030104113901.GB255@schottelius.org> (message from Nico
+	Schottelius on Sat, 4 Jan 2003 12:39:01 +0100)
+Subject: Re: bugs in df [problem of fileutils or kernel?]
+References: <20021231141036.GA494@schottelius.org> <E18TRt6-0004wx-00@lgh163a.kemisten.nu> <20030104113901.GB255@schottelius.org>
+Message-Id: <E18UxQl-0001m5-00@lgh163a.kemisten.nu>
+Date: Sun, 05 Jan 2003 00:10:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-04 at 22:11, Geert Uytterhoeven wrote:
-> On 4 Jan 2003, Alan Cox wrote:
-> > On Sat, 2003-01-04 at 20:24, Geert Uytterhoeven wrote:
-> > > > If I had my druthers, I would s/pcnet_cs/ne2k_cs/ too...  hmmmmmm  :)
-> > > 
-> > > And I guess you want to rename mac8390 (which just got renamed from daynaport
-> > > :-) to ne2k-nubus, too?
-> > 
-> > 8390 is the better name. ne2000 and ne/2 are specific product names.
-> 
-> So zorro8390 would be better than ne2k-zorro?
+   nice,1002 lines of code in df.c.. okay, let's have a look into it...
+   (currently I think it _could_ be a kernel bug, so I will pass this message
+   alon to lkml)
 
-I think so. I bet Novell think so too 8)
+There is no reason why you should read all of df.c, you can use the
+GNU Debugger and see what is going on quickly.  Possible places to set
+break points might be in [coreutils]/src/df.c:show_dev and/or
+[coreutils]/lib/fsusage.c:get_fs_usage.
 

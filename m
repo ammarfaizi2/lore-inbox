@@ -1,336 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264741AbUEFBQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUEFBrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264741AbUEFBQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 21:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUEFBQb
+	id S261159AbUEFBrn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 21:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUEFBrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 21:16:31 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:60568 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S264741AbUEFBQU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 21:16:20 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: errno
-References: <1083634011.952.154.camel@cube>
-	<Pine.LNX.4.58.0405032111450.1636@ppc970.osdl.org>
-	<87r7u0g2cf.fsf@electrolyt.fifi.org>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 05 May 2004 18:16:15 -0700
-In-Reply-To: <87r7u0g2cf.fsf@electrolyt.fifi.org>
-Message-ID: <87smeejqxs.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 May 2004 21:47:43 -0400
+Received: from [216.239.30.242] ([216.239.30.242]:30988 "EHLO
+	wind.enjellic.com") by vger.kernel.org with ESMTP id S261159AbUEFBrj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 21:47:39 -0400
+Message-Id: <200405060147.i461lb1I014213@wind.enjellic.com>
+From: greg@wind.enjellic.com (Dr. Greg Wettstein)
+Date: Wed, 5 May 2004 20:47:37 -0500
+Reply-To: greg@enjellic.com
+X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+To: linux-kernel@vger.kernel.org
+Subject: Snit fight between LVM, MD and NFSD.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin <phil@fifi.org> writes:
+Apologies to Neil since he will get double-copied on this note, I
+goofed on the mailing list address..... GW
 
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > On Mon, 3 May 2004, Albert Cahalan wrote:
-> > > 
-> > > The obvious fix would be to stuff errno into the
-> > > task_struct, hmmm?
-> > 
-> > No. "errno" is one of those fundamentally broken things that should not 
-> > exist. It was wrogn in original UNIX, it's wrong now.
-> > 
-> > The kernel usage comes not from the kernel wanting to use it per se (the 
-> > kernel has always used the "negative error" approach), but from some 
-> > misguided kernel modules using the user-space interfaces.
-> > 
-> > The Linux way of returning negative error numbers is much nicer. It's
-> > inherently thread-safe, and it has no performance downsides. Of course, it
-> > does depend on having enough of a result domain that you can always
-> > separate error returns from good returns, but that's true in practice for
-> > all system calls.
-> 
-> Except of course for fcntl(fd, F_GETOWN) where the owner is a
-> (negative) process group... If the owning process group has a "low
-> enough" PGID, it collides with errors and glibc reports an error and
-> sets errno to -PGID. One might argue that in this instance, that the
-> BSD's overloading of the pid field with pgids is at fault, but the bug
-> still remains :-)
+---------------------------------------------------------------------------
+Good evening, hope the day is going well for everyone.
 
-This is a patch against 2.6.5 for what I am talking about. Of course,
-glibc needs to be patched as well to transparently issue a
-F_GETOWN_ARG when the user requests F_GETOWN...
+We just spent the last 24 hours dealing with a rather strange
+situation on one of our big file servers.  I wanted to summarize what
+happened to find out if there is an issue or whether this is a "don't
+do that type of thing situation".
 
-Phil.
+The server in question is a dual 1.2Ghz PIII with 1 gigabyte of RAM
+running 2.4.26 and providing NFS services to around 100 Linux clients
+(IA32/IA64).  Storage is implemented with a 8x160 Gbyte MD based RAID5
+array using a 7508 3-ware controller.  LVM is used to carve the MD
+device into 5 logical volumes supporting ext3 filesystems which serve
+as the NFS export sources.  LVM is up to date with whatever patches
+were relevant from the 1.0.8 distribution.
 
-diff -rcN linux-2.6.5.orig/fs/fcntl.c linux-2.6.5/fs/fcntl.c
-*** linux-2.6.5.orig/fs/fcntl.c	Sat Apr  3 19:37:36 2004
---- linux-2.6.5/fs/fcntl.c	Wed May  5 18:06:02 2004
-***************
-*** 323,328 ****
---- 323,339 ----
-  			err = filp->f_owner.pid;
-  			force_successful_syscall_return();
-  			break;
-+ 		case F_GETOWN_ARG:
-+ 			/*
-+ 			 * Works around F_GETOWN's return limitations.
-+ 			 * Libc will transparently convert F_GETOWN to 
-+ 			 * F_GETOWN_ARG.
-+ 			 */
-+ 			err = 0;
-+ 			if (copy_to_user(&filp->f_owner.pid, (void*)arg, 
-+ 					 sizeof(filp->f_owner.pid)))
-+ 				err = -EFAULT;
-+ 			break;
-  		case F_SETOWN:
-  			err = f_setown(filp, arg, 1);
-  			break;
-diff -rcN linux-2.6.5.orig/include/asm-alpha/fcntl.h linux-2.6.5/include/asm-alpha/fcntl.h
-*** linux-2.6.5.orig/include/asm-alpha/fcntl.h	Sat Apr  3 19:37:24 2004
---- linux-2.6.5/include/asm-alpha/fcntl.h	Wed May  5 17:57:03 2004
-***************
-*** 36,41 ****
---- 36,43 ----
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-  
-+ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-arm/fcntl.h linux-2.6.5/include/asm-arm/fcntl.h
-*** linux-2.6.5.orig/include/asm-arm/fcntl.h	Sat Apr  3 19:36:27 2004
---- linux-2.6.5/include/asm-arm/fcntl.h	Wed May  5 17:56:51 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-arm26/fcntl.h linux-2.6.5/include/asm-arm26/fcntl.h
-*** linux-2.6.5.orig/include/asm-arm26/fcntl.h	Sat Apr  3 19:37:40 2004
---- linux-2.6.5/include/asm-arm26/fcntl.h	Wed May  5 17:56:47 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-cris/fcntl.h linux-2.6.5/include/asm-cris/fcntl.h
-*** linux-2.6.5.orig/include/asm-cris/fcntl.h	Sat Apr  3 19:36:25 2004
---- linux-2.6.5/include/asm-cris/fcntl.h	Wed May  5 17:56:41 2004
-***************
-*** 41,46 ****
---- 41,48 ----
-  #define F_SETLK64      13
-  #define F_SETLKW64     14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-h8300/fcntl.h linux-2.6.5/include/asm-h8300/fcntl.h
-*** linux-2.6.5.orig/include/asm-h8300/fcntl.h	Sat Apr  3 19:37:43 2004
---- linux-2.6.5/include/asm-h8300/fcntl.h	Wed May  5 17:56:37 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-i386/fcntl.h linux-2.6.5/include/asm-i386/fcntl.h
-*** linux-2.6.5.orig/include/asm-i386/fcntl.h	Sat Apr  3 19:37:23 2004
---- linux-2.6.5/include/asm-i386/fcntl.h	Wed May  5 17:56:21 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-ia64/fcntl.h linux-2.6.5/include/asm-ia64/fcntl.h
-*** linux-2.6.5.orig/include/asm-ia64/fcntl.h	Sat Apr  3 19:37:23 2004
---- linux-2.6.5/include/asm-ia64/fcntl.h	Wed May  5 17:56:11 2004
-***************
-*** 43,48 ****
---- 43,50 ----
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-  
-+ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-m68k/fcntl.h linux-2.6.5/include/asm-m68k/fcntl.h
-*** linux-2.6.5.orig/include/asm-m68k/fcntl.h	Sat Apr  3 19:36:53 2004
---- linux-2.6.5/include/asm-m68k/fcntl.h	Wed May  5 17:55:57 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-mips/fcntl.h linux-2.6.5/include/asm-mips/fcntl.h
-*** linux-2.6.5.orig/include/asm-mips/fcntl.h	Sat Apr  3 19:37:43 2004
---- linux-2.6.5/include/asm-mips/fcntl.h	Wed May  5 17:55:36 2004
-***************
-*** 42,47 ****
---- 42,48 ----
-  #define F_GETOWN	23	/*  for sockets. */
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-+ #define F_GETOWN_ARG	25	/*  same as F_GETOWN, but uses arg */
-  
-  #ifndef __mips64
-  #define F_GETLK64	33	/*  using 'struct flock64' */
-diff -rcN linux-2.6.5.orig/include/asm-parisc/fcntl.h linux-2.6.5/include/asm-parisc/fcntl.h
-*** linux-2.6.5.orig/include/asm-parisc/fcntl.h	Sat Apr  3 19:37:07 2004
---- linux-2.6.5/include/asm-parisc/fcntl.h	Wed May  5 17:55:10 2004
-***************
-*** 42,47 ****
---- 42,48 ----
-  #define F_SETOWN	12	/*  for sockets. */
-  #define F_SETSIG	13	/*  for sockets. */
-  #define F_GETSIG	14	/*  for sockets. */
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-  
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-diff -rcN linux-2.6.5.orig/include/asm-ppc/fcntl.h linux-2.6.5/include/asm-ppc/fcntl.h
-*** linux-2.6.5.orig/include/asm-ppc/fcntl.h	Sat Apr  3 19:37:07 2004
---- linux-2.6.5/include/asm-ppc/fcntl.h	Wed May  5 17:54:59 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-ppc64/fcntl.h linux-2.6.5/include/asm-ppc64/fcntl.h
-*** linux-2.6.5.orig/include/asm-ppc64/fcntl.h	Sat Apr  3 19:36:15 2004
---- linux-2.6.5/include/asm-ppc64/fcntl.h	Wed May  5 17:54:51 2004
-***************
-*** 42,47 ****
---- 42,49 ----
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-  
-+ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-s390/fcntl.h linux-2.6.5/include/asm-s390/fcntl.h
-*** linux-2.6.5.orig/include/asm-s390/fcntl.h	Sat Apr  3 19:36:12 2004
---- linux-2.6.5/include/asm-s390/fcntl.h	Wed May  5 17:54:43 2004
-***************
-*** 48,53 ****
---- 48,55 ----
-  #define F_SETLKW64	14
-  #endif /* ! __s390x__ */
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-sh/fcntl.h linux-2.6.5/include/asm-sh/fcntl.h
-*** linux-2.6.5.orig/include/asm-sh/fcntl.h	Sat Apr  3 19:37:42 2004
---- linux-2.6.5/include/asm-sh/fcntl.h	Wed May  5 17:54:29 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-sparc/fcntl.h linux-2.6.5/include/asm-sparc/fcntl.h
-*** linux-2.6.5.orig/include/asm-sparc/fcntl.h	Sat Apr  3 19:38:20 2004
---- linux-2.6.5/include/asm-sparc/fcntl.h	Wed May  5 17:54:23 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-sparc64/fcntl.h linux-2.6.5/include/asm-sparc64/fcntl.h
-*** linux-2.6.5.orig/include/asm-sparc64/fcntl.h	Sat Apr  3 19:38:20 2004
---- linux-2.6.5/include/asm-sparc64/fcntl.h	Wed May  5 17:54:18 2004
-***************
-*** 35,40 ****
---- 35,41 ----
-  #define F_SETLKW	9
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-+ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
-  
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-diff -rcN linux-2.6.5.orig/include/asm-v850/fcntl.h linux-2.6.5/include/asm-v850/fcntl.h
-*** linux-2.6.5.orig/include/asm-v850/fcntl.h	Sat Apr  3 19:36:53 2004
---- linux-2.6.5/include/asm-v850/fcntl.h	Wed May  5 17:53:58 2004
-***************
-*** 39,44 ****
---- 39,46 ----
-  #define F_SETLK64	13
-  #define F_SETLKW64	14
-  
-+ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
-+ 
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-  
-diff -rcN linux-2.6.5.orig/include/asm-x86_64/fcntl.h linux-2.6.5/include/asm-x86_64/fcntl.h
-*** linux-2.6.5.orig/include/asm-x86_64/fcntl.h	Sat Apr  3 19:36:26 2004
---- linux-2.6.5/include/asm-x86_64/fcntl.h	Wed May  5 17:53:48 2004
-***************
-*** 34,39 ****
---- 34,40 ----
-  #define F_GETOWN	9	/*  for sockets. */
-  #define F_SETSIG	10	/*  for sockets. */
-  #define F_GETSIG	11	/*  for sockets. */
-+ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
-  
-  /* for F_[GET|SET]FL */
-  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+Clients are mounted with the following options:
+
+	tcp,nfsvers=3,hard,intr,rsize=8192,wsize=8192
+
+Last week one of the drives in the RAID5 stripe failed.  In order to
+avoid a double fault situation we migrated all the physical extents
+from the RAID5 based PV to a FC based PV on the SAN.  SAN access is
+provided through a Qlogic 2300 with firmware 3.02.16 using the 6.06.10
+driver from Qlogic.
+
+Migration to the FC based physical volume was uneventful.  The faulty
+drive was replaced this week and the extents were migrated back from
+the FC based physical volume on an LV by LV basis.  All of this went
+fine until the final 150 Gbyte LV was migrated.
+
+Early into the migration the load on the box went high (10-12).  Both
+the pvmove process and the NFSD processes were persistently stuck for
+long periods of time in D state.  The pvmove process would stick in
+get_active_stripe while the NFSD processes were stuck in
+log_wait_commit.
+
+I/O patterns were very similar for NFS and the pvmove process.  NFS
+clients would hang for 20-30 seconds followed by a burst of I/O.  On
+the FC controllers we would see a burst of I/O from the pvmove process
+followed by a 20-30 seconds of no activity.  Interactive performance
+on the fileserver was good.
+
+We unmounted almost all of the NFS clients and reduced the situation
+to a case where we had 5-7 clients doing modest I/O, mostly listing
+directories and other common interactive functions.  Load remained
+high with the NFSD processes oscillating in and out of D state with
+the pvmove process.
+
+We then unmounted all the clients that were accessing the filesystem
+supported by the LV which was having its physical extents migrated.
+Load patterns remained the same.  We then unmounted the physical
+filesystem and the load still remained high.
+
+As a final test we stopped NFS services.  This caused the pvmove
+process to run almost continuously with only occasional D state waits.
+We confirmed this by observing almost continuous traffic on the FC
+controller.  When the pvmove completed NFS services were restarted,
+all clients were remounted and the server is running with 80-90 client
+connections with modest load.
+
+So it would seem that the NFSD processes and the pvmove process were
+involved in some type of resource contention problem.  I would write
+this off to "LVM doesn't work well for NFS exported filesystems"
+except for the fact that we had successfully transferred 250+
+gigabytes of filesystems off the box and back onto the box without
+event before this incident.
+
+I would be interested in any thoughts that anyone may have.  We can
+setup a testbed to try and re-create the problem if there are
+additional diagnostics that would be helpful in figuring out what was
+going on.
+
+Best wishes for a productive end of the week.
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"There are two ways of constructing a software design. One is to make
+it so simple that there are obviously no deficiencies; the other is to
+make it so complicated that there are no obvious deficiencies. The
+first method is far more difficult."
+                                -- C. A. R. Hoare
+                                   The Emperor's Old Clothes
+                                   CACM February 1981

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUBTPAt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUBTPAt
+	id S261244AbUBTPBa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:01:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUBTPBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:00:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17099 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261236AbUBTPAq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:00:46 -0500
-Date: Fri, 20 Feb 2004 16:00:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Miquel van Smoorenburg <miquels@cistron.net>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       miquels@cistron.nl, linux-lvm@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bdi_congestion_funp (was: Re: [PATCH] per process request limits (was Re: IO scheduler, queue depth, nr_requests))
-Message-ID: <20040220150013.GY27190@suse.de>
-References: <20040219101915.GJ27190@suse.de> <20040219205907.GE32263@drinkel.cistron.nl> <40353E30.6000105@cyberone.com.au> <20040219235303.GI32263@drinkel.cistron.nl> <40355F03.9030207@cyberone.com.au> <20040219172656.77c887cf.akpm@osdl.org> <40356599.3080001@cyberone.com.au> <20040219183218.2b3c4706.akpm@osdl.org> <20040220144042.GC20917@traveler.cistron.net> <20040220145944.GM27549@reti>
+	Fri, 20 Feb 2004 10:01:30 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62917 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261244AbUBTPBK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 10:01:10 -0500
+Subject: Re: JFS default behavior / UTF-8 filenames
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: kernel@mikebell.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040219234746.GG432@tinyvaio.nome.ca>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+	 <20040219105913.GE432@tinyvaio.nome.ca>
+	 <1077199506.2275.12.camel@shaggy.austin.ibm.com>
+	 <20040219234746.GG432@tinyvaio.nome.ca>
+Content-Type: text/plain
+Message-Id: <1077289257.2533.23.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040220145944.GM27549@reti>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 09:00:58 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20 2004, Joe Thornber wrote:
-> > +	devices = dm_table_get_devices(t);
-> > +	for (d = devices->next; d != devices; d = d->next) {
-> > +		struct dm_dev *dd = list_entry(d, struct dm_dev, list);
-> > +		request_queue_t *q = bdev_get_queue(dd->bdev);
-> > +		r |= test_bit(bdi_state, &(q->backing_dev_info.state));
+On Thu, 2004-02-19 at 17:47, kernel@mikebell.org wrote:
+> While I don't really care one way or the other about the whole
+> "rejecting non-UTF8 filenames" thing, trying to store 8bit strings in
+> UTF2 (no such thing, is there? Is JFS UCS-2 or UTF-16?)
+
+UCS-2 - I can't keep this stuff straight.
+
+>  seems really
+> ugly. In general at least, maybe it's not so bad in JFS's case
+> specifically because of there not being much sharing of JFS filesystems
+> between linux and non-linux systems.
 > 
-> Shouldn't this be calling your bdi_*_congested function rather than
-> assuming it is a real device under dm ? (often not true).
+> But if JFS uses that "make the high byte zero and return the low byte
+> only" scheme, what does it do when it encounters a UCS-2 filename that
+> has a non-NUL high byte on an existing filesystem? I can't see any ways
+> of dealing with this that aren't much more horribly broken than merely
+> refusing to create filenames that aren't valid in the current encoding.
+> If it throws the high byte away then you've made it impossible to open
+> said files, and up to 256 files per character of the filename can now
+> appear to have the same filename.
 > 
-> I'm also very slightly worried that or'ing together the congestion
-> results for all the seperate devices isn't always the right thing.
-> These devices include anything that the targets are using, exception
-> stores for snapshots, logs for mirror, all paths for multipath (or'ing
-> is most likely to be wrong for multipath).
+> So what does JFS do in its "throw away the high byte and store binary
+> character strings in the low byte" mode? How does it deal with an
+> existing filesystem that has filenames that don't conform to said rule?
 
-Yeah the patch is pretty much crap in that area, I don't think Miquel
-was aiming for inclusion :)
-
-I'd suggest making queue functions for congestion state as well so it
-stacks properly.
-
+With no iocharset specified, a filename with such a character will be
+inaccessible.  Probably the best thing for readdir to do is to
+substitute a '?' and print a message to the syslog to mount the volume
+with iocharset=utf8 to be able to access the file.  Of course I would
+limit the number of printk's to something small.  I'll submit a patch to
+do this.
 -- 
-Jens Axboe
+David Kleikamp
+IBM Linux Technology Center
 

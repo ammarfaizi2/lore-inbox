@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUITQcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUITQhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266813AbUITQcq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 12:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266820AbUITQcn
+	id S266833AbUITQhD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 12:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUITQgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 12:32:43 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:7044 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S266813AbUITQ3z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 12:29:55 -0400
-Date: Mon, 20 Sep 2004 09:29:47 -0700
+	Mon, 20 Sep 2004 12:36:53 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:47749 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266833AbUITQeN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:34:13 -0400
+Date: Mon, 20 Sep 2004 09:34:02 -0700
 From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 Cc: "Brown, Len" <len.brown@intel.com>,
@@ -17,8 +17,8 @@ Cc: "Brown, Len" <len.brown@intel.com>,
        LHNS list <lhns-devel@lists.sourceforge.net>,
        Linux IA64 <linux-ia64@vger.kernel.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH-ACPI based CPU hotplug[0/6]-Core ACPI enhancement support
-Message-ID: <20040920092947.B14208@unix-os.sc.intel.com>
+Subject: PATCH-ACPI based CPU hotplug[1/6]-ACPI core enhancement support
+Message-ID: <20040920093402.C14208@unix-os.sc.intel.com>
 Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 References: <20040920092520.A14208@unix-os.sc.intel.com>
 Mime-Version: 1.0
@@ -28,6 +28,7 @@ User-Agent: Mutt/1.2.5.1i
 In-Reply-To: <20040920092520.A14208@unix-os.sc.intel.com>; from anil.s.keshavamurthy@intel.com on Mon, Sep 20, 2004 at 09:25:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
 
 
 ---

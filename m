@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSFEWrL>; Wed, 5 Jun 2002 18:47:11 -0400
+	id <S316484AbSFEWx7>; Wed, 5 Jun 2002 18:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316519AbSFEWrK>; Wed, 5 Jun 2002 18:47:10 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:43524 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S316512AbSFEWrK>;
-	Wed, 5 Jun 2002 18:47:10 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Wed, 5 Jun 2002 16:39:27 -0600
-To: Padraig Brady <padraig@antefacto.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] "laptop mode"
-Message-ID: <20020605163927.P13197@host110.fsmlabs.com>
-In-Reply-To: <3CFD50B9.259366F4@zip.com.au> <1023272806.15438.106.camel@bip> <3CFDEA79.2980BF8D@zip.com.au> <3CFE5A50.9010002@mandrakesoft.com> <3CFE9181.7090603@antefacto.com>
+	id <S316496AbSFEWx6>; Wed, 5 Jun 2002 18:53:58 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:44786 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316484AbSFEWx6>; Wed, 5 Jun 2002 18:53:58 -0400
+Subject: Re: Load kernel module automatically
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Oliver Wegner <oliver@wilmskamp.dyndns.org>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200206060023.42180.oliver@wilmskamp.dyndns.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Jun 2002 00:45:42 +0100
+Message-Id: <1023320742.2443.31.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree that this level of abstraction is the kernel's job.  Deciding this
-sort of thing is best left for a user level tool (or the user with 'echo').
-A generic set of tunables in /proc/sys/ makes sense, but deciding the best
-policy for a given set of parameters is a big problem and would be best
-solved outside of the kernel.
+On Wed, 2002-06-05 at 23:23, Oliver Wegner wrote:
+> all i wanted to point out was that it doesnt seem to be distribution 
+> independent as someone had stated before because that file /etc/modules 
+> for example doesnt exist under SuSE. i wasnt asking anything about it 
+> myself.
+> 
+> anyway i will be able to find out that information if i need to sometime. 
+> thanks.
 
-This is definitely the sort of thing that can be pushed to the user and
-should be.
+modules.conf is the standard name for it. A long time ago it was
+sometimes called conf.modules. 
 
-} I'm not too sure this level of abstraction is needed by userspace.
-} It would be enough if the appropriate things were all controlable
-} in /proc/sys/ etc. and then you just have:
-} /etc/sysctl.{laptop,server,desktop}.conf
-} It would be better to have it explicit in userspace as you're
-} always going to need to tweak things IMHO.
-} 
-} Padraig.
-} 
-} -
-} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-} the body of a message to majordomo@vger.kernel.org
-} More majordomo info at  http://vger.kernel.org/majordomo-info.html
-} Please read the FAQ at  http://www.tux.org/lkml/
+

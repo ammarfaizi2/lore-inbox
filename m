@@ -1,22 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263100AbREaOBv>; Thu, 31 May 2001 10:01:51 -0400
+	id <S262042AbREaNxl>; Thu, 31 May 2001 09:53:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbREaOBl>; Thu, 31 May 2001 10:01:41 -0400
-Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:63249 "EHLO dcs.qmw.ac.uk")
-	by vger.kernel.org with ESMTP id <S263100AbREaOBc>;
-	Thu, 31 May 2001 10:01:32 -0400
-Date: Thu, 31 May 2001 15:01:31 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: losetup fails (-EINVAL) over tmpfs
-Message-ID: <Pine.LNX.4.33.0105311459250.20201-100000@nick.dcs.qmw.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S263096AbREaNxc>; Thu, 31 May 2001 09:53:32 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:51865 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S262042AbREaNxY>;
+	Thu, 31 May 2001 09:53:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ben Twijnstra <bentw@chello.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Sound card lockup on 2.4.5-ac4 and -ac5
+Date: Thu, 31 May 2001 15:47:39 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01053115473900.00941@beastie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is very probably already known, but it broke the RH71 mkinitrd for me
-until I changed its temporary files to be created on /var/tmp :)
+Hi there,
+
+As of 2.4.5-ac4 (maybe -ac3 too), my sound card (a cs46xx) has stopped 
+working. Looks like there's something wrong with the interrupt handling code 
+because the device remains busy, I get weird lockups after having run and 
+^C-ed sndconfig. Also, when I look at /proc/interrupts after sndconfig, the 
+IRQ for the sound card seems stuck at 0.
+
+I've seen changes in the driver code, but they don't seem to have much to do 
+with the interrupt handling.
+
+Any ideas?
 

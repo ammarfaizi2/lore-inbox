@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265398AbUATLfR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 06:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbUATLfR
+	id S265466AbUATLgv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 06:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUATLgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 06:35:17 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:7941 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265398AbUATLfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 06:35:12 -0500
-Date: Tue, 20 Jan 2004 11:35:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm5
-Message-ID: <20040120113511.A14742@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20040120000535.7fb8e683.akpm@osdl.org>
+	Tue, 20 Jan 2004 06:36:51 -0500
+Received: from gprs214-67.eurotel.cz ([160.218.214.67]:9601 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265466AbUATLgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 06:36:45 -0500
+Date: Tue, 20 Jan 2004 12:36:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       ncunningham@users.sourceforge.net, Hugang <hugang@soulinfo.com>,
+       ncunningham@clear.net.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Debian GNU/Linux PPC <debian-powerpc@lists.debian.org>
+Subject: Re: Help port swsusp to ppc.
+Message-ID: <20040120113630.GA380@elf.ucw.cz>
+References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston> <20040119204551.GB380@elf.ucw.cz> <1074555531.10595.89.camel@gaston> <Pine.GSO.4.58.0401201052320.18625@waterleaf.sonytel.be> <20040120100405.GB183@elf.ucw.cz> <1074598014.739.7.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org>; from akpm@osdl.org on Tue, Jan 20, 2004 at 12:05:35AM -0800
+In-Reply-To: <1074598014.739.7.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(ghash.patch)
+Hi!
 
-Please don't readd include/linux/ghash.h - it was removed because it's
-utter crap.  Better switch UML to use some sane hashing.
+> > Well, *all* the data pages are saved, so that would be okay (even if
+> > they changed, as I'm replacing all the data pages, that should work),
+> > but I'm not saving kernel text for example.
+> 
+> Ahh... that's an interesting point. You aren't saving kernel text. I'm
+> not sure how that could be a problem for me. I think i'll just save it
+> along with the image though. 
 
-Damn, I really hoped that beast would be dead.
+Also pay attetion to page tables. I know that page tables "copy"
+routine is running from are same between suspend and resume kernel.
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

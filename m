@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277364AbRJEOHr>; Fri, 5 Oct 2001 10:07:47 -0400
+	id <S277383AbRJEOL1>; Fri, 5 Oct 2001 10:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277388AbRJEOHi>; Fri, 5 Oct 2001 10:07:38 -0400
-Received: from mail.mediaways.net ([193.189.224.113]:52695 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S277386AbRJEOHZ>; Fri, 5 Oct 2001 10:07:25 -0400
-Message-ID: <9D7599308169D311BF3B0004AC4C105D01E2E0F4@hamsrvmsx01.pdv-online.de>
-From: OHenning@pdv-Online.de
-To: linux-kernel@vger.kernel.org
-Subject: [Info] Delta Debugging
-Date: Fri, 5 Oct 2001 16:07:45 +0200 
+	id <S277386AbRJEOLR>; Fri, 5 Oct 2001 10:11:17 -0400
+Received: from [205.176.221.61] ([205.176.221.61]:2834 "EHLO w20303512")
+	by vger.kernel.org with ESMTP id <S277383AbRJEOK6>;
+	Fri, 5 Oct 2001 10:10:58 -0400
+Message-ID: <018401c14da7$bc2568d0$3dddb0cd@w20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0110032019480.12116-100000@dozer.dreamhost.com> <E15oxYi-00015G-00@schizo.psychosis.com> <01100422312200.01464@homer> <E15pVCy-0006zo-00@schizo.psychosis.com>
+Subject: Re: [POT] Linux SAN?
+Date: Fri, 5 Oct 2001 10:12:13 -0400
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attached is a link to information I found about Delta Debugging:
 
-"The Delta Debugging project at Software Engineering Chair, Saarland
-University investigates a new automated debugging approach based on
-systematic testing. With Delta Debugging, we can find failure-inducing
-circumstances automatically - circumstances such as the program input,
-changes to the program code, executed statements, or thread schedules." 
 
-URL: http://www.infosun.fmi.uni-passau.de/st/papers/computer2000/
+> On Thursday 04 October 2001 22:31, someone wrote:
+>
+> > For the HBA ( fibre channel adapter ) i use the module in the kernel
+CPQFC
+> > is for a specific compaq HBA, but you can use use QLOGIC module or
+EMULEX (
+> > but the EMULEX driver is not under GPL and you don't have source and
+it's
+> > really convinient for the correction on the driver ) with support for
+FC.
+>
 
-Oliver Henning
+Is anyone aware of a project (now that LinuxDisk is gone..) that has the
+potential to turn a Linux box into one of these?
+I'd like to have a Linux machine running as a "SAN appliance" with a
+heterogenous mix of servers (with FC cards) booting from "virtual" slices of
+one big array.
+I'm envisioning a "roll your own" version of this Winchester Flaskdisk
+product:
+http://www.winsys.com/products/
 
-"Man hat nie Zeit es richtig zu machen, aber man hat immer Zeit es nochmal
-zu machen."
+Regards,
+--Wilson.
+
+

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131257AbRADJpp>; Thu, 4 Jan 2001 04:45:45 -0500
+	id <S132204AbRADJ7C>; Thu, 4 Jan 2001 04:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131550AbRADJpg>; Thu, 4 Jan 2001 04:45:36 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:61352 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131257AbRADJp1>; Thu, 4 Jan 2001 04:45:27 -0500
-To: Chris Mason <mason@suse.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-In-Reply-To: <428710000.978539866@tiny>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <428710000.978539866@tiny>
-Message-ID: <m3ae982yq5.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+	id <S132295AbRADJ6w>; Thu, 4 Jan 2001 04:58:52 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:6159 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S132204AbRADJ6g>; Thu, 4 Jan 2001 04:58:36 -0500
+Message-ID: <3A544925.B9BF4241@idb.hist.no>
+Date: Thu, 04 Jan 2001 10:57:57 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test13-pre3 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <Pine.LNX.4.30.0101031847120.11227-100000@springhead.px.uk.com>
 Content-Type: text/plain; charset=us-ascii
-Date: 04 Jan 2001 10:48:13 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> writes:
-> Just noticed the filemap_fdatasync code doesn't check the return value from
-> writepage.  Linus, would you take a patch that redirtied the page, puts it
-> back onto the dirty list (at the tail), and unlocks the page when writepage
-> returns 1?
+[...]
+> > Being able to shut down by hitting the power switch is a little luxury
+> > for which I've been willing to invest more than a year of my life to
+> > attain.  Clueless newbies don't know why it should be any other way, and
+> > it's essential for embedded devices.
 > 
-> That would loop forever if the writepage func kept returning 1 though...I
-> think that's what we want, unless someone like ramfs made a writepage func
-> that always returned 1.
+> Clueless newbies (and slightly less clueless less newbie) type people
+> don't think that they should HAVE to. My two interests are coping with
+> particularly pedantic people who don't want there computer to hastle them
+> about what they should or shouldn't do, and slightly embedded systems
+> (e.g. set top box/web browsery thing that you want to be able to turn off
+> like a TV but it should still be able to have a writeable disc for config
+> and stuff you download/cache etc).
 
-shmem has such a writepage for locked shm segments. It also always
-return 1 if the swap space is exhausted. So everybody using shared
-anonymous, SYSV shared or POSIX shared memory can hit this.
+Nothing wrong with a filesystem (or apps) that can handle being powered
+down.
+But I prefer to handle this kind of users with a power switch that
+merely
+acts as a "shutdown button"  instead of actually killing power.
+The os will then run the equivalent of "shutdown -h now" 
+You may not have this luxury on an ordinary pc, but you do if you design
+embedded
+devices.  You will then be free to use existing GPL software that
+not necessarily handle a power failure well.
 
-I invented the return code 1 exactly to be able to handle this.
-
-Greetings
-                Chris
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

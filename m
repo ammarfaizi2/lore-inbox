@@ -1,103 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUDZRJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263232AbUDZRMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbUDZRJT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 13:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbUDZRJT
+	id S263232AbUDZRMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 13:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbUDZRMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 13:09:19 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:25608 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S263149AbUDZRJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 13:09:07 -0400
-Date: Tue, 27 Apr 2004 01:11:15 +0800 (WST)
-From: raven@themaw.net
-To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-mm2
-In-Reply-To: <20040426013944.49a105a8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
-References: <20040426013944.49a105a8.akpm@osdl.org>
+	Mon, 26 Apr 2004 13:12:14 -0400
+Received: from hhmail.aok.de ([195.145.231.177]:35798 "EHLO hhmail11.aok.de")
+	by vger.kernel.org with ESMTP id S263232AbUDZRMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 13:12:03 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.7, required 8,
-	IN_REP_TO, NO_REAL_NAME, PATCH_UNIFIED_DIFF, REFERENCES,
-	USER_AGENT_PINE)
+Subject: BANNED FILENAME (news.rtf.pif) IN MAIL FROM YOU
+In-Reply-To: <20040426171206.609981E3ABE@hhmail11.aok.de>
+Message-Id: <VS11458-01-2@hhmail11.aok.de>
+Content-Type: multipart/report; report-type=delivery-status;
+    boundary="----------=_1082999530-11458-1"
+From: amavisd-new <postmaster@hhmail11.aok.de>
+To: <linux-kernel@vger.kernel.org>
+Date: Mon, 26 Apr 2004 19:12:10 +0200 (MEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format...
 
-Patch to sync 2.6.6-rc2-mm2 with the result of my discussion with 
-Christoph Hellwig.
+------------=_1082999530-11458-1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Difference is that Christoph realised that merging may_umount_tree and 
-may_umount was not worth it. They are now seperate functions.
+BANNED FILENAME ALERT
 
-diff -Nur linux-2.6.6-rc2-mm2.orig/fs/namespace.c linux-2.6.6-rc2-mm2/fs/namespace.c
---- linux-2.6.6-rc2-mm2.orig/fs/namespace.c	2004-04-27 00:51:36.000000000 +0800
-+++ linux-2.6.6-rc2-mm2/fs/namespace.c	2004-04-27 00:43:32.000000000 +0800
-@@ -260,7 +260,15 @@
- 	.show	= show_vfsmnt
- };
- 
--static int __may_umount_tree(struct vfsmount *mnt, int root_mnt_only)
-+/**
-+ * may_umount_tree - check if a mount tree is busy
-+ * @mnt: root of mount tree
-+ *
-+ * This is called to check if a tree of mounts has any
-+ * open files, pwds, chroots or sub mounts that are
-+ * busy.
-+ */
-+int may_umount_tree(struct vfsmount *mnt)
- {
- 	struct list_head *next;
- 	struct vfsmount *this_parent = mnt;
-@@ -270,14 +278,6 @@
- 	spin_lock(&vfsmount_lock);
- 	actual_refs = atomic_read(&mnt->mnt_count);
- 	minimum_refs = 2;
--
--	if (root_mnt_only) {
-- 		spin_unlock(&vfsmount_lock);
--		if (actual_refs > minimum_refs)
--			return -EBUSY;
--		return 0;
--	}
--
- repeat:
- 	next = this_parent->mnt_mounts.next;
- resume:
-@@ -308,19 +308,6 @@
- 	return 0;
- }
- 
--/**
-- * may_umount_tree - check if a mount tree is busy
-- * @mnt: root of mount tree
-- *
-- * This is called to check if a tree of mounts has any
-- * open files, pwds, chroots or sub mounts that are
-- * busy.
-- */
--int may_umount_tree(struct vfsmount *mnt)
--{
--	return __may_umount_tree(mnt, 0);
--}
--
- EXPORT_SYMBOL(may_umount_tree);
- 
- /**
-@@ -338,7 +325,9 @@
-  */
- int may_umount(struct vfsmount *mnt)
- {
--	return __may_umount_tree(mnt, 1);
-+	if (atomic_read(&mnt->mnt_count) > 2)
-+		return -EBUSY;
-+	return 0;
- }
- 
- EXPORT_SYMBOL(may_umount);
+Our content checker found
+    banned name: news.rtf.pif
+in your email to the following recipient:
+-> team.auswaertige@hh.aok.de
+
+Please check your system,
+or ask your system administrator to do so.
+
+Delivery of the email was stopped!
+
+
+For your reference, here are headers from your email:
+------------------------- BEGIN HEADERS -----------------------------
+Received: from hh.aok.de (pD95533BD.dip.t-dialin.net [217.85.51.189])
+	by hhmail11.aok.de (Postfix) with ESMTP id 609981E3ABE
+	for <team.auswaertige@hh.aok.de>; Mon, 26 Apr 2004 19:12:06 +0200 (MEST)
+From: linux-kernel@vger.kernel.org
+To: team.auswaertige@hh.aok.de
+Subject: is that your cd?
+Date: Mon, 26 Apr 2004 19:14:13 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0008_00004C28.00001F07"
+X-Priority: 3
+X-MSMail-Priority: Normal
+Message-Id: <20040426171206.609981E3ABE@hhmail11.aok.de>
+-------------------------- END HEADERS ------------------------------
+
+------------=_1082999530-11458-1
+Content-Type: message/delivery-status
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Description: Delivery error report
+
+Reporting-MTA: dns; hhmail11.aok.de
+Received-From-MTA: smtp; hhmail11.aok.de ([195.145.231.177])
+Arrival-Date: Mon, 26 Apr 2004 19:12:09 +0200 (MEST)
+
+Final-Recipient: rfc822; team.auswaertige@hh.aok.de
+Action: failed
+Status: 5.7.1
+Diagnostic-Code: smtp; 550 5.7.1 Message content rejected, id=11458-01-2 - BANNED: news.rtf.pif
+Last-Attempt-Date: Mon, 26 Apr 2004 19:12:10 +0200 (MEST)
+
+------------=_1082999530-11458-1
+Content-Type: text/rfc822-headers
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Description: Undelivered-message headers
+
+Received: from hh.aok.de (pD95533BD.dip.t-dialin.net [217.85.51.189])
+	by hhmail11.aok.de (Postfix) with ESMTP id 609981E3ABE
+	for <team.auswaertige@hh.aok.de>; Mon, 26 Apr 2004 19:12:06 +0200 (MEST)
+From: linux-kernel@vger.kernel.org
+To: team.auswaertige@hh.aok.de
+Subject: is that your cd?
+Date: Mon, 26 Apr 2004 19:14:13 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0008_00004C28.00001F07"
+X-Priority: 3
+X-MSMail-Priority: Normal
+Message-Id: <20040426171206.609981E3ABE@hhmail11.aok.de>
+
+------------=_1082999530-11458-1--

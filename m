@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263183AbSJGUos>; Mon, 7 Oct 2002 16:44:48 -0400
+	id <S262731AbSJGUGN>; Mon, 7 Oct 2002 16:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263184AbSJGUos>; Mon, 7 Oct 2002 16:44:48 -0400
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:17822 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S263183AbSJGUoq>; Mon, 7 Oct 2002 16:44:46 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Build failure, 2.5.40-ac6
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 07 Oct 2002 16:50:25 -0400
-Message-ID: <9cfit0edlda.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262728AbSJGUE5>; Mon, 7 Oct 2002 16:04:57 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:18932 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262725AbSJGUEc>; Mon, 7 Oct 2002 16:04:32 -0400
+Subject: Re: New BK License Problem?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Pavel Machek <pavel@suse.cz>, Ulrich Drepper <drepper@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0210071451150.913-100000@xanadu.home>
+References: <Pine.LNX.4.44.0210071451150.913-100000@xanadu.home>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 21:19:47 +0100
+Message-Id: <1034021987.26503.24.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-10-07 at 20:06, Nicolas Pitre wrote:
+> If BK migrates to proprietary format everybody will notice and you'll still
+> have the opportunity to rescue a not too old repository and carry on with
+> life using whatever alternate SCM you wish.  If such a thing happened Lary
+> would be publicly and universally discredited and he's not looking for that
+> I'm sure.
 
-I decided over the weekend to give 2.5.40 a spin... if Alan's making
--ac patches, it must be at least stable enough for one of his
-boxen... ;-)
+If BK migrates to a proprietary format the code won't be in the
+preferred form of the work for making modifications.
 
-I can't get it to actually compile.  Attached is my .config... the
-machine is a Fujitsu Transmeta-based laptop, so it's pretty minimal
-with the exception of a bunch of filesystems thrown in for fun.
-
-The compile dies here:
-
-make[1]: Leaving directory `/usr/src/linux-2.5.40-ac6/init'
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux
-fs/built-in.o: In function `pagebuf_queue_task':
-fs/built-in.o(.text+0xbfb23): undefined reference to `queue_task'
-fs/built-in.o: In function `pagebuf_iodone':
-fs/built-in.o(.text+0xbfbc1): undefined reference to `queue_task'
-fs/built-in.o: In function `pagebuf_iodone_daemon':
-fs/built-in.o(.text+0xc0620): undefined reference to `TQ_ACTIVE'
-fs/built-in.o(.text+0xc0645): undefined reference to `run_task_queue'
-make: *** [.tmp_vmlinux] Error 1
-
-Clues?
-TIA,
-ian

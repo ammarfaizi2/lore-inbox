@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTLHTIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLHTIe
+	id S261731AbTLHTKP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLHTKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:08:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64181 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261595AbTLHTId (ORCPT
+	Mon, 8 Dec 2003 14:10:15 -0500
+Received: from adsl-66-72-98-57.dsl.chcgil.ameritech.net ([66.72.98.57]:8201
+	"HELO adsl-66-72-98-57.dsl.chcgil.ameritech.net") by vger.kernel.org
+	with SMTP id S261731AbTLHTKK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:08:33 -0500
-Date: Mon, 8 Dec 2003 11:08:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Volkov <Andrew.Volkov@transas.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: possible proceses leak 
-In-Reply-To: <2E74F312D6980D459F3A05492BA40F8D0391B0E9@clue.transas.com>
-Message-ID: <Pine.LNX.4.58.0312081106150.13236@home.osdl.org>
-References: <2E74F312D6980D459F3A05492BA40F8D0391B0E9@clue.transas.com>
+	Mon, 8 Dec 2003 14:10:10 -0500
+Message-ID: <807dy30$yh9e8$989xi08---2@y6d4.v.m2.pau2>
+From: "Gerard Dominguez" <qirjcojtmd@blaze.com>
+Reply-To: "Gerard Dominguez" <qirjcojtmd@blaze.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 80% D1SC0UNT!! juq h
+Date: Thu, 01 Jan 70 01:00:00 GMT
+X-Mailer: TIMO
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="2E88DA6__8C_"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--2E88DA6__8C_
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 8 Dec 2003, Andrew Volkov wrote:
->
-> In all kernels (up to 2.6-test11) next sequence of code
-> in __down/__down_interruptible function
-> (arch/i386/kernel/semaphore.c) may cause processes or threads leaking.
+Attention to all Men!
+Young and not so young!
 
-Nope. Quite the reverse, in fact. Having the "state" setting above the
-wait-queue is usually a good idea, since it means that there are less
-races to worry about.
+Generic V--i--a--g--r--a will make you the best lover just in 15 minutes. =
+Have NO problems with your e-r-e-c-t-i-o-n!
 
-> |-----tsk->state = TASK_UNINTERRUPTIBLE;		<----- BUG:
-> |          -- If "do_schedule" from kernel/schedule will calling
-> |              at this point, due to expire of time slice,
-> |              then current task will removed from run_queue,
-> | 		   but doesn't added to any waiting queue, and hence
-> |	         will never run again. --
+Guaranteed Rock Hard E-r-e-c-t-i-o-n-s!
+Hours and hours of fantatsic s--e--x!
 
-No.
+Your s--e--x partner will never forget
+The pleasures they had with YOU!
 
-Kernel preemption is special, and it will preempt the process WITHOUT
-CHANGING the state of it. See the PREEMPT_ACTIVE test in schedule(). The
-process will still be left on the run-queue, and it will be run again,
-even if it is marked sleeping.
+Order H--E--R--E (WE SAVE YOUR PRIVACY)!
+And yes! The dose cost is as low as $1.66!
 
-		Linus
+http://www.pillsthatwork.com/index.php?pid=3Devaph3790hzn bhwlobz scrhtfyiluhbihrgqnix
+
+--2E88DA6__8C_--
+

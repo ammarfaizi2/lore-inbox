@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbUBRQa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUBRQa1
+	id S263793AbUBRQM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbUBRQM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:30:27 -0500
-Received: from ee.oulu.fi ([130.231.61.23]:49106 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S264481AbUBRQaZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:30:25 -0500
-Date: Wed, 18 Feb 2004 18:30:15 +0200
-From: Flexy <flexy@ee.oulu.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Laptop problems with 2.4 & 2.6 (HP Omnibook 4150)
-Message-ID: <20040218163015.GA10416@ee.oulu.fi>
-Mime-Version: 1.0
+	Wed, 18 Feb 2004 11:12:27 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:64385 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S263793AbUBRQMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 11:12:25 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EISA & sysfs.
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20040217235431.GF6242@redhat.com>
+	<wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
+	<20040218111612.GM6242@redhat.com>
+	<wrp1xos5s2o.fsf@panther.wild-wind.fr.eu.org>
+	<20040218155317.GQ6242@redhat.com>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 18 Feb 2004 17:12:15 +0100
+Message-ID: <wrp8yj04ba8.fsf@panther.wild-wind.fr.eu.org>
+In-Reply-To: <20040218155317.GQ6242@redhat.com> (Dave Jones's message of
+ "Wed, 18 Feb 2004 15:53:17 +0000")
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.23 kernel, keventd is not using much CPU time, but on 2.4.25-pre8 
-keventd is taking upto same amount as X. The difference is atleast a 
-decade or two. The configurations of these kernels are the same.
+>>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
 
-On 2.6.3 kernel, events/0 is taking CPU time, much like keventd in 
-2.4.25-pre8.
+Dave> kernel: kobject_register failed for hp100 (-17)
 
-I'm using vanilla kernels from kernel.org on HP Omnibook 4150, PIII 500, 
-with BX chipset. 256MB memory, 3c589_cs.
+-17 == -EEXIST.
 
-I'm happy to provide any additional information and do some testing, 
-if needed. Remember to put me on cc-list, I'm not subscribed.
+Looks like the driver was already loaded once, or managed to leave
+some sh*t into sysfs.
 
-TIA,
+Dave> Something also seems awry someplace else..
 
-Flexy
+Dave> (15:54:51:root@mindphaser:linux-2.6.2)# cat /proc/modules  | grep hp100
+Dave> (15:54:55:root@mindphaser:linux-2.6.2)# rmmod hp100
+Dave> ERROR: Module hp100 does not exist in /proc/modules
+Dave> (15:55:18:root@mindphaser:linux-2.6.2)# modprobe hp100
+Dave> FATAL: Module hp100 already in kernel.
+Dave> (15:55:25:root@mindphaser:linux-2.6.2)# cat /proc/modules | grep hp100
+Dave> (15:55:33:root@mindphaser:linux-2.6.2)#
+
+Dave> Odd.
+
+I've already seen that with half-initialized modules...
+
+	M.
+-- 
+Places change, faces change. Life is so very strange.

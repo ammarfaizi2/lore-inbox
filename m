@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbTJ2Uh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 15:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTJ2Uh1
+	id S261464AbTJ2Uar (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTJ2Uar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 15:37:27 -0500
-Received: from harddata.com ([216.123.194.198]:61420 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id S261555AbTJ2Uh0 (ORCPT
+	Wed, 29 Oct 2003 15:30:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29067 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261464AbTJ2Uaq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 15:37:26 -0500
-Message-Id: <5.1.1.6.0.20031029125436.03dcd050@mail.harddata.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 29 Oct 2003 13:38:40 -0700
-To: Andi Kleen <ak@muc.de>
-From: Mark Lane <mark@harddata.com>
-Subject: Re: 2.4.22 and Athlon64
+	Wed, 29 Oct 2003 15:30:46 -0500
+Date: Wed, 29 Oct 2003 12:31:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: lkml-031028@amos.mailshell.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3llr3zv98.fsf@averell.firstfloor.org>
-References: <M4ba.8dv.3@gated-at.bofh.it>
- <M4ba.8dv.3@gated-at.bofh.it>
+Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at
+ fs/buffer.c:431"
+Message-Id: <20031029123107.338796a4.akpm@osdl.org>
+In-Reply-To: <20031029174419.5776.qmail@mailshell.com>
+References: <20031028154920.1905.qmail@mailshell.com>
+	<20031028141329.13443875.akpm@osdl.org>
+	<20031029174419.5776.qmail@mailshell.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:41 PM 10/29/03, Andi Kleen wrote:
->Mark Lane <mark@harddata.com> writes:
+lkml-031028@amos.mailshell.com wrote:
 >
-> > I am having trouble compiling the 2.4.22 kernel for x86-64 non-smp. I
-> > can compile the smp kernel but not the regular kernel.
->
->2.4.22 broke the ACPI compilation in the last minute. You can either
->disable ACPI or apply ftp://ftp.x86-64.org/pub/linux/v2.4/acpi-2.4.22-hotfix
+> Here are the results (output of dmesg) from booting a kernel with this
+> patch:
+> 
+> set_blocksize: size=1024
+> set_blocksize: 1024 OK
+> set_blocksize: size=1024
+> set_blocksize: 1024 OK
+> set_blocksize: size=1024
+> set_blocksize: 1024 OK
+> set_blocksize: size=1024
+> set_blocksize: 1024 OK
+> set_blocksize: size=4096
+> buffer layer error at fs/buffer.c:431
 
-Yeah I have tried compiling with ACPI off. This is not my problem.
+hm, that didn't tell us much :(
 
+Could you add Oleg's patch as well?
 
-> > It seems that ksyms.c for x86-64 is looking for some smp stuff from
-> > the errors I am getting.
-> >
-> > I have tried 2.4.23-8 and the problem seems gone but I get an error
-> > when linking fs/fs.o into vmlinux. I have attached the errors I
-> > received.
->
->fs/fs.o(.text+0x1429f): In function `dput':
->: undefined reference to `atomic_dec_and_lock'
->
->either your tree is unclean (do a make mrproper and try again)
->or your compiler does not properly inline. What compiler are you using?
+--- 25/fs/buffer.c~extra-buffer-diags	Wed Oct 29 12:13:40 2003
++++ 25-akpm/fs/buffer.c	Wed Oct 29 12:14:58 2003
+@@ -428,6 +428,7 @@ __find_get_block_slow(struct block_devic
+ 	printk("block=%llu, b_blocknr=%llu\n",
+ 		(unsigned long long)block, (unsigned long long)bh->b_blocknr);
+ 	printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
++	printk("device blocksize: %d\n", 1 << bd_inode->i_blkbits);
+ out_unlock:
+ 	spin_unlock(&bd_mapping->private_lock);
+ 	page_cache_release(page);
 
-make mrproper worked thanks
--- 
-Mark Lane, CET  mailto:mark@harddata.com
-Hard Data Ltd.  http://www.harddata.com
-T: 01-780-456-9771      F: 01-780-456-9772
-11060 - 166 Avenue Edmonton, AB, Canada, T5X 1Y3
---> Ask me about our Excellent 1U Systems! <--
+_
 

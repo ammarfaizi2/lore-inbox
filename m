@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316094AbSETP5R>; Mon, 20 May 2002 11:57:17 -0400
+	id <S316093AbSETQAt>; Mon, 20 May 2002 12:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316097AbSETP5R>; Mon, 20 May 2002 11:57:17 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62214 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316094AbSETP5P>; Mon, 20 May 2002 11:57:15 -0400
-Date: Mon, 20 May 2002 11:53:11 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: michael@hostsharing.net, linux-kernel@vger.kernel.org
-Subject: Re: suid bit on directories
-In-Reply-To: <200205201403.JAA08246@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.3.96.1020520114319.28501C-100000@gatekeeper.tmr.com>
+	id <S316096AbSETQAs>; Mon, 20 May 2002 12:00:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46600 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316093AbSETQAr>; Mon, 20 May 2002 12:00:47 -0400
+Date: Mon, 20 May 2002 09:00:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, <alan@lxorguk.ukuu.org.uk>
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: <E179fAd-0005vs-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0205200856460.23874-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Jesse Pollard wrote:
 
-> Michael Hoennig <michael@hostsharing.net>:
 
-> > > 1. users will steal/bypass quota controls
-> > 
-> > Not in my example - acutally even the other way around.
-> 
-> And just how is it prevented? quotas are applied based on either group
-> or user. Normally it is based on user. Once the uid is set, then the
-> quotas start being deducted. If the the user procedes to store 10 G of
-> music files, who is charged? And how do you know who put them there.
+On Mon, 20 May 2002, Rusty Russell wrote:
+>
+> Not quite:
+> 	copy_from_user(xxx);
+>
+> Is my suggestion.  No error return.
 
-  I won't repeat my previous, but obviously the owner of the file is
-charged, and (b) if you care who put it there don't have a directory like
-that. If you are a control freak you don't create the directory in the
-first place. The behaviour is a feature not a problem.
- 
-> > > 2. Consider what happens if a user creates a file in such a directory
-> > > and   it is executable. - since the file is fully owned by a different
-> > > user, it   appears to have been created by that user. What protection
-> > > mask is on   the file? Can the creator (not owner) make it setuid?
-> > > (nasty worm   propagation method)
-> > 
-> > Again: it depends on the usage. In my case it is the other way around. A
-> > use should know what he is doing if he is setting this flag on a
-> > directory.  And making such files suid again, has to be prevented by the
-> > code - that I even mentioned in my first mail on this issue.
-> 
-> How are you going to control it?
+The fact is, that that would still make you have to audit all the users,
+AND you'd be left up shit creek for the users who _need_ the error return,
+so now you not only have to fix all existing broken stuff, you have to fix
+the _correct_ stuff too some strange way. I agree with returning SIGSEGV,
+but it is NOT a _replacement_ for getting the right error return from
+read/write.
 
-  The code is already in place to remove the setuid bit when changing
-the owner of a file. I don't see more than an AND on the permissions in
-creat() to provide this protection as the owner is changed.
- 
-> > > > Actually, the suid bit on directories works at least under FreeBSD. Is
-> > > > there any reason, why it does not work under Linux?
-> > > 
-> > > I don't believe it is in the POSIX definition.
-> > 
-> > I only said, it works under FreeBSD, it is an option there.
-> 
-> Then use FreeBSD.
+So what's your point? You want to dumb down the interfaces until you can't
+make mistakes, and only idiots will be able to use the system.
 
-  If developers had taken that approach to suggestions for enhancements in
-network code people would, and Linux would be saddled with the 1.x network
-code (shudder). Ditto journaling, bitmapped filesystems, etc. All started
-from features in other operating systems. To reverse your idea, if you
-don't want progress stay with 2.2.xx and don't read a DEVELOPMENT list.
+As long as you continue to push an interface that DOES NOT WORK, there's
+no way you can win this argument. read()/write() _needs_ to work, and
+that's not a "warm and fuzzy" kind of thing you can play with.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-"He stood across the path of progress, loudly crying HALT!"
+		Linus
 

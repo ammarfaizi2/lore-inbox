@@ -1,101 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280059AbRKEAAl>; Sun, 4 Nov 2001 19:00:41 -0500
+	id <S278770AbRKEAKC>; Sun, 4 Nov 2001 19:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280032AbRKEAAc>; Sun, 4 Nov 2001 19:00:32 -0500
-Received: from druid.if.uj.edu.pl ([149.156.64.221]:26387 "HELO
-	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
-	id <S280059AbRKEAAO>; Sun, 4 Nov 2001 19:00:14 -0500
-Date: Mon, 5 Nov 2001 01:00:09 +0100 (CET)
-From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-To: Thomas Hood <jdthood@mail.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.12-ac3 floppy module requires 0x3f0-0x3f1 ioports
-In-Reply-To: <1004752951.1104.4.camel@thanatos>
-Message-ID: <Pine.LNX.4.33.0111050050160.27009-200000@druid.if.uj.edu.pl>
+	id <S280060AbRKEAJv>; Sun, 4 Nov 2001 19:09:51 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:9195 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S278770AbRKEAJn>; Sun, 4 Nov 2001 19:09:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Date: Mon, 5 Nov 2001 01:10:19 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jakob ?stergaard <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Tim Jansen <tim@tjansen.de>
+In-Reply-To: <Pine.GSO.4.21.0111041841480.21449-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0111041841480.21449-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1667900096-871493789-1004918409=:27009"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105000933Z17055-18972+28@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On November 5, 2001 12:42 am, Alexander Viro wrote:
+> On Sun, 4 Nov 2001, Daniel Phillips wrote:
+> 
+> > Doing 'top -d .1' eats 18% of a 1GHz cpu, which is abominable.  A kernel
+> > profile courtesy of sgi's kernprof shows that scanning pages does not move
+> > the needle, whereas sprintf does.  Notice that the biggest chunk of time
+> 
+> Huh?  Scanning pages is statm_pgd_range().  I'd say that it takes
+> seriously more than vsnprintf() - look at your own results.
 
----1667900096-871493789-1004918409=:27009
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Yes, true, 2.6 seconds for the statm_pgd_range vs 1.2 for sprintf.  Still, 
+sprintf is definitely burning cycles, pretty much the whole 1.2 seconds would 
+be recovered with a binary interface.
 
-On 2 Nov 2001, Thomas Hood wrote:
-> Alan Cox wrote:
-> > Maciej Zenczykowski wrote:
-> >> Is there any reason why the floppy module requires
-> >> the ioport range 0x3f0-0x3f1 in order to load?  On
-> >> my computer /proc/ioports reports this range as used
-> >> by PnPBIOS PNP0c02, thus the floppy module cannot
-> >> reserve the range 0x3f0-0x3f5 and refuses to load.
-> >
-> > This is a bug in the PnPBIOS experimental code -
-> > turn off PnPBIOS and/or update for the moment
->
-> A fix for this problem went in to 2.4.13-ac2.  Please
-> try that kernel (or a later -ac kernel) and report back.
+Now look at the total time we spend in the kernel: 10.4 seconds, 4 times the 
+page scanning overhead.  This is really wasteful.
 
-Well just tried kernel 2.4.13-ac6 and there is absolutely no difference.
+For top does it really matter?  (yes, think slow computer)  What happens when 
+proc stabilizes and applications start relying on it heavily as a kernel 
+interface?  If we're still turning in this kind of stunningly poor 
+performance, it won't be nice.
 
-After applying the attached patch all works OK...
+It's not that it doesn't work, it's just that it isn't the best.
 
-Maciej Zenczykowski
-
-nb. modprobe rivafb leaves the kernel's idea of whats on screen out of
-sync with the truth.  i.e. modprobe rivafb on tty2 and you end up with
-tty1 on the screen, but keypresses going to tty2...
-
----1667900096-871493789-1004918409=:27009
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=mz-floppy-patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0111050100090.27009@druid.if.uj.edu.pl>
-Content-Description: floppy patch
-Content-Disposition: attachment; filename=mz-floppy-patch
-
-LS0tIGRyaXZlcnMvYmxvY2svZmxvcHB5LmMuYmVmb3JlLW1hemUJU3VuIE9j
-dCAyMSAxOTowOToyMSAyMDAxDQorKysgZHJpdmVycy9ibG9jay9mbG9wcHku
-YwlUdWUgT2N0IDMwIDIxOjQ2OjQ2IDIwMDENCkBAIC00MjI4LDcgKzQyMjgs
-NyBAQA0KIAkJRkRDUy0+cmF3Y21kID0gMjsNCiAJCWlmICh1c2VyX3Jlc2V0
-X2ZkYygtMSxGRF9SRVNFVF9BTFdBWVMsMCkpew0KICAJCQkvKiBmcmVlIGlv
-cG9ydHMgcmVzZXJ2ZWQgYnkgZmxvcHB5X2dyYWJfaXJxX2FuZF9kbWEoKSAq
-Lw0KLSAJCQlyZWxlYXNlX3JlZ2lvbihGRENTLT5hZGRyZXNzLCA2KTsNCisg
-CQkJcmVsZWFzZV9yZWdpb24oRkRDUy0+YWRkcmVzcysyLCA0KTsNCiAgCQkJ
-cmVsZWFzZV9yZWdpb24oRkRDUy0+YWRkcmVzcys3LCAxKTsNCiAJCQlGRENT
-LT5hZGRyZXNzID0gLTE7DQogCQkJRkRDUy0+dmVyc2lvbiA9IEZEQ19OT05F
-Ow0KQEAgLTQyMzgsNyArNDIzOCw3IEBADQogCQlGRENTLT52ZXJzaW9uID0g
-Z2V0X2ZkY192ZXJzaW9uKCk7DQogCQlpZiAoRkRDUy0+dmVyc2lvbiA9PSBG
-RENfTk9ORSl7DQogIAkJCS8qIGZyZWUgaW9wb3J0cyByZXNlcnZlZCBieSBm
-bG9wcHlfZ3JhYl9pcnFfYW5kX2RtYSgpICovDQotIAkJCXJlbGVhc2VfcmVn
-aW9uKEZEQ1MtPmFkZHJlc3MsIDYpOw0KKyAJCQlyZWxlYXNlX3JlZ2lvbihG
-RENTLT5hZGRyZXNzKzIsIDQpOw0KICAJCQlyZWxlYXNlX3JlZ2lvbihGRENT
-LT5hZGRyZXNzKzcsIDEpOw0KIAkJCUZEQ1MtPmFkZHJlc3MgPSAtMTsNCiAJ
-CQljb250aW51ZTsNCkBAIC00MzE3LDggKzQzMTcsOCBAQA0KIA0KIAlmb3Ig
-KGZkYz0wOyBmZGM8IE5fRkRDOyBmZGMrKyl7DQogCQlpZiAoRkRDUy0+YWRk
-cmVzcyAhPSAtMSl7DQotCQkJaWYgKCFyZXF1ZXN0X3JlZ2lvbihGRENTLT5h
-ZGRyZXNzLCA2LCAiZmxvcHB5IikpIHsNCi0JCQkJRFBSSU5UKCJGbG9wcHkg
-aW8tcG9ydCAweCUwNGx4IGluIHVzZVxuIiwgRkRDUy0+YWRkcmVzcyk7DQor
-CQkJaWYgKCFyZXF1ZXN0X3JlZ2lvbihGRENTLT5hZGRyZXNzICsgMiwgNCwg
-ImZsb3BweSIpKSB7DQorCQkJCURQUklOVCgiRmxvcHB5IGlvLXBvcnQgMHgl
-MDRseCBpbiB1c2VcbiIsIEZEQ1MtPmFkZHJlc3MgKyAyKTsNCiAJCQkJZ290
-byBjbGVhbnVwMTsNCiAJCQl9DQogCQkJaWYgKCFyZXF1ZXN0X3JlZ2lvbihG
-RENTLT5hZGRyZXNzICsgNywgMSwgImZsb3BweSBESVIiKSkgew0KQEAgLTQz
-NDksMTIgKzQzNDksMTIgQEANCiAJaXJxZG1hX2FsbG9jYXRlZCA9IDE7DQog
-CXJldHVybiAwOw0KIGNsZWFudXAyOg0KLQlyZWxlYXNlX3JlZ2lvbihGRENT
-LT5hZGRyZXNzLCA2KTsNCisJcmVsZWFzZV9yZWdpb24oRkRDUy0+YWRkcmVz
-cyArIDIsIDQpOw0KIGNsZWFudXAxOg0KIAlmZF9mcmVlX2lycSgpOw0KIAlm
-ZF9mcmVlX2RtYSgpOw0KIAl3aGlsZSgtLWZkYyA+PSAwKSB7DQotCQlyZWxl
-YXNlX3JlZ2lvbihGRENTLT5hZGRyZXNzLCA2KTsNCisJCXJlbGVhc2VfcmVn
-aW9uKEZEQ1MtPmFkZHJlc3MgKyAyLCA0KTsNCiAJCXJlbGVhc2VfcmVnaW9u
-KEZEQ1MtPmFkZHJlc3MgKyA3LCAxKTsNCiAJfQ0KIAlNT0RfREVDX1VTRV9D
-T1VOVDsNCkBAIC00NDIxLDcgKzQ0MjEsNyBAQA0KIAlvbGRfZmRjID0gZmRj
-Ow0KIAlmb3IgKGZkYyA9IDA7IGZkYyA8IE5fRkRDOyBmZGMrKykNCiAJCWlm
-IChGRENTLT5hZGRyZXNzICE9IC0xKSB7DQotCQkJcmVsZWFzZV9yZWdpb24o
-RkRDUy0+YWRkcmVzcywgNik7DQorCQkJcmVsZWFzZV9yZWdpb24oRkRDUy0+
-YWRkcmVzcysyLCA0KTsNCiAJCQlyZWxlYXNlX3JlZ2lvbihGRENTLT5hZGRy
-ZXNzKzcsIDEpOw0KIAkJfQ0KIAlmZGMgPSBvbGRfZmRjOw0K
----1667900096-871493789-1004918409=:27009--
+--
+Daniel

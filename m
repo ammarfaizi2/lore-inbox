@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312212AbSDST6x>; Fri, 19 Apr 2002 15:58:53 -0400
+	id <S312308AbSDSUBP>; Fri, 19 Apr 2002 16:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312308AbSDST6w>; Fri, 19 Apr 2002 15:58:52 -0400
-Received: from klecker.debian.org ([198.186.203.20]:25874 "EHLO
-	klecker.debian.org") by vger.kernel.org with ESMTP
-	id <S312212AbSDST6v>; Fri, 19 Apr 2002 15:58:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Yven Leist <leist@beldesign.de>
-Organization: beldesign
-To: Andi Kleen <ak@suse.de>
-Subject: Re: TCP: Treason uncloaked DoS ??
-Date: Fri, 19 Apr 2002 21:58:34 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200204191512.g3JFCvl18558@mail.advfn.com.suse.lists.linux.kernel> <p731ydbacja.fsf@oldwotan.suse.de>
+	id <S312570AbSDSUBO>; Fri, 19 Apr 2002 16:01:14 -0400
+Received: from codepoet.org ([166.70.14.212]:19906 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S312308AbSDSUBN>;
+	Fri, 19 Apr 2002 16:01:13 -0400
+Date: Fri, 19 Apr 2002 14:01:13 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "Dr. Death" <drd@homeworld.ath.cx>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020419195836.9B9A343253C@fastpage.beldesign.net>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+Message-ID: <20020419200112.GA16209@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Dr. Death" <drd@homeworld.ath.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <3CBEC67F.3000909@filez>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 April 2002 18:17, Andi Kleen wrote:
-> Tim Kay <timk@advfn.com> writes:
-> > that the connections are kept open if the client connecting doesn't
-> > actually go away so surely lots of these ocurring at once would overload
-> > a server. I have googled this and an occasional instance seems normal and
-> > could be down to a broken client, but lots from different IP addr's at
-> > once??
->
-> It is a TCP bug of the other side.
+On Thu Apr 18, 2002 at 03:13:35PM +0200, Dr. Death wrote:
+> Problem:
+> 
+> I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
+> CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
+> damaged part of the file !
 
-that's strange, I encountered exactly the same message in my syslog while 
-doing backups between two Linux machines, it was somewhere around 2.4.15 I 
-think.
+This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
+(8) times when it sees an error.  But ide.c is also retrying
+ERROR_MAX times when _it_ sees an error, and does a bus reset
+after evey 4 failures.  So for each bad sector, you get 64
+retries (with typical timouts of 7 seconds each) plus 16 bus
+resets per bad sector.
 
-> You can safely comment out the printk. It would be interesting however
-> to find out what the other side is running and yell at the vendor.
->
-> > I'm a bit concerned that maybe someone is warming up for a hit or
-> > something.
->
-> More likely someone released a new buggy TCP stack to the world.
+The funny thing is though, we knew after the first read that we
+had an uncorrectable medium error.  Try this patch vs 2.4.19-pre7
 
-Is it possible that there are other things which can cause this? 
-Or does it really mean that Linux has a buggy TCP stack!? 
-I simply cannot believe this ;-)
-cheers,
-Yven
+--- linux/drivers/ide/ide-cd.c.orig	Tue Apr  9 06:59:56 2002
++++ linux/drivers/ide/ide-cd.c	Tue Apr  9 07:04:59 2002
+@@ -657,6 +657,11 @@
+ 			   request or data protect error.*/
+ 			ide_dump_status (drive, "command error", stat);
+ 			cdrom_end_request (0, drive);
++		} else if (sense_key == MEDIUM_ERROR) {
++			/* No point in re-trying a zillion times on a bad 
++			 * sector...  If we got here the error is not correctable */
++			ide_dump_status (drive, "media error (bad sector)", stat);
++			cdrom_end_request (0, drive);
+ 		} else if ((err & ~ABRT_ERR) != 0) {
+ 			/* Go to the default handler
+ 			   for other errors. */
+ -Erik
 
--- 
-
-Yven Johannes Leist - leist@beldesign.de
-http://www.leist.beldesign.de
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

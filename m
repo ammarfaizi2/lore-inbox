@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269179AbUJQQlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269184AbUJQQwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269179AbUJQQlR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 12:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269181AbUJQQgw
+	id S269184AbUJQQwr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 12:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUJQQwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 12:36:52 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:3290 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S269239AbUJQQfm (ORCPT
+	Sun, 17 Oct 2004 12:52:46 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46724 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269205AbUJQQqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 12:35:42 -0400
-Message-ID: <000801c4b46f$b62034b0$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Buddy Lucas" <buddy.lucas@gmail.com>, "Lars Marowsky-Bree" <lmb@suse.de>,
-       "David Schwartz" <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017150509.GC10280@mark.mielke.cc> <5d6b65750410170840c80c314@mail.gmail.com>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Sun, 17 Oct 2004 18:35:34 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	Sun, 17 Oct 2004 12:46:25 -0400
+Date: Sun, 17 Oct 2004 18:47:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Message-ID: <20041017164743.GA26350@elte.hu>
+References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu> <32801.192.168.1.5.1098018846.squirrel@192.168.1.5> <20041017132107.GA18462@elte.hu> <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Buddy Lucas" <buddy.lucas@gmail.com>
-> On Sun, 17 Oct 2004 11:05:09 -0400, Mark Mielke <mark@mark.mielke.cc> wrote:
-> > On Sun, Oct 17, 2004 at 04:17:06PM +0200, Buddy Lucas wrote:
-> > > On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> > > > The SuV spec is actually quite detailed about the options here:
-> > > >         A descriptor shall be considered ready for reading when a call
-> > > >         to an input function with O_NONBLOCK clear would not block,
-> > > >         whether or not the function would transfer data successfully.
-> > > >         (The function might return data, an end-of-file indication, or
-> > > >         an error other than one indicating that it is blocked, and in
-> > > >         each of these cases the descriptor shall be considered ready for
-> > > >         reading.)
-> > > But it says nowhere that the select()/recvmsg() operation is atomic, right?
-> > 
-> > This is a distraction. If the call to select() had been substituted
-> > with a call to recvmsg(), it would have blocked. Instead, select() is
-> > returning 'yes, you can read', and then recvmsg() is blocking. The
-> > select() lied. The information is all sitting in the kernel packet
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> OK. Here goes some more food-for-thought :)
 > 
-> No. A million things might happen between select() and recvmsg(), both
-> in kernel and application. For a consistent behaviour throughout all
-> possibilities, you *have* to assume that any read on a blocking fd may
-> block, and that a fd ready for reading at select() time might not be
-> readable once the app gets to recvmsg() -- for whatever reason.
+> - minitor.cap-2.6.9-rc4-mm1-RT-U4.1smp.tar.gz has another three
+> capture sessions, minicom.cap.{3,4,5}, which stalls on boot/init
+> (CONFIG_PREEMPT_REALTIME=y). Take a special look on minicom.cap.5,
+> where the session has been force-truncated, due to an never ending
+> trace dump, and where no SysRq could do the rescue. This is one of
+> another symptoms, but with less occurrences I've noticed.
 
-It is perfectly possible to not have a million things happen between
-select() and recvmsg() and POSIX defines what can happen and what
-can't; it states that a process calling select() on a socket will not block
-on a subsequent recvmsg() on that socket.
+i think you are getting stack overflows. Could you disable
+CONFIG_4KSTACKS and see whether that helps?
 
-> And indeed, that implies that select() on blocking fds is generally
-> not useful if you expect to bypass the blocking through select().
-> Personally,  I think any application that implements this expectation
-> is broken. (If only because you might have to do a second read() or
-> recvmsg() which will either result in a crappy select() loop or a
-> broken read()/recvmsg() loop).
+	Ingo
 
-The way select() is defined in POSIX effectively means that once an
-application has done a select() on a socket, the data that caused 
-select() to return is committed, i.e. it can no longer be dropped and
-should be considered received by the application; this has nothing
-to do with UDP being unreliable and being unreliable for the sake
-of it is not what UDP was meant for.
-
-Whether you think an application that is written to use select() as
-defined in POSIX is broken is not really important. The fact remains
-that Linux currently implements a select() that is _not_ POSIX
-compliant and is so solely for performance reasons. I personally think
-correct behaviour is much more important.
-
-
---ms
 

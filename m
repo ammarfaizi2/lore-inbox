@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314399AbSDRSTO>; Thu, 18 Apr 2002 14:19:14 -0400
+	id <S314401AbSDRSW0>; Thu, 18 Apr 2002 14:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314402AbSDRSTN>; Thu, 18 Apr 2002 14:19:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2896 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314399AbSDRSTM>; Thu, 18 Apr 2002 14:19:12 -0400
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86 boot enhancements, Clean up the 32bit entry points 6/11
-In-Reply-To: <20020418165939.22502.qmail@web11801.mail.yahoo.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 18 Apr 2002 12:11:55 -0600
-Message-ID: <m1hem86fmc.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314402AbSDRSWZ>; Thu, 18 Apr 2002 14:22:25 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:44725 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S314401AbSDRSWY>; Thu, 18 Apr 2002 14:22:24 -0400
+Date: 18 Apr 2002 20:16:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8N7App8mw-B@khms.westfalen.de>
+In-Reply-To: <20020418135931.GU21206@holomorphy.com>
+Subject: Re: [RFC] 2.5.8 sort kernel tables
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Etienne Lorrain <etienne_lorrain@yahoo.fr> writes:
+wli@holomorphy.com (William Lee Irwin III)  wrote on 18.04.02 in <20020418135931.GU21206@holomorphy.com>:
 
->  Seems that previous message did not go through, rewrite.
-> 
->  I am sorry I did not check enough your patch.
->  You are speaking of: arch/i386/boot/compressed/head.S
+> On Thu, Apr 18, 2002 at 07:46:26PM +1000, Keith Owens wrote:
+> > The use of __init and __exit sections breaks the assumption that tables
+> > such as __ex_table are sorted, it has already broken the dbe table in
+> > mips on 2.5.  This patch against 2.5.8 adds a generic sort routine and
+> > sorts the i386 exception table.
+> > This sorting needs to be extended to several other tables, to all
+> > architectures, to modutils (insmod loads some of these tables for
+> > modules) and back ported to 2.4.  Before I spend the rest of the time,
+> > any objections?
+>
+> It doesn't have to be an O(n lg(n)) method but could you use something
+> besides bubblesort? Insertion sort, selection sort, etc. are just as
+> easy and they don't have the horrific stigma of being "the worst sorting
+> algorithm ever" etc.
 
-That is what you quoted, so I assumed that is what you were
-talking about.
+Surely the worst (working) sort is randomsort? (Check if sorted. If not,  
+pick two entries at random, exchange, retry.)
 
->  I am speaking of:    arch/i386/kernel/head.S
-> 
->  Gujin skip completely arch/i386/boot/compressed/* and really
->  boots the file '$$tmppiggy.gz' line 44 of file:
-> arch/i386/boot/compressed/Makefile
-> 
->  So you can do whatever you want with the "first" 32 bits entry point,
->  I am just concerned by the "second" kernel 32 bits entry point, in
->  arch/i386/kernel/head.S
-> 
->  I still have a problem to detect the size of your decompressor, and that
->  is my use of the "lss" instruction.
->  This "lss SYMBOL_NAME(stack_start),%esp" gives an access to the symbol
->  'stack_start', so it is quite easy to find back the GZIP signature
->  of the initial '$$tmppiggy.gz' in what I call my "compatibility" mode,
->  i.e. booting the legacy vmlinuz files - and skipping all of the real mode
->  code and the decompressor code.
-
-Well it should be easier I put an explicit pointer to it.
-
->  This "lss" line has not always been at the same offset, but is around
->  since maybe even the 0.01 kernel, it is quite easy to find it from its
->  hexadecimal form. (function vmlinuz_header_treat() in vmlinuz.c of
->  Gujin).
-> 
->  The loaded high/loaded low stuff is just to know if I have to remove
->  0x100000 or 0x1000 from this symbol to have the number of bytes
->  to skip on the file.
->  By the way, the bit in the kernel header is set by the bootloader to say
->  where it has loaded the kernel, not by the compiler/linker chain.
-
-Nope.  LOADED_HIGH in loadflags is set at compile time.  It determines
-where the bootloader must load the compressed part of the kernel.
-
->  So is it possible to write somewhere how much code to skip or the offset
->  of the kernel GZIP signature?
-
-Already done.
-
->  Something like:
->   jmp next
->   lss SYMBOL_NAME(stack_start),%esp
-> next:
->  Would make me really happy, but is dirty.
->  Changing the 'tmppiggy.lnk' in the Makefile can be done, but the value
->  (to know the length of the decompressor code) has to be _before_ the code
->  itself in the raw file.
-
-Yep.
-
->  Else whatever signature at whatever fixed address with the code+rodata
->  size following would make me happy.
-
-Check out the code.
-
-Eric
+MfG Kai

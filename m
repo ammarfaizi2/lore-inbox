@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbTGAQQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 12:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTGAQQ0
+	id S262714AbTGAQVs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 12:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTGAQVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 12:16:26 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:47999 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S262636AbTGAQQV
+	Tue, 1 Jul 2003 12:21:48 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:44271 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262714AbTGAQVn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 12:16:21 -0400
-Date: Tue, 1 Jul 2003 11:30:43 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI domain stuff
-Message-ID: <20030701113043.A27060@hexapodia.org>
-References: <bdr7a6$4eu$1@cesium.transmeta.com> <1057039376.32118.3.camel@rth.ninka.net> <3F0124FC.1010001@zytor.com> <20030630.230329.35692088.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030630.230329.35692088.davem@redhat.com>; from davem@redhat.com on Mon, Jun 30, 2003 at 11:03:29PM -0700
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Tue, 1 Jul 2003 12:21:43 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: ipc semaphore optimization
+Date: Tue, 1 Jul 2003 09:36:02 -0700
+Message-ID: <41F331DBE1178346A6F30D7CF124B24B2A4875@fmsmsx409.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ipc semaphore optimization
+Thread-Index: AcM/4hqqHpRLFTPsTQOTeMN2dWvTmgADG0rQ
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Luis Miguel Garcia" <ktech@wanadoo.es>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Jul 2003 16:36:03.0049 (UTC) FILETIME=[DC7D9590:01C33FEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 11:03:29PM -0700, David S. Miller wrote:
->    From: "H. Peter Anvin" <hpa@zytor.com>
->    Date: Mon, 30 Jun 2003 23:06:52 -0700
-> 
->    Perhaps a libdirectio would be useful?
->    
-> The details are very PCI specific, so what you'd be working
-> on initially is a PCI centric library.
-> 
-> Over time things can be abstracted, but the initial PCI specific
-> one would be good enough for xfree86 to link to and make use
-> of which is a huge step in the right direction.
+Last patch posted was relative to 2.5.73.  It is in Andrew Morton's
+2.5.73-mm2 tree.
 
-There is some interest in the NetBSD project for such an API, as well.
-<fair at netbsd.org> filed xsrc/21986 last week.
-http://www.netbsd.org/cgi-bin/query-pr-single.pl?number=21986
+- Ken
 
-Perhaps a common implementation could develop.
+-----Original Message-----
+From: Luis Miguel Garcia [mailto:ktech@wanadoo.es] 
+Sent: Tuesday, July 01, 2003 8:06 AM
+To: linux-kernel@vger.kernel.org
+Cc: Chen, Kenneth W
+Subject: Re:ipc semaphore optimization
 
-(OK, I can dream...)
 
--andy
+Well, it doesn't apply to current tree.
+
+Perhaps already applied or something?
+
+Thanks!
+
+
+-- 
+=============================================================
+Luis Miguel Garcia Mancebo
+Ingenieria Tecnica en Informatica de Gestion
+Universidad de Deusto / University of Deusto
+Bilbao / Spain
+=============================================================

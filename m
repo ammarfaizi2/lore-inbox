@@ -1,92 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264060AbTEWM5b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 08:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbTEWM5b
+	id S264058AbTEWM4o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 08:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTEWM4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 08:57:31 -0400
-Received: from mail.gmx.net ([213.165.64.20]:9268 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264060AbTEWM5Z (ORCPT
+	Fri, 23 May 2003 08:56:44 -0400
+Received: from ns.suse.de ([213.95.15.193]:32009 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264058AbTEWM4n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 08:57:25 -0400
-Message-ID: <3ECE1DBF.5090602@gmx.net>
-Date: Fri, 23 May 2003 15:10:23 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Martijn Uffing <mp3project@cam029208.student.utwente.nl>
-CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell Coker <russell@coker.com.au>
-Subject: Re: Linux 2.4.21-rc3
-References: <Pine.LNX.4.44.0305231437260.28118-100000@cam029208.student.utwente.nl>
-In-Reply-To: <Pine.LNX.4.44.0305231437260.28118-100000@cam029208.student.utwente.nl>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 23 May 2003 08:56:43 -0400
+Date: Fri, 23 May 2003 15:09:48 +0200
+From: Andi Kleen <ak@suse.de>
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: race in smp idle task startup
+Message-ID: <20030523130948.GA30288@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martijn Uffing wrote:
-> Ave
-> 
-> Modular ide is still broken in 2.4.21-rc3  with my config.
 
-IIRC, Alan said it is not suposed to work yet. However, if you're
-feeling brave (and have no valuable data), you can try to export these
-symbols to make depmod happy. (Please read on)
+I think it was there before, but I now noticed it:
 
-> "make modules_install" gives a:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc3/kernel/drivers/ide/ide-disk.o
-> depmod: 	proc_ide_read_geometry
-> depmod: 	ide_remove_proc_entries
-> depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc3/kernel/drivers/ide/ide-probe.o
-> depmod: 	do_ide_request
-> depmod: 	ide_add_generic_settings
-> depmod: 	create_proc_ide_interfaces
-> depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc3/kernel/drivers/ide/ide.o
-> depmod: 	ide_release_dma
-> depmod: 	ide_add_proc_entries
-> depmod: 	cmd640_vlb
-> depmod: 	ide_probe_for_cmd640x
-> depmod: 	ide_scan_pcibus
-> depmod: 	proc_ide_read_capacity
-> depmod: 	proc_ide_create
-> depmod: 	ide_remove_proc_entries
-> depmod: 	destroy_proc_ide_drives
-> depmod: 	proc_ide_destroy
-> depmod: 	create_proc_ide_interfaces
-> 
-> 
-> The .config of these errors.
-> 
-> CONFIG_IDE=m
-> CONFIG_BLK_DEV_IDE=m
-> CONFIG_BLK_DEV_IDEDISK=m
-> CONFIG_IDEDISK_MULTI_MODE=y
-> CONFIG_BLK_DEV_IDECD=m
-> CONFIG_BLK_DEV_CMD640=y
-> CONFIG_BLK_DEV_RZ1000=y
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_IDEPCI_SHARE_IRQ=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_BLK_DEV_ADMA=y
-> CONFIG_BLK_DEV_VIA82CXXX=y
-> CONFIG_IDEDMA_AUTO=y
-> CONFIG_BLK_DEV_IDE_MODES=y
+The 2.5 SMP bootup path does now:
 
-Alan? It might be prudent to make all IDE CONFIG_XYZ bools for -rc4 so
-no one can complain that the released kernel does not compile. Marcelo
-could just revert it for 2.4.22-pre then.
+ 	idle = fork_by_hand();
+ 	if (IS_ERR(idle))
+	 		panic("failed fork for CPU %d", cpu);
+	wake_up_forked_process(idle);
 
-This is mainly to keep the complaint level down.
+	<----------- process on run queue ---------------->
 
+	/*
+	 * We remove it from the pidhash and the runqueue
+ 	 * once we got the process:
+ 	 */
+ 	init_idle(idle,cpu);
 
-Regards,
-Carl-Daniel
+But sched_init has been called before and the load balance timers 
+are already running. If you have multiple CPUs to start another CPU
+could come and balance the idle thread away. Its registers contain
+random values from fork_by_hand so it would likely crash.
+
+It probably needs a __wake_up_forked_process that does not actually
+put it onto an runqueue. Or did I miss something?
+
+-Andi
 

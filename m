@@ -1,36 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSGEIXM>; Fri, 5 Jul 2002 04:23:12 -0400
+	id <S315513AbSGEIpC>; Fri, 5 Jul 2002 04:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315513AbSGEIXL>; Fri, 5 Jul 2002 04:23:11 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:57222 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S315491AbSGEIXL>;
-	Fri, 5 Jul 2002 04:23:11 -0400
-Date: Fri, 5 Jul 2002 10:25:40 +0200 (MEST)
-From: Michael Mertins <m_g_m@gmx.net>
+	id <S315760AbSGEIpB>; Fri, 5 Jul 2002 04:45:01 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13620 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S315513AbSGEIpA>; Fri, 5 Jul 2002 04:45:00 -0400
+Subject: 
+From: Christian Berger <christian@berger-online.de>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: orinoco_plx: 3com Aiconnect PCI, how?
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0002451587@gmx.net
-X-Authenticated-IP: [212.202.168.79]
-Message-ID: <2947.1025857540@www59.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <2947.1025857540@www59.gmx.net>
+References: <2947.1025857540@www59.gmx.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 05 Jul 2002 10:47:32 +0200
+Message-Id: <1025858852.1154.0.camel@Rechner1.berger-online.de>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-is there anyone that has made the 3com Airconnect PCI-Card work? It should
-be in the orinoco_plx module right? Any help would be appreciated.
-Regards,
-Michael
+unsubscribe linux-kernel
 
-ps. please cc to me directly
-
--- 
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
 

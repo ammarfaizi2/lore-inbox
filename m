@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314647AbSD0XoV>; Sat, 27 Apr 2002 19:44:21 -0400
+	id <S314648AbSD0Xz3>; Sat, 27 Apr 2002 19:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314648AbSD0XoU>; Sat, 27 Apr 2002 19:44:20 -0400
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:64395 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S314647AbSD0XoT>;
-	Sat, 27 Apr 2002 19:44:19 -0400
-Message-ID: <3CCB37D2.9050300@tmsusa.com>
-Date: Sat, 27 Apr 2002 16:44:18 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020426
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S314649AbSD0Xz2>; Sat, 27 Apr 2002 19:55:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:62217 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314648AbSD0Xz1>;
+	Sat, 27 Apr 2002 19:55:27 -0400
+Date: Sun, 28 Apr 2002 01:55:13 +0200
+From: Dave Jones <davej@suse.de>
+To: J Sloan <joe@tmsusa.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5-dj merging status.
-In-Reply-To: <20020427170737.GA29275@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020428015513.B14743@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	J Sloan <joe@tmsusa.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020427170737.GA29275@suse.de> <3CCB37D2.9050300@tmsusa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Sat, Apr 27, 2002 at 04:44:18PM -0700, J Sloan wrote:
+ > Dave Jones wrote:
+ > 
+ > >+   numerous jiffy wrap fixes
+ > >
+ > Hello, would this include the fix for the
+ > infamous 497 day uptime wraparound bug?
 
->+   numerous jiffy wrap fixes
->
-Hello, would this include the fix for the
-infamous 497 day uptime wraparound bug?
+Different problem. This is a collection of fixes of the form..
 
-Joe
+-    while (jiffies < timeout);
++    while (time_before(jiffies, timeout));
 
+And similiar.
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

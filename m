@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUIMJX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUIMJYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUIMJX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 05:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUIMJX2
+	id S266481AbUIMJYo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 05:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUIMJYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 05:23:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:48043 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266465AbUIMJXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 05:23:21 -0400
-Date: Mon, 13 Sep 2004 11:24:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Roel van der Made <roel@telegraafnet.nl>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org, wli@holomorphy.com
-Subject: Re: [PATCH]: Re: kernel 2.6.9-rc1-mm4 oops
-Message-ID: <20040913092443.GA19437@elte.hu>
-References: <20040912184804.GC19067@telegraafnet.nl> <4145550F.8030601@sw.ru> <20040913083100.GA16921@elte.hu> <41456536.6090801@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41456536.6090801@sw.ru>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 13 Sep 2004 05:24:42 -0400
+Received: from www01.ies.inet6.fr ([62.210.153.201]:27584 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S266474AbUIMJYI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 05:24:08 -0400
+Message-ID: <4145672F.7060603@inet6.fr>
+Date: Mon, 13 Sep 2004 11:23:59 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Cc: tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>,
+       Linux-IDE <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
+References: <1094826555.7868.186.camel@thomas.tec.linutronix.de> <200409102321.17042.bzolnier@elka.pw.edu.pl> <4142D3AE.5050602@inet6.fr> <200409111802.45628.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200409111802.45628.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Trusted: [ ip=62.210.105.37 rdns=ppp3290-cwdsl.fr.cw.net 
+	helo=proxy.inet6-interne.fr by=smtp.ies.inet6.fr ident= ] [ 
+	ip=192.168.50.116 rdns=bouton.inet6-interne.fr helo=!192.168.50.116! 
+	by=proxy.inet6-interne.fr ident= ]
+X-Spam-DCC: NIET: web01.inet6.ies 1080; IP=ok Body=1 Fuz1=1 Fuz2=1
+X-Spam-Assassin: No hits=0.2 required=4.5
+X-Spam-Untrusted: 
+X-Spam-Pyzor: Reported 0 times.
+X-Spam-Report: *  0.2 AWL AWL: Auto-whitelist adjustment
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote the following on 09/11/2004 06:02 PM :
 
-* Kirill Korotaev <dev@sw.ru> wrote:
+>>In fact I think I'm only a speed bumper here. There's so little work to 
+>>do on the sis5513 driver now that I don't follow IDE work closely 
+>>anymore and must refresh my memories even for such simple patches. I 
+>>believe there are people around more fit than me for sis5513 maintenance.
+>>    
+>>
+>
+>I'm not aware of any such person...
+>
+>  
+>
 
-> >the BUG() is useful for all the code that uses next_thread() - you can
-> >only do a safe next_thread() iteration if you've locked ->sighand.
+Vojtech seemed quite proficient at sis5513.c hacking :-)
 
-> 1. I don't see spin_lock() on p->sighand->siglock in do_task_stat() 
-> before calling next_thread(). And the check inside next_thread() permits 
-> only one of the locks to be taken:
-> 
->         if (!spin_is_locked(&p->sighand->siglock) &&
->                                 !rwlock_is_locked(&tasklist_lock))
-> 
-> which is probably wrong, since tasklist_lock is always required!
+>
+>Dedicated maintainers are very useful even for legacy drivers.
+>This way the subsystem maintainer doesn't have to worry about
+>every fscking driver (less bugs, faster development). :-)
+>
+>  
+>
 
-It's not 'wrong' in terms of correctness it's simply too restrictive for
-no reason. I agree that we should check for the tasklist lock only.
+Ok, if you think a dedicated maintainer is the way to go, I'll continue 
+to review occasional patches. In fact I enjoy doing this from time to 
+time, I was merely worried about not being the best fit for the job anymore.
 
-> 2. I think the idea of checking sighand is quite obscure. Probably it
-> would be better to call pid_alive() for check at such places in proc,
-> isn't it?
+Regards,
 
-yeah, it's just as good of a check.
-
-> 3. And yes, now I agree that this check and BUG() prevented
-> next_thread() from walking through the deleted list_head in
-> tsk->pid_list.
-
-good.
-
-> But I would propose to reorganize these checks in next_thread() to
-> something like this:
-> 
-> if (!rwlock_is_locked(&tasklist_lock) || p->pids[PIDTYPE_TGID].nr == 0)
-> 	BUG();
-> 
-> the last check ensures that we are still hashed and this check is more 
-> straithforward for understanding, agree?
-
-yep - please send a new patch to Andrew.
-
-> 4. If we do checks this way, then we can found strange proc numeric
-> results. Suppose, you have read the do_task_stat() and it iterated
-> through the threads and summed the times in this loop with
-> next_thread(). Next, the thread dies and you can read the results w/o
-> this loop and threads times, only this thread stats. Looks a bit
-> invalid. Don't you think so? Maybe we should return an error?
-
-i'd just skip filling out that statistics field - like my minimal patch
-does.
-
-	Ingo
+Lionel.

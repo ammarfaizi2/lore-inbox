@@ -1,151 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUEZRCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265729AbUEZRDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUEZRCm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 13:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUEZRBu
+	id S265729AbUEZRDy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 13:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265737AbUEZRCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 13:01:50 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:20882 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265712AbUEZQ7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 12:59:11 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] 3/5: dm-ioctl: replace dm_[add|remove]_wait_queue() with dm_wait_event()
-Date: Wed, 26 May 2004 11:58:57 -0500
-User-Agent: KMail/1.6
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200405261152.33233.kevcorry@us.ibm.com>
-In-Reply-To: <200405261152.33233.kevcorry@us.ibm.com>
-MIME-Version: 1.0
+	Wed, 26 May 2004 13:02:51 -0400
+Received: from h020.c000.snv.cp.net ([209.228.32.84]:50090 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S265734AbUEZRBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 13:01:20 -0400
+X-Sent: 26 May 2004 17:01:18 GMT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405261158.57176.kevcorry@us.ibm.com>
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: dag@bakke.com
+Subject: Re: xfsdump hangs - 2.6.6 && 2.6.7-rc1-bk3
+X-Sent-From: dag@bakke.com
+Date: Wed, 26 May 2004 10:01:17 -0700 (PDT)
+X-Mailer: Web Mail 5.6.3-1
+Message-Id: <20040526100117.22732.h011.c000.wm@mail.bakke.com.criticalpath.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace dm_[add|remove]_wait_queue() with dm_wait_event().
+On Wed, 26 May 2004 09:13:14 -0700 (PDT), dag@bakke.com wrote:
 
-Some testing of DM multipath has turned up a problem with the DEVICE_WAIT
-command. In the tests, while performing a DEVICE_WAIT on a multipath device,
-the command sometimes returns immediately, even though the event-number is
-correct and no path-failure has occurred to trigger an event. The problem
-was tracked down to the call to schedule() in dev_wait(), which would return
-even though it was not woken up by a DM table event.
+> 
+> 
+> I experience hangs with xfsdump, when dumping my rootfs to a USB 2.0
+> connected drive. The hangs are reproducible within 0.2-2 GB of dump, 
 
-This patch moves the responsibility for waiting from the ioctl interface into
-the core driver, and uses wait_event_interruptible() instead of relying on
-wait-queues and schedule().
+Bah... ambiguity...
+xfsdump hangs. Not the kernel. So it could quite possibly be a bug in
+xfsdump. But the 
 
---- diff/drivers/md/dm-ioctl.c	2004-05-25 10:13:20.000000000 -0500
-+++ source/drivers/md/dm-ioctl.c	2004-05-25 10:13:51.000000000 -0500
-@@ -850,7 +850,6 @@
- 	int r;
- 	struct mapped_device *md;
- 	struct dm_table *table;
--	DECLARE_WAITQUEUE(wq, current);
- 
- 	md = find_device(param);
- 	if (!md)
-@@ -859,12 +858,10 @@
- 	/*
- 	 * Wait for a notification event
- 	 */
--	set_current_state(TASK_INTERRUPTIBLE);
--	if (!dm_add_wait_queue(md, &wq, param->event_nr)) {
--		schedule();
--		dm_remove_wait_queue(md, &wq);
-+	if (dm_wait_event(md, param->event_nr)) {
-+		r = -ERESTARTSYS;
-+		goto out;
- 	}
-- 	set_current_state(TASK_RUNNING);
- 
- 	/*
- 	 * The userland program is going to want to know what
---- diff/drivers/md/dm.c	2004-05-25 10:13:41.000000000 -0500
-+++ source/drivers/md/dm.c	2004-05-25 10:13:51.000000000 -0500
-@@ -80,7 +80,7 @@
- 	/*
- 	 * Event handling.
- 	 */
--	uint32_t event_nr;
-+	atomic_t event_nr;
- 	wait_queue_head_t eventq;
- 
- 	/*
-@@ -685,6 +685,7 @@
- 	init_rwsem(&md->lock);
- 	rwlock_init(&md->map_lock);
- 	atomic_set(&md->holders, 1);
-+	atomic_set(&md->event_nr, 0);
- 
- 	md->queue = blk_alloc_queue(GFP_KERNEL);
- 	if (!md->queue)
-@@ -754,10 +755,8 @@
- {
- 	struct mapped_device *md = (struct mapped_device *) context;
- 
--	down_write(&md->lock);
--	md->event_nr++;
-+	atomic_inc(&md->event_nr);;
- 	wake_up(&md->eventq);
--	up_write(&md->lock);
- }
- 
- static void __set_size(struct gendisk *disk, sector_t size)
-@@ -1055,35 +1054,13 @@
-  *---------------------------------------------------------------*/
- uint32_t dm_get_event_nr(struct mapped_device *md)
- {
--	uint32_t r;
--
--	down_read(&md->lock);
--	r = md->event_nr;
--	up_read(&md->lock);
--
--	return r;
--}
--
--int dm_add_wait_queue(struct mapped_device *md, wait_queue_t *wq,
--		      uint32_t event_nr)
--{
--	down_write(&md->lock);
--	if (event_nr != md->event_nr) {
--		up_write(&md->lock);
--		return 1;
--	}
--
--	add_wait_queue(&md->eventq, wq);
--	up_write(&md->lock);
--
--	return 0;
-+	return atomic_read(&md->event_nr);
- }
- 
--void dm_remove_wait_queue(struct mapped_device *md, wait_queue_t *wq)
-+int dm_wait_event(struct mapped_device *md, int event_nr)
- {
--	down_write(&md->lock);
--	remove_wait_queue(&md->eventq, wq);
--	up_write(&md->lock);
-+	return wait_event_interruptible(md->eventq,
-+			(event_nr != atomic_read(&md->event_nr)));
- }
- 
- /*
---- diff/drivers/md/dm.h	2004-05-09 21:32:29.000000000 -0500
-+++ source/drivers/md/dm.h	2004-05-25 10:13:51.000000000 -0500
-@@ -81,9 +81,7 @@
-  * Event functions.
-  */
- uint32_t dm_get_event_nr(struct mapped_device *md);
--int dm_add_wait_queue(struct mapped_device *md, wait_queue_t *wq,
--		      uint32_t event_nr);
--void dm_remove_wait_queue(struct mapped_device *md, wait_queue_t *wq);
-+int dm_wait_event(struct mapped_device *md, int event_nr);
- 
- /*
-  * Info functions.
+pagebuf_get: failed to lookup pages
+
+message in syslog makes me think otherwise.
+
+
+Dag B

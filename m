@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262878AbSJ1F07>; Mon, 28 Oct 2002 00:26:59 -0500
+	id <S262879AbSJ1F1e>; Mon, 28 Oct 2002 00:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262879AbSJ1F07>; Mon, 28 Oct 2002 00:26:59 -0500
-Received: from inspired.net.au ([203.58.81.130]:28425 "EHLO inspired.net.au")
-	by vger.kernel.org with ESMTP id <S262878AbSJ1F06>;
-	Mon, 28 Oct 2002 00:26:58 -0500
-Message-Id: <200210280532.QAA25547@thucydides.inspired.net.au>
+	id <S262881AbSJ1F1e>; Mon, 28 Oct 2002 00:27:34 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:46835 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262879AbSJ1F1d>; Mon, 28 Oct 2002 00:27:33 -0500
+Message-ID: <3DBCCC99.50900@snapgear.com>
+Date: Mon, 28 Oct 2002 15:35:21 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: [PATCH]: linux-2.5.44-ac4-uc2 (m68knommu/v850 architecture cleanup)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 28 Oct 2002 16:29:40 +1100
-To: linux-kernel@vger.kernel.org
-Subject: Accessing PCI expansion ROMs
-X-Mailer: VM 7.07 under Emacs 21.2.2
-From: "Martin Schwenke" <martin@meltin.net>
-Reply-To: "Martin Schwenke" <martin@meltin.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to extract VPD (Vital Product Data) from the expansion ROMs on
-PCI 2.0/2.1 devices.  The PCI specification tells me all I need to
-know once I can actually access the ROM I'm after.
 
-On ppc I can use xmon (or write a dedicated utility) to get to
-expansion ROMs and extract the required part.  On i386, expansion ROMs
-don't have addresses assigned and the PCI initialisation code seems to
-explicitly disable and unassign them (and this seems to be recommended
-by the PCI specification).
+Hi Alan,
 
-So, it looks like there might be a few options...
+This patch, against patch-2.5.44-ac4, cleans up the m68knommu
+and v850 architecture support.
 
-* Userspace.  Is there a reliable way of accessing the ROMs from
-  userspace?  Does it work the same way on different architectures?
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44-ac4-uc2.patch.gz
 
-  I know I can assign an address and enable a ROM via PCI
-  configuration space, but I don't know if either of these things can
-  be done safely from userspace.
+It is sorta big. But there is not really anything new in it. Mostly
+it is an organizational change of files, and a rewrite of the arch
+Makefiles. All much cleaner now.
 
-* Kernel.  Write some kernel code to dynamically retrieve the contents
-  of expansion ROMs.
+Regards
+Greg
 
-  This might involve assigning an address, enabling the ROM, reading
-  data, disabling the ROM and then possibly unassigning it again.
 
-* Kernel.  Write some kernel code that hooks into the PCI
-  initialisation/hotplug to grab the contents of expansion ROMs before
-  they are unassigned and disabled.  Copy the data and put it into
-  /proc or /devices - yep, a bit gross, but the amount of data tends
-  to be small.
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 
-Any ideas?  I'd really like it to be architecture independent,
-preferably userspace.  However, it can't be done there, it'll have to
-be done in the kernel...  and then possibly architecture by
-architecture...
-
-Please copy me on replies, since I'm not subscribed to linux-kernel.
-
-Thanks...
-
-peace & happiness,
-martin

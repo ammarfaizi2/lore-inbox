@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263350AbUCNMaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 07:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbUCNMaV
+	id S263351AbUCNMZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 07:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbUCNMZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 07:30:21 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:41888 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263350AbUCNMaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 07:30:18 -0500
-Date: Sun, 14 Mar 2004 13:30:14 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
+	Sun, 14 Mar 2004 07:25:04 -0500
+Received: from main.gmane.org ([80.91.224.249]:62650 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263351AbUCNMZA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 07:25:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: bcm5700  driver at 100Mbit? tg3 doesn't do 100Mbit - 2.6.4-mm1
-Message-ID: <20040314123014.GA8839@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4053F511.1070607@blueyonder.co.uk>
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: [2.6.4] IDE performance drop again
+Date: Sun, 14 Mar 2004 13:23:28 +0100
+Message-ID: <c31iup$r2f$1@sea.gmane.org>
+References: <20040314115727.GA21362@sun1000.pwr.wroc.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4053F511.1070607@blueyonder.co.uk>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e58ef3.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: de, en
+In-Reply-To: <20040314115727.GA21362@sun1000.pwr.wroc.pl>
+X-Enigmail-Version: 0.83.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Mar 2004, Sid Boyce wrote:
+> hdparm /dev/hda
+> 
+> /dev/hda:
+>  multcount    =  1 (on)
 
-> tg3.ko loads, network starts up. Can't connect to 100Mbit network 
-> switch. The bcm5700 driver in ths SuSE kraxel 2.6.3 kernel works. The 
-> tg3  is supposed to be a replacement for bcm5700 I believe.
+This should be 16 if you've got a modern harddisk
+use -m 16 instead of -m 1
 
-On Debian's 2.4, I have been able to get 100 Mbps traffic by forcing a
-re-negotiation through mii-diag or ethtool (I don't recall which one,
-this mii-tool/mii-diag/ethtool is a HORRIBLE MESS that needs to be
-sorted out) and seem to recall that ifconfig eth0 down ; ifconfig eth1
-up could also have fixed this - however, such behaviour is of course
-unsuitable for production use and I don't know if the same trick works
-on 2.6 kernels.
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 8192 (on)
+>  geometry     = 26310/16/63, sectors = 26520480, start = 0
 
--- 
-Matthias Andree
+other things look fine
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264594AbSIVWvE>; Sun, 22 Sep 2002 18:51:04 -0400
+	id <S264588AbSIVWqJ>; Sun, 22 Sep 2002 18:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264596AbSIVWvD>; Sun, 22 Sep 2002 18:51:03 -0400
-Received: from nameservices.net ([208.234.25.16]:57588 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264594AbSIVWu2>;
-	Sun, 22 Sep 2002 18:50:28 -0400
-Message-ID: <3D8E4B1D.48F7487D@opersys.com>
-Date: Sun, 22 Sep 2002 18:58:37 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: bob <bob@watson.ibm.com>
-CC: Ingo Molnar <mingo@elte.hu>, okrieg@us.ibm.com, trz@us.ibm.com,
+	id <S264590AbSIVWqJ>; Sun, 22 Sep 2002 18:46:09 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13441 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264588AbSIVWqH>; Sun, 22 Sep 2002 18:46:07 -0400
+Date: Sun, 22 Sep 2002 17:51:12 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-References: <15758.12948.103681.852724@k42.watson.ibm.com>
-		<Pine.LNX.4.44.0209222333470.19919-100000@localhost.localdomain> <15758.14124.935684.460733@k42.watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] linux kernel conf 0.6
+In-Reply-To: <3D8E4720.2050700@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0209221744150.11808-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Sep 2002, Jeff Garzik wrote:
 
-bob wrote:
-> The intent is to split LTT, get the infrastructure into the kernel, have
-> the trace points as patches.
+> One cosmetic thing I mentioned to Roman, Config.new needs to be changed 
+> to something better, like conf.in or build.conf or somesuch.
 
-I think there's a bare minimum set that is required for the day-to-day uses
-I detailed earlier, but there is certainly ample space for providing extra
-non-essential trace points as separate patches.
+I agree. (But I'm not particularly good at coming up with names ;) 
+build.conf is maybe not too bad considering that there may be a day where 
+it is extended to support "<driver>.conf" as well.
 
-Karim
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+One other thing I wanted to mention but forgot was that lkc now
+does a quiet "make oldconfig" when .config changed or does not exist, 
+which is changed behavior.
+
+I intentionally only printed a message and errored out in this case, and I 
+think that's more useful, particularly for people doing
+
+make all 2>&1 > make.log
+
+which now may take forever waiting for input.
+
+--Kai
+
+

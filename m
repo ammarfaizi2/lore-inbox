@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUFQPcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266557AbUFQPgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266550AbUFQPcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUFQPcl
+	id S266557AbUFQPgA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUFQPgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:32:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:43736 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266546AbUFQPb7 (ORCPT
+	Thu, 17 Jun 2004 11:36:00 -0400
+Received: from [61.49.235.7] ([61.49.235.7]:45046 "EHLO freya.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S266558AbUFQPdM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:31:59 -0400
-To: Finn Thain <ft01@webmastery.com.au>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: make checkstack on m68k
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
-	<je3c4uqum0.fsf@sykes.suse.de>
-	<Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Hmmm...  a PINHEAD, during an EARTHQUAKE, encounters an ALL-MIDGET
- FIDDLE
- ORCHESTRA...  ha..  ha..
-Date: Thu, 17 Jun 2004 17:31:58 +0200
-In-Reply-To: <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au> (Finn
- Thain's message of "Fri, 18 Jun 2004 01:17:31 +1000 (EST)")
-Message-ID: <jeoenip5e9.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 17 Jun 2004 11:33:12 -0400
+Date: Thu, 17 Jun 2004 23:29:55 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200406180629.i5I6Ttn04674@freya.yggdrasil.com>
+To: hch@lst.de, linux-kernel@vger.kernel.org
+Subject: Re: more files with licenses that aren't GPL-compatible
+Cc: greg@kroah.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Finn Thain <ft01@webmastery.com.au> writes:
-
-> On Thu, 17 Jun 2004, Andreas Schwab wrote:
+On 2004-06-15, Christoph Hellwig wrote:
+>While I don't want to jump into the usual Debian wankfest whether Linux
+>as GPL'ed project can distribute hex-images of firmware at all there are
+>a few firmware C headers files that have a license statement that aren't
+>GPL-compatible at all, namely the keyspan firmware in
+>drivers/usb/serial/keyspan*_fw.h with the following license text:
 >
->> Geert Uytterhoeven <geert@linux-m68k.org> writes:
->>
->> > I tried to add m68k support to `make checkstack', but got stuck due to my
->> > limited knowledge of complex perl expressions. I actually need to catch both
->> > expressions (incl. the one I commented out). Anyone who can help?
->>
->> Untested:
->>
->>   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
->>
->> Andreas.
 >
-> I think that should be addaw, not addw.
+>---------------------------- snip ----------------------------
+>        The firmware contained herein as keyspan_mpr_fw.h is
+>
+>                Copyright (C) 1999-2001
+>                Keyspan, A division of InnoSys Incorporated ("Keyspan")
+>                
+>        as an unpublished work. This notice does not imply unrestricted or
+>        public access to the source code from which this firmware image is
+>        derived.  Except as noted below this firmware image may not be 
+>        reproduced, used, sold or transferred to any third party without 
+>        Keyspan's prior written consent.  All Rights Reserved.
+>
+>        Permission is hereby granted for the distribution of this firmware 
+>        image as part of a Linux or other Open Source operating system kernel 
+>        in text or binary form as required. 
+>
+>        This firmware may not be modified and may only be used with  
+>        Keyspan hardware.  Distribution and/or Modification of the 
+>        keyspan.c driver which includes this firmware, in whole or in 
+>        part, requires the inclusion of this statement."
+>---------------------------- snip ----------------------------
+>
+>which makes the kernel as whole unredistributable.  A similar license
+>was according to Greg also recently granted for
+>drivers/usb/misc/emi62_fw_*.h which currently has even worse license
+>statements in there.
+>
+>Does someone have good contacts to keyspan to get it under a more
+>suitable license?
 
-Right, typo.
+	I pointed out this problem years ago, during 2.4.  Some may
+think this was going overboard, but, to avoid legal liability, I
+closed the FTP area of the ftp.yggdrasil.com kernel mirror that
+included the kernels with the infringing firmware (not that many
+people used it then).
 
-> And it may be necessary to remove the $ anchor at the end.
+	At that time, I also posted patches to remove the code
+and a GPL'ed utility to automatically load the right firmware
+from userland on a hotplug event when the device is plugged in.  At
+least one person posted that he tried the code and it worked fine.
 
-That won't work, because we must be sure to require ",%sp" when addaw is
-matched since we don't want to match, say, "addaw #-1024,%a0".  We know
-that this is the whole line to be matched.
+	I believe that Greg Kroah-Hartmann said that the changes
+should go into 2.5.  I'm still waiting, although I don't know if
+I even have a copy of the user level helper code anymore.
 
-> Your solution makes very nice use of the fact that objdump produces
-> exactly one comma for those opcodes :)
+	I am not a lawyer, so please do not take the following as
+legal advice.
 
-We know exactly the format of the output produced by objdump.  So even
-though the regex is able to match some random junk we know that objdump
-would never produce that.
+	I believe that distribution of Linux kernel binaries that
+compile in this firmware is direct copyright infringment, and
+that distribution of Linux kernel modules that compile in
+this firmware is contributory copyright infringement (to the direct
+infringmenet that occurs when the image is created in RAM, and
+there are US court cases that say that copying into RAM is copying
+for the purposes of copyright).
 
-Andreas.
+	The United States Copyright Office has issued a copyright
+registration to Yggdrasil Computing for some software in the Linux
+USB serial drivers.  Yggdrasil Computing has never given permission
+for distribution of GPL-incompatible firmware with that software.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

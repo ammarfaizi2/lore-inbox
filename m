@@ -1,107 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268677AbUIGVYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268665AbUIGVYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268677AbUIGVYz (ORCPT <rfc822;willy@w.ods.org>);
+	id S268665AbUIGVYz (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 7 Sep 2004 17:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUIGVXl
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUIGVWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:23:41 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:16785 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S268261AbUIGVHu (ORCPT
+	Tue, 7 Sep 2004 17:22:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:32210 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268680AbUIGVUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:07:50 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Nathan Bryant <nbryant@optonline.net>
-Subject: Re: 2.6.9-rc1-mm4
-Date: Tue, 7 Sep 2004 15:07:41 -0600
-User-Agent: KMail/1.6.2
-Cc: Lorenzo Allegrucci <l_allegrucci@yahoo.it>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Bjorn Helgaas <bjorn.helgaas@hp.com>
-References: <20040907020831.62390588.akpm@osdl.org> <200409072201.55025.l_allegrucci@yahoo.it> <413E18CB.7020305@optonline.net>
-In-Reply-To: <413E18CB.7020305@optonline.net>
-MIME-Version: 1.0
+	Tue, 7 Sep 2004 17:20:25 -0400
+Date: Tue, 7 Sep 2004 23:16:26 +0200
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bastian@suse.de
+Subject: Re: [PATCH] Add prctl to modify current->comm
+Message-ID: <20040907211626.GB15043@wotan.suse.de>
+References: <20040907142753.GA20981@wotan.suse.de> <1094577168.9599.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409071507.41870.bjorn.helgaas@hp.com>
+In-Reply-To: <1094577168.9599.13.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 September 2004 2:23 pm, Nathan Bryant wrote:
-> Lorenzo Allegrucci wrote:
-> > On Tuesday 07 September 2004 11:08, Andrew Morton wrote:
-> > 
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
-> >>.9-rc1-mm4/
-> > 
-> > 
-> > My PS/2 keyboard doesn't work, I tried "pci=routeirq" but it didn't help.
-> > 
-> > Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2K] at I/O 0x0, 0x0, irq 1
-> > Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2M] at irq 12
-> > Sep  7 21:39:00 odyssey kernel: i8042.c: Can't read CTR while initializing 
-> > i8042.
-> > 
+On Tue, Sep 07, 2004 at 06:12:48PM +0100, Alan Cox wrote:
+> > +		case PR_SET_NAME: {
+> > +			struct task_struct *me = current;
+> > +			me->comm[sizeof(me->comm)-1] = 0;
+> > +			if (strncpy_from_user(me->comm, (char *)arg2, sizeof(me->comm)-1) < 0)
+> > +				return -EFAULT;
+> > +			return 0;
+> > +		}
 > 
-> Try i8042.noacpi on the kernel command line
-> 
-> Seems Bjorn's patch needs to be reworked to ignore obviously broken BIOS 
-> return values
+> If the strncpy_from_user faults the state of current->comm is undefined.
 
-Yup, how about this for a starter?  We may have to iterate on this as we
-discover all the ways ACPI can be screwed up ;-)
+I didn't see it as a big issue because the result will be 0 terminated
+anyways. 
 
-This also falls back to the original scheme if ACPI is disabled on the
-command line ("acpi=off").
+> This strikes me as bad design.
 
---- 2.6.9-rc1-mm4-bh1/drivers/input/serio/i8042-x86ia64io.h.orig	2004-09-07 14:41:42.000000000 -0600
-+++ 2.6.9-rc1-mm4-bh1/drivers/input/serio/i8042-x86ia64io.h	2004-09-07 14:51:06.000000000 -0600
-@@ -155,9 +155,23 @@
- 		acpi_device_name(device), acpi_device_bid(device),
- 		kbd_res.port1, kbd_res.port2, kbd_res.irq);
+Here's is a new patch with this fixed. 
+
+-Andi
+
+--------------------------------------------------------------------
+
+Allow a program to change its current->comm
+
+Useful for KDE & kdeinit. 
+
+
+diff -u linux-2.6.8-5/kernel/sys.c-o linux-2.6.8-5/kernel/sys.c
+--- linux-2.6.8-5/kernel/sys.c-o	2004-08-14 07:36:16.000000000 +0200
++++ linux-2.6.8-5/kernel/sys.c	2004-09-07 23:09:56.000000000 +0200
+@@ -1660,6 +1660,15 @@
+ 			}
+ 			current->keep_capabilities = arg2;
+ 			break;
++		case PR_SET_NAME: {
++			struct task_struct *me = current;
++			unsigned char ncomm[sizeof(me->comm)];
++			ncomm[sizeof(me->comm)-1] = 0;
++			if (strncpy_from_user(ncomm, (char *)arg2, sizeof(me->comm)-1) < 0)
++				return -EFAULT;
++			memcpy(me->comm, ncomm, sizeof(me->comm));
++			return 0;
++		}
+ 		default:
+ 			error = -EINVAL;
+ 			break;
+diff -u linux-2.6.8-5/include/linux/prctl.h-o linux-2.6.8-5/include/linux/prctl.h
+--- linux-2.6.8-5/include/linux/prctl.h-o	2004-08-14 07:37:14.000000000 +0200
++++ linux-2.6.8-5/include/linux/prctl.h	2004-09-07 23:09:44.000000000 +0200
+@@ -49,5 +49,6 @@
+ # define PR_TIMING_TIMESTAMP    1       /* Accurate timestamp based
+                                                    process timing */
  
--	i8042_data_reg = kbd_res.port1;
--	i8042_command_reg = kbd_res.port2;
--	i8042_kbd_irq = kbd_res.irq;
-+	if (kbd_res.port1)
-+		i8042_data_reg = kbd_res.port1;
-+	else
-+		printk(KERN_WARNING "i8042: bogus data port address in %s _CRS, defaulting to 0x%x\n",
-+			acpi_device_bid(device), i8042_data_reg);
-+
-+	if (kbd_res.port2)
-+		i8042_command_reg = kbd_res.port2;
-+	else
-+		printk(KERN_WARNING "i8042: bogus command port address in %s _CRS, defaulting to 0x%x\n",
-+			acpi_device_bid(device), i8042_command_reg);
-+
-+	if (kbd_res.irq)
-+		i8042_kbd_irq = kbd_res.irq;
-+	else
-+		printk(KERN_WARNING "i8042: bogus IRQ in %s _CRS, defaulting to %d\n",
-+			acpi_device_bid(device), i8042_kbd_irq);
++#define PR_SET_NAME    15		/* Set process name. */
  
- 	return 0;
- }
-@@ -176,7 +190,11 @@
- 	printk("i8042: ACPI %s [%s] at irq %d\n",
- 		acpi_device_name(device), acpi_device_bid(device), aux_res.irq);
- 
--	i8042_aux_irq = aux_res.irq;
-+	if (aux_res.irq)
-+		i8042_aux_irq = aux_res.irq;
-+	else
-+		printk(KERN_WARNING "i8042: bogus IRQ in %s _CRS, defaulting to %d\n",
-+			acpi_device_bid(device), i8042_aux_irq);
- 
- 	return 0;
- }
-@@ -201,7 +219,7 @@
- {
- 	int result;
- 
--	if (i8042_noacpi) {
-+	if (acpi_disabled || i8042_noacpi) {
- 		printk("i8042: ACPI detection disabled\n");
- 		return 0;
- 	}
+ #endif /* _LINUX_PRCTL_H */
+

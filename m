@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVCCBkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVCCBpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVCCBkl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVCCBg6
+	id S261333AbVCCBpW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCCBlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:36:58 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:33936 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S261254AbVCCBgA (ORCPT
+	Wed, 2 Mar 2005 20:41:00 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:24634 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S261353AbVCCBj5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:36:00 -0500
-Message-ID: <422669F4.9020706@candelatech.com>
-Date: Wed, 02 Mar 2005 17:35:48 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 20:39:57 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="3.90,131,1107763200"; 
+   d="scan'208"; a="164681789:sNHT18888652"
+Message-Id: <200503030139.AWX91886@mira-sjc5-e.cisco.com>
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Cc: "'Jeff Garzik'" <jgarzik@pobox.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, "'Matt Mackall'" <mpm@selenic.com>
+Subject: RE: RFD: Kernel release numbering
+Date: Wed, 2 Mar 2005 17:39:51 -0800
+Organization: Cisco Systems
 MIME-Version: 1.0
-To: Massimo Cetra <mcetra@navynet.it>
-CC: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel release numbering
-References: <20050303010615.3C7F184008@server1.navynet.it>
-In-Reply-To: <20050303010615.3C7F184008@server1.navynet.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <422666F9.4040807@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Thread-Index: AcUfkYdD9p9cNSMsTNecPAQdfbJaGAAADuDA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Massimo Cetra wrote:
+> I actually second Matt's request; -RCs à la 2.4.
+> 
+> Then your above becomes:
+> 2.6.x-rc: bugfixes only
+> 2.6.x-pre: bugfixes and features
+> 
+> And then that doesn't confuse end users either.
 
-> So, why moving from 2.6.14 to 2.6.15 when, in 2/4 weeks, i'll have a more
-> stable 2.6.16 ? 
-> Will users help testing an odd release to have a good even release ? Or will
-> they consider an even release as important as a -RC release ?
+I'll jump in and third this. It looks the "honest" way. I know Linus is
+always talking about "open source keeps people honest". Don't play game with
+the naming. :-)
 
-I think it would be useful for folks to test the 2.6.ODD release because
-the understanding is that 2.6.ODD+1 will be out soon, and we are pretty
-sure there won't be any large changes in that transition.  Any out-side-the-tree
-patches will probably apply to both of these w/out manual hacking,
-which also makes testing easier.
-
-I am less likely to test an ODD.pre-Z release because there is likely to be
-a large pile coming after that, which means that even if pre-Z worked
-fine, I still have to be very paranoid about the final release.
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+Hua

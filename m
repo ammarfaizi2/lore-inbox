@@ -1,159 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVBAXzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbVBBABx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVBAXzT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVBAXyS
+	id S262151AbVBBABx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 19:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVBBABx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:54:18 -0500
-Received: from mail1.fw-sj.sony.com ([160.33.82.68]:47594 "EHLO
-	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
-	id S262190AbVBAXxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:53:22 -0500
-Message-ID: <4200166A.6050309@am.sony.com>
-Date: Tue, 01 Feb 2005 15:53:14 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>
+	Tue, 1 Feb 2005 19:01:53 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:18052 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262151AbVBBABs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 19:01:48 -0500
 Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>	 <41FFFD4F.9050900@am.sony.com> <1107298089.2040.184.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1107298089.2040.184.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: John Stultz <johnstul@us.ibm.com>
+Cc: Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1107300730.2040.195.camel@cog.beaverton.ibm.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <41FFFD4F.9050900@am.sony.com>
+	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	 <1107299672.13413.25.camel@desktop.cunninghams>
+	 <1107300730.2040.195.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1107302640.13413.62.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 02 Feb 2005 11:04:00 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> I believe you're right. Although we don't call read_persistent_clock()
-> very frequently, nor do we call it in ways we don't already call
-> get_cmos_time(). So I'm not sure exactly what the concern is.
+Hi.
 
-Sorry - I should have given more context.  I am worried about
-suspend and resume times.  An extra (up-to-a) second delay on
-suspend it pretty painful for CE devices.  (See my SIG for
-my other hat in the forum.)
+On Wed, 2005-02-02 at 10:32, john stultz wrote:
+> On Wed, 2005-02-02 at 10:14 +1100, Nigel Cunningham wrote:
+> > Hi John and Tim.
+> > 
+> > On Wed, 2005-02-02 at 09:48, john stultz wrote:
+> > > > I didn't scan for all uses of read_persistent_clock, but
+> > > > in my experience get_cmos_time() has a latency of up to
+> > > > 1 second on x86 because it synchronizes with the rollover
+> > > > of the RTC seconds.
+> > > 
+> > > I believe you're right. Although we don't call read_persistent_clock()
+> > > very frequently, nor do we call it in ways we don't already call
+> > > get_cmos_time(). So I'm not sure exactly what the concern is.
+> > 
+> > Tim and I talked about this at the recent CELF conference. I have a
+> > concern in that suspend-to-disk calls the suspend methods and then
+> > (after the atomic copy) the resume methods. Since the copy usually takes
+> > < 1s, and the suspend and resume methods both make two calls to
+> > get_coms_time, that's an average of 1.5s per suspend call and 1.5s per
+> > resume call - but if the copy does take next to no time (as normal),
+> > it's really 1.5s + 2s = 3.5s average just for getting the time. I
+> > believe Tim has similar issues in code he is working on. It's a concern
+> > if your battery is running out and you're trying to hibernate!
+> 
+> Well, counting the atomic copy in the "3.5s average just for getting the
+> time" doesn't quite seem fair, but I think I understand. Its
 
->
-> Since we call read_persistent_clock(), it should return right as the
-> second changes, thus we will be marking the new second as closely as
-> possible with the timesource value. If the order was reversed, I think
-> it would be a concern.
->
+You're right. Maybe we could say 3s, accounting .5s of that 3.5s average
+delay as being for the atomic copy.
 
-It sounds like for your code, this synchronization is a valuable.
-For many CE products, the synchronization is not needed.  I have a
-patch that removes the synchronization for i386 and ppc, but
-I haven't submitted it because I didn't want to mess up
-non-boot-context callers of get_cmos_time which have valid
-synchronization needs.
+> interesting, I wasn't aware of the suspend/copy/resume process that
+> occurs for suspend-to-disk. The thing I don't quite get is why are the
+> resume methods called before we really suspend to disk?
 
-As you can see below, the patch is pretty braindead.
-I was wondering if this conflicted with your new timer system or
-not.
+We call the suspend and resume methods because the suspend is supposed
+to achieve atomicity, and the resume is necessary for us to be able to
+write the image. (Remember that these calls are invoked as part of the
+drivers_suspend and drivers_resume code). Until recently the
+sysdev_suspend and resume methods weren't called and things did still
+work, but that was an omission and we did then run into time issues.
 
-diffstat:
- arch/ppc/kernel/time.c                    |   10 ++++++++--
- include/asm-i386/mach-default/mach_time.h |    6 +++++-
- init/Kconfig                              |   27 +++++++++++++++++++++++++++
- 3 files changed, 40 insertions(+), 3 deletions(-)
+> > > I've only lightly tested the suspend code, but on my system I didn't see
+> > > very much drift appear. Regardless, it should be better then what the
+> > > current suspend/resume code does, which doesn't keep any sub-second
+> > > resolution across suspend.
+> > 
+> > My question is, "Is there a way we can get sub-second resolution without
+> > waiting for the start of a new second four times in a row?" I'm sure
+> > there must be.
+> 
+> Well, I'm not sure what else we could use for the persistent clock, but
+> I'd be happy to change the read/set_persistent_clock function to use it.
 
-Signed-off-by: Tim Bird <tim.bird@am.sony.com>
+Is it possible to still use the persistent clock, but do the math for
+the portions of seconds?
 
------------------------
-diff -pruN -X /home/tbird/dontdiff linux-2.6.10.orig/arch/ppc/kernel/time.c linux-2.6.10/arch/ppc/kernel/time.c
---- linux-2.6.10.orig/arch/ppc/kernel/time.c	2004-12-24 13:35:23.000000000 -0800
-+++ linux-2.6.10/arch/ppc/kernel/time.c	2005-02-01 15:28:42.539108108 -0800
-@@ -291,8 +291,12 @@ EXPORT_SYMBOL(do_settimeofday);
- /* This function is only called on the boot processor */
- void __init time_init(void)
- {
--	time_t sec, old_sec;
--	unsigned old_stamp, stamp, elapsed;
-+	time_t sec;
-+	unsigned stamp;
-+#ifndef CONFIG_RTC_NO_SYNC
-+	time_t old_sec;
-+	unsigned old_stamp, elapsed;
-+#endif
+By the way, Tim, I hope I didn't misunderstand anything, and that these
+_are_ the same issues you had!
 
-         if (ppc_md.time_init != NULL)
-                 time_offset = ppc_md.time_init();
-@@ -317,6 +321,7 @@ void __init time_init(void)
- 	stamp = get_native_tbl();
- 	if (ppc_md.get_rtc_time) {
- 		sec = ppc_md.get_rtc_time();
-+#ifndef CONFIG_RTC_NO_SYNC
- 		elapsed = 0;
- 		do {
- 			old_stamp = stamp;
-@@ -329,6 +334,7 @@ void __init time_init(void)
- 		} while ( sec == old_sec && elapsed < 2*HZ*tb_ticks_per_jiffy);
- 		if (sec==old_sec)
- 			printk("Warning: real time clock seems stuck!\n");
-+#endif
- 		xtime.tv_sec = sec;
- 		xtime.tv_nsec = 0;
- 		/* No update now, we just read the time from the RTC ! */
-diff -pruN -X /home/tbird/dontdiff linux-2.6.10.orig/include/asm-i386/mach-default/mach_time.h linux-2.6.10/include/asm-i386/mach-default/mach_time.h
---- linux-2.6.10.orig/include/asm-i386/mach-default/mach_time.h	2004-12-24 13:34:30.000000000 -0800
-+++ linux-2.6.10/include/asm-i386/mach-default/mach_time.h	2005-02-01 15:28:48.245009070 -0800
-@@ -89,6 +89,7 @@ static inline unsigned long mach_get_cmo
- 	 * RTC registers show the second which has precisely just started.
- 	 * Let's hope other operating systems interpret the RTC the same way.
- 	 */
-+#ifndef CONFIG_RTC_NO_SYNC_ON_READ
- 	/* read RTC exactly on falling edge of update flag */
- 	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
- 		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
-@@ -96,7 +97,10 @@ static inline unsigned long mach_get_cmo
- 	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
- 		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
- 			break;
--	do { /* Isn't this overkill ? UIP above should guarantee consistency */
-+/* The following is probably overkill because
-+ * UIP above should guarantee consistency */
-+#endif
-+	do {
- 		sec = CMOS_READ(RTC_SECONDS);
- 		min = CMOS_READ(RTC_MINUTES);
- 		hour = CMOS_READ(RTC_HOURS);
-diff -pruN -X /home/tbird/dontdiff linux-2.6.10.orig/init/Kconfig linux-2.6.10/init/Kconfig
---- linux-2.6.10.orig/init/Kconfig	2004-12-24 13:35:24.000000000 -0800
-+++ linux-2.6.10/init/Kconfig	2005-02-01 15:28:48.281002137 -0800
-@@ -248,6 +248,33 @@ config IKCONFIG_PROC
- 	  This option enables access to the kernel configuration file
- 	  through /proc/config.gz.
+Regards,
 
-+menuconfig FASTBOOT
-+	bool "Fast boot options"
-+	help
-+	  Say Y here to select among various options that can decrease
-+	  kernel boot time.  These options may involve providing
-+	  hardcoded values for some parameters that the kernel usually
-+	  determines automatically.
-+
-+	  This option is useful primarily on embedded systems.
-+
-+	  If unsure, say N.
-+
-+config RTC_NO_SYNC
-+	bool "Disable synch on read of Real Time Clock" if FASTBOOT
-+	default n
-+	help
-+	  The Real Time Clock is read aligned by default. That means a
-+	  series of reads of the RTC are done until it's verified that
-+	  the RTC's state has just changed.  If you enable this feature,
-+	  this synchronization will not be performed.  The result is that
-+	  the machine will boot up to 1 second faster.
-+
-+	  A drawback is that, with this option enabled, your system
-+	  clock may drift from the correct value over the course
-+	  of several boot cycles (under certain circumstances).
-+
-+	  If unsure, say N.
+Nigel
 
- menuconfig EMBEDDED
- 	bool "Configure standard kernel features (for small systems)"
+> thanks
+> -john
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbUKYACv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbUKXXtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbUKYACv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 19:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUKYAAX
+	id S262991AbUKXXtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbUKXXr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 19:00:23 -0500
-Received: from fsmlabs.com ([168.103.115.128]:33203 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S263001AbUKXXz1 (ORCPT
+	Wed, 24 Nov 2004 18:47:59 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:38789 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262895AbUKXXor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:55:27 -0500
-Date: Wed, 24 Nov 2004 14:55:50 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
-In-Reply-To: <1101331206.3895.40.camel@desktop.cunninghams>
-Message-ID: <Pine.LNX.4.61.0411241453230.7171@musoma.fsmlabs.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams> 
- <1101296166.5805.279.camel@desktop.cunninghams> 
- <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
- <1101331206.3895.40.camel@desktop.cunninghams>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Nov 2004 18:44:47 -0500
+Date: Wed, 24 Nov 2004 15:40:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Cleanup PCI power states
+Message-ID: <20041124234057.GF4649@kroah.com>
+References: <20041116130445.GA10085@elf.ucw.cz> <20041116155613.GA1309@kroah.com> <20041117120857.GA6952@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117120857.GA6952@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Nov 2004, Nigel Cunningham wrote:
+On Wed, Nov 17, 2004 at 01:08:58PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > This is step 0 before adding type-safety to PCI layer... It introduces
+> > > constants and uses them to clean driver up. I'd like this to go in
+> > > now, so that I can convert drivers during 2.6.10... Please apply,
+> > 
+> > The tree is in "bugfix only" mode right now.  Changes like this need to
+> > wait for 2.6.10 to come out before I can send it upward.
+> > 
+> > So, care to hold on to it for a while?  Or I can add it to my "to apply
+> > after 2.6.10 comes out" tree, which will mean it will end up in the -mm
+> > releases till that happens.
+> 
+> I think I'd prefer visibility of "to apply after 2.6.10" tree... Thanks,
 
-> That's roughly what we're doing now, apart from the offlining/onlining.
-> I had considered trying to take better advantage of SMP support (perhaps
-> run a decompression thread on one CPU and the writer on the other, eg),
-> so we might want to apply this just to the region immediately around the
-> atomic copy/restore. That makes me wonder, though, what the advantage is
-> to switching to using the hotplug functionality - is it x86 only, or
-> more cross platform? (If more cross platform, that might possibly be an
-> advantage over the current code).
+Care to resend this, I seem to have lost them :(
 
-It's cross platform and removes the requirement for patches like;
+thanks,
 
-Subject: Suspend 2 merge: 13/51: Disable highmem tlb flush for copyback.
+greg k-h

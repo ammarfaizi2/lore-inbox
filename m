@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUFSPBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUFSPB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbUFSPBC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 11:01:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUFSPBC
+	id S263971AbUFSPB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 11:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUFSPB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 11:01:02 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:17792 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263944AbUFSPA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 11:00:59 -0400
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <m3fz8s79dz.fsf@defiant.pm.waw.pl>
-References: <1087481331.2210.27.camel@mulgrave>
-	<m33c4tsnex.fsf@defiant.pm.waw.pl> <1087523134.2210.97.camel@mulgrave> 
-	<m3fz8s79dz.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain
+	Sat, 19 Jun 2004 11:01:26 -0400
+Received: from smtp.loomes.de ([212.40.161.2]:17598 "EHLO falcon.loomes.de")
+	by vger.kernel.org with ESMTP id S263971AbUFSPBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 11:01:18 -0400
+From: Sebastian Slota <sebastian@sslota.de>
+To: linux-kernel@vger.kernel.org
+Subject: Raid issues on Sil 3114 (MB: Abit MAX3, i875 )
+Date: Sat, 19 Jun 2004 17:01:24 +0200
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 19 Jun 2004 10:00:50 -0500
-Message-Id: <1087657251.2162.49.camel@mulgrave>
-Mime-Version: 1.0
+Message-Id: <200406191701.24787.sebastian@sslota.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 18:07, Krzysztof Halasa wrote:
-> James Bottomley <James.Bottomley@steeleye.com> writes:
-> I don't think so. We already have separate masks for coherent
-> and non-coherent mappings (in PCI API, and I'm told it's to be extended
-> to DMA API as well). And we need them.
-> 
-> The problem is we're missing DMA masks for non-alloc calls (depending
-> on the platform) and thus that it isn't very reliable. Drivers which
-> need this are forced to bounce buffers themselves, and many of them
-> will not work on 64-bit platforms (as of ~ 2.6.0, I don't check that
-> regularly). And yes, we really need reliable masks for non-alloc
-> mappings.
 
-Could you elaborate on this?  In the current scheme the coherent mask is
-for descriptor allocation (i.e. dma_alloc_coherent()) and the dma_mask
-represents the bus physical addresses to which the device can DMA
-directly; there's not much more the DMA API really does, what do you
-think is missing?
+Hi,
 
-James
+My Problem:
 
+I'm trying to get my RAID0 created with BIOS to run with Linux ( 2.6.6 
+kernel ). AS I'm having a partition for WinXP (for games only) and Liked to 
+hahe it on RAID0 for more performance...
 
+Problems:
+
+#1 - Linux sees the HD's but dont recognises the partitions
+	I learned that 2.4 kernel was having some 'medley' extension in ataraid that 
+allowed to see the partitions... its missing in 2.6 and should be replaced 
+with udev (?)
+
+#2 - I deleted the array and created under winxp LVA's for drive 1 and 2, 
+created there a software raid0 for windows (?) - dont know how to explain it, 
+its M$ sh....
+Linux sees that as a device but is unable to do anything with it! (NTFS 
+Partiton)
+
+Am I wrong or is it impossible for linux to use this M$ LVAs? I've found a 
+howto for linux lva but I dont think windows will run with it!
+
+#3 - And here I'm open for all suggestions:
+I'd like to have:
+	- WinXP ( Games partition ) best as Raid0 - no need for security...
+	- Linux1 ( Root as Raid0, Home as Raid5, maybe or normal... dont know yet )
+	- Linux2 ( test system )
+	- Fat32 partiton for sharing stuff between Win and Linux ( as I'm having a 
+	   server I'm not bound to it! )
+My HD's are 4 x 160GB SATA on Silicon Image 3114 onboard, 3GHz P4 HT, 1GB CL2 
+Ram.
+I'm havind my important stuff on a RAID1 server, so the desktop pc is meant 
+for performance only! no need for raid1!
+
+My destined Linux is Yoper, cause I'm currently on mandrake and its so slow 
+you can get a coffee while starting anything!
+
+Thanks in advance,
+
+Sebastian

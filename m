@@ -1,77 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130281AbRA2Rfc>; Mon, 29 Jan 2001 12:35:32 -0500
+	id <S129051AbRA2Rix>; Mon, 29 Jan 2001 12:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbRA2RfW>; Mon, 29 Jan 2001 12:35:22 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22802 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129051AbRA2RfI>; Mon, 29 Jan 2001 12:35:08 -0500
-Date: Mon, 29 Jan 2001 09:34:40 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Diehl <mdiehlcs@compuserve.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
-        Robert Siemer <siemer@panorama.hadiko.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI IRQ routing problem in 2.4.0
-In-Reply-To: <Pine.LNX.4.21.0101291801580.29065-400000@notebook.diehl.home>
-Message-ID: <Pine.LNX.4.10.10101290928060.9131-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129101AbRA2Rin>; Mon, 29 Jan 2001 12:38:43 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:34316 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S129051AbRA2Rie>;
+	Mon, 29 Jan 2001 12:38:34 -0500
+Date: Mon, 29 Jan 2001 10:38:10 -0700
+From: yodaiken@fsmlabs.com
+To: Joe deBlaquiere <jadb@redhat.com>
+Cc: yodaiken@fsmlabs.com, Andrew Morton <andrewm@uow.edu.au>,
+        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+Message-ID: <20010129103810.D3037@hq.fsmlabs.com>
+In-Reply-To: <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <20010129084410.B32652@hq.fsmlabs.com> <3A75A70C.4050205@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3A75A70C.4050205@redhat.com>; from Joe deBlaquiere on Mon, Jan 29, 2001 at 11:23:24AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 29, 2001 at 11:23:24AM -0600, Joe deBlaquiere wrote:
+> It doesn't matter how you do it, the cooperative model eventually starts 
+> to feel like Windoze3.1 in the extreme case, but even so, it was much 
+> more multithreaded than DOS. Of course, the Right Thing (TM) is to do 
+> away with the cooperative model. But even in a preemptive model, there's 
+> no reason to have code like
 
+So we assume: if you have no RT threads running, Linux does the right
+thing. If you have RT threads running, you want them to run no matter
+what Linux does. This may be over-simple, but it's robust. 
+Otherwise you end up with either (A) an impossible to verify mess
+of many code components each hoping that the aggregate of the others
+will behave correctly or (B) a semi-functioning high overhead centralized
+priority system that slows everything down and probably does not
+work anyway.
 
-On Mon, 29 Jan 2001, Martin Diehl wrote:
 > 
-> Right, seems the 0x41/0x01 thing. I have the 0x01 case with SiS 85C503
-> router rev. 01. Hopefully the 0x41 boards have a different revision. My
-> fear however is, this is due to BIOS implementation of the routing table.
+> while (!done)
+> {
+> 	done = check_done();
+> }
 > 
-> Using the docs of the 85C503 function from the SiS5595 southbridge
-> datasheet I've written a patch to get things right - at least for the 0x01
-> case. The mapping on my box appears as follows:
+> when you can have:
 > 
-> link/pirq value           config-reg               function
-> 0x01/0x02/0x03/0x04       0x41/0x42/0x43/0x44    PCI INTA..D
-> 0x61                      0x61                   5513 onboard IDE
-> 0x62                      0x62                   onboard USB (OHCI)
-> 0x6a                      0x6a                   onboard ACPI
-> 0x7e                      0x7e                   onboard data acquisition
+> while (!done)
+> {
+> 	yield();
+> 	done = check_done();
+> }
 
-I bet that we can fix this up easily.
+But there is a reason for the first: time. 
 
-I bet the "translation" is just something like
+while(!read_pci_condition); // usually finishes in 10us
 
-	reg = pirq;
-	if (reg < 5)
-		reg += 0x40;
+versus
 
-and that what happened was that SiS _originally_ only specified INTA-INTD,
-and specified them as pirq link values 0x01-0x04, mapping to config
-registers 0x41-0x44.
+while(!read_pci_condition)yield(); // usually finishes in 1millisecond
 
-Later on they noticed that they wanted to do the other things too, and
-they expanded the definition to be "for any other value, it's the config
-space address".
+can have a nasty impact on system performance. 
 
-> BTW: I was wondering, why we did not update the PCI_INTERRUPT_LINE in
-> config space when we re-route dev->irq. Well, documentation/pci.txt says
-> we should trust on dev->irq over config space, however stopping lspci
-> and friends to confuse us would be too bad either. So I've included a
-> one-liner to fix this.
+      
+> 
+> being preemptive and being cooperative aren't mutually exclusive.
+> 
+> Borrowing your sports car / delivery van metaphor, I'm thinking we could 
+> come up with something along the lines of a BMW 750iL... room for six 
+> and still plenty of uumph.
 
-I would prefer _not_ to see this.
+Not a cheap vehicle.  Linux is pretty snappy on an AMD SC420  or
+a M860 and 5 meg of memory. And it scales to a quad xeon well. Don't
+try that with IRIX.  
+So to push my tired metaphor even further beyond
+the bounds, a delivery van that needs jet fuel and uses two lanes, 
+won't do well in the delivery business no matter how well it 
+accelerates.
 
-Why? Because it's (a) real information what the PCI config space was, and
-it might help debug things in the future. And (b) I've seen to many broken
-BIOSes that do not re-initialize hardware fully over a soft boot, that I
-worry that you'll get different behaviour after doing a "shutdown -r" with
-this.
 
-I'd rather not touch config space more than necessary.
 
-		Linus
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

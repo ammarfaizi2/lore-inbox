@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTD2VOI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTD2VOI
+	id S261852AbTD2VXj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbTD2VXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:14:08 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:22173 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261827AbTD2VOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:14:07 -0400
-Message-ID: <3EAEF11B.4070000@pacbell.net>
-Date: Tue, 29 Apr 2003 14:39:39 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
+	Tue, 29 Apr 2003 17:23:39 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:31201 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S261852AbTD2VXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 17:23:35 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: Issues with 2.4.20/2.4.21-rc1[-ac3] and 2.5.68 on a Dell laptop
+Date: Tue, 29 Apr 2003 23:35:51 +0200
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: Max Krasnyansky <maxk@qualcomm.com>
-CC: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support
- for SCO over HCI USB.
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304292335.51962.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
+	first of all, thanks for you -acX, it solved several issues in my Dell 
+X200, the inclusion of XFS is great, and dri/drm with xfree 4.3 works  
+perfectly with the i830M (thanks).
 
- > I was actually going to ask you guys if you'd be interested
- > in generalizing this _urb_queue() stuff that I have for
- > other drivers. Current URB api does not provide any interface
- > for queueing/linking/etc of URBs in the _driver_ itself.
+But there still several problems (with APM enabled, no framebuffer):
 
-I only saw fragments of the original patch -- could you be just
-a bit more specific?
+- With cpufreq enabled, the kernel hangs if you change the CPU speed 
+_after_ a suspend/resume via the old interface (/proc/sys/cpu/0/speed, 
+(also repeatable in a vanilla or -rc1 kernel)). It doesn't happen if my 
+governor program uses /proc/cpufreq instead. I saw this bug also with the 
+original cpufreq patch and also with 2.5.68.
 
-If you're suggesting adding some "struct list_head" into
-"struct urb" for exclusive use of the interface's driver
-(instead of urb_list, which is for usbcore/hcd) ... I'd
-agree that'd be a good thing.
+- cat /proc/i8k produces a long kernel lock, everything gets locked for a 
+few seconds. If you are playing a music, you must restart the program in 
+order the get alsa sync'd again.
 
-In fact I recently got around to adding that to the
-"gadget side" analogue of an URB.  For much the same
-kind of reasons as you mentioned.
+- After suspend/resume, the kernel hangs during a shutdown (just like the 
+infamous w98se shutdown bug :-), it happens after all processes have been 
+TERMed. Sometimes the screen goes white (it happens also with Marcelo 
+tree). I tried this with almost every different version and bios 
+workaround in APM kernel options. I also happens with 2.5.68.
 
-- Dave
+- The kernel hangs/lock hard if IO-APIC is enabled and you try to change 
+the screen brightness (<Fn><[UP][DOWN]-Arrow>). It also happens with 
+2.5.68.
+
+- ACPI doesn't see the battery, the shutdown buttons just turn down with 
+notifying the kernel, suspend doesn't work. Also seen with ACPI original 
+patches and 2.5.68.
+
+- Only happens with -ac3 version: the poweroff button turns the machine 
+off inmediately, it doesn't wait for a few seconds, as previous versions.
+
+Regards,
 
 
+-- 
+  ricardo galli       GPG id C8114D34

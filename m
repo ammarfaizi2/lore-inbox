@@ -1,89 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUJOUPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267998AbUJOUTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUJOUPT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 16:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUJOUPS
+	id S267998AbUJOUTV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 16:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbUJOUTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 16:15:18 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:60831 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267601AbUJOUOv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 16:14:51 -0400
-Date: Fri, 15 Oct 2004 22:11:47 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: root@chaos.analogic.com, gene.heskett@verizon.net,
-       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-Message-ID: <20041015201147.GA23355@thundrix.ch>
-References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com> <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net> <1097857049.29988.29.camel@weaponx.rchland.ibm.com> <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com> <1097862366.29988.51.camel@weaponx.rchland.ibm.com>
+	Fri, 15 Oct 2004 16:19:21 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:42399 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267998AbUJOUTR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 16:19:17 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=B/Uo7ObtuHUb5BAtV/0flnkC2Y8EdxTuZZMsHTsdxAYHsn3S9akeix18qN4B6goaAuXMTfwWhl3vM3aaKoi7EJYRRKmqmgUWEs3u9XCxoYZkhrPkOlvfDbqXDcZcIZr1VzJdOIpynA4tgHCdJuaGNgDUS+24ENMzuXCfySecRNE
+Message-ID: <9e4733910410151319159482ce@mail.gmail.com>
+Date: Fri, 15 Oct 2004 16:19:16 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Kendall Bennett <kendallb@scitechsoft.com>
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       fbdev <linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <416FB275.6425.1C3D985@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
-In-Reply-To: <1097862366.29988.51.camel@weaponx.rchland.ibm.com>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <416E8322.25700.29ACC2F1@localhost>
+	 <1097843969.9863.8.camel@localhost.localdomain>
+	 <416FB275.6425.1C3D985@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Oct 2004 11:20:21 -0700, Kendall Bennett
+<kendallb@scitechsoft.com> wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > On Iau, 2004-10-14 at 21:46, Kendall Bennett wrote:
+> > > a way to spawn a user mode process that early in the boot sequence (it
+> > > would have to come from the initrd image I expect) then the only option
+> > > is to compile it into the kernel.
+> >
+> > There is exactly that in 2.6 - the hotplug interfaces allow the
+> > kernel to fire off userspace programs. Jon Smirl (who you should
+> > definitely talk to about this stuff) has been hammering out a
+> > design for moving almost all the mode switching into user space for
+> > kernel video.
+> 
+> That is awesome! I am all for moving this outside of the kernel, as it
+> would allow the use of ream vm86() services for VGA/VESA BIOS access on
+> x86 and the user of the emulator for non-x86 platforms.
+> 
+> The only catch would be making sure this stuff is available really early
+> in the boot sequence. As it stands right now the solution we have brings
+> up the video almost imediately after you see the 'uncompressing kernel
+> image' message on the serial port. The other solution of course is to get
+> this into the boot loader which is what the AmigaOne folks did for their
+> machines (U-Boot brings up the video). We are working with those guys to
+> update their BIOS emulator to the latest version as the one they have
+> doesn't work that reliably.
+> 
+> Anyway how do I find out more about this in 2.6?
+> 
+> Also I assume the code would need to end up in the initrg image, correct?
+> Can you point me at some resources to learn more about how to get custom
+> code into the initrd image?
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The plan for this in 2.6 is to first write a VGA device driver. This
+driver is responsible for identifying all of the VGA devices in a
+system and ensuring only one of them gets enabled a time. I started
+writing this but I haven't finished. This driver would be compiled
+into the kernel. I can send source if you are interested.
 
-Salut,
+I have added hooks to the PCI subsystem to record the boot video
+device. If the VGA driver finds VGA devices other than the boot one it
+will generate hotplug events on them. Initramfs should contain a reset
+program for using X86 mode to reset these cards. To do this you need
+two things from the kernel: 1) a way to make sure only a single VGA
+device is active (VGA driver, allow you to disable the current VGA
+device, reset the card, restore the active VGA device) and 2) a way to
+get the ROM image. There is a patch in -mm that makes the ROMs visible
+in sysfs that should be in the kernel shortly.
 
-On Fri, Oct 15, 2004 at 12:46:06PM -0500, Josh Boyer wrote:
-> I'd disagree.  Do you consider SELinux to be policy as well just because
-> it's in the kernel?
->=20
-> As David said in his response, it's a mechanism.  Whether _you_ choose
-> to use it or not decides the "policy".  That's why I said put a config
-> option around it.  You would still have _choice_.
+So, when you first boot you have two choices, 1) use a display the
+boot ROM setup, such as VGAcon or PROMcon. or 2) have no display.
+People want this both ways. VGAcon/PROMcon will let you get output
+very early in the boot process.
 
-Actually,  even though I  agree that  Richard is  overdramatizing, his
-point is  not completely  invalid.  Remembering the  trusted computing
-initiative,  it's always  a question  of who  holds the  keys  to your
-computer.   In our  case it's  no problem,  since we  compile  all the
-software on the computer ourselves, and thus we have full control over
-what we do.
+Next the VGA driver will initialize. This will trigger user space
+resets using the program on initramfs. Now it is possible to use all
+of your displays. To control this from something like resume, the
+driver sets a lock that is cleared by the reset app and the end of
+reset. This will keep other processes out of the driver until reset is
+finished.
 
-What trusted computing revealed is that there is at least amongst some
-companies  a desire  to be  able to  dictate what's  going on  on your
-computer. Think Disney here.
+Right now I am working on a merged fbdev/DRM that supports multi-head
+adapters. It's turning out to be much more work than I though because
+neither DRM or fbdev handle multihead at the device driver level. You
+can get snapshots of the code at mesa3d.bkbits.net but it doesn't work
+right yet. This driver is designed to run after the VGAdriver has
+reset the hardware.
 
-Sure, TCPA is dead.  But I've seen a TPM chip. On an Intel test board.
-IBM has  them as well.  I agree  that we can trust  all these entities
-now. But what's going to happen ten years from now? We don't know.
-
-I'm not  proclaiming paranoia. I don't  say we should  burn this patch
-alive. I only say  that from time to time we have  to take care of not
-getting to the Wernher von Braun excuse.
-
-			    Tonnerre
-
-PS. I did a module signing patch  some years ago. I did a framework. I
-    did tests. I got scared of its power. All I say is, take care.
-
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBcC8D/4bL7ovhw40RAhewAJ47vYTolk9xUd7/dI+TtUnO5yxlJQCfbGTa
-7dCsPHIE4R9eME5c0ho+N1M=
-=h8ff
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

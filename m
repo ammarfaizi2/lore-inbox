@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbTHWEHp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 00:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTHWEHp
+	id S261380AbTHWE11 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 00:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbTHWE11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 00:07:45 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:41606 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S261360AbTHWEHo (ORCPT
+	Sat, 23 Aug 2003 00:27:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3782 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261362AbTHWE1Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 00:07:44 -0400
-Date: Sat, 23 Aug 2003 13:09:31 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
-Message-ID: <20030823040931.GA3872@atj.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030823025448.GA32547@atj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030823025448.GA32547@atj.dyndns.org>
-User-Agent: Mutt/1.5.4i
+	Sat, 23 Aug 2003 00:27:25 -0400
+Message-ID: <33070.4.4.25.4.1061612835.squirrel@www.osdl.org>
+Date: Fri, 22 Aug 2003 21:27:15 -0700 (PDT)
+Subject: selinux build failure
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-ia64@vger.kernel.org>, <sds@epoch.ncsc.mil>, <jmorris@redhat.com>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Additional suspicious things.
+selinux/hooks.c won't build on ia64.
+2.6.0-test3 + ia64 patch or 2.6.0-test4.
 
-1. tasklet_kill() has similar race condition.  mb() required before
-tasklet_unlock_wait().
+security/selinux/hooks.c: In function `selinux_file_fcntl':
+security/selinux/hooks.c:2032: error: `F_GETLK64' undeclared (first use in
+this function) security/selinux/hooks.c:2033: error: `F_SETLK64' undeclared
+(first use in this function) security/selinux/hooks.c:2034: error:
+`F_SETLKW64' undeclared (first use in this function)
 
-2. local_bh_count() and global_bh_lock tests inside wait_on_irq()
-suggests that cli() tries to block not only interrupt handling but all
-softirq handlings of all cpus; however, current implementation does
-not guarantee that.
+The __64 versions of these are defined in include/asm-ia64/compat.h. I don't
+see a good way to #include asm/compat.h, nor is it available for all
+processor architectures.
 
- Because local_bh_count is adjusted in do_softirq() _after_
-decrementing local_irq_count(), other cpus may happily begin
-softirq/tasklet/bh handling while a cpu is inside cli() - sti()
-critical section.
+~Randy
 
- If softirq handling is not guaranteed to be blocked during cli() -
-sti() critical section, local_bh_count() and global_bh_lock tests
-inside wait_on_irq() are redundant, and if it should be guranteed,
-current implementation seems broken.
 
--- 
-tejun
+

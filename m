@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbTDULrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 07:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTDULrI
+	id S263818AbTDULum (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 07:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263819AbTDULum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 07:47:08 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:18960 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263817AbTDULrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 07:47:08 -0400
-Date: Mon, 21 Apr 2003 13:59:02 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "David S. Miller" <davem@redhat.com>, <Andries.Brouwer@cwi.nl>,
-       <hch@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new system call mknod64
-In-Reply-To: <Pine.LNX.4.44.0304201454100.1563-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0304211354280.12110-100000@serv>
-References: <Pine.LNX.4.44.0304201454100.1563-100000@home.transmeta.com>
+	Mon, 21 Apr 2003 07:50:42 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:32128 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263818AbTDULul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 07:50:41 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304211204.h3LC4VA6000616@81-2-122-30.bradfords.org.uk>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Mon, 21 Apr 2003 13:04:31 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford), vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030421130341.06d60830.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 21, 2003 01:03:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > Name an IDE or SCSI disk on sale today that doesn't retry on write
+> > failiure.  Forget I said 'Generally do'.
+> 
+> IBM DMVS18V (SCSI)
+> Maxtor ATA133 160 GB DiamondMax Plus.
+> 
+> Maybe they _should_, but I can tell you they in fact sometimes don't
+> (IBM very, very seldom, Maxtor just about all the time)
 
-On Sun, 20 Apr 2003, Linus Torvalds wrote:
+How do you know those disks don't retry on write failiure?  How do you
+know they aren't retrying and failing?
 
-> The kernel should get major and minor numbers. It's a sad mistake that 
-> UNIX uses "dev_t" in the first place, and clearly the glibc interface to 
-> user mode will have to be that historical braindamage. But we should 
-> realize that the _right_ interface is keeping the <major, minor> tuple 
-> explicit, and any new system call interfaces should be of that type.
+> How do _you_ know that? What makes _you_ argue for what _I_ think is
+> useful and _my_ sense of security? You are on thin ice ...
 
-May I ask what advantage it has to split that number?
-Everywhere it's just a simple number, only when we present that number to 
-the user, we create some kind of illusion that this split has any meaning.
+Linux is an open source operating system, you are welcome to add the
+feature if you want it.
 
-bye, Roman
+> > We have moved on since the 1980s, and I believe that it is now up to
+> > the drive firmware, or the block device driver to do this, it has no
+> > place in a filesystem.
+> 
+> Interestingly I owned one of those 30 MB MFM Seagate howling drives
+> back in the 80s. I had no errors on it until I threw it away for its
+> unbelievable noise rate. Today I throw away one (very low-noise)
+> disk about every week for shooting yet another fs somewhere near
+> midnight.
+> Indeed we moved on, only the direction looks sometimes questionable ...
 
+Ask the disk manufacturers for advice.
+
+John.

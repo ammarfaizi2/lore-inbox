@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVCGTPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVCGTQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVCGTPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 14:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCGTMa
+	id S261290AbVCGTQx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 14:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVCGTP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 14:12:30 -0500
-Received: from mail.logixonline.com ([216.201.128.36]:32018 "EHLO
-	mail.logixonline.com") by vger.kernel.org with ESMTP
-	id S261268AbVCGTIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 14:08:52 -0500
-Date: Mon, 7 Mar 2005 13:08:49 -0600
-From: Chuck Campbell <campbell@accelinc.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: campbell@accelinc.com, linux-kernel@vger.kernel.org
-Subject: Re: NFS problem in 2.4.21 (RHEL ES 3 upd 2)
-Message-ID: <20050307190849.GB18702@helium.inexs.com>
-Reply-To: campbell@accelinc.com
-Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20050307163711.GB11949@helium.inexs.com> <1110218547.11489.32.camel@lade.trondhjem.org>
+	Mon, 7 Mar 2005 14:15:59 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:50692 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261305AbVCGTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 14:14:44 -0500
+Date: Mon, 7 Mar 2005 20:14:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jan Prunk <janprunk@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: debian kernel 2.4.29
+Message-ID: <20050307191442.GE3170@stusta.de>
+References: <BAY24-F18AB80179386A2AAB4DCEAD85F0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1110218547.11489.32.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <BAY24-F18AB80179386A2AAB4DCEAD85F0@phx.gbl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 01:02:27PM -0500, Trond Myklebust wrote:
-> må den 07.03.2005 Klokka 10:37 (-0600) skreiv Chuck Campbell:
-> > I've just built a cluster of dual Opteron boxes, running RHEL 3 update 2
-> > x86_64 OS.
-> > 
-> > I have problems creating files larger than 2GB on an NFS mounted filesystem.
-> > 
+On Mon, Mar 07, 2005 at 12:48:01PM +0000, Jan Prunk wrote:
+
+> Hello !
+
+Hi Jan!
+
+> I tried to compile kernel 2.4.29 on a debian PARISC machine Gecko 712/60, 
+> using PA7100LC processor.
+> I executed command to build a custom debian kernel:
+> fakeroot make-kpkg --revision=custom.1.0 kernel_image
 > 
-> Are you perhaps using NFSv2? If so, I suggest you try NFSv3, as the
-> NFSv2 protocol does not support 64-bit file sizes.
+> The kernel config file is available here:
+> http://212.18.59.124/kernel-2.4.29/config
+> 
+> The errors in the kernel are following:
+> signal.c:66: warning: passing arg 1 of `__put_kernel_asm64' makes
+> integer from pointer without a cast
+> signal.c:66: warning: passing arg 1 of `__put_user_asm64' makes integer
+> from pointer without a cast
+> gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
+> -I/usr/src/linux-2.4.29/include  -c -o hpmc.o hpmc.S
+> gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
+> -I/usr/src/linux-2.4.29/include  -c -o real2.o real2.S
+> real2.S: Assembler messages:
+> real2.S:126: Error: too many positional arguments
+> make[2]: *** [real2.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux-2.4.29/arch/parisc/kernel'
+> make[1]: *** [_dir_arch/parisc/kernel] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.29'
+> make: *** [stamp-build] Error 2
+> 
+> If you happen to know how to make this work, I appreciate a copy of your 
+> email to my address.
 
-OK, that fixed it.  It certainly wasn't apparent from the docs I plowed 
-through for the last two days, and I never turned up that gem on Google
-either.
+Most likely, ftp.kernel.org 2.4 kernels don't work on HPPA.
 
-Even the NFS-howto didn't point this out, so I'll submit some update info 
-to them.  Sorry for the noise.
+kernel-source-2.4.27 plus kernel-patch-2.4.27-hppa might help you to get 
+a working kernel.
 
--chuck
+> Regards, Jan Prunk
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

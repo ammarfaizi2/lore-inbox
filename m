@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVBBBGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVBBBSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVBBBGw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 20:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVBBBGv
+	id S261977AbVBBBSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 20:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVBBBSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 20:06:51 -0500
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:983 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261960AbVBBBGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 20:06:49 -0500
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-From: Eric St-Laurent <ericstl34@sympatico.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Tony Lindgren <tony@atomide.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <1107289206.18349.16.camel@krustophenia.net>
-References: <20050127212902.GF15274@atomide.com>
-	 <1107289206.18349.16.camel@krustophenia.net>
-Content-Type: text/plain
-Date: Tue, 01 Feb 2005 20:06:51 -0500
-Message-Id: <1107306411.8029.9.camel@orbiter>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 1 Feb 2005 20:18:41 -0500
+Received: from smtpout.mac.com ([17.250.248.46]:22015 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261977AbVBBBSj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 20:18:39 -0500
+In-Reply-To: <41FF9F48.60008@tmr.com>
+References: <20050129182255.37b8fe2c.khali@linux-fr.org> <20050129182255.37b8fe2c.khali@linux-fr.org> <20050129191430.GF28047@stusta.de> <41FF9F48.60008@tmr.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <53F39DCC-74B8-11D9-B112-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>,
+       Adrian Bunk <bunk@stusta.de>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [2.6 patch] mark the mcd cdrom driver as BROKEN
+Date: Tue, 1 Feb 2005 20:18:21 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 15:20 -0500, Lee Revell wrote:
+On Feb 01, 2005, at 10:24, Bill Davidsen wrote:
+> As a general thing I think DEPRECIATED would be useful for the case
+> where there is a newer functional driver.
 
-> I was wondering how Windows handles high res timers, if at all.  The
-> reason I ask is because I have been reverse engineering a Windows ASIO
-> driver, and I find that if the latency is set below about 5ms, by
+I guess a "DEPRECIATED" driver is one where the code is written off 
+linearly
+over a 7 year period. ;) I assume you mean DEPRECATED, not DEPRECIATED, 
+here.
 
-By default, Windows "multimedia" timers have 10ms resolution (this
-depends on the exact version of Windows used...).  You can call the
-timeBeginPeriod() function to lower the resolution to 1ms.
+Cheers,
+Kyle Moffett
 
-This resolution seem related to the task scheduler timeslice.  After you
-call this function, the Sleep() call has also a resolution of 1ms
-instead of 10ms.
-
-I remember reading that the multimedia timers are implemented as a high
-priority thread.
-
-You can found more details on this site :
-
-http://www.geisswerks.com/ryan/FAQS/timing.html
-
-Best regards,
-
-Eric St-Laurent
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269761AbUJSRFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269860AbUJSRFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269761AbUJSRFo (ORCPT <rfc822;willy@w.ods.org>);
+	id S269860AbUJSRFo (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Oct 2004 13:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269842AbUJSRDd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJSRD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:03:33 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:8098
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S269818AbUJSQwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:52:37 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-In-Reply-To: <20041019155722.GA9711@elte.hu>
-References: <20041014002433.GA19399@elte.hu>
-	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
-	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
-	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
-	 <20041019144642.GA6512@elte.hu>
-	 <28172.195.245.190.93.1098199429.squirrel@195.245.190.93>
-	 <1098200660.12223.923.camel@thomas>  <20041019155722.GA9711@elte.hu>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098204276.12223.992.camel@thomas>
+	Tue, 19 Oct 2004 13:03:26 -0400
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:39125 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S269842AbUJSQou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:44:50 -0400
+Date: Tue, 19 Oct 2004 09:44:49 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: sam@ravnborg.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc: fix build with O=$(output_dir)
+Message-ID: <20041019164449.GF6298@smtp.west.cox.net>
+References: <52is979pah.fsf@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 19 Oct 2004 18:44:36 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52is979pah.fsf@topspin.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 17:57, Ingo Molnar wrote:
-> any chance for serial logging on that box?
+On Mon, Oct 18, 2004 at 11:48:22PM -0700, Roland Dreier wrote:
 
-No
+> Recent changes to arch/ppc/boot/lib/Makefile cause
+> 
+>       CC      arch/ppc/boot/lib/../../../../lib/zlib_inflate/infblock.o
+>     Assembler messages:
+>     FATAL: can't create arch/ppc/boot/lib/../../../../lib/zlib_inflate/infblock.o: No such file or directory
+> 
+> when building a ppc kernel using O=$(output_dir) with CONFIG_ZLIB_INFLATE=n,
+> because the $(output_dir)/lib/zlib_inflate directory doesn't get created.
+> 
+> This patch, which makes arch/ppc/boot/lib/Makefile create the
+> directory if needed, is one fix for the problem.
 
-> and does this bootup crash go away if you unset PREEMPT_TIMING or
-> LATENCY_TRACE, as suggested by Rui?
+IMHO, this is the uglier of the two fixes for the problem, as this means
+you'll still be clobbering lib/zlib_inflate/*.o when ZLIB_INFLATE!=n.
+The other is to go back to putting the object in $(O)/arch/ppc/boot/lib/
+and copying the guts of the .c.o rule to arch/ppc/boot/lib/Makefile
 
-It comes into init now, but dies when loading the AGP driver. Have to
-look into this.
+Sam, any chance you've had time to think up a good fix to this?  Thanks.
 
-tglx
-
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

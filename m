@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290674AbSBFQrT>; Wed, 6 Feb 2002 11:47:19 -0500
+	id <S290666AbSBFQsJ>; Wed, 6 Feb 2002 11:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290669AbSBFQrK>; Wed, 6 Feb 2002 11:47:10 -0500
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:34310 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S290665AbSBFQrA>; Wed, 6 Feb 2002 11:47:00 -0500
-Subject: Toshiba CD-RW/DVD doesn't work after Suspend/Resume
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S290665AbSBFQsB>; Wed, 6 Feb 2002 11:48:01 -0500
+Received: from rgminet1.oracle.com ([148.87.122.30]:19935 "EHLO
+	rgminet1.oracle.com") by vger.kernel.org with ESMTP
+	id <S290671AbSBFQrR>; Wed, 6 Feb 2002 11:47:17 -0500
+Message-ID: <3C615E5D.A0E0B6A7@oracle.com>
+Date: Wed, 06 Feb 2002 17:48:29 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Applying 2.5.4-pre1 patch
+In-Reply-To: <3C6119E2.2060504@wanadoo.fr> <3C612CEC.A3BEB92C@oracle.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 06 Feb 2002 11:46:51 -0500
-Message-Id: <1013014015.1396.66.camel@iso-2146-l1.zeusinc.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Alessandro Suardi wrote:
+> 
+> Pierre Rousselet wrote:
+> >
+> > Patching drivers/char/gameport with /dev/null doesn't work for me. What
+> > is the trick ?
+> 
+> In my case has been
+> 
+>  - untar 2.5.3 in /usr/src/linux
+>  - cd linux; ln -s linux a
+>  - patch
+>  - cd /usr/src; mv b/drivers/input/* /usr/src/linux/drivers/input
+>  - build
+> 
+> I only have to reboot and see if it works :)
+>
 
-I have been struggling trying to get my Dell C810 to suspend/resume
-properly with APM.  I have almost everything working except for one very
-annoying problem that I'm hoping someone might help me with.  
+Hmm - oops on boot :( maybe later I'll have some time to repeat,
+ copy down oops and decode it.
 
-The machine has a built-in Toshiba CD-RW/DVD drive and after a
-suspend/resume cycle the first access to the drive will lock the machine
-solid.  The hard disk access light stays on solid and I can't get
-anything to respond.  I don't get an oops, I get no response from sysrq,
-my only options is to power down.
+--alessandro
 
-I originally thought this problem may be caused by the use of the
-ide-scsi module so I disabled that, however the problem remains.  An
-interesting note, if I build support for the cdrom as a module, and
-unload the module before suspending, I can then reload the module after
-a resume and everything seems fine.
-
-I've tried many various kernels from the Redhat supplied 2.4.7 and 2.4.9
-series through many iterations of 2.4.16-18 pre, ac, aa, etc and I can
-reproduce this problem 100% of the time on all of them.  I've never seen
-this on my other laptops so I'm somewhat suspicious of a BIOS bug,
-however, I'm not sure why unloading and reloading the driver would make
-a difference here.
-
-I'm looking for any sugestions or similar experiences.  Thanks in
-advanced for any help on this issue.
-
-Later,
-Tom
-
-
-
+ "If your heart is a flame burning brightly
+   you'll have light and you'll never be cold
+  And soon you will know that you just grow / You're not growing old"
+                              (Husker Du, "Flexible Flyer")

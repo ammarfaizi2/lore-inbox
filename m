@@ -1,71 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270534AbTGUQoo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 12:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270543AbTGUQon
+	id S270526AbTGUQqc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 12:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270543AbTGUQqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 12:44:43 -0400
-Received: from nx5.HRZ.Uni-Dortmund.DE ([129.217.131.21]:32651 "EHLO
-	nx5.hrz.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S270526AbTGUQol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 12:44:41 -0400
-Message-ID: <3F1C1BED.6010400@mathematik.uni-dortmund.de>
-Date: Mon, 21 Jul 2003 18:59:25 +0200
-From: Michael Abshoff <Michael.Abshoff@mathematik.uni-dortmund.de>
-Reply-To: Michael.Abshoff@mathematik.uni-dortmund.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw
-MIME-Version: 1.0
-To: Viaris <bmeneses_beltran@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with kernel 2.5.75 (Urgent)
-References: <Law11-OE21KRfcjcMzf0000fbd6@hotmail.com>
-In-Reply-To: <Law11-OE21KRfcjcMzf0000fbd6@hotmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 21 Jul 2003 12:46:32 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:57216 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S270526AbTGUQq3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 12:46:29 -0400
+Date: Mon, 21 Jul 2003 13:01:30 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Adaptec i2o and 2.6.0-test1-ac2
+Message-ID: <20030721170130.GA736@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viaris wrote:
-> Hi all,
-> 
-> I compiled kernel version 2.5.75, before I had kernel 2.4.20, the problem is
-> that I need to enable SCSI DC395x, but when I execute lsmod I not found
-> neither modules loaded, only appear:
-> Module                  Size  Used by
-> 
-> If I mount manually a module (insmod
-> /lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko) the following message
-> appear: Error inserting
-> '/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko': -1 Unknown symbol in
-> module, I have my modules.conf in the directory /lib/modules/2.5.75/ but
-> this kernel no load automatically the modules.
-> 
-> I need to load this module because Ineed to use the tape backup, I have a
-> backu that I need urgent.
-> 
-> How can I do it?
-> 
-> Thanks,
-> -
 
-Hello,
-
-there is a patch for dc395 for the 2.4 kernel at
-
-http://www.garloff.de/kurt/linux/dc395/
-
-I last used it with 2.4.1[89] and it applied with offsets except
-for the credits file which you shouldn't care about.
-
-Hope this helps,
-
-Michael
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-Michael Abshoff - MRB - Universität Dortmund - Telefon 755-3463 (intern)
 
-    Where do you want to RTFM today?
+Trying to put my fileserver on 2.6.0-test1-ac2 and I get this:
 
 
+  LD      drivers/message/built-in.o
+  CC      drivers/scsi/dpt_i2o.o
+drivers/scsi/dpt_i2o.c:32:2: #error Please convert me to
+Documentation/DMA-mapping.txt
+drivers/scsi/dpt_i2o.c: In function `adpt_install_hba':
+drivers/scsi/dpt_i2o.c:977: warning: passing arg 2 of `request_irq' from
+incompatible pointer type
+drivers/scsi/dpt_i2o.c: In function `adpt_scsi_to_i2o':
+drivers/scsi/dpt_i2o.c:2118: error: structure has no member named
+`address'
+drivers/scsi/dpt_i2o.c: At top level:
+drivers/scsi/dpt_i2o.c:165: warning: `dptids' defined but not used
+make[2]: *** [drivers/scsi/dpt_i2o.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+
+Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/HBxq8+1vMONE2jsRAsjhAJ9dwCUKbrKANkP6xftBRINxWnVbpwCeKIma
+7/KLDo+DSb6ncaoCKtQ5kCo=
+=HhoW
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

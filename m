@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272080AbRIUIhH>; Fri, 21 Sep 2001 04:37:07 -0400
+	id <S272244AbRIUIoI>; Fri, 21 Sep 2001 04:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272240AbRIUIg5>; Fri, 21 Sep 2001 04:36:57 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:51329 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S272080AbRIUIgp>; Fri, 21 Sep 2001 04:36:45 -0400
-Message-ID: <3BAAFC04.1F7B9C7C@rcn.com.hk>
-Date: Fri, 21 Sep 2001 16:36:20 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
-X-Accept-Language: zh_TW, en
+	id <S272345AbRIUIn5>; Fri, 21 Sep 2001 04:43:57 -0400
+Received: from matav-3.matav.hu ([145.236.252.34]:7213 "EHLO Milos.fw.matav.hu")
+	by vger.kernel.org with ESMTP id <S272244AbRIUInt>;
+	Fri, 21 Sep 2001 04:43:49 -0400
+Date: Fri, 21 Sep 2001 10:40:16 +0200 (CEST)
+From: Narancs v1 <narancs@narancs.tii.matav.hu>
+X-X-Sender: <narancs@helka>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Steve Lord <lord@sgi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Gonyou, Austin" <austin@coremetrics.com>, <linux-xfs@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: XFS to main kernel source
+In-Reply-To: <20010921075854.A11617@caldera.de>
+Message-ID: <Pine.LNX.4.33.0109211018430.21430-100000@helka>
 MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Thomas Sailer <sailer@scs.ch>,
-        linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio locking problems
-In-Reply-To: <Pine.LNX.3.96.1010920112905.26319I-100000@mandrakesoft.mandrakesoft.com> <3BAAF129.1090104@humboldt.co.uk>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox ¼g¹D¡G
-> 
-> Jeff Garzik wrote:
-> 
-> > On Thu, 20 Sep 2001, Thomas Sailer wrote:
-> >>   Dropping and reacquiring syscall_sem around interruptible_sleep_on
-> >>   in via_dsp_do_read, via_dsp_do_write and via_dsp_drain_playback
-> >>   should solve the problem. Does anyone see a problem with this?
-> 
-> > Is there a possibility of do_read being re-entered during that window?
-> > I agree its a problem but the solution sounds racy?
-> 
-> What's probably needed is one semaphore to lock read/write and ioctls
-> that look at the playback engine, and another semaphore to lock accesses
-> to the AC97 codec. That may be simpler to implement than dropping and
-> releasing the syscall_sem.
-> 
-> --
-> Adrian Cox   http://www.humboldt.co.uk/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I receive the same problem when probing the via sound module. Since I am
-in a motherboard design project which I also uses the AC97 interface
-from VIA. The sample board from VIA didn't have any problem, but have 3
-motherboard from 3rd party, each of them uses the VIA694X + VIA686A,
-only one of them have no problem using the sound module, I think it is a
-hardware problem or the module itself didn't handle some cases. It seems
-it should be the same for hardware design, since different codec may
-have different effect on the module. All boards are tested with
-Windows98 and Linux and then all works fine runnign Windows. The sample
-board from VIA is a VIA694T + VIA686B which all of them are pin-2-pin
-compatible with the old 694X+686A. I am sure the problem is from the
-driver, but it is hardware dependent??? My board design just use exactly
-the same chips of the VIA sample board, then we will be save using the
-via_82cxxx module properly. I will try to find out which codec is the
-trouble boards using. The one I'm surely stable without locking is using
-the VIA codec VT1611A . Does you guys require more information about the
-codec specs? I can get them from VIA if you want. Thanks.
+Oh guys I did not think that this is so "technically impossible".
+It's good for me to be informed what phylosofical differences you have
+between SGI and Linux programming style.
 
-regards,
+If the merge will not happen in around a half year - I think SGI/XFS "will
+lose market share". And Ext3 is gonna get more of the pie as that is
+(maybe) possible to patch in the kernel.
 
-David
+I really hope, that there will be a nice technical solution to this issue
+and there will be no political decisions over technical.
+
+Thanks
+
+- -------------------------
+Narancs v1
+IT Security Administrator
+
+"Security of information is an illusion.
+What is in one's mind gets into the collective consciousness (akasha),
+so that can be read with meditation ;-) You don't have to hack.
+Just 'remember'! You're the one."
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjuq/PUACgkQGp+ylEhMCIV0tQCeLKOrR4z1QZLWugIiA8hDZM7t
+TQQAn0fD6QhhtuvNYUZB/si5CQa/XtaE
+=k0Lx
+-----END PGP SIGNATURE-----
+

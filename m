@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311314AbSCXR2r>; Sun, 24 Mar 2002 12:28:47 -0500
+	id <S311593AbSCXReU>; Sun, 24 Mar 2002 12:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311462AbSCXR2i>; Sun, 24 Mar 2002 12:28:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47631 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311314AbSCXR23>; Sun, 24 Mar 2002 12:28:29 -0500
-Subject: Re: [patch 2.5] seq_file for /proc/partitions (take 2)
-To: rddunlap@osdl.org
-Date: Sun, 24 Mar 2002 17:04:07 +0000 (GMT)
-Cc: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org,
-        davej@suse.de
-In-Reply-To: <Pine.LNX.4.33.0203232143380.5047-100000@osdlab.pdx.osdl.net> from "rddunlap@osdl.org" at Mar 23, 2002 09:47:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16pBPb-0006ih-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S311594AbSCXReK>; Sun, 24 Mar 2002 12:34:10 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:29449
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S311593AbSCXRd7>; Sun, 24 Mar 2002 12:33:59 -0500
+Message-Id: <5.1.0.14.2.20020324122756.02581750@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 24 Mar 2002 12:28:48 -0500
+To: Alexander Viro <viro@math.psu.edu>, rddunlap@osdl.org
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: [patch 2.5] seq_file for /proc/partitions
+Cc: linux-kernel@vger.kernel.org, davej@suse.de
+In-Reply-To: <Pine.GSO.4.21.0203232308260.6560-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, I have 2.4.18 patch for this, but 2.4.19-pre3-ac6
-> includes more (sard ?) partition stats.
+At 11:11 PM 3/23/2002 -0500, Alexander Viro wrote:
+>> +     return part_start(part, pos);
+>
+>Erm...  Actually that _is_ wrong - what you want is
+>
+>        return ((struct gendisk)v)->next;
 
-Yes. 
+Forgive my ignorance, but that doesn't look right....
+shouldn't it REALLY be
 
-> Are those going to 2.5 also?
+        return ((struct gendisk*)v)->next;
 
-I hope so.
 
-> Do you want me to merge partition stats and seq_file?
+--
+Stevie-O
 
-I'll certainly take a diff if you do, and DaveJ I suspect will want to feed
-it on to Linus in time.
+Real programmers use COPY CON PROGRAM.EXE
+

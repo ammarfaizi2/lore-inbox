@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUFQU6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUFQU7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUFQU6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUFQU6X
+	id S263574AbUFQU7v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUFQU7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:58:23 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:14804 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263166AbUFQU6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:58:08 -0400
-Subject: Re: PATCH: Further aacraid work
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Alan Cox <alan@redhat.com>, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       y@redhat.com, Clay Haapala <chaapala@cisco.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20040617204828.GC1495@holomorphy.com>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2407B@otce2k03.adaptec.com>
-	<20040617203842.GC8705@devserv.devel.redhat.com> 
-	<20040617204828.GC1495@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 17 Jun 2004 15:56:16 -0500
-Message-Id: <1087505777.2210.82.camel@mulgrave>
+	Thu, 17 Jun 2004 16:59:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:1735 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263629AbUFQU7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 16:59:37 -0400
+Date: Thu, 17 Jun 2004 13:58:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, "David S. Miller" <davem@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
+Message-ID: <20040617205825.GB3138@kroah.com>
+References: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com> <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 15:48, William Lee Irwin III wrote:
-> Say, could you guys try this? jejb seemed to get decent results with it.
+On Thu, Jun 17, 2004 at 01:46:36PM -0700, Stephen Hemminger wrote:
+> Yes, this would get rid of the name, but then wouldn't bridge show up
+> as top level subsystem /sys/bridge. 
 
-To quantify, my previous results showed 40 merges out of about 32k
-segments.
+If you register it, yes it would.  Hm, what happens if you don't
+register it...
 
-With this patch running the same test, I show 24,007 merges out of 19513
-segments (which is about a 55% merger rate).
+> Is there no way to register without causing bogus hotplug events?
 
-I also see merges up to 128 segments (the maximum allowed).
+You are wanting to prevent hotplug events for a subset of a subsystem's
+devices, right?  You faked out the core by providing a fake subsystem.
+How about just using the filter of the subsystem you really want these
+entries to show up under?  Would that work?
 
-James
+> I am getting a bad taste about the whole sysfs programming model, since
+> it seems like programming by side effect. it would be better for sysfs
+> to handle the case of hidden subsystems, or provide an alternate way
+> not to generate hotplug events.
 
+Well, we never considered that you would want to nest subsystems in such
+a wierd way :)
 
+Anyway, take a look at the filter ability to see if that would work out
+for you instead of having to create a new subsystem.
+
+thanks,
+
+greg k-h

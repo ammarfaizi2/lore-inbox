@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbTFMNr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 09:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbTFMNr1
+	id S265399AbTFMNw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 09:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTFMNw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 09:47:27 -0400
-Received: from web12901.mail.yahoo.com ([216.136.174.68]:47732 "HELO
-	web12901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265395AbTFMNrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 09:47:25 -0400
-Message-ID: <20030613140111.34979.qmail@web12901.mail.yahoo.com>
-Date: Fri, 13 Jun 2003 16:01:11 +0200 (CEST)
-From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
-Subject: Re: Real multi-user linux
-To: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200306130813.h5D8DeA8000540@81-2-122-30.bradfords.org.uk>
+	Fri, 13 Jun 2003 09:52:29 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:27355 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S265399AbTFMNw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 09:52:26 -0400
+Message-ID: <3EE9DA55.5010409@g-house.de>
+Date: Fri, 13 Jun 2003 16:06:13 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel comile problem
+References: <Pine.SOL.4.44.0306131422120.22593-100000@clipper.ens.fr> <1055511216.5162.55.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1055511216.5162.55.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> skrev:
+Alan Cox schrieb:
+> 
+> Your changes look ok but the linux kernel 2.4.x isnt yet clean for
+> building with gcc 3.3
 
-> This idea has come up before, have a look at:
->  http://marc.theaimsgroup.com/?.....
+hm, 2.4.21-rc8 builds with gcc3.3 fine. gotta find out if it boots too..
 
-Thank you for providing these references.  Especially
-the first thread discusses some thoughts I had, too. 
+Christian.
 
-To summarize: People have thought about of one linux
-box directly supporting multiple (X-)consoles before.
-But this is not possible as of now, because X would
-have to be told to stop switching consoles and because
-the kernel cannot activate more than one console at
-one time. Additionately, multiple video cards may
-require mappings into the same memory area for certain
-functions. Some people have started to work on  a
-solution, but these projects were orphaned. 
-
-My motivation is simply a private one.  I have a
-P3-866 with 1.5G RAM and a scsi raid here which serves
-its own console and an old P133 as X terminal.
-Although this machine is already some kind of
-outdated, it has plenty of power to serve two users
-with one KDE session each. 
-
-I started to think about this, because the P133 died
-away due to a failing processor fan. Although
-replacing the whole machine with a similar one
-probably is cheaper than a good usb keyboard and
-mouse, it is also a question of comfort. No waiting
-for the terminal to boot up, no double administration,
-less power consumption, less space needed and so on. 
-
-Although I have some C/C++ expirience, I have
-absolutely no clues about kernel and or X internals,
-so I guess I have to forget this for now. 
-
-Regards, 
-Terje
-
-
-______________________________________________________
-Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
-Nye ikoner og bakgrunner, webkamera med superkvalitet og dobbelt så morsom

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281072AbRKYVdk>; Sun, 25 Nov 2001 16:33:40 -0500
+	id <S281077AbRKYVhL>; Sun, 25 Nov 2001 16:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281075AbRKYVdb>; Sun, 25 Nov 2001 16:33:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31241 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S281072AbRKYVdU>;
-	Sun, 25 Nov 2001 16:33:20 -0500
-Date: Sun, 25 Nov 2001 21:33:16 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Dominik Kubla <kubla@sciobyte.de>
-Cc: Sven.Riedel@tu-clausthal.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux and RS/6000 250
-Message-ID: <20011125213316.J7455@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Dominik Kubla <kubla@sciobyte.de>, Sven.Riedel@tu-clausthal.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de> <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de> <20011125144038.C5506@duron.intern.kubla.de> <20011125174742.A5789@moog.heim1.tu-clausthal.de> <20011125181051.D5506@duron.intern.kubla.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011125181051.D5506@duron.intern.kubla.de>; from kubla@sciobyte.de on Sun, Nov 25, 2001 at 06:10:51PM +0100
-X-Burt-Line: Trees are cool.
+	id <S281080AbRKYVhA>; Sun, 25 Nov 2001 16:37:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19981 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281077AbRKYVgq>; Sun, 25 Nov 2001 16:36:46 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
+Date: 25 Nov 2001 13:36:14 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tro8e$po1$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111221653290.28285-100000@netfinity.realnet.co.sz> <Pine.LNX.4.33.0111221552260.20788-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 06:10:51PM +0100, Dominik Kubla wrote:
-> On Sun, Nov 25, 2001 at 05:47:42PM +0100, Sven.Riedel@tu-clausthal.de wrote:
-> > On Sun, Nov 25, 2001 at 02:40:38PM +0100, Dominik Kubla wrote:
-> > > Add a 350 from me.  But the problem is not just the PPC/MCA combination,
-> > > but also the CPU. It's Power, not PowerPC!
-> > 
-> > Really? The IBM website says the following:
-> > 
-> > <quote>
-> > The IBM* RS/6000 Model 250 is flexible and powerful, and performs well
-> > as either a graphics workstation or a server. Driven by a 66MHz PowerPC
-> > 601* microprocessor,[...]
-> > </quote>
-> ...
-> > Marketing strikes again, eh? :/
+Followup to:  <Pine.LNX.4.33.0111221552260.20788-100000@Appserv.suse.de>
+By author:    Dave Jones <davej@suse.de>
+In newsgroup: linux.dev.kernel
+>
+> On Thu, 22 Nov 2001, Zwane Mwaikambo wrote:
 > 
-> No, i screwed up. The 250 and the 43P user PowerPC...
+> > hmm i've always been under the impression that those strings are hard
+> > encoded into the CPU so even if we're on a motherboard/bios which doesn't
+> > "support" that particular CPU we can do a cpuid and get the same string.
+> 
+> It likely has a less descriptive hardware default, but it can be
+> (and is advised to be for bios writers) overridden in software.
+> 
 
-The 7011-250 uses a PowerPC 601, which may or may not be happy with
-arch/ppc.  The 7248 (PReP-based 43P) uses a PowerPC 604 and should run
-fine.  The 7043 (CHRP-based 43P) uses a PowerPC 604e and should also run
-fine.
+No, the defaults are in the CPU if the CPU is recent enough.
 
-Joel
-
-
+	-hpa
 -- 
-
-"But all my words come back to me
- In shades of mediocrity.
- Like emptiness in harmony
- I need someone to comfort me."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

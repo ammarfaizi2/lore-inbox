@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVDEUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVDEV3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVDEUel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 16:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVDEUdc
+	id S262060AbVDEV3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 17:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVDEV3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 16:33:32 -0400
-Received: from box3.punkt.pl ([217.8.180.76]:19466 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261995AbVDEUTO (ORCPT
+	Tue, 5 Apr 2005 17:29:31 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:47780 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262053AbVDEV2N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 16:19:14 -0400
-Message-ID: <4252F38D.8020408@punkt.pl>
-Date: Tue, 05 Apr 2005 22:22:37 +0200
-From: |TEcHNO| <techno@punkt.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041122
-X-Accept-Language: en-gb, en-us, en-ca, en-au, ja, pl
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [SCSI] Driver Broken in 2.6.x (attemp 2)
-References: <4252CA25.70803@punkt.pl> <1112723304.6463.17.camel@mulgrave>
-In-Reply-To: <1112723304.6463.17.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 17:28:13 -0400
+Date: Tue, 5 Apr 2005 14:27:27 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>,
+       paulus@samba.org, anton@samba.org
+Subject: [PATCH] ppc64 Kconfig memory models
+Message-ID: <20050405212727.GA7513@w-mikek2.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch changes some of the default behavior in the ppc64 Kconfig
+file that was recently changed/added to 2.6.12-rc2-mm1 by Dave Hansen
+in preparation for SPARSEMEM.  Patch allows the display of both FLAT
+and DISCONTIG models on pseries.  As before, default is DISCONTIG for
+SMP and PSERIES and FLAT for others.
 
-> I don't think anyone has the actual hardware, without which it's quite
-> difficult to fix the problem.
-
-> What was the last 2.6 kernel version that this worked with?
-I guess I made a jump from 2.4.26 directly to 2.6.9 or maybe even 
-higher, but I can't remember if I used the scanner since then, most 
-probably is that it was last used it in 2.4.x.
-
-Is mentioned in previous post, I can do as much as possible to help, 
-including testing patches and/or recompiling the kernel in any way needed.
-
-
-Sorry for posting to 2 gropus but I'm not subscribed to any, and I'm not 
-sure to which (if any) was this reply sent to too.
 -- 
-pozdrawiam     |"Help me master, I felt the burning twilight behind
-techno@punkt.pl|those gates of stell..." --Perihelion, Prophecy Sequence
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+
+diff -Naupr linux-2.6.12-rc2-mm1/arch/ppc64/Kconfig linux-2.6.12-rc2-mm1.work/arch/ppc64/Kconfig
+--- linux-2.6.12-rc2-mm1/arch/ppc64/Kconfig	2005-04-05 18:44:57.000000000 +0000
++++ linux-2.6.12-rc2-mm1.work/arch/ppc64/Kconfig	2005-04-05 18:54:36.000000000 +0000
+@@ -199,9 +199,16 @@ config HMT
+ 	  pSeries systems p620 and p660 have such a cpu type.
+ 
+ config ARCH_DISCONTIGMEM_ENABLE
+-	bool "Discontiguous Memory Support"
++	def_bool y
+ 	depends on SMP && PPC_PSERIES
+ 
++config ARCH_DISCONTIGMEM_DEFAULT
++	def_bool y
++	depends on ARCH_DISCONTIGMEM_ENABLE
++
++config ARCH_FLATMEM_ENABLE
++	def_bool y
++
+ source "mm/Kconfig"
+ 
+ config NUMA

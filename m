@@ -1,128 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261540AbSJYSsH>; Fri, 25 Oct 2002 14:48:07 -0400
+	id <S261542AbSJYSst>; Fri, 25 Oct 2002 14:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261542AbSJYSsH>; Fri, 25 Oct 2002 14:48:07 -0400
-Received: from fepC.post.tele.dk ([195.41.46.147]:63674 "EHLO
-	fepC.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S261540AbSJYSsF>; Fri, 25 Oct 2002 14:48:05 -0400
-Message-ID: <002f01c27c57$a3e8fef0$0b00a8c0@runner>
-From: "Rune" <runner@mail.tele.dk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
-References: <20021025131349.GA25980@an.local> <2925311195.1035536802@[10.10.2.3]>
-Subject: Re: 2.5.44-ac3 - don't compile.
-Date: Fri, 25 Oct 2002 20:52:13 +0200
+	id <S261545AbSJYSst>; Fri, 25 Oct 2002 14:48:49 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:18134 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261542AbSJYSsq>; Fri, 25 Oct 2002 14:48:46 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: How to get number of physical CPU in linux from user space?
+Date: Fri, 25 Oct 2002 11:54:53 -0700
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Mikael Pettersson"
-Sent: Wednesday, October 23, 2002 1:43 PM
-Subject: Re: [PATCH 2.5.44] compile error whit LOCAL_APIC disabled...
+Recent distributions or the AC tree has additional fields in /proc/cpu,
+which tell
+- physical package id
+- number of threads 
+for each CPU.
+
+Using this info, you should be able to detect it. The problem is that they
+are not using the same keywords. I'm asking them to make those fields
+consistent.
+
+Thanks,
+Jun
+
+-----Original Message-----
+From: chrisl@vmware.com [mailto:chrisl@vmware.com]
+Sent: Friday, October 25, 2002 11:20 AM
+To: Martin J. Bligh
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to get number of physical CPU in linux from user space?
 
 
->
-> Known bug in scripts/Configure when switching from an APIC-enabled to
-> an APIC-disabled config. `make oldconfig' fixes it.
+
+On Fri, Oct 25, 2002 at 01:27:00AM -0700, Martin J. Bligh wrote:
+> Define "physical CPU number" ;-) If you want to deteact which
+
+I mean the number of cpu chip you can count on the mother board.
+
+> ones are paired up, I believe that if all but the last bit
+> of the apicid is the same, they're siblings. You might have to
+> dig the apicid out of the bootlog if the cpuinfo stuff doesn't
+> tell you.
+
+And you are right. Those apicid, after mask out the siblings,
+are put in phys_cpu_id[] array in kernel.
+
+I think about look at bootlog too, but that is not a reliable
+way because bootlog might already been flush out after some
+time.
+
+Cheers
+
+Chris
 
 
-or just comment out in your ".config":
-CONFIG_X86_EXTRA_IRQS
-CONFIG_X86_FIND_SMP_CONFIG
-CONFIG_X86_MPPARSE
 
-Rune Petersen
------ Original Message -----
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Andrey Nekrasov" <andy@spylog.ru>; <linux-kernel@vger.kernel.org>
-Sent: Friday, October 25, 2002 6:06 PM
-Subject: Re: 2.5.44-ac3 - don't compile.
-
-
-> Odd. I'm sure akpm fixed this in 44, unless -ac3 reverts it.
-> Can you search back for posts by Andrew Morton, and find the
-> fix, and try it?
->
-> M.
->
-> --On Friday, October 25, 2002 5:13 PM +0400 Andrey Nekrasov
-<andy@spylog.ru> wrote:
->
-> > Hello.
-> >
-> >
-> >  x86, no SMP.
-> >
-> >
-> > ...
-> > make -f init/Makefile
-> >   Generating init/../include/linux/compile.h (updated)
-> >
-
-
-gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototyp
-es
-> > -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
-> > -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
-> > -fomit-frame-pointer -nostdinc -iwithprefix
-lude    -DKBUILD_BASENAME=version
-> > -c -o init/version.o init/version.c
-> >    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-> > init/do_mounts.o
-> >         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o
-> > arch/i386/kernel/init_task.o  init/built-in.o --start-group
-> > arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-> > arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
-fs/built-in.o
-> > ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a
-> > drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
-net/built-in.o
-> > --end-group  -o vmlinux
-> > arch/i386/kernel/built-in.o: In function `MP_processor_info':
-> > arch/i386/kernel/built-in.o(.init.text+0x46a3): undefined reference to
-`Dprintk'
-> > arch/i386/kernel/built-in.o(.init.text+0x46b6): undefined reference to
-`Dprintk'
-> > arch/i386/kernel/built-in.o(.init.text+0x46c9): undefined reference to
-`Dprintk'
-> > arch/i386/kernel/built-in.o(.init.text+0x46dc): undefined reference to
-`Dprintk'
-> > arch/i386/kernel/built-in.o(.init.text+0x46ef): undefined reference to
-`Dprintk'
-> > arch/i386/kernel/built-in.o(.init.text+0x4702): more undefined
-references to
-> > `Dprintk' follow
-> > make: *** [vmlinux] Error 1
-> > ...
-> >
-> > Why?
-> >
-> >
-> >
-> > --
-> > bye.
-> > Andrey Nekrasov, SpyLOG.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269530AbUIZNKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269523AbUIZN2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269530AbUIZNKO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 09:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269527AbUIZNKO
+	id S269523AbUIZN2j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 09:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbUIZN2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 09:10:14 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:18371 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269530AbUIZNKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 09:10:07 -0400
-Subject: Re: [RFC] put symbolic links between drivers and modules in
-	the	sysfs tree
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, greg@kroah.com,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <E1CBWOq-0007t6-00@gondolin.me.apana.org.au>
-References: <E1CBWOq-0007t6-00@gondolin.me.apana.org.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 26 Sep 2004 09:09:03 -0400
-Message-Id: <1096204149.10924.2.camel@mulgrave>
-Mime-Version: 1.0
+	Sun, 26 Sep 2004 09:28:39 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:54802 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S269523AbUIZN2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 09:28:37 -0400
+Message-ID: <33070.192.168.1.5.1096204190.squirrel@192.168.1.5>
+In-Reply-To: <200409251637.29401.david-b@pacbell.net>
+References: <414F8CFB.3030901@cybsft.com>
+    <25766.195.245.190.94.1096034422.squirrel@195.245.190.94>
+    <200409241016.46201.bjorn.helgaas@hp.com>
+    <200409251637.29401.david-b@pacbell.net>
+Date: Sun, 26 Sep 2004 14:09:50 +0100 (WEST)
+Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "David Brownell" <david-b@pacbell.net>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Roman Weissgaerber" <weissg@vienna.at>,
+       linux-usb-devel@lists.sourceforge.net, "K.R. Foley" <kr@cybsft.com>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 26 Sep 2004 13:28:33.0295 (UTC) FILETIME=[B83E19F0:01C4A3CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-26 at 06:37, Herbert Xu wrote:
-> James Bottomley <James.Bottomley@steeleye.com> wrote:
-> >
-> >> So what will your userland code do when you run it on a system with
-> >> non-modular kernel currently running?
-> > 
-> > Not put a module in the initial ramdisk, since it would be unnecessary. 
-> > The only information the patch seeks to add is the linkage between
-> > driver and module.  So you can work back from sysfs to know which
-> > devices have which modules
-> 
-> You're assuming that the kernel before/after the reboot have the same
-> configuration.  This is false in general.
+David Brownell wrote:
+> Bjorn Helgaas wrote:
+>>
+>> The attached patch (which applies on top of Rui's patch for
+>> ALI M5237) fixes the problem for my DL360.
+>
+> Hmm, I'd rather avoid needing a quirk table ... especially
+> when I've always suspected this is some subtle bug in the
+> way Linux initializes!  Does this patch behave too?
+>
 
-No I'm not.  For an initrd/initramfs the only assumption would be that
-the boot device's driver is compiled in or modular.  If this isn't true,
-the system won't boot anyway.
+The patch works on my ALI M5237, having ohci_hcd (re)starting properly. No
+need for my previous specific patch.
 
-James
-
+Thanks.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

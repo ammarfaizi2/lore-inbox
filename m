@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbUCGKh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 05:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCGKh3
+	id S261802AbUCGKq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 05:46:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCGKq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 05:37:29 -0500
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:64959 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S261804AbUCGKhV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 05:37:21 -0500
-Message-ID: <404AFACB.8010405@stillhq.com>
-Date: Sun, 07 Mar 2004 21:34:51 +1100
-From: Michael Still <mikal@stillhq.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040221)
+	Sun, 7 Mar 2004 05:46:27 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:44467
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261802AbUCGKq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 05:46:26 -0500
+Message-ID: <404AFD72.3070306@redhat.com>
+Date: Sun, 07 Mar 2004 02:46:10 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040306
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 Patch] madocs-008: Fix breakage in SGML documentation for parport
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: mike@theoretic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Potential bug in fs/binfmt_elf.c?
+References: <1078508281.3065.33.camel@linux.littlegreen> <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen> <404ABD06.4060607@redhat.com> <pan.2004.03.07.09.58.43.675972@codeweavers.com>
+In-Reply-To: <pan.2004.03.07.09.58.43.675972@codeweavers.com>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Heya,
+Mike Hearn wrote:
+> One quick question - you said binfmt_elf is not a
+> generic ELF interpreter, but the one in glibc presumably is yes?
 
-this patch is needed to get any of the SGML documentation to build with 
-2.6.4-rc2. Please apply.
+No.  It only handles what is necessary.
 
-Thanks,
-Mikal
+- -- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
---
-
-diff -Nur 
-linux-2.6.4-rc2-cset-20040306_1807/Documentation/DocBook/parportbook.tmpl 
-linux-2.6.4-rc2-cset-20040306_1807-mandocs/Documentation/DocBook/parportbook.tmpl
---- 
-linux-2.6.4-rc2-cset-20040306_1807/Documentation/DocBook/parportbook.tmpl 
-2004-03-07 11:24:14.000000000 +1100
-+++ 
-linux-2.6.4-rc2-cset-20040306_1807-mandocs/Documentation/DocBook/parportbook.tmpl 
-2004-03-07 17:39:05.000000000 +1100
-@@ -2730,7 +2730,7 @@
-
-  </book>
-  <!-- Additional function to be documented:
--!Ddrivers/parport/init.c
-+--!Ddrivers/parport/init.c (this file doesn't exist any more)
-  -->
-  <!-- Local Variables: -->
-  <!-- sgml-indent-step: 1 -->
-
--- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 11                          |    -- Homer Simpson
+iD8DBQFASv1y2ijCOnn/RHQRAihlAKCa6gGblyruVtYqk5OQFf3IvL4ELQCgyY5/
+lkq7yoQelRbOFVuUwAAvcmk=
+=MFBI
+-----END PGP SIGNATURE-----

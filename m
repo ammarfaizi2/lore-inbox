@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133112AbRAGCFG>; Sat, 6 Jan 2001 21:05:06 -0500
+	id <S133117AbRAGCMR>; Sat, 6 Jan 2001 21:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133117AbRAGCE5>; Sat, 6 Jan 2001 21:04:57 -0500
-Received: from losser.st-lab.cs.uu.nl ([131.211.83.40]:42251 "EHLO
-	losser.st-lab.cs.uu.nl") by vger.kernel.org with ESMTP
-	id <S133112AbRAGCEo> convert rfc822-to-8bit; Sat, 6 Jan 2001 21:04:44 -0500
-Date: Sun, 7 Jan 2001 03:07:02 +0100 (CET)
-From: Eelco Dolstra <eelco@losser.st-lab.cs.uu.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ivan Baldo <lubaldo@adinet.com.uy>, flf@operamail.com, ben@imben.com,
-        linux-kernel@vger.kernel.org, Linux Uruguay <linux-uy@linux.org.uy>,
-        SET <salvador@inti.gov.ar>
-Subject: Re: How to make VFAT work right in 2.4.0-prereleaseu
-In-Reply-To: <E14EzPU-0001SG-00@the-village.bc.nu>
-Message-ID: <Pine.BSF.4.21.0101070300030.12461-100000@losser.st-lab.cs.uu.nl>
+	id <S135302AbRAGCMI>; Sat, 6 Jan 2001 21:12:08 -0500
+Received: from chmls06.mediaone.net ([24.147.1.144]:20138 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S133117AbRAGCLv>; Sat, 6 Jan 2001 21:11:51 -0500
+Message-ID: <3A57D10E.9080205@maniac.ultranet.com>
+Date: Sat, 06 Jan 2001 21:14:38 -0500
+From: "David C. Davies" <davies@maniac.ultranet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Andi Kleen <ak@suse.de>, Bill Wendling <wendling@ganymede.isdn.uiuc.edu>,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> <200011031937.WAA10753@ms2.inr.ac.ru> <20001103160108.D16644@ganymede.isdn.uiuc.edu> <3A033C82.114016A0@mandrakesoft.com> <20001104004129.C5173@gruyere.muc.suse.de> <3A0350EC.8B1A3B4D@mandrakesoft.com>
+Content-Type: multipart/alternative;
+ boundary="------------080100040707010804040708"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 6 Jan 2001, Alan Cox wrote:
+--------------080100040707010804040708
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > 	- edit file fs/fat/inode.c, look in the function named
-> > "fat_notify_change" (at about line 901), where it says:"
-> > 	/* FAT cannot truncate to a longer file */
-> > 	if (attr->ia_valid & ATTR_SIZE) {
-> > 		if (attr->ia_size > inode->i_size)
-> > 			return -EPERM;
-> > 	}
-> > 	", just delete all of it (or comment it out). This change wich has been
-> > made in the -prerelease versión, makes Netscape Messenger not to work
-> 
-> If you do that you will corrupt your FAT fs.
+All,
 
-But only on SMP, right?  The only other FAT change I see in -ac (apart
-from my patch) is the spinlock around fat_cache.
+Please reply to daviesrallis@mediaone.net rather than this email account.
 
 Regards,
 
-Eelco.
+Dave
+------------------------------------
+
+Jeff Garzik wrote:
+
+> Andi Kleen wrote:
+> 
+>> de4x5 is stable, but tends to perform badly under load, mostly because
+>> it doesn't use rx_copybreak and overflows standard socket buffers with its
+>> always MTU sized skbuffs.
+> 
+> 
+> One of the reasons that de4x5 isn't gone already is that I get reports
+> that de4x5 performs better than the tulip driver for their card.
+> 
+> 	Jeff
+> 
+> 
 
 
+--------------080100040707010804040708
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+<html><head></head><body>All,<br>
+<br>
+Please reply to <a class="moz-txt-link-abbreviated" href="mailto:daviesrallis@mediaone.net">daviesrallis@mediaone.net</a> rather than this email account.<br>
+<br>
+Regards,<br>
+<br>
+Dave<br>
+------------------------------------<br>
+<br>
+Jeff Garzik wrote:<br>
+<blockquote type="cite" cite="mid:3A0350EC.8B1A3B4D@mandrakesoft.com"><pre wrap="">Andi Kleen wrote:<br></pre>
+  <blockquote type="cite"><pre wrap="">de4x5 is stable, but tends to perform badly under load, mostly because<br>it doesn't use rx_copybreak and overflows standard socket buffers with its<br>always MTU sized skbuffs.<br></pre></blockquote>
+    <pre wrap=""><!----><br>One of the reasons that de4x5 isn't gone already is that I get reports<br>that de4x5 performs better than the tulip driver for their card.<br><br>	Jeff<br><br><br></pre>
+    </blockquote>
+    <br>
+</body></html>
+--------------080100040707010804040708--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

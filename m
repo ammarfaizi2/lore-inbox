@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129529AbQKWBtU>; Wed, 22 Nov 2000 20:49:20 -0500
+        id <S129586AbQKWCMT>; Wed, 22 Nov 2000 21:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130162AbQKWBtK>; Wed, 22 Nov 2000 20:49:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4222 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S129529AbQKWBtC>; Wed, 22 Nov 2000 20:49:02 -0500
-Subject: Re: Inspiron 5000e dmesg from test11-ac2
-To: Jeff.Lessem@Colorado.EDU (Jeff Lessem)
-Date: Thu, 23 Nov 2000 01:19:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200011230114.SAA486161@ibg.colorado.edu> from "Jeff Lessem" at Nov 22, 2000 06:14:15 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+        id <S130162AbQKWCMJ>; Wed, 22 Nov 2000 21:12:09 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:24327 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S129586AbQKWCLv>; Wed, 22 Nov 2000 21:11:51 -0500
+Date: Wed, 22 Nov 2000 19:41:45 -0600
+To: "Matt D. Robinson" <yakker@alacritech.com>
+Cc: 64738 <schwung@rumms.uni-mannheim.de>, linux-kernel@vger.kernel.org
+Subject: Re: LKCD from SGI
+Message-ID: <20001122194145.L2918@wire.cadcamlab.org>
+In-Reply-To: <974906422.3a1be4369213b@rumms.uni-mannheim.de> <3A1C0D09.428F5398@alacritech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13yl2w-0006kq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A1C0D09.428F5398@alacritech.com>; from yakker@alacritech.com on Wed, Nov 22, 2000 at 10:14:33AM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> along the dmesg output from bootup on a Dell Inspiron 5000e.  I have
 
-Thanks a lot
+[Matt D. Robinson]
+> Any way we can standardize 'make install' in the kernel?  It's
+> disturbing to have different install mechanisms per platform ...
+> I can make the changes for a few platforms.
 
-> for the fixes to APM, and if there is any more information I can
-> provide that would be useful in getting full APM support on the 5000e
-> please e-mail me directly, as I do not normally read linux-kernel.
+2.5 material, already on the todo list.
 
-Thats all the info I needed to verify - the BIOS version strings being right
-and to add the dates. As I understand it Compal will be issuing Dell with a 
-BIOS update for this board 'at some point'. When the BIOS upgrade is done the
-apm battery data should be back
-
-Alan
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

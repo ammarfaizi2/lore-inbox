@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUFGPPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUFGPSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264782AbUFGPPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 11:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUFGPOV
+	id S264788AbUFGPSB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 11:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFGPOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 11:14:21 -0400
-Received: from loki.snap.net.nz ([202.37.101.41]:48402 "EHLO loki.snap.net.nz")
-	by vger.kernel.org with ESMTP id S264788AbUFGPML (ORCPT
+	Mon, 7 Jun 2004 11:14:10 -0400
+Received: from smtp.virgilio.it ([212.216.176.142]:8067 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S263100AbUFGPNW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 11:12:11 -0400
-Date: Tue, 8 Jun 2004 03:19:50 +1200 (NZST)
-From: Keith Duthie <psycho@albatross.co.nz>
-To: Sebastian Kloska <kloska@scienion.de>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-In-Reply-To: <40C47FEE.6080505@scienion.de>
-Message-ID: <Pine.LNX.4.53.0406080314460.27816@loki.albatross.co.nz>
-References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz>
- <40C46F7F.7060703@scienion.de> <Pine.LNX.4.53.0406080228110.27816@loki.albatross.co.nz>
- <40C47FEE.6080505@scienion.de>
+	Mon, 7 Jun 2004 11:13:22 -0400
+Message-ID: <40C4860C.3070904@stanchina.net>
+Date: Mon, 07 Jun 2004 17:13:16 +0200
+From: Flavio Stanchina <flavio@stanchina.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Wichert Akkerman <wichert@wiggy.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kbuild make deb patch
+References: <20040607141353.GK21794@wiggy.net>
+In-Reply-To: <20040607141353.GK21794@wiggy.net>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004, Sebastian Kloska wrote:
+Wichert Akkerman wrote:
+> kbuild has had a rpm make target for some time now. Since the concept of
+> kernel packages is quite convenient I added a deb target as well, using
+> the patch below.
 
->   Does this bug freeze the machine ? Or just block
->   the outputting program ?
-
-The machine remains completely usable except for sound; the outputting
-program is stuck in uninterruptible sleep, and hence is unkillable. I've
-dug up my patch (which is against 2.6.5, but should patch cleanly with any
-other 2.6, as it's merely a one liner), and will submit it in a separate
-email.
+I like the idea a lot, but your patch to the makefile touches quite a 
+few things in the clean target that AFAICT are not related to the deb 
+target in any way. Perhaps you are diffing from an older tree?
 
 -- 
-Just because it isn't nice doesn't make it any less a miracle.
-     http://users.albatross.co.nz/~psycho/     O-   -><-
+Ciao, Flavio
+

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbUCBRlT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 12:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUCBRlT
+	id S261716AbUCBRrx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 12:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUCBRrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 12:41:19 -0500
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:33944 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261515AbUCBRlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 12:41:17 -0500
-X-Sasl-enc: IJhFrl53D859fb75SQA9jQ 1078248981
-Message-ID: <4044C611.5060208@mailcan.com>
-Date: Tue, 02 Mar 2004 18:36:17 +0100
-From: Leon Woestenberg <leonw@mailcan.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Tue, 2 Mar 2004 12:47:53 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:56841 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261716AbUCBRrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 12:47:51 -0500
+To: root@chaos.analogic.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <Pine.LNX.4.53.0403021000250.19478@chaos> (Richard B. Johnson's
+ message of "Tue, 2 Mar 2004 10:02:17 -0500 (EST)")
+References: <20040301184512.GA21285@hobbes.itsari.int>
+	<c2175f$6hn$1@terminus.zytor.com>
+	<m3u1175miy.fsf@lugabout.jhcloos.org>
+	<Pine.LNX.4.53.0403021000250.19478@chaos>
+Date: Tue, 02 Mar 2004 12:47:40 -0500
+Message-ID: <m3ishn5ef7.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Ben Collins <bcollins@debian.org>, linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] csr1212 compile fix
-References: <Pine.GSO.4.58.0402291708460.7483@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0402291708460.7483@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Geert,
+>>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
 
-Geert Uytterhoeven wrote:
-> 	Hi Ben,
-> 
-> in_interrupt() needs #include <linux/sched.h> on some platforms (e.g. m68k).
-> 
-> BTW, shouldn't most of the IEEE1394 stuff depend on CONFIG_PCI? E.g.
-> drivers/ieee1394/dma.c uses struct pci_dev and needs pci_alloc_consistent() and
-> friends.
-> 
-> (All found while trying to enable as many drivers as possible)
-> 
-Although most OHCI implementations are PCI based, there are embedded 
-link controllers that are not (OHCI nor) PCI-based.
+Richard> I think /dev/tty, used in the context of any process, always
+Richard> refers to the current processes terminal. You should not have
+Richard> to "hard-code" a particular terminal.
 
-Here is a driver by Steve Kinneberg that shows how he removed the 
-dependencies on CONFIG_PCI and written around the DMA functions.
+No, I obviously was ambiguous.  I use:
 
-http://mailman.uclinux.org/pipermail/uclinux-dev/2004-January/023691.html
+export HISTFILE=~/.bash_history_${USER}_$(tty|sed s_^/dev/__|tr / _)
 
-Based on this driver (thanks again Steve if you read this) we are adding 
-support for a Philips link layer device.
+in my ~/.bashrc to ensure that each term has a unique and repeatable
+HISTFILE.  I do not see any alternative tuple that is unique and
+repeatable.
 
-Regards,
+This change makes that idiom useless, with no alternative available.
 
-Leon.
+On a multi-user server the change is clearly the right thing to do,
+but on a workstation, laptop or handheld, where few ptys are typically
+allocated, the case isn't so clear.
+
+-JimC
+
+
 

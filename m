@@ -1,76 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281103AbRKKVz4>; Sun, 11 Nov 2001 16:55:56 -0500
+	id <S281105AbRKKWD0>; Sun, 11 Nov 2001 17:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281105AbRKKVzq>; Sun, 11 Nov 2001 16:55:46 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:38629 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S281103AbRKKVzn>; Sun, 11 Nov 2001 16:55:43 -0500
-Date: Sun, 11 Nov 2001 22:55:36 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Joe <joeja@mindspring.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: loop back broken in 2.2.14
-In-Reply-To: <3BEEED3E.58867BFE@mindspring.com>
-Message-ID: <Pine.NEB.4.40.0111112255180.8577-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S281108AbRKKWDH>; Sun, 11 Nov 2001 17:03:07 -0500
+Received: from CPE-61-9-148-175.vic.bigpond.net.au ([61.9.148.175]:30960 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S281105AbRKKWDF>; Sun, 11 Nov 2001 17:03:05 -0500
+Message-ID: <3BEEF1CA.51423E2@eyal.emu.id.au>
+Date: Mon, 12 Nov 2001 08:46:50 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.15-pre3: missing functions
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001, Joe wrote:
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.15-pre3/kernel/drivers/md/lvm-mod.o
+depmod:         free_kiovec_sz
+depmod:         alloc_kiovec_sz
 
-> compile 2.2.14.
->
-> Then
->
-> # modprobe -a loop
-> /lib/modules/2.4.14/kernel/drivers/block/loop.o: unresolved symbol
-> deactivate_page
-> /lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod
-> /lib/modules/2.4.14/kernel/drivers/block/loop.o failed
-> /lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod loop failed
->
-> do recursive grep through kernel tree:
->
-> # rgrep -rl  deactivate_page *
-> drivers/block/loop.c
-> drivers/block/loop.o
->
-> Is there a fix for this?
+These are in a newer (in 2.4.13-ac8) fs/iobuf.c which has many changes
+relative to this (pre3) so a simple copy accross may be too drastic.
 
-This is a known bug.
-
-The following patch fixes it:
-
---- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
-+++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
-@@ -207,7 +207,6 @@
- 		index++;
- 		pos += size;
- 		UnlockPage(page);
--		deactivate_page(page);
- 		page_cache_release(page);
- 	}
- 	return 0;
-@@ -218,7 +217,6 @@
- 	kunmap(page);
- unlock:
- 	UnlockPage(page);
--	deactivate_page(page);
- 	page_cache_release(page);
- fail:
- 	return -1;
-
-> Joe
-
-cu
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,158 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbUKDWZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbUKDWZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbUKDWZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbUKDWYI
+	id S262458AbUKDWZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbUKDWYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:24:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:60854 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262474AbUKDWEW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:04:22 -0500
-Subject: Re: [RFC] [PATCH] [1/3] LSM Stacking: stackable bsdjail
-	(tasklookup)
-From: Serge Hallyn <serue@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1099609471.2096.10.camel@serge.austin.ibm.com>
-References: <1099609471.2096.10.camel@serge.austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1099610069.2096.29.camel@serge.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Nov 2004 17:14:34 -0600
+	Thu, 4 Nov 2004 17:24:18 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:10958 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262458AbUKDWIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 17:08:42 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: John Levon <levon@movementarian.org>
+Subject: Re: contention on profile_lock
+Date: Thu, 4 Nov 2004 14:08:28 -0800
+User-Agent: KMail/1.7
+Cc: William Lee Irwin III <wli@holomorphy.com>, Jack Steiner <steiner@sgi.com>,
+       linux-kernel@vger.kernel.org, edwardsg@sgi.com, dipankar@in.ibm.com
+References: <200411021152.16038.jbarnes@engr.sgi.com> <200411041249.21718.jbarnes@engr.sgi.com> <20041104215113.GA54024@compsoc.man.ac.uk>
+In-Reply-To: <20041104215113.GA54024@compsoc.man.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411041408.28694.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The next three patches add bsdjail as another example of stacking
-LSMs.  This patch adds the security_task_lookup hook required for
-bsdjail.
+On Thursday, November 4, 2004 1:51 pm, John Levon wrote:
+> On Thu, Nov 04, 2004 at 12:49:21PM -0800, Jesse Barnes wrote:
+> > John pointed out that this breaks modules.  Would registering and
+> > unregistering a function pointer thus be module safe?  Dipankar,
+> > hopefully you have something better?
+> >
+> > static int timer_start(void)
+> > {
+> >  /* Setup the callback pointer */
+> >  oprofile_timer_notify = oprofile_timer;
+> >  return 0;
+> > }
+>
+> Surely something like (profile.c):
+>
+> funcptr_t timer_hook;
+>
+> static int register_timer_hook(funcptr_t hook)
+> {
+>  if (timer_hook)
+>   return -EBUSY;
+>  timer_hook = hook;
+> }
+>
+> static void unregister_timer_hook(funcptr_t hook)
+> {
+>  WARN_ON(hook != timer_hook);
+>  timer_hook = NULL;
+>  /* make sure all CPUs see the NULL hook */
+>  synchronize_kernel();
+> }
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Yes, that's much better.  Will post another one shortly.  Thanks.
 
-Index: linux-2.6.10-rc1-bk14/fs/proc/base.c
-===================================================================
---- linux-2.6.10-rc1-bk14.orig/fs/proc/base.c	2004-11-04
-12:28:00.402094432 -0600
-+++ linux-2.6.10-rc1-bk14/fs/proc/base.c	2004-11-04 12:31:28.974386624
--0600
-@@ -1687,6 +1687,8 @@
- 		int tgid = p->pid;
- 		if (!pid_alive(p))
- 			continue;
-+		if (security_task_lookup(p))
-+			continue;
- 		if (--index >= 0)
- 			continue;
- 		tgids[nr_tgids] = tgid;
-Index: linux-2.6.10-rc1-bk14/include/linux/security.h
-===================================================================
---- linux-2.6.10-rc1-bk14.orig/include/linux/security.h	2004-11-04
-12:28:12.736219360 -0600
-+++ linux-2.6.10-rc1-bk14/include/linux/security.h	2004-11-04
-12:31:28.977386168 -0600
-@@ -623,6 +623,11 @@
-  * 	Set the security attributes in @p->security for a kernel thread
-that
-  * 	is being reparented to the init task.
-  *	@p contains the task_struct for the kernel thread.
-+ * @task_lookup:
-+ *	Check permission to see the /proc/<pid> entry for process @p.
-+ *	@p contains the task_struct for task <pid> which is being looked
-+ *	up under /proc
-+ *	return 0 if permission is granted.
-  * @task_to_inode:
-  * 	Set the security attributes for an inode based on an associated
-task's
-  * 	security attributes, e.g. for /proc/pid inodes.
-@@ -1154,6 +1159,7 @@
- 			   unsigned long arg3, unsigned long arg4,
- 			   unsigned long arg5);
- 	void (*task_reparent_to_init) (struct task_struct * p);
-+	int (*task_lookup)(struct task_struct *p);
- 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
- 
- 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
-@@ -1759,6 +1765,11 @@
- 	security_ops->task_reparent_to_init (p);
- }
- 
-+static inline int security_task_lookup(struct task_struct *p)
-+{
-+	return security_ops->task_lookup(p);
-+}
-+
- static inline void security_task_to_inode(struct task_struct *p, struct
-inode *inode)
- {
- 	security_ops->task_to_inode(p, inode);
-@@ -2399,6 +2410,11 @@
- 	cap_task_reparent_to_init (p);
- }
- 
-+static inline int security_task_lookup(struct task_struct *p)
-+{
-+	return 0;
-+}
-+
- static inline void security_task_to_inode(struct task_struct *p, struct
-inode *inode)
- { }
- 
-Index: linux-2.6.10-rc1-bk14/security/dummy.c
-===================================================================
---- linux-2.6.10-rc1-bk14.orig/security/dummy.c	2004-11-04
-12:28:13.741066600 -0600
-+++ linux-2.6.10-rc1-bk14/security/dummy.c	2004-11-04 12:31:28.979385864
--0600
-@@ -622,6 +622,11 @@
- 	return;
- }
- 
-+static int dummy_task_lookup(struct task_struct *p)
-+{
-+	return 0;
-+}
-+
- static void dummy_task_to_inode(struct task_struct *p, struct inode
-*inode)
- { }
- 
-@@ -985,6 +990,7 @@
- 	set_to_dummy_if_null(ops, task_kill);
- 	set_to_dummy_if_null(ops, task_prctl);
- 	set_to_dummy_if_null(ops, task_reparent_to_init);
-+ 	set_to_dummy_if_null(ops, task_lookup);
-  	set_to_dummy_if_null(ops, task_to_inode);
- 	set_to_dummy_if_null(ops, ipc_permission);
- 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
-Index: linux-2.6.10-rc1-bk14/security/stacker.c
-===================================================================
---- linux-2.6.10-rc1-bk14.orig/security/stacker.c	2004-11-04
-12:31:12.248929280 -0600
-+++ linux-2.6.10-rc1-bk14/security/stacker.c	2004-11-04
-12:31:28.998382976 -0600
-@@ -756,6 +756,11 @@
- 	CALL_ALL(task_reparent_to_init,task_reparent_to_init(p));
- }
- 
-+static int stacker_task_lookup(struct task_struct *p)
-+{
-+	RETURN_ERROR_IF_ANY_ERROR(task_lookup,task_lookup(p));
-+}
-+
- static void stacker_task_to_inode(struct task_struct *p, struct inode
-*inode)
- {
- 	CALL_ALL(task_to_inode,task_to_inode(p, inode));
-@@ -1264,6 +1269,7 @@
- 	.task_wait =			stacker_task_wait,
- 	.task_prctl =			stacker_task_prctl,
- 	.task_reparent_to_init =	stacker_task_reparent_to_init,
-+	.task_lookup =			stacker_task_lookup,
- 	.task_to_inode =		stacker_task_to_inode,
- 
- 	.ipc_permission 		= stacker_ipc_permission,
-
-
+Jesse

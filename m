@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281070AbRKOVW3>; Thu, 15 Nov 2001 16:22:29 -0500
+	id <S281072AbRKOVZt>; Thu, 15 Nov 2001 16:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281072AbRKOVWV>; Thu, 15 Nov 2001 16:22:21 -0500
-Received: from dialin-145-254-150-103.arcor-ip.net ([145.254.150.103]:18962
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S281070AbRKOVWJ>; Thu, 15 Nov 2001 16:22:09 -0500
-Message-ID: <3BF43013.30433D08@loewe-komp.de>
-Date: Thu, 15 Nov 2001 22:13:55 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.13-xfs i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: summer@os2.ami.com.au
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BOOTP and 2.4.14
-In-Reply-To: <200111150629.fAF6SKg20602@numbat.os2.ami.com.au>
+	id <S281074AbRKOVZk>; Thu, 15 Nov 2001 16:25:40 -0500
+Received: from sal.qcc.sk.ca ([198.169.27.3]:5892 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S281068AbRKOVZU>;
+	Thu, 15 Nov 2001 16:25:20 -0500
+Date: Thu, 15 Nov 2001 15:25:04 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+Message-ID: <20011115152504.A16907@qcc.sk.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <016a01c16e14$3a937c70$1901a8c0@node0.idium.eu.org> <E164TX4-0007i6-00@trillium-hollow.org> <20011115131600.C5306@furble>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011115131600.C5306@furble>; from gordo@pincoya.com on Thu, Nov 15, 2001 at 01:16:00PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-summer@os2.ami.com.au schrieb:
+Gordon Oliver <gordo@pincoya.com> wrote:
 > 
-> I'm trying to configure a system to boot with root on NFS. I have it
-> working, but there are problems.
-> 
-> The most serious are that the DNS domain name is set wrongly, and NIS
-> domain's not set at all.
-> 
-> The IP address offered and accepted in 192.168.1.20.
-> 
-> The DNS domain name being set is 168.1.20, and the host name 192.
-> 
+> > > > The connection to the server has failed. Account:
+> > > > 'mail.timpanogas.org', Server: 'mail.timpanogas.org', Protocol:
+> > > > SMTP, Port: 25, Secure(SSL): No, Socket Error: 10061, Error
+> > > > Number: 0x800CCC0E
 
+> you may also note that IE6 is making an SSL SMTP connection "smtps" on
+> port 25,
 
-Uh, how about to specify a NAME.DOMAIN.COM instead of an 
-dotted IP. Check your bootp configuration.
+No, it isn't.  "Secure(SSL): No" is pretty self-explanatory.
 
-
-> I'm looking at the ipconfig.c source, around line 1324 where I see this
-> code:
->                         case 4:
->                                 if ((dp = strchr(ip, '.'))) {
->                                         *dp++ = '\0';
->                                         strncpy(system_utsname.domainname, dp, __NEW_UTS_LEN);
->                                         system_utsname.domainname[__NEW_UTS_LEN] = '\0';
->                                 }
->                                 strncpy(system_utsname.nodename, ip, __NEW_UTS_LEN);
->                                 system_utsname.nodename[__NEW_UTS_LEN] = '\0';
->                                 ic_host_name_set = 1;
->                                 break;
-> 
-> I can see how the dnsdomain name's being set, and it does not look
-> right to me.
-> 
-> If someone can prepare a patch for me, I'll be delighted to test it.
->
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131353AbRDCM2U>; Tue, 3 Apr 2001 08:28:20 -0400
+	id <S131657AbRDCM2U>; Tue, 3 Apr 2001 08:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131654AbRDCM2N>; Tue, 3 Apr 2001 08:28:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20485 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131657AbRDCM1v>; Tue, 3 Apr 2001 08:27:51 -0400
-Subject: Re: /proc/config idea
-To: dlang@diginsite.com (David Lang)
-Date: Tue, 3 Apr 2001 13:27:26 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), jerj@coplanar.net (Jeremy Jackson),
-        ian@cs.umbc.edu (Ian Soboroff), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0104021951450.30568-100000@dlang.diginsite.com> from "David Lang" at Apr 02, 2001 07:52:49 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131353AbRDCM2M>; Tue, 3 Apr 2001 08:28:12 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:18705 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S131654AbRDCM1P>; Tue, 3 Apr 2001 08:27:15 -0400
+Message-ID: <3AC9BE72.9C2D3C9@evision-ventures.com>
+Date: Tue, 03 Apr 2001 14:13:38 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <E14kPmQ-0007vt-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kPuE-0007xK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a module for 2.4.3 will work for any 2.4.3 kernel that supports modules
-> at all (except for the SMP vs UP issue) so it's not the same thing as
-> trying to figure out which if the 2.4.3 kernels matches what you are
-> running.
+Alan Cox wrote:
+> 
+> > If anything I'm a *SERIOUS* production user. And I wouldn't allow
+> > *ANYBODY* here to run am explicitly tagged as developement kernel
+> > here anyway in an production enviornment. That's what releases are for
+> > damn.
+> > Or do you think that Linux should still preserve DOS compatibility
+> > in to the eternity as other "popular" systems do?
+> 
+> You still break 2.4-2.6. Thats a production release jump. Right now I can
+> and do run 2.0->2.4 on the same box. If you dont understand why to many
+> people that is a requirement please talk to folks who run real business on
+> Linux
 
-Nope. The 2.4 kernel ABI depends upon a mixture of config options including the
-cpu type, as well as the compiler version being used. The API is intended to
-be constant throughout 2.4 (but isnt yet totally solid due to bug fixing
-activity). We don't care about the ABI because we are source code based
+You have possible no imagination about how real the business is I do
+:-).
+What's worth it to be able running 2.0 and 2.4 on the same box?
+I just intendid to tell you that there are actually people in the
+REAL BUSINESS out there who know about and are willing to sacifier
+compatibility until perpetuum for contignouus developement.
 
+BTW we don't run much of Cyrix486 hardware anymore here.. More like
+boxes with few gigs of ram 4 CPU's RAID and so on...
+The single biggest memmory hog here is currently the Oracle 9i AS.

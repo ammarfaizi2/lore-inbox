@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTAaUcJ>; Fri, 31 Jan 2003 15:32:09 -0500
+	id <S262380AbTAaUwr>; Fri, 31 Jan 2003 15:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTAaUcI>; Fri, 31 Jan 2003 15:32:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:45071 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262258AbTAaUcI>;
-	Fri, 31 Jan 2003 15:32:08 -0500
-Date: Fri, 31 Jan 2003 21:41:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       Konrad Eisele <eiselekd@web.de>
-Subject: Re: Perl in the toolchain
-Message-ID: <20030131204132.GA1226@mars.ravnborg.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-	Konrad Eisele <eiselekd@web.de>
-References: <20030131133929.A8992@devserv.devel.redhat.com> <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu> <20030131194837.GC8298@gtf.org>
+	id <S262394AbTAaUwr>; Fri, 31 Jan 2003 15:52:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:14567 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262380AbTAaUwq>;
+	Fri, 31 Jan 2003 15:52:46 -0500
+Date: Fri, 31 Jan 2003 13:04:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmalloc/module_alloc: unable to handle two memory regions
+Message-Id: <20030131130432.6631ff1e.akpm@digeo.com>
+In-Reply-To: <20030131105518.B19646@flint.arm.linux.org.uk>
+References: <20030131102013.A19646@flint.arm.linux.org.uk>
+	<20030131024820.4c1290ca.akpm@digeo.com>
+	<20030131105518.B19646@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030131194837.GC8298@gtf.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Jan 2003 21:02:06.0618 (UTC) FILETIME=[0324A7A0:01C2C96C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 31, 2003 at 02:48:37PM -0500, Jeff Garzik wrote:
-> On Fri, Jan 31, 2003 at 01:41:26PM -0600, Kai Germaschewski wrote:
-> > Generally, we've been trying to not make perl a prequisite for the kernel 
-> > build, and I'd like to keep it that way. Except for some arch specific 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>
+> On Fri, Jan 31, 2003 at 02:48:20AM -0800, Andrew Morton wrote:
+> > Boggle.
+> > 
+> > Isn't this totally abusing get_vma_area?
+> > 
+> > What stops an ioremap region from landing in module space?
 > 
-> That's pretty much out the window when klibc gets merged, so perl will
-> indeed be a build requirement for all platforms...
+> Exactly the problem.
+> 
+> What's more is that fs/proc/kcore.c:get_kcore_size() also breaks, so
+> this isn't an acceptable solution.  get_kcore_size wants the module
+> region to be above PAGE_OFFSET.
+> 
+> In order to place the module in the normal vmalloc space, we end up with
+> a chicken and egg problem - we need to scan the module from kernel space
+> to find out how large to make the jump table, but we can't because the
+> module hasn't been loaded into kernel memory - this is the reason why it
+> was suggested to go down this route.
+> 
 
-None of the perl scripts looks complicated.
-Obivious question is if the same functionality could be achived by a simple
-c program.
-In the tool chain we use small C utilities in favour of for example
-perl scripts in several places.
+Well, could you not do something like:
 
-I would like to see perl kept out of the short-list of required programs
-for the main stream kernels.
-If the prize to do this is to write one or two small c tools to klibc
-then I'm willing to pay that.
+ +----------------------------+ 4GB
+   devices
+ +----------------------------+ VMALLOC_END = 0xc2000000
+   vmalloc/ioremap
+ +----------------------------+ 0xc1000000 + sizeof(linux)
+   kernel direct-mapped ram
+ +----------------------------+ 0xc1000000
+   module
+ +----------------------------+ TASK_SIZE = MODULE_START = PAGE_OFFSET =
+                                VMALLOC_START = 0xc0000000
+   user space
+ +----------------------------+
 
-	Sam
+And then arrange for a (start=0xc1000000,len=sizeof(linux)) entry which
+describes the kernel itself to be added to the vmlist before anything else?
+
+

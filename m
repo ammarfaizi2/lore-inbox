@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUKVJ6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbUKVKAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUKVJ6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 04:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUKVJ6w
+	id S262010AbUKVKAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUKVKAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 04:58:52 -0500
-Received: from [61.51.204.161] ([61.51.204.161]:13815 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S262007AbUKVJ6s
+	Mon, 22 Nov 2004 05:00:38 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:61847 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262010AbUKVKAV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 04:58:48 -0500
-Date: Mon, 22 Nov 2004 17:54:38 +0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200411220954.iAM9sc002402@freya.yggdrasil.com>
-To: gjwucherpfennig@gmx.net, greg@kroah.com
-Subject: Re: Kernel thoughts of a Linux user
-Cc: linux-kernel@vger.kernel.org
+	Mon, 22 Nov 2004 05:00:21 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 22 Nov 2004 10:43:12 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: var args in kernel?
+Message-ID: <20041122094312.GC29305@bytesex>
+References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419E689A.5000704@backtobasicsmgmt.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-11-18 18:50:11, Greg KH wrote:
->On Thu, Nov 18, 2004 at 06:59:27PM +0100, Gerold J. Wucherpfennig wrote:
->> 
->> - Make sysfs optional and enable to publish kernel <-> userspace data
->> especially the kernel's KObject data across the kernel's netlink interface as
->> it has been summarized on www.kerneltrap.org. This will avoid the
->> deadlocks sysfs does introduce when some userspace app holds an open file
->> handle of an sysfs object (KObject) which is to be removed. An importrant side 
->> effect for embedded systems will be that the RAM overhead introduced by sysfs
->> will vaporize.
->
->What RAM overhead?  With 2.6.10-rc2 the memory footprint of sysfs has
->been drasticly shrunk.
+On Fri, Nov 19, 2004 at 02:41:46PM -0700, Kevin P. Fleming wrote:
+> Gerd Knorr wrote:
+> >Yet another kobject bug.  It uses the varargs list twice in a illegal
+> >way.  That doesn't harm on i386 by pure luck, but blows things up on
+> >amd64 machines.  The patch below fixes it.
+> 
+> Is this safe? The normal glibc varargs implementation says you can't 
+> even call va_start on the same args list twice, you have to use va_copy 
+> to make a clone and then call va_start on that, _before_ you ever call 
+> va_start the first time.
 
-	Looking through 2.6.10-rc2-bk6/fs/sysfs/, it appears to me that
-sysfs unswappable memory usage for this desktop system with two
-hard disks and a couple of USB devices attached is over 600kB, even
-if I do not count the underlying attribute or kobject structures that
-are being registered in sysfs.
+Hmm, maybe.  I'm not sure who actually implements the varargs (gcc?
+Or glibc/kernel?) and whenever the above applies to the kernel as well
+or not ...
 
-	Please correct me if I am wrong, but, as far as I can tell,
-in 2.6.10-rc2-bk6, a struct dentry is held for each node in the sysfs
-tree at all times.  I infer this from noticing that sysfs_drop_dentry
-and sysfs_hash_and_remove in fs/sysfs/inode.c only seem to be called
-on operations to delete a node.  If I've missed something and the dentry
-structures are all or mostly released, I would love to be corrected about
-it as that would be really good news to me.
+Cc'ing the kernel list for comments.
 
-	Here is a partial tally of what I believe are the bytes used for
-each sysfs file in the old and new versions (using sizes on my 32-bit
-x86 box; your sizes may vary depending on architecture and file system
-options that you've enabled).
+  Gerd
 
-				Old		New
-	dentry			144		144
-	inode			344		---
-	sysfs_dirent		---		 36
-	
-	Total			488		180
-
-	There is also an underlying struct attribute (12 bytes) for
-sysfs files and struct kobject (52 bytes for sysfs directories), but
-let's assume that all of those would still be useful without sysfs.
-
-	The desktop computer on which I am writing this email has
-3405 nodes.  So, it's pinned memory consumption has presumbably
-dropped from over 1.6 megabytes in the old version to something
-over 600kB.
-
-	This is a huge improvement _over the old memory consumption_,
-and may also mark the point where most of the rest of the memory
-shrink could come from outside of sysfs (for example, by splitting
-struct dentry into the part that virtual file systems want to
-keep and the part that is only useful when the VFS layer wants
-to hold the dentry, or perhaps by making struct dentry and
-struct kobject use the same name string), but I would not look at
-600kB and say "What RAM overhead?"
-
-	Am I missing something?  Are the dentries being freed
-dynamically (for nodes that have not been deleted) in sysfs
-in version 2.6.10-rc2-bk6?
-
-                    __     ______________ 
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+-- 
+#define printk(args...) fprintf(stderr, ## args)

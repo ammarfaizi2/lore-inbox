@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267495AbUIATtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUIATtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267495AbUIATtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUIATrz
+	id S267510AbUIATtj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUIATrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:47:55 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:18908 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S267452AbUIATqc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:46:32 -0400
-Subject: Integrated ethernet on SiS chipset NOW does work
-From: Jean Francois Martinez <jfm512@free.fr>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040804083208.GE18272@gateway.milesteg.arr>
-References: <1089480939.2779.22.camel@agnes>
-	 <Pine.LNX.4.53.0407102141560.5590@chaos> <1089538014.4690.32.camel@agnes>
-	 <20040711101608.GB10738@picchio.gall.it> <1091130156.2912.17.camel@agnes>
-	 <20040804083208.GE18272@gateway.milesteg.arr>
-Content-Type: text/plain; charset=utf-8
-Message-Id: <1094067991.5652.13.camel@agnes>
+	Wed, 1 Sep 2004 15:47:49 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:7052 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267435AbUIATpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 15:45:34 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       bzolnier@milosz.na.pl, Greg Stark <gsstark@mit.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Todd Poynor <tpoynor@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+In-Reply-To: <1094067412.1970.48.camel@krustophenia.net>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <200408272005.08407.bzolnier@elka.pw.edu.pl>
+	 <1093630121.837.39.camel@krustophenia.net>
+	 <200408272059.51779.bzolnier@elka.pw.edu.pl> <4135CC9E.5060905@rtr.ca>
+	 <4135E017.1000901@pobox.com>  <4135EC84.6070407@rtr.ca>
+	 <1094067412.1970.48.camel@krustophenia.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094064126.3100.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 21:46:31 +0200
-Content-Transfer-Encoding: 8bit
+Date: Wed, 01 Sep 2004 19:42:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A month ago you wrote:
+On Mer, 2004-09-01 at 20:36, Lee Revell wrote:
+> The effect can be measured using a recent version of the voluntary
+> preemption patches, and disabling hardirq preemption.  In this situation
+> the IDE I/O completion is by far the longest non-preemptible code path,
+> so can be easily profiled from the latency traces.
 
-Le mer 04/08/2004 à 10:32, Daniele Venzano a écrit :
-> On Thu, Jul 29, 2004 at 09:42:36PM +0200, Jean Francois Martinez wrote:
-> > Here is the interesting part of his dmesg, after reloading the
-> > sis900 driver.  We can see that the card
-> > indentifies a VIA transceiver at address 1 but instead uses the 
-> > (inexistent) one at address 31.
-> 
-> > eth0: VIA 6103 PHY transceiver found at address 1.
-> ...
-> > eth0: Unknown PHY transceiver found at address 31.
-> > eth0: Using transceiver found at address 31 as default
-> > eth0: SiS 900 PCI Fast Ethernet at 0xe800, IRQ 11, 00:0c:76:68:a9:89.
-> 
-> This behaviuor should be corrected in tha latest kernels (mm or bk) by
-> the patches available here:
-> http://teg.homeunix.org/sis900.html
-> 
-> If all fails this patch should work just fine:
-> http://teg.homeunix.org/download/kpatches/sis900-list-phy-ids.diff
-> But is just for that particular case.
-> 
-
-I applied the patch to the sis900 driver in 2.4.21 (Suse).  This fixed
-the problem and the integrated ethernet now works.  Thank you.
-
-Sorry for the delay.
-
-				JFM
-
-
-
-
+A lot of IDE controllers hold off the CPU for long times when you do I/O
+cycles. The other factor is PIO which defaults to IRQ masking for safety
+on old controllers. For PCI we should probably default the other way.
 

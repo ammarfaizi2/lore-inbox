@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290960AbSAaF7v>; Thu, 31 Jan 2002 00:59:51 -0500
+	id <S290958AbSAaF7v>; Thu, 31 Jan 2002 00:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290962AbSAaF7l>; Thu, 31 Jan 2002 00:59:41 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:39322 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290960AbSAaF73>;
-	Thu, 31 Jan 2002 00:59:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rob Landley <landley@trommello.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Thu, 31 Jan 2002 07:03:59 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <E16W85P-0000Kc-00@starship.berlin> <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
-In-Reply-To: <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
+	id <S290960AbSAaF7m>; Thu, 31 Jan 2002 00:59:42 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19470 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290958AbSAaF70>; Thu, 31 Jan 2002 00:59:26 -0500
+Message-ID: <3C58DD2E.10106@zytor.com>
+Date: Wed, 30 Jan 2002 21:59:10 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16WAKF-0000L8-00@starship.berlin>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        Werner Almesberger <wa@almesberger.net>,
+        "Erik A. Hendriks" <hendriks@lanl.gov>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <m1r8o7ayo3.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 31, 2002 06:32 am, Rob Landley wrote:
-> On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
-> > Rob Landley apparently wrote:
-> > > I expect it will all get worked out eventually.  Now that the secret of
-> > > the difference between maintainers and lieutenants is out.
-> >
-> > By the way, that never was a secret to anybody in active development.
+Eric W. Biederman wrote:
+
 > 
-> I.E. the people who knew it knew it, and hence never noticed the problem...
+> 3) Network Booting.
+>    There is not much chance to change bootroms once they are flashed
+>    so they like LinuxBIOS need a general purpose interface, so that can
+>    handle whatever they need to boot.
 > 
-> There are, however, some people writing largeish bits of code that did not in 
-> fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
-> files and CML2, Kieth Owens' new build process...
 
-They all know who the lieutenants are, I can assure you.
 
-> Maybe it was even a factor in Alan Cox burning out (you'd have to ask him
-> about that)...
+On this particular subject, I should point out that there is a standard 
+for network bootroms on i386 platforms -- PXE.  Most PXE implementations 
+out there suck rocks, but that's orthogonal -- they're still a lot 
+easier to use than coming up with your own (and they will boot, ahem, 
+other operating systems as well.)
 
-Whatever gave you the idea that Alan is burnt out?
+Now, PXE is pretty limited usually boots a second-stage bootloader
 
-A observation: before proposing how we should fix the Linux development
-process, perhaps you should have studied it enough to know how it works,
-first.
+That being said, it would be great to get an Open Source PXE 
+implementation and driver collection.  I was hoping NILO 
+(http://www.nilo.org/) would be it, but it seems to not be going 
+anywhere.  I was for a while considering trying to turn Etherboot into a 
+PXE kit.
 
--- 
-Daniel
+	-hpa
+

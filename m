@@ -1,150 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268501AbUH3Pdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUH3Phz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268501AbUH3Pdv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUH3Pdu
+	id S268504AbUH3Phz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUH3Phy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:33:50 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:54925 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S268501AbUH3PdH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:33:07 -0400
-Date: Mon, 30 Aug 2004 11:34:04 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: root@chaos.analogic.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Celistica with AMD chip-set
-In-Reply-To: <Pine.LNX.4.58.0408301052030.23343@tiamat.perryconsulting.net>
-Message-ID: <Pine.LNX.4.58.0408301130230.23343@tiamat.perryconsulting.net>
-References: <Pine.LNX.4.53.0408300955470.21607@chaos>
- <1093871709.30082.11.camel@localhost.localdomain>
- <Pine.LNX.4.58.0408301052030.23343@tiamat.perryconsulting.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 11:37:54 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:15234 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268503AbUH3Phi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 11:37:38 -0400
+Subject: Re: [PATCH] Allow cluster-wide flock
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ken Preslan <kpreslan@redhat.com>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040830151945.GA16894@potassium.msp.redhat.com>
+References: <20040830151945.GA16894@potassium.msp.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1093876517.30190.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 30 Aug 2004 15:35:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that in the card's own PCI config space, there should be a
-bit (bit 3) in the BAR configuration register which will tell "somebody" how to set up the device.
-Bit 3 tells "somebody" whether or not it is prefetchable.
-The bridge then be configured properly for this device.
+On Llu, 2004-08-30 at 16:19, Ken Preslan wrote:
+> Hi,
+> 
+> Below is a patch that lets a cluster filesystem (such as GFS) implement
+> flock across a the cluster.  Please apply.
 
-I am not sure yet just who this should be, but my guess is that there should be a routine
-in BIOS that does this.
+flock affects local node only traditionally and applications expect high
+performance from it. Our documentation merely says
 
-So the first question I think is to verify that the card does indeed set this bit proper
-for the BARs used.
+       flock(2) does not lock files over NFS.  Use fcntl(2) instead:
+that does
+       work  over  NFS,  given  a  sufficiently  recent version of Linux
+and a
+       server which supports locking.
 
-If it is then not being set in the bridge, I would suspect a fault in BIOS.
-
-Am I missing something here?
-Please let me know if I am totally off track.
-
-
-Thanks!
-
-
-
-
-On Mon, 30 Aug 2004, Arthur Perry wrote:
-
-> Hello Alan and Richard,
->
-> I have to advise caution here, as it is currently unconfirmed whether or
-> not the PCI bridge configuration is "incorrect", and that it has "very
-> poor PCI performance".
-> Unless everyone in the whole wide world is setting this value and we are
-> the only ones who are not, I find it hard to believe that this statement
-> is not overspeculative.
->
-> The proper place for this should be in the BIOS, if it is indeed a true
-> optimization point.
-> But until that is positively identified, we should not assume that
-> applying this globally for everyone is the right thing to do.
-> As in any assumed optimization for a simgle case, it could potentially
-> cause performance degradation in somebody else's HBA.
->
-> This is a cache optimization.
->
-> Have you considered the possibility of this "optimization" causing a
-> performance hit with Mellanox's PCI implementation?
->
-> What about people who have already tailored their device driver to work
-> well in on this chipset and currently use "read multiple" rather than
-> "read cacheline". This optimization could potentially cause a slight
-> degradation of performance for them.
->
-> I just propose that we test this change with various card vendors and see
-> what the real impact is before we jump to the conclusion that this is a
-> serious performance problem for everybody.
->
-> Secondly, if it is the case, then the correct place to put this change is
-> in the system's BIOS, and having a software workaround is a last resort.
->
-> If you want, I can write a userspace utility to package with your existing
-> tools that can be installed and launched from init to provide this
-> optimization feature to the 8131 PCI bridge that your card resides on, to
-> ensure that your card gets this necessary optimization.
-> Or, you can easily put this capability into your existing device driver.
->
-> I would just rather not assume too much when dealing with something that
-> can potentially have a large reprocussion.
->
->
->
->
->
->
-> On Mon, 30 Aug 2004, Alan Cox wrote:
->
-> > On Llu, 2004-08-30 at 15:02, Richard B. Johnson wrote:
-> > > Hello all,
-> > >
-> > > The Celistica server with the AMD chip-set has very poor
-> > > PCI performance with Linux (and probably W$ too).
-> > >
-> > > The problem was traced to incorrect bridge configuration
-> > > in the HyperTransport(tm) chips that connect up pairs
-> > > of slots.
-> >
-> > Can you get Celestica to mail me their PCI subvendor
-> > id/devid's for the problem configuration or DMI strings
-> > and then we can do a PCI quirk properly for this.
-> >
-> > Alan
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
->
->
->
-> Arthur Perry
-> Linux Systems/Software Architect
-> Lead Linux Engineer
-> CSU Validation Group
-> Celestica, Salem, NH
-> aperry@celestica.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-Arthur Perry
-Linux Systems/Software Architect
-Lead Linux Engineer
-CSU Validation Group
-Celestica, Salem, NH
-aperry@celestica.com
+I'm not sure how we should count GFS but other than noting a need to
+think about it I see no problems with a cluster being "local"
 

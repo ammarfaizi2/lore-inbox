@@ -1,31 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLaSgu>; Sun, 31 Dec 2000 13:36:50 -0500
+	id <S129431AbQLaSib>; Sun, 31 Dec 2000 13:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLaSgk>; Sun, 31 Dec 2000 13:36:40 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:28422 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129370AbQLaSgi>;
-	Sun, 31 Dec 2000 13:36:38 -0500
-Date: Sun, 31 Dec 2000 19:06:10 +0100
-From: Andi Kleen <ak@suse.de>
+	id <S129324AbQLaSiV>; Sun, 31 Dec 2000 13:38:21 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:9479 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130308AbQLaSiR>;
+	Sun, 31 Dec 2000 13:38:17 -0500
+Date: Sun, 31 Dec 2000 20:07:41 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Andi Kleen <ak@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: test13-pre5
-Message-ID: <20001231190610.A24594@gruyere.muc.suse.de>
+Message-ID: <20001231200741.F28963@mea-ext.zmailer.org>
 In-Reply-To: <20001231182127.A24348@gruyere.muc.suse.de> <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 In-Reply-To: <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 31, 2000 at 09:27:23AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, Dec 31, 2000 at 09:27:23AM -0800, Linus Torvalds wrote:
-> 
-> 
 > On Sun, 31 Dec 2000, Andi Kleen wrote:
 > > 
 > > Sounds good. It could also be controlled by a CONFIG_SPACE_EFFICIENT for
@@ -34,37 +31,28 @@ On Sun, Dec 31, 2000 at 09:27:23AM -0800, Linus Torvalds wrote:
 > > because it's UP anyways. 
 > 
 > UP has nothing to do with it.
-> 
 > The alpha systems I remember this problem on were all SMP.
-[...]
 
-I just checked all architecture manuals I could lay my hands on
-(sparcv9, ppc32, mips r4400, parisc 1.1, alpha, sh is somewhere in
-storage but as I remember it has it too) 
-and they all seem to have at least store byte and mostly store
-half words instructions. 
+	Actually nothing SMP specific in that problem sphere.
+	Alpha has  load-locked/store-conditional  pair for
+	this type of memory accesses to automatically detect,
+	and (conditionally) restart the operation - to form
+	classical  ``locked-read-modify-write'' operations.
 
-> 
-> Imagine an architecture where you need to do a
-> 
-> 	load_32() 
-> 	mask-and-insert-byte
-> 	store_32()
+	In what situations the compiler will use those instructions,
+	that I don't know.   Volatiles, very least, use them.
+	Will closely packed bytes be processed with it without
+	them being volatiles ?  How about bitfields ?
 
-iirc the Alpha guys found out that they couldn't drive half of the
-available devices without byte store, and since then nobody has 
-repeated that mistake @)
+	Newer Alphas have byte/short load/store instructions,
+	so things really aren't that straight-forward...
 
-
-> 
+....
 > I don't think it's a good diea.
+> 
+> 		Linus
 
-I don't see it. Just define x8 to u32 on old alpha and let most other architectures
-be happy. 
-
-
--Andi
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUHIMc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUHIMgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUHIMc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHIMc4
+	id S266538AbUHIMgi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHIMgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:32:56 -0400
-Received: from gate.corvil.net ([213.94.219.177]:269 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S266538AbUHIMct (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:32:49 -0400
-Message-ID: <41176EC3.70202@draigBrady.com>
-Date: Mon, 09 Aug 2004 13:32:03 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-CC: Hamie <hamish@travellingkiwi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cs using 100% CPU
-References: <40FA4328.4060304@travellingkiwi.com>	 <20040806202747.H13948@flint.arm.linux.org.uk>	 <4113DD20.1010808@travellingkiwi.com> <1091917597.19077.38.camel@localhost.localdomain> <4115EC6C.5040608@travellingkiwi.com> <41174A95.3050705@grupopie.com>
-In-Reply-To: <41174A95.3050705@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 9 Aug 2004 08:36:38 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:51928 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S266538AbUHIMgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:36:36 -0400
+Subject: Re: secure computing for 2.6.7
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Hans Reiser <reiser@namesys.com>
+Cc: andrea@cpushare.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <411563D0.1050608@namesys.com>
+References: <20040704173903.GE7281@dualathlon.random>
+	 <40EC4E96.9090800@namesys.com>
+	 <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
+	 <411563D0.1050608@namesys.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1092054923.29199.32.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 09 Aug 2004 08:35:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques wrote:
-> I've never seen a CF card that supported DMA (and I've worked with 
-> several brands). Compact Flash cards have several modes of operation and 
-> only one of this modes is "IDE-compatible".
+On Sat, 2004-08-07 at 19:20, Hans Reiser wrote:
+> Where do you store the access rules?  With the executable?   How do you 
+> automate their determination?
 
-The newer ones do. I've a SanDisk SDCFB-64-201-80 that
-hangs on boot because it reports that it supports DMA
-but the ide adapter I use does not connect the DMA request
-and grant signals. A work around is to boot with ide=nodma
-however this is system wide.
+Executables, like other files, are assigned security types (security
+equivalence classes for objects) stored as extended attributes.  Policy
+rules based on security domains (security equivalence classes for
+processes) and security types are defined in a separate security policy
+configuration that is compiled into an internal form by a policy
+compiler and loaded into the kernel by early userspace (presently by a
+modified /sbin/init).   With regard to automating their determination,
+SELinux has some rudimentary features for collecting audit data
+(optionally in a permissive mode where access denials are merely logged,
+not denied) and generating policy rules from such audit data, and there
+is work underway to develop better tools for policy generation,
+including back ends for analysis of generated policy rules against
+security objectives.  You have to be rather careful about such automated
+generation, as many programs and library functions probe for access that
+is not truly needed for their operation and some code actually varies
+its behavior based on such probes (e.g. falling back to a less
+privileged mode of operation if the probe fails).
 
-Pádraig.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

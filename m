@@ -1,181 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbUAOUqS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 15:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUAOUqB
+	id S262913AbUAOUqR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 15:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbUAOUpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 15:46:01 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37595 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263101AbUAOUo3 (ORCPT
+	Thu, 15 Jan 2004 15:45:45 -0500
+Received: from mail.kroah.org ([65.200.24.183]:33243 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263062AbUAOUo1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 15:44:29 -0500
-Date: Thu, 15 Jan 2004 12:43:29 -0800
+	Thu, 15 Jan 2004 15:44:27 -0500
+Date: Thu, 15 Jan 2004 12:43:11 -0800
 From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: [PATCH] clean up sysfs class support for tty devices [09/10]
-Message-ID: <20040115204329.GJ22199@kroah.com>
-References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com> <20040115204259.GH22199@kroah.com> <20040115204311.GI22199@kroah.com>
+Subject: [PATCH] add sysfs class support for ALSA sound devices [08/10]
+Message-ID: <20040115204311.GI22199@kroah.com>
+References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com> <20040115204259.GH22199@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040115204311.GI22199@kroah.com>
+In-Reply-To: <20040115204259.GH22199@kroah.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch ports the existing tty class support to the class_simple
-interface, saving a lot of code in the process.
+This patch adds support for all ALSA sound devices.  The previous OSS
+sound patch is required for this one to work properly.
+
+This patch is based on a work originally written by 
+Leann Ogasawara <ogasawara@osdl.org>
 
 
-diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Thu Jan 15 11:05:50 2004
-+++ b/drivers/char/tty_io.c	Thu Jan 15 11:05:50 2004
-@@ -2069,79 +2069,7 @@
- 	tty->driver->write(tty, 0, &ch, 1);
- }
+diff -Nru a/include/sound/core.h b/include/sound/core.h
+--- a/include/sound/core.h	Thu Jan 15 11:06:00 2004
++++ b/include/sound/core.h	Thu Jan 15 11:06:00 2004
+@@ -160,6 +160,7 @@
+ 	int shutdown;			/* this card is going down */
+ 	wait_queue_head_t shutdown_sleep;
+ 	struct work_struct free_workq;	/* for free in workqueue */
++	struct device *dev;
  
--struct tty_dev {
--	struct list_head node;
--	dev_t dev;
--	struct class_device class_dev;
--};
--#define to_tty_dev(d) container_of(d, struct tty_dev, class_dev)
--
--static void release_tty_dev(struct class_device *class_dev)
--{
--	struct tty_dev *tty_dev = to_tty_dev(class_dev);
--	kfree(tty_dev);
--}
--
--static struct class tty_class = {
--	.name		= "tty",
--	.release	= &release_tty_dev,
--};
--
--static LIST_HEAD(tty_dev_list);
--static spinlock_t tty_dev_list_lock = SPIN_LOCK_UNLOCKED;
--
--static ssize_t show_dev(struct class_device *class_dev, char *buf)
--{
--	struct tty_dev *tty_dev = to_tty_dev(class_dev);
--	return print_dev_t(buf, tty_dev->dev);
--}
--static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
--
--static void tty_add_class_device(char *name, dev_t dev, struct device *device)
--{
--	struct tty_dev *tty_dev = NULL;
--	int retval;
--
--	tty_dev = kmalloc(sizeof(*tty_dev), GFP_KERNEL);
--	if (!tty_dev)
--		return;
--	memset(tty_dev, 0x00, sizeof(*tty_dev));
--
--	tty_dev->class_dev.dev = device;
--	tty_dev->class_dev.class = &tty_class;
--	snprintf(tty_dev->class_dev.class_id, BUS_ID_SIZE, "%s", name);
--	retval = class_device_register(&tty_dev->class_dev);
--	if (retval)
--		goto error;
--	class_device_create_file (&tty_dev->class_dev, &class_device_attr_dev);
--	tty_dev->dev = dev;
--	spin_lock(&tty_dev_list_lock);
--	list_add(&tty_dev->node, &tty_dev_list);
--	spin_unlock(&tty_dev_list_lock);
--	return;
--error:
--	kfree(tty_dev);
--}
--
--static void tty_remove_class_device(dev_t dev)
--{
--	struct tty_dev *tty_dev = NULL;
--	struct list_head *tmp;
--	int found = 0;
--
--	spin_lock(&tty_dev_list_lock);
--	list_for_each (tmp, &tty_dev_list) {
--		tty_dev = list_entry(tmp, struct tty_dev, node);
--		if (tty_dev->dev == dev) {
--			list_del(&tty_dev->node);
--			found = 1;
--			break;
--		}
--	}
--	spin_unlock(&tty_dev_list_lock);
--	if (found)
--		class_device_unregister(&tty_dev->class_dev);
--}
-+static struct class_simple *tty_class;
+ #ifdef CONFIG_PM
+ 	int (*set_power_state) (snd_card_t *card, unsigned int state);
+diff -Nru a/sound/core/sound.c b/sound/core/sound.c
+--- a/sound/core/sound.c	Thu Jan 15 11:05:49 2004
++++ b/sound/core/sound.c	Thu Jan 15 11:05:49 2004
+@@ -38,9 +38,7 @@
+ static int major = CONFIG_SND_MAJOR;
+ int snd_major;
+ static int cards_limit = SNDRV_CARDS;
+-#ifdef CONFIG_DEVFS_FS
+ static int device_mode = S_IFCHR | S_IRUGO | S_IWUGO;
+-#endif
+ 
+ MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
+ MODULE_DESCRIPTION("Advanced Linux Sound Architecture driver for soundcards.");
+@@ -66,6 +64,7 @@
+ 
+ static DECLARE_MUTEX(sound_mutex);
+ 
++extern struct class_simple *sound_class;
+ #ifdef CONFIG_KMOD
  
  /**
-  * tty_register_device - register a tty device
-@@ -2174,7 +2102,7 @@
- 	if (driver->type != TTY_DRIVER_TYPE_PTY) {
- 		char name[64];
- 		tty_line_name(driver, index, name);
--		tty_add_class_device(name, dev, device);
-+		class_simple_device_add(tty_class, dev, device, name);
+@@ -203,6 +202,7 @@
+ {
+ 	int minor = snd_kernel_minor(type, card, dev);
+ 	snd_minor_t *preg;
++	struct device *device = NULL;
+ 
+ 	if (minor < 0)
+ 		return minor;
+@@ -221,10 +221,14 @@
+ 		return -EBUSY;
  	}
+ 	list_add_tail(&preg->list, &snd_minors_hash[SNDRV_MINOR_CARD(minor)]);
+-#ifdef CONFIG_DEVFS_FS
+-	if (strncmp(name, "controlC", 8))     /* created in sound.c */
++
++	if (strncmp(name, "controlC", 8)) {	/* created in sound.c */
+ 		devfs_mk_cdev(MKDEV(major, minor), S_IFCHR | device_mode, "snd/%s", name);
+-#endif
++		if (card)
++			device = card->dev;
++		class_simple_device_add(sound_class, MKDEV(major, minor), device, name);
++	}
++
+ 	up(&sound_mutex);
+ 	return 0;
  }
+@@ -252,10 +256,12 @@
+ 		up(&sound_mutex);
+ 		return -EINVAL;
+ 	}
+-#ifdef CONFIG_DEVFS_FS
+-	if (strncmp(mptr->name, "controlC", 8))	/* created in sound.c */
++
++	if (strncmp(mptr->name, "controlC", 8)) {	/* created in sound.c */
+ 		devfs_remove("snd/%s", mptr->name);
+-#endif
++		class_simple_device_remove(MKDEV(major, minor));
++	}
++
+ 	list_del(&mptr->list);
+ 	up(&sound_mutex);
+ 	kfree(mptr);
+@@ -322,9 +328,7 @@
  
-@@ -2189,7 +2117,7 @@
- void tty_unregister_device(struct tty_driver *driver, unsigned index)
+ static int __init alsa_sound_init(void)
  {
- 	devfs_remove("%s%d", driver->devfs_name, index + driver->name_base);
--	tty_remove_class_device(MKDEV(driver->major, driver->minor_start) + index);
-+	class_simple_device_remove(MKDEV(driver->major, driver->minor_start) + index);
- }
- 
- EXPORT_SYMBOL(tty_register_device);
-@@ -2406,7 +2334,10 @@
- 
- static int __init tty_class_init(void)
+-#ifdef CONFIG_DEVFS_FS
+ 	short controlnum;
+-#endif
+ #ifdef CONFIG_SND_OSSEMUL
+ 	int err;
+ #endif
+@@ -358,10 +362,10 @@
+ #ifdef CONFIG_SND_OSSEMUL
+ 	snd_info_minor_register();
+ #endif
+-#ifdef CONFIG_DEVFS_FS
+-	for (controlnum = 0; controlnum < cards_limit; controlnum++) 
++	for (controlnum = 0; controlnum < cards_limit; controlnum++) {
+ 		devfs_mk_cdev(MKDEV(major, controlnum<<5), S_IFCHR | device_mode, "snd/controlC%d", controlnum);
+-#endif
++		class_simple_device_add(sound_class, MKDEV(major, controlnum<<5), NULL, "controlC%d", controlnum);
++	}
+ #ifndef MODULE
+ 	printk(KERN_INFO "Advanced Linux Sound Architecture Driver Version " CONFIG_SND_VERSION CONFIG_SND_DATE ".\n");
+ #endif
+@@ -372,8 +376,10 @@
  {
--	return class_register(&tty_class);
-+	tty_class = class_simple_create(THIS_MODULE, "tty");
-+	if (IS_ERR(tty_class))
-+		return PTR_ERR(tty_class);
-+	return 0;
- }
+ 	short controlnum;
  
- postcore_initcall(tty_class_init);
-@@ -2431,7 +2362,7 @@
- 	    register_chrdev_region(MKDEV(TTYAUX_MAJOR, 0), 1, "/dev/tty") < 0)
- 		panic("Couldn't register /dev/tty driver\n");
- 	devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 0), S_IFCHR|S_IRUGO|S_IWUGO, "tty");
--	tty_add_class_device ("tty", MKDEV(TTYAUX_MAJOR, 0), NULL);
-+	class_simple_device_add(tty_class, MKDEV(TTYAUX_MAJOR, 0), NULL, "tty");
+-	for (controlnum = 0; controlnum < cards_limit; controlnum++)
++	for (controlnum = 0; controlnum < cards_limit; controlnum++) {
+ 		devfs_remove("snd/controlC%d", controlnum);
++		class_simple_device_remove(MKDEV(major, controlnum<<5));
++	}
  
- 	strcpy(console_cdev.kobj.name, "dev.console");
- 	cdev_init(&console_cdev, &console_fops);
-@@ -2439,7 +2370,7 @@
- 	    register_chrdev_region(MKDEV(TTYAUX_MAJOR, 1), 1, "/dev/console") < 0)
- 		panic("Couldn't register /dev/console driver\n");
- 	devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 1), S_IFCHR|S_IRUSR|S_IWUSR, "console");
--	tty_add_class_device ("console", MKDEV(TTYAUX_MAJOR, 1), NULL);
-+	class_simple_device_add(tty_class, MKDEV(TTYAUX_MAJOR, 1), NULL, "console");
+ #ifdef CONFIG_SND_OSSEMUL
+ 	snd_info_minor_unregister();
+diff -Nru a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
+--- a/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
++++ b/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
+@@ -2591,6 +2591,7 @@
+ 			break;
+ 		}
+ 	}
++	card->dev = &pci->dev;
  
- 	tty_kobj.kset = tty_cdev.kobj.kset;
- 	kobject_register(&tty_kobj);
-@@ -2451,7 +2382,7 @@
- 	    register_chrdev_region(MKDEV(TTYAUX_MAJOR, 2), 1, "/dev/ptmx") < 0)
- 		panic("Couldn't register /dev/ptmx driver\n");
- 	devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 2), S_IFCHR|S_IRUGO|S_IWUGO, "ptmx");
--	tty_add_class_device ("ptmx", MKDEV(TTYAUX_MAJOR, 2), NULL);
-+	class_simple_device_add(tty_class, MKDEV(TTYAUX_MAJOR, 2), NULL, "ptmx");
- #endif
- 	
- #ifdef CONFIG_VT
-@@ -2461,7 +2392,7 @@
- 	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
- 		panic("Couldn't register /dev/tty0 driver\n");
- 	devfs_mk_cdev(MKDEV(TTY_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR, "vc/0");
--	tty_add_class_device ("tty0", MKDEV(TTY_MAJOR, 0), NULL);
-+	class_simple_device_add(tty_class, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
- 
- 	vty_init();
- #endif
+ 	if ((err = snd_intel8x0_create(card, pci, pci_id->driver_data, &chip)) < 0) {
+ 		snd_card_free(card);

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317946AbSHKH2l>; Sun, 11 Aug 2002 03:28:41 -0400
+	id <S318297AbSHKHoS>; Sun, 11 Aug 2002 03:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317945AbSHKH16>; Sun, 11 Aug 2002 03:27:58 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33542 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317947AbSHKHZQ>;
-	Sun, 11 Aug 2002 03:25:16 -0400
-Message-ID: <3D56148E.D06B13F2@zip.com.au>
-Date: Sun, 11 Aug 2002 00:38:54 -0700
+	id <S318211AbSHKHnh>; Sun, 11 Aug 2002 03:43:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46086 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317898AbSHKH0p>;
+	Sun, 11 Aug 2002 03:26:45 -0400
+Message-ID: <3D5614E6.460814A5@zip.com.au>
+Date: Sun, 11 Aug 2002 00:40:22 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 7/21] batched freeing of anonymous pages
+Subject: [patch 21/21] writeback correctness and peformance fixes
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,389 +22,565 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-The VMA teardown code is currently removing pages from the LRU
-one-at-a-time.  And it is freeing those pages one-at-a-time.
+This is a performance and correctness fix against the writeback paths.
 
-The patch batches that up to sixteen-at-a-time by passing an on-stack
-pagevec around and freeing all the pages whenever the pagevec fills up.
+The writeback code has competing requirements.  Sometimes it is used
+for "memory cleansing": kupdate, bdflush, writer throttling, page
+allocator writeback, etc.  And sometimes this same code is used for
+data integrity pruposes: fsync, msync, fdatasync, sync, umount, various
+other kernel-internal uses.
+
+The problem is: how to handle a dirty buffer or page which is currently
+under writeback.
+
+For memory cleansing, we just want to skip that buffer/page and go onto
+the next one.  But for sync, we must wait on the old writeback and then
+start new writeback.
+
+mpage_writepages() is current correct for cleansing, but incorrect for
+sync.  block_write_full_page() is currently correct for sync, but
+inefficient for cleansing.
+
+The fix is fairly simple.
+
+- In mpage_writepages(), don't skip the page is it's a sync
+  operation.
+
+- In block_write_full_page(), skip the buffer if it is a sync
+  operation.  And return -EAGAIN to tell the caller that the writeout
+  didn't work out.  The caller must then set the page dirty again and
+  move it onto mapping->dirty_pages.
+
+  This is an extension of the writepage API: writepage can now return
+  EAGAIN.  There are only three callers, and they have been updated.
+
+  fail_writepage() and ext3_writepage() were actually doing this by
+  hand.  They have been changed to return -EAGAIN.  NTFS will want to
+  be able to return -EAGAIN from its writepage as well.
+
+- A sticky question is: how to tell the writeout code which mode it
+  is operating in?  Cleansing or sync?
+
+  It's such a tiny code change that I didn't have the heart to go and
+  propagate a `mode' argument down every instance of writepages() and
+  writepage() in the kernel.  So I passed it in via current->flags.
+
+Incidentally, the occurrence of a locked-and-dirty buffer in
+block_write_full_page() is fairly rare: normally the collision avoidance
+happens at the address_space level, via PageWriteback.  But some
+mappings (blockdevs, ext3 files, etc) have their dirty buffers written
+out via submit_bh().  It is these buffers which can stall
+block_write_full_page().
+
+This wart will be pretty intrusive to fix.  ext3 needs to become fully
+page-based (ugh.  It's a block-based journalling filesystem, and pages
+are unnatural).  blockdev mappings are still written out by buffers
+because that's how filesystems use them.  Putting _all_ metadata
+(indirects, inodes, superblocks, etc) into standalone address_spaces
+would fix that up.
+
+- filemap_fdatawrite() sets PF_SYNC.  So filemap_fdatawrite() is the
+  kernel function which will start writeback against a mapping for
+  "data integrity" purposes, whereas the unexported, internal-only
+  do_writepages() is the writeback function which is used for memory
+  cleansing.  This difference is the reason why I didn't consolidate
+  those functions ages ago...
+
+- Lots of code paths had a bogus extra call to filemap_fdatawait(),
+  which I previously added in a moment of weak-headedness.  They have
+  all been removed.
 
 
 
 
- include/asm-arm/tlb.h               |    2 +-
- include/asm-generic/tlb.h           |   12 +++++++++---
- include/asm-i386/pgalloc.h          |    2 +-
- include/asm-ia64/pgalloc.h          |    2 +-
- include/asm-m68k/motorola_pgalloc.h |    3 ++-
- include/asm-m68k/sun3_pgalloc.h     |    5 +++--
- include/asm-ppc/pgalloc.h           |    2 +-
- include/asm-ppc64/pgalloc.h         |    4 ++--
- include/asm-s390/pgalloc.h          |    2 +-
- include/asm-s390x/pgalloc.h         |    2 +-
- include/asm-sparc64/tlb.h           |    2 +-
- include/asm-x86_64/pgalloc.h        |    2 +-
- include/linux/pagevec.h             |    3 +++
- include/linux/swap.h                |    3 ++-
- mm/memory.c                         |   21 +++++++++++++++------
- mm/mmap.c                           |    1 +
- mm/page_alloc.c                     |   16 +++++++++++++---
- mm/swap_state.c                     |    6 ++++--
- 18 files changed, 62 insertions(+), 28 deletions(-)
+ fs/buffer.c               |   31 ++++++++++++++++++++-----------
+ fs/ext3/inode.c           |   19 ++++++++++---------
+ fs/jfs/jfs_dmap.c         |    1 -
+ fs/jfs/jfs_imap.c         |    2 --
+ fs/jfs/jfs_logmgr.c       |    3 ---
+ fs/jfs/jfs_txnmgr.c       |    1 -
+ fs/jfs/jfs_umount.c       |    2 --
+ fs/jfs/super.c            |    2 --
+ fs/mpage.c                |   11 ++++++++++-
+ fs/nfs/file.c             |    6 +-----
+ fs/nfs/inode.c            |    1 -
+ fs/nfsd/vfs.c             |    1 -
+ fs/smbfs/file.c           |    1 -
+ fs/smbfs/inode.c          |    1 -
+ fs/udf/inode.c            |    3 ++-
+ include/linux/sched.h     |    1 +
+ include/linux/writeback.h |    9 +++++++++
+ mm/filemap.c              |   34 +++++++++++++++++++++-------------
+ mm/msync.c                |    5 +----
+ mm/page-writeback.c       |   15 ++++++++++++---
+ 20 files changed, 87 insertions(+), 62 deletions(-)
 
---- 2.5.31/mm/swap_state.c~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/swap_state.c	Sun Aug 11 00:21:02 2002
-@@ -14,6 +14,7 @@
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/buffer_head.h>	/* block_sync_page() */
-+#include <linux/pagevec.h>
+--- 2.5.31/fs/buffer.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/buffer.c	Sun Aug 11 00:20:45 2002
+@@ -307,10 +307,7 @@ asmlinkage long sys_fsync(unsigned int f
  
- #include <asm/pgtable.h>
+ 	/* We need to protect against concurrent writers.. */
+ 	down(&inode->i_sem);
+-	ret = filemap_fdatawait(inode->i_mapping);
+-	err = filemap_fdatawrite(inode->i_mapping);
+-	if (!ret)
+-		ret = err;
++	ret = filemap_fdatawrite(inode->i_mapping);
+ 	err = file->f_op->fsync(file, dentry, 0);
+ 	if (!ret)
+ 		ret = err;
+@@ -345,10 +342,7 @@ asmlinkage long sys_fdatasync(unsigned i
+ 		goto out_putf;
  
-@@ -295,7 +296,7 @@ int move_from_swap_cache(struct page *pa
-  * this page if it is the last user of the page. Can not do a lock_page,
-  * as we are holding the page_table_lock spinlock.
+ 	down(&inode->i_sem);
+-	ret = filemap_fdatawait(inode->i_mapping);
+-	err = filemap_fdatawrite(inode->i_mapping);
+-	if (!ret)
+-		ret = err;
++	ret = filemap_fdatawrite(inode->i_mapping);
+ 	err = file->f_op->fsync(file, dentry, 1);
+ 	if (!ret)
+ 		ret = err;
+@@ -1648,11 +1642,18 @@ void unmap_underlying_metadata(struct bl
+  * the page lock, whoever dirtied the buffers may decide to clean them
+  * again at any time.  We handle that by only looking at the buffer
+  * state inside lock_buffer().
++ *
++ * If block_write_full_page() is called for regular writeback
++ * (called_for_sync() is false) then it will return -EAGAIN for a locked
++ * buffer.   This only can happen if someone has written the buffer directly,
++ * with submit_bh().  At the address_space level PageWriteback prevents this
++ * contention from occurring.
   */
--void free_page_and_swap_cache(struct page *page)
-+void free_page_and_swap_cache(struct pagevec *pvec, struct page *page)
+ static int __block_write_full_page(struct inode *inode,
+ 			struct page *page, get_block_t *get_block)
  {
- 	/* 
- 	 * If we are the only user, then try to free up the swap cache. 
-@@ -309,7 +310,8 @@ void free_page_and_swap_cache(struct pag
- 		remove_exclusive_swap_page(page);
- 		unlock_page(page);
- 	}
--	page_cache_release(page);
-+	if (!pagevec_add(pvec, page))
-+		__pagevec_release(pvec);
- }
- 
- /*
---- 2.5.31/include/asm-generic/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-generic/tlb.h	Sun Aug 11 00:20:33 2002
-@@ -14,6 +14,7 @@
- #define _ASM_GENERIC__TLB_H
- 
- #include <linux/config.h>
-+#include <linux/pagevec.h>
- #include <asm/tlbflush.h>
- 
- /*
-@@ -70,9 +71,13 @@ static inline void tlb_flush_mmu(mmu_gat
- 	nr = tlb->nr;
- 	if (!tlb_fast_mode(tlb)) {
- 		unsigned long i;
-+		struct pagevec pvec;
-+
- 		tlb->nr = 0;
-+		pagevec_init(&pvec);
- 		for (i=0; i < nr; i++)
--			free_page_and_swap_cache(tlb->pages[i]);
-+			free_page_and_swap_cache(&pvec, tlb->pages[i]);
-+		pagevec_release(&pvec);
- 	}
- }
- 
-@@ -101,10 +106,11 @@ static inline void tlb_finish_mmu(mmu_ga
-  *	handling the additional races in SMP caused by other CPUs caching valid
-  *	mappings in their TLBs.
-  */
--static inline void tlb_remove_page(mmu_gather_t *tlb, struct page *page)
-+static inline void
-+tlb_remove_page(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
- {
- 	if (tlb_fast_mode(tlb)) {
--		free_page_and_swap_cache(page);
-+		free_page_and_swap_cache(pvec, page);
- 		return;
- 	}
- 	tlb->pages[tlb->nr++] = page;
---- 2.5.31/include/linux/swap.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/linux/swap.h	Sun Aug 11 00:21:02 2002
-@@ -140,6 +140,7 @@ struct vm_area_struct;
- struct sysinfo;
- struct address_space;
- struct zone_t;
-+struct pagevec;
- 
- /* linux/mm/rmap.c */
- extern int FASTCALL(page_referenced(struct page *));
-@@ -183,7 +184,7 @@ extern void delete_from_swap_cache(struc
- extern int move_to_swap_cache(struct page *page, swp_entry_t entry);
- extern int move_from_swap_cache(struct page *page, unsigned long index,
- 		struct address_space *mapping);
--extern void free_page_and_swap_cache(struct page *page);
-+extern void free_page_and_swap_cache(struct pagevec *pvec, struct page *page);
- extern struct page * lookup_swap_cache(swp_entry_t);
- extern struct page * read_swap_cache_async(swp_entry_t);
- 
---- 2.5.31/mm/memory.c~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/memory.c	Sun Aug 11 00:21:01 2002
-@@ -44,6 +44,7 @@
- #include <linux/iobuf.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/pagevec.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/rmap.h>
-@@ -78,7 +79,8 @@ struct page *mem_map;
-  * Note: this doesn't free the actual pages themselves. That
-  * has been handled earlier when unmapping all the memory regions.
-  */
--static inline void free_one_pmd(mmu_gather_t *tlb, pmd_t * dir)
-+static inline void
-+free_one_pmd(mmu_gather_t *tlb, struct pagevec *pvec, pmd_t * dir)
- {
- 	struct page *page;
- 
-@@ -92,10 +94,11 @@ static inline void free_one_pmd(mmu_gath
- 	page = pmd_page(*dir);
- 	pmd_clear(dir);
- 	pgtable_remove_rmap(page);
--	pte_free_tlb(tlb, page);
-+	pte_free_tlb(tlb, pvec, page);
- }
- 
--static inline void free_one_pgd(mmu_gather_t *tlb, pgd_t * dir)
-+static inline void
-+free_one_pgd(mmu_gather_t *tlb, struct pagevec *pvec, pgd_t *dir)
- {
- 	int j;
- 	pmd_t * pmd;
-@@ -111,7 +114,7 @@ static inline void free_one_pgd(mmu_gath
- 	pgd_clear(dir);
- 	for (j = 0; j < PTRS_PER_PMD ; j++) {
- 		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
--		free_one_pmd(tlb, pmd+j);
-+		free_one_pmd(tlb, pvec, pmd+j);
- 	}
- 	pmd_free_tlb(tlb, pmd);
- }
-@@ -125,12 +128,15 @@ static inline void free_one_pgd(mmu_gath
- void clear_page_tables(mmu_gather_t *tlb, unsigned long first, int nr)
- {
- 	pgd_t * page_dir = tlb->mm->pgd;
-+	struct pagevec pvec;
- 
-+	pagevec_init(&pvec);
- 	page_dir += first;
+ 	int err;
++	int ret = 0;
+ 	unsigned long block;
+ 	unsigned long last_block;
+ 	struct buffer_head *bh, *head;
+@@ -1724,7 +1725,14 @@ static int __block_write_full_page(struc
  	do {
--		free_one_pgd(tlb, page_dir);
-+		free_one_pgd(tlb, &pvec, page_dir);
- 		page_dir++;
- 	} while (--nr);
-+	pagevec_release(&pvec);
- }
- 
- pte_t * pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
-@@ -322,6 +328,7 @@ static void zap_pte_range(mmu_gather_t *
- {
- 	unsigned long offset;
- 	pte_t *ptep;
-+	struct pagevec pvec;
- 
- 	if (pmd_none(*pmd))
- 		return;
-@@ -335,6 +342,7 @@ static void zap_pte_range(mmu_gather_t *
- 	if (offset + size > PMD_SIZE)
- 		size = PMD_SIZE - offset;
- 	size &= PAGE_MASK;
-+	pagevec_init(&pvec);
- 	for (offset=0; offset < size; ptep++, offset += PAGE_SIZE) {
- 		pte_t pte = *ptep;
- 		if (pte_none(pte))
-@@ -351,7 +359,7 @@ static void zap_pte_range(mmu_gather_t *
- 						set_page_dirty(page);
- 					tlb->freed++;
- 					page_remove_rmap(page, ptep);
--					tlb_remove_page(tlb, page);
-+					tlb_remove_page(tlb, &pvec, page);
- 				}
+ 		get_bh(bh);
+ 		if (buffer_mapped(bh) && buffer_dirty(bh)) {
+-			lock_buffer(bh);
++			if (called_for_sync()) {
++				lock_buffer(bh);
++			} else {
++				if (test_set_buffer_locked(bh)) {
++					ret = -EAGAIN;
++					continue;
++				}
++			}
+ 			if (test_clear_buffer_dirty(bh)) {
+ 				if (!buffer_uptodate(bh))
+ 					buffer_error();
+@@ -1733,8 +1741,7 @@ static int __block_write_full_page(struc
+ 				unlock_buffer(bh);
  			}
- 		} else {
-@@ -360,6 +368,7 @@ static void zap_pte_range(mmu_gather_t *
  		}
+-		bh = bh->b_this_page;
+-	} while (bh != head);
++	} while ((bh = bh->b_this_page) != head);
+ 
+ 	BUG_ON(PageWriteback(page));
+ 	SetPageWriteback(page);		/* Keeps try_to_free_buffers() away */
+@@ -1774,6 +1781,8 @@ done:
+ 			SetPageUptodate(page);
+ 		end_page_writeback(page);
  	}
- 	pte_unmap(ptep-1);
-+	pagevec_release(&pvec);
- }
++	if (err == 0)
++		return ret;
+ 	return err;
+ recover:
+ 	/*
+--- 2.5.31/fs/mpage.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/mpage.c	Sun Aug 11 00:20:35 2002
+@@ -19,6 +19,7 @@
+ #include <linux/highmem.h>
+ #include <linux/prefetch.h>
+ #include <linux/mpage.h>
++#include <linux/writeback.h>
+ #include <linux/pagevec.h>
  
- static void zap_pmd_range(mmu_gather_t *tlb, pgd_t * dir, unsigned long address, unsigned long size)
---- 2.5.31/mm/page_alloc.c~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/page_alloc.c	Sun Aug 11 00:21:02 2002
-@@ -452,10 +452,20 @@ unsigned long get_zeroed_page(unsigned i
+ /*
+@@ -530,6 +531,7 @@ mpage_writepages(struct address_space *m
+ 	sector_t last_block_in_bio = 0;
+ 	int ret = 0;
+ 	int done = 0;
++	int sync = called_for_sync();
+ 	struct pagevec pvec;
+ 	int (*writepage)(struct page *);
  
- void page_cache_release(struct page *page)
- {
-+	/*
-+	 * FIXME: this PageReserved test is really expensive
-+	 */
- 	if (!PageReserved(page) && put_page_testzero(page)) {
--		if (PageLRU(page))
--			lru_cache_del(page);
--		__free_pages_ok(page, 0);
-+		/*
-+		 * This path almost never happens - pages are normally freed
-+		 * via pagevecs.
-+		 */
-+		struct pagevec pvec;
+@@ -546,7 +548,7 @@ mpage_writepages(struct address_space *m
+ 		struct page *page = list_entry(mapping->io_pages.prev,
+ 					struct page, list);
+ 		list_del(&page->list);
+-		if (PageWriteback(page)) {
++		if (PageWriteback(page) && !sync) {
+ 			if (PageDirty(page)) {
+ 				list_add(&page->list, &mapping->dirty_pages);
+ 				continue;
+@@ -565,6 +567,9 @@ mpage_writepages(struct address_space *m
+ 
+ 		lock_page(page);
+ 
++		if (sync)
++			wait_on_page_writeback(page);
 +
-+		page_cache_get(page);
-+		pvec.nr = 1;
-+		pvec.pages[0] = page;
-+		__pagevec_release(&pvec);
+ 		if (page->mapping && !PageWriteback(page) &&
+ 					TestClearPageDirty(page)) {
+ 			if (writepage) {
+@@ -579,6 +584,10 @@ mpage_writepages(struct address_space *m
+ 					pagevec_deactivate_inactive(&pvec);
+ 				page = NULL;
+ 			}
++			if (ret == -EAGAIN && page) {
++				__set_page_dirty_nobuffers(page);
++				ret = 0;
++			}
+ 			if (ret || (nr_to_write && --(*nr_to_write) <= 0))
+ 				done = 1;
+ 		} else {
+--- 2.5.31/include/linux/sched.h~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/sched.h	Sun Aug 11 00:20:35 2002
+@@ -393,6 +393,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define PF_FREEZE	0x00010000	/* this task should be frozen for suspend */
+ #define PF_IOTHREAD	0x00020000	/* this thread is needed for doing I/O to swap */
+ #define PF_FROZEN	0x00040000	/* frozen for system suspend */
++#define PF_SYNC		0x00080000	/* performing fsync(), etc */
+ 
+ /*
+  * Ptrace flags
+--- 2.5.31/include/linux/writeback.h~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/writeback.h	Sun Aug 11 00:20:35 2002
+@@ -72,4 +72,13 @@ extern int nr_pdflush_threads;	/* Global
+ 				   read-only. */
+ 
+ 
++/*
++ * Tell the writeback paths that they are being called for a "data integrity"
++ * operation such as fsync().
++ */
++static inline int called_for_sync(void)
++{
++	return current->flags & PF_SYNC;
++}
++
+ #endif		/* WRITEBACK_H */
+--- 2.5.31/mm/filemap.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/filemap.c	Sun Aug 11 00:20:47 2002
+@@ -471,31 +471,38 @@ int fail_writepage(struct page *page)
+ 			SetPageReferenced(page);
  	}
+ 
+-	/* Set the page dirty again, unlock */
+-	set_page_dirty(page);
+ 	unlock_page(page);
+-	return 0;
++	return -EAGAIN;		/* It will be set dirty again */
  }
+ EXPORT_SYMBOL(fail_writepage);
  
---- 2.5.31/mm/mmap.c~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/mm/mmap.c	Sun Aug 11 00:20:33 2002
-@@ -16,6 +16,7 @@
- #include <linux/file.h>
- #include <linux/fs.h>
- #include <linux/personality.h>
-+#include <linux/pagevec.h>
- #include <linux/security.h>
- 
- #include <asm/uaccess.h>
---- 2.5.31/include/asm-m68k/sun3_pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-m68k/sun3_pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -31,9 +31,10 @@ static inline void pte_free(struct page 
-         __free_page(page);
- }
- 
--static inline void pte_free_tlb(mmu_gather_t *tlb, struct page *page)
-+static inline void
-+pte_free_tlb(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
- {
--	tlb_remove_page(tlb, page);
-+	tlb_remove_page(tlb, pvec, page);
- }
- 
- static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm, 
---- 2.5.31/include/asm-i386/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-i386/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -37,7 +37,7 @@ static inline void pte_free(struct page 
- }
- 
- 
--#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
- 
- /*
-  * allocating and freeing a pmd is trivial: the 1-entry pmd is
---- 2.5.31/include/asm-ia64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-ia64/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -153,7 +153,7 @@ pte_free_kernel (pte_t *pte)
- 	free_page((unsigned long) pte);
- }
- 
--#define pte_free_tlb(tlb, pte)	tlb_remove_page((tlb), (pte))
-+#define pte_free_tlb(tlb, pvec, pte)	tlb_remove_page((tlb), (pvec), (pte))
- 
- extern void check_pgt_cache (void);
- 
---- 2.5.31/include/asm-s390/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-s390/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -107,7 +107,7 @@ static inline void pte_free(struct page 
-         __free_page(pte);
- }
- 
--#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
- 
- /*
-  * This establishes kernel virtual mappings (e.g., as a result of a
---- 2.5.31/include/asm-s390x/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-s390x/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -123,7 +123,7 @@ static inline void pte_free(struct page 
-         __free_page(pte);
- }
- 
--#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
- 
- /*
-  * This establishes kernel virtual mappings (e.g., as a result of a
---- 2.5.31/include/asm-x86_64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-x86_64/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -75,7 +75,7 @@ extern inline void pte_free(struct page 
- 	__free_page(pte);
- } 
- 
--#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
- #define pmd_free_tlb(tlb,x)   do { } while (0)
- 
- #endif /* _X86_64_PGALLOC_H */
---- 2.5.31/include/asm-arm/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-arm/tlb.h	Sun Aug 11 00:20:33 2002
-@@ -16,6 +16,6 @@
- #include <asm-generic/tlb.h>
- 
- #define pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
--#define pte_free_tlb(tlb, pte)	pte_free(pte)
-+#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
- 
- #endif
---- 2.5.31/include/asm-m68k/motorola_pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-m68k/motorola_pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -55,7 +55,8 @@ static inline void pte_free(struct page 
- 	__free_page(page);
- }
- 
--static inline void pte_free_tlb(mmu_gather_t *tlb, struct page *page)
-+static inline void
-+pte_free_tlb(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
- {
- 	cache_page(kmap(page));
- 	kunmap(page);
---- 2.5.31/include/asm-ppc/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-ppc/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -33,7 +33,7 @@ extern struct page *pte_alloc_one(struct
- extern void pte_free_kernel(pte_t *pte);
- extern void pte_free(struct page *pte);
- 
--#define pte_free_tlb(tlb, pte)	pte_free((pte))
-+#define pte_free_tlb(tlb, pvec, pte)	pte_free((pte))
- 
- #define check_pgt_cache()	do { } while (0)
- 
---- 2.5.31/include/asm-sparc64/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-sparc64/tlb.h	Sun Aug 11 00:20:33 2002
-@@ -22,6 +22,6 @@ do {	if (!(tlb)->fullmm)	\
- #include <asm-generic/tlb.h>
- 
- #define pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
--#define pte_free_tlb(tlb, pte)	pte_free(pte)
-+#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
- 
- #endif /* _SPARC64_TLB_H */
---- 2.5.31/include/asm-ppc64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/asm-ppc64/pgalloc.h	Sun Aug 11 00:20:33 2002
-@@ -87,8 +87,8 @@ pte_free_kernel(pte_t *pte)
- 	free_page((unsigned long)pte);
- }
- 
--#define pte_free(pte_page)	pte_free_kernel(page_address(pte_page))
--#define pte_free_tlb(tlb, pte)	pte_free(pte)
-+#define pte_free(pte_page)		pte_free_kernel(page_address(pte_page))
-+#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
- 
- #define check_pgt_cache()	do { } while (0)
- 
---- 2.5.31/include/linux/pagevec.h~anon-pagevec	Sun Aug 11 00:20:33 2002
-+++ 2.5.31-akpm/include/linux/pagevec.h	Sun Aug 11 00:21:01 2002
-@@ -1,3 +1,5 @@
-+#ifndef _LINUX_PAGEVEC_H
-+#define _LINUX_PAGEVEC_H
- /*
-  * include/linux/pagevec.h
+ /**
+- *  filemap_fdatawrite - walk the list of dirty pages of the given address space
+- *                      and writepage() all of them.
++ * filemap_fdatawrite - start writeback against all of a mapping's dirty pages
++ * @mapping: address space structure to write
   *
-@@ -74,3 +76,4 @@ static inline void pagevec_lru_del(struc
- 	if (pagevec_count(pvec))
- 		__pagevec_lru_del(pvec);
+- *  @mapping: address space structure to write
++ * This is a "data integrity" operation, as opposed to a regular memory
++ * cleansing writeback.  The difference between these two operations is that
++ * if a dirty page/buffer is encountered, it must be waited upon, and not just
++ * skipped over.
+  *
++ * The PF_SYNC flag is set across this operation and the various functions
++ * which care about this distinction must use called_for_sync() to find out
++ * which behaviour they should implement.
+  */
+ int filemap_fdatawrite(struct address_space *mapping)
+ {
+-	return do_writepages(mapping, NULL);
++	int ret;
++
++	current->flags |= PF_SYNC;
++	ret = do_writepages(mapping, NULL);
++	current->flags &= ~PF_SYNC;
++	return ret;
  }
-+#endif _LINUX_PAGEVEC_H
+ 
+ /**
+- *      filemap_fdatawait - walk the list of locked pages of the given address space
+- *     	and wait for all of them.
+- * 
+- *      @mapping: address space structure to wait for
+- *
++ * filemap_fdatawait - walk the list of locked pages of the given address
++ *                     space and wait for all of them.
++ * @mapping: address space structure to wait for
+  */
+ int filemap_fdatawait(struct address_space * mapping)
+ {
+@@ -504,8 +511,9 @@ int filemap_fdatawait(struct address_spa
+ 	write_lock(&mapping->page_lock);
+ 
+         while (!list_empty(&mapping->locked_pages)) {
+-		struct page *page = list_entry(mapping->locked_pages.next, struct page, list);
++		struct page *page;
+ 
++		page = list_entry(mapping->locked_pages.next,struct page,list);
+ 		list_del(&page->list);
+ 		if (PageDirty(page))
+ 			list_add(&page->list, &mapping->dirty_pages);
+--- 2.5.31/fs/jfs/jfs_dmap.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/jfs_dmap.c	Sun Aug 11 00:20:35 2002
+@@ -325,7 +325,6 @@ int dbSync(struct inode *ipbmap)
+ 	/*
+ 	 * write out dirty pages of bmap
+ 	 */
+-	filemap_fdatawait(ipbmap->i_mapping);
+ 	filemap_fdatawrite(ipbmap->i_mapping);
+ 	filemap_fdatawait(ipbmap->i_mapping);
+ 
+--- 2.5.31/fs/jfs/jfs_imap.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/jfs_imap.c	Sun Aug 11 00:20:35 2002
+@@ -281,7 +281,6 @@ int diSync(struct inode *ipimap)
+ 	/*
+ 	 * write out dirty pages of imap
+ 	 */
+-	filemap_fdatawait(ipimap->i_mapping);
+ 	filemap_fdatawrite(ipimap->i_mapping);
+ 	filemap_fdatawait(ipimap->i_mapping);
+ 
+@@ -595,7 +594,6 @@ void diFreeSpecial(struct inode *ip)
+ 		jERROR(1, ("diFreeSpecial called with NULL ip!\n"));
+ 		return;
+ 	}
+-	filemap_fdatawait(ip->i_mapping);
+ 	filemap_fdatawrite(ip->i_mapping);
+ 	filemap_fdatawait(ip->i_mapping);
+ 	truncate_inode_pages(ip->i_mapping, 0);
+--- 2.5.31/fs/jfs/jfs_logmgr.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/jfs_logmgr.c	Sun Aug 11 00:20:35 2002
+@@ -965,9 +965,6 @@ int lmLogSync(log_t * log, int nosyncwai
+ 		 * We need to make sure all of the "written" metapages
+ 		 * actually make it to disk
+ 		 */
+-		filemap_fdatawait(sbi->ipbmap->i_mapping);
+-		filemap_fdatawait(sbi->ipimap->i_mapping);
+-		filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 		filemap_fdatawrite(sbi->ipbmap->i_mapping);
+ 		filemap_fdatawrite(sbi->ipimap->i_mapping);
+ 		filemap_fdatawrite(sbi->direct_inode->i_mapping);
+--- 2.5.31/fs/jfs/jfs_txnmgr.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/jfs_txnmgr.c	Sun Aug 11 00:20:35 2002
+@@ -1165,7 +1165,6 @@ int txCommit(tid_t tid,		/* transaction 
+ 		 *
+ 		 * if ((!S_ISDIR(ip->i_mode))
+ 		 *    && (tblk->flag & COMMIT_DELETE) == 0) {
+-		 *	filemap_fdatawait(ip->i_mapping);
+ 		 *	filemap_fdatawrite(ip->i_mapping);
+ 		 *	filemap_fdatawait(ip->i_mapping);
+ 		 * }
+--- 2.5.31/fs/jfs/jfs_umount.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/jfs_umount.c	Sun Aug 11 00:20:35 2002
+@@ -112,7 +112,6 @@ int jfs_umount(struct super_block *sb)
+ 	 * Make sure all metadata makes it to disk before we mark
+ 	 * the superblock as clean
+ 	 */
+-	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawrite(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 
+@@ -159,7 +158,6 @@ int jfs_umount_rw(struct super_block *sb
+ 	 */
+ 	dbSync(sbi->ipbmap);
+ 	diSync(sbi->ipimap);
+-	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawrite(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 
+--- 2.5.31/fs/jfs/super.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/jfs/super.c	Sun Aug 11 00:20:35 2002
+@@ -146,7 +146,6 @@ static void jfs_put_super(struct super_b
+ 	 * We need to clean out the direct_inode pages since this inode
+ 	 * is not in the inode hash.
+ 	 */
+-	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawrite(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	truncate_inode_pages(sbi->direct_mapping, 0);
+@@ -362,7 +361,6 @@ out_no_rw:
+ 		jERROR(1, ("jfs_umount failed with return code %d\n", rc));
+ 	}
+ out_mount_failed:
+-	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawrite(sbi->direct_inode->i_mapping);
+ 	filemap_fdatawait(sbi->direct_inode->i_mapping);
+ 	truncate_inode_pages(sbi->direct_mapping, 0);
+--- 2.5.31/fs/nfs/file.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/nfs/file.c	Sun Aug 11 00:20:35 2002
+@@ -279,10 +279,7 @@ nfs_lock(struct file *filp, int cmd, str
+ 	 * Flush all pending writes before doing anything
+ 	 * with locks..
+ 	 */
+-	status = filemap_fdatawait(inode->i_mapping);
+-	status2 = filemap_fdatawrite(inode->i_mapping);
+-	if (!status)
+-		status = status2;
++	status = filemap_fdatawrite(inode->i_mapping);
+ 	down(&inode->i_sem);
+ 	status2 = nfs_wb_all(inode);
+ 	if (!status)
+@@ -308,7 +305,6 @@ nfs_lock(struct file *filp, int cmd, str
+ 	 */
+  out_ok:
+ 	if ((IS_SETLK(cmd) || IS_SETLKW(cmd)) && fl->fl_type != F_UNLCK) {
+-		filemap_fdatawait(inode->i_mapping);
+ 		filemap_fdatawrite(inode->i_mapping);
+ 		down(&inode->i_sem);
+ 		nfs_wb_all(inode);      /* we may have slept */
+--- 2.5.31/fs/nfs/inode.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/nfs/inode.c	Sun Aug 11 00:20:35 2002
+@@ -775,7 +775,6 @@ printk("nfs_setattr: revalidate failed, 
+ 	if (!S_ISREG(inode->i_mode))
+ 		attr->ia_valid &= ~ATTR_SIZE;
+ 
+-	filemap_fdatawait(inode->i_mapping);
+ 	filemap_fdatawrite(inode->i_mapping);
+ 	error = nfs_wb_all(inode);
+ 	filemap_fdatawait(inode->i_mapping);
+--- 2.5.31/fs/nfsd/vfs.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/nfsd/vfs.c	Sun Aug 11 00:20:35 2002
+@@ -496,7 +496,6 @@ inline void nfsd_dosync(struct file *fil
+ 	struct inode *inode = dp->d_inode;
+ 	int (*fsync) (struct file *, struct dentry *, int);
+ 
+-	filemap_fdatawait(inode->i_mapping);
+ 	filemap_fdatawrite(inode->i_mapping);
+ 	if (fop && (fsync = fop->fsync))
+ 		fsync(filp, dp, 0);
+--- 2.5.31/fs/smbfs/file.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/smbfs/file.c	Sun Aug 11 00:20:35 2002
+@@ -352,7 +352,6 @@ smb_file_release(struct inode *inode, st
+ 		/* We must flush any dirty pages now as we won't be able to
+ 		   write anything after close. mmap can trigger this.
+ 		   "openers" should perhaps include mmap'ers ... */
+-		filemap_fdatawait(inode->i_mapping);
+ 		filemap_fdatawrite(inode->i_mapping);
+ 		filemap_fdatawait(inode->i_mapping);
+ 		smb_close(inode);
+--- 2.5.31/fs/smbfs/inode.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/smbfs/inode.c	Sun Aug 11 00:20:35 2002
+@@ -650,7 +650,6 @@ smb_notify_change(struct dentry *dentry,
+ 			DENTRY_PATH(dentry),
+ 			(long) inode->i_size, (long) attr->ia_size);
+ 
+-		filemap_fdatawait(inode->i_mapping);
+ 		filemap_fdatawrite(inode->i_mapping);
+ 		filemap_fdatawait(inode->i_mapping);
+ 
+--- 2.5.31/mm/msync.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/msync.c	Sun Aug 11 00:20:35 2002
+@@ -145,10 +145,7 @@ static int msync_interval(struct vm_area
+ 			int err;
+ 
+ 			down(&inode->i_sem);
+-			ret = filemap_fdatawait(inode->i_mapping);
+-			err = filemap_fdatawrite(inode->i_mapping);
+-			if (!ret)
+-				ret = err;
++			ret = filemap_fdatawrite(inode->i_mapping);
+ 			if (flags & MS_SYNC) {
+ 				if (file->f_op && file->f_op->fsync) {
+ 					err = file->f_op->fsync(file, file->f_dentry, 1);
+--- 2.5.31/mm/page-writeback.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/page-writeback.c	Sun Aug 11 00:20:35 2002
+@@ -350,10 +350,15 @@ int generic_vm_writeback(struct page *pa
+ #if 0
+ 		if (!PageWriteback(page) && PageDirty(page)) {
+ 			lock_page(page);
+-			if (!PageWriteback(page) && TestClearPageDirty(page))
+-				page->mapping->a_ops->writepage(page);
+-			else
++			if (!PageWriteback(page) && TestClearPageDirty(page)) {
++				int ret;
++
++				ret = page->mapping->a_ops->writepage(page);
++				if (ret == -EAGAIN)
++					__set_page_dirty_nobuffers(page);
++			} else {
+ 				unlock_page(page);
++			}
+ 		}
+ #endif
+ 	}
+@@ -395,6 +400,10 @@ int write_one_page(struct page *page, in
+ 		page_cache_get(page);
+ 		write_unlock(&mapping->page_lock);
+ 		ret = mapping->a_ops->writepage(page);
++		if (ret == -EAGAIN) {
++			__set_page_dirty_nobuffers(page);
++			ret = 0;
++		}
+ 		if (ret == 0 && wait) {
+ 			wait_on_page_writeback(page);
+ 			if (PageError(page))
+--- 2.5.31/fs/ext3/inode.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/ext3/inode.c	Sun Aug 11 00:20:45 2002
+@@ -1344,10 +1344,11 @@ out_fail:
+ 
+ 	/*
+ 	 * We have to fail this writepage to avoid cross-fs transactions.
+-	 * Put the page back on mapping->dirty_pages, but leave its buffer's
+-	 * dirty state as-is.
++	 * Return EAGAIN so the caller will the page back on
++	 * mapping->dirty_pages.  The page's buffers' dirty state will be left
++	 * as-is.
+ 	 */
+-	__set_page_dirty_nobuffers(page);
++	ret = -EAGAIN;
+ 	unlock_page(page);
+ 	return ret;
+ }
+@@ -1378,9 +1379,9 @@ static int ext3_releasepage(struct page 
+ 
+ 
+ struct address_space_operations ext3_aops = {
+-	.readpage	= ext3_readpage,		/* BKL not held.  Don't need */
+-	.readpages	= ext3_readpages,		/* BKL not held.  Don't need */
+-	.writepage	= ext3_writepage,		/* BKL not held.  We take it */
++	.readpage	= ext3_readpage,	/* BKL not held.  Don't need */
++	.readpages	= ext3_readpages,	/* BKL not held.  Don't need */
++	.writepage	= ext3_writepage,	/* BKL not held.  We take it */
+ 	.sync_page	= block_sync_page,
+ 	.prepare_write	= ext3_prepare_write,	/* BKL not held.  We take it */
+ 	.commit_write	= ext3_commit_write,	/* BKL not held.  We take it */
+@@ -1405,9 +1406,9 @@ ext3_writepages(struct address_space *ma
+ }
+ 
+ struct address_space_operations ext3_writeback_aops = {
+-	.readpage	= ext3_readpage,		/* BKL not held.  Don't need */
+-	.readpages	= ext3_readpages,		/* BKL not held.  Don't need */
+-	.writepage	= ext3_writepage,		/* BKL not held.  We take it */
++	.readpage	= ext3_readpage,	/* BKL not held.  Don't need */
++	.readpages	= ext3_readpages,	/* BKL not held.  Don't need */
++	.writepage	= ext3_writepage,	/* BKL not held.  We take it */
+ 	.writepages	= ext3_writepages,	/* BKL not held.  Don't need */
+ 	.sync_page	= block_sync_page,
+ 	.prepare_write	= ext3_prepare_write,	/* BKL not held.  We take it */
+--- 2.5.31/fs/udf/inode.c~writeback-sync	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/udf/inode.c	Sun Aug 11 00:20:35 2002
+@@ -208,7 +208,8 @@ void udf_expand_file_adinicb(struct inod
+ 	mark_buffer_dirty_inode(bh, inode);
+ 	udf_release_data(bh);
+ 
+-	inode->i_data.a_ops->writepage(page);
++	if (inode->i_data.a_ops->writepage(page) == -EAGAIN)
++		__set_page_dirty_nobuffers(page);
+ 	page_cache_release(page);
+ 
+ 	mark_inode_dirty(inode);
 
 .

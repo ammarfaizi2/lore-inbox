@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVBNPI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVBNPMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVBNPI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 10:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVBNPI2
+	id S261443AbVBNPMs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 10:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVBNPMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 10:08:28 -0500
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:34287 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261440AbVBNPIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 10:08:24 -0500
-Date: Mon, 14 Feb 2005 10:08:20 -0500
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [BK] upgrade will be needed
-In-reply-to: <58cb370e05021404081e53f458@mail.gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Message-id: <20050214150820.GA21961@optonline.net>
-MIME-version: 1.0
-Content-type: multipart/signed; boundary=X1bOJ3K7DJ5YkBrT;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-References: <20050214020802.GA3047@bitmover.com>
- <58cb370e05021404081e53f458@mail.gmail.com>
+	Mon, 14 Feb 2005 10:12:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64926 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261443AbVBNPMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 10:12:46 -0500
+Date: Mon, 14 Feb 2005 15:12:44 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Christophe Lucas <c.lucas@ifrance.com>
+Cc: kernel-janitors@lists.osdl.org, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ] [PATCH] drivers/char/watchdog/* : pci_request_regions
+Message-ID: <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk>
+References: <20050214150111.GH20620@rhum.iomeda.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050214150111.GH20620@rhum.iomeda.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 14, 2005 at 04:01:11PM +0100, Christophe Lucas wrote:
+> If PCI request regions fails, then someone else is using the
+> hardware we wish to use. For that one case, calling
+> pci_disable_device() is rather rude.
+> See : http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/1061.html
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually, that isn't necessarily true.  If the request_regions call fails,
+that can mean there's a resource conflict.  If so, leaving the device
+enabled is the worst possible thing to do as we'll now have two devices
+trying to respond to the same io accesses.
 
-On Mon, Feb 14, 2005 at 01:08:58PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> On Sun, 13 Feb 2005 18:08:02 -0800, Larry McVoy <lm@bitmover.com> wrote:
-> > is to clarify the non-compete stuff.  We've had some people who have
-> > indicated that they believed that if they used BK they were agreeing
-> > that they would never work on another SCM system.  We can see how it
-> > is possible that people would interpret the license that way but that
-> > wasn't our intent.  What we would like to do is change the language to
-> > say that if you use BK you are agreeing that you won't work on another
-> > SCM for 1 year after you stop using BK.  But after that you would be
->=20
-> I don't even plan working on some SCM system, but being
-> tainted for 1 year for just *using* BK is not worth the price IMHO.
-
-I agree, the price is just too high. No matter how much I like BK, I
-would give it up.
-
-Jeff.
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCEL7kwFP0+seVj/4RAgK+AKDBogXpTt1qgKNZoB87feWAWFUeQwCeOmRL
-lJ1EMgxDyXhOEvtzgIrsI18=
-=C+jH
------END PGP SIGNATURE-----
-
---X1bOJ3K7DJ5YkBrT--
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

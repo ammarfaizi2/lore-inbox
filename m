@@ -1,61 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131655AbRA3SXZ>; Tue, 30 Jan 2001 13:23:25 -0500
+	id <S132033AbRA3SYF>; Tue, 30 Jan 2001 13:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131842AbRA3SXG>; Tue, 30 Jan 2001 13:23:06 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:50417 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131680AbRA3SXE>; Tue, 30 Jan 2001 13:23:04 -0500
-Date: Tue, 30 Jan 2001 16:22:20 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: alex@foogod.com
-cc: Alan Olsen <alan@clueserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Recommended swap for 2.4.x.
-In-Reply-To: <20010130101009.B13819@draco.foogod.com>
-Message-ID: <Pine.LNX.4.21.0101301612360.1321-100000@duckman.distro.conectiva>
+	id <S132006AbRA3SX4>; Tue, 30 Jan 2001 13:23:56 -0500
+Received: from snowbird.megapath.net ([216.200.176.7]:33802 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S131842AbRA3SXl>;
+	Tue, 30 Jan 2001 13:23:41 -0500
+Message-ID: <3A770747.31F634E3@megapath.net>
+Date: Tue, 30 Jan 2001 10:26:15 -0800
+From: Miles Lane <miles@megapath.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: IBM encryption chip support?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001 alex@foogod.com wrote:
-> On Tue, Jan 30, 2001 at 09:48:33AM -0200, Rik van Riel wrote:
-> > It has. We now leave dirty pages swapcached, which means that
-> > for certain workloads Linux 2.4 eats up much more swap space
-> > than Linux 2.2.
-> 
-> Ah.. thanks for the clarification.  Is this duplication "hard"
-> or "soft"?  i.e. under low-memory conditions, do these
-> duplicated pages actually reduce the hard limit of VM available,
-> or just imply that using that last bit of memory will entail
-> greater paging overhead (because it has to do more cleanup)?
+Will this chip need any kernel support or
+will it just need to be supported in usermode?
 
-At the moment there is no way to reclaim the swap space if
-the page is shared, and for non-shared pages we haven't
-implemented a way to reclaim swap space.
-
-While reclaiming swap space when you run out is pretty
-trivial to do, Linus doesn't seem to like the idea all
-that much and Disk Space Is Cheap(tm) so it's not very
-high on my list of things to do.
-
-> Does this mean that having a swap partition less than or equal
-> to RAM is now effectively pointless?
-
-If you're swapping heavily, yes. If most of your programs
-fit in memory and you're hardly using swap, nothing changes.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+http://www.zdnet.com/zdnn/stories/news/0,4586,2680013,00.html?chkpt=zdnn_rt_latest
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

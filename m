@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313996AbSDVBMB>; Sun, 21 Apr 2002 21:12:01 -0400
+	id <S314034AbSDVCne>; Sun, 21 Apr 2002 22:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313997AbSDVBMA>; Sun, 21 Apr 2002 21:12:00 -0400
-Received: from jalon.able.es ([212.97.163.2]:159 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S313996AbSDVBL7>;
-	Sun, 21 Apr 2002 21:11:59 -0400
-Date: Mon, 22 Apr 2002 03:11:48 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux 2.4.19-pre7-jam4
-Message-ID: <20020422011148.GA5211@werewolf.able.es>
+	id <S314035AbSDVCnd>; Sun, 21 Apr 2002 22:43:33 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:12812 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314034AbSDVCnc>;
+	Sun, 21 Apr 2002 22:43:32 -0400
+Date: Sun, 21 Apr 2002 18:41:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre2++ USB EHCI-HCD -> auto-reboot
+Message-ID: <20020422014144.GA30434@kroah.com>
+In-Reply-To: <200204212348.g3LNmoG10576@enterprise.bidmc.harvard.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.4
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 24 Mar 2002 23:31:20 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Sun, Apr 21, 2002 at 07:49:52PM -0400, Kris Karas wrote:
+> Hello Greg, et al,
+> 
+> I need some tips on how to debug (or help others debug) a problem I am seeing 
+> with the EHCI-HCD driver introduced in 2.4.19-pre2.
 
-New version of my patch collection.
-This version includes to main updates: ide-6 and the updated version of
-the O(1) scheduler, backpòrted from 2.5 by Robet Love.
+First thing would be to try 2.4.19-pre7.
+But this does look like a VIA controller, and I think David just sent me
+a patch to help fix some problems with this device, so you might be
+better off trying this patch against 2.4.19-pre7:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-ehci-2.4.19-pre7.patch
 
-Main features: vm-33 + sched-O1-rml + mini-low-latency
-Bonus: ide-6 + bproc-3.1.9 + netconsole.
+If that patch doesn't help you out, please let me (and the
+linux-usb-devel mailing list) know.
 
-Get it at:
+thanks,
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam4.tar.gz
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam4/
-
-See README for full credits and origins of patches.
-
-Enjoy !!
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam4 #1 SMP lun abr 22 00:52:56 CEST 2002 i686
+greg k-h

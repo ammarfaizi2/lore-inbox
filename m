@@ -1,62 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVC2G1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVC2Gb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbVC2G1f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 01:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVC2G1e
+	id S262352AbVC2Gb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 01:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVC2Gbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 01:27:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:21391 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262445AbVC2G1X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 01:27:23 -0500
-Date: Mon, 28 Mar 2005 22:23:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a
- check after use)
-Message-Id: <20050328222348.4c05e85c.akpm@osdl.org>
-In-Reply-To: <20050327232158.46146243.khali@linux-fr.org>
-References: <20050327205014.GD4285@stusta.de>
-	<20050327232158.46146243.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Mar 2005 01:31:55 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:42082 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262446AbVC2G14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 01:27:56 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
+Date: Tue, 29 Mar 2005 01:27:52 -0500
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200503282126.55366.adobriyan@mail.ru>
+In-Reply-To: <200503282126.55366.adobriyan@mail.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503290127.52614.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> wrote:
->
-> > This patch fixes a check after use found by the Coverity checker.
->  > (...)
->  >  static void amp_hercules(struct cs_card *card, int change)
->  >  {
->  > -	int old=card->amplifier;
->  > +	int old;
->  >  	if(!card)
->  >  	{
->  >  		CS_DBGOUT(CS_ERROR, 2, printk(KERN_INFO 
->  >  			"cs46xx: amp_hercules() called before initialized.\n"));
->  >  		return;
->  >  	}
->  > +	old = card->amplifier;
+On Monday 28 March 2005 12:26, Alexey Dobriyan wrote:
+> Steps to reproduce for me:
+> 	* Boot CONFIG_PREEMPT_BKL=y kernel (.config, dmesg are attached)
+> 	* Start rebooting
+> 	* Start moving serial mouse (I have Genius NetMouse Pro)
+> 	* Right after gpm is shut down I see the oops
+> 	* The system continues to reboot
 > 
->  I see that you are fixing many bugs like this one today, all reported by
->  Coverity. In all cases (as far as I could see at least) you are moving
->  the dereference after the check. Of course it prevents any NULL pointer
->  dereference, and will make Coverity happy. However, I doubt that this is
->  always the correct solution.
-> 
->  Think about it. If the pointer could be NULL, then it's unlikely that
->  the bug would have gone unnoticed so far (unless the code is very
->  recent). Coverity found 3 such bugs in one i2c driver [1], and the
->  correct solution was to NOT check for NULL because it just couldn't
->  happen.
 
-No, there is a third case: the pointer can be NULL, but the compiler
-happened to move the dereference down to after the check.
+Could you try the patch below, please? Thanks!
 
-If the optimiser is later changed, or if someone tries to compile the code
-with -O0, it will oops.
+-- 
+Dmitry
 
+===================================================================
+
+Input: serport - fix an Oops when closing port - should not call
+       serio_interrupt when serio port is being unregistered.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+
+ serport.c |   40 ++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 38 insertions(+), 2 deletions(-)
+
+Index: dtor/drivers/input/serio/serport.c
+===================================================================
+--- dtor.orig/drivers/input/serio/serport.c
++++ dtor/drivers/input/serio/serport.c
+@@ -27,11 +27,14 @@ MODULE_LICENSE("GPL");
+ MODULE_ALIAS_LDISC(N_MOUSE);
+ 
+ #define SERPORT_BUSY	1
++#define SERPORT_ACTIVE	2
++#define SERPORT_DEAD	3
+ 
+ struct serport {
+ 	struct tty_struct *tty;
+ 	wait_queue_head_t wait;
+ 	struct serio *serio;
++	spinlock_t lock;
+ 	unsigned long flags;
+ };
+ 
+@@ -49,10 +52,31 @@ static void serport_serio_close(struct s
+ {
+ 	struct serport *serport = serio->port_data;
+ 
+-	serport->serio->id.type = 0;
++	set_bit(SERPORT_DEAD, &serport->flags);
+ 	wake_up_interruptible(&serport->wait);
+ }
+ 
++static int serport_serio_start(struct serio *serio)
++{
++	struct serport *serport = serio->port_data;
++
++	spin_lock(&serport->lock);
++	set_bit(SERPORT_ACTIVE, &serport->flags);
++	spin_unlock(&serport->lock);
++
++	return 0;
++}
++
++static void serport_serio_stop(struct serio *serio)
++{
++	struct serport *serport = serio->port_data;
++
++	spin_lock(&serport->lock);
++	clear_bit(SERPORT_ACTIVE, &serport->flags);
++	serport->serio = NULL;
++	spin_unlock(&serport->lock);
++}
++
+ /*
+  * serport_ldisc_open() is the routine that is called upon setting our line
+  * discipline on a tty. It prepares the serio struct.
+@@ -79,6 +103,7 @@ static int serport_ldisc_open(struct tty
+ 	serport->serio = serio;
+ 	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+ 	serport->tty = tty;
++	spin_lock_init(&serport->lock);
+ 	tty->disc_data = serport;
+ 
+ 	memset(serio, 0, sizeof(struct serio));
+@@ -87,6 +112,8 @@ static int serport_ldisc_open(struct tty
+ 	serio->id.type = SERIO_RS232;
+ 	serio->write = serport_serio_write;
+ 	serio->close = serport_serio_close;
++	serio->start = serport_serio_start;
++	serio->stop = serport_serio_stop;
+ 	serio->port_data = serport;
+ 
+ 	init_waitqueue_head(&serport->wait);
+@@ -117,8 +144,17 @@ static void serport_ldisc_receive(struct
+ {
+ 	struct serport *serport = (struct serport*) tty->disc_data;
+ 	int i;
++
++	spin_lock(&serport->lock);
++
++	if (!test_bit(SERPORT_ACTIVE, &serport->flags))
++		goto out;
++
+ 	for (i = 0; i < count; i++)
+ 		serio_interrupt(serport->serio, cp[i], 0, NULL);
++
++out:
++	spin_unlock(&serport->lock);
+ }
+ 
+ /*
+@@ -148,7 +184,7 @@ static ssize_t serport_ldisc_read(struct
+ 
+ 	serio_register_port(serport->serio);
+ 	printk(KERN_INFO "serio: Serial port %s\n", tty_name(tty, name));
+-	wait_event_interruptible(serport->wait, !serport->serio->id.type);
++	wait_event_interruptible(serport->wait, test_bit(SERPORT_DEAD, &serport->flags));
+ 	serio_unregister_port(serport->serio);
+ 
+ 	clear_bit(SERPORT_BUSY, &serport->flags);

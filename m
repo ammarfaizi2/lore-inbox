@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbTHaQQi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 12:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTHaQQi
+	id S262341AbTHaQW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 12:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTHaQW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 12:16:38 -0400
-Received: from pasky.ji.cz ([213.226.226.138]:52731 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262151AbTHaQQg (ORCPT
+	Sun, 31 Aug 2003 12:22:56 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:5321 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S262341AbTHaQWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 12:16:36 -0400
-Date: Sun, 31 Aug 2003 18:16:34 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: andre@linux-ide.org
-Cc: linux-kernel@vger.kernel.org
-Subject: IDE DMA breakage w/ 2.4.21+ and 2.6.0-test4(-mm4)
-Message-ID: <20030831161634.GA695@pasky.ji.cz>
-Mail-Followup-To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+	Sun, 31 Aug 2003 12:22:52 -0400
+Date: Sun, 31 Aug 2003 09:22:43 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030831162243.GC18767@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030831154450.GV24409@dualathlon.random>
 User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Sun, Aug 31, 2003 at 05:44:50PM +0200, Andrea Arcangeli wrote:
+> > It doesn't work when you dont control incoming. As a simple extreme
+> > example if I pingflood you from a fast site then no amount of shaping
+> > your end of the link will help, it has to be shaped at the ISP end.
+> 
+> sure, that's why I said it won't work with synflood. 
 
-  when upgrading from 2.4.20 to 2.4.22, I hit a strange problem - the machine
-mysteriously freezed (totally, interrupts blocked) in few seconds when I tried
-to do anything with the soundcard. It turned out to be a DMA conflict between
-soundcard and disk, since it disappears when I disable the (now defaultly on)
-DMA-by-default IDE option.
+Someone syncs w/ bkbits every 19 seconds 24x7.  We also run our web server
+here.   All traffic to from bitmover.com/bitkeeper.com/bkbits.net goes
+through that T1 line.
 
-  The IDE driver smells the hardware as:
+You guys who are saying it can work are thinking (a) one connection of 
+long duration (think about all the web hits on bkbits.net, those are all
+short and new TCP connections) and (b) that a little settling time is OK.
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 00:07.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a (rev 1b) IDE UDMA66 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:pio, hdd:DMA
-hda: C/H/S=1024/16/255 from BIOS ignored
-hda: IC35L040AVER07-0, ATA DISK drive
-hdd: SAMSUNG CD-R/RW DRIVE SW-224B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 p9 p10 p11 >
-
-  The option help mentions that this is gonna happen if I have VIA VP2 chipset,
-however I think I have VP3 :
-
-    Host bridge: VIA Technologies, Inc. VT82C597 [Apollo VP3] (rev 4).
-      Master Capable.  Latency=16.
-      Prefetchable 32 bit memory at 0xd8000000 [0xdfffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP] (rev 0).
-      Master Capable.  No bursts.  Min Gnt=12.
-  Bus  0, device   7, function  0:
-    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 27).
-  Bus  0, device   7, function  1:
-    IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 6).
-      Master Capable.  Latency=32.
-      I/O at 0xd000 [0xd00f].
-
-  So apparently this is still not fixed in VP3, I think it should be mentioned
-in the option help (together with reflecting that this is on by default now),
-especially as VP3 IMHO isn't that uncommon. If you don't want to bother with
-doing this, I can make the patch. Just FYI.
-
-  Kind regards,
-
+There is a reason that the phone networks don't work like IP networks.
+The bandwidth is allocated whether you use it or not and your phone works.
+Doing optimistic allocation and then backing off means that the phones
+don't work.
 -- 
- 
-				Petr "Pasky" Baudis
-.
-Perfection is reached, not when there is no longer anything to add, but when
-there is no longer anything to take away.
-	-- Antoine de Saint-Exupery
-.
-Stuff: http://pasky.ji.cz/
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

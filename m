@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269267AbTCBS0z>; Sun, 2 Mar 2003 13:26:55 -0500
+	id <S269274AbTCBS3A>; Sun, 2 Mar 2003 13:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269268AbTCBS0z>; Sun, 2 Mar 2003 13:26:55 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43531 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S269267AbTCBS0y>; Sun, 2 Mar 2003 13:26:54 -0500
-Date: Sun, 2 Mar 2003 19:37:09 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Patch/resubmit linux-2.5.63-bk4 try_module_get simplification
-In-Reply-To: <200303021733.JAA15313@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0303021928090.32518-100000@serv>
-References: <200303021733.JAA15313@adam.yggdrasil.com>
+	id <S269275AbTCBS3A>; Sun, 2 Mar 2003 13:29:00 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:14984 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S269274AbTCBS26>; Sun, 2 Mar 2003 13:28:58 -0500
+Message-ID: <3E624FD4.3020807@zytor.com>
+Date: Sun, 02 Mar 2003 10:39:16 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote:
+> 
+> My counter-question is, why not improve an _existing_ open source SCM to 
+> read and write BitKeeper files?  Why do we need yet another brand new 
+> project?
+> 
 
-On Sun, 2 Mar 2003, Adam J. Richter wrote:
+I don't disagree with that.  However, the question you posited was 
+"would one be useful", and I think the answer is unequivocally yes. 
+Furthermore, I don't agree with the "compatibility == bad" assumption I 
+read into your message.
 
-> 	Is there enough traffic on the module reference counts to make
-> this trade-off worthwhile?
+> AFAICS, a BK clone would just further divide resources and mindshare.  I 
+> personally _want_ an open source SCM that is as good as, or better, than 
+> BitKeeper.  The open source world needs that, and BitKeeper needs the 
+> competition.  A BK clone may work with BitKeeper files, but I don't see 
+> it ever being as good as BK, because it will always be playing catch-up.
 
-I don't know, you have to ask that Rusty.
-BTW the same trick is also possible with the old module count:
+Yes.  Personally, I've spent quite a bit of time with OpenCM after a 
+suggestion from Ted T'so.  It's looking quite promising to me, although 
+I haven't yet used it to maintain a large project.
 
-int try_inc_mod_count(struct module *mod)
-{
-	int res;
+	-hpa
 
-	if (mod) {
-		__MOD_INC_USE_COUNT(mod);
-		smp_mb__after_atomic_inc()
-		if (unlikely(mod->flags & MOD_DELETED))
-			goto check;
-	}
-	return 1;
-check:
-	res = 1;
-	spin_lock(&unload_lock);
-	if (mod->flags & MOD_DELETED) {
-		__MOD_DEC_USE_COUNT(mod);
-		res = 0;
-	}
-	spin_unlock(&unload_lock);
-	return res;
-}
-
-(and a similiar change to sys_delete_module.)
-
-bye, Roman
 

@@ -1,115 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSFULKJ>; Fri, 21 Jun 2002 07:10:09 -0400
+	id <S316542AbSFULNL>; Fri, 21 Jun 2002 07:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSFULKJ>; Fri, 21 Jun 2002 07:10:09 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:61709 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316541AbSFULKH> convert rfc822-to-8bit; Fri, 21 Jun 2002 07:10:07 -0400
-Message-ID: <3D13098E.2020100@evision-ventures.com>
-Date: Fri, 21 Jun 2002 13:10:06 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
+	id <S316545AbSFULNK>; Fri, 21 Jun 2002 07:13:10 -0400
+Received: from pat.uio.no ([129.240.130.16]:43150 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S316542AbSFULNJ>;
+	Fri, 21 Jun 2002 07:13:09 -0400
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] (resend) credentials for 2.5.23
+References: <20020619212909.A3468@redhat.com> <1024540235.917.127.camel@sinai>
+	<20020620122858.B4674@redhat.com> <1024593066.922.149.camel@sinai>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+In-Reply-To: <1024593066.922.149.camel@sinai>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+Date: 21 Jun 2002 13:12:59 +0200
+Message-ID: <shs4rfwx4uc.fsf@charged.uio.no>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hda: error: DMA in progress..
-References: <20020621092459.GD27090@suse.de> <3D12FA4D.6060500@evision-ventures.com> <20020621101202.GF27090@suse.de> <3D130095.6050207@evision-ventures.com> <20020621103553.GI27090@suse.de>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Jens Axboe napisa³:
+>>>>> " " == Robert Love <rml@tech9.net> writes:
 
->>OK. We have now just one single place where IDE_DMA gets unset ->
->>udma_stop. This to too early to reset IDE_BUSY. However it well
->>may be that ide_dma_intr() simply doesn't care about IDE_BUSY.
->>Let's have a look...
-> 
-> 
-> You can leave IDE_BUSY there, that's ok. It's not invalid for IDE_BUSY
-> to be set while IDE_DMA gets cleared. That's expected.
-> 
+     > CLONE_CRED.  I suspect 90% of the cases retain the same
+     > credentials anyhow.  Copy-on-write? :)
 
->>Well lets look at ata_irq_intr, the end of it:
->>
->>	 * Note that handler() may have set things up for another
->>	 * interrupt to occur soon, but it cannot happen until
->>	 * we exit from this routine, because it will be the
->>	 * same irq as is currently being serviced here, and Linux
->>	 * won't allow another of the same (on any CPU) until we return.
->>	 */
->>	if (startstop == ide_stopped) {
->>		if (!ch->handler) {	/* paranoia */
->>			clear_bit(IDE_BUSY, ch->active);
->>			do_request(ch);
->>		} else {
->>			printk("%s: %s: huh? expected NULL handler on 
->>			exit\n", drive->name, __FUNCTION__);
->>		}
->>	} else if (startstop == ide_released)
->>		queue_commands(drive);
->>
->>I think the above needs more tough now...
-> 
-> 
-> Same case as the one I described in the email following this, will only
-> happen for TCQ with release interrupt enabled. Otherwise it's illegal to
-> release the bus from the tcq interrupt handler. Since I removed all
-> traces of that long ago, you can safely kill the
-> 
-> 	} else if (startstop == ide_released)
-> 		queue_commands(drive);
-> 
-> part of it.
+Ben,
 
-I'm glad to get confirmation on this. This leaves only one place, vide:
-do_request, where we can queue up new commands. Much easier to trace and
-makes queue_commands never run from IRQ context, which is simplyfiying
-things too.
+  Making the credentials a monolithic block like you appear to be
+doing just doesn't make sense. If you look at the way things like
+fsuid/fsgid/groups[] are used, you will see that almost all those that
+filesystems that care are making their own private copies.
 
-> The rest looks sane. If handler returns it's no longer busy
-> (ide_stopped), we clear IDE_BUSY (IDE_DMA damn well better be cleared at
-> this point as well!!) and let do_request() start a new request (heck or
-> the same, we don't know and don't care).
+  It would be a lot more useful to split out fsuid/fsgid/groups[] as
+per the *BSD ucred, and then allow filesystems to reference the
+resulting struct instead (using COW semantics).
 
-Right now the handlers are expected to clear IDE_BUSY and ->handler
-themself. I have now an idea: Could you add a reporting about
-the handler function there:
+That way too, 'struct file' could finally contain a reference to a
+full copy of the filesystem credentials, and we could get rid of
+the 'struct file' crud in address_space_operations like readpage().
 
-  	if (test_bit(IDE_DMA, ch->active)) {
-			printk(KERN_ERR "%s: error: DMA in progress... %p\n", drive->name, ch->handler);
-			break;
-		}
+See
+  http://www.fys.uio.no/~trondmy/src/bsdcred/linux-2.5.1-pre11_cred.dif
 
-And please take a short look at System.map.
+for my earlier attempt at doing this sort of thing...
 
-This will show which IRQ handler is the culprit...
-
-If it's indeed ide_dma_intr, let's have a look on it:
-
-We see that it's calling udma_stop() immediately. This should
-reset IDE_DMA unconditionally.. immediately on enty:
-
-static inline int udma_stop(struct ata_device *drive)
-{
-	clear_bit(IDE_DMA, drive->channel->active);
-
-	return drive->channel->udma_stop(drive);
-}
-
-Argh... There is a race in the above it should be:
-
-static inline int udma_stop(struct ata_device *drive)
-{
-	int ret = drive->channel->udma_stop(drive);
-         clear_bit(IDE_DMA, drive->channel->active);
-         return ret;
-}
-
-Or we should move the clar_bit down do ide_dma_intr and
-silbings behind __ata_end_request().
-And finally we don't clear the IDE_BUSY on this code path.
-
+Cheers,
+  Trond

@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313761AbSDPQbZ>; Tue, 16 Apr 2002 12:31:25 -0400
+	id <S313760AbSDPQeE>; Tue, 16 Apr 2002 12:34:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313760AbSDPQbY>; Tue, 16 Apr 2002 12:31:24 -0400
-Received: from webmail10.rediffmail.com ([202.54.124.179]:50833 "HELO
-	webmail10.rediffmail.com") by vger.kernel.org with SMTP
-	id <S313761AbSDPQbX>; Tue, 16 Apr 2002 12:31:23 -0400
-Date: 16 Apr 2002 16:26:04 -0000
-Message-ID: <20020416162604.17332.qmail@webmail10.rediffmail.com>
+	id <S313762AbSDPQeD>; Tue, 16 Apr 2002 12:34:03 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:40898 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S313760AbSDPQeC>; Tue, 16 Apr 2002 12:34:02 -0400
+Message-ID: <3CBC5264.5010701@antefacto.com>
+Date: Tue, 16 Apr 2002 17:33:40 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-From: "Ajit Anand Shrivastav" <ajeetshree@rediffmail.com>
-Reply-To: "Ajit Anand Shrivastav" <ajeetshree@rediffmail.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: prob with SMP
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+In-Reply-To: <Pine.LNX.4.33.0204160857470.1244-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-  I have an application level code which has all the logic b...
-  within it for the device driver and I have got a kernel le...
-  which provides interface to the application for the device.
+Linus Torvalds wrote:
+> 
+> On Tue, 16 Apr 2002, Alan Cox wrote:
+> 
+>>>Please use a the network block device, and teach the ndb deamon to just
+>>>byteswap each word.
+>>
+>>You need to use loop not nbd - loopback nbd can deadlock. Byteswap as a
+>>new revolutionary crypto system for the loopback driver isnt hard
+> 
+> 
+> Even better - I did indeed miss the "security" aspect of the byteswapping
+> ;)
+> 
+> And I know from personal experience that allowing partitioning of a
+> loopback thing would certainly have made some things a _lot_ easier (ie
+> not having to figure out the damn offsets in order to mount a filesystem
+> on a loopback volume), so having support for partitioning would be good.
 
-  Too many errors encountered; the rest of the message is 
-ignored:
-  The above code works perfectly for Uni-Processor system.
-  To make it SMP compliant I have made changes in the driver 
-code
-  only.Critical section code has been given protection using 
-spin
-  locks.When I run the application it works for some time which 
-is
-  not fixed and then the application stops but the system 
-remains
-  stable.So what does it mean , whether I will have to provide
-  synchronization for application level code also to make the
-  complete driver SMP compliant.
-  If yes, then how to go about synchronizing application level
-  code.If no, then what is the problem that is making the
-  application halt in between.
+gpart is good for this:
+For e.g:
 
-  Can anybody help me in this concern ??
+$gpart -vgd partitions.img
 
-  Thanx & regds
-  Ajit
+dev(partitions.img) mss(512)
 
+Primary partition(1)
+    type: 131(0x83)(Linux ext2 filesystem)
+    size: 2mb #s(4576) s(32-4607)
+    chs:  (0/1/1)-(8/15/32)d (0/0/0)-(0/0/0)r
+    hex:  00 01 01 00 83 0F 20 08 20 00 00 00 E0 11 00 00
+
+Primary partition(2)
+    type: 131(0x83)(Linux ext2 filesystem)
+    size: 59mb #s(121856) s(4608-126463)
+    chs:  (9/0/1)-(246/15/32)d (0/0/0)-(0/0/0)r
+    hex:  00 00 01 09 83 0F 20 F6 00 12 00 00 00 DC 01 00
+
+The pertinent info here is s(32-4607) & s(4608-126463).
+Blocks are 512 bytes so in this e.g. the offsets for
+the first and second partitions respectively are:
+16384 & 2359296
+
+> Although I do have this suspicion that that partitioning support should be
+> in user space (along with all the rest of the partitioning support, but
+> that's another matter and has some rather more serious backwards
+> compatibility issues, of course. Is anybody still working on the new early
+> initrd?).
+> 
+> 		Linus
+
+Padraig.
 

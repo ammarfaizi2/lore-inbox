@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135673AbRD2DW5>; Sat, 28 Apr 2001 23:22:57 -0400
+	id <S132655AbRD2Eua>; Sun, 29 Apr 2001 00:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135676AbRD2DWs>; Sat, 28 Apr 2001 23:22:48 -0400
-Received: from mnh-1-23.mv.com ([207.22.10.55]:16398 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S135673AbRD2DWd>;
-	Sat, 28 Apr 2001 23:22:33 -0400
-Message-Id: <200104290435.XAA05395@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.41-2.4.4
-Mime-Version: 1.0
+	id <S132831AbRD2EuU>; Sun, 29 Apr 2001 00:50:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63880 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132655AbRD2EuK>;
+	Sun, 29 Apr 2001 00:50:10 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Apr 2001 23:35:21 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15083.40318.158099.137018@pizda.ninka.net>
+Date: Sat, 28 Apr 2001 21:50:06 -0700 (PDT)
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Zerocopy implementation issues
+In-Reply-To: <20010429005206.J21792@flint.arm.linux.org.uk>
+In-Reply-To: <20010429005206.J21792@flint.arm.linux.org.uk>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.4 is available.
 
-The swap problems that were in the 2.4.3 UML are fixed.
+Russell King writes:
+ > Can someone please explain to me the rationale behind the zerocopy
+ > implementation that has appeared in 2.4.4 please?
 
-It is now possible to attach already-running debuggers and debuggers other 
-than gdb to UML.  See http://user-mode-linux.sourceforge.net/debugging.html 
-for details.  There, I give an example of using strace as an alternate 
-debugger.
+You've had at least 2 months to ask this question.  Like I have asked
+several others I am going to ask you, why you are complaining now?
 
-gprof and gcov support now work again.  They can be enabled during 
-configuration under the 'Kernel Hacking' menu.
+I see you merged your ARM updates to the AC tree, which is the same
+place where the zerocopy stuff went in 2 months for _testing_, why
+didn't you notice it?  I was posting zerocopy patches on almost a
+daily basis at one point, and I mentioned in each of those patch
+releases here on linux-kernel that the intent was to merge this to
+Linus.  Why didn't you give it a go to make sure it worked on ARM?
 
-UML can boot from an initrd image.  This done with 'initrd=<image>' on the 
-command line.
+PPC people, along with several other ports, did this and contacted me
+to tell me things were OK.
 
-I fixed a long-standing race which caused sleep to hang.
+ > Just think - if you did checksumming on aligned word boundaries you
+ > could be far faster!
 
-The project's home page is http://user-mode-linux.sourceforge.net
+If the ARM checksum routines do not take care of unaligned source
+and/or dest buffers, it is completely broken.  Every other port
+handles this, ARM has byte/halfword/word loads and stores so it can
+handle this just fine.  There is no excuse for this.
 
-Downloads are available at http://sourceforge.net/project/filelist.php?group_id
-=429 and ftp://ftp.nl.linux.org/pub/uml/
+And your performance logic is broken too, the thing that is requiring
+byte aligned source/dest buffers is eliminating an entire copy across
+loopback, and in the sendfile case is copying the data directly from
+the page cache into the receiver's userspace buffer.
 
-				Jeff
+So you're saying that 2 aligned copies are faster than 1 that starts
+on a byte boundary?
 
+ARM's checksum routines are what is broken, not the zerocopy patches.
+Note this is a totally different case than the unaligned loads/stores
+done to protocol headers that ARM had such trouble with in the past.
 
+These unaligned case happen today, the user can give the kernel on
+a send() any alignment it so chooses.  And the checksum routine is
+going to operate on that user source buffer, whether it is byte
+or word aligned.  So don't make it seem like this is some new
+situation, becuase it simply isn't.
 
+The zerocopy stuff has actually improved latency and bandwidth, BTW.
+Linus required that it not deteriorate performance for existing
+cases, and we verified that it did not on at least 3 platforms (x86,
+Alpha, and sparc64).
 
+In short, fix the ARM checksum code.  The kernel is just fine.
+
+Later,
+David S. Miller
+davem@redhat.com

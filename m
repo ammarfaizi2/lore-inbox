@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262866AbTDAV7h>; Tue, 1 Apr 2003 16:59:37 -0500
+	id <S262879AbTDAWCp>; Tue, 1 Apr 2003 17:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTDAV7h>; Tue, 1 Apr 2003 16:59:37 -0500
-Received: from users.ccur.com ([208.248.32.211]:8610 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S262866AbTDAV7g>;
-	Tue, 1 Apr 2003 16:59:36 -0500
-Date: Tue, 1 Apr 2003 17:10:33 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Vladimir Serov <vserov@infratel.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NFS write got EIO on kernel starting from 2.4.19-pre4 (or -pre3 maybe)
-Message-ID: <20030401221033.GA14678@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <3E899128.2050200@infratel.com>
+	id <S262881AbTDAWCp>; Tue, 1 Apr 2003 17:02:45 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:25023 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262879AbTDAWCn>; Tue, 1 Apr 2003 17:02:43 -0500
+Subject: cpufreq: scaling_governor=powersave produces time warp
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049235186.637.20.camel@teapot>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E899128.2050200@infratel.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 02 Apr 2003 00:13:07 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 05:16:24PM +0400, Vladimir Serov wrote:
-> Hi Trond,
-> Belive or not, I've got another NFS related problem. I'm getting EIO in 
-> several programs (dd, make) writing relativly large file (several 
-> megabytes) over NFS. I've tested several kernels to find out where this 
-> problem was introdused. Here the list:
+Hi,
 
-Hi Vladimir, Everyone,
-  Try this patch.  The bug was introduced in 2.4.20-rc3.  It tends to show
-up when a slow nfs server is used with a fast client.
-Joe
+On my Pentium IV 2Ghz and Intel i845 motherboard, adjusting the CPU
+Frequency with:
 
+echo powersave > /sys/devices/sys/cpu0/cpufreq/scaling_governor
 
-diff -Nur prev/2.4-redhawk/fs/nfs/read.c curr/2.4-redhawk/fs/nfs/read.c
-+++ curr/2.4-redhawk/fs/nfs/read.c	2003-04-01 17:04:18.000000000 -0500
-+++ curr/2.4-redhawk/fs/nfs/read.c	2003-04-01 17:04:18.000000000 -0500
-@@ -424,7 +424,8 @@
- 				memset(p + count, 0, PAGE_CACHE_SIZE - count);
- 				kunmap(page);
- 				count = 0;
--				if (data->res.eof)
-+				if (data->res.eof
-+				|| (page_index(page) < (PAGE_CACHE_ALIGN(inode->i_size) >> PAGE_CACHE_SHIFT)))
- 					SetPageUptodate(page);
- 				else
- 					SetPageError(page);
+makes the system clock start skewing into the future at a very fast
+rate: the clock time advances at approximately ten times its normal
+speed (one minute of system clock flies by in less than 5 seconds of
+real time). Adjusting scaling_governor back to "performance" fixes the
+problem.
+
+Is this a bug? Am I doing something wrong?
+
+Thanks!
+
+________________________________________________________________________
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
+

@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262317AbSL2XfV>; Sun, 29 Dec 2002 18:35:21 -0500
+	id <S262296AbSL2Xqi>; Sun, 29 Dec 2002 18:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbSL2XfU>; Sun, 29 Dec 2002 18:35:20 -0500
-Received: from holomorphy.com ([66.224.33.161]:55781 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262266AbSL2XfT>;
-	Sun, 29 Dec 2002 18:35:19 -0500
-Date: Sun, 29 Dec 2002 15:42:03 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove CONFIG_X86_NUMA
-Message-ID: <20021229234203.GM9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Christoph Hellwig <hch@lst.de>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org
-References: <200212292239.gBTMdPJ12407@localhost.localdomain> <20021229234051.A12535@lst.de> <78170000.1041202589@titus>
-Mime-Version: 1.0
+	id <S262326AbSL2Xqi>; Sun, 29 Dec 2002 18:46:38 -0500
+Received: from packet.digeo.com ([12.110.80.53]:31479 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262296AbSL2Xqh>;
+	Sun, 29 Dec 2002 18:46:37 -0500
+Message-ID: <3E0F8B4C.568C018C@digeo.com>
+Date: Sun, 29 Dec 2002 15:54:52 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: khromy <khromy@lnuxlab.ath.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.53-mm3: xmms: page allocation failure. order:5, mode:0x20
+References: <20021229202610.GA24554@lnuxlab.ath.cx> <3E0F5E2C.70F7D112@digeo.com> <20021229233236.GA25035@lnuxlab.ath.cx>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <78170000.1041202589@titus>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Dec 2002 23:54:52.0801 (UTC) FILETIME=[AE3CE710:01C2AF95]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, someone had their attribution removed from:
->> I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
->> still boots on a PeeCee, so it's really an option, not a choice.
+khromy wrote:
+> 
+> On Sun, Dec 29, 2002 at 12:42:20PM -0800, Andrew Morton wrote:
+> > khromy wrote:
+> > >
+> > > Running 2.5.53-mm3, I found the following in dmesg.  I don't remember
+> > > getting anything like this with 2.5.53-mm3.
+> > >
+> > > xmms: page allocation failure. order:5, mode:0x20
+> >
+> > gack.  Someone is requesting 128k of memory with GFP_ATOMIC.  It fell
+> > afoul of the reduced memory reserves.  It deserved to.
+> >
+> > Could you please add this patch, and make sure that you have set
+> > CONFIG_KALLSYMS=y?  This will find the culprit.
+> 
+> XFree86: page allocation failure. order:0, mode:0xd0
+> Call Trace:
+>  [<c012a3dd>] __alloc_pages+0x255/0x264
+>  [<c012a414>] __get_free_pages+0x28/0x60
+>  [<c012c7e6>] cache_grow+0xb6/0x20c
+>  [<c012c9cf>] __cache_alloc_refill+0x93/0x220
+>  [<c012cb96>] cache_alloc_refill+0x3a/0x58
+>  [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
+>  [<c017e36c>] journal_alloc_journal_head+0x10/0x68
+>  [<c017e458>] journal_add_journal_head+0x80/0x120
 
-On Sun, Dec 29, 2002 at 02:56:40PM -0800, Martin J. Bligh wrote:
-> Nope, it won't boot on a PC - you're probably thinking of Summit,
-> which should. I think Bill had a patch to move NUMA-Q already ...
-> want to publish that one?
+oops, sorry.  They're all expected.  I'd like to know where
+the 5-order failure during xmms usage came from.  Were you
+using a CDROM at the time??
 
-It's just moving the 2 config decls inside the choice/endchoice bracket,
-not worth bothering with if it's getting fixed anyway.
+This should tell us, thanks:
 
 
-Bill
+--- 25/mm/page_alloc.c~a	Sun Dec 29 15:52:29 2002
++++ 25-akpm/mm/page_alloc.c	Sun Dec 29 15:52:47 2002
+@@ -547,6 +547,8 @@ nopage:
+ 		printk("%s: page allocation failure."
+ 			" order:%d, mode:0x%x\n",
+ 			current->comm, order, gfp_mask);
++		if (order > 3)
++			dump_stack();
+ 	}
+ 	return NULL;
+ }
+
+_

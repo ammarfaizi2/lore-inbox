@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262401AbSI2GYm>; Sun, 29 Sep 2002 02:24:42 -0400
+	id <S262403AbSI2GZK>; Sun, 29 Sep 2002 02:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262403AbSI2GYm>; Sun, 29 Sep 2002 02:24:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2211 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262401AbSI2GYl>;
-	Sun, 29 Sep 2002 02:24:41 -0400
-Date: Sat, 28 Sep 2002 23:23:26 -0700 (PDT)
-Message-Id: <20020928.232326.43409659.davem@redhat.com>
-To: arvind_gopalan@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4 byte mem alignment
+	id <S262404AbSI2GZK>; Sun, 29 Sep 2002 02:25:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3491 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262403AbSI2GZJ>;
+	Sun, 29 Sep 2002 02:25:09 -0400
+Date: Sat, 28 Sep 2002 23:23:50 -0700 (PDT)
+Message-Id: <20020928.232350.33317317.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: sparc32 sunrpc.o
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020929062646.97364.qmail@web14606.mail.yahoo.com>
-References: <20020929062646.97364.qmail@web14606.mail.yahoo.com>
+In-Reply-To: <20020928161316.GA4323@louise.pinerecords.com>
+References: <20020926.142910.124086325.davem@redhat.com>
+	<20020928122817.GV27082@louise.pinerecords.com>
+	<20020928161316.GA4323@louise.pinerecords.com>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -22,14 +24,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arvind Gopalan <arvind_gopalan@yahoo.com>
-   Date: Sat, 28 Sep 2002 23:26:46 -0700 (PDT)
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Sat, 28 Sep 2002 18:13:16 +0200
 
-   how strong the requirements are for copy_to_user().
-   does it fault to byte-by-byte mode gracefully when
-   given a non-4byte aligned buffer?.
-
-The x86 processor handles unaligned memory accesses in hw.
-
-On any platform, copy_to_user() must handle any user and kernel buffer
-alignment.
+   > Ok, DaveM, could you have a look at this patch?
+   
+   Please disregard, highmem.c unreasonably included linux/highmem.h.
+   I'll be looking into this some more.
+   
+Let us know when new working patch is available :-)

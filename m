@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262360AbTCICIU>; Sat, 8 Mar 2003 21:08:20 -0500
+	id <S262357AbTCICIl>; Sat, 8 Mar 2003 21:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262358AbTCICIU>; Sat, 8 Mar 2003 21:08:20 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:12256 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262357AbTCICIT>; Sat, 8 Mar 2003 21:08:19 -0500
-Date: Sat, 08 Mar 2003 18:18:51 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Robert Love <rml@tech9.net>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [patch] updated scheduler-tunables for 2.5.64-mm2
-Message-ID: <477140000.1047176330@[10.10.2.4]>
-In-Reply-To: <1047174868.719.7.camel@phantasy.awol.org>
-References: <20030307185116.0c53e442.akpm@digeo.com> <1047095088.727.5.camel@phantasy.awol.org> <400810000.1047147915@[10.10.2.4]> <1047174868.719.7.camel@phantasy.awol.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262358AbTCICIl>; Sat, 8 Mar 2003 21:08:41 -0500
+Received: from 101.24.177.216.inaddr.G4.NET ([216.177.24.101]:53673 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP
+	id <S262357AbTCICIj>; Sat, 8 Mar 2003 21:08:39 -0500
+Date: Sat, 8 Mar 2003 21:19:12 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: ML-uml-devel <user-mode-linux-devel@lists.sourceforge.net>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       ML-uml-user <User-mode-linux-user@lists.sourceforge.net>
+cc: William Stearns <wstearns@pobox.com>
+Subject: 2.5.64-bk3 UML kernel available
+Message-ID: <Pine.LNX.4.44.0303082103060.3395-100000@sparrow>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Cool ... do you want to add the other two NUMA parameters as well to
->> your stack? (the idle and busy rebalance rates). Here's what I had
->> before with those in.
-> 
-> Sure.
-> 
-> But at least in 2.5.64 and 2.5.64-mm3, I do not see those parameters. 
-> There is no {IDLE|BUSY}_NODE_REBALANCE_TICK define.
+Good day, all,
+	For those interested in trying out a 2.5 kernel but are a little
+nervous about using it on a production system, I have a precompiled UML
+kernel at http://www.stearns.org/uml/linux-2.5.64-bk3-63um1-3.bz2 .  Pull
+down, decompress, and use with a uml root filesystem (see
+http://user-mode-linux.sourceforge.net).  Options used are in
+http://www.stearns.org/uml/config-2.5.64-bk3-63um1-3 , System.map at
+http://www.stearns.org/uml/System.map-2.5.64-bk3-63um1-3 .
+	As with any development kernel, please remember that this may very 
+well corrupt data.  Please make a backup of your UML root filesystem 
+before using.  The kernel _appears_ to work - no more guarantees than 
+that.  :-)
+	(For those interested in compiling it themselves, Jeff's
+2.5.63-um1 patch plus
+http://www.stearns.org/uml/linux-2.5.64-bk3-63um1-initcall.patch is all
+that appears to be needed)
+	Cheers,
+	- Bill
 
-Ooops. Sorry ... we have to merge Ingo's NUMA sched updates first ;-)
-/me goes back to swinging about in his own tree ...
-
-M.
+---------------------------------------------------------------------------
+	"Do what you love, and love what you do, and you will never work
+another day in your life."
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+Linux articles at:                         http://www.opensourcedigest.com
+--------------------------------------------------------------------------
 

@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315323AbSEAGr7>; Wed, 1 May 2002 02:47:59 -0400
+	id <S315325AbSEAHFE>; Wed, 1 May 2002 03:05:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315325AbSEAGr6>; Wed, 1 May 2002 02:47:58 -0400
-Received: from zeus.city.tvnet.hu ([195.38.100.182]:24960 "EHLO
-	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S315323AbSEAGr5>; Wed, 1 May 2002 02:47:57 -0400
-Subject: nvidia patch for 2.5.11
-From: Sipos Ferenc <sferi@dumballah.tvnet.hu>
-To: linux-kernel@vger.kernel.org
+	id <S315326AbSEAHFD>; Wed, 1 May 2002 03:05:03 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:28682 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315325AbSEAHFD>; Wed, 1 May 2002 03:05:03 -0400
+Subject: 2.4.12 -- Unresolved symbols in fs/jfs/jfs.o:  block_flushpage
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 01 May 2002 08:47:21 +0200
-Message-Id: <1020235641.1885.0.camel@zeus.city.tvnet.hu>
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 01 May 2002 00:02:52 -0700
+Message-Id: <1020236572.16071.19.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+depmod: *** Unresolved symbols in /lib/modules/2.5.12/kernel/fs/jfs/jfs.o
+depmod:         block_flushpage
 
-I know, it's a bit offtopic, but could anybody recommend me an url for
-the above? Thx.
+CONFIG_IDE=y
 
-Paco
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=y
+
+#
+# ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+
+CONFIG_JFS_FS=m
+CONFIG_JFS_DEBUG=y
+CONFIG_JFS_STATISTICS=y
 
 

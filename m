@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTFINtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 09:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTFINtp
+	id S261985AbTFINzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 09:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTFINzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 09:49:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:18324 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261960AbTFINto (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 09:49:44 -0400
-Date: Mon, 09 Jun 2003 07:00:14 -0700 (PDT)
-Message-Id: <20030609.070014.118613484.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: baldrick@wanadoo.fr, wa@almesberger.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2) 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200306091400.h59E0bsG022093@ginger.cmf.nrl.navy.mil>
-References: <20030609.063825.123987226.davem@redhat.com>
-	<200306091400.h59E0bsG022093@ginger.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jun 2003 09:55:54 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:6158 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S261985AbTFINzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 09:55:53 -0400
+Message-Id: <200306091409.h59E9BT08473@pincoya.inf.utfsm.cl>
+To: Frank Cusack <fcusack@fcusack.com>
+cc: Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G and the GPL 
+In-reply-to: Your message of "Sun, 08 Jun 2003 22:22:13 MST."
+             <20030608222213.C9097@google.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Mon, 09 Jun 2003 10:09:11 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Mon, 09 Jun 2003 09:58:45 -0400
+Frank Cusack <fcusack@fcusack.com> said:
 
-   >ATM should unlink them immediately, and mark them dead.
-   >Anything that tries to do something with a VCC should
-   >check that it is still alive.
-   
-   i imagine marking vcc->dev = NULL would be pretty close to the above.
+[...]
 
-Yep.  That'd work.
+> Note that including the source with the physical package is not enough
+> to meet the GPL requirements.  The source must be available to any third
+> party, not just purchasers of the product.
 
-   (see latest rfc patch).
-   
-You do know that won't compile with current 2.5.x right?
-All the struct sock members got renamed to have a "sk_" prefix
-2 days ago :-)
+Nope. The product (binary) has to be freely redistributable, and everybody
+who gets the binary has the right to get the source.
 
-But I did like the general direction you were going in.  I can't
-comment on things like getting rid of ATM_*_ITF or whatever it's
-called because I don't know what that thing does ;)
+IANAL, and no GPL-expert either, but...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

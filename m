@@ -1,68 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbUKAXbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263308AbUKAXbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbUKAXbi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S382011AbUKAXba
+	id S263308AbUKAXbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S382009AbUKAXbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:31:30 -0500
-Received: from pop.gmx.net ([213.165.64.20]:3219 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S379091AbUKAWwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:52:12 -0500
-X-Authenticated: #4399952
-Date: Mon, 1 Nov 2004 23:51:25 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Bill Huey (hui) <bhuey@lnxw.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041101235125.2ae638a4@mango.fruits.de>
-In-Reply-To: <20041101224047.GA19186@nietzsche.lynx.com>
-References: <20041031134016.GA24645@elte.hu>
-	<20041031162059.1a3dd9eb@mango.fruits.de>
-	<20041031165913.2d0ad21e@mango.fruits.de>
-	<20041031200621.212ee044@mango.fruits.de>
-	<20041101134235.GA18009@elte.hu>
-	<20041101135358.GA19718@elte.hu>
-	<20041101140630.GA20448@elte.hu>
-	<1099324040.3337.32.camel@thomas>
-	<20041101184615.GB32009@elte.hu>
-	<20041101233037.314337c8@mango.fruits.de>
-	<20041101224047.GA19186@nietzsche.lynx.com>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 18:31:20 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:38030 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S288847AbUKAWwl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 17:52:41 -0500
+Message-ID: <4186BE21.8050000@free.fr>
+Date: Mon, 01 Nov 2004 23:52:17 +0100
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040804
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-mm1: LVM stopped working
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC1DE3449AB4A69A7B5EE3606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004 14:40:47 -0800
-Bill Huey (hui) <bhuey@lnxw.com> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC1DE3449AB4A69A7B5EE3606
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Unlikely, it's got to lock the entire kernel to make sure that things aren't
-> changing under it. Getting measurements is useful at this stage, but don't expect
-> it to be a finished product any time soon and please keep that in mind. Stability
-> should be, if it's not already, the single most important things in this project
-> at this phase. Getting numbers now for a specific single application is going to
-> be of limit use until the system is stable enough for general characterization.
-> 
-> Keep doing it, but keep in mind that anything you're going to get at this time
-> is going to be very coarse. Don't put too much weight on it.
-> 
-> That's my take.
 
-ack. understood. i was just asking since i don't have a second machine and
-thus am not really able to help with the deadlock debugging. so i figured i
-could at least do some timing. btw: even with deadlock detection, the
-results for 0.6.5 looked pretty good [in 10 minutes uptime ca.3-4% max
-jitter [30something usecs].  until the deadlock that is [i head three finds
-plus kernel compile at nice -10 running]..
+Hello,
 
-flo
+Lvm2 stopped working since 2.6.9-mm1 for me too : 2.6.9-rc4-mm1 was 
+fine, 2.6.9-mm1 to 2.6.10-mm2 break lvm2. Reverting 
+dio-handle-eof.patch on these kernel solves the problem.
+
+I have a simple test case here.
+
+With 2.6.9-rc4-mm1, "pvdisplay /dev/hda4" shows :
+ --- Physical volume ---
+ PV Name               /dev/hda4
+ VG Name               vglinux1
+ PV Size               19,07 GB / not usable 0
+ Allocatable           yes
+ PE Size (KByte)       4096
+ Total PE              4882
+ Free PE               3424
+ Allocated PE          1458
+ PV UUID               Kvi5oA-d8NL-DU0n-vJpt-TKb3-RmDP-nrZoaz
+
+With later -mm kernel, "pvdisplay /dev/hda4" shows :
+ No physical volume label read from /dev/hda4
+ Failed to read physical volume "/dev/hda4"
+
+I tracked down the problem to this code section in fs/direct-io.c (function direct_io_worker) :
+
+  1012                 dio->total_pages = 0;
+  1013                 if (user_addr & (PAGE_SIZE-1)) {
+  1014                         dio->total_pages++;
+  1015                         bytes -= PAGE_SIZE - (user_addr & (PAGE_SIZE - 1));
+  1016                 }
+  1017                 dio->total_pages += (bytes + PAGE_SIZE - 1) / PAGE_SIZE;
+  1018                 dio->curr_user_address = user_addr;
+  1019
+  1020                 ret = do_direct_IO(dio);
+  1021
+  1022                 dio->result += bytes -
+  1023                         ((dio->final_block_in_request - dio->block_in_file) <<
+  1024                                         blkbits);
+
+In my case, direct_io_worker is called to read 2048 bytes at the beginning of /dev/hda4 :
+ user_addr=0xbfff9800 (half page aligned)
+ bytes=2048 (half page)
+So "bytes" is zeroed line 1015.
+And dio->result is zeroed line 1023.
+As a result, direct_io_worker returns 0.
+
+Before dio-handle-eof.patch, line 1022 was :
+	dio->result += iov[seg].iov_len -
+
+What is the semantic of "bytes" line 1015 : bytes to read on the next page ?
+Did I miss something ?
+
+hope this helps... 
+I will do some tests if needed.
+
+-- 
+laurent
+
+
+
+--------------enigC1DE3449AB4A69A7B5EE3606
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBhr4sUqUFrirTu6IRAp8QAJ9ghZvzKkhdb8Q34z+vX8azfdj/OACgrtxC
+dq2POmeBIVDca7cTVEGdKDA=
+=ILOQ
+-----END PGP SIGNATURE-----
+
+--------------enigC1DE3449AB4A69A7B5EE3606--

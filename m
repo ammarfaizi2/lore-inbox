@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKJgX>; Mon, 11 Dec 2000 04:36:23 -0500
+	id <S129183AbQLKJoi>; Mon, 11 Dec 2000 04:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQLKJgN>; Mon, 11 Dec 2000 04:36:13 -0500
-Received: from smtp3.jp.psi.net ([154.33.63.113]:15113 "EHLO smtp3.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S129183AbQLKJf5>;
-	Mon, 11 Dec 2000 04:35:57 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Signal 11
-Date: Mon, 11 Dec 2000 18:05:24 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGAEMHCIAA.rmager@vgkk.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S129314AbQLKJo2>; Mon, 11 Dec 2000 04:44:28 -0500
+Received: from rmx602-mta.mail.com ([165.251.48.51]:53419 "EHLO
+	rmx602-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S129183AbQLKJoT>; Mon, 11 Dec 2000 04:44:19 -0500
+Message-ID: <389221443.976526021983.JavaMail.root@web114-wra.mail.com>
+Date: Mon, 11 Dec 2000 04:13:41 -0500 (EST)
+From: Frank Davis <fdavis112@juno.com>
+To: Bill Maidment <bill@maidment.com.au>
+Subject: Re: Trouble with 2.4.0-test12-pre8
+CC: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGGELMCIAA.rmager@vgkk.com>
+X-Mailer: mail.com
+X-Originating-IP: 151.201.242.214
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I just had a Signal 11 even with the patch. What can I do to help
-figure this out?
+Hello,
+ > There is also a problem building fs/smbfs/inode.c at line 166
+> 
+> Is there a fix or have I got something really screwed up?
 
+If you are referring to 'next' is not a member of the structure? If so, known issue.
 
-Thanks,
+Regards,
+-Frank
 
---Rainer
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Friday, December 08, 2000 11:07 PM
-To: David Woodhouse
-Cc: Andi Kleen; Rainer Mager; linux-kernel@vger.kernel.org; Mark Vojkovich
-Subject: Re: Signal 11
-
-
-> > wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
-> > would say that this is definitely a kernel problem.=20
->
-> XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
-> kernels - even on my BP6=B9. The random crashes started to happen when =
-> I
-> upgraded my distribution=B2 - and are only seen by people using 2.4. So=
->  I
-> suspect that it's the combination of glibc and kernel which is triggeri=
-> ng
-> it.
-
-Have any of the folks seeing it checked if Ben LaHaise's fixes for the page
-table updating race help ?
-
-Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,83 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVALScW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVALSiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVALScW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 13:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVALScW
+	id S261196AbVALSiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 13:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVALSiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 13:32:22 -0500
-Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:21382
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261196AbVALSb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 13:31:58 -0500
-Subject: OOPS in kernel 2.6.10 with quickcam
-From: Sasa Ostrouska <sasa.ostrouska@volja.net>
+	Wed, 12 Jan 2005 13:38:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22431 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261196AbVALSiA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 13:38:00 -0500
+Date: Wed, 12 Jan 2005 13:13:34 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 19:30:25 +0100
-Message-Id: <1105554625.8730.2.camel@localhost>
+Subject: Linux 2.4.29-rc2
+Message-ID: <20050112151334.GC32024@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi I have that message in my dmesg. If somebody is interested in that 
-can contact me by e-mail to provide more informations.
+Hi, 
 
-I use Slackware current with custom build kernel 2.6.10
-On a Sony Vaio PCG-GRT816S laptop.
+Here goes the second release candidate of v2.4.29.
 
-Best Regards
-Sasa Ostrouska
+It contains mainly security fixes, including backports from 2.6-ac Coverity
+fixes, rework of the do_brk() fixes as suggested by Linus, and a fix for the
+pagefault SMP race disclosed today: 
 
-quickcam: QuickCam USB camera found (driver version QuickCam USB $Date:
-2004/07/29 18:12:39 $)
-quickcam: Kernel:2.6.10 bus:2 class:FF subclass:FF vendor:046D
-product:0850
-quickcam: Sensor VV6410 detected
-quickcam: Registered device: /dev/video0
-usbcore: registered new driver quickcam
-ohci_hcd 0000:00:03.0: leak ed f70f80c0 (#2) state 2
-Unable to handle kernel paging request at virtual address 000379d4
- printing eip:
-f8cd7366
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: quickcam videodev audio snd_usb_audio snd_usb_lib
-snd_rawmidi snd_seq_device nls_iso8859_1 nls_cp437 vfat fat nls_base
-snd_pcm_oss snd_mixer_oss uhci_hcd parport_pc parport rtc sis_agp shpchp
-pci_hotplug usb_storage usbhid snd_intel8x0m usbmouse snd_intel8x0
-snd_ac97_codec snd_pcm snd_timer snd snd_page_alloc eth1394 ohci_hcd
-ehci_hcd usbcore sis900 ohci1394 ieee1394 nvidia agpgart psmouse
-CPU:    0
-EIP:    0060:[<f8cd7366>]    Tainted: P      VLI
-EFLAGS: 00210206   (2.6.10)
-EIP is at usb_unlink_urb+0x16/0x50 [usbcore]
-eax: d0c77480   ebx: d447a000   ecx: 00000002   edx: 00037914
-esi: d0c77480   edi: c18eaf80   ebp: d30ab830   esp: d447af64
-ds: 007b   es: 007b   ss: 0068
-Process xawtv (pid: 12808, threadinfo=d447a000 task=d4c56a80)
-Stack: f8f35047 00000000 f2b8e234 f8f37187 00000000 db23b800 f2b8e000
-00000000
-       f8f37868 f2b8e000 f8f37abd d95d7d80 c01556d8 d2dbf054 d95d7d80
-00000000
-       d5c6f980 d447a000 c0153f1f c0148db7 00000004 00000000 0810068c
-c0102f5f
-Call Trace:
- [<f8f35047>] qc_unlink_urb_sync+0x17/0x40 [quickcam]
- [<f8f37187>] qc_isoc_stop+0x37/0x100 [quickcam]
- [<f8f37868>] qc_capt_exit+0x8/0x30 [quickcam]
- [<f8f37abd>] qc_v4l_close+0x4d/0x60 [quickcam]
- [<c01556d8>] __fput+0x108/0x120
- [<c0153f1f>] filp_close+0x4f/0x80
- [<c0148db7>] sys_munmap+0x47/0x70
- [<c0102f5f>] syscall_call+0x7/0xb
-Code: e9 b5 fe ff ff b8 ed ff ff ff e9 4b ff ff ff 8d b6 00 00 00 00 85
-c0 ba ea ff ff ff 74 23 f6 40 28 10 74 31 8b 50 1c 85 d2 74 11 <8b> 92
-c0 00 00 00 85 d2 74 07 8b 4a 24 85 c9 75 08 ba ed ff ff
-
-root@rc-vaio:/home/sasa/qc-usb-0.6.2#
+CAN-2005-0001
+http://www.isec.pl/vulnerabilities/isec-0022-pagefault.txt
 
 
+Summary of changes from v2.4.29-rc1 to v2.4.29-rc2
+============================================
+
+Christoph Hellwig:
+  o [XFS] make sure to always reclaim inodes in xfs_finish_reclaim
+  o [XFS] Fix NFS inode data corruption
+  o [XFS] Disable variable sized transfers on loop devices
+  o [XFS] Fix compilations for parisc
+
+Geert Uytterhoeven:
+  o Kill unused variables in the tty code
+  o Kill unused variables in the net code
+
+Jan Harkes:
+  o Fix Coda bugs found by Coverity checker
+
+Marcelo Tosatti:
+  o Update Dave Jones email address in MAINTAINERS file
+  o Linus Torvalds: Warn if mmap_sem is not locked in do_brk
+  o Change do_uselib() fix to match v2.6, rip do_brk_locked()
+  o Brad Spengler: Fix random poolsize sysctl (from 2.6.10-ac)
+  o Alan Cox: Fix moxa serial bound checking issue (from 2.6.10-ac)
+  o Brad Spengler: Fix RLIMIT_MEMLOCK issue
+  o get_user_pages: Change BUG_ON to WARN_ON
+  o Alan Cox: rose_rt_ioctl lack of bounds checking, reported by Coverity (from 2.6.10-ac)
+  o Alan Cox: sdla_xfer lack of bounds checking, reported by Coverity (from 2.6.10-ac)
+  o Makefile
+  o Revert dubious get_user_pages() bug checking
+  o Olaf Kirch: sendmsg compat wrapper fixes
+  o Cset exclude: marcelo@logos.cnet|ChangeSet|20050110190211|08215
+  o Fix expand_stack() SMP race
+  o Add missing Documentation/tty.txt from tty/ldisc locking updates
+  o Completly remove old do_brk() fix
+  o Linus Torvalds: Create helper for mmap_sem write-lock check in do_brk()
+  o Fix mmap.c typo
+
+Mikael Pettersson:
+  o sungem UniNorth 2 GMAC support
+
+Nathan Scott:
+  o [XFS] Add sanity checks before use of attr_multi opcount parameter
+
+Pete Zaitcev:
+  o EHCI race fix
 

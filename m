@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312505AbSDEM2W>; Fri, 5 Apr 2002 07:28:22 -0500
+	id <S312515AbSDEM3v>; Fri, 5 Apr 2002 07:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312513AbSDEM2L>; Fri, 5 Apr 2002 07:28:11 -0500
-Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:43790 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S312505AbSDEM1y>;
-	Fri, 5 Apr 2002 07:27:54 -0500
-Date: Fri, 5 Apr 2002 13:28:10 +0100
-From: Chris Wilson <chris@jakdaw.org>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4/i845 Strange clock drifting
-Message-Id: <20020405132810.4728c01d.chris@jakdaw.org>
-In-Reply-To: <Pine.LNX.4.44.0204031613160.2309-100000@netfinity.realnet.co.sz>
-Organization: Hah!
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S312513AbSDEM3b>; Fri, 5 Apr 2002 07:29:31 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9222 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312515AbSDEM3T>; Fri, 5 Apr 2002 07:29:19 -0500
+Subject: Re: faster boots?
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 5 Apr 2002 13:45:34 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
+        akpm@zip.com.au (Andrew Morton),
+        rgooch@ras.ucalgary.ca (Richard Gooch), joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <m1sn6apt8r.fsf@frodo.biederman.org> from "Eric W. Biederman" at Apr 04, 2002 11:14:12 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16tT5y-0008EO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> My impression is that the time during kernel initialization is either
+> spent spinning up disks or in a million device probes and things going
+> on behind the scenes.  I haven't had a chance to look farther though.
 
+IDE is less of a problem normally. In the LinuxBIOS case it may become
+measurable, and the initial drive spinup has to occur before the firmware
+responds. (If I understand it rightly most of the drive firmware is on
+the disk). For the spin up/down the IDE folks put it in the drives which 
+makes life much simpler
 
-> > I tried to use 2.5.7-dj2 with Zwane Mwaikambo's thermal LVT support in
-> > there but it didn't detect a local APIC on bootup (!) - I'm guessing there
-> > needs to be an APIC for Zwane's stuff? When I tried to switch back to
-> 
-> -dj2 P4 thermal patch is a bit broken (my bad), but the fact that it 
-> doesn't detect an APIC means that code would, erm do interesting things...
-
-<grin>
-
-I've now tried a couple more kernels to no avail - nothing can find APICs.
-Is it even possible for a P4 to not have a local APIC? System is a
-supermicro 5012B*. 
-
-/proc/cpuinfo shows:
-
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-
-(notice no "apic"). Is this normal/correct? If just just removed the check
-from apic.c and tried to enable the apic anyway then are bad things going
-to happen? 
-
-I've also noticed [probably unrelated but...] that I can't reboot the box
-without use of the reset button - it doesn't come up after /sbin/reboot -f
-either. It's at a colo facility so I can't see what's being displayed
-until I find out a null modem and go for a drive... :)
-
-Any suggestions?? 
-
-Chris
-
-* http://www.supermicro.com/PRODUCT/SUPERServer/SuperServer5012B-E.htm
-
--- 
-Chris Wilson
-chris@jakdaw.org

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268093AbUHKQNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268088AbUHKQOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268093AbUHKQNg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 12:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUHKQNg
+	id S268088AbUHKQOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 12:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHKQOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 12:13:36 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:26779 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268085AbUHKQJi (ORCPT
+	Wed, 11 Aug 2004 12:14:45 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:60320 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268091AbUHKQNS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 12:09:38 -0400
-Date: Wed, 11 Aug 2004 21:42:00 +0530
+	Wed, 11 Aug 2004 12:13:18 -0400
+Date: Wed, 11 Aug 2004 21:45:54 +0530
 From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@muc.de, akpm@osdl.org,
        suparna@in.ibm.com, shemminger@osdl.org
 Cc: prasanna@in.ibm.com
-Subject: [2/4] Kprobes base patch
-Message-ID: <20040811161200.GD24460@in.ibm.com>
+Subject: [3/4] Jumper Probes patch to provide function arguments
+Message-ID: <20040811161554.GE24460@in.ibm.com>
 Reply-To: prasanna@in.ibm.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uQr8t48UFsdbeI+V"
+Content-Type: multipart/mixed; boundary="mvpLiMfbWzRoNl4x"
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi,
 
-Below is [2/4] kprobes-base-268-rc4.patch.
-This patch helps developers to trap at almost any kernel 
-code address, specifying a handler routine to be invoked when 
-the breakpoint is hit. 
-Useful for analysing the Linux kernel by collecting debugging information
-non-disruptively. Employs single-stepping out-of-line to avoid probe
-misses on SMP and may be especially useful in aiding debugging elusive
-races and problems on live systems. More elaborate dynamic tracing
-tools such as DProbes can be built over the kprobes interface.
+Below is [3/4] kprobes-func-args-268-rc4.patch.
+
+A special kprobe type which can be placed on function entry points,
+and employs a simple mirroring principle to allow seamless access
+to the arguments of a function being probed. The probe handler
+routine should have the same prototype as the function being probed.
+Currently implemented for x86.
 
 Your comments are welcome!
 
@@ -53,33 +51,39 @@ India Software Labs, IBM Bangalore
 Ph: 91-80-25044636
 <prasanna@in.ibm.com>
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-base-268-rc4.patch"
+Content-Disposition: attachment; filename="kprobes-func-args-268-rc4.patch"
 
 
-Helps developers to trap at almost any kernel code address, specifying
-a handler routine to be invoked when the breakpoint is hit. Useful
-for analysing the Linux kernel by collecting debugging information
-non-disruptively. Employs single-stepping out-of-line to avoid probe
-misses on SMP and may be especially useful in aiding debugging elusive
-races and problems on live systems. More elaborate dynamic tracing
-tools such as DProbes can be built over the kprobes interface.
+A special kprobe type which can be placed on function entry points,
+and employs a simple mirroring principle to allow seamless access 
+to the arguments of a function being probed. The probe handler 
+routine should have the same prototype as the function being probed.
+Currently implemented for x86.
 
-Sample usage:
-	To place a probe on __blockdev_direct_IO:
-	static int probe_handler(struct kprobe *p, struct pt_regs *)
+The way it works is that when the probe is hit, the breakpoint
+handler simply irets to the probe handler's eip while retaining
+register and stack state corresponding to the function entry.
+After it is done, the probe handler calls jprobe_return() which
+traps again to restore processor state and switch back to the
+probed function. Linus noted correctly at KS that we need to be 
+careful as gcc assumes that the callee owns arguments. We save and
+restore enough stack bytes to cover argument space.
+
+Sample Usage:
+	static int jip_queue_xmit(struct sk_buff *skb, int ipfragok)
 	{
 		... whatever ...
+		jprobe_return();
+		return 0;
 	}
-	struct kprobe kp = {
-		.addr = __blockdev_direct_IO, 
-		.pre_handler = probe_handler
+
+	struct jprobe jp = {
+		{.addr = (kprobe_opcode_t *) ip_queue_xmit},
+		.entry = (kprobe_opcode_t *) jip_queue_xmit
 	};
-	register_kprobe(&kp);
----
-
----
+	register_jprobe(&jp);
 
 ---
 
@@ -89,730 +93,287 @@ Sample usage:
 
 ---
 
- linux-2.6.8-rc4-prasanna/arch/i386/Kconfig          |   10 
- linux-2.6.8-rc4-prasanna/arch/i386/kernel/Makefile  |    1 
- linux-2.6.8-rc4-prasanna/arch/i386/kernel/entry.S   |   24 +
- linux-2.6.8-rc4-prasanna/arch/i386/kernel/kprobes.c |  275 ++++++++++++++++++++
- linux-2.6.8-rc4-prasanna/arch/i386/kernel/traps.c   |   24 +
- linux-2.6.8-rc4-prasanna/include/asm-i386/kprobes.h |   55 ++++
- linux-2.6.8-rc4-prasanna/include/linux/kprobes.h    |   95 ++++++
- linux-2.6.8-rc4-prasanna/kernel/Makefile            |    1 
- linux-2.6.8-rc4-prasanna/kernel/kprobes.c           |  125 +++++++++
- 9 files changed, 603 insertions(+), 7 deletions(-)
+ linux-2.6.8-rc4-prasanna/arch/i386/kernel/kprobes.c |   77 +++++++++++++++++++-
+ linux-2.6.8-rc4-prasanna/include/asm-i386/kprobes.h |    4 +
+ linux-2.6.8-rc4-prasanna/include/linux/kprobes.h    |   43 ++++++++++-
+ linux-2.6.8-rc4-prasanna/kernel/kprobes.c           |   19 ++++
+ 4 files changed, 139 insertions(+), 4 deletions(-)
 
-diff -puN arch/i386/Kconfig~kprobes-base-268-rc3 arch/i386/Kconfig
---- linux-2.6.8-rc4/arch/i386/Kconfig~kprobes-base-268-rc3	2004-08-11 17:07:15.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/arch/i386/Kconfig	2004-08-11 17:07:15.000000000 +0530
-@@ -1207,6 +1207,16 @@ config EARLY_PRINTK
- 	  with klogd/syslogd or the X server. You should normally N here,
- 	  unless you want to debug such a crash.
- 
-+config KPROBES
-+	bool "Kprobes"
-+	depends on DEBUG_KERNEL
-+	help
-+	  Kprobes allows you to trap at almost any kernel address and
-+	  execute a callback function.  register_kprobe() establishes
-+	  a probepoint and specifies the callback.  Kprobes is useful
-+	  for kernel debugging, non-intrusive instrumentation and testing.
-+	  If in doubt, say "N".
-+
- config DEBUG_STACKOVERFLOW
- 	bool "Check for stack overflows"
- 	depends on DEBUG_KERNEL
-diff -puN arch/i386/kernel/entry.S~kprobes-base-268-rc3 arch/i386/kernel/entry.S
---- linux-2.6.8-rc4/arch/i386/kernel/entry.S~kprobes-base-268-rc3	2004-08-11 17:07:15.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/arch/i386/kernel/entry.S	2004-08-11 17:07:15.000000000 +0530
-@@ -489,9 +489,16 @@ ENTRY(debug)
- 	jne debug_stack_correct
- 	FIX_STACK(12, debug_stack_correct, debug_esp_fix_insn)
- debug_stack_correct:
--	pushl $0
--	pushl $do_debug
--	jmp error_code
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
-+  	pushl $0
-+	pushl %edx
-+	call do_debug
-+	addl $8,%esp
-+	testl %eax,%eax
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- /*
-  * NMI is doubly nasty. It can happen _while_ we're handling
-@@ -540,9 +547,16 @@ nmi_debug_stack_fixup:
- 	jmp nmi_stack_correct
- 
- ENTRY(int3)
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
- 	pushl $0
--	pushl $do_int3
--	jmp error_code
-+	pushl %edx
-+	call do_int3
-+	addl $8,%esp
-+	testl %eax,%eax
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- ENTRY(overflow)
- 	pushl $0
-diff -puN /dev/null arch/i386/kernel/kprobes.c
---- /dev/null	2003-01-30 15:54:37.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/arch/i386/kernel/kprobes.c	2004-08-11 17:08:10.000000000 +0530
-@@ -0,0 +1,275 @@
-+/*
-+ *  Kernel Probes (KProbes)
-+ *  arch/i386/kernel/kprobes.c
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2002
-+ *
-+ * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-+ *		Probes initial implementation ( includes contributions from
-+ *		Rusty Russell).
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kprobes.h>
-+#include <linux/ptrace.h>
-+#include <linux/spinlock.h>
-+#include <linux/preempt.h>
-+#include <asm/kdebug.h>
-+
-+/* kprobe_status settings */
-+#define KPROBE_HIT_ACTIVE	0x00000001
-+#define KPROBE_HIT_SS		0x00000002
-+
-+static struct kprobe *current_kprobe;
-+static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
-+
-+/*
-+ * returns non-zero if opcode modifies the interrupt flag.
-+ */
-+static inline int is_IF_modifier(kprobe_opcode_t opcode)
-+{
-+	switch (opcode) {
-+	case 0xfa:		/* cli */
-+	case 0xfb:		/* sti */
-+	case 0xcf:		/* iret/iretd */
-+	case 0x9d:		/* popf/popfd */
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+void arch_prepare_kprobe(struct kprobe *p)
-+{
-+	memcpy(p->insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
-+}
-+
-+static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
-+{
-+	*p->addr = p->opcode;
-+	regs->eip = (unsigned long)p->addr;
-+}
-+
-+static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
-+{
-+	regs->eflags |= TF_MASK;
-+	regs->eflags &= ~IF_MASK;
-+	regs->eip = (unsigned long)&p->insn;
-+}
-+
-+/*
-+ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
-+ * remain disabled thorough out this function.
-+ */
-+static inline int kprobe_handler(struct pt_regs *regs)
-+{
-+	struct kprobe *p;
-+	int ret = 0;
-+	u8 *addr = (u8 *) (regs->eip - 1);
-+
-+	/* We're in an interrupt, but this is clear and BUG()-safe. */
-+	preempt_disable();
-+
-+	/* Check we're not actually recursing */
-+	if (kprobe_running()) {
-+		/* We *are* holding lock here, so this is safe.
-+		   Disarm the probe we just hit, and ignore it. */
-+		p = get_kprobe(addr);
-+		if (p) {
-+			disarm_kprobe(p, regs);
-+			ret = 1;
-+		}
-+		/* If it's not ours, can't be delete race, (we hold lock). */
-+		goto no_kprobe;
-+	}
-+
-+	lock_kprobes();
-+	p = get_kprobe(addr);
-+	if (!p) {
-+		unlock_kprobes();
-+		if (*addr != BREAKPOINT_INSTRUCTION) {
-+			/*
-+			 * The breakpoint instruction was removed right
-+			 * after we hit it.  Another cpu has removed
-+			 * either a probepoint or a debugger breakpoint
-+			 * at this address.  In either case, no further
-+			 * handling of this interrupt is appropriate.
-+			 */
-+			ret = 1;
-+		}
-+		/* Not one of ours: let kernel handle it */
-+		goto no_kprobe;
-+	}
-+
-+	kprobe_status = KPROBE_HIT_ACTIVE;
-+	current_kprobe = p;
-+	kprobe_saved_eflags = kprobe_old_eflags
-+	    = (regs->eflags & (TF_MASK | IF_MASK));
-+	if (is_IF_modifier(p->opcode))
-+		kprobe_saved_eflags &= ~IF_MASK;
-+
-+	p->pre_handler(p, regs);
-+
-+	prepare_singlestep(p, regs);
-+	kprobe_status = KPROBE_HIT_SS;
-+	return 1;
-+
-+      no_kprobe:
-+	preempt_enable_no_resched();
-+	return ret;
-+}
-+
-+/*
-+ * Called after single-stepping.  p->addr is the address of the
-+ * instruction whose first byte has been replaced by the "int 3"
-+ * instruction.  To avoid the SMP problems that can occur when we
-+ * temporarily put back the original opcode to single-step, we
-+ * single-stepped a copy of the instruction.  The address of this
-+ * copy is p->insn.
-+ *
-+ * This function prepares to return from the post-single-step
-+ * interrupt.  We have to fix up the stack as follows:
-+ *
-+ * 0) Except in the case of absolute or indirect jump or call instructions,
-+ * the new eip is relative to the copied instruction.  We need to make
-+ * it relative to the original instruction.
-+ *
-+ * 1) If the single-stepped instruction was pushfl, then the TF and IF
-+ * flags are set in the just-pushed eflags, and may need to be cleared.
-+ *
-+ * 2) If the single-stepped instruction was a call, the return address
-+ * that is atop the stack is the address following the copied instruction.
-+ * We need to make it the address following the original instruction.
-+ */
-+static void resume_execution(struct kprobe *p, struct pt_regs *regs)
-+{
-+	unsigned long *tos = (unsigned long *)&regs->esp;
-+	unsigned long next_eip = 0;
-+	unsigned long copy_eip = (unsigned long)&p->insn;
-+	unsigned long orig_eip = (unsigned long)p->addr;
-+
-+	switch (p->insn[0]) {
-+	case 0x9c:		/* pushfl */
-+		*tos &= ~(TF_MASK | IF_MASK);
-+		*tos |= kprobe_old_eflags;
-+		break;
-+	case 0xe8:		/* call relative - Fix return addr */
-+		*tos = orig_eip + (*tos - copy_eip);
-+		break;
-+	case 0xff:
-+		if ((p->insn[1] & 0x30) == 0x10) {
-+			/* call absolute, indirect */
-+			/* Fix return addr; eip is correct. */
-+			next_eip = regs->eip;
-+			*tos = orig_eip + (*tos - copy_eip);
-+		} else if (((p->insn[1] & 0x31) == 0x20) ||	/* jmp near, absolute indirect */
-+			   ((p->insn[1] & 0x31) == 0x21)) {	/* jmp far, absolute indirect */
-+			/* eip is correct. */
-+			next_eip = regs->eip;
-+		}
-+		break;
-+	case 0xea:		/* jmp absolute -- eip is correct */
-+		next_eip = regs->eip;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	regs->eflags &= ~TF_MASK;
-+	if (next_eip) {
-+		regs->eip = next_eip;
-+	} else {
-+		regs->eip = orig_eip + (regs->eip - copy_eip);
-+	}
-+}
-+
-+/*
-+ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
-+ * remain disabled thoroughout this function.  And we hold kprobe lock.
-+ */
-+static inline int post_kprobe_handler(struct pt_regs *regs)
-+{
-+	if (!kprobe_running())
-+		return 0;
-+
-+	if (current_kprobe->post_handler)
-+		current_kprobe->post_handler(current_kprobe, regs, 0);
-+
-+	resume_execution(current_kprobe, regs);
-+	regs->eflags |= kprobe_saved_eflags;
-+
-+	unlock_kprobes();
-+	preempt_enable_no_resched();
-+
-+	/*
-+	 * if somebody else is singlestepping across a probe point, eflags
-+	 * will have TF set, in which case, continue the remaining processing
-+	 * of do_debug, as if this is not a probe hit.
-+	 */
-+	if (regs->eflags & TF_MASK)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+/* Interrupts disabled, kprobe_lock held. */
-+static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+{
-+	if (current_kprobe->fault_handler
-+	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
-+		return 1;
-+
-+	if (kprobe_status & KPROBE_HIT_SS) {
-+		resume_execution(current_kprobe, regs);
-+		regs->eflags |= kprobe_old_eflags;
-+
-+		unlock_kprobes();
-+		preempt_enable_no_resched();
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Wrapper routine to for handling exceptions.
-+ */
-+int kprobe_exceptions_notify(struct notifier_block *self, unsigned long val,
-+			     void *data)
-+{
-+	struct die_args *args = (struct die_args *)data;
-+	switch (val) {
-+	case DIE_INT3:
-+		if (kprobe_handler(args->regs))
-+			return NOTIFY_OK;
-+		break;
-+	case DIE_DEBUG:
-+		if (post_kprobe_handler(args->regs))
-+			return NOTIFY_OK;
-+		break;
-+	case DIE_GPF:
-+		if (kprobe_running() &&
-+		    kprobe_fault_handler(args->regs, args->trapnr))
-+			return NOTIFY_OK;
-+		break;
-+	case DIE_PAGE_FAULT:
-+		if (kprobe_running() &&
-+		    kprobe_fault_handler(args->regs, args->trapnr))
-+			return NOTIFY_OK;
-+		break;
-+	default:
-+		break;
-+	}
-+	return NOTIFY_BAD;
-+}
-diff -puN arch/i386/kernel/Makefile~kprobes-base-268-rc3 arch/i386/kernel/Makefile
---- linux-2.6.8-rc4/arch/i386/kernel/Makefile~kprobes-base-268-rc3	2004-08-11 17:07:15.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/arch/i386/kernel/Makefile	2004-08-11 17:07:15.000000000 +0530
-@@ -25,6 +25,7 @@ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o n
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
-+obj-$(CONFIG_KPROBES)		+= kprobes.o
- obj-$(CONFIG_MODULES)		+= module.o
- obj-y				+= sysenter.o vsyscall.o
- obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
-diff -puN arch/i386/kernel/traps.c~kprobes-base-268-rc3 arch/i386/kernel/traps.c
---- linux-2.6.8-rc4/arch/i386/kernel/traps.c~kprobes-base-268-rc3	2004-08-11 17:07:15.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/arch/i386/kernel/traps.c	2004-08-11 17:07:15.000000000 +0530
-@@ -26,6 +26,7 @@
- #include <linux/kallsyms.h>
- #include <linux/ptrace.h>
- #include <linux/version.h>
-+#include <linux/kprobes.h>
- 
- #ifdef CONFIG_EISA
- #include <linux/ioport.h>
-@@ -444,7 +445,6 @@ asmlinkage void do_##name(struct pt_regs
- }
- 
- DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
--DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
- DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
- DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
- DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
-@@ -591,6 +591,18 @@ void unset_nmi_callback(void)
- 	nmi_callback = dummy_nmi_callback;
- }
- 
-+asmlinkage int do_int3(struct pt_regs *regs, long error_code)
-+{
-+	if (notify_die(DIE_INT3, "int3", regs, error_code, 3, SIGTRAP)
-+			== NOTIFY_OK)
-+		return 1;
-+	/* This is an interrupt gate, because kprobes wants interrupts
-+	disabled.  Normal trap handlers don't. */
-+	restore_interrupts(regs);
-+	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
-+	return 0;
-+}
-+
- /*
-  * Our handling of the processor debug registers is non-trivial.
-  * We do not clear them on entry and exit from the kernel. Therefore
-@@ -912,6 +924,14 @@ void set_intr_gate(unsigned int n, void 
- 	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
- }
- 
-+/*
-+ * This routine sets up an interrupt gate at directory privilege level 3.
-+ */
-+static inline void set_system_intr_gate(unsigned int n, void *addr)
-+{
-+	_set_gate(idt_table+n, 14, 3, addr, __KERNEL_CS);
-+}
-+
- static void __init set_trap_gate(unsigned int n, void *addr)
- {
- 	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
-@@ -948,7 +968,7 @@ void __init trap_init(void)
- 	set_trap_gate(0,&divide_error);
- 	set_intr_gate(1,&debug);
- 	set_intr_gate(2,&nmi);
--	set_system_gate(3,&int3);	/* int3-5 can be called from all */
-+	set_system_intr_gate(3, &int3); /* int3-5 can be called from all */
- 	set_system_gate(4,&overflow);
- 	set_system_gate(5,&bounds);
- 	set_trap_gate(6,&invalid_op);
-diff -puN /dev/null include/asm-i386/kprobes.h
---- /dev/null	2003-01-30 15:54:37.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/include/asm-i386/kprobes.h	2004-08-11 17:08:34.000000000 +0530
-@@ -0,0 +1,55 @@
-+#ifndef _ASM_KPROBES_H
-+#define _ASM_KPROBES_H
-+/*
-+ *  Kernel Probes (KProbes)
-+ *  include/asm-i386/kprobes.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
+diff -puN arch/i386/kernel/kprobes.c~kprobes-func-args-268-rc4 arch/i386/kernel/kprobes.c
+--- linux-2.6.8-rc4/arch/i386/kernel/kprobes.c~kprobes-func-args-268-rc4	2004-08-11 21:01:31.000000000 +0530
++++ linux-2.6.8-rc4-prasanna/arch/i386/kernel/kprobes.c	2004-08-11 21:04:43.000000000 +0530
+@@ -16,11 +16,13 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+  *
+- * Copyright (C) IBM Corporation, 2002
 + * Copyright (C) IBM Corporation, 2002, 2004
-+ *
-+ * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-+ *		Probes initial implementation ( includes suggestions from
-+ *		Rusty Russell).
-+ */
-+#include <linux/types.h>
-+#include <linux/ptrace.h>
+  *
+  * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
+  *		Probes initial implementation ( includes contributions from
+  *		Rusty Russell).
++ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
++ *		interface to access function arguments.
+  */
+ 
+ #include <linux/config.h>
+@@ -30,12 +32,17 @@
+ #include <linux/preempt.h>
+ #include <asm/kdebug.h>
+ 
 +
-+struct pt_regs;
+ /* kprobe_status settings */
+ #define KPROBE_HIT_ACTIVE	0x00000001
+ #define KPROBE_HIT_SS		0x00000002
+ 
+ static struct kprobe *current_kprobe;
+ static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
++static struct pt_regs jprobe_saved_regs;
++static long *jprobe_saved_esp;
++/* copy of the kernel stack at the probe fire time */
++static kprobe_opcode_t jprobes_stack[MAX_STACK_SIZE];
+ 
+ /*
+  * returns non-zero if opcode modifies the interrupt flag.
+@@ -91,6 +98,11 @@ static inline int kprobe_handler(struct 
+ 		if (p) {
+ 			disarm_kprobe(p, regs);
+ 			ret = 1;
++		} else {
++			p = current_kprobe;
++			if (p->break_handler && p->break_handler(p, regs)) {
++				goto ss_probe;
++			}
+ 		}
+ 		/* If it's not ours, can't be delete race, (we hold lock). */
+ 		goto no_kprobe;
+@@ -121,8 +133,12 @@ static inline int kprobe_handler(struct 
+ 	if (is_IF_modifier(p->opcode))
+ 		kprobe_saved_eflags &= ~IF_MASK;
+ 
+-	p->pre_handler(p, regs);
++	if (p->pre_handler(p, regs)) {
++		/* handler has already set things up, so skip ss setup */
++		return 1;
++	}
+ 
++      ss_probe:
+ 	prepare_singlestep(p, regs);
+ 	kprobe_status = KPROBE_HIT_SS;
+ 	return 1;
+@@ -273,3 +289,60 @@ int kprobe_exceptions_notify(struct noti
+ 	}
+ 	return NOTIFY_BAD;
+ }
 +
-+typedef u8 kprobe_opcode_t;
-+#define BREAKPOINT_INSTRUCTION	0xcc
-+#define MAX_INSN_SIZE 16
-+
-+/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
-+ * if necessary, before executing the original int3/1 (trap) handler.
-+ */
-+static inline void restore_interrupts(struct pt_regs *regs)
++int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
 +{
-+	if (regs->eflags & IF_MASK)
-+		local_irq_enable();
++	struct jprobe *jp = container_of(p, struct jprobe, kp);
++	jprobe_saved_regs = *regs;
++	jprobe_saved_esp = &regs->esp;
++	unsigned long addr = (unsigned long)jprobe_saved_esp;
++	/*
++	 * TBD: As Linus pointed out, gcc assumes that the callee
++	 * owns the argument space and could overwrite it, e.g.
++	 * tailcall optimization. So, to be absolutely safe
++	 * we also save and restore enough stack bytes to cover
++	 * the argument area.
++	 */
++	memcpy(jprobes_stack, (kprobe_opcode_t *) addr,
++	       MIN_STACK_SIZE(addr));
++	regs->eflags &= ~IF_MASK;
++	regs->eip = (unsigned long)(jp->entry);
++	return 1;
 +}
 +
-+#ifdef CONFIG_KPROBES
-+extern int kprobe_exceptions_notify(struct notifier_block *self,
-+				    unsigned long val, void *data);
-+#else				/* !CONFIG_KPROBES */
-+static inline int kprobe_exceptions_notify(struct notifier_block *self,
-+					   unsigned long val, void *data)
++void jprobe_return(void)
 +{
-+	return 0;
++	preempt_enable_no_resched();
++	asm volatile ("       xchgl   %%ebx,%%esp     \n"
++		      "       int3			\n"::"b"
++		      (jprobe_saved_esp):"memory");
 +}
-+#endif
-+#endif				/* _ASM_KPROBES_H */
-diff -puN /dev/null include/linux/kprobes.h
---- /dev/null	2003-01-30 15:54:37.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/include/linux/kprobes.h	2004-08-11 17:08:25.000000000 +0530
-@@ -0,0 +1,95 @@
-+#ifndef _LINUX_KPROBES_H
-+#define _LINUX_KPROBES_H
-+/*
-+ *  Kernel Probes (KProbes)
-+ *  include/linux/kprobes.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2002
-+ *
-+ * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-+ *		Probes initial implementation ( includes suggestions from
-+ *		Rusty Russell).
-+ */
-+#include <linux/config.h>
-+#include <linux/list.h>
-+#include <linux/notifier.h>
-+#include <linux/smp.h>
-+#include <asm/kprobes.h>
-+
-+struct kprobe;
-+struct pt_regs;
-+typedef void (*kprobe_pre_handler_t) (struct kprobe *, struct pt_regs *);
-+typedef void (*kprobe_post_handler_t) (struct kprobe *, struct pt_regs *,
-+				       unsigned long flags);
-+typedef int (*kprobe_fault_handler_t) (struct kprobe *, struct pt_regs *,
-+				       int trapnr);
-+struct kprobe {
-+	struct hlist_node hlist;
-+
-+	/* location of the probe point */
-+	kprobe_opcode_t *addr;
-+
-+	/* Called before addr is executed. */
-+	kprobe_pre_handler_t pre_handler;
-+
-+	/* Called after addr is executed, unless... */
-+	kprobe_post_handler_t post_handler;
-+
-+	/* ... called if executing addr causes a fault (eg. page fault).
-+	 * Return 1 if it handled fault, otherwise kernel will see it. */
-+	kprobe_fault_handler_t fault_handler;
-+
-+	/* Saved opcode (which has been replaced with breakpoint) */
-+	kprobe_opcode_t opcode;
-+
-+	/* copy of the original instruction */
-+	kprobe_opcode_t insn[MAX_INSN_SIZE];
++void jprobe_return_end(void)
++{
 +};
 +
-+#ifdef CONFIG_KPROBES
-+/* Locks kprobe: irq must be disabled */
-+void lock_kprobes(void);
-+void unlock_kprobes(void);
-+
-+/* kprobe running now on this CPU? */
-+static inline int kprobe_running(void)
++int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
 +{
-+	extern unsigned int kprobe_cpu;
-+	return kprobe_cpu == smp_processor_id();
-+}
++	u8 *addr = (u8 *) (regs->eip - 1);
++	unsigned long stack_addr = (unsigned long)jprobe_saved_esp;
++	struct jprobe *jp = container_of(p, struct jprobe, kp);
 +
-+extern void arch_prepare_kprobe(struct kprobe *p);
-+
-+/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
-+struct kprobe *get_kprobe(void *addr);
-+
-+int register_kprobe(struct kprobe *p);
-+void unregister_kprobe(struct kprobe *p);
-+#else
-+static inline int kprobe_running(void)
-+{
++	if ((addr > (u8 *) jprobe_return) && (addr < (u8 *) jprobe_return_end)) {
++		if (&regs->esp != jprobe_saved_esp) {
++			struct pt_regs *saved_regs =
++			    container_of(jprobe_saved_esp, struct pt_regs, esp);
++			printk("current esp %p does not match saved esp %p\n",
++			       &regs->esp, jprobe_saved_esp);
++			printk("Saved registers for jprobe %p\n", jp);
++			show_registers(saved_regs);
++			printk("Current registers\n");
++			show_registers(regs);
++			BUG();
++		}
++		*regs = jprobe_saved_regs;
++		memcpy((kprobe_opcode_t *) stack_addr, jprobes_stack,
++		       MIN_STACK_SIZE(stack_addr));
++		return 1;
++	}
 +	return 0;
 +}
-+static inline int register_kprobe(struct kprobe *p)
+diff -puN include/asm-i386/kprobes.h~kprobes-func-args-268-rc4 include/asm-i386/kprobes.h
+--- linux-2.6.8-rc4/include/asm-i386/kprobes.h~kprobes-func-args-268-rc4	2004-08-11 21:01:31.000000000 +0530
++++ linux-2.6.8-rc4-prasanna/include/asm-i386/kprobes.h	2004-08-11 21:01:31.000000000 +0530
+@@ -32,6 +32,10 @@ struct pt_regs;
+ typedef u8 kprobe_opcode_t;
+ #define BREAKPOINT_INSTRUCTION	0xcc
+ #define MAX_INSN_SIZE 16
++#define MAX_STACK_SIZE 64
++#define MIN_STACK_SIZE(ADDR) ((((ADDR) + MAX_STACK_SIZE) <  \
++	(((ADDR) & PAGE_MASK) + PAGE_SIZE) ? ((ADDR) + MAX_STACK_SIZE) \
++	: (((ADDR) & PAGE_MASK) + PAGE_SIZE )) - (ADDR))
+ 
+ /* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
+  * if necessary, before executing the original int3/1 (trap) handler.
+diff -puN include/linux/kprobes.h~kprobes-func-args-268-rc4 include/linux/kprobes.h
+--- linux-2.6.8-rc4/include/linux/kprobes.h~kprobes-func-args-268-rc4	2004-08-11 21:01:31.000000000 +0530
++++ linux-2.6.8-rc4-prasanna/include/linux/kprobes.h	2004-08-11 21:01:31.000000000 +0530
+@@ -18,11 +18,13 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+  *
+- * Copyright (C) IBM Corporation, 2002
++ * Copyright (C) IBM Corporation, 2002, 2004
+  *
+  * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
+  *		Probes initial implementation ( includes suggestions from
+  *		Rusty Russell).
++ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
++ *		interface to access function arguments.
+  */
+ #include <linux/config.h>
+ #include <linux/list.h>
+@@ -32,7 +34,8 @@
+ 
+ struct kprobe;
+ struct pt_regs;
+-typedef void (*kprobe_pre_handler_t) (struct kprobe *, struct pt_regs *);
++typedef int (*kprobe_pre_handler_t) (struct kprobe *, struct pt_regs *);
++typedef int (*kprobe_break_handler_t) (struct kprobe *, struct pt_regs *);
+ typedef void (*kprobe_post_handler_t) (struct kprobe *, struct pt_regs *,
+ 				       unsigned long flags);
+ typedef int (*kprobe_fault_handler_t) (struct kprobe *, struct pt_regs *,
+@@ -53,6 +56,10 @@ struct kprobe {
+ 	 * Return 1 if it handled fault, otherwise kernel will see it. */
+ 	kprobe_fault_handler_t fault_handler;
+ 
++	/* ... called if breakpoint trap occurs in probe handler.
++	 * Return 1 if it handled break, otherwise kernel will see it. */
++	kprobe_break_handler_t break_handler;
++
+ 	/* Saved opcode (which has been replaced with breakpoint) */
+ 	kprobe_opcode_t opcode;
+ 
+@@ -60,6 +67,21 @@ struct kprobe {
+ 	kprobe_opcode_t insn[MAX_INSN_SIZE];
+ };
+ 
++/*
++ * Special probe type that uses setjmp-longjmp type tricks to resume
++ * execution at a specified entry with a matching prototype corresponding
++ * to the probed function - a trick to enable arguments to become
++ * accessible seamlessly by probe handling logic.
++ * Note:
++ * Because of the way compilers allocate stack space for local variables
++ * etc upfront, regardless of sub-scopes within a function, this mirroring
++ * principle currently works only for probes placed on function entry points.
++ */
++struct jprobe {
++	struct kprobe kp;
++	kprobe_opcode_t *entry;	/* probe handling code to jump to */
++};
++
+ #ifdef CONFIG_KPROBES
+ /* Locks kprobe: irq must be disabled */
+ void lock_kprobes(void);
+@@ -73,12 +95,19 @@ static inline int kprobe_running(void)
+ }
+ 
+ extern void arch_prepare_kprobe(struct kprobe *p);
++extern void show_registers(struct pt_regs *regs);
+ 
+ /* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
+ struct kprobe *get_kprobe(void *addr);
+ 
+ int register_kprobe(struct kprobe *p);
+ void unregister_kprobe(struct kprobe *p);
++int setjmp_pre_handler(struct kprobe *, struct pt_regs *);
++int longjmp_break_handler(struct kprobe *, struct pt_regs *);
++int register_jprobe(struct jprobe *p);
++void unregister_jprobe(struct jprobe *p);
++void jprobe_return(void);
++
+ #else
+ static inline int kprobe_running(void)
+ {
+@@ -91,5 +120,15 @@ static inline int register_kprobe(struct
+ static inline void unregister_kprobe(struct kprobe *p)
+ {
+ }
++static inline int register_jprobe(struct jprobe *p)
 +{
 +	return -ENOSYS;
 +}
-+static inline void unregister_kprobe(struct kprobe *p)
++static inline void unregister_jprobe(struct jprobe *p)
 +{
 +}
-+#endif
-+#endif				/* _LINUX_KPROBES_H */
-diff -puN /dev/null kernel/kprobes.c
---- /dev/null	2003-01-30 15:54:37.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/kernel/kprobes.c	2004-08-11 17:07:26.000000000 +0530
-@@ -0,0 +1,125 @@
-+/*
-+ *  Kernel Probes (KProbes)
-+ *  kernel/kprobes.c
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2002, 2004
-+ *
-+ * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
-+ *		Probes initial implementation (includes suggestions from
-+ *		Rusty Russell).
-+ * 2004-Aug	Updated by Prasanna S Panchamukhi <prasanna@in.ibm.com> with
-+ *		hlists and exceptions notifier as suggested by Andi Kleen.
-+ */
-+#include <linux/kprobes.h>
-+#include <linux/spinlock.h>
-+#include <linux/hash.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <asm/cacheflush.h>
-+#include <asm/errno.h>
-+#include <asm/kdebug.h>
-+
-+#define KPROBE_HASH_BITS 6
-+#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
-+
-+static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
-+
-+unsigned int kprobe_cpu = NR_CPUS;
-+static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
-+
-+/* Locks kprobe: irqs must be disabled */
-+void lock_kprobes(void)
++static inline void jprobe_return(void)
 +{
-+	spin_lock(&kprobe_lock);
-+	kprobe_cpu = smp_processor_id();
 +}
-+
-+void unlock_kprobes(void)
-+{
-+	kprobe_cpu = NR_CPUS;
-+	spin_unlock(&kprobe_lock);
-+}
-+
-+/* You have to be holding the kprobe_lock */
-+struct kprobe *get_kprobe(void *addr)
-+{
-+	struct hlist_head *head;
-+	struct hlist_node *node;
-+
-+	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
-+	hlist_for_each(node, head) {
-+		struct kprobe *p = hlist_entry(node, struct kprobe, hlist);
-+		if (p->addr == addr)
-+			return p;
-+	}
-+	return NULL;
-+}
-+
-+int register_kprobe(struct kprobe *p)
-+{
-+	int ret = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kprobe_lock, flags);
-+	INIT_HLIST_NODE(&p->hlist);
-+	if (get_kprobe(p->addr)) {
-+		ret = -EEXIST;
-+		goto out;
-+	}
-+	hlist_add_head(&p->hlist,
-+		       &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
-+
-+	arch_prepare_kprobe(p);
-+	p->opcode = *p->addr;
-+	*p->addr = BREAKPOINT_INSTRUCTION;
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+      out:
-+	spin_unlock_irqrestore(&kprobe_lock, flags);
-+	return ret;
-+}
-+
-+void unregister_kprobe(struct kprobe *p)
-+{
-+	unsigned long flags;
-+	spin_lock_irqsave(&kprobe_lock, flags);
-+	*p->addr = p->opcode;
-+	hlist_del(&p->hlist);
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+	spin_unlock_irqrestore(&kprobe_lock, flags);
-+}
-+
-+static struct notifier_block kprobe_exceptions_nb = {
-+	.notifier_call = kprobe_exceptions_notify,
-+};
-+
-+static int __init init_kprobes(void)
-+{
-+	int i, err = 0;
-+
-+	/* FIXME allocate the probe table, currently defined statically */
-+	/* initialize all list heads */
-+	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
-+		INIT_HLIST_HEAD(&kprobe_table[i]);
-+
-+	err = register_die_chain_notify(&kprobe_exceptions_nb);
-+	return err;
-+}
-+
-+__initcall(init_kprobes);
-+
-+EXPORT_SYMBOL_GPL(register_kprobe);
-+EXPORT_SYMBOL_GPL(unregister_kprobe);
-diff -puN kernel/Makefile~kprobes-base-268-rc3 kernel/Makefile
---- linux-2.6.8-rc4/kernel/Makefile~kprobes-base-268-rc3	2004-08-11 17:07:15.000000000 +0530
-+++ linux-2.6.8-rc4-prasanna/kernel/Makefile	2004-08-11 17:07:15.000000000 +0530
-@@ -23,6 +23,7 @@ obj-$(CONFIG_IKCONFIG_PROC) += configs.o
- obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
- obj-$(CONFIG_AUDIT) += audit.o
- obj-$(CONFIG_AUDITSYSCALL) += auditsc.o
-+obj-$(CONFIG_KPROBES) += kprobes.o
+ #endif
+ #endif				/* _LINUX_KPROBES_H */
+diff -puN kernel/kprobes.c~kprobes-func-args-268-rc4 kernel/kprobes.c
+--- linux-2.6.8-rc4/kernel/kprobes.c~kprobes-func-args-268-rc4	2004-08-11 21:01:31.000000000 +0530
++++ linux-2.6.8-rc4-prasanna/kernel/kprobes.c	2004-08-11 21:01:31.000000000 +0530
+@@ -23,6 +23,8 @@
+  *		Rusty Russell).
+  * 2004-Aug	Updated by Prasanna S Panchamukhi <prasanna@in.ibm.com> with
+  *		hlists and exceptions notifier as suggested by Andi Kleen.
++ * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
++ *		interface to access function arguments.
+  */
+ #include <linux/kprobes.h>
+ #include <linux/spinlock.h>
+@@ -106,6 +108,20 @@ static struct notifier_block kprobe_exce
+ 	.notifier_call = kprobe_exceptions_notify,
+ };
  
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
++int register_jprobe(struct jprobe *jp)
++{
++	/* Todo: Verify probepoint is a function entry point */
++	jp->kp.pre_handler = setjmp_pre_handler;
++	jp->kp.break_handler = longjmp_break_handler;
++
++	return register_kprobe(&jp->kp);
++}
++
++void unregister_jprobe(struct jprobe *jp)
++{
++	unregister_kprobe(&jp->kp);
++}
++
+ static int __init init_kprobes(void)
+ {
+ 	int i, err = 0;
+@@ -123,3 +139,6 @@ __initcall(init_kprobes);
+ 
+ EXPORT_SYMBOL_GPL(register_kprobe);
+ EXPORT_SYMBOL_GPL(unregister_kprobe);
++EXPORT_SYMBOL_GPL(register_jprobe);
++EXPORT_SYMBOL_GPL(unregister_jprobe);
++EXPORT_SYMBOL_GPL(jprobe_return);
 
 _
 
---uQr8t48UFsdbeI+V--
+--mvpLiMfbWzRoNl4x--

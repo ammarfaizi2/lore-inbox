@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTEMSoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 14:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTEMSmm
+	id S263023AbTEMSqq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTEMSqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 14:42:42 -0400
-Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:27922 "HELO
-	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
-	id S262638AbTEMSlT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 14:41:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-To: Andreas Schwab <schwab@suse.de>, Nikita Danilov <Nikita@Namesys.COM>
-Subject: Re: inode values in file system driver
-Date: Tue, 13 May 2003 19:54:24 +0100
-User-Agent: KMail/1.4.3
-Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, linux-kernel@vger.kernel.org
-References: <200305102118.20318.adrian@mcmen.demon.co.uk> <16065.1422.44816.110091@laputa.namesys.com> <jeptmmgaiv.fsf@sykes.suse.de>
-In-Reply-To: <jeptmmgaiv.fsf@sykes.suse.de>
+	Tue, 13 May 2003 14:46:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12672 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263023AbTEMSqm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 14:46:42 -0400
+Date: Tue, 13 May 2003 15:00:13 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Pawan Deepika <pawan_deepika@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: new to network device drivers!!
+In-Reply-To: <20030513183746.84104.qmail@web41613.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0305131456370.2332@chaos>
+References: <20030513183746.84104.qmail@web41613.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305131954.24909.adrian@mcmen.demon.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 15:56, Andreas Schwab wrote:
-> Nikita Danilov <Nikita@Namesys.COM> writes:
-> |> Andreas Schwab writes:
-> |>  > Erik Mouw <J.A.K.Mouw@its.tudelft.nl> writes:
-> |>  > |> On Sat, May 10, 2003 at 09:18:20PM +0100, Adrian McMenamin wrote:
-> |>  > |> > Am I allowed to assign the value 0 to an inode in a file system
-> |>  > |> > driver? I seem to be having problems with a file that is being
-> |>  > |> > assigned this inode value (its a FAT based filesystem so the
-> |>  > |> > inode values are totally artificial).
-> |>  > |>
-> |>  > |> Yes, you are. However, glibc thinks that inode 0 is special and
-> |>  > |> won't show it.
-> |>  >
-> |>  > BS. This has nothing at all to do with glibc.
-> |>
-> |> from glibc-2.2.4/sysdeps/unix/readdir.c:
-> |>
-> |>       /* Skip deleted files.  */
-> |>     } while (dp->d_ino == 0);
-> |>
-> |> In other words, readdir(3) will not return dirent for inode with ino 0.
+On Tue, 13 May 2003, Pawan Deepika wrote:
+
+> Hi all,
 >
-> I stand corrected.  I was thinking of getdirentries, which does not have
-> this problem.  But this is traditional Unix behaviour.
+>  I am new to device drivers. Can anyone suggest me
+> some simple network driver examples(which deal with
+> real interface)to start with. What H/W details I need
+> to know to write a driver on my own.
 >
-> Andreas.
+> Any help in this regard is highly appreciated.
+>
+> Thanks & regards,
+> Deepika
+>
+>
+
+How about /usr/src/linux-whatever/drivers/net/pcnet32.c
+This does about all the stuff that a network driver would have
+to do. It's also quite readable, obviously written by people
+who know how.
 
 
-Thanks. At least I know why my driver is failing now.
-
-Adrian
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276839AbRJKURA>; Thu, 11 Oct 2001 16:17:00 -0400
+	id <S276856AbRJKUUu>; Thu, 11 Oct 2001 16:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276842AbRJKUQu>; Thu, 11 Oct 2001 16:16:50 -0400
-Received: from anime.net ([63.172.78.150]:7 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S276839AbRJKUQn>;
-	Thu, 11 Oct 2001 16:16:43 -0400
-Date: Thu, 11 Oct 2001 13:16:51 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: "Matthew S. Hallacy" <poptix@techmonkeys.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 /
- 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
-In-Reply-To: <200110112008.f9BK8dP20700@buggy.badula.org>
-Message-ID: <Pine.LNX.4.30.0110111316150.355-100000@anime.net>
+	id <S276860AbRJKUUk>; Thu, 11 Oct 2001 16:20:40 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:31700 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S276856AbRJKUUa>; Thu, 11 Oct 2001 16:20:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Bottchen <bottchen@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to sys_shmdt
+Date: Thu, 11 Oct 2001 15:20:06 -0500
+X-Mailer: KMail [version 1.2]
+Cc: torvalds@transmeta.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01101115200601.24484@scully>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Ion Badulescu wrote:
-> Umm, no, that's actually an 82558 rev B. pci.ids should be updated to
-> have "Intel Corporation 8255[7-9]" for this id, because Intel can't make
-> up their minds to change the PCI id when they release a new product.
-> rev 1-3 are 82557, rev 4-5 are 82558, rev 6-8 are 82559.
+	Currently sys_shmdt() always returns success.  Below is a patch that changes
+ this behavior to match the man page.  This patch will cause sys_shmdt() to 
+return success only when it finds something to detach, and returns EINVAL 
+otherwise.  The patch was run on a 2.4.10 kernel tree, but applies against a 2.4.12
+tree with no problems.
 
-lspci should be changed to take in account rev numbers...
 
--Dan
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+--- linux-2.4.10old/ipc/shm.c   Fri Oct  5 11:53:12 2001
++++ linux-2.4.10/ipc/shm.c      Fri Oct  5 15:08:51 2001
+@@ -649,16 +649,19 @@
+ {
+        struct mm_struct *mm = current->mm;
+        struct vm_area_struct *shmd, *shmdnext;
++       int retcode=-EINVAL;
 
+        down_write(&mm->mmap_sem);
+        for (shmd = mm->mmap; shmd; shmd = shmdnext) {
+                shmdnext = shmd->vm_next;
+                if (shmd->vm_ops == &shm_vm_ops
+-                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr)
++                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+                        do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
++                       retcode=0;
++               }
+        }
+        up_write(&mm->mmap_sem);
+-       return 0;
++       return retcode;
+ }
+
+ #ifdef CONFIG_PROC_FS
+
+
+Adam Bottchen
+bottchen@earthlink.net

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266411AbSLIX4b>; Mon, 9 Dec 2002 18:56:31 -0500
+	id <S266480AbSLIX7p>; Mon, 9 Dec 2002 18:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266425AbSLIX4a>; Mon, 9 Dec 2002 18:56:30 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:2238 "EHLO
+	id <S266487AbSLIX7p>; Mon, 9 Dec 2002 18:59:45 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:5054 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266411AbSLIX43>; Mon, 9 Dec 2002 18:56:29 -0500
-Subject: Re: [PATCH] Re: #! incompatible -- binfmt_script.c broken?
+	id <S266480AbSLIX7o>; Mon, 9 Dec 2002 18:59:44 -0500
+Subject: Re: /proc/pci deprecation?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <at2qin$fgn$1@cesium.transmeta.com>
-References: <9633612287A@vcnet.vc.cvut.cz> <20021206090234.GA1940@zaurus>
-	<3DF4DEC0.3030800@zytor.com>
-	<20021209182605.GA22747@atrey.karlin.mff.cuni.cz> 
-	<at2qin$fgn$1@cesium.transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
+       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <Pine.LNX.4.44.0212090958140.10925-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0212090958140.10925-100000@home.transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Dec 2002 00:40:55 +0000
-Message-Id: <1039480856.12051.14.camel@irongate.swansea.linux.org.uk>
+Date: 10 Dec 2002 00:43:50 +0000
+Message-Id: <1039481030.12046.19.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-09 at 19:23, H. Peter Anvin wrote:
-> We probably can, but a better question is really: what are the
-> semantics that users expect?  Given that Unices are by and large
-> inconsistent, we should pick the behaviour that makes sense to the
-> most people.  I suspect that most people would expect whitespace
-> partition.
+On Mon, 2002-12-09 at 18:11, Linus Torvalds wrote:
+> That's definitely where it should be - the behaviour of the
+> PCI_INTERRUPT_LINE register is clearly chip-specific, so it should be in
+> the chip-specific drivers..
+> 
+> It's a kind of strange behaviour, though. What chip is this? It sounds
+> kind of convenient, but as far as I can tell it can only work for those
+> kinds of PCI devices that are on the same chip as the irq controller..
 
-I'd rather keep it as is. We should be doing IFS partition with quoting,
-UTF-8 awareness according to locale and locale specific rules on
-whitespace. That says "userspace" all over it. 
-
-We can keep this out of kernel which is good - though it reminds me we
-do need to fix backspace/delete in the tty layer on a unicode configured
-tty to do the right thing. (Extra ioctls for unicode delete characters
-are a longer less funny subject though)
+VIA bridges. In my case its a CLE266 (onchip video, 5.1 audio, ide, usb,
+firewire, ethernet, floppy, serial, irda. parallel...) [See why I don't
+want to hack each driver 8)]
 
 

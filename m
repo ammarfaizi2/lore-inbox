@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266094AbTLISd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbTLISd0
+	id S266096AbTLISeV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266098AbTLISeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:33:26 -0500
-Received: from mail.kroah.org ([65.200.24.183]:17844 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266094AbTLISdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:33:25 -0500
-Date: Tue, 9 Dec 2003 10:30:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Witukind <witukind@nsbm.kicks-ass.org>, recbo@nishanet.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-ID: <20031209183001.GA9496@kroah.com>
-References: <1070963757.869.86.camel@nomade> <Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
+	Tue, 9 Dec 2003 13:34:21 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:4293 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S266096AbTLISeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 13:34:17 -0500
+Date: Tue, 9 Dec 2003 19:34:12 +0100
+From: Kristian Peters <kristian.peters@korseby.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Peter Bergmann <bergmann.peter@gmx.net>, <linux-kernel@vger.kernel.org>,
+       <nfedera@esesix.at>, <andrea@suse.de>, <riel@redhat.com>
+Subject: Re: Configurable OOM killer Re: old oom-vm for 2.4.32 (was oom
+ killer  in 2.4.23)
+Message-Id: <20031209193412.39c1ca71.kristian.peters@korseby.net>
+In-Reply-To: <10xwC-2O0-7@gated-at.bofh.it>
+References: <Zxp0-1lf-9@gated-at.bofh.it>
+	<10xwC-2O0-7@gated-at.bofh.it>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686 Linux 2.4.23-ck1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 02:03:42PM +0100, Maciej Zenczykowski wrote:
-> > > > Am I wrong ?
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> schrieb:
+> The following patch makes OOM killer configurable (its the same as the 
+> other patches posted except its around CONFIG_OOM_KILLER).
 > 
-> > > No, you are correct.  That's why I'm not really worried about this, and
-> > > I don't think anyone else should be either.
-> 
-> You are of course totally wrong
+> I hope the Configure.help entry is clear enough.
 
-Oh, ok.  I'll just go back to writing code instead of arguing...
+What about the PF_MEMDIE issues Andrea has argued ? Are they solved by the added code in page_alloc.c ?
 
-> - just because a device is present in the system doesn't mean that
-> it's kernel modules are loaded
+As Andrea has pointed out earlier, a yield() after out_of_memory() is safe and should be added too.
 
-No, but one could argue that it should :)
+I'd really like to see that config-option in 2.4.24.
 
-> - for example my floppy is always present in the system, but I access
-> it like once a month or so
-
-Then, when you want to access it, a simple 'modprobe floppy' would work
-for you, right?
-
-Anyway, I'm not going to drag this thread out anymore.  If you want to
-use devfs, do it.  Just realize that it is an obsolete kernel feature
-and is marked for probable removal in 2.7.  It also has known bad
-problems that could cause your machine to lock up.  Use it at your own
-risk, you have been warned...
-
-greg k-h
+*Kristian

@@ -1,62 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277609AbRJLJ1S>; Fri, 12 Oct 2001 05:27:18 -0400
+	id <S277290AbRJLJ2I>; Fri, 12 Oct 2001 05:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277614AbRJLJ1I>; Fri, 12 Oct 2001 05:27:08 -0400
-Received: from oe26.law9.hotmail.com ([64.4.8.83]:37124 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S277609AbRJLJ05>;
-	Fri, 12 Oct 2001 05:26:57 -0400
-X-Originating-IP: [66.108.21.174]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "Ville Herva" <vherva@mail.niksula.cs.hut.fi>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <OE22ITtCsuSYkbAY0Jp0000df3f@hotmail.com> <20011012095618.R22640@niksula.cs.hut.fi>
-Subject: Re: Which kernel (Linus or ac)?
-Date: Fri, 12 Oct 2001 05:25:32 -0400
+	id <S277616AbRJLJ2A>; Fri, 12 Oct 2001 05:28:00 -0400
+Received: from destructo.gearboxsoftware.com ([12.37.36.2]:38150 "HELO
+	gearboxsoftware.com") by vger.kernel.org with SMTP
+	id <S277614AbRJLJ1r>; Fri, 12 Oct 2001 05:27:47 -0400
+From: "Sean Cavanaugh" <seanc@gearboxsoftware.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: P4 SMP load balancing
+Date: Fri, 12 Oct 2001 04:28:19 -0500
+Message-ID: <002601c15300$3a9f0510$150a10ac@gearboxsoftware.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-Mailer: Microsoft Outlook, Build 10.0.2616
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE26nfAMxUtDjTZZTTu0000e302@hotmail.com>
-X-OriginalArrivalTime: 12 Oct 2001 09:27:23.0610 (UTC) FILETIME=[198163A0:01C15300]
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Of course, you can get most of the IDE chipset support, fs support
-(reiserfs
-> 3.5, ext3) and LFS support as patches for 2.2:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.19/
+I posted this a while back in linux-smp (which seems like a dead list?)
 
-    Have used this and has worked great on the machines I've had to use it
-on.  Though I'm a bit leery about using it since I figure the generic
-2.2.x.preX kernels get a lot more testing that those with this patch
-installed.  Also heard of problems using this patch on a VIA PIII SMP
-system. :-(  And just went I had been planning to use it on a dual PIII VIA
-chipset board too.
+I have several P4 Xeon SMP systems (Supermicro P4DCE, Intel i860
+chipset)
 
->
->
-ftp://ftp.namesys.com/pub/reiserfs-for-2.2/linux-2.2.19-reiserfs-3.5.34-patc
-h.bz2
+ovendev:~# cat /proc/interrupts 
+           CPU0       CPU1       
+  0:    6348212          0    IO-APIC-edge  timer
+  1:          2          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          1          0    IO-APIC-edge  rtc
+  9:          0          0    IO-APIC-edge  acpi
+ 16:      92620          0   IO-APIC-level  eth0
+ 18:       5085          0   IO-APIC-level  aic7xxx, aic7xxx
+NMI:          0          0 
+LOC:    6348388    6348427 
+ERR:          0
+MIS:          0
 
-    I actually was going to start using this until I learned that 2.2.x
-reiser patched kernels couldn't use reiserfs partitions made with 2.4.
-:-(  Ended up having to redo an entire system when a downgrade to 2.2.x
-became imperitive.  Also the 2.2.x reiser patch lacks the large file support
-(on the reiser filesystems created under 2.2.x) and maybe other goodies and
-I don't get that back easily by just switching kernels.
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/sct/ext3/
+	How much of a problem is this really?  The program's I am
+running on these systems (I have 9 of them) seem do ok right now.
+Currently the jobs running on them are heavily CPU bound and don't do
+any I/O, but this is going to change when I link them up over a private
+network so they can work together on some distributable jobs).  I am
+running 2.4.10 on most of them, and 2.4.10-ac10 on my developer system
+in the farm.  The only difference this newer kernel seems to have made
+from older ones is that there is only one 'warning unexpected IO-APIC'
+message in my startup instead of two.
 
-    Might give this a try now that it appears to be release quality.
 
-> http://moldybread.net/patch/kernel-2.2/linux-2.2.19-lfs-1.0.diff.gz
+Snippet from dmesg:
 
-    I'll look into this the next time > 2GB files support becomes needed on
-a system.  pre 2.4.x I had been using FreeBSD for such tasks.
+CPU1: Intel(R) Xeon(TM) CPU 1700MHz stepping 0a
+Total of 2 processors activated (6723.99 BogoMIPS).
+ENABLING IO-APIC IRQs
+...changing IO-APIC physical APIC ID to 2 ... ok.
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-0, 2-5, 2-10, 2-11, 2-12, 2-17, 2-20, 2-21, 2-22
+not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 18.
+number of IO-APIC #2 registers: 24.
+testing the IO APIC.......................
+
+IO APIC #2......
+.... register #00: 02000000
+.......    : physical APIC id: 02
+.... register #01: 00178020
+.......     : max redirection entries: 0017
+.......     : PRQ implemented: 1
+.......     : IO APIC version: 0020
+ WARNING: unexpected IO-APIC, please mail
+          to linux-smp@vger.kernel.org
+.... register #02: 00000000
+.......     : arbitration: 00
+.... IRQ redirection table: 
+<snip>
+
+
+
+	- Sean
+

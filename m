@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280744AbRKJWtS>; Sat, 10 Nov 2001 17:49:18 -0500
+	id <S280750AbRKJW4I>; Sat, 10 Nov 2001 17:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKJWtI>; Sat, 10 Nov 2001 17:49:08 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:17676 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280744AbRKJWsv>;
-	Sat, 10 Nov 2001 17:48:51 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: panxer@hol.gr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile problem 2.4.14 
-In-Reply-To: Your message of "Sat, 10 Nov 2001 22:15:00 +0200."
-             <01111022150000.00265@gryppas> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 11 Nov 2001 09:48:40 +1100
-Message-ID: <22928.1005432520@ocs3.intra.ocs.com.au>
+	id <S280751AbRKJWzt>; Sat, 10 Nov 2001 17:55:49 -0500
+Received: from mailin10.bigpond.com ([139.134.6.87]:57074 "EHLO
+	mailin10.bigpond.com") by vger.kernel.org with ESMTP
+	id <S280750AbRKJWzr>; Sat, 10 Nov 2001 17:55:47 -0500
+Message-ID: <000001c16a3b$76fb25f0$1401a8c0@vaio>
+From: "Robert Lowery" <cangela@bigpond.net.au>
+To: <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
+Date: Sat, 10 Nov 2001 22:57:19 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Nov 2001 22:15:00 +0200, 
-Panagiotis Moustafellos <panxer@hol.gr> wrote:
->I am really getting a hard time compiling the 2.4.14..
->My current system has a 2.4.13 (by patching all the way
->from 2.4.9), so I patched the sources, yes after make clean,
->make menuconfig, and make dep ; make bzImage, I get this
->message (during the compilation of vmlinux )
->
->fs/fs.o: In function `dput':
->fs/fs.o(.text+0x10ad5): undefined reference to `atomic_dec_and_lock'
->make: *** [vmlinux] Error 1
+This problem has gone away now that I have removed the extra 64M RAM that I
+added recently.
 
-You need to make mrproper.  There is a spurious #define for
-atomic_dec_and_lock lurking in the old modversion tables.
+Funny that memtest86 did not pick up any problems.  Must be stray gamma rays
+;)
+
+Thanks
+
+-Robert
+----- Original Message -----
+From: "Robert Lowery" <cangela@bigpond.net.au>
+To: <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, November 09, 2001 10:45 PM
+Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
+
+
+> > >It looks like memory corruption of some form - a structure
+> > >member has an impossible value. Are you using any less-than-mainstream
+> > >device drivers in that box?
+> P.S. The problem occurs on a completely virgin Redhat 7.2 install as well
+as
+> after I have applied all available updates. (after a few crashes and
+reboots
+> while applying them).
+>
+> -Robert
+>
 

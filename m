@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUEXHEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUEXHGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUEXHEb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUEXHEb
+	id S262208AbUEXHGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUEXHGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:04:31 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:11165 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261184AbUEXHE3 (ORCPT
+	Mon, 24 May 2004 03:06:05 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:28873 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S262208AbUEXHFk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:04:29 -0400
-Date: Mon, 24 May 2004 11:05:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: scheduler: IRQs disabled over context switches
-Message-ID: <20040524090538.GA26183@elte.hu>
-References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu> <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
+	Mon, 24 May 2004 03:05:40 -0400
+Date: Mon, 24 May 2004 17:05:04 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linuxppc64-dev@lists.linuxppc.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
+Message-Id: <20040524170504.29a8d001.sfr@canb.auug.org.au>
+In-Reply-To: <20040523232920.2fb0640a.akpm@osdl.org>
+References: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
+	<20040523232920.2fb0640a.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__24_May_2004_17_05_04_+1000_cPs6GuVN2YQH/1aS"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Mon__24_May_2004_17_05_04_+1000_cPs6GuVN2YQH/1aS
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-* Davide Libenzi <davidel@xmailserver.org> wrote:
+Hi Andrew,
 
-> We used to do it in 2.4. What changed to make it fragile? The
-> threading (TLS) thing?
+On Sun, 23 May 2004 23:29:20 -0700 Andrew Morton <akpm@osdl.org> wrote:
+>
+> Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> >
+> > This patch allows us to dynamically add virtual disks to an iSeries
+> >  partition. It works like this: after you have created the virtual disk
+> >  file on OS/400 and attached it to the Linux partition, you need to read
+> >  /sys/bus/vio/drivers/viodasd/probe.  This will do the probe and list any
+> >  new disks discovered.
+> > 
+> >  This was the nicest way I could think of doing this as the interface to
+> >  the hypervisor is polled ...
+> 
+> Is it possible to present all the virtual disks as partitions of a single
+> disk, use the "partition table" to query what is present?
 
-it _should_ work, but in the past we only had trouble from such changes
-(at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
-could try the patch below. It certainly boots on SMP x86. But it causes
-a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
-good reasons.
+The virtual disks are just that: disks.  They present as /dev/iseries/vda
+etc and have their own partitions. I can't change that, I will get skinned
+by current users.  It was bad enough when I removed the ide emulation hack
+... :-)
 
-	Ingo
+(Just in case of confusion: the "Linux partition" I referred to above is a
+logical partition fo the whole machine.)
 
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -247,9 +247,15 @@ static DEFINE_PER_CPU(struct runqueue, r
-  * Default context-switch locking:
-  */
- #ifndef prepare_arch_switch
--# define prepare_arch_switch(rq, next)	do { } while (0)
--# define finish_arch_switch(rq, next)	spin_unlock_irq(&(rq)->lock)
--# define task_running(rq, p)		((rq)->curr == (p))
-+# define prepare_arch_switch(rq, next)				\
-+		do {						\
-+			spin_lock(&(next)->switch_lock);	\
-+			spin_unlock(&(rq)->lock);		\
-+		} while (0)
-+# define finish_arch_switch(rq, prev) \
-+		spin_unlock_irq(&(prev)->switch_lock)
-+# define task_running(rq, p) \
-+		((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
- #endif
- 
- /*
+> Or to generate a hotplug event when a disk is added?  Even if there's no
+> notification to the kernel, it should be possible to generate the hotplug
+> events in response to a /proc-based trigger.
+
+I guess that would be possible.  In this case I am trying to do the
+minimum change.
+
+> It's a shame you didn't cc linux-kernel on this - the blockdev police would
+> have better ideas than I.
+
+I have now sent the patch to LKML and cc'd this reply there as well.
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Mon__24_May_2004_17_05_04_+1000_cPs6GuVN2YQH/1aS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAsZ6gFG47PeJeR58RArc+AKCWSpiDJ/8b2tWV83vNdCh/hq5jcgCgtaee
+m68Dc0EBw12u0n+UqkVD5gI=
+=iqGy
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__24_May_2004_17_05_04_+1000_cPs6GuVN2YQH/1aS--

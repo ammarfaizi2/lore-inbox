@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbUKWNbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUKWNhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUKWNbq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 08:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUKWNbq
+	id S261236AbUKWNhn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 08:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbUKWNhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 08:31:46 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:42126 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261220AbUKWNbk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 08:31:40 -0500
-Date: Tue, 23 Nov 2004 15:32:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123143241.GA18543@elte.hu>
-References: <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu> <20041123135840.GA14674@elte.hu> <20041123141145.GA16300@elte.hu>
+	Tue, 23 Nov 2004 08:37:43 -0500
+Received: from [213.69.232.58] ([213.69.232.58]:56328 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S261236AbUKWNhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 08:37:32 -0500
+Date: Tue, 23 Nov 2004 14:38:05 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Cc: nico-kernel@schottelius.org
+Subject: vmstat: zero cs | system debug
+Message-ID: <20041123133805.GF3775@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WhfpMioaduB5tiZL"
 Content-Disposition: inline
-In-Reply-To: <20041123141145.GA16300@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> another test on the same system, this time completely idle:
+Hello!
 
-ah ... used the jack_test.cc client instead of your new jack_test.cpp.
+Some minutes ago I had the following problem:
 
-	Ingo
+- a fileserver with many process in 'D' state
+- vmstat shows zero context switches
+- more or less zero access to the system
+- system load of ~150 (many smbd processes with 'D')
+- raid looked fine
+- no errors in dmesg
+- no mysterious processes
+- system not hacked (as its in our company lan)
+- after rebooting it seems to work
+- the initialization of the  Adaptec AHA-2940U/UW/D / AIC-7881U took
+  quite long, but it works
+
+My questions:
+
+- what could I have done to find out the problem?
+-> I did ps axu, vmstat, cat /proc/mdstat, free, netstat -an
+- does zero context switches mean there is one process using
+  completly the cpu? if so, why was I able to start vmstat?
+
+- what todo to fix the problem?
+-> tried killall -9 smbd apache ...
+
+- is there some TFM for reading about "Linux system analyzing"?
+
+Thanks for any answer,
+
+Nico
+
+
+--WhfpMioaduB5tiZL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQIVAwUBQaM9O7OTBMvCUbrlAQIH1A/+Oi36k3SsKnwbVo2wSTuHtUWcNceJi9QC
+u+oorhagppHPRKC70JlHm3IyPxjnevyjslL01+I2Cg9uPeEn+NyH1+/vn14eFEHI
+Lob/aGKRBcGfpO+yYUjgJhcgLe20ytGaiC2HFRBwc+SsmlQ/+Kz241ShM6TaEmZh
+U5QJtA6wKal780Dg6bTtrkamneUK9Osogzi8rbVUS6vjwUnoJ6LWCF5Z5mSSr4wE
+cZyGR/AYJvAVGIy7gdXEq6EwpBnQXNWtyHbmCDSajFoGdjboxFZBTKSNI9qcAGI7
+Btt+dW7dCQvTkBieu+9v4Qab0V/o0hbrVnqmM50gLI0wXmYGDvw6QwBzPz5GbYlc
+C0plM0GlRMwJJEz/vfGt0v9t/lJwMXqfdtQOfeLom/gjP1nvrF0Sg7mABwj79O0a
+UcIGcVIpCNdWFULQ69f86Cr0vLmO7Fcx8EB64JNUL8iPkKuHrBGf1Stgcvefn0fv
+Ml+jK4+3AY+3DpJuqBJEdOny865urAoQhw0GR6ivwln7GvqY1D7hI5TLuL9Ahxf/
+oz0RNCbv9aJdVtIqLxnjay3QFImV9q0oVM3MDvAJrdtYCaAwIIUR6Jm0xxL4/0n0
+CYITKE5otegm1q4JFeG2AL5lLIGku/2RK73nPIYw7HiQ4FXz4wERl+rGD5n93nj7
+p0/GZll2MA4=
+=iRRo
+-----END PGP SIGNATURE-----
+
+--WhfpMioaduB5tiZL--

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTEFGnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 02:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTEFGnq
+	id S262403AbTEFGq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 02:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTEFGq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 02:43:46 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:8722 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262409AbTEFGnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 02:43:45 -0400
-Date: Mon, 5 May 2003 23:57:58 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-Id: <20030505235758.25f769fc.akpm@digeo.com>
-In-Reply-To: <20030505.223944.23027730.davem@redhat.com>
-References: <20030505.211606.28803580.davem@redhat.com>
-	<20030505224815.07e5240c.akpm@digeo.com>
-	<20030505234248.7cc05f43.akpm@digeo.com>
-	<20030505.223944.23027730.davem@redhat.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 6 May 2003 02:46:28 -0400
+Received: from h234n2fls24o900.telia.com ([217.208.132.234]:51690 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id S262403AbTEFGq1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 02:46:27 -0400
+Date: Tue, 6 May 2003 09:00:06 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.69
+Message-Id: <20030506090006.74cb7cc7.lista1@telia.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 May 2003 06:56:12.0309 (UTC) FILETIME=[9475F450:01C3139C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
->    From: Andrew Morton <akpm@digeo.com>
->    Date: Mon, 5 May 2003 23:42:48 -0700
->    
->    Can't think of anything very clever there, except to go and un-percpuify the
->    disk stats.  I think that's best, really - disk requests only come in at 100
->    to 200 per second - atomic_t's or int-plus-per-disk-spinlock will be fine.
->    
-> Use some spinlock we already have to be holding during the
-> counter bumps.
 
-Last time we looked at that, q->lock was already held in almost all the right
-places so yes, that'd work.
+Mon, 5 May 2003 06:19:51 +0200 I wrote:
 
-> Frankly, these things don't need to be %100 accurate.  Using
-> a new spinlock or an atomic_t for this seems rediculious.
+>/tmp/ccKug4Ma.s:1102: Error: Unknown pseudo-op:  `.incbin'
+>/tmp/ccKug4Ma.s:1107: Error: Unknown pseudo-op:  `.incbin'
+>make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
+>make: *** [arch/i386/kernel] Error 2
 
-The disk_stats structure has an "in flight" member.  If we don't have proper
-locking around that, disks will appear to have -3 requests in flight for all
-time, which would look a tad odd.
+Turns out I got bitten by too old binutils. Could you do a "feet/metre" convertion in
+Documentation/Changes under _Current Minimal Requirements_, something like:
 
+o  binutils               2.9.5.0.25              # ld -v
++or
++o GNU/binutils           2.13.(wherever 'as' got to know about incbin)
 
+I had the GNU 2.11.2 which is higher than 2.9.x... right ;-)
+
+Regards,
+Mats Johannesson

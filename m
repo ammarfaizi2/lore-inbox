@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277012AbRJKWdv>; Thu, 11 Oct 2001 18:33:51 -0400
+	id <S277008AbRJKWlW>; Thu, 11 Oct 2001 18:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277011AbRJKWdl>; Thu, 11 Oct 2001 18:33:41 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:16736 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S277008AbRJKWdh>; Thu, 11 Oct 2001 18:33:37 -0400
-Date: Fri, 12 Oct 2001 00:31:48 +0200
-From: Christian Ullrich <chris@chrullrich.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Vincent Sweeney <v.sweeney@dexterus.com>, arvest@orphansonfire.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Partitioning problems in 2.4.11
-Message-ID: <20011012003148.B435@christian.chrullrich.de>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Vincent Sweeney <v.sweeney@dexterus.com>, arvest@orphansonfire.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0110111538200.24742-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <Pine.GSO.4.21.0110111538200.24742-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Oct 11, 2001 at 04:00:11PM -0400
-X-Current-Uptime: 0 d, 00:28:43 h
+	id <S277022AbRJKWlM>; Thu, 11 Oct 2001 18:41:12 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:49164 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277008AbRJKWlG>; Thu, 11 Oct 2001 18:41:06 -0400
+Date: Thu, 11 Oct 2001 18:41:32 -0400
+Message-Id: <200110112241.f9BMfWM27107@deathstar.prodigy.com>
+To: jdthood@mail.com
+Subject: Re: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <1002808349.10317.7.camel@thanatos>
+Organization: TMR Associates, Schenectady NY
+Cc: linux-kernel@vger.kernel.org
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alexander Viro wrote on Thursday, 2001-10-11:
+In article <1002808349.10317.7.camel@thanatos> you write:
+| I guess the question is: Which way is more portable?  Is
+| "(unsigned long)-1" liable to turn out as something other than
+| ~0U?
+| 
+| If your way of expressing it is more portable then we should
+| make the change ... BOTH in pnp_bios.c and in parport_pc.c .
+| 
+| Opinions?
 
-> a) does 2.4.10-ac12 work for you?  It had got essentially the same
-> partition-related code that we have in 2.4.11.  I suspect that causes
-> of breakage are different, so the answer may not be the same for everybody
-> affected.
-> 
-> d) patch below closes two known holes.  It's known to be not enough in
-> one case (see above) and unlikely to help in another (sda9).  However,
-> let's get these holes out of the way first.
+Does this address any bug present without the cast? If the expression
+left of == is unsigned long, ~0U will work, as will (unsigned)~0. But
+more to the point, do you mean "minus one" or "all ones" here? While
+Linux does not currently run on any machine which is not 2's complement,
+I think if you want all ones you should use (unsigned long)~0 as most
+portable.
 
-a) -10-ac11, -10-ac12 and -12 with your patch all behave like -11.
-
-d) The patch does apparently not fix this particular bug.
+Yes, I have programmed 1's complement machines :-(
 
 -- 
-Christian Ullrich		     Registrierter Linux-User #125183
-
-"Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267483AbUBSSwE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUBSSvv
+	id S267482AbUBSSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267481AbUBSSwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:51:51 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:4870 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S267481AbUBSSv3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:51:29 -0500
-Date: Thu, 19 Feb 2004 20:04:36 +0100
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: tridge@samba.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-Message-ID: <20040219190436.GA32480@hh.idb.hist.no>
-References: <1qIwr-5GB-11@gated-at.bofh.it> <1qIwr-5GB-9@gated-at.bofh.it> <1qIQ1-5WR-27@gated-at.bofh.it> <1qIZt-6b9-11@gated-at.bofh.it> <1qJsF-6Be-45@gated-at.bofh.it> <E1Atbi7-0004tf-O7@localhost> <16436.2817.900018.285167@samba.org> <20040219024426.GA3901@thunk.org> <16436.11148.231014.822067@samba.org> <4034A7F4.6000402@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4034A7F4.6000402@grupopie.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Thu, 19 Feb 2004 13:52:21 -0500
+Received: from mail6.fw-sj.sony.com ([160.33.82.73]:29926 "EHLO
+	mail6.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S267477AbUBSSux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:50:53 -0500
+Message-ID: <4035077E.5020506@am.sony.com>
+Date: Thu, 19 Feb 2004 10:59:10 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osd.org, paulmck@us.ibm.com,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+References: <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218162858.2a230401.akpm@osdl.org> <20040219123110.A22406@infradead.org>
+In-Reply-To: <20040219123110.A22406@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 12:11:32PM +0000, Paulo Marques wrote:
-> tridge@samba.org wrote:
+Christoph Hellwig wrote:
+> On Wed, Feb 18, 2004 at 04:28:58PM -0800, Andrew Morton wrote: 
+>>OK, so I looked at the wrapper.  It wasn't a tremendously pleasant
+>>experience.  It is huge, and uses fairly standard-looking filesytem
+>>interfaces and locking primitives.  Also some awareness of NFSV4 for some
+>>reason.
+>> 
+>>Still, the wrapper is GPL so this is not relevant.
 > 
-> >Currently dnotify doesn't give you the filename that is being
-> >added/deleted/renamed. It just tells you that something has happened,
-> >but not enough to actually maintain a name cache in user space.
-> 
-> This might be a crazy / stupid idea, so flame at will :)
-> 
-> Wouldn't it be possible to do a samba "super-server" mode, in which samba 
-> would assume that it controlled the directories it is exporting?
-> 
-> In this mode a "corporate" Samba server, serving Windows clients, could 
-> improve performance by assuming that its cache was always up-to-date.
-> 
-> If if we wanted to access the directory locally we could always mount 
-> locally using samba, and access the files anyway, albeit a lot slower and 
-> without linux permissions, etc.
-> 
-You don't really need to go to such extremes.  Samba can use dnotify,
-and run with caching and great performance as long as nobody touch
-the files in other ways.  There is no need to _enforce_ it though,
-samba can cope by invalidating the cache on those rare occations
-the files are accessed in other ways. It won't happen often, because:
+> Well, something that needs an almost one megabyte big wrapper per defintion
+> is not a standalone work but something that's deeply interwinded with
+> the kernel.  The tons of kernel version checks certainly show it's poking
+> deeper than it should.
+>...
+ >
+> Something that pokes deep into internal structures and even
+> needs new exports certainly is a derived work. 
 
-1. Linux/nfs people have no business in a directory full of
-   windows .dll's and .exe's
-2. On a corporate server you simply tell people to stay out.
-   nfs may export another set of homedirs for the unix people.
+I'd argue (again) that having a complex glue layer is not evidence
+per se of the glued module being a derived work.  If anything,
+it is evidence to the contrary.  But it depends on the circumstances.
 
-> What we would gain was the ability to say "I want to give priority to my 
-> samba server" (and set it to "super-server" mode) or "my priority is to the 
-> linux native filesystem, and just want to share my files with windows users 
-> anyway" (and keep using samba as always).
->
-Thanks to dnotify even the "linux priority" setup will be able to benefit
-from a cache.  Particularly if we can get a dnotify that doesn't trip
-when samba is the one making changes.  
+The question for GPFS itself is whether it was modified to run with
+Linux, and how it was modified, and how much it was modified.
 
+If your argument is that Linux, after being modified with the glue
+layer, is now a derivative work of the glued module, that seems
+more likely.  I'm not sure how the GPL reads on that case.
 
-Helge Hafting
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
+

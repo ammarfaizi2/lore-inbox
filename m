@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUESB2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263776AbUESBeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUESB2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 21:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUESB2r
+	id S263776AbUESBeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 21:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUESBeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 21:28:47 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:28619 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S263772AbUESB2n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 21:28:43 -0400
-Message-ID: <40AAB845.9090505@blue-labs.org>
-Date: Tue, 18 May 2004 21:28:37 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [OOPS] null ptr dereference, 2.6.6, ov511 usb webcam
-Content-Type: multipart/mixed;
- boundary="------------020604010007070009050306"
+	Tue, 18 May 2004 21:34:12 -0400
+Received: from sitemail3.everyone.net ([216.200.145.37]:41403 "EHLO
+	omta12.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S263776AbUESBeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 21:34:09 -0400
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+Date: Tue, 18 May 2004 18:34:08 -0700 (PDT)
+From: john moser <bluefoxicy@linux.net>
+To: linux-kernel@vger.kernel.org
+Subject: ADM8211 chipset (DWL-650)
+Reply-To: bluefoxicy@linux.net
+X-Originating-Ip: [68.33.185.81]
+X-Eon-Sig: AQHDJlhAqrmQAAUmyAEAAAAB,a75e854636db20cc20909694c0b2d146
+Message-Id: <20040519013408.5EF82282CA4@sitemail.everyone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020604010007070009050306
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-drivers/usb/media/ov511.c: USB OV511 video device found
-drivers/usb/media/ov511.c: model: AverMedia InterCam Elite
-drivers/usb/media/ov511.c: Sensor is an OV7610
-drivers/usb/media/ov511.c: Device at usb-0000:00:07.2-2.3 registered to 
-minor 0
-Unable to handle kernel NULL pointer dereference at virtual address 00000095
- printing eip:
-c0390179
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c0390179>]    Not tainted
-EFLAGS: 00010282   (2.6.6)
-EIP is at ov51x_v4l1_ioctl+0x29/0x90
-eax: dbc0d494   ebx: 00000095   ecx: 00000095   edx: d617bf00
-esi: 00000001   edi: d617bf00   ebp: dbb71bc0   esp: daccdf80
-ds: 007b   es: 007b   ss: 0068
-Process camsource (pid: 8158, threadinfo=daccd000 task=d625d1b0)
-Stack: 080630b0 08063068 80887614 80887614 c0632d00 d617bf00 ffffffe7 
-c015e4a9
-       0806319c dbb71bc0 00000000 3b7e2d4c 00000007 08063138 0806319c 
-daccd000
-       c0103e89 00000007 80887614 0806319c 08063138 0806319c 40b2fa48 
-00000036
-Call Trace:
- [<c015e4a9>] sys_ioctl+0xe9/0x240
- [<c0103e89>] sysenter_past_esp+0x52/0x71
-
-Code: ff 8e 94 00 00 00 0f 88 cb 25 00 00 31 c0 85 c0 ba fc ff ff
+CC me all replies please.
 
 
---------------020604010007070009050306
-Content-Type: text/x-vcard; charset=utf8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+OK, I can't find this in the make menuconfig (peeking under wireless
+in networking).
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+http://www.seattlewireless.net/index.cgi/DlinkCardComments
+
+Particularly,
+
+1 ADM 8211 drivers
+Great news on Linux, Michael Wu and Jouni Malinen are working on a
+full open source linux driver. http://aluminum.sourmilk.net/adm8211/
+By the time of writing this it works only on kernel 2.6 (but may be
+patched for 2.4), and doesn't work with rev20 of the cards. Monitor
+mode works. Help will be appreciated.
 
 
---------------020604010007070009050306--
+If you don't have this merged in the main tree, take a look, and if
+it looks OK contact the authors or whatever you do to get it into
+the main tree.  I've been wrestling with a newer DWL-650 for months
+now, and would like to see it work :)
+
+If it's already there, can you tell me where?  :/
+
+_____________________________________________________________
+Linux.Net -->Open Source to everyone
+Powered by Linare Corporation
+http://www.linare.com/

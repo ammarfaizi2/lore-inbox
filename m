@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbUKKIvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbUKKIxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbUKKIvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 03:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbUKKIvA
+	id S262196AbUKKIxB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 03:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUKKIxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 03:51:00 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:6285 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261336AbUKKIuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 03:50:55 -0500
-Date: Thu, 11 Nov 2004 10:52:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Message-ID: <20041111095244.GA16299@elte.hu>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <4192F244.7020103@cybsft.com>
+	Thu, 11 Nov 2004 03:53:01 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:22730 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262196AbUKKIwz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 03:52:55 -0500
+Subject: Re: [PATCH/RFC 1/4]device core changes
+From: Li Shaohua <shaohua.li@intel.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Greg <greg@kroah.com>, ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <20041111084411.A2400@flint.arm.linux.org.uk>
+References: <1099887071.1750.243.camel@sli10-desk.sh.intel.com>
+	 <20041108225810.GB16197@kroah.com>
+	 <1099961418.15294.11.camel@sli10-desk.sh.intel.com>
+	 <1099971341.15294.48.camel@sli10-desk.sh.intel.com>
+	 <20041109045843.GA4849@kroah.com>
+	 <1099990981.15294.57.camel@sli10-desk.sh.intel.com>
+	 <20041110012443.GA9496@kroah.com>
+	 <1100051137.7825.6.camel@sli10-desk.sh.intel.com>
+	 <20041110042822.A13318@flint.arm.linux.org.uk>
+	 <1100156613.8769.26.camel@sli10-desk.sh.intel.com>
+	 <20041111084411.A2400@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1100162802.14842.0.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4192F244.7020103@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 11 Nov 2004 16:46:42 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* K.R. Foley <kr@cybsft.com> wrote:
-
-> Ingo Molnar wrote:
-> >i have released the -V0.7.23 Real-Time Preemption patch, which can be
-> >downloaded from the usual place:
-> >
+On Thu, 2004-11-11 at 16:44, Russell King wrote:
+> On Thu, Nov 11, 2004 at 03:03:33PM +0800, Li Shaohua wrote:
+> > On Wed, 2004-11-10 at 12:28, Russell King wrote:
+> > > On Wed, Nov 10, 2004 at 09:45:37AM +0800, Li Shaohua wrote:
+> > > > On Wed, 2004-11-10 at 09:24, Greg KH wrote:
+> > > > > Maybe your other patches weren't so bad...  If we implement them, can we
+> > > > > drop the platform notify stuff?
+> > > > Currently only ARM use 'platform_notify', and we can easily convert it
+> > > > to use per-bus 'platform_bind'. One concern of per-bus 'platform_bind'
+> > > > is we will have many '#ifdef ..' if many platforms implement their
+> > > > per-bus 'platform_bind'.
+> > > 
+> > > Except none of the merged ARM platforms use platform_notify, and I haven't
+> > > seen any suggestion in the ARM world of why it would be needed.
+> > Ok, let me summarize it. we now have two options:
+> > 1. using 'platform_notify'
+> > platform_notify only has one parameter 'struct device', we must know the
+> > exact bus type of a device. We can identify the bus type from its name
+> > (such as 'pci', 'ide'), but it's quite some ugly. Or we can add a 'type'
+> > flag in the 'struct bus_type' to indicate the exact bus type which Greg
+> > doesn't like it. One shortcoming is the method hasn't good flexibility,
+> > we must add a new type whenever a new bus type is added.
 > 
-> Here is the updated rtc-debug patch. This version unlike previous
-> versions doesn't change the way the rtc driver works. The output of
-> /dev/rtc is preserved also so it doesn't break the existing
-> functionality of rtc. By the same token it won't produce output usable
-> by amlat, but it works for measuring the latency from interrupt to
-> read. 
+> Is there something wrong with doing dev->bus == &pci_bus_type for
+> example?
+It can't work if the bus type is in a loadable module.
 
-looks good - i've added this to my tree. (with minor portability fixes:
-rdtscll -> get_cycles(), long long -> cycles_t)
+Thanks,
+Shaohua
 
-	Ingo

@@ -1,49 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUBDWeR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 17:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUBDWeR
+	id S263632AbUBDW3L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 17:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUBDW3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 17:34:17 -0500
-Received: from cruftix.physics.uiowa.edu ([128.255.70.79]:9963 "EHLO cruftix")
-	by vger.kernel.org with ESMTP id S264363AbUBDWcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 17:32:06 -0500
-Date: Wed, 4 Feb 2004 16:32:02 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: Current state of DVD/CD Packet Writing?
-Message-ID: <20040204223200.GF19256@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 4 Feb 2004 17:29:11 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:19328 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263632AbUBDW2x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 17:28:53 -0500
+Date: Wed, 4 Feb 2004 17:29:31 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: odain2@mindspring.com
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: proper place for devfs_register_chrdev with pci_module_init
+In-Reply-To: <200402041648.29096.odain2@mindspring.com>
+Message-ID: <Pine.LNX.4.53.0402041723340.3515@chaos>
+References: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
+ <Pine.LNX.4.53.0402041616230.3277@chaos> <200402041648.29096.odain2@mindspring.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 4 Feb 2004 odain2@mindspring.com wrote:
 
-I was poking around looking for information on CD or DVD Packet Writing,
-  and came across http://packet-cd.sourceforge.net.  It looks like it's
-  inactive atm.
-Have these patches been absorbed into the vanilla 2.6 kernels (I recall
-  UDF write in the kernel config).  If not, where is current development
-  at?  Where can I find more information?
+> On Wednesday February 4 2004 4:30 pm, you wrote:
+> > On Wed, 4 Feb 2004, Oliver Dain wrote:
+> > > I'm writing a char driver for a PCI card.  Looking at examples of such
+> > > things I've found that most have a module_init like this:
+> > >
+> > > int foo_init(void)
+> > > {
+> > > 	/* stuff... */
+> > > 	devfs_register_chrdev(...);
+> > > 	/* more stuff... */
+> > > 	pci_module_init(...);
+> > > }
+> > >
+> > > This seems strange to me.  The devfs_register_chrdev call will register
+> > > the module and cause it to be held in memory even if the associated
+> > > PCI device isn't present on the system.  It seems like a better way
+> > > to do this is to have the init method just call pci_module_init(...)
+> > > and then in that method, after the PCI device has been initialized, call
+> > > devfs_register_chrdev to associate the driver with the device.  That way
+> > > the kernel can unload the module if no such device is present, but if
+> > > the device is present (or if one appears via hotplug) the module will
+> > > be loaded and can then register itself.  Will this work?  Is there a
+> > > reason people don't do this?
+> >
+> > First! Fix your mailer. There wasn't a '\n' in the entire bunch
+> > of text above. Unix/Linux people use the [Enter] key and don't
+> > just auto-warp around the screen.
+> >
+> > > I'm not subscribed to the LKML so please CC me on any responses.
+> > >
+> > > Thanks,
+> > > Oliver
+> >
+> > Well the "standard way" to start up a module is to allocate
+> > resources for the module (like RAM), then register the module.
+> >
+> > Then if the device isn't found, it's unregistered and the resources
+> > freed. If the code to which you refer doesn't free its resources,
+> > including unregistering if the device isn't found, then it's a bug.
+> >
+> > Otherwise it doesn't make any difference. You can certainly probe
+> > the PCI bus for your device first, and if it isn't found, you just
+> > return -ENODEV or whatever. It's entirely up to you.
+> >
+> > What is important is to make sure that you free any resources
+> > that you acquired (like address space) if you decide not to
+> > install the module. This makes it so you can write the module,
+> > debug it, and add functionality without ever having to re-boot.
+> >
+> > Cheers,
+> > Dick Johnson
+> > Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+> >             Note 96.31% of all statistics are fiction.
+>
+> Thanks for the reply and sorry for the mailer issue (sent it from one of those
+> pop->web interfaces, not my usual mail client).
+>
+>
+> If I understand how pci_module_init works it registers a function (the probe
+> function) to be called with all harware that matches the id_table.  Thus the
+> probe function won't be called at all unless some device matching the the
+> parameters passed to it is found.  In that case there is no opportunity to
+> unregister the driver since the driver never gets control again.  So I guess
+> I could restate my question as:
+>
+> 1) Is it correct that the driver won't get control again if no matching
+> devices are found?
+>
+> 2) If that's correct is it "legal" to call devfs_register_chrdev from a
+> function other than init (specifically from the probe function)?
+>
 
-Thanks!
+I would call pci_find_class() and continue until a NULL is returned
+or my vendor and device are returned in the structure. This is
+before I do anything else. That way, you know you have found your
+device. This is for up to at least version 2.4.24. There have been
+changes made in 2.6.eh, but I doubt that they got rid of the
+essential functions necessary to locate your device(s).
 
--Joseph
--- 
-trelane@digitasaru.net--------------------------------------------------
-"We continue to live in a world where all our know-how is locked into
- binary files in an unknown format. If our documents are our corporate
- memory, Microsoft still has us all condemned to Alzheimer's."
-    --Simon Phipps, http://theregister.com/content/4/30410.html
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

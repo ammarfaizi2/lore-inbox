@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282183AbRK1XeE>; Wed, 28 Nov 2001 18:34:04 -0500
+	id <S282187AbRK1Xjx>; Wed, 28 Nov 2001 18:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282188AbRK1Xd5>; Wed, 28 Nov 2001 18:33:57 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:58772 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S282185AbRK1Xc1>; Wed, 28 Nov 2001 18:32:27 -0500
-Message-ID: <3C057410.3090201@us.ibm.com>
-Date: Wed, 28 Nov 2001 15:32:32 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011128
-X-Accept-Language: en-us
+	id <S282192AbRK1Xjo>; Wed, 28 Nov 2001 18:39:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2834 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282196AbRK1Xje>; Wed, 28 Nov 2001 18:39:34 -0500
+Subject: Re: Coding style - a non-issue
+To: pwalten@au1.ibm.com (Peter Waltenberg)
+Date: Wed, 28 Nov 2001 23:48:07 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> from "Peter Waltenberg" at Nov 29, 2001 09:29:26 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from drivers' release functions
-In-Reply-To: <E169EFX-0006TA-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E169EQx-0006WS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> The problem was solved years ago.
+> 
+> "man indent"
+> Someone who cares, come up with an indentrc for the kernel code, and get it
+> into Documentation/CodingStyle
 
->>drivers' release functions.  The release functions are already 
->>serialized in the VFS code by an atomic_t which guarantees that each 
->>
->The release function was only partially serialized - what stops a release
->and an open racing each other ? That in several cases was why the lock
->was there. 
->
-Nothing, because the BKL is not held for all opens anymore.  In most of 
-the cases that we addressed, the BKL was in release _only_, not in open 
-at all.  There were quite a few drivers where we added a spinlock, or 
-used atomic operations to keep open from racing with release.  
+The problem was solved years ago.
 
+scripts/Lindent
 

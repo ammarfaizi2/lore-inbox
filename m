@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263676AbTH0QZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbTH0QVy
+	id S263567AbTH0QeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTH0QeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:21:54 -0400
-Received: from p089.as-l007.contactel.cz ([212.65.200.89]:20865 "EHLO
-	penguin.localdomain") by vger.kernel.org with ESMTP id S263531AbTH0QUh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:20:37 -0400
-Date: Wed, 27 Aug 2003 18:20:13 +0200
-From: Marcel Sebek <sebek64@post.cz>
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][TRIVIAL] number of CPUs
-Message-ID: <20030827162012.GA2726@penguin.penguin>
-Mail-Followup-To: trivial@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
+	Wed, 27 Aug 2003 12:34:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31123 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263567AbTH0QeV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:34:21 -0400
+Date: Wed, 27 Aug 2003 09:29:18 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: LGW <large@lilymarleen.de>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: porting driver to 2.6, still unknown relocs... :(
+Message-Id: <20030827092918.0981fa71.rddunlap@osdl.org>
+In-Reply-To: <3F4CD937.10204@lilymarleen.de>
+References: <3F4CB452.2060207@lilymarleen.de>
+	<20030827081312.7563d8f9.rddunlap@osdl.org>
+	<3F4CCF85.1020502@lilymarleen.de>
+	<1061999977.22825.71.camel@dhcp23.swansea.linux.org.uk>
+	<3F4CD937.10204@lilymarleen.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 27 Aug 2003 18:15:51 +0200 LGW <large@lilymarleen.de> wrote:
 
-This patch adjusts maximum number of CPUs in help text to correct value.
+| Alan Cox wrote:
+| 
+| >On Mer, 2003-08-27 at 16:34, LGW wrote:
+| >  
+| >
+| >>The driver is mostly a wrapper around a generic driver released by the 
+| >>manufacturer, and that's written in C++. But it worked like this for the 
+| >>2.4.x kernel series, so I think it has something todo with the new 
+| >>module loader code. Possibly ld misses something when linking the object 
+| >>specific stuff like constructors?
+| >>    
+| >>
+| >
+| >The new module loader is kernel side, it may well not know some of the
+| >C++ specific relocation types. 
+| >
+| To you think it's possible to remove those relocations completely, so 
+| that the whole C++ stuff is linked "without" any more open relocations?
 
+Hopefully Rusty will see this and make some comments on it.
 
-diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	Sat Aug 23 13:57:33 2003
-+++ b/arch/i386/Kconfig	Sun Aug 24 13:49:29 2003
-@@ -443,7 +443,7 @@
- 	default "8"
- 	help
- 	  This allows you to specify the maximum number of CPUs which this
--	  kernel will support.  The maximum supported value is 32 and the
-+	  kernel will support.  The maximum supported value is 255 and the
- 	  minimum value which makes sense is 2.
- 
- 	  This is purely to save memory - each supported CPU adds
+You could try using objdump to look for the item(s) that have this
+relocation type (0).  That might help to see what is causing it.
 
+Or you could modify the module loader to ignore relocation type 0...
+and see what happens.
 
--- 
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+| After all, those are only "helper functions" that could be linked 
+| "statically", or am I mistaken?
+| 
+| I don't have such deep knowledge of the C++ linking process, so I can't 
+| answer that question myself.
+| 
+| The Generic Driver is not public available I think, but you could get it 
+| here:
+| http://space.virgilio.it/g_pochini@virgilio.it/ea.html (site with the 
+| patches for alsa)
+| http://space.virgilio.it/g_pochini@virgilio.it/eagd-0.6.0.tar.bz2 (the 
+| original generic driver code)
 
+--
+~Randy

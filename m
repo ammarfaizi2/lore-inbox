@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276331AbRJHPGy>; Mon, 8 Oct 2001 11:06:54 -0400
+	id <S276917AbRJHPHY>; Mon, 8 Oct 2001 11:07:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276917AbRJHPGo>; Mon, 8 Oct 2001 11:06:44 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:43194 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S276331AbRJHPGc>;
-	Mon, 8 Oct 2001 11:06:32 -0400
-Date: Mon, 08 Oct 2001 16:08:43 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: %u-order allocation failed
-Message-ID: <1231676407.1002557323@[10.132.113.67]>
-In-Reply-To: <E15qLzV-00071D-00@the-village.bc.nu>
-In-Reply-To: <E15qLzV-00071D-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S276919AbRJHPHO>; Mon, 8 Oct 2001 11:07:14 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38925 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276339AbRJHPHJ>; Mon, 8 Oct 2001 11:07:09 -0400
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Mon, 8 Oct 2001 16:12:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
+        mingo@elte.hu (Ingo Molnar), hadi@cyberus.ca (jamal),
+        linux-kernel@vger.kernel.org (Linux-Kernel), netdev@oss.sgi.com,
+        torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <Pine.LNX.3.96.1011008100030.13807A-100000@mandrakesoft.mandrakesoft.com> from "Jeff Garzik" at Oct 08, 2001 10:03:57 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E15qc5N-0000p5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I think (Ingo's?) analogy of an airbag was appropriate, if that's indeed
+> how the code winds up functioning.
 
+Very much so
 
---On Sunday, October 07, 2001 11:01 PM +0100 Alan Cox 
-<alan@lxorguk.ukuu.org.uk> wrote:
+"Driver killed because the air bag enable is off by default and only
+mentioned on page 87 of the handbook in a footnote"
 
-> vmalloc space fragments. You fragment address space rather than pages
-> thats all. Same problem
+> Having a mechanism that prevents what would otherwise be a lockup is
+> useful.  NAPI is useful.  Having both would be nice :)
 
-Actually fragmented virtual space is theoretically
-worse, as you have now lost a possible weapon to
-defragment stuff (indirection on mapping to physical RAM -
-i.e. you could no longer move or swap out physical RAM and
-keep the virtual address mapping the same).
-
---
-Alex Bligh
+NAPI is important - the irq disable tactic is a last resort. If the right
+hardware is irq flood aware it should only ever trigger to save us from
+irq routing errors (eg cardbus hangs) 

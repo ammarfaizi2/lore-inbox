@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261578AbSJQA5u>; Wed, 16 Oct 2002 20:57:50 -0400
+	id <S261607AbSJQBFP>; Wed, 16 Oct 2002 21:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261604AbSJQA5u>; Wed, 16 Oct 2002 20:57:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47030 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261578AbSJQA5p>;
-	Wed, 16 Oct 2002 20:57:45 -0400
-Date: Wed, 16 Oct 2002 17:55:15 -0700 (PDT)
-Message-Id: <20021016.175515.21904896.davem@redhat.com>
-To: levon@movementarian.org
-Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017005728.GA8267@compsoc.man.ac.uk>
-References: <20021016164057.GB85246@compsoc.man.ac.uk>
-	<20021016.143843.99745166.davem@redhat.com>
-	<20021017005728.GA8267@compsoc.man.ac.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261608AbSJQBFP>; Wed, 16 Oct 2002 21:05:15 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:24334 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261607AbSJQBFO>; Wed, 16 Oct 2002 21:05:14 -0400
+Date: Wed, 16 Oct 2002 22:11:08 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one record per call
+Message-ID: <20021017011108.GT7541@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021017010135.GR7541@conectiva.com.br> <20021016.175809.28811497.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021016.175809.28811497.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Levon <levon@movementarian.org>
-   Date: Thu, 17 Oct 2002 01:57:28 +0100
+Em Wed, Oct 16, 2002 at 05:58:09PM -0700, David S. Miller escreveu:
+>    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+>    Date: Wed, 16 Oct 2002 22:01:36 -0300
+> 
+>    	Please pull from:
+>    
+>    master.kernel.org:/home/acme/BK/net-2.5
+>    
+> Pulled, thanks.
+> 
+> Now to help Al create a sane mechanism for carrying private state
+> around between start/stop :-)
 
-   The oprofile event buffer is unsigned long [], and stores cookie values.
-   Surely that would require us to use u64 there too, doubling the buffer
-   sizes on 32-bit machines ?
-   
-   I suppose we could do so magic to spread the cookie value across two
-   buffer entries if necessary, but that's ugly...
-   
-True.
+That would be nice, yes, bastardizing pos for this is, humm, ugly, and
+it isn't accessible at show time (pun intended 8) ).
 
-What if you could query the cookie size at runtime?
-Would that help?
+But now I have to chainsaw the /proc/net/route support into shape, and
+this one will be fun, as I'll have to change the semantics of the
+struct fib_table tb_seq_show so that I can grab the lock at fib_seq_start,
+and at fib_seq_show pass just one entry, then drop the lock at fib_seq_stop.
+So, probably we'll have fib_table::tb_seq_{start, next, show, start}, humm,
+this gave another idea... :)
 
-Really, if you make it long it's going to be impossible
-to support this in 32/64 environments (ppc/sparc/mips/x86_64/
-ia64/etc.)
+- Arnaldo

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136701AbREJOx1>; Thu, 10 May 2001 10:53:27 -0400
+	id <S136711AbREJO7i>; Thu, 10 May 2001 10:59:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136703AbREJOxS>; Thu, 10 May 2001 10:53:18 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:64273
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S136701AbREJOw6>; Thu, 10 May 2001 10:52:58 -0400
-Date: Thu, 10 May 2001 10:51:12 -0400
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <andrewm@uow.edu.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] writepage method changes
-Message-ID: <1537180000.989506272@tiny>
-In-Reply-To: <Pine.LNX.4.21.0105092245470.16087-100000@freak.distro.conectiva>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S136710AbREJO71>; Thu, 10 May 2001 10:59:27 -0400
+Received: from idiom.com ([216.240.32.1]:3855 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S136708AbREJO7V>;
+	Thu, 10 May 2001 10:59:21 -0400
+Message-ID: <3AFAABFF.54CEA711@namesys.com>
+Date: Thu, 10 May 2001 07:56:00 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: john slee <indigoid@higherplane.net>
+CC: Martin Hamilton <martin@net.lut.ac.uk>,
+        Mart?n Marqu?s <martin@bugs.unl.edu.ar>, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs, xfs, ext2, ext3
+In-Reply-To: <indigoid@higherplane.net> <E14xqGx-0006Y6-00@gadget.lut.ac.uk> <20010511003255.C7653@higherplane.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+john slee wrote:
 
+> > quite a bit of scope for improvement.  Commercial caching systems have
+> > demonstrated thoughput of thousands of requests/s with similar
+> > hardware, but I suspect Tux-ification of Squid will be necessary to
+>
+> not at all, search for X15 in april/may linux-kernel archives.  most of
+> the specific improvements tux made have been reduced to improvements for
+> the general case, hence squid (or equivalent) could probably improve a
+> fair amount.
+>
+> j.
+>
+> --
+> "Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Wednesday, May 09, 2001 10:51:17 PM -0300 Marcelo Tosatti
-<marcelo@conectiva.com.br> wrote:
+squid needs a deep rewrite, and the sponsor for our doing that is flaking
+regarding sending us money, so for now I have to say to people that even
+though reiserfs is faster for squid than ext2, the bottleneck is squid not
+reiserfs, and you really should use the proprietary stuff because the
+proprietary guys have taken squid, rewritten its engine which is badly
+designed, stolen the gpl code, and nobody is suing them for it and they are
+so much faster than squid that the cost of the software is worth paying for
+(unless you dislike stolen gpl code:-(, and even then there are some like
+Novell that didn't steal from squid and are faster).
 
-> 
-> 
-> On Wed, 9 May 2001, Marcelo Tosatti wrote:
-> 
->> Locked for the "not wrote out case" (I will fix my patch now, thanks)
-> 
-> I just found out that there are filesystems (eg reiserfs) which write out
-> data even if an error ocurred, which means the unlocking must be done by
-> the filesystems, always. 
-
-I'm not horribly attached to the way reiserfs is doing it right now.  If
-reiserfs writepage manages to map any blocks, it writes them to disk, even
-if mapping other blocks in the page failed.  These are only data blocks, so
-there are no special consistency rules.  If we need to change this, it is
-not a big deal.
-
--chris
-
+Hans
 

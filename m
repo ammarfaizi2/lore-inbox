@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281330AbRKQLUu>; Sat, 17 Nov 2001 06:20:50 -0500
+	id <S281332AbRKQL3K>; Sat, 17 Nov 2001 06:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281331AbRKQLUb>; Sat, 17 Nov 2001 06:20:31 -0500
-Received: from marao.utad.pt ([193.136.40.3]:31755 "EHLO marao.utad.pt")
-	by vger.kernel.org with ESMTP id <S281330AbRKQLU3> convert rfc822-to-8bit;
-	Sat, 17 Nov 2001 06:20:29 -0500
-Subject: Re: Swap Usage with Kernel 2.4.14
-From: Alvaro Lopes <alvieboy@alvie.com>
-To: war <war@starband.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BF5B275.215D6D44@starband.net>
-In-Reply-To: <3BF5B275.215D6D44@starband.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S281334AbRKQL3A>; Sat, 17 Nov 2001 06:29:00 -0500
+Received: from AGrenoble-101-1-3-82.abo.wanadoo.fr ([193.253.251.82]:3200 "EHLO
+	strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S281332AbRKQL2u> convert rfc822-to-8bit; Sat, 17 Nov 2001 06:28:50 -0500
+Message-ID: <3BF64A9F.6000703@wanadoo.fr>
+Date: Sat, 17 Nov 2001 12:31:43 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org
+Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+In-Reply-To: <Pine.LNX.4.33.0111170949010.12253-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 17 Nov 2001 11:18:55 +0000
-Message-Id: <1005995937.694.0.camel@dwarf>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sáb, 2001-11-17 at 00:42, war wrote:
-> Regular usage on my box, launching netscape, opera, pan, xchat, gaim;
-> the kernel eventually digs into swap.
-> 
-> However, the swap is never released?
-> 
-> Mem:   900596K av,  185896K used,  714700K free,       0K shrd,    4172K
-> buff
-> Swap: 2048276K av,   63728K used, 1984548K free                   91176K
-> cached
-> 
-> Are there any settings I should have set or be aware of?
-> 
-> I current use 4GB support, 1GB of ram, 2GB of swap.
-> 
-> Having 1GB, I thought I had enough memory for basic operations without
-> the disk swapping like mad.
-> 
 
-AFAIK with 2.4.14 processes can be in memory and swap at the same time. 
+I tend to agree, I'm using postfix on a production machine
+and it has never failed... sendmail simply cannot compare to
+postfix in terms of speed and stability.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+François
+
+Zwane Mwaikambo wrote:
+
+> This is actually terribly OT, but have you tested with a different MTA?
+> I'm using Postfix in production and most of my clients like running the
+> latest and "greatest" Microsoft has to offer and so far so good. Regarding
+> "hidden" emails, i think its called spyware ;) But IMO if your MTA is
+> spewing chunks under load then its an MTA problem, however if your OS
+> spews chunks in the process then its obviously an OS problem (e.g. your
+> W2k box BSODing).
+> 
+> Regards,
+> Zwane Mwaikambo
+
 
 

@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133046AbRDRQpL>; Wed, 18 Apr 2001 12:45:11 -0400
+	id <S132960AbRDRQ4L>; Wed, 18 Apr 2001 12:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132960AbRDRQpD>; Wed, 18 Apr 2001 12:45:03 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4868 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S133027AbRDRQo7>; Wed, 18 Apr 2001 12:44:59 -0400
-Date: Wed, 18 Apr 2001 12:44:36 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: george anzinger <george@mvista.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: schedule() seems to have changed.
-In-Reply-To: <3ADDC00A.2DFE366F@mvista.com>
-Message-ID: <Pine.LNX.3.95.1010418124358.927A-100000@chaos.analogic.com>
+	id <S133061AbRDRQ4C>; Wed, 18 Apr 2001 12:56:02 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:935 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S132960AbRDRQz5>;
+	Wed, 18 Apr 2001 12:55:57 -0400
+Message-ID: <3ADDC716.7F5B43C8@mandrakesoft.com>
+Date: Wed, 18 Apr 2001 12:55:50 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcus Meissner <Marcus.Meissner@caldera.de>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] misplaced pci_enable_device()s in drivers/sound/
+In-Reply-To: <20010418182944.A25024@caldera.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Apr 2001, george anzinger wrote:
+Marcus Meissner wrote:
+> Several pci_enable_device()s in drivers/sound happen _after_ accessing
+> PCI resources. I have moved them before the relevant first accesses.
 
-> "Richard B. Johnson" wrote:
-> > 
-> > It seems that the nature of schedule() has changed in recent
-> > kernels. I am trying to update my drivers to correspond to
-> > the latest changes. Here is an example:
-> > 
-> > This waits for some hardware (interrupt sets flag), time-out in one
-> > second. This is in an ioctl(), i.e., user context:
-> > 
-> >     set_current_state(TASK_INTERRUPTIBLE);
-> >     current->policy = SCHED_YIELD;
-> >     timer = jiffies + HZ;
-> >     while(time_before(jiffies, timer))
-> >     {
-> >         if(flag) break;
-> >         schedule();
-> >     }
-> >     set_current_state(TASK_RUNNING);
-> > 
-> > The problem is that schedule() never returns!!! If I use
-> > schedule_timeout(1), it returns, but the granularity
-> > of the timeout interval is such that it slows down the
-> > driver (0.1 ms).
-> > 
-> > So, is there something that I'm not doing that is preventing
-> > schedule() from returning?  It returns on a user-interrupt (^C),
-> > but otherwise gives control to the kernel forever.
-> > 
-> When schedule() is entered with TASK_INTERRUPTIBLE (actually with
-> current state !=TASK_RUNNING) it takes the task out of the run_list.  It
-> has been this way for a long time.  The normal way for the task to move
-> back to the run_list is for wake_up to be called, which, of course (^C)
-> does.  In your case it would be best if you could get what ever sets
-> "flag" to call wake_up.
-> 
-> If what you really want to do is to spin in a SCHED_YIELD waiting for
-> "flag" you need to a.) move the setting of SCHED_YIELD inside the while,
-> and b.) eliminate the setting of current_state (both of them).
-> 
-> George
+cool
 
-Okay. Thanks. That works
- 
+>         if (!RSRCISIOREGION(pcidev, 0))
+>                 return -1;
 
-Cheers,
-Dick Johnson
+can you replace this mess while you are cleaning stuff up.  this, for
+example, should be
+	if (!(pci_resource_flags(pcidev,) & IORESOURCE_IO))
 
-Penguin : Linux version 2.2.4 on an i686 machine (400.59 BogoMips).
+There is also pci_resource_start and pci_resource_len.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+>         iobase = SILLY_PCI_BASE_ADDRESS(pcidev);
 
+pci_resource_start
 
+patch looks ok to me, but those would be nice additions...
+
+-- 
+Jeff Garzik       | "The universe is like a safe to which there is a
+Building 1024     |  combination -- but the combination is locked up
+MandrakeSoft      |  in the safe."    -- Peter DeVries

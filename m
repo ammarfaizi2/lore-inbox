@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRDJGRz>; Tue, 10 Apr 2001 02:17:55 -0400
+	id <S132939AbRDJGeb>; Tue, 10 Apr 2001 02:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132938AbRDJGRp>; Tue, 10 Apr 2001 02:17:45 -0400
-Received: from mlist.austria.eu.net ([193.81.83.3]:46078 "EHLO
-	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S131305AbRDJGRh>; Tue, 10 Apr 2001 02:17:37 -0400
-Message-ID: <3AD2A57D.F4AD7BF6@eunet.at>
-Date: Tue, 10 Apr 2001 08:17:33 +0200
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132940AbRDJGeV>; Tue, 10 Apr 2001 02:34:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:20405 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S132939AbRDJGeG>; Tue, 10 Apr 2001 02:34:06 -0400
+Date: Tue, 10 Apr 2001 15:33:57 +0900
+Message-ID: <66gdjmay.wl@frostrubin.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rw_semaphores
+In-Reply-To: <Pine.LNX.4.31.0104092242320.11520-100000@penguin.transmeta.com>
+In-Reply-To: <y9t9easn.wl@frostrubin.open.nm.fujitsu.co.jp>
+	<Pine.LNX.4.31.0104092242320.11520-100000@penguin.transmeta.com>
+User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ISIcom cards by Multi-tech
-In-Reply-To: <E14mi9Q-0002q4-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.6.0.12)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+At Mon, 9 Apr 2001 22:43:53 -0700 (PDT),
+Linus Torvalds wrote:
+
+> The ordering is certainly possible, but if it happens,
+> __down_read_failed() won't actually sleep, because it will notice that the
+> value is positive and just return immediately. So it will do some
+> unnecessary work (add itself to the wait-queue only to remove itself
+> immediately again), but it will do the right thing.
 > 
-> > Do you have sort of a 'patch' from your port? I could take this as a
-> > guideline for what has to be changed from 2.2 to 2.4. If I compare the
-> > 2.4 driver to the actual 2.2 one, there are far too much differences for
-> > me...
+> 		Linus
 > 
-> I dontt. Other than comparing the 2.2 and 2.4 driver
 
-Surprise, surprise! I just got an email from Patrick Petersen
-<PDP@MULTITECH.com> with a 2.4 driver I should test....
-
-I'll keep you up to date, and will send you a patch if you like to.
-
-bye, Michael
-
--- 
-netWorks       	                                  Vox: +43 316  692396
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4					  GSM: +43 676 3079941
-A-8045 Graz, Austria			      e-mail: reinelt@eunet.at
+  I understand. Thank you.

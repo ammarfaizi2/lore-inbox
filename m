@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbTATOMX>; Mon, 20 Jan 2003 09:12:23 -0500
+	id <S265880AbTATOT0>; Mon, 20 Jan 2003 09:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbTATOMX>; Mon, 20 Jan 2003 09:12:23 -0500
-Received: from ns1.netroute.cz ([212.71.168.2]:17569 "HELO pop3.netroute.cz")
-	by vger.kernel.org with SMTP id <S265568AbTATOMW>;
-	Mon, 20 Jan 2003 09:12:22 -0500
-Date: Mon, 20 Jan 2003 15:21:19 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Balbir <balbir@ti.com>
+	id <S265885AbTATOT0>; Mon, 20 Jan 2003 09:19:26 -0500
+Received: from angband.namesys.com ([212.16.7.85]:45035 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265880AbTATOTZ>; Mon, 20 Jan 2003 09:19:25 -0500
+Date: Mon, 20 Jan 2003 17:28:26 +0300
+From: Oleg Drokin <green@namesys.com>
+To: venom@sns.it
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disabling file system caching
-Message-ID: <20030120142119.GB1468@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, Balbir <balbir@ti.com>,
-	linux-kernel@vger.kernel.org
-References: <006f01c2c058$3748ad00$6353579d@india.ti.com>
+Subject: Re: ReiserFS corruption with kernel 2.5.59
+Message-ID: <20030120172826.A2758@namesys.com>
+References: <20030120164344.A2377@namesys.com> <Pine.LNX.4.43.0301201523180.1706-100000@cibs9.sns.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <006f01c2c058$3748ad00$6353579d@india.ti.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.43.0301201523180.1706-100000@cibs9.sns.it>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 01:17:42PM +0530, Balbir wrote:
-> Not sure if posting to the newsgroup linux.kernel sends
-> it to the mailing list too.
-> 
-> "Balbir Singh" <balbir_soni@yahoo.com> wrote in message
-> news:b0g6q2$lfq$1@tilde.itg.ti.com...
-> > "Rik van Riel" <riel@conectiva.com.br> wrote in message
-> > news:20030120011009$2d98@gated-at.bofh.it...
-> > > On Sun, 19 Jan 2003, Jean-Eric Cuendet wrote:
-> > >
-> > > > Is it possible to disable file caching for a given partition or mount?
-> > >
-> > > No, if you do that mmap(), read(), write() etc. would be impossible.
-> > >
-> > > > Or at least to limit it at a certain quantity of memory?
-> > >
-> > > Not yet.  I'm thinking of implementing something like this
-> > > for the next version of -rmap (reclaim only from the cache
-> > > if the cache occupies more than a certain fraction of ram).
-> >
-> 
-> I think that this feature is very important. In an embedded system
-> using an NFS root filesystem, we found that the file cache
-> would take a lot of memory and all insmods would fail. This is
-> especially true when the system boots up and looks for /lib/modules.
-> 
-> I think it should be possible to modify the slab allocator to
-> implement a memory pool. We could add a flag which would prevent
-> the slab from growing beyond its initial size.
-> 
-> This approach would work only if the cache is allocated by
-> using the slab allocator.
+Hello!
 
-No, it's not! And the slab alocator should mercilessly rip the cache
-when it needs some pages. In the NFS root case, I would guess it's
-a problem of NFS implementation allocating too much kernel memory, since
-both cache and user-land pages are riped in favor of kernel allocations.
+On Mon, Jan 20, 2003 at 03:23:54PM +0100, venom@sns.it wrote:
+> Yes, it was.
+> Before I started 2.5.59 I was running 2.4.20 with no problems at all.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+Hm. Interesting. I will look for the cause.
+Let us know if you'd see this problem again, though (and if you'd be able
+to find what sequence of events caused this to happen, that would be even
+more good).
+
+Thank you.
+
+Bye,
+    Oleg

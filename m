@@ -1,41 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262532AbSJGTZd>; Mon, 7 Oct 2002 15:25:33 -0400
+	id <S261726AbSJGTVg>; Mon, 7 Oct 2002 15:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262588AbSJGTX7>; Mon, 7 Oct 2002 15:23:59 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:5286 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262564AbSJGTXw>;
-	Mon, 7 Oct 2002 15:23:52 -0400
-Date: Mon, 7 Oct 2002 12:31:15 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: torvalds@transmeta.com
-cc: alan@lxorguk.ukuu.org.uk, <viro@math.psu.edu>, <andre@linux-ide.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IDE driver model update
-In-Reply-To: <Pine.LNX.4.44.0210071220020.16276-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210071231040.16276-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262563AbSJGTVg>; Mon, 7 Oct 2002 15:21:36 -0400
+Received: from mail2.ameuro.de ([62.208.90.8]:20127 "EHLO mail2.ameuro.de")
+	by vger.kernel.org with ESMTP id <S261726AbSJGTVc>;
+	Mon, 7 Oct 2002 15:21:32 -0400
+Date: Mon, 7 Oct 2002 21:26:58 +0200
+From: Anders Larsen <al@alarsen.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.41 qnx4fs (1/2): ISO C initializers
+Message-ID: <20021007192658.GA1568@errol.alarsen.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
+this patch (contributed by Art Haas) changes the structure initializers
+in the qnx4fs code to the new ISO C style to bring it in line with the
+rest of the kernel.
+Please apply.
 
-ChangeSet@1.696.19.1, 2002-10-07 09:52:31-07:00, mochel@osdl.org
-  IDE: only register drives that are present with the driver core.
+Cheers
+ Anders (maintainer)
 
-diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
---- a/drivers/ide/ide-probe.c	Mon Oct  7 12:19:16 2002
-+++ b/drivers/ide/ide-probe.c	Mon Oct  7 12:19:16 2002
-@@ -986,8 +986,8 @@
- 			 "%s","IDE Drive");
- 		disk->disk_dev.parent = &hwif->gendev;
- 		disk->disk_dev.bus = &ide_bus_type;
--		device_register(&disk->disk_dev);
--
-+		if (hwif->drives[unit].present)
-+			device_register(&disk->disk_dev);
- 		hwif->drives[unit].disk = disk;
- 	}
+diff -ur linux-2.5.41-vanilla/fs/qnx4/dir.c linux-2.5.41/fs/qnx4/dir.c
+--- linux-2.5.41-vanilla/fs/qnx4/dir.c	Tue Oct  1 09:07:09 2002
++++ linux-2.5.41/fs/qnx4/dir.c	Fri Oct  4 22:09:55 2002
+@@ -85,17 +85,17 @@
  
+ struct file_operations qnx4_dir_operations =
+ {
+-	read:		generic_read_dir,
+-	readdir:	qnx4_readdir,
+-	fsync:		file_fsync,
++	.read		= generic_read_dir,
++	.readdir	= qnx4_readdir,
++	.fsync		= file_fsync,
+ };
+ 
+ struct inode_operations qnx4_dir_inode_operations =
+ {
+-	lookup:		qnx4_lookup,
++	.lookup		= qnx4_lookup,
+ #ifdef CONFIG_QNX4FS_RW
+-	create:		qnx4_create,
+-	unlink:		qnx4_unlink,
+-	rmdir:		qnx4_rmdir,
++	.create		= qnx4_create,
++	.unlink		= qnx4_unlink,
++	.rmdir		= qnx4_rmdir,
+ #endif
+ };
+diff -ur linux-2.5.41-vanilla/fs/qnx4/file.c linux-2.5.41/fs/qnx4/file.c
+--- linux-2.5.41-vanilla/fs/qnx4/file.c	Tue Oct  1 09:06:30 2002
++++ linux-2.5.41/fs/qnx4/file.c	Fri Oct  4 22:21:30 2002
+@@ -24,21 +24,19 @@
+  */
+ struct file_operations qnx4_file_operations =
+ {
+-	llseek:			generic_file_llseek,
+-	read:			generic_file_read,
++	.llseek		= generic_file_llseek,
++	.read		= generic_file_read,
++	.mmap		= generic_file_mmap,
++	.sendfile	= generic_file_sendfile,
+ #ifdef CONFIG_QNX4FS_RW
+-	write:			generic_file_write,
++	.write		= generic_file_write,
++	.fsync		= qnx4_sync_file,
+ #endif
+-	mmap:			generic_file_mmap,
+-#ifdef CONFIG_QNX4FS_RW
+-	fsync:			qnx4_sync_file,
+-#endif
+-	sendfile:		generic_file_sendfile,
+ };
+ 
+ struct inode_operations qnx4_file_inode_operations =
+ {
+ #ifdef CONFIG_QNX4FS_RW
+-	truncate:		qnx4_truncate,
++	.truncate	= qnx4_truncate,
+ #endif
+ };
+diff -ur linux-2.5.41-vanilla/fs/qnx4/inode.c linux-2.5.41/fs/qnx4/inode.c
+--- linux-2.5.41-vanilla/fs/qnx4/inode.c	Tue Oct  1 09:06:28 2002
++++ linux-2.5.41/fs/qnx4/inode.c	Fri Oct  4 22:23:09 2002
+@@ -131,19 +131,17 @@
+ 
+ static struct super_operations qnx4_sops =
+ {
+-	alloc_inode:	qnx4_alloc_inode,
+-	destroy_inode:	qnx4_destroy_inode,
+-	read_inode:	qnx4_read_inode,
++	.alloc_inode	= qnx4_alloc_inode,
++	.destroy_inode	= qnx4_destroy_inode,
++	.read_inode	= qnx4_read_inode,
++	.put_super	= qnx4_put_super,
++	.statfs		= qnx4_statfs,
++	.remount_fs	= qnx4_remount,
+ #ifdef CONFIG_QNX4FS_RW
+-	write_inode:	qnx4_write_inode,
+-	delete_inode:	qnx4_delete_inode,
++	.write_inode	= qnx4_write_inode,
++	.delete_inode	= qnx4_delete_inode,
++	.write_super	= qnx4_write_super,
+ #endif
+-	put_super:	qnx4_put_super,
+-#ifdef CONFIG_QNX4FS_RW
+-	write_super:	qnx4_write_super,
+-#endif
+-	statfs:		qnx4_statfs,
+-	remount_fs:	qnx4_remount,
+ };
+ 
+ static int qnx4_remount(struct super_block *sb, int *flags, char *data)
+@@ -449,12 +447,12 @@
+ 	return generic_block_bmap(mapping,block,qnx4_get_block);
+ }
+ struct address_space_operations qnx4_aops = {
+-	readpage: qnx4_readpage,
+-	writepage: qnx4_writepage,
+-	sync_page: block_sync_page,
+-	prepare_write: qnx4_prepare_write,
+-	commit_write: generic_commit_write,
+-	bmap: qnx4_bmap
++	.readpage	= qnx4_readpage,
++	.writepage	= qnx4_writepage,
++	.sync_page	= block_sync_page,
++	.prepare_write	= qnx4_prepare_write,
++	.commit_write	= generic_commit_write,
++	.bmap		= qnx4_bmap
+ };
+ 
+ static void qnx4_read_inode(struct inode *inode)
+@@ -564,11 +562,11 @@
+ }
+ 
+ static struct file_system_type qnx4_fs_type = {
+-	owner:		THIS_MODULE,
+-	name:		"qnx4",
+-	get_sb:		qnx4_get_sb,
+-	kill_sb:	kill_block_super,
+-	fs_flags:	FS_REQUIRES_DEV,
++	.owner		= THIS_MODULE,
++	.name		= "qnx4",
++	.get_sb		= qnx4_get_sb,
++	.kill_sb	= kill_block_super,
++	.fs_flags	= FS_REQUIRES_DEV,
+ };
+ 
+ static int __init init_qnx4_fs(void)
 

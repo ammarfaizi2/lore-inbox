@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266542AbUBLTRO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 14:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUBLTRO
+	id S266532AbUBLTMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 14:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUBLTMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 14:17:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:9179 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266542AbUBLTRN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 14:17:13 -0500
-Date: Thu, 12 Feb 2004 11:17:07 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Wojciech Purczynski <cliph@isec.pl>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: drivers/net/tg3.h out of date in 2.4.25rc2
-Message-Id: <20040212111707.43c16a54.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402121457520.30421-100000@isec.pl>
-References: <Pine.LNX.4.44.0402121457520.30421-100000@isec.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Feb 2004 14:12:19 -0500
+Received: from cpc3-hitc2-5-0-cust51.lutn.cable.ntl.com ([81.99.82.51]:2702
+	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
+	id S266532AbUBLTMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 14:12:18 -0500
+Message-ID: <402BA5BD.9070307@reactivated.net>
+Date: Thu, 12 Feb 2004 16:11:41 +0000
+From: Daniel Drake <dan@reactivated.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Derek Foreman <manmower@signalmarketing.com>
+Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
+       Jamie Lokier <jamie@shareable.org>, Ian Kumlien <pomac@vapor.com>,
+       Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+References: <200402120122.06362.ross@datscreative.com.au> <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
+In-Reply-To: <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Feb 2004 15:10:43 +0100 (CET)
-Wojciech Purczynski <cliph@isec.pl> wrote:
+Derek Foreman wrote:
+> Is there a measurable performance loss over not having the patch at all?
+> Some nforce2 systems work just fine.  Is there a way to distinguish
+> between systems that need it and those that don't?
 
-> It seems that tg3.h header file is out of date. The updated Tigon3 driver
-> does not compile correctly because of few missing definitions.
+Do you have one of those systems to hand? My betting is on that when you 
+enable APIC/IOAPIC you will see crashes very frequently. This isn't enabled in 
+the default kernel config..
 
-Are you sure you patched your tree correctly?  It builds fine here.
+PS, Ross: Again, great work, thanks. I am running the patches you posted in 
+the thread starter (without the previous ones) on 2.6.3-rc2-mm1 without problem.
+
+Daniel

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267765AbTB1Kal>; Fri, 28 Feb 2003 05:30:41 -0500
+	id <S267623AbTB1LIb>; Fri, 28 Feb 2003 06:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267771AbTB1Kal>; Fri, 28 Feb 2003 05:30:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:42508 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267765AbTB1Kak>;
-	Fri, 28 Feb 2003 05:30:40 -0500
-Date: Fri, 28 Feb 2003 11:40:56 +0100
-From: Andi Kleen <ak@suse.de>
-To: Paul Menage <pmenage@ensim.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, lse-tech@sourceforge.net
-Subject: Re: [Lse-tech] Re: [PATCH] New dcache / inode hash tuning patch
-Message-ID: <20030228104056.GA1647@wotan.suse.de>
-References: <p73n0kg7qi7.fsf@amdsimf.suse.de> <E18ohjj-0005ls-00@pmenage-dt.ensim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18ohjj-0005ls-00@pmenage-dt.ensim.com>
+	id <S267758AbTB1LIb>; Fri, 28 Feb 2003 06:08:31 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:65156 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267623AbTB1LIa>; Fri, 28 Feb 2003 06:08:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Roland Dreier <roland@topspin.com>,
+       "Joe Thornber" <joe@fib011235813.fsnet.co.uk>
+Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
+Date: Thu, 27 Feb 2003 10:34:54 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl> <03022708365304.05199@boiler> <52y941pu6i.fsf@topspin.com>
+In-Reply-To: <52y941pu6i.fsf@topspin.com>
+MIME-Version: 1.0
+Message-Id: <03022710345405.05199@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 02:27:27AM -0800, Paul Menage wrote:
-> >But for lookup walking even one cache line - the one containing d_hash -
-> >should be needed. Unless d_hash is unlucky enough to cross a cache
-> >line for its two members ... but I doubt that.
-> 
-> No, but on a 32-byte cache line system, d_parent, d_hash and d_name are
-> all on different cache lines, and they're used when checking each entry.
+On Thursday 27 February 2003 10:25, Roland Dreier wrote:
+>    > +	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
+>    > +	if (!name) {
+>    > +		return -ENOMEM;
+>    > +	}
+>
+> Also, kmalloc() needs a second "GFP_xxx" parameter (I guess GFP_KERNEL
+> in this case, although I don't know the context this function is
+> called from).
+>
+>  - Roland
 
-... and dcache RCU checks d_bucket and d_move_count too in the hash 
-walking loop.
+Dammit! I'm not having a good morning. :(
 
+Unfortunately, Linus seems to have committed that patch already. So here is a 
+patch to fix just that line.
 
-> On 64-byte systems, d_parent and d_hash will be on the same line, but
-> d_name is still on a separate line and d_name.hash gets checked before
-> d_parent. So bringing these three fields on to the same cacheline
-> would theoretically be a win.
+Thanks for catching that.
 
-Ok you're right. Optimizing the layout a bit would be probably a good 
-idea. I won't include it in the hash patchkit for now to not do too
-many things with the same patch.
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
 
--Andi
+--- a/drivers/md/dm-ioctl.c	2003/02/27 16:29:58
++++ b/drivers/md/dm-ioctl.c	2003/02/27 16:30:03
+@@ -174,7 +174,7 @@
+ static int register_with_devfs(struct hash_cell *hc)
+ {
+ 	struct gendisk *disk = dm_disk(hc->md);
+-	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
++	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1, GFP_KERNEL);
+ 	if (!name) {
+ 		return -ENOMEM;
+ 	}

@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRKDS5X>; Sun, 4 Nov 2001 13:57:23 -0500
+	id <S275178AbRKDS5D>; Sun, 4 Nov 2001 13:57:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273588AbRKDS5P>; Sun, 4 Nov 2001 13:57:15 -0500
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:57604 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S275126AbRKDS5D>; Sun, 4 Nov 2001 13:57:03 -0500
-Message-ID: <008201c16537$e0176200$3a01a8c0@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Chris Meadors" <clubneon@hereintown.net>,
-        "Andrew Morton" <akpm@zip.com.au>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111040418050.28366-100000@clubneon.clubneon.com>
-Subject: Re: 3c556 basicly not working.
-Date: Sun, 4 Nov 2001 08:51:51 -0500
+	id <S273622AbRKDS4y>; Sun, 4 Nov 2001 13:56:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:518 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273588AbRKDS4m>; Sun, 4 Nov 2001 13:56:42 -0500
+Date: Sun, 4 Nov 2001 10:53:43 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <jogi@planetzork.ping.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.14-pre8..
+In-Reply-To: <20011104192725.A847@planetzork.spacenet>
+Message-ID: <Pine.LNX.4.33.0111041047230.6919-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 3 Nov 2001, Andrew Morton wrote:
+
+On 4 Nov 2001 jogi@planetzork.ping.de wrote:
 >
-> > I've never seen a satisfactory explanation for this one.  Usually
-> > it's fixed by altering the `PnP OS' setting in the BIOS.
->
-> Well I just looked, it is as I feared.  There is not PnP OS or
-> Windows/Other setting in the BIOS of this laptop.
->
-> Anything else you can think of?
+> Is there anything else I can measure during the kernel compiles?
+> Are the numbers for >= -pre6 slower because of measures taken to
+> increase the "interactivity" / responsivness of the kernel?
 
-I experienced some similar problems when I first received my Dell Latitude
-C810 which has the same card.  In my case the card worked fine after
-upgrading to the latest BIOS from Dell.
+No, it's something else, possibly some of the sharing braindamage.
 
-Interestingly, the card has a similar problem in Windows ME in that it's
-won't initialize properly on first boot, but if I remove and reinstall the
-driver it comes right up.
+> The part that looks most suspicious to me is that the results
+> for make -j100 vary so much ...
 
-I think the problem is that the BIOS fails to initialize the PCI bridge
-properly, but this is a total guess.
+Indeed. I don't like that part at all. That implies that some part of the
+code is unstable. One thing that Andrea points out is that the current VM
+scanning is rather unfair to active pages - if we get lots of active pages
+(for whatever reason), that will defeat some of the page-out aging code.
 
-Anyway, my suggestion would be to verify that you have the most current BIOS
-for your system, and select any options at all that would indicate a legacy
-system.  Also, another stupid suggestion is to try ACPI in the kernel, a
-friend of mine insist that his card started working after he simply compiled
-in ACPI, he thinks the bridge was brought up in standby mode and somehow
-ACPI fixed this (I'm skeptical, but it is just a suggestion).
+Also, Andrea also suspects that when we de-activate a page in
+refill_inactive, we should activate it again if somebody touches it, and
+not make it go through the whole "activate on second reference" rigamole
+again. What does this patch do to the pre8 behaviour?
 
-Later,
-Tom
+(The first chunk just says that we _can_ unmap active pages: it's up to
+refill_inactive to perhaps de-activate them and free them on demand. The
+second chunk says that when refill_inactive() moves a page to the inactive
+list, it's already been "touched once", so another access will activate it
+again).
 
+		Linus
+
+----
+diff -u --recursive pre8/linux/mm/vmscan.c linux/mm/vmscan.c
+--- pre8/linux/mm/vmscan.c	Sun Nov  4 09:41:04 2001
++++ linux/mm/vmscan.c	Sun Nov  4 10:41:59 2001
+@@ -54,9 +54,11 @@
+ 		return 0;
+ 	}
+
++#if 0
+ 	/* Don't bother unmapping pages that are active */
+ 	if (PageActive(page))
+ 		return 0;
++#endif
+
+ 	/* Don't bother replenishing zones not under pressure.. */
+ 	if (!memclass(page->zone, classzone))
+@@ -541,6 +543,7 @@
+
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
++		SetPageReferenced(page);
+ 	}
+ 	spin_unlock(&pagemap_lru_lock);
+ }
 

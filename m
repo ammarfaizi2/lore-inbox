@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbSKAFH6>; Fri, 1 Nov 2002 00:07:58 -0500
+	id <S265624AbSKAFRu>; Fri, 1 Nov 2002 00:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265624AbSKAFH6>; Fri, 1 Nov 2002 00:07:58 -0500
-Received: from d196069.dynamic.cmich.edu ([141.209.196.69]:36758 "EHLO euclid")
-	by vger.kernel.org with ESMTP id <S265612AbSKAFH5> convert rfc822-to-8bit;
-	Fri, 1 Nov 2002 00:07:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Matthew J. Fanto" <mattf@mattjf.com>
-Reply-To: mattf@mattjf.com
-Organization: mattjf.com
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: The Ext3sj Filesystem
-Date: Fri, 1 Nov 2002 00:14:10 -0500
-User-Agent: KMail/1.4.3
-References: <200210301434.17901.mattf@mattjf.com> <20021101044153.GB12031@think.thunk.org>
-In-Reply-To: <20021101044153.GB12031@think.thunk.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S265625AbSKAFRu>; Fri, 1 Nov 2002 00:17:50 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:30957 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S265624AbSKAFRu>; Fri, 1 Nov 2002 00:17:50 -0500
+Message-ID: <3DC21054.7040405@snapgear.com>
+Date: Fri, 01 Nov 2002 15:25:40 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211010014.10232.mattf@mattjf.com>
+To: Miles Bader <miles@gnu.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       David McCullough <davidm@snapgear.com>
+Subject: Re: [PATCH]: linux-2.5.45-uc1 (MMU-less support)
+References: <3DC14635.1000308@snapgear.com> <buoiszhj351.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 11:41 pm, Theodore Ts'o wrote:
 
-> First of all, have you considered trying to do this as a stacking
-> filesystem?  
+Miles Bader wrote:
+> Here's a v850 update for 2.5.45-uc1.
+> 
+> Note some files are added/removed.
 
-Yes, I spoke to Christoph Hellwig the other day and he suggested the same 
-thing. I will be taking a look at a stacking filesystem tonight/tomorrow. 
+Applied.
 
-> Secondly, the really critical question is key management.  What
-> happens if the user gets the key wrong?  Will he/she know?  Or will
-> they just get garbage if the read from the file, and be able to trash
-> the file if they write to the file with the incorrect key?  Using some
-> kind of key-ID and some way of validating that the key is correct
-> before the user does start accessing files would probably be a really
-> good idea.
-
-It wouldn't be very hard to alert the user of an incorrect key using a message 
-digest (SHA1). So far, I haven't implemented this feature, but I will if 
-enough people want it.
-
-> Finally, if you do want to allocate some additional fields in the ext2
-> inode, superblock, etc., please coordinate with me, so we can avoid
-> conflicts as much as possible.  Thanks!!
-
-Yes, there will be a need for additional fields specifying things such as the 
-algorithm to use.
+Thanks
+Greg
 
 
-
-
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

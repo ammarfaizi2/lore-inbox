@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbULMTci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbULMTck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbULMTci (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 14:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbULMTaQ
+	id S262272AbULMTck (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 14:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbULMT3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 14:30:16 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:58760 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262273AbULMSST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 13:18:19 -0500
-Date: Mon, 13 Dec 2004 19:17:40 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matan Peled <chaosite@gmail.com>
-cc: Danny Beaudoin <beaudoin_danny@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Typo in kernel configuration (xconfig)
-In-Reply-To: <41BDDB02.5020606@gmail.com>
-Message-ID: <Pine.LNX.4.61.0412131917140.12936@yvahk01.tjqt.qr>
-References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
- <Pine.LNX.4.61.0412130925510.2394@yvahk01.tjqt.qr> <41BDDB02.5020606@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Dec 2004 14:29:32 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:49464 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262272AbULMSLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 13:11:16 -0500
+Cc: openib-general@openib.org
+In-Reply-To: <200412131010.qyAMW5NxoiM4CntC@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Mon, 13 Dec 2004 10:10:07 -0800
+Message-Id: <200412131010.czsQg0IIemnlj3gy@topspin.com>
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v3][21/21] InfiniBand MAINTAINERS entry
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 13 Dec 2004 18:10:07.0771 (UTC) FILETIME=[FA5B0EB0:01C4E13E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > If I'm not at the right place, please forward this to the right person.
->> > 
->> > In Device Drivers/Graphics Support/Support for frame buffer devices:
->> > "On several non-X86 architectures, the frame buffer device is the
->> > only way to use the graphics hardware."
->> > 
->> > This should be 'x86' instead, as in the rest of the description.
->> 
->> What kind of typo is that?
+Add OpenIB maintainers information to MAINTAINERS.
 
-> A nit picking one :)
-> Besides, linux is case-sensitive, isn't it?
-
-Depends where you look. In the code (C), yes, but the docs, I doubt.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
-Jan Engelhardt
--- 
-ENOSPC
+--- linux-bk.orig/MAINTAINERS	2004-12-11 15:16:16.000000000 -0800
++++ linux-bk/MAINTAINERS	2004-12-13 09:44:51.816091929 -0800
+@@ -1081,6 +1081,17 @@
+ L:	linux-fbdev-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++INFINIBAND SUBSYSTEM
++P:	Roland Dreier
++M:	roland@topspin.com
++P:	Sean Hefty
++M:	mshefty@ichips.intel.com
++P:	Hal Rosenstock
++M:	halr@voltaire.com
++L:	openib-general@openib.org
++W:	http://www.openib.org/
++S:	Supported
++
+ INPUT (KEYBOARD, MOUSE, JOYSTICK) DRIVERS
+ P:	Vojtech Pavlik
+ M:	vojtech@suse.cz
+

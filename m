@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272148AbRHVWYd>; Wed, 22 Aug 2001 18:24:33 -0400
+	id <S272147AbRHVWXb>; Wed, 22 Aug 2001 18:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272149AbRHVWYV>; Wed, 22 Aug 2001 18:24:21 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:34545 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S272148AbRHVWYM>; Wed, 22 Aug 2001 18:24:12 -0400
-Message-ID: <9319DDF797C4D211AC4700A0C96B7C9404AC2171@orsmsx42.jf.intel.com>
-From: "Raj, Ashok" <ashok.raj@intel.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: tasklet question...
-Date: Wed, 22 Aug 2001 15:24:16 -0700
+	id <S272146AbRHVWXV>; Wed, 22 Aug 2001 18:23:21 -0400
+Received: from ch-12-44-139-249.lcisp.com ([12.44.139.249]:42624 "HELO
+	dual.lcisp.com") by vger.kernel.org with SMTP id <S272148AbRHVWXG>;
+	Wed, 22 Aug 2001 18:23:06 -0400
+From: "Kevin Krieser" <kkrieser_list@footballmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel Locking Up
+Date: Wed, 22 Aug 2001 17:23:16 -0500
+Message-ID: <NDBBLFLJADKDMBPPNBALAEGFFDAA.kkrieser_list@footballmail.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010822123350.D20693@mindspring.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-If iam using tasklets for deferred processing, and after some threashold
-processing in the tasklet 
-would like to reschedule tasklet again. will the following work
+I had some lockups too when I went to the 2.4 kernels.  I ended up removing
+a SCSI card, and adding a fan to cool off my computer.  I was up for 12 days
+recently before I noticed that my USB printer wasn't working, and I saw I
+had compiled the wrong USB controllers into my kernel.  It has now been up
+for almost 4 days now with a properly configured stock 2.4.8 kernel.
 
-tasklet_function()
-{
-	more_processing = DeferredProcessing()
-            if (more_processing)
-	       tasklet_schedule() // this will schedule the same tasklet.
-}
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Tim Walberg
+Sent: Wednesday, August 22, 2001 12:34 PM
+To: Alan Cox
+Cc: Travis Shirk; Linux Kernel Mailing List
+Subject: Re: Kernel Locking Up
 
-is the above legal.
 
+Yes, I have seen it happen a couple times before
+I started X, within a couple minutes of boot completing.
 
-ashokr
+		tw
+

@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268705AbRG0LXW>; Fri, 27 Jul 2001 07:23:22 -0400
+	id <S268758AbRG0L2W>; Fri, 27 Jul 2001 07:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268727AbRG0LXM>; Fri, 27 Jul 2001 07:23:12 -0400
-Received: from CPE-61-9-148-51.vic.bigpond.net.au ([61.9.148.51]:6136 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S268705AbRG0LW7>;
-	Fri, 27 Jul 2001 07:22:59 -0400
-Message-ID: <3B614E4B.973DAA85@eyal.emu.id.au>
-Date: Fri, 27 Jul 2001 21:19:39 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: bogo-howto: ATA-100 drives on the Asus A7A266
-In-Reply-To: <3B60886B.57C31DA9@mail.utexas.edu>
+	id <S268745AbRG0L2C>; Fri, 27 Jul 2001 07:28:02 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:56582 "HELO dvmwest.gt.owl.de")
+	by vger.kernel.org with SMTP id <S268729AbRG0L17>;
+	Fri, 27 Jul 2001 07:27:59 -0400
+Date: Fri, 27 Jul 2001 13:28:05 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Graphical overview
+Message-ID: <20010727132805.I11840@lug-owl.de>
+Mail-Followup-To: LINUX Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200107271119.f6RBJ4N22481@syntags.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200107271119.f6RBJ4N22481@syntags.de>; from ffiene@veka.com on Fri, Jul 27, 2001 at 01:19:03PM +0200
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Bobby D. Bryant" wrote:
-> 
-> People are using the archive and discovering my earlier question about
-> getting my ATA-100 drive to work on  the Asus A7A266, and are now
+On Fri, Jul 27, 2001 at 01:19:03PM +0200, Frank Fiene wrote:
+> Where can i find the graphical overview of the linux kernel source 
+> tree? I saw a big jpg and a link to a homepage, but i lost the 
+> informations.
 
-FYI, you may want to add this table to your summary.
+You probably mean the LGP  (Linux Graph Project) by Rusty. It was
+accessible through lgp.linuxcare.au, but it is no longer there. If
+you wish, I'd send you a copy via private mail.
 
-The IDE modes are
-	PIO 		0-4
-	Single word DMA	0-2
-	Multi word DMA	0-2
-	Ultra DMA	0-7
+MfG, JBG
 
-This configures the disk - not the chipset.
-	-X00	restore default PIO
-	-X01	diasble IORDY
-
-PIO=mode + 8		Programmed IO
-	-X08	PIO 0
-	-X09	PIO 1
-	-X10	PIO 2
-	-X11	PIO 3
-	-X12	PIO 4
-
-SDMA=mode + 16		Single-word DMA
-	-X16	SDMA 0
-	-X17	SDMA 1
-	-X18	SDMA 2
-
-MDMA=mode + 32		Muti-word DMA
-	-X32	MDMA 0
-	-X33	MDMA 1
-	-X34	MDMA 2
-
-UDMA=mode + 64		Ultra DMA
-	-X64	UDMA 0 (ATA 16)
-	-X65	UDMA 1 (ATA 25)
-	-X66	UDMA 2 (ATA 33)
-	-X67	UDMA 3 (ATA 44)
-	-X68	UDMA 4 (ATA 66)
-	-X69	UDMA 5 (ATA 100)
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

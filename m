@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316721AbSE0Lew>; Mon, 27 May 2002 07:34:52 -0400
+	id <S316583AbSE0LvY>; Mon, 27 May 2002 07:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316722AbSE0Lev>; Mon, 27 May 2002 07:34:51 -0400
-Received: from pc-80-195-34-129-ed.blueyonder.co.uk ([80.195.34.129]:7553 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S316721AbSE0Leu>; Mon, 27 May 2002 07:34:50 -0400
-Date: Mon, 27 May 2002 12:34:38 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Thoughts on using fs/jbd from drivers/md
-Message-ID: <20020527123438.A2583@redhat.com>
-In-Reply-To: <15587.18828.934431.941516@notabene.cse.unsw.edu.au> <20020516161749.D2410@redhat.com> <E17Btad-0003sq-00@starship>
-Mime-Version: 1.0
+	id <S316588AbSE0LvX>; Mon, 27 May 2002 07:51:23 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:7041 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S316583AbSE0LvW>; Mon, 27 May 2002 07:51:22 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Date: Mon, 27 May 2002 21:50:34 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15602.7562.776171.139609@notabene.cse.unsw.edu.au>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: Thoughts on using fs/jbd from drivers/md
+In-Reply-To: message from Stephen C. Tweedie on Monday May 27
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, May 26, 2002 at 10:41:22AM +0200, Daniel Phillips wrote:
-> On Thursday 16 May 2002 17:17, Stephen C. Tweedie wrote:
-> > Most applications are not all that bound by write latency.
+On Monday May 27, sct@redhat.com wrote:
+> Hi,
 > 
-> But some are.  Transaction processing applications, where each transaction 
-> has to be safely on disk before it can be acknowledged, care about write 
-> latency a lot, since it translates more or less directly into throughput.
+> On Sun, May 26, 2002 at 10:41:22AM +0200, Daniel Phillips wrote:
+> > On Thursday 16 May 2002 17:17, Stephen C. Tweedie wrote:
+> > > Most applications are not all that bound by write latency.
+> > 
+> > But some are.  Transaction processing applications, where each transaction 
+> > has to be safely on disk before it can be acknowledged, care about write 
+> > latency a lot, since it translates more or less directly into throughput.
+> 
+> Not really.  They care about throughput, and will happily sacrifice
+> latency for that.
 
-Not really.  They care about throughput, and will happily sacrifice
-latency for that.  The postmark stuff showed that very clearly --- by
-yielding in transaction commit and allowing multiple transactions to
-batch up, Andrew saw an instant improvement of about 3000% in postmark
-figures, despite the fact that the yield is obviously only going to
-increase the latency of each individual transaction.  Pretty much all
-TP benchmarks focus on throughput, not latency.
+And some aren't...  my main thrust for pursuing this idea was to
+present minimal latency to the application.  That is why I want to use
+NVRAM for the journal.
+My particular application is an NFS server which traditionally suffers
+badly if there is too much latency.
+Certainly there are situations where a small drop in latency can
+improve throughput, but I want to maximise the throughout without any
+cost in latency.  And I am willing to spend on the NVRAM to do it.
 
-So while latency is important, if we have to tradeoff against
-throughput, that is normally the right tradeoff on synchronous write
-traffic.  For reads, latency is obviously critical in nearly all
-cases.
+I'm seeing two very different approaches to journalling an MD device
+being significant.
+One journals to NVRAM and trys to minimise latency, and works for any
+RAID level.  It is basically a write-behind cache.
 
-Cheers,
- Stephen
+The other journals to a normal drive and only works for RAID5 (which
+is the only level that really needs a journal other than for latency
+reasons) and writes to the journal after a the stripe parity
+calculation and before the data+parity is sent to disc.
+
+They will probably be very different implementations, though they will
+hopefully have a very similar interface.
+
+NeilBrown

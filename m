@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268451AbRGXUbk>; Tue, 24 Jul 2001 16:31:40 -0400
+	id <S268457AbRGXUfK>; Tue, 24 Jul 2001 16:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268453AbRGXUba>; Tue, 24 Jul 2001 16:31:30 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:65435 "HELO
-	fogarty.jakma.org") by vger.kernel.org with SMTP id <S268451AbRGXUbO>;
-	Tue, 24 Jul 2001 16:31:14 -0400
-Date: Tue, 24 Jul 2001 21:31:25 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dominik Kubla <kubla@sciobyte.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Arp problem
-In-Reply-To: <E15P58j-0000K2-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0107242128470.13997-100000@fogarty.jakma.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
+	id <S268456AbRGXUfA>; Tue, 24 Jul 2001 16:35:00 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268449AbRGXUeo>; Tue, 24 Jul 2001 16:34:44 -0400
+Date: Tue, 24 Jul 2001 13:33:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Patrick Dreker <patrick@dreker.de>
+cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <E15P8jB-0000Au-00@wintermute>
+Message-ID: <Pine.LNX.4.33.0107241328020.29611-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Alan Cox wrote:
 
-> The default Linux, Solaris setup is the standard. Take it up with the IETF
-> if you don't like it.
+On Tue, 24 Jul 2001, Patrick Dreker wrote:
+>
+> I just decided to give this patch a try, as I have written a little
+> application which does some statistics over traces dumped by another program
+> by mmap()ing a large file and reading it sequentially. The trace file to be
+> analyzed is about 240 megs in size and consists of records each 249 bytes
+> long. The analysis program opens and the mmap()s the trace file doing some
+> small calculations on the data (basically it adds up fields from the records
+> to get overall values).
 
-fair enough..
+Note that the patch won't do much anything for the mmap() case - the VM
+doesn't consider that "use once" anyway, and trying to make it do so would
+be hard, I suspect. It's just very nasty to try to figure out whether the
+user has touched the page a single time or millions of times...
 
-however, in the interests of flexibility and kindness to admins who
-have to deal with legacy setups, is or would it be possible to make
-linux be able to fully route packets between interfaces bound to the
-same device?
+We do have the "accessed" bit, but in order to get any access patterns
+we'd have to scan the page tables a _lot_ more than we do now. Right now
+we do it only under memory pressure, and only about once per memory cycle,
+which is not really even remotely enough to get anything more than "yes,
+the user did touch the page"..
 
-thanks,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-I've finally learned what "upward compatible" means.  It means we get to
-keep all our old mistakes.
-		-- Dennie van Tassel
+In order for mmap() to make a difference with the new code, we could do
+something like look at the adjacent VM pages on page-in. That, together
+with VM hints, might well be able to do similar things for mmap. But at a
+noticeably higher cost than what the current code has.
+
+		Linus
 

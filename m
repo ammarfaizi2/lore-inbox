@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbUCOP2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 10:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbUCOP2s
+	id S262605AbUCOPbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 10:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbUCOPbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 10:28:48 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:7945 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262602AbUCOP2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 10:28:44 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.04 (linux-2.6.4)
-Date: Mon, 15 Mar 2004 14:25:15 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <20040315035506.GB30948@MAIL.13thfloor.at> <20040314201457.23fdb96e.akpm@osdl.org>
-In-Reply-To: <20040314201457.23fdb96e.akpm@osdl.org>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+	Mon, 15 Mar 2004 10:31:32 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:46736 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262605AbUCOPb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 10:31:29 -0500
+Message-ID: <4055CC48.6060200@stesmi.com>
+Date: Mon, 15 Mar 2004 16:31:20 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200403151425.15483@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Hogue <hogue@cs.yorku.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA on 2.4.x
+References: <Pine.LNX.4.58.0403150934590.21510@wormwood.cs.yorku.ca>
+In-Reply-To: <Pine.LNX.4.58.0403150934590.21510@wormwood.cs.yorku.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 March 2004 05:14, Andrew Morton wrote:
+Andrew Hogue wrote:
+> Hi,
+> 
+> I am using a via8237 southbridge with sata support.  I know that there is
+> support for this in 2.6.x but I cannot use 2.6.x due to some
+> incompatibility with my hardware.
+> 
+> Is there a patch to allow the via 8237 sata controller to work for kernel
+> 2.4.x ?
+> 
+> Thanks,
+> 
+> -- Andrew
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Hi Herbert, Andrew,
+I've used the libata driver for it (makes it appear as a SCSI device)
+and it's worked fine for me but I've stopped using it after finding
+out about trouble with that controller. If you have a second sata
+controller on board, like a promise for instance, use that instead.
 
-> Herbert Poetzl <herbert@13thfloor.at> wrote:
-> >  ; this patch adds some functionality to the --bind
-> >  ; type of vfs mounts.
+You still need libata in that case though.
 
-> This won't apply any more.  We very recently changed a large number of
-> filesystems to not call update_atime() from within their readdir functions.
-> That operation was hoisted up to vfs_readdir().
+Trouble with the controller is that three motherboards from three
+manufacturers have eaten* three harddrives for me.
 
-right. Anyway, I like to see this merged into -mm for wider testing after 
-Herbert has fixed up some things like update_atime removal etc.
+There are numerous threads on the net about people experiencing
+similar effects as I did ..
 
-I personally use it for a long time now and I really like it.
+// Stefan
 
-ciao, Marc
-
+* Ate = had to RMA.

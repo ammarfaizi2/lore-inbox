@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbULNSjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbULNSl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbULNSjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 13:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbULNSjq
+	id S261595AbULNSl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 13:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbULNSl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 13:39:46 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:52707 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261592AbULNSjn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 13:39:43 -0500
-Date: Tue, 14 Dec 2004 19:39:11 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Harald Welte <laforge@netfilter.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Patrick McHardy <kaber@trash.net>,
-       akpm@osdl.org, torvalds@osdl.org,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, coreteam@netfilter.org,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [netfilter-core] [PATCH] no __initdata in netfilter?
-Message-ID: <20041214183911.GA15606@apps.cwi.nl>
-References: <20041114013724.GA21219@apps.cwi.nl> <41970FAD.6010501@trash.net> <20041114112610.GB8680@pclin040.win.tue.nl> <20041214130041.GU22577@sunbeam.de.gnumonks.org>
+	Tue, 14 Dec 2004 13:41:59 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:63695 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261603AbULNSlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 13:41:37 -0500
+Date: Tue, 14 Dec 2004 19:38:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-os@analogic.com
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       kernel@kolivas.org, pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: dynamic-hz
+Message-ID: <20041214183824.GN16322@dualathlon.random>
+References: <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org> <20041213111741.GR16322@dualathlon.random> <20041213032521.702efe2f.akpm@osdl.org> <29495f1d041213195451677dab@mail.gmail.com> <Pine.LNX.4.61.0412140914360.13406@chaos.analogic.com> <29495f1d041214085457b8c725@mail.gmail.com> <20041214171503.GG16322@dualathlon.random> <Pine.LNX.4.61.0412141304070.15800@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041214130041.GU22577@sunbeam.de.gnumonks.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.61.0412141304070.15800@chaos.analogic.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 02:00:41PM +0100, Harald Welte wrote:
+On Tue, Dec 14, 2004 at 01:22:03PM -0500, linux-os wrote:
+> Yield used to not show a spin in `top`.  Also, contrary to
+> "popular" opinion, not all events are accompanied by interrupts.
 
-> > This is not to say that there is a bug here, that the .init
-> > data would actually be referenced by non-init stuff, but
-> > it is better to convince oneself by static inspection of
-> > the binary than by reasoning about the flow of the program.
-> > 
-> > Where the memory savings are important, the code should
-> > be rewritten a bit.
-> 
-> We just had a discussion, and the netfilter core team really disagrees
-> with this change, which apparently was merged in
-> http://linux.bkbits.net:8080/linux-2.5/cset@1.2055.4.50
-> 
-> I think it's not a good idea to waste memory by removing __initdata,
-> just to make it more convenient for some static inspection tools.  This
-> is just the wrong way around.
-> 
-> If we _know_ that it works, and there is no  bug, we could just add a
-> comment "This is handled correctly, since the ip_tables core copies the
-> data just as rulesets comming from userspace."
+Yes, ppa zip drive has the same issue.
 
-I think that argument is valid only when satisfying the static tool
-is especially cumbersome or inefficient, requires ugly code, etc.
-In most cases a trivial rewrite will suffice, and the result is cleaner
-code, easier to maintain, fewer bugs.
+yield shows a spin in top if it's the only running task. Otherwise it
+will wait other task to run first. The behaviour has changed a bit
+between 2.4 and 2.6, and we changed the corner cases. But the semantics
+of yield are still the same.
 
-You say "but today nothing is wrong". But the longer the reasoning is,
-the easier one of the steps in the argument will be broken by some
-trivial change. By someone who did not know about all the invariants
-required by a certain piece of code.
+> If they where, I'd gladly use one of the sleep_on* functions.
 
-Look
+Minor detail: sleep_on is obsolete and should be deleted since it
+requires the big kernel lock or the global cli to be safe. But I got the
+point ;)
 
--rw-r--r--    1 aeb      aeb      26693922 Dec  3 22:33 patch-2.6.10-rc3
+> For instance, I need to erase NVRAM (Flash). Then I need to
+> program each byte. Waiting for the completion events requires
+> polling the hardware. Proper software will give up the CPU
+> while waiting and only sample the event, not continually spin.
 
-26 megabytes of changes. In a hundred trivial changes there is at least
-one flaw. These 26 megabytes will again introduce lots of minor problems.
-The more of these can be found automatically, by static analysis, the
-more time is left for debugging serious stuff.
+This is a case where you know when you can expect the hardware to be
+done (just like it was the case for the ppa zip). While dealing with
+long hardware delays schedule_timeout makes plenty of sense. It would be
+pointless to yield and spin, if you know nothing good can happen in the
+next millisecond.
 
-> Pleaes pull out that change again and submit one that adds a comment,
+> The timeout of (0) was really to make the code more obvious, the
+> facts being that we really need to get the CPU back as soon as
+> there are no higher-priority tasks computable. If yield() would
 
-Not me.
+With schedule_timeout(1) you're probably going to become interactive,
+and you'll be scheduled before other tasks. That's good. I mean the
+scheduler sorts things out automatically.
 
-> or alternatively pick up the (incremental) change attached to this mail.
-> I hope this makes your checker not spit any warnings.
+> work like schedule(0), of course I'd use it. The major problem
+> with yield() probably has to do with accounting. The machine
+> "feels" as though the CPU is properly available when you need
+> it, however it appears to be spinning, using 100% system time.
+> This makes customers nervous.
 
-I checked, and indeed, no warnings for this patch.
-But that is the only thing I checked. I would never submit it.
-Probably you should send it to davem and see whether he likes it.
+It's as well a waste of energy power to spin when you can
+schedule_timeout(1).
 
-Andries
+So you're optimal at using schedule_timeout(1) in this case while
+waiting hardware to complete as far as I can tell.

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266310AbUAVRvK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUAVRvK
+	id S266332AbUAVTdu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUAVTdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:51:10 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:15787 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266310AbUAVRvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:51:02 -0500
-Date: Fri, 23 Jan 2004 06:53:26 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Help port swsusp to ppc.
-In-reply-to: <20040122211746.3ec1018c@localhost>
-To: Hugang <hugang@soulinfo.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074794005.12773.54.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-+iGpyzKJYHpCEfHCRtcf";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <20040119105237.62a43f65@localhost>
- <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
- <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
- <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
+	Thu, 22 Jan 2004 14:33:50 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:16337 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S266332AbUAVTds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 14:33:48 -0500
+Date: Thu, 22 Jan 2004 11:33:49 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Brian Ristuccia <bristucc@sw.starentnetworks.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 CONFIG_NUMA=y leads to random segfaults
+Message-ID: <19890000.1074800028@[10.10.2.4]>
+In-Reply-To: <20040121220800.GO5555@sw.starentnetworks.com>
+References: <20040121220800.GO5555@sw.starentnetworks.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> While building a kernel for a Dual Athlon MP 2800 system, I accidentally
+> enabled CONFIG_NUMA, "Numa Memory Allocation Support". This option should
+> have been a no-op on the system I was using it on, since on this motherboard
+> all system memory is equally close to each of the two CPU's. Instead, it
+> caused userspace processes to randomly segfault.
+> 
+> Booting a 2.6.0 rebuilt without CONFIG_NUMA made the problem go away.
 
---=-+iGpyzKJYHpCEfHCRtcf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Can you try 2.6.1 with Andi's latest patchset from here:
+ftp://ftp.x86-64.org/pub/linux/v2.6/x86_64-2.6.1-2.bz2
+There's been quite a few updates to AMD oustanding since before 2.6.0 
+that Andi said were critical.
 
-I know nothing about the PPC. Is it a uniprocessor?
+If it's still bust, could you fish around in /var/log/messages or consoles 
+for any stack traces or anything you can see?
 
-Regards,
-
-Nigel
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-+iGpyzKJYHpCEfHCRtcf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAEA4VVfpQGcyBBWkRAiGtAJ995Nu52KG0gptzCkMCpwPrMCXgGgCfRjBJ
-fF8prfnCt3je3Cwl8bpxS1E=
-=Kd14
------END PGP SIGNATURE-----
-
---=-+iGpyzKJYHpCEfHCRtcf--
-
+M.

@@ -1,94 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVCOJ1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVCOJ2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbVCOJ1h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 04:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVCOJ1h
+	id S262358AbVCOJ2n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 04:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVCOJ2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 04:27:37 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:64899 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S262357AbVCOJ1d (ORCPT
+	Tue, 15 Mar 2005 04:28:41 -0500
+Received: from orb.pobox.com ([207.8.226.5]:32967 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262358AbVCOJ2d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 04:27:33 -0500
-Date: Tue, 15 Mar 2005 10:27:29 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3: SIS5513 DMA problem (set_drive_speed_status)
-Message-ID: <20050315102729.1c180edf@phoebee>
-In-Reply-To: <20050314211755.5e686c50.akpm@osdl.org>
-References: <20050314161528.575f3a77@phoebee>
-	<20050314211755.5e686c50.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Tue, 15 Mar 2005 04:28:33 -0500
+Date: Tue, 15 Mar 2005 01:28:25 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Dan Stromberg <strombrg@dcs.nac.uci.edu>, linux-kernel@vger.kernel.org
+Subject: Re: huge filesystems
+Message-ID: <20050315092825.GA14209@ip68-4-98-123.oc.oc.cox.net>
+References: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu> <20050314164137.GC1451@schnapps.adilger.int>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Tue__15_Mar_2005_10_27_29_+0100_D6jVWO8mfCq8yTX4;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050314164137.GC1451@schnapps.adilger.int>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Tue__15_Mar_2005_10_27_29_+0100_D6jVWO8mfCq8yTX4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Mon, Mar 14, 2005 at 11:41:37AM -0500, Andreas Dilger wrote:
+> > What about the "LBD" patches - what limits are involved there, and have
+> > they been rolled into a Linus kernel, or one or more vendor kernels?
+> 
+> These are part of stock 2.6 kernels.  The caveat here is that there have
+> been some problems reported (with ext3 at least) for filesystems > 2TB
+> so I don't think it has really been tested very much.
 
-On Mon, 14 Mar 2005 21:17:55 -0800
-Andrew Morton <akpm@osdl.org> bubbled:
+FWIW Red Hat appears to officially support 8TB ext3 filesystems on
+Red Hat Enterprise Linux 4:
 
-> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-> >
-> > Hi,
-> >=20
-> > just tried the 2.6.11-mm3 and at boot-time my start scripts try to
-> > enable DMA on my disk (hdparm -m16 -c1 -u1 -X69 /dev/hda).
-> >=20
-> > But while running hdparm, the kernel waits many seconds and gives me
-> > some DMA warnings/errors:
-> >
-> > ...
-> >
-> > hda: set_drive_speed_status: status=3D0xd0 { Busy }
-> >=20
-> > ide: failed opcode was: unknown
-> > hda: dma_timer_expiry: dma status =3D=3D 0x41
-> > hda: DMA timeout error
-> > hda: dma timeout error: status=3D0xd0 { Busy }
-> > ...
-> >=20
-> > That happened also with 2.6.11-rc3 since I thought I should switch
-> > away from my 2.6.8-rc2-mm1 (the best kernel ever ;)).
->=20
-> Could you please check whether 2.6.11-rc1 does this?  It should be
-> released mid-week.  Thanks.
+"Ext3 scalability: Dynamic file system expansion and file system sizes
+up to 8TB are now supported."
 
-Hi Andrew,
+http://www.redhat.com/software/rhel/features/
 
-you mean 2.6.12-rc1, right?
-
-Regards,
-Martin
-
---=20
-MyExcuse:
-it has Intel Inside
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Tue__15_Mar_2005_10_27_29_+0100_D6jVWO8mfCq8yTX4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCNqqBmjLYGS7fcG0RAldfAJ9UggoXFBIs8r/1/Yk6wPzJHIT/1wCfX4r0
-/t64j2/V0trxY7p9UvNdKCU=
-=Lk76
------END PGP SIGNATURE-----
-
---Signature_Tue__15_Mar_2005_10_27_29_+0100_D6jVWO8mfCq8yTX4--
+-Barry K. Nathan <barryn@pobox.com>

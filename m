@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313445AbSC2N43>; Fri, 29 Mar 2002 08:56:29 -0500
+	id <S313444AbSC2OC3>; Fri, 29 Mar 2002 09:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313444AbSC2N4Y>; Fri, 29 Mar 2002 08:56:24 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:45699 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313443AbSC2N4M>; Fri, 29 Mar 2002 08:56:12 -0500
-Date: Fri, 29 Mar 2002 13:56:11 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-cc: "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-ntfs-dev@lists.sourceforge.net" 
-	<linux-ntfs-dev@lists.sourceforge.net>,
-        Padraig Brady <padraig@antefacto.com>
-Subject: Re: Re[2]: ANN: NTFS 2.0.1 for kernel 2.5.7 released
-In-Reply-To: <ISPFE11z1aiG4HHZM9I000037fa@mail.takas.lt>
-Message-ID: <Pine.SOL.3.96.1020329134328.18653B-100000@virgo.cus.cam.ac.uk>
+	id <S313448AbSC2OCT>; Fri, 29 Mar 2002 09:02:19 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:43793 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313444AbSC2OCO>; Fri, 29 Mar 2002 09:02:14 -0500
+Message-ID: <3CA47378.70208@evision-ventures.com>
+Date: Fri, 29 Mar 2002 15:00:24 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7 pre-UDMA PIIX bug
+In-Reply-To: <200203291239.NAA25704@harpo.it.uu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002, Nerijus Baliunas wrote:
-> On Fri, 29 Mar 2002 12:57:07 +0000 (GMT) Anton Altaparmakov <aia21@cus.cam.ac.uk> wrote:
-> AA> > To have all files executable breaks stuff like:
-> AA> > midnight commander (won't open executable files)
-> AA> 
-> AA> Ouch, that is plain stupid... mc should be fixed. I open executables all
-> AA> the time and mc should automatically fire up a hexeditor.
+Mikael Pettersson wrote:
+> Vojtech's version of drivers/ide/piix.c which went into 2.5.7
+> oopses with a divide-by-zero exception when initialising older
+> pre-UDMA chips, like in the following 430HX chipset:
 > 
-> You probably misunderstood the problem - I cannot enter archive files (.tgz, .zip)
-> in mc if these files are marked as executable - mc just tries to execute them.
-
-Ah, that is a bad thing. (I don't use mc as you may have guessed...)
-
-> AA> I guess if more people complain I can change the default fmask to be 0177
-> AA> instead of 0077 but I want to see more complaints first. I personally find
-> AA> the being able to execute behaviour better as I run things off the ntfs
-> AA> partitions...
+> 00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
+> 00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+> 00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
+> (PCI IDs 8086:1250, 8086:7000, and 8086:7010, respectively)
 > 
-> People using Linux usually keep data files on fat and ntfs permissions, not
-> executables (IMHO).
+> The error occurs in piix.c:piix_set_drive() line 334, shown below.
+> The 82371SB has PIIX_UDMA_NONE in the piix_ide_chips[] array,
+> so piix_config->flags & PIIX_UDMA is zero, which makes "umul" zero,
+> which causes the divide-by-zero on line 334.
+> 
+>   317	static int piix_set_drive(ide_drive_t *drive, unsigned char speed)
+>   318	{
+>   319		ide_drive_t *peer = HWIF(drive)->drives + (~drive->dn & 1);
+>   320		struct ata_timing t, p;
+>   321		int err, T, UT, umul;
+>   322	
+>   323		if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
+>   324			if ((err = ide_config_drive_speed(drive, speed)))
+>   325				return err;
+>   326	
+>   327		umul =  min((speed > XFER_UDMA_4) ? 4 : ((speed > XFER_UDMA_2) ? 2 : 1),
+>   328			piix_config->flags & PIIX_UDMA);
+>   329	
+>   330		if (piix_config->flags & PIIX_VICTORY)
+>   331			umul = 2;
+>   332	
+>   333		T = 1000000000 / piix_clock;
+>   334		UT = T / umul;
 
-Depends what you are doing and whether you use wine or not... I have no
-idea what the percentages are...
+I think that it should be just sufficient to add the
+following test just in front of the offending calculartion.
 
-Best regards,
+if (umul == 0)
+   ++umul;
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Vojtech is this right?
 

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVBYJP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVBYJ0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVBYJP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 04:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVBYJP0
+	id S262656AbVBYJ0q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 04:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVBYJ0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 04:15:26 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:32463 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262654AbVBYJPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 04:15:21 -0500
-Date: Fri, 25 Feb 2005 10:15:16 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       zwane@holomorphy.com
-Subject: Re: 2.6.11-rc2-mm1 strange messages
-Message-ID: <20050225091516.GA5875@gamma.logic.tuwien.ac.at>
-References: <20050125121704.GA22610@gamma.logic.tuwien.ac.at> <20050125102834.7e549322.akpm@osdl.org> <20050224141015.GA6756@gamma.logic.tuwien.ac.at> <20050224150326.3a82986c.akpm@osdl.org> <20050225012326.GA14302@gamma.logic.tuwien.ac.at> <20050224181412.64a1f351.akpm@osdl.org> <Pine.LNX.4.58.0502242210360.9237@ppc970.osdl.org> <20050224223308.778ef62e.akpm@osdl.org>
+	Fri, 25 Feb 2005 04:26:46 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:40106 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262656AbVBYJ0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 04:26:44 -0500
+Date: Fri, 25 Feb 2005 02:26:40 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] unexport do_settimeofday
+Message-ID: <20050225092640.GS27352@schnapps.adilger.int>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjan@infradead.org>, bunk@stusta.de,
+	linux-kernel@vger.kernel.org
+References: <20050224233742.GR8651@stusta.de> <20050224212448.367af4be.akpm@osdl.org> <1109318525.6290.32.camel@laptopd505.fenrus.org> <20050225002804.4905b649.akpm@osdl.org> <58cb370e050225004759e1dc59@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050224223308.778ef62e.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <58cb370e050225004759e1dc59@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Don, 24 Feb 2005, Andrew Morton wrote:
-> Norbert, does this make the warnings go away?
+On Feb 25, 2005  09:47 +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Fri, 25 Feb 2005 00:28:04 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >  I haven't found any possible modular usage of do_settimeofday in the
+> > >  kernel.
+> > 
+> > Sure.  But there must have been a reason to export it in the first place.
+> 
+> sloppy coding?
 
-Unfortunately no, still the very same error.
+Who knows?  Maybe someone developed a kernel module that interfaces to an
+unusual clock chip on their motherboard.  IMHO, all of this "_I_ don't
+see any use for it, lets get rid of it because it's not useful" changing
+is just a source of grief for anyone that doesn't have their code in
+the kernel.
 
-I checked double, the patch is in and new compiled and new booted
-kernel! 
+Cheers, Andreas
+--
+Andreas Dilger
 
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SNITTER (n.)
-One of the rather unfunny newspaper clippings pinned to an office
-wall, the humour of which is supposed to derive from the fact that the
-headline contains a name similar to that of one of the occupants to
-the office.
-			--- Douglas Adams, The Meaning of Liff

@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278080AbRJVIVp>; Mon, 22 Oct 2001 04:21:45 -0400
+	id <S278087AbRJVIYp>; Mon, 22 Oct 2001 04:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278087AbRJVIVf>; Mon, 22 Oct 2001 04:21:35 -0400
-Received: from rj.sgi.com ([204.94.215.100]:52880 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S278080AbRJVIVV>;
-	Mon, 22 Oct 2001 04:21:21 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 04:05:54 -0400."
-             <Pine.GSO.4.21.0110220404000.2294-100000@weyl.math.psu.edu> 
+	id <S278162AbRJVIYf>; Mon, 22 Oct 2001 04:24:35 -0400
+Received: from tank.panorama.sth.ac.at ([193.170.53.11]:52748 "EHLO
+	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
+	id <S278087AbRJVIYU>; Mon, 22 Oct 2001 04:24:20 -0400
+Date: Mon, 22 Oct 2001 10:24:59 +0200
+From: Peter Surda <shurdeek@panorama.sth.ac.at>
+To: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Dri-devel] my X-Kernel question
+Message-ID: <20011022102459.X12359@shurdeek.cb.ac.at>
+In-Reply-To: <004901c15ab4$dbbb8fc0$5cbefea9@moya> <Pine.LNX.4.20.0110220224390.11846-100000@node2.localnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 18:21:47 +1000
-Message-ID: <23837.1003738907@kao2.melbourne.sgi.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JjNtGRvLZqzR8wa5"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.20.0110220224390.11846-100000@node2.localnet.net>; from volodya@mindspring.com on Mon, Oct 22, 2001 at 02:27:23AM -0400
+X-Operating-System: Linux shurdeek 2.4.3-20mdk
+X-Editor: VIM - Vi IMproved 6.0z ALPHA (2001 Mar 24, compiled Mar 26 2001 12:25:08)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 04:05:54 -0400 (EDT), 
-Alexander Viro <viro@math.psu.edu> wrote:
->On Mon, 22 Oct 2001, Keith Owens wrote:
->> On Mon, 22 Oct 2001 02:47:39 -0400 (EDT), 
->> Alexander Viro <viro@math.psu.edu> wrote:
->> >post-install binfmt_misc mount -t binfmt_misc none /proc/sys/binfmt_misc
->> >pre-remove binfmt_misc umount /proc/sys/binfmt_misc
->> 
->> It is not hard wired in the standard modutils, because there is no way
->> of overriding it.
->
->???
->Elaborate, please.
 
-When the post-install and pre-remove entries for module binfmt_misc are
-hard coded into modprobe, there is no syntax in modules.conf to prevent
-modprobe from always issuing those commands.  The next time somebody
-decides that binfmt_misc needs different commands, everybody using the
-old modutils on the new kernel will break.  I don't want the hassle,
-put it in modules.conf where it can easily be changed.
+--JjNtGRvLZqzR8wa5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If I can get an iron clad guarantee that binfmt_misc will never, ever
-change again then I might consider hard coding the entries in modprobe.
-BTW, I will need a signature in blood that says I can kill you if
-binfmt_misc is ever changed :).
+On Mon, Oct 22, 2001 at 02:27:23AM -0400, volodya@mindspring.com wrote:
+> The biggest reason against this is that X (as it is now) support not only
+> Linux but many other OSes: in particular BSD(s) and Solaris. Moving
+> stuff into Linux kernel creates a fork of the drivers which is
+> undesirable..
+That's a lame excuse. I'm using Linux so I won't suffer from Windows, why
+should I suffer because of BSD or Solaris?
 
+<Rant>
+About the precise vsync thingy we're talking about in xpert: we need kernel
+support anyway. So why instead of calling a video driver in kernel "lame" and
+"uncool" and adding a strange inflexible function god-knows-where, shouldn't
+we move the whole driver structure to kernel? Drivers for every other device
+type are in kernel. What would the anti-video-in-kernel-guys think if I
+claimed that network cards should have userspace "drivers" in sort of "uber
+daemon" and if an app wants to make a TCP connection it should contact this
+"uber daemon"? I don't want to have staroffice in kernel, but the DRIVER
+STRUCTURE. For a great UI, we need DMA, vsync and devices communicating with
+each other directly or with little overhead. Why insist on doing this in
+userspace? The reasons to put it into kernel aren't speed, but because it's
+much more easier to add/maintain drivers, add functionality, share code and do
+fancy stuff. DRI is a very good example of what I mean.
+</Rant>
+
+Short explaination of "the precise vsync thingy": For fluent video playback it
+is necessary to precisely coordinate number of frames the monitor displays.
+It is very visible on a TV. When I have a 25fps video, it should be EXACTLY
+"one frame of data == one frame on TV". Currently, I can tell the card (ATI)
+to blit on vsync (so it won't tear), but I can't tell it "don't miss a frame",
+or "block until vsync". This results in visible "jumps" when suddenly the same
+picture is staying on screen for the double duration than the others and it
+sucks and I can't do anything about it without SOME kernel support. Telling
+Xserver to poll for vsync and eat CPU is lame.
+
+>                    Vladimir Dergachev
+Bye,
+
+Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505122023
+
+--
+                   Disc space - The final frontier.
+
+--JjNtGRvLZqzR8wa5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE709fbzogxsPZwLzcRAioqAJ4yegevqnCVWsBRLbR1O89NP4aUbACgjRMn
+tmNMoH6SdKcYjERs99bWffw=
+=lBuy
+-----END PGP SIGNATURE-----
+
+--JjNtGRvLZqzR8wa5--

@@ -1,86 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUHZUNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269588AbUHZUVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269467AbUHZUNt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269495AbUHZUNJ
+	id S269588AbUHZUVd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269590AbUHZUT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:13:09 -0400
-Received: from broiler.physik3.uni-rostock.de ([139.30.44.17]:53478 "EHLO
-	broiler.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S269467AbUHZUFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:05:44 -0400
-Date: Thu, 26 Aug 2004 22:05:37 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Arthur Corliss <corliss@digitalmages.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       =?X-UNKNOWN?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Subject: Re: [PATCH] new CSA patchset for 2.6.8
-In-Reply-To: <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
-Message-ID: <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
- <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Aug 2004 16:19:59 -0400
+Received: from mail.shareable.org ([81.29.64.88]:65222 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269578AbUHZUQI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:16:08 -0400
+Date: Thu, 26 Aug 2004 21:13:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: John Stoffel <stoffel@lucent.com>
+Cc: Rik van Riel <riel@redhat.com>, Christophe Saout <christophe@saout.de>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826201330.GZ5733@mail.shareable.org>
+References: <20040826154446.GG5733@mail.shareable.org> <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <20040826165351.GM5733@mail.shareable.org> <16686.15061.549250.611694@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16686.15061.549250.611694@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Arthur Corliss wrote:
+John Stoffel wrote:
+> Jamie> Yes, exactly that.  The streams are created on demand of
+> Jamie> course, and by userspace helpers when that's appropriate which
+> Jamie> I suspect it almost always is.
+> 
+> So how would a program that converts between a JPEG file (with exif
+> data) and a PNG work, such as ImageMagick?  Are we proposing to teach
+> the VFS (or worse yet each filesystem) how to do this?  
 
-> I would be very interested in a CSA implementation similar to what I have on
-> IRIX.  I will also plead guilty to not having downloaded the updated patches
-> for either the kernel or the tools.  I'm continuing to use my poor hack until
-> a permanent solution gets accepted into the kernel, at which point I'll
-> adopt that.
+No.  (1) That's what "userspace helpers" are for.  (2) What does image
+format conversion have to do with viewing files in their component
+parts?  (3) I suspect someone will write a plugin that does indeed
+convert virtually every known image format to a common format
+(probably PNG and something "raw") at some point.  Why not?  It's just
+a small script (it would run ImageMagick!).
 
-That's ok, we carefully discussed the changes to make sure no new tools
-are required ;-)
+> I've been following this discussion a bit and I'm not sure that I've
+> actually seen any concrete examples of where this is a *good* thing to
+> have.  People talk about only having to modify 20 bytes at a time
+> instead of reading and writing 1mb of data.  Isn't that what mmap()
+> does?
 
-> And if it counters the impression at all, I'm not a kernel developer, I
-> proposed my hack out of need as a user of the tools.  I also try to stay away
-> from modified kernels, so I'm running Marcelos' 2.4 stable branch with only
-> the 32bit u/gid_t hack applied.  That's why I haven't had any feedback on the
-> -mm branch.
+Sure, if you think mmap() is an easy substitute for "parse the author
+& license tags from this [unknown format] audio, video or font file".
 
-I haven't even tried to get a patch into 2.4, since Marcelo is (rightly)
-quite resilent to new features.
->
-> In short, for my use BSD accounting is sufficient, but I'd love to see CSA in
-> Linux as well.  Linux hasn't moved too far into roles where it's a necessity
-> (for what I'm doing, anyway), but I see CSA as something that would certainly
-> help it assume those roles.
+> Now I can sorta understand the idea that having a directory look like
+> a file is neat, and certainly simplifies some aspects, but I think
+> that going all the way down to the logical conclusion here is a bit
+> silly.
+> 
+> To use the principle of blowing things up to make them very large or
+> very small, what happens if I decide that the best idea is to make all
+> files just be directories which contain single byte files?  Isn't that
+> the logical extreme here?  So my 1mb JPEG file is not just some image
+> data and header info in multiple files, but it's really just 1
+> million (ok 1024 * 1024) individual files that the VFS knows how to
+> put together.  Seems like the logical extreme.  Oh wait, maybe we
+> should be exposing a single file per bit instead! 
 
-Does this mean you would want to have both in the same kernel, potentially
-turning on both at the same time?
+If you decide to do that, you are welcome to write the userspace
+helper which creates that view in your directory.
 
+Why not?  It's very silly, but it's no sillier then writing a program
+to read your 1mb JPEG and write it out one file per bit, which you're
+welcome to write right now.
 
-Ok, let me summarize what I learned until now:
+> >From my point of view, there lies madness.  As Rik pointed out, how do
+> backup and restore tools work with this stuff?  Most people could care
+> less about how their data is organized, but they certainly care when
+> they can't restore it from backups.  
 
-It should be easy to combine the data collection enhancements from
-CSA and ELSA to provide a common superset of information.
+Generated views are something which should _not_ be backed up and
+restored.  That's not what they are for.
 
-Output file formats vary, but might be unified if projects don't insist
-too much.
-Main difference between CSA and ELSA on the one hand and BSD acct on the
-other is that the latter writes one record per process, while the former
-write one per job.
-With the new BSD acct v3 format, it should be possible to do per job
-accounting entirely from userspace, using pid and ppid information to
-reconstruct the process tree and some userland database for the
-pid -> job mapping. It would, however, be greatly simplified if the
-accounting records provided some kind of job id, and some indicator
-whether or not this process was the last of a job (group).
+Auxiliary metadata, such as author info and signatures which cannot be
+stored in the main file for some reason -- that should be backed up.
 
-CSA and ELSA might even be more lightweight since fewer accounting records
-are actually written.
+Permissions, that should be backed up.
 
-Sounds like it should be possible to fulfill the different needs by
-having loadable modules for the different output formats, or by a /proc
-entry that controls some aspects like whether records are written per
-job or per process.
+But not views which are computed from the main file.  You don't need
+to back them up, and they don't need to take any real space.  They're
+virtual, just like an infinitely deep directory on a web server can be
+virtual.  You can make those very silly too, if you want to.
 
-Comments?
+(Some help from the filesystem with storing temporarily cached values
+is fine, for performance, but we shouldn't pretend that generated
+views are anything other than virtual).
+
+> I'd really like to see a concrete example from Hans or other
+> proponents about why this makes things easier/faster/better to do.
+> Mostly, I've just seen "proof by vigorous handwaving" that it's a good
+> thing.
+> 
+> In alot of ways, I think people are going in the wrong direction, you
+> want to excapsulate and hide the details more, not expose them.
+> That's what a good API does, it hides the details while giving you a
+> rich set of semantics to manage your data.  
+
+Would you like to propose an alternate API?  I was under the
+impression that we were discussing one, right here in this thread.
+It's called POSIX with an extension where you can cd into a file.  It
+has a rich set of semantics to manage your data, and works with a lot
+of familiar programs.
+
+A better one would be welcome, if you have an idea.
+
+> God knows I'm not smart enough or driven enough to actually come up
+> with my own ideas, but I certainly haven't seen anyone else (even
+> Linus) come up with an earth shattering arguement to say why this is
+> the right move to make.
+
+Come up with a better one otherwise it's right ;)
+
+> As Linus says, most of the OS's job is to mediate access to
+> objects/data.  Why do we want to expose such low level data then?
+
+Eh?  In this case the OS is mediating by providing a uniform interface
+between programs that access the data and programs that handle file
+formats.
+
+What is this "low level" data you speak of?  I would say something
+like the "designer" of a font, or the "from address" and "subject" of
+an email are very high level abstractions, and that's among the sorts
+of things which are to be exposed by these interfaces.
+
+-- Jamie

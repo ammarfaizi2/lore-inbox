@@ -1,208 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314444AbSFDPx4>; Tue, 4 Jun 2002 11:53:56 -0400
+	id <S314451AbSFDPyV>; Tue, 4 Jun 2002 11:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSFDPxz>; Tue, 4 Jun 2002 11:53:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:16890 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S314444AbSFDPxy>; Tue, 4 Jun 2002 11:53:54 -0400
-Subject: [PATCH] scheduler hints
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 08:53:54 -0700
-Message-Id: <1023206034.912.89.camel@sinai>
-Mime-Version: 1.0
+	id <S314475AbSFDPyV>; Tue, 4 Jun 2002 11:54:21 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:19334 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S314451AbSFDPyT>;
+	Tue, 4 Jun 2002 11:54:19 -0400
+Date: Tue, 4 Jun 2002 08:50:11 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+In-Reply-To: <20020602.203916.21926462.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I went ahead and implemented scheduler hints on top of the O(1)
-scheduler. 
 
-I tried to find a decent paper on the web covering scheduler hints
-(sometimes referred to as hint-based scheduling) but could not find
-anything worthwhile.  Solaris, for example, implements scheduler hints
-so perhaps the "Solaris Internals" book has some information. 
+On Sun, 2 Jun 2002, David S. Miller wrote:
 
-Basically, scheduler hints are a way for a program to give a "hint" to
-the scheduler about its present behavior in the hopes of the scheduler
-subsequently making better scheduling decisions.  After all, who knows
-better than the application what it is about to do? 
+>    From: Anton Blanchard <anton@samba.org>
+>    Date: Mon, 3 Jun 2002 14:27:27 +1000
+>    
+>    On ppc64 I found that pcibios_init was being called before
+>    pci_driver_init, maybe its happening on alpha too. I am using the
+>    following hack for the moment, I'll leave it to Patrick to fix it properly.
+>    
+> It's happening on every platform.  It should be done before
+> arch_initcalls actually, but after core_initcalls.  I would suggest to
+> rename unused_initcall into postcore_iniscall, then use it for this
+> and sys_bus_init which has the same problem.
 
-For example, consider a group of SCHED_RR threads that share a
-semaphore.  Before one of the threads were to acquire the semaphore, it
-could give a "hint" to the scheduler to increase its remaining timeslice
-in order to ensure it could complete its work and drop the semaphore
-before being preempted.  Since, if it were preempted, it would just end
-up being rescheduled as the other real-time threads would eventually
-block on the held semaphore. 
+Can't it go the other way? Instead of mass-promotion of the setup 
+functions, can't we demote the ones that are causing the problems? 
 
-Other hints could be "I am interactive" or "I am a batch (i.e. cpu hog)
-task" or "I am cache hot: try to keep me on this CPU". 
+The initcalls levels were determined by looking at the explicit calls in
+init/main.c. Recall that they were:
 
-The scheduler tries hard to figure out the three qualities and it is
-usually right, although perhaps it can react quicker to these hints than
-it can figure things out on its own.  If nothing else, this serves as a
-useful tool for determining just how accurate our O(1) scheduler is.
+early_arch
+mem
+subsys
+arch
+fs
+device
+late
 
-I am not necessarily suggesting this for inclusion; it is more of a
-"just for fun" thing that turned into something with what I am actually
-seeing improvements, so I post it here for others to see.
+with the default being device_initcall. I initially thought that most
+things in init/main.c could become initcalls. But, I failed to realize
+that init is started before the initcalls are done (duh). (Most things in 
+start_kernel() could become initcalls also, but it would require a 
+separate initcall section).
 
-You use scheduler hints in a program by doing something like, 
+Sometime in March, the ACPI people promoted their initialization above 
+the initialization of the device model core. This caused a few things to 
+fail, and Linus changed the initcall levels to what we have today:
 
-        sched_hint(hint)
+core
+unused
+arch
+subsys
+fs
+device
+late
 
-where `hint' is currently one or more of:
+core is used for what's in drivers/base/*.c. unused is unused. 
 
-        HINT_TIME - task needs some more quanta, boost
-        remaining timeslice
+arch can be used for arch- and platform-specific initialization. For PCI 
+on x86, these determine things like the config space access method. 
 
-        HINT_INTERACTIVE - task is interactive, give it a
-        small priority bonus to help.
+subsys is intended primarily for initializing and advertising the 
+existence of bus types and device class types (network, input, etc). 
+Device probing doesn't necessarily have to take place here, and in some 
+cases, it can't: e.g. when the firmware is used to inform the system of 
+the PCI buses present.
 
-        HINT_BATCH - task is a batch-processed task, give
-        it a small priority penalty to be fair.
+Theoretically, we should be able to demote bus probing until after 
+subsys_initcall. Right? By making them device_initcalls and relying on 
+link order, we can guarantee that buses get probed before drivers are 
+initialized and start looking for devices they support. (Or, we could make 
+a driver_initcall just for drivers; or a bus_initcall for probing buses.)
 
-Right now the code makes no attempt to be fair - a program giving
-HINT_TIME now will not receive some sort of penalty later.  Thus
-sched_hint requires CAP_SYS_NICE.  This really is not what we want; we
-need any arbitrary task to be able to give these hints.  Since the
-current solution is not fair, however, we cannot sanely do that.
+Thoughts?
 
-A patch for 2.5.20 is attached.  A patch for 2.4 + O(1) scheduler as
-well as a lame example program can be had at:
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/sched/scheduler-hints
-
-Any comments or suggestions are welcome.  Thanks,
-
-        Robert Love
-
-diff -urN linux-2.5.20/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.5.20/arch/i386/kernel/entry.S	Sun Jun  2 18:44:44 2002
-+++ linux/arch/i386/kernel/entry.S	Mon Jun  3 13:48:43 2002
-@@ -785,6 +785,7 @@
- 	.long sys_futex		/* 240 */
- 	.long sys_sched_setaffinity
- 	.long sys_sched_getaffinity
-+	.long sys_sched_hint
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long sys_ni_syscall
-diff -urN linux-2.5.20/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-2.5.20/include/asm-i386/unistd.h	Sun Jun  2 18:44:51 2002
-+++ linux/include/asm-i386/unistd.h	Mon Jun  3 13:48:59 2002
-@@ -247,6 +247,7 @@
- #define __NR_futex		240
- #define __NR_sched_setaffinity	241
- #define __NR_sched_getaffinity	242
-+#define __NR_sched_hint		243
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-diff -urN linux-2.5.20/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.5.20/include/linux/sched.h	Sun Jun  2 18:44:41 2002
-+++ linux/include/linux/sched.h	Mon Jun  3 17:10:10 2002
-@@ -116,6 +116,13 @@
- #endif
- 
- /*
-+ * Scheduling Hints
-+ */
-+#define HINT_TIME		1	/* increase remaining timeslice */
-+#define HINT_INTERACTIVE	2	/* interactive task: prio bonus */
-+#define HINT_BATCH		4	/* batch task: prio penalty */
-+
-+/*
-  * Scheduling policies
-  */
- #define SCHED_OTHER		0
-diff -urN linux-2.5.20/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.20/kernel/sched.c	Sun Jun  2 18:44:44 2002
-+++ linux/kernel/sched.c	Mon Jun  3 17:09:09 2002
-@@ -1143,7 +1143,7 @@
- 				policy != SCHED_OTHER)
- 			goto out_unlock;
- 	}
--	
-+
- 	/*
- 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
- 	 * 1..MAX_USER_RT_PRIO, valid priority for SCHED_OTHER is 0.
-@@ -1336,6 +1336,64 @@
- 	return real_len;
- }
- 
-+/*
-+ * sys_sched_hint - give the scheduler a hint to (hopefully) provide
-+ * better scheduling behavior.  For example, if a task is about
-+ * to acquire a highly contended resource, it would be wise to
-+ * increase its remaining timeslice to ensure it could drop the
-+ * resource before being preempted.
-+ *
-+ * `hint' is the hint to the scheduler, defined in include/linux/sched.h
-+ */
-+asmlinkage int sys_sched_hint(unsigned long hint)
-+{
-+	int ret = -EINVAL;
-+	unsigned long flags;
-+	runqueue_t *rq;
-+
-+	/*
-+	 * Requiring CAP_SYS_NICE is an issue: we really want any task
-+	 * to be able to give the scheduler a `hint' but we have no
-+	 * way of ensuring fairness.  The compromise is to require
-+	 * some sort of permission... you may want to get rid of this.
-+	 */
-+	if (!capable(CAP_SYS_NICE))
-+		return -EPERM;
-+
-+	rq = task_rq_lock(current, &flags);
-+
-+	if (hint & HINT_TIME) {
-+		current->time_slice = MAX_TIMESLICE;
-+		/*
-+		 * we may have run out of timeslice and have been
-+		 * put on the expired runqueue: if so, fix that.
-+		 */
-+		if (unlikely(current->array != rq->active)) {
-+			dequeue_task(current, current->array);
-+			enqueue_task(current, rq->active);
-+		}
-+		ret = 0;
-+	}
-+
-+	if (hint & HINT_INTERACTIVE) {
-+		dequeue_task(current, current->array);
-+		current->sleep_avg = MAX_SLEEP_AVG;
-+		current->prio = effective_prio(current);
-+		enqueue_task(current, rq->active);
-+		ret = 0;
-+	} else if (hint & HINT_BATCH) {
-+		dequeue_task(current, current->array);
-+		current->sleep_avg = 0;
-+		current->prio = effective_prio(current);
-+		enqueue_task(current, rq->active);
-+		ret = 0;
-+	}
-+
-+	task_rq_unlock(rq, &flags);
-+
-+	return ret;
-+}
-+
- asmlinkage long sys_sched_yield(void)
- {
- 	runqueue_t *rq;
-@@ -1376,6 +1434,7 @@
- 
- 	return 0;
- }
-+
- asmlinkage long sys_sched_get_priority_max(int policy)
- {
- 	int ret = -EINVAL;
+	-pat
 

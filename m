@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292182AbSBBBiI>; Fri, 1 Feb 2002 20:38:08 -0500
+	id <S292183AbSBBBuo>; Fri, 1 Feb 2002 20:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292183AbSBBBh6>; Fri, 1 Feb 2002 20:37:58 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:46828 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S292182AbSBBBhu>; Fri, 1 Feb 2002 20:37:50 -0500
-Message-ID: <3C5B4326.856A09E6@oracle.com>
-Date: Sat, 02 Feb 2002 02:38:46 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3 i686)
-X-Accept-Language: en
+	id <S292184AbSBBBuc>; Fri, 1 Feb 2002 20:50:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46852 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292183AbSBBBuS>; Fri, 1 Feb 2002 20:50:18 -0500
+Message-ID: <3C5B45CD.5060401@zytor.com>
+Date: Fri, 01 Feb 2002 17:50:05 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: modular floppy broken in 2.5.3
-Content-Type: text/plain; charset=us-ascii
+To: Peter Monta <pmonta@pmonta.com>
+CC: garzik@havoc.gtf.org, linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org> <20020201205605.ED5111C5@www.pmonta.com> <3C5B1CBB.6080802@zytor.com> <20020201232723.12F3E1C5@www.pmonta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to modprobe it yields
+Peter Monta wrote:
 
-[root@dolphin root]# modprobe floppy
-/lib/modules/2.5.3/kernel/drivers/block/floppy.o: init_module: Device or resource busy
-Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-/lib/modules/2.5.3/kernel/drivers/block/floppy.o: insmod /lib/modules/2.5.3/kernel/drivers/block/floppy.o failed
-/lib/modules/2.5.3/kernel/drivers/block/floppy.o: insmod floppy failed
+>>The point with the tests that have been mentioned is to derive such a
+>>conservative estimate, and to raise a red flag if the output suddenly
+>>becomes predictable.
+>>
+> 
+> Ah, I see; I was misled by the "truly random" remark, sorry.  So a reasonable
+> sanity test for a block of audio samples might be a standard deviation
+> greater than a few LSB; this will catch constant or close-to-constant
+> output.
+> 
 
- and dmesg says
 
-inserting floppy driver for 2.5.3
-Floppy drive(s): fd0 is 1.44M
-floppy0: Floppy io-port 0x03f0 in use
+However, those aren't the main failure modes you need to be concerned 
+with.  Antenna effects may actually be your biggest problem -- picking 
+up deterministic signals from other parts of the system.
 
-I haven't been using floppy.o for some times so I can't tell
- when this broke. I'll give recent 2.5.x kernels a spin and
- report (if nobody provided other suggestions).
+However, I believe this is a solved problem.  It would definitely be 
+interesting taking rngd and figuring out a way to drive it from /dev/dsp 
+-- probably not too difficult a modification.
 
-Thanks,
- 
---alessandro
+	-hpa
 
- "this machine will, will not communicate
-   these thoughts and the strain I am under
-  be a world child, form a circle before we all go under"
-                         (Radiohead, "Street Spirit [fade out]")
+
+

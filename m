@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310563AbSCGWkS>; Thu, 7 Mar 2002 17:40:18 -0500
+	id <S310569AbSCGWot>; Thu, 7 Mar 2002 17:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310559AbSCGWkJ>; Thu, 7 Mar 2002 17:40:09 -0500
-Received: from courage.cs.stevens-tech.edu ([155.246.89.70]:17662 "HELO
-	courage.cs.stevens-tech.edu") by vger.kernel.org with SMTP
-	id <S310553AbSCGWj6>; Thu, 7 Mar 2002 17:39:58 -0500
-Newsgroups: comp.os.linux.development.system
-Date: Thu, 7 Mar 2002 17:39:45 -0500 (EST)
-From: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
-Cc: <kernelnewbies@nl.linux.org>
-Subject: Accept -- still confused.
-Message-ID: <Pine.NEB.4.33.0203071724310.875-100000@courage.cs.stevens-tech.edu>
+	id <S310566AbSCGWol>; Thu, 7 Mar 2002 17:44:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4357 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310565AbSCGWna>;
+	Thu, 7 Mar 2002 17:43:30 -0500
+Message-ID: <3C87ECA7.FC68705A@zip.com.au>
+Date: Thu, 07 Mar 2002 14:41:43 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87E859.427EC3C7@zip.com.au> <Pine.LNX.4.44L.0203071926340.2181-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Rik van Riel wrote:
+> 
+> On Thu, 7 Mar 2002, Andrew Morton wrote:
+> 
+> > > use-once reduces the VM to FIFO order, which suffers from
+> > > belady's anomaly so it doesn't matter much how much memory
+> > > you throw at it
+> > >
+> > > drop-behind will suffer the same problem once the readahead
+> > > memory is too large to keep in the system, but at least the
+> > > already-used pages won't kick out readahead pages
+> >
+> > err..  Was there a fix in there somewhere, or are we stuck?
+> 
+> Imagine how TCP backoff would work if it kept old packets
+> around and would drop random packets because of too many
+> old packets in the buffers.
+> 
+> I suspect that the readahead window resizing might work
+> when we throw away the already-used streaming IO pages
+> before we start throwing away any pages we're about to
+> use.
 
-I've been trying to implement queuing and 'accept' in my protocol for few
-weeks.
-The way 'accept' should work is still not clear for me:
-We have a socket s and we do the following in the server:
-1. listen(s) -- thus s->sk_state = TCP_LISTEN.
-2. accept(s) -- put a process into sleep.
-...
-3. receiving function gets an 'init' packet and looks for a socket which
-matches packet's destination. The lookup returns s (!).
-4. I put s on a queue (sk->tp_pinfo.af_tcp.accept_queue) and wake up the
-process (why to put s itself on it's own queue?).
-5. accept resumes, grabs first socket from the queue (s) and changes its'
-state to TCP_ESTABLISHED and returns it to inet_accpet. (but this is the
-same socket we've been listening on:( ).
-6. inet_accept grafts s into a new socket(ok), but s is now in
-TCP_ESTABLISHED state, instead of TCP_LISTEN, which ruins next connection.
+ewww..  You seem to be implying that when the readahead
+code goes to get a new page, it's reclaiming unused
+readahead pages *in preference to* already-used pages.
 
-How to keep the listening state and return the valid socket to
-inet_accept, without messing with inet_accept itself?
-My problem is the socket I am listening on and to which the 'init' packet
-is destinated are the same.
+That would be awful, wouldn't it?
 
-Thanks for anything.
--marek
+Perhaps an algorithm would be:
 
+a) Call mark_page_accessed once against readahead pages.
 
+b) If thrashing is detected, call mark_page_accessed
+   twice against readahead pages, to move them onto the
+   active list.
+
+   The intent being to say "this page is important.  Throw
+   something else away".
+
+Seems this would delay the onset of the problem significantly?
+
+-

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRDARYW>; Sun, 1 Apr 2001 13:24:22 -0400
+	id <S132540AbRDATmD>; Sun, 1 Apr 2001 15:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132520AbRDARYM>; Sun, 1 Apr 2001 13:24:12 -0400
-Received: from smtp1.clinet.fi ([194.100.2.57]:57870 "HELO smtp1.clinet.fi")
-	by vger.kernel.org with SMTP id <S131191AbRDARYC>;
-	Sun, 1 Apr 2001 13:24:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dennis Noordsij <dennis.noordsij@wiral.com>
-To: linux-kernel@vger.kernel.org
-Subject: pthreads & fork & execve
-Date: Fri, 30 Mar 2001 16:22:57 +0300
-X-Mailer: KMail [version 1.2]
+	id <S132541AbRDATlx>; Sun, 1 Apr 2001 15:41:53 -0400
+Received: from denise.shiny.it ([194.20.232.1]:19976 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S132540AbRDATlk>;
+	Sun, 1 Apr 2001 15:41:40 -0400
+Message-ID: <3AC5A16A.9F0147E4@denise.shiny.it>
+Date: Sat, 31 Mar 2001 11:20:42 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01033016225700.00409@dennis>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Temporary disk space leak
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have question regarding use of pthreads, forks and execve's which appears 
-to not work very well :-) First let me explain the reasoning though
+[root@Jay Giu]# du -c /home
+[...]
+320120	/home
+320120	total
+[root@Jay Giu]# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda8               253823     65909    174807  27% /
+/dev/sda7              2158320    750672   1296240  37% /usr
+/dev/sda5              2193082   1898198    183474  91% /home
+/dev/sda9              1013887    899924     61586  94% /opt
 
-We have an app that launches a few other apps and keeps track of their 
-status, resource consumption etc. If one of the apps crashes, it is restarted 
-according to certain parameters.
 
-The app uses pthreads, and it's method of (re)starting an application is 
-forking and calling execve. 
+It happened after I wrote and deleted very large files (~750MB) a
+few times in my home dir.
+Then I logged out and I relogged in as root to check what happened
+and "df" shown everything was right again:
 
-It works fine for all-but-one other app, which core dumps when started this 
-way (from the commandline it works fine) and the core only traces back to  
-int main(int argc, char **argv). It uses both pthreads and -ldl for plugin 
-handling. 
+/dev/sda5              2193082    320122   1761550  15% /home
 
-We have tried changing the linking order (i.e. -ldl -lpthread, -lpthread, 
--ldl, etc), and even execv'ing a shell script that starts a shell script that 
-starts the app - result is the same, instant core without even running.
 
-I can see who forks together with threads and execve's are a messy 
-combination, and a better solution altogether to our approach is appreciated 
-just as much as a way to make the current solution work :-)
+...strange...
 
-We have tested both kernels 2.4.2 and 2.2.18. 
 
-We have tried on different systems, different hardware and slightly different 
-distributions (debian potato, unstable, etc).
+Linux Jay 2.4.2 #6 gio mar 22 00:02:30 CET 2001 ppc unknown
 
-To sum up: using a pthreaded app to launch another pthreaded app by means of 
-forking and exec(ve)'ng makes the second app core immediately, (at entering 
-main). What to do?
 
-Kind regards, and thanks for any help
-Dennis Noordsij
+Bye.
+
+P.S. Yes, I was the only one using the computer.
+

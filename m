@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265348AbUFUHN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUFUHPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265348AbUFUHN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUFUHN6
+	id S266140AbUFUHPD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:13:58 -0400
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:16259 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S265348AbUFUHN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:13:56 -0400
-Date: Mon, 21 Jun 2004 09:11:59 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
-Message-ID: <20040621071159.GA7017@bogon.ms20.nix>
-References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix> <20040616070326.GE28487@bogon.ms20.nix> <20040620192549.GA4307@bogon.ms20.nix> <1087791100.24157.9.camel@gaston>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+	Mon, 21 Jun 2004 03:15:03 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:39569 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S266137AbUFUHOy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:14:54 -0400
+From: "Matt H." <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproduction.scom
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Subject: Re: 2.6.7-bk way too fast
+Date: Mon, 21 Jun 2004 00:18:04 -0700
+User-Agent: KMail/1.6.52
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <40D64DF7.5040601@pobox.com> <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org> <40D688D1.7020308@tequila.co.jp>
+In-Reply-To: <40D688D1.7020308@tequila.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1087791100.24157.9.camel@gaston>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200406210018.04883.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I can confirm simular behavior here. I loaded 2.6.7-mm1 tonite  and  tried  
+Andrew's  patch ( which didn't work ) and then Linus's  ( which also didn't 
+work ).
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Matt H.
 
-On Sun, Jun 20, 2004 at 11:11:41PM -0500, Benjamin Herrenschmidt wrote:
-> On Sun, 2004-06-20 at 14:25, Guido Guenther wrote:
-> > Hi,
-> > On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
-> > > here's another piece of rivafb fixing that helps the driver on ppc
-> > > pbooks again a bit further. It corrects several wrong NV_ARCH_20
-> > > settings which are actually NV_ARCH_10 as determined by the PCIId.
-> > Any comments on this patch?
->=20
-> I don't, but did you ask on the linux-fbdev list ?
-I've sent a patch to James several weeks ago that removes the complete
-table with NV_ARCH_ mappings and uses PCI-IDs instead. He applied it to
-the fbdev tree, but it didn't end up in Linus tree yet.
-This patch just fixes what's obviously wrong. More cleanup to come once
-rivafb is in a usable shape for me again.
-Cheers,
- -- Guido
-
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA1oo/n88szT8+ZCYRAldQAJ9mnThibPr2ILHPuhCt1FhaZ3kdDgCfU80N
-QvnQxlwU2E6x2Adt0ftEqqg=
-=2xVZ
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
+On Monday 21 June 2004 12:05 am, Clemens Schwaighofer wrote:
+> Linus Torvalds wrote:
+> | On Mon, 21 Jun 2004, Norberto Bensa wrote:
+> |>Attaaached,    ..cooonfiig  and   dmmesssg.  Note:   iit''s
+> |>waaaaaaaaaaaaaaay    too     fffasssst  on X.  Text moode    termiinall
+> |>it''ss  oook.
+> |
+> | Does it fix it to just remove that one line completely?
+>
+> Neither the first one or removing the line fixes it. My mail pingu in
+> gkrellm is still running as he would be totaly on drugs ...

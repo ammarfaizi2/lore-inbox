@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUALNj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 08:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUALNj7
+	id S266173AbUALNlb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 08:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUALNlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 08:39:59 -0500
-Received: from dp.samba.org ([66.70.73.150]:52377 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266170AbUALNj5 (ORCPT
+	Mon, 12 Jan 2004 08:41:31 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:8780 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S266173AbUALNl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 08:39:57 -0500
-Date: Tue, 13 Jan 2004 00:32:24 +1100
-From: Anton Blanchard <anton@samba.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Limit hash table size
-Message-ID: <20040112133224.GA7287@krispykreme>
-References: <B05667366EE6204181EABE9C1B1C0EB5802444@scsmsx401.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB5802444@scsmsx401.sc.intel.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 12 Jan 2004 08:41:29 -0500
+Message-ID: <4002A3FC.3000000@samwel.tk>
+Date: Mon, 12 Jan 2004 14:41:16 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan De Luyck <lkml@kcore.org>
+CC: linux-kernel@vger.kernel.org, Dax Kelson <dax@gurulabs.com>,
+       Kiko Piris <kernel@pirispons.net>, Bartek Kania <mrbk@gnarf.org>,
+       Simon Mackinlay <smackinlay@mail.com>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+References: <3FFFD61C.7070706@samwel.tk> <200401121212.44902.lkml@kcore.org> <4002836A.8050908@samwel.tk> <200401121343.34688.lkml@kcore.org>
+In-Reply-To: <200401121343.34688.lkml@kcore.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan De Luyck wrote:
+>>2. Stop klogd, do "echo 1 > /proc/sys/vm/block_dump" and see which
+>>process keeps your disk spun up using dmesg.
+> 
+> Welll.... i see no READs, and the writes i see is spamd, kmail, pdflush, 
+> reiserfs/0.
 
-> We don't have any data to justify any size change for x86, that was the
-> main reason we limit the size by page order.
+How are the WRITEs grouped, are they grouped together or do they seem to 
+occur more evenly spaced? When you use "sync", how long until the next 
+WRITE? What are the values of /proc/sys/vm/dirty_expire_centisecs and 
+/proc/sys/vm/dirty_writeback_centisecs? Are you sure you are running a 
+kernel that supports the commit= option with reiserfs? (This option was 
+added in 2.6.1.)
 
-Well x86 isnt very interesting here, its all the 64bit archs that will
-end up with TBs of memory in the future.
+I've never tested laptop mode with reiserfs BTW, does anybody else here 
+have experience with laptop mode and reiserfs?
 
-> If I read them correctly, most of the distribution is in the first 2
-> buckets, so it doesn't matter whether you have 100 buckets or 1 million
-> buckets, only first 2 are being hammered hard.  So are we wasting memory
-> on the buckets that are not being used?
-
-But look at the horrid worst case there. My point is limiting the hash
-without any data is not a good idea. In 2.4 we raised MAX_ORDER on ppc64
-because we spent so much time walking pagecache chains, id hate to see
-us limit the icache and dcache hash in 2.6 and end up with a similar
-problem.
-
-Why cant we do something like Andrews recent min_free_kbytes patch and
-make the rate of change non linear. Just slow the increase down as we
-get bigger. I agree a 2GB hashtable is pretty ludicrous, but a 4MB one
-on a 512GB machine (which we sell at the moment) could be too :)
-
-Anton
+-- Bart

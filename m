@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSKGT1m>; Thu, 7 Nov 2002 14:27:42 -0500
+	id <S261544AbSKGTbd>; Thu, 7 Nov 2002 14:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261528AbSKGT1m>; Thu, 7 Nov 2002 14:27:42 -0500
-Received: from dialin-145-254-144-243.arcor-ip.net ([145.254.144.243]:15232
-	"HELO schottelius.net") by vger.kernel.org with SMTP
-	id <S261527AbSKGT1i>; Thu, 7 Nov 2002 14:27:38 -0500
-Date: Thu, 7 Nov 2002 10:04:26 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: PCMCIA <dhinds@zen.stanford.edu>
-Subject: [BUGS 2.5.45]
-Message-ID: <20021107090425.GA461@schottelius.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.4.19
+	id <S261545AbSKGTbd>; Thu, 7 Nov 2002 14:31:33 -0500
+Received: from pullyou.nist.gov ([129.6.16.93]:15239 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id <S261544AbSKGTbc>;
+	Thu, 7 Nov 2002 14:31:32 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Majordomo results
+References: <Pine.LNX.4.44L.0211071353330.22494-100000@duckman.distro.conectiva>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Thu, 07 Nov 2002 14:37:37 -0500
+In-Reply-To: <Pine.LNX.4.44L.0211071353330.22494-100000@duckman.distro.conectiva> (Rik
+ van Riel's message of "Thu, 7 Nov 2002 13:54:10 -0200 (BRST)")
+Message-ID: <9cf8z05qigu.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel <riel@conectiva.com.br> writes:
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, 7 Nov 2002, William Lee Irwin III wrote:
+>
+>> Could these DoS attempts get filtered somehow?
+>
+> Come on, if Ryan Cumming wants to make an ass out of himself,
+> why shouldn't he be allowed to ? ;)
 
-Hello again!
+It might be an innocent fat-finger problem... I use a digestifying
+mailing list gateway to get lkml and almost comitted this error
+myself...
 
-1)
-As you'll all have noticed, the makefile for the build wants QT installed f=
-or
-a simple build process.
+ian
 
-2)
-PCMCIA module ds.o cannot be loaded -> somehow the kernel denies that.
-
-3)
-atimach64 console driver makes blank screen on
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage P/M Mobilit=
-y AGP 2x (rev 64)
-
-I know, the video driver didn't work in any kernel version, but I am intere=
-sted
-in fixing that. I don't know where the problem is located, but I would beta
-test drivers, if available. I would also help to trace down the problem,
-with little help from the developers.
-
-Is there any development with this driver ? Or is it simply dead? I can't=
-=20
-find any contact in any of the kernel source files...
-
-Please tell me what todo with pcmcia/ati, I want to have those things
-usable, not only for me.
-
-Nico
-
-
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
-
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---8t9RHnE3ZwKMSgU+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9yiyZtnlUggLJsX0RAkjPAJ97Hy01NoboLuCwIGs0ftTH8YXeQQCgk0Sa
-uxtnW03USj/jR6WU/lu9SgY=
-=mCaI
------END PGP SIGNATURE-----
-
---8t9RHnE3ZwKMSgU+--

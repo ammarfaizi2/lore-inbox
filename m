@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSH1RI5>; Wed, 28 Aug 2002 13:08:57 -0400
+	id <S318115AbSH1RNP>; Wed, 28 Aug 2002 13:13:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSH1RI5>; Wed, 28 Aug 2002 13:08:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:42467 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316882AbSH1RI4>;
-	Wed, 28 Aug 2002 13:08:56 -0400
-Date: Wed, 28 Aug 2002 19:16:31 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr
-In-Reply-To: <20020828163242.2c84747f.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0208281914100.2647-100000@localhost.localdomain>
+	id <S318166AbSH1RNP>; Wed, 28 Aug 2002 13:13:15 -0400
+Received: from dsl-213-023-022-149.arcor-ip.net ([213.23.22.149]:51145 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318115AbSH1RNP>;
+	Wed, 28 Aug 2002 13:13:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Subject: Re: MM patches against 2.5.31
+Date: Wed, 28 Aug 2002 19:18:52 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3D644C70.6D100EA5@zip.com.au> <E17jjWN-0002fo-00@starship> <20020828131445.25959.qmail@thales.mathematik.uni-ulm.de>
+In-Reply-To: <20020828131445.25959.qmail@thales.mathematik.uni-ulm.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17k6Sy-0002s6-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 28 August 2002 15:14, Christian Ehrhardt wrote:
+> Side note: The BUG in __pagevec_lru_del seems strange. refill_inactive
+> or shrink_cache could have removed the page from the lru before
+> __pagevec_lru_del acquired the lru lock.
 
-On Wed, 28 Aug 2002, Rusty Russell wrote:
+It's suspect all right.  If there's a chain of assumptions that proves
+the page is always on the lru at the point, I haven't seen it yet.
 
-> >  - HT-aware affinity.
-> > 
-> >    Tasks should attempt to 'stick' to physical CPUs, not logical CPUs.
-> 
-> Linus disagreed with this before when I discussed it with him, and with
-> the current (stupid, non-portable, broken) set_affinity syscall he's
-> right.
-
-actually, affinity still works just fine, users can bind tasks to logical
-CPUs as well. What i meant was the affinity logic of the scheduler (ie.  
-affinity decisions done by the scheduler), not the externally visible
-affinity API.
-
-> You don't know if someone said "schedule me on cpu 0" because they
-> really want to be scheduled on CPU 0, or because they really *don't*
-> want to be scheduled on CPU 1 (where something else is running).  You
-> can't just assume they are equivalent if they are the same physical CPU.
-
-i dont assume that. There's also a fair amount of code in the kernel that
-relies on binding threads to particular CPUs, the patch does not break
-that in any way.
-
-	Ingo
-
+-- 
+Daniel

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312431AbSDJD6i>; Tue, 9 Apr 2002 23:58:38 -0400
+	id <S293713AbSDJEmB>; Wed, 10 Apr 2002 00:42:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312442AbSDJD6h>; Tue, 9 Apr 2002 23:58:37 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:20727 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S312431AbSDJD6g>; Tue, 9 Apr 2002 23:58:36 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 9 Apr 2002 21:57:14 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
-Message-ID: <20020410035714.GH424@turbolinux.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020410015311.GA31952@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312442AbSDJEmA>; Wed, 10 Apr 2002 00:42:00 -0400
+Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:48616 "EHLO
+	testdcc.outblaze.com") by vger.kernel.org with ESMTP
+	id <S293713AbSDJEmA>; Wed, 10 Apr 2002 00:42:00 -0400
+Message-ID: <20020410044156.2881.qmail@fastermail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "mark manning" <mark.manning@fastermail.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 09 Apr 2002 23:41:56 -0500
+Subject: Re: nanosleep
+X-Originating-Ip: 67.241.61.228
+X-Originating-Server: ws4.hk5.outblaze.com
+X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=9 From=9 Message-ID=1 Received=1 Body=1
+	Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 09, 2002  18:53 -0700, Mike Fedyk wrote:
-> I have a machine running 2.4.16 running as a bride without problem.
 
-Well, I know some people get attached to their machines, but you will
-find that your new bride will age a lot faster than you ;-).
+thanx - how much of a difference should i expect - i know the syscall is asking for at least the required ammount but that the task switcher might not give me control back for a while after the requested delay but i was expecting to be a little closer to what i had asked for - this isnt critical of corse but i would like to know what to expect.
 
-You may also want to contact Lennert Buytenhek <buytenh@gnu.org>, the
-bridge code maintainer.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+----- Original Message -----
+From: "H. Peter Anvin" <hpa@zytor.com>
+Date: Tue, 09 Apr 2002 21:17:03 -0700
+To: mark manning <mark.manning@fastermail.com>
+Subject: Re: nanosleep
 
+
+> mark manning wrote:
+> > doh - i think something is still wrong, i ask for 1000 ms and i get a second but if i do a 500 itteration loop asking for 1 ms i get 5 seconds.  i am also starting to distrust my elapsed time display which is using the gettimeofday syscall
+> > 
+> 
+> It doesn't work that way.  Each call to nanosleep() gives you a 
+> *MINIMUM* time to delay.  The kernel may decide to schedule you away and 
+> pick your process up when it suits it.
+> 
+> 	-hpa
+> 
+> 
+> 
+
+-- 
+
+_______________________________________________
+Get your free email from http://www.fastermail.com
+
+Powered by Outblaze

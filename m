@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317437AbSGZJad>; Fri, 26 Jul 2002 05:30:33 -0400
+	id <S317433AbSGZJ3F>; Fri, 26 Jul 2002 05:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317439AbSGZJad>; Fri, 26 Jul 2002 05:30:33 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30708 "EHLO
+	id <S317434AbSGZJ3E>; Fri, 26 Jul 2002 05:29:04 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:29684 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317437AbSGZJac>; Fri, 26 Jul 2002 05:30:32 -0400
-Subject: Re: Linux PCMCIA
+	id <S317433AbSGZJ3E>; Fri, 26 Jul 2002 05:29:04 -0400
+Subject: Re: [PATCH] IDE 104
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: John Weber <john.weber@linux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <11261.1027674190@redhat.com>
-References: <3D4078C7.4010304@linux.org>   <11261.1027674190@redhat.com>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D411134.60904@evision.ag>
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>	
+	<3D40F8F9.1050507@evision.ag>
+	<1027678411.13428.3.camel@irongate.swansea.linux.org.uk> 
+	<3D411134.60904@evision.ag>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Jul 2002 11:47:33 +0100
-Message-Id: <1027680453.13428.35.camel@irongate.swansea.linux.org.uk>
+Date: 26 Jul 2002 11:46:30 +0100
+Message-Id: <1027680390.13428.33.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 10:03, David Woodhouse wrote:
-> Unfortunately the plan is all we have at the moment, other than a few 
-> hundred lines of untested core device/driver registration code and untested 
-> CIS-parsing code. I threw that together hoping it would work like stone 
-> soup -- but it hasn't worked yet, so it's going to have to wait till I have 
-> more time to play.
+On Fri, 2002-07-26 at 10:07, Marcin Dalecki wrote:
+> The only thing which is really 'external API' there is the declaration
+> of the HDIO_XXX ioctl and among them in reality only HDIO_GETGEO 
+>       is really used outside the scope of the dreddy hdparm application. 
+> And
+> 99% of times its usage is bogous anyway. Or do you know any better
+> examples I'm not aware of?
 
-Maybe if you tell people where your soup pot is 8)
+The struct hd_geometry is used by ioctl HDIO_GETGEO. 
+The struct hd_driveid is used by ioctl HDIO_GETIDENTITY
 
+> The remainings will be moved away from there soon becouse it doesn't
+> make any sense to include this at every single place out there where
+> HDIO_GETGEO is the needed declaration. If some application needs ATA 
+
+This would be great, right now lots of drivers suck in the file for the 
+GETGEO stuff even though they are nothing to do with st506 or ide.
+
+Alan
 

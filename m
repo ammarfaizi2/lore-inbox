@@ -1,19 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272048AbRIIQNv>; Sun, 9 Sep 2001 12:13:51 -0400
+	id <S272056AbRIIQPL>; Sun, 9 Sep 2001 12:15:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272044AbRIIQNl>; Sun, 9 Sep 2001 12:13:41 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:14856 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S272043AbRIIQNg>;
-	Sun, 9 Sep 2001 12:13:36 -0400
+	id <S272044AbRIIQPB>; Sun, 9 Sep 2001 12:15:01 -0400
+Received: from smtp01.uc3m.es ([163.117.136.121]:22533 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S272049AbRIIQOw>;
+	Sun, 9 Sep 2001 12:14:52 -0400
 From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200109091613.f89GDhv24286@oboe.it.uc3m.es>
+Message-Id: <200109091615.f89GF5j24432@oboe.it.uc3m.es>
 Subject: Re: Query about Tun/Tap Modules
-In-Reply-To: <20010909095945.A2253@codepoet.org> from "Erik Andersen" at "Sep
- 9, 2001 09:59:45 am"
-To: andersen@codepoet.org
-Date: Sun, 9 Sep 2001 18:13:43 +0200 (MET DST)
-Cc: "Shiva Raman Pandey" <shiva@sasken.com>, linux-kernel@vger.kernel.org
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Sun, 9 Sep 2001 18:15:05 +0200 (MET DST)
 X-Anonymously-To: 
 Reply-To: ptb@it.uc3m.es
 X-Mailer: ELM [version 2.4ME+ PL66 (25)]

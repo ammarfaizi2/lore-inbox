@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbSKFPSz>; Wed, 6 Nov 2002 10:18:55 -0500
+	id <S265691AbSKFPXN>; Wed, 6 Nov 2002 10:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265715AbSKFPSz>; Wed, 6 Nov 2002 10:18:55 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52239 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S265711AbSKFPSx>; Wed, 6 Nov 2002 10:18:53 -0500
-Message-Id: <200211061519.gA6FJXp13811@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove extern inline from quotaops.h
-Date: Wed, 6 Nov 2002 18:11:19 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Marco van Wieringen <mvw@planets.elm.net>
-References: <20021104141317.A29058@mookie.adilger.int>
-In-Reply-To: <20021104141317.A29058@mookie.adilger.int>
+	id <S265692AbSKFPXN>; Wed, 6 Nov 2002 10:23:13 -0500
+Received: from signup.localnet.com ([207.251.201.46]:40117 "HELO
+	smtp.localnet.com") by vger.kernel.org with SMTP id <S265691AbSKFPXK>;
+	Wed, 6 Nov 2002 10:23:10 -0500
+To: linux-kernel@vger.kernel.org
+Cc: linuxconsole-dev@lists.sourceforge.net
+Subject: 2.5 bk, input driver and dell i8100 nib+pad
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 06 Nov 2002 10:29:37 -0500
+Message-ID: <m3n0omk97i.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 November 2002 19:13, Andreas Dilger wrote:
-> We are having a strange problem with compiling ext3 code out-of-tree,
-> and it is related to the fact that several functions in quotaops.h
-> are declared "extern __inline__" instead of "static inline".  Is
-> there a good reason to have it that way?  I thought "extern
-> __inline__" was sort of frowned upon.
->
-> Below is a patch to change this to "static inline".  A similar patch
-> is needed for 2.5, but the file has changed significantly...
+Trying out 2.5, I've got only a partially working mouse.  The usb
+mouse is fully functional, as are both sets of buttons on the
+notebook.  The mouse pad works, but the nib is ignored.
 
-What is your gcc version?
+Of course, I only ever use the nib and only noticed that the pad was
+working by accident.
 
-Mine is 3.2, and it sometimes de-inline large inline functions.
-That is, static inlines turn into simple static. And extern inlines
-in dangling extern references, that's what bite you maybe ;)
+I seem to recall a similar post some time back, but cannot find it in
+my archives.  
 
-Do not blindly fix it, think of it as a warning:
-"gcc: your inline is too large"
+Any ideas?
 
-For example,
+I do need to reboot into 2.4 and clone my bk clone from the sbp2 disk
+to the internal disk (ohci1394 is b0rked ATM) to see the .config I
+ended up with....
 
-static __inline__ int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
-{
-        lock_kernel();
-        if (sb_any_quota_enabled(inode->i_sb)) {
-                /* Used space is updated in alloc_space() */
-                if (inode->i_sb->dq_op->alloc_space(inode, nr, 0) == NO_QUOTA) {
-                        unlock_kernel();
-                        return 1;
-                }
-        }
-        else
-                inode_add_bytes(inode, nr);
-        unlock_kernel();
-        return 0;
-}
+The relevant X config is:
 
-static __inline__ int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
-{
-        int ret;
-        if (!(ret = DQUOT_ALLOC_SPACE_NODIRTY(inode, nr)))
-                mark_inode_dirty(inode);
-        return ret;
-}
+Section "ServerFlags"
+  Option       "AllowMouseOpenFail"
+EndSection
 
-Don't you think DQUOT_ALLOC_SPACE is _way too large_ to inline?
-Did you look at generated assembly to get a feeling of it's size?
---
-vda
+Section "InputDevice"
+  Driver       "mouse"
+  Identifier   "Mouse[1]"
+  Option       "Device" "/dev/psaux"
+  Option       "InputFashion" "Mouse"
+  Option       "Name" "AutoDetected"
+  Option       "Protocol" "ps/2"
+  Option       "Vendor" "AutoDetected"
+  Option       "Emulate3Buttons" "on"
+EndSection
+
+Section "InputDevice"
+  Driver       "mouse"
+  Identifier   "USBmouse"
+  Option       "Device" "/dev/input/mice"
+  Option       "Name" "AutoDetected"
+  Option       "Protocol" "IMPS/2"
+  Option       "Vendor" "AutoDetected"
+  Option       "ZAxisMapping" "4 5"
+EndSection
+
+Section "ServerLayout"
+  Identifier   "Layout[all]"
+  InputDevice  "Keyboard[0]" "CoreKeyboard"
+  InputDevice  "Mouse[1]" "CorePointer"
+  InputDevice  "USBmouse" "SendCoreEvents"
+  Option       "Clone" "off"
+  Option       "Xinerama" "off"
+  Screen       "Screen[0]"
+EndSection
+
+-JimC
+

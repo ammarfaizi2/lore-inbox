@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289833AbSBOO5V>; Fri, 15 Feb 2002 09:57:21 -0500
+	id <S289826AbSBOOzt>; Fri, 15 Feb 2002 09:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289832AbSBOO5K>; Fri, 15 Feb 2002 09:57:10 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:18651 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S289829AbSBOO45>; Fri, 15 Feb 2002 09:56:57 -0500
-Message-ID: <3C6D2130.1020103@wanadoo.fr>
-Date: Fri, 15 Feb 2002 15:54:40 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.5-pre1 rmmod usb-uhci hangs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289829AbSBOOzj>; Fri, 15 Feb 2002 09:55:39 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:41124 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S289826AbSBOOz3>; Fri, 15 Feb 2002 09:55:29 -0500
+Date: Fri, 15 Feb 2002 15:55:28 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <thomas@langaas.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, elsner@zrz.TU-Berlin.DE
+Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
+Message-ID: <20020215155528.A30717@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16bhwo-0007GZ-00@bronto.zrz.TU-Berlin.DE> <3C6D07B9.596AD49E@mandrakesoft.com> <20020215153604.A29642@stud.ntnu.no> <3C6D1F21.E0034BEE@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C6D1F21.E0034BEE@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Feb 15, 2002 at 09:45:53AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with 2.5.5-pre1 usb-uhci module can't unload. rmmod hangs, leaving the 
-system unstable. in one circumstance the box freezed with an oops 
-involving swapper pid0 . this doesn't happen with 2.5.4
+Jeff Garzik:
+> It's coming along slowly at the moment... I haven't had time to mess
+> with it for a few months, and I not DaveM was originally supposed to be
+> filling in the rx/tx dma stuff, and h/w init.  DaveM jumped in recently
+> and played a bit with the h/w init stage.
 
-# modprobe usb-uhci
-# lsmod
-usb-uhci    21924    0    (unused)
-usbcore     60524    1    [usb-uhci]
-# rmmod usb-uhci [hangs undefinitely in stat D]
-   PID TTY      STAT   TIME COMMAND
-   119 vc/1     D      0:00 rmmod usb-uhci
-# lsmod
-usb-uhci    0    0    (deleted)
-usbcore    60524    1    [usb-uhci]
+Is it possible for others to get axs to the work you guys have already done?
 
-any clue ?
-
-Pierre
 -- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
-
+Thomas

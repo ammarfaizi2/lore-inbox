@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVACD6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVACETt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVACD6k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 22:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVACD6k
+	id S261299AbVACETt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 23:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVACETt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 22:58:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60859 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261288AbVACD6i (ORCPT
+	Sun, 2 Jan 2005 23:19:49 -0500
+Received: from mail.tmr.com ([216.238.38.203]:11648 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S261299AbVACETs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 22:58:38 -0500
-Message-ID: <41D8C161.5000102@osdl.org>
-Date: Sun, 02 Jan 2005 19:52:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Sun, 2 Jan 2005 23:19:48 -0500
+Message-ID: <41D8C55A.5010801@tmr.com>
+Date: Sun, 02 Jan 2005 23:08:58 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Jim Nelson <james4765@cwazy.co.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       David Howells <dhowells@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: printk loglevel policy?
-References: <28707.1104722227@ocs3.ocs.com.au>
-In-Reply-To: <28707.1104722227@ocs3.ocs.com.au>
+To: Linux Kernel M/L <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-ac2 - more cdrecord wierdness
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Sun, 02 Jan 2005 13:41:34 -0800, 
-> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> 
->>Jim Nelson wrote:
->>
->>>Or does printk() do some tracking that I didn't see as to where in the 
->>>kernel the strings are coming from?
->>
->>That kind of garbled output has been known to happen, but
->>the <console_sem> is supposed to prevent that (along with
->>zap_locks() in kernel/printk.c).
-> 
-> 
-> Using multiple calls to printk to print a single line has always been
-> subject to the possibility of interleaving on SMP.  We just live with
-> the risk.  Printing a complete line in a single call to printk is
-> protected by various locks.  Print a line in multiple calls is not
-> protected.  If it bothers you that much, build up the line in a local
-> buffer then call printk once.
+I am trying to write a backup CD. The first write goes fine, I have rw 
+permission on the device, I use /dev/hdc, all is fine. I can mount the 
+CD, read it, etc.
 
-True, I was thinking about the single line case, which I
-have seen garbled/mixed in the past (on SMP).  Hopefully
-that one is fixed.
+However - it was written with the -multi option so I can add things to 
+it, since most of my backups are 50MB at a time. When I try to get the 
+size (using a perl script) which does:
+  cdrecord dev=/dev/hdc -msinfo
+I get permission denied. Even if I set cdrecord setuid (as a test, I 
+don't run that way).
 
--- 
-~Randy
+Back to ide-scsi, the perl program allows me to have the best features 
+of growisofs and some other usefulk features for backing up relatively 
+small datasets on a single CD.
+
+Just a FYI - I assume there's a good reason why reading the unclosed 
+filesystem size would compromise security.

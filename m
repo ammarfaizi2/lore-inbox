@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUH3JLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUH3JOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUH3JLz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 05:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUH3JLz
+	id S267515AbUH3JOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 05:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUH3JOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 05:11:55 -0400
-Received: from wasp.net.au ([203.190.192.17]:13754 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S267514AbUH3JLv (ORCPT
+	Mon, 30 Aug 2004 05:14:49 -0400
+Received: from jib.isi.edu ([128.9.128.193]:28811 "EHLO jib.isi.edu")
+	by vger.kernel.org with ESMTP id S267515AbUH3JOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 05:11:51 -0400
-Message-ID: <4132EF78.9000200@wasp.net.au>
-Date: Mon, 30 Aug 2004 13:12:24 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 30 Aug 2004 05:14:44 -0400
+Date: Mon, 30 Aug 2004 02:14:13 -0700
+From: Craig Milo Rogers <rogers@isi.edu>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+Cc: Oliver Neukum <oliver@neukum.org>, Kenneth Lavrsen <kenneth@lavrsen.dk>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Greg KH <greg@kroah.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata dev_config call order wrong.
-References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com>	 <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com>	 <41321F7F.7050300@pobox.com> <1093805994.28289.4.camel@localhost.localdomain>
-In-Reply-To: <1093805994.28289.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [linux-usb-devel] Re: Summarizing the PWC driver questions/answers
+Message-ID: <20040830091413.GA32665@isi.edu>
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk> <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localhost> <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk> <200408280113.27530.oliver@neukum.org> <1093786799.27934.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093786799.27934.28.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2004-08-29 at 19:25, Jeff Garzik wrote:
-> 
->>According to the Serial ATA docs, IDENTIFY DEVICE word 93 will be zero 
->>if it's Serial ATA.  Who knows if that's true, given the wierd wild 
->>world of ATA devices.
-> 
-> 
-> You need to check if word 93 is valid first. Same with things like the
-> cache control word - its value is only meaningful if the drive says the
-> word is meaningful.
+On 04.08.29, Alan Cox wrote:
+> A license was granted, for ever.
 
-I'm making some assumptions here based on information I could scrape up off the net.
+	This has been discussed before (on this list, I think), and
+the answer may surprise you, or maybe not:  nothing lasts forever.
 
-IDENTIFY DEVICE Word 93 support has been mandatory at least since ATA-5.
+	I am not a laywer.  I haven't looked at the U.K. copyright
+laws.  I *have* read throught the relevant U.S. laws (a few years
+back), and a copyright assignment or license (which I believe is a
+broad enough category to include the GPL) *can* be terminated in the
+U.S. in certain cases -- that's quite clear.  The "recapture" period
+(for works created after 1978) is a five-year period that starts 35
+years after the license was issued.  In that window, the author of
+copyrighted code, or the author's heirs or estate, have the option to
+revoke the original copyright assignment or license, i.e., in our
+case, presumably, revoke the GPL.
 
-ATA-5 did not have lba48 or > udma/66.
+	There are various details and procedures involved.  They must
+be followed precisely, or the opportunity to recapture the copyright
+may be lost.  One important detail is that work-for-hire copyright
+assignments may not be recaptured.
 
-SATA->PATA bridge boards support > udma/33 and thus must emulate an 80 conductor cable.
+	So, If you keep track of everyone to whom you, the author,
+*directly* distribute a copy of your GPL'd work (and thus assign an
+"original" GPL'd license), you might be able to effect a recapture by
+notifying everyone on that list.  Then again, you might have to notify
+everyone who ever received a copy of the GPL'd code, directly from you
+or not.  The GPL raises certain issues that simply weren't forseen by
+the framers of the statutes in question! :-)
 
-Thus, any device capable of lba48 (and these are the ones that trigger the > 200 sector problem) 
-must (according to the ATA-5 and up standard) support correct use of the IDENTIFY DEVICE word 93 
-register.
+	Again, I don't have the U.S. Federal Code references at hand.
+However, here is an article that explains this issue for composers of
+music:
 
-Given that the SATA->PATA bridge boards support 80 pin detection, then bit 13 of word 93 must be 
-high on any drive that supports lba48, and given the *current* sata spec states that word 93 must be 
-zero, we should be able to use this detection method.
+http://www.ascap.com/estates/estatescopyrights.html
 
-Now, remember I have been an "ATA researcher" for about 4 hours now, please feel free to belt me 
-with the wet salmon of enlightenment and point out the flaw in my logic. Otherwise, when I get home 
-this evening I'm going to have a crack and getting this working.
+	Finally, three preemptive comments:
 
-Regards,
-Brad
+1)	This aspect of copyright law is something that all professional
+	authors should know about.  You shouldn't have to relay upon
+	a lawyer to know your basic legal rights.
+
+2)	Linus Torvalds has recently reinforced the notion that the Linux
+	developers comminuty should behave as honorable gentlebeings, rather
+	than behave as lawyers.  This posting is not meant to gainsay that
+	statement in any way.  Think of knowledge of copyright law as akin to
+	knowing the terrain of a potential battlefield -- even though the
+	successful strategist seeks victory without the need for battle
+	(Sun Tzu, more or less).
+
+3)	The U.S. Congress or courts could make further changes to the laws that
+	affect copyright recapture.  Again, nothing is forever.
+
+					Craig Milo Rogers

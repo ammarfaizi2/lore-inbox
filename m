@@ -1,64 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264705AbSLaTO7>; Tue, 31 Dec 2002 14:14:59 -0500
+	id <S264729AbSLaTTN>; Tue, 31 Dec 2002 14:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbSLaTO7>; Tue, 31 Dec 2002 14:14:59 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:26329 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264705AbSLaTO5>; Tue, 31 Dec 2002 14:14:57 -0500
-Date: Tue, 31 Dec 2002 11:29:35 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3E11F01F.7040205@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200212311844.gBVIiUe02655@localhost.localdomain>
+	id <S264739AbSLaTTN>; Tue, 31 Dec 2002 14:19:13 -0500
+Received: from packet.digeo.com ([12.110.80.53]:36259 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264729AbSLaTTL>;
+	Tue, 31 Dec 2002 14:19:11 -0500
+Message-ID: <3E11EF9D.93EBB5F4@digeo.com>
+Date: Tue, 31 Dec 2002 11:27:25 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: patch -- mempool buglet (?)
+References: <3E11DF87.4090901@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 19:27:30.0231 (UTC) FILETIME=[A8F27C70:01C2B102]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I think the attached should do the necessary with no slow down in the slab 
-> allocator.
+David Brownell wrote:
 > 
-> Now all that has to happen for use with the dma pools is to wrapper 
-> dma_alloc/free_coherent().
+> I noticed this when reading the mempool code ... looked
+> wrong to me, it was using kfree() not the de-allocator
+> matching the allocation it just made.  This is on a fault
+> path that likely doesn't get much use.
+> 
+> Compiles, untested, "looks right".
+> 
 
-You didn't make anything store or return the dma_addr_t ... that was the
-issue I was referring to, it's got to be either (a) passed up from the
-very lowest level, like the pci_*() calls assume, or else (b) cheaply
-derived from the virtual address.  My patch added slab support in common
-cases where (b) applies.
-
-(By the way -- I'm glad we seem to be agreeing on the notion that we
-should have a dma_pool!  Is that also true of kmalloc/kfree analogues?)
-
-
-> Note that the semantics won't be quite the same as the pci_pool one since you 
-> can't guarantee that allocations don't cross the particular boundary 
-> parameter.
-
-Go back and look at the dma_pool patch I posted, which shows how to
-handle that using extra padding.  Only one driver needed that, and
-it looks like maybe its hardware spec changed so that's not an issue.
-
-That's why the signature of dma_pool_create() is simpler than the
-one for pci_pool_create() ... I never liked it before, and now I'm
-fully convinced it _can_ be simpler.
+Yup, thanks.  We actually need to drop the pool->lock
+around the pool->free invokation to be consistent.  I'll
+send in a fix.
 
 
- >    There's also going to be a reliance on the concept that the dma
-> coherent allocators will return a page bounded chunk of memory.  Most seem 
-> already to be doing this because the page properties are only controllable at 
-> that level, so it shouldn't be a problem.
+--- 25/mm/mempool.c~mempool_resize-fix	Tue Dec 31 11:12:39 2002
++++ 25-akpm/mm/mempool.c	Tue Dec 31 11:23:15 2002
+@@ -87,7 +87,13 @@ mempool_t * mempool_create(int min_nr, m
+ 	}
+ 	return pool;
+ }
++EXPORT_SYMBOL(mempool_create);
+ 
++/*
++ * mempool_resize is disabled for now, because it has no callers.  Feel free
++ * to turn it back on if needed.
++ */
++#if 0
+ /**
+  * mempool_resize - resize an existing memory pool
+  * @pool:       pointer to the memory pool which was allocated via
+@@ -143,16 +149,21 @@ int mempool_resize(mempool_t *pool, int 
+ 		if (!element)
+ 			goto out;
+ 		spin_lock_irqsave(&pool->lock, flags);
+-		if (pool->curr_nr < pool->min_nr)
++		if (pool->curr_nr < pool->min_nr) {
+ 			add_element(pool, element);
+-		else
+-			kfree(element);		/* Raced */
++		} else {
++			spin_unlock_irqrestore(&pool->lock, flags);
++			pool->free(element, pool->pool_data);	/* Raced */
++			spin_lock_irqsave(&pool->lock, flags);
++		}
+ 	}
+ out_unlock:
+ 	spin_unlock_irqrestore(&pool->lock, flags);
+ out:
+ 	return 0;
+ }
++EXPORT_SYMBOL(mempool_resize);
++#endif
+ 
+ /**
+  * mempool_destroy - deallocate a memory pool
+@@ -169,6 +180,7 @@ void mempool_destroy(mempool_t *pool)
+ 		BUG();		/* There were outstanding elements */
+ 	free_pool(pool);
+ }
++EXPORT_SYMBOL(mempool_destroy);
+ 
+ /**
+  * mempool_alloc - allocate an element from a specific memory pool
+@@ -230,6 +242,7 @@ repeat_alloc:
+ 
+ 	goto repeat_alloc;
+ }
++EXPORT_SYMBOL(mempool_alloc);
+ 
+ /**
+  * mempool_free - return an element to the pool.
+@@ -255,6 +268,7 @@ void mempool_free(void *element, mempool
+ 	}
+ 	pool->free(element, pool->pool_data);
+ }
++EXPORT_SYMBOL(mempool_free);
+ 
+ /*
+  * A commonly used alloc and free fn.
+@@ -264,17 +278,11 @@ void *mempool_alloc_slab(int gfp_mask, v
+ 	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
+ 	return kmem_cache_alloc(mem, gfp_mask);
+ }
++EXPORT_SYMBOL(mempool_alloc_slab);
+ 
+ void mempool_free_slab(void *element, void *pool_data)
+ {
+ 	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
+ 	kmem_cache_free(mem, element);
+ }
+-
+-EXPORT_SYMBOL(mempool_create);
+-EXPORT_SYMBOL(mempool_resize);
+-EXPORT_SYMBOL(mempool_destroy);
+-EXPORT_SYMBOL(mempool_alloc);
+-EXPORT_SYMBOL(mempool_free);
+-EXPORT_SYMBOL(mempool_alloc_slab);
+ EXPORT_SYMBOL(mempool_free_slab);
 
-I think that's a desirable way to specify dma_alloc_coherent(), as handling
-page-and-above.  The same layering as "normal" memory allocation.  (In fact,
-that's how I had updated the docs.)
-
-- Dave
-
+_

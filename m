@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbSJHIlL>; Tue, 8 Oct 2002 04:41:11 -0400
+	id <S261508AbSJHIp7>; Tue, 8 Oct 2002 04:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSJHIlL>; Tue, 8 Oct 2002 04:41:11 -0400
-Received: from news.cistron.nl ([62.216.30.38]:33541 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S261399AbSJHIlK>;
-	Tue, 8 Oct 2002 04:41:10 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: experiences with 2.5.40 on a busy usenet news server
-Date: Tue, 8 Oct 2002 08:46:20 +0000 (UTC)
-Organization: Cistron
-Message-ID: <anu60s$oev$1@ncc1701.cistron.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1034066780 25055 62.216.29.67 (8 Oct 2002 08:46:20 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S261554AbSJHIp7>; Tue, 8 Oct 2002 04:45:59 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:51977 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S261508AbSJHIp6>;
+	Tue, 8 Oct 2002 04:45:58 -0400
+Message-ID: <3DA29C17.1020005@corvil.com>
+Date: Tue, 08 Oct 2002 09:49:27 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Daniel Phillips <phillips@arcor.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+ 3.0  -  (NUMA))
+References: <Pine.LNX.4.33.0210071455070.1337-100000@penguin.transmeta.com> <E17yfxq-0003vd-00@starship> <3DA206C3.9AD2941A@digeo.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just FYI:
+Andrew Morton wrote:
+> Daniel Phillips wrote:
+> 
+>>On Monday 07 October 2002 23:55, Linus Torvalds wrote:
+>>
+>>>On Mon, 7 Oct 2002, Daniel Phillips wrote:
+>>>
+>>>>>Sure. The mey is:
+>>>>
+>>>>            ^^^ <---- "bet" ?
+>>>
+>>>Yeah. What the heck happened to my fingers?
+>>
+>>Apparently, one of them missed the key it was aiming for and the other one
+>>changed hands.
+>>
+> 
+> They don't call him Kubys for nothing.
+> 
+> I dug out and dusted off Al's Orlov allocator patch.  And found
+> a comment which rather helps explain how it works.
+> 
+> I performance tested this back in November.  See
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.1/0281.html
+> 
+> Bottom line: it's as good as the use-first-fit-everywhere
+> approach, and appears to have better long-term antifragmentation
+> characteristics.
+> 
+> I shall test it.
 
-So I booted 2.5.40 with the raid0 fix on our usenet news peering
-server yesterday. It is a box that exchanges binary feeds with
-about 40 peers, 400 GB/day in, 600 GB/day out.
+See dirpref (Orlov's allocator) here:
+http://www.maths.tcd.ie/~dwmalone/p/usenix02.pdf
+I was going to do this myself but of course it's
+already done, silly me.
 
-It's a dual PIII/450, 1 GB RAM, 4x18 GB article spool directly
-on partitions (not raw, but normal partitions). INN-2.4/CNFS.
-
-With 2.4.19, it runs fine. With 2.5.40, it goes wildly into
-swap. I'm assuming the I/O is pushing the newsserver binaries
-and database mappings into swap.
-
-# free
-             total       used       free     shared    buffers     cached
-Mem:       1033308    1027316       5992          0     836884      29776
--/+ buffers/cache:     160656     872652
-Swap:       976888     364032     612856
-
-No need to swap 364 MB when there's 872 MB still free...
-This makes the machine dogslow. An 'expire' process that
-runs every night normally takes 15 minutes to finish now
-has been running for 10 hours and its still not finished.
-
-Article acceptance rate has halved, the machine can't keep up
-with the binaries it is fed.
-
-I'm going to risk corrupting the databases and reboot back
-to 2.4.19 now.
-
-Mike.
+Pádraig.
 

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292360AbSBPNEk>; Sat, 16 Feb 2002 08:04:40 -0500
+	id <S292367AbSBPNnw>; Sat, 16 Feb 2002 08:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292365AbSBPNEa>; Sat, 16 Feb 2002 08:04:30 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24328 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S292360AbSBPNES>; Sat, 16 Feb 2002 08:04:18 -0500
-Date: Sat, 16 Feb 2002 14:04:14 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S292368AbSBPNnc>; Sat, 16 Feb 2002 08:43:32 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:27153 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S292367AbSBPNnZ>; Sat, 16 Feb 2002 08:43:25 -0500
+X-Envelope-From: ktoman@email.cz
+Subject: DRI & signal delivery in Linux 2.5
+From: Kamil Toman <ktoman@email.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216130414.GB2805@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org> <3C6E2C1A.2000104@evision-ventures.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.21mdk 
+Date: 16 Feb 2002 14:43:23 +0100
+Message-Id: <1013867003.8129.56.camel@whale.kolej.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6E2C1A.2000104@evision-ventures.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Feb 2002, Martin Dalecki wrote:
+Hi!
 
-> Matthias Andree wrote:
-> 
-> >Eric has done it, without being of kernel hacker temple's fame.
-> >
-> >Whether he doesn't listen to other developers, I cannot tell, I got my
-> >/fetchmail/ issues resolved. Still, I share the opinion that the kernel
-> >
-> Fetchmail is a prime example for the fact that Eric isn't a capable 
-> software designer.
-> Yes it is usefull, and works, but the configuration doesn't solve the 
-> common problems
-> for which fetchmail is used in an easy way... I wouldn't like to have 
-> something like
-> fetchmail for the kernel configuration.
+	I was recently playing with a bug in radeon drm code (it looks much as
+a deadlock to me). As a side effect I reread most of docs at the dri
+site. There is an interesting note in DRM design guide:
 
-The point is not to discuss fetchmail ease of use or design or whatever.
-CML2 is much younger, and in a much more maintainable language (or so I
-believe, at last; Python vs. C).
+"If the direct-rendering client holds the hardware lock and receives a
+SIGKILL signal, deadlock may result. If the SIGKILL is detected and the
+hardware lock is immediately taken from the client, the typical PC-class
+graphics hardware may be left in an unknown state and may lock up (this
+kind of hardware usually does not deal well with intermingling of
+command streams).
 
-The point I'm raising is that I cannot believe Eric would not care for
-change requests right now, that contradicts my experience.
+Similarly, if the direct-rendering client holds the hardware lock and
+receives a SIGSTOP, the X server and all other direct-rendering clients
+will block until the process releases the lock.
 
+Ideally, the client should be permitted to complete the rendering
+operation that is currently in progress and have the SIGKILL or SIGSTOP
+signals delivered as soon as the hardware lock is released (or, after
+some reasonable timeout, so that buggy clients can be halted). This
+delay of signal delivery appears to require kernel-level changes that
+cannot be performed by a loadable module using the standard module
+interface."
+
+Anyone knows if there is something planned to avoid this situation in
+Linux 2.5/6? I'm just curious...
+
+[ Please cc: me, I'm not no the list ]
+
+Have a nice day!
 -- 
-Matthias Andree
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+Kamil Toman

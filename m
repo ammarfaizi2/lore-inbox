@@ -1,79 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261924AbREQWOE>; Thu, 17 May 2001 18:14:04 -0400
+	id <S262198AbREQWVE>; Thu, 17 May 2001 18:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262197AbREQWNy>; Thu, 17 May 2001 18:13:54 -0400
-Received: from radio.protv.ro ([193.230.227.51]:32526 "EHLO radio.protv.ro")
-	by vger.kernel.org with ESMTP id <S261268AbREQWNn>;
-	Thu, 17 May 2001 18:13:43 -0400
-Message-ID: <3979.193.230.227.44.990137620.squirrel@radio.protv.ro>
-Date: Fri, 18 May 2001 01:13:40 +0300 (EEST)
-Subject: 2.4.4-ac10  IDE Floppy Still hangs 
-From: "Mihai Moldovanu" <mihaim@profm.ro>
-To: linux-kernel@vger.kernel.org
-Reply-To: mihaim@profm.ro
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S262197AbREQWUy>; Thu, 17 May 2001 18:20:54 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17162 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262198AbREQWUo>; Thu, 17 May 2001 18:20:44 -0400
+Date: Thu, 17 May 2001 17:42:52 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: mm/memory.c: Missing pte_mkyoung() on mk_pte() calls?
+In-Reply-To: <Pine.LNX.4.21.0105171733020.30965-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0105171740330.30965-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok . There still is a problem even in 2.4.4-ac10 with IDE FLoppy .
-Here is what i did and errors i got .
 
-[root@m /mnt]# mount /dev/hdd4 /mnt/zip
-ide-floppy: hdd: I/O error, pc = 5a, key =  5, asc = 24, ascq =  0
-ide-floppy: hdd: I/O error, pc = 5a, key =  5, asc = 24, ascq =  0
-[root@m /mnt]# mkdir /mnt/zip/test
-[root@m /mnt]# sync
-( at this point system seems to freeze, but after aprox 1 minute it recovers )
-hdd: lost interrupt
-ide-floppy: CoD != 0 in idefloppy_pc_intr
-hdd: ATAPI reset complete
-[root@m /mnt]#
-
-This is my system configuration:
-
-[root@m /mnt]# uname -a
-Linux m 2.4.4-ac10 #1 Fri May 18 00:40:46 EEST 2001 i686 unknown
+Two seconds after I sent the message Benjamin told me on IRC that
+PAGE_ACCESSED is included in the default page protections... duh. 
 
 
-May 18 00:53:41 m kernel: ide: Assuming 33MHz system bus speed for PIO
-modes; override with idebus=xx
-May 18 00:53:41 m kernel: VP_IDE: IDE controller on PCI bus 00 dev 39
-May 18 00:53:41 m kernel: VP_IDE: chipset revision 6
-May 18 00:53:41 m kernel: VP_IDE: not 100%% native mode: will probe irqs later
-May 18 00:53:41 m kernel: ide: Assuming 33MHz system bus speed for PIO
-modes; override with idebus=xx
-May 18 00:53:41 m kernel: VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100
-controller on pci00:07.1
-May 18 00:53:41 m kernel:     ide0: BM-DMA at 0xd000-0xd007, BIOS settings:
-hda:DMA, hdb:pio
-May 18 00:53:41 m kernel:     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings:
-hdc:DMA, hdd:pio
-May 18 00:53:41 m kernel: hda: IBM-DTLA-307030, ATA DISK drive
-May 18 00:53:41 m kernel: hdc: Pioneer DVD-ROM ATAPIModel DVD-114 0124,
-ATAPI CD/DVD-ROM drive
-May 18 00:53:41 m kernel: hdd: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
-May 18 00:53:41 m kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-May 18 00:53:41 m kernel: ide1 at 0x170-0x177,0x376 on irq 15
-May 18 00:53:41 m kernel: hda: 60036480 sectors (30739 MB) w/1916KiB Cache,
-CHS=29314/64/32, UDMA(100)
-May 18 00:53:41 m kernel: hdc: ATAPI DVD-ROM drive, 512kB Cache, UDMA(33)
-May 18 00:53:41 m kernel: Uniform CD-ROM driver Revision: 3.12
-May 18 00:53:41 m kernel: hdd: 98304kB, 196608 blocks, 512 sector size,
-May 18 00:53:41 m kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512 sector
-size, 2941 rpm
-May 18 00:53:41 m kernel: ide-floppy: hdd: I/O error, pc = 5a, key =  5, asc
-= 24, ascq =  0
+On Thu, 17 May 2001, Marcelo Tosatti wrote:
 
-
-Do you have any suggestions ?
-
--- 
-TFM Group Romania , Linux division
-
-Mihai Moldovanu
-
+> 
+> Linus,
+> 
+> I was looking at mm/memory.c (2.4), and I've noticed that we don't call
+> pte_mkyoung() on newly created pte's for most of the fault paths.
+> break_cow(), for example:
+> 
+>  establish_pte(vma, address, page_table, pte_mkwrite(pte_mkdirty(mk_pte(new_page, v ma->vm_page_prot))));
+> 
+> Is there any reason why we don't set the young bit on such places ?
+> 
+> I don't think that the window between the pte creation and the actual
+> access of the pte by the process is always big enough to avoid kswapd (or
+> other task trying to free memory) from ripping a created pte. 
+> 
+> 
+> 
+> 
 

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSKUWgZ>; Thu, 21 Nov 2002 17:36:25 -0500
+	id <S265037AbSKUWoN>; Thu, 21 Nov 2002 17:44:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbSKUWgZ>; Thu, 21 Nov 2002 17:36:25 -0500
-Received: from 1-245.ctame701-1.telepar.net.br ([200.181.137.245]:17311 "EHLO
-	1-245.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S265098AbSKUWgY>; Thu, 21 Nov 2002 17:36:24 -0500
-Date: Thu, 21 Nov 2002 20:43:17 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <linux@advansys.com>
-Subject: [PATCH] advansys.c buffer overflow
-Message-ID: <Pine.LNX.4.44L.0211212040480.4103-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S265065AbSKUWoN>; Thu, 21 Nov 2002 17:44:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28165 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265037AbSKUWoM>; Thu, 21 Nov 2002 17:44:12 -0500
+Date: Thu, 21 Nov 2002 14:50:58 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] export e820 table on x86
+In-Reply-To: <3DDC3E43.2080302@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0211211448460.5779-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The Stanford checker found an error in advansys.c, the driver
-is accessing field 6 in an array[6].  Since this is the only
-place where this field is accessed it should be safe to simply
-remove this line.
+On Wed, 20 Nov 2002, Dave Hansen wrote:
+>
+> I stole a patch that Arjan did a while ago, and ported it up to 2.5:
+> http://www.kernelnewbies.org/kernels/rh80/SOURCES/linux-2.4.0-e820.patch
+> 
+> We need this so avoid making BIOS calls when using kexec.
 
-===== drivers/scsi/advansys.c 1.18 vs edited =====
---- 1.18/drivers/scsi/advansys.c	Tue Oct 15 16:13:00 2002
-+++ edited/drivers/scsi/advansys.c	Wed Nov 20 01:00:08 2002
-@@ -5100,7 +5100,6 @@
-                 ep->adapter_info[3] = asc_dvc_varp->cfg->adapter_info[3];
-                 ep->adapter_info[4] = asc_dvc_varp->cfg->adapter_info[4];
-                 ep->adapter_info[5] = asc_dvc_varp->cfg->adapter_info[5];
--                ep->adapter_info[6] = asc_dvc_varp->cfg->adapter_info[6];
+Hmm.. So
 
-                /*
-                 * Modify board configuration.
+ - why isn't the info in /proc/iomem good enough - ie wouldn't it be 
+   better to just extend resource handling to 64 bit instead of
+   creating a new file.
 
+ - please use the seq_file interfaces for new files if you do end up 
+   creating new files.
+
+		Linus
 

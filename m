@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265834AbUAKLjU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 06:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbUAKLjU
+	id S265847AbUAKLwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 06:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbUAKLwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 06:39:20 -0500
-Received: from 015.atlasinternet.net ([212.9.93.15]:51665 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S265834AbUAKLjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 06:39:19 -0500
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1-mm1: A couple of problems
-Date: Sun, 11 Jan 2004 12:39:15 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401111239.15445.gallir@uib.es>
+	Sun, 11 Jan 2004 06:52:40 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:28545 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265847AbUAKLuj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 06:50:39 -0500
+Subject: Re: [PATCH 2.6.0] Cirrus PD6729 PCI-to-PCMCIA Bridge support for
+	2.6.x kernel
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Komuro <komujun@nifty.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1073819401.2329.7.camel@localhost.localdomain>
+References: <1073819401.2329.7.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WC+M2rG3mHD2DJx8835m"
+Organization: Red Hat, Inc.
+Message-Id: <1073821829.4431.9.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 11 Jan 2004 12:50:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, just a copule of problems with kernel 2.6.1-mm1
 
-- artsd running with ALSA gives the error: "CPU overloading, stopping" 
-just few seconds after it began to play a song. It's a P4 HT with SMP 
-enabled.
+--=-WC+M2rG3mHD2DJx8835m
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- Xfree hang: in a Dell Latitude laptop (P3-M 933), xfree (4.3, last 
-version in Debian experimental) hangs and shows a white screen. The 
-keyboard is also blocked, but login from the network is still OK. There 
-is no any error message. I also see the same effect when I tryed to run 
-Xine in full screen mode.
+On Sun, 2004-01-11 at 12:16, Komuro wrote:
+> Dear all
+>=20
+> I made a Cirrus PD6729 PCI-to-PCMCIA Bridge for 2.6.x kernel.
+> Please see the following patch. ( sorry for big patch)
 
-Hope this helps.
+looks good on first sight; worth adding to -mm for sure (and then into
+mainline)
 
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
+--=-WC+M2rG3mHD2DJx8835m
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAATiFxULwo51rQBIRAuVJAJ94ZDqOcyE87t9gg965dwBcy+JI9gCgiKwx
+jJ8PYiZu02bxFvCgpJ1RTQI=
+=/1kU
+-----END PGP SIGNATURE-----
+
+--=-WC+M2rG3mHD2DJx8835m--

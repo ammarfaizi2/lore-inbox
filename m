@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVCOWxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVCOWgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVCOWxz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:53:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVCOWxf
+	id S261970AbVCOWgm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCOWgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:53:35 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:5504 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262074AbVCOWvF (ORCPT
+	Tue, 15 Mar 2005 17:36:35 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:27916 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S261989AbVCOWeJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:51:05 -0500
-Date: Tue, 15 Mar 2005 16:51:01 -0600
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       greg@kroah.com, tom.l.nguyen@intel.com
-Subject: Re: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
-Message-ID: <20050315225101.GJ498@austin.ibm.com>
-References: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Tue, 15 Mar 2005 17:34:09 -0500
+Message-ID: <423762DE.5000501@tuxrocks.com>
+Date: Tue, 15 Mar 2005 15:34:06 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Valdis.Kletnieks@vt.edu, Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH 0/5] I8K driver facelift
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com> <200503150812.j2F8CABo004744@turing-police.cc.vt.edu>            <MPG.1ca0de763cbc3456989715@news.gmane.org> <200503151730.j2FHUT3k018541@turing-police.cc.vt.edu>
+In-Reply-To: <200503151730.j2FHUT3k018541@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, Mar 11, 2005 at 04:12:18PM -0800, long was heard to remark:
+Valdis.Kletnieks@vt.edu wrote:
+> Well, (a) the next rev of the patch will hopefully provide more access to the
+> second thermal probe than just detecting its existence (it still doesn't do
+> the sysfs or whatever magic to make the actual value accessible), and (b) the
+> probe I *know* about is on the CPU, and runs over 40C easily as well (it's sitting
+> at 49C right now).  Remember we're talking about a laptop here, there's not
+> a lot of room for a big heat sink in there.. ;)
 
-> +void hw_aer_unregister(void)
-> +{
-> +	struct pci_dev *dev = (struct pci_dev*)host->dev;
-> +	unsigned short id;
-> +
-> +	id = (dev->bus->number << 8) | dev->devfn;
-> +	
-> +	/* Unregister with AER Root driver */
-> +	pcie_aer_unregister(id);
-> +}
+I've been trying to work out how to do this through dynamic sysfs
+attributes, but I have not found a way to create arbitrary attributes
+like this.  It's not hard to define them at kernel compile time, but
+selecting the right number of sensors to compile in seems arbitrary.  My
+Inspiron 9200 has 4 sensors, and who knows how many next year's model
+will have.  It just doesn't seem like the Linux Kernel way of doing
+things to arbitrarily limit it like this.
 
-I don't understand how this can work on a system with 
-more than one domain.  On any midrange/high-end system, 
-you'll have a number of devices with identical values
-for (bus->number << 8) | devfn)
+I've looked into several ways of creating sysfs attributes, but haven't
+found anything that works right/well.  One of the most interesting was
+in this past LKML thread - http://lkml.org/lkml/2004/8/20/287  If I
+could replace the sysfs_attr_show() with my own, I believe that might
+work (the attribute is passed into the function, so the name should be
+available).
 
-For example, on my system, lspci prints out:
+It's odd that it's so easy to compile sysfs attributes into the kernel,
+but nobody seems to know how to generate them dynamically.
 
-mosquito:~ # lspci
-0000:00:01.0 Co-processor: IBM: Unknown device 00e0 (rev 01)
-0000:00:03.0 ISA bridge: Symphony Labs W83C553 (rev 10)
-0001:00:02.0 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0001:00:02.2 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0001:00:02.3 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0001:00:02.4 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0001:00:02.6 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0001:01:01.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
-66MHz  Ultra3 SCSI Adapter (rev 01)
-0001:01:01.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010
-66MHz  Ultra3 SCSI Adapter (rev 01)
-0001:21:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro
-100] (rev 0d)
-0002:00:02.0 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0002:00:02.2 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0002:00:02.4 PCI bridge: IBM: Unknown device 0188 (rev 02)
-0002:00:02.6 PCI bridge: IBM: Unknown device 0188 (rev 02)
+Thoughts?  Suggestions?
 
+Thanks,
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Here, 'Unknown device' is actually an empty slot.
-
-If I plugged the ethernet card in a few slots over, it would 
-show up as
-
-0002:01:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro
-
-and so it would have the exact same (bus->number << 8) | devfn)
-as the scsi device.
-
-Or am I being stupid/dense/all-of-the-above?
-
---linas
-
+iD8DBQFCN2LeaI0dwg4A47wRAhWEAKC+CcoLmoyvS6RXy7n7gtTnKjPXsACgtCbE
+zofgMMEmc5mAzrQKdKwpIMQ=
+=xNOU
+-----END PGP SIGNATURE-----

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312773AbSDKSyb>; Thu, 11 Apr 2002 14:54:31 -0400
+	id <S312790AbSDKTAF>; Thu, 11 Apr 2002 15:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312797AbSDKSya>; Thu, 11 Apr 2002 14:54:30 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34827 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312773AbSDKSy3>; Thu, 11 Apr 2002 14:54:29 -0400
-Date: Thu, 11 Apr 2002 15:54:09 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, <wli@holomorphy.com>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <Pine.LNX.4.44L.0204111522000.31387-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.44L.0204111553020.31387-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312797AbSDKTAE>; Thu, 11 Apr 2002 15:00:04 -0400
+Received: from zero.tech9.net ([209.61.188.187]:6666 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312790AbSDKTAE>;
+	Thu, 11 Apr 2002 15:00:04 -0400
+Subject: Re: [PATCH] 2.5: task cpu affinity syscalls
+From: Robert Love <rml@tech9.net>
+To: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1018535032.19511.75.camel@satan.xko.dec.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Apr 2002 15:00:03 -0400
+Message-Id: <1018551604.6524.215.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Rik van Riel wrote:
+On Thu, 2002-04-11 at 10:23, Aneesh Kumar K.V wrote:
 
-> replace slightly obscure while loops with for_each_zone and
-> for_each_pgdat macros  (thanks to William Lee Irwin)
+>  Now that we have API that allow a process to say I would like to go to
+> these  CPU, Are there any API's available that will allow a CPU to say I
+> will take only these process. ( Resource Affinity domains ? )
 
-OK, please skip this patch...
+First, the Linux scheduler is not really designed to do this.  It's cpu
+affinity works on a per-process basis and in fact needs to explicitly
+move CPUs from each CPU.  Second, we could probably do this in userspace
+using the exported sched_setaffinity syscall (just loop over all tasks,
+setting the affinity as-needed).
 
-William Irwin just found a bug in his code which is
-kind of bad for some, if not all, discontigmem machines.
+There is a problem, though.  In 2.5 with the O(1) scheduler, if the
+process is not currently running on an allowed CPU when it is affined,
+it must be forced off to a legal CPU via the migration threads.  This is
+expensive and complex and _not_ something we want to do to every process
+on the system.
 
-regards,
+For this reason, and because I honestly favor the simple interfaces I
+wrote, I think we should stick with just the exported interfaces we
+currently have.
 
-Rik
--- 
-Will hack the VM for food.
+This isn't to say we could not do this in userspace - it would not be
+hard (but still gross to move mass processes around).  We could also
+have a version of init that affines itself on boot, thereby having every
+other process likewise affined.  Then explicitly move away those
+processes we want elsewhere.  This is cheap and easy.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+	Robert Love
 

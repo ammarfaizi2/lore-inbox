@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVAKCJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVAKCGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbVAKCJi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 21:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVAKCGu
+	id S262676AbVAKCGb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 21:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVAKCFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 21:06:50 -0500
-Received: from holomorphy.com ([207.189.100.168]:28302 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262608AbVAKCGC (ORCPT
+	Mon, 10 Jan 2005 21:05:36 -0500
+Received: from [220.248.27.114] ([220.248.27.114]:15820 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S262608AbVAKCC4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 21:06:02 -0500
-Date: Mon, 10 Jan 2005 18:05:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Dave <dave.jiang@gmail.com>,
-       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
-       dsaxena@plexity.net, drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-Message-ID: <20050111020550.GE2696@holomorphy.com>
-References: <8746466a050110153479954fd2@mail.gmail.com> <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org> <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
+	Mon, 10 Jan 2005 21:02:56 -0500
+Date: Tue, 11 Jan 2005 10:01:13 +0800
+From: hugang@soulinfo.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software suspend patch [1/6]
+Message-ID: <20050111020112.GB22398@hugang.soulinfo.com>
+References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com> <20041128165835.GA1214@elf.ucw.cz> <20041129154307.GC4616@hugang.soulinfo.com> <20050109224325.GE1353@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20050109224325.GE1353@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+X-Virus-Checked: Checked
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:30:25PM -0800, Linus Torvalds wrote:
-> I don't think ioaddr_t needs to match resources. None of the IO accessor
-> functions take "u64"s anyway - and aren't likely to do so in the future
-> either - so "unsigned long" should be good enough.
-> Having u64 for resource handling is mainly an issue for RAM and
-> memory-mapped IO (right now the 32-bit limit means that we throw away
-> information about stuff above the 4GB mark from the e820 interfaces on
-> x86, for example - that _happens_ to work because we never see anything 
-> but RAM there anyway, but it means that /proc/iomem doesn't show all of 
-> the system RAM, and it does mean that our resource management doesn't 
-> actually handle 64-bit addresses correctly. 
-> See drivers/pci/probe.c for the result:
-> 	"PCI: Unable to handle 64-bit address for device xxxx"
-> (and I do not actually think this has _ever_ happened in real life, which 
-> makes me suspect that Windows doesn't handle them either - but it 
-> inevitably will happen some day).
+On Sun, Jan 09, 2005 at 11:43:25PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> Do you have any updates? It would be nice to separate non-continuous
+> pagedir from speeding up check_pagedir?
+> 
+> ...plus check_pagedir should really use PageNosaveFree flag instead of
+> allocating there own (big!) bitmaps. It should also make the code
+> simpler...
+> 								Pavel
 
-I have a vague recollection of seeing a report of an ia32 device and/or
-machine with this property from John Fusco but am having a tough time
-searching the archives properly for it. I do recall it being around the
-time the remap_pfn_range() work was started, and I also claimed it as
-one of the motivators of it in one of my posts. I'm unaware of whether
-there are more general resources in John Fusco's situation.
+I'm very happy with current swsusp, that's stable for me. 
+ 2.6.10-mm1 + ppc patch from 
+  http://honk.physik.uni-konstanz.de/~agx/linux-ppc/kernel/
+ + your free some memory patch
 
-My follow-ups began with:
-Message-ID: <20040924021735.GL9106@holomorphy.com>
-References: <41535AAE.6090700@yahoo.com>
+I using it for a week, never failed, never oops. :)
 
+The only problem is relocating a little slowly.
 
+Now I don't think non-continuous pagedir is really need. Anyway I'll
+prepare a patch to make swsusp using non-continuous pagedir.
 
--- wli
+any comments.
+
+-- 
+Hu Gang       .-.
+              /v\
+             // \\ 
+Linux User  /(   )\  [204016]
+GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc

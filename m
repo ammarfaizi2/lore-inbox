@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272608AbTG1Gjf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272668AbTG1Gjf
+	id S270995AbTG1GiN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272608AbTG1GiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:39:35 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41476
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S272608AbTG1Gje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:39:34 -0400
-Date: Sun, 27 Jul 2003 23:45:16 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Mike Galbraith <efault@gmx.de>
-cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
-In-Reply-To: <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
-Message-ID: <Pine.LNX.4.10.10307272338160.30891-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Jul 2003 02:38:13 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:16072 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S270995AbTG1GiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:38:12 -0400
+Date: Mon, 28 Jul 2003 14:56:36 +0800
+From: hugang <hugang@soulinfo.com>
+To: Voicu Liviu <pacman@mscc.huji.ac.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware version >=4
+Message-Id: <20030728145636.70fd45de.hugang@soulinfo.com>
+In-Reply-To: <3F24BA60.9050503@mscc.huji.ac.il>
+References: <3F24BA60.9050503@mscc.huji.ac.il>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Voicu Liviu <pacman@mscc.huji.ac.il>
+ =?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA:?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Jul 2003 08:53:36 +0300
+Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
 
-On Mon, 28 Jul 2003, Mike Galbraith wrote:
-
-> At 09:18 PM 7/27/2003 +0200, Felipe Alfaro Solana wrote:
-> >On Sun, 2003-07-27 at 15:40, Ingo Molnar wrote:
-> > > my latest scheduler patchset can be found at:
-> > >
-> > >       redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G6
-> > >
-> > > this version takes a shot at more scheduling fairness - i'd be interested
-> > > how it works out for others.
-> >
-> >This -G6 patch is fantastic, even without nicing the X server. I didn't
-> >even need to tweak any kernel scheduler knob to adjust for maximum
-> >smoothness on my desktop. Response times are impressive, even under
-> >heavy load. Great!
+> Hi,
+> I know there is a patch to make vmware compile against kernel >=2.5x
+> Any one could help me?
+> Thanks,
 > 
-> Can you try the following please?
-> 
-> This one I just noticed:
-> 1.  start top.
-> 2.  start dd if=/dev/zero | dd of=/dev/null
-> 3.  wiggle a window very briefly.
-> Here, X becomes extremely jerky, and I think this is due to two 
-> things.  One, X uses it's sleep_avg very quickly, and expires.  Two, the 
-> piped dd now is highly interactive due to the ns resolution clock (uhoh).
+> -- 
 
-What kind of LAME test is this?  If "X becomes extremely jerky" ?
+http://ftp.cvut.cz/vmware/vmware-any-any-update37.tar.gz
 
-Sheesh, somebody come up with a build class solution.
-
-CONFIG_SERVER
-CONFIG_WORKSTATION
-CONGIG_IAMAGEEKWHOPLAYSGAMES
-CONFIG_GENERIC_LAMER
-
-Determining quality of the scheduler based on how a mouse responds is ...
-
-Sorry but this is just laughable, emperical subjective determination
-based on a random hardware combinations for QA/QC for a test?
-
-Don't bother replying cause last thing I want to know is why.
-
--a
-
+-- 
+Hu Gang / Steve
+Email        : hugang@soulinfo.com, steve@soulinfo.com
+GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+http://soulinfo.com/~hugang/HuGang.asc
+ICQ#         : 205800361
+Registered Linux User : 204016

@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUGVPDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUGVPFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUGVPDV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 11:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGVPDV
+	id S266263AbUGVPFX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 11:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUGVPFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 11:03:21 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:37353 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266208AbUGVPDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 11:03:14 -0400
-Date: Thu, 22 Jul 2004 16:03:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bernd Schubert <bernd-schubert@web.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: 2.6.7 oops, sk98lin related?
-Message-ID: <20040722150314.GB13195@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bernd Schubert <bernd-schubert@web.de>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200407221101.16388.bernd-schubert@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407221101.16388.bernd-schubert@web.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 22 Jul 2004 11:05:23 -0400
+Received: from smtp-a.ua.edu ([130.160.4.38]:13202 "EHLO smtp-a.ua.edu")
+	by vger.kernel.org with ESMTP id S266263AbUGVPD3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 11:03:29 -0400
+Message-ID: <40FFD760.8060504@unix.eng.ua.edu>
+Date: Thu, 22 Jul 2004 10:04:00 -0500
+From: Evan Hisey <barnowl@unix.eng.ua.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: A users thoughts on the new dev. model
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 11:01:14AM +0200, Bernd Schubert wrote:
-> Hello Christoph and all others,
-> 
-> is this an sk98lin oops, maybe related to your patches or is it a completely 
-> different problem?
-
-I don't think there's skge patches from me in 2.6.7 yet, but certainly not
-in that area ;-)
-
-This is just a big memory allocation failing, not an oops anyway.
-
+To the Dev list:
+    First, thanks for all the work on the kernel. I try to keep up with 
+the list via both KernelTrap and  Kerneltraffic. Today I just saw the 
+discussion on the new development model.  As an end use of the vanilla 
+tree, I would like to point out that a large number of people and 
+projects rely on the vanilla kernel to be the stable tree do to the 
+overly varied and random patching nature of vendor supplied kernels 
+making them hard to call reliable. In the case of my preferred distro 
+Slackware,  the distro itself expects the vanilla tree to be stable and 
+reliable enough to not need any patches.  I believe this is the case for 
+a large number off distro' s and end users. Thank you for your time. 
+Please send any flames,comments, or complaints via CC, as I am not 
+sucribed to the list.
+       Evan Hisey

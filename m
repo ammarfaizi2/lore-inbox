@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275778AbRJQMVR>; Wed, 17 Oct 2001 08:21:17 -0400
+	id <S275816AbRJQMl5>; Wed, 17 Oct 2001 08:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275789AbRJQMVH>; Wed, 17 Oct 2001 08:21:07 -0400
-Received: from park.nikhef.nl ([192.16.199.192]:17047 "EHLO park.nikhef.nl")
-	by vger.kernel.org with ESMTP id <S275778AbRJQMUy>;
-	Wed, 17 Oct 2001 08:20:54 -0400
-Date: Wed, 17 Oct 2001 14:21:25 +0200 (MET DST)
-From: Joris van Rantwijk <jorisvr@nikhef.nl>
+	id <S275818AbRJQMlr>; Wed, 17 Oct 2001 08:41:47 -0400
+Received: from maties1.sun.ac.za ([146.232.128.1]:6584 "EHLO maties1.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S275816AbRJQMli>;
+	Wed, 17 Oct 2001 08:41:38 -0400
+Date: Wed, 17 Oct 2001 14:41:58 +0200
 To: linux-kernel@vger.kernel.org
-Subject: acenic failure with highmem in 2.4.12
-Message-ID: <Pine.SUN.3.95.1011017140054.21824A-100000@bilbo.nikhef.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: ps/2 mouse, keyboard conflicts
+Message-ID: <20011017144158.A6534@baboon.wilgenhof.sun.ac.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Hugo van der Merwe <hugovdm@mail.com>
+X-Scanner: exiscan *15tq1L-0005gN-00*5tpFa4b0vBo* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-When I enable the Acenic network driver in combination with high
-memory set to 4Gb, the driver fails during boot and prints:
+When I enable the ps/2 mouse, I get some kind of conflict between it and
+the keyboard (usually only after using them both for a while) resulting
+in both going ... "dead". The serial mouse still works though. Disabling
+the ps/2 mouse and unloading the module does sort it out again. (This I
+do over the network ;)
 
-eth0: Firmware NOT running!
-
-This happens with 2.4.12 as well as with 2.4.12-ac3, but 2.4.11 was
-working fine even with high memory enabled. With high memory disabled,
-the problem disappears and everything works fine.
-
-A diff on acenic.c between 2.4.11 and 2.4.12 reveals that the acenic
-driver now does pci_unmap_single() calls which were previously suppressed
-by an #ifdef. It thus seems that these are the cause of the problem,
-but I don't understand how or why.
-
-Details:
-dual Pentium-III with 1 Gb SDRAM.
-3Com 3C985 Gigabit Ethernet, Tigon II (Rev. 6), Firmware: 12.4.11
-SMP enabled in kernel.
-
-Any ideas ?
+Any ideas how I can debug this problem?
 
 Thanks,
-  Joris.
-
+Hugo van der Merwe

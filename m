@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274768AbRIZBzC>; Tue, 25 Sep 2001 21:55:02 -0400
+	id <S274774AbRIZB6C>; Tue, 25 Sep 2001 21:58:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274774AbRIZByw>; Tue, 25 Sep 2001 21:54:52 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:1036 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S274768AbRIZByn>;
-	Tue, 25 Sep 2001 21:54:43 -0400
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: "Cached" grows and grows and grows...
-Date: Tue, 25 Sep 2001 18:55:11 -0700
-Message-ID: <HBEHIIBBKKNOBLMPKCBBEECLDNAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S274777AbRIZB5w>; Tue, 25 Sep 2001 21:57:52 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:61937 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274774AbRIZB5g>;
+	Tue, 25 Sep 2001 21:57:36 -0400
+Date: Wed, 26 Sep 2001 03:58:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: Re: 2.4.10 still slow compared to 2.4.5pre1
+Message-ID: <20010926035810.V1782@athlon.random>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D54B@xfc01.fc.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D54B@xfc01.fc.hp.com>; from cary_dickens2@hp.com on Tue, Sep 25, 2001 at 08:44:35PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has this issue been resolved? If so, which of the many kernels has a
-confirmed fix?
+On Tue, Sep 25, 2001 at 08:44:35PM -0400, DICKENS,CARY (HP-Loveland,ex2) wrote:
+> Andrea,
+> 
+> I hate to inform you that we tracked this down and nr_inactive_pages can be
+> zero.  This causes divide by zero in shrink_caches.
+> 
+> This is from the 00_vm-tweaks-1 patch:
+>  static int shrink_caches(int priority, zone_t * classzone, unsigned int
+> gfp_mask, int nr_pages)
+>  {
+> -	int max_scan = nr_inactive_pages / priority;
+> +	int max_scan;
+> +	int chunk_size = nr_pages;
+> +	unsigned long ratio;
+>  
+>  	nr_pages -= kmem_cache_reap(gfp_mask);
+>  	if (nr_pages <= 0)
+>  		return 0;
+>  
+> -	/* Do we want to age the active list? */
+> -	if (nr_inactive_pages < nr_active_pages*2)
+> -		refill_inactive(nr_pages);
+> +	spin_lock(&pagemap_lru_lock);
+> +	nr_pages = chunk_size;
+> +	/* try to keep the active list 2/3 of the size of the cache */
+> +	ratio = (unsigned long) nr_pages * nr_active_pages /
+> (nr_inactive_pages * 2);
 
---
-M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-http://www.borasky-research.net  http://www.aracnet.com/~znmeb
-mailto:znmeb@borasky-research.net mailto:znmeb@aracnet.com
+how can you ever trigger it during boot?
 
-If there's nothing to astrology, how come so many famous men were born on
-holidays?
+anyways that is a real bug, thanks for spotting it, you can just add 1
+to nr_inactive_pages to fix it.
 
-> -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org
-> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
-> > Sent: Friday, September 07, 2001 3:16 PM
-> > To: Stephan von Krawczynski
-> > Cc: Bob McElrath; linux-kernel@vger.kernel.org
-> > Subject: Re: "Cached" grows and grows and grows...
-> >
-> >
-> > > To tell you the honest truth: you are not alone in cosmos (with
-> > this problem)
-> > > ;-)
-> > > To give you that explicit hint for saving money: do not buy
-> > mem, it will be
-> > > eaten up by recent kernels without any performance gain or
-> > other positive
-> > > impact whatsoever.
-> >
-> > Pick up a 2.4.9-ac kernel, and you shouldnt be seeing the problem (I say
-> > shouldnt, I'm not 100% convinced its all under control)
-> >
-> > > Try using 2.4.4, if it doesn't succeed, forget 2.4 and use
-> > 2.2.19. That works.
-> > > Unfortunately you may have to completely reinstall your system
-> > when going back
-> > > to 2.2.
-> >
-> > That should not be needed at all.
+	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages+1) * 2);
 
+it will be fixed in the next update of course.
+
+Andrea

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263530AbRFAOXo>; Fri, 1 Jun 2001 10:23:44 -0400
+	id <S263527AbRFAOWY>; Fri, 1 Jun 2001 10:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263531AbRFAOXY>; Fri, 1 Jun 2001 10:23:24 -0400
-Received: from ausxc10.us.dell.com ([143.166.98.229]:50447 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S263530AbRFAOXM>; Fri, 1 Jun 2001 10:23:12 -0400
-Message-ID: <CDF99E351003D311A8B0009027457F140810E482@ausxmrr501.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: katz@advanced.org, linux-kernel@vger.kernel.org
-Subject: RE: 2.4.[35] + Dell Poweredge 8450 + Oops on boot
-Date: Fri, 1 Jun 2001 09:22:24 -0500 
+	id <S263530AbRFAOWO>; Fri, 1 Jun 2001 10:22:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64775 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263527AbRFAOV5>; Fri, 1 Jun 2001 10:21:57 -0400
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for
+To: bogdan.costescu@iwr.uni-heidelberg.de (Bogdan Costescu)
+Date: Fri, 1 Jun 2001 15:19:45 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        bogdan.costescu@iwr.uni-heidelberg.de (Bogdan Costescu),
+        zaitcev@redhat.com (Pete Zaitcev),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0106011503030.18082-100000@kenzo.iwr.uni-heidelberg.de> from "Bogdan Costescu" at Jun 01, 2001 03:06:22 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155pmD-0000Zv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> my config settings .. The settings, and kernels I'm trying (at least
-> 2.4.3-ac9) work on other Dell boxes here, such as the 2450, and 6350
-> (with same internals, ie the raid (dual channel) + nic)...
+> No way! If I implement a HA application which depends on link status, I
+> want the info to be accurate, I don't want to know that 30 seconds ago I
+> had good link.
 > 
->   Quick spec of the box is:
-> 	Dell PowerEdge 8450
-> 	4x550 Xeon / 2gig
-> 	Onboard Adaptec SCSI
-> 	AMI MegaRaid Single Channel 16mb
->       Dual Port Intel EtherExpress Pro/100+
+> IMHO, rate limiting is the only solution.
 
-Can you check the firmware on the PERC 2/SC?  (You claim you tried a
-different system with a dual-channel, but that would be the PERC 2/DC).
-There's a bug in the megaraid driver for some versions of the PERC 2/SC
-firmware which can cause an oops when the megaraid driver loads.  It's fixed
-by upgrading to v3.13 firmware, available by link on
-http://domsch.com/linux.  That *shouldn't* be the problem, as I don't see
-the megaraid sign-on message, but it could be.
+Please re-read your comment. Then think about it. Then tell me how rate limiting
+differs from caching to the application.
 
-Also, the onboard SCSI adapter isn't an Adaptec, it's a Symbios 810.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-
+Alan
 

@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUAYRcT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 12:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUAYRcT
+	id S264941AbUAYRbE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 12:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUAYRbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 12:32:19 -0500
-Received: from ida.rowland.org ([192.131.102.52]:2308 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264943AbUAYRcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 12:32:13 -0500
-Date: Sun, 25 Jan 2004 12:32:12 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
- platform_device_unregister_wait() to the driver model core
-In-Reply-To: <Pine.LNX.4.58.0401231017030.2151@home.osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Jan 2004 12:31:04 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27643 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264941AbUAYRa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 12:30:59 -0500
+Date: Sun, 25 Jan 2004 18:30:48 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Fabio Coatti <cova@ferrara.linux.it>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
+Subject: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040125173048.GL513@fs.tum.de>
+References: <200401232253.08552.eric@cisu.net> <200401251639.56799.cova@ferrara.linux.it> <20040125162122.GJ513@fs.tum.de> <200401251811.27890.cova@ferrara.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401251811.27890.cova@ferrara.linux.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jan 2004, Linus Torvalds wrote:
+On Sun, Jan 25, 2004 at 06:11:27PM +0100, Fabio Coatti wrote:
+> Alle Sunday 25 January 2004 17:21, Adrian Bunk ha scritto:
+> 
+> >
+> > What's your gcc version ("gcc --version")?
+> 
+> gcc (GCC) 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk)
+> 
+> 
+> >
+> > Could you back out ("patch -p1 -R < ..." or manually remove the lines)
+> > the patch below and retry?
+> 
+> Yep, and now it works :)
+> Now I'm running  2.6.1-mm4, tested both UP and SMP (SMT) and it boots just 
+> fine. Later I'll try with more recents releases, but I'm pretty sure that 
+> these will work.
+> 
+> Many thanks, the patch has solved this issue :)
 
-> HOWEVER - I do worry when people start exporting interfaces that are 
-> basically _designed_ to deadlock. It's a bad interface. Don't export it. 
-> There is possibly just _one_ place that can do it, and it's the module 
-> unload part. Everything else would be a bug.
 
-You know, this problem and other similar ones related to module unloading 
-would go away if modules behaved more like other kernel objects:
+Many thanks to Eric and you for your help in tracking the problem down!
 
-	if they could be unregistered (rmmod) at any time, regardless
-	of their refcount;
 
-	if they would persist in an unregistered state, until they were
-	released (unloaded from memory) when the refcount dropped to 0.
+@Andi,Andrew:
 
-Then it wouldn't be necessary for a module's exit routine to wait when
-unregistering devices.  A device could simply hold a reference to the
-module; when the device was released and things were safe the module would
-be unloaded.  The one exception would no longer exist.
+It seems use-funit-at-a-time breaks with distributions shipping a gcc
+3.3 that supports -funit-at-a-time.
 
-Is there some reason why modules don't work like this?
+Th patch below replaces use-funit-at-a-time.patch and uses 
+scripts/gcc-version.sh from add-config-for-mregparm-3-ng* to use 
+-funit-at-a-time only with gcc >= 3.4 .
 
-Alan Stern
+cu
+Adrian
+
+
+--- linux-2.6.2-rc1-mm3/Makefile.old	2004-01-25 18:22:25.000000000 +0100
++++ linux-2.6.2-rc1-mm3/Makefile	2004-01-25 18:26:56.000000000 +0100
+@@ -441,6 +441,15 @@
+ CFLAGS		+= -g
+ endif
+ 
++# Enable unit-at-a-time mode when possible. It shrinks the
++# kernel considerably.
++#
++# Check the gcc version since -funit-at-a-time is available since gcc 3.4,
++# but some distributions ship a gcc 3.3 patched with a broken
++# -funit-at-a-time implementation
++GCC_VERSION = $(shell $(CONFIG_SHELL) scripts/gcc-version.sh $(CC))
++CFLAGS += $(shell if [ $(GCC_VERSION) -ge 0304 ] ; then echo "-funit-at-a-time"; fi ;)
++
+ # warn about C99 declaration after statement
+ CFLAGS += $(call check_gcc,-Wdeclaration-after-statement,)
+ 
+
 

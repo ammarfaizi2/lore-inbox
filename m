@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbSKKTQg>; Mon, 11 Nov 2002 14:16:36 -0500
+	id <S265901AbSKKTXQ>; Mon, 11 Nov 2002 14:23:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265900AbSKKTQg>; Mon, 11 Nov 2002 14:16:36 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:60399 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265898AbSKKTQf>;
-	Mon, 11 Nov 2002 14:16:35 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S265906AbSKKTXQ>; Mon, 11 Nov 2002 14:23:16 -0500
+Received: from polaris.galacticasoftware.com ([206.45.95.222]:32008 "EHLO
+	polaris.galacticasoftware.com") by vger.kernel.org with ESMTP
+	id <S265901AbSKKTXO>; Mon, 11 Nov 2002 14:23:14 -0500
+Date: Mon, 11 Nov 2002 13:26:48 -0600
+From: adamm@galacticasoftware.com
+To: linux-kernel@vger.kernel.org
+Subject: Promise Ultra100 TX2 driver problems
+Message-ID: <20021111192648.GA31966@galacticasoftware.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15824.915.758329.73126@napali.hpl.hp.com>
-Date: Mon, 11 Nov 2002 11:22:59 -0800
-To: Mario Smarduch <cms063@email.mot.com>
-Cc: linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3DCFDAE9.6D359448@email.mot.com>
-References: <20021109041543.EBE8A2C29F@lists.samba.org>
-	<3DCFDAE9.6D359448@email.mot.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 11 Nov 2002 10:29:29 -0600, Mario Smarduch <cms063@email.mot.com> said:
+Hi all,
 
-  Mario> I know that on some commercial Unix systems there are ways to
-  Mario> cap the CPU utilization by user/group ids are there such
-  Mario> features/patches available on Linux?
+There seems to be a major problem with the promise drivers.
+It is detected and seems to work, but there is a very 
+large number of interrupts being generated:
 
-There are probably other patches floating around, but Process Resource
-Management (PRM) for Linux is/was one approach to do just that:
+adamm@polaris:/proc$ cat interrupts
+           CPU0       CPU1
+  0:    2727665    2683676    IO-APIC-edge  timer
+  1:          1          1    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:    1137650    1130539   IO-APIC-level  eth0
+  7:          0          0    IO-APIC-edge  soundblaster
+  8:       1812       1790    IO-APIC-edge  rtc
+  9:     711977     709641   IO-APIC-level  sym53c8xx, eth1
+ 10: 2097584287 2097514818   IO-APIC-level  ide2, ide3
+NMI:          0          0
+LOC:    5411428    5411427
+ERR:          0
+MIS:       3013
 
-	http://resourcemanagement.unixsolutions.hp.com/WaRM/prm_linux/
+adamm@polaris:/proc$ uptime
+ 12:57:30 up 15:01,  1 user,  load average: 0.36, 0.35, 0.40
 
-The kernel patches available from this URL are pretty old (up to
-2.4.6, as far as I could see), and I'm not sure what the future plans
-for PRM on Linux are.  Perhaps someone else can provide more details.
+Or a staggering ~40000 interrupts per second!
 
-	--david
+This is a dual PPro machine and it is using 30% cpu time
+just to handle the interrupts.
+
+Anyone know what is going on?
+
+Thanks,
+Adam
+

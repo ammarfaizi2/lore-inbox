@@ -1,73 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132913AbRDQWoP>; Tue, 17 Apr 2001 18:44:15 -0400
+	id <S132680AbRDQWoe>; Tue, 17 Apr 2001 18:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132853AbRDQWoE>; Tue, 17 Apr 2001 18:44:04 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:2761 "EHLO suntan.tandem.com")
-	by vger.kernel.org with ESMTP id <S132710AbRDQWnz>;
-	Tue, 17 Apr 2001 18:43:55 -0400
-Message-ID: <3ADCC707.449F7B05@compaq.com>
-Date: Tue, 17 Apr 2001 15:43:19 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.12-20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mike@bangstate.com
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel space getcwd()? (using current() to find out cwd)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132853AbRDQWoZ>; Tue, 17 Apr 2001 18:44:25 -0400
+Received: from linas.org ([207.170.121.1]:44279 "HELO backlot.linas.org")
+	by vger.kernel.org with SMTP id <S132710AbRDQWoN>;
+	Tue, 17 Apr 2001 18:44:13 -0400
+Date: Tue, 17 Apr 2001 17:44:07 -0500
+To: Gunther.Mayer@t-online.de
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: resending-- Re: mouse problems in 2.4.2 -> lost byte -> Patch(2.4.3)!]
+Message-ID: <20010417174407.L6403@backlot.linas.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CqfQkoYPE/jGoa5Q"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: linas@backlot.linas.org (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is probably a stupid question, and probably directed to the wrong
-> list. Apologies in advance, but I'm stumped
-> 
-> I've been working on a kernel module to report on "changed files". It
-> works just fine -- I wrap the orignal system calls with my
-> [...]
+
+--CqfQkoYPE/jGoa5Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+resending another lost message
+
+----- Forwarded message from Linas Vepstas <linas@linas.org>, linas@linas.o=
+rg -----
+
+Subject: Re: mouse problems in 2.4.2 -> lost byte -> Patch(2.4.3)!
+In-Reply-To: <3AD0C8AD.1A4D7D12@t-online.de> "from Gunther Mayer at Apr 8, =
+2001
+	10:23:09 pm"
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+Date: Mon, 9 Apr 2001 18:42:51 -0500 (CDT)
+From: Linas Vepstas <linas@linas.org>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,=20
+	Vojtech Pavlik <vojtech@suse.cz>, linas@linas.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+
+It's been rumoured that Gunther Mayer said:
+> Losing bytes on psaux is a bug!
+ [...]
+> This patch printk's necessary information on the first 2 cases and
+
+I had applied a similar set of printk's several weeks ago; however,=20
+now the problem refuses to recur.  Hmmm ... the last time I had a
+problem that went away when I added printf's  ...
+
+Just to be sure, I'm going to try running the kernel without the
+printk's again.   Unfortunately, I upgraded the xserver yesterday,
+and so I fear that may mask further re-occurances ...
+
+--linas
 
 
-At least in the 2.4 kernels, there's already a __d_path() routine (fs/dcache.c)
-that builds the pathname using the mechanism you discussed.
+----- End forwarded message -----
 
-Here's one way you could use it:
+--=20
+Linas Vepstas   -- linas@linas.org -- http://linas.org/
 
-char *
-kgetcwd()
-{
-	char *path = (char *) __get_free_page(GFP_USER);
-        struct vfsmnt *pwdmnt;
-        struct dentry *pwd;
+--CqfQkoYPE/jGoa5Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-        if (!path)
-                return ERR_PTR(-ENOMEM);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-        read_lock(&current->fs->lock);
-        pwdmnt = mntget(current->fs->pwdmnt);
-        pwd = dget(current->fs->pwd);
-        read_unlock(&current->fs->lock);
+iD8DBQE63Mc1ZKmaggEEWTMRAg3hAJ9kzPpwUii5OzFRFI0AdOOUHSODDgCfT7Qa
+vRf4HJpD8EhTPL3Gc71yAWo=
+=TBiH
+-----END PGP SIGNATURE-----
 
-        spin_lock(&dcache_lock);
-        path = __d_path(pwd, pwdmnt, NULL, NULL, path, PAGE_SIZE);
-        spin_unlock(&dcache_lock);
-
-        mntput(pwdmnt);
-        dput(pwd);
-
-        return path;
-}
-
-
-If you only want the pathname back to the process root, use d_path() instead
-(and don't grab the dcache_lock).
-
-When you're done with path, free it with free_page() and not kfree().
-
-BTW, I'm not subscribed to the kernel mailing list (I just read it on the web),
-so please copy me on any response.
-
-
---
-Brian Watson
-Compaq Computer
+--CqfQkoYPE/jGoa5Q--

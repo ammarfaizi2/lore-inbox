@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271436AbRHOUyh>; Wed, 15 Aug 2001 16:54:37 -0400
+	id <S271437AbRHOUvr>; Wed, 15 Aug 2001 16:51:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271438AbRHOUy1>; Wed, 15 Aug 2001 16:54:27 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:60900 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S271436AbRHOUyJ>; Wed, 15 Aug 2001 16:54:09 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B2F@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: problem with LILO : junk characters before "boot:"
-Date: Wed, 15 Aug 2001 14:54:15 -0600
+	id <S271439AbRHOUvh>; Wed, 15 Aug 2001 16:51:37 -0400
+Received: from mail.erisksecurity.com ([208.179.59.234]:14914 "EHLO
+	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
+	id <S271438AbRHOUvZ>; Wed, 15 Aug 2001 16:51:25 -0400
+Message-ID: <3B7AE0D6.2090804@erisksecurity.com>
+Date: Wed, 15 Aug 2001 16:51:34 -0400
+From: David Ford <david@erisksecurity.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
+X-Accept-Language: en-us
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+CC: linux-kernel@vger.kernel.org
+Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
+In-Reply-To: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>    <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva> <20010814220545.D31070@pasky.ji.cz> <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva>;    from riel@conectiva.com.br on Mon, Aug 13, 2001 at 02:55:42PM -0300 <9lc0ek$l5k$1@ns1.clouddancer.com> <20010815193521.4DDE8783F5@mail.clouddancer.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+Also consider that many places use randomized pids. You can only assume 
+a few things about pids and that has to be done by evaluating kernel 
+threads and the init pid.
 
-I am trying to boot from a scsi drive through LILO.
-at the LILO prompt, I get something like this :
+David
 
-LILO
-xB.=!rFxxBoot:                   (where x is a some non-ascii character).
+Colonel wrote:
 
-After that it gives me a list of kernels to boot from.
-If I press "Enter", I get Error 0x40 or 0x80.
-Also, I just see only "Read Capacity" commands being issued to the drive
-continuously. 
+>>I also propose to half badness of processes with pid < 1000 - those
+>>processes are usually also important, because they are called during
+>>boot-time and they usually handle important system affairs.
+>>
+>
+>The belief that boot started processes remain under a pid < 1000 is
+>flawed.  Simple example: the postfix mail server.
+>
 
-Can somebody tell me what the prblem is ? Is there any problem with
-partition
-table on the disk ? Or is the Lilo corrupted ? 
 
-I tried to re-run lilo again after going into the "rescue" mode. Is there
-any other way that I can re-install the LILO ?
-
-Thanks and regards,
--hiren

@@ -1,112 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbUKXAHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUKXAJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUKXAHP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 19:07:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbUKXAFa
+	id S261284AbUKXAJq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 19:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbUKWRe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 19:05:30 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17559 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261618AbUKXACn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 19:02:43 -0500
-Date: Tue, 23 Nov 2004 18:02:21 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: celeron2002@chile.com, linux-kernel@vger.kernel.org
-Subject: Re: bug in mm/slab.c
-In-Reply-To: <1101250929.5207.1.camel@krustophenia.net>
-Message-ID: <Pine.SGI.4.58.0411231754430.46250@kzerza.americas.sgi.com>
-References: <34591.200.113.104.46.1101247993.squirrel@mail.chile.com>
- <1101250929.5207.1.camel@krustophenia.net>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Nov 2004 12:34:27 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:896 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261358AbUKWQRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 11:17:37 -0500
+Cc: openib-general@openib.org
+In-Reply-To: <20041123816.baaAyOggjbry3R4e@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Tue, 23 Nov 2004 08:16:20 -0800
+Message-Id: <20041123816.Z3lNI0kVfxRLOphJ@topspin.com>
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][RFC/v2][20/21] Add InfiniBand Documentation files
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 23 Nov 2004 16:16:27.0349 (UTC) FILETIME=[C8CE4050:01C4D177]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Nov 2004, Lee Revell wrote:
+Add files to Documentation/infiniband that describe the tree under
+/sys/class/infiniband, the IPoIB driver and the userspace MAD access driver.
 
-> On Tue, 2004-11-23 at 19:13 -0300, celeron2002@chile.com wrote:
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-> > nvidia: module license 'NVIDIA' taints kernel.
-> > ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-> > NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-6111  Tue Jul 27
-> > 07:55:38 PDT 2004
-> > kmem_cache_create: duplicate cache sgpool-8
-> > ------------[ cut here ]------------
-> > kernel BUG at mm/slab.c:1442!
->
-> Not only do you have the nvidia module loaded, but it looks like the
-> nvidia module caused your oops.
->
-> Did you see the line about 'module license NVIDIA taints kernel'?
-> Google for what this means and you will understand why this bug report
-> is offtopic.
 
-Not necessarily.  We tripped over this one at SGI the other day,
-though on IA64.  Unfortunately I don't know the specifics of the
-kernel that was being used, other than it is 2.6.5 based and fairly
-heavily patched.  But it most definitely did not have an nVidia
-driver loaded.  See the backtrace and related information below.
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/ipoib.txt	2004-11-23 08:10:24.271983477 -0800
+@@ -0,0 +1,55 @@
++IP OVER INFINIBAND
++
++  The ib_ipoib driver is an implementation of the IP over InfiniBand
++  protocol as specified by the latest Internet-Drafts issued by the
++  IETF ipoib working group.  It is a "native" implementation in the
++  sense of setting the interface type to ARPHRD_INFINIBAND and the
++  hardware address length to 20 (earlier proprietary implementations
++  masqueraded to the kernel as ethernet interfaces).
++
++Partitions and P_Keys
++
++  When the IPoIB driver is loaded, it creates one interface for each
++  port using the P_Key at index 0.  To create an interface with a
++  different P_Key, write the desired P_Key into the main interface's
++  /sys/class/net/<intf name>/create_child file.  For example:
++
++    echo 0x8001 > /sys/class/net/ib0/create_child
++
++  This will create an interface named ib0.8001 with P_Key 0x8001.  To
++  remove a subinterface, use the "delete_child" file:
++
++    echo 0x8001 > /sys/class/net/ib0/delete_child
++
++  The P_Key for any interface is given by the "pkey" file, and the
++  main interface for a subinterface is in "parent."
++
++Debugging Information
++
++  By compiling the IPoIB driver with CONFIG_INFINIBAND_IPOIB_DEBUG set
++  to 'y', tracing messages are compiled into the driver.  They are
++  turned on by setting the module parameters debug_level and
++  mcast_debug_level to 1.  These parameters can be controlled at
++  runtime through files in /sys/module/ib_ipoib/.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG also enables the "ipoib_debugfs"
++  virtual filesystem.  By mounting this filesystem, for example with
++
++    mkdir -p /ipoib_debugfs
++    mount -t ipoib_debugfs none /ipoib_debufs
++
++  it is possible to get statistics about multicast groups from the
++  files /ipoib_debugfs/ib0_mcg and so on.
++
++  The performance impact of this option is negligible, so it
++  is safe to enable this option with debug_level set to 0 for normal
++  operation.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG_DATA enables even more debug output
++  in the data path when debug_level is set to 2.  However, even with
++  the output disabled, this option will affect performance.
++
++References
++
++  IETF IP over InfiniBand (ipoib) Working Group
++    http://ietf.org/html.charters/ipoib-charter.html
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/sysfs.txt	2004-11-23 08:10:24.316976843 -0800
+@@ -0,0 +1,63 @@
++SYSFS FILES
++
++  For each InfiniBand device, the InfiniBand drivers create the
++  following files under /sys/class/infiniband/<device name>:
++
++    node_guid      - Node GUID
++    sys_image_guid - System image GUID
++
++  In addition, there is a "ports" subdirectory, with one subdirectory
++  for each port.  For example, if mthca0 is a 2-port HCA, there will
++  be two directories:
++
++    /sys/class/infiniband/mthca0/ports/1
++    /sys/class/infiniband/mthca0/ports/2
++
++  (A switch will only have a single "0" subdirectory for switch port
++  0; no subdirectory is created for normal switch ports)
++
++  In each port subdirectory, the following files are created:
++
++    cap_mask       - Port capability mask
++    lid            - Port LID
++    lid_mask_count - Port LID mask count
++    sm_lid         - Subnet manager LID for port's subnet
++    sm_sl          - Subnet manager SL for port's subnet
++    state          - Port state (DOWN, INIT, ARMED, ACTIVE or ACTIVE_DEFER)
++
++  There is also a "counters" subdirectory, with files
++
++    VL15_dropped
++    excessive_buffer_overrun_errors
++    link_downed
++    link_error_recovery
++    local_link_integrity_errors
++    port_rcv_constraint_errors
++    port_rcv_data
++    port_rcv_errors
++    port_rcv_packets
++    port_rcv_remote_physical_errors
++    port_rcv_switch_relay_errors
++    port_xmit_constraint_errors
++    port_xmit_data
++    port_xmit_discards
++    port_xmit_packets
++    symbol_error
++
++  Each of these files contains the corresponding value from the port's
++  Performance Management PortCounters attribute, as described in
++  section 16.1.3.5 of the InfiniBand Architecture Specification.
++
++  The "pkeys" and "gids" subdirectories contain one file for each
++  entry in the port's P_Key or GID table respectively.  For example,
++  ports/1/pkeys/10 contains the value at index 10 in port 1's P_Key
++  table.
++
++MTHCA
++
++  The Mellanox HCA driver also creates the files:
++
++    hw_rev   - Hardware revision number
++    fw_ver   - Firmware version
++    hca_type - HCA type: "MT23108", "MT25208 (MT23108 compat mode)",
++               or "MT25208"
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/user_mad.txt	2004-11-23 08:10:24.365969619 -0800
+@@ -0,0 +1,77 @@
++USERSPACE MAD ACCESS
++
++Device files
++
++  Each port of each InfiniBand device has a "umad" device attached.
++  For example, a two-port HCA will have two devices, while a switch
++  will have one device (for switch port 0).
++
++Creating MAD agents
++
++  A MAD agent can be created by filling in a struct ib_user_mad_reg_req
++  and then calling the IB_USER_MAD_REGISTER_AGENT ioctl on a file
++  descriptor for the appropriate device file.  If the registration
++  request succeeds, a 32-bit id will be returned in the structure.
++  For example:
++
++	struct ib_user_mad_reg_req req = { /* ... */ };
++	ret = ioctl(fd, IB_USER_MAD_REGISTER_AGENT, (char *) &req);
++        if (!ret)
++		my_agent = req.id;
++	else
++		perror("agent register");
++
++  Agents can be unregistered with the IB_USER_MAD_UNREGISTER_AGENT
++  ioctl.  Also, all agents registered through a file descriptor will
++  be unregistered when the descriptor is closed.
++
++Receiving MADs
++
++  MADs are received using read().  The buffer passed to read() must be
++  large enough to hold at least one struct ib_user_mad.  For example:
++
++	struct ib_user_mad mad;
++	ret = read(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("read");
++
++  In addition to the actual MAD contents, the other struct ib_user_mad
++  fields will be filled in with information on the received MAD.  For
++  example, the remote LID will be in mad.lid.
++
++  If a send times out, a receive will be generated with mad.status set
++  to ETIMEDOUT.  Otherwise when a MAD has been successfully received,
++  mad.status will be 0.
++
++  poll()/select() may be used to wait until a MAD can be read.
++
++Sending MADs
++
++  MADs are sent using write().  The agent ID for sending should be
++  filled into the id field of the MAD, the destination LID should be
++  filled into the lid field, and so on.  For example:
++
++	struct ib_user_mad mad;
++
++	/* fill in mad.data */
++
++	mad.id  = my_agent;	/* req.id from agent registration */
++	mad.lid = my_dest;	/* in network byte order... */
++	/* etc. */
++
++	ret = write(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("write");
++
++/dev files
++
++  To create the appropriate character device files automatically with
++  udev, a rule like
++
++    KERNEL="umad*", NAME="infiniband/%s{ibdev}/ports/%s{port}/mad"
++
++  can be used.  This will create a device node named
++
++    /dev/infiniband/mthca0/ports/1/mad
++
++  for port 1 of device mthca0, and so on.
 
-The theory right now is that SCSI support was compiled into the
-kernel, but for some reason a load of scsi_mod.ko was attempted
-from the initrd.  This would obviously cause a problem as both
-would try to create sgpool-8.
-
-Unfortunately I have few other details.  Just noting that this
-has been seen elsewhere very recently.
-
-Brent Casavant
-
-Loading kernel/drivers/scsi/scsi_mod.ko
-kmem_cache_create: duplicate cache sgpool-8
-kernel BUG at mm/slab.c:1348!
-insmod[1256]: bugcheck! 0 [1]
-
-Pid: 1256, CPU 2, comm:               insmod
-psr : 0000101008026038 ifs : 8000000000000998 ip  : [<a00000010011be90>]    Not tainted (2.6.5-7.109.14-sn2-sgidev-steiner )
-ip is at kmem_cache_create+0xb0/0xbe0
-unat: 0000000000000000 pfs : 0000000000000998 rsc : 0000000000000003
-rnat: e00000bc3be84c80 bsps: e00000bc3be84880 pr  : 5199164592a59665
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70033f
-csd : 0000000000000000 ssd : 0000000000000000
-b0  : a00000010011be90 b6  : e00000b0022df210 b7  : e000000001fffc00
-f6  : 10023bf75522a80000000 f7  : 10008fa00000000000000
-f8  : 1003e0000000006206d20 f9  : 10019c40da4028f488854
-f10 : 0fffbccccccccc8c00000 f11 : 1003e0000000000000000
-r1  : a000000100ee3910 r2  : ffffffffffffd3fd r3  : 0000000000000000
-r8  : 000000000000001e r9  : a000000100b6c158 r10 : 0000000000000001
-r11 : 0000000000004000 r12 : e0000130030bfe20 r13 : e0000130030b8000
-r14 : a000000100b4b3c8 r15 : a000000100d02130 r16 : 0000000000000001
-r17 : a000000100b6c118 r18 : ffffffffffffffff r19 : a000000100b6c158
-r20 : 0000000300000000 r21 : 00000000000016ee r22 : a000000100d02000
-r23 : e0000130030bfd30 r24 : 0000000000000000 r25 : e0000130030bfd48
-r26 : e00000bc3be84c80 r27 : 000000000000e8f0 r28 : 000000000000ffde
-r29 : a000000100d27cb8 r30 : 0000000000000000 r31 : a000000100d03078
-
-Call Trace:
- [<a000000100019120>] show_stack+0x80/0xa0
-                                sp=e0000130030bf9f0 bsp=e0000130030b9258
- [<a00000010003b790>] die+0x1b0/0x2c0
-                                sp=e0000130030bfbc0 bsp=e0000130030b9220
- [<a00000010003cdb0>] ia64_bad_break+0x2f0/0x400
-                                sp=e0000130030bfbc0 bsp=e0000130030b91f0
- [<a00000010000ff00>] ia64_leave_kernel+0x0/0x260
-                                sp=e0000130030bfc50 bsp=e0000130030b91f0
- [<a00000010011be90>] kmem_cache_create+0xb0/0xbe0
-                                sp=e0000130030bfe20 bsp=e0000130030b9130
- [<a0000002081485c0>] scsi_init_queue+0xa0/0x1b0 [scsi_mod]
-                                sp=e0000130030bfe30 bsp=e0000130030b90d0
- [<a000000208148280>] init_scsi+0x20/0x2c0 [scsi_mod]
-                                sp=e0000130030bfe30 bsp=e0000130030b90a8
- [<a0000001000eea90>] sys_init_module+0x390/0x760
-                                sp=e0000130030bfe30 bsp=e0000130030b9030
- [<a00000010000fd80>] ia64_ret_from_syscall+0x0/0x20
-                                sp=e0000130030bfe30 bsp=e0000130030b9030
-
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313319AbSDOWak>; Mon, 15 Apr 2002 18:30:40 -0400
+	id <S313321AbSDOWca>; Mon, 15 Apr 2002 18:32:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313321AbSDOWaj>; Mon, 15 Apr 2002 18:30:39 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17933 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313319AbSDOWaj>; Mon, 15 Apr 2002 18:30:39 -0400
-Subject: Re: link() security
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Mon, 15 Apr 2002 23:48:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a9f9f7$cng$1@cesium.transmeta.com> from "H. Peter Anvin" at Apr 15, 2002 12:25:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313322AbSDOWc3>; Mon, 15 Apr 2002 18:32:29 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27917 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S313321AbSDOWc2>; Mon, 15 Apr 2002 18:32:28 -0400
+Date: Tue, 16 Apr 2002 00:32:30 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] writeback daemons
+Message-ID: <20020415223230.GC3406@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3CB3DE1E.5F811D77@zip.com.au> <20020408203839.C540@toy.ucw.cz> <3CBB3A41.8E94C8A@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xFGx-0007As-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not to mention the fact that the single file mailbox design is itself
-> flawed.  Mailboxes are fundamentally directories, which news server
-> authors quickly realized.
+Hi!
 
-And then unrealized when they hit performance limitations. Its a trade off
-and one that most news systems seem to prefer to use a custom database
-for
+> > > The number of threads is dynamically managed by a simple
+> > > demand-driven algorithm.
+> > 
+> > So... when we are low on free memory, we try to create more threads... Possible
+> > deadlock?
+> 
+> Nope.  The number of threads is never allowed to fall below two,
+> for this very reason.
+
+I thought this was the case. BTW do you need *two* threads for
+reliable operation, or is one enough?
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

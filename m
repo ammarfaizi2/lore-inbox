@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264237AbTDPGGj (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 02:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbTDPGGj 
+	id S264243AbTDPGJU (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 02:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbTDPGJT 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 02:06:39 -0400
-Received: from calvin.stupendous.org ([213.84.70.4]:10507 "HELO
-	quadpro.stupendous.org") by vger.kernel.org with SMTP
-	id S264237AbTDPGGi (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 02:06:38 -0400
-Date: Wed, 16 Apr 2003 08:18:30 +0200
-From: Jurjen Oskam <jurjen@quadpro.stupendous.org>
-To: linux-kernel@vger.kernel.org
-Subject: Booting from Qlogic qla2300 fibre channel card
-Message-ID: <20030416061830.GA30423@quadpro.stupendous.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	Wed, 16 Apr 2003 02:09:19 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:62430 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S264243AbTDPGJS 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 02:09:18 -0400
+Date: Wed, 16 Apr 2003 08:20:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: [FBDEV BK] Updates and fixes.
+In-Reply-To: <Pine.LNX.4.44.0304152004350.8236-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.21.0304160818590.8914-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+On Tue, 15 Apr 2003, James Simmons wrote:
+> > drivers/video/aty/mach64_gx.c:194: warning: initialization from incompatible pointer type
+> 
+> Haven't applied a few driver patches yet because I have been working on 
+> the upper layer stuff.
 
-At work, we are looking to deploy several Linux boxes on our SAN. The
-machines will be IBM eServer xSeries 345 with Qlogic qla2340 Fibre Channel
-cards, and no internal disks.
+Try this one. I thought I had sent it to Linus with my latest batch...
 
-The storage array is an EMC Symmetrix model 8530. EMC created a document
-where they explain how to make such a configuration work. When they mention
-booting from a Symmetrix-provided volume, they mention the following:
+To: linus
+Subject: [PATCH] ATI Mach64 GX compile fix
 
-"If Linux loses connectivity long enough, the disks disappear from the
-system. [...] For [this reason], EMC recommends that you do not boot a
-Linux host from the EMC storage array."
+Atyfb: Add missing parts of reversal of Mobility changes, allowing ATI Mach64
+GX support to compile again.
 
+--- linux-2.5.x/drivers/video/aty/mach64_gx.c	Tue Mar 25 10:06:59 2003
++++ linux-m68k-2.5.x/drivers/video/aty/mach64_gx.c	Wed Mar 26 11:18:58 2003
+@@ -119,7 +119,7 @@
+ }
+ 
+ static int aty_var_to_pll_514(const struct fb_info *info, u32 vclk_per,
+-			      u32 bpp, u32 width, union aty_pll *pll)
++			      u8 bpp, union aty_pll *pll)
+ {
+ 	/*
+ 	 *  FIXME: use real calculations instead of using fixed values from the old
+@@ -338,7 +338,7 @@
+      */
+ 
+ static int aty_var_to_pll_18818(const struct fb_info *info, u32 vclk_per,
+-				u32 bpp, u32 width, union aty_pll *pll)
++				u8 bpp, union aty_pll *pll)
+ {
+ 	u32 MHz100;		/* in 0.01 MHz */
+ 	u32 program_bits;
+@@ -494,7 +494,7 @@
+      */
+ 
+ static int aty_var_to_pll_1703(const struct fb_info *info, u32 vclk_per,
+-			       u32 bpp, u32 width, union aty_pll *pll)
++			       u32 vclk_per, u8 bpp, union aty_pll *pll)
+ {
+ 	u32 mhz100;		/* in 0.01 MHz */
+ 	u32 program_bits;
+@@ -610,7 +610,7 @@
+      */
+ 
+ static int aty_var_to_pll_8398(const struct fb_info *info, u32 vclk_per,
+-			       u32 bpp, u32 width, union aty_pll *pll)
++			       u32 vclk_per, u8 bpp, union aty_pll *pll)
+ {
+ 	u32 tempA, tempB, fOut, longMHz100, diff, preDiff;
+ 
+@@ -734,7 +734,7 @@
+      */
+ 
+ static int aty_var_to_pll_408(const struct fb_info *info, u32 vclk_per,
+-			      u32 bpp, u32 width, union aty_pll *pll)
++			      u8 bpp, union aty_pll *pll)
+ {
+ 	u32 mhz100;		/* in 0.01 MHz */
+ 	u32 program_bits;
 
-When making an online configuration change on the Symmetrix (such as
-remapping volumes), it is possible for the attached hosts to experience
-a temporary error while accessing a storage array volume. For example,
-when changing the Symmetrix configuration, it is not uncommon for the
-RS/6000s (also attached to the SAN) to log one or two temporary
-SCSI-errors. They don't cause any problems at all, the AIX volume manager
-never notices a problem.
+Gr{oetje,eeting}s,
 
+						Geert
 
-Does the warning describe a real-world possibility? For example, what is
-"long enough"?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-Of course, we'll test this configuration before putting it into production
-(and I'll mention our results here if they prove to be interesting), but
-I'm hoping if somebody here has some useful comments. :-)
-
-Thanks,
--- 
-Jurjen Oskam
-
-PGP Key available at http://www.stupendous.org/

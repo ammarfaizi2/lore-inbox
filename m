@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265303AbTGCBAl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 21:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTGCBAl
+	id S265476AbTGCBIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 21:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbTGCBIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 21:00:41 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:48115 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S265303AbTGCBAj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 21:00:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: PTY DOS vulnerability?
-Date: Wed, 2 Jul 2003 20:14:36 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Fredrik Tolf <fredrik@dolda2000.cjb.net>, linux-kernel@vger.kernel.org
-References: <200306301613.11711.fredrik@dolda2000.cjb.net> <03070106574900.01125@tabby> <20030701195323.GA15483@hh.idb.hist.no>
-In-Reply-To: <20030701195323.GA15483@hh.idb.hist.no>
-MIME-Version: 1.0
-Message-Id: <03070220143600.04348@tabby>
-Content-Transfer-Encoding: 7BIT
+	Wed, 2 Jul 2003 21:08:50 -0400
+Received: from dp.samba.org ([66.70.73.150]:47847 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265476AbTGCBIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 21:08:48 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to hang in 2.4.22-pre2 -- second try 
+In-reply-to: Your message of "Wed, 02 Jul 2003 13:06:07 EST."
+             <3F031F0F.4020600@sgi.com> 
+Date: Thu, 03 Jul 2003 10:56:40 +1000
+Message-Id: <20030703012314.888742C003@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 July 2003 14:53, Helge Hafting wrote:
-> On Tue, Jul 01, 2003 at 06:57:49AM -0500, Jesse Pollard wrote:
-> > One problem is that ptys are not just "used by the user". Every terminal
-> > window opened uses a pty. As does a network connection.
-> >
-> > As does "expect" - which is less visible to the user since it is intended
-> > to be invisible.
-> >
-> > The real question is "how many PTYs should a single user have?"
-> > Which then prompts the question "How many concurrent users should there
-> > be?"
-> >
-> > second, just providing a user limit doesn't prevent a denial of service..
-> > Just have more connections than ptys and you are in the same situation.
->
-> Isn't this something a improved sshd could do?  I.e. if the
-> connection using up the last (or one of the last) pty's logs
-> in as non-root - just kill it.
+In message <3F031F0F.4020600@sgi.com> you write:
+> Duh.  My fault.  I didn't see this in 2.4.22-pre2.  Some checking shows 
+> that it is also in 2.4.20.  How this didn't get into our SGI 2.4.20 tree 
+> is beyond me (this where we originally found this problem).  So there is 
+> no problem in 2.4.22-pre2.
+> 
+> Rusty -- thanks for your perseverence on this.
 
-and how is it to determine that it is the last?
+Hey, glad I could help.
 
-try two and die if the second fails???
+As for perseverance, it's an occupational hazard.  Linus has said
+before that he doesn't want patches which don't get aggressively
+pushed by someone, and indeed, they get lost.  Hence the Trivial Patch
+Monkey...
 
-at least one system just creates more ptys...
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

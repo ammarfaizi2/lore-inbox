@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVBISqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVBISs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVBISqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 13:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVBISqi
+	id S261895AbVBISs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 13:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVBISs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 13:46:38 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:52359 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261892AbVBISqf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 13:46:35 -0500
-Date: Wed, 9 Feb 2005 10:46:29 -0800
+	Wed, 9 Feb 2005 13:48:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:64326 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261895AbVBISsR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 13:48:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=um1SOC7wSkzMc45cBerBY56HMgtHD0syGAmZnzlJ095JiDjT/z4EAr/O4PCOI0f8slnModaOoM9L9+HzuA94lz51Y395Ph5jsvOEVd4hnD08rl11f407GQU8AI4E/Wzleo/wqJkR5IUVoFNSpj3yjKsokGNI4T3XcQMUr/df5XE=
+Message-ID: <9e4733910502091048521ad48d@mail.gmail.com>
+Date: Wed, 9 Feb 2005 13:48:15 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Nicolas Pitre <nico@cam.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-       Theodo@videotron.ca, tytso@mit.edu, Stelian Pop <stelian@popies.net>,
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
        Francois Romieu <romieu@fr.zoreil.com>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050209184629.GR22893@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Nicolas Pitre <nico@cam.org>,
-	Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-	Theodo@videotron.ca, tytso@mit.edu, Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>,
-	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0502091313350.7836@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050208155845.GB14505@bitmover.com>
+	 <Pine.LNX.4.61.0502090208580.6118@scrub.home>
+	 <9e47339105020818242fd9f6fa@mail.gmail.com>
+	 <Pine.LNX.4.61.0502090328490.30794@scrub.home>
+	 <20050209023928.GB4828@bitmover.com>
+	 <Pine.LNX.4.61.0502090346470.30794@scrub.home>
+	 <20050209034030.GC4828@bitmover.com>
+	 <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
+	 <9e473391050209093856ce68bd@mail.gmail.com>
+	 <Pine.LNX.4.61.0502091313350.7836@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 12:17:48PM -0500, Nicolas Pitre wrote:
-> On Tue, 8 Feb 2005, Larry McVoy wrote:
-> > You know, you could change all this.  Instead of complaining that we
-> > are somehow hurting you, which virtually 100% of the readers know is
-> > nonsense, you could be producing an alternative answer which is better.
-> 
-> IMHO something is flawed in this whole argument.  Why would someone be
-> interested into any alternative answer for working on the Linux kernel
-> tree if the whole thing can't be imported into it with the same
-> granularity as can be found in BK?  IOW what's the point to alternatives
-> if you can't retrieve the entire workset?
+On Wed, 9 Feb 2005 13:24:06 -0500 (EST), Nicolas Pitre <nico@cam.org> wrote:
+> Larry turned it down with the usual "we're'll fear you if we do that"
+> answer although I still have problems seeing why BK would be suplented
+> with that info available.  The SCM problem is much much more than just a
+> tree to bench test on.
 
-Please explain to me where the data is being lost.  100% of the patches
-are available on bkbits.net with no license agreement required.  They
-always have been.
+Larry has said, write up a proposal for changes you want in bk. Send
+it to him for a quote. Come up with the cash and he will do the work.
 
-The problem is that you want us to tell you how BK manages those patches.
-That was never part of the agreement, in fact we made it clear in the
-license that that information was considered to be IP and could not be
-distributed.  How BK does that is our business, not yours.  If you want
-to know how BK does it you must go figure it out without the benefit
-of BK itself or metadata managed by BK.
+All I see is a bunch of complaints and no concrete proposal for the
+work to be done.
 
-While I understand that you don't like it, is there no sense of fairness
-left?  We did the hard work to create BK.  Some of us worked for *years*
-without pay to create this product.  Some of us put our life savings
-into the product.  It's our IP, we paid heavily to create this, is it
-so unreasonable of us to want to protect our work?  I believe we are
-within our legal rights, or so our legal team tells us, but that should
-be beside the point.  It's our work.  We paid for it.  We certainly
-don't have any obligation to tell you how we did it and to us it seems
-pretty unreasonable that you don't just go off and do the work yourself.
-And pretty unadmirable as well, don't you have any faith in your own
-abilities?
+He has provided a legal means for achieving what the complainers want
+done. So stop complaining and start writing the proposal.
+
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268924AbRHQSvd>; Fri, 17 Aug 2001 14:51:33 -0400
+	id <S270236AbRHQSvd>; Fri, 17 Aug 2001 14:51:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270236AbRHQSvY>; Fri, 17 Aug 2001 14:51:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7547 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S268924AbRHQSvS>; Fri, 17 Aug 2001 14:51:18 -0400
-To: swsnyder@home.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MTRR/DRM questions
-In-Reply-To: <01081712301804.01709@mercury.snydernet.lan>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Aug 2001 12:44:21 -0600
-In-Reply-To: <01081712301804.01709@mercury.snydernet.lan>
-Message-ID: <m1wv42o7ay.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S270412AbRHQSvX>; Fri, 17 Aug 2001 14:51:23 -0400
+Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:55457 "EHLO
+	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270236AbRHQSvS>; Fri, 17 Aug 2001 14:51:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Adrian Cox <adrian@humboldt.co.uk>, root@chaos.analogic.com
+Subject: Re: Encrypted Swap
+Date: Fri, 17 Aug 2001 11:51:08 -0700
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1010817130849.2216A-100000@chaos.analogic.com> <3B7D5603.8080805@humboldt.co.uk>
+In-Reply-To: <3B7D5603.8080805@humboldt.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01081711510800.00814@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Snyder <swsnyder@home.com> writes:
+On Friday 17 August 2001 10:36 am, Adrian Cox wrote:
+> Richard B. Johnson wrote:
+> > ** At this instant, you just killed everything in RAM with precharge
+> > **
+>
+> I've done a bit more reading. The documentation I have here suggests
+> the precharge doesn't erase all of memory.  Precharge copies from the
+> sense amplifiers back into the current row. The erasure is a result of
+> the sense amplifiers losing their contents faster than the memory
+> cells, but even so only one of the 2^12 rows gets erased.
 
-> Hello.
-> 
-> 1. Is there any benefit to enabling MTRR support for systems (RedHat v7.1 / 
-> kernel v2.4.9) that will never run a graphical user interface?  Usually I 
-> read of MTRR-related matters in the context of GUI acceleration.  Would my 
-> text-only system benefit from MTRR support?
-
-Having the kernel know how to manipulate MTRR's is useful for things
-like high performance I/O cards.  Video is just one.  However you definentily
-need MTRR's setting it is o.k. to do write back caching on your memory.
-
-> 2. The kernel doc says the DRM support is avalable for the Intel 440LX 
-> chipset, but no mention is made of the 440EX.  Given that the 440EX is 
-> kinda-sorta similar to the 440LX, can I assume that the EX chipset is also 
-> supported?
-
-I haven't looked.  The fact that they are close probably means it is simple
-to convert the code if the code doesn't support your chip.
-
-Eric
+Now that we've established that SDRAM doesn't neccisarily get erased from 
+rebooting, does anyone know how long it takes for SDRAM to clear after 
+losing power? It seems to me that the fact that the RAM isn't neccisarily 
+wiped by the BIOS at boot is less important than wether or not shutting 
+down the system and having it shut down for 10 minutes causes the RAM to 
+be cleared so that any intruder/thief would be unable to get the 
+information neccisary to decrypt the swap...

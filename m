@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUADJki (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 04:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbUADJkh
+	id S261879AbUADJow (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 04:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbUADJow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 04:40:37 -0500
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:50591 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261744AbUADJkd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 04:40:33 -0500
-Date: Sun, 4 Jan 2004 10:40:31 +0100 (CET)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Claas Langbehn <claas@rootdir.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0: atyfb broken
-In-Reply-To: <20040104005246.GA2153@rootdir.de>
-Message-ID: <Pine.LNX.4.44.0401041026110.28807-100000@deadlock.et.tudelft.nl>
+	Sun, 4 Jan 2004 04:44:52 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:57501
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261879AbUADJou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 04:44:50 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Date: Sun, 4 Jan 2004 03:43:57 -0600
+User-Agent: KMail/1.5.4
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <200401020126.44234.rob@landley.net> <20040104085759.GC27612@kroah.com>
+In-Reply-To: <20040104085759.GC27612@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401040343.57234.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 4 Jan 2004, Claas Langbehn wrote:
-
-> > The best thing you can try is to connect a CRT. Its a handy tool (it
-> > eats any video mode, including wrong ones) to check if the driver does
-> > something wrong. Use it to inspect geometry and the horizontal & vertical
-> > refresh rates. The CRT should dislay 1024x768 60 Hz in all resolutions
-> > (unless you switch off the LCD display).
+On Sunday 04 January 2004 02:57, Greg KH wrote:
+> On Fri, Jan 02, 2004 at 01:26:44AM -0600, Rob Landley wrote:
+> > > Moral: keep the identifier creation framework flexible enough so that
+> > > you can chose device-specific means to produce useful identifiers.
+> > > (And, use long identifiers, as they're less likely to be duplicated in
+> > > general.)
 > >
-> > Compile Atyfb as module. Use fbset to switch video modes blindly. Check
-> > the following modes: 640x400, 640x480, 1024x768.
+> > Seems to be what udev is for.  When we do go to random major and minor
+> > numbers, maybe it would be useful to let udev request specific ones? 
+> > (Just a thought...)
+>
+> Let udev request specific what?  Major/minor numbers?  Huh?  I think you
+> are very confused here...
 
-> Okay, the external monitor was a good idea.
-> I can boot with the external monitor and atyfb.
+Currently, NFS exports are using device major/minor as part of the identifier 
+for an exported direcory, and device numbers are going to be dynamically 
+allocated in 2.7 to support hotplug, so i was wondering if there was a need 
+to have some way for root to go "I know this device hotplugged in at major 3 
+minor 99, but if major 53 minor 12 is free, could you change it to that?")  A 
+bit like dup2, only for devices.
 
-2.4.23?
+The discussion has moved on since then, and now it seems pretty clear that NFS 
+is going to be expected to use something OTHER than device numbers, and Linus 
+wants a clean break with device nodes being cookies.  Better solution all 
+around, really...
 
-> when I do fbset 1024x768-60, then the screen gets distorted, then I hit
-> Fn + F5 (Monitor selection) several times, and finally I get a working
-> picture.
+But the original question did make sense.  (The answer was "no", but that's 
+often the sign of a good question. :)
 
-Ah you have a working fn-f5? good! fn-f5 will fix your display in most
-cases, however, my experience is also that it can mess things up. If you
-can get in 1024x768 without fn-f5 please try so, to make sure the chip is
-in a clean state.
+> thanks,
+>
+> greg k-h
 
-Remember to do all tests with both displays enabled. When you are in
-1024x768 60 Hz, the hardware stretcher is disabled. Test if horizontal
-stretching works:
-
-fbset -xres 640
-
-You can do this because the video timings are locked to
-1024x768-60, and your refresh rate does not get a boost like with a
-normal vga monitor. Because we only use 1 Crt controller, your external
-monitor is locked too.
-
-You should now have a 640x768 mode. Watch the image on the Crt display. It
-should be rock stable during the mode switch the Crt should not be
-detecting any mode change and the picture should not change position.
-
-Switch back to 1024x768:
-
-fbset -xres 1024
-
-Now try the vertical streching:
-
-fbset -yres 480
-
-Check again very close what happens on your crt. It is my expectation that
-one of these tests fails and the other will wok correctly.
-
-> So tell me how we can do register debuggig.
-
-I'll send you my register dump programs so you can compare the setting of
-the Crt controller with fo example X video modes.
-
-Daniël
+Rob
 

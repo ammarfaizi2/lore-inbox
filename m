@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUF2D6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUF2EJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUF2D6X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 23:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUF2D6W
+	id S264798AbUF2EJN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 00:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUF2EJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 23:58:22 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:44954 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S265395AbUF2D6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 23:58:08 -0400
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Date: Tue, 29 Jun 2004 13:58:03 +1000
-Subject: [PATCH] Fix 2.6.7 Alpha compilation
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
-Message-Id: <E1Bf9kx-0006b1-6T@wombat.disy.cse.unsw.edu.au>
+	Tue, 29 Jun 2004 00:09:12 -0400
+Received: from vsat-148-63-57-162.c001.g4.mrt.starband.net ([148.63.57.162]:13527
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S264798AbUF2EJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 00:09:10 -0400
+Message-ID: <40E0EAC1.50101@redhat.com>
+Date: Mon, 28 Jun 2004 21:06:25 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040627
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: inconsistency between SIOCGIFCONF and SIOCGIFNAME
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+POSIX does not specify the if_indextoname and if_nameindex functions,
+they are only vaguely specified in an RFC.  So there is some room for
+interpretation but still I think it is an issue.
 
-When using gcc 3.3.3 on alpha, the current BK head doesn't compile.
-     -- there's an external declaration for abs() in the same scope as
-     a macro definition in arch/alpha/time.c
-     -- The compiler is picky about `const' declarations, which breaks
-     on bitops.h.
+If SIOCGIFCONF to query the system's interfaces only active interfaces
+are returned.  But SIOCGIFNAME (and SIOCGIFINDEX) allow querying
+interfaces which are down and not fully initialized.
 
-Here's a patch to fix:
+RFC 3493 says if_nameindex should return *all* interfaces.  This means
+that neither if_indextoname or if_nametoindex (defined in the same rfc)
+should define more interfaces.
 
-Index: linux-2.6-wip/include/asm-alpha/bitops.h
-===================================================================
---- linux-2.6-wip.orig/include/asm-alpha/bitops.h
-+++ linux-2.6-wip/include/asm-alpha/bitops.h
-@@ -418,9 +418,9 @@
-  * Find next one bit in a bitmap reasonably efficiently.
-  */
- static inline unsigned long
--find_next_bit(void * addr, unsigned long size, unsigned long offset)
-+find_next_bit(const void * addr, unsigned long size, unsigned long offset)
- {
--	unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
-+	const unsigned long * p = ((const unsigned long *) addr) + (offset >> 6);
- 	unsigned long result = offset & ~63UL;
- 	unsigned long tmp;
- 
-Index: linux-2.6-wip/arch/alpha/kernel/time.c
-===================================================================
---- linux-2.6-wip.orig/arch/alpha/kernel/time.c
-+++ linux-2.6-wip/arch/alpha/kernel/time.c
-@@ -523,7 +523,6 @@
-  *      sets the minutes. Usually you won't notice until after reboot!
-  */
- 
--extern int abs(int);
- 
- static int
- set_rtc_mmss(unsigned long nowtime)
+
+With the current kernels all I could do is to make if_indextoname and
+if_nametoindex slower by always calling if_nameindex implicitly to see
+whether the interface is defined at all.  It would be much better if the
+kernel could do the right thing.  I.e., do one of the following:
+
+~ if the SIOCGIFCONF, return all interfaces SIOCGIFNAME also knows
+  about.
+
+~ do not allow SIOCGIFNAME and SIOCGIFINDEX) to return values if
+  SIOCGIFCONF, would not return any.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

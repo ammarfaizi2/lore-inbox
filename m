@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264978AbTLFLNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 06:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLFLNF
+	id S265096AbTLFLfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 06:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbTLFLfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 06:13:05 -0500
-Received: from gprs147-238.eurotel.cz ([160.218.147.238]:17537 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264978AbTLFLND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 06:13:03 -0500
-Date: Sat, 6 Dec 2003 12:14:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: M?ns Rullg?rd <mru@kth.se>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: Tell user when ACPI is killing machine
-Message-ID: <20031206111400.GA403@elf.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F8401720BFD@pdsmsx403.ccr.corp.intel.com> <20031204095454.GC6911@atrey.karlin.mff.cuni.cz> <1070532076.1645.42.camel@golgoth01> <20031204105621.GE11044@atrey.karlin.mff.cuni.cz> <yw1x8ylsltb3.fsf@kth.se>
-Mime-Version: 1.0
+	Sat, 6 Dec 2003 06:35:30 -0500
+Received: from ppp-62-245-209-10.mnet-online.de ([62.245.209.10]:5504 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S265096AbTLFLWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 06:22:43 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
+	<3FD1199E.2030402@gmx.de> <20031206081848.GA4023@localnet>
+From: Julien Oster <lkml-2315@mc.frodoid.org>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Sat, 06 Dec 2003 12:22:41 +0100
+In-Reply-To: <20031206081848.GA4023@localnet> (cheuche+lkml@free.fr's
+ message of "Sat, 6 Dec 2003 09:18:49 +0100")
+Message-ID: <frodoid.frodo.87zne6chry.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1x8ylsltb3.fsf@kth.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+cheuche+lkml@free.fr writes:
 
-> >> I have a similar problem since test10 and test11 (2.4.23 is ok, test9 is
-> >> ok too). ACPI reports bogus temperatures and powers the machine
-> >> down.
-> >
-> >> If you have a patch that could fix that problem, I'm ready to try it and
-> >> report success or failure ;)
-> >
-> > I have ugly workaround ("if temperature reported is > 200Celsius,
-> > ignore it").
-> 
-> I'm just curious, are these (and other ACPI related) problems caused
-> by bugs in Linux, or by hardware/firmware bugs?
+Hello,
 
-Its hard to tell one from another without extensive debugging...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+>> So gals and guys, try disabling cpu disconnect in bios and see whether 
+>> aopic now runs stable.
+
+> Yes that fix it. Well time will tell but I cannot make it crash with
+> hdparm -tT or cat /dev/hda so far. I'm dumping hda to /dev/null right
+> now.
+> After testing to make it crash, I used athcool to reenable CPU
+> disconnect, and guess what, test after that just crashed the box.
+> You found the problem, congratulations.
+
+Well, now I'm stunned.
+
+With APIC and ACPI enabled, my machine isn't even able to boot
+completely, it'll most certainly crash before the init scripts are
+finished.
+
+Now, I modified the init scripts to do "athcool off" as the first
+thing at all (I don't have any "CPU disconnect" BIOS setting) and it
+not only booted, but I even can't seem to make it crash using my
+hdparm/grep/whatever tests...
+
+I don't know if it's "rock solid" yet, but at least the difference is
+huge. It really seems like that made the problem go away!
+
+Regards,
+Julien

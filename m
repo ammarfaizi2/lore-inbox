@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUGARHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUGARPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266176AbUGARHL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 13:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUGARHK
+	id S266166AbUGARPS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 13:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUGARPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 13:07:10 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:18050 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266176AbUGARG6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 13:06:58 -0400
-Subject: Re: machine hangs - SLES9/NFS
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: shylendra.bhat@hp.com
+	Thu, 1 Jul 2004 13:15:17 -0400
+Received: from msgdirector1.onetel.net.uk ([212.67.96.148]:57367 "EHLO
+	msgdirector1.onetel.net.uk") by vger.kernel.org with ESMTP
+	id S266166AbUGARPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 13:15:13 -0400
+From: Chris Lingard <chris@ukpost.com>
+To: Arkadiusz Patyk <areqlkl@areq.eu.org>
+Subject: Re: initramfs and kernel  2.6.7
+Date: Thu, 1 Jul 2004 18:15:09 +0100
+User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1088683221.3552.15.camel@nt2624.india.hp.com>
-References: <1088683221.3552.15.camel@nt2624.india.hp.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1088701615.4349.26.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 01 Jul 2004 13:06:55 -0400
+References: <r236e0tp11ek1q0rh5912e423mc78qio5g@4ax.com>
+In-Reply-To: <r236e0tp11ek1q0rh5912e423mc78qio5g@4ax.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407011815.09236.chris@ukpost.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 01/07/2004 klokka 08:00, skreiv Shylendra Bhat:
-> Hello,
-> 
-> I am looking answers for the following questions.
-> 
-> Is nfs file lock acquired by client, persistent across the nfs server
-> reboot?
-> I know that this feature was not there in NFSv3. Does NFSv4 supports
-> this?
+On Wednesday 30 June 2004 19:55, Arkadiusz Patyk wrote:
+> Hi,
+>
+> I 'am trying to launch linux kernel 2.6.7 with initramfs.
 
-FUD. The lock manager for NFSv3 does reclaim locks if the server
-reboots.
+> kernel vmlinuz-2.6.7-1
+> append initrd=initramfs_data.cpio.gz root=/dev/ram0 init=/linuxrc
 
-> After the nfs service restart, the client fails to release the lock and
-> is in a hung state. If the mount directory is listed, it shows
-> 
-> "bash: cd: /export: Stale NFS file handle"
+The append line is unnecessary
 
-Which means that the server is screwed up. Two possibilities: either
+First, your script with your initramfs should be called init and
+not linuxrc :-(
 
-        1) you have a fibrechannel back end or something like that which
-        doesn't have a fixed device number: you can fix that by using
-        the "fsid" export option.
+Assuming that you are creating the cpio with --format=newc,
+you should copy your initramfs.cpio.gz to:
+linux-2.6.7/usr/initramfs_data.cpio.gz
 
-        2) The filesystem you are exporting is using non-permanent inode
-        numbers (FAT filesystems are a prime example). Sorry: no
-        workaround for this other than converting to another filesystem.
+Make the kernel, boot the kernel; and the initramfs will be mounted as
+root, and control given to the init script.
 
-Cheers,
-  Trond
+Chris Lingard

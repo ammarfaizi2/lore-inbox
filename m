@@ -1,44 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270801AbTHKAJe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 20:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTHKAJe
+	id S270858AbTHKAOP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 20:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270861AbTHKAOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 20:09:34 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:35554 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S270801AbTHKAJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 20:09:33 -0400
-Subject: Re: [patch 2.4 1/2] backport 2.6 x86 cpu capabilities
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com, mikpe@csd.uu.se, m.c.p@wolk-project.de
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060559943.948.121.camel@cube>
+	Sun, 10 Aug 2003 20:14:15 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:10625 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S270858AbTHKAOF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 20:14:05 -0400
+Date: Mon, 11 Aug 2003 02:13:58 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: [PATCH] [2.6.0-test3] [Ignore previous] request_firmware related problems.
+Message-ID: <20030811001358.GA30881@ranty.pantax.net>
+Reply-To: ranty@debian.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 Aug 2003 19:59:03 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="yrj/dFKFPuw6o+aM"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson writes:
 
-> 2.4.21-rc1 with NCAPINTS==6 hangs at boot in the local
-> APIC timer calibration step; before that it detected a
-> 0MHz bus clock and the local APIC NMI watchdog was stuck.
-> Correcting head.S:X86_VENDOR_ID fixes these problems.
-> 
-> Without correcting head.S:X86_VENDOR_ID, head.S will store
-> the vendor id partly in the capabilities array. This breaks
-> both the capabilities and the vendor id. I can't say why 2.6
-> works, but obviously the CPU setup code has changed since 2.4.
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I may be stating the obvious, but in case not...
+ Hi,
 
-If Jeff Garzik missed this, others will too. I hope
-that a big comment gets added in both places, assuming
-that automatic offset generation isn't practical.
+ Please apply the following patches.
+ 
+ Matthew Wilcox seams busy lately and didn't confirm the PCI changes,
+ but I have tested them and it works. He can modify it later with nicer
+ code if he finds it necessary, sysfs binary support has been broken for
+ too much time already being in this stage of development :-/.
 
+ Since this is just a single change plus side effects I just merged it
+ back together.
 
+ UPDATE: There was merge conflict, fixed now.
+
+ ChangeLog:
+	- undo recent change, made in the believe that "buffer" was the
+	  size of the whole file, it is just PAGE_SIZE in size. This was
+	  causing kernel memory corruption.
+
+		- Since files are allowed to have unknown sizes, by
+		  setting their size to 0, we can't preallocate a buffer
+		  of their size on open.
+
+	- Adapt request_firmware() to the sysfs change.
+
+  	- Adapt drivers/pci/pci-sysfs.c to the sysfs change.
+
+ Sorry again for the multi-patch email
+
+ 	Manuel
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
+
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="sysfs-bin-unbreak-3.diff"
+
+diff --exclude=CVS -urN linux-2.5.orig/drivers/base/firmware_class.c linux-2.5.mine/drivers/base/firmware_class.c
+--- linux-2.5.orig/drivers/base/firmware_class.c	2003-08-11 02:09:26.000000000 +0200
++++ linux-2.5.mine/drivers/base/firmware_class.c	2003-08-11 02:08:38.000000000 +0200
+@@ -149,7 +149,7 @@
+ 	if (offset + count > fw->size)
+ 		count = fw->size - offset;
+ 
+-	memcpy(buffer + offset, fw->data + offset, count);
++	memcpy(buffer, fw->data + offset, count);
+ 	return count;
+ }
+ static int
+@@ -198,7 +198,7 @@
+ 	if (retval)
+ 		return retval;
+ 
+-	memcpy(fw->data + offset, buffer + offset, count);
++	memcpy(fw->data + offset, buffer, count);
+ 
+ 	fw->size = max_t(size_t, offset + count, fw->size);
+ 
+diff --exclude=CVS -urN linux-2.5.orig/drivers/pci/pci-sysfs.c linux-2.5.mine/drivers/pci/pci-sysfs.c
+--- linux-2.5.orig/drivers/pci/pci-sysfs.c	2003-08-11 02:09:26.000000000 +0200
++++ linux-2.5.mine/drivers/pci/pci-sysfs.c	2003-08-11 02:06:36.000000000 +0200
+@@ -67,6 +67,7 @@
+ {
+ 	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
+ 	unsigned int size = 64;
++	loff_t init_off = off;
+ 
+ 	/* Several chips lock up trying to read undefined config space */
+ 	if (capable(CAP_SYS_ADMIN)) {
+@@ -87,7 +88,7 @@
+ 	while (off & 3) {
+ 		unsigned char val;
+ 		pci_read_config_byte(dev, off, &val);
+-		buf[off] = val;
++		buf[off - init_off] = val;
+ 		off++;
+ 		if (--size == 0)
+ 			break;
+@@ -96,10 +97,10 @@
+ 	while (size > 3) {
+ 		unsigned int val;
+ 		pci_read_config_dword(dev, off, &val);
+-		buf[off] = val & 0xff;
+-		buf[off + 1] = (val >> 8) & 0xff;
+-		buf[off + 2] = (val >> 16) & 0xff;
+-		buf[off + 3] = (val >> 24) & 0xff;
++		buf[off - init_off] = val & 0xff;
++		buf[off - init_off + 1] = (val >> 8) & 0xff;
++		buf[off - init_off + 2] = (val >> 16) & 0xff;
++		buf[off - init_off + 3] = (val >> 24) & 0xff;
+ 		off += 4;
+ 		size -= 4;
+ 	}
+@@ -107,7 +108,7 @@
+ 	while (size > 0) {
+ 		unsigned char val;
+ 		pci_read_config_byte(dev, off, &val);
+-		buf[off] = val;
++		buf[off - init_off] = val;
+ 		off++;
+ 		--size;
+ 	}
+@@ -120,6 +121,7 @@
+ {
+ 	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
+ 	unsigned int size = count;
++	loff_t init_off = off;
+ 
+ 	if (off > 256)
+ 		return 0;
+@@ -129,24 +131,24 @@
+ 	}
+ 
+ 	while (off & 3) {
+-		pci_write_config_byte(dev, off, buf[off]);
++		pci_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		if (--size == 0)
+ 			break;
+ 	}
+ 
+ 	while (size > 3) {
+-		unsigned int val = buf[off];
+-		val |= (unsigned int) buf[off + 1] << 8;
+-		val |= (unsigned int) buf[off + 2] << 16;
+-		val |= (unsigned int) buf[off + 3] << 24;
++		unsigned int val = buf[off - init_off];
++		val |= (unsigned int) buf[off - init_off + 1] << 8;
++		val |= (unsigned int) buf[off - init_off + 2] << 16;
++		val |= (unsigned int) buf[off - init_off + 3] << 24;
+ 		pci_write_config_dword(dev, off, val);
+ 		off += 4;
+ 		size -= 4;
+ 	}
+ 
+ 	while (size > 0) {
+-		pci_write_config_byte(dev, off, buf[off]);
++		pci_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		--size;
+ 	}
+diff --exclude=CVS -urN linux-2.5.orig/fs/sysfs/bin.c linux-2.5.mine/fs/sysfs/bin.c
+--- linux-2.5.orig/fs/sysfs/bin.c	2003-08-11 02:09:26.000000000 +0200
++++ linux-2.5.mine/fs/sysfs/bin.c	2003-08-11 02:08:08.000000000 +0200
+@@ -47,7 +47,7 @@
+ 		return ret;
+ 	count = ret;
+ 
+-	if (copy_to_user(userbuf, buffer + offs, count))
++	if (copy_to_user(userbuf, buffer, count))
+ 		return -EFAULT;
+ 
+ 	pr_debug("offs = %lld, *off = %lld, count = %zd\n", offs, *off, count);
+@@ -83,7 +83,7 @@
+ 			count = size - offs;
+ 	}
+ 
+-	if (copy_from_user(buffer + offs, userbuf, count))
++	if (copy_from_user(buffer, userbuf, count))
+ 		return -EFAULT;
+ 
+ 	count = flush_write(dentry, buffer, offs, count);
+
+--yrj/dFKFPuw6o+aM--

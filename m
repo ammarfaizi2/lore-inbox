@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbTCHQ5O>; Sat, 8 Mar 2003 11:57:14 -0500
+	id <S262085AbTCHRHn>; Sat, 8 Mar 2003 12:07:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262172AbTCHQ5N>; Sat, 8 Mar 2003 11:57:13 -0500
-Received: from bitmover.com ([192.132.92.2]:65412 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262170AbTCHQ5K>;
-	Sat, 8 Mar 2003 11:57:10 -0500
-Date: Sat, 8 Mar 2003 09:07:41 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, zippel@linux-m68k.org,
-       david.lang@digitalinsight.com, hpa@zytor.com, rmk@arm.linux.org.uk,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-Message-ID: <20030308170741.GB29789@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	"David S. Miller" <davem@redhat.com>, zippel@linux-m68k.org,
-	david.lang@digitalinsight.com, hpa@zytor.com, rmk@arm.linux.org.uk,
-	greg@kroah.com, linux-kernel@vger.kernel.org
-References: <20030308.080317.27972826.davem@redhat.com> <Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
+	id <S262092AbTCHRHn>; Sat, 8 Mar 2003 12:07:43 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:3077 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S262085AbTCHRHm>;
+	Sat, 8 Mar 2003 12:07:42 -0500
+Date: Sat, 8 Mar 2003 18:18:17 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: hm, page 000f0000 reserved twice ?
+Message-Id: <20030308181817.31247f93.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 08:35:24AM -0800, Linus Torvalds wrote:
-> Also, you guys should think about what this whole project was about: it's 
-> about the smallest possible libc. This is NOT a project that should live 
-> and prosper and grow successful. That's totally against the whole point of 
-> it, it's not _supposed_ to ever be a glibc-like thing. It's supposed to be 
-> so damn basic that it's not even _interesting_. It's one of those projects 
-> that is better off ignored, in fact. It's like a glorified header file.
-> 
-> (At this point hpa asks me to shut up, since I've now depressed him more
-> than any of the GPL bigots ever did ;)
+Hello all,
 
-Actually, I think this libc is very useful and at the risk of depressing hpa
-even more, we may well link BitKeeper against it.  We make no use of anything
-glibc specific since we run on all sorts of platforms and having libc be
-part of the image would be cool if it were small.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Can any kind soul please tell me what "hm, page xxxx reserved twice" means? And
+additionally: is there any magic involved in getting a serial console working?
+There seems no way to make it work on below system. All "echo >/dev/ttyS0 test"
+do work, but no console output whatsoever visible...
+
+Regards,
+Stephan
+
+dmesg:
+
+Inspecting /boot/System.map-2.4.21-pre5
+Loaded 17206 symbols from /boot/System.map-2.4.21-pre5.
+Symbols match kernel version 2.4.21.
+No module symbols loaded.
+klogd 1.4.1, log source = ksyslog started.
+<4>Linux version 2.4.21-pre5 (root@admin) (gcc version 3.2) #8 SMP Sat Mar 8
+17:20:05 CET 2003
+<6>BIOS-provided physical RAM map:
+<4> BIOS-e820: 0000000000000000 - 000000000009e800 (usable)   
+<4> BIOS-e820: 000000000009e800 - 00000000000a0000 (reserved) 
+<4> BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved) 
+<4> BIOS-e820: 0000000000100000 - 000000001fffb000 (usable)
+<4> BIOS-e820: 000000001fffb000 - 000000001ffff000 (ACPI data)
+<4> BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
+<4> BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+<4> BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+<4> BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+<5>0MB HIGHMEM available.
+<5>511MB LOWMEM available.
+<4>found SMP MP-table at 000f0410
+<4>hm, page 000f0000 reserved twice.
+<4>hm, page 000f1000 reserved twice.
+<4>hm, page 000f0000 reserved twice.      
+<4>On node 0 totalpages: 131067
+<4>zone(0): 4096 pages.
+<4>zone(1): 126971 pages.
+<4>zone(2): 0 pages.
+<4>Intel MultiProcessor Specification v1.4
+<4>    Virtual Wire compatibility mode. 
+<4>OEM ID: ASUS     Product ID: PROD00000000 APIC at: 0xFEE00000
+<4>Processor #3 Pentium(tm) Pro APIC version 17
+<4>Processor #0 Pentium(tm) Pro APIC version 17
+<4>I/O APIC #4 Version 17 at 0xFEC00000.
+<4>I/O APIC #5 Version 17 at 0xFEC01000.
+<4>I/O APIC #6 Version 17 at 0xFEC02000.
+<4>Enabling APIC mode: Flat.    Using 3 I/O APICs
+<4>Processors: 2
+<4>Kernel command line: root=/dev/sda3  hda=none hdb=none hdc=ide-scsi
+console=ttyS0,9600
+

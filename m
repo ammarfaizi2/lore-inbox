@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbUKSWVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUKSW2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbUKSWVl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbUKSWVU
+	id S261631AbUKSW2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUKSW0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 17:21:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:52889 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261628AbUKSWAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 17:00:48 -0500
-Date: Fri, 19 Nov 2004 14:00:15 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
-Message-ID: <20041119220015.GC15956@kroah.com>
-References: <20041119215935.GA15956@kroah.com> <20041119220001.GB15956@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041119220001.GB15956@kroah.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 19 Nov 2004 17:26:30 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:56248 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261657AbUKSWZ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 17:25:56 -0500
+Message-ID: <419E72EF.4010100@us.ibm.com>
+Date: Fri, 19 Nov 2004 16:25:51 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com> <20041119213232.GB13259@kroah.com>
+In-Reply-To: <20041119213232.GB13259@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2165, 2004/11/19 09:13:08-08:00, khali@linux-fr.org
+Greg KH wrote:
+> On Fri, Nov 19, 2004 at 02:23:22PM -0600, brking@us.ibm.com wrote:
+> 
+>>-static inline int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
+>>-{
+>>-	return pci_bus_read_config_byte (dev->bus, dev->devfn, where, val);
+>>-}
+> 
+> 
+> Well, as much as I despise this patch, you should at least get it
+> correct :)
+> 
+> You need to block the pci_bus_* functions too, otherwise the parts of
+> the kernel that use them will stomp all over your device, right?
 
-[PATCH] I2C: Fixes to the i2c-amd756-s4882 driver
+I thought about that when writing up this patch, but decided against it.
+I figured it was overkill and was going to make the patch more complicated
+than it needed to be to solve the main problem I have seen, which is
+userspace code, usually hotplug/coldplug scripts, reading config space
+when an adapter is running BIST.
 
-While working on the 2.4 version of the i2c-amd756-s4882 driver, I
-noticed a few quirks on the 2.6 version I sent to you. The following
-patch attempts to fix them.
+If you think there are usages of the pci_bus_* functions in the
+kernel after the adapter device driver gets loaded, from callers other
+than adapter device drivers and userspace APIs, I would have to agree
+with you. I was hoping to keep this patch as simple as possible.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Having to protect the pci_bus_* functions requires a lookup in these
+functions to find the pci_dev to get the saved_config_space, which
+I was hoping to avoid.
+
+Ben - do you have any concerns with this limitation for the use you have
+for this set of APIs?
 
 
- drivers/i2c/busses/i2c-amd756-s4882.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
 
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center
 
-diff -Nru a/drivers/i2c/busses/i2c-amd756-s4882.c b/drivers/i2c/busses/i2c-amd756-s4882.c
---- a/drivers/i2c/busses/i2c-amd756-s4882.c	2004-11-19 11:40:48 -08:00
-+++ b/drivers/i2c/busses/i2c-amd756-s4882.c	2004-11-19 11:40:48 -08:00
-@@ -35,6 +35,7 @@
- 
- #include <linux/module.h>
- #include <linux/kernel.h>
-+#include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
- 
-@@ -156,7 +157,9 @@
- 	/* Unregister physical bus */
- 	error = i2c_del_adapter(&amd756_smbus);
- 	if (error) {
--		if (error != -EINVAL)
-+		if (error == -EINVAL)
-+			error = -ENODEV;
-+		else
- 			dev_err(&amd756_smbus.dev, "Physical bus removal "
- 				"failed\n");
- 		goto ERROR0;
-@@ -200,7 +203,7 @@
- 					      I2C_SMBUS_WRITE, 0x03,
- 					      I2C_SMBUS_BYTE_DATA, &ioconfig);
- 	if (error) {
--		dev_dbg(&amd756_smbus.dev, "PCA9556 configuration failed\n");
-+		dev_err(&amd756_smbus.dev, "PCA9556 configuration failed\n");
- 		error = -EIO;
- 		goto ERROR3;
- 	}

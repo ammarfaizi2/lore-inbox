@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272191AbRIQPxW>; Mon, 17 Sep 2001 11:53:22 -0400
+	id <S269645AbRIQQPV>; Mon, 17 Sep 2001 12:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273659AbRIQPxD>; Mon, 17 Sep 2001 11:53:03 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42507 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273658AbRIQPwz>; Mon, 17 Sep 2001 11:52:55 -0400
-Date: Mon, 17 Sep 2001 08:51:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: <ast@domdv.de>, <linux-kernel@vger.kernel.org>
+	id <S271798AbRIQQPL>; Mon, 17 Sep 2001 12:15:11 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:50562 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S269645AbRIQQO7>; Mon, 17 Sep 2001 12:14:59 -0400
+Date: Mon, 17 Sep 2001 12:14:36 -0400
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010917173555.460c8ea3.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0109170846050.8847-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010917121435.A19884@cs.cmu.edu>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010917003422Z16197-2757+375@humbolt.nl.linux.org> <Pine.LNX.4.33.0109161738110.1054-100000@penguin.transmeta.com> <20010917011157.A22989@cs.cmu.edu> <20010917122559Z16382-2758+129@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010917122559Z16382-2758+129@humbolt.nl.linux.org>
+User-Agent: Mutt/1.3.20i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 17, 2001 at 02:33:12PM +0200, Daniel Phillips wrote:
+> The inactive queues have always had both mapped and unmapped pages on
+> them. The reason for unmapping a swap cache page page when putting it
 
-On Mon, 17 Sep 2001, Stephan von Krawczynski wrote:
->
-> - cpu load goes pretty high (11-12 according to xosview)during several
-> occasions, upto the point where you cannot even move the mouse. Compared to an
-> once tested ac-version it is not _that_ nice. I have some problems cat'ing
-> /proc/meminfo, too. I takes sometimes pretty long (minutes).
+So the following code in refill_inactive_scan only exists in my
+imagination?
 
-It's not really CPU load - the loadaverage in Linux (and some other UNIXes
-too) also accounts for disk wait.
+	    if (page_count(page) <= (page->buffers ? 2 : 1)) {
+		    deactivate_page_nolock(page);
+		    page_active = 0;
+	    } else {
+		    page_active = 1;
+	    }
 
-> - the meminfo shows me great difference to former versions in the balancing of
-> inact_dirty and active. This pre10 tends to have a _lot_ more inact_dirty pages
-> than active (compared to pre9 and before) in my test. I guess this is intended
-> by this (used-once) patch. So take this as a hint, that your work performs as
-> expected.
+We only move pages to the inactive list when they have one reference
+from the page cache and one from buffers. Since all mapped pte's also
+keep a reference, this means that there cannot be any pte's that point
+to this page by the time we decide to deactivate the page.
 
-No, I think they are related, and bad. I suspect it just means that pages
-really do not get elevated to the active list, and it's probably _too_
-unwilling to activate pages. That's bad too - it means that the inactive
-list is the one solely responsible for working set changes, and the VM
-won't bother with any other pages. Which also leads to bad results..
+> any choice.  The point where we place it on the inactive queue is the
+> last point where we're able to find its userspace page table entry.
 
-That's always the downside with having multiple lists of any kind - if the
-balance between the lists is bad, performance will be bad. Historically,
-the active list was the big one, and the other ones mostly didn't matter,
-which makes the balancing issue much less noticeable.
+And that is because we only move it after all pte's have been unmapped.
 
-[ This is also the very same problem we used to have with buffer cache
-  pages vs mapped pages vs other caches ]
-
-The fix may be to just make the inactive lists not do aging at all.
-
-		Linus
+Jan
 

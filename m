@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTLDTyN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 14:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLDTyN
+	id S263370AbTLDUGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 15:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTLDUGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 14:54:13 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:37055 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S263343AbTLDTyF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 14:54:05 -0500
-Date: Thu, 4 Dec 2003 13:04:15 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Allen Martin <AMartin@nvidia.com>, b@netzentry.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-Message-ID: <20031204200415.GA183@tesore.local>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F874@mail-sc-6.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F874@mail-sc-6.nvidia.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 4 Dec 2003 15:06:24 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:37771 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263370AbTLDUGW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 15:06:22 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lhms-devel] RE: memory hotremove prototype, take 3
+Date: Thu, 4 Dec 2003 12:06:02 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F4FAF0B@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lhms-devel] RE: memory hotremove prototype, take 3
+Thread-Index: AcO6Ve5sHyEV2NXySx6YAMVV/JX6mgASxOAA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Pavel Machek" <pavel@suse.cz>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "Yasunori Goto" <ygoto@fsw.fujitsu.com>, <linux-kernel@vger.kernel.org>,
+       "IWAMOTO Toshihiro" <iwamoto@valinux.co.jp>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       "Linux Hotplug Memory Support" <lhms-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 04 Dec 2003 20:06:03.0983 (UTC) FILETIME=[0BAC85F0:01C3BAA2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 09:11:37PM -0800, Allen Martin wrote:
-> I don't think there's any faulty nForce IDE hardware or we would have heard
-> about it from windows users (and we haven't).  
-
-Ok.  I have never tested a motherboard driver for a problem like this.  But I'm starting to understand more.
-
-I went ahead and tried more configurations.  I wish I had a pci ide card with 
-udma 100, but the one I have is being used =(.  So I just had to make do with 
-what I have.  The test is very simple, because it is very simple to trigger it. 
-I just grep something very large.  It locks up almost immediately with 2.6 + 
-apic + nvidia ide with dma enabled.
-
-I ran grep on these devices:
-IDE hard disk at UDMA 100, 100 MB/s, flat cable, 80w.  grep on kernel source.
-same IDE hard disk with DMA disabled, 16 MB/s. grep on kernel source.
-SCSI hard disk at 20 MB/s. grep on kernel source.
-IDE 24x cdrom, 11 MB/s.  grepped whole cd-rom fs, about 300 MB.
-
-During the test runs, I tried:
-bios update -- no difference (same results no matter what)
-preempt on/off -- no difference (same results)
-
-The results (uniprocessor system):
-1. under 2.6.0-test11 with nvidia ide, dma enabled, apic
-grep on IDE hard disk at UDMA 100 -- locks nearly immediately
-and later attempt, grep on cdrom -- doesn't lock up (still will lock up with 
-hard disk though)
-
-2. under 2.6.0-test11 with nvidia ide, dma, pic
-grep on IDE hard disk at UDMA 100 -- doesn't lock up
-
-3. under 2.4.23, with nvidia ide, dma enabled, apic
-grep on IDE hard disk at UDMA 100 -- doesn't lock up
-
-4. under 2.6.0-test11 with aic7xxx, ide completely disabled, apic
-grep on SCSI disk -- doesn't lock up
-
-5. under 2.6.0-test11 with nvidia ide, dma disabled, apic
-grep on IDE hard disk at 16 MB/s -- doesn't lock up
-
-
-So basically, I conclude that UDMA 100 will cause a lockup nearly immediately. 
-The slower interfaces speeds don't cause a lockup during the test, but that 
-doesn't mean the kernel will never lock up.  So DMA does produce a lockup 
-faster.  Either longer stresses are required (which means spending more time =( 
-I've only had the board for two days - heh heh), or more preferably, I need to
-test with another pci ide controller.  Whatever it is, it seems to be the high
-speeds like UDMA 100 or perhaps similarly stressing pci devices that will do it.
-
-
+> > Bingo...just the perfect excuse I need to give to my manager to keep
+> > a low profile while tinkering around for a long time :)
+> > 
+> > Okay, so I will play a wee bit more the devil's advocate as an 
+> > exercise of futility, if you don't mind. Just trying to compile a 
+> > (possibly incomplete) quick list of what would be needed, can you 
+> > guys help me? you know way more than I do:
+> > 
+> > 1) the core kernel needs to be independent of physical 
+> memory position
+> > 1.1) same with drivers/subsystems
+> > 1.2) filesystems
+> > [it cannot be really incomplete because I have added all the code
+> > :/]
 > 
-> The problem with comparing the nForce IDE driver against the generic IDE
-> driver is that the generic IDE driver won't enable DMA, so the interrupt
-> rate will be much different.  If there's some interrupt race condition in
-> APIC mode, disabling DMA may mask it.
-> 
+> ...and you have bad problem at any place where physical address is
+> passed to the hardware. UHCI is going to be "interesting".
 
-Yep, you're right.
+Which is why this hot remove project is side-stepping all
+those hard problems, and just dealling with the "easy" cases
+of only allocating user memory to removeable physical memory.
+This is useful for large systems made up of removeable nodes
+(either to physically remove a node, or to logically re-assign
+a node to a different "partition" in the machine).
 
+Anyone who wants more than this is welcome to virtualize the
+base kernel, filesystems, driver code etc. to allow hot remove
+of the remainder of memory not dealt with by this patch :-)
 
-Jesse
+-Tony

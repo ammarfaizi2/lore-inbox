@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317472AbSHCFL4>; Sat, 3 Aug 2002 01:11:56 -0400
+	id <S317470AbSHCFLT>; Sat, 3 Aug 2002 01:11:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317482AbSHCFLz>; Sat, 3 Aug 2002 01:11:55 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:41571 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S317472AbSHCFLv>;
-	Sat, 3 Aug 2002 01:11:51 -0400
-Date: Sat, 03 Aug 2002 01:15:15 -0400
-From: Milosz Tanski <milosz@comcast.net>
-Subject: Fix: DEVFS compile failuer [2.5.30]
-To: linux-kernel@vger.kernel.org
-Message-id: <1028351716.6004.4.camel@milosz.home.com>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.0.8
-Content-type: multipart/mixed; boundary="Boundary_(ID_jWMZBun5Pg++SzKCpN26+g)"
+	id <S317472AbSHCFLT>; Sat, 3 Aug 2002 01:11:19 -0400
+Received: from mta02bw.bigpond.com ([139.134.6.34]:52984 "EHLO
+	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317470AbSHCFLS>; Sat, 3 Aug 2002 01:11:18 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+Subject: Re: installation of latest kernel on compaq notebook
+Date: Sat, 3 Aug 2002 15:09:58 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>
+References: <20020803050951.4782.qmail@webmail10.rediffmail.com>
+In-Reply-To: <20020803050951.4782.qmail@webmail10.rediffmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200208031509.58537.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 3 Aug 2002 15:09, Enugala Venkata Ramana wrote:
+> Hi ,
+> Using the make xconfig. i cannot even select it.
+I assume that you can select other options, but not
+this particular option (Hint: you could have told me that).
 
---Boundary_(ID_jWMZBun5Pg++SzKCpN26+g)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+I take it that you didn't look at the options that this
+option depends on, and you need to turn on the 
+configuration options for CONFIG_EXPERIMENTAL
+and possibly CONFIG_NET
 
-There is a compile time error in Linux 2.5.30 in fs/partitions/check.c,
-in function devfs_register_partitions. The line 470 contains an error,
-dev->part[p].de = NULL; p is a pointer to a structure (hd_stuct). I
-searched around 2.4.18, and it is  dev->part[part + minor].de = NULL; I
-tried changing that line, and I investigated, now it compiles and works.
-A patch is attached, thx.
-
-
---Boundary_(ID_jWMZBun5Pg++SzKCpN26+g)
-Content-type: text/plain; name=devfs-array.patch; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=devfs-array.patch
-
---- fs/partitions/check.c.orig	2002-08-01 17:16:19.000000000 -0400
-+++ fs/partitions/check.c	2002-08-03 00:51:49.000000000 -0400
-@@ -467,7 +467,7 @@
- 	for (part = 1; part < max_p; part++) {
- 		if ( unregister || (p[part].nr_sects < 1) ) {
- 			devfs_unregister(p[part].de);
--			dev->part[p].de = NULL;
-+			dev->part[part + minor].de = NULL;
- 			continue;
- 		}
- 		devfs_register_partition (dev, minor, part);
-
---Boundary_(ID_jWMZBun5Pg++SzKCpN26+g)--
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

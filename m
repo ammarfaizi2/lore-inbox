@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135607AbRECLsX>; Thu, 3 May 2001 07:48:23 -0400
+	id <S133074AbRECMIA>; Thu, 3 May 2001 08:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133074AbRECLsO>; Thu, 3 May 2001 07:48:14 -0400
-Received: from [32.97.182.101] ([32.97.182.101]:41630 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S135607AbRECLr4>;
-	Thu, 3 May 2001 07:47:56 -0400
-Message-ID: <3AF14555.8699881B@vnet.ibm.com>
-Date: Thu, 03 May 2001 06:47:33 -0500
-From: Todd Inglett <tinglett@vnet.ibm.com>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3.c4eb i686)
-X-Accept-Language: en
+	id <S135618AbRECMHu>; Thu, 3 May 2001 08:07:50 -0400
+Received: from rhenium.btinternet.com ([194.73.73.93]:34737 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S133074AbRECMHp>;
+	Thu, 3 May 2001 08:07:45 -0400
+Date: Thu, 3 May 2001 13:13:13 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.4 parport compile error
+Message-ID: <Pine.LNX.4.21.0105031312280.20986-100000@linux.home>
+X-mailer: Pine 4.21
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SMP races in proc with thread_struct
-In-Reply-To: <Pine.GSO.4.21.0105011236140.9771-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Tue, 1 May 2001, Todd Inglett wrote:
-> 
-> > Perhaps this is old news...but...
-> >
-> > I can easily create a race when reading /proc/<pid>/stat
-> > (fs/proc/{base.c,array.c}) where a rapidly reading application, such as
-> > "top", starts reading stats for a thread which goes away during the
-> > read.  This is easily reproduced with a program that rapidly forks and
-> > exits while top is running.
-> >
-> > On inspection, I don't see how the code can expect the thread_struct to
-> > stay around since it is not holding any lock for the duration of its
-> > use.  The code could hold the thread_struct's lock (after verifying it
-> > still exists while holding tasklist_lock I would imagine), but for
-> > performance I would think a better solution would be to copy the struct
-> > since stale data is probably ok in this case.
-> >
-> > Dereferencing a non-existent thread_struct is clearly not ok.
-> >
-> > Would anyone familiar with this code care to comment?
-> 
-> Code bumps the reference count of couple of pages that hold task_struct
-> when it opens the file.
 
-Yes that's right.  [Note that I erroneously wrote thread_struct when I
-meant task_struct].
+make[3]: Entering directory
+`/home/mistral/data/kernels/SX/drivers/parport'
+gcc -D__KERNEL__ -I/home/mistral/data/kernels/SX/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-march=i486    -c -o parport_pc.o parport_pc.c
+parport_pc.c: In function `parport_pc_find_ports':
+parport_pc.c:2618: too many arguments to function
+`parport_pc_init_superio'
+make[3]: *** [parport_pc.o] Error 1
+make[3]: Leaving directory `/home/mistral/data/kernels/SX/drivers/parport'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/home/mistral/data/kernels/SX/drivers/parport'
+make[1]: *** [_subdir_parport] Error 2
+make[1]: Leaving directory `/home/mistral/data/kernels/SX/drivers'
+make: *** [_dir_drivers] Error 2
 
-On closer inspection I see it is the *parent* task_struct that is the
-problem here.  The task has indeed exited and the memory for the
-task_struct is correctly held.  However, the /proc code will grab
-tasklist_lock and dereference the parent task_struct to get the parent
-pid.  Grabbing tasklist_lock is good, of course, when the task is live
-because the parent could be switched at any time.  But in this case the
-child is already done.  And so is the parent.  So the child's parent
-task_struct is gone, but the stale held task_struct still points to
-where it once was.
-
-Does this sound like a possible scenerio?
 
 -- 
--todd
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  1:10pm  up 21:06,  6 users,  load average: 10.81, 13.53, 14.58
+

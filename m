@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316804AbSE3P7V>; Thu, 30 May 2002 11:59:21 -0400
+	id <S316753AbSE3QmY>; Thu, 30 May 2002 12:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316798AbSE3P7U>; Thu, 30 May 2002 11:59:20 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:27397 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S316799AbSE3P7U>;
-	Thu, 30 May 2002 11:59:20 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200205301559.g4UFxFO04650@oboe.it.uc3m.es>
-Subject: [ARTICLE] formal description of linux kernel
-To: linux kernel <linux-kernel@vger.kernel.org>
-Date: Thu, 30 May 2002 17:59:15 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S316756AbSE3QmX>; Thu, 30 May 2002 12:42:23 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:62983 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S316753AbSE3QmX>; Thu, 30 May 2002 12:42:23 -0400
+Message-Id: <200205301639.g4UGdS916620@aslan.scsiguy.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aic-6.2.8 with U160 drives 
+In-Reply-To: Your message of "Thu, 30 May 2002 15:25:01 +0200."
+             <20020530132501.GA18235@werewolf.able.es> 
+Date: Thu, 30 May 2002 10:39:28 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just finished the first draft of a formal description of the
-linux kernel - or at least some parts of it.  In the spirit of
-opensource I'm making it available before submitting it to a journal and
-the copy will change as I revise it.  I'd welcome collaborators or
-criticisms or suggestions.
+>I have noticed a problem with the recent update in 2.4.19-pre9.
+>I have an Adaptec 29160 card, and a couple scsi4 Fujitsu drives,
+>that with previous -pre version worked at 160, AFAIR.
+>With the recent update, they slow down to 40Mb/s. I will recheck
+>bios settings, but...
 
-   http://www.it.uc3m.es/ptb/linux-model.ps
+Are you sure you don't have a single ended device on the same
+bus segment as the fujitsu drives?  It looks like the driver is
+running the bus in SE mode.
 
-
-
-Peter
+--
+Justin

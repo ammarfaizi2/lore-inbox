@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbSKFO5M>; Wed, 6 Nov 2002 09:57:12 -0500
+	id <S265694AbSKFPJh>; Wed, 6 Nov 2002 10:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265682AbSKFO5M>; Wed, 6 Nov 2002 09:57:12 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:15294 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265681AbSKFO5L>;
-	Wed, 6 Nov 2002 09:57:11 -0500
-Date: Wed, 6 Nov 2002 15:02:52 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, ambx1@neo.rr.com
-Subject: Re: yet another update to the post-halloween doc.
-Message-ID: <20021106150252.GA6955@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jaroslav Kysela <perex@suse.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, ambx1@neo.rr.com
-References: <20021106140844.GA5463@suse.de> <Pine.LNX.4.33.0211061526580.573-100000@pnote.perex-int.cz>
+	id <S265697AbSKFPJh>; Wed, 6 Nov 2002 10:09:37 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:45720 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265694AbSKFPJg>; Wed, 6 Nov 2002 10:09:36 -0500
+Subject: Re: Voyager subarchitecture for 2.5.46
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: john stultz <johnstul@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211061503.gA6F3DW02053@localhost.localdomain>
+References: <200211061503.gA6F3DW02053@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 15:38:35 +0000
+Message-Id: <1036597115.10238.40.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0211061526580.573-100000@pnote.perex-int.cz>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 03:37:10PM +0100, Jaroslav Kysela wrote:
+On Wed, 2002-11-06 at 15:03, J.E.J. Bottomley wrote:
+> There are certain architectures (voyager is the only one currently supported, 
+> but I suspect the Numa machines will have this too) where the TSC cannot be 
+> used for cross CPU timings because the processors are driven by separate 
+> clocks and may even have different clock speeds.
 
- > - old ISA PnP code does not require user space tools, too
- > - the new code is mostly based on idea to make behaviour same as for PCI 
- >   devices (probe, remove etc. callbacks) and to merge the PnP BIOS 
- >   access code
- > - maintaince? the code was nearly complete, almost all device drivers were 
- >   converted to support ISA PnP (thus autoconfiguration which has moved to 
- >   the new PnP layer); I don't know what you mean that the code is more 
- >   actively maintained; it was maintained to satisfy my goals 
+IBM Summit is indeed another one. 
 
-Ok, I'll make those changes. My apologies for casting the previous
-work in such a bad light 8-)
+> What I need is an option simply not to compile in the TSC code and use the PIT 
+> instead.  What I'm trying to do with the TSC and PIT options is give three 
+> choices:
+> 
+> 1. Don't use TSC (don't compile TSC code): X86_TSC=n, X86_PIT=y
+> 
+> 2. May use TSC but check first (blacklist, notsc kernel option).  X86_TSC=y, 
+> X86_PIT=y
+> 
+> 3. TSC is always OK so don't need PIT.  X86_TSC=y, X86_PIT=n
 
-		Dave
+[Plus we need X86_CYCLONE and we may need X86_SOMETHING else for some
+pending stuff]
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+> We probably need to make the notsc and dodgy tsc check contingent on X86_PIT 
+> (or a config option that says we have some other timer mechanism compiled in). 
+>  Really, the options should probably be handled in timer.c.
+
+The dodgy_tsc check is now obsolete. The known cases are handled with
+workarounds and CS5510/20 can now use the TSC
+
+> Do we have an option for a deferred panic that will trip just after we init 
+> the console and clean out the printk buffer?
+
+Point to timer_none, check that later on in the boot
+
+

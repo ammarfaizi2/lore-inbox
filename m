@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTLPTu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 14:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTLPTu0
+	id S262116AbTLPT4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 14:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTLPT4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 14:50:26 -0500
-Received: from 213-0-194-193.dialup.nuria.telefonica-data.net ([213.0.194.193]:39556
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S261893AbTLPTuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 14:50:25 -0500
-Date: Tue, 16 Dec 2003 20:50:24 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: another oops, maybe I'll downgrade to 2.4.22.. :(
-Message-ID: <20031216195024.GB3084@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312161426510.7409-100000@logos.cnet> <1071593009.963.2.camel@piro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071593009.963.2.camel@piro>
-User-Agent: Mutt/1.5.4i
+	Tue, 16 Dec 2003 14:56:13 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:54160 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262116AbTLPT4L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 14:56:11 -0500
+Date: Tue, 16 Dec 2003 13:55:59 -0600
+Subject: Re: [OT] "unauthorized" mini-pci wlan cards in thinkpads
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v553)
+Cc: lkml <linux-kernel@vger.kernel.org>
+To: Disconnect <lkml@sigkill.net>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <1071533007.2031.74.camel@slappy>
+Message-Id: <DE5DBD2A-3001-11D8-BB49-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 16 December 2003, at 17:43:30 +0100,
-Cristiano De Michele wrote:
+On Monday, Dec 15, 2003, at 18:03 US/Central, Disconnect wrote:
 
-> I thought that latest releases of nvidia module are built from sources...
+> On Mon, 2003-12-15 at 18:16, Joel Jaeggli wrote:
+>> the card and antenna are certified together. The cards that were 
+>> certified
+>> with that antenna work in that laptop.
 >
-When you install the closed-source nVIDIA video drivers you are in fact
-compiling code, but this is limited to some sort of "glue" to bind
-the kernel and the binary nVIDIA module together.
+> And yet I was able to call dell and just order an older card to go in 
+> my
+> Inspiron.  (A standard 802.11b card; orinoco on a pci->cardbus bridge.)
+> The only regulatory info they mentioned was including a pack of the
+> certified-by stickers to replace the ones that were on the laptop from
+> the original card.
 
-Greetings.
+What model Dell card exactly? I'm looking to buy a Linux-compatible 
+minipci wireless card (no Centrino for obvious reasons), and the only 
+models I've found listed at http://tuxmobil.org/minipci_linux.html are 
+apparently no longer for sale. I'd rather not pay for a Cisco Aironet 
+but I'm afraid I might have to.
 
 -- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)
+Hollis Blanchard
+IBM Linux Technology Center
+

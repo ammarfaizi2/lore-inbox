@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbTIEReS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 13:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265731AbTIEReS
+	id S265942AbTIER7y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbTIER7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 13:34:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28608 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265768AbTIEReN (ORCPT
+	Fri, 5 Sep 2003 13:59:54 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:35987 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265942AbTIER7x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 13:34:13 -0400
-Date: Fri, 5 Sep 2003 10:28:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: dead_email@nospam-mail.org
-Cc: jpd_hp_linux_kernel@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test4: mpspec.h:6:25: mach_mpspec.h: Missing file
-Message-Id: <20030905102840.59116fc5.rddunlap@osdl.org>
-In-Reply-To: <20030904220233.79882.qmail@web60108.mail.yahoo.com>
-References: <20030904220233.79882.qmail@web60108.mail.yahoo.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 5 Sep 2003 13:59:53 -0400
+Date: Fri, 5 Sep 2003 13:59:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Jan Hubicka <jh@suse.cz>, Andi Kleen <ak@muc.de>, torvalds@osdl.org,
+       akpm@osdl.org, rth@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
+Message-ID: <20030905175938.GA29353@gtf.org>
+References: <20030905004710.GA31000@averell> <20030905053730.GB24509@kam.mff.cuni.cz> <20030905172715.GA80302@colin2.muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030905172715.GA80302@colin2.muc.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 15:02:33 -0700 (PDT) j d <jpd_hp_linux_kernel@yahoo.com> wrote:
+On Fri, Sep 05, 2003 at 07:27:15PM +0200, Andi Kleen wrote:
+> I'm not sure that is that good an idea. When I was still hacking 
+> TCP I especially moved some stuff out-of-line in the fast path to avoid 
+> register pressure. Otherwise gcc would inline rarely used sub functions 
+> and completely mess up the register allocation in the fast path.
+> Of course just a call alone messes up the registers somewhat because
+> of its clobbers, but a full inlining is usually worse.
+[...]
+> I suspect that is true for a lot of core kernel code - everything
+> that is worth inlining is already inlined and for the rest it doesn't matter.
 
-| Hi. 
-| I'm trying to build a (add-on) module 
-| on a machine booted from a 2.6-test4 kernel,
-| And keep running into this error. I've 
-| included a sample program , and gcc command
-| line.
-| 
-| I built the kernel:
-| 
-| make defconfig; 
-| 
-| It is a 2W SMP (Compaq ML850)
-| couple minor modes like enet & SCSI device
-| make
-| My general question is, should I include the 
-| 
-| -I/work/src/<build>/include/asm-i386/mach-generic/mach_mpspec.h
-| 
-| in my gcc command line or is my build area incorrect
-| is
-| some way that the correct mpspec.h file can't be found
+Definitely , agreed.  In fact, we are moving in the opposite direction:
+looking into what we can un-inline...
 
-See linux/Documentation/modules.txt and Documentation/kbuild/makefiles.txt
-for how to do this properly.  Basically put your source and Makefile
-in a subdir, then use this command and it builds without that error.
-(Your source had a few other warnings, but it does build this way.)
 
-Here's the Makefile that I used, with usage info in it:
+> On the other hand a lot of driver code seems to be written without
+> manual consideration for inline. For that it may be worth it. But then
+> I would consider core kernel code to be more important than driver
+> code.
 
-# makefile for addonmodule
-# Randy Dunlap, 2003-02-21
-# usage:
-# cd /path/to/kernel/source && make SUBDIRS=/path/to/source/addonmodule/ modules
+Modern network drivers seem fairly aware of it ;-)
 
-obj-m := addonmodule.o
+> Also I fear cross module inlining would expose a lot of latent bugs
+> (missing barriers etc.) when the optimizer becomes more aggressive. 
+> I'm not saying this would be a bad thing, just that it may be a lot 
+> of work to fix (both for compiler and kernel people)
+
+Agreed.
+
+	Jeff
 
 
 
---
-~Randy

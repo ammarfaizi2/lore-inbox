@@ -1,94 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbULOQ5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbULOQ5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbULOQ5f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 11:57:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbULOQ5e
+	id S262394AbULOQ5H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 11:57:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbULOQ5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 11:57:34 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:53750 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262395AbULOQ5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 11:57:22 -0500
-Message-ID: <41C06CF7.2020102@namesys.com>
-Date: Wed, 15 Dec 2004 08:57:27 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <200412151328.iBFDSQoH011241@laptop11.inf.utfsm.cl>
-In-Reply-To: <200412151328.iBFDSQoH011241@laptop11.inf.utfsm.cl>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 11:57:07 -0500
+Received: from news.suse.de ([195.135.220.2]:28357 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262394AbULOQ5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 11:57:04 -0500
+Date: Wed, 15 Dec 2004 17:57:03 +0100
+From: Andi Kleen <ak@suse.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andi Kleen <ak@suse.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+       gordon.jin@intel.com
+Subject: Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
+Message-ID: <20041215165703.GC26772@wotan.suse.de>
+References: <20041215065650.GM27225@wotan.suse.de> <200412151446.01913.arnd@arndb.de> <20041215161218.GA26772@wotan.suse.de> <200412151745.32053.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412151745.32053.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+> Do you mean it should call back
+> from its private ioctl_compat() function to the global ioctl32_hash_table[]
+> lookup?
 
->Hans Reiser <reiser@namesys.com> said:
->  
->
->>Horst von Brand wrote:
->>    
->>
->>>Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk> said:
->>>      
->>>
->
->  
->
->>>[...]
->>>      
->>>
->
->  
->
->>>>Perhaps a better way to think about this is that instead of talking
->>>>about directories and files, we just talk about objects.
->>>>        
->>>>
->
->  
->
->>>Then you have a collection of interrelated objects, i.e., a database.
->>>Operating systems that work on databases (no filesystem) have been done,
->>>and are a nice idea... but are far, far away from Unix.
->>>      
->>>
->
->  
->
->>A journey of a thousand leagues begins with a single step.
->>    
->>
->
->Right.  But you need to know where you are going, and why.
->
->  
->
->>Actually, databases are the wrong solution because they are relational, 
->>    
->>
->
->Says who?
->  
->
-Read the
+Yes.
 
-www.namesys.com/future_vision.html
+Some ioctl paths already work this way, e.g. in the block layer.
 
-paper for why relational is the wrong model.
-
->  
->
->>and what is needed is a semi-structured query language that is upwardly 
->>compatible with Unix hierarchical semantics, ala 
->>www.namesys.com/future_vision.html
->>    
->>
-
+-Andi

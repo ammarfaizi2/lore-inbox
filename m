@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUAHVQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 16:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266312AbUAHVQW
+	id S266298AbUAHV0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 16:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266299AbUAHV0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 16:16:22 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20751 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266311AbUAHVQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 16:16:21 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
-Date: 8 Jan 2004 21:04:15 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <btkgkf$eje$1@gatekeeper.tmr.com>
-References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com> <20040104084005.GU18208@waste.org>
-X-Trace: gatekeeper.tmr.com 1073595855 14958 192.168.12.62 (8 Jan 2004 21:04:15 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 8 Jan 2004 16:26:30 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:55017 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266298AbUAHV03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 16:26:29 -0500
+From: Christian Borntraeger <kernel@borntraeger.net>
+To: bluefoxicy@linux.net, linux-kernel@vger.kernel.org
+Subject: Re: Oops 0002
+Date: Thu, 8 Jan 2004 22:26:21 +0100
+User-Agent: KMail/1.5.4
+References: <20040108184935.BD5E3E4B8@sitemail.everyone.net>
+In-Reply-To: <20040108184935.BD5E3E4B8@sitemail.everyone.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401082226.21209.kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040104084005.GU18208@waste.org>,
-Matt Mackall  <mpm@selenic.com> wrote:
+john moser wrote:
+> icebox regression # ./memkmemport_test
+> Testing denied write of /dev/mem... : FAILED
+[...]
+> Oops: 0002 [#3]
 
-| Suggestions? I'm rapidly exhausting a lot of the obvious candidates.
-| My target build at the moment is ide + ext2 + proc + ipv4 + console, and
-| that's currently at around 800K uncompressed, booting in a little less
-| than 2.5MB. Hoping to get that under 2.
+You started this testcase as root? I think writing to /dev/kmem as root is 
+working as designed.
+Having an oops after this artificial memory corruption is quite normal.
+Your oops is only interesting if this happens with a non-root user.
 
-Suggestion: keep picking the low-hanging fruit a bit longer, you have
-been making a lot of improvement with minimal code changes! Much appreciated!
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+cheers
+
+Christian
+

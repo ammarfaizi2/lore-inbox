@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbUBUCo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 21:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbUBUCo0
+	id S261484AbUBUCnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 21:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbUBUCnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 21:44:26 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:37638 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S261486AbUBUCoR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 21:44:17 -0500
-Date: Fri, 20 Feb 2004 21:44:14 -0500 (EST)
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-To: linux-kernel@vger.kernel.org
-Subject: network / performance problems
-Message-ID: <Pine.OSF.4.21.0402202128320.394202-100000@mhc.mtholyoke.edu>
+	Fri, 20 Feb 2004 21:43:08 -0500
+Received: from CPE-65-30-41-47.kc.rr.com ([65.30.41.47]:56262 "EHLO
+	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
+	id S261484AbUBUCnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 21:43:02 -0500
+Message-ID: <4036C5A2.6080703@hanaden.com>
+Date: Fri, 20 Feb 2004 20:42:42 -0600
+From: hanasaki <hanasaki@hanaden.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LIST - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.3 AGP fallback to slower speeds
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
-I have several new Dell 2650's in various stages of production.  They are
-dual xeon machines, hyperthreaded, w/ built in broadcom Gbit
-adapters.  I've also installed IntelPRO 1000/MT dual port
-adapters.  I have tried various combinations of these adapters and kernels
-2.4.24 and 2.6.3, but continue to have problems with slowly degrading
-network performance.  Under heavy load, thing really go sour, and I've
-actually had to reboot to get things back again.
+Running 2.6.3 on debian sarge and having the following problem reported 
+in syslog at boot up.  Any thoughts on what is going on here and how to 
+fix it?
 
-I've assembled some data at the following location, which I hope provides
-some additional insight into the nature of my difficulties.  These include
-smokeping graphs, sundry stats, and some commentary.  I am of course happy
-to provide any additional information that would be helpful.  It's almost
-certain that I've neglected to mention the once crucial detail that makes
-everything clear (likely just me being obtuse)... ;)
+motherboard	- soyo dragon ultra platinum kt600
+video card	- ati 9000 pro 256meg
+xfree		- 4.3 - says drm loads
+			glxinfo says "direct rendering: No"
 
-http://depot.mtholyoke.edu:8080/tmp/
 
-I've not subscribed to the lkml (I know, boo), so would appreciate
-CC's.  I will happily subscribe if anyone feels I'm being outrageously
-gauche.
+=== snip from lsmod ===
+via_agp                 6272  1
+agpgart                27308  2 via_agp
+radeon                115948  2
+===========
 
-(Thanks in general for all the stuff you guys do.  Amazing!)
+=== snip from lspci ===
+00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3227
+01:00.0 VGA compatible controller: ATI Technologies Inc
+	Radeon R250 If [Radeon 9000] (rev 01)
+01:00.1 Display controller: ATI Technologies Inc
+	Radeon R250 [Radeon 9000] (Secondary) (rev 01)
+=============
 
-_________________________
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-
+== from syslog ==
+Feb 20 19:20:50  kernel: agpgart: Found an AGP 3.5
+	compliant device at 0000:00:00.0.
+Feb 20 19:20:50  kernel: agpgart: Device is in legacy mode,
+	falling back to 2.x
+Feb 20 19:20:50  kernel: agpgart: Putting AGP V2 device
+	at 0000:00:00.0 into 1x mode
+Feb 20 19:20:50  kernel: agpgart: Putting AGP V2 device
+	at 0000:01:00.0 into 1x mode
+Feb 20 19:20:50  kernel: agpgart: Putting AGP V2 device
+	at 0000:01:00.1 into 1x mode
+==========

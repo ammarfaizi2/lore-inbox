@@ -1,49 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVCJPDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVCJPG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbVCJPDs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 10:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVCJPDs
+	id S262650AbVCJPG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVCJPG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 10:03:48 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:51855 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262623AbVCJPDr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 10:03:47 -0500
-Subject: Re: Linux 2.6.11-ac1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42300E31.5030301@tupshin.com>
-References: <1110231261.3116.90.camel@localhost.localdomain>
-	 <20050309072646.GG1811@zip.com.au>
-	 <58cb370e05030908267f0fadbe@mail.gmail.com>
-	 <1110386321.3116.196.camel@localhost.localdomain>
-	 <58cb370e050309084374f93a71@mail.gmail.com>
-	 <20050309222232.GH1811@zip.com.au>
-	 <1110407945.3072.272.camel@localhost.localdomain>
-	 <42300E31.5030301@tupshin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110466897.28860.291.camel@localhost.localdomain>
+	Thu, 10 Mar 2005 10:06:28 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:2486 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262650AbVCJPGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 10:06:19 -0500
+Subject: [patch 1/1] SELinux AVC audit log ipaddr field support (for
+	task_struct->curr_ip)
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: selinux@tycho.nsa.gov
+X-IMP: AR MAPS ORDB: 0.00,AR AHBL: 0.00,AR CBL: 0.00,AR SBL: 0.00,AR SORBS:
+	0.00,AR SPAMCOP: 0.00,AR XBL: 0.00,AV NONE,CLOUDMARK: 0.00
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-e87FcoiNfDlRfWmDqNvP"
+Date: Thu, 10 Mar 2005 16:05:40 +0100
+Message-Id: <1110467140.9190.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 10 Mar 2005 15:01:40 +0000
+X-Mailer: Evolution 2.1.6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-03-10 at 09:06, Tupshin Harper wrote:
-> Alan...since you disagreed with the earlier characterization of what it 
-> would take to get into the mainline kernels, could you let us know what 
-> it would take in your opinion? FWIW, I'm happily using it with a -ac kernel.
 
-It needs some small changes in the base ide-disk code to handle drives
-having only a logical geometry (legal but Linux can't cope). Most if not
-all the other hooks are there to an extent the driver for the it821x can
-work without core code changes. It might be cleaner with core changes
-but it's better that the it821x code handles the weirdness of the
-hardware.
+--=-e87FcoiNfDlRfWmDqNvP
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Longer term it (and probably every other IDE PATA driver) should be
-moved to the Jeff Garzik SATA layer. That's also Bart's position I
-believe ?
+Provides support for a new field ipaddr within the SELinux
+AVC audit log, relying in task_struct->curr_ip (ipv4 only)
+provided by the task-curr_ip or grSecurity patch to be applied
+before.It was first implemented by Joshua Brindle (a.k.a Method)
+from the Hardened Gentoo project.
+
+An example of the audit messages with ipaddr field:
+audit(1110432234.161:0): avc:  denied  { search } for  pid=3D19057
+exe=3D/usr/bin/wget name=3Dportage dev=3Dhda3 ino=3D1024647 ipaddr=3D192.16=
+8.1.30
+scontext=3Droot:sysadm_r:portage_fetch_t tcontext=3Dsystem_u:object_r:porta=
+ge_tmp_t tclass=3Ddir
+
+It's also available at http://pearls.tuxedo-es.org/patches/selinux-avc_audi=
+t-log-curr_ip.patch
+
+Signed-off-by: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
+---
+
+ linux-2.6.11-lorenzo/security/selinux/avc.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff -puN security/selinux/avc.c~selinux-avc_audit-log-curr_ip security/sel=
+inux/avc.c
+--- linux-2.6.11/security/selinux/avc.c~selinux-avc_audit-log-curr_ip	2005-=
+03-10 15:52:12.810227040 +0100
++++ linux-2.6.11-lorenzo/security/selinux/avc.c	2005-03-10 15:52:12.8172259=
+76 +0100
+@@ -205,6 +205,12 @@ void avc_dump_query(struct audit_buffer=20
+ 	char *scontext;
+ 	u32 scontext_len;
+=20
++/* CONFIG_GRKERNSEC_PROC_IPADDR if grSecurity is present */
++#ifdef CONFIG_PROC_IPADDR
++	if (current->curr_ip)
++		audit_log_format(ab, "ipaddr=3D%u.%u.%u.%u ", NIPQUAD(current->curr_ip))=
+;
++#endif /* CONFIG_PROC_IPADDR */
++
+  	rc =3D security_sid_to_context(ssid, &scontext, &scontext_len);
+ 	if (rc)
+ 		audit_log_format(ab, "ssid=3D%d", ssid);
+_
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-e87FcoiNfDlRfWmDqNvP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCMGJEDcEopW8rLewRAuraAKDA923lf9w29aUpcVvB1TsByQfkjgCdFRpM
+mfmsP1HDaB/cP14huN8d3fc=
+=C5b3
+-----END PGP SIGNATURE-----
+
+--=-e87FcoiNfDlRfWmDqNvP--
 

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313014AbSDGJPI>; Sun, 7 Apr 2002 05:15:08 -0400
+	id <S313016AbSDGJ3R>; Sun, 7 Apr 2002 05:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSDGJPH>; Sun, 7 Apr 2002 05:15:07 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:57867 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S313014AbSDGJPG>; Sun, 7 Apr 2002 05:15:06 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: bttv compile failure in 2.5.8-pre2
-Date: 7 Apr 2002 07:44:36 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnaavu74.t38.kraxel@bytesex.org>
-In-Reply-To: <200204062356.g36Nujh03555@vindaloo.ras.ucalgary.ca>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1018165476 29801 127.0.0.1 (7 Apr 2002 07:44:36 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S313019AbSDGJ3Q>; Sun, 7 Apr 2002 05:29:16 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:10963 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313016AbSDGJ3Q>; Sun, 7 Apr 2002 05:29:16 -0400
+Date: Sun, 7 Apr 2002 11:15:43 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Rob Radez <rob@osinvestor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WatchDog Driver Updates
+In-Reply-To: <Pine.LNX.4.33.0204062139010.3791-100000@pita.lan>
+Message-ID: <Pine.LNX.4.44.0204071114020.8253-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
->    Hi, all. Compiling 2.5.8-pre2, I got the following:
->  
->  bttv-driver.c:2650: `video_generic_ioctl' undeclared here (not in a function)
+static int sc1200wdt_release(struct inode *inode, struct file *file)
+ {
+-#ifndef CONFIG_WATCHDOG_NOWAYOUT
+ 	if (expect_close) {
+ 		sc1200wdt_write_data(WDTO, 0);
+ 		printk(KERN_INFO PFX "Watchdog disabled\n");
+@@ -202,7 +197,6 @@
+ 		sc1200wdt_write_data(WDTO, timeout);
+ 		printk(KERN_CRIT PFX "Unexpected close!, timeout = %d 
+min(s)\n", timeout);
+ 	}	
+-#endif
 
-The same is true for nearly all other v4l drivers.  Dave picked up my
-videodev patch from the list and feeded it to Linus, but all the related
-driver fixes are not in the kernel yet ...
+hmm, that would allow closing of the watchdog even if 
+CONFIG_WATCHDOG_NOWAYOUT is specified. Was this your intention?
 
-2.4.7 patches are at http://bytesex.org/patches/2.5/
-I'll rediff against -pre2 and resend stuff next days ...
-
-  Gerd
-
+	Zwane
 -- 
-#include </dev/tty>
+http://function.linuxpower.ca
+		
+

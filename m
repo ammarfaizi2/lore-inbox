@@ -1,87 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbSLOUzq>; Sun, 15 Dec 2002 15:55:46 -0500
+	id <S262602AbSLOVGJ>; Sun, 15 Dec 2002 16:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSLOUzp>; Sun, 15 Dec 2002 15:55:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29564 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262646AbSLOUzo>; Sun, 15 Dec 2002 15:55:44 -0500
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] kexec for 2.5.51....
-References: <200212141215.49449.tomlins@cam.org>
-	<m14r9gv1c8.fsf@frodo.biederman.org>
-	<200212141859.07191.tomlins@cam.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Dec 2002 14:03:17 -0700
-In-Reply-To: <200212141859.07191.tomlins@cam.org>
-Message-ID: <m11y4jatbe.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S262620AbSLOVGI>; Sun, 15 Dec 2002 16:06:08 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:45191 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S262602AbSLOVGH>;
+	Sun, 15 Dec 2002 16:06:07 -0500
+Message-ID: <3DFCF116.6080109@tin.it>
+Date: Sun, 15 Dec 2002 22:16:06 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE-CD and VT8235 issue!!!
+References: <3DFB7B21.7040004@tin.it> <200212142019.14449.black666@inode.at> <3DFBC4F3.2070603@tin.it> <20021215215057.A12689@ucw.cz>
+In-Reply-To: <20021215215057.A12689@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> writes:
+Vojtech Pavlik wrote:
 
-> On December 14, 2002 02:37 pm, Eric W. Biederman wrote:
-> >
-> > Hurray! a bug report :)
+>On Sun, Dec 15, 2002 at 12:55:31AM +0100, AnonimoVeneziano wrote:
+>  
+>
+>>Patrick Petermair wrote:
+>>
+>>    
+>>
+>>>Hi!
+>>>
+>>>Same problem here. I have addressed this issue several times...so far no 
+>>>solution.
+>>>
+>>>My specs:
+>>>MSI KT3 Ultra2 (VT8235)
+>>>TOSHIBA DVD-ROM SD-M1302
+>>>YAMAHA CRW8424E
+>>>
+>>>Kernel 2.4.19:
+>>>The one I'm currently using. It doesn't detect the VT8235 and therefore 
+>>>I have no dma. But I can access/mount my DVD without a problem.
+>>>
+>>>Kernel 2.4.20:
+>>>Detects the VT8235 at boot but hangs with my DVD Rom (hdc) --> doesn't 
+>>>boot. I have posted my problem here an Alan Cox suggested that I should 
+>>>try the -ac tree.
+>>>
+>>>Kernel 2.4.20-ac2:
+>>>Some improvements - It detects the VT8235 at boot, also my DVD and CDRW. 
+>>>It boots fine and I have DMA on all my discs. But as soon as I try to 
+>>>mount a CD/DVD (mount /cdrom) the system hangs and I get this:
+>>>      
+>>>
 > 
-> Feels good huh.
+>  
+>
+>>Please, anyone help us, I can't live with a 6 MB HD bandwith!!!:-D
+>>    
+>>
+>
+>You're not alone with this problem. I suspect some fishy stuff in the
+>vt8235, because the driver programs it exactly the same as vt8233a, but
+>while the vt8233a doesn't seem to have problems with DVDs and CDs, the
+>vt8235 fails for many people.
+>
+>It might be some new DVD drive, though.
+>
+>Can you send me 'hdparm -i' of the drive?
+>
+>I'll try to make a patch to circumvent the problem ...
+>
+>Thanks.
+>
+>  
+>
+Here the hdparm -i of my first ATAPI drive.
 
-Getting new and interesting feedback is good.  You can tell something
-is happening if a bug report is submitted.
+I don't know if my Cd-recorder have the same problem, It have never 
+tried to initialize it.
 
-> > > One other datum.  Without the --append line a kernel booted with kexec
-> > > hangs when
-> > >
-> > > tring to mount the real root - it cannot find the device.
-> >
-> > I suspect you want to specify --append="root=/dev/xyz" when calling kexec.
-> 
-> This helps - see below.
-> 
-> > > Am I using kexec correctly?  What else can I try?  Is there any debug
-> > > info I can gather?
-> >
-> > Generally you want to put kexec -e your shutdown scripts just before
-> > the call to reboot.  And then you can just say: kexec ...
-> > and the you get a clean system shutdown.  Dropping to run level 1
-> 
-> Why not include this info in kexec -h ?  Bet it would prevent a few
-> failure reports...
-
-I will look, at that.
- 
-> Two more possible additions to the kexec command.  
-> 
-> 1. kexec -q which returns rc=1 and types the pending selection and 
->    its command/append string if one exists and returns rc=0 if nothing 
->    is pending.  
-
-This would require effort to little purpose.  If you just call kexec
-it loads the kernel and then calls shutdown -r now.  So the loaded kernel
-should be a transient entity anyway.
-
-> 2. kexec -c which clears any pending kernels.
-
-This I can and should do.  The kernel side is already implemented.
- 
-> > With respect to USB it is quite possible something in the USB drivers
-> > does not shutdown correctly on a reboot, and the driver then has trouble
-> > reinitializing the device.
-> 
-> Very possible since I did not do an init 0/1/6 before the kexec -e.  Usb
-> was probably being asked to do something very unexpected...
-
-Ideally drivers should be able to cope with this.
-
-> > Which kernel are you booting with kexec anyway?
-> 
-> 2.5.51 + fbcon(bk) + usb(bk) + kexec
-
-Ah, the easy case kexec loading the same kernel that had the kexec support....
+Byez
 
 
-Eric
+/dev/hdc:
+
+ Model=_NEC DV-5800A, FwRev=1.90, SerialNo=
+ Config={ Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2
+ AdvancedPM=no
+
+

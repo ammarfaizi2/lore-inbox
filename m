@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUJKDjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268665AbUJKDmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268664AbUJKDjo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 23:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUJKDjo
+	id S268665AbUJKDmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 23:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268667AbUJKDmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 23:39:44 -0400
-Received: from [61.48.52.223] ([61.48.52.223]:48629 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S268664AbUJKDjm (ORCPT
+	Sun, 10 Oct 2004 23:42:52 -0400
+Received: from ozlabs.org ([203.10.76.45]:64949 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268665AbUJKDmt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 23:39:42 -0400
-Date: Sun, 10 Oct 2004 19:29:31 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200410110229.i9B2TVG07270@adam.yggdrasil.com>
-To: axboe@suse.de
-Subject: Re: [PATCH?] make __bio_add_page check q->max_hw_sectors
-Cc: dm-crypt@saout.de, linux-kernel@vger.kernel.org
+	Sun, 10 Oct 2004 23:42:49 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16746.299.189583.506818@cargo.ozlabs.ibm.com>
+Date: Mon, 11 Oct 2004 13:42:35 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: Totally broken PCI PM calls
+In-Reply-To: <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
+References: <1097455528.25489.9.camel@gaston>
+	<Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Oct 2004 10:14:16 +0200, Jens Axboe wrote:
->On Sun, Oct 10 2004, Adam J. Richter wrote:
-[...]
->> 	I do not understand the intended difference between
->> the new max_hw_sectors field and max_sectors, so it is unclear
->> to me if it is a bug that my dm-crypt request_queue has
->> q->max_hw_sectors < q->max_sectors.  If q->max_hw_sectors
->> is supposed to be guaranteed to be greater than or equal
->> to q->max_sectors, then the real bug is elsewhere and my
->> patch is unnecessary.
+Linus Torvalds writes:
 
->That's exactly correct, ->max_sectors must never be bigger than
->max_hw_sectors, that is the real bug.
+> On Mon, 11 Oct 2004, Benjamin Herrenschmidt wrote:
+> >
+> > Any reason why this totally broken code was ever merged upstream ?
+> 
+> Because it fixes a lot of drivers.
+> 
+> > Please, revert that to something sane before 2.6.9...
+> 
+> Nope. There's just too much confusion abou what the state thing means. 
+> See the TG3 driver, for one, all the USB drivers for another.
 
-	OK.  Please disregard my previous patch.  Thanks for
-your clarification.
+The USB drivers aren't a good example, they are currently quite broken
+as far as suspend/resume is concerned.  They used to work just fine
+but got broken some time in the last few months.
 
-	The problem I saw was due to my mistake in merging the
-2.6.9-rc3 change that added request_queue->max_sectors with one
-of my local changes (replacing some fields in struct request_queue
-with struct io_restrictions, a patch which I should repost one of
-these days).
+The problem I have at the moment is that PCI drivers get asked to go
+to D3 for both suspend-to-ram and suspend-to-disk.  In particular the
+radeonfb driver wants to do different things in these two cases.
 
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+Really, what is bogus is pci-driver.c thinking it can tell what state
+to ask the PCI device driver to put the device into from the system
+power state, without using any platform information.  For suspend to
+ram, we may need to put devices into D2, D3hot or D3cold, depending on
+the motherboard design.  For suspend to disk, we don't really want to
+change the device's power state at all, but just quiesce the device
+and save its state.
+
+In the radeonfb case, it needs to put the device into either D3hot or
+D3cold (depending on the motherboard design) for suspend to ram.  For
+suspend to disk it doesn't want to do much of anything (otherwise we
+lose the console at that point).
+
+> The long-term solution is to make this thing be not a number at all, but a 
+> restricted type (ie a "struct" with one member, or similar) to make sure 
+> you _cannot_ mis-use it. As it is, most PCI drivers do seem to expect a 
+> PCI suspend state. 
+
+Maybe the real problem is that we are trying to use the device suspend
+functions for suspend-to-disk, when we don't really want to change the
+device's power state at all.
+
+Paul.

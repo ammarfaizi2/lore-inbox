@@ -1,59 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUAKA3I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAKA3I
+	id S265493AbUAKAZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbUAKAZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:29:08 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:51174 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265502AbUAKA3F (ORCPT
+	Sat, 10 Jan 2004 19:25:26 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:41286 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265493AbUAKAZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:29:05 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 11 Jan 2004 01:28:51 +0100 (MET)
-Message-Id: <UTC200401110028.i0B0SpL08329.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, sven.kissner@consistencies.net
+	Sat, 10 Jan 2004 19:25:19 -0500
+Message-ID: <400097E0.5040900@samwel.tk>
+Date: Sun, 11 Jan 2004 01:25:04 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Tim Cambrant <tim@cambrant.com>, Mario Vanoni <vanonim@bluewin.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
+ 0x37ffffff" warning.
+References: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-: with 2.6.x:
-: Loading /etc/console/boottime.kmap.gz
-: KDSKBENT: Invalid argument
-: failed to bind key 265 to value 638
+Davide Libenzi wrote:
+>>>#define MAXMEM                       (~__PAGE_OFFSET + 1 - __VMALLOC_RESERVE)
+>>
+>>I tried that first, before I came up with the solution in the patch, 
+>>because I didn't like the dependency of 0xFFFFFFFF being 32-bit. It was 
+>>a nice idea, but it didn't work. Apparently, gas interprets ~ as a one's 
+>>complement negation operator, not a bitwise or. Therefore, 
+>>~__PAGE_OFFSET is just as negative as -__PAGE_OFFSET as far as gas is 
+>>concerned. It gives me the same warning.
+> 
+> 
+> That would mean a bug in as. __PAGE_OFFSET is unsigned and ~ is documented 
+> (not a surprise) as "bitwise not". The bitwise not of __PAGE_OFFSET 
+> (unsigned) is still unsigned. BTW 2.14 does not give warnings with both 
+> the original statement and the ~ one. This:
+> 
+>                                                                                                                         
+>         PG=0xC0000000                                                                                                   
+>         VM=(128 << 20)                                                                                                  
+>                                                                                                                         
+>         mov (~PG + 1 - VM), %eax                                                                                        
+>         mov (-PG - VM), %eax                                                                                            
+>                                                                                                                         
+> generate this:
+> 
+> zzzzzzzz:     file format elf32-i386
+> 
+> Disassembly of section .text:
+> 
+> 00000000 <.text>:
+>    0:   a1 00 00 00 38          mov    0x38000000,%eax
+>    5:   a1 00 00 00 38          mov    0x38000000,%eax
+> 
+> 
+> w/out any warnings. And the result is obviously 0x38000000 and 
+> not 0x37ffffff.
 
-You must be using a non-standard loadkeys, or an old loadkeys
-compiled against new kernel headers.
+I get the same behaviour. The 0x37ffffff is from the place where MAXMEM 
+is used (the ramdisk_max variable in setup.S); it subtracts one from the 
+value. It turns out that the error only occurs when the value is used in 
+a data definition. Experimentally found first value for which it gives 
+the error is:
 
-The 2.6 situation is broken in several respects and one of
-the bugs is a NR_KEYS that is 512, which the keys involved
-are unsigned characters and cannot be larger than 255.
+ramdisk_max: .long ~(0x80000000)
 
-My opinion is that NR_KEYS must be decreased to 256, and maybe
-I have seen patches by Vojtech somewhere that already did this,
-but looking at current bk source it seems that they have not been
-applied yet.
+Interestingly, it doesn't occur for 0x7fffffff. I've taken a look at gas 
+to see where it goes wrong, but my newly built version doesn't exhibit 
+this behaviour -- it compiles the above statement without warnings. It 
+might have to do with the differences between the build environment that 
+the Debian binutils package is built in and my own machine -- I'll do 
+some more investigating.
 
-Anyway, I released kbd-1.10 last week or so, and it ignores the
-kernel NR_KEYS but tries to adapt dynamically to the kernel.
-It would not come with this error message, I suppose.
-
-: with 2.4.20 & 2.4.22-ck2 the value is increasing from 128 to 511
-
-: failed to bind key 128 to value 512
-
-2.4 has NR_KEYS equal to 128, so key 128 and higher do not exist.
-
-So, so far all is well understood.
-
-: atkbd.c: Unknown key pressed (translated set 2, code 0x91 on isa0060/serio0)
-: atkbd.c: Unknown key released (translated set 2, code 0x91 on isa0060/serio0)
-: atkbd.c: Unknown key pressed (translated set 2, code 0x92 on isa0060/serio0)
-: atkbd.c: Unknown key released (translated set 2, code 0x92 on isa0060/serio0)
-
-This is something different, a key without associated keycode.
-That is normal. If it really has high bit set it is a bit unusual.
-(What does showkey -s show?)
-
-Maybe you can make this addressable using setkeycodes.
-
-Andries
+-- Bart

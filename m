@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261442AbTCTM7d>; Thu, 20 Mar 2003 07:59:33 -0500
+	id <S261440AbTCTNNS>; Thu, 20 Mar 2003 08:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261443AbTCTM7d>; Thu, 20 Mar 2003 07:59:33 -0500
-Received: from realityfailure.org ([209.150.103.212]:44683 "EHLO
-	bushido.realityfailure.org") by vger.kernel.org with ESMTP
-	id <S261442AbTCTM7b>; Thu, 20 Mar 2003 07:59:31 -0500
-Date: Thu, 20 Mar 2003 08:10:12 -0500 (EST)
-From: John Jasen <jjasen@realityfailure.org>
-X-X-Sender: jjasen@bushido
-To: John Bradford <john@grabjohn.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>, <mirrors@kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Deprecating .gz format on kernel.org
-In-Reply-To: <200303200955.h2K9t677000483@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0303200744010.2365-100000@bushido>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261441AbTCTNNS>; Thu, 20 Mar 2003 08:13:18 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:62600 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261440AbTCTNNR>; Thu, 20 Mar 2003 08:13:17 -0500
+Date: Thu, 20 Mar 2003 13:24:09 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Oleg Drokin <green@namesys.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs oops [2.5.65]
+Message-ID: <20030320132409.GA19042@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Oleg Drokin <green@namesys.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030319141048.GA19361@suse.de> <20030320112559.A12732@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030320112559.A12732@namesys.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 20, 2003 at 11:25:59AM +0300, Oleg Drokin wrote:
 
-Among the latest 2.4-release kernels (2.4.19 and 2.4.20), it seems that 
-bz2 saves ~6MB.
+ > Hm, very interesting. Thank you.
+ > I've seen this once too, but on kernel patched with lots of unrelated and
+ > possibly memory corrupting stuff.
+ > I will look at it more closely.
+ > BTW, it oopsed not in find. Is your box SMP?
 
-Downloads: 1.5MB DSL
+Same box committed seppuku overnight, this time in a different way.
 
-time `ncftpget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.gz`
-real    3m24.004s
-<snipped>
+There's lots of "slab error in cache_alloc_debugcheck_after()"
+warnings. cache reiser_inode_cache memory after object was overwritten
 
-time `ncftpget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.bz2`
-real    2m51.481s
-<snipped>
+Some call traces.
+ check_poison_obj <- kmem_cache_alloc <- reierfs_alloc_inode <-
+ reiserfs_alloc_inode <- alloc_inode <- get_new_inode <-
+ reiserfs_init_locked <- reiserfs_find_actor <- reiserfs_iget <-
+ reiserfs_find_actor <- reiserfs_init_locked_inode <- reiserfs_lookup <-
+ real_lookup <- do_lookup <- link_path_walk <- kmem_cache_alloc <-
+ __user_walk <- vfs_lstat <- sys_lstat64 <- syscall_call
 
-Uncompression: Dual AMD 1600+, 512MB ram, 30 GB seagate EIDE
-time `gunzip linux-2.4.20.tar.gz`
-real    0m5.428s
-user    0m2.285s
-sys     0m1.096s
+Slab corruption: start=c70c7044, expend=c70c7213 problemat=c70c7044
+Last user: [<c0280dcb>](reiserfs_alloc_inode+0x1b/0x30)
+Data: (lots of hex)
 
-time `bunzip2 linux-2.4.20.tar.bz2 `
-real    0m28.892s
-user    0m27.318s
-sys     0m1.363s
+I'll give that box a run of memtest to rule out memory corruption
+problems. I'll also hook up a serial terminal tonight to catch tomorrow
+nights 'activity' in full 8-)
 
-Compression: Dual AMD 1600+, 512MB ram, 30 GB seagate EIDE
-time `gzip linux-2.4.20.tar`
-real    0m18.771s
-user    0m17.990s
-sys     0m0.674s
-
-time `gzip -9 linux-2.4.20.tar`
-real    0m42.032s
-user    0m40.725s
-sys     0m0.791s
-
-time `bzip2 linux-2.4.20.tar`
-real    1m50.411s
-user    1m49.197s
-sys     0m0.555s
-
-bz2 is about 18% of the size of the tarfile. gz is 22%. gzip -9 saved a 
-whopping 310k compared to gzip.
-
--- 
--- John E. Jasen (jjasen@realityfailure.org)
--- User Error #2361: Please insert coffee and try again.
-
+		Dave
 

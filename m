@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVBOOIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVBOONB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVBOOIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 09:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVBOOIq
+	id S261741AbVBOONB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 09:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVBOOMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 09:08:46 -0500
-Received: from smtpout16.mailhost.ntl.com ([212.250.162.16]:30540 "EHLO
-	mta08-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S261727AbVBOOIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 09:08:38 -0500
-Subject: Re: What is the purpose of a GPIO controller
-From: Ian Campbell <ijc@hellion.org.uk>
-To: krishna <krishna.c@globaledgesoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4211FDFC.3040905@globaledgesoft.com>
-References: <4211FDFC.3040905@globaledgesoft.com>
+	Tue, 15 Feb 2005 09:12:44 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18888 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261727AbVBOOM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 09:12:26 -0500
+Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
+       ext3 users list <ext3-users@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <200502151246.06598.adobriyan@mail.ru>
+References: <200502151246.06598.adobriyan@mail.ru>
 Content-Type: text/plain
-Date: Tue, 15 Feb 2005 14:08:33 +0000
-Message-Id: <1108476513.3324.10.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 15 Feb 2005 14:12:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 19:19 +0530, krishna wrote:
->     Can any one tell me what is the purpose of GPIO controllers.
+Hi,
 
-I'm not sure what question you are asking... GPIO controllers are
-clearly for the purpose of controlling GPIO pins. GPIO stands for
-general purpose i/o, so they are used for all sorts of things.
+On Tue, 2005-02-15 at 10:46, Alexey Dobriyan wrote:
 
-For example, hardware designers hook up all sorts of things to GPIO
-lines: input switches, reset lines to other chips on the board, leds,
-relays. I have boards where an i2c bus has been constructed using 2 gpio
-lines, another gpio is used to control the LCD backlight, etc, etc.
+> -			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
+> -					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
+> +			if ((ret = le32_to_cpu(EXT3_HAS_RO_COMPAT_FEATURE(sb,
+> +					~EXT3_FEATURE_RO_COMPAT_SUPP)))) {
 
-Ian.
+NAK.
 
--- 
-Ian Campbell
-Current Noise: Opeth - To Rid the Disease
+EXT3_HAS_RO_COMPAT_FEATURE returns a boolean value.  It happens to be
+implemented internally as 
 
-The pollution's at that awkward stage.  Too thick to navigate and too
-thin to cultivate.
-		-- Doug Sneyd
+#define EXT3_HAS_COMPAT_FEATURE(sb,mask)			\
+	( EXT3_SB(sb)->s_es->s_feature_compat & cpu_to_le32(mask) )
+
+
+so the compiler, looking at the preprocessed code, will reasonably
+assume it's a genuine little-endian value.  But it's only used as a
+boolean, so we shouldn't be requiring the callers to provide an
+le32_to_cpu() conversion.
+
+If we want to fix this, let's fix the macros: for example, convert
+EXT3_HAS_COMPAT_FEATURE to be
+
+	( le32_to_cpu(EXT3_SB(sb)->s_es->s_feature_compat) & (mask) )
+
+so that we're doing the tests in native CPU endian-ness.
+
+--Stephen
 

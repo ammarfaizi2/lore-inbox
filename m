@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130516AbRAHWoD>; Mon, 8 Jan 2001 17:44:03 -0500
+	id <S135947AbRAHWpD>; Mon, 8 Jan 2001 17:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131342AbRAHWnx>; Mon, 8 Jan 2001 17:43:53 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:55335 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130516AbRAHWnr>; Mon, 8 Jan 2001 17:43:47 -0500
-Date: Mon, 8 Jan 2001 23:43:39 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Todd M. Roy" <troy@holstein.com>
-Cc: toddroy@softhome.net, linux-kernel@vger.kernel.org
-Subject: Re: lvm 0.8 to 0.9 conversion?
-Message-ID: <20010108234339.F27646@athlon.random>
-In-Reply-To: <3A45192F.8C149F93@softhome.net> <20001227205336.A10446@athlon.random> <200101081918.f08JIrT06681@pcx4168.holstein.com>
+	id <S131342AbRAHWoo>; Mon, 8 Jan 2001 17:44:44 -0500
+Received: from ns.snowman.net ([63.80.4.34]:21000 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S135947AbRAHWoc>;
+	Mon, 8 Jan 2001 17:44:32 -0500
+Date: Mon, 8 Jan 2001 17:43:56 -0500
+From: Stephen Frost <sfrost@snowman.net>
+To: Jes Sorensen <jes@linuxcare.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010108174355.P26953@ns>
+Mail-Followup-To: Jes Sorensen <jes@linuxcare.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net> <d366jp4sin.fsf@lxplus015.cern.ch> <200101082148.NAA21738@pizda.ninka.net> <d31yud4qun.fsf@lxplus015.cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="33yLIq9/uqwyGAKN"
 Content-Disposition: inline
-In-Reply-To: <200101081918.f08JIrT06681@pcx4168.holstein.com>; from troy@holstein.com on Mon, Jan 08, 2001 at 07:18:53PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <d31yud4qun.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Mon, Jan 08, 2001 at 11:32:48PM +0100
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 5:39pm  up 144 days, 21:26,  7 users,  load average: 2.00, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 07:18:53PM +0000, Todd M. Roy wrote:
-> 
-> I've been on vacation....
-> 
-> Nope, no snapshots.
-> 
-> Well, I couldn't get my orginal volume group visible under both
-> lvm 0.8 and 0.9.  I don't know why.  So I grabbed a big empty hard disk,
-> created a new volume group that was visible under both, dded all the logical
-> volumes over to it, updated fstab  and removed the offending vg.  I've yet to
-> recreate the original vg, copy stuff back and remove the new drive.
-> I should point out that the offending vg was relatively ancient, I think I
-> created it when 0.7 was king under some something like 2.2.14.  Now I'm 
-> running 2.4.0-ac4 and all works well.
 
-Good. You may consider to also apply this kernel-driver bugfix for
-online extent/reduce of the VG and other assorted fixes:
+--33yLIq9/uqwyGAKN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0ac2/lvm-fix-1
+* Jes Sorensen (jes@linuxcare.com) wrote:
+> >>>>> "David" =3D=3D David S Miller <davem@redhat.com> writes:
+>=20
+> I don't question Alexey's skills and I have no intentions of working
+> against him. All I am asking is that someone lets me know if they make
+> major changes to my code so I can keep track of whats happening. It is
+> really hard to maintain code if you work on major changes while
+> someone else branches off in a different direction without you
+> knowing. It's simply a waste of everybody's time.
 
-I sumbitted them to Heinz a few days ago so that he can merge them with Linus.
+	Perhaps you missed it, but I believe Dave's intent is for this to
+only be a proof-of-concept idea at this time.  These changes are not=20
+currently up for inclusion into the mainstream kernel.  I can not think
+that Dave would ever just step around a maintainer and submit a patch to
+Linus for large changes.
 
-Andrea
+	If many people test these and things work out well for them=20
+then I'm sure Dave will go back to the maintainers with the code and=20
+the api and work with them to get it into the mainstream kernel. =20
+Soliciting ideas and suggestions on how to improve the api and the code=20
+paths in the drivers to handle this new method most effectively.
+
+		Stephen
+
+--33yLIq9/uqwyGAKN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6WkKrrzgMPqB3kigRAmokAJ9u4syg08ujQlPVBXuoetDVjJnS6ACeMDj6
+B1oHeCXNmDhAVQQmoP+TeGc=
+=4/AR
+-----END PGP SIGNATURE-----
+
+--33yLIq9/uqwyGAKN--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUKRJZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbUKRJcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUKRJZe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 04:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUKRJZe
+	id S262626AbUKRJcd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 04:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKRJcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 04:25:34 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:30149 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262574AbUKRJZY (ORCPT
+	Thu, 18 Nov 2004 04:32:33 -0500
+Received: from janus2.sad.it ([192.106.213.194]:31954 "HELO sad.it")
+	by vger.kernel.org with SMTP id S262626AbUKRJc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 04:25:24 -0500
-Date: Thu, 18 Nov 2004 11:27:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cliffw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm5 - badness in enable_irg, BUG
-Message-ID: <20041118102709.GA20901@elte.hu>
-References: <20041115093759.721ac964.cliffw@osdl.org> <20041117210219.43a36302.akpm@osdl.org> <20041118095253.GA16054@elte.hu> <20041118011504.7dc87fe6.akpm@osdl.org>
+	Thu, 18 Nov 2004 04:32:28 -0500
+Date: Thu, 18 Nov 2004 10:32:22 +0100
+From: Fabrizio Tivano <fabrizio@sad.it>
+To: linux-kernel@vger.kernel.org
+Subject: Random freeze on CS 5530
+Message-Id: <20041118103222.044722e8.fabrizio@sad.it>
+Organization: SAD Trasporto Locale s.p.a.
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041118011504.7dc87fe6.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Hello dear all, 
 
-> Well can we at least stick a comment in there explaining to the
-> long-suffering reader what the difference is between
-> smp_processor_id(), _smp_processor_id() and __smp_processor_id()?  And
-> what the architecture's options are?
+I dont know if this is the right place to post 
+my problem, but i try! :)
 
-doc-patch against -rc2-mm1 attached.
 
-> Or should we go through every arch and rename their smp_processor_id()
-> to __smp_processor_id()?  That would make sense, and would simplify
-> that piece of code.
+I have some machines GEODE based:
 
-initially the rate of false positives is like 90%, so there would only
-be annoyance coming out of this patch. Arch maintainers should have the
-ability to enable this on their own pace i think. Once the majority of 
-arches have enabled this we can force it on for all architectures.
+ Cyrix Corporation 5530 SMI [Kahlua]
 
-	Ingo
+Actually with kernel 2.4.24
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Randomly, apparently without no reason, the pc 
+freeze.
 
---- linux/include/linux/smp.h.orig
-+++ linux/include/linux/smp.h
-@@ -109,12 +109,24 @@ static inline void smp_send_reschedule(i
- 
- #endif /* !SMP */
- 
-+/*
-+ * DEBUG_PREEMPT support: check whether smp_processor_id() is being
-+ * used in a preemption-safe way.
-+ *
-+ * An architecture has to enable this debugging code explicitly.
-+ * It can do so by renaming the smp_processor_id() macro to
-+ * __smp_processor_id().  This should only be done after some minimal
-+ * testingy, because usually there are a number of false positives
-+ * that an architecture will trigger.
-+ *
-+ * To fix a false positives (i.e. smp_processor_id() use that the
-+ * debugging code reports but which use for some reason is legal),
-+ * change the smp_processor_id() reference to _smp_processor_id(),
-+ * which is the nondebug variant.  NOTE: dont use this to hack around
-+ * real bugs.
-+ */
- #ifdef __smp_processor_id
- # if defined(CONFIG_PREEMPT) && defined(CONFIG_DEBUG_PREEMPT)
--  /*
--   * temporary debugging check detecting places that use
--   * smp_processor_id() in a potentially unsafe way:
--   */
-    extern unsigned int smp_processor_id(void);
- # else
- #  define smp_processor_id() __smp_processor_id()
+telnet from remote:
+'Connection closed by foregn host'
+
+If i plug video+key i see a lot of error messages
+in console like:
+
+===========
+ext3-fs error (device ide03,400):ext3_get_inode_lock
+ext3_resercve_inode_write: IO failure
+===========
+
+it seem that the system are unable to communicate
+with the HDD and vice-versa.
+
+...and the only  operation permitted is OFF then ON.
+
+After the RESET all the system appears UP and ready
+and the log files do not say nothing!
+...and the last message on the syslog are the last
+before the freeze; in some case I been able to see,
+some time before the block,
+
+this message:
+
+====================
+ide timeout, irq {busy}
+reset
+====================
+in the last days i see this post:
+
+http://groups.google.it/groups?hl=it&lr=&threadm=ag05ab%241gc%241%40penguin.transmeta.com&rnum=7&prev=/groups%3Fhl%3Dit%26lr%3D%26selm%3Dag05ab%25241gc%25241%2540penguin.transmeta.com%26rnum%3D7
+
+Could be my problem ralted to this old post?
+
+.....you have some ideas?
+
+every hint will be really appreciated ! :)
+
+
+Thanks in advance, 
+fabrizio

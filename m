@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129826AbQLNFUH>; Thu, 14 Dec 2000 00:20:07 -0500
+	id <S131689AbQLNFX6>; Thu, 14 Dec 2000 00:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132466AbQLNFT5>; Thu, 14 Dec 2000 00:19:57 -0500
-Received: from www.wen-online.de ([212.223.88.39]:56592 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129826AbQLNFTr>;
-	Thu, 14 Dec 2000 00:19:47 -0500
-Date: Thu, 14 Dec 2000 05:49:16 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12 randomly hangs up
-In-Reply-To: <200012132247.eBDMlM201139@lt.wsisiz.edu.pl>
-Message-ID: <Pine.Linu.4.10.10012140541560.1063-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132051AbQLNFXt>; Thu, 14 Dec 2000 00:23:49 -0500
+Received: from nat-dial-160.valinux.com ([198.186.202.160]:45043 "EHLO
+	tytlal.z.streaker.org") by vger.kernel.org with ESMTP
+	id <S131689AbQLNFXj>; Thu, 14 Dec 2000 00:23:39 -0500
+Date: Wed, 13 Dec 2000 20:52:19 -0800
+From: Chip Salzenberg <chip@valinux.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <20001213205219.M864@valinux.com>
+In-Reply-To: <20001213204239.L864@valinux.com> <Pine.GSO.4.21.0012132346060.6300-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012132346060.6300-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Dec 13, 2000 at 11:47:01PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2000, Lukasz Trabinski wrote:
+According to Alexander Viro:
+> On Wed, 13 Dec 2000, Chip Salzenberg wrote:
+> > According to Alexander Viro:
+> > > On Wed, 13 Dec 2000, Chip Salzenberg wrote:
+> > > > According to Alexander Viro:
+> > > > > 9P is quite simple and unlike CORBA it had been designed for taking
+> > > > > kernel stuff to userland.  Besides, authors definitely understand
+> > > > > UNIX...
+> > > > 
+> > > > As nice as 9P is, it'll need some tweaks to work with Linux.
+> > > > For example, it limits filenames to 30 characters; that's not OK.
+> > > 
+> > > For RPC-style uses? Why?
+> > 
+> > For the same reason C compilers recognize more than eight significant
+> > characters in externals, even though ANSI doesn't require them to.
+> 
+> s/30/255/ and you've got a big problem with ext2...
 
-> In article <20001213121349.A6787@sarah.kolej.mff.cuni.cz> you wrote:
-> 
-> > I can (re)confirm that. I work several hours on console without any
-> > problem ... then I start X session and after several minutes system
-> > hangs.
-> 
-> I can confirm that, too.
-> Todaye, crashed two difference machines
-> One: AMD-K6 3D, 300 MHz, RH 7.0 + updates, 64MB RAM
-> Second one: AMD Athlon 600, 600MHz with, 128MB RAM, RH 7.0+updates
-> 
-> > Red Hat 7.0, XFree-3.3.6 (SVGA server), S3Virge/G2 (4MB)
-> 
-> > (no problems with -test11 and 2.2.x before ...)
-> 
-> Exactly
-
-Not here.  I've been seeing occasional hard freezes since test10.
-Mostly after a period of idle cpu (reading kernel code.. reader
-enters catatonic state with smoke pouring out ears;) X isn't running.
-
-	-Mike
-
+As long as names are to be created, or at least understood, by humans,
+there will be some limit on *usable* length.  In my experience, 255 is
+above that limit, but 30 is below it.  And I cut my teeth on a system
+that had exactly that length limitation (UNOS).
+-- 
+Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
+   "Give me immortality, or give me death!"  // Firesign Theatre
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

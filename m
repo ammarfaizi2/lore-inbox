@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUGFH2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUGFHby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUGFH2b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 03:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUGFH2b
+	id S263555AbUGFHby (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 03:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUGFHby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 03:28:31 -0400
-Received: from mailgate1.siemens.ch ([194.204.64.131]:5318 "EHLO
-	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
-	id S263093AbUGFH23 convert rfc822-to-8bit (ORCPT
+	Tue, 6 Jul 2004 03:31:54 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:56207 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263555AbUGFHbv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 03:28:29 -0400
-From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Organization: Siemens Schweiz AG
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Tue, 6 Jul 2004 09:27:43 +0200
-User-Agent: KMail/1.6
-Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20040630132305.98864.qmail@web81306.mail.yahoo.com> <200407011434.59340.Marc.Waeckerlin@siemens.com> <200407010804.00438.dtor_core@ameritech.net>
-In-Reply-To: <200407010804.00438.dtor_core@ameritech.net>
-X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407060927.43588.Marc.Waeckerlin@siemens.com>
-X-OriginalArrivalTime: 06 Jul 2004 07:27:47.0628 (UTC) FILETIME=[BC8BEEC0:01C4632A]
+	Tue, 6 Jul 2004 03:31:51 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: jhf@rivenstone.net (Joseph Fannin)
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       paulus@samba.org, benh@kernel.crashing.org, rusty@rustcorp.com.au
+Subject: Re: 2.6.7-mm6 - ppc32 inconsistent kallsyms data 
+In-reply-to: Your message of "Tue, 06 Jul 2004 12:06:08 +1000."
+             <2970.1089079568@kao2.melbourne.sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Jul 2004 17:31:22 +1000
+Message-ID: <13859.1089099082@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 1. Juli 2004 15.03 schrieb Dmitry Torokhov unter "Re: Continue: 
-psmouse.c - synaptics touchpad driver sync problem":
-> Just out of curiosity, what happens when you pass psmouse.proto=bare to the
-> kernel as a boot option (or put "options psmouse proto=bare" in your
-> /etc/modprobe.conf file if psmouse is compiled as a module)?    
+On Tue, 06 Jul 2004 12:06:08 +1000, 
+Keith Owens <kaos@sgi.com> wrote:
+>On Mon, 5 Jul 2004 16:38:18 -0400, 
+>jhf@rivenstone.net (Joseph Fannin) wrote:
+>>On Mon, Jul 05, 2004 at 02:31:20AM -0700, Andrew Morton wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm6/
+>>
+>>  I'm getting this while building for ppc32:
+>>    Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
+>>
+>>  This didn't happen with -mm6.
+>>
+>>  The help text for CONFIG_KALLSYMS_EXTRA_PASS says I should report a
+>>bug, and reads like kallsyms is a utility or part of the toolchain;
+>>I think it's talking about the kernel feature though, so I guess
+>>I'll report it here.  I'll keep this tree around in case any more
+>>information is needed.
+>
+>Run these commands on the tree that needed CONFIG_KALLSYMS_EXTRA_PASS=y
+>(assumes Bourne shell)
+>
+>for i in 1 2 3; do nm .tmp_kallsyms$i.o > .tmp_mapk$i; nm .tmp_vmlinux$i > .tmp_mapv$i; done
+>tar cjvf /var/tmp/kallsyms.tar.bz2 .tmp_kallsyms* .tmp_vmlinux* .tmp_map*
+>
+>Send the tarball to me, not the list.
 
-I tested again with psmouse.proto=bare and psmouse.resetafter=3 and *internal* 
-touchpad/keyboard *only*. Last time, I told you, there's no ovious effect and 
-it still does not work. That might be correct for the external equipment, but 
-with internal mouse, the effects are much more subtile:
+This is a real linker problem on ppc32.  The linker automatically adds
+_SDA_BASE_ and _SDA2_BASE_ symbols, these symbols are not defined in
+vmlinux.lds.S.  The SDA symbols move around as kallsyms data is added
+between phases 1 and 2.  That movement, together with the stem
+compression (which depends on the immediately previous symbol) means
+that the compressed symbol table changes size between phases 1 and 2,
+which it is not supposed to do.
 
+This problem has been there all along.  It showed up now because I
+added a test to verify that the kallsyms data is consistent after phase
+2, instead of blindly assuming that it is stable.  jhf, can you verify
+that this patch removes the need for an extra kallsyms pass?
 
-psmouse.proto=bare
+--- kallsyms-ppc32 ---
 
- -> Now the internal mouse behaves as bad as the external one! It jumps around 
-like crazy and clicks everywhere. That means, problems No. 3 and No.4 now 
-also apply to the internal mouse!
+PPC small data area base symbols shift between kallsyms phases 1 and 2,
+which makes the kallsyms data unstable.  Exclude them from the kallsyms
+list.
 
- -> But problem No. 5 is resolved! Clicking on the touchpad does a button-1 
-click.
+Signed-off-by: Keith Owens <kaos@sgi.com>
 
+Index: 2.6.7-mm6/scripts/kallsyms.c
+===================================================================
+--- 2.6.7-mm6.orig/scripts/kallsyms.c	2004-07-06 17:26:14.000000000 +1000
++++ 2.6.7-mm6/scripts/kallsyms.c	2004-07-06 17:26:33.000000000 +1000
+@@ -83,6 +83,11 @@ symbol_valid(struct sym_entry *s)
+ 	    strcmp(s->sym, "kallsyms_names") == 0)
+ 		return 0;
+ 
++	/* Exclude linker generated symbols which vary between passes */
++	if (strstr(s->sym, "_SDA_BASE_") ||		/* ppc */
++	    strcmp(s->sym, "_SDA2_BASE_") == 0)		/* ppc */
++		return 0;
++
+ 	return 1;
+ }
+ 
 
-psmouse.resetafter=3
-
- -> Problems No. 1 and No. 2 now become much worse! That means when moving the 
-mouse cursor, cursor often stops/blocks. Then I have to keep the fingers off 
-the touchpad for several seconds, before I can continue to move the mouse. 
-Either regardless of the system load, or the lowest system load can start 
-this effect, that's not so clear.
-
- -> Also the cursor now jumps much more than ever before.
-
-So, that might be a way for a workaround: Can "reset" be disabled, e.g. 
-secifying "psmouse.resetafter=0"?
-
-
-Regards
-Marc

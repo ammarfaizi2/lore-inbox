@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288703AbSANCzQ>; Sun, 13 Jan 2002 21:55:16 -0500
+	id <S288709AbSANCy4>; Sun, 13 Jan 2002 21:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288697AbSANCzH>; Sun, 13 Jan 2002 21:55:07 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56330 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288703AbSANCyw>;
-	Sun, 13 Jan 2002 21:54:52 -0500
-Date: Mon, 14 Jan 2002 00:54:32 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18pre3-ac1
-In-Reply-To: <028b01c19c90$87300760$02c8a8c0@kroptech.com>
-Message-ID: <Pine.LNX.4.33L.0201140052030.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288697AbSANCyq>; Sun, 13 Jan 2002 21:54:46 -0500
+Received: from bitmover.com ([192.132.92.2]:42887 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S288703AbSANCya>;
+	Sun, 13 Jan 2002 21:54:30 -0500
+Date: Sun, 13 Jan 2002 18:54:28 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: ISA hardware discovery -- the elegant solution
+Message-ID: <20020113185428.C8792@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020113205839.A4434@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020113205839.A4434@thyrsus.com>; from esr@thyrsus.com on Sun, Jan 13, 2002 at 08:58:39PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002, Adam Kropelin wrote:
+> :MTRR: your CPUs had inconsistent fixed MTRR settings
+> :MTRR: probably your BIOS does not setup all CPUs
+> :PCI: PCI BIOS revision 2.10 entry at 0xfd7c0, last bus=1
+> :PCI: Using configuration type 1
+> :PCI: Probing PCI hardware
 
-> From: "Alan Cox" <alan@redhat.com>
->
-> > People keep bugging me about the -ac tree stuff so this is whats in my
-> > current internal diff with the ll patch and the ide changes excluded.
-
-> For the sake of completeness I ran my large inbound FTP transfer test
-> (details in the "Writeout in recent kernels..." thread) on this
-> release. Performance and observed writeout behavior was essentially
-> the same as for 2.4.17, both stock and with -rmap11a. Transfer time
-> was 6:56 and writeout was uneven. 2.4.13-ac7 is still the winner by a
-> significant margin.
-
-I'm looking into this bug, I just finished the first large
-dbench test set on 2.4.17-rmap11b with 512 MB RAM, tomorrow
-I'll run them with 128 and 32 MB of RAM.
-
-Luckily you have already shown the other recent kernels to
-have the same performance, so I only have to do half a day
-of testing. I'll try to track down this bug and get it fixed.
-
-regards,
-
-Rik
+It's ugly and distracting and if this proposal goes anywhere, move the tag to 
+end of the line.  Then your eyes can scan the output and the tools can scan
+the end of the line.
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

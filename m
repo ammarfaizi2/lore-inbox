@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318970AbSH1VRL>; Wed, 28 Aug 2002 17:17:11 -0400
+	id <S318972AbSH1VRr>; Wed, 28 Aug 2002 17:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318972AbSH1VRL>; Wed, 28 Aug 2002 17:17:11 -0400
-Received: from ip68-4-60-172.pv.oc.cox.net ([68.4.60.172]:46145 "EHLO
-	siamese.dyndns.org") by vger.kernel.org with ESMTP
-	id <S318970AbSH1VRL>; Wed, 28 Aug 2002 17:17:11 -0400
-To: linux-kernel@vger.kernel.org
-cc: trivial@rustcorp.com.au
-Subject: [TRIVIAL] aic7xxx/Makefile fix
-From: junio@siamese.dyndns.org
-Date: 28 Aug 2002 14:21:27 -0700
-Message-ID: <7vit1ullwo.fsf@siamese.dyndns.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318973AbSH1VRq>; Wed, 28 Aug 2002 17:17:46 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:1210 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S318972AbSH1VRk>; Wed, 28 Aug 2002 17:17:40 -0400
+Subject: [PATCH] update ver_linux script to work with gcc 3.2.
+From: Steven Cole <elenstev@mesatop.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 28 Aug 2002 15:18:09 -0600
+Message-Id: <1030569489.4032.113.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch against 2.4.19.  If you are in a (good) habit of making
-all the upstream sources read-only before starting your build,
-generation of the firmware code fails because it tries to write
-into read-only files.  This bites only in configurations where
-CONFIG_AIC7XXX_BUILD_FIRMWARE is set to 'y'. 
+A commonly used gcc reports its version number thusly:
+[steven@spc5 steven]$ gcc --version
+2.96
 
---- 2.4.19/drivers/scsi/aic7xxx/Makefile	2002-08-02 10:48:53.000000000 -0700
-+++ 2.4.19/drivers/scsi/aic7xxx/Makefile	2002-08-28 14:14:31.000000000 -0700
-@@ -39,6 +39,7 @@
- $(obj-aic7xxx): aic7xxx_reg.h
- 
- aic7xxx_seq.h aic7xxx_reg.h: aic7xxx.seq aic7xxx.reg aicasm/aicasm
-+	rm -f aic7xxx_seq.h aic7xxx_reg.h
- 	aicasm/aicasm -I. -r aic7xxx_reg.h -o aic7xxx_seq.h aic7xxx.seq
- endif
+But the new gcc 3.2 reports its version number thusly:
+[steven@spc1 scripts]$ gcc --version
+gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-1mdk)
+Copyright (C) 2002 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+This causes the current ver_linux script to produce less
+than readable output for the gcc version when using gcc 3.2.
+
+Here is a patch to the ver_linux script which allows it
+to work both with the new gcc and the old gcc. 
+
+The patch was made against 2.4.20-pre4-ac2, but also applies to 
+2.4.20-pre4 and to 2.5.32 as well.
+
+This was tested for the gcc 3.2 on Mandrake 9.0 beta4, but
+will probably work for Red Hat Limbo or (null).  Testing is
+always welcomed.  Backward compatibility with gcc 2.96 was
+tested with Red Hat 7.3 and Mandrake 8.2.
+
+Steven
+
+--- linux-2.4.20-pre4-ac2/scripts/ver_linux.orig	Wed Aug 28 14:37:39 2002
++++ linux-2.4.20-pre4-ac2/scripts/ver_linux	Wed Aug 28 14:37:51 2002
+@@ -12,7 +12,11 @@
+ uname -a
+ echo ' '
+
+-echo "Gnu C                 " `gcc --version`
++gcc --version 2>&1| head -n 1 | grep -v gcc | awk \
++'NR==1{print "Gnu C                 ", $1}'
++
++gcc --version 2>&1| grep gcc | awk \
++'NR==1{print "Gnu C                 ", $3}'
+
+ make --version 2>&1 | awk -F, '{print $1}' | awk \
+       '/GNU Make/{print "Gnu make              ",$NF}'
+
+
+
+

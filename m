@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317914AbSGWDBN>; Mon, 22 Jul 2002 23:01:13 -0400
+	id <S317921AbSGWDFI>; Mon, 22 Jul 2002 23:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317917AbSGWDBN>; Mon, 22 Jul 2002 23:01:13 -0400
-Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:5324 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317914AbSGWDBM>; Mon, 22 Jul 2002 23:01:12 -0400
-Date: Mon, 22 Jul 2002 21:04:17 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "J. Hart" <jhart@atr.co.jp>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: File Corruption in Kernel 2.4.18
-In-Reply-To: <3D3CC5C4.54E9EF72@atr.co.jp>
-Message-ID: <Pine.LNX.4.44.0207222103270.3241-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317924AbSGWDFI>; Mon, 22 Jul 2002 23:05:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:25002 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317921AbSGWDFH>;
+	Mon, 22 Jul 2002 23:05:07 -0400
+Date: Mon, 22 Jul 2002 19:57:49 -0700 (PDT)
+Message-Id: <20020722.195749.34129476.davem@redhat.com>
+To: niemayer@isg.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: read/recv sometimes returns EAGAIN instead of EINTR on SMP
+ machines
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D3BE1C2.CB89D124@isg.de>
+References: <3D3BE1C2.CB89D124@isg.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Peter Niemayer <niemayer@isg.de>
+   Date: Mon, 22 Jul 2002 12:43:14 +0200
+   
+   If one process tries to read non-blocking from a tcp socket (domain sockets work
+   fine), and another process sends the reading process signals, then sometimes
+   select() returns with the indication that the socket is readable,
+   but the subsequent read returns EAGAIN - instead of EINTR which
+   would have been the correct return code. This only happenes on SMP
+   machines.
 
-On Tue, 23 Jul 2002, J. Hart wrote:
-> OS         : Linux 2.4.7-10 i686 unknown
-> 
->      Are there any outstanding issues with machines of this new
-> configuration
+I think EAGAIN is the correct return value.  This behavior has been
+there since the stone ages of TCP and I remember Alan specifically
+auditing all of this stuff long ago wrt. POSIX compliance.
 
-Maybe a new kernel. I think the rest should be OK.
+Can you cite some part of the POSIX spec which states that EAGAIN
+cannot be returned when signals are received by a caller of
+tcp_recvmsg?
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+   

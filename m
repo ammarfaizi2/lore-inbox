@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUJGRGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUJGRlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267454AbUJGRGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUJGRDt
+	id S267497AbUJGRlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUJGRJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:03:49 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:34701 "EHLO
-	kernel.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S267464AbUJGQit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 12:38:49 -0400
-Subject: [patch] remove weird pmd cast
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Thu, 07 Oct 2004 09:38:40 -0700
-Message-Id: <E1CFbHz-0001b8-00@kernel.beaverton.ibm.com>
+	Thu, 7 Oct 2004 13:09:59 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39599 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267516AbUJGQwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 12:52:22 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Patrick Gefre <pfg@sgi.com>
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Thu, 7 Oct 2004 09:52:02 -0700
+User-Agent: KMail/1.7
+Cc: Grant Grundler <iod00d@hp.com>, Colin Ngam <cngam@sgi.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <200410061344.38265.jbarnes@engr.sgi.com> <41655A91.1010307@sgi.com>
+In-Reply-To: <41655A91.1010307@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410070952.02291.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, October 7, 2004 8:02 am, Patrick Gefre wrote:
+> > They should each be separate cleanup patches.  What I've done in the past
+> > is make copies (in this case 5) of the big patch.  Then I edit all of
+> > them to include only the hunks I want there.  Hopefully that'll minimize
+> > the pain of respinning the big patch (i.e. no respin).  Also, Tony
+> > doesn't want to deal with the above files, patches for them should be
+> > sent to Andrew as separate mails with lkml in the cc list.
+>
+> These are not cleanup.
+>
+> The mmtimer code and sn_console include a file that doesn't exist anymore
+> in the directory included - it's moved to somewhere else in the 002 patch.
+>
+> snsc.c, sgiioc4.c have changes for things that won't exist after this patch
+> is applied.
 
-I don't know what this is trying to do.  It might be some kind of
-artifact from when get_pgd_slow() was removed. 
+Yeah, sorry, I shouldn't have said cleanup, fixup is better.  Anyway, they 
+need to be separate since they'll be going into the tree via Andrew not Tony.
 
-The expanded expression with __pa() ends up looking something like this:
-
-	(unsigned long)(u64)(u32)pmd-PAGE_OFFSET
-
-and that is just nutty because pmd is a pointer now, anyway.
-
-Attached patch removes the casts.  
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- memhotplug-dave/arch/i386/mm/pgtable.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/i386/mm/pgtable.c~A3-remove-weird-pmd-casts-i386 arch/i386/mm/pgtable.c
---- memhotplug/arch/i386/mm/pgtable.c~A3-remove-weird-pmd-casts-i386	2004-10-07 09:34:26.000000000 -0700
-+++ memhotplug-dave/arch/i386/mm/pgtable.c	2004-10-07 09:34:26.000000000 -0700
-@@ -233,7 +233,7 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
- 		pmd_t *pmd = kmem_cache_alloc(pmd_cache, GFP_KERNEL);
- 		if (!pmd)
- 			goto out_oom;
--		set_pgd(&pgd[i], __pgd(1 + __pa((u64)((u32)pmd))));
-+		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
- 	}
- 	return pgd;
- 
-_
+Thanks,
+Jesse

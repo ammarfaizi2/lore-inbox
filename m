@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTI1MxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 08:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbTI1MxZ
+	id S262536AbTI1Mvc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 08:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbTI1Mvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 08:53:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65459 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262543AbTI1MxT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 08:53:19 -0400
-Date: Sun, 28 Sep 2003 13:53:18 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Oliver Pitzeier <oliver@linux-kernel.at>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Sun, 28 Sep 2003 08:51:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56333 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262536AbTI1Mvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 08:51:31 -0400
+Date: Sun, 28 Sep 2003 13:50:46 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Bernardo Innocenti <bernie@develer.com>,
+       Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030928125318.GM7665@parcelfarce.linux.theplanet.co.uk>
-References: <200309281216.h8SCGWsl026399@indianer.linux-kernel.at>
+Message-ID: <20030928135046.A30736@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Bernardo Innocenti <bernie@develer.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309281216.h8SCGWsl026399@indianer.linux-kernel.at>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0309281213240.4929-100000@callisto>; from geert@linux-m68k.org on Sun, Sep 28, 2003 at 12:14:18PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 02:19:24PM +0200, Oliver Pitzeier wrote:
-> Hi folks/Linus!
+On Sun, Sep 28, 2003 at 12:14:18PM +0200, Geert Uytterhoeven wrote:
 > 
-> Linus Torvalds wrote:
-> > Ok, too long between test5 and test6 again, so the patch is 
-> > pretty big. Lots of driver updates and architectures fixed, 
-> > but also lots of merges from Andrew Morton. Most notably 
-> > perhaps Con's scheduler changes that have been discussed 
-> > extensively and made it into the -mm tree for testing.
+> On Sat, 27 Sep 2003, Linus Torvalds wrote:
+> > Bernardo Innocenti:
+> >   o GCC 3.3.x/3.4 compatiblity fix in include/linux/init.h
 > 
-> It work's on my Intel machine, but on Alpha, I get this:
-> <snip>
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> kernel/built-in.o: In function `try_to_wake_up':
-> kernel/built-in.o(.text+0x438): undefined reference to `sched_clock'
+> This change breaks 2.95 for some source files, because <linux/init.h> doesn't
+> include <linux/compiler.h>. Do you want to have the missing include added to
+> <linux/init.h>, or to the individual source files that need it?
 
-Add
-unsigned long long default_sched_clock(void)
-{
-	return (unsigned long long)jiffies * (1000000000 / HZ);
-}
+It also breaks gcc 3.2.2 / gcc 3.3 as well:
 
-in kernel/sched.c and
+arch/arm/mach-sa1100/leds.c:51: error: parse error before "__attribute_used__"
+arch/arm/mach-pxa/leds.c:29: error: parse error before "__attribute_used__"
 
-#define sched_clock default_sched_clock
-
-in include/asm-alpha/system.h
-
-FWIW, the former should've been done from the very beginning and sched_clock
-should've been made a weak alias for default_sched_clock.  That would avoid
-the breakage of platforms original patch didn't update.
-
-BTW, how about adding weak_alias(type, name, args, default_variant) to
-compiler.h?  For most platforms it would be
-
-#define weak_alias(type, name, args, default_variant) \
-	type name args __attribute__((weak, alias(#default_variant)));
-
-Note that we already have something similar - cond_syscall(name) would
-become weak_alias(asmlinkage long, name, (void), sys_ni_syscall) and
-platform-specific stuff could be taken from current definitions of this
-beast.
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264294AbTDKGPH (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 02:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbTDKGPH (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 02:15:07 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51964 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264294AbTDKGPF (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 02:15:05 -0400
-Message-ID: <3E966009.1060501@mvista.com>
-Date: Thu, 10 Apr 2003 23:26:17 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id S264292AbTDKGZ5 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 02:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbTDKGZ5 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 02:25:57 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:35007 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264292AbTDKGZ4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 02:25:56 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Date: Fri, 11 Apr 2003 08:37:37 +0200
+User-Agent: KMail/1.5
+Cc: Daniel Stekloff <dsteklof@us.ibm.com>
+References: <20030411032424.GA3688@kroah.com>
+In-Reply-To: <20030411032424.GA3688@kroah.com>
 MIME-Version: 1.0
-To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
-CC: linux-kernel@vger.kernel.org,
-       Chandrashekhar RS <chandra.smurthy@wipro.com>
-Subject: Re: [BUG] settimeofday(2) succeeds for microsecond value more than
- USEC_PER_SEC and for negative value
-References: <94F20261551DC141B6B559DC491086723E0EB7@blr-m3-msg.wipro.com>
-In-Reply-To: <94F20261551DC141B6B559DC491086723E0EB7@blr-m3-msg.wipro.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304110837.37545.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aniruddha M Marathe wrote:
-> Settimeofday(2) should return EINVAL in case where tv.tv_usec parameter is more than 
-> USEC_PER_SEC (more than 10^6 ) or for negative values of tv.tv_usec. 
-> It returns 0 (success) instead.
-> 
-> Clock_settimeofday(2) (kernel/posix-timers.c) also uses do_sys_settimeofday() and faces the
-> Same problem.
-> 
-> I think this is a bug. If you confirm, I will send a patch.
 
-Yes, it is a known problem, turned up by some the posix timers tests. 
-  I suppose it is too much to ask, but it would be nice if 
-do_sys_settimeofday() took a timespec instead of a timeval.  Of course 
-this changes the interface for all the archs, but it would allow the 
-clock_settimeofday to send in the nsec value.
+> Anyway, this works for me, on my machines, and I am very interested in
+> feedback from everyone about both this concept, and the implementation
+> of this.  I've cced a lot of different lists, as they have all expressed
+> interest in this project.
 
--g
+Cool, an utterly new piece of code to play with.
+Well, it has some nice issues.
 
-> 
-> Regards,
-> Aniruddha Marathe
-> WIPRO Technologies, India
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+- There's a race with replugging, which you can do little about
+- Error handling. What do you do if the invocation ends in EIO ?
+- Performance. What happens if you plug in 4000 disks at once?
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+	Regards
+		Oliver
 

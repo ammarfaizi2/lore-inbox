@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUJERaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUJERcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269102AbUJERaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269042AbUJERai
+	id S269042AbUJERcA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269107AbUJERb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:30:38 -0400
-Received: from clusterfw.beelinegprs.net ([217.118.66.232]:31874 "EHLO
-	crimson.namesys.com") by vger.kernel.org with ESMTP id S269117AbUJER35
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:29:57 -0400
-Date: Tue, 5 Oct 2004 21:22:34 +0400
-From: Alex Zarochentsev <zam@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeffrey Mahoney <jeffm@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
-Message-ID: <20041005172233.GE28617@backtop.namesys.com>
-References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4162C156.3030108@namesys.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Oct 2004 13:31:59 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60649 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269042AbUJERb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:31:28 -0400
+Date: Tue, 5 Oct 2004 10:29:20 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Roland McGrath <roland@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>, johnstul@ibm.com,
+       george@mvista.com
+Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
+In-Reply-To: <200410050515.i955Fa15004063@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0410051018470.27140@schroedinger.engr.sgi.com>
+References: <200410050515.i955Fa15004063@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
-> These have received design approval from zam (and thus me), but zam, did 
-> they receive stress testing by Elena under your guidance?
+I just reviewed the code and to my surprise the simple things like
 
-No. We have a long queue of test tasks.  There are fsck.reiser4 testing,
-reiser4/dmapper crashes and the benchmarks in the queue. 
+clock_gettime(CLOCK_PROCESS_CPUTIME_ID) and
+clock_gettime(CLOCK_THREAD_CPUTIME_ID) are not supported. I guess glibc
+would have to do multiple calls to add up all the threads in order to get
+these values. This also leaves glibc in control of clocks and does not
+allow the kernel to define its own clocks.
 
-> 
-> Hans
-> 
-> Jeffrey Mahoney wrote:
-> 
-> >Hey all -
-> >
-> >One of the most common complaints I've heard about ReiserFS is how graceless
-> >it is in handling critical I/O errors.
-> >
-> >ext[23] can handle I/O errors anywhere, with the results being up to the
-> >system admin to determine: continue, go read only, or panic.
-> >
-> >ReiserFS doesn't offer the admin any such choice, instead panicking on any
-> >I/O error in the journal.
-> >
-> >The available options are read only or panic, since ReiserFS does not
-> >currently support operations without the journal.
-> >
-> >In the four messages that follow, you'll find: *
-> >reiserfs-cleanup-buffer-heads.diff - Cleans up handling of buffer head
-> >bitfields - uses the kernel supplied FNS_BUFFER macros instead.  *
-> >reiserfs-cleanup-sb-journal.diff - Cleans up accessing of the journal
-> >structure, prefering to create a temporary variable in functions that access
-> >the journal structure non-trivially. Should make 0 difference at compile
-> >time.  * reiserfs-io-error-handling.diff - Allows ReiserFS to gracefully
-> >handle I/O errors in critical code paths. The admin has the option to go
-> >read-only or panic.  Since ReiserFS has no option to ignore the use of the
-> >journal, the "continue" method is not enabled.  * reiserfs-write-lock.diff -
-> >Fixes two missing reiserfs_write_unlock() calls on error paths that are
-> >unrelated to reiserfs-io-error-handling.diff
-> >
-> >These patches have seen a lot of testing in the SuSE Linux Enterprise Server
-> >9 kernel, and are considered ready for mainline.
-> >
-> >They've received approval[1] from the ReiserFS maintainers also.
-> >
-> >Andrew - Apologies for the previous format; Please apply.
-> >
-> >Thanks.
-> >
-> >-Jeff
-> >
-> >[1] http://marc.theaimsgroup.com/?l=reiserfs&m=109587254714180
-> >
-> >-- Jeff Mahoney SuSE Labs
-> > 
-> >
-> 
+The code is pretty invasive and I am not sure that this brings us much
+nor that it is done the right way.
 
--- 
-Alex.
+The kernel interface is rather strange with the bits that may be set for
+each special clock which is then combined with the pid. It may be
+advisable to have a separate function call to do this like
+
+get_process_clock(pid,type,&timespec)
+
+instead of using the posix calls. The thread specific time
+measurements have nothing to do with the posix standard and may best
+be kept separate.
+
+The benefit of the patches that I proposed is that it is a clean
+implementation of the posix interface, the kernel has full
+control over posix clocks and that driver specific clocks as well as other
+time sources can be defined that may also utilize the timed interrupt
+features of those clock chips. Rolands patch does not allow that and
+instead will lead to more complex logic in glibc and a rather strange
+kernel interface.

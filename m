@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317073AbSGNURJ>; Sun, 14 Jul 2002 16:17:09 -0400
+	id <S317101AbSGNUTL>; Sun, 14 Jul 2002 16:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317081AbSGNURI>; Sun, 14 Jul 2002 16:17:08 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:42485 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317073AbSGNURG>; Sun, 14 Jul 2002 16:17:06 -0400
-Date: Sun, 14 Jul 2002 22:18:22 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207142018.g6EKIMUu019448@burner.fokus.gmd.de>
-To: schilling@fokus.gmd.de, szepe@pinerecords.com
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+	id <S317096AbSGNUTK>; Sun, 14 Jul 2002 16:19:10 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:7365 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317081AbSGNUTI>; Sun, 14 Jul 2002 16:19:08 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
+References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
+	<20020714201529.GA14244@louise.pinerecords.com>
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Date: 14 Jul 2002 16:21:53 -0400
+In-Reply-To: <20020714201529.GA14244@louise.pinerecords.com>
+Message-ID: <xltznwujc0u.fsf@shookay.newview.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Tomas Szepe <szepe@pinerecords.com>
+szepe@pinerecords.com (Tomas Szepe) writes:
 
->> >Umm, let's see if I can fish out the install media from somewhere...
->> >jup, Solaris 2.6 5/98.
->> 
->> So did you compare Solaris performance with a 4 year old Linux?
+> [OT stuff scrapped]
+> 
+> > >I honestly doubt ext3 would perform significantly worse than what I've
+> > >observed with reiserfs.
+> > Just try it, I did try it.
+> 
+> Someone else will have to carry out the test, I really can't free up
+> any of my partitions for a re-mkfs.
 
->No, but you did the comparison with the most recent version of Solaris for
->me, only it was on IA-32. And the result is still the same, Linux wins hands
->down.
+I'm running tar (the regular version not star) right now on an Athlon @
+850. The fs is ext3 and the disk is a scsi drive.
+So far, tar has been running for 17 min 25 sec, and that's what top says:
+CPU states:  1.7% user, 98.2% system,  0.0% nice,  0.0% idle
 
+(FYI, nothing else is taking some large amount of cpu time)
 
-The differences are not big enough to prove this. I did use a slow old IDE
-disk. As you see from my timings, the Solaris test results have been mainly 
-caused by disk speed. 
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+So I would say Joerg is right... :-(
+-- 
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+    It is exactly because a man cannot do a thing that he is a
+                      proper judge of it.
+                      -- Oscar Wilde

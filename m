@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288838AbSAEPV3>; Sat, 5 Jan 2002 10:21:29 -0500
+	id <S288843AbSAEPhc>; Sat, 5 Jan 2002 10:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288843AbSAEPVR>; Sat, 5 Jan 2002 10:21:17 -0500
-Received: from cs182172.pp.htv.fi ([213.243.182.172]:5253 "EHLO
-	cs182172.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S288838AbSAEPVK>; Sat, 5 Jan 2002 10:21:10 -0500
-Message-ID: <3C3719D1.F3B214B6@welho.com>
-Date: Sat, 05 Jan 2002 17:20:49 +0200
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to debug very strange packet delivery problem?
-In-Reply-To: <005001c194d9$b5793c40$6caaa8c0@kevin>
-Content-Type: text/plain; charset=us-ascii
+	id <S288846AbSAEPhV>; Sat, 5 Jan 2002 10:37:21 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:2310 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S288843AbSAEPhG>;
+	Sat, 5 Jan 2002 10:37:06 -0500
+Date: Sat, 5 Jan 2002 16:37:03 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Klaus Zerwes <kzerwes@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug ?
+Message-Id: <20020105163703.730e8b53.skraw@ithnet.com>
+In-Reply-To: <3C36E715.9030303@web.de>
+In-Reply-To: <3C30A9F0.3070603@web.de>
+	<20011231195115.410b871f.skraw@ithnet.com>
+	<3C36E715.9030303@web.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kevin P. Fleming" wrote:
-> The machine runs fine, and other nodes on the local network (i.e. using the
-> ethernet interface) can communicate with it just fine. I can also bring up
-> the ppp link, and communicate with everything on the corporate WAN without
-> trouble. I can communicate _through_ this machine from nodes on the local
-> network to the corporate WAN just fine. But...
+On Sat, 05 Jan 2002 12:44:21 +0100
+Klaus Zerwes <kzerwes@web.de> wrote:
+
+> Stephan von Krawczynski wrote:
+> > Tell us if it happens again with 2.4.17, or if you are sure it does not,
+> > declare it as solved.
+> > 
+> > Regards,
+> > Stephan
+> > 
 > 
-> What I _cannnot_ do is initiate a connection from a node on the other side
-> of the ppp link (the corporate side) to this machine. There are at least
-> three daemon processes on this system I've tried to connect to: xinetd (for
-> telnet), bind and exim. None of these are using tcp_wrappers. The symptoms
-> are that the TCP SYN packet (to open the connection) arrives at the ppp0
-> interface (verified by using tcpdump on the ppp0 interface), but then is not
-> delivered to the waiting process on its open socket.
+> 
+> I have copmpiles 2.4.16 and did some tests with a mirrored system ( 
+> only the system, without the harddisks with data) using different 
+> NICs: Davicom FE (dmfe), RT 8139C (8139too) and SMC 9432 EtherPower II 
+>   83c172 (epic100).
 
-Hi Kevin,
+Sorry, but why with 2.4.16? Is this a typo?
 
-You seem to know what you're doing there, but it would still help if you
-could provide some details of your routing configuration and servers,
-e.g. output of ifconfig, route -n, and netstat -anot, iptables -L
-(provided that the company security policy allows you to share this
-info, of course :-). Are you doing NAT between the local net and the
-corporate WAN or are you sharing a subnet? Are you sure that it's the
-SYN getting lost rather than the SYN-ACK from the server? Even though
-your machine is forwarding fine it might still be a routing problem of
-some kind.
+Regards,
+Stephan
 
-Cheers,
-
-	MikaL

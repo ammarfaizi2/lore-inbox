@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265517AbRFVU6f>; Fri, 22 Jun 2001 16:58:35 -0400
+	id <S265518AbRFVVHF>; Fri, 22 Jun 2001 17:07:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265515AbRFVU6Y>; Fri, 22 Jun 2001 16:58:24 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:48940
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S265513AbRFVU6G>; Fri, 22 Jun 2001 16:58:06 -0400
-Date: Fri, 22 Jun 2001 22:57:59 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, dwmw2@redhat.com,
-        mtd@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup in drivers/mtd/ftl.c (245-ac16)
-Message-ID: <20010622225759.F842@jaquet.dk>
-In-Reply-To: <20010622222931.C842@jaquet.dk> <20010622172106.B3614@conectiva.com.br>
+	id <S265520AbRFVVGs>; Fri, 22 Jun 2001 17:06:48 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:20235 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S265518AbRFVVGi>;
+	Fri, 22 Jun 2001 17:06:38 -0400
+Date: Fri, 22 Jun 2001 17:09:45 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Maintainers master list?
+Message-ID: <20010622170945.A16757@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	"Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010622160002.B16285@thyrsus.com> <Pine.LNX.4.33L.0106221753140.4442-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010622172106.B3614@conectiva.com.br>; from acme@conectiva.com.br on Fri, Jun 22, 2001 at 05:21:06PM -0300
+In-Reply-To: <Pine.LNX.4.33L.0106221753140.4442-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Jun 22, 2001 at 05:54:20PM -0300
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 22, 2001 at 05:21:06PM -0300, Arnaldo Carvalho de Melo wrote:
-> Hi Rasmus,
-> 
-> 	I've fixed this ones and its already in 2.4.6-pre5, please take a
-> look and see if something is missing.
+Rik van Riel <riel@conectiva.com.br>:
+> Look, when somebody stops maintaining something, they'll
+> stop sending patches. When this happens it's only natural
+> that the information you want to use to generate the
+> MAINTAINERS file is also out of date.
 
-These patches are very close so I'll of course retract mine[1].
-The only thing I'll recommend is the printk I have in the error
-path.
+True.  Distributed metadata won't solve this problem.  It won't make the
+problem any worse, either, so it's a wash on this issue.
+ 
+> I fail to see how your idea would solve anything.
 
-[1] Sorry about the unnecessary mailing. I am not accustomed to
-janitor-like patches being in Linus' kernel before Alan's :)
-(Arnaldo already offered an explanation for why this one happened
-to be.)
+What happens now when somebody takes over responsibility for a file
+or subsystem and the MAINTAINERS file doesn't get patched, either because
+that person forgets to send a MAINTAINERS update or Linus doesn't 
+happen to take the MAINTAINERS patch for a while?
+
+What happens when I look at a file and it's not obvious which
+subsystem it belongs to?  Sure, I can grovel through MAINTAINERS.  But
+how do I know which verbal description matches the function of the
+cryptically-commented or uncommented code I have in front of me?
+
+Distributed-information problems need distributed-information
+solutions.  Locality is your friend.  This crowd should know that
+if anybody should.
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Smoking kills. If you're killed, you've lost a very important part of your
-life.  -Brooke Shields, during an interview to become spokesperson for a
-federal anti-smoking campaign.
+A human being should be able to change a diaper, plan an invasion,
+butcher a hog, conn a ship, design a building, write a sonnet, balance
+accounts, build a wall, set a bone, comfort the dying, take orders, give
+orders, cooperate, act alone, solve equations, analyze a new problem,
+pitch manure, program a computer, cook a tasty meal, fight efficiently,
+die gallantly. Specialization is for insects.
+	-- Robert A. Heinlein, "Time Enough for Love"

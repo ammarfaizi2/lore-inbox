@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269154AbUJFJYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUJFJZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269154AbUJFJYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 05:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269164AbUJFJYP
+	id S269162AbUJFJZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 05:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUJFJZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 05:24:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27090 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269154AbUJFJYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 05:24:10 -0400
-Date: Wed, 6 Oct 2004 05:23:29 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org, judith@osdl.org
-Subject: Re: new dev model (was Re: Default cache_hot_time value back to
- 10ms)
-In-Reply-To: <41638E61.9000004@pobox.com>
-Message-ID: <Pine.LNX.4.58.0410060512580.14349@devserv.devel.redhat.com>
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>
- <20041005205511.7746625f.akpm@osdl.org> <416374D5.50200@yahoo.com.au>
- <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au>
- <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au>
- <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 05:25:57 -0400
+Received: from mail.renesas.com ([202.234.163.13]:31479 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S269162AbUJFJZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 05:25:45 -0400
+Date: Wed, 06 Oct 2004 18:25:20 +0900 (JST)
+Message-Id: <20041006.182520.608416918.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Nicolas Pitre <nico@cam.org>,
+       takata@linux-m32r.org
+Subject: [PATCH 2.6.9-rc3-mm2] Fix to compile smc91x network driver
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 6 Oct 2004, Jeff Garzik wrote:
+Here is a patch to fix a compile error of smc91x network deriver.
+Please apply.
 
-> The _reality_ is that there is _no_ point in time where you and Linus
-> allow for stabilization of the main tree prior to relesae. [...]
+It was a typo or something like that. ;-)
 
-i dont think this is fair to Andrew - there's hundreds of patches in his
-tree that are scheduled for 2.6.10 not 2.6.9.
+Thanks.
 
-you are right that -mm is experimental, but the latency of bugfixes is the
-lowest i've ever seen in any Linux tree, which is quite amazing
-considering the hundreds of patches.
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-it is also correct that the pile of patches in the -mm tree mask the QA
-effects of testing done on -mm, so testing -BK separately is just as
-important at this stage.
+ drivers/net/smc91x.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Maybe it would help perception and awareness-of-release a bit if at this
-stage Andrew switched the -mm tree to the -BK tree and truly only kept
-those patches that are destined for BK for 2.6.9. [i.e. if the current
-patch-series would be cut off at patch #3 or so, but the numbering of
--rc3-mm3 would be keept.] This can only be done if the changes from now to
-2.6.9-real are small enough in that they dont impact those 700 patches too
-much.
+diff -ruNp a/drivers/net/smc91x.c b/drivers/net/smc91x.c
+--- a/drivers/net/smc91x.c	2004-10-05 12:39:24.000000000 +0900
++++ b/drivers/net/smc91x.c	2004-10-05 21:05:44.000000000 +0900
+@@ -568,7 +568,7 @@ done:
+ 	int __ret;							\
+ 	local_irq_disable();						\
+ 	__ret = spin_trylock(lock);					\
+-	if ((!__ret)							\
++	if (!__ret)							\
+ 		local_irq_enable();					\
+ 	__ret;								\
+ })
 
-This switching would immediately expose all -mm users to the current state
-of affairs of the -BK tree. (yes, people could try the -BK tree just as
-much but it seems -mm is used by developers quite often and it would help
-if the two trees would be largely equivalent so close to the release.)
-
-	Ingo
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

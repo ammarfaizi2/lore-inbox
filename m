@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbUAPNmf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 08:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265445AbUAPNme
+	id S265466AbUAPNoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 08:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUAPNoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 08:42:34 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:64157 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265434AbUAPNmd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 08:42:33 -0500
-Message-ID: <4007EAE7.2030104@in.ibm.com>
-Date: Fri, 16 Jan 2004 19:15:11 +0530
-From: Prashanth T <prasht@in.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rml@tech9.net
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] rwlock_is_locked undefined for UP systems
-Content-Type: multipart/mixed;
- boundary="------------040103070504000600070506"
+	Fri, 16 Jan 2004 08:44:11 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:49280
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265466AbUAPNn6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 08:43:58 -0500
+Subject: Re: Fwd: [2.6] nfs_rename: target $file busy, d_count=2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Roman Kagan <Roman.Kagan@itep.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040116123232.GA22836@panda.itep.ru>
+References: <20040116123232.GA22836@panda.itep.ru>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1074260634.1996.109.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jan 2004 08:43:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040103070504000600070506
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+På fr , 16/01/2004 klokka 07:32, skreiv Roman Kagan:
 
-Hi,
-    I had to use rwlock_is_locked( ) with linux2.6 for kdb and noticed that
-this routine to be undefined for UP.  I have attached the patch for 2.6.1
-below to return 0 for rwlock_is_locked( ) on UP systems.
-Please let me know.
+> I don't see your nfs_rename problem on the clients.  Nor do they get
+> stale NFS handles: there used to be some until I added no_subtree_check
+> export option.
 
-Thanks
-Prashanth
+Sure. subtree checking will break renames if you rename from one
+directory to another. This is not a new 2.6 feature. It occurs on 2.4
+servers too...
+It is because a server with subtree checking enabled will encode the
+parent directory inside the filehandle. When you rename so that the
+parent directory changes, the old filehandle becomes stale.
 
-
-
-
-
---------------040103070504000600070506
-Content-Type: text/plain;
- name="rwlock-check-UP.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rwlock-check-UP.patch"
-
-diff -urN linux-2.6.1/include/linux/spinlock.h linux-2.6.1-rwlock-patch/include/linux/spinlock.h
---- linux-2.6.1/include/linux/spinlock.h	2004-01-09 12:29:33.000000000 +0530
-+++ linux-2.6.1-rwlock-patch/include/linux/spinlock.h	2004-01-16 18:15:10.000000000 +0530
-@@ -176,6 +176,7 @@
- #endif
- 
- #define rwlock_init(lock)	do { (void)(lock); } while(0)
-+#define rwlock_is_locked(lock)  ((void)(lock), 0)
- #define _raw_read_lock(lock)	do { (void)(lock); } while(0)
- #define _raw_read_unlock(lock)	do { (void)(lock); } while(0)
- #define _raw_write_lock(lock)	do { (void)(lock); } while(0)
-
---------------040103070504000600070506--
-
+Cheers,
+  Trond

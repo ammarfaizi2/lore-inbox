@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276495AbRI2NPY>; Sat, 29 Sep 2001 09:15:24 -0400
+	id <S276492AbRI2NKx>; Sat, 29 Sep 2001 09:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276496AbRI2NPO>; Sat, 29 Sep 2001 09:15:14 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:41480 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S276495AbRI2NPI>; Sat, 29 Sep 2001 09:15:08 -0400
-Date: Sat, 29 Sep 2001 21:17:11 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Nicholas Knight <tegeran@home.com>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
-        David Lang <david.lang@digitalinsight.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2 GB file limitation
-In-Reply-To: <20010929112129.UGYL674.femail40.sdc1.sfba.home.com@there>
-Message-ID: <Pine.LNX.4.33.0109292115220.12029-100000@boston.corp.fedex.com>
+	id <S276493AbRI2NKo>; Sat, 29 Sep 2001 09:10:44 -0400
+Received: from wisdn-0.gus.net ([208.146.196.17]:42512 "EHLO
+	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
+	id <S276492AbRI2NKa>; Sat, 29 Sep 2001 09:10:30 -0400
+Date: Sat, 29 Sep 2001 06:10:52 -0700 (PDT)
+From: Jim Treadway <jim@stardot-tech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Makefile gcc -o /dev/null: the dissapearing of /dev/null
+In-Reply-To: <20010929114304.A21440@lug-owl.de>
+Message-ID: <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/29/2001
- 09:15:31 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/29/2001
- 09:15:33 PM,
-	Serialize complete at 09/29/2001 09:15:33 PM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001, Nicholas Knight wrote:
+On Sat, 29 Sep 2001, Jan-Benedict Glaw wrote:
 
-> On Friday 28 September 2001 05:18 pm, Jeff Chua wrote:
-> > On Fri, 28 Sep 2001, David Lang wrote:
-> > > ?? slackware 8 has large file support (I've been useing it for a
-> > > while now)
-> >
-> > I think you can get >2GB support if you've Gcc 3.0. Even with the
-> > latest kernel 2.4.x, you won't get >2GB with gcc 2.95.3.
+> On Sat, 2001-09-29 09:55:35 +0200, proton <proton@energymech.net>
+> wrote in message <3BB57E77.4CDFF5D0@energymech.net>:
 >
-> Could have fooled me with my 2.95.3 and 2.95.4 systems and their 3GB+
-> files.
-> -
+> > Ofcourse, you cant unlink /dev/null unless you are root.
+>
+> That's right and fine so far.
+>
+> > In any case, the `gcc -o /dev/null' test cases probably
+> > need to go away.
+>
+> No. Why? Well, the Linux kernel compiles just fine while
+> being an ordianary user. You don't have to be root to
+> compile it. As it's just bad to do usual *work* as root,
+> you're the bug.
 
-uh, I mistaken glib2.2 for gcc. sorry (see below from Chris).
+So then you can no longer 'make modules && make modules_install', or you
+have to cp or chown /usr/src/linux on a fresh install to compile your
+kernel?   Doesn't sound pleasant to me.
 
-Jeff.
+I think the "trick" is to redirect stdout and stderr to /dev/null as well,
+so that /dev/null doesn't get removed from the file system since it is
+held open by the shell.
 
+Something like:
 
+	gcc -o /dev/null -xc /dev/null /dev/null 2>&1
 
-On Fri, 28 Sep 2001, Christopher Zimmerman wrote:
-> Actually you just need glibc2.2 and compile your apps with these
-flags:
-> -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DLARGE_FILES
+Perhaps someone just forgot the I/O redirection in one of the tests?
 
+However, I just compiled (but did not install) 2.4.10, as root, and my
+/dev/null still exists...
 

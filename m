@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbULPXG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbULPXJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbULPXG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbULPXG0
+	id S262191AbULPXJc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbULPXJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:06:26 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49933 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262066AbULPXGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:06:14 -0500
-Date: Thu, 16 Dec 2004 23:06:08 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: [patch] [RFC] move 'struct page' into its own header
-Message-ID: <20041216230607.B15420@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-mm <linux-mm@kvack.org>
-References: <E1Cf3jM-00034h-00@kernel.beaverton.ibm.com> <20041216222513.GA15451@infradead.org> <1103237161.13614.2388.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1103237161.13614.2388.camel@localhost>; from haveblue@us.ibm.com on Thu, Dec 16, 2004 at 02:46:01PM -0800
+	Thu, 16 Dec 2004 18:09:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20963 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262054AbULPXJB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:09:01 -0500
+Date: Thu, 16 Dec 2004 18:08:24 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Philip R Auld <pauld@egenera.com>
+cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+In-Reply-To: <20041216220434.GC16621@vienna.egenera.com>
+Message-ID: <Pine.LNX.4.61.0412161807400.26850@chimarrao.boston.redhat.com>
+References: <20041216102652.6a5104d2.akpm@osdl.org> <E1Cf2k0-00069l-00@mta1.cl.cam.ac.uk>
+ <20041216220434.GC16621@vienna.egenera.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 02:46:01PM -0800, Dave Hansen wrote:
-> But, I'm not quite sure why page-flags.h even needs asm/pgtable.h.  I
-> just took it out in i386, and it still compiles just fine.  Maybe it is
-> needed for another architecture.
+On Thu, 16 Dec 2004, Philip R Auld wrote:
 
-Removing that include is also fine on ARM.
+> The boot-time switch seems to be the ideal. This would allow
+> enterprise Linux vendors to support using Xen w/o having to
+> deal with a whole archicture release (including install kernel
+
+I have no idea how such a boot-time switch would work
+for 3rd party device drivers, though, so don't count
+yourself lucky just yet ;)
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

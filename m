@@ -1,88 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVAXQsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVAXQt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVAXQsp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 11:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVAXQso
+	id S261531AbVAXQt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 11:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVAXQt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 11:48:44 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:6636 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261529AbVAXQsl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 11:48:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=mbO056sn3sKabc7DFcmIGPGMoFyJW7yjzW4jhTrONrEpkp5nPRCsMpyF6U0kDlhCNcFEjVIkMmhr/sUNksOJvhBjFKuqTWYnymXkK9P4ZNYfk2kSlGaXqNqFPU0+vKsYYu6/lK/t9LeqWD7DHIdYZbxQRFyfBl3VBEtMG0IugIw=
-Message-ID: <5a4c581d05012408481adbd5f4@mail.gmail.com>
-Date: Mon, 24 Jan 2005 17:48:40 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: DVD burning still have problems
-Cc: Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050124150755.GH2707@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 24 Jan 2005 11:49:59 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:46742 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261531AbVAXQtk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 11:49:40 -0500
+Subject: Re: kernel oops!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Linus Torvalds <torvalds@osdl.org>, ierdnah <ierdnah@go.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050123161512.149cc9de.vsu@altlinux.ru>
+References: <1106437010.32072.0.camel@ierdnac>
+	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
+	 <20050123161512.149cc9de.vsu@altlinux.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
-	 <5a4c581d050123125967a65cd7@mail.gmail.com>
-	 <20050124150755.GH2707@suse.de>
+Message-Id: <1106509496.6148.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 24 Jan 2005 15:44:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 16:07:55 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Sun, Jan 23 2005, Alessandro Suardi wrote:
-> > On Sun, 23 Jan 2005 21:26:55 +0100, Volker Armin Hemmann
-> > <volker.armin.hemmann@tu-clausthal.de> wrote:
-> > > Hi,
-> > >
-> > > have you checked, that cdrecord is not suid root, and growisofs/dvd+rw-tools
-> > > is?
-> > >
-> > > I had some probs, solved with a simple chmod +s growisofs :)
-> >
-> > Lucky you. Burning as root here, cdrecord not suid. Tried also
-> >  burning with a +s growisofs, but...
-> >
-> >  794034176/4572807168 (17.4%) @2.4x, remaining 18:47
-> >  805339136/4572807168 (17.6%) @2.4x, remaining 18:42
-> > :-[ WRITE@LBA=60eb0h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output error
-> > builtin_dd: 396976*2KB out @ average 2.4x1385KBps
-> > :-( write failed: Input/output error
-> 
-> As with the original report, the drive is sending back a write error to
-> the issuer. Looks like bad media.
+On Sul, 2005-01-23 at 13:15, Sergey Vlasov wrote:
+> On Sat, 22 Jan 2005 22:43:50 -0800 (PST) Linus Torvalds wrote:
+> tty_poll() grabs ldisc reference for the tty it was called with;
+> however, in this case pty_chars_in_buffer() accesses another ldisc
+> (tty->link->ldisc) without grabbing a reference to it.  BTW, many other
+> pty_* functions do the same thing.
 
-I'm definitely unconvinced about the possibility of bad media...
-
-Retrying the burn process works, sometimes on first attempt,
- sometimes after tray reload, and all checksums from original
- files to the burned files are just okay. This happens with different
- discs from different brands.
-
-So far I had *one* bad disc - that would keep the light on my
- DVD burner blinking forever until I hit the eject button, and
- made my laptop (2.6.11-rc2-bk1) DVD player barf:
-
-Jan 24 03:02:13 incident kernel: ATAPI device hdc:
-Jan 24 03:02:13 incident kernel:   Error: Not ready -- (Sense key=0x02)
-Jan 24 03:02:13 incident kernel:   No reference position found (media
-may be upside down) -- (asc=0x06, ascq=0x00)
-Jan 24 03:02:13 incident kernel:   The failed "Read Cd/Dvd Capacity"
-packet command was:
-Jan 24 03:02:13 incident kernel:   "25 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 "
+Correct - the pty code still relies on all sorts of "lock_kernel"
+assumptions so its probably very very racy. It can't however easily use
+tty_ldisc_()
+functions that wait because the lock ordering is indeterminate. 
 
 
-
-Earlier FC3 kernels had another problem (that now isn't surfacing
- anymore) that I described on the cdwrite list:
-
-http://lists.debian.org/cdwrite/2004/12/msg00088.html
-
---alessandro
- 
- "And every dream, every, is just a dream after all"
-  
-    (Heather Nova, "Paper Cup")

@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316848AbSGHLhH>; Mon, 8 Jul 2002 07:37:07 -0400
+	id <S316849AbSGHLkX>; Mon, 8 Jul 2002 07:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316849AbSGHLhG>; Mon, 8 Jul 2002 07:37:06 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:15371 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316848AbSGHLhE>; Mon, 8 Jul 2002 07:37:04 -0400
-Date: Mon, 8 Jul 2002 12:39:28 +0100
-From: John Levon <levon@movementarian.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@conectiva.com.br>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Enhanced profiling support (was Re: vm lock contention reduction)
-Message-ID: <20020708113928.GA80073@compsoc.man.ac.uk>
-References: <3D27AC81.FC72D08F@zip.com.au> <Pine.LNX.4.44.0207061949240.1558-100000@home.transmeta.com> <3D27B9EA.E68B11E@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D27B9EA.E68B11E@zip.com.au>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
+	id <S316851AbSGHLkW>; Mon, 8 Jul 2002 07:40:22 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:20618 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S316849AbSGHLkU>; Mon, 8 Jul 2002 07:40:20 -0400
+Message-ID: <3D297AC4.E6CF2AA5@cisco.com>
+Date: Mon, 08 Jul 2002 17:13:00 +0530
+From: Manik Raina <manik@cisco.com>
+Organization: Cisco Systems
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] { 2.5 } : removing local variable from init/main.c
+Content-Type: multipart/mixed;
+ boundary="------------94F6540D309830FD5D5AFA44"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Excuse the quoting, I was out of the loop on this ...]
+This is a multi-part message in MIME format.
+--------------94F6540D309830FD5D5AFA44
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Sat, Jul 06, 2002 at 08:47:54PM -0700, Andrew Morton wrote:
 
-> Linus Torvalds wrote:
-> > 
-> > I haven't had much time to look at the oprofile thing, but what I _have_
-> > seen has made me rather unhappy (especially the horrid system call
-> > tracking kludges).
+	Removing a variable from stack which is not needed.
+--------------94F6540D309830FD5D5AFA44
+Content-Type: text/plain; charset=us-ascii;
+ name="mempages"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mempages"
 
-It makes me very unhappy too. There are a number of horrible things
-there, mostly for the sake of convenience and performance.
-sys_call_table is just the most obviously foul thing.  I'm glad to hear
-there is interest in getting some kernel support for such things to be
-done tastefully.
+diff -u -U 6 -r linux-2.5.24/init/main.c nice/init/main.c
+--- linux-2.5.24/init/main.c	Fri Jun 21 04:23:46 2002
++++ nice/init/main.c	Fri Jul  5 15:16:56 2002
+@@ -330,13 +330,12 @@
+  *	Activate the first processor.
+  */
+ 
+ asmlinkage void __init start_kernel(void)
+ {
+ 	char * command_line;
+-	unsigned long mempages;
+ 	extern char saved_command_line[];
+ /*
+  * Interrupts are still disabled. Do necessary setups, then
+  * enable them
+  */
+ 	lock_kernel();
+@@ -381,19 +380,16 @@
+ 		initrd_start = 0;
+ 	}
+ #endif
+ 	mem_init();
+ 	kmem_cache_sizes_init();
+ 	pgtable_cache_init();
+-
+-	mempages = num_physpages;
+-
+-	fork_init(mempages);
++	fork_init(num_physpages);
+ 	proc_caches_init();
+ 	buffer_init();
+-	vfs_caches_init(mempages);
++	vfs_caches_init(num_physpages);
+ 	radix_tree_init();
+ 	signals_init();
+ #ifdef CONFIG_PROC_FS
+ 	proc_root_init();
+ #endif
+ #if defined(CONFIG_SYSVIPC)
 
-> > I'd rather have some generic hooks (a notion of a "profile buffer" and
-> > events that cause us to have to synchronize with it, like process
-> > switches, mmap/munmap - oprofile wants these too), and some generic helper
-> > routines for profiling (turn any eip into a "dentry + offset" pair
-> > together with ways to tag specific dentries as being "worthy" of
-> > profiling).
+--------------94F6540D309830FD5D5AFA44--
 
-How do you see such dentry names being exported to user-space for the
-profiling daemon to access ? The current oprofile scheme is, um, less
-than ideal ...
-
-> So.  John.  Get coding :-)
-
-I'm interested in doing so but I'd like to hear some more on how people
-perceive this working. It essentially means a fork for a lot of the
-kernel-side code, so it'd mean a lot more work for us (at least until I
-can drop the 2.2/2.4 versions).
-
-regards
-john
-
--- 
-"If a thing is not diminished by being shared, it is not rightly owned if
- it is only owned & not shared."
-	- St. Augustine

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSG2FeL>; Mon, 29 Jul 2002 01:34:11 -0400
+	id <S318028AbSG2FgI>; Mon, 29 Jul 2002 01:36:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318028AbSG2FeL>; Mon, 29 Jul 2002 01:34:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9091 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318027AbSG2FeK>;
-	Mon, 29 Jul 2002 01:34:10 -0400
-Date: Mon, 29 Jul 2002 07:37:46 +0200
+	id <S318030AbSG2FgI>; Mon, 29 Jul 2002 01:36:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17027 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318028AbSG2FgH>;
+	Mon, 29 Jul 2002 01:36:07 -0400
+Date: Mon, 29 Jul 2002 07:39:43 +0200
 From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Marcin Dalecki <dalecki@evision.ag>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: martin@dalecki.de, Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-Message-ID: <20020729073746.A4437@suse.de>
-References: <200207282013.g6SKDjg02769@localhost.localdomain>
+Message-ID: <20020729073943.A4445@suse.de>
+References: <20020728212523.A3460@suse.de> <Pine.LNX.4.44.0207281628360.8208-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200207282013.g6SKDjg02769@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0207281628360.8208-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28 2002, James Bottomley wrote:
-> > You are right the
-> > > rq->flags &= REQ_QUEUED;
-> > > and the
-> > > if (blk_rq_tagged(rq))
-> > blk_queue_end_tag(q, rq);
-> > > should be just removed and things are fine.
-> > They only survive becouse they don't provide a tag for the request in
-> > first place.
-> > > Thanks for pointing it out.
+On Sun, Jul 28 2002, Linus Torvalds wrote:
 > 
 > 
-> Please don't remove this.
-> 
-> insert_special isn't just used to start new requests, it's also used to queue 
-> incoming requests that cannot be processed by the device (host adapter, 
-> queue_full etc.).
-> 
-> In this latter case, the tag is already begun, so it needs to go back with 
-> end_tag (we start a new tag when the device begins processing again).
-> 
-> I own up to introducing the &= REQ_QUEUED rubbish---I was just keeping the 
-> original  placement of the flag clearing code, but now we need to preserve 
-> whether the request was queued or not for the blk_rq_tagged check.  On 
-> reflection it would have been better just to set the flags to REQ_SPECIAL | 
-> REQ_BARRIER after the end tag code.
-
-I think you are missing the point. The stuff should not be in the
-_generic_ blk_insert_request(). As I posted in my first reply to Martin,
-SCSI needs to clear the tag before calling blk_insert_request() if it
-needs to.
-
-> axboe@suse.de said:
+> On Sun, 28 Jul 2002, Jens Axboe wrote:
+> >
 > > But the crap still got merged, sigh... Yet again an excellent point of
 > > why stuff like this should go through the maintainer. Apparently Linus
 > > blindly applies this stuff.
 > 
-> Hmm, well I sent it to you and you are the Maintainer.
+> Ehh, since there is no proactive maintainer for SCSI, I don't have much
+> choice, do I?
+> 
+> SCSI has been maintainerless for the last few years. Right now three
+> people work on it to some degree (Doug Ledford, James Bottomley and you),
+> but I don't get timely patches, and neither does apparently anybody else.
+> 
+> Case in point: I was debugging some USB storage issues with Matthew Dharm
+> yesterday, and he sent me patches to the SCSI subsystem that he claims
+> were supposedly considered valid on the scsi mailing list back in May.
+> 
+> Guess what? I've not seen the patches from any of the three people I
+> consider closest to being maintainers.
 
-I've never seen it?!
+SCSI is always the first to get neglected it seems, and yes I'm guilty
+of that as well. Maybe that can change in the future.
+
+> So your "should go through the maintainer" complaint is obviously a bunch
+> of bull. Feel free to step up to the plate, but before you do, don't throw
+> rocks in glass houses.
+
+I was referring to the block layer, not the SCSI layer. The broken
+changes were applied to the block layer after all, I had not even
+noticed that the SCSI one was broken.
 
 -- 
 Jens Axboe

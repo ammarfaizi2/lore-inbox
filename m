@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbTHZPXS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbTHZPXS
+	id S261179AbTHZPZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTHZPZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:23:18 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.30]:52675 "EHLO
-	mwinf0102.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261158AbTHZPXR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:23:17 -0400
-From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
-To: "Stuart MacDonald" <stuartm@connecttech.com>,
-       "'Russell King'" <rmk@arm.linux.org.uk>
-Subject: Re: Reading accurate size of recepts from serial port
-Date: Tue, 26 Aug 2003 17:23:04 +0200
-User-Agent: KMail/1.5.2
-Cc: <linux-kernel@vger.kernel.org>
-References: <005c01c36bdd$8ae58d30$294b82ce@stuartm>
-In-Reply-To: <005c01c36bdd$8ae58d30$294b82ce@stuartm>
+	Tue, 26 Aug 2003 11:25:51 -0400
+Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:51841
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261179AbTHZPZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:25:36 -0400
+Date: Tue, 26 Aug 2003 11:24:34 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where'd my second proc go?
+In-Reply-To: <20030826151225.GT16183@rdlg.net>
+Message-ID: <Pine.LNX.4.53.0308261124200.6876@montezuma.fsmlabs.com>
+References: <20030826151225.GT16183@rdlg.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200308261723.04683.laurent.huge@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mardi 26 Août 2003 16:22, Stuart MacDonald a écrit :
-> I may be mistaken, but I believe that Windows serial drivers work the
-> same way; so whatever you meant by your previous comment that you can
-> get what you want under windows, either you can get the same thing
-> under linux, or windows doesn't behave like you think it does.
-I actually don't know how it works, because I didn't contrive it (I can only 
-rely on what has been told to me by the people whom has done it). I'm only in 
-charge of porting it to Linux.
-Anyway, I'm on the way to another solution (by using some property of CCSDS 
-segments, and see what happens).
--- 
-Laurent Hugé.
+On Tue, 26 Aug 2003, Robert L. Harris wrote:
 
+> 
+> 
+> Dual-P3-850.  Bios reports both procs.  2.4.21-ac3 reported both procs.
+> 2.4.22-rc2-ac1 only shows one.  The lilo used to have a "maxcpus=1"
+> append but I removed that and I tried changing it to 4 even.  cat
+> /proc/cpu only shows 1 still.
+
+dmesg?
+
+> root# cat /proc/cpuinfo 
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 8
+> model name      : Pentium III (Coppermine)
+> stepping        : 3
+> cpu MHz         : 846.342
+> cache size      : 256 KB
+> physical id     : 0
+> siblings        : 1
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> mca cmov pat pse36 mmx fxsr sse
+> bogomips        : 1684.27
+> 
+> root# uname -a
+> Linux nms-hub2.acs.pnap.net 2.4.22-rc2-ac1 #1 SMP Sat Aug 9 12:32:27 EDT 2003 i686 unknown
+> 
+> 
+> Pushing to the latest 2.4.22 kernel would be a nightmare as that means
+> another testing cycle and 2.4.23 will be out before it gets passed.
+> 
+> Thoughts?
+>   Robert
+> 
+> 
+> 
+> :wq!
+> ---------------------------------------------------------------------------
+> Robert L. Harris                     | GPG Key ID: E344DA3B
+>                                          @ x-hkp://pgp.mit.edu
+> DISCLAIMER:
+>       These are MY OPINIONS ALONE.  I speak for no-one else.
+> 
+> Life is not a destination, it's a journey.
+>   Microsoft produces 15 car pileups on the highway.
+>     Don't stop traffic to stand and gawk at the tragedy.
+> 

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318762AbSHWLEu>; Fri, 23 Aug 2002 07:04:50 -0400
+	id <S318752AbSHWLGx>; Fri, 23 Aug 2002 07:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318764AbSHWLEt>; Fri, 23 Aug 2002 07:04:49 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22545 "EHLO
+	id <S318756AbSHWLGw>; Fri, 23 Aug 2002 07:06:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30993 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318762AbSHWLEt>; Fri, 23 Aug 2002 07:04:49 -0400
-Date: Fri, 23 Aug 2002 12:08:51 +0100
+	id <S318752AbSHWLGw>; Fri, 23 Aug 2002 07:06:52 -0400
+Date: Fri, 23 Aug 2002 12:10:59 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@mandrakesoft.com,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org
 Subject: Re: IDE-flash device and hard disk on same controller
-Message-ID: <20020823120851.C20963@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.10.10208222016350.13077-100000@master.linux-ide.org> <Pine.GSO.4.21.0208231249250.15704-100000@vervain.sonytel.be>
+Message-ID: <20020823121059.D20963@flint.arm.linux.org.uk>
+References: <200208230654.XAA02328@adam.yggdrasil.com> <Pine.LNX.4.10.10208230022060.14761-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0208231249250.15704-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Aug 23, 2002 at 12:50:49PM +0200
+In-Reply-To: <Pine.LNX.4.10.10208230022060.14761-100000@master.linux-ide.org>; from andre@linux-ide.org on Fri, Aug 23, 2002 at 12:45:03AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 12:50:49PM +0200, Geert Uytterhoeven wrote:
-> On Thu, 22 Aug 2002, Andre Hedrick wrote:
-> > Oh and it is only useful for borken things like LINBIOS and other
-> > braindead systems like ARM that violate the 31 second rule of POST.
-> 
-> Is the 31 second rule defined for the PC or for IDE?
+On Fri, Aug 23, 2002 at 12:45:03AM -0700, Andre Hedrick wrote:
+> This is where JG's hard work and my time with him explaining it will help
+> most.  Also case where RMK's ARM toys do fun things and the assumption by
+> the driver that POST is valid is DEAD WRONG.  I will repeat the assumption
+> of my code about POST is DEAD WRONG!  POST like events happen at different
+> times for various archs.
 
-It's in the ATA specs.
+Yet more FUD.  Andre - go away and come back once you've calmed down.
+
+Maybe its because you don't actually understand my IDE hardware.  I
+dunno.  But you are "DEAD WRONG" about the crap you've written above.
+
+Completely.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

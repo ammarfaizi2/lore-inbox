@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265143AbRFZWvf>; Tue, 26 Jun 2001 18:51:35 -0400
+	id <S265146AbRFZWzo>; Tue, 26 Jun 2001 18:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265148AbRFZWvY>; Tue, 26 Jun 2001 18:51:24 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:63366 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S265143AbRFZWvN>; Tue, 26 Jun 2001 18:51:13 -0400
-Date: Tue, 26 Jun 2001 15:48:09 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: Stefan Hoffmeister <lkml.2001@econos.de>
-cc: Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <qn1ijt06guu1014p6om26opk7k5933kb7i@4ax.com>
-Message-ID: <Pine.LNX.4.33.0106261547280.29221-100000@heat.gghcwest.com>
+	id <S265148AbRFZWzh>; Tue, 26 Jun 2001 18:55:37 -0400
+Received: from web14805.mail.yahoo.com ([216.136.224.221]:55812 "HELO
+	web14805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265146AbRFZWza>; Tue, 26 Jun 2001 18:55:30 -0400
+Message-ID: <20010626225415.26347.qmail@web14805.mail.yahoo.com>
+Date: Tue, 26 Jun 2001 15:54:15 -0700 (PDT)
+From: siva kumar <mobi_linux@yahoo.com>
+Subject: Regrading signal/sigaction.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+Is it possible to pass any local variable as an
+argument in the signal handler function.Basically I
+want to print the value of the local variable in the
+signal handler function.
+
+In the below program I want to print the value of a in
+the timeout function(siganl handler), whenever the
+Alaram signal send.
 
 
-On Wed, 27 Jun 2001, Stefan Hoffmeister wrote:
+Your comment are welcomed.
 
-> : On Tue, 26 Jun 2001 18:42:56 -0300 (BRST), Rik van Riel wrote:
->
-> >On Tue, 26 Jun 2001, John Stoffel wrote:
-> >
-> >> Or that we're doing big sequential reads of file(s) which are
-> >> larger than memory, in which case expanding the cache size buys
-> >> us nothing, and can actually hurt us alot.
-> >
-> >That's a big "OR".  I think we should have an algorithm to
-> >see which of these two is the case, otherwise we're just
-> >making the wrong decision half of the time.
->
-> Windows NT/2000 has flags that can be for each CreateFile operation
-> ("open" in Unix terms), for instance
->
->   FILE_ATTRIBUTE_TEMPORARY
->
->   FILE_FLAG_WRITE_THROUGH
->   FILE_FLAG_NO_BUFFERING
->   FILE_FLAG_RANDOM_ACCESS
->   FILE_FLAG_SEQUENTIAL_SCAN
->
-> If Linux does not have mechanism that would allow the signalling of
-> specific use case, it might be helpful to implement such a hinting system?
+My prototype code is:
 
-These flags would be really handy.  We already have the raw device for
-sequential reading of e.g. CDROM and DVD devices.
+#include<stdio.h>
+#include<signal.h>
+void timeout(int signo,int a)
+{
+        printf ("timeout");
+        printf("the value is %d and %d",signo,a);
+}
+ 
+main()
+{
+        int a =5;
+        struct sigaction act,oact;
+        act.sa_handler = timeout;
+        sigemptyset(&act.sa_mask);
+        act.sa_flags = 0;
+        sigaction(SIGALRM, &act, &oact);
+ 
+        alarm(10);
+        sleep(10);
+ 
+}
 
--jwb
+Thanks,
+siva.s
 
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

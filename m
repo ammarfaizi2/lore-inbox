@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVCPNIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVCPNPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbVCPNIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 08:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVCPNIK
+	id S262572AbVCPNPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCPNPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 08:08:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27372 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262569AbVCPNIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 08:08:00 -0500
-Date: Wed, 16 Mar 2005 13:07:59 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CON_BOOT
-Message-ID: <20050316130759.GL21986@parcelfarce.linux.theplanet.co.uk>
-References: <20050315222706.GI21986@parcelfarce.linux.theplanet.co.uk> <20050315143711.4ae21d88.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315143711.4ae21d88.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 16 Mar 2005 08:15:22 -0500
+Received: from mail.dif.dk ([193.138.115.101]:50834 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262572AbVCPNOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 08:14:47 -0500
+Date: Wed, 16 Mar 2005 14:14:50 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steven French <sfrench@us.ibm.com>
+Cc: smfrench@austin.rr.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][0/7] cifs: file.c cleanups in incremental bits
+Message-ID: <Pine.LNX.4.62.0503161402550.3141@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 02:37:11PM -0800, Andrew Morton wrote:
-> Matthew Wilcox <matthew@wil.cx> wrote:
-> >
-> > +	if (console_drivers && (console_drivers->flags & CON_BOOT)) {
-> > +		unregister_console(console_drivers);
-> > +		console->flags &= ~CON_PRINTBUFFER;
-> > +	}
-> > +
-> 
-> Should we support more than a single CON_BOOT-labelled driver?
 
-I want to say yes.  But there's a can o' worms lurking under the surface.
-Our goal is to get output from as early as possible, then have the real
-console driver take over from the (boot|early) console in a completely
-transparent way.
+Hi Steven,
 
-With just one console, this is straightforward.  The BOOT console gets
-unregistered, the replacement console gets its PRINTBUFFER flag cleared,
-everybody's happy.
+Here 's a version of my fs/cifs/file.c cleanup patch split into seven 
+chunks for easier review.
+Please use these incremental patches instead of the big one I send you 
+earlier since I've made a few changes compared to that.
 
-With two (or more) consoles, it's a bit more tricky.  If there's only one
-BOOT console and the corresponding real console gets registered first,
-its PRINTBUFFER flag is cleared and it continues, then the second console
-kicks in and doesn't get its PRINTBUFFER flag cleared.  Everything looks
-pretty, we're all happy.  If the wrong console gets registered first,
-we miss the start of the log on it, and the BOOT console gets the start
-of the log printed twice.
+Since you seemed to have trouble with the original patch when included 
+inline I'll attach the patch files instead, along with a description of 
+each patch in the email.
 
-If we allow two BOOT consoles, we guarantee that one of the consoles
-will get double-printing, but neither will miss the start of the log.
+For your convenience the patches are also available online at :
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-whitespace-changes.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-kfree-changes.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_init_private.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_open_inode_helper.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_convert_flags.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_get_disposition.patch
+http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-condense_if_else.patch
+(listed in the order they apply)
 
-To handle this properly, we'd have to be able to see which BOOT console
-corresponds to the real console and deregister it.  I think it's doable
-if we do something like:
+The first patch applies on top of the first whitespace cleanup patch you 
+already applied to your tree, so you should be able to just apply all 7 in 
+order to your tree.
 
- - Add an int (*takeover)(struct console *); to struct console
- - Replace the hunk above with:
+I still haven't managed to get hold of/setup a cifs server to test these 
+against, so they are still only compile tested.
 
-	for (existing = console_drivers; existing; existing = existing->next) {
-		if (existing->takeover && existing->takeover(console)) {
-			unregister_console(existing);
-			console->flags &= ~CON_PRINTBUFFER;
-		}
-	}
-
-That puts the onus on the early console to be able to figure out
-whether a registering console is its replacement or not; for the x86_64
-early_printk, that'd be as simple as comparing the ->name against "ttyS"
-or "tty".  It'll be a bit more tricky for PA-RISC, but would solve some
-messiness that we could potentially have.  I think that's doable; want
-me to try it?
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Jesper Juhl
+
+

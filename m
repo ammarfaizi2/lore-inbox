@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291796AbSBAPfn>; Fri, 1 Feb 2002 10:35:43 -0500
+	id <S291798AbSBAPnX>; Fri, 1 Feb 2002 10:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291798AbSBAPff>; Fri, 1 Feb 2002 10:35:35 -0500
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:21929 "EHLO
-	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291796AbSBAPfU>; Fri, 1 Feb 2002 10:35:20 -0500
-Message-ID: <3C5AB5B3.7050908@us.ibm.com>
-Date: Fri, 01 Feb 2002 07:35:15 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020126
-X-Accept-Language: en-us
+	id <S291802AbSBAPnN>; Fri, 1 Feb 2002 10:43:13 -0500
+Received: from unicef.org.yu ([194.247.200.148]:49675 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S291798AbSBAPnB>;
+	Fri, 1 Feb 2002 10:43:01 -0500
+Date: Fri, 1 Feb 2002 16:42:35 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VESA Anybody out there
+In-Reply-To: <3C5AB463.7050204@evision-ventures.com>
+Message-ID: <Pine.LNX.4.33.0202011640070.2501-100000@unicef.org.yu>
 MIME-Version: 1.0
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Revealing unload_lock to everyone
-In-Reply-To: <200202011010.g11AAIIZ008097@tigger.cs.uni-dortmund.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
- > Dave Hansen <haveblue@us.ibm.com> said:
- >
- >>This came up in a conversation about ieee1394_core.c.  In 2.5.3, the BKL
- >>is used to protect a module from being unloaded.  The code looks like 
-this:
- >>
- >>         lock_kernel();
- >>         read_lock(&ieee1394_chardevs_lock);
- >>         file_ops = ieee1394_chardevs[blocknum].file_ops;
- >>         module = ieee1394_chardevs[blocknum].module;
- >>         read_unlock(&ieee1394_chardevs_lock);
- >>	...
- >>         INCREF(module);
- >>         unlock_kernel();
- >>	
- >>
- >>The question is, how can we keep the module from being unloaded between
- >>the file_ops assignment, and the INCREF.  Do we have a general purpose
- >>way, other than the BKL, to keep a module from being unloaded?  There is
- >>unload_lock, but it is static to module.c.  We can always make it
- >>global, but is there a better solution?
- >>
- >
- > Move the INCREF() up?
- >
+kernel 2.2.X ati rage,ati radeon vga=ask works (as vesa)
+kernel 2.4.X 800x600 mode didn't tested vga=ask
 
-This is really perverse, but here is why that doesn't work:
+regards,
 
-module not loaded
-      INCREF(module); /* this fails, no module loaded*/
-interrupt, blah, blah, blah
-now module is loaded by insmod or something
-      module = ieee1394_chardevs[blocknum].module;
-module now set, but no refcnt bump has been done because it's newly loaded.
-module removed
-try to set something which went with the module
-*BAM*
+ Zoran
 
-So, instead, we used try_mod_inc_count() instead of the local INCREF()
-#define and return failure if try_mod_inc_count() fails.  Thanks to
-Keith Ownens for pointing me to try_mod_inc_count().
+On Fri, 1 Feb 2002, Martin Dalecki wrote:
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+> Date: Fri, 01 Feb 2002 16:29:39 +0100
+> From: Martin Dalecki <dalecki@evision-ventures.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: VESA Anybody out there
+>
+> Is there actually anybody out there for whoom the vga=ask kernelparamter
+> followed by a mode scan actually works? For me personally I never
+> encountered
+> *any* single one computer wher ethis wouldn't hang the system entierly, so
+> I wonder whatever the wholesale option ain't borken?
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

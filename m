@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264940AbUAAUFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264583AbUAAUE5
+	id S264588AbUAAUFP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbUAAUEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:04:57 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:35667 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264591AbUAAUB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:01:56 -0500
-Date: Thu, 1 Jan 2004 21:01:54 +0100
-Message-Id: <200401012001.i01K1srR031751@callisto.of.borg>
+	Thu, 1 Jan 2004 15:04:52 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.16]:42270 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264588AbUAAUBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:01:55 -0500
+Date: Thu, 1 Jan 2004 21:01:52 +0100
+Message-Id: <200401012001.i01K1q6Z031739@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 351] M68k math emu C99
+Subject: [PATCH 349] BVME6000 RTC C99
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k math emulator: Use C99 struct initializers
+BVME6000 RTC: Use C99 struct initializers
 
---- linux-2.6.0/arch/m68k/math-emu/fp_arith.c	Sun Apr  6 10:28:29 2003
-+++ linux-m68k-2.6.0/arch/m68k/math-emu/fp_arith.c	Sun Oct 19 20:06:26 2003
-@@ -19,12 +19,13 @@
- 
- const struct fp_ext fp_QNaN =
- {
--	0, 0, 0x7fff, { ~0 }
-+	.exp = 0x7fff,
-+	.mant = { .m64 = ~0 }
+--- linux-2.6.0/arch/m68k/bvme6000/rtc.c	Thu Jan  2 12:53:56 2003
++++ linux-m68k-2.6.0/arch/m68k/bvme6000/rtc.c	Sun Oct  5 12:34:20 2003
+@@ -164,11 +164,10 @@
+ 	.release =	rtc_release,
  };
  
- const struct fp_ext fp_Inf =
- {
--	0, 0, 0x7fff, { 0 }
-+	.exp = 0x7fff,
+-static struct miscdevice rtc_dev=
+-{
+-	RTC_MINOR,
+-	"rtc",
+-	&rtc_fops
++static struct miscdevice rtc_dev = {
++	.minor =	RTC_MINOR,
++	.name =		"rtc",
++	.fops =		&rtc_fops
  };
  
- /* let's start with the easy ones */
---- linux-2.6.0/arch/m68k/math-emu/fp_log.c	Tue Jul 29 18:18:35 2003
-+++ linux-m68k-2.6.0/arch/m68k/math-emu/fp_log.c	Sun Oct 19 20:06:41 2003
-@@ -19,7 +19,7 @@
- 
- static const struct fp_ext fp_one =
- {
--	0, 0, 0x3fff, { 0 }
-+	.exp = 0x3fff,
- };
- 
- extern struct fp_ext *fp_fadd(struct fp_ext *dest, const struct fp_ext *src);
+ int __init rtc_DP8570A_init(void)
 
 Gr{oetje,eeting}s,
 

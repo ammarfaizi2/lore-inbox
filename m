@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbTFNVzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 17:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTFNVzW
+	id S261280AbTFNWA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 18:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFNWA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 17:55:22 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:13038 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261169AbTFNVzV (ORCPT
+	Sat, 14 Jun 2003 18:00:26 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:957 "EHLO mauve.demon.co.uk")
+	by vger.kernel.org with ESMTP id S261280AbTFNWAZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 17:55:21 -0400
-Date: Sun, 15 Jun 2003 00:09:07 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: davej@codemonkey.org.uk
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: remove unused var from serio struct
-Message-ID: <20030615000907.A26994@ucw.cz>
-References: <200303241642.h2OGgB35008333@deviant.impure.org.uk>
-Mime-Version: 1.0
+	Sat, 14 Jun 2003 18:00:25 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200306142209.XAA17516@mauve.demon.co.uk>
+Subject: Re: reading links in proc - permission denied
+To: linux-newbie@tlinx.org (linda w.)
+Date: Sat, 14 Jun 2003 23:09:40 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000b01c332b7$44c68250$1403a8c0@sc.tlinx.org> from "linda w." at Jun 14, 2003 01:55:21 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200303241642.h2OGgB35008333@deviant.impure.org.uk>; from davej@codemonkey.org.uk on Mon, Mar 24, 2003 at 04:41:58PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 04:41:58PM +0000, davej@codemonkey.org.uk wrote:
+> ---
+> 	Not at all...in fact was told it doesn't.  Apparently, though,
+> the listed permissions on the links are arbitrary and the system
+> fairly well ignores them.
+> 
+> 	I vaguely remember someone once saying that even if a symlink
+> had permissions lrxw------, it could still be used by group and
+> others.  I don't know if that was or is still true -- certainly doesn't
 
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/include/linux/serio.h linux-2.5/include/linux/serio.h
-> --- bk-linus/include/linux/serio.h	2003-03-08 09:57:59.000000000 +0000
-> +++ linux-2.5/include/linux/serio.h	2003-02-13 22:21:33.000000000 +0000
-> @@ -25,7 +25,6 @@ struct serio {
->  	void *driver;
->  	char *name;
->  	char *phys;
-> -	int number;
->  
->  	unsigned short idbus;
->  	unsigned short idvendor;
+man symlink
+...
+       The permissions of a symbolic  link  are  irrelevant;  the
+       ownership  is  ignored  when  following  the  link, but is
+       checked when removal or renaming of the link is  requested
+       and the link is in a directory with the sticky bit set.
 
-Applied, thanks.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+In short, the permissions of the file being linked to are important.

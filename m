@@ -1,72 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266360AbUGJTiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266358AbUGJTlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266360AbUGJTiV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 15:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266358AbUGJTiV
+	id S266358AbUGJTlM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 15:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUGJTlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 15:38:21 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:54540 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S266360AbUGJTiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 15:38:12 -0400
-Date: Sun, 11 Jul 2004 03:25:34 +0800 (WST)
-From: raven@themaw.net
-To: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
-cc: autofs mailing list <autofs@linux.kernel.org>, nfs@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: umount() and NFS races in 2.4.26
-In-Reply-To: <20040710181912.GA800@timesink.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0407110323480.20439@donald.themaw.net>
-References: <20040708180709.GA7704@timesink.dyndns.org>
- <Pine.LNX.4.58.0407101419210.1378@donald.themaw.net> <20040710181912.GA800@timesink.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.2, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	RCVD_IN_ORBS, REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Sat, 10 Jul 2004 15:41:12 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:13696 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S266358AbUGJTlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 15:41:03 -0400
+Date: Sat, 10 Jul 2004 12:40:53 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       Jan Knutar <jk-lkml@sci.fi>, L A Walsh <lkml@tlinx.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040710194053.GA5809@taniwha.stupidest.org>
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <je658vwtbl.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <je658vwtbl.fsf@sykes.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Thomas Moestl wrote:
+On Sat, Jul 10, 2004 at 09:33:34PM +0200, Andreas Schwab wrote:
 
-> Hello,
-> 
-> On Sat, 2004/07/10 at 14:57:46 +0800, raven@themaw.net wrote:
-> > > Hi,
-> > > 
-> > > after deploying an SMP machine at work, we started to experience Oopses
-> > > in file-system related code relatively frequently. Investigation
-> > > revealed that they were caused by references using junk pointers from
-> > > freed super blocks via dangling inodes from unmounted file systems;
-> > > Oopses would always be preceded by the warning
-> > >   VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-> > > on an unmount (unmount activity is high on this machine due to heavy use
-> > > of the automounter). The predecessor to this machine, a UP system with
-> > > otherwise almost identical configuration, did never encounter such
-> > > problems, so I went looking for possible SMP races.
-> > 
-> > This has been reported many times by users of autofs, especially people 
-> > with a ot of mount/umount activity.
-> > 
-> > As James pointed out my latest autofs4 patch resolved the issue for him.
-> > However, on the NFS list Greg Banks pointed out that this may be hiding a
-> > problem that exists in NFS. So it would be good if the NFS folk could 
-> > investigate this further.
-> > 
-> > Never the less I'm sure there is a race in waitq.c of autofs4 in 
-> > 2.4 that seems to cause this problem. This is one of the things 
-> > addressed by my patch.
-> 
-> The system in question still uses autofs3. While I believe that the
-> waitq race is also present there (it could probably cause directory
-> lookups to hang, if I understand it correctly), I do not think that
-> any autofs3 code could cause exactly those symptoms that I have
-> observed. For that, it would have to obtain dentries of the file
-> systems that it has mounted, but the old code never does that.
+> Security.  You don't want old contents of /etc/shadow appear in
+> random files after a crash.
 
-All autofs has to do is not delete a directory before exiting for this 
-error to occur.
+If we had a different log format we could determine if the blocks were
+newly allocated and avoid zeroing that for existing files, we could
+even do the code to aggregate transactions which would be *really*
+nice for some things.  Lots of work though.
 
-Ian
 
+  --cw

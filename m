@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315275AbSFTQmw>; Thu, 20 Jun 2002 12:42:52 -0400
+	id <S315276AbSFTQpt>; Thu, 20 Jun 2002 12:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315259AbSFTQmP>; Thu, 20 Jun 2002 12:42:15 -0400
-Received: from jalon.able.es ([212.97.163.2]:14748 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315282AbSFTQlt>;
-	Thu, 20 Jun 2002 12:41:49 -0400
-Date: Thu, 20 Jun 2002 18:41:43 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5-dj: configurable NR_CPUS
-Message-ID: <20020620164143.GC9813@werewolf.able.es>
-References: <1024533919.921.46.camel@sinai> <20020620160058.GA9813@werewolf.able.es> <1024591065.921.132.camel@sinai>
+	id <S315265AbSFTQpG>; Thu, 20 Jun 2002 12:45:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:42372 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315282AbSFTQob>;
+	Thu, 20 Jun 2002 12:44:31 -0400
+Date: Thu, 20 Jun 2002 18:44:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Paul Bristow <paul@paulbristow.net>,
+       Gadi Oxman <gadio@netvision.net.il>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+Message-ID: <20020620164417.GA3893@suse.de>
+References: <3D119EC4.8040604@evision-ventures.com> <Pine.SOL.4.30.0206201832420.23175-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1024591065.921.132.camel@sinai>; from rml@tech9.net on Thu, Jun 20, 2002 at 18:37:45 +0200
-X-Mailer: Balsa 1.3.6
+In-Reply-To: <Pine.SOL.4.30.0206201832420.23175-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Thu, 20 Jun 2002, Martin Dalecki wrote:
+> 
+> > U?ytkownik Jens Axboe napisa?:
+> > > On Thu, Jun 20 2002, Martin Dalecki wrote:
+> > >
+> > >>U?ytkownik Jens Axboe napisa?:
+> > >>
+> > >>>On Wed, Jun 19 2002, Bartlomiej Zolnierkiewicz wrote:
+> > >>>
+> > >>>Looks pretty good in general, just one minor detail:
+> > >>>
+> > >>>
+> > >>>
+> > >>>>+
+> > >>>>+/*
+> > >>>>+ *	ATAPI packet commands.
+> > >>>>+ */
+> > >>>>+#define ATAPI_FORMAT_UNIT_CMD		0x04
+> > >>>>+#define ATAPI_INQUIRY_CMD		0x12
+> > >>>
+> > >>>
+> > >>>[snip]
+> > >>>
+> > >>>We already have the "full" list in cdrom.h (GPCMD_*), so lets just use
+> > >>>that. After all, ATAPI_MODE_SELECT10_CMD _is_ the same as the SCSI
+> > >>>variant (and I think the _CMD post fixing is silly, anyone familiar with
+> > >>>this is going to know what ATAPI_WRITE10 means just fine)
+> > >>>
+> > >>>Same for request_sense, that is already generalized in cdrom.h as well.
+> > >>
+> > >>I wonder what FreeBSD is using here? I see no need for invention at
+> > >>this place.
+> > >
+> > >
+> > > The invention would be adding the ATAPI_* commands, Linux has used the
+> > > GPCMD_ convention for quite some time now.
+> >
+> > Agreed. The ATAPI prefix would be confusing, since those are in reality SCSI
+> > commands anyway...
+> 
+> I think we should use scsi.h and get rid of GPCMD_* convention also.
+> Jens, do you want "corrected" patch?
 
-On 2002.06.20 Robert Love wrote:
->On Thu, 2002-06-20 at 09:00, J.A. Magallon wrote:
->
->> On 2002.06.20 Robert Love wrote:
->>
->> >Attached patch is a lovely rendition of the CONFIG_NR_CPUS patch Andrew
->> >and I have been tossing around.
->> >
->> 
->> Default for alpha is missing ?
->
->No... the default in 64 in config.in.  Do you mean there is no defconfig
->entry?  Well that is because CONFIG_SMP is not set and CONFIG_NR_CPUS is
->dependent on it.
->
-
-Ok.
+Note that GPCMD_ is exported to user land, and several programs are
+using them for quite some time. So GPCMD_ stays, and that's final.
 
 -- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-pre10-jam3, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.4mdk)
+Jens Axboe
+

@@ -1,31 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUD1DY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUD1D0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264625AbUD1DY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 23:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUD1DY1
+	id S264628AbUD1D0m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 23:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUD1D0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 23:24:27 -0400
-Received: from tan25.ncr.com ([192.127.94.25]:595 "EHLO ncrusout3.NCR.COM")
-	by vger.kernel.org with ESMTP id S264625AbUD1DY0 (ORCPT
+	Tue, 27 Apr 2004 23:26:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56988 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264628AbUD1D0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 23:24:26 -0400
-Message-ID: <01B69E0E615FD5118EA00003477144BA1082B917@susdayte52.daytonoh.ncr.com>
-From: "Pinyowattayakorn, Naris" <np151003@teradata-ncr.com>
-To: linux-kernel@vger.kernel.org
-Subject: query_module in 2.6
-Date: Tue, 27 Apr 2004 23:24:19 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Tue, 27 Apr 2004 23:26:40 -0400
+Date: Tue, 27 Apr 2004 20:25:20 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: gregkh <greg@kroah.com>
+Cc: raven@themaw.net, pj@sgi.com, erdi.chen@digeo.com, davem@redhat.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: sparc64 2.6.6-rc2-mm2 build busted: usb/core/hub.c hubstatus
+Message-Id: <20040427202520.017e4591.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0404280111430.2125@skynet>
+References: <20040426204947.797bd7c2.pj@sgi.com>
+	<Pine.LNX.4.58.0404271248250.8094@wombat.indigo.net.au>
+	<Pine.LNX.4.58.0404272234320.1547@donald.themaw.net>
+	<Pine.LNX.4.58.0404280111430.2125@skynet>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I tried to search for posts regarding to the query_module but came up empty.
-It seems to me that the sys_query_module call was removed from the 2.6
-kernel. So the question I have is if there any alternative way to get the
-kernel module symbols in 2.6. Or, I'm missing something here?
+The USB hubstatus part of the patch looked correct to me.
+Greg, do you already have a s/hubstatus/devstat/ in hub.c,
+near line 1343?
 
-Thanks,
-Naris
+original email:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108303816120001&w=2
+
+Paul, please use diff -u (unified) type diffs in the future.
+
+--
+~Randy

@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUIXFQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUIXFap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267743AbUIXFQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 01:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267749AbUIXFQF
+	id S267749AbUIXFap (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 01:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUIXFap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 01:16:05 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:26347 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S267743AbUIXFQA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 01:16:00 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [patch 03/21] video/radeon_base: replace MS_TO_HZ() with msecs_to_jiffies()
-Date: Fri, 24 Sep 2004 01:15:59 -0400
-User-Agent: KMail/1.7
-Cc: janitor@sternwelten.at, akpm@digeo.com, nacc@us.ibm.com
-References: <E1CAaFx-0000wQ-2B@sputnik> <200409240012.47738.gene.heskett@verizon.net> <9e47339104092321383efdd7ee@mail.gmail.com>
-In-Reply-To: <9e47339104092321383efdd7ee@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Sep 2004 01:30:45 -0400
+Received: from holomorphy.com ([207.189.100.168]:10973 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267749AbUIXFam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 01:30:42 -0400
+Date: Thu, 23 Sep 2004 22:30:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1
+Message-ID: <20040924053031.GW9106@holomorphy.com>
+References: <20040916024020.0c88586d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409240115.59202.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.9.92] at Fri, 24 Sep 2004 00:15:59 -0500
+In-Reply-To: <20040916024020.0c88586d.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 September 2004 00:38, Jon Smirl wrote:
->That patch didn't fix your performance. It modifies the timer for
-> the panel backlight on laptops. Something else fixed your speed
-> problem.
+On Thu, Sep 16, 2004 at 02:40:20AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/
+> - Added lots of Ingo's low-latency patches
+> - Lockmeter doesn't compile.  Don't enable CONFIG_LOCKMETER.
+> - Several architecture updates
 
-Oh dear, now we're back to the phase of the moon theory?  I don't go 
-to that church.
+Sorry to bother you again. I appear to get this after a couple days of
+uptime:
 
-I didn't change anything else John.  I had previously rebuilt rc2-mm2 
-2 times because I'd found that cachefs wasn't what I thought it was 
-and took that back out, leaving me still stuck at 10 fps for either 
-instance and I did check.  Applied the subject line patch, 
-rebuilt/reboot again without even calling a make xconfig, and I get 
-250 fps.  Steady, rather than fading down to the 100 fps in about a 
-minute like all previous kernels have in this 2.6.8 and up series.
+# ----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at cfq_iosched:1395
+invalid operand: 0000 [1] SMP
+CPU 0
+Modules linked in: st sr_mod floppy usbserial parport_pc lp parport snd_seq_oss snd_seq_device snd_seq_midi_event snd_seq thermal snd_pcm_oss snd_mixer_oss snd_ioctl32 processor fan button battery snd_intel8x0 snd_ac97_codec snd_pcm ipv6 snd_timer ac snd soundcore snd_page_alloc af_packet joydev usbhid uhci_hcd e1000 usbcore hw_random evdev dm_mod ext3 jbd aic79xx ata_piix libata sd_mod scsi_mod
+Pid: 0, comm: swapper Not tainted 2.6.9-rc2-mm1
+RIP: 0010:[<ffffffff802909cb>] <ffffffff802909cb>{cfq_put_request+139}
+RSP: 0018:ffffffff804c9848  EFLAGS: 00010046
+RAX: 0000000000000000 RBX: 000001017e1d0040 RCX: 000001017e23a0c0
+RDX: 0000000000000001 RSI: 0000010132292990 RDI: 000001017e4b2ef8
+RBP: 000001017e9e6968 R08: 0000000000000002 R09: 0000000000800110
+R10: 0000000000000001 R11: 0000010006466560 R12: 000001017ff68c08
+R13: 0000010132292990 R14: 000001017ffdf100 R15: 0000000000000200
+FS:  0000000000000000(0000) GS:ffffffff8054d900(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000002a9b7f4000 CR3: 0000000000101000 CR4: 00000000000006e0
+Process swapper (pid: 0, threadinfo ffffffff80550000, task ffffffff8041dc80)
+Stack: 0000010132292990 000001017e1d0040 0000000000000001 0000000000000001
+       000001017e1d0040 ffffffff802850cf 000001015e4bfc80 ffffffff80287a4b
+       0000010132292990 0000010037c1c800
+Call Trace:<IRQ> <ffffffff802850cf>{elv_put_request+15} <ffffffff80287a4b>{__blk_put_request+139}
+       <ffffffff80287b83>{end_that_request_last+243} <ffffffffa0006178>{:scsi_mod:scsi_end_request+200}
+       <ffffffffa00063f0>{:scsi_mod:scsi_io_completion+576}
+       <ffffffffa0000506>{:scsi_mod:scsi_finish_command+214}
+       <ffffffffa0000e4a>{:scsi_mod:scsi_softirq+234} <ffffffff8013da51>{__do_softirq+113}
+       <ffffffff8013db05>{do_softirq+53} <ffffffff80113f1f>{do_IRQ+335}
+       <ffffffff80110d27>{ret_from_intr+0}  <EOI> <ffffffff8010f5a6>{mwait_idle+86}
+       <ffffffff8010f9fd>{cpu_idle+29} <ffffffff8055371a>{start_kernel+490}
+       <ffffffff805531e0>{_sinittext+480}
 
-Several things are locally built here: X, amanda, kde, cups, 
-gutenprint, sane, xsane and all kernels.  I don't think yum replaced 
-anything but mozilla (up to 1.7.3 now) last night.  Not according to 
-the email I got from it anyway.  That, and this patch are the only 
-diffs.  I've since did the patch that takes out the #define from the 
-radeonfb.h file but I haven't rebooted to that kernel yet.  From my 
-read of that file, its just housekeeping, like sweeping the floor.
+Code: 0f 0b e7 9d 38 80 ff ff ff ff 73 05 ff c8 48 89 ef 41 89 44
+RIP <ffffffff802909cb>{cfq_put_request+139} RSP <ffffffff804c9848>
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

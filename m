@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUGMNKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGMNM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUGMNKR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 09:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbUGMNKQ
+	id S265053AbUGMNM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 09:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUGMNM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 09:10:16 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:429 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264953AbUGMNKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 09:10:12 -0400
-Message-ID: <40F3DF31.3000003@yahoo.com.au>
-Date: Tue, 13 Jul 2004 23:10:09 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: preempt-timing-2.6.8-rc1
-References: <20040713122805.GZ21066@holomorphy.com> <40F3DACC.9070703@yahoo.com.au> <20040713125331.GA21066@holomorphy.com> <40F3DC52.1030308@yahoo.com.au> <20040713130448.GB21066@holomorphy.com>
-In-Reply-To: <20040713130448.GB21066@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Jul 2004 09:12:59 -0400
+Received: from outmx005.isp.belgacom.be ([195.238.2.102]:57024 "EHLO
+	outmx005.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265053AbUGMNMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 09:12:55 -0400
+Subject: Re: rss recovery
+From: FabF <fabian.frederick@skynet.be>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <40EFDB18.404@yahoo.com.au>
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
+	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>
+	 <cone.1089268800.781084.4554.502@pc.kolivas.org>
+	 <20040708001027.7fed0bc4.akpm@osdl.org>
+	 <cone.1089273505.418287.4554.502@pc.kolivas.org>
+	 <20040708010842.2064a706.akpm@osdl.org>
+	 <cone.1089275229.304355.4554.502@pc.kolivas.org>
+	 <1089284097.3691.52.camel@localhost.localdomain>
+	 <40EDEF68.2020503@kolivas.org>
+	 <1089366486.3322.10.camel@localhost.localdomain>
+	 <40EE76CC.5070905@yahoo.com.au>
+	 <1089371646.3322.38.camel@localhost.localdomain>
+	 <40EE8075.6060700@yahoo.com.au>
+	 <1089452697.3646.11.camel@localhost.localdomain>
+	 <40EFC076.9050504@yahoo.com.au>
+	 <1089457076.3646.33.camel@localhost.localdomain>
+	 <40EFDB18.404@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1089724364.3424.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 13 Jul 2004 15:12:44 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> William Lee Irwin III wrote:
+On Sat, 2004-07-10 at 14:03, Nick Piggin wrote:
+> FabF wrote:
+> > Nick,
+> > 	Putting some more pressure I finally saw the awaited behaviour from np
+> > : rss gaining 1MB (or at least 1 byte :) : top reports 10M -> 11M )
+> > directly after make was done with 10 threads.
+> > 
+> > But I guess it can do much better than that (IOW recover original rss).
+> > Where does re-attribution takes place in np ?
+> > 
 > 
->>>AFAICT this is nothing more than rounding up.
+> I don't do any sort of preemptive RSS recovery. The pagein mechanisms
+> are unchanged with my patch. The point was that mozilla no longer got
+> swapped out by updatedb, isn't that what you wanted?
 > 
-> 
-> On Tue, Jul 13, 2004 at 10:57:54PM +1000, Nick Piggin wrote:
-> 
->>But you want to round down by definition of preempt_thresh, don't you?
->>preempt_thresh = 1ms = 1000000us
->>ie. warn me if the lock hold goes _to or above_ 1000000us
-> 
-> 
-> The semantics I implemented are warning for strictly above the
-> preempt_thresh. Whether those semantics are ideal is irrelevant; it's
-> faithful to those semantics.
+Nick,
 
-You are right - I misread it, sorry.
+Your patch is great as system delves for pages without eating too much
+RSS around.
 
-> Given that people are asking for sub-
-> millisecond latencies, maybe I should increase the precision.
-> 
+I just thought about some sort of combination :
 
-Would soon be useful I think.
+	-On one side a swapout regulation
+	-But also somekind of smooth swapin operation.
+
+Reason for this being box freeze effect after some heavy load.
+
+I made a slight patchset which tries to do the second path.It's being
+called RGR for "RSS Gradual Recovery".It works with 2 sysctl parameters
+for testing :
+
+	-swapoff_max_swapout :  It proceeds when kswapd has not reported more
+than this.
+	-swapoff_smooth_range : Number of pages to swap in at once.
+
+That process uses a try_to_unuse patched version to emerge some pages
+when swapout is relaxed.That stuff is done in a swap device transparent
+poll method and should result in GUI application foregrounding done
+quickly even after some heavy-load storm; my problem being where this
+one can be called from ? As an example, I put a swapoff_smooth in
+do_anonymous_page but it's not the right location I guess :))) just
+wanted some place frequently called to see effects.
+
+Of course, your help would be appreciated ;)
+
+patchset is available from:
+http://fabian.unixtech.be/ff/linux-2.6.7-mm7-rgr1.diff
+
+Regards,
+FabF
+

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133097AbRD3VRJ>; Mon, 30 Apr 2001 17:17:09 -0400
+	id <S135912AbRD3VbO>; Mon, 30 Apr 2001 17:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135909AbRD3VQ6>; Mon, 30 Apr 2001 17:16:58 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:2380 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S133097AbRD3VQu>; Mon, 30 Apr 2001 17:16:50 -0400
-Date: Mon, 30 Apr 2001 23:15:51 +0200
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: "Mohammad A . Haque" <mhaque@haque.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jinbo21@hananet.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: buz.c of 2.4.4
-Message-ID: <20010430231551.A11965@tux.bitfreak.net>
-In-Reply-To: <E14uI6W-0008Kl-00@the-village.bc.nu> <Pine.LNX.4.33.0104301436280.29480-100000@viper.haque.net>
+	id <S135914AbRD3VbF>; Mon, 30 Apr 2001 17:31:05 -0400
+Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:30224 "HELO
+	xena.sind-doof.de") by vger.kernel.org with SMTP id <S135912AbRD3Vaw>;
+	Mon, 30 Apr 2001 17:30:52 -0400
+Date: Mon, 30 Apr 2001 23:04:41 +0200
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Torrey Hoffman <torrey.hoffman@myrio.com>,
+        "'Kenneth Johansson'" <ken@canit.se>,
+        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+Message-ID: <20010430230441.A12723@kallisto.sind-doof.de>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	"David S. Miller" <davem@redhat.com>,
+	Torrey Hoffman <torrey.hoffman@myrio.com>,
+	'Kenneth Johansson' <ken@canit.se>,
+	Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <15085.47104.75880.572242@pizda.ninka.net> <Pine.LNX.3.95.1010430151259.15968A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0104301436280.29480-100000@viper.haque.net>; from mhaque@haque.net on Mon, Apr 30, 2001 at 20:37:39 +0200
-X-Mailer: Balsa 1.0.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010430151259.15968A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Apr 30, 2001 at 03:14:25PM -0400
+X-Operating-System: Debian GNU/Linux (Linux 2.4.4-int1-vlan101-nf20010428 i686)
+X-Disclaimer: Are you really taking me serious?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 2001.04.30 20:37:39 +0200 Mohammad A. Haque wrote:
-> On Mon, 30 Apr 2001, Alan Cox wrote:
-> 
-> > Buz.c doesnt work build or anything. Once the zoran merge is done it
-> will
-> > go away, until then I simply dont care.  At least its obviously broken
-> right
-> > now
-> 
-> Can't we just remove it then?
-> 
-> Come to think of it .. then we'd start getting "buz drivers missing"
-> reports.
+On Mon, Apr 30, 2001 at 03:14:25PM -0400, Richard B. Johnson wrote:
 
-So what?
-Refer them to mjpeg-users@lists.sourceforge.net and we'll explain them how
-to use the new zoran driver until it's in the official kernel...
-I mean, it be worse if they _used_ the old buz-thing, they'd start bugging
-you with "how do I fix it?"
+> > mv /wherever/exeimage /usr/bin/exeimage
+[...]
+> > This is also basically how things like libc get installed.
+> > A single mv is not only preserves currently referenced contents,
+> > it is atomic.
 
-A broken driver in the kernel basically means a broken kernel - so it'd be
-better to just remove it I guess... What do you think, Alan?
+One restriction: /wherever and /usr/bin must be on the same partition,
+otherwise the mv will be the same as "rm /usr/bin/exeimage && cp
+/wherever/exeimage /usr/bin/exeimage && rm /wherever/exeimage", which
+is for sure not atomic.
 
---
-Ronald Bultje
+> Sure, but now you can't get back if the new software doesn't run.
+> This is why I recommended the two steps and cautioned about testing
+> the new stuff first.
+
+Then create a hardlink first, to keep a backup _and_ atomically
+replace the file.
+
+Andreas
+-- 
+Build a system that even a fool can use and only a fool will want to use it.
 

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSJUEnh>; Mon, 21 Oct 2002 00:43:37 -0400
+	id <S264736AbSJUEvZ>; Mon, 21 Oct 2002 00:51:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264734AbSJUEnh>; Mon, 21 Oct 2002 00:43:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35295 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264733AbSJUEng>;
-	Mon, 21 Oct 2002 00:43:36 -0400
-Date: Sun, 20 Oct 2002 21:41:40 -0700 (PDT)
-Message-Id: <20021020.214140.76094500.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: move /proc/net/arp seq_file support back to arp.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021021043225.GL17834@conectiva.com.br>
-References: <20021021043225.GL17834@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264737AbSJUEvZ>; Mon, 21 Oct 2002 00:51:25 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:12797 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S264736AbSJUEvZ> convert rfc822-to-8bit; Mon, 21 Oct 2002 00:51:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ck performance patchset for 2.4.19 broken out as ck10
+Date: Sun, 20 Oct 2002 18:57:28 -0500
+User-Agent: KMail/1.4.3
+References: <200210200005.08444.conman@kolivas.net>
+In-Reply-To: <200210200005.08444.conman@kolivas.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210201857.28851.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Mon, 21 Oct 2002 01:32:26 -0300
+On Saturday 19 October 2002 09:05, Con Kolivas wrote:
+> Hi
+>
+> My merged performance patchset (-ck) containing
+>
+> O(1) + batch scheduling
+> Preemptible
+> Low Latency
+> Compressed Caching or
+> AA VM addons
+> XFS
+> ALSA
+> Supermount
 
-   	Please pull from:
-   
-   master.kernel.org:/home/acme/BK/net-2.5
+I don't see compressed caching on the 2.5 status list.  I take it this patch 
+was never ported to 2.5?
 
-Pulled, thanks.
+Rob
+

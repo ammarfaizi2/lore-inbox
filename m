@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263106AbTLACmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 21:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTLACmG
+	id S263172AbTLADZo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 22:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTLADZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 21:42:06 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45504 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263106AbTLACmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 21:42:04 -0500
-Date: Mon, 1 Dec 2003 03:42:01 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Ryan Reich <ryanr@uchicago.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.22] Error: fs/fs.o: undefined reference to `atomic_dec_and_lock'
-Message-ID: <20031201024200.GB24883@fs.tum.de>
-References: <Pine.LNX.4.58.0311301925180.31444@ryanr.localdomain>
+	Sun, 30 Nov 2003 22:25:44 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:3461 "EHLO
+	harddata.com") by vger.kernel.org with ESMTP id S263172AbTLADZn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 22:25:43 -0500
+Date: Sun, 30 Nov 2003 20:25:21 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Synaptics PS/2 driver and 2.6.0-test11
+Message-ID: <20031130202521.A30370@mail.harddata.com>
+References: <20031130214612.GP2935@mail.muni.cz> <200311301728.10563.dtor_core@ameritech.net> <20031130223953.GR2935@mail.muni.cz> <200311301826.52978.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0311301925180.31444@ryanr.localdomain>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200311301826.52978.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Sun, Nov 30, 2003 at 06:26:52PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 07:28:03PM -0600, Ryan Reich wrote:
+On Sun, Nov 30, 2003 at 06:26:52PM -0500, Dmitry Torokhov wrote:
+> On Sunday 30 November 2003 05:39 pm, Lukas Hejtmanek wrote:
+> > On Sun, Nov 30, 2003 at 05:28:10PM -0500, Dmitry Torokhov wrote:
+> >
+> > I'm using ACPI both in 2.4.22 and 2.6.0. I'm using battery_applet
+> > (gnome applet) for testing battery state.
+> >
+> > I will try it. Is acpi=off at boot time enough for that?
+> 
+> How often does battery_applet poll the battery?
 
-> I'm building a kernel with everything compiled in to serve as a boot image to
-> install Mandrake on my laptop, and I get the following error:
->...
->         --end-group \
->         -o vmlinux
-> fs/fs.o: In function `dput':
-> fs/fs.o(.text+0x15f1c): undefined reference to `atomic_dec_and_lock'
-> make: *** [vmlinux] Error 1
+This particular applet was written by some genius to read a state
+from ACPI _every second_.  To add insult to injury it rereads a
+constant information from ...battery/info on every round instead of
+storing it.  As you can guess it can sink a substantial amount of
+cycles and other resources especially that ACPI in BIOS is also
+often on a very heavy side.
 
-Does this problem still occur in 2.4.23?
+> Start with polling the
+> battery less often, let's say every 3 minutes
 
-If yes, please send your .config .
+Likely even every 3 seconds will make a difference but maybe not
+enough.
 
-> Ryan Reich
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+   Michal

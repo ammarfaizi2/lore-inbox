@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267682AbUH1Tlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267665AbUH1Tlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267682AbUH1Tlo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH1Tlo
+	id S267665AbUH1Tlu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH1Tlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:41:44 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:17426 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S267660AbUH1Tlj (ORCPT
+	Sat, 28 Aug 2004 15:41:49 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:24848 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S267665AbUH1Tll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:41:39 -0400
-Date: Sat, 28 Aug 2004 21:41:29 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
-       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
-       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+	Sat, 28 Aug 2004 15:41:41 -0400
+Date: Sat, 28 Aug 2004 23:41:40 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
+       Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
        reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040828194129.GA7713@pclin040.win.tue.nl>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <20040828182954.GJ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281132480.2295@ppc970.osdl.org> <20040828185613.GK21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org>
+Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828194140.GL6746@alias>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
+	Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+	reiserfs-list@namesys.com
+References: <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040828111807.GC6746@alias> <20040828161113.GA27278@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <20040828161113.GA27278@delft.aura.cs.cmu.edu>
+X-Operating-System: Linux 2.6.5-7.104-smp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 12:16:47PM -0700, Linus Torvalds wrote:
+Sat, Aug 28, 2004 at 12:11:14PM -0400, Jan Harkes wrote:
+> On Sat, Aug 28, 2004 at 03:18:07PM +0400, Alexander Lyamin wrote:
+> 
+> It will get there, just consider it constructive criticism. If we can
+> help resolve or refute the technical issues, all the better. We might
+> even end up with improvements or extensions to the VFS or MM making life
+> easier for everyone.
 
-If I see it correctly, you want to group a file and some
-ancillary files together.
+That would be nice. Some nice points too (metas/metas in just noice tough).
 
-The Unix way would be to make a directory and put them all there:
-	xterm/xterm
-	xterm/xterm.icon
-
-But you are unsatisfied and want
-	xterm
-	xterm/xterm.icon
-
-As long as we agree that the latter really means the former,
-there are no problems in finding out what should happen.
-
-The conclusion is, that a directory carries an additional bit
-that says "if I am opened as a regular file then use the file
-of the same name inside".
-
-Now there is no attribute space, just a shorthand.
-
-Andries
+-- 
+"the liberation loophole will make it clear.."
+lex lyamin

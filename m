@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263727AbVBCRbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263253AbVBCRbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbVBCRbw (ORCPT <rfc822;willy@w.ods.org>);
+	id S263253AbVBCRbw (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 3 Feb 2005 12:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbVBCRa2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbVBCR3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:30:28 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:43730 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S263703AbVBCR3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:29:51 -0500
-Date: Thu, 3 Feb 2005 18:29:31 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Steve Frenchs <french@samba.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6] Check return value of copy_to_user in fs/cifs/file.c
-Message-ID: <20050203172931.GA24747@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Thu, 3 Feb 2005 12:29:50 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22022 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263841AbVBCR2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:28:47 -0500
+Date: Thu, 3 Feb 2005 18:28:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Matthew Wilcox <matthew@wil.cx>, Joel Soete <soete.joel@tiscali.be>,
+       Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: NFSD needs EXPORTFS
+Message-ID: <20050203172844.GC3121@stusta.de>
+References: <20050203170111.GE20386@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050203170111.GE20386@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-the following patch against 2.6.11-rc3 fixes this compile time warning:
-
- CC [M]  fs/cifs/file.o
-fs/cifs/file.c: In function `cifs_user_read':
-fs/cifs/file.c:1168: warning: ignoring return value of
-`copy_to_user', declared with attribute warn_unused_result
-
-I also added an explicit check for errors other than -EAGAIN, since
-CIFSSMBRead may return -ENOMEM if it's unable to allocate smb_com_read_rsp;
-in that case we don't want to call copy_to_user with a NULL pointer.
-
-Signed-off-by: Luca Tettamanti <kronoz@kronoz.cjb.net>
-
---- a/fs/cifs/file.c	2005-02-03 17:58:07.000000000 +0100
-+++ b/fs/cifs/file.c	2005-02-03 18:17:37.000000000 +0100
-@@ -1151,7 +1151,7 @@
- 		current_read_size = min_t(const int,read_size - total_read,cifs_sb->rsize);
- 		rc = -EAGAIN;
- 		smb_read_data = NULL;
--		while(rc == -EAGAIN) {
-+		while(1) {
- 			if ((open_file->invalidHandle) && (!open_file->closePend)) {
- 				rc = cifs_reopen_file(file->f_dentry->d_inode,
- 					file,TRUE);
-@@ -1164,13 +1164,22 @@
- 				 current_read_size, *poffset,
- 				 &bytes_read, &smb_read_data);
- 
-+			if (rc == -EAGAIN)
-+				continue;
-+			else
-+				break;
-+
- 			pSMBr = (struct smb_com_read_rsp *)smb_read_data;
--			copy_to_user(current_offset,smb_read_data + 4/* RFC1001 hdr*/
-+			rc = copy_to_user(current_offset,smb_read_data + 4/* RFC1001 hdr*/
- 				+ le16_to_cpu(pSMBr->DataOffset), bytes_read);
- 			if(smb_read_data) {
- 				cifs_buf_release(smb_read_data);
- 				smb_read_data = NULL;
- 			}
-+			if (rc) {
-+				FreeXid(xid);
-+				return -EFAULT;
-+			}
- 		}
- 		if (rc || (bytes_read == 0)) {
- 			if (total_read) {
+On Thu, Feb 03, 2005 at 05:01:11PM +0000, Matthew Wilcox wrote:
+> 
+> Got this report about 2.6.11-rc3.  Is this the correct solution?
+> 
+> ----- Forwarded message from Joel Soete <soete.joel@tiscali.be> -----
+> 
+> A short analyse, it seems that's because NFSD was builtin while EXPORTFS
+> was a module in my previous config file. Imho EXPORTFS would be build as
+> NFSD?
+> 
+> Is the following hunk would do the trick:
+> --- fs/Kconfig.Orig     2005-02-03 16:45:13.562275206 +0100
+> +++ fs/Kconfig  2005-02-03 16:46:36.496469111 +0100
+> @@ -1400,6 +1400,7 @@
+>         tristate "NFS server support"
+>         depends on INET
+>         select LOCKD
+> +       select EXPORTFS
+>         select SUNRPC
+>         help
+>           If you want your Linux box to act as an NFS *server*, so that other
+> ========><========
+> 
+> Thanks in advance,
+>     Joel
 
 
-Luca
+If the problem occured with CONFIG_XFS_FS=m I understand what went 
+wrong.
+
+It seems to be correct.
+
+This was a side effect of Roman's fix for the XFS <-> EXPORTFS 
+dependency.
+
+
+cu
+Adrian
+
 -- 
-Home: http://kronoz.cjb.net
-Quando un uomo porta dei fiori a sua moglie senza motivo, 
-un motivo c'e`.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

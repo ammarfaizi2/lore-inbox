@@ -1,38 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271243AbUJVLcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271217AbUJVLbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271243AbUJVLcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271241AbUJVLcp
+	id S271217AbUJVLbw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271219AbUJVL3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:32:45 -0400
-Received: from lucidpixels.com ([66.45.37.187]:48768 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S271222AbUJVL3r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:29:47 -0400
-Date: Fri, 22 Oct 2004 07:29:46 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
+	Fri, 22 Oct 2004 07:29:09 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:44681 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S271229AbUJVL14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:27:56 -0400
+From: margitsw@t-online.de (Margit Schubert-While)
 To: linux-kernel@vger.kernel.org
-cc: apiszcz@lucidpixels.com
-Subject: Kernel 2.6.x: nfs warning: mount version older than kernel
-Message-ID: <Pine.LNX.4.61.0410220727120.514@p500>
+Subject: [PATCH 1/1 linux-2.4.28-pre4] Add prism54 to MAINTAINERS
+Date: Fri, 22 Oct 2004 11:42:15 +0200
+User-Agent: KMail/1.5.4
+Cc: prism54-devel@prism54.org, marcelo.tosatti@cyclades.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_3XNeBhZ6luo/sXm"
+Message-Id: <200410221142.15056.margitsw@t-online.de>
+X-ID: bN-0ggZUoervGmBDt1AXsYyOtqYL9vyqBvt2uG6j6HLPKEHmVCODUK
+X-TOI-MSGID: f702f010-8756-4f75-bfcf-029bed214d93
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# mount -a
-# dmesg | tail -n 5
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-# mount --version
-mount: mount-2.12h
-#
 
-I am using the latest util-linux from the developers site, so I am 
-curious, why do I get this warning in dmesg/ring-buffer?
+--Boundary-00=_3XNeBhZ6luo/sXm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-# ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
+Resend - ignore previous 2.4.28 mail
+
+2004-10-22 Margit Schubert-While <margitsw@t-online.de>
+
+* Add prism54 to MAINTAINERS
+
+Eeek, wrong attachment - Sorry
+Now we have the right one.
+
+Margit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--Boundary-00=_3XNeBhZ6luo/sXm
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="maintainer24.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="maintainer24.patch"
+
+diff -Naur linux-2.4.8-pre4/MAINTAINERS linux-2.4.8-pre4msw/MAINTAINERS
+--- linux-2.4.8-pre4/MAINTAINERS	2004-10-22 11:31:48.000000000 +0200
++++ linux-2.4.8-pre4msw/MAINTAINERS	2004-10-22 11:32:38.000000000 +0200
+@@ -1536,6 +1536,13 @@
+ M:	mostrows@styx.uwaterloo.ca
+ S:	Maintained
+ 
++PRISM54 WIRELESS DRIVER
++P:	Prism54 Development Team
++M:	prism54-private@prism54.org
++L:	netdev@oss.sgi.com
++W:	http://prism54.org
++S:	Maintained
++
+ PROMISE DC4030 CACHING DISK CONTROLLER DRIVER
+ P:	Peter Denison
+ M:	promise@pnd-pc.demon.co.uk
+
+--Boundary-00=_3XNeBhZ6luo/sXm--
+

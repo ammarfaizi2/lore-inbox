@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280961AbRKYSRD>; Sun, 25 Nov 2001 13:17:03 -0500
+	id <S280960AbRKYSQx>; Sun, 25 Nov 2001 13:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280966AbRKYSQx>; Sun, 25 Nov 2001 13:16:53 -0500
-Received: from haybaler.sackheads.org ([205.158.174.201]:55053 "HELO
-	haybaler.sackheads.org") by vger.kernel.org with SMTP
-	id <S280961AbRKYSQl>; Sun, 25 Nov 2001 13:16:41 -0500
-Date: Sun, 25 Nov 2001 10:20:49 -0800
-From: Jimmie Mayfield <mayfield+kernel@sackheads.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.16pre1 missing cmd64x I/O stats
-Message-ID: <20011125102049.A8590@sackheads.org>
+	id <S280966AbRKYSQn>; Sun, 25 Nov 2001 13:16:43 -0500
+Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:44038 "EHLO
+	nic.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S280960AbRKYSQ2>; Sun, 25 Nov 2001 13:16:28 -0500
+Message-Id: <4.3.2.7.2.20011125131414.00b172d0@mail.osagesoftware.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 25 Nov 2001 13:16:21 -0500
+To: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
+From: David Relson <relson@osagesoftware.com>
+Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C013407.7C639D34@jep.dhis.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Josep,
 
-Hi.  I've noticed that in non-AC kernels including 2.4.16pre1, /proc/stat 
-does not contain disk_io statistics for my CMD649 IDE interface.  
+My experience is different ...
 
-2.4.10ac12:
-disk_io: (2,0):(5,5,10,0,0) (11,0):(4,4,16,0,0) (34,0):(5820,2968,44458,2852,16024) (34,1):(7068,7067,56530,1,8) 
+I have a UP PentiumIII-500 machine on which I have built 2.4.16-pre1 using 
+a custom .config without SMP.  The kernel built fine and is running fine.
 
-2.4.16pre1:
-disk_io: (2,0):(79,60,1444,19,1334) (11,0):(147,147,4732,0,0) 
+David
 
-
-Jimmie
+At 01:10 PM 11/25/01, Josep Lladonosa i Capell wrote:
+>Hello,
+>
+>just the subject :-)
+>
+>--
+>Salutacions...Josep
+>http://www.geocities.com/SiliconValley/Horizon/1065/
+>--
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 

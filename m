@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264259AbTLTNdl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 08:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTLTNdl
+	id S264470AbTLTN7C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 08:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTLTN7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 08:33:41 -0500
-Received: from bay8-dav10.bay8.hotmail.com ([64.4.26.114]:15365 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264259AbTLTNdi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 08:33:38 -0500
-X-Originating-IP: [194.236.130.199]
-X-Originating-Email: [nikomail@hotmail.com]
-From: "Nicklas Bondesson" <nikomail@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-ide@vger.kernel.org>
-Subject: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
-Date: Sat, 20 Dec 2003 14:33:37 +0100
+	Sat, 20 Dec 2003 08:59:02 -0500
+Received: from corvette.lateapex.net ([64.236.104.2]:63166 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264470AbTLTN7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 08:59:01 -0500
+From: Jason Van Patten <jvp@lateapex.net>
+Message-Id: <200312201358.hBKDwu9E009989@localhost.localdomain>
+Subject: Re: Adaptec DPT_I2O Driver
+To: linux-kernel@vger.kernel.org (linux)
+Date: Sat, 20 Dec 2003 08:58:56 -0500 (EST)
+Reply-To: jvp@lateapex.net
+In-Reply-To: <no.id> from "jvp" at Dec 18, 2003 08:27:32 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcPG/d9QdhBJd4RvS3eRe2JJn7SPLw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY8-DAV10i4H845RNA00008ade@hotmail.com>
-X-OriginalArrivalTime: 20 Dec 2003 13:33:37.0965 (UTC) FILETIME=[DFC34DD0:01C3C6FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some major problem getting my FastTrak TX2000 card working with the
-Linux 2.4.23 kernel using Debian 3.0 r2.
- 
-Everything seems to work just fne with the precompiled kernel shipped with
-Debian (2.4.18-bf2.4) but when I try to use the newer kernel the boot
-process halts and give me a kernel panic:
- 
-Kernel panic: VFS: Unable to mount root fs on 72:01.
- 
-I'm using the native ATARAID driver built in (not as a module).
- 
-I have sucessfully used the RAID card with two Maxtor drives for almost a
-year (even with the 2.4.23 kernel). But I reinstalled the system yesterday
-with brand new disks.
- 
-I think I have tried almost every way possible getting the board up, but no
-luck! Have I missed something here?
- 
-I hope that someone can help me with this issue. Thanks in advance!
- 
-fstab:
-/dev/ataraid/d0p1 / ext3 and so on...
-/dev/ataraid/d0p2 none swap and so on..
- 
-lilo:
-append="ide2=0xd000,0xb802,12 ide3=0xb400,0xb002,12"00
- 
-Hardware: 
- 
-Two WDC800JB-00DUA3 disks connected to a Promise FastTrak TX2000
-ASUS P2B motherboard
-Intel Pentium II
- 
-/Nicke
- 
- 
+At Thu Dec 18 08:27:32 2003, jvp wrote:
+> In the 2.6 tree, the driver drivers/scsi/dpt_i2o.c has a #error in it that
+> prevents it from being compiled.  The note in the file is:
+> 
+> #error Please convert me to Documentation/DMA-mapping.txt
+
+Can I assume that because no one's replied to my question regarding this
+broken driver, that no one's currently working on it?
+
+jas
+-- 
+Jason Van Patten
+AOL IM: Jason VP 
+

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290675AbSARLim>; Fri, 18 Jan 2002 06:38:42 -0500
+	id <S290527AbSARL67>; Fri, 18 Jan 2002 06:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290676AbSARLiW>; Fri, 18 Jan 2002 06:38:22 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:775 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290675AbSARLiQ>; Fri, 18 Jan 2002 06:38:16 -0500
-Date: Fri, 18 Jan 2002 12:38:07 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Craig Christophel <merlin@transgeek.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: attr.c::notify_change() -- locking_change
-In-Reply-To: <20020118043308.B9A75B581@smtp.transgeek.com>
-Message-ID: <Pine.LNX.4.33.0201181226180.14369-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290569AbSARL6u>; Fri, 18 Jan 2002 06:58:50 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:48142 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S290527AbSARL6j>;
+	Fri, 18 Jan 2002 06:58:39 -0500
+Date: Fri, 18 Jan 2002 12:58:34 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Finalize new device naming convention ?
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3C480DEA.C824751E@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Guillaume Boissiere (boissiere@mediaone.net) mentions on
+http://people.ne.mediaone.net/boissiere/Status-18-Jan-2002.html :
 
-On Thu, 17 Jan 2002, Craig Christophel wrote:
+* Pending Finalize new device naming convention (Linus Torvalds)
 
-> +		spin_lock(&inode_lock);
-> +		if(inode->i_state & I_ATTR_LOCK) {
-> +			spin_unlock(&inode_lock);
-> +		}
-> +		else {
-> +			inode->i_state =| I_ATTR_LOCK;
-> +			tflag = 1;
-> +			spin_unlock(&inode_lock);
-> +		}
+Is this about user space visible device names , like the stuff in /dev/ ?
 
-There are other write accesses to i_state, so you either have to protect
-them all with this lock or you could convert all accesses to use bitfield
-instructions.
+I have some strong ( negative ) feeling about the current ( pre 2.5.x ) state
+of that. Where is/was/will be this discussed.
 
-> +static inline void wait_on_inode(struct inode *inode, int flag);
+The gist of my problem is that the entries in /dev/ doesn't always refer
+to the same device as 5 minutes before. Even without a reboot in between.
 
-Instead of the flag two separate functions wait_on_inode_lock,
-wait_on_inode_attr_lock are IMO more readable and cleaner.
+Examples : 
 
-bye, Roman
+name      |    now             | some minutes later
+-------------------------------------------------
+sdb       | a SCSI disk        | some other SCSI disk
+hda6      | my root FS         | my swap partition
+dsp1      | my main speakers   | my rear speaker
+eth0      | my LAN connection  | my ISP connection
 
+There must be some lasting ID that can be used to refer to devices,
+something that is not changed by some semi-related events.
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

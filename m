@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbUK2WUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUK2WUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbUK2WUz (ORCPT <rfc822;willy@w.ods.org>);
+	id S261832AbUK2WUz (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 29 Nov 2004 17:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUK2WTS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbUK2WTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:19:18 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:51635 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261834AbUK2WSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:18:52 -0500
-Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041128233934.GA2856@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296414.5805.286.camel@desktop.cunninghams>
-	 <20041124132949.GB13145@infradead.org> <20041125192834.GB1302@elf.ucw.cz>
-	 <1101680341.4343.291.camel@desktop.cunninghams>
-	 <20041128233934.GA2856@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101766520.4343.418.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 30 Nov 2004 09:15:20 +1100
+	Mon, 29 Nov 2004 17:19:25 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:15233 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261835AbUK2WS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:18:58 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16811.41030.901140.963491@wombat.chubb.wattle.id.au>
+Date: Tue, 30 Nov 2004 09:18:46 +1100
+To: Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Config files that aren't mach_defconfig...
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Mon, 2004-11-29 at 10:39, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Here we add simple hooks so that the user can interact with suspend
-> > > > > while it is running. (Hmm. The serial console condition could be
-> > > > > simplified :>). The hooks allow you to do such things as:
-> > 
-> > > > > - change the amount of detail of debugging info shown
-> > > 
-> > > Use sysrq-X as you do during runtime.
-> > 
-> > No, I don't do this anymore. When I did, I had problems post-resume with
-> > the keyboard handler sometimes thinking SysRq was still pressed.
-> 
-> Fix keyboard handler, then... It probably happens with other keys
-> beside SysRq, right?
+Hi Sam,
+   I've just finished porting Linux 2.6 to a new ARM board, that needs
+a custom initramfs list.  My approach was to set
+CONFIG_INITRAMFS_SOURCE to point to
+"$(srctree)/arch/arm/configs/pleb2_initramfs" in the appropriate
+defconfig for the board, as it's a default configuration item; but
+Russell asks if there isn't a better place for a per-board default initramfs
+script to live? 
 
-I guess it would. Nevertheless, it's ugly to have to press SysRq +
-level; why make things more awkward than they need to be?
+What I'd like is for the appropriate default -- for this board --
+script to be carried around and updated with the other configuration
+files, somehow.
 
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUJKOxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUJKO51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269013AbUJKOxE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbUJKOwO
+	id S269040AbUJKO51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUJKO4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:52:14 -0400
-Received: from swszl.szkp.uni-miskolc.hu ([193.6.2.24]:45696 "EHLO
-	swszl.szkp.uni-miskolc.hu") by vger.kernel.org with ESMTP
-	id S269024AbUJKOvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:51:05 -0400
-Date: Mon, 11 Oct 2004 16:51:04 +0200
-From: Vitez Gabor <vitezg@niif.hu>
+	Mon, 11 Oct 2004 10:56:44 -0400
+Received: from main.gmane.org ([80.91.229.2]:42668 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269014AbUJKOxX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:53:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Subject: forcedeth: "received irq with unknown events 0x1"
-Message-ID: <20041011145104.GA9494@swszl.szkp.uni-miskolc.hu>
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Date: Mon, 11 Oct 2004 23:53:29 +0900
+Message-ID: <m2hdp1gvbq.fsf@tnuctip.rychter.com>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it>
+	<2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it>
+	<E1CB10O-0000HL-FJ@localhost> <20040925101640.GB4039@elf.ucw.cz>
+	<m2zn2uigka.fsf@tnuctip.rychter.com>
+	<20041011133234.GA16217@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.4 (Security Through
+	Obscurity, linux)
+Cancel-Lock: sha1:VPR5EayQ8epi4ZzF9tkPzuB8NPE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
+ Pavel> Hi!  You do not know how much you should preallocate, because it
+ Pavel> depends on ammount of memory used. You could preallocate maximum
+ Pavel> possible ammount...
+ >>
+ Pavel> OTOH this is first report of this failure. If it fails once in a
+ Pavel> blue moon, it is probably better to let it fail than waste
+ Pavel> memory.
+ >>
+ >> This is *exactly* why I choose to use swsusp2. There is a marked
+ >> difference in the maintainer's approach to these kinds of problems.
 
-my forcedeth driver said:
+ Pavel> Okay, and do you have something to say or do you want to start
+ Pavel> flamewar? That is also why swsusp2 is 10 times code size of
+ Pavel> swsusp...
 
-eth1: received irq with unknown events 0x1. Please report
+Sure, flame me if you think this is the right thing to do. But I will
+continue to pitch in with a users' opinion sometimes, because I really
+believe it is important.
 
-It happened, when I tried to connect two machines with straight ethernet
-cable. 
+It is easy to lose sight of the user perspective on these things if all
+you deal with is kernel development. You probably reboot your machine
+dozens of times a day anyway. However, for some users crashes and
+reboots are *very* expensive. These people (myself included) consider
+sprinkling the code with panics, crashing and failing an unacceptable
+thing to do.
 
-One of the machines is a Dell Poweredge 400SC, with an intel E1000 card, 
-the other is a home-made one, with nvidia nforce2 chipset based motherboard,
-integrated nvidia ethernet, and a 3com 905C network card. 
+I also believe your reply shows how important it is for me to actually
+write things like these from time to time (even risking getting
+flamed). As a user I don't care whatsoever what the code size
+is. Actually, I don't care that much about its performance, either. What
+I do care about is that my operating system doesn't crash from under me,
+doesn't lose my data, and doesn't fail on me with suspending when I
+really need it to suspend now. Give me a userspace USB implementation
+that works 10x slower and is 10x larger but doesn't crash my machine and
+I'll take it any day.
 
-When I connect the Dell machine to the nvidia ethernet card, I get the
-"unknown events" warning, and the E1000's driver reports that the link is
-down. However when I connect the E1000 and the 3com card, everything works
-fine. Both kernels are vanilla 2.4.27.
+--J.
 
-lspci of the nvidia ethernet card:
-
-00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet Controller
-(rev a1)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 570c
-        Flags: bus master, 66Mhz, fast devsel, latency 0, IRQ 5
-        Memory at e1086000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at e000 [size=8]
-        Capabilities: <available only to root>
-
-
-lspci of the E1000 card:
-
-02:0c.0 Ethernet controller: Intel Corp.: Unknown device 100e (rev 02)
-        Subsystem: Dell Computer Corporation: Unknown device 0156
-        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 18
-        Memory at fe9e0000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at db40 [size=64]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] #07 [0002]
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-
-
-
-	regards
-		Gabor

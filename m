@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULOFFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULOFKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbULOFFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 00:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbULOFFJ
+	id S261882AbULOFKR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 00:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbULOFKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 00:05:09 -0500
-Received: from news.suse.de ([195.135.220.2]:39388 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261883AbULOFFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 00:05:05 -0500
-Date: Wed, 15 Dec 2004 06:04:49 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-Message-ID: <20041215050449.GI27225@wotan.suse.de>
-References: <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu> <Pine.LNX.4.58.0412141450430.3279@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412141450430.3279@ppc970.osdl.org>
+	Wed, 15 Dec 2004 00:10:17 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44764 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261882AbULOFKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 00:10:12 -0500
+Message-ID: <41BFC72D.2070800@namesys.com>
+Date: Tue, 14 Dec 2004 21:10:05 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+References: <200412141930.iBEJUGdB019336@laptop11.inf.utfsm.cl>
+In-Reply-To: <200412141930.iBEJUGdB019336@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But something like
-> 
-> 	static inline int kernel_mode(struct pt_regs *regs)
-> 	{
-> 		return !((regs->eflags & VM_MASK) | (regs->xcs & 3));
-> 	}
-> 
-> should DTRT.
-> 
-> Can you pls double-check my thinking, and test?
+Horst von Brand wrote:
 
-Reasoning looks correct to me. 
+>Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk> said:
+>
+>[...]
+>
+>  
+>
+>>Perhaps a better way to think about this is that instead of talking
+>>about directories and files, we just talk about objects.
+>>    
+>>
+>
+>Then you have a collection of interrelated objects, i.e., a database.
+>Operating systems that work on databases (no filesystem) have been done,
+>and are a nice idea... but are far, far away from Unix.
+>  
+>
+A journey of a thousand leagues begins with a single step.
 
--Andi
+Actually, databases are the wrong solution because they are relational, 
+and what is needed is a semi-structured query language that is upwardly 
+compatible with Unix hierarchical semantics, ala 
+www.namesys.com/future_vision.html

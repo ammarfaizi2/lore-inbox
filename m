@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282453AbRLGRnK>; Fri, 7 Dec 2001 12:43:10 -0500
+	id <S282771AbRLGRu6>; Fri, 7 Dec 2001 12:50:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282644AbRLGRnA>; Fri, 7 Dec 2001 12:43:00 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:58892 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S282453AbRLGRml>; Fri, 7 Dec 2001 12:42:41 -0500
-Message-ID: <3C10FF86.941D79AC@delusion.de>
-Date: Fri, 07 Dec 2001 18:42:30 +0100
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre6 i686)
-X-Accept-Language: en, de
+	id <S282877AbRLGRup>; Fri, 7 Dec 2001 12:50:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45584 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282771AbRLGRul>; Fri, 7 Dec 2001 12:50:41 -0500
+Date: Fri, 7 Dec 2001 09:45:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andi Kleen <ak@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
+Message-ID: <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: release() locking
-In-Reply-To: <3C10D83E.81261D74@delusion.de> <3C10FDCF.D8E473A0@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
-> Yes, others have suggested that the whole lot should be reverted,
-> for several reasons.  However it looks like that won't happen, so we
-> need to debug the present code.  But it works for me.
-> 
-> I can review the code, see if anything stands out.  But it'll probably
-> require someone who can reproduce it to be able to fix it.
+On 7 Dec 2001, Andi Kleen wrote:
+> torvalds@transmeta.com (Linus Torvalds) writes:
+> >
+> > "putc()" is a standard function.  If it sucks, let's get it fixed.  And
+> > instead of changing bonnie, how about pinging the _real_ people who
+> > write sucky code?
+>
+> It is easy to fix. Just do #define putc putc_unlocked
 
-That would be good. I can reliably reproduce the problem, so if you
-want me to try out some patches, just send them here.
+Sure. And why don't you also do
 
-Regards,
-Udo.
+	#define sin(x) (1)
+	#define sqrt(x) (1)
+	#define strlen(x) (1)
+	...
+
+to make other benchmarks happier?
+
+bonnie is a _benchmark_. It's meant for finding bad performance. Changing
+it to make it work better when performance is bad is _pointless_. You've
+now made the whole point of bonnie go away.
+
+> There is just a slight problem: it'll fail if your application is threaded
+> and wants to use the same FILE from multiple threads.
+>
+> It is a common problem on all OS that eventually got threadsafe stdio.
+
+It's a common problem with bad programming.
+
+You can be thread-safe without sucking dead baby donkeys through a straw.
+I already mentioned two possible ways to fix it so that you have locking
+when you need to, and no locking when you don't.
+
+		Linus
+

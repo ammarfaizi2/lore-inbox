@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTEHLay (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 07:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTEHLay
+	id S261323AbTEHLhn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 07:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEHLhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 07:30:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20105 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261328AbTEHLax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 07:30:53 -0400
-Date: Thu, 08 May 2003 03:35:34 -0700 (PDT)
-Message-Id: <20030508.033534.74727769.davem@redhat.com>
-To: arnd@arndb.de
-Cc: pavel@ucw.cz, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305080150.10697.arnd@arndb.de>
-References: <200305072113.07004.arnd@arndb.de>
-	<20030507.111245.25138161.davem@redhat.com>
-	<200305080150.10697.arnd@arndb.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 8 May 2003 07:37:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:51463 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261323AbTEHLhm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 07:37:42 -0400
+Message-ID: <3EBA4529.7050507@aitel.hist.no>
+Date: Thu, 08 May 2003 13:53:13 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, akpm@digeo.com
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnd Bergmann <arnd@arndb.de>
-   Date: Thu, 8 May 2003 01:50:10 +0200
-   
-   I checked the numbers that are in arch/sparc64/kernel/ioctl32.o
-   and found none that uses more than 9 bits for the size field,
+William Lee Irwin III wrote:
 
-I know that we had to change our sparc ioctl macro definitions a few
-months ago to accomodate some ioctl that wanted more bits.
+> 2.5.69-mm3 should suffice to test things now. If you can try that when
+> you get back I'd be much obliged.
 
-It isn't a theoretical problem.
+2.5.69-mm3 died in exactly the same way - the oops was identical.
+I'm back to running mm2 without netfilter, to see how
+stable it is.
+
+Helge Hafting
+

@@ -1,247 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262158AbSJZOeV>; Sat, 26 Oct 2002 10:34:21 -0400
+	id <S261393AbSJZOjV>; Sat, 26 Oct 2002 10:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbSJZOeV>; Sat, 26 Oct 2002 10:34:21 -0400
-Received: from radium.jvb.tudelft.nl ([130.161.82.13]:3755 "EHLO
-	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S262158AbSJZOeS>; Sat, 26 Oct 2002 10:34:18 -0400
-From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
-To: "'Cajoline'" <cajoline@andaxin.gau.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: ASUS TUSL2-C and Promise Ultra100 TX2
-Date: Sat, 26 Oct 2002 16:38:30 +0200
-Message-ID: <008b01c27cfd$5a6f7820$020da8c0@nitemare>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-reply-to: <Pine.LNX.4.44.0210260632370.13879-100000@andaxin.gau.hu>
-Importance: Normal
+	id <S261398AbSJZOjV>; Sat, 26 Oct 2002 10:39:21 -0400
+Received: from mail.spylog.com ([194.67.35.220]:56267 "EHLO mail.spylog.com")
+	by vger.kernel.org with ESMTP id <S261393AbSJZOjT>;
+	Sat, 26 Oct 2002 10:39:19 -0400
+Date: Sat, 26 Oct 2002 18:45:27 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44-ac3 - don't compile.
+Message-ID: <20021026144527.GA4424@an.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021025131349.GA25980@an.local> <2925311195.1035536802@[10.10.2.3]> <002f01c27c57$a3e8fef0$0b00a8c0@runner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <002f01c27c57$a3e8fef0$0b00a8c0@runner>
+User-Agent: Mutt/1.3.28i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This board should be rather similar to mine, with the main difference
-> being suport for Coppermine/Tualatin processors.
-> also use the PIIX4 onboard IDE chipset?
+Hello Rune,
 
->From the Asus website, the motherboards are very similar, both have the
-Intel 815 north bridge, and both have the ICH2 (Intel 82801BA Enhanced
-I/O Controller Hub 2) IDE controller onboard. This chip is handled by
-the piix.c driver.
 
-> Indeed, that could be a workaround, but I'm afraid it's not that good
-> after all, because not all the drives have the same capabilities, it's
-> still slower than udma 5 (UDMA100) and from my tests, with such a
-> forced setting, the performance is still poor even for this udma mode.
+ Thank.
 
-Note that "ata66" actually means UDMA66 and up (it actually means that
-you use 80-conductor cables), so with this parameter your drive _will_
-run at UDMA 100 if that's supported by the drive and controller. I have
-several boxes which need this parameter with the Linus kernel tree, and
-they all have disks running at UDMA100 with this boot parameter. Also,
-my tests show good speeds on these drives. 
 
-> This is interesting. Excuse my ignorance, but do you know what has
-> actually changed exactly regarding PDC20268 and PDC20269?
-
-LBA48 support (for disks > 127Gb) I think was added.
-
-> > > What's even funnier is that if I try to copy files from a
-> > > filesystem on
-> > > a
+Once you wrote about "Re: 2.5.44-ac3 - don't compile.":
+> From: "Mikael Pettersson"
+> Sent: Wednesday, October 23, 2002 1:43 PM
+> Subject: Re: [PATCH 2.5.44] compile error whit LOCAL_APIC disabled...
+> 
+> 
+> >
+> > Known bug in scripts/Configure when switching from an APIC-enabled to
+> > an APIC-disabled config. `make oldconfig' fixes it.
+> 
+> 
+> or just comment out in your ".config":
+> CONFIG_X86_EXTRA_IRQS
+> CONFIG_X86_FIND_SMP_CONFIG
+> CONFIG_X86_MPPARSE
+> 
+> Rune Petersen
+> ----- Original Message -----
+> From: "Martin J. Bligh" <mbligh@aracnet.com>
+> To: "Andrey Nekrasov" <andy@spylog.ru>; <linux-kernel@vger.kernel.org>
+> Sent: Friday, October 25, 2002 6:06 PM
+> Subject: Re: 2.5.44-ac3 - don't compile.
+> 
+> 
+> > Odd. I'm sure akpm fixed this in 44, unless -ac3 reverts it.
+> > Can you search back for posts by Andrew Morton, and find the
+> > fix, and try it?
+> >
+> > M.
+> >
+> > --On Friday, October 25, 2002 5:13 PM +0400 Andrey Nekrasov
+> <andy@spylog.ru> wrote:
+> >
+> > > Hello.
 > > >
-> > > drive attached to a PDC20268 and a drive attached to the 
-> motherboard
-> > > controller (PIIX4 chipset), the system eventually locks up
-> > > (after about
-> > > 3
-> > > GB).
+> > >
+> > >  x86, no SMP.
+> > >
+> > >
+> > > ...
+> > > make -f init/Makefile
+> > >   Generating init/../include/linux/compile.h (updated)
+> > >
+> 
+> 
+> gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototyp
+> es
+> > > -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+> > > -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
+> > > -fomit-frame-pointer -nostdinc -iwithprefix
+> lude    -DKBUILD_BASENAME=version
+> > > -c -o init/version.o init/version.c
+> > >    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+> > > init/do_mounts.o
+> > >         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
+> arch/i386/kernel/head.o
+> > > arch/i386/kernel/init_task.o  init/built-in.o --start-group
+> > > arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
+> > > arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
+> fs/built-in.o
+> > > ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a
+> > > drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
+> net/built-in.o
+> > > --end-group  -o vmlinux
+> > > arch/i386/kernel/built-in.o: In function `MP_processor_info':
+> > > arch/i386/kernel/built-in.o(.init.text+0x46a3): undefined reference to
+> `Dprintk'
+> > > arch/i386/kernel/built-in.o(.init.text+0x46b6): undefined reference to
+> `Dprintk'
+> > > arch/i386/kernel/built-in.o(.init.text+0x46c9): undefined reference to
+> `Dprintk'
+> > > arch/i386/kernel/built-in.o(.init.text+0x46dc): undefined reference to
+> `Dprintk'
+> > > arch/i386/kernel/built-in.o(.init.text+0x46ef): undefined reference to
+> `Dprintk'
+> > > arch/i386/kernel/built-in.o(.init.text+0x4702): more undefined
+> references to
+> > > `Dprintk' follow
+> > > make: *** [vmlinux] Error 1
+> > > ...
+> > >
+> > > Why?
+> > >
+> > >
+> > >
+> > > --
+> > > bye.
+> > > Andrey Nekrasov, SpyLOG.
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-This night, I experienced another hang on my box. Even magic sysreq
-doesn't do anything anymore. Do you have a reproducible testcase to
-trigger this?
-
-> OK fine, I agree, but how do you explain this only happens 
-> when running on
-> this motherboard?
-
-Maybe we should start blaming the onboard ICH2 controller, or the piix.c
-driver in this case, because that's the only common thing in our faulty
-setups. I also noticed that the ICH2 on the Asus TUSL2-C and CUSL2-C
-boards have its own PCI device id in the pci.ids file. So this could
-mean they have something different than regular ICH2 chips. I'll include
-my full lspci -vvvx for anyone who is interested.
-
-> Indeed. The same controllers work just fine on a P3 600 + QDI 
-> Advance 10F
-> motherboard (with onboard VIA vt82c686a IDE UDMA66 controller).
-
-Did you also try this motherboard with a different brand add-on PCI
-controller (like a CMD one)? 
-
-Regards,
-- Robbert
-
-
-Lspci -vvvx:
-00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and
-Memory Controller Hub (rev 02)
-        Subsystem: Asustek Computer, Inc. TUSL2-C Mainboard
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [88] #09 [f104]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-00: 86 80 30 11 06 00 90 20 02 00 00 06 00 00 00 00
-10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 27 80
-30: 00 00 00 00 88 00 00 00 00 00 00 00 00 00 00 00
-
-00:01.0 PCI bridge: Intel Corp. 82815 815 Chipset AGP Bridge (rev 02)
-(prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 0000e000-0000dfff
-        Memory behind bridge: f7b00000-f7bfffff
-        Prefetchable memory behind bridge: f7f00000-f7ffffff
-        BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-00: 86 80 31 11 07 00 20 00 02 00 04 06 00 00 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 00 e0 d0 a0 22
-20: b0 f7 b0 f7 f0 f7 f0 f7 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 01)
-(prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-        I/O behind bridge: 0000b000-0000dfff
-        Memory behind bridge: f0000000-f7afffff
-        Prefetchable memory behind bridge: f7c00000-f7efffff
-        BridgeCtl: Parity- SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
-00: 86 80 4e 24 07 01 80 00 01 00 04 06 00 00 01 00
-10: 00 00 00 00 00 00 00 00 00 02 02 20 b0 d0 80 22
-20: 00 f0 a0 f7 c0 f7 e0 f7 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0e 00
-
-00:1f.0 ISA bridge: Intel Corp. 82801BA ISA Bridge (LPC) (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-00: 86 80 40 24 0f 01 80 02 01 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:1f.1 IDE interface: Intel Corp. 82801BA IDE U100 (rev 01) (prog-if 80
-[Master])
-        Subsystem: Asustek Computer, Inc. TUSL2-C Mainboard
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Region 4: I/O ports at a800 [size=16]
-00: 86 80 4b 24 05 00 80 02 01 80 01 01 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 a8 00 00 00 00 00 00 00 00 00 00 43 10 27 80
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:1f.3 SMBus: Intel Corp. 82801BA/BAM SMBus (rev 01)
-        Subsystem: Asustek Computer, Inc. TUSL2-C Mainboard
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin B routed to IRQ 11
-        Region 4: I/O ports at e800 [size=16]
-00: 86 80 43 24 01 00 80 02 01 00 05 0c 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 e8 00 00 00 00 00 00 00 00 00 00 43 10 27 80
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 02 00 00
-
-02:09.0 Unknown mass storage controller: Promise Technology, Inc. 20269
-(rev 02) (prog-if 85)
-        Subsystem: Promise Technology, Inc.: Unknown device 4d68
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (1000ns min, 4500ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 4
-        Region 0: I/O ports at d800 [size=8]
-        Region 1: I/O ports at d400 [size=4]
-        Region 2: I/O ports at d000 [size=8]
-        Region 3: I/O ports at b800 [size=4]
-        Region 4: I/O ports at b400 [size=16]
-        Region 5: Memory at f7000000 (32-bit, non-prefetchable)
-[size=16K]
-        Expansion ROM at <unassigned> [disabled] [size=16K]
-        Capabilities: [60] Power Management version 1
-                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 5a 10 69 4d 07 00 30 04 02 85 80 01 08 20 00 00
-10: 01 d8 00 00 01 d4 00 00 01 d0 00 00 01 b8 00 00
-20: 01 b4 00 00 00 00 00 f7 00 00 00 00 5a 10 68 4d
-30: 00 00 00 00 60 00 00 00 00 00 00 00 04 01 04 12
-
-02:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 09)
-        Subsystem: Intel Corp. EtherExpress PRO/100 S Management Adapter
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2000ns min, 14000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 3
-        Region 0: Memory at f6800000 (32-bit, non-prefetchable)
-[size=4K]
-        Region 1: I/O ports at b000 [size=64]
-        Region 2: Memory at f6000000 (32-bit, non-prefetchable)
-[size=128K]
-        Expansion ROM at <unassigned> [disabled] [size=1M]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-00: 86 80 29 12 17 00 90 02 09 00 00 02 08 20 00 00
-10: 00 00 80 f6 01 b0 00 00 00 00 00 f6 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 11 00
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 03 01 08 38
-
-02:0e.0 VGA compatible controller: S3 Inc. 86c325 [ViRGE] (rev 06)
-(prog-if 00 [VGA])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (1000ns min, 63750ns max)
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at f0000000 (32-bit, non-prefetchable)
-[size=64M]
-        Expansion ROM at f7cf0000 [disabled] [size=64K]
-00: 33 53 31 56 07 00 00 02 06 00 00 03 00 20 00 00
-10: 00 00 00 f0 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 cf f7 00 00 00 00 00 00 00 00 0a 01 04 ff
-
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSGQRd1>; Wed, 17 Jul 2002 13:33:27 -0400
+	id <S315929AbSGQRhs>; Wed, 17 Jul 2002 13:37:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315921AbSGQRd1>; Wed, 17 Jul 2002 13:33:27 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:20955 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S315454AbSGQRdY>; Wed, 17 Jul 2002 13:33:24 -0400
-Message-Id: <200207171735.g6HHZUP28835@unix-os.sc.intel.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: mgross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Andrea Arcangeli <andrea@suse.de>,
-       "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-Subject: Re: fsync fixes for 2.4
-Date: Wed, 17 Jul 2002 10:44:18 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: "'Andrew Morton'" <akpm@zip.com.au>,
-       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'Carter K. George'" <carter@polyserve.com>,
-       "'Don Norton'" <djn@polyserve.com>,
-       "'James S. Tybur'" <jtybur@polyserve.com>,
-       "Gross, Mark" <mark.gross@intel.com>
-References: <01BDB7EEF8D4D3119D95009027AE99951B0E6428@fmsmsx33.fm.intel.com> <20020715100719.GE34@dualathlon.random>
-In-Reply-To: <20020715100719.GE34@dualathlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S315941AbSGQRhs>; Wed, 17 Jul 2002 13:37:48 -0400
+Received: from holomorphy.com ([66.224.33.161]:26247 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315929AbSGQRhr>;
+	Wed, 17 Jul 2002 13:37:47 -0400
+Date: Wed, 17 Jul 2002 10:40:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: shreenivasa H V <shreenihv@usa.net>, linux-kernel@vger.kernel.org
+Subject: Re: Gang Scheduling in linux
+Message-ID: <20020717174036.GG1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, shreenivasa H V <shreenihv@usa.net>,
+	linux-kernel@vger.kernel.org
+References: <20020716225441.23939.qmail@uwdvg008.cms.usa.net> <Pine.LNX.4.44.0207181818300.29003-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207181818300.29003-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 July 2002 06:07 am, Andrea Arcangeli wrote:
-> On Fri, Jul 12, 2002 at 02:52:11PM -0700, Griffiths, Richard A wrote:
-> > Mark is off climbing Mt. Hood, so he asked me to post the data on the
-> > fsync patch.
+On Thu, Jul 18, 2002 at 06:21:41PM +0200, Ingo Molnar wrote:
+> yes - the 'synchronous wakeup' feature is a form of gang scheduling. It in
+> essence uses real process-communication information to migrate 'related'
+> tasks to the same CPU. So it's automatic, no need to declare processes to
+> be part of a 'gang' in some formal (and thus fundamentally imperfect) way.
+> (another form of 'gang scheduling' can be achieved by binding the 'parent'
+> process to a single CPU - all children will be bound to that CPU as well.)
 
-I was excited to report the significant improvement of 2.4.19rc1+fsync fix 
-over 2.4.18 and didn't realize that the improvement was not due to the fsync 
-patch.   I'm so glad Richard did a careful check, I was on my way out the 
-door for my vacation :)
+Hit #1 on google.com: http://www.sw.nec.co.jp/hpc/sx-e/sx-world/no23/en10.pdf
 
-I would like to know what's so good about 2.4.19rc1 that gives our block I/O 
-benchmark that significant improvement over 2.4.18.
+   [SX-5 SERIES TECHNICAL HIGHLIGHTS]
+   Overview of Gang Scheduling
+   Koichi Nakanishi,
+   Senior Manager
+   Koji Suzuki,
+   Assistant Manager                                                            
+   4th Development Department, 1st Computers Software Division, Computers       
+   Software Operations Unit, NEC Corporation                                    
+   SX WORLD                                                                     
+   Autumn 1998 No.23 Special Issue
+
+[...]
+
+   The Gang scheduling function has the func-     
+   tion of simultaneously allocating the required  
+   number of CPUs when scheduling parallel             
+   programs, and allows you to obtain almost  
+   the same performance when multiple parallel  
+   programs are simultaneously executing, as if  
+   the programs were running alone.              
 
 
-> > It appears from these results that there is no appreciable improvement
-> > using the
-> > fsync patch - there is a slight loss of top end on 4 adapters 1 drive.
->
-> that's very much expected, as said with my new design by adding an
-> additional pass (third pass), I could remove the slight loss that I
-> expected from the simple patch that puts wait_on_buffer right in the
-> first pass.
->
-> I mentioned this in my first email of the thread, so it looks all right.
-> For a rc2 the slight loss sounds like the simplest approch.
->
-> If you care about it, with my new fsync accounting design we can fix it,
-> just let me know if you're interested about it. Personally I'm pretty
-> much fine with it this way too, as said in the first email if we block
-> it's likely bdflush is pumping the queue for us. the slowdown is most
-> probably due too early unplug of the queue generated by the blocking
-> points.
+I have approximately zero interest in this myself, but something seemed
+off about the definition of gang scheduling being used in the post.
 
-I don't care about the very slight (and possibly in the noise floor of our 
-test) reduction in throughput due to the fsync fix.  I think your's and 
-Andrews'  assertion of the bdflush / dirty page handling getting stopped up 
-is likely the problem preventing scaling to my personal goal of 250 to 
-300MB/sec on our setup.
 
-Thanks,
-
-Mark Gross
-PS I had a very nice time on mount hood.  I didn't make it to the top this 
-time too much snow had melted off the top of the thing to have a safe attempt 
-at the summit.  It was a guided (http://www.timberlinemtguides.com) 3 day 
-climb. 
+Cheers,
+Bill

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263715AbTI2Qmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 12:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbTI2Qmp
+	id S263763AbTI2QvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 12:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTI2QvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 12:42:45 -0400
-Received: from web40906.mail.yahoo.com ([66.218.78.203]:4453 "HELO
-	web40906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263715AbTI2Qmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 12:42:43 -0400
-Message-ID: <20030929164242.5518.qmail@web40906.mail.yahoo.com>
-Date: Mon, 29 Sep 2003 09:42:42 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030929094136.0b4bb026.akpm@osdl.org>
+	Mon, 29 Sep 2003 12:51:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62444 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263763AbTI2QvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 12:51:12 -0400
+Date: Mon, 29 Sep 2003 09:50:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fat sparse fixes
+In-Reply-To: <UTC200309282329.h8SNT5I29917.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0309290946070.23520-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Morton,
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> Bradley Chapman <kakadu_croc@yahoo.com> wrote:
-> >
-> > I am experiencing defunct event/0 kernel daemons under 2.6.0-test6-mm1
-> >  with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20 with synaptics
-> >  support, and XFree86 4.3.0-10. Moving the touchpad in either X or with
-> >  gpm causes defunct event/0 processes to be created. 
-> 
-> Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
-
-That was one of the first things I checked. There were no Oopses and nothing
-else seemed to suffer, i.e. no high CPU usage or other nasty dmesg messages.
-
-> 
-> You could try reverting synaptics-reconnect.patch, and then serio-reconnect.patch
-> from
-> 
+On Mon, 29 Sep 2003 Andries.Brouwer@cwi.nl wrote:
 >
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm1/broken-out
-> 
+> --- a/fs/fat/dir.c	Mon Sep 29 01:05:41 2003
+> +++ b/fs/fat/dir.c	Mon Sep 29 01:11:39 2003
+> @@ -630,7 +630,7 @@
+>  		    put_user(slen, &d1->d_reclen))
+>  			goto efault;
+>  	} else {
+> -		if (put_user(0, d2->d_name)			||
+> +		if (put_user(0, d2->d_name+0)			||
+>  		    put_user(0, &d2->d_reclen)			||
+>  		    copy_to_user(d1->d_name, name, len)		||
+>  		    put_user(0, d1->d_name+len)			||
 
-OK. I will report back once I have rebooted.
+The above seems to just work around a sparse bug. Please don't - I'd 
+rather have regular code and try to fix the sparse problem.
 
-Brad
+Hmm.. I wonder why sparse doesn't get the address space right on arrays. 
+It should see that "d2" is a user pointer , so d2->d_name is one too.
 
+It gets it right if you add the "+0", or if you add a "&" in front. So 
+it looks like the sparse array->pointer degeneration misses something.
 
-=====
-Brad Chapman
+		Linus
 
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

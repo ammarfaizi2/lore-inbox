@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267039AbTBXNXz>; Mon, 24 Feb 2003 08:23:55 -0500
+	id <S267013AbTBXNUs>; Mon, 24 Feb 2003 08:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267049AbTBXNXz>; Mon, 24 Feb 2003 08:23:55 -0500
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:57237 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S267039AbTBXNXy> convert rfc822-to-8bit; Mon, 24 Feb 2003 08:23:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Duncan Sands <baldrick@wanadoo.fr>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] USB speedtouch: better proc info
-Date: Mon, 24 Feb 2003 11:43:20 +0100
-User-Agent: KMail/1.4.3
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <200302241058.52073.baldrick@wanadoo.fr>
-In-Reply-To: <200302241058.52073.baldrick@wanadoo.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302241143.20632.oliver@neukum.name>
+	id <S267039AbTBXNUs>; Mon, 24 Feb 2003 08:20:48 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:62989 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S267013AbTBXNUr>; Mon, 24 Feb 2003 08:20:47 -0500
+Date: Mon, 24 Feb 2003 14:30:59 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-ac1 not seeing IDE disk on PIIX host adapter
+Message-ID: <20030224133058.GA25483@torres.ka0.zugschlus.de>
+References: <20030222085102.GA23966@torres.ka0.zugschlus.de> <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 24. Februar 2003 10:58 schrieb Duncan Sands:
-> Output the correct device name, show the state of the device (for
-> debugging) and of the ADSL line (anyone want to write a graphical utility
-> to show this, like under windows?).  We no longer consult the usb_device
-> struct in udsl_atm_proc_read, so don't take a reference to it.  Against
-> Greg's current 2.5 USB tree.
+On Sat, Feb 22, 2003 at 08:42:31PM +0000, Alan Cox wrote:
+> On Sat, 2003-02-22 at 08:51, Marc Haber wrote:
+> > Linux 2.4.20-ac1 sees the PIIX chip, but not the disks connected to
+> > it. This of course results in a kernel panic "unable to mount root
+> > fs". Same thing happens with 2.4.20-ac2. Vanilla 2.4.20 works fine. Of
+> > course, all kernels have been built with the same configuration.
+> 
+> I'd like to know if 2.4.21pre4-ac6 sees the disks. You don't even need
+> to run it beyond the boot, just to check this is the legacy port
+> problem.
 
-First of all, let me say that you're doing wonders with this driver.
-But this particular patch I don't like. It improves stuff that should
-be removed. More specifically:
+It probably is, since 2.4.21pre4-ac6 sees the disks. Thanks for your
+help.
 
-1. Does anything prevent you from using the medium detection
-hooks the network layer provides?
-2. What need is there to export manufacturer id and mac address
-again?
-3. Doesn't the rest belong into sysfs rather than procfs?
+Since we run 2.4.20ac1 on a bunch of production boxes (needing promise
+20277 support), is the bug you are talking about a problem that should
+make us upgrade before 2.4.21 release?
 
-	Regards
-		Oliver
+Greetings
+Marc
 
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbSKMO4x>; Wed, 13 Nov 2002 09:56:53 -0500
+	id <S261874AbSKMPDb>; Wed, 13 Nov 2002 10:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbSKMO4w>; Wed, 13 Nov 2002 09:56:52 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:7177 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261872AbSKMO4v>; Wed, 13 Nov 2002 09:56:51 -0500
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VFAT mount (bug or feature?)
-References: <20021113014704.780a3e4a.us15@os.inf.tu-dresden.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 14 Nov 2002 00:03:25 +0900
-In-Reply-To: <20021113014704.780a3e4a.us15@os.inf.tu-dresden.de>
-Message-ID: <874ralldfm.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261894AbSKMPDb>; Wed, 13 Nov 2002 10:03:31 -0500
+Received: from leon.mat.uni.torun.pl ([158.75.2.17]:44237 "EHLO
+	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id <S261874AbSKMPDa>; Wed, 13 Nov 2002 10:03:30 -0500
+Date: Wed, 13 Nov 2002 16:10:01 +0100 (CET)
+From: Michal Wronski <wrona@mat.uni.torun.pl>
+X-X-Sender: wrona@Leon
+To: linux-kernel@vger.kernel.org
+cc: Peter Waechtler <pwaechtler@mac.com>,
+       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
+       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "Abbas, Mohamed" <mohamed.abbas@intel.com>
+Subject: Re: [PATCH] unified SysV and POSIX mqueues - complete rewrite
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C70992@orsmsx119.jf.intel.com>
+Message-ID: <Pine.LNX.4.44.0211131555530.9870-100000@Leon>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" <us15@os.inf.tu-dresden.de> writes:
 
-> Hello,
-> 
-> In my /etc/fstab I have the following entry:
-> 
-> /dev/hda1  /win   vfat   defaults,umask=022  1 1
-> 
-> Why does 2.5.47 have user/group restricted permissions on the mount
-> point and all its subdirectories, despite the umask setting?
+> The interface boils down to 7 new syscalls (for now just i386):
+> - sys_mq_open
+> - sys_mq_unlink
+> - sys_mq_timedsend
+> - sys_mq_timedreceive
+> ...
 
-The dmask option was added at 2.5.43. It's umask for directory, and
-default is umask of process when mounting.  Please use it.
+Why add a new syscalls?? It's better to do this via ioctl's
 
-eg.
-    # mount -t vfat /dev/xxx /xxx -o dmask=022
+> The change to ipc/msg.c is minimal - just make
+> - load_msg
+> - store_msg
+> - free_msg
+> accessible (not static).
 
-Regards
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I suggest doing this independently to SysV IPC
+
+> userspace lib and test progs are on
+> http://homepage.mac.com/pwaechtler/linux/mqueue/
+
+"We're sorry, but we can't find the HomePage you've requested."
+
+> +#ifndef _LINUX_MQUEUE_H
+> +#define _LINUX_MQUEUE_H
+> +
+> +#define MQ_MAXMSG 40 /* max number of messages in each queue */
+> +#define MQ_MAXSYSSIZE 1048576 /* max size that all m.q. can have 
+> together 
+> */
+> +#define MQ_PRIO_MAX 10000 /* max priority */
+
+I see that you've read our sources....
+
+We (K. Benedyczak with me) are currently working on new implementation of 
+mqueues. It's very similar to yours (filesystem, without new syscalls) and 
+it's almost done. Maybe we should collaborate??
+
+Michal Wronski
+

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289026AbSBXBH2>; Sat, 23 Feb 2002 20:07:28 -0500
+	id <S289025AbSBXBDR>; Sat, 23 Feb 2002 20:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289053AbSBXBHS>; Sat, 23 Feb 2002 20:07:18 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:42513 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S289026AbSBXBHF>;
-	Sat, 23 Feb 2002 20:07:05 -0500
-Date: Sat, 23 Feb 2002 18:05:21 -0700
-From: yodaiken@fsmlabs.com
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Robert Love <rml@tech9.net>, Roman Zippel <zippel@linux-m68k.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-Message-ID: <20020223180521.A5150@hq.fsmlabs.com>
-In-Reply-To: <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au> <20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy> <20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> <3C781351.DCB40AD3@zip.com.au> <1014505987.1003.1104.camel@phantasy> <1014507951.850.1140.camel@phantasy> <3C782C34.2CC0E417@zip.com.au>
-Mime-Version: 1.0
+	id <S289026AbSBXBDG>; Sat, 23 Feb 2002 20:03:06 -0500
+Received: from smtp3.cern.ch ([137.138.131.164]:24474 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S289025AbSBXBC5>;
+	Sat, 23 Feb 2002 20:02:57 -0500
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+In-Reply-To: <927.1014507655@ocs3.intra.ocs.com.au>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 24 Feb 2002 02:02:09 +0100
+In-Reply-To: Keith Owens's message of "Sun, 24 Feb 2002 10:40:55 +1100"
+Message-ID: <d3it8nr8tq.fsf@lxplus049.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C782C34.2CC0E417@zip.com.au>; from akpm@zip.com.au on Sat, Feb 23, 2002 at 03:56:36PM -0800
-Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 03:56:36PM -0800, Andrew Morton wrote:
-> Robert Love wrote:
-> > 
-> For the situation Victor described:
-> 
-> 	const int cpu = smp_get_cpuid();
-> 
-> 	per_cpu_array_foo[cpu] = per_cpu_array_bar[cpu] +
-> 					per_cpu_array_zot[cpu];
-> 
-> 	smp_put_cpuid();
-> 
-> It's a nice interface - it says "pin down and return the current
-> CPU ID".
+Keith Owens <kaos@ocs.com.au> writes:
 
-Go for it! Only 900 odd calls to smp_processor_id in the kernel
-source last time I checked.
+> So you have arch dependent code which has to be done for all
+> architectures before any driver can use it and the code has to be kept
+> up to date by each arch maintainer.  Tell me again why the existing
+> mechanisms are not working and why we need exceptions?  IOW, what
+> existing problem justifies all the extra arch work and maintenance?
 
+Sorry, can't tell you why as I agree wholeheartedly with you. My point
+was that even if it was possible to implement exceptions 'for free' on
+all architectures, then it's still not what we want in the
+kernel. It's just too gross and makes people think about the code the
+wrong way.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Cheers,
+Jes

@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVCBReT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVCBRin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbVCBReT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 12:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVCBReT
+	id S262369AbVCBRin (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 12:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVCBRin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 12:34:19 -0500
-Received: from fire.osdl.org ([65.172.181.4]:4549 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262363AbVCBReQ (ORCPT
+	Wed, 2 Mar 2005 12:38:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:46534 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262369AbVCBRik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:34:16 -0500
-Date: Wed, 2 Mar 2005 09:35:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-In-Reply-To: <20050302164759.GA30505@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.58.0503020931360.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
- <20050302103158.GA13485@merlin.emma.line.org> <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
- <20050302164759.GA30505@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Mar 2005 12:38:40 -0500
+Date: Wed, 2 Mar 2005 09:34:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: bunk@stusta.de, kai@germaschewski.name, sam@ravnborg.org,
+       rusty@rustcorp.com.au, vincent.vanackere@gmail.com,
+       keenanpepper@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-Id: <20050302093459.71b2fdd2.akpm@osdl.org>
+In-Reply-To: <200503021723.j22HNMEQ019547@turing-police.cc.vt.edu>
+References: <422550FC.9090906@gmail.com>
+	<20050302012331.746bf9cb.akpm@osdl.org>
+	<65258a58050302014546011988@mail.gmail.com>
+	<20050302032414.13604e41.akpm@osdl.org>
+	<20050302140019.GC4608@stusta.de>
+	<20050302082846.1b355fa4.akpm@osdl.org>
+	<200503021723.j22HNMEQ019547@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 2 Mar 2005, Matthias Andree wrote:
+Valdis.Kletnieks@vt.edu wrote:
+>
+> (hermes.c)
+>  static int __init init_hermes(void)
+>  {
+>          return 0;
+>  }
 > 
-> Is the master side a hidden host rather than ftp.kernel.org?
-
-Yes. The private keys etc used to generate the signatures are not on the
-public sites, which is what I assume your question _really_ is.
-
-> > (In contrast the full ChangeLog was missing because the generation script
-> > I use is not exactly the smart way, so it's O(slow(n)), where slow is n**3 
-> > or worse, so the log from the last -rc release is fast, but going back all 
-> > the way to 2.6.10 took long long enough that I didn't wait for it).
+>  static void __exit exit_hermes(void)
+>  {
+>  }
 > 
-> If that is an issue with the shortlog script or its integration with BK,
-> contact me off-list so we can resolve the issue.
+>  module_init(init_hermes);
+>  module_exit(exit_hermes);
+> 
+>  That's it.  As far as I can tell, gcc 4.0 semi-correctly determined they were both
+>  static functions with no side effect, threw them away, and then the module_init
+>  and module_exit threw undefined symbols for them.
+> 
+>  My totally incorrect workaround was to stick a printk(KERN_DEBUG) in the body
+>  of the 3 trimmed functions so they had side effects.
+> 
+>  Anybody got a *better* solution?
 
-No, it's just my stupid release script.
+uh, maybe
 
-		Linus
+static int __init init_hermes(void)
+{
+	asm("");
+	return 0;
+}
+
+then raise a gcc bug report?

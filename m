@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268238AbUJDPqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268240AbUJDPsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268238AbUJDPqd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbUJDPol
+	id S268240AbUJDPsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbUJDPqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:44:41 -0400
-Received: from plim.fujitsu-siemens.com ([217.115.66.8]:1332 "EHLO
-	plim.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S268240AbUJDPmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:42:47 -0400
-Message-ID: <41617BD8.3000907@fujitsu-siemens.com>
-Date: Mon, 04 Oct 2004 18:35:36 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Mon, 4 Oct 2004 11:46:49 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:49801 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S268259AbUJDPpU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 11:45:20 -0400
+From: David Brownell <david-b@pacbell.net>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, Jan De Luyck <lkml@kcore.org>
+Subject: Re: [linux-usb-devel] Re: [2.6.9-rc3] suspend-to-disk oddities
+Date: Mon, 4 Oct 2004 08:04:04 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200410041107.12049.lkml@kcore.org> <200410041422.25395.lkml@kcore.org> <200410041456.27350.rjw@sisk.pl>
+In-Reply-To: <200410041456.27350.rjw@sisk.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] skip sync_arb_IDs on P4/Xeon
-Content-Type: multipart/mixed;
- boundary="------------070801090709070205060909"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410040804.04382.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070801090709070205060909
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 04 October 2004 5:56 am, Rafael J. Wysocki wrote:
+> On Monday 04 of October 2004 14:22, Jan De Luyck wrote:
+> > 
+> > UHCI. I just did a test-suspend-resume, currently plugged
+> > USB devices don't  work, but it does show up in the devices
+> > file. It also responds to  replugging.... I don't get it.
+> >  I had no response whatsoever earlier. ...
+> 
+> Have you tried booting with pci=routeirq?  It may help.
 
-Hi,
+I've seen strangeness on the resume path too, with devices
+not responding but still being known to the kernel.  What I
+found odd was that I know the OHCI hardware was reinitialized
+correctly, and it was just khubd that wasn't responding.  So
+it wouldn't  even respond to unplug/replug.  And this is with
+known-OK IRQ settings (driver did get IRQs after resume).
 
-I recently came across an Intel statement saying that the "INIT Level 
-deassert" IPI used by sync_arb_IDs() (arch/i386/kernel/apic.c) should 
-not be used on P4 and Xeon which don't have APIC bus arbitration anyway.
+There's some other stuff misbehaving still.  I'm hoping to see
+the simpler stuff work first -- standby and STR behaving, wakeup
+by USB keyboards not ACPI power buttons -- and at that point
+the remaining problems will be specific to STD.  There are
+enough wierd BIOS and power states with STD that making
+that work first is very likely to bork the other stuff.
 
-See Intel IA32 architecture software developers manual vol. 3, 8.6.1 
-(p.8-23), 8.7 (p. 8.31).
-
-The patch below skips the unsupported IPI on P4/Xeon.
-
-The same thing should probably be done for x86_64.
-
-Regards,
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
---------------070801090709070205060909
-Content-Type: text/x-patch;
- name="sync_Arb_IDs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sync_Arb_IDs.diff"
-
---- arch/i386/kernel/apic.c.orig	2004-10-04 14:54:27.000000000 +0200
-+++ arch/i386/kernel/apic.c	2004-10-04 14:56:20.000000000 +0200
-@@ -269,6 +269,9 @@ int __init verify_local_APIC(void)
- 
- void __init sync_Arb_IDs(void)
- {
-+	/* Unsupported on P4 - see Intel Dev. Manual Vol. 3, Ch. 8.6.1 */
-+	if (boot_cpu_data.x86 == 15)
-+		return;
- 	/*
- 	 * Wait for idle.
- 	 */
-
---------------070801090709070205060909--
+- Dave

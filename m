@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263356AbSJOIjc>; Tue, 15 Oct 2002 04:39:32 -0400
+	id <S263293AbSJOIde>; Tue, 15 Oct 2002 04:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSJOIjc>; Tue, 15 Oct 2002 04:39:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31980 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263356AbSJOIjb>;
-	Tue, 15 Oct 2002 04:39:31 -0400
-Date: Tue, 15 Oct 2002 10:21:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Austin Gonyou <austin@coremetrics.com>, linux-lvm@sistina.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S263345AbSJOIdd>; Tue, 15 Oct 2002 04:33:33 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:44475 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S263293AbSJOIdd>;
+	Tue, 15 Oct 2002 04:33:33 -0400
+Date: Tue, 15 Oct 2002 10:38:29 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
-Message-ID: <20021015082152.GA4827@suse.de>
-References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com> <20021014175608.GA14963@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014175608.GA14963@fib011235813.fsnet.co.uk>
+Subject: Re: [BK PATCHS] fbdev updates.
+In-Reply-To: <Pine.LNX.4.33.0210140937040.4264-100000@maxwell.earthlink.net>
+Message-ID: <Pine.GSO.4.21.0210151036400.25245-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14 2002, Joe Thornber wrote:
-> 10.patch
->   [Device-mapper]
->   Add call to blk_queue_bounce() at the beginning of the request function.
+On Mon, 14 Oct 2002, James Simmons wrote:
+> > On Sun, 13 Oct 2002, James Simmons wrote:
+> > > This is nearly the last of the fbdev api changes (90% of them). Alot of
+> > > driver fixes as well. The console related stuff in each fbdev driver
+> > > is nearly gone!!! Please do a pull. Thank you.
+> > >
+> > > bk://fbdev.bkbits.net/fbdev-2.5
+> >
+> > Please add the output of diffstat, so we know which files you changed.
+> 
+> Better yet here is the BK patch via email.
+> @@ -220,12 +218,7 @@
+>     bool '  Advanced low level driver options' CONFIG_FBCON_ADVANCED
+>     if [ "$CONFIG_FBCON_ADVANCED" = "y" ]; then
+>        tristate '    Monochrome support' CONFIG_FBCON_MFB
 
-What on earth for? I also see that you are setting BLK_BOUNCE_HIGH as
-the bounce limit unconditionally for your queue. Puzzled.
+CONFIG_FBCON_MFB can be deleted, because of this change to the Makefile:
 
-When does dm even have to touch the data in the bio?
+> -obj-$(CONFIG_FBCON_MFB)           += fbcon-mfb.o
 
--- 
-Jens Axboe
+>  #      tristate '    Atari interleaved bitplanes (16 planes) support' CONFIG_FBCON_IPLAN2P16
+
+FBCON_IPLAN2P16 can be deleted, since it doesn't exist.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

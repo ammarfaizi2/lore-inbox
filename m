@@ -1,127 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVADBCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVACXbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVADBCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 20:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVACXZR
+	id S261931AbVACXbY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVACX2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:25:17 -0500
-Received: from mail.dif.dk ([193.138.115.101]:52360 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261935AbVACXYT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:24:19 -0500
-Date: Tue, 4 Jan 2005 00:35:36 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] pedantic correctness cleanup for conf.c in scripts/kconfig/
- .
-Message-ID: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
+	Mon, 3 Jan 2005 18:28:51 -0500
+Received: from li4-142.members.linode.com ([66.220.1.142]:49672 "EHLO
+	li4-142.members.linode.com") by vger.kernel.org with ESMTP
+	id S261959AbVACX0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:26:14 -0500
+Message-ID: <54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
+In-Reply-To: <41D9C635.1090703@zytor.com>
+References: <41D9C635.1090703@zytor.com>
+Date: Mon, 3 Jan 2005 18:26:12 -0500 (EST)
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+From: "Michael B Allen" <mba2000@ioplex.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin said:
+> I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c,
+> although it doesn't seem to be implemented.
+>
+> Questions:
+>
+> a) is xattr the right thing?  It seems to be a fairly complex and
+> ill-thought-out mechanism all along, especially the whole namespace
+> business (what is a system attribute to one filesystem is a user
+> attribute to another, for example.)
 
-Hi, 
+Ahh, just go with xattrs Pete :-> I don't see the namespace issue to be a
+big deal. The interface does seem a *little* overdesigned. It would have
+been adequate to just use the dev:ino pair from stat(2) and dump
+namespaces altogether since the real performance critical apps will have
+stat'd the living daylights out of the path trying to canonicalize the
+case so the last thing you want to do is a path lookup.
 
-Tiny, pedantic patch for scripts/kconfig/conf.c
-'line' is an array of signed chars, so lets stuff chars into it, not ints.
-Doesn't make any actual difference, just feels nicer ;)
+> b) if xattr is the right thing, shouldn't this be in the system
+> namespace rather than the user namespace?
 
+If we're just thinking about MS-oriented discretionary access control then
+I think the owner of the file is basically king and should be the only
+normal user to that can read and write it's xattrs. So whatever namespace
+that is (not system).
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> c) What should the representation be?  Binary byte?  String containing a
+> subset of "rhsvda67" (barf)?
 
-diff -up linux-2.6.10-bk6-orig/scripts/kconfig/conf.c linux-2.6.10-bk6/scripts/kconfig/conf.c
---- linux-2.6.10-bk6-orig/scripts/kconfig/conf.c	2004-12-24 22:35:28.000000000 +0100
-+++ linux-2.6.10-bk6/scripts/kconfig/conf.c	2005-01-04 00:30:02.000000000 +0100
-@@ -72,12 +72,12 @@ static void conf_askvalue(struct symbol 
- 		printf("(NEW) ");
- 
- 	line[0] = '\n';
--	line[1] = 0;
-+	line[1] = '\0';
- 
- 	if (!sym_is_changable(sym)) {
- 		printf("%s\n", def);
- 		line[0] = '\n';
--		line[1] = 0;
-+		line[1] = '\0';
- 		return;
- 	}
- 
-@@ -114,7 +114,7 @@ static void conf_askvalue(struct symbol 
- 		if (sym_tristate_within_range(sym, yes)) {
- 			line[0] = 'y';
- 			line[1] = '\n';
--			line[2] = 0;
-+			line[2] = '\0';
- 			break;
- 		}
- 	case set_mod:
-@@ -122,14 +122,14 @@ static void conf_askvalue(struct symbol 
- 			if (sym_tristate_within_range(sym, mod)) {
- 				line[0] = 'm';
- 				line[1] = '\n';
--				line[2] = 0;
-+				line[2] = '\0';
- 				break;
- 			}
- 		} else {
- 			if (sym_tristate_within_range(sym, yes)) {
- 				line[0] = 'y';
- 				line[1] = '\n';
--				line[2] = 0;
-+				line[2] = '\0';
- 				break;
- 			}
- 		}
-@@ -137,7 +137,7 @@ static void conf_askvalue(struct symbol 
- 		if (sym_tristate_within_range(sym, no)) {
- 			line[0] = 'n';
- 			line[1] = '\n';
--			line[2] = 0;
-+			line[2] = '\0';
- 			break;
- 		}
- 	case set_random:
-@@ -150,7 +150,7 @@ static void conf_askvalue(struct symbol 
- 		case yes: line[0] = 'y'; break;
- 		}
- 		line[1] = '\n';
--		line[2] = 0;
-+		line[2] = '\0';
- 		break;
- 	default:
- 		break;
-@@ -184,7 +184,7 @@ int conf_string(struct menu *menu)
- 				break;
- 			}
- 		default:
--			line[strlen(line)-1] = 0;
-+			line[strlen(line)-1] = '\0';
- 			def = line;
- 		}
- 		if (def && sym_set_string_value(sym, def))
-@@ -248,7 +248,7 @@ static int conf_sym(struct menu *menu)
- 			if (!line[1] || !strcmp(&line[1], "es"))
- 				break;
- 			continue;
--		case 0:
-+		case '\0':
- 			newval = oldval;
- 			break;
- 		case '?':
-@@ -305,8 +305,8 @@ static int conf_choice(struct menu *menu
- 		printf("%*s%s\n", indent - 1, "", menu_get_prompt(menu));
- 		def_sym = sym_get_choice_value(sym);
- 		cnt = def = 0;
--		line[0] = '0';
--		line[1] = 0;
-+		line[0] = '\0';
-+		line[1] = '\0';
- 		for (child = menu->list; child; child = child->next) {
- 			if (!menu_is_visible(child))
- 				continue;
+Definitely binary.
 
-
-
+Mike

@@ -1,40 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261395AbREQKa6>; Thu, 17 May 2001 06:30:58 -0400
+	id <S261394AbREQK2s>; Thu, 17 May 2001 06:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbREQKas>; Thu, 17 May 2001 06:30:48 -0400
-Received: from gate1.rzeczpospolita.pl ([195.8.129.1]:32776 "EHLO
-	rzeczpospolita.pl") by vger.kernel.org with ESMTP
-	id <S261395AbREQKal>; Thu, 17 May 2001 06:30:41 -0400
-Message-ID: <3B03A835.3DD48BDC@rzeczpospolita.pl>
-Date: Thu, 17 May 2001 12:30:13 +0200
-From: ps <ps@rzeczpospolita.pl>
-X-Mailer: Mozilla 4.08 [en] (Win98; I)
+	id <S261395AbREQK2i>; Thu, 17 May 2001 06:28:38 -0400
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:26116 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S261394AbREQK2Y>; Thu, 17 May 2001 06:28:24 -0400
+Date: Thu, 17 May 2001 12:28:18 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] more initcall cleanups
+In-Reply-To: <Pine.GSO.4.21.0105162217530.27492-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0105171202430.4285-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-To: Pim Zandbergen <P.Zandbergen@macroscoop.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RH 7.1 on IBM xSeries 240
-In-Reply-To: <fa.fhhq4kv.gguq9t@ifi.uio.no> <fa.fuo78ov.ikad9g@ifi.uio.no> <t977gtcpq17r85vlggngi9mk3a1k6qt01u@4ax.com>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pim Zandbergen wrote:
-> 
-> >Yes, I have the newest BIOS and SR Firmware.
-> >I have 2 x 1GHz CPUs and IBM PCI ServeRAID 4.71.00  <ServeRAID 4L>
-> 
-> You mean all of BIOS, firmware and Linux driver are at version 4.71?
-> 
-> Where did you find BIOS 4.71 and firmware 4.71?
-> The latest BIOS & firmware I could find is 4.50.
+On Wed, 16 May 2001, Alexander Viro wrote:
 
-Firmware is 4.70.17, I'v got it directly from IBM engineer.
-Previous firmware (2 days ago) was really 4.50 but it performed worse
-(was less stable in performance).
+> 	a) I2C stuff got converted to module_init() nicely. That took
+> a lot of cruft away.
 
-> There is, however a driver version 4.72 in the latest 2.4.4-ac
-> kernels.
+Definitely makes sense.
 
-I've tried it but it was all the same - I came back to 4.71
+> 	b) init order is preserved. However, that worked only because
+> none of the i2c initialization functions touch stuff from random.c
+
+I don't think init order is preserved.
+
+> 	c) I had to put i2c before char to preserve the ordering.
+> Not a big deal, but I'm somewhat at loss here - how to do it without
+> really ugly drivers/Makefile. Suggestions?
+
+This part is not necessary. The ordering of subdir-y only has to do with
+compilation ordering, not with link order. The link order for
+drivers/char/* is set explicitly in the toplevel Makefile.
+
+> 	d) if we set CONFIG_I2C to 'y' we don't include drivers/i2c
+> into subdir-m. However, having i2c-core in kernel and the rest done as
+> modules is OK with i2c itself. And I seriously suspect that it's
+> a common situation. Am I right assuming that correct way to deal with
+> that is to put i2c into mod-subdirs?
+
+Yes, that's exactly what mod-subdirs is for.
+
+> 	e) looks like rand_initialize() is in the same class as handling
+> VFS/VM/etc. caches - global infrastructure. It definitely should be
+> called before all other drivers. Notice that old device_init() was asking
+> for trouble - it called parport_init() before chr_dev_init() (which calls
+> rand_initialize()), so if somebody would try to feed some entropy into
+> pool during the parport_init() we would get an interesting (and hard
+> to understand) problem. Maybe we should move the call into basic_setup()?
+
+I suppose I'm not the right one to comment on this, but it seems to make
+sense to me.
+
+> diff -urN S5-pre3-init-0/drivers/Makefile S5-pre3-init/drivers/Makefile
+> --- S5-pre3-init-0/drivers/Makefile	Wed May 16 16:26:35 2001
+> +++ S5-pre3-init/drivers/Makefile	Wed May 16 20:47:52 2001
+> @@ -9,8 +9,13 @@
+>  mod-subdirs :=	dio mtd sbus video macintosh usb input telephony sgi i2o ide \
+>  		scsi md ieee1394 pnp isdn atm fc4 net/hamradio i2c acpi
+>
+> -subdir-y :=	parport char block net sound misc media cdrom
+> -subdir-m :=	$(subdir-y)
+> +subdir-y :=	parport
+> +subdir-m :=	parport
+> +
+> +subdir-$(CONFIG_I2C)		+= i2c
+> +
+> +subdir-y +=	char block net sound misc media cdrom
+> +subdir-m +=	char block net sound misc media cdrom
+>
+>
+>  subdir-$(CONFIG_DIO)		+= dio
+> @@ -40,7 +45,6 @@
+>
+>  # CONFIG_HAMRADIO can be set without CONFIG_NETDEVICE being set  -- ch
+>  subdir-$(CONFIG_HAMRADIO)	+= net/hamradio
+> -subdir-$(CONFIG_I2C)		+= i2c
+>  subdir-$(CONFIG_ACPI)		+= acpi
+>
+>  include $(TOPDIR)/Rules.make
+
+As stated above, this change won't affect vmlinux at all.
+
+> diff -urN S5-pre3-init-0/drivers/char/random.c S5-pre3-init/drivers/char/random.c
+> --- S5-pre3-init-0/drivers/char/random.c	Wed May 16 16:26:36 2001
+> +++ S5-pre3-init/drivers/char/random.c	Wed May 16 20:40:12 2001
+> @@ -1380,7 +1380,7 @@
+>  	}
+>  }
+>
+> -void __init rand_initialize(void)
+> +static int __init rand_initialize(void)
+>  {
+>  	int i;
+>
+> @@ -1404,7 +1404,10 @@
+>  	memset(&mouse_timer_state, 0, sizeof(struct timer_rand_state));
+>  	memset(&extract_timer_state, 0, sizeof(struct timer_rand_state));
+>  	extract_timer_state.dont_count_entropy = 1;
+> +	return 0;
+>  }
+> +
+> +__initcall(rand_initialize);
+>
+>  void rand_initialize_irq(int irq)
+>  {
+
+prototype should be removed from include/linux/random.h
+
+--Kai
+
+

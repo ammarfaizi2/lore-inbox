@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbUKRPka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbUKRPmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbUKRPka (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 10:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKRPka
+	id S262500AbUKRPmt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 10:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbUKRPmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 10:40:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33503 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262486AbUKRPil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 10:38:41 -0500
-Subject: Re: Fw: [POSSIBLE-BUG] telldir() broken on ext3 dir_index'd
-	directories just after the first entry.
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andrew Morton <akpm@osdl.org>, r6144 <rainy6144@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
-       Christopher Li <chrisl@vmware.com>,
-       Christopher Li <ext2-devel@chrisli.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20041118045336.GA5236@thunk.org>
-References: <20041116183813.11cbf280.akpm@osdl.org>
-	 <20041117223436.GB5334@thunk.org>
-	 <1100736003.11047.14.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20041118045336.GA5236@thunk.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1100792279.2028.184.camel@sisko.sctweedie.blueyonder.co.uk>
+	Thu, 18 Nov 2004 10:42:49 -0500
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:41912 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S262500AbUKRPmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 10:42:20 -0500
+Date: Thu, 18 Nov 2004 08:42:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: discuss@x86-64.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ak@suse.de
+Subject: [PATCH 2.6.10-rc2] x86_64: only single-step into signal handlers if the tracer asked for it
+Message-ID: <20041118154219.GJ4583@smtp.west.cox.net>
+References: <200411150203.iAF23Trb024677@hera.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Nov 2004 15:37:59 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411150203.iAF23Trb024677@hera.kernel.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Nov 15, 2004 at 08:56:31AM +0000, torvalds@ppc970.osdl.org wrote:
 
-On Thu, 2004-11-18 at 04:53, Theodore Ts'o wrote:
-
-> > If we're going to do this, I think we need to stuff . and .. into the
-> > rbtree with the right hashes, but without ignoring other existing
-> > dirents with colliding hashes.
+> ChangeSet 1.2159, 2004/11/15 00:56:31-08:00, torvalds@ppc970.osdl.org
 > 
-> We can't just do that, because there are programs that's assume '.'
-> and '..' are the first and second entries in the directory.  Yes, they
-> are broken and non-portable, but so are programs that depend on
-> d_off....
+> 	x86: only single-step into signal handlers if the tracer
+> 	asked for it.
 
-Sorry, by "right hashes" I meant adding them with hashes 0 and 2 but in
-the correct place in the stream; so if we do have a hash collision on
-major-hash==0, we'll get ".." slightly out of order, but will still
-correctly provide all the entries.  And your second patch seems to do
-exactly that.  Thanks!
+x86_64 looks to have the same issue.  But I deferr to the experts (and
+hope this isn't a dupe).
 
-> This patch should do this.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-Looks good to me --- have you tested it much?
+--- 1.28/arch/x86_64/kernel/signal.c	2004-09-08 11:52:55 -07:00
++++ edited/arch/x86_64/kernel/signal.c	2004-11-18 08:27:59 -07:00
+@@ -325,7 +325,7 @@
+ 
+ 	set_fs(USER_DS);
+ 	if (regs->eflags & TF_MASK) {
+-		if (current->ptrace & PT_PTRACED) {
++		if ((current->ptrace & (PT_PTRACED | PT_DTRACE)) == (PT_PTRACED | PT_DTRACE)) {
+ 			ptrace_notify(SIGTRAP);
+ 		} else {
+ 			regs->eflags &= ~TF_MASK;
 
-The only remaining thing I can think of is what happens if the while()
-loop at the end of ext3_htree_fill_tree() exits successfully after
-filling in hash-major==0.  Then we'll restart at 2 next time, and will
-return ".." twice. 
-
-I'm not sure that's actually possible, though.  Moving the filling-in of
-".." into the while loop would deal with this rare possibility.
-
---Stephen
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

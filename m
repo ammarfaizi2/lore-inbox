@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285342AbRLNMdz>; Fri, 14 Dec 2001 07:33:55 -0500
+	id <S285358AbRLNMwF>; Fri, 14 Dec 2001 07:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285357AbRLNMdp>; Fri, 14 Dec 2001 07:33:45 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:62867 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S285342AbRLNMdc>;
-	Fri, 14 Dec 2001 07:33:32 -0500
-Date: Fri, 14 Dec 2001 15:30:55 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Paulo Schreiner <paulo@bewnet.com.br>
-Cc: J Sloan <jjs@lexus.com>, Linux kernel <linux-kernel@vger.kernel.org>,
-        tux-list <tux-list@redhat.com>
-Subject: [-D5] Re: TUX 2
-In-Reply-To: <3C190628.7010802@bewnet.com.br>
-Message-ID: <Pine.LNX.4.33.0112141527560.9494-100000@localhost.localdomain>
+	id <S285360AbRLNMvz>; Fri, 14 Dec 2001 07:51:55 -0500
+Received: from mons.uio.no ([129.240.130.14]:26797 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S285358AbRLNMvn>;
+	Fri, 14 Dec 2001 07:51:43 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15385.62936.632242.570507@charged.uio.no>
+Date: Fri, 14 Dec 2001 13:51:36 +0100
+To: dzafman@kahuna.cag.cpqcorp.net
+Cc: linux-kernel@vger.kernel.org
+Subject: NFS client llseek
+In-Reply-To: <200112140057.fBE0vDm05648@kahuna.cag.cpqcorp.net>
+In-Reply-To: <200112140057.fBE0vDm05648@kahuna.cag.cpqcorp.net>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == dzafman  <dzafman@kahuna.cag.cpqcorp.net> writes:
 
-i've uploaded the latest, 2.4.16-D5 TUX patch, which now compiles with
-your .config:
+     > linux-2.4.16/fs/nfs/file.c
+     > --- linux-2.4.16.orig/fs/nfs/file.c Sun Sep 23 09:48:01 2001
+     > +++ linux-2.4.16/fs/nfs/file.c Thu Dec 13 15:35:05 2001
+     > @@ -39,9 +39,10 @@
+     >  static ssize_t nfs_file_write(struct file *, const char *,
+     >  size_t, loff_t *); static int nfs_file_flush(struct file *);
+     >  static int nfs_fsync(struct file *, struct dentry *dentry, int
+     >  datasync);
+     > +static loff_t nfs_file_llseek(struct file *, loff_t, int
+     > origin);
+ 
+     >  struct file_operations nfs_file_operations = {
+     > - llseek: generic_file_llseek,
+     > +	llseek:		nfs_file_llseek,
+     >  	read: nfs_file_read, write: nfs_file_write, mmap:
+     >  	nfs_file_mmap,
+     > @@ -142,6 +143,24 @@
+     >  	} unlock_kernel(); return status;
+     > +} + +static loff_t +nfs_file_llseek(struct file *file, loff_t
+     > offset, int origin) +{
+     > + struct dentry * dentry = file->f_dentry;
+     > + struct inode * inode = dentry->d_inode;
+     > + loff_t result;
+     > +
+     > + /*
+     > + * Make sure inode fields are up-to-date, since
+     >  	   generic_file_llseek()
+     > + * might look at anything in the inode.  Currently, i_size may
+     >  	   be
+     > + * used.
+     > + */
+     > + result = nfs_revalidate_inode(NFS_SERVER(inode), inode);
+     > + if (!result)
+     > + result = generic_file_llseek(file, offset, origin);
+     > + return result;
+     >  }
+ 
+Just one comment: Isn't it easier to do this in generic_file_llseek()
+itself using inode->i_op->revalidate()? That would make it work for
+coda and smbfs too...
 
-    http://redhat.com/~mingo/TUX-patches/tux2-full-2.4.16-final-D5.bz2
-
-for the latest TUX patches you'll also need the 2.1.1-10 version of the
-TUX utilities:
-
-    http://redhat.com/~mingo/TUX-patches/tux-2.1.1.tar.gz
-
-let me know if there are still any compilation/linking (or other)
-problems,
-
-	Ingo
-
+Cheers,
+   Trond

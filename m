@@ -1,1250 +1,1457 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265169AbUELTN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUELTSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265169AbUELTN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265194AbUELTN1
+	id S265175AbUELTSL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 15:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265177AbUELTSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:13:27 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:34555 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S265169AbUELS4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:56:00 -0400
+	Wed, 12 May 2004 15:18:10 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:56714 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S265175AbUELSzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 14:55:36 -0400
 From: mporter@kernel.crashing.org
-Message-Id: <200405121855.LAA13603@liberty.homelinux.org>
-Subject: [PATCH 2/8] PPC32: Bubinga/405EP for new OCP
+Message-Id: <200405121855.LAA13556@liberty.homelinux.org>
+Subject: [PATCH 1/8] PPC32: New OCP core support (updated)
 To: akpm@osdl.org
 Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Date: Wed, 12 May 2004 11:55:23 -0700
+Date: Wed, 12 May 2004 11:55:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merge Bubinga/405EP support against new OCP.
+New OCP infrastructure ported from 2.4 along with several
+enhancements. Updated patch with comments from hch and Valdis.
 Please apply.
 
-diff -Nru a/arch/ppc/configs/bubinga_defconfig b/arch/ppc/configs/bubinga_defconfig
+diff -Nru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+--- a/arch/ppc/Kconfig	Wed May 12 06:18:07 2004
++++ b/arch/ppc/Kconfig	Wed May 12 06:18:07 2004
+@@ -1238,7 +1238,7 @@
+ 	bool "Support for early boot texts over serial port"
+ 	depends on 4xx || GT64260 || LOPEC || PPLUS || PRPMC800 || PPC_GEN550
+ 
+-config OCP
++config PPC_OCP
+ 	bool
+ 	depends on IBM_OCP
+ 	default y
+diff -Nru a/arch/ppc/Makefile b/arch/ppc/Makefile
+--- a/arch/ppc/Makefile	Wed May 12 06:18:07 2004
++++ b/arch/ppc/Makefile	Wed May 12 06:18:07 2004
+@@ -43,7 +43,6 @@
+ drivers-$(CONFIG_8xx)		+= arch/ppc/8xx_io/
+ drivers-$(CONFIG_4xx)		+= arch/ppc/4xx_io/
+ drivers-$(CONFIG_8260)		+= arch/ppc/8260_io/
+-drivers-$(CONFIG_OCP)		+= arch/ppc/ocp/
+ 
+ BOOT_TARGETS = zImage zImage.initrd znetboot znetboot.initrd vmlinux.sm
+ 
+diff -Nru a/arch/ppc/kernel/setup.c b/arch/ppc/kernel/setup.c
+--- a/arch/ppc/kernel/setup.c	Wed May 12 06:18:07 2004
++++ b/arch/ppc/kernel/setup.c	Wed May 12 06:18:07 2004
+@@ -37,6 +37,7 @@
+ #include <asm/sections.h>
+ #include <asm/nvram.h>
+ #include <asm/xmon.h>
++#include <asm/ocp.h>
+ 
+ #if defined CONFIG_KGDB
+ #include <asm/kgdb.h>
+@@ -682,6 +683,12 @@
+ 	/* set up the bootmem stuff with available memory */
+ 	do_init_bootmem();
+ 	if ( ppc_md.progress ) ppc_md.progress("setup_arch: bootmem", 0x3eab);
++
++#ifdef CONFIG_PPC_OCP
++	/* Initialize OCP device list */
++	ocp_early_init();
++	if ( ppc_md.progress ) ppc_md.progress("ocp: exit", 0x3eab);
++#endif
+ 
+ 	ppc_md.setup_arch();
+ 	if ( ppc_md.progress ) ppc_md.progress("arch: exit", 0x3eab);
+diff -Nru a/arch/ppc/ocp/Makefile b/arch/ppc/ocp/Makefile
+--- a/arch/ppc/ocp/Makefile	Wed May 12 06:18:07 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,6 +0,0 @@
+-#
+-# Makefile for the linux kernel.
+-#
+-
+-obj-y   	:= ocp.o ocp-driver.o ocp-probe.o
+-
+diff -Nru a/arch/ppc/ocp/ocp-driver.c b/arch/ppc/ocp/ocp-driver.c
+--- a/arch/ppc/ocp/ocp-driver.c	Wed May 12 06:18:07 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,195 +0,0 @@
+-/*
+- * FILE NAME: ocp-driver.c
+- *
+- * BRIEF MODULE DESCRIPTION:
+- * driver callback, id matching and registration
+- * Based on drivers/pci/pci-driver, Copyright (c) 1997--1999 Martin Mares
+- *
+- * Maintained by: Armin <akuster@mvista.com>
+- *
+- *
+- *  This program is free software; you can redistribute  it and/or modify it
+- *  under  the terms of  the GNU General  Public License as published by the
+- *  Free Software Foundation;  either version 2 of the  License, or (at your
+- *  option) any later version.
+- *
+- *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR IMPLIED
+- *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+- *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT, INDIRECT,
+- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+- *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
+- *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+- *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
+- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *  You should have received a copy of the  GNU General Public License along
+- *  with this program; if not, write  to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
+- */
+-
+-#include <asm/ocp.h>
+-#include <linux/module.h>
+-#include <linux/init.h>
+-
+-/*
+- *  Registration of OCP drivers and handling of hot-pluggable devices.
+- */
+-
+-static int
+-ocp_device_probe(struct device *dev)
+-{
+-	int error = 0;
+-	struct ocp_driver *drv;
+-	struct ocp_device *ocp_dev;
+-
+-	drv = to_ocp_driver(dev->driver);
+-	ocp_dev = to_ocp_dev(dev);
+-
+-	if (drv->probe) {
+-		error = drv->probe(ocp_dev);
+-		DBG("probe return code %d\n", error);
+-		if (error >= 0) {
+-			ocp_dev->driver = drv;
+-			error = 0;
+-		}
+-	}
+-	return error;
+-}
+-
+-static int
+-ocp_device_remove(struct device *dev)
+-{
+-	struct ocp_device *ocp_dev = to_ocp_dev(dev);
+-
+-	if (ocp_dev->driver) {
+-		if (ocp_dev->driver->remove)
+-			ocp_dev->driver->remove(ocp_dev);
+-		ocp_dev->driver = NULL;
+-	}
+-	return 0;
+-}
+-
+-static int
+-ocp_device_suspend(struct device *dev, u32 state, u32 level)
+-{
+-	struct ocp_device *ocp_dev = to_ocp_dev(dev);
+-
+-	int error = 0;
+-
+-	if (ocp_dev->driver) {
+-		if (level == SUSPEND_SAVE_STATE && ocp_dev->driver->save_state)
+-			error = ocp_dev->driver->save_state(ocp_dev, state);
+-		else if (level == SUSPEND_POWER_DOWN
+-			 && ocp_dev->driver->suspend)
+-			error = ocp_dev->driver->suspend(ocp_dev, state);
+-	}
+-	return error;
+-}
+-
+-static int
+-ocp_device_resume(struct device *dev, u32 level)
+-{
+-	struct ocp_device *ocp_dev = to_ocp_dev(dev);
+-
+-	if (ocp_dev->driver) {
+-		if (level == RESUME_POWER_ON && ocp_dev->driver->resume)
+-			ocp_dev->driver->resume(ocp_dev);
+-	}
+-	return 0;
+-}
+-
+-/**
+- * ocp_bus_match - Works out whether an OCP device matches any
+- * of the IDs listed for a given OCP driver.
+- * @dev: the generic device struct for the OCP device
+- * @drv: the generic driver struct for the OCP driver
+- *
+- * Used by a driver to check whether a OCP device present in the
+- * system is in its list of supported devices.  Returns 1 for a
+- * match, or 0 if there is no match.
+- */
+-static int
+-ocp_bus_match(struct device *dev, struct device_driver *drv)
+-{
+-	struct ocp_device *ocp_dev = to_ocp_dev(dev);
+-	struct ocp_driver *ocp_drv = to_ocp_driver(drv);
+-	const struct ocp_device_id *ids = ocp_drv->id_table;
+-
+-	if (!ids)
+-		return 0;
+-
+-	while (ids->vendor || ids->device) {
+-		if ((ids->vendor == OCP_ANY_ID
+-		     || ids->vendor == ocp_dev->vendor)
+-		    && (ids->device == OCP_ANY_ID
+-			|| ids->device == ocp_dev->device)) {
+-			DBG("Bus match -vendor:%x device:%x\n", ids->vendor,
+-			    ids->device);
+-			return 1;
+-		}
+-		ids++;
+-	}
+-	return 0;
+-}
+-
+-struct bus_type ocp_bus_type = {
+-	.name = "ocp",
+-	.match = ocp_bus_match,
+-};
+-
+-static int __init
+-ocp_driver_init(void)
+-{
+-	return bus_register(&ocp_bus_type);
+-}
+-
+-postcore_initcall(ocp_driver_init);
+-
+-/**
+- * ocp_register_driver - register a new ocp driver
+- * @drv: the driver structure to register
+- *
+- * Adds the driver structure to the list of registered drivers
+- * Returns the number of ocp devices which were claimed by the driver
+- * during registration.  The driver remains registered even if the
+- * return value is zero.
+- */
+-int
+-ocp_register_driver(struct ocp_driver *drv)
+-{
+-	int count = 0;
+-
+-	/* initialize common driver fields */
+-	drv->driver.name = drv->name;
+-	drv->driver.bus = &ocp_bus_type;
+-	drv->driver.probe = ocp_device_probe;
+-	drv->driver.resume = ocp_device_resume;
+-	drv->driver.suspend = ocp_device_suspend;
+-	drv->driver.remove = ocp_device_remove;
+-
+-	/* register with core */
+-	count = driver_register(&drv->driver);
+-	return count ? count : 1;
+-}
+-
+-/**
+- * ocp_unregister_driver - unregister a ocp driver
+- * @drv: the driver structure to unregister
+- *
+- * Deletes the driver structure from the list of registered OCP drivers,
+- * gives it a chance to clean up by calling its remove() function for
+- * each device it was responsible for, and marks those devices as
+- * driverless.
+- */
+-
+-void
+-ocp_unregister_driver(struct ocp_driver *drv)
+-{
+-	driver_unregister(&drv->driver);
+-}
+-
+-EXPORT_SYMBOL(ocp_register_driver);
+-EXPORT_SYMBOL(ocp_unregister_driver);
+-EXPORT_SYMBOL(ocp_bus_type);
+diff -Nru a/arch/ppc/ocp/ocp-probe.c b/arch/ppc/ocp/ocp-probe.c
+--- a/arch/ppc/ocp/ocp-probe.c	Wed May 12 06:18:07 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,113 +0,0 @@
+-/*
+- * FILE NAME: ocp-probe.c
+- *
+- * BRIEF MODULE DESCRIPTION:
+- * Device scanning & bus set routines
+- * Based on drivers/pci/probe, Copyright (c) 1997--1999 Martin Mares
+- *
+- * Maintained by: Armin <akuster@mvista.com>
+- *
+- *
+- *  This program is free software; you can redistribute  it and/or modify it
+- *  under  the terms of  the GNU General  Public License as published by the
+- *  Free Software Foundation;  either version 2 of the  License, or (at your
+- *  option) any later version.
+- *
+- *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR IMPLIED
+- *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+- *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT, INDIRECT,
+- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+- *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
+- *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+- *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
+- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *  You should have received a copy of the  GNU General Public License along
+- *  with this program; if not, write  to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
+- */
+-
+-#include <linux/init.h>
+-#include <linux/slab.h>
+-#include <linux/module.h>
+-#include <linux/device.h>
+-#include <asm/ocp.h>
+-
+-LIST_HEAD(ocp_devices);
+-struct device *ocp_bus;
+-
+-static struct ocp_device * __devinit
+-ocp_setup_dev(struct ocp_def *odef, unsigned int index)
+-{
+-	struct ocp_device *dev;
+-
+-	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
+-	if (!dev)
+-		return NULL;
+-	memset(dev, 0, sizeof(*dev));
+-
+-	dev->vendor = odef->vendor;
+-	dev->device = odef->device;
+-	dev->num = ocp_get_num(dev->device);
+-	dev->paddr = odef->paddr;
+-	dev->irq = odef->irq;
+-	dev->pm = odef->pm;
+-	dev->current_state = 4;
+-
+-	sprintf(dev->name, "OCP device %04x:%04x", dev->vendor, dev->device);
+-
+-	DBG("%s %s 0x%lx irq:%d pm:0x%lx \n", dev->slot_name, dev->name,
+-	    (unsigned long) dev->paddr, dev->irq, dev->pm);
+-
+-	/* now put in global tree */
+-	sprintf(dev->dev.bus_id, "%d", index);
+-	dev->dev.parent = ocp_bus;
+-	dev->dev.bus = &ocp_bus_type;
+-	device_register(&dev->dev);
+-
+-	return dev;
+-}
+-
+-static struct device * __devinit ocp_alloc_primary_bus(void)
+-{
+-	struct device *b;
+-
+-	b = kmalloc(sizeof(struct device), GFP_KERNEL);
+-	if (b == NULL)
+-		return NULL;
+-	memset(b, 0, sizeof(struct device));
+-	strcpy(b->bus_id, "ocp");
+-
+-	device_register(b);
+-
+-	return b;
+-}
+-
+-void __devinit ocp_setup_devices(struct ocp_def *odef)
+-{
+-	int index;
+-	struct ocp_device *dev;
+-
+-	if (ocp_bus == NULL)
+-		ocp_bus = ocp_alloc_primary_bus();
+-	for (index = 0; odef->vendor != OCP_VENDOR_INVALID; ++index, ++odef) {
+-		dev = ocp_setup_dev(odef, index);
+-		if (dev != NULL)
+-			list_add_tail(&dev->global_list, &ocp_devices);
+-	}
+-}
+-
+-extern struct ocp_def core_ocp[];
+-
+-static int __init
+-ocparch_init(void)
+-{
+-	ocp_setup_devices(core_ocp);
+-	return 0;
+-}
+-
+-subsys_initcall(ocparch_init);
+-
+-EXPORT_SYMBOL(ocp_devices);
+diff -Nru a/arch/ppc/ocp/ocp.c b/arch/ppc/ocp/ocp.c
+--- a/arch/ppc/ocp/ocp.c	Wed May 12 06:18:07 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,109 +0,0 @@
+-/*
+- * ocp.c
+- *
+- *	The is drived from pci.c
+- *
+- * 	Current Maintainer
+- *      Armin Kuster akuster@dslextreme.com
+- *      Jan, 2002
+- *
+- *
+- *
+- * This program is free software; you can redistribute  it and/or modify it
+- *  under  the terms of  the GNU General  Public License as published by the
+- *  Free Software Foundation;  either version 2 of the  License, or (at your
+- *  option) any later version.
+- *
+- *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR   IMPLIED
+- *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+- *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT,  INDIRECT,
+- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+- *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
+- *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+- *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
+- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *  You should have received a copy of the  GNU General Public License along
+- *  with this program; if not, write  to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
+- */
+-
+-#include <linux/list.h>
+-#include <linux/init.h>
+-#include <linux/module.h>
+-#include <linux/config.h>
+-#include <linux/stddef.h>
+-#include <linux/slab.h>
+-#include <linux/types.h>
+-#include <asm/io.h>
+-#include <asm/ocp.h>
+-#include <asm/errno.h>
+-
+-/**
+- * ocp_get_num - This determines how many OCP devices of a given
+- * device are registered
+- * @device: OCP device such as HOST, PCI, GPT, UART, OPB, IIC, GPIO, EMAC, ZMII,
+- *
+- * The routine returns the number that devices which is registered
+- */
+-unsigned int ocp_get_num(unsigned int device)
+-{
+-	unsigned int count = 0;
+-	struct ocp_device *ocp;
+-	struct list_head *ocp_l;
+-
+-	list_for_each(ocp_l, &ocp_devices) {
+-		ocp = list_entry(ocp_l, struct ocp_device, global_list);
+-		if (device == ocp->device)
+-			count++;
+-	}
+-	return count;
+-}
+-
+-/**
+- * ocp_get_dev - get ocp driver pointer for ocp device and instance of it
+- * @device: OCP device such as PCI, GPT, UART, OPB, IIC, GPIO, EMAC, ZMII
+- * @dev_num: ocp device number whos paddr you want
+- *
+- * The routine returns ocp device pointer
+- * in list based on device and instance of that device
+- *
+- */
+-struct ocp_device *
+-ocp_get_dev(unsigned int device, int dev_num)
+-{
+-	struct ocp_device *ocp;
+-	struct list_head *ocp_l;
+-	int count = 0;
+-
+-	list_for_each(ocp_l, &ocp_devices) {
+-		ocp = list_entry(ocp_l, struct ocp_device, global_list);
+-		if (device == ocp->device) {
+-			if (dev_num == count)
+-				return ocp;
+-			count++;
+-		}
+-	}
+-	return NULL;
+-}
+-
+-EXPORT_SYMBOL(ocp_get_dev);
+-EXPORT_SYMBOL(ocp_get_num);
+-
+-#ifdef CONFIG_PM
+-int ocp_generic_suspend(struct ocp_device *pdev, u32 state)
+-{
+-	ocp_force_power_off(pdev);
+-	return 0;
+-}
+-
+-int ocp_generic_resume(struct ocp_device *pdev)
+-{
+-	ocp_force_power_on(pdev);
+-}
+-
+-EXPORT_SYMBOL(ocp_generic_suspend);
+-EXPORT_SYMBOL(ocp_generic_resume);
+-#endif /* CONFIG_PM */
+diff -Nru a/arch/ppc/syslib/Makefile b/arch/ppc/syslib/Makefile
+--- a/arch/ppc/syslib/Makefile	Wed May 12 06:18:07 2004
++++ b/arch/ppc/syslib/Makefile	Wed May 12 06:18:07 2004
+@@ -13,6 +13,7 @@
+ CFLAGS_btext.o          += -mrelocatable-lib
+ 
+ obj-$(CONFIG_PPCBUG_NVRAM)	+= prep_nvram.o
++obj-$(CONFIG_PPC_OCP)		+= ocp.o
+ obj-$(CONFIG_44x)		+= ibm44x_common.o
+ obj-$(CONFIG_440GP)		+= ibm440gp_common.o
+ ifeq ($(CONFIG_4xx),y)
+diff -Nru a/arch/ppc/syslib/ocp.c b/arch/ppc/syslib/ocp.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/ppc/configs/bubinga_defconfig	Wed May 12 09:24:09 2004
-@@ -0,0 +1,593 @@
-+#
-+# Automatically generated make config: don't edit
-+#
-+CONFIG_MMU=y
-+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-+CONFIG_HAVE_DEC_LOCK=y
-+CONFIG_PPC=y
-+CONFIG_PPC32=y
-+CONFIG_GENERIC_NVRAM=y
-+
-+#
-+# Code maturity level options
-+#
-+CONFIG_EXPERIMENTAL=y
-+CONFIG_CLEAN_COMPILE=y
-+# CONFIG_STANDALONE is not set
-+CONFIG_BROKEN_ON_SMP=y
-+
-+#
-+# General setup
-+#
-+CONFIG_SWAP=y
-+CONFIG_SYSVIPC=y
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+CONFIG_SYSCTL=y
-+CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_HOTPLUG is not set
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+# CONFIG_KALLSYMS is not set
-+CONFIG_FUTEX=y
-+# CONFIG_EPOLL is not set
-+CONFIG_IOSCHED_NOOP=y
-+CONFIG_IOSCHED_AS=y
-+CONFIG_IOSCHED_DEADLINE=y
-+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-+
-+#
-+# Loadable module support
-+#
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+# CONFIG_MODULE_FORCE_UNLOAD is not set
-+CONFIG_OBSOLETE_MODPARM=y
-+# CONFIG_MODVERSIONS is not set
-+CONFIG_KMOD=y
-+
-+#
-+# Processor
-+#
-+# CONFIG_6xx is not set
-+CONFIG_40x=y
-+# CONFIG_44x is not set
-+# CONFIG_POWER3 is not set
-+# CONFIG_POWER4 is not set
-+# CONFIG_8xx is not set
-+# CONFIG_MATH_EMULATION is not set
-+# CONFIG_CPU_FREQ is not set
-+CONFIG_4xx=y
-+
-+#
-+# IBM 4xx options
-+#
-+# CONFIG_ASH is not set
-+CONFIG_BUBINGA=y
-+# CONFIG_CPCI405 is not set
-+# CONFIG_EP405 is not set
-+# CONFIG_OAK is not set
-+# CONFIG_REDWOOD_5 is not set
-+# CONFIG_REDWOOD_6 is not set
-+# CONFIG_SYCAMORE is not set
-+# CONFIG_WALNUT is not set
-+CONFIG_IBM405_ERR77=y
-+CONFIG_IBM405_ERR51=y
-+CONFIG_IBM_OCP=y
-+CONFIG_BIOS_FIXUP=y
-+CONFIG_405EP=y
-+CONFIG_IBM_OPENBIOS=y
-+# CONFIG_PM is not set
-+CONFIG_UART0_TTYS0=y
-+# CONFIG_UART0_TTYS1 is not set
-+CONFIG_NOT_COHERENT_CACHE=y
-+
-+#
-+# Platform options
-+#
-+# CONFIG_PC_KEYBOARD is not set
-+# CONFIG_SMP is not set
-+# CONFIG_PREEMPT is not set
-+# CONFIG_HIGHMEM is not set
-+CONFIG_KERNEL_ELF=y
-+CONFIG_BINFMT_ELF=y
-+# CONFIG_BINFMT_MISC is not set
-+# CONFIG_CMDLINE_BOOL is not set
-+
-+#
-+# Bus options
-+#
-+CONFIG_PCI=y
-+CONFIG_PCI_DOMAINS=y
-+CONFIG_PCI_LEGACY_PROC=y
-+# CONFIG_PCI_NAMES is not set
-+
-+#
-+# Advanced setup
-+#
-+# CONFIG_ADVANCED_OPTIONS is not set
-+
-+#
-+# Default settings for advanced configuration options are used
-+#
-+CONFIG_HIGHMEM_START=0xfe000000
-+CONFIG_LOWMEM_SIZE=0x30000000
-+CONFIG_KERNEL_START=0xc0000000
-+CONFIG_TASK_SIZE=0x80000000
-+CONFIG_BOOT_LOAD=0x00400000
-+
-+#
-+# Device Drivers
-+#
-+
-+#
-+# Generic Driver Options
-+#
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+# CONFIG_MTD is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Plug and Play support
-+#
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_CPQ_DA is not set
-+# CONFIG_BLK_CPQ_CISS_DA is not set
-+# CONFIG_BLK_DEV_DAC960 is not set
-+# CONFIG_BLK_DEV_UMEM is not set
-+CONFIG_BLK_DEV_LOOP=y
-+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
-+# CONFIG_BLK_DEV_NBD is not set
-+# CONFIG_BLK_DEV_CARMEL is not set
-+CONFIG_BLK_DEV_RAM=y
-+CONFIG_BLK_DEV_RAM_SIZE=4096
-+CONFIG_BLK_DEV_INITRD=y
-+# CONFIG_LBD is not set
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+# CONFIG_FUSION is not set
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+# CONFIG_IEEE1394 is not set
-+
-+#
-+# I2O device support
-+#
-+# CONFIG_I2O is not set
-+
-+#
-+# Macintosh device drivers
-+#
-+
-+#
-+# Networking support
-+#
-+CONFIG_NET=y
-+
-+#
-+# Networking options
-+#
-+# CONFIG_PACKET is not set
-+# CONFIG_NETLINK_DEV is not set
-+CONFIG_UNIX=y
-+# CONFIG_NET_KEY is not set
-+CONFIG_INET=y
-+CONFIG_IP_MULTICAST=y
-+# CONFIG_IP_ADVANCED_ROUTER is not set
-+CONFIG_IP_PNP=y
-+# CONFIG_IP_PNP_DHCP is not set
-+CONFIG_IP_PNP_BOOTP=y
-+# CONFIG_IP_PNP_RARP is not set
-+# CONFIG_NET_IPIP is not set
-+# CONFIG_NET_IPGRE is not set
-+# CONFIG_IP_MROUTE is not set
-+# CONFIG_ARPD is not set
-+CONFIG_SYN_COOKIES=y
-+# CONFIG_INET_AH is not set
-+# CONFIG_INET_ESP is not set
-+# CONFIG_INET_IPCOMP is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_DECNET is not set
-+# CONFIG_BRIDGE is not set
-+# CONFIG_NETFILTER is not set
-+
-+#
-+# SCTP Configuration (EXPERIMENTAL)
-+#
-+# CONFIG_IP_SCTP is not set
-+# CONFIG_ATM is not set
-+# CONFIG_VLAN_8021Q is not set
-+# CONFIG_LLC2 is not set
-+# CONFIG_IPX is not set
-+# CONFIG_ATALK is not set
-+# CONFIG_X25 is not set
-+# CONFIG_LAPB is not set
-+# CONFIG_NET_DIVERT is not set
-+# CONFIG_ECONET is not set
-+# CONFIG_WAN_ROUTER is not set
-+# CONFIG_NET_FASTROUTE is not set
-+# CONFIG_NET_HW_FLOWCONTROL is not set
-+
-+#
-+# QoS and/or fair queueing
-+#
-+# CONFIG_NET_SCHED is not set
-+
-+#
-+# Network testing
-+#
-+# CONFIG_NET_PKTGEN is not set
-+CONFIG_NETDEVICES=y
-+
-+#
-+# ARCnet devices
-+#
-+# CONFIG_ARCNET is not set
-+# CONFIG_DUMMY is not set
-+# CONFIG_BONDING is not set
-+# CONFIG_EQUALIZER is not set
-+# CONFIG_TUN is not set
-+
-+#
-+# Ethernet (10 or 100Mbit)
-+#
-+CONFIG_NET_ETHERNET=y
-+CONFIG_MII=y
-+# CONFIG_OAKNET is not set
-+# CONFIG_HAPPYMEAL is not set
-+# CONFIG_SUNGEM is not set
-+# CONFIG_NET_VENDOR_3COM is not set
-+
-+#
-+# Tulip family network device support
-+#
-+# CONFIG_NET_TULIP is not set
-+# CONFIG_HP100 is not set
-+# CONFIG_NET_PCI is not set
-+
-+#
-+# Ethernet (1000 Mbit)
-+#
-+# CONFIG_ACENIC is not set
-+# CONFIG_DL2K is not set
-+# CONFIG_E1000 is not set
-+# CONFIG_NS83820 is not set
-+# CONFIG_HAMACHI is not set
-+# CONFIG_YELLOWFIN is not set
-+# CONFIG_R8169 is not set
-+# CONFIG_SIS190 is not set
-+# CONFIG_SK98LIN is not set
-+# CONFIG_TIGON3 is not set
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
-+# CONFIG_IXGB is not set
-+CONFIG_IBM_EMAC=y
-+# CONFIG_IBM_EMAC_ERRMSG is not set
-+CONFIG_IBM_EMAC_RXB=64
-+CONFIG_IBM_EMAC_TXB=8
-+CONFIG_IBM_EMAC_FGAP=8
-+CONFIG_IBM_EMAC_SKBRES=0
-+# CONFIG_FDDI is not set
-+# CONFIG_HIPPI is not set
-+# CONFIG_PPP is not set
-+# CONFIG_SLIP is not set
-+
-+#
-+# Wireless LAN (non-hamradio)
-+#
-+# CONFIG_NET_RADIO is not set
-+
-+#
-+# Token Ring devices
-+#
-+# CONFIG_TR is not set
-+# CONFIG_RCPCI is not set
-+# CONFIG_SHAPER is not set
-+# CONFIG_NETCONSOLE is not set
-+
-+#
-+# Wan interfaces
-+#
-+# CONFIG_WAN is not set
-+
-+#
-+# Amateur Radio support
-+#
-+# CONFIG_HAMRADIO is not set
-+
-+#
-+# IrDA (infrared) support
-+#
-+# CONFIG_IRDA is not set
-+
-+#
-+# Bluetooth support
-+#
-+# CONFIG_BT is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+
-+#
-+# ISDN subsystem
-+#
-+# CONFIG_ISDN is not set
-+
-+#
-+# Telephony Support
-+#
-+# CONFIG_PHONE is not set
-+
-+#
-+# Input device support
-+#
-+CONFIG_INPUT=y
-+
-+#
-+# Userland interfaces
-+#
-+# CONFIG_INPUT_MOUSEDEV is not set
-+# CONFIG_INPUT_JOYDEV is not set
-+# CONFIG_INPUT_TSDEV is not set
-+# CONFIG_INPUT_EVDEV is not set
-+# CONFIG_INPUT_EVBUG is not set
-+
-+#
-+# Input I/O drivers
-+#
-+# CONFIG_GAMEPORT is not set
-+CONFIG_SOUND_GAMEPORT=y
-+CONFIG_SERIO=y
-+# CONFIG_SERIO_I8042 is not set
-+# CONFIG_SERIO_SERPORT is not set
-+# CONFIG_SERIO_CT82C710 is not set
-+# CONFIG_SERIO_PCIPS2 is not set
-+
-+#
-+# Input Device Drivers
-+#
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_INPUT_JOYSTICK is not set
-+# CONFIG_INPUT_TOUCHSCREEN is not set
-+# CONFIG_INPUT_MISC is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_NR_UARTS=4
-+# CONFIG_SERIAL_8250_EXTENDED is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
-+CONFIG_UNIX98_PTYS=y
-+CONFIG_LEGACY_PTYS=y
-+CONFIG_LEGACY_PTY_COUNT=256
-+# CONFIG_QIC02_TAPE is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_NVRAM is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+# CONFIG_APPLICOM is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_FTAPE is not set
-+# CONFIG_AGP is not set
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# I2C support
-+#
-+# CONFIG_I2C is not set
-+
-+#
-+# Misc devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+# CONFIG_DVB is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+# CONFIG_USB is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# File systems
-+#
-+CONFIG_EXT2_FS=y
-+# CONFIG_EXT2_FS_XATTR is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+# CONFIG_ROMFS_FS is not set
-+# CONFIG_QUOTA is not set
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_FAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+CONFIG_PROC_KCORE=y
-+# CONFIG_DEVFS_FS is not set
-+# CONFIG_DEVPTS_FS_XATTR is not set
-+CONFIG_TMPFS=y
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_ADFS_FS is not set
-+# CONFIG_AFFS_FS is not set
-+# CONFIG_HFS_FS is not set
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_BEFS_FS is not set
-+# CONFIG_BFS_FS is not set
-+# CONFIG_EFS_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Network File Systems
-+#
-+CONFIG_NFS_FS=y
-+# CONFIG_NFS_V3 is not set
-+# CONFIG_NFS_V4 is not set
-+# CONFIG_NFS_DIRECTIO is not set
-+# CONFIG_NFSD is not set
-+CONFIG_ROOT_NFS=y
-+CONFIG_LOCKD=y
-+# CONFIG_EXPORTFS is not set
-+CONFIG_SUNRPC=y
-+# CONFIG_RPCSEC_GSS_KRB5 is not set
-+# CONFIG_SMB_FS is not set
-+# CONFIG_CIFS is not set
-+# CONFIG_NCP_FS is not set
-+# CONFIG_CODA_FS is not set
-+# CONFIG_INTERMEZZO_FS is not set
-+# CONFIG_AFS_FS is not set
-+
-+#
-+# Partition Types
-+#
-+CONFIG_PARTITION_ADVANCED=y
-+# CONFIG_ACORN_PARTITION is not set
-+# CONFIG_OSF_PARTITION is not set
-+# CONFIG_AMIGA_PARTITION is not set
-+# CONFIG_ATARI_PARTITION is not set
-+# CONFIG_MAC_PARTITION is not set
-+# CONFIG_MSDOS_PARTITION is not set
-+# CONFIG_LDM_PARTITION is not set
-+# CONFIG_NEC98_PARTITION is not set
-+# CONFIG_SGI_PARTITION is not set
-+# CONFIG_ULTRIX_PARTITION is not set
-+# CONFIG_SUN_PARTITION is not set
-+# CONFIG_EFI_PARTITION is not set
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# IBM 40x options
-+#
-+
-+#
-+# Library routines
-+#
-+CONFIG_CRC32=y
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_DEBUG_KERNEL is not set
-+# CONFIG_SERIAL_TEXT_DEBUG is not set
-+CONFIG_PPC_OCP=y
-+
-+#
-+# Security options
-+#
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-diff -Nru a/arch/ppc/platforms/4xx/bubinga.c b/arch/ppc/platforms/4xx/bubinga.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/ppc/platforms/4xx/bubinga.c	Wed May 12 09:24:09 2004
-@@ -0,0 +1,263 @@
++++ b/arch/ppc/syslib/ocp.c	Wed May 12 06:18:07 2004
+@@ -0,0 +1,493 @@
 +/*
-+ * Support for IBM PPC 405EP evaluation board (Bubinga).
++ * ocp.c
 + *
-+ * Author: SAW (IBM), derived from walnut.c.
-+ *         Maintained by MontaVista Software <source@mvista.com>
++ *      (c) Benjamin Herrenschmidt (benh@kernel.crashing.org)
++ *          Mipsys - France
 + *
-+ * 2003 (c) MontaVista Softare Inc.  This file is licensed under the
-+ * terms of the GNU General Public License version 2. This program is
-+ * licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
++ *          Derived from work (c) Armin Kuster akuster@pacbell.net
++ *
++ *          Additional support and port to 2.6 LDM/sysfs by
++ *          Matt Porter <mporter@kernel.crashing.org>
++ *          Copyright 2004 MontaVista Software, Inc.
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
++ *  OCP (On Chip Peripheral) is a software emulated "bus" with a
++ *  pseudo discovery method for dumb peripherals. Usually these type
++ *  of peripherals are found on embedded SoC (System On a Chip)
++ *  processors or highly integrated system controllers that have
++ *  a host bridge and many peripherals.  Common examples where
++ *  this is already used include the PPC4xx, PPC85xx, MPC52xx,
++ *  and MV64xxx parts.
++ *
++ *  This subsystem creates a standard OCP bus type within the
++ *  device model.  The devices on the OCP bus are seeded by an
++ *  an initial OCP device array created by the arch-specific
++ *  Device entries can be added/removed/modified through OCP
++ *  helper functions to accomodate system and  board-specific
++ *  parameters commonly found in embedded systems. OCP also
++ *  provides a standard method for devices to describe extended
++ *  attributes about themselves to the system.  A standard access
++ *  method allows OCP drivers to obtain the information, both
++ *  SoC-specific and system/board-specific, needed for operation.
 + */
 +
++#include <linux/module.h>
 +#include <linux/config.h>
++#include <linux/list.h>
++#include <linux/miscdevice.h>
++#include <linux/slab.h>
++#include <linux/types.h>
 +#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/threads.h>
-+#include <linux/param.h>
-+#include <linux/string.h>
-+#include <linux/blkdev.h>
-+#include <linux/pci.h>
-+#include <linux/rtc.h>
-+#include <linux/tty.h>
-+#include <linux/serial.h>
-+#include <linux/serial_core.h>
++#include <linux/pm.h>
++#include <linux/bootmem.h>
++#include <linux/device.h>
 +
-+#include <asm/system.h>
-+#include <asm/pci-bridge.h>
-+#include <asm/processor.h>
-+#include <asm/machdep.h>
-+#include <asm/page.h>
-+#include <asm/time.h>
 +#include <asm/io.h>
-+#include <asm/todc.h>
-+#include <asm/kgdb.h>
 +#include <asm/ocp.h>
-+#include <asm/ibm_ocp_pci.h>
++#include <asm/errno.h>
++#include <asm/rwsem.h>
++#include <asm/semaphore.h>
 +
-+#include <platforms/4xx/ibm405ep.h>
++//#define DBG(x)	printk x
++#define DBG(x)
 +
-+#undef DEBUG
++extern int mem_init_done;
 +
-+#ifdef DEBUG
-+#define DBG(x...) printk(x)
++extern struct ocp_def core_ocp[];	/* Static list of devices, provided by
++					   CPU core */
++
++LIST_HEAD(ocp_devices);			/* List of all OCP devices */
++DECLARE_RWSEM(ocp_devices_sem);		/* Global semaphores for those lists */
++
++static int ocp_inited;
++
++/* Sysfs support */
++#define OCP_DEF_ATTR(field, format_string)				\
++static ssize_t								\
++show_##field(struct device *dev, char *buf)				\
++{									\
++	struct ocp_device *odev = to_ocp_dev(dev);			\
++									\
++	return sprintf(buf, format_string, odev->def->field);		\
++}									\
++static DEVICE_ATTR(field, S_IRUGO, show_##field, NULL);
++
++OCP_DEF_ATTR(vendor, "0x%04x\n");
++OCP_DEF_ATTR(function, "0x%04x\n");
++OCP_DEF_ATTR(index, "0x%04x\n");
++#ifdef CONFIG_PTE_64BIT
++OCP_DEF_ATTR(paddr, "0x%16Lx\n");
 +#else
-+#define DBG(x...)
++OCP_DEF_ATTR(paddr, "0x%08lx\n");
 +#endif
++OCP_DEF_ATTR(irq, "%d\n");
++OCP_DEF_ATTR(pm, "%lu\n");
 +
-+extern bd_t __res;
++void ocp_create_sysfs_dev_files(struct ocp_device *odev)
++{
++	struct device *dev = &odev->dev;
 +
-+void *bubinga_rtc_base;
++	/* Current OCP device def attributes */
++	device_create_file(dev, &dev_attr_vendor);
++	device_create_file(dev, &dev_attr_function);
++	device_create_file(dev, &dev_attr_index);
++	device_create_file(dev, &dev_attr_paddr);
++	device_create_file(dev, &dev_attr_irq);
++	device_create_file(dev, &dev_attr_pm);
++	/* Current OCP device additions attributes */
++	if (odev->def->additions && odev->def->show)
++		odev->def->show(dev);
++}
 +
-+/* Some IRQs unique to the board
-+ * Used by the generic 405 PCI setup functions in ppc4xx_pci.c
++/**
++ *	ocp_device_match	-	Match one driver to one device
++ *	@drv: driver to match
++ *	@dev: device to match
++ *
++ *	This function returns 0 if the driver and device don't match
++ */
++static int
++ocp_device_match(struct device *dev, struct device_driver *drv)
++{
++	struct ocp_device *ocp_dev = to_ocp_dev(dev);
++	struct ocp_driver *ocp_drv = to_ocp_drv(drv);
++	const struct ocp_device_id *ids = ocp_drv->id_table;
++
++	if (!ids)
++		return 0;
++
++	while (ids->vendor || ids->function) {
++		if ((ids->vendor == OCP_ANY_ID
++		     || ids->vendor == ocp_dev->def->vendor)
++		    && (ids->function == OCP_ANY_ID
++			|| ids->function == ocp_dev->def->function))
++		        return 1;
++		ids++;
++	}
++	return 0;
++}
++
++static int
++ocp_device_probe(struct device *dev)
++{
++	int error = 0;
++	struct ocp_driver *drv;
++	struct ocp_device *ocp_dev;
++
++	drv = to_ocp_drv(dev->driver);
++	ocp_dev = to_ocp_dev(dev);
++
++	if (drv->probe) {
++		error = drv->probe(ocp_dev);
++		if (error >= 0) {
++			ocp_dev->driver = drv;
++			error = 0;
++		}
++	}
++	return error;
++}
++
++static int
++ocp_device_remove(struct device *dev)
++{
++	struct ocp_device *ocp_dev = to_ocp_dev(dev);
++
++	if (ocp_dev->driver) {
++		if (ocp_dev->driver->remove)
++			ocp_dev->driver->remove(ocp_dev);
++		ocp_dev->driver = NULL;
++	}
++	return 0;
++}
++
++static int
++ocp_device_suspend(struct device *dev, u32 state)
++{
++	struct ocp_device *ocp_dev = to_ocp_dev(dev);
++	struct ocp_driver *ocp_drv = to_ocp_drv(dev->driver);
++
++	if (dev->driver && ocp_drv->suspend)
++		return ocp_drv->suspend(ocp_dev, state);
++	return 0;
++}
++
++static int
++ocp_device_resume(struct device *dev)
++{
++	struct ocp_device *ocp_dev = to_ocp_dev(dev);
++	struct ocp_driver *ocp_drv = to_ocp_drv(dev->driver);
++
++	if (dev->driver && ocp_drv->resume)
++		return ocp_drv->resume(ocp_dev);
++	return 0;
++}
++
++struct bus_type ocp_bus_type = {
++	.name = "ocp",
++	.match = ocp_device_match,
++	.suspend = ocp_device_suspend,
++	.resume = ocp_device_resume,
++};
++
++/**
++ *	ocp_register_driver	-	Register an OCP driver
++ *	@drv: pointer to statically defined ocp_driver structure
++ *
++ *	The driver's probe() callback is called either recursively
++ *	by this function or upon later call of ocp_driver_init
++ *
++ *	NOTE: Detection of devices is a 2 pass step on this implementation,
++ *	hotswap isn't supported. First, all OCP devices are put in the device
++ *	list, _then_ all drivers are probed on each match.
++ *
++ *	This function returns a count of how many devices actually matched
++ *	(whether the probe routine returned 0 or -ENODEV, a different error
++ *	code isn't considered as a match).
++ */
++int
++ocp_register_driver(struct ocp_driver *drv)
++{
++	int count = 0;
++
++	/* initialize common driver fields */
++	drv->driver.name = drv->name;
++	drv->driver.bus = &ocp_bus_type;
++	drv->driver.probe = ocp_device_probe;
++	drv->driver.remove = ocp_device_remove;
++
++	/* register with core */
++	count = driver_register(&drv->driver);
++
++	return count ? count : 1;
++}
++
++/**
++ *	ocp_unregister_driver	-	Unregister an OCP driver
++ *	@drv: pointer to statically defined ocp_driver structure
++ *
++ *	The driver's remove() callback is called recursively
++ *	by this function for any device already registered
++ */
++void
++ocp_unregister_driver(struct ocp_driver *drv)
++{
++	DBG(("ocp: ocp_unregister_driver(%s)...\n", drv->name));
++
++	driver_unregister(&drv->driver);
++
++	DBG(("ocp: ocp_unregister_driver(%s)... done.\n", drv->name));
++}
++
++/* Core of ocp_find_device(). Caller must hold ocp_devices_sem */
++static struct ocp_device *
++__ocp_find_device(unsigned int vendor, unsigned int function, int index)
++{
++	struct list_head	*entry;
++	struct ocp_device	*dev, *found = NULL;
++
++	DBG(("ocp: __ocp_find_device(vendor: %x, function: %x, index: %d)...\n", vendor, function, index));
++
++	list_for_each(entry, &ocp_devices) {
++		dev = list_entry(entry, struct ocp_device, link);
++		if (vendor != OCP_ANY_ID && vendor != dev->def->vendor)
++			continue;
++		if (function != OCP_ANY_ID && function != dev->def->function)
++			continue;
++		if (index != OCP_ANY_INDEX && index != dev->def->index)
++			continue;
++		found = dev;
++		break;
++	}
++
++	DBG(("ocp: __ocp_find_device(vendor: %x, function: %x, index: %d)... done\n", vendor, function, index));
++
++	return found;
++}
++
++/**
++ *	ocp_find_device	-	Find a device by function & index
++ *      @vendor: vendor ID of the device (or OCP_ANY_ID)
++ *	@function: function code of the device (or OCP_ANY_ID)
++ *	@idx: index of the device (or OCP_ANY_INDEX)
++ *
++ *	This function allows a lookup of a given function by it's
++ *	index, it's typically used to find the MAL or ZMII associated
++ *	with an EMAC or similar horrors.
++ *      You can pass vendor, though you usually want OCP_ANY_ID there...
++ */
++struct ocp_device *
++ocp_find_device(unsigned int vendor, unsigned int function, int index)
++{
++	struct ocp_device	*dev;
++
++	down_read(&ocp_devices_sem);
++	dev = __ocp_find_device(vendor, function, index);
++	up_read(&ocp_devices_sem);
++
++	return dev;
++}
++
++/**
++ *	ocp_get_one_device -	Find a def by function & index
++ *      @vendor: vendor ID of the device (or OCP_ANY_ID)
++ *	@function: function code of the device (or OCP_ANY_ID)
++ *	@idx: index of the device (or OCP_ANY_INDEX)
++ *
++ *	This function allows a lookup of a given ocp_def by it's
++ *	vendor, function, and index.  The main purpose for is to
++ *	allow modification of the def before binding to the driver
++ */
++struct ocp_def *
++ocp_get_one_device(unsigned int vendor, unsigned int function, int index)
++{
++	struct ocp_device	*dev;
++	struct ocp_def		*found = NULL;
++
++	DBG(("ocp: ocp_get_one_device(vendor: %x, function: %x, index: %d)...\n",
++		vendor, function, index));
++
++	dev = ocp_find_device(vendor, function, index);
++
++	if (dev) 
++		found = dev->def;
++
++	DBG(("ocp: ocp_get_one_device(vendor: %x, function: %x, index: %d)... done.\n",
++		vendor, function, index));
++
++	return found;
++}
++
++/**
++ *	ocp_add_one_device	-	Add a device
++ *	@def: static device definition structure
++ *
++ *	This function adds a device definition to the
++ *	device list. It may only be called before
++ *	ocp_driver_init() and will return an error
++ *	otherwise.
++ */
++int
++ocp_add_one_device(struct ocp_def *def)
++{
++	struct	ocp_device	*dev;
++
++	DBG(("ocp: ocp_add_one_device()...\n"));
++
++	/* Can't be called after ocp driver init */
++	if (ocp_inited)
++		return 1;
++
++	if (mem_init_done)
++		dev = kmalloc(sizeof(*dev), GFP_KERNEL);
++	else
++		dev = alloc_bootmem(sizeof(*dev));
++
++	if (dev == NULL)
++		return 1;
++	memset(dev, 0, sizeof(*dev));
++	dev->def = def;
++	dev->current_state = 4;
++	sprintf(dev->name, "OCP device %04x:%04x:%04x",
++		dev->def->vendor, dev->def->function, dev->def->index);
++	down_write(&ocp_devices_sem);
++	list_add_tail(&dev->link, &ocp_devices);
++	up_write(&ocp_devices_sem);
++
++	DBG(("ocp: ocp_add_one_device()...done\n"));
++
++	return 0;
++}
++
++/**
++ *	ocp_remove_one_device -	Remove a device by function & index
++ *      @vendor: vendor ID of the device (or OCP_ANY_ID)
++ *	@function: function code of the device (or OCP_ANY_ID)
++ *	@idx: index of the device (or OCP_ANY_INDEX)
++ *
++ *	This function allows removal of a given function by its
++ *	index. It may only be called before ocp_driver_init()
++ *	and will return an error otherwise.
++ */
++int
++ocp_remove_one_device(unsigned int vendor, unsigned int function, int index)
++{
++	struct ocp_device *dev;
++
++	DBG(("ocp: ocp_remove_one_device(vendor: %x, function: %x, index: %d)...\n", vendor, function, index));
++
++	/* Can't be called after ocp driver init */
++	if (ocp_inited)
++		return 1;
++
++	down_write(&ocp_devices_sem);
++	dev = __ocp_find_device(vendor, function, index);
++	list_del((struct list_head *)dev);
++	up_write(&ocp_devices_sem);
++
++	DBG(("ocp: ocp_remove_one_device(vendor: %x, function: %x, index: %d)... done.\n", vendor, function, index));
++
++	return 0;
++}
++
++/**
++ *	ocp_for_each_device	-	Iterate over OCP devices
++ *	@callback: routine to execute for each ocp device.
++ *	@arg: user data to be passed to callback routine.
++ *
++ *	This routine holds the ocp_device semaphore, so the
++ *	callback routine cannot modify the ocp_device list.
++ */
++void
++ocp_for_each_device(void(*callback)(struct ocp_device *, void *arg), void *arg)
++{
++	struct list_head *entry;
++
++	if (callback) {
++		down_read(&ocp_devices_sem);
++		list_for_each(entry, &ocp_devices)
++			callback(list_entry(entry, struct ocp_device, link),
++				arg);
++		up_read(&ocp_devices_sem);
++	}
++}
++
++/**
++ *	ocp_early_init	-	Init OCP device management
++ *
++ *	This function builds the list of devices before setup_arch. 
++ *	This allows platform code to modify the device lists before
++ *	they are bound to drivers (changes to paddr, removing devices
++ *	etc)
 + */
 +int __init
-+ppc405_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
++ocp_early_init(void)
 +{
-+	static char pci_irq_table[][4] =
-+	    /*
-+	     *      PCI IDSEL/INTPIN->INTLINE
-+	     *      A       B       C       D
-+	     */
-+	{
-+		{28, 28, 28, 28},	/* IDSEL 1 - PCI slot 1 */
-+		{29, 29, 29, 29},	/* IDSEL 2 - PCI slot 2 */
-+		{30, 30, 30, 30},	/* IDSEL 3 - PCI slot 3 */
-+		{31, 31, 31, 31},	/* IDSEL 4 - PCI slot 4 */
-+	};
++	struct ocp_def	*def;
 +
-+	const long min_idsel = 1, max_idsel = 4, irqs_per_slot = 4;
-+	return PCI_IRQ_TABLE_LOOKUP;
-+};
++	DBG(("ocp: ocp_early_init()...\n"));
 +
-+/* The serial clock for the chip is an internal clock determined by
-+ * different clock speeds/dividers.
-+ * Calculate the proper input baud rate and setup the serial driver.
-+ */
-+static void __init
-+bubinga_early_serial_map(void)
-+{
-+	u32 uart_div;
-+	int uart_clock;
-+	struct uart_port port;
++	/* Fill the devices list */
++	for (def = core_ocp; def->vendor != OCP_VENDOR_INVALID; def++)
++		ocp_add_one_device(def);
 +
-+         /* Calculate the serial clock input frequency
-+          *
-+          * The base baud is the PLL OUTA (provided in the board info
-+          * structure) divided by the external UART Divisor, divided
-+          * by 16.
-+          */
-+	uart_div = (mfdcr(DCRN_CPC0_UCR_BASE) & DCRN_CPC0_UCR_U0DIV);
-+	uart_clock = __res.bi_pllouta_freq / uart_div;
++	DBG(("ocp: ocp_early_init()... done.\n"));
 +
-+	/* Setup serial port access */
-+	memset(&port, 0, sizeof(port));
-+	port.membase = (void*)ACTING_UART0_IO_BASE;
-+	port.irq = ACTING_UART0_INT;
-+	port.uartclk = uart_clock;
-+	port.regshift = 0;
-+	port.iotype = SERIAL_IO_MEM;
-+	port.flags = ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST;
-+	port.line = 0;
-+
-+	if (early_serial_setup(&port) != 0) {
-+		printk("Early serial init of port 0 failed\n");
-+	}	
-+	
-+	port.membase = (void*)ACTING_UART1_IO_BASE;
-+	port.irq = ACTING_UART1_INT;
-+	port.line = 1;
-+
-+	if (early_serial_setup(&port) != 0) {
-+		printk("Early serial init of port 1 failed\n");
-+	}	
++	return 0;
 +}
 +
-+void __init
-+bios_fixup(struct pci_controller *hose, struct pcil0_regs *pcip)
++/**
++ *	ocp_driver_init	-	Init OCP device management
++ *
++ *	This function is meant to be called via OCP bus registration.
++ */
++static int __init
++ocp_driver_init(void)
 +{
++	int ret = 0, index = 0;
++	struct device *ocp_bus;
++	struct list_head *entry;
++	struct ocp_device *dev;
 +
-+	unsigned int bar_response, bar;
-+	/*
-+	 * Expected PCI mapping:
-+	 *
-+	 *  PLB addr             PCI memory addr
-+	 *  ---------------------       ---------------------
-+	 *  0000'0000 - 7fff'ffff <---  0000'0000 - 7fff'ffff
-+	 *  8000'0000 - Bfff'ffff --->  8000'0000 - Bfff'ffff
-+	 *
-+	 *  PLB addr             PCI io addr
-+	 *  ---------------------       ---------------------
-+	 *  e800'0000 - e800'ffff --->  0000'0000 - 0001'0000
-+	 *
-+	 * The following code is simplified by assuming that the bootrom
-+	 * has been well behaved in following this mapping.
-+	 */
++	if (ocp_inited)
++		return ret;
++	ocp_inited = 1;
 +
-+#ifdef DEBUG
-+	int i;
++	DBG(("ocp: ocp_driver_init()...\n"));
 +
-+	printk("ioremap PCLIO_BASE = 0x%x\n", pcip);
-+	printk("PCI bridge regs before fixup \n");
-+	for (i = 0; i <= 3; i++) {
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].ma)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].la)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].pcila)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].pciha)));
++	/* Allocate/register primary OCP bus */
++	ocp_bus = kmalloc(sizeof(struct device), GFP_KERNEL);
++	if (ocp_bus == NULL)
++		return 1;
++	memset(ocp_bus, 0, sizeof(struct device));
++	strcpy(ocp_bus->bus_id, "ocp");
++
++	bus_register(&ocp_bus_type);
++
++	device_register(ocp_bus);
++
++	/* Put each OCP device into global device list */
++	list_for_each(entry, &ocp_devices) {
++		dev = list_entry(entry, struct ocp_device, link);
++		sprintf(dev->dev.bus_id, "%2.2x", index);
++		dev->dev.parent = ocp_bus;
++		dev->dev.bus = &ocp_bus_type;
++		device_register(&dev->dev);
++		ocp_create_sysfs_dev_files(dev);
++		index++;
 +	}
-+	printk(" ptm1ms\t0x%x\n", in_le32(&(pcip->ptm1ms)));
-+	printk(" ptm1la\t0x%x\n", in_le32(&(pcip->ptm1la)));
-+	printk(" ptm2ms\t0x%x\n", in_le32(&(pcip->ptm2ms)));
-+	printk(" ptm2la\t0x%x\n", in_le32(&(pcip->ptm2la)));
 +
-+#endif
++	DBG(("ocp: ocp_driver_init()... done.\n"));
 +
-+	/* added for IBM boot rom version 1.15 bios bar changes  -AK */
-+
-+	/* Disable region first */
-+	out_le32((void *) &(pcip->pmm[0].ma), 0x00000000);
-+	/* PLB starting addr, PCI: 0x80000000 */
-+	out_le32((void *) &(pcip->pmm[0].la), 0x80000000);
-+	/* PCI start addr, 0x80000000 */
-+	out_le32((void *) &(pcip->pmm[0].pcila), PPC405_PCI_MEM_BASE);
-+	/* 512MB range of PLB to PCI */
-+	out_le32((void *) &(pcip->pmm[0].pciha), 0x00000000);
-+	/* Enable no pre-fetch, enable region */
-+	out_le32((void *) &(pcip->pmm[0].ma), ((0xffffffff -
-+						(PPC405_PCI_UPPER_MEM -
-+						 PPC405_PCI_MEM_BASE)) | 0x01));
-+
-+	/* Disable region one */
-+	out_le32((void *) &(pcip->pmm[1].ma), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[1].la), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[1].pcila), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[1].pciha), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[1].ma), 0x00000000);
-+	out_le32((void *) &(pcip->ptm1ms), 0x00000001);
-+
-+	/* Disable region two */
-+	out_le32((void *) &(pcip->pmm[2].ma), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[2].la), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[2].pcila), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[2].pciha), 0x00000000);
-+	out_le32((void *) &(pcip->pmm[2].ma), 0x00000000);
-+	out_le32((void *) &(pcip->ptm2ms), 0x00000000);
-+	out_le32((void *) &(pcip->ptm2la), 0x00000000);
-+
-+	/* Zero config bars */
-+	for (bar = PCI_BASE_ADDRESS_1; bar <= PCI_BASE_ADDRESS_2; bar += 4) {
-+		early_write_config_dword(hose, hose->first_busno,
-+					 PCI_FUNC(hose->first_busno), bar,
-+					 0x00000000);
-+		early_read_config_dword(hose, hose->first_busno,
-+					PCI_FUNC(hose->first_busno), bar,
-+					&bar_response);
-+		DBG("BUS %d, device %d, Function %d bar 0x%8.8x is 0x%8.8x\n",
-+		    hose->first_busno, PCI_SLOT(hose->first_busno),
-+		    PCI_FUNC(hose->first_busno), bar, bar_response);
-+	}
-+	/* end work arround */
-+
-+#ifdef DEBUG
-+	printk("PCI bridge regs after fixup \n");
-+	for (i = 0; i <= 3; i++) {
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].ma)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].la)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].pcila)));
-+		printk(" pmm%dma\t0x%x\n", i, in_le32(&(pcip->pmm[i].pciha)));
-+	}
-+	printk(" ptm1ms\t0x%x\n", in_le32(&(pcip->ptm1ms)));
-+	printk(" ptm1la\t0x%x\n", in_le32(&(pcip->ptm1la)));
-+	printk(" ptm2ms\t0x%x\n", in_le32(&(pcip->ptm2ms)));
-+	printk(" ptm2la\t0x%x\n", in_le32(&(pcip->ptm2la)));
-+
-+#endif
++	return 0;
 +}
 +
-+void __init
-+bubinga_setup_arch(void)
-+{
-+	ppc4xx_setup_arch();
++postcore_initcall(ocp_driver_init);
 +
-+	ibm_ocp_set_emac(0, 1);
-+
-+        bubinga_early_serial_map();
-+
-+        /* RTC step for the evb405ep */
-+        bubinga_rtc_base = (void *) BUBINGA_RTC_VADDR;
-+        TODC_INIT(TODC_TYPE_DS1743, bubinga_rtc_base, bubinga_rtc_base,
-+                  bubinga_rtc_base, 8);
-+        /* Identify the system */
-+        printk("IBM Bubinga port (MontaVista Software, Inc. <source@mvista.com>)\n");
-+}
-+
-+void __init
-+bubinga_map_io(void)
-+{
-+	ppc4xx_map_io();
-+     	io_block_mapping(BUBINGA_RTC_VADDR,
-+                         BUBINGA_RTC_PADDR, BUBINGA_RTC_SIZE, _PAGE_IO);
-+}
-+
-+void __init
-+platform_init(unsigned long r3, unsigned long r4, unsigned long r5,
-+	      unsigned long r6, unsigned long r7)
-+{
-+	ppc4xx_init(r3, r4, r5, r6, r7);
-+
-+	ppc_md.setup_arch = bubinga_setup_arch;
-+	ppc_md.setup_io_mappings = bubinga_map_io;
-+
-+#ifdef CONFIG_GEN_RTC
-+	ppc_md.time_init = todc_time_init;
-+	ppc_md.set_rtc_time = todc_set_rtc_time;
-+	ppc_md.get_rtc_time = todc_get_rtc_time;
-+	ppc_md.nvram_read_val = todc_direct_read_val;
-+	ppc_md.nvram_write_val = todc_direct_write_val;
-+#endif
-+#ifdef CONFIG_KGDB
-+	ppc_md.early_serial_map = bubinga_early_serial_map;
-+#endif
-+}
-+
-diff -Nru a/arch/ppc/platforms/4xx/bubinga.h b/arch/ppc/platforms/4xx/bubinga.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/ppc/platforms/4xx/bubinga.h	Wed May 12 09:24:09 2004
-@@ -0,0 +1,69 @@
-+/*
-+ * Support for IBM PPC 405EP evaluation board (Bubinga).
++EXPORT_SYMBOL(ocp_bus_type);
++EXPORT_SYMBOL(ocp_find_device);
++EXPORT_SYMBOL(ocp_register_driver);
++EXPORT_SYMBOL(ocp_unregister_driver);
+diff -Nru a/include/asm-ppc/ocp.h b/include/asm-ppc/ocp.h
+--- a/include/asm-ppc/ocp.h	Wed May 12 06:18:07 2004
++++ b/include/asm-ppc/ocp.h	Wed May 12 06:18:07 2004
+@@ -1,103 +1,114 @@
+ /*
+  * ocp.h
+  *
++ *      (c) Benjamin Herrenschmidt (benh@kernel.crashing.org)
++ *          Mipsys - France
+  *
+- * 	Current Maintainer
+- *      Armin Kuster akuster@pacbell.net
+- *      Jan, 2002
+- *
++ *          Derived from work (c) Armin Kuster akuster@pacbell.net
+  *
++ *          Additional support and port to 2.6 LDM/sysfs by
++ *          Matt Porter <mporter@kernel.crashing.org>
++ *          Copyright 2003-2004 MontaVista Software, Inc.
+  *
+  * This program is free software; you can redistribute  it and/or modify it
+- *  under  the terms of  the GNU General  Public License as published by the
+- *  Free Software Foundation;  either version 2 of the  License, or (at your
+- *  option) any later version.
+- *
+- *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR   IMPLIED
+- *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+- *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT,  INDIRECT,
+- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+- *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
+- *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+- *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
+- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *  You should have received a copy of the  GNU General Public License along
+- *  with this program; if not, write  to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
 + *
-+ * Author: SAW (IBM), derived from walnut.h.
-+ *         Maintained by MontaVista Software <source@mvista.com>
-+ *
-+ * 2003 (c) MontaVista Softare Inc.  This file is licensed under the
-+ * terms of the GNU General Public License version 2. This program is
-+ * licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
-+ */
-+
-+#ifdef __KERNEL__
-+#ifndef __BUBINGA_H__
-+#define __BUBINGA_H__
-+
-+/* 405EP */
-+#include <platforms/4xx/ibm405ep.h>
-+
-+#ifndef __ASSEMBLY__
-+/*
-+ * Data structure defining board information maintained by the boot
-+ * ROM on IBM's evaluation board. An effort has been made to
-+ * keep the field names consistent with the 8xx 'bd_t' board info
-+ * structures.
-+ */
-+
-+typedef struct board_info {
-+        unsigned char    bi_s_version[4];       /* Version of this structure */
-+        unsigned char    bi_r_version[30];      /* Version of the IBM ROM */
-+        unsigned int     bi_memsize;            /* DRAM installed, in bytes */
-+        unsigned char    bi_enetaddr[2][6];     /* Local Ethernet MAC address */        unsigned char    bi_pci_enetaddr[6];    /* PCI Ethernet MAC address */
-+        unsigned int     bi_intfreq;            /* Processor speed, in Hz */
-+        unsigned int     bi_busfreq;            /* PLB Bus speed, in Hz */
-+        unsigned int     bi_pci_busfreq;        /* PCI Bus speed, in Hz */
-+        unsigned int     bi_opb_busfreq;        /* OPB Bus speed, in Hz */
-+        unsigned int     bi_pllouta_freq;       /* PLL OUTA speed, in Hz */
-+} bd_t;
-+
-+/* Some 4xx parts use a different timebase frequency from the internal clock.
-+*/
-+#define bi_tbfreq bi_intfreq
-+
-+
-+/* Memory map for the Bubinga board.
-+ * Generic 4xx plus RTC.
-+ */
-+
-+extern void *bubinga_rtc_base;
-+#define BUBINGA_RTC_PADDR	((uint)0xf0000000)
-+#define BUBINGA_RTC_VADDR	BUBINGA_RTC_PADDR
-+#define BUBINGA_RTC_SIZE	((uint)8*1024)
-+
-+/* The UART clock is based off an internal clock -
-+ * define BASE_BAUD based on the internal clock and divider(s).
-+ * Since BASE_BAUD must be a constant, we will initialize it
-+ * using clock/divider values which OpenBIOS initializes
-+ * for typical configurations at various CPU speeds.
-+ * The base baud is calculated as (FWDA / EXT UART DIV / 16)
-+ */
-+#define BASE_BAUD       0
-+
-+#define BUBINGA_FPGA_BASE      0xF0300000
-+
-+#define PPC4xx_MACHINE_NAME     "IBM Bubinga"
-+
-+#endif /* !__ASSEMBLY__ */
-+#endif /* __BUBINGA_H__ */
-+#endif /* __KERNEL__ */
-diff -Nru a/arch/ppc/platforms/4xx/ibm405ep.c b/arch/ppc/platforms/4xx/ibm405ep.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/ppc/platforms/4xx/ibm405ep.c	Wed May 12 09:24:09 2004
-@@ -0,0 +1,134 @@
-+/*
-+ * arch/ppc/platforms/ibm405ep.c
-+ *
-+ * Support for IBM PPC 405EP processors.
-+ *
-+ * Author: SAW (IBM), derived from ibmnp405l.c.
-+ *         Maintained by MontaVista Software <source@mvista.com>
-+ *
-+ * 2003 (c) MontaVista Softare Inc.  This file is licensed under the
-+ * terms of the GNU General Public License version 2. This program is
-+ * licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
-+ */
-+
-+#include <linux/config.h>
++ *  TODO: - Add get/put interface & fixup locking to provide same API for
++ *          2.4 and 2.5
++ *	  - Rework PM callbacks
+  */
+ 
+ #ifdef __KERNEL__
+ #ifndef __OCP_H__
+ #define __OCP_H__
+ 
 +#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/threads.h>
-+#include <linux/param.h>
-+#include <linux/string.h>
-+
-+#include <asm/ibm4xx.h>
-+#include <asm/ocp.h>
-+
-+#include <platforms/4xx/ibm405ep.h>
-+
-+static struct ocp_func_mal_data ibm405ep_mal0_def = {
-+	.num_tx_chans	= 4,		/* Number of TX channels */
-+	.num_rx_chans	= 2,		/* Number of RX channels */
-+	.txeob_irq	= 11,		/* TX End Of Buffer IRQ  */	
-+	.rxeob_irq	= 12,		/* RX End Of Buffer IRQ  */
-+	.txde_irq	= 13,		/* TX Descriptor Error IRQ */
-+	.rxde_irq	= 14,		/* RX Descriptor Error IRQ */
-+	.serr_irq	= 10,		/* MAL System Error IRQ    */
-+};
-+OCP_SYSFS_MAL_DATA()
-+
-+static struct ocp_func_emac_data ibm405ep_emac0_def = {
-+	.rgmii_idx	= -1,		/* No RGMII */
-+	.rgmii_mux	= -1,		/* No RGMII */
-+	.zmii_idx	= -1,		/* ZMII device index */
-+	.zmii_mux	= 0,		/* ZMII input of this EMAC */
-+	.mal_idx	= 0,		/* MAL device index */
-+	.mal_rx_chan	= 0,		/* MAL rx channel number */
-+	.mal_tx_chan	= 0,		/* MAL tx channel number */
-+	.wol_irq	= 9,		/* WOL interrupt number */
-+	.mdio_idx	= 0,		/* MDIO via EMAC0 */
-+	.tah_idx	= -1,		/* No TAH */
-+};
-+
-+static struct ocp_func_emac_data ibm405ep_emac1_def = {
-+	.rgmii_idx	= -1,		/* No RGMII */
-+	.rgmii_mux	= -1,		/* No RGMII */
-+	.zmii_idx	= -1,		/* ZMII device index */
-+	.zmii_mux	= 0,		/* ZMII input of this EMAC */
-+	.mal_idx	= 0,		/* MAL device index */
-+	.mal_rx_chan	= 1,		/* MAL rx channel number */
-+	.mal_tx_chan	= 2,		/* MAL tx channel number */
-+	.wol_irq	= 9,		/* WOL interrupt number */
-+	.mdio_idx	= 0,		/* MDIO via EMAC0 */
-+	.tah_idx	= -1,		/* No TAH */
-+};
-+OCP_SYSFS_EMAC_DATA()
-+
-+static struct ocp_func_iic_data ibm405ep_iic0_def = {
-+	.fast_mode	= 0,		/* Use standad mode (100Khz) */
-+};
-+OCP_SYSFS_IIC_DATA()
-+
-+struct ocp_def core_ocp[] = {
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_OPB,
-+	  .index	= 0,
-+	  .paddr	= 0xEF600000,
-+	  .irq		= OCP_IRQ_NA,
-+	  .pm		= OCP_CPM_NA,
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_16550,
-+	  .index	= 0,
-+	  .paddr	= UART0_IO_BASE,
-+	  .irq		= UART0_INT,
-+	  .pm		= IBM_CPM_UART0
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_16550,
-+	  .index	= 1,
-+	  .paddr	= UART1_IO_BASE,
-+	  .irq		= UART1_INT,
-+	  .pm		= IBM_CPM_UART1
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_IIC,
-+	  .paddr	= 0xEF600500,
-+	  .irq		= 2,
-+	  .pm		= IBM_CPM_IIC0,
-+	  .additions	= &ibm405ep_iic0_def,
-+	  .show		= &ocp_show_iic_data
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_GPIO,
-+	  .paddr	= 0xEF600700,
-+	  .irq		= OCP_IRQ_NA,
-+	  .pm		= IBM_CPM_GPIO0
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_MAL,
-+	  .paddr	= OCP_PADDR_NA,
-+	  .irq		= OCP_IRQ_NA,
-+	  .pm		= OCP_CPM_NA,
-+	  .additions	= &ibm405ep_mal0_def,
-+	  .show		= &ocp_show_mal_data
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_EMAC,
-+	  .index	= 0,
-+	  .paddr	= EMAC0_BASE,
-+	  .irq		= 15,
-+	  .pm		= OCP_CPM_NA,
-+	  .additions	= &ibm405ep_emac0_def,
-+	  .show		= &ocp_show_emac_data
-+	},
-+	{ .vendor	= OCP_VENDOR_IBM,
-+	  .function	= OCP_FUNC_EMAC,
-+	  .index	= 1,
-+	  .paddr	= 0xEF600900,
-+	  .irq		= 17,
-+	  .pm		= OCP_CPM_NA,
-+	  .additions	= &ibm405ep_emac1_def,
-+	  .show		= &ocp_show_emac_data
-+	},
-+	{ .vendor	= OCP_VENDOR_INVALID
-+	}
-+};
-diff -Nru a/arch/ppc/platforms/4xx/ibm405ep.h b/arch/ppc/platforms/4xx/ibm405ep.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/ppc/platforms/4xx/ibm405ep.h	Wed May 12 09:24:09 2004
-@@ -0,0 +1,148 @@
+ #include <linux/list.h>
+ #include <linux/config.h>
++#include <linux/devfs_fs_kernel.h>
+ #include <linux/device.h>
+-#include <linux/errno.h>
+ 
++#include <asm/mmu.h>
+ #include <asm/ocp_ids.h>
+-#include <asm/mmu.h>		/* For phys_addr_t */
+-#undef DEBUG
+-/* #define DEBUG*/
+-
+-#ifdef DEBUG
+-#define DBG(x...) printk(x)
+-#else
+-#define DBG(x...)
+-#endif
++#include <asm/rwsem.h>
++#include <asm/semaphore.h>
+ 
++#define OCP_MAX_IRQS	7
++#define MAX_EMACS	4
+ #define OCP_IRQ_NA	-1	/* used when ocp device does not have an irq */
+-#define OCP_IRQ_MUL	-2	/* used for ocp devices with multiple irqs */
+-#define OCP_NULL_TYPE	0	/* used to mark end of list */
+-#define OCP_DEV_NA	-1
++#define OCP_IRQ_MUL	-2	/* used for ocp devices with multiply irqs */
++#define OCP_NULL_TYPE	-1	/* used to mark end of list */
+ #define OCP_CPM_NA	0	/* No Clock or Power Management avaliable */
++#define OCP_PADDR_NA	0	/* No MMIO registers */
+ 
+ #define OCP_ANY_ID	(~0)
++#define OCP_ANY_INDEX	-1
+ 
+-
+-extern struct list_head ocp_root_buses;
+-extern struct list_head ocp_devices;
++extern struct list_head 	ocp_devices;
++extern struct rw_semaphore	ocp_devices_sem;
+ 
+ struct ocp_device_id {
+-	unsigned int vendor, device;		/* Vendor and device ID or PCI_ANY_ID */
+-	char name[16];
+-	char desc[50];
+-	unsigned long driver_data;		/* Data private to the driver */
++	unsigned int	vendor, function;	/* Vendor and function ID or OCP_ANY_ID */
++	unsigned long	driver_data;		/* Data private to the driver */
+ };
+ 
+-struct func_info {
+-	char name[16];
+-	char desc[50];
+-};
+ 
 +/*
-+ * arch/ppc/platforms/4xx/ibm405ep.h
++ * Static definition of an OCP device.
 + *
-+ * IBM PPC 405EP processor defines.
-+ *
-+ * Author: SAW (IBM), derived from ibm405gp.h.
-+ *         Maintained by MontaVista Software <source@mvista.com>
-+ *
-+ * 2003 (c) MontaVista Softare Inc.  This file is licensed under the
-+ * terms of the GNU General Public License version 2. This program is
-+ * licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
++ * @vendor:    Vendor code. It is _STRONGLY_ discouraged to use
++ *             the vendor code as a way to match a unique device,
++ *             though I kept that possibility open, you should
++ *             really define different function codes for different
++ *             device types
++ * @function:  This is the function code for this device.
++ * @index:     This index is used for mapping the Nth function of a
++ *             given core. This is typically used for cross-driver
++ *             matching, like looking for a given MAL or ZMII from
++ *             an EMAC or for getting to the proper set of DCRs.
++ *             Indices are no longer magically calculated based on
++ *             structure ordering, they have to be actually coded
++ *             into the ocp_def to avoid any possible confusion
++ *             I _STRONGLY_ (again ? wow !) encourage anybody relying
++ *             on index mapping to encode the "target" index in an
++ *             associated structure pointed to by "additions", see
++ *             how it's done for the EMAC driver.
++ * @paddr:     Device physical address (may not mean anything...)
++ * @irq:       Interrupt line for this device (TODO: think about making
++ *             an array with this)
++ * @pm:        Currently, contains the bitmask in CPMFR DCR for the device
++ * @additions: Optionally points to a function specific structure
++ *             providing additional informations for a given device
++ *             instance. It's currently used by the EMAC driver for MAL
++ *             channel & ZMII port mapping among others.
++ * @show:      Optionally points to a function specific structure
++ *             providing a sysfs show routine for additions fields.
 + */
+ struct ocp_def {
+-	unsigned int vendor;
+-	unsigned int device;
+-	phys_addr_t paddr;
+-	int irq;
+-	unsigned long pm;
++	unsigned int	vendor;
++	unsigned int	function;
++	int		index;
++	phys_addr_t	paddr;
++	int	  	irq;
++	unsigned long	pm;
++	void		*additions;
++	void		(*show)(struct device *);
+ };
+ 
+ 
+-/* Struct for single ocp device managment */
++/* Struct for a given device instance */
+ struct ocp_device {
+-	struct list_head global_list;
+-	unsigned int	num;		/* instance of device */
+-	char		name[80];	/* device name */
+-	unsigned int vendor;
+-	unsigned int device;
+-	phys_addr_t paddr;
+-	int irq;
+-	unsigned long pm;
+-	void *ocpdev;		/* driver data for this device */
+-	struct ocp_driver *driver;
+-	u32 current_state;	/* Current operating state. In ACPI-speak,
+-				   this is D0-D3, D0 being fully functional,
+-				   and D3 being off. */
+-	struct device dev;
++	struct list_head	link;
++	char			name[80];	/* device name */
++	struct ocp_def		*def;		/* device definition */
++	void			*drvdata;	/* driver data for this device */
++	struct ocp_driver	*driver;
++	u32			current_state;	/* Current operating state. In ACPI-speak,
++						   this is D0-D3, D0 being fully functional,
++						   and D3 being off. */
++	struct			device dev;
+ };
+ 
+ struct ocp_driver {
+@@ -106,23 +117,13 @@
+ 	const struct ocp_device_id *id_table;	/* NULL if wants all devices */
+ 	int  (*probe)  (struct ocp_device *dev);	/* New device inserted */
+ 	void (*remove) (struct ocp_device *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
+-	int  (*save_state) (struct ocp_device *dev, u32 state);    /* Save Device Context */
+ 	int  (*suspend) (struct ocp_device *dev, u32 state);	/* Device suspended */
+ 	int  (*resume) (struct ocp_device *dev);	                /* Device woken up */
+-	int  (*enable_wake) (struct ocp_device *dev, u32 state, int enable);   /* Enable wake event */
+ 	struct device_driver driver;
+ };
+ 
+-#define	to_ocp_dev(n) container_of(n, struct ocp_device, dev)
+-#define	to_ocp_driver(n) container_of(n, struct ocp_driver, driver)
+-
+-extern int ocp_register_driver(struct ocp_driver *drv);
+-extern void ocp_unregister_driver(struct ocp_driver *drv);
+-
+-#define ocp_dev_g(n) list_entry(n, struct ocp_device, global_list)
+-
+-#define ocp_for_each_dev(dev) \
+-	for(dev = ocp_dev_g(ocp_devices.next); dev != ocp_dev_g(&ocp_devices); dev = ocp_dev_g(dev->global_list.next))
++#define to_ocp_dev(n) container_of(n, struct ocp_device, dev)
++#define to_ocp_drv(n) container_of(n, struct ocp_driver, driver)
+ 
+ /* Similar to the helpers above, these manipulate per-ocp_dev
+  * driver-specific data.  Currently stored as ocp_dev::ocpdev,
+@@ -131,45 +132,13 @@
+ static inline void *
+ ocp_get_drvdata(struct ocp_device *pdev)
+ {
+-	return pdev->ocpdev;
++	return pdev->drvdata;
+ }
+ 
+ static inline void
+ ocp_set_drvdata(struct ocp_device *pdev, void *data)
+ {
+-	pdev->ocpdev = data;
+-}
+-
+-/*
+- * a helper function which helps ensure correct pci_driver
+- * setup and cleanup for commonly-encountered hotplug/modular cases
+- *
+- * This MUST stay in a header, as it checks for -DMODULE
+- */
+-static inline int ocp_module_init(struct ocp_driver *drv)
+-{
+-	int rc = ocp_register_driver(drv);
+-
+-	if (rc > 0)
+-		return 0;
+-
+-	/* iff CONFIG_HOTPLUG and built into kernel, we should
+-	 * leave the driver around for future hotplug events.
+-	 * For the module case, a hotplug daemon of some sort
+-	 * should load a module in response to an insert event. */
+-#if defined(CONFIG_HOTPLUG) && !defined(MODULE)
+-	if (rc == 0)
+-		return 0;
+-#else
+-	if (rc == 0)
+-		rc = -ENODEV;		
+-#endif
+-
+-	/* if we get here, we need to clean up pci driver instance
+-	 * and return some sort of error */
+-	ocp_unregister_driver (drv);
+-	
+-	return rc;
++	pdev->drvdata = data;
+ }
+ 
+ #if defined (CONFIG_PM)
+@@ -180,26 +149,56 @@
+ static inline void
+ ocp_force_power_off(struct ocp_device *odev)
+ {
+-	mtdcr(DCRN_CPMFR, mfdcr(DCRN_CPMFR) | odev->pm);
++	mtdcr(DCRN_CPMFR, mfdcr(DCRN_CPMFR) | odev->def->pm);
+ }
+ 
+ static inline void
+ ocp_force_power_on(struct ocp_device *odev)
+ {
+-	mtdcr(DCRN_CPMFR, mfdcr(DCRN_CPMFR) & ~odev->pm);
++	mtdcr(DCRN_CPMFR, mfdcr(DCRN_CPMFR) & ~odev->def->pm);
+ }
+ #else
+ #define ocp_force_power_off(x)	(void)(x)
+ #define ocp_force_power_on(x)	(void)(x)
+ #endif
+ 
+-extern void ocp_init(void);
+-extern struct bus_type ocp_bus_type;
+-extern struct ocp_device *ocp_get_dev(unsigned int device, int index);
+-extern unsigned int ocp_get_num(unsigned int device);
++/* Register/Unregister an OCP driver */
++extern int ocp_register_driver(struct ocp_driver *drv);
++extern void ocp_unregister_driver(struct ocp_driver *drv);
 +
-+#ifdef __KERNEL__
-+#ifndef __ASM_IBM405EP_H__
-+#define __ASM_IBM405EP_H__
++/* Build list of devices */
++extern int ocp_early_init(void) __init;
+ 
+-extern int ocp_generic_suspend(struct ocp_device *pdev, u32 state);
+-extern int ocp_generic_resume(struct ocp_device *pdev);
++/* Find a device by index */
++extern struct ocp_device *ocp_find_device(unsigned int vendor, unsigned int function, int index);
 +
-+#include <linux/config.h>
++/* Get a def by index */
++extern struct ocp_def *ocp_get_one_device(unsigned int vendor, unsigned int function, int index);
 +
-+/* ibm405.h at bottom of this file */
++/* Add a device by index */
++extern int ocp_add_one_device(struct ocp_def *def);
 +
-+/* PCI
-+ * PCI Bridge config reg definitions
-+ * see 17-19 of manual
-+ */
++/* Remove a device by index */
++extern int ocp_remove_one_device(unsigned int vendor, unsigned int function, int index);
 +
-+#define PPC405_PCI_CONFIG_ADDR	0xeec00000
-+#define PPC405_PCI_CONFIG_DATA	0xeec00004
++/* Iterate over devices and execute a routine */
++extern void ocp_for_each_device(void(*callback)(struct ocp_device *, void *arg), void *arg);
 +
-+#define PPC405_PCI_PHY_MEM_BASE	0x80000000	/* hose_a->pci_mem_offset */
-+						/* setbat */
-+#define PPC405_PCI_MEM_BASE	PPC405_PCI_PHY_MEM_BASE	/* setbat */
-+#define PPC405_PCI_PHY_IO_BASE	0xe8000000	/* setbat */
-+#define PPC405_PCI_IO_BASE	PPC405_PCI_PHY_IO_BASE	/* setbat */
++/* Sysfs support */
++#define OCP_SYSFS_ADDTL(type, format, name, field)			\
++static ssize_t								\
++show_##name##_##field(struct device *dev, char *buf)			\
++{									\
++	struct ocp_device *odev = to_ocp_dev(dev);			\
++	type *add = odev->def->additions;				\
++									\
++	return sprintf(buf, format, add->field);			\
++}									\
++static DEVICE_ATTR(name##_##field, S_IRUGO, show_##name##_##field, NULL);
 +
-+#define PPC405_PCI_LOWER_MEM	0x80000000	/* hose_a->mem_space.start */
-+#define PPC405_PCI_UPPER_MEM	0xBfffffff	/* hose_a->mem_space.end */
-+#define PPC405_PCI_LOWER_IO	0x00000000	/* hose_a->io_space.start */
-+#define PPC405_PCI_UPPER_IO	0x0000ffff	/* hose_a->io_space.end */
-+
-+#define PPC405_ISA_IO_BASE	PPC405_PCI_IO_BASE
-+
-+#define PPC4xx_PCI_IO_PADDR	((uint)PPC405_PCI_PHY_IO_BASE)
-+#define PPC4xx_PCI_IO_VADDR	PPC4xx_PCI_IO_PADDR
-+#define PPC4xx_PCI_IO_SIZE	((uint)64*1024)
-+#define PPC4xx_PCI_CFG_PADDR	((uint)PPC405_PCI_CONFIG_ADDR)
-+#define PPC4xx_PCI_CFG_VADDR	PPC4xx_PCI_CFG_PADDR
-+#define PPC4xx_PCI_CFG_SIZE	((uint)4*1024)
-+#define PPC4xx_PCI_LCFG_PADDR	((uint)0xef400000)
-+#define PPC4xx_PCI_LCFG_VADDR	PPC4xx_PCI_LCFG_PADDR
-+#define PPC4xx_PCI_LCFG_SIZE	((uint)4*1024)
-+#define PPC4xx_ONB_IO_PADDR	((uint)0xef600000)
-+#define PPC4xx_ONB_IO_VADDR	PPC4xx_ONB_IO_PADDR
-+#define PPC4xx_ONB_IO_SIZE	((uint)4*1024)
-+
-+/* serial port defines */
-+#define RS_TABLE_SIZE	2
-+
-+#define UART0_INT	0
-+#define UART1_INT	1
-+
-+#define PCIL0_BASE	0xEF400000
-+#define UART0_IO_BASE	0xEF600300
-+#define UART1_IO_BASE	0xEF600400
-+#define EMAC0_BASE	0xEF600800
-+
-+#define BD_EMAC_ADDR(e,i) bi_enetaddr[e][i]
-+
-+#if defined(CONFIG_UART0_TTYS0)
-+#define ACTING_UART0_IO_BASE	UART0_IO_BASE
-+#define ACTING_UART1_IO_BASE	UART1_IO_BASE
-+#define ACTING_UART0_INT	UART0_INT
-+#define ACTING_UART1_INT	UART1_INT
-+#else
-+#define ACTING_UART0_IO_BASE	UART1_IO_BASE
-+#define ACTING_UART1_IO_BASE	UART0_IO_BASE
-+#define ACTING_UART0_INT	UART1_INT
-+#define ACTING_UART1_INT	UART0_INT
++#ifdef CONFIG_IBM_OCP
++#include <asm/ibm_ocp.h>
 +#endif
-+
-+#define STD_UART_OP(num)					\
-+	{ 0, BASE_BAUD, 0, ACTING_UART##num##_INT,			\
-+		(ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST),	\
-+		iomem_base: (u8 *)ACTING_UART##num##_IO_BASE,		\
-+		io_type: SERIAL_IO_MEM},
-+
-+#define SERIAL_DEBUG_IO_BASE	ACTING_UART0_IO_BASE
-+#define SERIAL_PORT_DFNS	\
-+	STD_UART_OP(0)		\
-+	STD_UART_OP(1)
-+
-+/* DCR defines */
-+#define DCRN_CPMSR_BASE         0x0BA
-+#define DCRN_CPMFR_BASE         0x0B9
-+
-+#define DCRN_CPC0_PLLMR0_BASE   0x0F0
-+#define DCRN_CPC0_BOOT_BASE     0x0F1
-+#define DCRN_CPC0_CR1_BASE      0x0F2
-+#define DCRN_CPC0_EPRCSR_BASE   0x0F3
-+#define DCRN_CPC0_PLLMR1_BASE   0x0F4
-+#define DCRN_CPC0_UCR_BASE      0x0F5
-+#define DCRN_CPC0_UCR_U0DIV     0x07F
-+#define DCRN_CPC0_SRR_BASE      0x0F6
-+#define DCRN_CPC0_JTAGID_BASE   0x0F7
-+#define DCRN_CPC0_SPARE_BASE    0x0F8
-+#define DCRN_CPC0_PCI_BASE      0x0F9
-+
-+
-+#define IBM_CPM_GPT             0x80000000      /* GPT interface */
-+#define IBM_CPM_PCI             0x40000000      /* PCI bridge */
-+#define IBM_CPM_UIC             0x00010000      /* Universal Int Controller */
-+#define IBM_CPM_CPU             0x00008000      /* processor core */
-+#define IBM_CPM_EBC             0x00002000      /* EBC controller */
-+#define IBM_CPM_SDRAM0          0x00004000      /* SDRAM memory controller */
-+#define IBM_CPM_GPIO0           0x00001000      /* General Purpose IO */
-+#define IBM_CPM_TMRCLK          0x00000400      /* CPU timers */
-+#define IBM_CPM_PLB             0x00000100      /* PLB bus arbiter */
-+#define IBM_CPM_OPB             0x00000080      /* PLB to OPB bridge */
-+#define IBM_CPM_DMA             0x00000040      /* DMA controller */
-+#define IBM_CPM_IIC0            0x00000010      /* IIC interface */
-+#define IBM_CPM_UART1           0x00000002      /* serial port 0 */
-+#define IBM_CPM_UART0           0x00000001      /* serial port 1 */
-+#define DFLT_IBM4xx_PM          ~(IBM_CPM_PCI | IBM_CPM_CPU | IBM_CPM_DMA \
-+                                        | IBM_CPM_OPB | IBM_CPM_EBC \
-+                                        | IBM_CPM_SDRAM0 | IBM_CPM_PLB \
-+                                        | IBM_CPM_UIC | IBM_CPM_TMRCLK)
-+#define DCRN_DMA0_BASE          0x100
-+#define DCRN_DMA1_BASE          0x108
-+#define DCRN_DMA2_BASE          0x110
-+#define DCRN_DMA3_BASE          0x118
-+#define DCRNCAP_DMA_SG          1       /* have DMA scatter/gather capability */
-+#define DCRN_DMASR_BASE         0x120
-+#define DCRN_EBC_BASE           0x012
-+#define DCRN_DCP0_BASE          0x014
-+#define DCRN_MAL_BASE           0x180
-+#define DCRN_OCM0_BASE          0x018
-+#define DCRN_PLB0_BASE          0x084
-+#define DCRN_PLLMR_BASE         0x0B0
-+#define DCRN_POB0_BASE          0x0A0
-+#define DCRN_SDRAM0_BASE        0x010
-+#define DCRN_UIC0_BASE          0x0C0
-+#define UIC0 DCRN_UIC0_BASE
-+
-+#include <asm/ibm405.h>
-+
-+#endif				/* __ASM_IBM405EP_H__ */
-+#endif				/* __KERNEL__ */
+ 
+ #endif				/* __OCP_H__ */
+ #endif				/* __KERNEL__ */
+diff -Nru a/include/asm-ppc/ocp_ids.h b/include/asm-ppc/ocp_ids.h
+--- a/include/asm-ppc/ocp_ids.h	Wed May 12 06:18:07 2004
++++ b/include/asm-ppc/ocp_ids.h	Wed May 12 06:18:07 2004
+@@ -1,34 +1,15 @@
+ /*
+- * FILE NAME: ocp_ids.h
++ * ocp_ids.h
+  *
+- * BRIEF MODULE DESCRIPTION:
+  * OCP device ids based on the ideas from PCI
+  *
+- * Maintained by: Armin <akuster@mvista.com>
++ * The numbers below are almost completely arbitrary, and in fact
++ * strings might work better.  -- paulus
+  *
+- *
+- *  This program is free software; you can redistribute  it and/or modify it
+- *  under  the terms of  the GNU General  Public License as published by the
+- *  Free Software Foundation;  either version 2 of the  License, or (at your
+- *  option) any later version.
+- *
+- *  THIS  SOFTWARE  IS PROVIDED   ``AS  IS'' AND   ANY  EXPRESS OR IMPLIED
+- *  WARRANTIES,   INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+- *  NO  EVENT  SHALL   THE AUTHOR  BE    LIABLE FOR ANY   DIRECT, INDIRECT,
+- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+- *  NOT LIMITED   TO, PROCUREMENT OF  SUBSTITUTE GOODS  OR SERVICES; LOSS OF
+- *  USE, DATA,  OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+- *  ANY THEORY OF LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT
+- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *  You should have received a copy of the  GNU General Public License along
+- *  with this program; if not, write  to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- *  Version 1.0 08/22/02 -Armin
+- *  	initial release
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
+  */
+ 
+ /*
+@@ -42,8 +23,9 @@
+ 
+ #define	OCP_VENDOR_INVALID	0x0000
+ #define	OCP_VENDOR_ARM		0x0004
++#define OCP_VENDOR_FREESCALE	0x1057
+ #define OCP_VENDOR_IBM		0x1014
+-#define OCP_VENDOR_MOTOROLA	0x1057
++#define OCP_VENDOR_MOTOROLA	OCP_VENDOR_FREESCALE
+ #define	OCP_VENDOR_XILINX	0x10ee
+ #define	OCP_VENDOR_UNKNOWN	0xFFFF
+ 
+@@ -53,33 +35,20 @@
+ #define OCP_FUNC_INVALID	0x0000
+ 
+ /* system 0x0001 - 0x001F */
+-#define	OCP_FUNC_UIC		0x0001
+ 
+ /* Timers 0x0020 - 0x002F */
+-#define OCP_FUNC_GPT		0x0020 	/* General purpose timers */
+-#define OCP_FUNC_RTC		0x0021
+ 
+ /* Serial 0x0030 - 0x006F*/
+ #define OCP_FUNC_16550		0x0031
+-#define OCP_FUNC_SSP		0x0032 /* sync serial port */
+-#define OCP_FUNC_SCP		0x0033 	/* serial controller port */
+-#define OCP_FUNC_SCC		0x0034 	/* serial contoller */
+-#define OCP_FUNC_SCI		0x0035 	/* Smart card */
+-#define OCP_FUNC_IIC		0x0040
+-#define OCP_FUNC_USB		0x0050
+-#define OCP_FUNC_IR		0x0060	
++#define OCP_FUNC_IIC		0x0032
++#define OCP_FUNC_USB		0x0033
+ 
+ /* Memory devices 0x0090 - 0x009F */
+-#define	OCP_FUNC_SDRAM		0x0091
+-#define OCP_FUNC_DMA		0x0092
++#define OCP_FUNC_MAL		0x0090
+ 
+ /* Display 0x00A0 - 0x00AF */
+-#define OCP_FUNC_VIDEO		0x00A0
+-#define OCP_FUNC_LED		0x00A1
+-#define	OCP_FUNC_LCD		0x00A2
+ 
+ /* Sound 0x00B0 - 0x00BF */
+-#define OCP_FUNC_AUDIO		0x00B0
+ 
+ /* Mass Storage 0x00C0 - 0xxCF */
+ #define OCP_FUNC_IDE		0x00C0
+@@ -87,17 +56,15 @@
+ /* Misc 0x00D0 - 0x00DF*/
+ #define OCP_FUNC_GPIO		0x00D0
+ #define OCP_FUNC_ZMII		0x00D1
++#define OCP_FUNC_PERFMON	0x00D2	/* Performance Monitor */
++#define OCP_FUNC_RGMII		0x00D3
++#define OCP_FUNC_TAH		0x00D4
+ 
+ /* Network 0x0200 - 0x02FF */
+ #define OCP_FUNC_EMAC		0x0200
++#define OCP_FUNC_ENET		0x0201	/* TSEC & FEC */
+ 
+ /* Bridge devices 0xE00 - 0xEFF */
+-#define OCP_FUNC_HOST		0x0E00
+-#define OCP_FUNC_DCR		0x0E01
+-#define OCP_FUNC_OPB		0x0E02
+-#define OCP_FUNC_PHY		0x0E03
+-#define OCP_FUNC_EXT		0x0E04
+-#define	OCP_FUNC_PCI		0x0E05
+-#define	OCP_FUNC_PLB		0x0E06
++#define OCP_FUNC_OPB		0x0E00
+ 
+ #define OCP_FUNC_UNKNOWN	0xFFFF

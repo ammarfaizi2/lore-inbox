@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136815AbREIScF>; Wed, 9 May 2001 14:32:05 -0400
+	id <S136821AbREISo6>; Wed, 9 May 2001 14:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136819AbREISb4>; Wed, 9 May 2001 14:31:56 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:59287 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136815AbREISbk>; Wed, 9 May 2001 14:31:40 -0400
-Date: Wed, 9 May 2001 14:30:20 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: David Brownell <david-b@pacbell.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pete Zaitcev <zaitcev@redhat.com>, johannes@erdfelt.com,
-        rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: pci_pool_free from IRQ
-Message-ID: <20010509143020.A22522@devserv.devel.redhat.com>
-In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu> <E14xFD5-0000hh-00@the-village.bc.nu> <15096.27479.707679.544048@pizda.ninka.net> <050701c0d80f$8f876ca0$6800000a@brownell.org> <15096.38109.228916.621891@pizda.ninka.net>
+	id <S136822AbREISot>; Wed, 9 May 2001 14:44:49 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:17150 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S136821AbREISog>; Wed, 9 May 2001 14:44:36 -0400
+Date: Wed, 9 May 2001 20:44:35 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] make distclean tries to delete dirs in tmpfs
+Message-ID: <20010509204434.Q754@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15096.38109.228916.621891@pizda.ninka.net>; from davem@redhat.com on Tue, May 08, 2001 at 05:52:45PM -0700
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: "David S. Miller" <davem@redhat.com>
-> Date: Tue, 8 May 2001 17:52:45 -0700 (PDT)
+Hi there,
 
-> Ummm... What Alan's saying is:
-> 
-> 1) Whatever driver is trying to shut down from IRQ context
->    is broken must be fixed.  pci_pool is fine.
-> 
-> 2) The Documentation/ files which suggest that such device
->    removal from IRQs is "OK" must be fixed because it is not
->    "OK" to handle device removal from IRQ context.
-> 
-> So Pete's change is not needed.  A fix for the documentation and
-> broken drivers is needed instead.
+make distclean deletes anything with size 0. This includes
+directories, while making the kernel in tmpfs or ramfs.
 
-David, I do not follow your logic here, sorry.
+This patch solves it, by not deleting directories in this rule.
 
-I wrote that a path exists from a function that is legal in
-interrupt context (pci_pool_free) into a function that is
-not legal in interrupt context (pci_free_consistent).
-The change breaks that connection. Note that pci_pool_free
-is called when driver operates normally.
+Patch applies to any official kernel and with offsets even to
+recent ac series.
 
-When you write "fix documentation and broken drivers", you talk
-about a fix for a part that processes PCI remove. This is entirely
-fine by me. But I was talking about a regular interrupt procession
-in driver. A fix in pci remove does not fix regular processing.
+--- linux-2.4.2-ac19/Makefile.orig  Wed May  9 10:47:04 2001
++++ linux-2.4.2-ac19/Makefile Wed May  9 10:51:04 2001
+@@ -415,7 +415,8 @@
+ 	$(MAKE) -C Documentation/DocBook mrproper
 
--- Pete
+ distclean: mrproper
+-	rm -f core `find . \( -name '*.orig' -o -name '*.rej' -o -name '*~' \
++	rm -f core `find . \( -not -type d \) -and \
++		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+ 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+ 		-o -name '.*.rej' -o -name '.SUMS' -o -size 0 \) -print` TAGS tags
+
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

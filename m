@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUJVWfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUJVWjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268094AbUJVWfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 18:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268025AbUJVWeN
+	id S268253AbUJVWjH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 18:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJVWhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 18:34:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30419 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268248AbUJVWbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 18:31:23 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-From: Lee Revell <rlrevell@joe-job.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-In-Reply-To: <1098482764.20495.2.camel@krustophenia.net>
-References: <20041014234202.GA26207@elte.hu>
-	 <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-	 <200410221749.35306.gene.heskett@verizon.net>
-	 <1098482764.20495.2.camel@krustophenia.net>
+	Fri, 22 Oct 2004 18:37:23 -0400
+Received: from gate.crashing.org ([63.228.1.57]:65210 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268025AbUJVWfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 18:35:42 -0400
+Subject: Re: [PATCH] PPC32: Fix cpu voltage change delay
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041022180117.GA2162@us.ibm.com>
+References: <16744.45392.781083.565926@cargo.ozlabs.ibm.com>
+	 <20041022180117.GA2162@us.ibm.com>
 Content-Type: text/plain
-Date: Fri, 22 Oct 2004 18:30:10 -0400
-Message-Id: <1098484211.1440.0.camel@krustophenia.net>
+Message-Id: <1098484464.11740.77.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 23 Oct 2004 08:34:24 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 18:06 -0400, Lee Revell wrote:
-> On Fri, 2004-10-22 at 17:49 -0400, Gene Heskett wrote:
-> > Mmm, I get a 404 page not found. when I click on  on thsi link.
-> 
-> Same here.  The current version is 10.3:
-> 
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-mm1-U10.3
+On Sat, 2004-10-23 at 04:01, Nishanth Aravamudan wrote:
 
-OK, U10.3 is the first since T3 for me that boots flawlessly.  Latency
-numbers forthcoming...
+> While looking through the latest bk changelogs, I noticed that you had
+> submitted this patch using msleep(). When I read the comment, though,
+> that you were offsetting the 1 millisecond with a jiffy, I was slightly
+> confused as msleep() is designed to sleep for *at least* the time
+> requested. So if you just use msleep(1) in these cases, you should have
+> the desired effect. msleep() is designed to be independent of HZ (as the
+> timeout is specified in non-jiffy units). Not using the
+> jiffies_to_msecs() macro would remove some extra instructions... The
+> attached patch makes this change (on top of your patch currently in bk7)
+> and also changes the other schedule_timeout()s (at least, those that can
+> be) to msleep.
 
-Lee
+No, please leave them as-is at least for now... Last we saw, there was
+a potential issue with schedule_timeout(1) itself not guaranteeing it would
+sleep for an entire jiffie, but only up to the next jiffie...
+
+Ben.
+
 

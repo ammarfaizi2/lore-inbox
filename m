@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129684AbQL2Lwx>; Fri, 29 Dec 2000 06:52:53 -0500
+	id <S129781AbQL2MFH>; Fri, 29 Dec 2000 07:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129781AbQL2Lwo>; Fri, 29 Dec 2000 06:52:44 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2566 "EHLO
+	id <S130290AbQL2ME6>; Fri, 29 Dec 2000 07:04:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6406 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129684AbQL2Lwa>; Fri, 29 Dec 2000 06:52:30 -0500
-Subject: Re: kernel BUG at buffer.c:765
-To: summer@os2.ami.com.au (John Summerfield)
-Date: Fri, 29 Dec 2000 11:23:40 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <200012290052.IAA08785@dugite.os2.ami.com.au> from "John Summerfield" at Dec 29, 2000 08:52:00 AM
+	id <S129781AbQL2MEo>; Fri, 29 Dec 2000 07:04:44 -0500
+Subject: Re: aic7xxx 2.4.0 test12 hang
+To: donaldlf@hermes.cs.rose-hulman.edu (Leslie Donaldson)
+Date: Fri, 29 Dec 2000 11:36:31 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A4C48AB.59B58F04@mailhost.cs.rose-hulman.edu> from "Leslie Donaldson" at Dec 29, 2000 02:17:47 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14BxdP-00056q-00@the-village.bc.nu>
+Message-Id: <E14Bxpq-000581-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ll_rw_block: device 08:00: only 2048-char blocks implemented (1024)
-> kernel BUG at buffer.c:765!
-> invalid operand: 0000
+>   While I am in the code I also want to go digging around and see if I
+> can find a 
+> way to turn of the in memory buffering that Linux does for block devices
+> as this
+> would make my fscking a LOT shorter, (18 gigs is slow),
 
-Known problem. Its been there for a long time in 2.3.x. File system access
-for FAT type files to the media is also still broken.
+No, because you need to do the ordering too. You could drop reiserfs on the
+disk if you are feeling adventurous as that will cut your fsck time right
+down. 
 
-> Dec 28 15:10:13 dugite kernel: SCSI device sda: 310352 2048-byte hdwr sectors (636 MB)
-> Dec 28 15:10:13 dugite kernel: sda: Write Protect is off
-> Dec 28 15:10:13 dugite kernel:  sda: sda1
+> >          i've read about similar hangs on an alpha on this list (same kind of controller)
+> >          any solution there ...
 
-Same as mine.
-
+AIC7xxx makes invalid uses of 32bit values for set_bit() and friends so it
+may be that for the Alpha and the like problems
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

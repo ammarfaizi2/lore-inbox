@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVBDCK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVBDCMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbVBDCK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 21:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbVBDCBd
+	id S261777AbVBDCMS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 21:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbVBDCMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 21:01:33 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48260 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261629AbVBDB5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 20:57:41 -0500
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: Koichi Suzuki <koichi@intellilink.co.jp>, Vivek Goyal <vgoyal@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Hariprasad Nellitheertha <hari@in.ibm.com>,
-       suparna bhattacharya <suparna@in.ibm.com>
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
-References: <20050202161108.18D7.ODA@valinux.co.jp>
-	<m1fz0f9g20.fsf@ebiederm.dsl.xmission.com>
-	<20050204090151.18F0.ODA@valinux.co.jp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Feb 2005 18:55:30 -0700
-In-Reply-To: <20050204090151.18F0.ODA@valinux.co.jp>
-Message-ID: <m1brb19jhp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 21:12:17 -0500
+Received: from main.gmane.org ([80.91.229.2]:4809 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263270AbVBDBvd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 20:51:33 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Date: Fri, 04 Feb 2005 00:36:00 +0000
+Message-ID: <pan.2005.02.04.00.22.41.102231@maihem.org>
+References: <200502031420.j13EKwFx005545@localhost.localdomain> <4202876F.3010302@kolivas.org> <20050203204711.GB25018@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host81-156-197-142.range81-156.btcentralplus.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Gmane-MailScanner: Found to be clean
+Cc: ck@vds.kolivas.org
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: s
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itsuro Oda <oda@valinux.co.jp> writes:
+On Thu, 03 Feb 2005 21:47:11 +0100, Ingo Molnar wrote:
 
-> Hi,
 > 
-> On 02 Feb 2005 07:45:11 -0700
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> * Con Kolivas <kernel@kolivas.org> wrote:
 > 
-> > 
-> > And the feedback begins :)
-> > 
-> > Itsuro Oda <oda@valinux.co.jp> writes:
-> > 
-> > > Hi,
-> > > 
-> > > I don't like calling crash_kexec() directly in (ex.) panic().
-> > > It should be call_dump_hook() (or something like this).
-> > > 
-> > > I think the necessary modifications of the kernel is only:
-> > > - insert the hooks that calls a dump function when crash occur
-> > crash_kexec()
-> > > - binding interface that binds a dump function to the hook
-> > >   (like register_dump_hook())
-> > sys_kexec_load(...);
+>> >	* real inter-process handoff. i am thinking of something like
+>> >	    sched_yield(), but it would take a TID as the target
+>> >	    of the yield. this would avoid all the crap we have to 
+>> >	    go through to drive the graph of clients with FIFO's and
+>> >	    write(2) and poll(2). Futexes might be a usable
+>> >	    approximation in 2.6 (we are supporting 2.4, so we can't
+>> >	    use them all the time)
+>> 
+>> yield_to(tid) should not be too hard to implement. Ingo? What do you
+>> think?
 > 
-> For example there are pepole who want to execute a built in kernel
-> debugger when the system is crashed. or there are pepole who
-> believe the diskdump is the best dump tool :-)
-> 
-> So I think a sort of hook is better than calling crash_kexec 
-> directly. (May I make a patch ?)
+> i dont really like it - it's really the wrong interface to use.
 
-The prevalent feeling I have heard from kernel developers and 
-and my personal feeling as well is that after a kernel has called
-panic you can't trust it.  Which means anything running in the kernel
-itself is suspect.
+Would it be nice to create scheduling domains, so the processes in a
+domain have priority relative to each other. The second highest priority
+FIFO task could actually be a scheduling sub-domain (which appears to be a
+child process of task A). In that scheduling sub-domain would be all the
+real-time tasks that A manages the scheduling of. It gets to set their
+relative priorities and sched class.
 
-The crash_kexec() hooks enables everything that does not get linked into
-the kernel.   So I don't feel a hook in the panic path is necessary
-nor do I feel that it is wise, especially with no in-kernel users.
+Task A could then make the first FIFO client be at the top of that domain,
+with the second task to run being at the next priority, etc. Then Task A
+blocks waiting for a watchdog timer so it can keep an eye on things. This
+way yield_to would actually be almost a special case of a pre-configurable
+sequence of operations which can have FIFO parts, RR parts, and OTHER
+parts. Task A could also put one of its own threads in the sub-domain to
+be able to change its state at a certain point in the sequence rather than
+a certain time.
 
-Plus the worst part about a hook in the panic path is that it is
-inherently racy.  Keeping the crash_kexec() code from blocking or
-being racy has been a challenge.  And I still think that entire code
-path needs a review and some more code tweaks to remove races.
+This could be extended to allow init to own a sub-domain for each user
+that it could manage to allow users to each have real-time operations, and
+daemons with high priorities relative to that user's other tasks, but
+without interfering with other users (or giving root an automatic
+advantage). It could make accounting easier, and allow users to get total
+priority equal to the amount of money they pay.
 
-If someone else wants a hook in the panic path they can add their own
-hook, and make their own case for why it is needed.
+I know this could be a lot of work, but is it sound in principle?
 
-Eric
+How would you do better than RR between users with domains at the same
+priority though... That I'm not sure of. IE, it might be good to switch
+back to any domain that has a recently woken task more frequently but for
+less time then extend the time and decrease the frequency as the time
+since waking increases. That way users tasks could respond quickly to
+events without ever being able to cause or suffer from starvation.
+
+Unfortunately, O(1) behaviour would be a must, and that scheme could be
+particularly hard to implement in O(1) :)
+
+Is it useful, too much work, over-engineered, logically impossible?
+
+-- 
+Tristan Wibberley
+

@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135175AbRDRNfT>; Wed, 18 Apr 2001 09:35:19 -0400
+	id <S135173AbRDRNkJ>; Wed, 18 Apr 2001 09:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135177AbRDRNfJ>; Wed, 18 Apr 2001 09:35:09 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:63749 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S135175AbRDRNe4>;
-	Wed, 18 Apr 2001 09:34:56 -0400
-Date: Wed, 18 Apr 2001 09:35:53 -0400
-Message-Id: <200104181335.f3IDZrq17002@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
-        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Supplying missing entries for Configure.help -- corrections
+	id <S135178AbRDRNj7>; Wed, 18 Apr 2001 09:39:59 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:48596 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S135173AbRDRNjs>;
+	Wed, 18 Apr 2001 09:39:48 -0400
+Date: Wed, 18 Apr 2001 15:39:25 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200104181339.PAA27353@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] 2.4.3-ac9 console unblank at resume fix
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some minor corrections to my Configure.help patches, as suggested by
-lkml regulars.  Should be applied on top of my patches 1-4.
+Alan,
 
---- Configure.help	2001/04/18 05:27:07	1.5
-+++ Configure.help	2001/04/18 13:21:24
-@@ -96,7 +96,7 @@
- Prompt for drivers for obsolete features and hardware
- CONFIG_OBSOLETE
-   Obsolete drivers have usually been replaced by more recent software that
--  can talk to the same hardware.  Obsolerte hardware is things like MGA 
-+  can talk to the same hardware.  Obsolete hardware is things like MGA 
-   monitors that you are very unlikely to see on today's systems.
- 
- Symmetric Multi Processing
-@@ -1631,14 +1631,14 @@
- 
- Support for Cobalt Micro Server
- CONFIG_COBALT_MICRO_SERVER
--  Support for ARM-based Cobalt boxes (they have been bought by Sun and
-+  Support for MIPS-based Cobalt boxes (they have been bought by Sun and
-   are now the "Server Appliance Business Unit") including the 2700 series
-   -- versions 1 of the Qube and Raq.  To compile a Linux kernel for this
-   hardware, say Y here.
- 
- Support for Cobalt 2800
- CONFIG_COBALT_28
--  Support for the second generation of ARM-based Cobalt boxes (they have
-+  Support for the second generation of MIPS-based Cobalt boxes (they have
-   been bought by Sun and are now the "Server Appliance Business Unit")
-   including the 2800 series -- versions 2 of the Qube and Raq.  To compile
-   a Linux kernel for this hardware, say Y here.
-@@ -2979,13 +2979,6 @@
-   called binfmt_aout.o. Saying M or N here is dangerous though,
-   because some crucial programs on your system might still be in A.OUT
-   format.
--
--Kernel support for JAVA binaries
--CONFIG_BINFMT_JAVA
--  If you answer Y here, the kernel's program loader will know how to
--  directly execute Java J-code.  This option is semi-obsolescent; you 
--  should probably use CONFIG_BINFMT_MISC and read Documentation/java.txt
--  for information about how to include Java support.
- 
- Kernel support for Linux/Intel ELF binaries
- CONFIG_BINFMT_EM86
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I think I've finally eliminated the X screen corruption my laptop
+has been seeing at resume from suspend events.
 
-The saddest life is that of a political aspirant under democracy. His
-failure is ignominious and his success is disgraceful.
-        -- H.L. Mencken
+The fix in -ac3 eliminated the corruption but left the console
+blank if I exited X. The fix in -ac4 didn't actually work --
+the corruptions resurfaced later. (Sorry about that.) I've tested
+a lot of variations of it, but all had the same problem.
+
+The new fix goes back to the original (exit early if not in text
+mode), with one crucial change: console_blanked is NOT reset to zero.
+This appears to have the desired effect: while X is running we
+don't mess with the hardware, and the first unblank after X has
+exited does the right thing. Works fine over here (so far..).
+Patch below for -ac9, please apply.
+
+[To recap: Dell Latitude, 2.4 kernel, XFree86-SVGA-3.3.6, APM,
+no frame buffer device. After a few (1-3) days of use with
+frequent suspend/resume cycles, the X screen would partially
+wrap around after a resume. Restarting X would fix this temporarily,
+but the next resume would see the same problem. Reboot, and I'd get
+another few days before it happened again. 2.2 kernel was fine.]
+
+/Mikael
+
+--- linux-2.4.3-ac9/drivers/char/console.c.~1~	Wed Apr 18 13:50:00 2001
++++ linux-2.4.3-ac9/drivers/char/console.c	Wed Apr 18 13:50:24 2001
+@@ -2713,23 +2713,21 @@
+ 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
+ 		return;
+ 	}
++	currcons = fg_console;
++	if (vcmode != KD_TEXT)
++		return; /* but leave console_blanked != 0 */
+ 	console_timer.function = blank_screen;
+ 	if (blankinterval) {
+ 		mod_timer(&console_timer, jiffies + blankinterval);
+ 	}
+-	currcons = fg_console;
++
+ 	console_blanked = 0;
+ 	if (console_blank_hook)
+ 		console_blank_hook(0);
+ 	set_palette(currcons);
+-	if (sw->con_blank(vc_cons[currcons].d, 0)) {
+-		if (vcmode != KD_TEXT)
+-			return;
++	if (sw->con_blank(vc_cons[currcons].d, 0))
+ 		/* Low-level driver cannot restore -> do it ourselves */
+ 		update_screen(fg_console);
+-	}
+-	if (vcmode != KD_TEXT)
+-		return;
+ 	set_cursor(fg_console);
+ }
+ 

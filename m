@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbRFNHaX>; Thu, 14 Jun 2001 03:30:23 -0400
+	id <S261385AbRFNHeN>; Thu, 14 Jun 2001 03:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbRFNHaN>; Thu, 14 Jun 2001 03:30:13 -0400
-Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:2063 "HELO
-	mail.thock.com") by vger.kernel.org with SMTP id <S261274AbRFNH34>;
-	Thu, 14 Jun 2001 03:29:56 -0400
-Message-ID: <3B286800.565E8E@bigfoot.com>
-Date: Thu, 14 Jun 2001 01:30:08 -0600
-From: Dylan Griffiths <Dylan_G@bigfoot.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
+	id <S261336AbRFNHeD>; Thu, 14 Jun 2001 03:34:03 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:52488 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S261296AbRFNHdt>; Thu, 14 Jun 2001 03:33:49 -0400
+Date: Thu, 14 Jun 2001 13:22:20 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: Reg-directory size
+In-Reply-To: <Pine.LNX.4.10.10106081152440.21471-100000@blrmail>
+Message-ID: <Pine.LNX.4.10.10106141300430.21100-100000@blrmail>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Buggy emu10k1 drivers.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi.  The emu10k1 drivers shipped with 2.2.19 do not work well past 1Ghz. 
-In the original system, an Athlon 550, all OSS sound applications worked. 
-Loki games, libsdl games, XMMS, mplayer, RealPlayer, and the 'play' command
-from the sox pacnage.  When I upgraded my machine to a 1Ghz TBird,
-everything except XMMS would hang while the first audio buffer looped
-infinitely.  It also fails at 1.1Ghz.  As a control, I enabled the onboard
-audio (a C-Media Electronics Inc CM8738 (rev 10)), and was able to use all
-the applications listed again (except SDL/Loki games).
-	I'd fix it if I knew how since I don't like hearing bus traffic (plus the
-CMeda can't play multiple sources) :-/
+Hi,
+When we create lot of files and directories under a directory the size of
+the directory changes after aparticular limit. I could find that if the
+size of directory is 4096 it can create 341 files(size of qstr structure
+for each file is 12 bytes,so 4096/12=341.xx) before it changes to 8192. 
+Please tell me where in the code does this directory size changes. Is it
+in VFS level or in  the file system level? Please tell me this which would
+be of great use to me.
 
-Please CC me since I am not on the list.
---
-    www.kuro5hin.org -- technology and culture, from the trenches.
+Thanks in advance,
+With Regards,
+Sathish.J 
+

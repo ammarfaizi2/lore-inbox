@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVCMTgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVCMTfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVCMTgI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 14:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVCMTgH
+	id S261438AbVCMTfv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 14:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVCMTfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 14:36:07 -0500
-Received: from mailhub3.nextra.sk ([195.168.1.146]:38158 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261439AbVCMTfa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 14:35:30 -0500
-Message-ID: <4234965C.1010502@rainbow-software.org>
-Date: Sun, 13 Mar 2005 20:37:00 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stas Sergeev <stsp@aknet.ru>
-CC: Grzegorz Kulewski <kangur@polcom.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-References: <42348474.7040808@aknet.ru> <Pine.LNX.4.62.0503131950190.23588@alpha.polcom.net> <42349068.4030405@aknet.ru>
-In-Reply-To: <42349068.4030405@aknet.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 13 Mar 2005 14:35:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:53387 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261438AbVCMTf2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 14:35:28 -0500
+Date: Sun, 13 Mar 2005 11:35:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: cherry@osdl.org, linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
+Message-Id: <20050313113500.59e57a87.akpm@osdl.org>
+In-Reply-To: <20050313124333.GA26569@linuxtv.org>
+References: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
+	<20050313124333.GA26569@linuxtv.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev wrote:
-> Hello.
+Johannes Stezenbach <js@linuxtv.org> wrote:
+>
+>  On Sat, Mar 12, 2005 at 09:08:45PM -0800, John Cherry wrote:
+>  > drivers/media/dvb/frontends/dvb-pll.c:104: warning: (near initialization for `dvb_pll_unknown_1.entries')
+>  > drivers/media/dvb/frontends/dvb-pll.c:104: warning: excess elements in array initializer
+>  > drivers/media/dvb/frontends/dvb-pll.c:105: warning: (near initialization for `dvb_pll_unknown_1.entries')
+>  > drivers/media/dvb/frontends/dvb-pll.c:105: warning: excess elements in array initializer
+>  [snip]
 > 
-> Grzegorz Kulewski wrote:
+>  Gerd's original patch had
 > 
->> Does the bug also egsist on AMD CPU's?
+>  	struct dvb_pll_desc {
+>  		char *name;
+>  		u32  min;
+>  		u32  max;
+>  		void (*setbw)(u8 *buf, int bandwidth);
+>  		int  count;
+>  		struct {
+>  			u32 limit;
+>  			u32 offset;
+>  			u32 stepsize;
+>  			u8  cb1;
+>  			u8  cb2;
+>  		} entries[];
+>  	};
 > 
-> Yes. As well as the ones of a Transmeta etc.
-> I just haven't tested the old Cyrixes, that
-> AFAIK were trying to ignore some Intel bugs.
-> The test-case for the bug is here:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/0690.html
+>  while 2.6.11-mm3 changed it into entries[0].
 
-I've just ran that on my Cyrix MII PR300 and the bug is present:
-old_ss=0x7b new_ss=0x7f
-In sighandler: esp=bffff780
-old_esp=0xbffff780 new_esp=0xc1a6f780
-BUG!
+The original code failed to compile with gcc-2.95.4, so I stuck the [0] in
+there, then was vaguely surprised when no warnings came out.  Seems that
+later compilers _do_ warn.
 
-I have also an older Cyrix CPU - 6x86 PR166 - but can't test it now as 
-it's sitting in a plastic box on the shelf :-)
-
-UMC U5SX/33 in my router - also present:
-old_ss=0x7b new_ss=0x7f
-In sighandler: esp=bffff820
-old_esp=0xbffff820 new_esp=0xc003f820
-BUG!
-
-
--- 
-Ondrej Zary
+I guess we could put a 9 in there.

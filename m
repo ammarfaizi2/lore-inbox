@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283261AbRK2OlM>; Thu, 29 Nov 2001 09:41:12 -0500
+	id <S283254AbRK2OwF>; Thu, 29 Nov 2001 09:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283260AbRK2OlC>; Thu, 29 Nov 2001 09:41:02 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:9127 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S283259AbRK2Okn>; Thu, 29 Nov 2001 09:40:43 -0500
-Date: Thu, 29 Nov 2001 09:40:40 -0500 (EST)
-Message-Id: <20011129.094040.124092017.wscott@bitmover.com>
+	id <S283258AbRK2Ovz>; Thu, 29 Nov 2001 09:51:55 -0500
+Received: from mailbox.egenera.com ([208.51.147.22]:43524 "EHLO
+	mailbox.egenera.com") by vger.kernel.org with ESMTP
+	id <S283254AbRK2Ovv>; Thu, 29 Nov 2001 09:51:51 -0500
+Message-ID: <3C064B56.51E7102A@egenera.com>
+Date: Thu, 29 Nov 2001 09:51:02 -0500
+From: "Philip R. Auld" <prauld@egenera.com>
+Organization: Egenera Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: jmd@turbogeek.org
-Subject: Re: Extraneous whitespace removal?
-From: Wayne Scott <wscott@bitmover.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Subject: Re: [PATCH] Allow 'hidden' interfaces in 2.4.x
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeremy M. Dolan <jmd@turbogeek.org>
-> Pluses:
->  - clean up messy whitespace
->  - cut precious picoseconds off compile time
->  - cut kernel tree by 200k (+/- alot)
+Hi,
+
+Phil Oester wrote on   2001-05-17 20:15:49
+
+>The attached patch (against 2.4.4-ac10) adds the
+>/proc/sys/net/ipv4/conf/*/hidden option which is present in 2.2.x series.
+>This is somewhat similar to the arp-filter functionality which was added in
+>~2.4.4-ac10.  The difference is that this is not dependent upon the routing
+>table, it is simply configured using proc fs.
 >
-> Minuses:
->  - adds 3.8M bzip2 or 4.7M gzip to next diff
+>This is particularly useful in load-balanced server farms where loopback
+>addresses are configured for direct client-server traffic.  Without this
+>patch, Linux will respond to arp requests for the virtual IPs, making
+>effective load balancing difficult.
 
-As someone who has spend a lot of time working on version control and
-file merging, let be tell you the big minus you missed. 
 
-After this patch go into the Linux kernel, everyone who is maintaining
-a set of patches in parallel with the main kernel has a lot of extra
-work resolving the conflicts caused by this change.  You have touched
-a huge number of lines and people will have to walk a list of merge
-conflicts everywhere they have made local changes and pick their side.
-And anytime people do a whole series of the same edits over and over
-they will miss that real conflict in the middle and lose some
-important change.
+(Patch snipped)
 
-The other problem that occurs is for people who maintain version
-histories.  It is really useful to know where (and why) a line was
-last changed.  This obscures that information by a layer of edits that
-made no change.
 
-While saving a little space is nice, it is not worth the pain and risk
-it involves.  I much prefer the solution suggested where incoming
-patches are filtered before they are applied. Used consistantly, the
-whitespace will be removed over time.
+I looked in the archives for any response to Phil's post above, but didn't see
+anything.
 
--Wayne
+Does anyone know why this functionality is not included in the 2.4 kernels?
+
+Is there a different way to get this same functionality that _is_ in 2.4.x?
+
+If not then I think this is regression. The 2.4 kernel ought to be at
+least as useable as the 2.2 series. In the case of load balancing
+it isn't.
+
+Thanks for the info,
+
+
+Phil
+
+
+
+------------------------------------------------------
+Philip R. Auld, Ph.D.                  Technical Staff 
+Egenera Corp.                        pauld@egenera.com
+165 Forest St, Marlboro, MA 01752        (508)786-9444

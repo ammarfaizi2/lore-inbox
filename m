@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129725AbRAaPny>; Wed, 31 Jan 2001 10:43:54 -0500
+	id <S130013AbRAaPpE>; Wed, 31 Jan 2001 10:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130013AbRAaPno>; Wed, 31 Jan 2001 10:43:44 -0500
-Received: from main.cyclades.com ([209.128.87.2]:4361 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S129725AbRAaPnb>;
-	Wed, 31 Jan 2001 10:43:31 -0500
-Date: Wed, 31 Jan 2001 07:43:14 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.2.18: Protocol 0008 is buggy
-In-Reply-To: <E14NxRb-0002Ku-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10101310739150.3420-100000@main.cyclades.com>
+	id <S129853AbRAaPoy>; Wed, 31 Jan 2001 10:44:54 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:164 "EHLO tstac.esa.lanl.gov")
+	by vger.kernel.org with ESMTP id <S129939AbRAaPoh>;
+	Wed, 31 Jan 2001 10:44:37 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Wed, 31 Jan 2001 08:44:13 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_PDA1C1TD7I95SWHA5DR7"
+To: linux-kernel@vger.kernel.org
+Cc: chris.ricker@genetics.utah.edu
+Subject: [PATCH] 2.4.1 Documentation/Changes URL for Gnu Make 3.77
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01013108441300.18510@spc.esa.lanl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 31 Jan 2001, Alan Cox wrote:
+--------------Boundary-00=_PDA1C1TD7I95SWHA5DR7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> > What I'd like to know is: what exactly causes this msg?? It seems that
-> > it's printed when someone sends a packet without properly setting 
-> > skb->nh.raw first, but who's supposed to set skb->nh.raw?? The HW driver??
-> > The data link (HDLC) driver?? The kernel protocol drivers? How should I go
-> > about fixing this problem, where should I start??
-> 
-> It should be set before netif_rx() is called on the packet. Typically that
-> means the driver or its support code sets protocol and nh.raw and if a
-> second header is pulled up then they are set again by whichever code does that
-> and calls netif_rx again
+The Changes file contains URLs for some required utilities, but not Gnu Make.
+This patch (against 2.4.1) lists the URL for Gnu Make 3.77.  It appears that 
+at least one person could have used this recently.
 
-Alan,
+My mailer will mangle the long lines, so the patch is attached.
 
-Could you please tell me where I can find an example of this?? I searched
-the whole drivers/net directory, and couldn't find any occurrence.
+Steven
 
-Is this really supposed to be done in the HW driver / support code level,
-or is it supposed to be done in the protocol (IP / ARP) level??
 
-Thanks for the reply!!
 
-Later,
-Ivan
+--------------Boundary-00=_PDA1C1TD7I95SWHA5DR7
+Content-Type: text/plain;
+  name="patch-Changes"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-Changes"
 
+LS0tIGxpbnV4L0RvY3VtZW50YXRpb24vQ2hhbmdlcy5vcmlnCVdlZCBKYW4gMzEgMDg6MDE6MjQg
+MjAwMQorKysgbGludXgvRG9jdW1lbnRhdGlvbi9DaGFuZ2VzCVdlZCBKYW4gMzEgMDg6MTM6MzQg
+MjAwMQpAQCAtMjY3LDYgKzI2NywxMyBAQAogbyAgPGZ0cDovL2Z0cC52YWxpbnV4LmNvbS9wdWIv
+c3VwcG9ydC9oamwvZ2NjL2VnY3MtMS4xLjIvZWdjcy0xLjEuMi1saWJjNS54ODYudGFyLmJ6Mj4K
+IG8gIDxmdHA6Ly9mdHAudmFsaW51eC5jb20vcHViL3N1cHBvcnQvaGpsL2djYy9lZ2NzLTEuMS4y
+L2VnY3MtMS4xLjItYWxwaGEudGFyLmJ6Mj4KIAorR251IE1ha2UKKyoqKioqKioqCisKK01ha2Ug
+My43NworLS0tLS0tLS0KK28gIDxmdHA6Ly9mdHAuZ251Lm9yZy9nbnUvbWFrZS9tYWtlLTMuNzcu
+dGFyLmd6PgorCiBCaW51dGlscwogKioqKioqKioKIAo=
+
+--------------Boundary-00=_PDA1C1TD7I95SWHA5DR7--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

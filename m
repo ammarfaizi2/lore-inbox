@@ -1,84 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTFQPzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 11:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbTFQPzJ
+	id S264827AbTFQPzi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 11:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbTFQPzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 11:55:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51213 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264809AbTFQPzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 11:55:04 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] VFS autmounter support
-Date: 17 Jun 2003 09:08:28 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bcneds$or6$1@cesium.transmeta.com>
-References: <6516.1055861757@warthog.warthog>
-MIME-Version: 1.0
+	Tue, 17 Jun 2003 11:55:38 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:23732 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264827AbTFQPzg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 11:55:36 -0400
+Date: Tue, 17 Jun 2003 09:08:59 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: girouard@us.ibm.com, davem@redhat.com, stekloff@us.ibm.com,
+       janiceg@us.ibm.com, jgarzik@pobox.com, lkessler@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: patch for common networking error messages
+Message-Id: <20030617090859.0ffa0ca8.shemminger@osdl.org>
+In-Reply-To: <200306170434.h5H4YZPZ003025@turing-police.cc.vt.edu>
+References: <OFCA1A4F38.D782F1D3-ON85256D48.000A5CED@us.ibm.com>
+	<200306170434.h5H4YZPZ003025@turing-police.cc.vt.edu>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <6516.1055861757@warthog.warthog>
-By author:    David Howells <dhowells@redhat.com>
-In newsgroup: linux.dev.kernel
->
-> 
-> Hi Linus, Al,
-> 
-> The attached patch adds automounting support and mountpount expiry support to
-> the VFS.
-> 
-> This patch involves the adding the following features:
-> 
->  (1) A new dentry operation that (a) marks a dentry as being an automount
->      point, and (b) gets called by the VFS to come up with a vfsmount
->      structure which the VFS then stitches into the mount tree fabric at the
->      appropriate place.
-> 
->  (2) A new lookup flag that is used by sys_*stat() to prevent automounting of
->      the path endpoint. This means "ls -l" in an automounter directory doesn't
->      cause a mount storm, but will display all the mountpoints in that
->      directory as subdirectories (either the underlying mountpoint dir or the
->      root dir of the mounted fs if the mountpoint has been triggered already).
-> 
->  (3) do_kern_mount() is now exported.
-> 
->  (4) The vfsmount structure has acquired, amongst other things, a timeout
->      field. If mntput() notices a vfsmount reach a usage count of 1, then the
->      vfsmount expiry time is set and the namespace that contains the vfsmount
->      has its expiration work chitty queued.
-> 
->  (5) The namespace structure has acquired a work struct that is used to
->      actually perform vfsmount expiry under process context.
-> 
+Binary interface's will never cut it.  Read the hotplug thread to see how Linus
+said, he will never add a binary event daemon interface.
 
-This seems a bit heavyweight; although some VFS support is needed for
-a complex filesystem, effectively doing it all in the kernel (#3)
-seems a bit... excessive.
+That said, there is an oppurtunity for to provide a ascii interface (similar to
+/sbin/hotplug) decodes the data from the rtnetlink interface in a standardized format.
 
-At least #2 can be done with existing means using follow_link.
+Then it would be easy to write things like perl monitoring scripts that do things
+like:
+	perl phone-me-if-network-dies.pl < /proc/net/events
 
-I think using a revalidation pointer like dentries might be a better
-way to do #4/#5, although using the existing one in the dentries is
-probably better.
+Don't flame me about the choce of name. /proc/net/events is not the right name 
+to use for such an interface since adding more to /proc is probably not desired.
 
-#1 isn't really clear to me what you're going for, but it seems to be
-to duplicate bookkeeping.
-
-I also don't see how this solves the biggest problems with complex
-automounts, which are:
-
-a) how to guarantee that a large mount tree can be safely destroyed;
-b) how to detect partial unmounts.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

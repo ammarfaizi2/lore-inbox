@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSLPTO1>; Mon, 16 Dec 2002 14:14:27 -0500
+	id <S261338AbSLPTPz>; Mon, 16 Dec 2002 14:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261292AbSLPTO1>; Mon, 16 Dec 2002 14:14:27 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61331 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261286AbSLPTO0>;
-	Mon, 16 Dec 2002 14:14:26 -0500
-Date: Mon, 16 Dec 2002 19:21:58 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Cc: Xavier LaRue <paxl@videotron.ca>, linux-kernel@vger.kernel.org
-Subject: Re: L2 Cache problem
-Message-ID: <20021216192158.GI15256@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Mike Dresser <mdresser_l@windsormachine.com>,
-	Xavier LaRue <paxl@videotron.ca>, linux-kernel@vger.kernel.org
-References: <20021216133016.64c75cac.paxl@videotron.ca> <Pine.LNX.4.33.0212161347580.25857-100000@router.windsormachine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0212161347580.25857-100000@router.windsormachine.com>
-User-Agent: Mutt/1.4i
+	id <S261356AbSLPTPy>; Mon, 16 Dec 2002 14:15:54 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:57518 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S261338AbSLPTPx>;
+	Mon, 16 Dec 2002 14:15:53 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] Remove obsolete SMP declarations
+Date: Mon, 16 Dec 2002 12:23:47 -0700
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212161223.47839.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 01:56:09PM -0500, Mike Dresser wrote:
- > > my dmesg will be online at http://paxl.no-ip.org/~paxl/dmesg.txt if somone mind.
- > > Another fuzzy thing .. compiling my kernel normaly ( -j 1 ) take 30min
- > > and when I make it with -j 2/8/16 it take 25min, I think this is due to
- > > my L2 cache problem but that not normal, if somone have an idea.. I
- > > should be realy interested.
- > sounds like you've got your l2 turned off in the bios to me.
+Remove obsolete declarations.  All unused except smp_callin(),
+which is always defined before use in architecture-specific code.
 
-2.4 right up until .21pre1 has a bug in the cache sizing routine.
-It should be fixed now.
+Applies to 2.4.20.
 
-		Dave
+diff -Nru a/include/linux/smp.h b/include/linux/smp.h
+--- a/include/linux/smp.h	Mon Dec 16 12:13:05 2002
++++ b/include/linux/smp.h	Mon Dec 16 12:13:05 2002
+@@ -35,11 +35,6 @@
+ extern void smp_boot_cpus(void);
+ 
+ /*
+- * Processor call in. Must hold processors until ..
+- */
+-extern void smp_callin(void);
+-
+-/*
+  * Multiprocessors may now schedule
+  */
+ extern void smp_commence(void);
+@@ -56,10 +51,6 @@
+ extern int smp_threads_ready;
+ 
+ extern int smp_num_cpus;
+-
+-extern volatile unsigned long smp_msg_data;
+-extern volatile int smp_src_cpu;
+-extern volatile int smp_msg_id;
+ 
+ #define MSG_ALL_BUT_SELF	0x8000	/* Assume <32768 CPU's */
+ #define MSG_ALL			0x8001
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

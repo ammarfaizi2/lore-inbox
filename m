@@ -1,42 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318932AbSHEXmW>; Mon, 5 Aug 2002 19:42:22 -0400
+	id <S318996AbSHFFiF>; Tue, 6 Aug 2002 01:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318935AbSHEXmV>; Mon, 5 Aug 2002 19:42:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:18054 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S318932AbSHEXmV>;
-	Mon, 5 Aug 2002 19:42:21 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318997AbSHFFiF>; Tue, 6 Aug 2002 01:38:05 -0400
+Received: from midiowa2.midiowa.net ([64.71.65.202]:49639 "EHLO midiowa.net")
+	by vger.kernel.org with ESMTP id <S318996AbSHFFiE>;
+	Tue, 6 Aug 2002 01:38:04 -0400
+Date: Tue, 6 Aug 2002 00:41:12 -0500
+From: Tyler Longren <tyler@captainjack.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
+Message-Id: <20020806004112.431f6f4f.tyler@captainjack.com>
+In-Reply-To: <200208060702.29360.bhards@bigpond.net.au>
+References: <20020805003427.7e7fc9f4.tyler@captainjack.com>
+	<200208060001.07546.bhards@bigpond.net.au>
+	<20020805165601.GA27503@kroah.com>
+	<200208060702.29360.bhards@bigpond.net.au>
+Organization: Captain Jack Communicatins
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15695.3634.832970.240016@charged.uio.no>
-Date: Tue, 6 Aug 2002 01:45:54 +0200
-To: kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-In-Reply-To: <200208052330.DAA22912@sex.inr.ac.ru>
-References: <15694.33047.965504.346909@charged.uio.no>
-	<200208052330.DAA22912@sex.inr.ac.ru>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
+Could this be a problem with my chipset (Via)?  I'm on an Abit VP6
+motherboard.  I'm actually suprised I haven't had problems with ide in
+2.4.19 (the hpt controller and via).
 
-     > Hello!
-    >> the bug has already been known to crash a few servers...
+Below is the usb stuff from lspci -v:
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 16) (prog-if 00
+[UHCI])
+	Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+	Flags: bus master, medium devsel, latency 32, IRQ 12
+	I/O ports at d400 [size=32]
+	Capabilities: [80] Power Management version 2
 
-     > Sorry? What crash do you speak about?
+00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 16) (prog-if 00
+[UHCI])
+	Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+	Flags: bus master, medium devsel, latency 32, IRQ 12
+	I/O ports at d800 [size=32]
+	Capabilities: [80] Power Management version 2
+On Tue, 6 Aug 2002 07:02:22 +1000
 
-You'll find it documented on RedHat's Bugzilla (can't remember the
-exact reference - sorry). Basically the first RH-7.3 kernels were
-causing a DOS on a couple of Netapps w/ Gigabit connections.
+tyler
 
-The DOS was traced to a combination of Linux flooding the server with
-all these fragments w/o headers (our bug), coupled with inadequate
-garbage collection of said fragments on the Netapp side (their bug).
+Brad Hards <bhards@bigpond.net.au> wrote:
 
-Cheers,
-  Trond
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Tue, 6 Aug 2002 02:56, Greg KH wrote:
+> > On Tue, Aug 06, 2002 at 12:00:55AM +1000, Brad Hards wrote:
+> > > Greg: I think this was one of your patches, associated with the
+> > > HIDINPUT patch. It looks like the return value is wrong. See
+> > > below.
+> > >
+> > > --- include/linux/hiddev.h.orig Mon Aug  5 23:19:54 2002
+> > > +++ include/linux/hiddev.h      Mon Aug  5 23:56:34 2002
+> > > @@ -183,7 +183,7 @@
+> > >  int __init hiddev_init(void);
+> > >  void __exit hiddev_exit(void);
+> > >  #else
+> > > -static inline void *hiddev_connect(struct hid_device *hid) {
+> > > return NULL; } +static inline void *hiddev_connect(struct
+> > > hid_device *hid) { return -1; } static inline void
+> > > hiddev_disconnect(struct hid_device *hid){ } static inline void
+> > > hiddev_hid_event(struct hid_device *hid, unsigned int usage, int
+> > > value) { } static inline int hiddev_init(void) { return 0;}
+> >
+> > ??? Why return -1 as a void *?
+> >
+> > The only caller of hiddev_connect is:
+> > 	if (!hiddev_connect(hid))
+> > 		hid->claimed |= HID_CLAIMED_HIDDEV;
+> >
+> > Hm, seems like you don't want a void * there at all, but a int,
+> > right?
+> I assume so.
+> 
+> > But that doesn't explain the error people are having with the code
+> > compiled in.
+> No - while doing the investigation, I noted that dmesg was showing
+> input0,hiddev0: USB HID v1.10 Keyboard [045e:001d] on usb2:3.0
+> input1,hiddev0: USB HID v1.10 Pointer [045e:001d] on usb2:3.1
+> input2,hiddev0: USB HID v1.00 Mouse [Logitech USB-PS/2 Mouse M-BA47]
+> on usb2:4.0
+> 
+> with CONFIG_USB_HIDDEV turned off.
+> 
+> So I chased that down to the above conclusion.
+> 
+> But I still don't see the problem, and can't duplicate it.
+> 
+> Brad
+> - -- 
+> http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in
+> Black.-----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.6 (GNU/Linux)
+> Comment: For info see http://www.gnupg.org
+> 
+> iD8DBQE9TufiW6pHgIdAuOMRAojFAKCmSOjjTwcp6z7tPKeR6kaokAF71wCginFW
+> 5/94epXIyAJlfpFGtmQqxOY=
+> =Ywrd
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

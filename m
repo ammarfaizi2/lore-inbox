@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUCaPc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 10:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbUCaPc3
+	id S262009AbUCaPpx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 10:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUCaPpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 10:32:29 -0500
-Received: from ida.rowland.org ([192.131.102.52]:9220 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262027AbUCaPc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 10:32:26 -0500
-Date: Wed, 31 Mar 2004 10:32:25 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       <maneesh@in.ibm.com>, <viro@math.psu.edu>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Unregistering interfaces
-In-Reply-To: <406A0C15.7090506@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0403311029230.1752-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Mar 2004 10:45:53 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:23424 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262009AbUCaPpw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 10:45:52 -0500
+Date: Wed, 31 Mar 2004 08:45:41 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Latest kgdb?
+Message-ID: <20040331154541.GH13819@smtp.west.cox.net>
+References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com> <20040324154355.GD7126@smtp.west.cox.net> <200403251022.39704.amitkale@emsyssoft.com> <20040325151444.GC13366@smtp.west.cox.net> <20040331152925.GA6205@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040331152925.GA6205@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, David Brownell wrote:
+On Wed, Mar 31, 2004 at 05:29:25PM +0200, Pavel Machek wrote:
 
-> Alan Stern wrote:
+> Hi!
 > 
-> > 	  I'm in favor of changing the behavior of sysfs, so that either it
-> > refuses to delete directories that contain subdirectories or else it
-> > recursively deletes the subdirectories first.  At this point nothing has
-> > been settled.
-> 
-> Hmm, certainly I agree khubd should be deleting things bottom-up.
-> 
-> Are you say it isn't doing that already?  Or that it's trying to,
-> but something's preventing that from working?
+> Where can I get latest kgdb? The version on kgdb.sf.net is still
+> against 2.6.3, afaics. Or should I forward port it?
 
-No, no -- as far as I know khudb gets rid of things in a perfectly correct
-manner.  But there are plenty of other parts in the Linux kernel, and I
-don't know that they all delete things bottom-up.  Greg implies that
-usb-serial and the kernel's tty subsystem don't do this; I haven't had a
-chance to look into it.
+CVS is against 2.6.4.  Once 2.6.5 comes out, I'll move it forward again.
+Locally, I've got a series of patches vs 2.6.5-rc3 + some -mm bits for
+Andrew which I hope to post today, but might not make it until tomorrow.
 
-Alan Stern
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

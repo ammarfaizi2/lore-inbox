@@ -1,72 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbTDYCwO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 22:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTDYCwO
+	id S262884AbTDYCye (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 22:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbTDYCye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 22:52:14 -0400
-Received: from dial-ctb04195.webone.com.au ([210.9.244.195]:11525 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262722AbTDYCwN
+	Thu, 24 Apr 2003 22:54:34 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:40148 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262884AbTDYCyc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 22:52:13 -0400
-Message-ID: <3EA8A5A7.3080003@cyberone.com.au>
-Date: Fri, 25 Apr 2003 13:04:07 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Thu, 24 Apr 2003 22:54:32 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+Organization: Ozzmosis Corp.
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc1
+Date: Fri, 25 Apr 2003 00:06:53 -0300
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Badness in as-iosched:1210
-References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com> <3EA7A0CC.50005@cyberone.com.au> <20030424084717.GF8775@suse.de> <3EA81A3B.80800@cyberone.com.au> <20030424173228.GT8775@suse.de>
-In-Reply-To: <20030424173228.GT8775@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304250006.53769.lucasvr@gobolinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Monday 21 April 2003 15:47, Marcelo Tosatti wrote:
+> Here goes the first candidate for 2.4.21.
+>
+> Please test it extensively.
 
->On Fri, Apr 25 2003, Nick Piggin wrote:
->
->>Jens Axboe wrote:
->>
->>
->>>On Thu, Apr 24 2003, Nick Piggin wrote:
->>>
->>>
->>>>Zwane Mwaikambo wrote:
->>>>
->>>>
->>>>
->>>>>I'm not sure wether you want this, it was during error handling from the 
->>>>>HBA driver (source was disk error).
->>>>>
->>>>>scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 00 
->>>>>00 80 00 Info fld=0x7fdeb2, Current sdd: sense key Medium Error
->>>>>Additional sense: Unrecovered read error
->>>>>end_request: I/O error, dev sdd, sector 8380032
->>>>>Badness in as_add_request at drivers/block/as-iosched.c:1210
->>>>>
->>>>>
->>>>>
->>>>Thanks I'll have a look.
->>>>
->>>>
->>>The debug check looks broken, request could have come from somewhere
->>>else than the block pool.
->>>
->>>
->>Thats right. I thought these requests would all be
->>!blk_fs_request()s though. It should be only the debug
->>checks which are wrong.
->>
->
->Exactly, the rest looks ok, the debug trigger is wrong :). The
->add_request() strategy is the entry point for all types of requests, not
->just blk_fs_request()
->
-No but it is as_insert_request which is that entry point. It
-should only calls as_add_request for a blk_fs_request.
+Hi,
+
+I had some problems compiling the ramdisk driver:
+
+gcc -D__KERNEL__ -I/Depot/Sources/2.4.21-rc1/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
+-include /Depot/Sources/2.4.21-rc1/include/linux/modversions.h  -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=rd  -c -o rd.o rd.c
+rd.c:88: `CONFIG_BLK_DEV_RAM_SIZE' undeclared here (not in a function)
+make[2]: *** [rd.o] Error 1
+make[2]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers/block'
+make[1]: *** [_modsubdir_block] Error 2
+make[1]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers'
+make: *** [_mod_drivers] Error 2
+
+
+The simple patch below can fix it, though. Is it ok to check against 
+CONFIG_BLK_DEV_RAM_SIZE definition and redefine it if not found?
+
+Lucas
+
+
+
+--- 2.4.21-rc1/drivers/block/rd.c.orig	2003-04-23 12:39:39.000000000 -0300
++++ 2.4.21-rc1/drivers/block/rd.c	2003-04-23 12:39:41.000000000 -0300
+@@ -69,6 +69,10 @@
+ int initrd_below_start_ok;
+ #endif
+ 
++#ifndef CONFIG_BLK_DEV_RAM_SIZE
++#define CONFIG_BLK_DEV_RAM_SIZE	4096
++#endif
++
+ /* Various static variables go here.  Most are used only in the RAM disk 
+code.
+  */
+ 
 

@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUDJAuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 20:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbUDJAuo
+	id S261706AbUDJBGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 21:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDJBGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 20:50:44 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:38358 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261635AbUDJAun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 20:50:43 -0400
-Date: Fri, 9 Apr 2004 20:50:42 -0400
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Miles Bader <miles@gnu.org>, Chris Meadors <clubneon@hereintown.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: initramfs howto?
-Message-ID: <20040410005042.GF7497@fencepost>
-References: <1081451826.238.23.camel@clubneon.priv.hereintown.net> <1081490209.28834.19.camel@camp4.serpentine.com> <buo4qrt4pga.fsf@mcspd15.ucom.lsi.nec.co.jp> <1081531299.19918.13.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081531299.19918.13.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.3.28i
-Blat: Foop
-From: Miles Bader <miles@gnu.org>
+	Fri, 9 Apr 2004 21:06:54 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:8900 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261706AbUDJBGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 21:06:53 -0400
+Date: Fri, 9 Apr 2004 21:07:10 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make floppy.c readable
+In-Reply-To: <20040408204247.5f960859.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404092104230.16677@montezuma.fsmlabs.com>
+References: <20040408204247.5f960859.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 09, 2004 at 10:21:39AM -0700, Bryan O'Sullivan wrote:
-> > If so, it'd be nice if it checked for some other name than /init
-> > (e.g. /sbin/init) -- there's too much crap in / already.
-> 
-> I'm agnostic.  It's a two-line patch.  I don't care if it's called
-> /spam/fandango/wubble, so long as the brave souls who are trying out
-> initramfs don't keep stumbling over the same problem again and again :-)
+On Thu, 8 Apr 2004, Randy.Dunlap wrote:
 
-Indeed; I just wanna raise the point before people start actually using /init
-in large numbers...
+>
+> run scripts/Lindent on drivers/block/floppy.c, but keep some
+> nicely-formatted structs (tables) and labels as they were.
+>
+> Same code generated before and after, except for some __LINE__
+> numbers which changed as expected.
 
-I wonder if you could move the bulk of stuff (the console open, the calls to
-run_init_proces) that happens after prepare_namespace into a separate
-function and attempt to call it both before and after prepare_namespace; the
-problem seems to be the unlock_kernel &c., which I gather must be done after
-prepare_namespace?
-
--Miles
--- 
-I'm beginning to think that life is just one long Yoko Ono album; no rhyme
-or reason, just a lot of incoherent shrieks and then it's over.  --Ian Wolff
+I fear the consequences of making any comments here. Randy be fairly
+certain all of this hard work won't go unrewarded ;)

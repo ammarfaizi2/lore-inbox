@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131319AbRCHLDb>; Thu, 8 Mar 2001 06:03:31 -0500
+	id <S131312AbRCHLJC>; Thu, 8 Mar 2001 06:09:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131320AbRCHLDW>; Thu, 8 Mar 2001 06:03:22 -0500
-Received: from 13dyn210.delft.casema.net ([212.64.76.210]:29708 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131319AbRCHLDH>; Thu, 8 Mar 2001 06:03:07 -0500
-Message-Id: <200103081102.MAA14864@cave.bitwizard.nl>
-Subject: Ooops on 2.2.18...
-To: linux-kernel@vger.kernel.org
-Date: Thu, 8 Mar 2001 12:02:36 +0100 (MET)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S131311AbRCHLIv>; Thu, 8 Mar 2001 06:08:51 -0500
+Received: from hypnos.cps.intel.com ([192.198.165.17]:53491 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S131312AbRCHLIf>; Thu, 8 Mar 2001 06:08:35 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B2715F@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'Andrew Morton'" <andrewm@uow.edu.au>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: spinlock help
+Date: Thu, 8 Mar 2001 03:07:48 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK guys, you were right. The bug was in our code - sorry for trouble.
+Turns out that while I was away, the problem was solved by someone else. The
+problem is probably related to the fact that when we did
+'spin_lock_irqsave(c,d)', 'd' was a global variable. The fix was to wrap the
+call with another function and declare 'd' as local. I can't quite explain,
+but I think that changing from a static to automatic variable made the
+difference. My best guess is that since 'd' is passed by value and not by
+reference, the macro expansion of spin_lock_irqsave() relies on the location
+of 'd' in the stack and if 'd' was on the heap instead, it might get
+trashed.
 
-Hi,
+I would really like to hear your expert opinion on my assumption.
 
-I misconfigured my Linux 2.2.18 kernel: forgot to include the network
-device, which is kind of essential for a machine with nfs-root.....
-So it just sat there waiting for the root floppy... Then I recompiled
-my kernel, but when I came back to the console I saw:
 
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-scsi : 0 hosts.
-scsi : detected total.
-IP-Config: No network devices available
-Root-NFS: No NFS server available, giving up.
-VFS: Unable to mount root fs via NFS, trying floppy.
-(Warning, this kernel has no ramdisk support)
-VFS: Insert root floppy and press ENTER
-end_request: I/O error, dev 02:00 (floppy), sector 0
-Unable to handle kernel NULL pointer dereference at virtual address 00000008
-current->tss.cr3 = 00101000, %cr3 = 00101000
+	Thanks,
+	Shmulik.
 
-If someone has some desire to fix something, you can try to find/fix
-this. 
+-----Original Message-----
+From: Andrew Morton [mailto:andrewm@uow.edu.au]
+Sent: Wednesday, March 07, 2001 2:54 PM
+To: Hen, Shmulik
+Cc: 'LKML'
+Subject: Re: spinlock help
 
-The recompile of course overwrote the symbol table from the kernel
-that I was running...
 
-					Roger. 
+"Hen, Shmulik" wrote:
+> 
+> The kdb trace was accurate, we could actually see the e100 ISR pop from no
+> where right in the middle of our ans_notify every time the TX queue would
+> fill up. When we commented out the call to spin_*_irqsave(), it worked
+fine
+> under heavy stress for days.
+> 
+> Is it possible it was something wrong with 2.4.0-test10 specifically ?
+> 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Sorry, no.  If spin_lock_irqsave()/spin_unlock_irqrestore()
+were accidentally reenabling interrupts then it would be
+the biggest, ugliest catastrophe since someone put out a kernel
+which forgot to flush dirty inodes to disk :)
+
+Conceivably it was a compiler bug.  Were you using egcs-1.1.2/x86?
+
+-
+

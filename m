@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313533AbSDEUrt>; Fri, 5 Apr 2002 15:47:49 -0500
+	id <S313661AbSDEWZB>; Fri, 5 Apr 2002 17:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313534AbSDEUrk>; Fri, 5 Apr 2002 15:47:40 -0500
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:2575 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S313533AbSDEUr1>; Fri, 5 Apr 2002 15:47:27 -0500
-Message-ID: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "Martin J. Bligh" <fletch@aracnet.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <1650399759.1018005181@[10.10.2.3]>
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-Date: Fri, 5 Apr 2002 12:47:08 -0800
+	id <S313659AbSDEWYw>; Fri, 5 Apr 2002 17:24:52 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:14069 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S313658AbSDEWYq>;
+	Fri, 5 Apr 2002 17:24:46 -0500
+Message-ID: <3CAE2484.8090304@nokia.com>
+Date: Sat, 06 Apr 2002 01:26:12 +0300
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020211
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_98  --- Bluetooth Protocol Stack. OBEX and GUI available now.
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com> <3C92111C.1070107@nokia.com> <3CA3A149.1080905@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-OriginalArrivalTime: 05 Apr 2002 22:24:43.0712 (UTC) FILETIME=[AF766C00:01C1DCF0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for 2, the BIOS sets the hardware to a known state,
-or if you can trigger *the* hardware reset line,
-which will also do that, then you're going through
-the BIOS again.  Now if you made your own bios...
-see www.linuxbios.org.
+Hi All.
 
-there are patches where a kernel can load another
-kernel, also.
+Find new affix release Affix-0_98 on http://affix.sourceforge.net
+*with OBEX client  *
 
-As for taking crashdumps on the way up, I believe
-(SGI's ?) linux kernel crash dumps does *exactly*
-this.
+Now it's possible to send pictures to the Mobile Phone.
 
-Jeremy
+GUI environment A.F.E - Affix Frontend Environment available for use.
+http://affix.sourceforge.net/afe
 
------ Original Message -----
-From: "Martin J. Bligh" <fletch@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, April 05, 2002 11:13 AM
-Subject: Faster reboots (and a better way of taking crashdumps?)
+Link can be found on Affix WEB site in *Links* section.
 
 
-> My real motivation for this isn't actually faster reboots,
-> it's rebooting at all - I have some strange hardware that
-> won't do init 6 in traditional ways ... but it might mean
-> a faster reboot for others.
->
-> What's to stop me rebooting by having machine_restart load
-> the first sector of the first disk (as the BIOS does), where
-> the LILO code should be, and just jumping to it?
->
-> 1. Are there tables that are created by the BIOS that we
-> destroy during Linux runtime? mps tables spring to mind -
-> I can't see where we preserve them ...
->
-> 2. Things that are reset by reboot that we don't reset during
-> normal kernel boot?
->
-> As a side effect, this means we could potentially take
-> crashdumps on the way up, rather than the way down, so
-> the kernel is more likely to be in a working state (we'd
-> have to load a minimal kernel / crashdumper to take the
-> dump first ... this is similar to what we did with PTX).
->
-> M.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Version 0.98 [05.04.2002]
+- [new] added *push* command for pushing objects.
+	E.g. I pushed background pictures for Ericsson T68 phone 
+	(picture should be in GIF format for Ericsson phone).
+	btctl push 00:80:37:ee:38:9f test1.gif
+- [fix] added service type to connect to to *btctl connect* command
+	btctl connect <bda> SERial|LAN|DUP
+	check *btctl -h*
+- [fix] SDP service search and attribute request can be done on the same
+	L2CAP connection
+- [fix] some OBEX fixes
+
+
+br, Dmitry
 

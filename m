@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285959AbRLHVKg>; Sat, 8 Dec 2001 16:10:36 -0500
+	id <S285962AbRLHVLq>; Sat, 8 Dec 2001 16:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285956AbRLHVK0>; Sat, 8 Dec 2001 16:10:26 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:41690 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S285951AbRLHVKI>;
-	Sat, 8 Dec 2001 16:10:08 -0500
-To: sct@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: ext3 writeback mode slower than ordered mode?
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 08 Dec 2001 22:10:00 +0100
-Message-ID: <871yi5wh93.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285961AbRLHVLb>; Sat, 8 Dec 2001 16:11:31 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:42203 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S285960AbRLHVLO>; Sat, 8 Dec 2001 16:11:14 -0500
+Date: Sat, 8 Dec 2001 22:10:26 +0100
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+Message-ID: <20011208221026.H12687@vestdata.no>
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au> <9useu4$f4o$1@penguin.transmeta.com> <E16ClLY-000124-00@starship.berlin> <3C1277D0.8000706@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C1277D0.8000706@namesys.com>; from reiser@namesys.com on Sat, Dec 08, 2001 at 11:28:00PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Dec 08, 2001 at 11:28:00PM +0300, Hans Reiser wrote:
+> Using a union of filesystems, that might not even be compiled into the 
+> kernel or as modules, in struct inode is just.....  bad.
+> 
+> It is really annoying when the filesystems with larger inodes bloat up 
+> the size for those who are careful with their bytes, can we do something 
+> about that generally?
 
-My apologies if this is an FAQ, and I'm still catching up with
-the linux-kernel list.
+I believe it has been desided to solve this either by:
+* including a filesystem-specific pointer in the general inode
+or
+* have the filesystem build the inode, and include all the general inode
+  variables in it's data-structure.
 
-Today I decided to convert my /tmp partition to be mounted in
-writeback mode, as I noticed that ext3 in ordered mode syncs every 5
-seconds and that is something defenitely not needed for /tmp, IMHO.
+If it's not alreaddy done in 2.5 I think it's just a question of time.
 
-Then I did some tests in order to prove my theory. :)
 
-But, alas, writeback is slower.
-
-[ordered]
-{atlas} [~]% writer 200 1
-Wrote 200.00 MB in 2 seconds -> 70.92 MB/s (100.0 %CPU)
-
-[writeback]
-{atlas} [/tmp]% writer 200 1
-Wrote 200.00 MB in 5 seconds -> 37.11 MB/s (96.8 %CPU)
-
-"writer" is a simple application that just writes to a file and
-deletes it afterwards. As I have 768MB RAM, 200MB doesn't trigger I/O
-in neither case, so the numbers are the measure of the speed of the FS
-internals, and as you can see writeback is running at half
-speed (extra copy? why?). Strange...
-
-Just to be on a safe side, I decided to test a real application, sort,
-which uses $TMPDIR for temporary files. Once again, if I point $TMPDIR
-to an ext3/writeback partition, sort takes longer to do its work. And
-its repeatable.
-
-[$TMPDIR=/tmp writeback]
-{atlas} [~]% time sort bigfile -o outfile
-sort bigfile -o outfile  40.14s user 19.84s system 95% cpu 1:02.60 total
-
-[$TMPDIR=~ ordered]
-{atlas} [~]% time sort bigfile -o outfile
-sort bigfile -o outfile  40.74s user 14.78s system 97% cpu 57.196 total
-
-Notice +5 seconds in sys time for a writeback case, and adequate
-increase in wallclock time.
-
-All tests were done on the 2.4.16, but 2.5.x series exhibit the same
-behaviour. Eventually, I decided to continue mounting /tmp in the
-default, ordered mode.
-
-I'm confused, TIA for anybody clarifying this to me!
 -- 
-Zlatko
+Ragnar Kjørstad
+Big Storage

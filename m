@@ -1,68 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263642AbUAHEJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 23:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbUAHEJU
+	id S263618AbUAHEE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 23:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUAHEE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 23:09:20 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:51863 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S263642AbUAHEJT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 23:09:19 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: Rusty Russell <rusty@rustcorp.com.au>,
-       Omkhar Arasaratnam <omkhar@rogers.com>
-Subject: Re: [PATCH] drivers/scsi/advansys.c check_region() fix
-Date: Wed, 7 Jan 2004 23:09:14 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <20040108002255.69A532C46A@lists.samba.org>
-In-Reply-To: <20040108002255.69A532C46A@lists.samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 23:04:26 -0500
+Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:4224
+	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
+	id S263618AbUAHEEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 23:04:24 -0500
+Date: Wed, 7 Jan 2004 23:04:16 -0500
+From: Ben Slusky <sluskyb@paranoiacs.org>
+To: Ruben Garcia <ruben@ugr.es>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] Re: loop device changes the block size and causes misaligned accesses to the real device, which can't be processed
+Message-ID: <20040108040414.GA5017@fukurou.paranoiacs.org>
+Mail-Followup-To: Ruben Garcia <ruben@ugr.es>, linux-kernel@vger.kernel.org,
+	trivial@rustcorp.com.au
+References: <3FFC3BF4.6080105@ugr.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401072309.14401.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.61.108] at Wed, 7 Jan 2004 22:09:17 -0600
+In-Reply-To: <3FFC3BF4.6080105@ugr.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 January 2004 18:26, Rusty Russell wrote:
->In message <20031230134433.GA22187@omkhar.ibm.com> you write:
->> Another trivial check_region() fix verified by Gene
->
->And almost certainly wrong.
+On Wed, 07 Jan 2004 18:03:48 +0100, Ruben Garcia wrote:
+> The loop device advertises a block size of 1024 even when configured 
+> over a cdrom.
+> 
+> When burning a ext2 on a cd, and mounting it directly, I get:
+> 
+> blocksize=2048;
+> 
+> when I losetup /dev/loop0 /dev/cdrom, and then try to mount, I get:
+> 
+> blocksize=1024; and then misaligned transfer; this results in not being 
+> able to read the superblock.
+> 
+> The loop device should be changed to export the same blocksize of the 
+> underlying device
 
-I'm the "Gene", Rusty.  What symptoms would I see if its wrong?  
-Memory leak?  Instability?  My dog falls over before his time?  My 
-pickup throws a rod?
+Huh, if you look at loop.c it appears to do that already (line 735) but
+it doesn't. This patch makes it so.
 
-In my case, its only running a small 4 tape Seagate changer, so it 
-doesn't get a lot of exersize other than by amanda's nightly run.
-
->The *point* of request_region() is that you do it before any I/O to
->the region.
->
->So you can't release it before calling AscGetChipVersion().
->
->Converting this driver is quite a bit of work, since you have to
-> trace down every path which uses the region and make sure it's
-> covered.  The fact that it's formatted like an angry haiku doesn't
-> help.
-
-I noticed, gawd, that looks like a bowl of spagetti and I'm nowhere 
-near the coder you fellows are.  But it did get rid of the compiler 
-warnings about check_region().
+--- linux-2.6.0/drivers/block/loop.c-orig	2004-01-07 22:47:37.755375858 -0500
++++ linux-2.6.0/drivers/block/loop.c	2004-01-07 22:48:04.990990082 -0500
+@@ -732,8 +732,6 @@
+ 	mapping_set_gfp_mask(inode->i_mapping,
+ 			     lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+ 
+-	set_blocksize(bdev, lo_blocksize);
+-
+ 	lo->lo_bio = lo->lo_biotail = NULL;
+ 
+ 	/*
+@@ -749,6 +747,7 @@
+ 	if (S_ISBLK(inode->i_mode)) {
+ 		request_queue_t *q = bdev_get_queue(lo_device);
+ 
++		blk_queue_hardsect_size(lo->lo_queue, q->hardsect_size);
+ 		blk_queue_max_sectors(lo->lo_queue, q->max_sectors);
+ 		blk_queue_max_phys_segments(lo->lo_queue,q->max_phys_segments);
+ 		blk_queue_max_hw_segments(lo->lo_queue, q->max_hw_segments);
+@@ -757,6 +756,8 @@
+ 		blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
+ 	}
+ 
++	set_blocksize(bdev, lo_blocksize);
++
+ 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
+ 	down(&lo->lo_sem);
+ 
+HTH,
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+Ben Slusky                      | The doctors x-rayed my head
+sluskyb@paranoiacs.org          | and found nothing.
+sluskyb@stwing.org              |               -Dizzy Dean
+PGP keyID ADA44B3B      

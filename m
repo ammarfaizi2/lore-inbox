@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVAXVnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVAXVno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVAXVnn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVAXVnP
+	id S261676AbVAXVno (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVAXVm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:43:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37829 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261672AbVAXVkW (ORCPT
+	Mon, 24 Jan 2005 16:42:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:55355 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261606AbVAXVle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:40:22 -0500
-Date: Mon, 24 Jan 2005 13:39:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Mitch Williams <mitch.a.williams@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] buffer writes to sysfs
-Message-ID: <20050124213906.GE18933@kroah.com>
-References: <Pine.CYG.4.58.0501211449410.3364@mawilli1-desk2.amr.corp.intel.com> <20050122080930.GB6999@kroah.com> <Pine.CYG.4.58.0501241016430.3748@mawilli1-desk2.amr.corp.intel.com>
+	Mon, 24 Jan 2005 16:41:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=T1UqHg7CIHCquKRkekcY5vqhmJddPlik/T7idaWIBsVV4FxxAqC6CotfRiMQrp85YyU/N0go1flw4OmEsoOdlQpKap/xhJgmP/kQjfkAopztmJ2/jv68jpgZ8dJLNzkbB/+rPmXqD8ChhJyiPEPA1yjyrg0eBxNouBSFneCjAgU=
+Message-ID: <29495f1d05012413415c66974b@mail.gmail.com>
+Date: Mon, 24 Jan 2005 13:41:33 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: johnpol@2ka.mipt.ru
+Subject: Re: [1/1] superio: change scx200 module name to scx.
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050124233720.484c7ad0@zanzibar.2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.CYG.4.58.0501241016430.3748@mawilli1-desk2.amr.corp.intel.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050124233720.484c7ad0@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 10:37:00AM -0800, Mitch Williams wrote:
+On Mon, 24 Jan 2005 23:37:20 +0300, Evgeniy Polyakov
+<johnpol@2ka.mipt.ru> wrote:
+> Change scx200 module name to scx.
 > 
+> Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 > 
-> On Sat, 22 Jan 2005, Greg KH wrote:
-> 
-> >
-> > On Fri, Jan 21, 2005 at 02:52:29PM -0800, Mitch Williams wrote:
-> > > This patch buffers writes to sysfs files and flushes them to the
-> > kobject
-> > > owner when the file is closed.
-> >
-> > Why?  This breaks the way things work today, right?
-> >
-> > What is this patch trying to fix?
-> >
-> 
-> To be honest, I'm a bit ambivalent about this patch.  I wrote this code in
-> response to a bug filed by our test lab.  If you write a bunch (e.g. > 1K)
-> of data to a sysfs file, the c library splits it up into multiple writes
-> of 1K or less.  Because the kobject store method doesn't support offsets,
-> and because the call to copy_from_user doesn't honor offsets, you end up
-> with multiple calls to the store method, with incorrect results and no
-> error code.
+> --- linux-2.6/drivers/superio/scx.c     1970-01-01 03:00:00.000000000 +0300
+> +++ linux-2.6/drivers/superio/scx.c     2005-01-24 22:06:15.000000000 +0300
 
-Who is trying to send > 1K to a sysfs file?  Remember, sysfs files are
-for 1 value only.  If you consider > 1K a "single value" please point me
-to that part of the kernel that does that.
+<snip>
 
-> To the typical user, there's really no difference in behavior, unless you
-> are writing a ton of data into the file.  Of course, there's the obvious
-> question of why you'd want to do so...
+> +static void scx200_fini(void)
+> +{
+> +       sc_del_sc_dev(&scx200_dev);
+> +
+> +       while (atomic_read(&scx200_dev.refcnt))
+> +       {
+> +               printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
+> +                               scx200_dev.name, atomic_read(&scx200_dev.refcnt));
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +               schedule_timeout(HZ);
+> +
+> +               if (current->flags & PF_FREEZE)
+> +                       refrigerator(PF_FREEZE);
+> +
+> +               if (signal_pending(current))
+> +                       flush_signals(current);
+> +       }
 
-Exactly, you should not be doing that anyway.  So, because of that, I
-really don't want/like this patch.
+<snip>
 
-thanks,
+I believe this schedule_timeout() call can be an msleep_interruptible(1000).
 
-greg k-h
+Thanks,
+Nish

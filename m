@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267326AbUH0S5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUH0TCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267326AbUH0S5b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 14:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUH0S50
+	id S267303AbUH0TCH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 15:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUH0TCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 14:57:26 -0400
-Received: from jib.isi.edu ([128.9.128.193]:6791 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S267313AbUH0Szx (ORCPT
+	Fri, 27 Aug 2004 15:02:07 -0400
+Received: from daq3.if.pw.edu.pl ([194.29.174.23]:18561 "HELO milosz.na.pl")
+	by vger.kernel.org with SMTP id S267375AbUH0S7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 14:55:53 -0400
-Date: Fri, 27 Aug 2004 11:55:41 -0700
-From: Craig Milo Rogers <rogers@isi.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       webcam@smcc.demon.nl
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-Message-ID: <20040827185541.GC24018@isi.edu>
-References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org> <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org> <20040827094346.B29407@infradead.org> <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org> <1093628254.15313.14.camel@gonzales> <Pine.LNX.4.58.0408271106330.14196@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Aug 2004 14:59:44 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Reply-To: bzolnier@milosz.na.pl
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH] Configure IDE probe delays
+Date: Fri, 27 Aug 2004 20:59:51 +0200
+User-Agent: KMail/1.6.2
+Cc: Greg Stark <gsstark@mit.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com> <200408272005.08407.bzolnier@elka.pw.edu.pl> <1093630121.837.39.camel@krustophenia.net>
+In-Reply-To: <1093630121.837.39.camel@krustophenia.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408271106330.14196@ppc970.osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408272059.51779.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04.08.27, Linus Torvalds wrote:
-> But Greg is right - we don't keep hooks that are there purely for binary
-> drivers. If somebody wants a binary driver, it had better be a whole
-> independent thing - and it won't be distributed with the kernel.
+On Friday 27 August 2004 20:08, Lee Revell wrote:
+> On Fri, 2004-08-27 at 14:05, Bartlomiej Zolnierkiewicz wrote:
+> > On Friday 27 August 2004 19:53, Lee Revell wrote:
+> > > On Fri, 2004-08-27 at 13:45, Greg Stark wrote:
+> > > > Lee Revell <rlrevell@joe-job.com> writes:
+> > > > > I wonder if 83 probes are really necessary.  Maybe this could be
+> > > > > optimized a bit.
+> > > >
+> > > > Or if the kernel could be doing something useful during that time. I
+> > > > don't suppose it's possible to probe two different ide interfaces at
+> > > > the same time, is it?
+> > >
+> > > Did the patch to move this into a #define ever get merged?  Seems like
+> > > a no brainer, as it eliminates a magic number.
+> >
+> > No and it won't because it is not a 'magic number' but rather a 'random
+> > number' (see Alan's mail for explanation).
+>
+> OK, sorry.  Missed that one the first time.
+>
+> > BTW Lee, 48-bit addressing doesn't mean that capacity > 137GB
 
-	If you read Nemosoft's final driver release (which has been
-reposted, and of which I now have a copy), you can see that he was
-rewriting his code to move the proprietary codecs out of the kernel
-entirely, and into user-mode libraries to be linked with consenting
-applications -- he was quite sensitive to the kernel issues involved.
-Of course, this is still nowhere as good as a wholly open source
-solution, a position with which I think Nemosoft concurs, based on his
-messages.
+Contrary is true of course:
+if capacity > 137 GB then disk supports 48-bit addressing.
 
-	Linus, would you adress a moot issue, please?  If Nemosoft (or
-someone else) were to release some of the codecs in question as one or
-more open-source loadable kernel modules (similar to sound card
-support modules in the ALSA system), while other codecs remain
-binary-only loadable kernel modules (distributed outside the kernel,
-but using the same hook as the open-source loadable modules), would
-the pwc driver and codec extension hook be allowable, in your opinion,
-please?
+> What determines whether 48 bit addressing will be used then?
 
-					Craig Milo Rogers
+Availability of 48-bit addressing feature set and host capabilities
+(some don't support LBA48 when DMA is used etc.).

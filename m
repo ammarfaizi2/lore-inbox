@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129434AbQKNBbH>; Mon, 13 Nov 2000 20:31:07 -0500
+	id <S129915AbQKNBme>; Mon, 13 Nov 2000 20:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129838AbQKNBa5>; Mon, 13 Nov 2000 20:30:57 -0500
-Received: from ha2.rdc2.tx.home.com ([24.14.77.21]:17359 "EHLO
-	mail.rdc2.tx.home.com") by vger.kernel.org with ESMTP
-	id <S129434AbQKNBav>; Mon, 13 Nov 2000 20:30:51 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Better precision in rusage and virtual itimers?
-Reply-To: minyard@acm.org
-From: Corey Minyard <minyard@acm.org>
-Date: 13 Nov 2000 18:01:03 -0600
-Message-ID: <m2lmunwhfk.fsf@c469597-a.grlnd1.tx.home.com>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S129835AbQKNBmY>; Mon, 13 Nov 2000 20:42:24 -0500
+Received: from praseodumium.btinternet.com ([194.73.73.82]:16783 "EHLO
+	praseodumium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129786AbQKNBmP>; Mon, 13 Nov 2000 20:42:15 -0500
+From: davej@suse.de
+Date: Tue, 14 Nov 2000 01:08:51 +0000 (GMT)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: mharris@opensourceadvocate.org
+Subject: Re: UDMA66/100 errors...
+Message-ID: <Pine.LNX.4.21.0011140106040.1173-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've looked through the scheduling code and searched pretty much
-everywhere I could think of and I've found nothing on this, so it's
-time to escalate :-).
 
-The measurement of CPU usage and virtual itimers is crude at best.
-It's actually possible to set a relatively short virtual itimer (say,
-50ms) and have it use almost no CPU before going off.  I have actually
-had this happen.  For larger values and for gross rusage measurements,
-this current scheme is probably ok, but for more fine-grained stuff it
-is not ok.
+Mike Harris wrote..
 
-Most, if not all, modern CPUs have a high-precision clock that could
-easily track CPU usage down to the microsecond level.
+>I'm getting the following error when I try and enable UDMA on my
+>new IBM Deskstar UDMA100 drive:
+>...
+> DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
 
-My questions are: has anyone done any work on this?  If not, and, if I
-was willing to do the work, would it be likely to be accepted?
+Ok, the drive supports UDMA5 (ATA100)
 
-What I would like to do is the following:
+> setting xfermode to 67 (UltraDMA mode3)
+>ide0: Speed warnings UDMA 3/4/5 is not functional.
 
- * Add a way to get to a high-precision clock that architectures can
-   provide.
+Why can this be?
 
- * Modify fields in task_struct to optionally support higher precision.
+>00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
 
- * Add some optional code before and after switch_to() to update the
-   timer values and rusage values.
+This chipset only does up to UDMA2.
 
- * Add a way for architectures to report when they enter and leave
-   system code (for tracking system verses user usage).
+regards,
 
-All of this, of course, would be optional and the old way would still
-be available.
+Davej.
 
-Corey
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289083AbSAGCez>; Sun, 6 Jan 2002 21:34:55 -0500
+	id <S289082AbSAGCdf>; Sun, 6 Jan 2002 21:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSAGCep>; Sun, 6 Jan 2002 21:34:45 -0500
-Received: from holomorphy.com ([216.36.33.161]:41932 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289083AbSAGCef>;
-	Sun, 6 Jan 2002 21:34:35 -0500
-Date: Sun, 6 Jan 2002 18:34:17 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] hashed waitqueues, somewhat cleaner
-Message-ID: <20020106183417.L10326@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-Organization: The Domain of Holomorphy
+	id <S289083AbSAGCd0>; Sun, 6 Jan 2002 21:33:26 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:14350 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289082AbSAGCdQ>; Sun, 6 Jan 2002 21:33:16 -0500
+Date: Sun, 6 Jan 2002 18:36:33 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+        <mjh@vr-web.de>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] 2.5.2 scheduler code for 2.4.18-pre1 ( was 2.5.2-pre
+ performance degradation on an old 486 )
+In-Reply-To: <200201070133.CAA03628@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.40.0201061836030.1000-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some new versions of the hashed waitqueues are now available:
+On Mon, 7 Jan 2002, Mikael Pettersson wrote:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/struct_page/waitq-2.4.17-rmap10c-1
+> On Sun, 6 Jan 2002 15:59:05 -0800 (PST), Davide Libenzi wrote:
+> >I made this patch for Andrea and it's the scheduler code for 2.4.18-pre1
+> >Could someone give it a try on old 486s
+>
+> Done. On my '93 vintage 486, 2.4.18p1 + your scheduler results in very
+> bursty I/O and poor performance, just like I reported for 2.5.2-pre7.
 
-This includes:
-
-(1) Manual common subexpression elimination of page_waitqueue() calls
-(2) Use a 64-bit Fibonacci hashing prime conditional on BITS_PER_LONG
-(3) Storing wait_table_shift instead of wait_table_bits to reduce
-	arithmetic within the hash function
-(4) Eliminating the masking operation within the hash function, as
-	the shifting already zeroes the high-order bits.
-(5) Eliminating explicit references to struct page ->wait outside
-	of the VM.
-
-Future directions:
-(1) Using a non-linear function to size the waitqueue table given the
-	size of a zone, as the demand for waitqueues does not appear to
-	scale linearly with the size of memory.
-(2) Finding bit-sparse Fibonacci hashing multipliers for machines with
-	slow integer multiplies (so it can be optimized to shift/add
-	sequences on those machines).
-
-I'll followup shortly after rediffing against 2.4.17-mainline.
+Can you try some changes that i'll tell you ?
 
 
-Cheers,
-Bill
+
+
+- Davide
+
+

@@ -1,95 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUICAMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269419AbUICCSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269401AbUICAMT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 20:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICAD0
+	id S269419AbUICCSS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 22:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269138AbUICCRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:03:26 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28404 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269407AbUIBX6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:58:15 -0400
-Date: Thu, 2 Sep 2004 20:02:40 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Anton Blanchard <anton@samba.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Matt Mackall <mpm@selenic.com>
-Subject: [PATCH][4/8] Arch agnostic completely out of line locks / ppc32
-Message-ID: <Pine.LNX.4.58.0409021227490.4481@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 22:17:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:22705 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269564AbUICCLN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 22:11:13 -0400
+Subject: Re: [RFC][PATCH] new timeofday i386 hooks (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <4137CC85.4040802@mvista.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+	 <1094159492.14662.325.camel@cog.beaverton.ibm.com>
+	 <4137CC85.4040802@mvista.com>
+Content-Type: text/plain
+Message-Id: <1094177215.14662.462.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Sep 2004 19:06:55 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- arch/ppc/kernel/time.c        |   14 ++++++++++++++
- arch/ppc/kernel/vmlinux.lds.S |    1 +
- include/asm-ppc/ptrace.h      |    5 +++++
- 3 files changed, 20 insertions(+)
+On Thu, 2004-09-02 at 18:44, George Anzinger wrote:
+> john stultz wrote:
+> > +void sync_persistant_clock(struct timespec ts)
+> > +{
+> > +	/*
+> > +	 * If we have an externally synchronized Linux clock, then update
+> > +	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
+> > +	 * called as close as possible to 500 ms before the new second starts.
+> > +	 */
+> > +	if (ts.tv_sec > last_rtc_update + 660 &&
+> > +	    (ts.tv_nsec / 1000)
+> > +			>= USEC_AFTER - ((unsigned) TICK_SIZE) / 2 &&
+> > +	    (ts.tv_nsec / 1000)
+> > +			<= USEC_BEFORE + ((unsigned) TICK_SIZE) / 2) {
+> > +		/* horrible...FIXME */
+> > +		if (efi_enabled) {
+> > +	 		if (efi_set_rtc_mmss(ts.tv_sec) == 0)
+> > +				last_rtc_update = ts.tv_sec;
+> > +			else
+> > +				last_rtc_update = ts.tv_sec - 600;
+> > +		} else if (set_rtc_mmss(ts.tv_sec) == 0)
+> > +			last_rtc_update = ts.tv_sec;
+> > +		else
+> > +			last_rtc_update = ts.tv_sec - 600; /* do it again in 60 s */
+> > +	}
+> > +
+> I have wondered, and continue to do so, why this is not a timer driven function. 
+>   It just seems silly to check this every interrupt when we have low overhead 
+> timers for just this sort of thing.
+> 
+> I wonder about the load calc in the same way...
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+The really cool thing is: with the new infrastructure separating the
+timeofday code and the timer code, we can make timeofday_interrupt_hook
+be called from a soft-timer! We don't have to do the accounting every
+interrupt, but just frequently enough that the time sources don't
+overflow!
 
-Index: linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/ppc/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c	26 Aug 2004 13:12:55 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c	2 Sep 2004 13:53:46 -0000
-@@ -108,6 +108,20 @@ static inline int tb_delta(unsigned *jif
- 	return delta;
- }
+> Now, the question is how do you hook up the timer list.  We MUST be able to 
+> start a timer that will run for several min to hours and have it expire such 
+> that the wall time difference is "really" close to what was requested.  This 
+> requires some "lock up" between the wall clock and the timer subsystem.
+> 
+> What are your thoughts here?
 
-+#ifdef CONFIG_SMP
-+unsigned long profile_pc(struct pt_regs *regs)
-+{
-+	unsigned long pc = instruction_pointer(regs);
-+
-+	if (pc >= (unsigned long)&__lock_text_start &&
-+	    pc <= (unsigned long)&__lock_text_end)
-+		return regs->link;
-+
-+	return pc;
-+}
-+EXPORT_SYMBOL(profile_pc);
-+#endif
-+
- /*
-  * timer_interrupt - gets called when the decrementer overflows,
-  * with interrupts disabled.
-Index: linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/ppc/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S	26 Aug 2004 13:12:55 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -32,6 +32,7 @@ SECTIONS
-   {
-     *(.text)
-     SCHED_TEXT
-+    LOCK_TEXT
-     *(.fixup)
-     *(.got1)
-     __got2_start = .;
-Index: linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/asm-ppc/ptrace.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ptrace.h
---- linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h	26 Aug 2004 13:13:12 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h	2 Sep 2004 13:08:16 -0000
-@@ -47,7 +47,12 @@ struct pt_regs {
+Well, looking way down the road, once timeofday is independent from the
+soft-timer code, we can invert the dependency so the soft-timer code
+uses the high-res timeofday code instead of jiffies for determining if a
+timer has expired. That would allow for more precise timer intervals to
+be set, without worry of how it might affect timekeeping.
 
- #ifndef __ASSEMBLY__
- #define instruction_pointer(regs) ((regs)->nip)
-+#ifdef CONFIG_SMP
-+extern unsigned long profile_pc(struct pt_regs *regs);
-+#else
- #define profile_pc(regs) instruction_pointer(regs)
-+#endif
-+
- #define user_mode(regs) (((regs)->msr & MSR_PR) != 0)
+Easier said then done, I agree, but this change does allow for these
+sorts of thing to be attempted. 
 
- #define force_successful_syscall_return()   \
+My favorite benefit is that lost-ticks caused by bad drivers become a
+timer/scheduler latency issue rather then a timeofday is broken issue :)
+
+Yay!
+
+Thanks again, George!
+-john
+
+

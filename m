@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbRAUFMo>; Sun, 21 Jan 2001 00:12:44 -0500
+	id <S130093AbRAUFgx>; Sun, 21 Jan 2001 00:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135356AbRAUFMe>; Sun, 21 Jan 2001 00:12:34 -0500
-Received: from 1-VALL-X12.libre.retevision.es ([62.83.208.129]:24448 "HELO
-	lightside.2y.net") by vger.kernel.org with SMTP id <S129632AbRAUFMS>;
-	Sun, 21 Jan 2001 00:12:18 -0500
-Date: Sun, 21 Jan 2001 06:10:50 +0100
-From: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
-To: profmakx.fmp@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT?] Coding Style
-Message-ID: <20010121061050.A664@lightside.2y.net>
-In-Reply-To: <5.0.2.1.2.20010120152158.00ab7bc0@pop.cus.cam.ac.uk> <19160.980007557@www16.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <19160.980007557@www16.gmx.net>; from profmakx.fmp@gmx.de on Sat, Jan 20, 2001 at 05:19:17PM +0100
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://maculaisdeadsoimmovingit/lightside
+	id <S131563AbRAUFgo>; Sun, 21 Jan 2001 00:36:44 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:23812
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130093AbRAUFgh>; Sun, 21 Jan 2001 00:36:37 -0500
+Date: Sat, 20 Jan 2001 21:36:25 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Minors remaining in Major 10 ??
+In-Reply-To: <3A6A28B2.83807A1@transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101201651070.657-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001 at 05:19:17PM +0100, profmakx.fmp@gmx.de wrote:
-> I just wanted to say that Linus´ CodingStyle is the ONLY SANE style of
-> writing code in bigger projects. At university we are forced to use exactly the
+On Sat, 20 Jan 2001, H. Peter Anvin wrote:
 
-And the lord spake, saying, "First shalt thou write thy holy code. Indenting
-shalt thou count to three, no more, no less.  Three shalt be the spaces thou 
-shalt count, and the number of the counting shalt be three.  Four shalt thou
-not count, nor count thou two, excepting that thou then proceedeth to three.
-Eight is right out.  Once the number three, being the third number be
-reached, shalt thou move towards indenting thy next line ..
+> Andre Hedrick wrote:
+> > >
+> > > No, I think I understood perfectly well.  I said that if it's going to be
+> > > bound to each block device subsystem it would make more sense to
+> > > establish that tie explicitly -- if that isn't possible I'm a bit
+> > > confused.
+> > 
+> > Okay, I am definitely not clear because I am leading the wrong direction.
+> > A single char-device would access all of ATA or all of SCSI.
+> > 
+> 
+> That's fine.  ATA and SCSI are a bit special because they have multiple
+> majors -- something that I hope we can get rid of with the dev_t
+> expansion anyway, but I think the principle still holds.
 
-.. ;)
--- 
-____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-\ o.O|                                                   2F0D27DE025BE2302C
- =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
-   U     chaos and madness await thee at its end."
+Hi Peter,
+
+Regardless if we rip out the entire rule of majors for dev_t, will there
+be a service dummy driver to various block-devices?  There is a real need
+for this if we are going to get full control of the hardware by indirect
+access obtain the functionality that I see and need in the near future.
+
+I want to use KMOD to an advantage.
+
+Assume removable device bays such that you can swap in any and every kind
+of ata-atapi device and/or all scsi-devices, one needs to have a way to
+tell the driver to do things that are not native to its general mode of
+operations as of today.
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRDTWJZ>; Fri, 20 Apr 2001 18:09:25 -0400
+	id <S132053AbRDTWPH>; Fri, 20 Apr 2001 18:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132054AbRDTWJO>; Fri, 20 Apr 2001 18:09:14 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:56336 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S132053AbRDTWJL>; Fri, 20 Apr 2001 18:09:11 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256A34.0079A841.00@smtpnotes.altec.com>
-Date: Fri, 20 Apr 2001 17:08:53 -0500
-Subject: Current status of NTFS support
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132054AbRDTWO4>; Fri, 20 Apr 2001 18:14:56 -0400
+Received: from [212.159.14.227] ([212.159.14.227]:8920 "HELO
+	warrior-outbound.servers.plus.net") by vger.kernel.org with SMTP
+	id <S132053AbRDTWOq>; Fri, 20 Apr 2001 18:14:46 -0400
+To: esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] CML2 1.1.3 is available
+In-Reply-To: <3ADB69BF.7040305@reutershealth.com>
+	<Pine.GSO.4.05.10104161622110.17365-100000@pipt.oz.cc.utah.edu>
+	<20010416205556.A22960@thyrsus.com>
+From: Adam Sampson <azz@gnu.org>
+Organization: The Campaign For The Writing Of "a lot" As Two Words
+Content-Type: text/plain; charset=US-ASCII
+Date: 20 Apr 2001 00:20:11 +0100
+In-Reply-To: <20010416205556.A22960@thyrsus.com>
+Message-ID: <87itk04gus.fsf@cartman.azz.us-lot.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Eric S. Raymond" <esr@thyrsus.com> writes:
 
+> If there were already a library in ths stock Python distribution to
+> digest .Xdefaults files I might consider this.  Perhaps I'll write
+> one.
 
-Where does write support for NTFS stand at the moment?  I noticed that it's
-still marked "Dangerous" in the kernel configuration.  This is important to me
-because it looks like I'll have to start using it next week.  My office laptop
-is going to be "upgraded" from Windows 98 to 2000.  Of course, I hardly ever
-boot into Windows any more since installing a Linux partition last year.  But
-our corporate email standard forces me to use Lotus Notes, which I run under
-Wine.   The Notes executables and databases are installed on my Windows
-partition.  The upgrade, though, will involve wiping the hard drive, allocating
-the whole drive to a single NTFS partition, and reinstalling Notes after
-installing Windows 2000 .  That means bye-bye FAT32 partition and hello NTFS.  I
-can't mount it read-only because I'll still have to update my Notes databases
-from Linux.  So how risky is this?
+No, please don't! .Xdefaults files as loaded by xrdb can contain cpp
+directives which can depend on the arguments given to xrdb ("xrdb
+-DBIGTERM .Xdefaults", for instance), so you can't assume that what
+you read from .Xdefaults is the user's setup, even if you emulate
+cpp. You also shouldn't assume that the user's HOME is on the machine
+where they loaded their resources from (suppose I start an X session
+on my workstation, then ssh over to a server and run CML2; it would
+then read server:~/.Xdefaults rather than workstation:~/.Xdefaults).
+It's much more sensible to use the normal X mechanisms for reading
+resources from the X server.
 
-Also, I'll have to recreate my Linux partitions after the upgrade.  Does anyone
-know if FIPS can split a partition safely that was created under Windows
-2000/NT?  It worked fine for Windows 98, but I'm a little worried about what
-might happen if I try to use it on an NTFS partition.
+CML2 looks good---keep up the good work.
 
-I'd appreciate any advice or help anyone can give me.  There's just no way I can
-stand going back to using anything but Linux for my daily work.
-
-Wayne
-
-
+-- 
+Adam Sampson <azz@gnu.org>                  <URL:http://azz.us-lot.org/>

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbUB1OUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 09:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUB1OUW
+	id S261855AbUB1Ok3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 09:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUB1Ok3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 09:20:22 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:63402 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261850AbUB1OUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 09:20:18 -0500
-Date: Sat, 28 Feb 2004 08:19:34 -0600 (CST)
-From: Olof Johansson <olof@austin.ibm.com>
-To: Andi Kleen <ak@suse.de>
-cc: torvalds@osdl.org, <benh@kernel.crashing.org>,
-       <linux-kernel@vger.kernel.org>, <linuxppc64-dev@lists.linuxppc.org>
-Subject: Re: [PATCH] ppc64: Add iommu=on for enabling DART on small-mem
- machines
-In-Reply-To: <p73ad334b90.fsf@verdi.suse.de>
-Message-ID: <Pine.A41.4.44.0402280818060.43148-100000@forte.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 28 Feb 2004 09:40:29 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:20715 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261855AbUB1Ok2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 09:40:28 -0500
+Subject: Re: Where does this load come from?
+From: Christophe Saout <christophe@saout.de>
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1077971267.10257.24.camel@paragon.slim>
+References: <1077971267.10257.24.camel@paragon.slim>
+Content-Type: text/plain
+Message-Id: <1077979223.11348.2.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 28 Feb 2004 15:40:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Feb 2004, Andi Kleen wrote:
+Am Sa, den 28.02.2004 schrieb Jurgen Kramer um 13:27:
 
-> olof@austin.ibm.com writes:
->
-> > Below patch makes it possible for people like me with a small-mem G5 to
-> > enable the DART. I see two reasons for wanting to do so:
->
-> Could you call it iommu=force ?
->
-> It would be the same name as on x86-64 for the same thing then and
-> a consistent name may be easier to get to driver developers.
+> I am seeing some strange load figures on my P4 Celeron based system
+> which I cannot explain. There always seem to be some load while there
+> are no real apps running. Stopping all daemons doesn't seem to effect
+> things at all.
 
-
-Ack! I was wavering between the two options and finally went with =on. :)
-Either way is fine with me.
-
-
--Olof
-
-Olof Johansson                                        Office: 4E002/905
-Linux on Power Development                            IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
-
-
+I've posted something like this before. It seems the load calculator
+takes the io_wait "cpu usage" (which isn't really a cpu usage, it just
+categorizes processes waiting in io_schedule here instead of the idle
+time) into account. While doing heavy disk I/O my webserver showed a
+load of over 40 but the cpu was idle. I don't like this either.
 
 

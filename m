@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYKDl>; Thu, 25 Jan 2001 05:03:41 -0500
+	id <S130133AbRAYKLw>; Thu, 25 Jan 2001 05:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129774AbRAYKDb>; Thu, 25 Jan 2001 05:03:31 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:9480 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S129444AbRAYKDY>;
-	Thu, 25 Jan 2001 05:03:24 -0500
-Date: Thu, 25 Jan 2001 11:01:08 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: cpqfc in 2.4 ?
-Message-ID: <20010125110108.A32249@marowsky-bree.de>
+	id <S130292AbRAYKLm>; Thu, 25 Jan 2001 05:11:42 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:44502 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130133AbRAYKLa>;
+	Thu, 25 Jan 2001 05:11:30 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200101250611.f0P6BI418581@devserv.devel.redhat.com> 
+In-Reply-To: <200101250611.f0P6BI418581@devserv.devel.redhat.com> 
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patches 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-X-Ctuhulu: HASTUR
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 25 Jan 2001 10:08:02 +0000
+Message-ID: <19765.980417282@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpqfc isn't build for 2.4 yet.
 
-Is there any specific reason for this?
+alan@redhat.com said:
+>  I seem to be getting more and more patches that have tabs/spaces
+> broken and line wrap damage. I've dumped a pile in my queue including
+> some pcmcia support for sh3 and the like 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Note that pine 4.30 (shipped with Red Hat 7) has taken to stripping 
+trailing whitespace from each line of a mail just before it sends it.
 
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+See http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=23679 for a patch, 
+if you can get at it - I seem to be firewalled from it at the moment. 
+
+This corruption still occurs in pine 4.32.
+
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

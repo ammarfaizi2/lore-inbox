@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbULGVNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbULGVMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbULGVNP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 16:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbULGVNP
+	id S261942AbULGVMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 16:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbULGVMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 16:13:15 -0500
-Received: from news.cistron.nl ([62.216.30.38]:23213 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261939AbULGVMb (ORCPT
+	Tue, 7 Dec 2004 16:12:36 -0500
+Received: from fire.osdl.org ([65.172.181.4]:30339 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261935AbULGVMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 16:12:31 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Rereading disk geometry without reboot
-Date: Tue, 7 Dec 2004 21:12:27 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <cp56br$glj$1@news.cistron.nl>
-References: <20041206202356.GA5866@thumper2> <20041207172812.GD11423@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1102453947 17075 62.216.29.200 (7 Dec 2004 21:12:27 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Tue, 7 Dec 2004 16:12:25 -0500
+Message-ID: <41B612F8.501@osdl.org>
+Date: Tue, 07 Dec 2004 12:30:48 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: werner@sgi.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC]Add an unlocked_ioctl file operation
+References: <200412071211.41468.werner@sgi.com>
+In-Reply-To: <200412071211.41468.werner@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041207172812.GD11423@lnx-holt.americas.sgi.com>,
-Robin Holt  <holt@sgi.com> wrote:
->On Mon, Dec 06, 2004 at 02:23:56PM -0600, Andy wrote:
->> I am using linux kernel 2.6.9 on a san.  I have file systems on
->> non-partitioned disks.  I can resize the disk on the SAN, reboot and grow
->> the XFS file system those disks.  What I would like to avoid rebooting or
->> even unmounting the filesystem if possible.
->> 
->> Is there any way to get the kernel to re-read the disk geometry and change
->> the information it holds without rebooting or reloading the module (which is
->> as bad as a reboot in my case)?
->
->Does anybody know if lvm can do this?
+Mike Werner wrote:
+> Per Andi Kleen's suggestion.
+> 
+> # This is a BitKeeper generated diff -Nru style patch.
+> #
+> #   Run Lindent on ioctl.c
+> #   Add an ioctl path which does not take the BKL.
 
-Yes, with LVM and XFS you can grow a logical volume and resize XFS
-to fit without taking the filesytem offline.
+Isn't there some commentary around about one patch per email?
+Please read
+   http://linux.yyz.us/patch-format.html
+and
+   http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-Mike.
+Also there was an email from Linus last week in the loooooong
+"splitting kernel headers" thread about this.  In particular,
+about doing lindent patches completely standalone.
 
+That way we can review each patch on its own merit.
+
+Thanks.
+-- 
+~Randy

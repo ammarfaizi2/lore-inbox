@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUGGQak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUGGQdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbUGGQak (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUGGQak
+	id S265241AbUGGQdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUGGQdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:30:40 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:64897 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265245AbUGGQah (ORCPT
+	Wed, 7 Jul 2004 12:33:42 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:13185 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S265248AbUGGQcY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:30:37 -0400
-Date: Wed, 7 Jul 2004 18:31:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm6
-Message-ID: <20040707163103.GA1368@ucw.cz>
-References: <20040705023120.34f7772b.akpm@osdl.org> <200407061251.18702.dtor_core@ameritech.net> <20040706231256.GV21066@holomorphy.com> <200407070015.39507.dtor_core@ameritech.net>
+	Wed, 7 Jul 2004 12:32:24 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Wed, 7 Jul 2004 18:30:49 +0200
+To: tom st denis <tomstdenis@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040707163048.GA30840@iram.es>
+References: <20040707030029.GD12308@parcelfarce.linux.theplanet.co.uk> <20040707111028.82649.qmail@web41111.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200407070015.39507.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040707111028.82649.qmail@web41111.mail.yahoo.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 12:15:37AM -0500, Dmitry Torokhov wrote:
-> The only suspicious thing that I see is that sunzilog tries to register its
-> serio ports with spinlock held and interrupts off. I wonder if that is what
-> causing a deadlock. Could you please try applying this patch on top of the
-> changes to the drivers/Makefile that I sent earlier.
-
-Shall I add this to my BK then?
-
-> -- 
-> Dmitry
+On Wed, Jul 07, 2004 at 04:10:28AM -0700, tom st denis wrote:
+> --- viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > On Tue, Jul 06, 2004 at 05:06:12PM -0700, tom st denis wrote:
+> > > --- David Eger <eger@havoc.gtf.org> wrote:
+> > > > Is there a reason to add the 'L' to such a 32-bit constant like
+> > this?
+> > > > There doesn't seem a great rhyme to it in the headers...
+> > > 
+> > > IIRC it should have the L [probably UL instead] since numerical
+> > > constants are of type ``int'' by default.  
+> > > 
+> > > Normally this isn't a problem since int == long on most platforms
+> > that
+> > > run Linux.  However, by the standard 0xdeadbeef is not a valid
+> > unsigned
+> > > long constant.
+> > 
+> > ... and that would be your F for C101.  Suggested remedial reading
+> > before
+> > you take the test again: any textbook on C, section describing
+> > integer
+> > constants; alternatively, you can look it up in any revision of C
+> > standard.
+> > Pay attention to difference in the set of acceptable types for
+> > decimal
+> > and heaxdecimal constants.
 > 
+> You're f'ing kidding me right?  Dude, I write portable ISO C source
+> code for a living.  My code has been built on dozens and dozens of
+> platforms **WITHOUT** changes.  I know what I'm talking about.
 > 
-> ===== drivers/serial/sunzilog.c 1.44 vs edited =====
-> --- 1.44/drivers/serial/sunzilog.c	2004-06-28 22:45:23 -05:00
-> +++ edited/drivers/serial/sunzilog.c	2004-07-06 23:46:54 -05:00
-> @@ -1529,7 +1529,6 @@
->  static void __init sunzilog_init_kbdms(struct uart_sunzilog_port *up, int channel)
->  {
->  	int baud, brg;
-> -	struct serio *serio;
->  
->  	if (channel == KEYBOARD_LINE) {
->  		up->flags |= SUNZILOG_FLAG_CONS_KEYB;
-> @@ -1546,8 +1545,15 @@
->  	up->curregs[R15] = BRKIE;
->  	brg = BPS_TO_BRG(baud, ZS_CLOCK / ZS_CLOCK_DIVISOR);
->  	sunzilog_convert_to_zs(up, up->cflag, 0, brg);
-> +	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
-> +	__sunzilog_startup(up);
-> +}
->  
->  #ifdef CONFIG_SERIO
-> +static void __init sunzilog_register_serio(struct uart_sunzilog_port *up, int channel)
-> +{
-> +	struct serio *serio;
-> +
->  	up->serio = serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
->  	if (serio) {
->  
-> @@ -1576,11 +1582,8 @@
->  		printk(KERN_WARNING "zs%d: not enough memory for serio port\n",
->  			channel);
->  	}
-> -#endif
-> -
-> -	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
-> -	__sunzilog_startup(up);
->  }
-> +#endif
->  
->  static void __init sunzilog_init_hw(void)
->  {
-> @@ -1624,6 +1627,11 @@
->  		}
->  
->  		spin_unlock_irqrestore(&up->port.lock, flags);
-> +
-> +#ifdef CONFIG_SERIO
-> +		if (i == KEYBOARD_LINE || i == MOUSE_LINE)
-> +			sunzilog_register_serio(up, i);
-> +#endif
->  	}
->  }
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 0x01, 1 are 01 all **int** constants.
 > 
+> On some platforms 0xdeadbeef may be a valid int, in most cases the
+> compiler won't diagnostic it.  splint thought it was worth mentioning
+> which is why I replied.
+> 
+> In fact GCC has odd behaviour.  It will diagnostic
+> 
+> char x = 0xFF;
+> 
+> and
+> 
+> int x = 0xFFFFFFFFULL;
+> 
+> But not 
+> 
+> int x = 0xFFFFFFFF;
+> 
+> [with --std=c99 -pedantic -O2 -Wall -W]
+> 
+> So I'd say it thinks that all of the constants are "int".  In this case
+> 0xFF is greater than 127 [max for char] and 0xFFFFFFFFFFULL is larger
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+You are aware that this statement is plainly and simply wrong, 
+aren't you?
+
+On many platforms a "plain" char is unsigned. You can't write portable
+code without knowing this.
+
+> 
+> Before you step down to belittle others I'd suggest you actually make
+> sure you're right.  
+
+Ditto.
+
+	Gabriel

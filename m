@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262099AbRETRSX>; Sun, 20 May 2001 13:18:23 -0400
+	id <S262100AbRETRQx>; Sun, 20 May 2001 13:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262102AbRETRSN>; Sun, 20 May 2001 13:18:13 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:55822 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S262099AbRETRSD>;
-	Sun, 20 May 2001 13:18:03 -0400
-Date: Sun, 20 May 2001 19:16:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Dave Airlie <airlied@skynet.ie>
-Cc: <linux-vax@mithra.physics.montana.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: start_thread question...
-In-Reply-To: <Pine.LNX.4.32.0105201717100.29656-100000@skynet>
-Message-ID: <Pine.LNX.4.33.0105201908550.31113-100000@localhost.localdomain>
+	id <S262099AbRETRQo>; Sun, 20 May 2001 13:16:44 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:41651 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262100AbRETRQb>;
+	Sun, 20 May 2001 13:16:31 -0400
+Message-ID: <3B07FBE9.1176D9DC@mandrakesoft.com>
+Date: Sun, 20 May 2001 13:16:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <andrewm@uow.edu.au>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru>, <20010519231131.A2840@jurassic.park.msu.ru>; <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random> <20010520181803.I18119@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> 
+> On Sun, May 20, 2001 at 03:49:58PM +0200, Andrea Arcangeli wrote:
+> > they returned zero. You either have to drop the skb or to try again later
+> > if they returns zero.
+> 
+> BTW, pci_map_single is not a nice interface, it cannot return bus
+> address 0, 
 
-On Sun, 20 May 2001, Dave Airlie wrote:
+who says?
 
-> I'm implementing start_thread for the VAX port and am wondering does
-> start_thread have to return to load_elf_binary? I'm working on the
-> init thread and what is happening is it is returning the whole way
-> back to the execve caller .. which I know shouldn't happen.....
+A value of zero for the mapping is certainly an acceptable value, and it
+should be handled by drivers.
 
-start_thread() doesnt do what one would intuitively think it does.
+In fact its an open bug in a couple net drivers that they check the
+mapping to see if it is non-zero...
 
-start_thread() simply prepares the new task's register set to be ready to
-start user-space (which task is the current task as well, so certain
-current CPU registers might have to be manually bootstrapped as well), but
-start_thread() does not actually start execution of user-space code yet.
-
-(a more correct name for start_thread() would be prepare_user_thread().)
-
-> so I suppose what I'm looking for is the point where the user space
-> code gets control... is it when the registers are set in the
-> start_thread? if so how does start_thread return....
-
-execution starts when the process returns from sys_execve(). By that time
-we have already changed pagetables and other context information, dropped
-basically everything from the previous context - without actually doing a
-context-switch. In fact sys_execve() has an implicit context-switch,
-without ever changing the kernel-stack though.
-
-> On the VAX we have to call a return from interrupt to get to user
-> space and I'm trying to figure out where this should happen...
-
-this is how it happens on x86 too. Basically you start the new binary by
-returning from an syscall that has bootstrapped all userspace context -
-this approach should work on any architecture. (because every architecture
-has to be able to execute user-space code after syscalls.)
-
-	Ingo
-
+-- 
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."

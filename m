@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVBFJgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272497AbVBFKH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVBFJgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 04:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbVBFJgr
+	id S272497AbVBFKH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 05:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272527AbVBFKH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 04:36:47 -0500
-Received: from gprs215-220.eurotel.cz ([160.218.215.220]:384 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261794AbVBFJgh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 04:36:37 -0500
-Date: Sun, 6 Feb 2005 10:27:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
-Message-ID: <20050206092731.GA3869@elf.ucw.cz>
-References: <200502051448.57492.dtor_core@ameritech.net>
-Mime-Version: 1.0
+	Sun, 6 Feb 2005 05:07:27 -0500
+Received: from av1-2-sn4.m-sp.skanova.net ([81.228.10.115]:53140 "EHLO
+	av1-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S272497AbVBFKHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 05:07:12 -0500
+To: Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3-mm1
+References: <20050204103350.241a907a.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Feb 2005 11:07:09 +0100
+In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
+Message-ID: <m3d5vengs2.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502051448.57492.dtor_core@ameritech.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton <akpm@osdl.org> writes:
 
-> The patch below attempts to better handle situation when psmouse interrupt
-> is delayed for more than 0.5 sec by requesting a resend. This will allow
-> properly synchronize with the beginning of the packet as mouse is supposed
-> to resend entire package.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
 
-+                * This is second error in a row. If mouse was itialized - attempt
-+                * to rconnect, otherwise just signal failure.
+It gives me a kernel panic at boot if I have CONFIG_FB_RADEON
+enabled. If I also have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get this
+output:
 
-Tooo many typso in on coment?
-								Pavel
+        Unable to handle kernel NULL pointer dereference at virtual address 00000000
+        ...
+        PREEMPT
+        ...
+        EIP is a strncpy_from_user+0x33/0x47
+        ...
+        Call Trace:
+         getname+0x69/0xa5
+         sys_open+0x12/0xc6
+         sysenter_past_esp+0x52/0x75
+        ...
+        Kernel panic - not syncing: Attempted to kill init!
+
+If I don't have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get a screen
+with random junk and some blinking colored boxes, and the machine
+hangs.
+
+2.6.11-rc3 doesn't have this problem. When I boot that kernel, I get
+these messages during boot:
+
+Feb  6 02:27:31 r3000 kernel: radeonfb: Retreived PLL infos from BIOS
+Feb  6 02:27:31 r3000 kernel: radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=215.00 Mhz, System=220.00 MHz
+Feb  6 02:27:31 r3000 kernel: radeonfb: PLL min 20000 max 35000
+Feb  6 02:27:31 r3000 kernel: Non-DDC laptop panel detected
+Feb  6 02:27:31 r3000 kernel: radeonfb: Monitor 1 type LCD found
+Feb  6 02:27:31 r3000 kernel: radeonfb: Monitor 2 type no found
+Feb  6 02:27:31 r3000 kernel: radeonfb: panel ID string: LGP
+Feb  6 02:27:31 r3000 kernel: radeonfb: detected LVDS panel size from BIOS: 1280x800
+Feb  6 02:27:31 r3000 kernel: radeondb: BIOS provided dividers will be used
+Feb  6 02:27:31 r3000 kernel: radeonfb: Power Management enabled for Mobility chipsets
+Feb  6 02:27:31 r3000 kernel: Console: switching to colour frame buffer device 160x50
+Feb  6 02:27:31 r3000 kernel: radeonfb: ATI Radeon \a  DDR SGRAM 64 MB
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

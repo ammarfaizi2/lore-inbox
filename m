@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbRLGQAn>; Fri, 7 Dec 2001 11:00:43 -0500
+	id <S282844AbRLGQEN>; Fri, 7 Dec 2001 11:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282850AbRLGQA1>; Fri, 7 Dec 2001 11:00:27 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:28299 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282843AbRLGQAI>; Fri, 7 Dec 2001 11:00:08 -0500
-Date: Fri, 7 Dec 2001 08:59:58 -0700
-Message-Id: <200112071559.fB7FxwR14021@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rene Rebe <rene.rebe@gmx.net>, <linux-kernel@vger.kernel.org>,
-        <alsa-devel@lists.sourceforge.net>
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] /
- ALSA-0.9.0beta[9,10]
-In-Reply-To: <Pine.LNX.4.33.0112071617440.2935-100000@serv>
-In-Reply-To: <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33.0112071617440.2935-100000@serv>
+	id <S282850AbRLGQED>; Fri, 7 Dec 2001 11:04:03 -0500
+Received: from avplin.lanet.lv ([195.13.129.97]:21982 "HELO avplin.lanet.lv")
+	by vger.kernel.org with SMTP id <S282844AbRLGQDu>;
+	Fri, 7 Dec 2001 11:03:50 -0500
+Message-ID: <3C10E85F.7040009@lanet.lv>
+Date: Fri, 07 Dec 2001 18:03:43 +0200
+From: Andris Pavenis <pavenis@lanet.lv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: nbryant@optonline.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i810_audio fix for version 0.11
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel writes:
-> Hi,
-> 
-> On Thu, 6 Dec 2001, Richard Gooch wrote:
-> 
-> > Two possibilities:
-> >
-> > - the module is trying to register "unknown" twice. The old devfs core
-> >   was forgiving about this (although it was always a driver bug to
-> >   attempt to create a duplicate). The new core won't let you do that.
-> >   Error 17 is EEXIST. Please fix the driver
-> >
-> > - something in user-space created the "unknown" inode before the
-> >   driver could create it. This is a configuration bug.
-> 
-> Option 3:
-> Turn a user generated entry into a kernel generated one and return
-> 0.  Prepopulating devfs was a valid option so far, you cannot simply
-> change this during a stable kernel release.
+ > With this patch, it seems to work fine. Without, it hangs on write.
 
-Well, no, it was never a valid option. It was always a bug. In any
-case, the stricter behaviour isn't preventing people from using their
-drivers, it's just issuing a warning. The user-space created device
-node still works.
+I met case when dmabuf->count==0 when __start_dac() is called. As result
+I still got system freezing even if PCM_ENABLE_INPUT or 
+PCM_ENABLE_OUTPUT were set accordingly (I used different patch, see 
+another patch I sent today).
 
-				Regards,
+My latest revision of patch "survives" without problems already some 
+hours (normally I'm not listening radio through internet all time, but 
+this time I do ...)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Andris
+
+
+
+
+

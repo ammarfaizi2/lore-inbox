@@ -1,179 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTBJUVP>; Mon, 10 Feb 2003 15:21:15 -0500
+	id <S265097AbTBJUYM>; Mon, 10 Feb 2003 15:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbTBJUVP>; Mon, 10 Feb 2003 15:21:15 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:46490 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261900AbTBJUVM>; Mon, 10 Feb 2003 15:21:12 -0500
-Date: Mon, 10 Feb 2003 21:33:32 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [PATCH 2.5.60] cpufreq: properly initialize memory
-Message-ID: <20030210203332.GA2262@brodo.de>
+	id <S265098AbTBJUYM>; Mon, 10 Feb 2003 15:24:12 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:17991 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S265097AbTBJUYK>; Mon, 10 Feb 2003 15:24:10 -0500
+Date: Mon, 10 Feb 2003 21:33:53 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Jakob Oestergaard <jakob@unthought.net>, Andrew Morton <akpm@digeo.com>,
+       David Lang <david.lang@digitalinsight.com>, riel@conectiva.com.br,
+       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210203353.GA13976@nbkurt.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	Jakob Oestergaard <jakob@unthought.net>,
+	Andrew Morton <akpm@digeo.com>,
+	David Lang <david.lang@digitalinsight.com>, riel@conectiva.com.br,
+	ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
+References: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com> <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com> <20030209203343.06608eb3.akpm@digeo.com> <20030210045107.GD1109@unthought.net> <3E473172.3060407@cyberone.com.au> <20030210073614.GJ31401@dualathlon.random> <3E47579A.4000700@cyberone.com.au> <20030210080858.GM31401@dualathlon.random> <3E476287.8070407@cyberone.com.au> <20030210090248.GP31401@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
+In-Reply-To: <20030210090248.GP31401@dualathlon.random>
 User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-UL1 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Properly set memory allocated by x86 cpufreq drivers to zero.
 
- elanfreq.c    |    4 ++--
- gx-suspmod.c  |    4 ++++
- longhaul.c    |    5 +++--
- longrun.c     |    5 +++--
- p4-clockmod.c |    4 ++--
- powernow-k6.c |    4 ++--
- speedstep.c   |    4 ++--
- 7 files changed, 18 insertions(+), 12 deletions(-)
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-02-10 21:26:14.000000000 +0100
-@@ -242,6 +242,8 @@
- 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!driver)
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
-@@ -260,8 +262,6 @@
- 
- 	driver->verify        = &elanfreq_verify;
- 	driver->setpolicy     = &elanfreq_setpolicy;
--	driver->init = NULL;
--	driver->exit = NULL;
- 	strncpy(driver->name, "elanfreq", CPUFREQ_NAME_LEN);
- 
- 	driver->policy[0].cpu    = 0;
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c linux/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2003-02-10 21:26:39.000000000 +0100
-@@ -431,11 +431,15 @@
- 	driver = kmalloc(sizeof(struct cpufreq_driver) + NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (driver == NULL) 
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
-+
- 	params = kmalloc(sizeof(struct gxfreq_params), GFP_KERNEL);
- 	if (params == NULL) {
- 		kfree(driver);
- 		return -ENOMEM;
- 	}
-+	memset(params, 0, sizeof(struct gxfreq_params));
- 
- 	driver->policy = (struct cpufreq_policy *)(driver + 1);
- 	params->cs55x0 = gx_pci;
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/longhaul.c linux/arch/i386/kernel/cpu/cpufreq/longhaul.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/longhaul.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/longhaul.c	2003-02-10 21:27:16.000000000 +0100
-@@ -762,6 +762,8 @@
- 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!driver)
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
-@@ -771,8 +773,7 @@
- 
- 	driver->verify    = &longhaul_verify;
- 	driver->setpolicy = &longhaul_setpolicy;
--	driver->init = NULL;
--	driver->exit = NULL;
-+
- 	strncpy(driver->name, "longhaul", CPUFREQ_NAME_LEN);
- 
- 	driver->policy[0].cpu = 0;
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/longrun.c linux/arch/i386/kernel/cpu/cpufreq/longrun.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/longrun.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/longrun.c	2003-02-10 21:27:28.000000000 +0100
-@@ -241,6 +241,8 @@
- 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!driver)
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
-@@ -251,8 +253,7 @@
- 	driver->policy[0].cpuinfo.min_freq = longrun_low_freq;
- 	driver->policy[0].cpuinfo.max_freq = longrun_high_freq;
- 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;
--	driver->init = NULL;
--	driver->exit = NULL;
-+
- 	strncpy(driver->name, "longrun", CPUFREQ_NAME_LEN);
- 
- 	longrun_get_policy(&driver->policy[0]);
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-02-10 21:24:17.000000000 +0100
-@@ -220,6 +220,8 @@
- 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!driver)
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
-@@ -240,8 +242,6 @@
- 
- 	driver->verify        = &cpufreq_p4_verify;
- 	driver->setpolicy     = &cpufreq_p4_setpolicy;
--	driver->init = NULL;
--	driver->exit = NULL;
- 	strncpy(driver->name, "p4-clockmod", CPUFREQ_NAME_LEN);
- 
- 	for (i=0;i<NR_CPUS;i++) {
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2003-02-10 21:24:38.000000000 +0100
-@@ -172,6 +172,8 @@
- 		release_region (POWERNOW_IOPORT, 16);
- 		return -ENOMEM;
- 	}
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
- 	/* table init */
-@@ -184,8 +186,6 @@
- 
- 	driver->verify        = &powernow_k6_verify;
- 	driver->setpolicy     = &powernow_k6_setpolicy;
--	driver->init = NULL;
--	driver->exit = NULL;
- 	strncpy(driver->name, "powernow-k6", CPUFREQ_NAME_LEN);
- 
- 	/* cpuinfo and default policy values */
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-02-10 20:54:58.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-02-10 21:24:52.000000000 +0100
-@@ -674,6 +674,8 @@
- 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!driver)
- 		return -ENOMEM;
-+	memset(driver, 0, sizeof(struct cpufreq_driver) +
-+			NR_CPUS * sizeof(struct cpufreq_policy));
- 
- 	driver->policy = (struct cpufreq_policy *) (driver + 1);
- 
-@@ -690,8 +692,6 @@
- 
- 	driver->verify      = &speedstep_verify;
- 	driver->setpolicy   = &speedstep_setpolicy;
--	driver->init = NULL;
--	driver->exit = NULL;
- 	strncpy(driver->name, "speedstep", CPUFREQ_NAME_LEN);
- 
- 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;
+On Mon, Feb 10, 2003 at 10:02:48AM +0100, Andrea Arcangeli wrote:
+> On Mon, Feb 10, 2003 at 07:27:51PM +1100, Nick Piggin wrote:
+> It doesn't make any sense to me your claim that you can decrease the
+> readahead by adding anticipatory scheduling, if you do you'll run
+> so slow at 8k per request in all common workloads.
+
+Readahead kills seeks and command overhead at the expense of maybe
+transfering data needlessly over the bus and consuming RAM.
+
+AS kills seeks. (At the expense of delaying some IO a tiny bit.)
+
+If unecessary seeks are the main problem, with AS smaller READA is=20
+possible. If command overhead is a problem, READA needs to be large.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers                 SuSE Labs (Head)
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+SAyxxmLh6hyYd04RAsVlAKCNbYh9WtaKCVG02S7ARZ6SLURpfQCeKboE
+lU7SP8GBza50lHcQxmem+JU=
+=nVsd
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

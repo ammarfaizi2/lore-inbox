@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263682AbUC3OeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 09:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263683AbUC3OeP
+	id S263684AbUC3OhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 09:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbUC3OhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 09:34:15 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:42372 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S263682AbUC3OeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 09:34:11 -0500
-Message-ID: <40698562.9090300@vision.ee>
-Date: Tue, 30 Mar 2004 17:34:10 +0300
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040321)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.5-rc3
-References: <Pine.LNX.4.58.0403292129200.1096@ppc970.osdl.org>	 <40690B84.7060203@cornell.edu> <200403300814.21205.dominik.karall@gmx.net>	 <200403301026.09039@WOLK> <1080650274.1134.0.camel@teapot.felipe-alfaro.com> <40697F1F.5050003@cornell.edu>
-In-Reply-To: <40697F1F.5050003@cornell.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 09:37:24 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:1676 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263684AbUC3OhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 09:37:22 -0500
+Date: Tue, 30 Mar 2004 15:35:24 +0100
+From: Dave Jones <davej@redhat.com>
+To: pc300@cyclades.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] pc300 driver misplaced ;
+Message-ID: <20040330143524.GB25834@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, pc300@cyclades.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Gyurdiev wrote:
-
->>
->> What about CONFIG_REGPARM? Did you enable it?
->
->
-> No, it's off...
-> I'll do some more testing and figure out which changeset breaks it.
-
-Whatever is the cause it might have come from -mm tree.
-I remember than 2.6.5-rc2 worked with 5336nvidia, but when I applied
--mm2 it started to hang after X start or just made spontaneous reboot.
-
-In case of -mm2 I'm almost sure 4KSTACK wasn't enabled, but can't check 
-right now.
-MREGPARM wasn't - that's sure.
-
-Lenar
-
+--- linux-2.6.4/drivers/net/wan/pc300_drv.c~	2004-03-30 15:30:57.000000000 +0100
++++ linux-2.6.4/drivers/net/wan/pc300_drv.c	2004-03-30 15:32:11.000000000 +0100
+@@ -3661,7 +3661,7 @@
+ 			release_mem_region(card->hw.falcphys, card->hw.falcsize);
+ 		}
+ 		for (i = 0; i < card->hw.nchan; i++)
+-			if (card->chan[i].d.dev);
++			if (card->chan[i].d.dev)
+ 				free_netdev(card->chan[i].d.dev);
+ 		if (card->hw.irq)
+ 			free_irq(card->hw.irq, card);

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285154AbRLRUqz>; Tue, 18 Dec 2001 15:46:55 -0500
+	id <S285153AbRLRUq5>; Tue, 18 Dec 2001 15:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285153AbRLRUqj>; Tue, 18 Dec 2001 15:46:39 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36621 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285147AbRLRUpC>; Tue, 18 Dec 2001 15:45:02 -0500
-Date: Tue, 18 Dec 2001 18:44:41 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andre Hedrick <andre@linux-ide.org>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S285147AbRLRUqn>; Tue, 18 Dec 2001 15:46:43 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48649 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285151AbRLRUpg>; Tue, 18 Dec 2001 15:45:36 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [OT] DRM OS
-In-Reply-To: <20011218121034.B23308@vitelus.com>
-Message-ID: <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Date: 18 Dec 2001 12:45:26 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vo9t6$j46$1@cesium.transmeta.com>
+In-Reply-To: <20011218121034.B23308@vitelus.com> <Pine.LNX.4.33.0112182116070.29077-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Aaron Lehmann wrote:
-> On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
-> > Remember DMCA ? Remember SSSCA ?
->
-> I watch DVD's with DeCSS. Come and get me.
+Followup to:  <Pine.LNX.4.33.0112182116070.29077-100000@Appserv.suse.de>
+By author:    Dave Jones <davej@suse.de>
+In newsgroup: linux.dev.kernel
+> 
+> Amazing, just a few days since the Sklyarov release, and
+> already people are forgetting this is a very real problem.
+> 
 
-Punishable by fines of up to $500,000 and 5 years
-in prison, per violation.
+Who's forgetting?  The scary part is that corporate fascism is
+basically the political reality in the U.S. (who is pushing very hard
+to export it to the rest of the world, for obvious reasons) today.
+Note that SSSCA failed not because of any freedom concerns, but
+because Microsoft and Intel didn't want the gov't to tell them what to
+do.
 
-That adds up quickly if you watch multiple movies
-a week.
+I don't say this lightly.  However, I really think that the U.S. no
+longer is classifiable as a democracy, but rather as a plutocracy.
 
-cheers,
+	-hpa
 
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

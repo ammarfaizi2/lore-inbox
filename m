@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRCKUIF>; Sun, 11 Mar 2001 15:08:05 -0500
+	id <S129112AbRCKTsD>; Sun, 11 Mar 2001 14:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbRCKUH4>; Sun, 11 Mar 2001 15:07:56 -0500
-Received: from front5.grolier.fr ([194.158.96.55]:44506 "EHLO
-	front5.grolier.fr") by vger.kernel.org with ESMTP
-	id <S129115AbRCKUHj> convert rfc822-to-8bit; Sun, 11 Mar 2001 15:07:39 -0500
-Date: Sun, 11 Mar 2001 18:56:18 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: John William <jw2357@hotmail.com>
-cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: HP Vectra XU 5/90 interrupt problems
-In-Reply-To: <F61uN6tdqVvPdLFYxc900008c66@hotmail.com>
-Message-ID: <Pine.LNX.4.10.10103111834120.468-100000@linux.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S129115AbRCKTry>; Sun, 11 Mar 2001 14:47:54 -0500
+Received: from avalon.student.liu.se ([130.236.230.76]:22967 "EHLO
+	mail.student.liu.se") by vger.kernel.org with ESMTP
+	id <S129112AbRCKTrh>; Sun, 11 Mar 2001 14:47:37 -0500
+Date: Sun, 11 Mar 2001 20:51:50 +0100
+From: JörgenCederlöf 
+	<jorce778@student.liu.se>
+To: torvalds@transmeta.com
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Correct module count in do_mount()
+Message-ID: <20010311205149.A19941@ondska>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.15i
+X-god-play-dice: No
+X-eric-conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If do_mount() fails in the wrong place, the filesystem module count
+is incremented twice, but decremented only once.
+
+This patch agains 2.4.2 fixes the problem.
+
+       Jörgen
 
 
-On Sun, 11 Mar 2001, John William wrote:
-
-> If shared, edge triggered interrupts are ok then I will talk to the driver 
-> maintainers about the problem. If this isn't ok, then maybe the sanity check 
-> in pci-irq.c would be to force level triggering only on shared PCI 
-> interrupts?
-
-DEFINITELY NO!
-
-Given a PCI device + driver pair, level triggerred interrupt may be 
-required for them to work properly, even when the line is not shared.
-Anyway, it is a requirement. OTOH, the PCI device must know how to 
-trigger the interrupt.
-
-Edge triggerred interrupts cannot be shared. Level triggerred (level
-sensitive is a better wording, in my opinion) can be shared.
-
-Even when it is not shared (as it is required), an edge triggerred
-interrupt can be lost by the driver. Using level sensitive interrupt let
-the interrupt condition active as long as the condition is present at, at
-least, one device that wants to interrupt the CPU.
-
-Apart sharing of interrupt lines, level sensitive interrupt allows the
-device firmware to run concurrently to the CPU (software driver) without
-losing interrupt condition, providing that both driver and firmware use
-appropriate barriers against buffering in the bridge.
-In the same situation, using edge triggerred interrupt (not shared) can
-lead to interrupt condition being lost by the software driver.
-
-  Gérard.
-
+--- fs/super.c.orig	Sun Mar 11 20:25:26 2001
++++ fs/super.c	Sun Mar 11 20:05:27 2001
+@@ -1414,6 +1414,8 @@
+ fail:
+ 	if (list_empty(&sb->s_mounts))
+ 		kill_super(sb, 0);
++	else
++		put_filesystem(fstype);
+ 	goto unlock_out;
+ }
+ 

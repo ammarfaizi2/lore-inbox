@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289793AbSAWLWE>; Wed, 23 Jan 2002 06:22:04 -0500
+	id <S289795AbSAWLbH>; Wed, 23 Jan 2002 06:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289794AbSAWLVx>; Wed, 23 Jan 2002 06:21:53 -0500
-Received: from babel.spoiled.org ([217.13.197.48]:33692 "HELO a.mx.spoiled.org")
-	by vger.kernel.org with SMTP id <S289793AbSAWLVi>;
-	Wed, 23 Jan 2002 06:21:38 -0500
-From: Juri Haberland <juri@koschikode.com>
-To: gspujar@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: file system unmount
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <65256B4A.003D4CD1.00@sandesh.hss.hns.com>
-User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
-Message-Id: <20020123112137.5DEE41195E@a.mx.spoiled.org>
-Date: Wed, 23 Jan 2002 12:21:37 +0100 (CET)
+	id <S289796AbSAWLa5>; Wed, 23 Jan 2002 06:30:57 -0500
+Received: from web13006.mail.yahoo.com ([216.136.174.16]:53004 "HELO
+	web13006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289795AbSAWLat>; Wed, 23 Jan 2002 06:30:49 -0500
+Message-ID: <20020123113048.82063.qmail@web13006.mail.yahoo.com>
+Date: Wed, 23 Jan 2002 12:30:48 +0100 (CET)
+From: =?iso-8859-1?q?Joel=20Cordonnier?= <joel_linuxfr@yahoo.fr>
+Subject: unable to mount root fs / reiserfs /HELP please
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <65256B4A.003D4CD1.00@sandesh.hss.hns.com> you wrote:
-> 
-> 
-> Hi,
-> I am using softdog in my application. One of the problems I am facing is,
-> when the system comes up after the reboot forced by softdog, file system gets
-> corrupted and fsck has to check. Some times fsck fails to force check the file
-> system and
-> the system enters in to run level 1, leading to manual intervention.
-> 
-> Any idea how to unmount the file system before the system is rebooted by
-> softdog, so
-> that system always comes up properly without manual intervention.
+Hi !
 
-Bad idea. The point in using a watchdog is that you want to *reliably*
-reboot your failed machine. What if your umount hangs for some reason?
-(I've seen this...)
+I just compile a 2.4.15 kernel on my HP omnibook XE3.
+At the moment, I have a dual partition win2k/suse 7.3.
 
-Use a journalling filesystem instead.
+I compile and copy the LILO boot sector to a floppy
+disk. On my /boot partition of my Suse parition there
+is a reiserfs fs.
 
-Juri
+I have read that reiserfs is not supported for a
+'default' kernel and that i have to include
+patches...right `?
 
--- 
-Juri Haberland  <juri@koschikode.com> 
+Can someone explain me what to do ??
 
+
+Thanks
+/Joel
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

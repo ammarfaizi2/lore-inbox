@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262065AbTCRBJV>; Mon, 17 Mar 2003 20:09:21 -0500
+	id <S262083AbTCRBMU>; Mon, 17 Mar 2003 20:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262070AbTCRBJV>; Mon, 17 Mar 2003 20:09:21 -0500
-Received: from [66.186.193.1] ([66.186.193.1]:43532 "HELO
-	unix113.hosting-network.com") by vger.kernel.org with SMTP
-	id <S262065AbTCRBJU>; Mon, 17 Mar 2003 20:09:20 -0500
-X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
-X-Authenticated-Connect: 63.109.146.2
-X-Authenticated-Timestamp: 20:30:59(EST) on March 17, 2003
-X-HELO-From: rohan.arnor.net
-X-Mail-From: <thoffman@arnor.net>
-X-Sender-IP-Address: 63.109.146.2
-Subject: Re: (2.5.65) Unresolved symbols in modules?
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Vincent Hanquez <tab@tuxfamily.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030318005612.GA1529@darwin.crans.org>
-References: <1047948471.12620.9.camel@rohan.arnor.net> 
-	<20030318005612.GA1529@darwin.crans.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Mar 2003 17:19:17 -0800
-Message-Id: <1047950384.12620.18.camel@rohan.arnor.net>
+	id <S262084AbTCRBMT>; Mon, 17 Mar 2003 20:12:19 -0500
+Received: from holomorphy.com ([66.224.33.161]:46556 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262083AbTCRBMS>;
+	Mon, 17 Mar 2003 20:12:18 -0500
+Date: Mon, 17 Mar 2003 17:22:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] O(1) proc_pid_readdir
+Message-ID: <20030318012247.GU20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain> <20030317070334.GO20188@holomorphy.com> <3E761124.8060402@colorfullife.com> <20030318001405.GS20188@holomorphy.com> <20030318004850.GT20188@holomorphy.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030318004850.GT20188@holomorphy.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-17 at 16:56, Vincent Hanquez wrote:
-> On Mon, Mar 17, 2003 at 04:46:57PM -0800, Torrey Hoffman wrote:
-> > and then:
-> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.65; fi
->                              ^^^^^^^^^^^^
-> you seem to use old depmod (not /usr/local/sbin/depmod)
+On Mon, Mar 17, 2003 at 07:17:08PM +0100, Manfred Spraul wrote:
+>>> Could you check if the attached test app triggers the NMI oopser?
 
-Ah, of course.  I followed the instructions that came with the
-module-init-tools, and then just used "make modules_install".  
-So much for following instructions.
+On Mon, Mar 17, 2003 at 04:14:05PM -0800, William Lee Irwin III wrote:
+>> Sure, no problem.
 
-I can only make the general observation that it would be helpful if:
-- module-init-tools documentation pointed out this drawback of
-installing to /usr/local/sbin
-- module-init-tools documentation stated if it is or is not backward
-compatible for the 2.4 kernels  (is it?)
-- The kernel makefile used the module tools under /usr/local/sbin if
-they exist.
+On Mon, Mar 17, 2003 at 04:48:50PM -0800, William Lee Irwin III wrote:
+> Gee, this is bright. I think I remember why I haven't done testing of
+> tasklist_lock NMI oopses for several releases now.
+[...]
+> timer doesn't work through the IO-APIC - disabling NMI Watchdog!
+> ...trying to set up timer as Virtual Wire IRQ...Uhhuh. NMI received for unknown reason 35 on CPU 0.
 
-(sigh)
+NMI_LOCAL_APIC should not care whether the timer works through IO-APIC's.
 
-Anyway, thanks again for the advice.
-
-Torrey Hoffman
-thoffman@arnor.net
-
-
-
-
+--- linux-2.5.64/arch/i386/kernel/io_apic.c.orig	Mon Mar 17 17:19:02 2003
++++ linux-2.5.64/arch/i386/kernel/io_apic.c	Mon Mar 17 17:19:08 2003
+@@ -1990,7 +1990,7 @@ static inline void check_timer(void)
+ 	}
+ 	printk(" failed.\n");
+ 
+-	if (nmi_watchdog) {
++	if (nmi_watchdog == NMI_IO_APIC) {
+ 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
+ 		nmi_watchdog = 0;
+ 	}

@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVBBUEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVBBUCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbVBBUEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVBBUDq
+	id S262337AbVBBUCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:02:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVBBUCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:03:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4 "HELO
+	Wed, 2 Feb 2005 15:02:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1284 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262645AbVBBTwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:52:22 -0500
-Date: Wed, 2 Feb 2005 20:52:21 +0100
+	id S262559AbVBBTw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:52:26 -0500
+Date: Wed, 2 Feb 2005 20:52:24 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Margit Schubert-While <margitsw@t-online.de>, prism54-private@prism54.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com, linux-net@vger.kernel.org,
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] prism54: misc cleanups
-Message-ID: <20050202195221.GE3313@stusta.de>
+Subject: [2.6 patch] SCSI qlogicfc.c: some cleanups
+Message-ID: <20050202195224.GF3313@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,278 +23,216 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some functions in prism54 that are only required 
-locally static.
+This patch does the following cleanups:
+- make some needlessly global functions static
+- remove qlogicfc.h since it doesn't contain much
+- remove the unused function isp2x00_reset
 
-As a side effect it turned out that the mgt_unlatch_all function was 
-completely unused, and it's therefore #if 0'ed.
-
-I also considered moving display_buffer as static inline into 
-islpci_mgt.h, but I wasn't 100% sure and therefore left it.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Please review especially the latter two points.
 
 ---
 
 This patch was already sent on:
-- 20 Dec 2004
+- 15 Nov 2004
 
- drivers/net/wireless/prism54/isl_ioctl.c  |   32 +++++++++++-------
- drivers/net/wireless/prism54/isl_ioctl.h  |    5 --
- drivers/net/wireless/prism54/islpci_dev.c |    5 +-
- drivers/net/wireless/prism54/islpci_dev.h |    2 -
- drivers/net/wireless/prism54/islpci_mgt.c |    2 +
- drivers/net/wireless/prism54/oid_mgt.c    |   38 +---------------------
- drivers/net/wireless/prism54/oid_mgt.h    |    4 --
- 7 files changed, 28 insertions(+), 60 deletions(-)
+ drivers/scsi/qlogicfc.c |   62 ++++++++++++-------------------
+ drivers/scsi/qlogicfc.h |   80 ----------------------------------------
+ 2 files changed, 25 insertions(+), 117 deletions(-)
 
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.h.old	2004-10-30 06:52:18.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.h	2004-10-30 07:02:58.000000000 +0200
-@@ -41,15 +41,10 @@
- 
- void prism54_wpa_ie_init(islpci_private *priv);
- void prism54_wpa_ie_clean(islpci_private *priv);
--void prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
--			u8 *wpa_ie, size_t wpa_ie_len);
--size_t prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie);
- 
- int prism54_set_mac_address(struct net_device *, void *);
- 
- int prism54_ioctl(struct net_device *, struct ifreq *, int);
--int prism54_set_wpa(struct net_device *, struct iw_request_info *, 
--			__u32 *, char *);
- 
- extern const struct iw_handler_def prism54_handler_def;
- 
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.c.old	2004-10-30 06:43:10.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.c	2004-10-30 07:11:26.000000000 +0200
-@@ -36,6 +36,14 @@
- 
- #include <net/iw_handler.h>	/* New driver API */
- 
-+
-+static void prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
-+				u8 *wpa_ie, size_t wpa_ie_len);
-+static size_t prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie);
-+static int prism54_set_wpa(struct net_device *, struct iw_request_info *, 
-+				__u32 *, char *);
-+
-+
- /**
-  * prism54_mib_mode_helper - MIB change mode helper function
-  * @mib: the &struct islpci_mib object to modify
-@@ -47,7 +55,7 @@
-  *  Wireless API modes to Device firmware modes. It also checks for 
-  *  correct valid Linux wireless modes. 
-  */
--int
-+static int
- prism54_mib_mode_helper(islpci_private *priv, u32 iw_mode)
- {
- 	u32 config = INL_CONFIG_MANUALRUN;
-@@ -647,7 +655,7 @@
- 	return current_ev;
- }
- 
--int
-+static int
- prism54_get_scan(struct net_device *ndev, struct iw_request_info *info,
- 		 struct iw_point *dwrq, char *extra)
- {
-@@ -1582,7 +1590,7 @@
- #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
- #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
- 
--void
-+static void
- prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
- 		   u8 *wpa_ie, size_t wpa_ie_len)
- {
-@@ -1649,7 +1657,7 @@
- 	up(&priv->wpa_sem);
- }
- 
--size_t
-+static size_t
- prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie)
- {
- 	struct list_head *ptr;
-@@ -1736,7 +1744,7 @@
- 	}
- }
- 
--int
-+static int
- prism54_process_trap_helper(islpci_private *priv, enum oid_num_t oid,
- 			    char *data)
- {
-@@ -2314,7 +2322,7 @@
-        return ret;
- }
- 
--int
-+static int
- prism54_set_wpa(struct net_device *ndev, struct iw_request_info *info,
- 		__u32 * uwrq, char *extra)
- {
-@@ -2358,7 +2366,7 @@
- 	return 0;
- }
- 
--int
-+static int
- prism54_get_wpa(struct net_device *ndev, struct iw_request_info *info,
- 		__u32 * uwrq, char *extra)
- {
-@@ -2367,7 +2375,7 @@
- 	return 0;
- }
- 
--int
-+static int
- prism54_set_prismhdr(struct net_device *ndev, struct iw_request_info *info,
- 		     __u32 * uwrq, char *extra)
- {
-@@ -2380,7 +2388,7 @@
- 	return 0;
- }
- 
--int
-+static int
- prism54_get_prismhdr(struct net_device *ndev, struct iw_request_info *info,
- 		     __u32 * uwrq, char *extra)
- {
-@@ -2389,7 +2397,7 @@
- 	return 0;
- }
- 
--int
-+static int
- prism54_debug_oid(struct net_device *ndev, struct iw_request_info *info,
- 		  __u32 * uwrq, char *extra)
- {
-@@ -2401,7 +2409,7 @@
- 	return 0;
- }
- 
--int
-+static int
- prism54_debug_get_oid(struct net_device *ndev, struct iw_request_info *info,
- 		      struct iw_point *data, char *extra)
- {
-@@ -2437,7 +2445,7 @@
- 	return ret;
- }
- 
--int
-+static int
- prism54_debug_set_oid(struct net_device *ndev, struct iw_request_info *info,
- 		      struct iw_point *data, char *extra)
- {
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.h.old	2004-10-30 06:58:23.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.h	2004-10-30 07:04:02.000000000 +0200
-@@ -211,8 +211,6 @@
- 			       priv->device_base);
- }
- 
--struct net_device_stats *islpci_statistics(struct net_device *);
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicfc.h	2004-11-13 23:01:28.000000000 +0100
++++ /dev/null	2004-08-23 02:01:39.000000000 +0200
+@@ -1,80 +0,0 @@
+-/*
+- * QLogic ISP2x00 SCSI-FCP
+- * 
+- * Written by Erik H. Moe, ehm@cris.com
+- * Copyright 1995, Erik H. Moe
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License as published by the
+- * Free Software Foundation; either version 2, or (at your option) any
+- * later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+- * General Public License for more details.
+- */
 -
- int islpci_free_memory(islpci_private *);
- struct net_device *islpci_setup(struct pci_dev *);
- #endif				/* _ISLPCI_DEV_H */
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.c.old	2004-10-30 06:46:08.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.c	2004-10-30 07:12:13.000000000 +0200
-@@ -44,6 +44,7 @@
+-/* Renamed and updated to 1.3.x by Michael Griffith <grif@cs.ucr.edu> */
+-
+-/* This is a version of the isp1020 driver which was modified by
+- * Chris Loveland <cwl@iol.unh.edu> to support the isp2x00
+- */
+-
+-
+-/*
+- * $Date: 1995/09/22 02:32:56 $
+- * $Revision: 0.5 $
+- *
+- * $Log: isp1020.h,v $
+- * Revision 0.5  1995/09/22  02:32:56  root
+- * do auto request sense
+- *
+- * Revision 0.4  1995/08/07  04:48:28  root
+- * supply firmware with driver.
+- * numerous bug fixes/general cleanup of code.
+- *
+- * Revision 0.3  1995/07/16  16:17:16  root
+- * added reset/abort code.
+- *
+- * Revision 0.2  1995/06/29  03:19:43  root
+- * fixed biosparam.
+- * added queue protocol.
+- *
+- * Revision 0.1  1995/06/25  01:56:13  root
+- * Initial release.
+- *
+- */
+-
+-#ifndef _QLOGICFC_H
+-#define _QLOGICFC_H
+-
+-/*
+- * With the qlogic interface, every queue slot can hold a SCSI
+- * command with up to 2 scatter/gather entries.  If we need more
+- * than 2 entries, continuation entries can be used that hold
+- * another 5 entries each.  Unlike for other drivers, this means
+- * that the maximum number of scatter/gather entries we can
+- * support at any given time is a function of the number of queue
+- * slots available.  That is, host->can_queue and host->sg_tablesize
+- * are dynamic and _not_ independent.  This all works fine because
+- * requests are queued serially and the scatter/gather limit is
+- * determined for each queue request anew.
+- */
+-
+-#define DATASEGS_PER_COMMAND 2
+-#define DATASEGS_PER_CONT 5
+-
+-#define QLOGICFC_REQ_QUEUE_LEN 255     /* must be power of two - 1 */
+-#define QLOGICFC_MAX_SG(ql)	(DATASEGS_PER_COMMAND + (((ql) > 0) ? DATASEGS_PER_CONT*((ql) - 1) : 0))
+-#define QLOGICFC_CMD_PER_LUN    8
+-
+-int isp2x00_detect(Scsi_Host_Template *);
+-int isp2x00_release(struct Scsi_Host *);
+-const char * isp2x00_info(struct Scsi_Host *);
+-int isp2x00_queuecommand(Scsi_Cmnd *, void (* done)(Scsi_Cmnd *));
+-int isp2x00_abort(Scsi_Cmnd *);
+-int isp2x00_reset(Scsi_Cmnd *, unsigned int);
+-int isp2x00_biosparam(struct scsi_device *, struct block_device *,
+-		sector_t, int[]);
+-#endif /* _QLOGICFC_H */
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicfc.c.old	2004-11-13 22:57:07.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicfc.c	2004-11-13 23:14:30.000000000 +0100
+@@ -71,7 +71,25 @@
+ #define pci64_dma_build(hi,lo) \
+ 	((dma_addr_t)(((u64)(lo))|(((u64)(hi))<<32)))
  
- static int prism54_bring_down(islpci_private *);
- static int islpci_alloc_memory(islpci_private *);
-+static struct net_device_stats *islpci_statistics(struct net_device *);
+-#include "qlogicfc.h"
++/*
++ * With the qlogic interface, every queue slot can hold a SCSI
++ * command with up to 2 scatter/gather entries.  If we need more
++ * than 2 entries, continuation entries can be used that hold
++ * another 5 entries each.  Unlike for other drivers, this means
++ * that the maximum number of scatter/gather entries we can
++ * support at any given time is a function of the number of queue
++ * slots available.  That is, host->can_queue and host->sg_tablesize
++ * are dynamic and _not_ independent.  This all works fine because
++ * requests are queued serially and the scatter/gather limit is
++ * determined for each queue request anew.
++ */
++
++#define DATASEGS_PER_COMMAND 2
++#define DATASEGS_PER_CONT 5
++
++#define QLOGICFC_REQ_QUEUE_LEN 255     /* must be power of two - 1 */
++#define QLOGICFC_MAX_SG(ql)	(DATASEGS_PER_COMMAND + (((ql) > 0) ? DATASEGS_PER_CONT*((ql) - 1) : 0))
++#define QLOGICFC_CMD_PER_LUN    8
  
- /* Temporary dummy MAC address to use until firmware is loaded.
-  * The idea there is that some tools (such as nameif) may query
-@@ -52,7 +53,7 @@
-  * Of course, this is not the final/real MAC address. It doesn't
-  * matter, as you are suppose to be able to change it anytime via
-  * ndev->set_mac_address. Jean II */
--const unsigned char	dummy_mac[6] = { 0x00, 0x30, 0xB4, 0x00, 0x00, 0x00 };
-+static const unsigned char	dummy_mac[6] = { 0x00, 0x30, 0xB4, 0x00, 0x00, 0x00 };
+ /* Configuration section **************************************************** */
  
- static int
- isl_upload_firmware(islpci_private *priv)
-@@ -607,7 +608,7 @@
- 	return rc;
+@@ -693,7 +711,7 @@
  }
  
--struct net_device_stats *
-+static struct net_device_stats *
- islpci_statistics(struct net_device *ndev)
- {
- 	islpci_private *priv = netdev_priv(ndev);
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_mgt.c.old	2004-10-30 06:46:45.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_mgt.c	2004-10-30 07:15:39.000000000 +0200
-@@ -44,6 +44,7 @@
- /******************************************************************************
-     Driver general functions
- ******************************************************************************/
-+#if VERBOSE > SHOW_ERROR_MESSAGES
- void
- display_buffer(char *buffer, int length)
- {
-@@ -58,6 +59,7 @@
  
- 	printk("\n");
+-int isp2x00_detect(Scsi_Host_Template * tmpt)
++static int isp2x00_detect(Scsi_Host_Template * tmpt)
+ {
+ 	int hosts = 0;
+ 	unsigned long wait_time;
+@@ -1083,7 +1101,7 @@
+ #endif				/* ISP2x00_FABRIC */
+ 
+ 
+-int isp2x00_release(struct Scsi_Host *host)
++static int isp2x00_release(struct Scsi_Host *host)
+ {
+ 	struct isp2x00_hostdata *hostdata;
+ 	dma_addr_t busaddr;
+@@ -1107,7 +1125,7 @@
  }
-+#endif
  
- /*****************************************************************************
-     Queue handling for management frames
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/oid_mgt.h.old	2004-10-30 07:05:55.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/oid_mgt.h	2004-10-30 07:42:02.000000000 +0200
-@@ -28,8 +28,7 @@
  
- void mgt_clean(islpci_private *);
- 
--/* I don't know where to put these 3 */
--extern const int frequency_list_bg[];
-+/* I don't know where to put these 2 */
- extern const int frequency_list_a[];
- int channel_of_freq(int);
- 
-@@ -49,7 +48,6 @@
- void mgt_get(islpci_private *, enum oid_num_t, void *);
- 
- int mgt_commit(islpci_private *);
--void mgt_unlatch_all(islpci_private *);
- 
- int mgt_mlme_answer(islpci_private *);
- 
---- linux-2.6.10-rc3-mm1-full/drivers/net/wireless/prism54/oid_mgt.c.old	2004-12-20 01:03:44.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/drivers/net/wireless/prism54/oid_mgt.c	2004-12-20 01:05:31.000000000 +0100
-@@ -24,8 +24,8 @@
- #include "isl_ioctl.h"
- 
- /* to convert between channel and freq */
--const int frequency_list_bg[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
--	2447, 2452, 2457, 2462, 2467, 2472, 2484
-+static const int frequency_list_bg[] = { 2412, 2417, 2422, 2427, 2432,
-+	2437, 2442, 2447, 2452, 2457, 2462, 2467, 2472, 2484
- };
- 
- int
-@@ -730,6 +730,7 @@
-  *
-  * The way to do this is to set ESSID. Note though that they may get 
-  * unlatch before though by setting another OID. */
-+#if 0
- void
- mgt_unlatch_all(islpci_private *priv)
+-const char *isp2x00_info(struct Scsi_Host *host)
++static const char *isp2x00_info(struct Scsi_Host *host)
  {
-@@ -756,6 +757,7 @@
- 	if (rvalue)
- 		printk(KERN_DEBUG "%s: Unlatching OIDs failed\n", priv->ndev->name);
+ 	static char buf[80];
+ 	struct isp2x00_hostdata *hostdata;
+@@ -1132,7 +1150,7 @@
+  * interrupt handler may call this routine as part of
+  * request-completion handling).
+  */
+-int isp2x00_queuecommand(Scsi_Cmnd * Cmnd, void (*done) (Scsi_Cmnd *))
++static int isp2x00_queuecommand(Scsi_Cmnd * Cmnd, void (*done) (Scsi_Cmnd *))
+ {
+ 	int i, sg_count, n, num_free;
+ 	u_int in_ptr, out_ptr;
+@@ -1697,7 +1715,7 @@
  }
-+#endif
  
- /* This will tell you if you are allowed to answer a mlme(ex) request .*/
  
+-int isp2x00_abort(Scsi_Cmnd * Cmnd)
++static int isp2x00_abort(Scsi_Cmnd * Cmnd)
+ {
+ 	u_short param[8];
+ 	int i;
+@@ -1755,37 +1773,7 @@
+ }
+ 
+ 
+-int isp2x00_reset(Scsi_Cmnd * Cmnd, unsigned int reset_flags)
+-{
+-	u_short param[8];
+-	struct Scsi_Host *host;
+-	struct isp2x00_hostdata *hostdata;
+-	int return_status = SCSI_RESET_SUCCESS;
+-
+-	ENTER("isp2x00_reset");
+-
+-	host = Cmnd->device->host;
+-	hostdata = (struct isp2x00_hostdata *) host->hostdata;
+-	param[0] = MBOX_BUS_RESET;
+-	param[1] = 3;
+-
+-	isp2x00_disable_irqs(host);
+-
+-	isp2x00_mbox_command(host, param);
+-
+-	if (param[0] != MBOX_COMMAND_COMPLETE) {
+-		printk("qlogicfc%d : scsi bus reset failure: %x\n", hostdata->host_id, param[0]);
+-		return_status = SCSI_RESET_ERROR;
+-	}
+-	isp2x00_enable_irqs(host);
+-
+-	LEAVE("isp2x00_reset");
+-
+-	return return_status;
+-}
+-
+-
+-int isp2x00_biosparam(struct scsi_device *sdev, struct block_device *n,
++static int isp2x00_biosparam(struct scsi_device *sdev, struct block_device *n,
+ 		sector_t capacity, int ip[])
+ {
+ 	int size = capacity;
 

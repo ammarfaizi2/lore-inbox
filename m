@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265778AbRFXWsm>; Sun, 24 Jun 2001 18:48:42 -0400
+	id <S265777AbRFXWpW>; Sun, 24 Jun 2001 18:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265779AbRFXWsc>; Sun, 24 Jun 2001 18:48:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:8208 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265778AbRFXWsT>; Sun, 24 Jun 2001 18:48:19 -0400
-Date: Sun, 24 Jun 2001 19:48:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: GCC3.0 Produce REALLY slower code!
-In-Reply-To: <001301c0fcff$47c05160$d55355c2@microsoft>
-Message-ID: <Pine.LNX.4.33L.0106241947230.23112-100000@duckman.distro.conectiva>
+	id <S265778AbRFXWpM>; Sun, 24 Jun 2001 18:45:12 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:11278 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id <S265777AbRFXWpC>; Sun, 24 Jun 2001 18:45:02 -0400
+Message-ID: <001301c0fcff$47c05160$d55355c2@microsoft>
+From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: GCC3.0 Produce REALLY slower code!
+Date: Mon, 25 Jun 2001 02:44:51 +0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2488.0001
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, Alexander V. Bilichenko wrote:
-
-> Some tests that I have recently check out. kernel compiled with
-> 3.0 (2.4.5) function call: 1000000 iteration. 3% slower than
-> 2.95. test example - hash table add/remove - 4% slower (compiled
-> both with -O2 -march=i686).
-
-> Why have this version been released?
-
-It would be better to ask that to the GCC people, but I
-suspect it was released because it was (almost) stable
-and the only way to do the last small tweaks to the code
-would be to have it tested in the field ?
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Hello All!
+Some tests that I have recently check out.
+kernel compiled with 3.0 (2.4.5) function call: 1000000 iteration. 3% slower
+than 2.95.
+test example - hash table add/remove - 4% slower (compiled both
+with -O2 -march=i686).
+Why have this version been released?
+Best regards,
+Alexander         mailto:dmor@7ka.mipt.ru
 

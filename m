@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbRE3JNv>; Wed, 30 May 2001 05:13:51 -0400
+	id <S262667AbRE3JYM>; Wed, 30 May 2001 05:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbRE3JNl>; Wed, 30 May 2001 05:13:41 -0400
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:62727 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S262660AbRE3JNa>;
-	Wed, 30 May 2001 05:13:30 -0400
-Message-ID: <3B14A61B.3DF7C1D7@yahoo.com>
-Date: Wed, 30 May 2001 01:49:47 -0400
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-MIME-Version: 1.0
+	id <S262668AbRE3JYD>; Wed, 30 May 2001 05:24:03 -0400
+Received: from t2.redhat.com ([199.183.24.243]:46321 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262667AbRE3JXx>; Wed, 30 May 2001 05:23:53 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl> 
+In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl> 
 To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net #3
-In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl>
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au,
+        p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org (kernel list)
+Subject: Re: [PATCH] net #3 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 30 May 2001 10:11:57 +0100
+Message-ID: <29071.991213917@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
-> 
-> The following patch fixes some ISA PnP #ifdefs (enable modular,
-> disable when non-available) for 3c509 and smc-ultra.
 
-> -#ifdef CONFIG_ISAPNP
-> +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE))
+ankry@green.mif.pg.gda.pl said:
+> -#ifdef CONFIG_ISAPNP 
+> +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE)) 
 
-Hrrm.  AFAICT the token CONFIG_ISAPNP_MODULE will never be defined.  :-)
+The result here would be a 3c509 module which differs depending on whether 
+the ISAPNP module happened to be compiled at the same time or not. 
 
-Regardless, we can just toss the #ifdefs altogether.  They aren't strictly
-required as appropriate stubs exist in linux/isapnp.h and that is what 
-they are there for. (I'd recommend this for 2.5, not 2.4 though.)
+The ISAPNP-specific parts of the code aren't large. Please consider
+including them unconditionally instead. 
 
-Granted, the CONFIG_ISAPNP buys you a slight reduction in driver
-size (even over the stubs) which somewhat seemed worthwhile in the
-past. But most of it is __init anyway, and for 2.5 I'd argue that the
-readability and lack of ifdefs outweighs the slight size change.
-
-Paul.
+--
+dwmw2
 
 

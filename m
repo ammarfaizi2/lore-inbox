@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSDHVzH>; Mon, 8 Apr 2002 17:55:07 -0400
+	id <S313770AbSDHVxk>; Mon, 8 Apr 2002 17:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313774AbSDHVzF>; Mon, 8 Apr 2002 17:55:05 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.104]:64785 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S313773AbSDHVzA> convert rfc822-to-8bit; Mon, 8 Apr 2002 17:55:00 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: system call for finding the number of cpus??
-Date: Mon, 8 Apr 2002 17:54:58 -0400
-Message-ID: <6B003D25ADBDE347B5542AFE6A55B42E01A44520@tayexc13.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: system call for finding the number of cpus??
-Thread-Index: AcHfR1+v4jJ+uly7R4WUvdqu8Qc6UwAAA41w
-From: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>
-To: "Davide Libenzi" <davidel@xmailserver.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Apr 2002 21:54:58.0266 (UTC) FILETIME=[067E3BA0:01C1DF48]
+	id <S313775AbSDHVxf>; Mon, 8 Apr 2002 17:53:35 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:49935 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S313770AbSDHVxd>;
+	Mon, 8 Apr 2002 17:53:33 -0400
+Date: Mon, 8 Apr 2002 17:45:29 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Anssi Saari <as@sci.fi>, linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Message-ID: <20020408174529.A546@mark.mielke.cc>
+In-Reply-To: <20020408122603.GA7877@sci.fi> <Pine.LNX.3.96.1020408104857.21476C-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think that (sysconf(_SC_NPROCESSORS_CONF)) command works on linux. It works on Unix. I tried that. It returns 1 when there are 4 processors on linux.
+I think the fact that it works with FreeBSD should have been enough
+to show that 'excessive' doesn't need to be qualified.
+
+The question is, how is CD burning of raw data different from
+CD burning of ISO images, in respect to Linux drivers for the
+hardware, and why does FreeBSD not suffer from this ailment?
+
+mark
 
 
------Original Message-----
-From: Davide Libenzi [mailto:davidel@xmailserver.org]
-Sent: Monday, April 08, 2002 5:57 PM
-To: Kuppuswamy, Priyadarshini
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system call for finding the number of cpus??
+On Mon, Apr 08, 2002 at 10:54:29AM -0400, Bill Davidsen wrote:
+> On Mon, 8 Apr 2002, Anssi Saari wrote:
+> 
+> > [1.] One line summary of the problem:    
+> > CD burning at 16x uses excessive CPU, although DMA is enabled
+> 
+>   That's a hint things are not working as you expect...
+>  
+> > [2.] Full description of the problem/report:
+> > My system seems to use a lot of CPU time when writing CDs at 16x. The
+> > system is unable to feed the burning software's buffer fast enough when
+> > burning software (cdrecord 1.11a20, cdrdao 1.1.5) is run as normal user.
+> > If run as root, system is almost unresponsive during the burn.
+> 
+>   With all the information you provided, you have totally not quatified
+> how much CPU you find "excessive." I would not be surprised to see 10-15%
+> of the CPU, virtually all in system time, as a normal burn of an ISO
+> image. If the time is in user mode with other image types, it may well be
+> that you are doing something which actually requires a lot of CPU (byte
+> swapping or some such).
+> 
+>   Going from a disk to a CD using DMA on both should not take much
+> *system* CPU, even if these are ATAPI (assuming they are not on the same
+> cable).
 
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-On Mon, 8 Apr 2002, Kuppuswamy, Priyadarshini wrote:
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-> Hi!
->   I have a script that is using the /cpu/procinfo file to determine the
-> number of cpus present in the system. But I would like to implement it
-> using a system call rather than use the environment variables?? I
-> couldn't find a system call for linux that would give me the result.
-> Could anyone please let me know if there is one for redhat linux??
-
-sysconf(_SC_NPROCESSORS_CONF);
-
-
-
-
-- Davide
-
+                           http://mark.mielke.cc/
 

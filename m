@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265624AbTHEAIy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 20:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272312AbTHEAIy
+	id S272337AbTHEAKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 20:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272339AbTHEAKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 20:08:54 -0400
-Received: from law11-oe30.law11.hotmail.com ([64.4.16.87]:27922 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265624AbTHEAIx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 20:08:53 -0400
-X-Originating-IP: [165.98.111.210]
-X-Originating-Email: [bmeneses_beltran@hotmail.com]
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.6.0-test2 hang in Starting RedHat Network Daemon
-Date: Mon, 4 Aug 2003 18:08:50 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 4 Aug 2003 20:10:54 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:2775 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272337AbTHEAKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 20:10:48 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 02:10:46 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Randolph Bentson <bentson@holmsjoen.com>
+Cc: jesse@cats-chateau.net, aebr@win.tue.nl, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805021046.06008535.skraw@ithnet.com>
+In-Reply-To: <20030804160009.B3751@grieg.holmsjoen.com>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+	<20030805003210.2c7f75f6.skraw@ithnet.com>
+	<20030804160009.B3751@grieg.holmsjoen.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <Law11-OE30ARn7Ee2Wz00013179@hotmail.com>
-X-OriginalArrivalTime: 05 Aug 2003 00:08:52.0127 (UTC) FILETIME=[C09162F0:01C35AE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Mon, 4 Aug 2003 16:00:09 -0700
+Randolph Bentson <bentson@holmsjoen.com> wrote:
 
-I have problems with this new kernel, I compiled the 2.6.0-test2 but when
-start the services this kernel hang in the service starting RedHat Network,
-the message are:
+> On Tue, Aug 05, 2003 at 12:32:10AM +0200, Stephan von Krawczynski wrote:
+> > And in just the same way fs could provide a mode bit saying "hi, I am a
+> > hardlink", and tar can then easily provide option number 1345 saying
+> > "stay away from hardlinks".
+> 
+> Perhaps not a bit, but rather another enumerated value in the type field
+> of an inode.  (Are there any values left?)
+> 
+> Ok, lets consider this.  Suppose that /a/b and /a/c both refer to the same
+> directory, where /a/b is a traditional link, but /a/c is a "hardlink".
+> 
+> What happens when one executes 'rmdir /a/b'?  Does the directory it
+> references disappear?  If not, how would tar ever find it?  (I have
+> this vision of a disk full of these hardlink-only directories which
+> tar and perhaps fsck cannot find.)
 
-INIT:Id"1" respawning too fast: disabled for 5 minutes
-INIT:Id"2" respawning too fast: disabled for 5 minutes
-INIT:Id"3" respawning too fast: disabled for 5 minutes
-INIT:Id"4" respawning too fast: disabled for 5 minutes
-INIT:Id"5" respawning too fast: disabled for 5 minutes
-INIT:Id"6" respawning too fast: disabled for 5 minutes
-INIT:Id"4" respawning too fast: disabled for 5 minutes
-INIT: no more processes left in this runlevel.
+The setup you describe is exactly the reason why I suggested elsewhere (in a
+private discussion) to single-link all directory entries pointing to the same
+directory in a list. In case of deletion of the "main" entry, the "main" simply
+can walk on to the next (former) hardlink, if there are any left the tree is
+deleted completely. That's it.
 
-I have in my grub.conf the oher kernel version 2.4.20, If I start with this
-kernel, all work fine.
+Regards,
+Stephan
 
-How can I to resolv this problem with new kernel?
-
-Thanks in Advanced,
-
-Regards

@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLAPMm>; Fri, 1 Dec 2000 10:12:42 -0500
+	id <S129210AbQLAPPB>; Fri, 1 Dec 2000 10:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129520AbQLAPMd>; Fri, 1 Dec 2000 10:12:33 -0500
-Received: from smtprch2.nortelnetworks.com ([192.135.215.15]:59524 "EHLO
-	smtprch2.nortel.com") by vger.kernel.org with ESMTP
-	id <S129325AbQLAPMV>; Fri, 1 Dec 2000 10:12:21 -0500
-Message-ID: <3A27B513.683EF511@nortelnetworks.com>
-Date: Fri, 01 Dec 2000 09:26:27 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+	id <S129183AbQLAPOv>; Fri, 1 Dec 2000 10:14:51 -0500
+Received: from windsormachine.com ([206.48.122.28]:14866 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129210AbQLAPOf>; Fri, 1 Dec 2000 10:14:35 -0500
+Message-ID: <3A27B931.DEADF643@windsormachine.com>
+Date: Fri, 01 Dec 2000 09:44:01 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dries van Oosten <D.vanOosten@phys.uu.nl>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 routing problem
-In-Reply-To: <Pine.OSF.4.30.0012011020410.15665-100000@ruunat.phys.uu.nl>
+To: Guennadi Liakhovetski <gvlyakh@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA for triton again...
+In-Reply-To: <E141oUr-0006C9-00@f10.mail.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
-X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dries van Oosten wrote:
-> 
-> On Fri, 1 Dec 2000, Dax Kelson wrote:
 
-> > If you want to take full advantage of all the networking features, you
-> > need to use iproute2.
-> >
-> > ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss??????.tar.gz
-> 
-> I downloaded and compiled them and they don't work as well.
-> What am I missing here?
 
-Try recompiling the kernel with "advanced routing" "policy routing" and
-"netlink" turned on.
+Guennadi Liakhovetski wrote:
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+> Hi
+> > will try tonight... and will let you know tomorrow...
+> ... Nop, it didn't work. Mike and everybody having experience / knowledge of Western Digital Caviar AC21600H... If you compare WD's documents at:
+> http://www.westerndigital.com/service/FAQ/dtr.html
+> and
+> http://www.westerndigital.com/products/non-current/drives/ac21600.html
+> they, respectively ,say:
+>
+> UDMA if CCC is A8-AG (AH is not UDMA), D5-D7, Bx, or Cx All others -- PIO Mode 4
+>
+> and
+>
+> 16.6 MB/s (burst Mode 4 PIO) *
+> 16.6 MB/s (burst Mode 2 DMA) **
+> 33.3 MB/s (Mode 2 Ultra DMA) ***
+>
+> *Max PIO burst rate is specified at 16.6 MB/s using the IORDY signal.
+> **Max DMA and multi-word DMA burst rate is specified using the DMARQ and DMACK signals.
+> ***Mode 2 Ultra DMA is supported in the following firmware revisions (CCC Codes: A8, AA, AC, AD, AG, D5, D6, D7, Bx, Cx).
+>
+> Which one is true? Do non-UDMA AC21600H (I've got CCC F6) support DMA?
+>
+> Is it possible to find out where hdparm -d1 is stopped? Maybe by compiling it with -g and debugging... As far as I understand, BIOS is not an issue, since ide.txt says, that Linux doesn't use BIOS when working with hard drives...
+>
+> Thanks
+> Guennadi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+Well, per my other email, i found a case where the bios DID matter.  Yes, the AC21600H supports DMA.  Even my dinosaur 850 meg in that same box, works in dma mode, and does get a little bit faster.  They're so slow in the first place
+that it doesn't make much transfer rate difference, but the cpu load goes way down.
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317503AbSGTUtz>; Sat, 20 Jul 2002 16:49:55 -0400
+	id <S317508AbSGTUwD>; Sat, 20 Jul 2002 16:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSGTUtz>; Sat, 20 Jul 2002 16:49:55 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43528 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317503AbSGTUty>; Sat, 20 Jul 2002 16:49:54 -0400
-Date: Sat, 20 Jul 2002 13:53:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
-In-Reply-To: <Pine.LNX.4.44L.0207201740580.12241-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0207201351160.1552-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317511AbSGTUwD>; Sat, 20 Jul 2002 16:52:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:64916 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317508AbSGTUwC>;
+	Sat, 20 Jul 2002 16:52:02 -0400
+Date: Sat, 20 Jul 2002 13:54:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Robert Love <rml@tech9.net>, akpm@zip.com.au, torvalds@transmeta.com,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] for_each_pgdat
+Message-ID: <20020720205454.GF1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Robert Love <rml@tech9.net>, akpm@zip.com.au,
+	torvalds@transmeta.com, riel@conectiva.com.br,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <1027196535.1116.773.camel@sinai> <236911771.1027172579@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <236911771.1027172579@[10.10.2.3]>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, Robert Love wrote:
+>> This patch implements for_each_pgdat(pg_data_t *) which is a helper
+>> macro to cleanup code that does a loop of the form:
+
+On Sat, Jul 20, 2002 at 01:43:00PM -0700, Martin J. Bligh wrote:
+> If you're going to do that (which I think is a good idea) can you
+> rename node_next to pgdat_next, as it often has nothing to do with
+> nodes whatsoever (discontigmem on a non-NUMA machine, or even more
+> confusingly a NUMA machine which is discontig within a node)? I'll
+> attatch a patch below, but it conflicts what what you're doing
+> horribly, and it's even easier to do after your abtraction ...
+
+Another option would be to convert pgdats to using list.h, which would
+make things even prettier IMHO. After wrapping the list iterations it's
+actually not difficult to swizzle the list linkage out from underneath.
+
+And yes, s/pgdat/physcontig_region/ or whatever would make the name
+match the intended usage.
 
 
-On Sat, 20 Jul 2002, Rik van Riel wrote:
->
-> OK, I'll try to forward-port Ed's code to do that from 2.4 to 2.5
-> this weekend...
 
-Side note: while I absolutely think that is the right thing to do, that's
-also the much more "interesting" change. As a result, I'd be happier if it
-went through channels (ie probably Andrew) and had some wider testing
-first at least in the form of a CFT on linux-kernel.
-
-[ Or has it already been in 2.4.x in any major tree? (In which case my
-  testing argument is lessened to some degree and it's mainly just to
-  verify that the forward-port works). ]
-
-Thanks,
-		Linus
-
+Cheers,
+Bill

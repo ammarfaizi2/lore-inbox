@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbTIBLDj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 07:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbTIBLDj
+	id S263891AbTIBRzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 13:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTIBRzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 07:03:39 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:7153 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S261162AbTIBLDi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 07:03:38 -0400
-Date: Tue, 2 Sep 2003 13:03:35 +0200
-From: Damian Kolkowski <deimos@deimos.one.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] - 2.{4,6}.{22,0-test4} - CONFIG_X86_UP_APIC lack routing on eth
-Message-ID: <20030902110335.GA540@deimos.one.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:deimos@jid.deimos.one.pl ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.6.0-test4, up 0 min
+	Tue, 2 Sep 2003 13:55:32 -0400
+Received: from mail0-96.ewetel.de ([212.6.122.96]:61157 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S263891AbTIBRuC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 13:50:02 -0400
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bandwidth for bkbits.net (good news)
+In-Reply-To: <rdje.1sH.11@gated-at.bofh.it>
+References: <qn1b.2Pr.29@gated-at.bofh.it> <qoTh.5mt.11@gated-at.bofh.it> <rdje.1sH.11@gated-at.bofh.it>
+Date: Tue, 2 Sep 2003 19:49:41 +0200
+Message-Id: <E19uFHh-00012f-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 02 Sep 2003 09:00:20 +0200, you wrote in linux.kernel:
 
-Kernels like 2.4.22 and 2.6.0-test4 (cset-455) with compiled in
-CONFIG_X86_UP_APIC lacks the ehternet routing.
+> Stop argueing. You can shape only outgoing packets, which means that the
+> shaper must have a big uplink pipe and then shape that into a thin downlink
+> pipe. In Larrys' case, the shaper must be on the ISP network before the T1.
 
-Take care.
+For Larry's case, you're right. Nothing you can do to shape lots of
+incoming TCP connections. However, if you're facing a few long-lived
+TCP connections, you can shape them by dropping incoming packets (that
+is, shaping the outgoing packets from the router/shaper to the LAN).
+The sending side will adjust its rate after at most a few seconds.
 
-P.S. It's on 2.4.22-ac1 and 2.4.22-ck1 too! But 2.4.22-rc2 has better APIC, so
-good idea is to use it with -ac3 on that kernel.
-
-PP.S. There is also radeonfb bug settings fonts and loadkeys only on
-/dev/tty1.
+That works perfectly for the case of reserving bandwidth for critical
+services in the face of ongoing large downloads. That's something
+a lot of people want and need, so it's not all that worseless per se.
 
 -- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+Ciao,
+Pascal
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+On Tue, 02 Sep 2003 09:00:20 +0200, you wrote in linux.kernel:
+
+> Stop argueing. You can shape only outgoing packets, which means that the
+> shaper must have a big uplink pipe and then shape that into a thin downlink
+> pipe. In Larrys' case, the shaper must be on the ISP network before the T1.
+
+For Larry's case, you're right. Nothing you can do to shape lots of
+incoming TCP connections. However, if you're facing a few long-lived
+TCP connections, you can shape them by dropping incoming packets (that
+is, shaping the outgoing packets from the router/shaper to the LAN).
+The sending side will adjust its rate after at most a few seconds.
+
+That works perfectly for the case of reserving bandwidth for critical
+services in the face of ongoing large downloads. That's something
+a lot of people want and need, so it's not all that worseless per se.
+
+-- 
+Ciao,
+Pascal

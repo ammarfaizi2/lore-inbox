@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbTIEP2j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbTIEP2h
+	id S265128AbTIEQq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 12:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTIEQq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:28:37 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:34760 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262661AbTIEP2e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:28:34 -0400
-Date: Fri, 5 Sep 2003 08:23:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Ingo Oeser <ioe@perch.kroah.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.4.22, USB visor module crashing on HotSync.
-Message-ID: <20030905152320.GA16363@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 5 Sep 2003 12:46:56 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:21460 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265128AbTIEQqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 12:46:55 -0400
+Date: Fri, 5 Sep 2003 12:43:47 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Henning Schmiedehausen <hps@intermeta.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+In-Reply-To: <1062776157.20632.1697.camel@forge.intermeta.de>
+Message-ID: <Pine.GSO.4.33.0309051231110.13584-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 01:30:22PM +0200, Ingo Oeser wrote:
-> Hi Greg,
-> 
-> there seems to be a problem with the visor module and usb_serial.
-> 
-> Please look at __serial_close() and usb_disconnect() calling it
-> in line 1406 vs. line 1408. I would suggest removing 1408 or
-> folding it into __serial_close().
-> 
-> Formal Bug-Reporting follows:
-> 
-> [1.] One line summary of the problem:
-> 
->       USB visor module and usb_serial crashing on HotSync in usb_disconnect
-> 
-> [2.] Full description of the problem/report:
-> 
->       usb_disconnect calls __serial_close() which sets the tty = NULL
->       and afterwards trys to set tty->private_data = NULL
->       which will crash
+On 5 Sep 2003, Henning Schmiedehausen wrote:
+>225kpps * 64 Bytes (minimum packet len) = 13,7 MBytes / sec
+>
+>100 MBit / 8 bit = 12,5 MBytes / sec
+>
+>So, IMHO even with a small packet saturated 100 MBit link you won't
+>reach 225kpps. AFAIK this was Ciscos intention to publish this number.
+>It basically says "you will have filled your link before you fill our
+>router".
 
-Nice, someone else reported this yesterday for the ftdi_sio driver.
+64B is the minimum ETHERNET frame size.  That isn't true for PPP, HDLC,
+Frame relay, ATM, etc.
 
-Can you test the patch below and let me know if this fixes it?
+>I'm pretty sure that your 37xx won't do any routing updates anymore at
+>this point. And if you do _anything_ that forces the packets down the
+>slow path from the routing engine, you're toast anyway.
 
-thanks,
+Sure it can.  Yeah, it'll be slow_er_, but not stopped.  CEF/PXF doesn't
+require much CPU to switch a packet.
 
-greg k-h
+At process switching, the router is rated to a few K pps.  Process switching
+SUCKS.
+
+I've seen a 7206/200 _attempt_ to move 150kpps @ 64B each. (misbehaving
+software and a misconfigured firewall...) The router was chuggin' right
+along -- discarding UDP traffic like a mad man.  From the console, it was
+working fine. *grin* It's rather hard for telnet to compete (and even
+harder for ssh.)
+
+All those machines are behind a 7401 now.  And it doesn't even blink at
+such things.  (That thing's worth every penny we paid for it.)
+
+--Ricky
 
 
---- a/drivers/usb/serial/usbserial.c	Sat Aug 30 23:27:18 2003
-+++ b/drivers/usb/serial/usbserial.c	Thu Sep  4 13:48:45 2003
-@@ -556,7 +556,10 @@
- 		else
- 			generic_close(port, filp);
- 		port->open_count = 0;
--		port->tty = NULL;
-+		if (port->tty) {
-+			port->tty->driver_data = NULL;
-+			port->tty = NULL;
-+		}
- 	}
- 
- 	if (port->serial->type->owner)
-@@ -1401,12 +1404,9 @@
- 		for (i = 0; i < serial->num_ports; ++i) {
- 			port = &serial->port[i];
- 			down (&port->sem);
--			if (port->tty != NULL) {
--				while (port->open_count > 0) {
-+			if (port->tty != NULL)
-+				while (port->open_count > 0)
- 					__serial_close(port, NULL);
--				}
--				port->tty->driver_data = NULL;
--			}
- 			up (&port->sem);
- 		}
- 

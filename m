@@ -1,119 +1,332 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVDFHiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVDFHlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVDFHiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 03:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVDFHiT
+	id S262132AbVDFHlL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 03:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVDFHlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 03:38:19 -0400
-Received: from upco.es ([130.206.70.227]:29082 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S262131AbVDFHiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 03:38:09 -0400
-Date: Wed, 6 Apr 2005 09:38:00 +0200
-From: Romano Giannetti <romanol@upco.es>
-To: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-Subject: ACPI + preempt + swsusp (S4) still no go in 2.6.12-rc2
-Message-ID: <20050406073800.GA27156@pern.dea.icai.upco.es>
-Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
-	Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-	acpi-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Wed, 6 Apr 2005 03:41:11 -0400
+Received: from digitalimplant.org ([64.62.235.95]:1948 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S262132AbVDFHjf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 03:39:35 -0400
+Date: Wed, 6 Apr 2005 00:39:29 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: klists and struct device semaphores
+In-Reply-To: <Pine.LNX.4.44L0.0504021227440.1311-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.50.0504060032260.17888-100000@monsoon.he.net>
+References: <Pine.LNX.4.44L0.0504021227440.1311-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+Sorry about the delay in responding, there were some bugs to attend to,
+some of which you may have inadvertantly caught below.
 
-   I had a bit of time and tested yesterday 2.6.12-rc2. swsusp works (modulo
-   the alps resume patch, which are not in yet) provided that preempt is
-   disabled. A working[Note 1] config/patch/dmesg is here: 
-   http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc2-nopreempt-boot/laptop-config.html
-   
-   [Note 1] working modulo the still present 8-key delay related in
-   http://bugme.osdl.org/show_bug.cgi?id=4124#c2   
+On Sat, 2 Apr 2005, Alan Stern wrote:
 
-   Now, compiling the _same_kernel_ with preempt on fail on resume. The same
-   data (config/patch/dmesg etc) is here:
-   http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc2-preempt-boot/laptop-config.html   
-   The resuming script is doing: 
+> I looked through the new driver model code a bit more.  There appears to
+> be a few problems (unless I'm using out-of-date code).
+>
+> First, there's a race between adding a new device and registering a new
+> driver.  The bus_add_device() routine contains these lines:
+>
+> 	pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+> 	device_attach(dev);
+> 	klist_add_tail(&bus->klist_devices, &dev->knode_bus);
+>
+> Suppose device_attach() doesn't find a suitable driver, but a new driver
+> is registered before the klist_add_tail() executes.  Then the new driver
+> won't see the device either, and the device won't be bound at all.  The
+> last two lines above should be in the opposite order.
 
-            [...]   
-            echo 4 > /proc/acpi/sleep
-            hwclock --hctosys
-            sleep 1
-            modprobe battery   #never arrives here
-            modprobe ac
-            modprobe fan
-            modprobe button
-            service usb start
+Yes, you're right.
 
-    but it fails. The system start spew "scheduling while atomic" (I do not
-    know why the script fails: there are no Oops or similar thing in the
-    logs). There are a bunch of them, it seems one for every device resumed. 
-    Full log is http://www.dea.icai.upco.es/romano/linux/br/bug-2.6.12-rc2-fulllog.txt    
-    but I report here the first of such "scheduling while atomic": 
+> Second, there's no check in driver_probe_device() or higher up to
+> prevent probing a device that's already bound to another driver.  Such a
+> check needs to be synchronized with assignments to dev->driver, so it
+> should be made while holding dev->sem.
 
- [nosave pfn 0x4a0]<7>[nosave pfn 0x4a1]<7>[4295571.192000] PM: Image restored successfully.
- scheduling while atomic: really_suspend/0x00000001/5478
-  [schedule+1384/1568] schedule+0x568/0x620
-  [<c03a6af8>] schedule+0x568/0x620
-  [__mod_timer+453/496] __mod_timer+0x1c5/0x1f0
-  [<c0122245>] __mod_timer+0x1c5/0x1f0
-  [schedule_timeout+93/176] schedule_timeout+0x5d/0xb0
-  [<c03a75bd>] schedule_timeout+0x5d/0xb0
-  [process_timeout+0/16] process_timeout+0x0/0x10
-  [<c0122ce0>] process_timeout+0x0/0x10
-  [msleep+47/64] msleep+0x2f/0x40
-  [<c01230cf>] msleep+0x2f/0x40
-  [pci_set_power_state+400/464] pci_set_power_state+0x190/0x1d0
-  [<c0252be0>] pci_set_power_state+0x190/0x1d0
-  [pci_enable_device_bars+24/64] pci_enable_device_bars+0x18/0x40
-  [<c0252d28>] pci_enable_device_bars+0x18/0x40
-  [pci_enable_device+31/64] pci_enable_device+0x1f/0x40
-  [<c0252d6f>] pci_enable_device+0x1f/0x40
-  [pg0+276592203/1068393472] snd_via82xx_resume+0x1b/0x140 [snd_via82xx]
-  [<d0cdf64b>] snd_via82xx_resume+0x1b/0x140 [snd_via82xx]
-  [pg0+276450129/1068393472] snd_card_pci_resume+0x41/0x6e [snd]
-  [<d0cbcb51>] snd_card_pci_resume+0x41/0x6e [snd]
-  [pci_device_resume+44/64] pci_device_resume+0x2c/0x40
-  [<c025500c>] pci_device_resume+0x2c/0x40
-  [dpm_resume+168/176] dpm_resume+0xa8/0xb0
-  [<c02d6678>] dpm_resume+0xa8/0xb0
-  [device_resume+17/32] device_resume+0x11/0x20
-  [<c02d6691>] device_resume+0x11/0x20
-  [<c02d6691>] device_resume+0x11/0x20
-  [finish+8/64] finish+0x8/0x40
-  [<c0139f18>] finish+0x8/0x40
-  [pm_suspend_disk+148/192] pm_suspend_disk+0x94/0xc0
-  [<c013a0b4>] pm_suspend_disk+0x94/0xc0
-  [enter_state+134/144] enter_state+0x86/0x90
-  [<c0137a76>] enter_state+0x86/0x90
-  [software_suspend+15/32] software_suspend+0xf/0x20
-  [<c0137a8f>] software_suspend+0xf/0x20
-  [acpi_system_write_sleep+106/132] acpi_system_write_sleep+0x6a/0x84
-  [<c02927ea>] acpi_system_write_sleep+0x6a/0x84
-  [vfs_write+332/352] vfs_write+0x14c/0x160
-  [<c015c56c>] vfs_write+0x14c/0x160
-  [sys_write+81/128] sys_write+0x51/0x80
-  [<c015c651>] sys_write+0x51/0x80
-  [sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
-  [<c010335b>] sysenter_past_esp+0x54/0x75
-    
-  After that, if I repeat a couple of time rmmod battery; modprobe battery;
-  the battery monitor works in the end; and restarting the other ACPI
-  modules and USB by hand the systems feels ok. 
+Yes, it should be checked while under the lock. That function is tricky,
+as I've been reminded in the last couple of days. It shouldn't be public
+for one, but that's cosmetic. The two callers should be holding the lock
+when they call it and both check (and act appropriately) if the device is
+already bound to a driver.
 
-  Hope this helps to nail down the problem. I tried to start with
-  init=/bin/bash (with -rc1 kernel), same kind of problems. 
+> Third, why does device_release_driver() call klist_del() instead of
+> klist_remove() for dev->knode_driver?  Is that just a simple mistake?
+> The klist_node doesn't seem to get unlinked anywhere.
 
-                  Romano   
-        
+It can be called from driver_for_each_device() when the driver has been
+unloaded. Since that increments the reference count for the node when it's
+unregistering it, klist_remove() will deadlock. Instead klist_del() is
+called, and when the next node is grabbed, that one will be let go and
+removed from the list.
 
-   
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+> Fourth, in device_release_driver() why isn't most of the work done under
+> the protection of dev->sem?  If a driver is unregistered at the same time
+> as a device is removed, two threads could end up executing that routine at
+> the same time.  Then the question would be which thread calls
+> klist_remove() -- not to mention the danger that both of them might.  I
+> guess the answer is to call klist_remove() after releasing dev->sem.
+
+Yes, you're right. Also fixed. In fact, by the patch below which has just
+made it into the -mm tree.
+
+Thanks,
+
+
+	Pat
+
+
+Short summary:
+
+- Move logic to driver_probe_device() and comments uncommon returns:
+  1 - If device is bound
+  0 - If device not bound, and no error
+  error - If there was an error.
+
+- Move locking to caller of that function, since we want to lock a
+  device for the entire time we're trying to bind it to a driver (to
+  prevent against a driver being loaded at the same time).
+
+- Update __device_attach() and __driver_attach() to do that locking.
+
+- Check if device is already bound in __driver_attach()
+
+- Update the converse device_release_driver() so it locks the device
+  around all of the operations.
+
+- Mark driver_probe_device() as static and remove export. It's an
+  internal function, it should stay that way, and there are no other
+  callers. If there is ever a need to export it, we can audit it as
+  necessary.
+
+--- linux-2.6-mm/drivers/base/dd.c.orig	2005-04-05 15:01:05.000000000 -0700
++++ linux-2.6-mm/drivers/base/dd.c	2005-04-05 15:46:01.000000000 -0700
+@@ -35,6 +35,8 @@
+  *	nor take the bus's rwsem. Please verify those are accounted
+  *	for before calling this. (It is ok to call with no other effort
+  *	from a driver's probe() method.)
++ *
++ *	This function must be called with @dev->sem held.
+  */
+
+ void device_bind_driver(struct device * dev)
+@@ -61,50 +63,57 @@
+  *
+  *	If we find a match, we call @drv->probe(@dev) if it exists, and
+  *	call device_bind_driver() above.
++ *
++ *	This function returns 1 if a match is found, an error if one
++ *	occurs (that is not -ENODEV or -ENXIO), and 0 otherwise.
++ *
++ *	This function must be called with @dev->sem held.
+  */
+-int driver_probe_device(struct device_driver * drv, struct device * dev)
++static int driver_probe_device(struct device_driver * drv, struct device * dev)
+ {
+-	int error = 0;
++	int ret = 0;
+
+ 	if (drv->bus->match && !drv->bus->match(dev, drv))
+-		return -ENODEV;
++		goto Done;
+
+-	down(&dev->sem);
++	pr_debug("%s: Matched Device %s with Driver %s\n",
++		 drv->bus->name, dev->bus_id, drv->name);
+ 	dev->driver = drv;
+ 	if (drv->probe) {
+-		error = drv->probe(dev);
+-		if (error) {
++		ret = drv->probe(dev);
++		if (ret) {
+ 			dev->driver = NULL;
+-			up(&dev->sem);
+-			return error;
++			goto ProbeFailed;
+ 		}
+ 	}
+-	up(&dev->sem);
+ 	device_bind_driver(dev);
+-	return 0;
+-}
+-
++	ret = 1;
++	pr_debug("%s: Bound Device %s to Driver %s\n",
++		 drv->bus->name, dev->bus_id, drv->name);
++	goto Done;
+
+-static int __device_attach(struct device_driver * drv, void * data)
+-{
+-	struct device * dev = data;
+-	int error;
+-
+-	error = driver_probe_device(drv, dev);
+-
+-	if (error == -ENODEV && error == -ENXIO) {
++ ProbeFailed:
++	if (ret == -ENODEV || ret == -ENXIO) {
+ 		/* Driver matched, but didn't support device
+ 		 * or device not found.
+ 		 * Not an error; keep going.
+ 		 */
+-		error = 0;
++		ret = 0;
+ 	} else {
+ 		/* driver matched but the probe failed */
+ 		printk(KERN_WARNING
+ 		       "%s: probe of %s failed with error %d\n",
+-		       drv->name, dev->bus_id, error);
++		       drv->name, dev->bus_id, ret);
+ 	}
+-	return 0;
++ Done:
++	return ret;
++}
++
++
++static int __device_attach(struct device_driver * drv, void * data)
++{
++	struct device * dev = data;
++	return driver_probe_device(drv, dev);
+ }
+
+ /**
+@@ -114,35 +123,44 @@
+  *	Walk the list of drivers that the bus has and call
+  *	driver_probe_device() for each pair. If a compatible
+  *	pair is found, break out and return.
++ *
++ *	Returns 1 if the device was bound to a driver; 0 otherwise.
+  */
+ int device_attach(struct device * dev)
+ {
++	int ret = 0;
++
++	down(&dev->sem);
+ 	if (dev->driver) {
+ 		device_bind_driver(dev);
+-		return 1;
+-	}
+-
+-	return bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++		ret = 1;
++	} else
++		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++	up(&dev->sem);
++	return ret;
+ }
+
+
+ static int __driver_attach(struct device * dev, void * data)
+ {
+ 	struct device_driver * drv = data;
+-	int error = 0;
+
+-	if (!dev->driver) {
+-		error = driver_probe_device(drv, dev);
+-		if (error) {
+-			if (error != -ENODEV) {
+-				/* driver matched but the probe failed */
+-				printk(KERN_WARNING
+-				       "%s: probe of %s failed with error %d\n",
+-				       drv->name, dev->bus_id, error);
+-			} else
+-				error = 0;
+-		}
+-	}
++	/*
++	 * Lock device and try to bind to it. We drop the error
++	 * here and always return 0, because we need to keep trying
++	 * to bind to devices and some drivers will return an error
++	 * simply if it didn't support the device.
++	 *
++	 * driver_probe_device() will spit a warning if there
++	 * is an error.
++	 */
++
++	down(&dev->sem);
++	if (!dev->driver)
++		driver_probe_device(drv, dev);
++	up(&dev->sem);
++
++
+ 	return 0;
+ }
+
+@@ -154,9 +172,6 @@
+  *	match the driver with each one.  If driver_probe_device()
+  *	returns 0 and the @dev->driver is set, we've found a
+  *	compatible pair.
+- *
+- *	Note that we ignore the -ENODEV error from driver_probe_device(),
+- *	since it's perfectly valid for a driver not to bind to any devices.
+  */
+ void driver_attach(struct device_driver * drv)
+ {
+@@ -176,27 +191,27 @@
+
+ void device_release_driver(struct device * dev)
+ {
+-	struct device_driver * drv = dev->driver;
+-
+-	if (!drv)
+-		return;
+-
+-	sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+-	sysfs_remove_link(&dev->kobj, "driver");
+-	klist_del(&dev->knode_driver);
++	struct device_driver * drv;
+
+ 	down(&dev->sem);
+-	device_detach_shutdown(dev);
+-	if (drv->remove)
+-		drv->remove(dev);
+-	dev->driver = NULL;
++	if (dev->driver) {
++		drv = dev->driver;
++		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
++		sysfs_remove_link(&dev->kobj, "driver");
++		klist_del(&dev->knode_driver);
++
++		device_detach_shutdown(dev);
++		if (drv->remove)
++			drv->remove(dev);
++		dev->driver = NULL;
++	}
+ 	up(&dev->sem);
+ }
+
+
+ static int __remove_driver(struct device * dev, void * unused)
+ {
+-	device_release_driver(dev);
++	device_release_driver(dev);
+ 	return 0;
+ }
+
+@@ -210,7 +225,6 @@
+ 	driver_for_each_device(drv, NULL, NULL, __remove_driver);
+ }
+
+-EXPORT_SYMBOL_GPL(driver_probe_device);
+ EXPORT_SYMBOL_GPL(device_bind_driver);
+ EXPORT_SYMBOL_GPL(device_release_driver);
+ EXPORT_SYMBOL_GPL(device_attach);
+--- linux-2.6-mm/include/linux/device.h.orig	2005-04-05 15:24:35.000000000 -0700
++++ linux-2.6-mm/include/linux/device.h	2005-04-05 15:24:43.000000000 -0700
+@@ -330,7 +330,6 @@
+  * Manual binding of a device to driver. See drivers/base/bus.c
+  * for information on use.
+  */
+-extern int  driver_probe_device(struct device_driver * drv, struct device * dev);
+ extern void device_bind_driver(struct device * dev);
+ extern void device_release_driver(struct device * dev);
+ extern int  device_attach(struct device * dev);

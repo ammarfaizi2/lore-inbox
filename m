@@ -1,96 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264114AbUKZUZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263957AbUKZUZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264114AbUKZUZg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbUKZUZP
+	id S263957AbUKZUZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUKZUYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:25:15 -0500
-Received: from 80-218-63-145.dclient.hispeed.ch ([80.218.63.145]:15878 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S264047AbUKZUKX
+	Fri, 26 Nov 2004 15:24:49 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.71]:59352 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S263957AbUKZT7u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:10:23 -0500
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] touchkitusb: module_param to swap axes
-Date: Thu, 25 Nov 2004 21:18:17 +0100
+	Fri, 26 Nov 2004 14:59:50 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: "Mario Gaucher" <zadiglist@zadig.ca>
+Subject: Re: [PATCH] fbdev: Fix crash if fb_set_var() called before register_framebuffer()
+Date: Fri, 26 Nov 2004 08:45:03 +0800
 User-Agent: KMail/1.5.4
-Cc: Greg KH <greg@kroah.com>
-References: <200411242228.53446.daniel.ritz@gmx.ch> <200411250010.09049.dtor_core@ameritech.net>
-In-Reply-To: <200411250010.09049.dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+References: <200411250115.50895.adaplas@hotpop.com> <20041125235955.M86030@zadig.ca>
+In-Reply-To: <20041125235955.M86030@zadig.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200411252118.17690.daniel.ritz@gmx.ch>
+Message-Id: <200411260845.04618.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 November 2004 06:10, Dmitry Torokhov wrote:
-> On Wednesday 24 November 2004 04:28 pm, Daniel Ritz wrote:
-> > add a module parameter to swap the axes. many displays need this...
-> > 
-> > --- 1.2/drivers/usb/input/touchkitusb.c	2004-09-18 10:07:25 +02:00
-> > +++ edited/drivers/usb/input/touchkitusb.c	2004-11-24 18:57:59 +01:00
-> > @@ -59,6 +59,10 @@
-> >  #define DRIVER_AUTHOR			"Daniel Ritz <daniel.ritz@gmx.ch>"
-> >  #define DRIVER_DESC			"eGalax TouchKit USB HID Touchscreen Driver"
-> >  
-> > +static int swap_xy;
-> > +module_param(swap_xy, bool, 0);
-> 
-> It looks it can easily be exported to userspace to allow switching "on-fly"
-> since it is checked for every packet. I think 0600 will do.
->  
+On Friday 26 November 2004 08:20, Mario Gaucher wrote:
+> > The field info->modelist is initialized during register_framebuffer. 
+> > This field is also referred to in fb_set_var().  Thus a call to
+> > fb_set_var() before register_framebuffer() will cause a crash.  A few
+> > drivers do this, notably controlfb.  (This might fix reports of controlfb
+> > crashing in powermacs).
+>
+> this patch works well... I can now boot my PowerMac 7300 using
+> 2.6.10-rc2-bk8 (that I got on kernel.org) with this patch...
 
-agreed. and when 0600 is ok, i guess 0644 is ok too.
+That's good.
 
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+>
+> but I still has some problem with my Matrox Millenium PCI card using
+> matroxfb driver... the kernel boot... but I get corrupted characters on
+> the console... X load ok and display ok...
 
---- 1.2/drivers/usb/input/touchkitusb.c	2004-09-18 10:07:25 +02:00
-+++ edited/drivers/usb/input/touchkitusb.c	2004-11-24 18:57:59 +01:00
-@@ -59,6 +59,10 @@
- #define DRIVER_AUTHOR			"Daniel Ritz <daniel.ritz@gmx.ch>"
- #define DRIVER_DESC			"eGalax TouchKit USB HID Touchscreen Driver"
- 
-+static int swap_xy;
-+module_param(swap_xy, bool, 0644);
-+MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-+
- struct touchkit_usb {
- 	unsigned char *data;
- 	dma_addr_t data_dma;
-@@ -80,6 +84,7 @@
- {
- 	struct touchkit_usb *touchkit = urb->context;
- 	int retval;
-+	int x, y;
- 
- 	switch (urb->status) {
- 	case 0:
-@@ -103,13 +108,19 @@
- 		goto exit;
- 	}
- 
-+	if (swap_xy) {
-+		y = TOUCHKIT_GET_X(touchkit->data);
-+		x = TOUCHKIT_GET_Y(touchkit->data);
-+	} else {
-+		x = TOUCHKIT_GET_X(touchkit->data);
-+		y = TOUCHKIT_GET_Y(touchkit->data);
-+	}
-+
- 	input_regs(&touchkit->input, regs);
- 	input_report_key(&touchkit->input, BTN_TOUCH,
- 	                 TOUCHKIT_GET_TOUCHED(touchkit->data));
--	input_report_abs(&touchkit->input, ABS_X,
--	                 TOUCHKIT_GET_X(touchkit->data));
--	input_report_abs(&touchkit->input, ABS_Y,
--	                 TOUCHKIT_GET_Y(touchkit->data));
-+	input_report_abs(&touchkit->input, ABS_X, x);
-+	input_report_abs(&touchkit->input, ABS_Y, y);
- 	input_sync(&touchkit->input);
- 
- exit:
+Try this first.
+
+1. Open drivers/video/matrox/matrofb_accel.c
+2. At the end of the file is this function:
+
+static void matroxfb_imageblit(struct fb_info* info, const struct fb_image* image) {
+	MINFO_FROM_INFO(info);
+
+	DBG_HEAVY(__FUNCTION__);
+
+	if (image->depth == 1) {
+		u_int32_t fgx, bgx;
+
+		fgx = ((u_int32_t*)info->pseudo_palette)[image->fg_color];
+		bgx = ((u_int32_t*)info->pseudo_palette)[image->bg_color];
+		matroxfb_1bpp_imageblit(PMINFO fgx, bgx, image->data, image->width, image->height, image->dy, image->dx);
+	} else {
+		/* Danger! image->depth is useless: logo painting code always
+		   passes framebuffer color depth here, although logo data are
+		   always 8bpp and info->pseudo_palette is changed to contain
+		   logo palette to be used (but only for true/direct-color... sic...).
+		   So do it completely in software... */
+		cfb_imageblit(info, image);
+	}
+}
+
+3. Replace the above function to use software drawing so it becomes like this:
+
+static void matroxfb_imageblit(struct fb_info* info, const struct fb_image* image) {
+	cfb_imageblit(info, image);
+}
+
+Tony
+
 

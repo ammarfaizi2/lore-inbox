@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129603AbRBEIii>; Mon, 5 Feb 2001 03:38:38 -0500
+	id <S129964AbRBEIlt>; Mon, 5 Feb 2001 03:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129964AbRBEIi3>; Mon, 5 Feb 2001 03:38:29 -0500
-Received: from colorfullife.com ([216.156.138.34]:5125 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129603AbRBEIiS>;
-	Mon, 5 Feb 2001 03:38:18 -0500
-Message-ID: <3A7E6670.4AD21D20@colorfullife.com>
-Date: Mon, 05 Feb 2001 09:38:08 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Stewart <T.Stewart@student.umist.ac.uk>
-CC: Urban Widmark <urban@teststation.com>,
-        Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org,
-        ksa1 <ksa1@gmx.de>
-Subject: Re: d-link dfe-530 tx (bug-report)
-In-Reply-To: <3A7D77B5.ABF5A850@colorfullife.com> <3A7DEEB2.20915.276D09D@localhost>
+	id <S131576AbRBEIlj>; Mon, 5 Feb 2001 03:41:39 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:25790 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129964AbRBEIlX>;
+	Mon, 5 Feb 2001 03:41:23 -0500
+Date: Mon, 5 Feb 2001 09:41:19 +0100
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Robert Siemer <Robert.Siemer@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fix dependencies for radio-miropcm20
+Message-ID: <20010205094119.A28654@fenrus.demon.nl>
+In-Reply-To: <3A7C6949.3070705@netgem.com> <20010204033125C.siemer@panorama.hadiko.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010204033125C.siemer@panorama.hadiko.de>; from Robert.Siemer@gmx.de on Sun, Feb 04, 2001 at 03:31:25AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Stewart wrote:
-> 
-> >
-> > CmdReset is not instant, it may need a delay. There is also a "force
-> > software reset" operation that sounds good, I assume that one also
-> > could use a delay so I gave it 6ms.
-> >
+On Sun, Feb 04, 2001 at 03:31:25AM +0100, Robert Siemer wrote:
+> This was already discussed some days ago. Arjan said, that the
+> miropcm20 question comes before the aci question, so this is
+> useless. - Arjan, this is not true for 'make menuconfig' and 'make
+> xconfig', isn't it?
 
-6 ms is quite long:
-I added a reset into tx_timeout, and that function should not take more
-than 1 ms or so.
-Did you find something about the delay in the documentation? Is it
-possible to poll for reset completion?
+make [x,menu]config are a bit smarter, but at least make menuconfig has the
+annoying behavior of hiding the question for the Miro card until you
+magically turn on the ACI mixer in the sound section. This confuses the hell
+out of peope when they go through make menuconfig "top bottom".
 
-I know that the winbond-840 chipset resets in 4 pci cycles - perhaps the
-via-rhine is also fast?
-
-> 
-> I applyed Manfred's patch but that changed nothing.
->
-
-That's expected, my patch fixes another bug.
-The NIC now recover from "Tx timeout" messages. ksa confirmed that, but
-there is still a delay of a few seconds. I'll try to fix that.
-
-> Then I applyed your patch and still changed nothing as you suspected.
-> But there are regs that are different.
->
-Did you run via-diag before or after loading the via-rhine module?
-
---
-	Manfred
+Greetings,
+   Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

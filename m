@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263312AbTH0MQp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 08:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbTH0MQp
+	id S263371AbTH0MU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 08:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263377AbTH0MU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 08:16:45 -0400
-Received: from smtp-node1.eclipse.net.uk ([212.104.129.76]:52230 "EHLO
-	smtp1.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S263312AbTH0MQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 08:16:44 -0400
-Date: Wed, 27 Aug 2003 13:13:53 +0100 (BST)
-From: Phil Stewart <phil@lichp.co.uk>
-X-X-Sender: <phil@henry>
-To: <linux-kernel@vger.kernel.org>
-Cc: <phil@lichp.co.uk>
-Subject: 2.6.0-test4 kernel hangs on loading mouse driver
-Message-ID: <Pine.LNX.4.33.0308271256330.527-100000@henry>
+	Wed, 27 Aug 2003 08:20:58 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:26129 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263371AbTH0MU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 08:20:56 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH-2.6.0-test4-mm2]Removal of warning net/ipv4/route.c
+Date: Wed, 27 Aug 2003 17:53:49 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308271753.49644.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Dear Andrew,
 
-I'm having a problem booting the test4 kernel, which has developed since
-patching up from a functional test2 tree (I haven't compiled a test3
-kernel on my system, having patched to test3 and then again to test4). The
-problem seems to lie with the mouse, which is a USB HID mouse. The kernel
-gets as far as loading the hid core at boot time, giving these messages:
+The patch removes the following warning.
 
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0: USB HID core driver
-mice: PS/2 mouse device common for all mice
+net/ipv4/route.c: In function `ip_rt_init':
+net/ipv4/route.c:2811: warning: passing arg 2 of `create_proc_read_entry' makes integer from pointer without a cast
 
-The system then hangs.
+The patch is against 2.6.0-test4-mm2.
+Applied against the file net/ipv4/route.c
 
-I'm using an original Athlon (old skool Slot A fragrance) with a VIA
-chipset (VT8371 [KX133] north bridge, VT82C686 south bridge), and a
-bog-standard USB HID mouse and PS/2 keyboard. Relevant kernel
-configuration options are:
+Please apply, if found okay !
 
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=m
+Regards
+KK
 
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_AUDIO=m
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
+================================================
+diffstat output:
+route.c |    2 +-
+1 files changed, 1 insertion(+), 1 deletion(-)
+================================================
+The following is the patch:
 
-Thanks in advance for help with this issue :-)
 
---
-Phil Stewart
+--- linux-2.6.0-test4-mm2/net/ipv4/route.orig.c	2003-08-27 13:57:14.000000000 +0530
++++ linux-2.6.0-test4-mm2/net/ipv4/route.c	2003-08-27 17:20:13.000000000 +0530
+@@ -2808,7 +2808,7 @@
+ 		goto out_enomem;
+ 
+ #ifdef CONFIG_NET_CLS_ROUTE
+-	create_proc_read_entry("rt_acct", proc_net, 0, ip_rt_acct_read, NULL);
++	create_proc_read_entry("rt_acct", 0, proc_net, ip_rt_acct_read, NULL);
+ #endif
+ #endif
+ #ifdef CONFIG_XFRM
 
-PS - I'm not subscribed to the list, so I've CC'd myself into this mail -
-please keep me CC'd in if you need me to post any further detail that may
-help identify and solve this problem. Thanks!
 

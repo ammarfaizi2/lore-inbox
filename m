@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267029AbUBMOOa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267033AbUBMOOa
+	id S267023AbUBMOXW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267024AbUBMOXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:14:30 -0500
-Received: from f22.mail.ru ([194.67.57.55]:54289 "EHLO f22.mail.ru")
-	by vger.kernel.org with ESMTP id S267029AbUBMOO2 (ORCPT
+	Fri, 13 Feb 2004 09:23:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63133 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267023AbUBMOXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:14:28 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: der.eremit@email.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initrd Question
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.204.70.139]
-Date: Fri, 13 Feb 2004 17:14:25 +0300
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Are5J-000KGt-00.arvidjaar-mail-ru@f22.mail.ru>
+	Fri, 13 Feb 2004 09:23:13 -0500
+Date: Fri, 13 Feb 2004 09:23:04 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>
+Subject: [SELINUX] mark avc_init with __init
+Message-ID: <Xine.LNX.4.44.0402130921580.20552-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The avc_init function is only called during kernel init, so it can be 
+marked with __init.
 
->> echo 0x0100 > /proc/sys/kernel/real-root-dev
->
-> This makes no sense as you're using pivot_root. 
+Please apply.
 
-this makes all sort of sense. Please check sources. It is required so that kernel will not attempt to mount root passed to it by loader. You are welcome to clean up the code :)
 
->> mount -n -o ro /dev/sda2 /new_root
->
-> This doesn't even match with the 0x0100 above, now does it?
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-so what? kernel happily ignores real-root-dev, it is possible that some user-level tools may be confused but I have not seen any so far.
-
->> pivot_root /new_root /new_root/initrd
->
-> You should cd into /new_root before running pivot_root,
-
-Huh? Why?
-
-SYNOPSIS
-       pivot_root new_root put_old
-
->> if [ -c initrd/dev/.devfsd ]
->>   then
->>           echo "Mounting devfs..."
->>           mount -n -t devfs none dev
->> fi
->
-> Should you check for /dev/.devfsd on the real root here? I thought .devfsd
-> is created by the devfsd process, 
-
-you are wrong here, sorry. .devfsd is created by devfs.
-
--andrey
-
+diff -urN -X dontdiff linux-2.6.3-rc2-mm1.o/security/selinux/avc.c linux-2.6.3-rc2-mm1.w2/security/selinux/avc.c
+--- linux-2.6.3-rc2-mm1.o/security/selinux/avc.c	2004-02-04 08:39:07.000000000 -0500
++++ linux-2.6.3-rc2-mm1.w2/security/selinux/avc.c	2004-02-13 09:21:38.703303568 -0500
+@@ -166,7 +166,7 @@
+  *
+  * Initialize the access vector cache.
+  */
+-void avc_init(void)
++void __init avc_init(void)
+ {
+ 	struct avc_node	*new;
+ 	int i;
+diff -urN -X dontdiff linux-2.6.3-rc2-mm1.o/security/selinux/include/avc.h linux-2.6.3-rc2-mm1.w2/security/selinux/include/avc.h
+--- linux-2.6.3-rc2-mm1.o/security/selinux/include/avc.h	2004-02-04 08:39:07.000000000 -0500
++++ linux-2.6.3-rc2-mm1.w2/security/selinux/include/avc.h	2004-02-13 09:21:38.704303416 -0500
+@@ -11,6 +11,7 @@
+ #include <linux/kernel.h>
+ #include <linux/kdev_t.h>
+ #include <linux/spinlock.h>
++#include <linux/init.h>
+ #include <asm/system.h>
+ #include "flask.h"
+ #include "av_permissions.h"
+@@ -121,7 +122,7 @@
+  * AVC operations
+  */
+ 
+-void avc_init(void);
++void __init avc_init(void);
+ 
+ int avc_lookup(u32 ssid, u32 tsid, u16 tclass,
+                u32 requested, struct avc_entry_ref *aeref);
 

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269467AbRHCQZu>; Fri, 3 Aug 2001 12:25:50 -0400
+	id <S269465AbRHCQcK>; Fri, 3 Aug 2001 12:32:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269465AbRHCQZk>; Fri, 3 Aug 2001 12:25:40 -0400
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:7173 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S269467AbRHCQZa>;
-	Fri, 3 Aug 2001 12:25:30 -0400
-Date: Fri, 3 Aug 2001 12:25:39 -0400
-From: Mike Frisch <mfrisch@saturn.tlug.org>
+	id <S269476AbRHCQcA>; Fri, 3 Aug 2001 12:32:00 -0400
+Received: from erm1.u-strasbg.fr ([130.79.74.61]:4364 "HELO erm1.u-strasbg.fr")
+	by vger.kernel.org with SMTP id <S269471AbRHCQbn>;
+	Fri, 3 Aug 2001 12:31:43 -0400
+Date: Fri, 3 Aug 2001 18:42:07 +0200
+From: Bruno Boettcher <bboett@erm1.u-strasbg.fr>
 To: linux-kernel@vger.kernel.org
-Subject: Re: fake loop
-Message-ID: <20010803122539.A10211@saturn.tlug.org>
-Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
+Subject: kernel 2.4.7 crashes: unable to handle kernel paging request...
+Message-ID: <20010803184207.O7674@erm1.u-strasbg.fr>
+Mail-Followup-To: Bruno Boettcher <bboett@erm1.u-strasbg.fr>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>
+In-Reply-To: <20010803163957.8C66B5E40@erm1.u-strasbg.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>; from ailinykh@usa.net on Fri, Aug 03, 2001 at 09:57:34AM -0600
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010803163957.8C66B5E40@erm1.u-strasbg.fr>; from MAILER-DAEMON@erm1.u-strasbg.fr on Fri, Aug 03, 2001 at 06:39:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 09:57:34AM -0600, Andrey Ilinykh wrote:
-> Very often I see in kernel such code as
-> do {
->   dosomthing();
-> } while(0);
-> 
-> or even
-> 
-> #define prepare_to_switch()     do { } while(0)
-> 
-> Who can explain me a reason for these fake loops?
+hello!
+please CC me replies directly...
+i have trouble with a self compiled kernel, the config is under
+ftp://bboett.dyndns.org/pub/linuxconfig 
+the kernel boots up, and just after mounting all the disks it crashes
+with:
 
-This is answered in the Kernelnewbies FAQ @
-http://kernelnewbies.org/faq/index.php3#dowhile.xml.
+setting kernel vars
+unable to handle kernel paging request at virtual address eda2d5d4
+printing eip:
+
+etc etc....
+
+the system is a brand new Athlon 1.3GHz system....
+the kernels coming from my debian distro run fine, but i can't get the
+nvidia modules runnning with them.... 
+
+i suppose i made some error somewhere, but am unable to say where....
+
+
+
+-- 
+ciao bboett
+==============================================================
+bboett@earthling.net
+http://inforezo.u-strasbg.fr/~bboett http://erm1.u-strasbg.fr/~bboett
+===============================================================
+the total amount of intelligence on earth is constant.
+human population is growing....

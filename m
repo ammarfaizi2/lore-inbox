@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbTIHJI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTIHJI2
+	id S262150AbTIHJNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbTIHJNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:08:28 -0400
-Received: from angband.namesys.com ([212.16.7.85]:8900 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262122AbTIHJI1
+	Mon, 8 Sep 2003 05:13:35 -0400
+Received: from angband.namesys.com ([212.16.7.85]:10692 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262150AbTIHJNe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:08:27 -0400
-Date: Mon, 8 Sep 2003 13:08:26 +0400
+	Mon, 8 Sep 2003 05:13:34 -0400
+Date: Mon, 8 Sep 2003 13:13:33 +0400
 From: Oleg Drokin <green@namesys.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Nikita Danilov <god@namesys.com>
-Subject: Re: First impressions of reiserfs4
-Message-ID: <20030908090826.GB10487@namesys.com>
-References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com> <20030908105639.B26722@bitwizard.nl>
+To: Daniel Blueman <daniel.blueman@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test4] [BUG] reiserfs_writepage()
+Message-ID: <20030908091333.GC17718@namesys.com>
+References: <14963.1062928209@www51.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030908105639.B26722@bitwizard.nl>
+In-Reply-To: <14963.1062928209@www51.gmx.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-On Mon, Sep 08, 2003 at 10:56:41AM +0200, Rogier Wolff wrote:
-> > > There  is no installation program that will fail with: "Sorry, 
-> > > you only have 100 million inodes free, this program will need
-> > > 132 million after installation", and it allows me a quick way 
-> > > of counting the number of actual files on the disk.... 
-> > You cannot. statfs(2) only exports "Total number of inodes on disk" and
-> > "number of free inodes on disk" values for fs. df substracts one from another one
-> > to get "number of inodes in use".
-> So, you report "oids_in_use + 100M" as total and "100M" as free inodes 
-> on disk. Voila!
+On Sun, Sep 07, 2003 at 11:50:09AM +0200, Daniel Blueman wrote:
 
-Yes, we thought about that too. Need to be careful to not overflow "long int".
-And idea of filesystem with variable amount of inodes over time sounds confusing to me, too.
+> Let me know if any more info would help on this!
+> EIP is at end_page_writeback+0x6a/0x82
+>  [<c01df812>] reiserfs_write_full_page+0xe1/0x314
+>  [<c0196b8e>] mpage_writepages+0x3de/0x538
+>  [<c01dfa5b>] reiserfs_writepage+0x0/0x39
+>  [<c0147501>] do_writepages+0x37/0x39
 
-> We're using a Unix operating system which has a bunch of standard 
-> interfaces. The fun about using those is that lots of stuff "just works"
-> even if it wasn't designed to do exactly what you are doing right
-> now. So even if "df" wasn't designed to work on NFS, it still works.
-
-Yes. There is a special value of zero, that says "this field have absolutely
-no sence for this filesystem". Which is sort of our case.
-
-> But now we're going to get a new "df" which grabs the sysfs info and
-> uses that. But it won't work on reiserfs5, as the interface changes
-> again. 
-
-Well, if current interface does not allow to see all the stuff you want to,
-time to change (introduce new one) interface, anyway.
+This patch should help.
 
 Bye,
     Oleg
+
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
++++ b/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
+@@ -2048,8 +2048,8 @@
+         last_offset = inode->i_size & (PAGE_CACHE_SIZE - 1) ;
+ 	/* no file contents in this page */
+ 	if (page->index >= end_index + 1 || !last_offset) {
+-	    error = 0 ;
+-	    goto done ;
++    	    unlock_page(page);
++	    return 0;
+ 	}
+ 	kaddr = kmap_atomic(page, KM_USER0);
+ 	memset(kaddr + last_offset, 0, PAGE_CACHE_SIZE-last_offset) ;

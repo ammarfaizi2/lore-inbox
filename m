@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264082AbRFETPz>; Tue, 5 Jun 2001 15:15:55 -0400
+	id <S263170AbRFETRz>; Tue, 5 Jun 2001 15:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264085AbRFETPq>; Tue, 5 Jun 2001 15:15:46 -0400
-Received: from [24.219.123.215] ([24.219.123.215]:35846 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S264082AbRFETP3>; Tue, 5 Jun 2001 15:15:29 -0400
-Date: Tue, 5 Jun 2001 12:15:21 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: "Todd M. Roy" <troy@holstein.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: patch for ide.2.4.5-ac8
-In-Reply-To: <200106051908.f55J8bS32044@pcx4168.holstein.com>
-Message-ID: <Pine.LNX.4.10.10106051214510.21236-100000@master.linux-ide.org>
+	id <S263172AbRFETRp>; Tue, 5 Jun 2001 15:17:45 -0400
+Received: from web13704.mail.yahoo.com ([216.136.175.137]:42511 "HELO
+	web13704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263170AbRFETRg>; Tue, 5 Jun 2001 15:17:36 -0400
+Message-ID: <20010605191735.28928.qmail@web13704.mail.yahoo.com>
+Date: Tue, 5 Jun 2001 12:17:35 -0700 (PDT)
+From: jalaja devi <jala_74@yahoo.com>
+Subject: smp errors in 2.4!!
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2AB@orsmsx31.jf.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I encounter this compilation error:
+/usr/x.c:2112: struct has no member named
+"event_Rsmp_7b16c344"
 
-Thanks Todd,
+The structure has that field and I don't have the
+conflicting structure name anywhere in my code and in
+the system files too. 
 
-Everyone knows that I was not an english major ;-)
+The makefile uses sed and *.d files.
 
-Cheers,
+Could anyone help me out as how to fix this.
 
-On Tue, 5 Jun 2001, Todd M. Roy wrote:
+Thanks
+Jalaja
 
-> Andre,
->   Minor typo fix:
-> --- ide-dma.c.~1~	Tue Jun  5 14:39:06 2001
-> +++ ide-dma.c	Tue Jun  5 15:04:54 2001
-> @@ -708,15 +708,15 @@
->  	if ((!dma_base) && (!second_chance)) {
->  		unsigned long set_bmiba = 0;
->  		second_chance++;
-> -		switch(dev->vender) {
-> -			PCI_VENDOR_ID_AL:
-> -				set_bmiba = DEFAULT_BMALIBA; break;
-> -			PCI_VENDOR_ID_VIA:
-> -				set_bmiba = DEFAULT_BMCRBA; break;
-> -			PCI_VENDOR_ID_INTEL:
-> -				set_bmiba = DEFAULT_BMIBA; break;
-> -			default:
-> -				return dma_base;
-> +		switch (dev->vendor) {
-> +		         case PCI_VENDOR_ID_AL:
-> +				        set_bmiba = DEFAULT_BMALIBA; break;
-> +		         case PCI_VENDOR_ID_VIA:
-> +		                set_bmiba = DEFAULT_BMCRBA; break;
-> +		         case PCI_VENDOR_ID_INTEL:
-> +		                set_bmiba = DEFAULT_BMIBA; break;
-> +		         default:
-> +		                return dma_base;
->  		}
->  		pci_write_config_dword(dev, 0x20, set_bmiba|1);
->  		goto second_chance_to_dma;
-> 
-> Cheers,
->   Todd
-> **********************************************************************
-> This footnote confirms that this email message has been swept by 
-> MIMEsweeper for the presence of computer viruses.
-> **********************************************************************
-> 
 
-Andre Hedrick
-ASL Kernel Development
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRAaR6b>; Wed, 31 Jan 2001 12:58:31 -0500
+	id <S129811AbRAaSCl>; Wed, 31 Jan 2001 13:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129990AbRAaR6V>; Wed, 31 Jan 2001 12:58:21 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11785 "EHLO
+	id <S129990AbRAaSCb>; Wed, 31 Jan 2001 13:02:31 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14089 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129811AbRAaR6E>; Wed, 31 Jan 2001 12:58:04 -0500
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Wed, 31 Jan 2001 17:57:43 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        acme@conectiva.com.br (Arnaldo Carvalho de Melo),
+	id <S129811AbRAaSCV>; Wed, 31 Jan 2001 13:02:21 -0500
+Subject: Re: ECN: Clearing the air (fwd)
+To: greg@linuxpower.cx (Gregory Maxwell)
+Date: Wed, 31 Jan 2001 18:02:17 +0000 (GMT)
+Cc: jas88@cam.ac.uk (James Sutherland), hadi@cyberus.ca (jamal),
         linux-kernel@vger.kernel.org
-In-Reply-To: <3A7459AA.84CDCF7B@colorfullife.com> from "Manfred Spraul" at Jan 28, 2001 06:40:58 PM
+In-Reply-To: <20010128144204.B13195@xi.linuxpower.cx> from "Gregory Maxwell" at Jan 28, 2001 02:42:04 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14O1Vp-0002mv-00@the-village.bc.nu>
+Message-Id: <E14O1aF-0002nY-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And one more point for the Janitor's list:
-> Get rid of superflous irqsave()/irqrestore()'s - in 90% of the cases
-> either spin_lock_irq() or spin_lock() is sufficient. That's both faster
-> and better readable.
+> No. ECN is essential to the continued stability of the Internet. Without
+> probabilistic queuing (i.e. RED) and ECN the Internet will continue to have
+> retransmit synchronization and once congested stay congested until people get
+> frustrated and give it up for a little bit.
 
-Expect me to drop any submissions that do this. I'd rather take the two
-clock hit in most cases because the effect of spin_lock_irq() being used
-and people then changing which functions call each other and producing 
-impossible to debug irq mishandling cases is unacceptable.
-
-The original Linux network code did this with sti() not save/restore flags.
-I've been there before, I am not going to allow a rerun of that disaster for
-a few cycles
-
+Arguably so. In theory a vindictive probabilistic queueing is sufficient
+(do RED but then drop -every- frame from the same route as the packet chosen
+ from the queue)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbTJRRwj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 13:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTJRRwi
+	id S261749AbTJRRoo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 13:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTJRRoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 13:52:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62080 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261755AbTJRRwh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 13:52:37 -0400
-Date: Sat, 18 Oct 2003 18:52:36 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Walt H <waltabbyh@comcast.net>
-Cc: arekm@pld-linux.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: initrd and 2.6.0-test8
-Message-ID: <20031018175236.GA7665@parcelfarce.linux.theplanet.co.uk>
-References: <3F916A0C.10800@comcast.net>
+	Sat, 18 Oct 2003 13:44:44 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44790 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261749AbTJRRom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 13:44:42 -0400
+Date: Sat, 18 Oct 2003 19:44:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+Message-ID: <20031018174434.GJ12423@fs.tum.de>
+References: <20031015225055.GS17986@fs.tum.de> <20031015161251.7de440ab.akpm@osdl.org> <20031015232440.GU17986@fs.tum.de> <20031015165205.0cc40606.akpm@osdl.org> <20031018102127.GE12423@fs.tum.de> <649730000.1066491920@[10.10.2.4]> <20031018102402.3576af6c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F916A0C.10800@comcast.net>
+In-Reply-To: <20031018102402.3576af6c.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 18, 2003 at 09:27:56AM -0700, Walt H wrote:
+On Sat, Oct 18, 2003 at 10:24:02AM -0700, Andrew Morton wrote:
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> >
+> > Please don't - I benchmarked it a while ago, and it's definitely slower.
 > 
-> > Hi,
-> > 
-> > Seems that something changed between test7 and test8 regarding initrd or romfs 
-> > support. I'm using highly modularized 2.6.0 kernel which has all filesystems 
-> > beside romfs compiled as modules (romfs is compiled inside of kernel).
-> > 
-> > Modules for my rootfs are loaded from initrd (which is image with romfs as 
-> > filesystem) but starting from test8 kernel is not able to mount initrd 
-> > filesystem - stops with typical message about not being able to mount rootfs.
-> > 
-> > cset test7 from 20031012_0407 is known to be ok so something was changed later
-> 
-> 
-> I noticed this happened in 2.6.0-test6-mm4. Backing out this patch fixes
-> it in the short-term.
+> Alan said he generally found -Os to be faster...
 
-Even better would be to report the bug ;-/
+Not exactly:
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/1513.html
 
-I can't reproduce it here.  2.6.0-test8 vanilla, so far (last 15 minutes)
-tried with
-	* compressed initrd image
-	* plain ext2
-and I'll try romfs as soon as I hunt down mkfs for that animal.  All
-appears to be working...
+cu
+Adrian
 
-What did it say before the "typical message"?  Specifically, were there
-any lines starting with RAMDISK:?
+-- 
 
-.config would be also useful.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

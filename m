@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUEOUX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUEOUlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264727AbUEOUX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 16:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbUEOUX7
+	id S264731AbUEOUlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 16:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUEOUlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 16:23:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40138 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264727AbUEOUX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 16:23:56 -0400
-Date: Sat, 15 May 2004 22:23:47 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, tomita@users.sourceforge.jp,
-       a13a@users.sourceforge.jp
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove dead PC9800 IDE support
-Message-ID: <20040515202347.GA22742@fs.tum.de>
-References: <200405040135.14688.bzolnier@elka.pw.edu.pl> <20040503163220.437c2921.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503163220.437c2921.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sat, 15 May 2004 16:41:08 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:45739 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264731AbUEOUlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 16:41:05 -0400
+Message-ID: <40A68056.6090606@BitWagon.com>
+Date: Sat, 15 May 2004 13:40:54 -0700
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
+References: <200405151442.i4FEgkjY001401@harpo.it.uu.se> <20040515191643.GA5748@colin2.muc.de>
+In-Reply-To: <20040515191643.GA5748@colin2.muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 04:32:20PM -0700, Randy.Dunlap wrote:
-> On Tue, 4 May 2004 01:35:14 +0200 Bartlomiej Zolnierkiewicz wrote:
+>>>+	if( perfctr_cstatus_has_tsc(cstatus) )
+>>>+		rdtscl(ctrs->tsc);
+>>>+	nrctrs = perfctr_cstatus_nractrs(cstatus);
+>>>+	for(i = 0; i < nrctrs; ++i) {
+>>>+		unsigned int pmc = state->pmc[i].map;
+>>>+		rdpmc_low(pmc, ctrs->pmc[i]);
+>>>+	}
+>>>
+>>>K8 has speculative rdtsc. Most likely you want a sync_core() somewhere
+>>>in there.
+>>
+>>What's the cost for sync_core()? The counts don't have to be
+>>perfect.
 > 
-> | 
-> | It was added in 2.5.66 but PC9800 subarch is still non-buildable.
-> | Also this is one big hack and only half-merged.
-> | 
 > 
-> It's fairly simple to make it buildable, but it's still a hack
-> that no one seems to want to support, so I agree, kill it.
-> 
-> Can we kill the rest of it too?
+> It's a CPUID to force a pipeline flush. Let's say 20-30 cycles.
 
-What's the opinion of the PC-9800 people regarding this issue?
-
-Is there any work done now or in the near future on the PC-9800 port?
-
-> ~Randy
-
-cu
-Adrian
+I want the kernel to avoid every delay that can be avoided.  Do not force
+a pipeline flush for speculative rdtsc.  Besides those 20-30 cycles
+there is register eviction for %eax, %ecx, %edx and save+restore for %ebx
+(CPUID scribbles on 4 registers), plus possible branch misprediction if control
+is not fall-through sequential.  Also, that kernel code probably is already
+several dozen cycles after the most recent user-mode instruction
+(the only thing that the user can control), so waiting for quiescent
+pipeline is just the kernel lollygagging on itself.  Get to work!
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+John Reiser, jreiser@BitWagon.com
 

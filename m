@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131429AbRAaPHC>; Wed, 31 Jan 2001 10:07:02 -0500
+	id <S129664AbRAaPXc>; Wed, 31 Jan 2001 10:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131377AbRAaPGw>; Wed, 31 Jan 2001 10:06:52 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:29971 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S131429AbRAaPGg>; Wed, 31 Jan 2001 10:06:36 -0500
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: Version 2.4.1 cannot be built.
-In-Reply-To: <Pine.LNX.3.95.1010131095535.13772A-100000@chaos.analogic.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 31 Jan 2001 10:06:31 -0500
-In-Reply-To: "Richard B. Johnson"'s message of "Wed, 31 Jan 2001 09:58:31 -0500 (EST)"
-Message-ID: <m38znrlq14.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S129921AbRAaPXM>; Wed, 31 Jan 2001 10:23:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65031 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129655AbRAaPXC>; Wed, 31 Jan 2001 10:23:02 -0500
+Subject: Re: CPU error codes
+To: jas88@cam.ac.uk (James Sutherland)
+Date: Wed, 31 Jan 2001 15:23:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jsimmons@suse.com (James Simmons),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.SOL.4.21.0101250913590.15936-100000@orange.csi.cam.ac.uk> from "James Sutherland" at Jan 25, 2001 09:14:22 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Nz6N-0002Vj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
-
-> On Wed, 31 Jan 2001, Sean Hunter wrote:
+> > In the intel databook. Generally an MCE indicates hardware/power/cooling
+> > issues
 > 
-> Okay! I'm answering the guy who gave me the kindest response.
-> The rest of you guys can just hold your belly.
-> 
-> Right. I'm getting blind. Been typing the same error
-> every time I tried the site.
+> Doesn't an MCE also cover some hardware memory problems - parity/ECC
+> issues etc?
 
-As one of the guys who just flamed you, I'll admit to having spent at
-least 15 minutes scratching my head over this very problem (at a
-different site, that *didn't* have an automatically displayed README
-that explained the potential problem in very clear terms).
-
-This one will never bite you again, unless you have a very bad
-memory.  ;)
-
--Doug
+Parity/ECC on main memory is reported by the chipset and needs seperate
+drivers or apps to handle this
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSEAPGz>; Wed, 1 May 2002 11:06:55 -0400
+	id <S313084AbSEAPK4>; Wed, 1 May 2002 11:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313084AbSEAPGy>; Wed, 1 May 2002 11:06:54 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11436 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313070AbSEAPGx>; Wed, 1 May 2002 11:06:53 -0400
-Message-ID: <3CD0047B.4060605@us.ibm.com>
-Date: Wed, 01 May 2002 08:06:35 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
+	id <S313115AbSEAPKz>; Wed, 1 May 2002 11:10:55 -0400
+Received: from lightning.nolink.net ([195.139.204.148]:25865 "HELO
+	lightning.nolink.net") by vger.kernel.org with SMTP
+	id <S313084AbSEAPKz>; Wed, 1 May 2002 11:10:55 -0400
+Date: Wed, 1 May 2002 17:10:53 +0200 (CEST)
+From: Marius Flage <marius@flage.nu>
+X-X-Sender: marius@lightning.nolink.net
+To: linux-kernel@vger.kernel.org
+Subject: aiee, killing interrupt handler
+Message-ID: <Pine.BSF.4.43.0205011654380.49671-100000@lightning.nolink.net>
 MIME-Version: 1.0
-To: Guillaume Boissiere <boissiere@attbi.com>
-CC: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: [STATUS 2.5]  May 1, 2002 (BKL status)
-In-Reply-To: <3CCFBB21.9046.7889B0D2@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Boissiere wrote:
-> There has also been a lot of work done by various people to 
-> remove the BKL from many places, which leads to my question:
-> does anyone has a URL with a list of all the places where the
-> BKL should eventually be removed and who's working on it?
-> 
-> It seems like it would be most useful if someone was willing
-> to maintain something like this, but it might be a lot of 
-> work - I don't know how long the list would be...
+Hi there
 
-I may not be the leading BKL expert, but I play one on TV :)
+I've been getting this error when I try installing Slackware8.0.
 
-Perhaps one of the kernel-janitor people would like to assist me with 
-this (cc'ing that list).  I'd be willing to keep a web page to list all 
-current BKL uses and keep track of them as they are removed/added 
-Perhaps a set of web pages which resemble the directory structure of the 
-kernel tree would be helpful??
+I'm using the bare.i-bootdisk and the color.gz-rootdisk
 
-Here's a good question for kernel-janitor, and anyone else who's 
-interested, what format describing BKL use would most encourage you to 
-go and remove it?  We already have Rick Lindsley's Global spinlock list: 
-  http://prdownloads.sourceforge.net/lse/locking_doc-2.4.16 .  The BKL 
-use in there is somewhat dated, but might be a good start.
+code: 89 37 83 c7 04 89 d0 25 ff ff 00 00 89 07 83 c7 04 01 d6 29
+aiee, killing interrupt handler
+kernel panic: attempted to kill the idle task!
+in swapper task - not syncing
 
-I have some awk scripts that I use on each new kernel release to check 
-for new and removed uses of the BKL.  I can adapt these to start 
-checking new BK changesets for BKL changes.
+This is an AT&T Globalyst 730, class 3358:
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Dual Intel Pentium 133MHz (HC only uses one CPU)
+AUGUSTA Motherboard with VLSI 590 Chip Set
+256KB, PB-SRAM L2 Cache
+24MB RAM
+Integrated S3 Vision968, 4MB VRAM, True Color (32-bit), 1024 by 768,
+100Hz Refresh Frequency
+Integrated 16 bit stereo (Ensoniq Sound Scape 688)
+Integrated AMD PCSCSI Fast SCSI-2 controller
+
+I've tried disabling SCSI, COM and LPT in bios, but it still won't work.
+Can you please help me out here?
+
+This very same computer has been running RH6.2 for a period of time, so it
+should be enough to run Linux.
+
+Marius
 

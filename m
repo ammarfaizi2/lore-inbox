@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318154AbSHDL2A>; Sun, 4 Aug 2002 07:28:00 -0400
+	id <S318156AbSHDLaj>; Sun, 4 Aug 2002 07:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318155AbSHDL2A>; Sun, 4 Aug 2002 07:28:00 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:38660 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S318154AbSHDL17>; Sun, 4 Aug 2002 07:27:59 -0400
-Message-ID: <3D4D1070.1020802@namesys.com>
-Date: Sun, 04 Aug 2002 15:30:56 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Gruenbacher <agruen@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Caches that shrink automatically
-References: <200208041308.51638.agruen@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318158AbSHDLaj>; Sun, 4 Aug 2002 07:30:39 -0400
+Received: from pD9E43AA4.dip.t-dialin.net ([217.228.58.164]:37321 "EHLO
+	linux-buechse.de") by vger.kernel.org with ESMTP id <S318156AbSHDLai>;
+	Sun, 4 Aug 2002 07:30:38 -0400
+Date: Sun, 4 Aug 2002 13:33:50 +0200
+From: "Juergen E. Fischer" <fischer@linux-buechse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Problem with AHA152X driver in 2.4.19
+Message-ID: <20020804113350.GA11061@linux-buechse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <p6r65yrlvt1.fsf@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p6r65yrlvt1.fsf@free.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do you ensure that caches have their (internal) aging hands pushed 
-at a speed that is proportional to their memory usage, or is your design 
-susceptible to all the usual complaints the unified memory manager crowd 
-has about separate caches?
+Hi Marc,
 
-Hans
+On Sat, Aug 03, 2002 at 19:02:50 +0200, Marc Lefranc wrote:
+> I just built 2.4.19 and checked that the problem that had been
+> introduced in the aha152x driver between 2.4.19-pre8 and pre10 (bad
+> initialization due to lost interrupt) had been corrected. However, I
+> have experienced another problem related to blocking factor.
 
-Andreas Gruenbacher wrote:
+I posted another patch a while ago. Obviously it didn't make it into
+2.4.19.  So this is the same thing against 2.4.19.
 
->Hello,
->
->Currently there is no way for modules to define dynamically sized caches that 
->shrink upon memory pressure. We need this for implementing Extended Attribute 
->caches on ext2, ext3, and ReiserFS. Other caches could also make use of the 
->same mechanism (e.g., nfsd's permission cache, dcache, icache, dqache).
->
->I propose this patch, which adds the register_cache() and unregister_cache() 
->functions. They allow to register a callback which is invoked on memory 
->pressure. This callback shall then try to free some memory; the parameters 
->and semantics are similar to the other shrink functions in mm/vmscan.c.
->
->
->Regards,
->Andreas.
->
->------------------------------------------------------------------
-> Andreas Gruenbacher                                SuSE Linux AG
-> mailto:agruen@suse.de                     Deutschherrnstr. 15-19
-> http://www.suse.de/                   D-90429 Nuernberg, Germany
->
->
->  
->
+It fixes your problem and another one related to longtaking tape
+operations.
 
 
--- 
-Hans
+Juergen
 
 
-
+--- orig/linux/drivers/scsi/aha152x.c	2002-08-04 13:26:14.000000000 +0200
++++ linux-2.4/drivers/scsi/aha152x.c	2002-07-19 00:10:35.000000000 +0200
+@@ -602,7 +602,11 @@
+ #define SCDONE(SCpnt)		SCDATA(SCpnt)->done
+ #define SCSEM(SCpnt)		SCDATA(SCpnt)->sem
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
++#define SG_ADDRESS(buffer)	((buffer)->address)
++#else
+ #define SG_ADDRESS(buffer)	((char *) (page_address((buffer)->page)+(buffer)->offset))
++#endif
+ 
+ /* state handling */
+ static void seldi_run(struct Scsi_Host *shpnt);
+@@ -2657,7 +2661,7 @@
+ 		 * STCNT to trigger ENSWRAP interrupt, instead of
+ 		 * polling for DFIFOFULL
+ 		 */
+-		the_time=jiffies + 10*HZ;
++		the_time=jiffies + 100*HZ;
+ 		while(TESTLO(DMASTAT, DFIFOFULL|INTSTAT) && time_before(jiffies,the_time))
+ 			barrier();
+ 
+@@ -2670,7 +2674,7 @@
+ 		if(TESTHI(DMASTAT, DFIFOFULL)) {
+ 			fifodata = 128;
+ 		} else {
+-			the_time=jiffies + 10*HZ;
++			the_time=jiffies + 100*HZ;
+ 			while(TESTLO(SSTAT2, SEMPTY) && time_before(jiffies,the_time))
+ 				barrier();
+ 
+@@ -2826,7 +2830,7 @@
+ 			CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length;
+ 		}
+ 
+-		the_time=jiffies + 10*HZ;
++		the_time=jiffies + 100*HZ;
+ 		while(TESTLO(DMASTAT, DFIFOEMP|INTSTAT) && time_before(jiffies,the_time))
+ 			barrier();
+ 

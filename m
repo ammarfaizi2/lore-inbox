@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319451AbSIGHrJ>; Sat, 7 Sep 2002 03:47:09 -0400
+	id <S319448AbSIGHyq>; Sat, 7 Sep 2002 03:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319454AbSIGHrJ>; Sat, 7 Sep 2002 03:47:09 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13065
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319453AbSIGHrI>; Sat, 7 Sep 2002 03:47:08 -0400
-Date: Sat, 7 Sep 2002 00:50:33 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: jbradford@dial.pipex.com
-cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-Subject: Re: ide drive dying?
-In-Reply-To: <200209070743.g877h0Ro000803@darkstar.example.net>
-Message-ID: <Pine.LNX.4.10.10209070048200.11256-100000@master.linux-ide.org>
+	id <S319453AbSIGHyp>; Sat, 7 Sep 2002 03:54:45 -0400
+Received: from dsl-213-023-021-052.arcor-ip.net ([213.23.21.52]:52662 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319448AbSIGHyp>;
+	Sat, 7 Sep 2002 03:54:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, Chuck Lever <cel@citi.umich.edu>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Sat, 7 Sep 2002 10:01:27 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209051023490.5579-100000@dexter.citi.umich.edu> <3D77A22A.DC3F4D1@zip.com.au>
+In-Reply-To: <3D77A22A.DC3F4D1@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17naX2-0006O0-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 05 September 2002 20:27, Andrew Morton wrote:
+> But be aware that invalidate_inode_pages has always been best-effort.
+> If someone is reading, or writing one of those pages then it
+> certainly will not be removed.  If you need assurances that the
+> pagecache has been taken down then we'll need something stronger
+> in there.
 
-Technically it is, I am working to transfer the copyright/license to LAD.
-Then I can update it and transform it to the preferred kernel API that is
-not enabled by default.  I expect it will require an sub-set of the
-taskfile_ioctl calls to restrict various IO calls.
+But what is stopping us now from removing a page from the page cache
+even while IO is in progress?  (Practical issue: the page lock, but
+that's a self-fullfilling prophesy.)
 
-Cheers,
-
-On Sat, 7 Sep 2002 jbradford@dial.pipex.com wrote:
-
-> > Next dig out smartsuite from http://www.linux-ide.org/smart.html
-> 
-> I thought that smartsuite was now unmaintained, and posted a comment to that effect earlier in this thread - sorry for the mis-information.
-> 
-> John.
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+-- 
+Daniel

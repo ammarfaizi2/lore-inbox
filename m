@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVCKT7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVCKUBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVCKT7i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVCKT5Y
+	id S261696AbVCKUBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVCKUAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:57:24 -0500
-Received: from poros.telenet-ops.be ([195.130.132.44]:62888 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261500AbVCKTse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 14:48:34 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Average power consumption in S3?
-Date: Fri, 11 Mar 2005 20:49:16 +0100
-User-Agent: KMail/1.7.2
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Moritz Muehlenhoff <jmm@inutil.org>
-References: <20050309142612.GA6049@informatik.uni-bremen.de> <E1D92Mk-0006HD-00@chiark.greenend.org.uk>
-In-Reply-To: <E1D92Mk-0006HD-00@chiark.greenend.org.uk>
+	Fri, 11 Mar 2005 15:00:15 -0500
+Received: from mail1.azairenet.com ([66.92.223.4]:45062 "EHLO
+	dsl092-223-002.sfo1.dsl.speakeasy.net") by vger.kernel.org with ESMTP
+	id S261380AbVCKT60 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 14:58:26 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503112049.16782.lkml@kcore.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: fsck error on flashcard with ext2 filesystem
+Date: Fri, 11 Mar 2005 11:58:25 -0800
+Message-ID: <C8E1D942CB394746BE5CFEB7D97610E741EA6F@bart.corp.azairenet.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: fsck error on flashcard with ext2 filesystem
+Thread-Index: AcUmR7dtqFBmbvQ3T/y3lI36fFwm6wAK+Wbw
+From: "Santosh Gupta" <Santosh.Gupta@AzaireNet.com>
+To: "Jan Kara" <jack@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 March 2005 15:40, Matthew Garrett wrote:
-> Moritz Muehlenhoff <jmm@inutil.org> wrote:
-> > I'm using an IBM Thinkpad X31. With stock 2.6.11 and the additional
-> > radeontool to power-off the backlight in suspend, S3 works very well
-> > and reliable. During S3 I've measured a power consumption of 1400
-> > to 1500 mWh (using 512 megabytes of RAM). Is there still room for
-> > optimization? What's the typical amount of energy required for suspend-
-> > to-ram? From friends using iBooks with MacOS X I've heard that they
-> > left the notebook in suspend when leaving for a week and could still
-> > use it after return.
->
-> Radeons don't actually power down in D3 unless some registers are set,
-> and even then the kernel doesn't currently have any code that would put
-> the Radeon in D3. If you're willing to test something, could you try the
-> code at
->
-> http://www.srcf.ucam.org/~mjg59/radeon/
->
-> and do
->
-> radeontool power off
->
-> immediately before putting the machine into suspend? Make sure that you
-> do this from something other than X.
+Thanks Jan,
+	Although "sync" doesnt seem to make any difference to fsck output, 
+"blockdev --flushbufs" fixes the issue. 
 
-Small question, can this tool do what the boot-radeon tool can? That way I can 
-scrap another one in my suspend-to-ram tricks ;p
+Still wondering why the flushing of buffer behavior is different on a 
+system with normal harddisk (Redhat 7.2 with 2.4.26 kernel ) as compared
+ to a system with flashcard (CoreLinux with 2.4.26 kernel) although the 
+system parameters/daemons are the same. I dont have to do sync or 
+blockdev --flushbufs on standard system. Any ideas?
 
-Jan
+I was using fsck with "-n" option which doesnt executes the command, just
+shows what would be done. I thought it would be harmless.
+Thanks again.
+
+Regards,
+santosh
+
+-----Original Message-----
+From: Jan Kara [mailto:jack@suse.cz]
+Sent: Friday, March 11, 2005 6:37 AM
+To: Santosh Gupta
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fsck error on flashcard with ext2 filesystem
+
+
+  Hello,
+
+  just a reminder for the next time - please keep the lines length under 80
+characters.
+
+> Detailed Description
+> -----------------------------
+> I am using Core Linux system on flashcard. Its another minimal linux
+> distribution. Root filesystem is cramfs and a rw partition on flash is
+> ext2. The system is always shutdown properly and initial fsck upon
+> bootup shows no error. But if I delete a file on flash card and run
+> fsck, it gives error in fsck. On umount and mounting again (or
+> reboot), fsck shows no problem. Issuing "sync" command doesnt make any
+> difference.
+> Why is the disk not getting updated with filesystem metadata even
+> after I wait for so long?
+  Hmm, it may be a cache aliasing issue (anyway doing fsck on a mounted
+filesystem is asking for a trouble and basically nobody promisses any
+result). But you may try doing something like:
+  sync; blockdev --flushbufs
+
+before a fsck.
+
+								Honza
 
 -- 
-  I tripped over a hole that was sticking up out of the ground.
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

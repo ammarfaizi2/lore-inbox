@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262532AbTCMSsc>; Thu, 13 Mar 2003 13:48:32 -0500
+	id <S262521AbTCMSqk>; Thu, 13 Mar 2003 13:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262533AbTCMSsc>; Thu, 13 Mar 2003 13:48:32 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:4245 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S262532AbTCMSsb>; Thu, 13 Mar 2003 13:48:31 -0500
-Message-ID: <3E70D4F0.6060608@bogonomicon.net>
-Date: Thu, 13 Mar 2003 12:58:56 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	id <S262523AbTCMSqk>; Thu, 13 Mar 2003 13:46:40 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:37028 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262521AbTCMSqj>;
+	Thu, 13 Mar 2003 13:46:39 -0500
+Date: Thu, 13 Mar 2003 21:56:28 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
        deanna_bonds@adaptec.com
-Subject: Re: dpt_i2o.c memleak/incorrectness
-References: <20030313182819.GA2213@linuxhacker.ru> <1047584663.25948.75.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: dpt_i2o.c fix for possibly memory corruption on reset timeout
+Message-ID: <20030313185628.GA2485@linuxhacker.ru>
+References: <20030313182819.GA2213@linuxhacker.ru> <1047584663.25948.75.camel@irongate.swansea.linux.org.uk> <20030313184107.GA2334@linuxhacker.ru> <20030313105125.1548d67c.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030313105125.1548d67c.rddunlap@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>   There is something strange going on in drivers/scsi/dpt_i2o.c in both
->>   2.4 and 2.5. adpt_i2o_reset_hba() function allocates 4 bytes 
->>   for "status" stuff, then tries to reset controller, then 
->>   if timeout on first reset stage is reached, frees "status" and returns,
->>   otherwise it proceeds to monitor "status" (which is modified by hardware
->>   now, btw), and if timeout is reached, just exits.
-> 
-> Correctly - I2O does the same thing in this case. Its just better to
-> throw a few bytes away than risk corruption
+Hello!
 
-Better document it in the comments or it will get "corrected" by some 
-mem leak detector.  If possible try to use a static for the pointer to 
-the status block, but that may not work.  Re-enterant code and multi CPU 
-situations likely won't allow for that.  Also it might not be worth the 
-effort to properly determin if it is safe to use only one location.
+On Thu, Mar 13, 2003 at 10:51:25AM -0800, Randy.Dunlap wrote:
+> | Ok, so please consider applying this patch instead (appies to both
+> | 2.4 and 2.5)
 
-- Bryan
+Ok, here's the one with spelling fix from Randy ;)
 
+Bye,
+    Oleg
+
+===== drivers/scsi/dpt_i2o.c 1.9 vs edited =====
+--- 1.9/drivers/scsi/dpt_i2o.c	Wed Jan  8 18:26:13 2003
++++ edited/drivers/scsi/dpt_i2o.c	Thu Mar 13 21:55:08 2003
+@@ -1318,7 +1318,9 @@
+ 	while(*status == 0){
+ 		if(time_after(jiffies,timeout)){
+ 			printk(KERN_WARNING"%s: IOP Reset Timeout\n",pHba->name);
+-			kfree(status);
++			/* We lose 4 bytes of "status" here, but we cannot
++			   free these because controller may awake and corrupt
++			   those bytes at any time */
+ 			return -ETIMEDOUT;
+ 		}
+ 		rmb();
+@@ -1336,6 +1338,9 @@
+ 			}
+ 			if(time_after(jiffies,timeout)){
+ 				printk(KERN_ERR "%s:Timeout waiting for IOP Reset.\n",pHba->name);
++			/* We lose 4 bytes of "status" here, but we cannot
++			   free these because controller may awake and corrupt
++			   those bytes at any time */
+ 				return -ETIMEDOUT;
+ 			}
+ 		} while (m == EMPTY_QUEUE);

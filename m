@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313975AbSDKDwm>; Wed, 10 Apr 2002 23:52:42 -0400
+	id <S313976AbSDKDxf>; Wed, 10 Apr 2002 23:53:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313976AbSDKDwl>; Wed, 10 Apr 2002 23:52:41 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:23054 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S313975AbSDKDwk>;
-	Wed, 10 Apr 2002 23:52:40 -0400
-Date: Wed, 10 Apr 2002 20:52:37 -0700 (PDT)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
-To: Andrew Morton <akpm@zip.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch-2.5.8-pre] swapinfo accounting
-In-Reply-To: <3CB4DD71.DED82F57@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0204102046140.12442-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313977AbSDKDxe>; Wed, 10 Apr 2002 23:53:34 -0400
+Received: from zero.tech9.net ([209.61.188.187]:56837 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313976AbSDKDxd>;
+	Wed, 10 Apr 2002 23:53:33 -0400
+Subject: Re: [PATCH] 2.4: reserve syscalls from 2.5
+From: Robert Love <rml@tech9.net>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1018471223.6524.83.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 10 Apr 2002 23:53:38 -0400
+Message-Id: <1018497219.6524.155.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002, Andrew Morton wrote:
+On Wed, 2002-04-10 at 16:40, Robert Love wrote:
 
-| "Randy.Dunlap" wrote:
-| >
-| > It looks to me like mm/swapfile.c::si_swapinfo()
-| > shouldn't be adding nr_to_be_unused to total_swap_pages
-| > or nr_swap_pages for return in val->freeswap and
-| > val->totalswap.
-|
-| whee, an si_swapinfo() maintainer.
+> The following patch reserves syscall numbers 239 through 242 which are
+> the calls to date added to 2.5.  I just set them to sys_ni_syscall and
+> note which 2.5 function they correspond to.
 
-whoops.  I can't argue for its efficiency, can I?
+Ack, typo in the last patch ... resend, sorry.
 
-| Your function sucks :)  I'm spending 15 CPU-seconds
-| in there during a kernel build.  The problem appears
-| to be that a fix from 2.4 hasn't been propagated
-| forward.
+	Robert Love
 
-Bah!!  :(  Where is a version-forwarder for this stuff?  8;)
-and will it be dropped...
-
-Your latter 2 sentences aren't related -- right?
-On the 15 CPU-seconds in si_swapfile():  yes, I think
-there is room for some improvement there.
-
-| 2.4 has:
-|
-|                 if (swap_info[i].flags != SWP_USED)
-|
-| and 2.5 has:
-|
-|                 if (!(swap_info[i].flags & SWP_USED))
-|
-| and I think the 2.4 version will fix the accounting
-| problem you're seeing?
-
-OK, I'll try it Thurs.
-
-| (I haven't checked whather it's the _right_ fix, but
-| it looks like it'll make it go away?)
-
-We'll see about that.
-
-Thanks-
--- 
-~Randy
+diff -urN linux-2.4.19-pre6/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.4.19-pre6/arch/i386/kernel/entry.S	Fri Apr  5 14:53:39 2002
++++ linux/arch/i386/kernel/entry.S	Wed Apr 10 16:28:17 2002
+@@ -635,6 +635,10 @@
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lremovexattr */
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fremovexattr */
+  	.long SYMBOL_NAME(sys_tkill)
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sendfile64 */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_setaffinity */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_getaffinity */
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+diff -urN linux-2.4.19-pre6/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.4.19-pre6/include/asm-i386/unistd.h	Fri Apr  5 14:53:56 2002
++++ linux/include/asm-i386/unistd.h	Wed Apr 10 16:21:00 2002
+@@ -242,8 +242,11 @@
+ #define __NR_removexattr	235
+ #define __NR_lremovexattr	236
+ #define __NR_fremovexattr	237
+-
+ #define __NR_tkill		238
++#define __NR_sendfile64		239
++#define __NR_futex		240
++#define __NR_sched_setaffinity	241
++#define __NR_sched_getaffinity	242
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
 

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266520AbSLJCzI>; Mon, 9 Dec 2002 21:55:08 -0500
+	id <S266537AbSLJDHC>; Mon, 9 Dec 2002 22:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266527AbSLJCzI>; Mon, 9 Dec 2002 21:55:08 -0500
-Received: from rth.ninka.net ([216.101.162.244]:59368 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S266520AbSLJCzH>;
-	Mon, 9 Dec 2002 21:55:07 -0500
+	id <S266540AbSLJDHC>; Mon, 9 Dec 2002 22:07:02 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:55204 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266537AbSLJDHB> convert rfc822-to-8bit; Mon, 9 Dec 2002 22:07:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: "David S. Miller" <davem@redhat.com>
 Subject: Re: [PATCH 2.4] IP: disable ECN support by default - Config option
-From: "David S. Miller" <davem@redhat.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Date: Tue, 10 Dec 2002 04:14:26 +0100
+User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <200212100316.59910.m.c.p@wolk-project.de>
-References: <200212100316.59910.m.c.p@wolk-project.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Dec 2002 19:28:21 -0800
-Message-Id: <1039490901.18047.1.camel@rth.ninka.net>
-Mime-Version: 1.0
+References: <200212100316.59910.m.c.p@wolk-project.de> <1039490901.18047.1.camel@rth.ninka.net>
+In-Reply-To: <1039490901.18047.1.camel@rth.ninka.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212100413.45487.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 10 December 2002 04:28, David S. Miller wrote:
 
-CONFIG_INET_ECN does exactly what you want.
+Hi David,
 
-If you turn it on, ECN is on by default.
-If you turn it off, ECN is off by default.
+> CONFIG_INET_ECN does exactly what you want.
+>
+> If you turn it on, ECN is on by default.
+> If you turn it off, ECN is off by default.
 
-The ECN support itself, is always compiled into the
-kernel.  CONFIG_INET_ECN only determines the initial
-setting of the ecn sysctl.
+args, you are right. Sorry, my mistake! Maybe I need some sleep, looking twice 
+it is sooo obvious :)
 
-Your patch adds zero functionality and only serves to make
-the cofiguration more complicated.
-
+ciao, Marc

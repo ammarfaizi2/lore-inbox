@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUHPPI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267682AbUHPPMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUHPPI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267684AbUHPPI0
+	id S267682AbUHPPMu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUHPPMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:08:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42973 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267678AbUHPPH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:07:59 -0400
-Date: Mon, 16 Aug 2004 08:07:51 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-       zaitcev@redhat.com
-Subject: Re: [PATCH 2.4] blacklist a device in usb-storage
-Message-Id: <20040816080751.733c188d@lembas.zaitcev.lan>
-In-Reply-To: <412066BC.9040503@ttnet.net.tr>
-References: <mailman.1092508141.32379.linux-kernel2news@redhat.com>
-	<20040815235204.0e9ec874@lembas.zaitcev.lan>
-	<412066BC.9040503@ttnet.net.tr>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Aug 2004 11:12:50 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:48096 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267682AbUHPPIg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:08:36 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: header updates for IDE changes
+Date: Mon, 16 Aug 2004 17:08:04 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815145515.GA9993@devserv.devel.redhat.com>
+In-Reply-To: <20040815145515.GA9993@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408161708.04376.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 10:48:12 +0300
-"O.Sezer" <sezeroz@ttnet.net.tr> wrote:
 
-> > I do not understand what the objective might be. Just do not
-> > use that thing with Linux kernel 2.4. Why do you wish "to revent
-> > usb-storage from taking over this disk"?
+These changes belong to the patches making actual use of them...
 
-> As I said above, I cannot prevent accidentals (VID/PIDs aren't
-> printed on the disk, yo know...) And usb-storage must not deal
-> with disks that it cannot deal with:
-> 1. This particular disk can lead to panics as I said.
-> 2. If someone ever writes a driver specific to this device (I
->     know it's less than highly unlikely), than it would be also
->     useful in that case if the disk isn't tried to be owned by
->     usb-storage. That, I think applies as a general case, too.
+BTW What is the ordering in which your patches should be applied?
 
-The #2 only makes sense when such driver appears.
-
-As for #1, why don't you post the dmesg from your "panic".
-
--- Pete
+On Sunday 15 August 2004 16:55, Alan Cox wrote:
+> Add a "key" (generation) field to the ide taks object so that we can fix
+> the crash when you unload a pcmcia ide device (and later other pci hotplug
+> devices etc) while having a proc file accessed
+>
+> Add a remove function to be called on unload by later patches
+> Add a raw_taskfile function to allow drives to do command filters
+> Add configured bit so that we can differentiate currently ambigious
+> interface states when unloading.
+> Add a prototype for ide_diag_taskfile (for raw_taskfile users)
+> Add prototypes for the ide key functions (code changes in next patch)

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUE2Hrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUE2H42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUE2Hrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 03:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbUE2Hrm
+	id S263827AbUE2H42 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 03:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbUE2H42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 03:47:42 -0400
-Received: from mail.tpgi.com.au ([203.12.160.101]:7554 "EHLO mail5.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263818AbUE2Hrk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 03:47:40 -0400
-Message-ID: <40B83D05.1020701@linuxmail.org>
-Date: Sat, 29 May 2004 17:34:29 +1000
+	Sat, 29 May 2004 03:56:28 -0400
+Received: from mail.tpgi.com.au ([203.12.160.113]:20361 "EHLO
+	mail6.tpgi.com.au") by vger.kernel.org with ESMTP id S263827AbUE2H41
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 03:56:27 -0400
+Message-ID: <40B83F15.9070701@linuxmail.org>
+Date: Sat, 29 May 2004 17:43:17 +1000
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
 X-Accept-Language: en-us, en
@@ -18,7 +18,7 @@ MIME-Version: 1.0
 To: Pavel Machek <pavel@ucw.cz>
 CC: swsusp-devel@lists.sourceforge.net,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend2 problems on SMP machine, incorrect tainting
+Subject: Re: [Swsusp-devel] suspend2 problems on SMP machine, incorrect tainting
 References: <20040528103549.GA2789@elf.ucw.cz>
 In-Reply-To: <20040528103549.GA2789@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -27,32 +27,15 @@ X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi again.
 
-Pavel Machek wrote:
-> Hi!
-> 
-> I tried suspend2 2.0.0.81 on  Toshiba HT machine, and it did not
-> work :-(. First test was with "noapic nosmp", last messages are
+I should mention that the code is not perfectly stable at the moment. As soon as it is I'll get 
+stuck into last cleanups and then the merge. Crashes I'm seeing involve an oops shortly after 
+resuming, occuring in slab code. Obviously an inconsistency has somehow sneaked in. I'm away from 
+home for 8 days from Monday AM, so a fix won't be forthcoming this week. It shouldn't be far away 
+though.
 
-Hmm. I haven't tried it with noapic or nosmp options before. It ought to work; I'll see if I can 
-reproduce this issue.
-
-> Tainted: S is due to suspend2, right? It abuses flag that origally means
-> "invalid SMP configuration". You might want to fix that.
-
-Yes. I've been meaning to change that; must get around to it.
-
-> Tried without noapic nosmp... display got "interesting" at one point,
-
-Yes. The sequence of operations to force a redraw of the screen works okay under 2.4 but needs 
-looking at under 2.6.
-
-> but hey, it worked! I have "sleeping function called rom invalid
-> context at arch/i386/mm/highmem.c:5" called from kmap, copy_pageset1.
-
-Yes. It needs to be atomic (it's the atomic copy) and pages might well be HighMem so I guess the 
-answer is to suppress the message rather than changing something in suspend.
+Regards,
 
 Nigel
 -- 

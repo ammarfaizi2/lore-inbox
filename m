@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbTA1MH5>; Tue, 28 Jan 2003 07:07:57 -0500
+	id <S265197AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbTA1MH5>; Tue, 28 Jan 2003 07:07:57 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:15876 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265201AbTA1MH4>;
-	Tue, 28 Jan 2003 07:07:56 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301281217.h0SCHi43000316@darkstar.example.net>
+	id <S265201AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
+Received: from [195.72.113.150] ([195.72.113.150]:18185 "EHLO
+	schubert.rdns.com") by vger.kernel.org with ESMTP
+	id <S265197AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
+Date: Tue, 28 Jan 2003 12:15:52 +0000 (GMT)
+From: Robert Morris <rob@r-morris.co.uk>
+X-X-Sender: rob@schubert.rdns.com
+To: Wichert Akkerman <wichert@wiggy.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Bootscreen
-To: rob@r-morris.co.uk (Robert Morris)
-Date: Tue, 28 Jan 2003 12:17:44 +0000 (GMT)
-Cc: Raphael_Schmid@CUBUS.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301281149070.20509-100000@schubert.rdns.com> from "Robert Morris" at Jan 28, 2003 12:08:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <20030128114840.GV4868@wiggy.net>
+Message-ID: <Pine.LNX.4.44.0301281213120.20509-100000@schubert.rdns.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It's perfectly possible that somebody might want to make a television
-> > set top box out of a standard x86 motherboard and VGA card, and not
-> > have anything displayed until X starts, because the television would
-> > not accept the standard VGA scanrate, but X can easily re-program that
-> > to around 15 Khz.
-> 
-> OK, but in this case you would have problems with BIOS output etc.
+Hello there,
 
-Yeah, I was thinking along the lines of having a simple colour bar
-generator for when the VGA output wasn't in the valid frequency range,
-but your idea is better as long as the custom BIOS was easily
-do-able.
+> Kiosks and things like ATMs are another place where you do not want
+> a bootscreen. You do not want to possibly confuse customers with
+> stuff that they can't understand but show a nice friendly message saying
+> 'the system is currently unavailable'.
 
-> And I question the approach of automatically deciding to hide startup
-> output from the user, in any case. I can imagine a set-top box user on the
-> phone to the support department saying "it gets to the Starting - Please
-> Wait screen, then just hangs", which would then require an engineer visit,
-> as opposed to, for example, "it says Obtaining IP Address... then hangs"  
-> which would give the support techie the opportunity to tell the user to
-> check the ethernet cable is plugged in correctly, etc, before resorting to
-> sending out an engineer.
+I once saw an ATM with a Windows NT "blue screen" error message :-)
 
-I agree, but how many set top boxes are designed like that?  I would
-prefer verbose output, but it's generally hidden from end users :-(.
+FWIW, I wouldn't have responded to Raphael's post in the way I did, if he 
+said something along the lines of "I'm using Linux in a TV set-top 
+box|ATM|kiosk application, and I want to hide the standard boot-up output 
+with a nice graphic".
 
-John
+
+Robert Morris
+08707 458710
+http://www.r-morris.co.uk/
+

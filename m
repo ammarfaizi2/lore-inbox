@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUCVDnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 22:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUCVDnw
+	id S261668AbUCVDuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 22:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUCVDuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 22:43:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38295 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261654AbUCVDnu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 22:43:50 -0500
-Date: Sun, 21 Mar 2004 22:43:41 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
+	Sun, 21 Mar 2004 22:50:16 -0500
+Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:62157 "EHLO
+	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261668AbUCVDuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 22:50:11 -0500
+Date: Sun, 21 Mar 2004 22:49:58 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@rust.engin.umich.edu
 To: Andrea Arcangeli <andrea@suse.de>
-cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-rc2-aa1
-In-Reply-To: <20040321234355.GB3649@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403212239170.20045-100000@chimarrao.boston.redhat.com>
+cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
+ fix
+In-Reply-To: <20040322004652.GF3649@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0403212241120.8267@rust.engin.umich.edu>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain>
+ <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
+ <20040322004652.GF3649@dualathlon.random>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
 
-> >  - the struct anon_vma_s / anon_vma_t naming is awkward, why not just
-> >    struct anon_vma *insert reference to Documentation/CodingStyle here*
-> 
-> Andrew already complained about that, I don't mind either ways now that
-> it's implemented, it never needs forward declaration so it's not
-> required to be a struct and I don't see why we should restrict us to a
-> subset of the C language when a typedef can save characters. While
-> coding I want to be efficient so I want to save characters,
+> what about the cost of a tree rebalance, is that O(log(N)) like with the
+> rbtrees?
 
-You won't be spending anywhere near as much time typing the
-code as you (and everybody else) will be spending _reading_
-the code.
+Currently the tree is not balanced, so the tree can be totally skewed
+in some corner cases. However, the maximum height of the tree can be
+only 2 * BITS_PER_LONG.
 
-> typedefs help in saving my time
+Moreover, I have added an optimization to increase the maximum height
+of the tree on demand. The tree height is controlled by keeping track
+of the maximum file offset mapped. If the number of bits required to
+represent the maximum file offset is B, then the height of the tree
+can be only 2 * B. Note that currently B can only increase gradually,
+it is not adjusted back to smaller value when vmas are removed from
+the prio_tree. That's bit tricky to do.
 
-Presuming you'll never debug your code ;)
+There is a balanced version prio_tree proposed in the same McCreight's
+paper. However, it is not interesting because it requires more memory
+space in each vma and the balancing is too complex even though it is
+O(log(N)). I tried to understand the gist of the balanced version,
+but it was too hard to follow. So I left it in the middle. Even
+McCreight claims that the balanced version is just an academic (not
+too practical) excercise. If someone is really interested they can check
+the paper. But, it is not too interesting. I doubt whether it will
+improve the performance.
 
-> >  - the inclusion guards in objrmap.h are wrong
-> 
-> can you elaborate?
-
-They're _LINUX_RMAP_H and not _LINUX_OBJRMAP_H.  If you want
-to be consistent you may want to either rename the inclusion
-guards, or the file ;)
-
-> >  - is renaming rmap.c to objrmap.c really nessecary?  It contains >  about
-> >    the same functions, and keeping the old, implementation-agnostic name
-> >    makes it easiert to follow the radical changes..
-> 
-> b*tkeeper will automagically notice the rename when Linus merges
-
-Only if (1) you're using bitkeeper and (2) you used 'bk mv'
-to move rmap.c to objrmap.c and (3) Linus pulls from your
-bitkeeper tree.
-
-Unless all 3 of these are true, you're giving bitkeeper more
-credit than it deserves ;)
-
-> I renamed it primarly because rmap is the common name for the tecnique
-> of traking the pagetables with pte_chains
-
-Funny, first thing I hear about that ;)
+Thanks,
+Rajesh
 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

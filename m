@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129564AbRBYSzl>; Sun, 25 Feb 2001 13:55:41 -0500
+	id <S129576AbRBYTAv>; Sun, 25 Feb 2001 14:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129571AbRBYSzc>; Sun, 25 Feb 2001 13:55:32 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:5892 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129564AbRBYSzR>;
-	Sun, 25 Feb 2001 13:55:17 -0500
-Message-ID: <20010225192454.A1697@bug.ucw.cz>
-Date: Sun, 25 Feb 2001 19:24:54 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Johannes Erdfelt <johannes@erdfelt.com>,
-        Pifko Krisztian <pifko@kirowski.com>
+	id <S129584AbRBYTAm>; Sun, 25 Feb 2001 14:00:42 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:49064 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S129576AbRBYTA1>;
+	Sun, 25 Feb 2001 14:00:27 -0500
+Date: Sun, 25 Feb 2001 20:00:21 +0100
+From: Marc Lehmann <pcg@goof.com>
+To: Mike Galbraith <mikeg@wen-online.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] philips rush usb support
-In-Reply-To: <Pine.LNX.4.30.0102241730370.19866-100000@pifko.kirowski.com> <20010224121312.S16341@sventech.com>
+Subject: Re: linux swap freeze STILL in 2.4.x
+Message-ID: <20010225200021.A8653@cerebro.laendle>
+Mail-Followup-To: Mike Galbraith <mikeg@wen-online.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010225155929.A371@cerebro.laendle> <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010224121312.S16341@sventech.com>; from Johannes Erdfelt on Sat, Feb 24, 2001 at 12:13:13PM -0500
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Feb 25, 2001 at 05:58:32PM +0100
+X-Operating-System: Linux version 2.4.2-ac3 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I've made a patch which adds usb support for the philips
-> > rush mp3 player. The driver is mainly the rio500 driver
-> > only the rush specific parts were modified.
-> > 
-> > The patch is against 2.4.2.
-> > 
-> > It uses char 180 65 at /dev/usb/rush.
-> > 
-> > Userspace stuff should be found at http://openrush.sourceforge.net
-> > if you have a rush. It works for me on ia32 with the model sa125.
+On Sun, Feb 25, 2001 at 05:58:32PM +0100, Mike Galbraith <mikeg@wen-online.de> wrote:
+> > Usually I swapon ./swap some 512MB swapfile, but today I forgot it. When the
+> > machine started to get sluggish I sent the process a -STOP signal.
 > 
-> Why can't the entire driver be in userspace? It appears it uses a
-> completely proprietary protocol and you've created a completely
-> proprietary interface to the kernel.
+> Signal delivery during oomest does not work (last time I tested).
+> Andrea fixed this once.. long time ~problem.
 
-Would not making it "usb-serial" device do the trick?
-								Pavel
+Well, the signal delivery seemed to have worked fine - the machine
+was quite usable (it swapped a lot, but the system was never unusable
+for longer than a second or so). The problem started when I did the
+swapon. Well, it didn't start, the system just froze.
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

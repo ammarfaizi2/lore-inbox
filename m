@@ -1,90 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVCBWJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVCBWJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVCBWJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVCBWHj
+	id S262489AbVCBWJc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVCBWG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:07:39 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:46682 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262468AbVCBWAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:00:02 -0500
-Date: Thu, 3 Mar 2005 00:01:13 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
+	Wed, 2 Mar 2005 17:06:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39945 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262458AbVCBV4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 16:56:14 -0500
+Date: Wed, 2 Mar 2005 22:56:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       myeatman@vale-housing.co.uk, linux-kernel@vger.kernel.org,
-       gene.heskett@verizon.net
-Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
-In-Reply-To: <20050302132512.5853cd3b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0503022334280.9132@kai.makisara.local>
-References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk>
- <20050302120332.GA27882@logos.cnet> <Pine.LNX.4.61.0503022253360.9132@kai.makisara.local>
- <20050302132512.5853cd3b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
+Message-ID: <20050302215607.GF4608@stusta.de>
+References: <20050223014233.6710fd73.akpm@osdl.org> <20050226113123.GJ3311@stusta.de> <42256078.1040002@pobox.com> <20050302140833.GD4608@stusta.de> <42261004.4000501@pobox.com> <20050302123829.51dbc44b.akpm@osdl.org> <42262B08.2040401@pobox.com> <20050302131817.2e61805f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302131817.2e61805f.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Andrew Morton wrote:
-
-> Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
+On Wed, Mar 02, 2005 at 01:18:17PM -0800, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
 > >
-> > > 
-> >  > v2.6 also contains the same problem BTW.
-> >  > 
-> >  > Try this:
-> >  > 
-> >  > --- a/drivers/scsi/st.c.orig	2005-03-02 09:02:13.637158144 -0300
-> >  > +++ b/drivers/scsi/st.c	2005-03-02 09:02:20.208159200 -0300
-> >  > @@ -3778,7 +3778,6 @@
-> >  >  	read:		st_read,
-> >  >  	write:		st_write,
-> >  >  	ioctl:		st_ioctl,
-> >  > -	llseek:		no_llseek,
-> >  >  	open:		st_open,
-> >  >  	flush:		st_flush,
-> >  >  	release:	st_release,
+> > > Thing is, CRYPTO_AES on only selectable on x86.
 > > 
-> >  This change covers up the problem. The real bug is in tar.
+> >  You're thinking about CRYPTO_AES_586.  But looking at crypto/Kconfig, 
+> >  the dependencies are a bit weird:
+> > 
+> >  config CRYPTO_AES
+> >           tristate "AES cipher algorithms"
+> >           depends on CRYPTO && !(X86 && !X86_64)
+> >  config CRYPTO_AES_586
+> >           tristate "AES cipher algorithms (i586)"
+> >           depends on CRYPTO && (X86 && !X86_64)
 > 
-> In that case we're kinda screwed, and should change the kernel to make tar
-> work again.  We can send a bug report to the tar folks (good luck) and wait
-> a few years.
+> That's pretty broken, isn't it?
 > 
-> >  The first BSF did position the tape correctly although it did fail.
+> Would be better to just do:
 > 
-> (what's a BSF?)
+> config CRYPTO_AES
+> 	select CRYPTO_AES_586 if (X86 && !X86_64)
+> 	select CRYPTO_AES_OTHER if !(X86 && !X86_64)
 > 
-> If it positioned the tape successfully, why did it claim that it failed? 
+> and hide CRYPTO_AES_586 and CRYPTO_AES_OTHER from the outside world.
 
-BSF moves the tape backwards over filemarks. tar tries to move over one 
-filemark. It does not find it because it ends to the beginning of the 
-tape. This is why the operation fails. However, the tape is at the 
-beginning and this is the correct place with regard to what is done next.
 
-> If we were to fix that up, would tar then be happy?
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/0518.html
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/0523.html
+  
 
-It is not fixable in the kernel. The beginning of the tape is a special 
-case because there is no filemark. Any application should take this into 
-account. We could fake a filemark there but this would lead to problems 
-because then we could "skip" backwards indefinitely even when the tape 
-moves nowhere. This could confuse other applications.
-
-If seek with tape is changed back to returning success, this would enable 
-correct tar --verify at the beginning of the tape. However, I am not sure 
-what happens if we are not at the beginning. I will investigate this and 
-suggest a long term fix to the tar people (a fix that should be compatible 
-with all Unix tape semantics I know) and also suggest possible fixes to st 
-(this may include automatic writing of a filemark when BSF is used after 
-writes).
-
-If you think want to make st return success for seeks even if nothing 
-happens (as it did earlier), I don't have anything against that. It would 
-solve the practical problem several people have reported recently. (My 
-recommendation for the people seeing this problem is to do verification 
-separately with 'tar -d'.)
+cu
+Adrian
 
 -- 
-Kai
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

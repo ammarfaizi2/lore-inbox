@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285915AbRLTDOc>; Wed, 19 Dec 2001 22:14:32 -0500
+	id <S285935AbRLTDVW>; Wed, 19 Dec 2001 22:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285919AbRLTDOX>; Wed, 19 Dec 2001 22:14:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16002 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285915AbRLTDOP>;
-	Wed, 19 Dec 2001 22:14:15 -0500
-Date: Wed, 19 Dec 2001 19:13:54 -0800 (PST)
-Message-Id: <20011219.191354.65000844.davem@redhat.com>
-To: billh@tierra.ucsd.edu
-Cc: bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011219190716.A26007@burn.ucsd.edu>
-In-Reply-To: <20011219182628.A13280@burn.ucsd.edu>
-	<20011219.184527.31638196.davem@redhat.com>
-	<20011219190716.A26007@burn.ucsd.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285937AbRLTDVM>; Wed, 19 Dec 2001 22:21:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4108 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285935AbRLTDU7>; Wed, 19 Dec 2001 22:20:59 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
+Date: 19 Dec 2001 19:20:47 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vrlef$mat$1@cesium.transmeta.com>
+In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil> <m18zbzwp34.fsf@frodo.biederman.org> <3C205FBC.60307@zytor.com> <m1zo4fursh.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Bill Huey <billh@tierra.ucsd.edu>
-   Date: Wed, 19 Dec 2001 19:07:16 -0800
-   
-   And using lkml as a AIO forum is probably outside of the scope of this list
-   and group.
+Followup to:  <m1zo4fursh.fsf@frodo.biederman.org>
+By author:    ebiederm@xmission.com (Eric W. Biederman)
+In newsgroup: linux.dev.kernel
+> 
+> Which just goes to show what a fragile firmware design it is, to have
+> firmware callbacks doing device I/O.  I think the whole approach of
+> having firmware callbacks is fundamentally flawed but I'll do my best
+> to keep it working, for those things that care.  If it works over 50%
+> of the time I'm happy...
+> 
 
-This whole thread exists because Linus wants public general and
-technical discussion on lkml of new features to happen before he
-considers putting them into the tree, and the fact that they are not
-in the tree because he isn't seeing such enthusiastic discussions
-happening at all.
+NAK.  You can make it perfectly robust thankyouverymuch, as long as
+you don't try to *mix* firmware and poking directly at the
+hardware... this is a classic "who owns what" class problem.
 
-I don't think AIO, because of it's non-trivial impact to the tree, is
-at all outside the scope of this list.  This is in fact the place
-where major stuff like AIO is meant to be discussed, not some special
-list where only "AIO people" hang out, of course people on that list
-will be enthusiastic about AIO!
-
-Frankly, on your other comments, I don't give a rats ass what BSD/OS
-people are doing about, nor how highly they rate, Java.  That is
-neither here nor there.  Java is going to be dead in a few years, and
-let's just agree to disagree about this particular point ok?
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

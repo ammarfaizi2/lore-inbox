@@ -1,36 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271162AbSISPsB>; Thu, 19 Sep 2002 11:48:01 -0400
+	id <S271302AbSISP56>; Thu, 19 Sep 2002 11:57:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271302AbSISPsB>; Thu, 19 Sep 2002 11:48:01 -0400
-Received: from web14510.mail.yahoo.com ([216.136.224.169]:39684 "HELO
-	web14510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S271162AbSISPsA>; Thu, 19 Sep 2002 11:48:00 -0400
-Message-ID: <20020919154545.17347.qmail@web14510.mail.yahoo.com>
-Date: Thu, 19 Sep 2002 08:45:45 -0700 (PDT)
-From: Kent Hunt <kenthunt@yahoo.com>
-Subject: Compile error 2.4.20-pre7 in ip_conntrackt_ftp
-To: lk <linux-kernel@vger.kernel.org>
+	id <S271374AbSISP56>; Thu, 19 Sep 2002 11:57:58 -0400
+Received: from ns2.nealtech.net ([64.29.20.117]:17304 "EHLO nealtech.net")
+	by vger.kernel.org with ESMTP id <S271302AbSISP55>;
+	Thu, 19 Sep 2002 11:57:57 -0400
+Message-Id: <200209191602.MAA30225@nealtech.net>
+Content-Type: text/plain; charset=US-ASCII
+From: anton wilson <anton.wilson@camotion.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: garbage returned from do_gettimeofday
+Date: Thu, 19 Sep 2002 11:53:19 -0400
+X-Mailer: KMail [version 1.3.1]
+References: <200209182310.TAA18081@nealtech.net>
+In-Reply-To: <200209182310.TAA18081@nealtech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI
+On Wednesday 18 September 2002 07:00 pm, anton wilson wrote:
+> I'm using do_gettimeofday in the scheduler, once per schedule.
+> Ocassioanlly, i'll get what seems to be a random garbage number.
+> For example:
+>
+> tv_sec     tv_usec
+> 1032378775 627501
+> 1032378775 627521
+> 3433001412 1
+> 1032378775 627573
+> 1032378775 627617
+> 1032378775 627638
+>
+> or
+>
+> 1032379233 253008
+> 1032379233 253028
+> 3387638236 1
+> 1032379233 253068
+> 1032379233 253125
+>
+>
+> The garbage number tv_sec always seems to begin with a 3 and is followed by
+> 9 digits. The tv_usec garbage number is always 1.
+>
 
-ip_conntrack_ftp.c:440: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-ip_conntrack_ftp.c:440: warning: type defaults to
-`int' in declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-ip_conntrack_ftp.c:440: warning: data definition has
-no type or storage class
+Even more stangely, I'll get a sequence of the same garbage time from 
+do_gettimeofday, interleaved with good values:
 
-Please CC.
+tv_sec     tv_usec  jiffies 
 
-Kent
+1032450154 41056 -- 108690]
+1032450154 42045 -- 108690]
+1032450154 42056 -- 108690]
+1032450154 43045 -- 108690]
+1032450154 43056 -- 108690]
 
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+/*garbage starts here*/
+3390722356 1 -- 108690]
+1032450154 43090 -- 108690]
+3390722356 1 -- 108690]
+1032450154 43177 -- 108690]
+3390722356 1 -- 108690]
+1032450154 43204 -- 108690]
+3390722356 1 -- 108690]
+1032450154 43257 -- 108690]
+3390722356 1 -- 108690]
+1032450154 43287 -- 108690]
+3390722356 1 -- 108690]
+/*garbage values stop for now*/
+1032450154 44064 -- 108690]
+
+
+1032450154 44084 -- 108690]
+1032450154 44212 -- 108690]
+1032450154 45047 -- 108690]
+1032450154 45059 -- 108690]
+1032450154 46045 -- 108690]
+
+
+I'm using 2.4.19 with rc2, low-latency, premptive, O(1), and kdb patches.
+
+Anton

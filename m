@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUEZMMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265527AbUEZMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUEZMMA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUEZML7
+	id S265527AbUEZMMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUEZMMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:11:59 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:55489 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S265530AbUEZMLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:11:02 -0400
-Subject: RE: why swap at all?
-From: Paulo Marques <pmarques@grupopie.com>
-Reply-To: pmarques@grupopie.com
-To: Buddy Lumpkin <b.lumpkin@comcast.net>
-Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, orders@nodivisions.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
-References: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
-Content-Type: text/plain
-Organization: Grupo PIE
-Message-Id: <1085573570.6413.29.camel@pmarqueslinux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 26 May 2004 13:12:50 +0100
+	Wed, 26 May 2004 08:12:16 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:7814 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265527AbUEZMKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:10:11 -0400
+Message-ID: <40B48920.70206@yahoo.com.au>
+Date: Wed, 26 May 2004 22:10:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: mingo@elte.hu, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
+References: <1085568719.2666.53.camel@imp.csi.cam.ac.uk>	 <40B47BC8.2010209@yahoo.com.au> <1085572902.2666.105.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1085572902.2666.105.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.59; VDF: 6.25.0.76; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anton Altaparmakov wrote:
+> On Wed, 2004-05-26 at 12:13, Nick Piggin wrote:
+> 
+>>Anton Altaparmakov wrote:
+>>
+>>>Hi,
+>>>
+>>>Kernel 2.6.7-rc1-bk crashes on boot with a NULL pointer dereference. 
+>>>The kernel is running under VMware if that matters but I don't think it
+>>>should.  It was working fine with 2.6.6-rc3-bk kernels.
+>>>
+>>>I am afraid the only way I could capture the crash was to capture the
+>>>vmware screen into a PNG image which is attached.  Maybe I need to setup
+>>>some OCR software for in the future...  (-;
+>>>
+>>>The system running VMware is a P4 2.6Hz with Hyper threading enabled and
+>>>/proc/cpuinfo shows two cpus:
+>>
+>>OK, thanks for that. It would be quite helpful if you edit
+>>kernel/sched.c and turn the line #undef SCHED_DOMAIN_DEBUG into
+>>#define SCHED_DOMAIN_DEBUG, then compile a kernel with debugging
+>>info enabled.
+> 
+> 
+> Looking at kernel/sched.c it already says #define, not #undef!
+> 
 
-I really should not feed the trolls, but...
+Oops, yes.
 
-William Lee Irwin wrote:
+[snip]
 
-> If you've got a real performance issue, please describe it properly
-> instead of asserting without evidence the existence of one.
+> So the dereferencing of one of the two fails.  Considering the offset is
+> 0x18 in the NULL dereference it must be the (p)->prio that causes the
+> oops and hence p must be NULL.  I will leave you to figure out what that
+> means...
+> 
 
-> On Wed, May 26, 2004 at 01:30:09AM -0700, Buddy Lumpkin wrote:
+Nice detective work.
 
-> > insinuations and translate your message the way I read it: 
-> > -------------------------------------------------------------------------
-> > I don't recognize your name, therefore you can't possibly have a valuable
-> > opinion on the direction VM system development should go. I doubt you have
-> > an actual performance problem to share, but if you do, please share it and
-> > go away so that we can work on solving the problem.
-> > --------------------------------------------------------------------------
-
-Conclusion:
-
-You really should learn how to read :)
-
-
-This is a *technical* discussion list. So far you been able to post 7
-mails about vague ramblings about what you think the VM should do and
-what swapping is (not to mention unjustified personal attacks).
-
-If you really think there is a problem with the VM post benchmarks
-demonstrating the problem. 
-
-If you don't think there is a problem, don't waste our time.
-
-If you want to continue this discussion, please do so off-list.
-
-Best regards,
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+It tried to dereference a NULL idle thread I'd say.
+ie. the CPU hasn't been set up. Please try Ingo's patch.

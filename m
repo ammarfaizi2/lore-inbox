@@ -1,301 +1,352 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264423AbTH2Exj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 00:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTH2Exj
+	id S264399AbTH2FNo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 01:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTH2FNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 00:53:39 -0400
-Received: from dyn-ctb-203-221-73-68.webone.com.au ([203.221.73.68]:24068 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264423AbTH2Exc
+	Fri, 29 Aug 2003 01:13:44 -0400
+Received: from coffee.creativecontingencies.com ([210.8.121.66]:54175 "EHLO
+	coffee.cc.com.au") by vger.kernel.org with ESMTP id S264399AbTH2FNg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 00:53:32 -0400
-Message-ID: <3F4EDC47.2020302@cyberone.com.au>
-Date: Fri, 29 Aug 2003 14:53:27 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test4: Hang in i8042_init
-Content-Type: multipart/mixed;
- boundary="------------070209020506050605080007"
+	Fri, 29 Aug 2003 01:13:36 -0400
+Subject: 2.6.0-test4-mm2: fdisk causes Oops
+From: Peter Lieverdink <cafuego@cc.com.au>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-xbNXRzb6Wp99tbAEYQZL"
+Organization: Creative Contingencies Pty. Ltd.
+Message-Id: <1062133972.499.5.camel@kahlua>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 29 Aug 2003 15:12:52 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070209020506050605080007
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-xbNXRzb6Wp99tbAEYQZL
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Is what I am getting. Last line is something like input: PC Speaker
-(followed by the initcall).
+Hi,
 
-dmseg and lspci from a working kernel attached. Let me know if I can
-do more.
+When running fdisk -l under 2.6.0-test4-mm2, the kernel oopses. dmesg,
+the oops (fdisk.txt) and output from lspci are attached.
 
+I've tried after disabling the Promise controller in the BIOS, but the
+oops still occurs. Same when I specify a device instead of -l.
 
+fdisk is from debian/unstable, version 2.11z
 
---------------070209020506050605080007
-Content-Type: text/plain;
- name="dmesg"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dmesg"
+- Peter.
 
-Linux version 2.5.73-mm2 (npiggin@didi) (gcc version 3.3 (Debian)) #2 Sat Jun 28 17:14:05 EST 2003
-Video mode to be used for restore is 30c
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
- BIOS-e820: 000000000fff0000 - 000000000fff8000 (ACPI data)
- BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fed00000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fef00000 (reserved)
- BIOS-e820: 00000000ffee0000 - 00000000fff0ffff (reserved)
- BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
-255MB LOWMEM available.
-On node 0 totalpages: 65520
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 61424 pages, LIFO batch:14
-  HighMem zone: 0 pages, LIFO batch:1
-ACPI: RSDP (v000 AMI                        ) @ 0x000fa0a0
-ACPI: RSDT (v001 AMIINT SiS645XX 00000.00016) @ 0x0fff0000
-ACPI: FADT (v001 AMIINT SiS645XX 00000.00017) @ 0x0fff0030
-ACPI: DSDT (v001    SiS      645 00000.04096) @ 0x00000000
-ACPI: BIOS passes blacklist
-ACPI: MADT not present
-Building zonelist for node : 0
-Kernel command line: BOOT_IMAGE=linuxold ro root=306
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-Initializing CPU#0
-PID hash table entries: 1024 (order 10: 8192 bytes)
-Detected 1991.939 MHz processor.
-Console: colour VGA+ 132x60
-Calibrating delay loop... 3971.48 BogoMIPS
-Memory: 255888k/262080k available (1754k kernel code, 5476k reserved, 583k data, 304k init, 0k highmem)
-Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
--> /dev
--> /dev/console
--> /root
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 128K
-CPU:     After generic, caps: bfebfbff 00000000 00000000 00000080
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU#0: Thermal monitoring enabled
-CPU: Intel(R) Celeron(R) CPU 2.00GHz stepping 07
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1991.9674 MHz.
-..... host bus clock speed is 99.5982 MHz.
-mtrr: v2.0 (20020519)
-Initializing RT netlink socket
-PCI: PCI BIOS revision 2.10 entry at 0xfdb01, last bus=2
-PCI: Using configuration type 1
-BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-ACPI: Subsystem revision 20030619
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-Enabling SiS 96x SMBus.
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: Power Resource [URP1] (off)
-ACPI: Power Resource [URP2] (off)
-ACPI: Power Resource [FDDP] (off)
-ACPI: Power Resource [LPTP] (off)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 *5 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 10 11 12 14 15, disabled)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 10 11 *12 14 15)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 *5 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 7 10 11 *12 14 15)
-Linux Plug and Play Support v0.96 (c) Adam Belay
-PnPBIOS: Scanning system for PnP BIOS support...
-PnPBIOS: Found PnP BIOS installation structure at 0xc00f7270
-PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x5eab, dseg 0xf0000
-PnPBIOS: 14 nodes reported by PnP BIOS; 14 recorded by driver
-drivers/usb/core/usb.c: registered new driver hub
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
-PCI: Using ACPI for IRQ routing
-PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-pty: 256 Unix98 ptys configured
-Machine check exception polling timer started.
-Enabling SEP on CPU 0
-Journalled Block Device driver loaded
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-ACPI: Power Button (FF) [PWRF]
-ACPI: Sleep Button (CM) [SLPB]
-ACPI: Processor [CPU1] (supports C1)
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-sis900.c: v1.08.06 9/24/2002
-eth0: VIA 6103 PHY transceiver found at address 1.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xd400, IRQ 5, 00:0a:e6:5f:ac:b1.
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-SIS5513: IDE controller at PCI slot 0000:00:02.5
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
-    ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
-hda: ST360015A, ATA DISK drive
-anticipatory scheduling elevator
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: LTN526S, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: host protected area => 1
-hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(100)
- hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 > hda3 hda4
-ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ohci-hcd: block sizes: ed 64 td 64
-ohci-hcd 0000:00:03.0: Silicon Integrated S 7001
-ohci-hcd 0000:00:03.0: irq 12, pci mem d0807000
-ohci-hcd 0000:00:03.0: new USB bus registered, assigned bus number 1
-hub 1-0:0: USB hub found
-hub 1-0:0: 2 ports detected
-ohci-hcd 0000:00:03.1: Silicon Integrated S 7001 (#2)
-ohci-hcd 0000:00:03.1: irq 5, pci mem d0809000
-ohci-hcd 0000:00:03.1: new USB bus registered, assigned bus number 2
-hub 2-0:0: USB hub found
-hub 2-0:0: 2 ports detected
-ohci-hcd 0000:00:03.2: Silicon Integrated S 7001 (#3)
-ohci-hcd 0000:00:03.2: irq 11, pci mem d080b000
-ohci-hcd 0000:00:03.2: new USB bus registered, assigned bus number 3
-hub 3-0:0: USB hub found
-hub 3-0:0: 2 ports detected
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 32768)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 304k freed
-hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-hub 1-0:0: new USB device on port 1, assigned address 2
-input: USB HID v1.00 Mouse [A4Tech USB Mouse] on usb-0000:00:03.0-1
-Adding 497972k swap on /dev/hda10.  Priority:-1 extents:1
-EXT3 FS on hda6, internal journal
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hda9, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-eth0: Media Link On 100mbps full-duplex 
-Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Real Time Clock Driver v1.11
+--=-xbNXRzb6Wp99tbAEYQZL
+Content-Disposition: attachment; filename=dmesg.txt
+Content-Type: text/plain; name=dmesg.txt; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
 
---------------070209020506050605080007
-Content-Type: text/plain;
- name="lspci"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lspci"
+TGludXggdmVyc2lvbiAyLjYuMC10ZXN0NC1tbTIgKHJvb3RAa2FobHVhKSAoZ2NjIHZlcnNpb24g
+My4zLjIgMjAwMzA4MTIgKERlYmlhbiBwcmVyZWxlYXNlKSkgIzEgRnJpIEF1ZyAyOSAxMDowNzox
+MyBFU1QgMjAwMw0KVmlkZW8gbW9kZSB0byBiZSB1c2VkIGZvciByZXN0b3JlIGlzIGYwMA0KQklP
+Uy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOg0KIEJJT1MtZTgyMDogMDAwMDAwMDAwMDAwMDAw
+MCAtIDAwMDAwMDAwMDAwOWZjMDAgKHVzYWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZj
+MDAgLSAwMDAwMDAwMDAwMGEwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAw
+ZjAwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAw
+MDAxMDAwMDAgLSAwMDAwMDAwMDNmZmYwMDAwICh1c2FibGUpDQogQklPUy1lODIwOiAwMDAwMDAw
+MDNmZmYwMDAwIC0gMDAwMDAwMDAzZmZmMzAwMCAoQUNQSSBOVlMpDQogQklPUy1lODIwOiAwMDAw
+MDAwMDNmZmYzMDAwIC0gMDAwMDAwMDA0MDAwMDAwMCAoQUNQSSBkYXRhKQ0KIEJJT1MtZTgyMDog
+MDAwMDAwMDBmZWMwMDAwMCAtIDAwMDAwMDAwZmVjMDEwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgy
+MDogMDAwMDAwMDBmZWUwMDAwMCAtIDAwMDAwMDAwZmVlMDEwMDAgKHJlc2VydmVkKQ0KIEJJT1Mt
+ZTgyMDogMDAwMDAwMDBmZmZmMDAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2VydmVkKQ0KMTI3
+TUIgSElHSE1FTSBhdmFpbGFibGUuDQo4OTZNQiBMT1dNRU0gYXZhaWxhYmxlLg0KZm91bmQgU01Q
+IE1QLXRhYmxlIGF0IDAwMGY0ZGIwDQpobSwgcGFnZSAwMDBmNDAwMCByZXNlcnZlZCB0d2ljZS4N
+CmhtLCBwYWdlIDAwMGY1MDAwIHJlc2VydmVkIHR3aWNlLg0KaG0sIHBhZ2UgMDAwZjAwMDAgcmVz
+ZXJ2ZWQgdHdpY2UuDQpobSwgcGFnZSAwMDBmMTAwMCByZXNlcnZlZCB0d2ljZS4NCk9uIG5vZGUg
+MCB0b3RhbHBhZ2VzOiAyNjIxMjgNCiAgRE1BIHpvbmU6IDQwOTYgcGFnZXMsIExJRk8gYmF0Y2g6
+MQ0KICBOb3JtYWwgem9uZTogMjI1MjgwIHBhZ2VzLCBMSUZPIGJhdGNoOjE2DQogIEhpZ2hNZW0g
+em9uZTogMzI3NTIgcGFnZXMsIExJRk8gYmF0Y2g6Nw0KRE1JIDIuMyBwcmVzZW50Lg0KQUNQSTog
+UlNEUCAodjAwMCBHQlQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICApIEAg
+MHgwMDBmNjczMA0KQUNQSTogUlNEVCAodjAwMSBHQlQgICAgQVdSREFDUEkgMHg0MjMwMmUzMSBB
+V1JEIDB4MDEwMTAxMDEpIEAgMHgzZmZmMzAwMA0KQUNQSTogRkFEVCAodjAwMSBHQlQgICAgQVdS
+REFDUEkgMHg0MjMwMmUzMSBBV1JEIDB4MDEwMTAxMDEpIEAgMHgzZmZmMzA0MA0KQUNQSTogTUFE
+VCAodjAwMSBHQlQgICAgQVdSREFDUEkgMHg0MjMwMmUzMSBBV1JEIDB4MDEwMTAxMDEpIEAgMHgz
+ZmZmNzI4MA0KQUNQSTogRFNEVCAodjAwMSBHQlQgICAgQVdSREFDUEkgMHgwMDAwMTAwMCBNU0ZU
+IDB4MDEwMDAwMGMpIEAgMHgwMDAwMDAwMA0KQUNQSTogTG9jYWwgQVBJQyBhZGRyZXNzIDB4ZmVl
+MDAwMDANCkFDUEk6IExBUElDIChhY3BpX2lkWzB4MDBdIGxhcGljX2lkWzB4MDBdIGVuYWJsZWQp
+DQpQcm9jZXNzb3IgIzAgNjo4IEFQSUMgdmVyc2lvbiAxNg0KQUNQSTogTEFQSUNfTk1JIChhY3Bp
+X2lkWzB4MDBdIHBvbGFyaXR5WzB4MF0gdHJpZ2dlclsweDBdIGxpbnRbMHgxXSkNClVzaW5nIEFD
+UEkgZm9yIHByb2Nlc3NvciAoTEFQSUMpIGNvbmZpZ3VyYXRpb24gaW5mb3JtYXRpb24NCkludGVs
+IE11bHRpUHJvY2Vzc29yIFNwZWNpZmljYXRpb24gdjEuNA0KICAgIFZpcnR1YWwgV2lyZSBjb21w
+YXRpYmlsaXR5IG1vZGUuDQpPRU0gSUQ6IE9FTTAwMDAwIFByb2R1Y3QgSUQ6IFBST0QwMDAwMDAw
+MCBBUElDIGF0OiAweEZFRTAwMDAwDQpJL08gQVBJQyAjMiBWZXJzaW9uIDE3IGF0IDB4RkVDMDAw
+MDAuDQpFbmFibGluZyBBUElDIG1vZGU6ICBGbGF0LiAgVXNpbmcgMSBJL08gQVBJQ3MNClByb2Nl
+c3NvcnM6IDENCkJ1aWxkaW5nIHpvbmVsaXN0IGZvciBub2RlIDogMA0KS2VybmVsIGNvbW1hbmQg
+bGluZTogcm9vdD0vZGV2L2hkYTIgcGNpPW5vYWNwaQ0KY3VycmVudDogYzAzNmM5YzANCmN1cnJl
+bnQtPnRocmVhZF9pbmZvOiBjMDNjNjAwMA0KSW5pdGlhbGl6aW5nIENQVSMwDQpQSUQgaGFzaCB0
+YWJsZSBlbnRyaWVzOiA0MDk2IChvcmRlciAxMjogMzI3NjggYnl0ZXMpDQpEZXRlY3RlZCAyMDA5
+LjQ2MiBNSHogcHJvY2Vzc29yLg0KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUNCkNhbGlicmF0
+aW5nIGRlbGF5IGxvb3AuLi4gMzk1Ni43MyBCb2dvTUlQUw0KTWVtb3J5OiAxMDMzNzQway8xMDQ4
+NTEyayBhdmFpbGFibGUgKDIwNDVrIGtlcm5lbCBjb2RlLCAxMzgzMmsgcmVzZXJ2ZWQsIDc5MWsg
+ZGF0YSwgMzY4ayBpbml0LCAxMzEwMDhrIGhpZ2htZW0pDQp6YXBwaW5nIGxvdyBtYXBwaW5ncy4N
+CkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6IDcsIDUyNDI4
+OCBieXRlcykNCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA2
+LCAyNjIxNDQgYnl0ZXMpDQpNb3VudC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDUxMiAob3Jk
+ZXI6IDAsIDQwOTYgYnl0ZXMpDQotPiAvZGV2DQotPiAvZGV2L2NvbnNvbGUNCi0+IC9yb290DQpD
+UFU6ICAgICBBZnRlciBnZW5lcmljIGlkZW50aWZ5LCBjYXBzOiAwMzgzZmJmZiBjMWMzZmJmZiAw
+MDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiAgICAgQWZ0ZXIgdmVuZG9yIGlkZW50aWZ5LCBjYXBzOiAw
+MzgzZmJmZiBjMWMzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBMMSBJIENhY2hlOiA2NEsg
+KDY0IGJ5dGVzL2xpbmUpLCBEIGNhY2hlIDY0SyAoNjQgYnl0ZXMvbGluZSkNCkNQVTogTDIgQ2Fj
+aGU6IDI1NksgKDY0IGJ5dGVzL2xpbmUpDQpDUFU6ICAgICBBZnRlciBhbGwgaW5pdHMsIGNhcHM6
+IDAzODNmYmZmIGMxYzNmYmZmIDAwMDAwMDAwIDAwMDAwMDIwDQpJbnRlbCBtYWNoaW5lIGNoZWNr
+IGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuDQpJbnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9ydGluZyBl
+bmFibGVkIG9uIENQVSMwLg0KQ1BVOiBBTUQgQXRobG9uKHRtKSBYUCAyNDAwKyBzdGVwcGluZyAw
+MQ0KRW5hYmxpbmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVzdG9yZS4uLiBkb25lLg0KRW5hYmxpbmcg
+dW5tYXNrZWQgU0lNRCBGUFUgZXhjZXB0aW9uIHN1cHBvcnQuLi4gZG9uZS4NCkNoZWNraW5nICdo
+bHQnIGluc3RydWN0aW9uLi4uIE9LLg0KUE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBieSBVTklG
+SVgNCmVuYWJsZWQgRXh0SU5UIG9uIENQVSMwDQpFU1IgdmFsdWUgYmVmb3JlIGVuYWJsaW5nIHZl
+Y3RvcjogMDAwMDAwMDANCkVTUiB2YWx1ZSBhZnRlciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAw
+DQpFTkFCTElORyBJTy1BUElDIElSUXMNClNldHRpbmcgMiBpbiB0aGUgcGh5c19pZF9wcmVzZW50
+X21hcA0KLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElDIElEIHRvIDIgLi4uIG9rLg0K
+aW5pdCBJT19BUElDIElSUXMNCiBJTy1BUElDIChhcGljaWQtcGluKSAyLTAsIDItNiwgMi03LCAy
+LTEwLCAyLTExLCAyLTE3LCAyLTIwLCAyLTIzIG5vdCBjb25uZWN0ZWQuDQouLlRJTUVSOiB2ZWN0
+b3I9MHgzMSBwaW4xPTIgcGluMj0wDQpudW1iZXIgb2YgTVAgSVJRIHNvdXJjZXM6IDIzLg0KbnVt
+YmVyIG9mIElPLUFQSUMgIzIgcmVnaXN0ZXJzOiAyNC4NCnRlc3RpbmcgdGhlIElPIEFQSUMuLi4u
+Li4uLi4uLi4uLi4uLi4uLi4uLg0KSU8gQVBJQyAjMi4uLi4uLg0KLi4uLiByZWdpc3RlciAjMDA6
+IDAyMDAwMDAwDQouLi4uLi4uICAgIDogcGh5c2ljYWwgQVBJQyBpZDogMDINCi4uLi4uLi4gICAg
+OiBEZWxpdmVyeSBUeXBlOiAwDQouLi4uLi4uICAgIDogTFRTICAgICAgICAgIDogMA0KLi4uLiBy
+ZWdpc3RlciAjMDE6IDAwMTc4MDAzDQouLi4uLi4uICAgICA6IG1heCByZWRpcmVjdGlvbiBlbnRy
+aWVzOiAwMDE3DQouLi4uLi4uICAgICA6IFBSUSBpbXBsZW1lbnRlZDogMQ0KLi4uLi4uLiAgICAg
+OiBJTyBBUElDIHZlcnNpb246IDAwMDMNCi4uLi4gSVJRIHJlZGlyZWN0aW9uIHRhYmxlOg0KIE5S
+IExvZyBQaHkgTWFzayBUcmlnIElSUiBQb2wgU3RhdCBEZXN0IERlbGkgVmVjdDogICANCiAwMCAw
+MDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDEgMDAxIDAxICAw
+ICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICAzOQ0KIDAyIDAwMSAwMSAgMCAgICAwICAg
+IDAgICAwICAgMCAgICAxICAgIDEgICAgMzENCiAwMyAwMDEgMDEgIDAgICAgMCAgICAwICAgMCAg
+IDAgICAgMSAgICAxICAgIDQxDQogMDQgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEg
+ICAgMSAgICA0OQ0KIDA1IDAwMSAwMSAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAg
+NTENCiAwNiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDcg
+MDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA4IDAwMSAwMSAg
+MCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgNTkNCiAwOSAwMDEgMDEgIDAgICAgMCAg
+ICAwICAgMCAgIDAgICAgMSAgICAxICAgIDYxDQogMGEgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDBiIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAwYyAwMDEgMDEgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAg
+IDY5DQogMGQgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA3MQ0KIDBl
+IDAwMSAwMSAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgNzkNCiAwZiAwMDEgMDEg
+IDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDgxDQogMTAgMDAxIDAxICAxICAgIDEg
+ICAgMCAgIDEgICAwICAgIDEgICAgMSAgICA4OQ0KIDExIDAwMCAwMCAgMSAgICAwICAgIDAgICAw
+ICAgMCAgICAwICAgIDAgICAgMDANCiAxMiAwMDEgMDEgIDEgICAgMSAgICAwICAgMSAgIDAgICAg
+MSAgICAxICAgIDkxDQogMTMgMDAxIDAxICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAg
+ICA5OQ0KIDE0IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAx
+NSAwMDEgMDEgIDEgICAgMSAgICAwICAgMSAgIDAgICAgMSAgICAxICAgIEExDQogMTYgMDAxIDAx
+ICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAgICBBOQ0KIDE3IDAwMCAwMCAgMSAgICAw
+ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCklSUSB0byBwaW4gbWFwcGluZ3M6DQpJUlEw
+IC0+IDA6Mg0KSVJRMSAtPiAwOjENCklSUTMgLT4gMDozDQpJUlE0IC0+IDA6NA0KSVJRNSAtPiAw
+OjUNCklSUTggLT4gMDo4DQpJUlE5IC0+IDA6OQ0KSVJRMTIgLT4gMDoxMg0KSVJRMTMgLT4gMDox
+Mw0KSVJRMTQgLT4gMDoxNA0KSVJRMTUgLT4gMDoxNQ0KSVJRMTYgLT4gMDoxNg0KSVJRMTggLT4g
+MDoxOA0KSVJRMTkgLT4gMDoxOQ0KSVJRMjEgLT4gMDoyMQ0KSVJRMjIgLT4gMDoyMg0KLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIGRvbmUuDQpVc2luZyBsb2NhbCBBUElDIHRp
+bWVyIGludGVycnVwdHMuDQpjYWxpYnJhdGluZyBBUElDIHRpbWVyIC4uLg0KLi4uLi4gQ1BVIGNs
+b2NrIHNwZWVkIGlzIDIwMDguMDkyNSBNSHouDQouLi4uLiBob3N0IGJ1cyBjbG9jayBzcGVlZCBp
+cyAyNjcuMDg1NiBNSHouDQpQTTogQWRkaW5nIGluZm8gZm9yIE5vIEJ1czpsZWdhY3kNCkluaXRp
+YWxpemluZyBSVCBuZXRsaW5rIHNvY2tldA0KUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVu
+dHJ5IGF0IDB4ZmEwNTAsIGxhc3QgYnVzPTENClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBl
+IDENCm10cnI6IHYyLjAgKDIwMDIwNTE5KQ0KQUNQSTogU3Vic3lzdGVtIHJldmlzaW9uIDIwMDMw
+ODEzDQpBQ1BJOiBJbnRlcnByZXRlciBlbmFibGVkDQpBQ1BJOiBVc2luZyBQSUMgZm9yIGludGVy
+cnVwdCByb3V0aW5nDQpBQ1BJOiBQQ0kgUm9vdCBCcmlkZ2UgW1BDSTBdICgwMDowMCkNClBDSTog
+UHJvYmluZyBQQ0kgaGFyZHdhcmUgKGJ1cyAwMCkNClBNOiBBZGRpbmcgaW5mbyBmb3IgTm8gQnVz
+OnBjaTAwMDA6MDANClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDA6MDAuMA0KUE06IEFk
+ZGluZyBpbmZvIGZvciBwY2k6MDAwMDowMDowMS4wDQpQTTogQWRkaW5nIGluZm8gZm9yIHBjaTow
+MDAwOjAwOjBhLjANClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDA6MGIuMA0KUE06IEFk
+ZGluZyBpbmZvIGZvciBwY2k6MDAwMDowMDowYi4xDQpQTTogQWRkaW5nIGluZm8gZm9yIHBjaTow
+MDAwOjAwOjBmLjANClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDA6MTAuMA0KUE06IEFk
+ZGluZyBpbmZvIGZvciBwY2k6MDAwMDowMDoxMC4xDQpQTTogQWRkaW5nIGluZm8gZm9yIHBjaTow
+MDAwOjAwOjEwLjINClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDA6MTAuMw0KUE06IEFk
+ZGluZyBpbmZvIGZvciBwY2k6MDAwMDowMDoxMS4wDQpQTTogQWRkaW5nIGluZm8gZm9yIHBjaTow
+MDAwOjAwOjExLjENClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDA6MTEuNQ0KUE06IEFk
+ZGluZyBpbmZvIGZvciBwY2k6MDAwMDowMDoxMy4wDQpQTTogQWRkaW5nIGluZm8gZm9yIHBjaTow
+MDAwOjAwOjE0LjANClBNOiBBZGRpbmcgaW5mbyBmb3IgcGNpOjAwMDA6MDE6MDAuMA0KQUNQSTog
+UENJIEludGVycnVwdCBSb3V0aW5nIFRhYmxlIFtcX1NCXy5QQ0kwLl9QUlRdDQpBQ1BJOiBQQ0kg
+SW50ZXJydXB0IExpbmsgW0xOS0FdIChJUlFzIDEgMyA0IDUgNiAqNyAxMCAxMSAxMiAxNCAxNSkN
+CkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQl0gKElSUXMgMSAzIDQgNSAqNiA3IDEwIDEx
+IDEyIDE0IDE1KQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktDXSAoSVJRcyAxIDMgNCA1
+IDYgNyAqMTAgMTEgMTIgMTQgMTUpDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0RdIChJ
+UlFzIDEgMyA0IDUgNiA3IDEwICoxMSAxMiAxNCAxNSkNCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGlu
+ayBbQUxLQV0gKElSUXMgMjAsIGRpc2FibGVkKQ0KQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtB
+TEtCXSAoSVJRcyAyMSwgZGlzYWJsZWQpDQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0FMS0Nd
+IChJUlFzIDIyLCBkaXNhYmxlZCkNCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbQUxLRF0gKElS
+UXMgMjMsIGRpc2FibGVkKQ0KZHJpdmVycy91c2IvY29yZS91c2IuYzogcmVnaXN0ZXJlZCBuZXcg
+ZHJpdmVyIHVzYmZzDQpkcml2ZXJzL3VzYi9jb3JlL3VzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2
+ZXIgaHViDQpQQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJlDQpQQ0k6IFVzaW5nIElSUSByb3V0ZXIg
+VklBIFsxMTA2LzMxNzddIGF0IDAwMDA6MDA6MTEuMA0KUENJLT5BUElDIElSUSB0cmFuc2Zvcm06
+IChCMCxJMTAsUDApIC0+IDE4DQpQQ0ktPkFQSUMgSVJRIHRyYW5zZm9ybTogKEIwLEkxMSxQMCkg
+LT4gMTkNClBDSS0+QVBJQyBJUlEgdHJhbnNmb3JtOiAoQjAsSTE1LFAwKSAtPiAxOQ0KUENJLT5B
+UElDIElSUSB0cmFuc2Zvcm06IChCMCxJMTYsUDApIC0+IDIxDQpQQ0ktPkFQSUMgSVJRIHRyYW5z
+Zm9ybTogKEIwLEkxNixQMSkgLT4gMjENClBDSS0+QVBJQyBJUlEgdHJhbnNmb3JtOiAoQjAsSTE2
+LFAyKSAtPiAyMQ0KUENJLT5BUElDIElSUSB0cmFuc2Zvcm06IChCMCxJMTYsUDMpIC0+IDIxDQpQ
+Q0ktPkFQSUMgSVJRIHRyYW5zZm9ybTogKEIwLEkxNyxQMCkgLT4gMjINClBDSS0+QVBJQyBJUlEg
+dHJhbnNmb3JtOiAoQjAsSTE3LFAyKSAtPiAyMg0KUENJLT5BUElDIElSUSB0cmFuc2Zvcm06IChC
+MCxJMTksUDApIC0+IDE4DQpQQ0ktPkFQSUMgSVJRIHRyYW5zZm9ybTogKEIwLEkyMCxQMCkgLT4g
+MTYNClBDSS0+QVBJQyBJUlEgdHJhbnNmb3JtOiAoQjEsSTAsUDApIC0+IDE2DQpwdHk6IDI1NiBV
+bml4OTggcHR5cyBjb25maWd1cmVkDQpNYWNoaW5lIGNoZWNrIGV4Y2VwdGlvbiBwb2xsaW5nIHRp
+bWVyIHN0YXJ0ZWQuDQppa2NvbmZpZyAwLjUgd2l0aCAvcHJvYy9pa2NvbmZpZw0KaGlnaG1lbSBi
+b3VuY2UgcG9vbCBzaXplOiA2NCBwYWdlcw0KUENJOiBWaWEgSVJRIGZpeHVwIGZvciAwMDAwOjAw
+OjEwLjAsIGZyb20gNyB0byA1DQpQQ0k6IFZpYSBJUlEgZml4dXAgZm9yIDAwMDA6MDA6MTAuMSwg
+ZnJvbSA2IHRvIDUNClBDSTogVmlhIElSUSBmaXh1cCBmb3IgMDAwMDowMDoxMC4yLCBmcm9tIDEw
+IHRvIDUNCkFDUEk6IFBvd2VyIEJ1dHRvbiAoRkYpIFtQV1JGXQ0KQUNQSTogUHJvY2Vzc29yIFtD
+UFUwXSAoc3VwcG9ydHMgQzEsIDIgdGhyb3R0bGluZyBzdGF0ZXMpDQpSZWFsIFRpbWUgQ2xvY2sg
+RHJpdmVyIHYxLjExYQ0KTGludXggYWdwZ2FydCBpbnRlcmZhY2UgdjAuMTAwIChjKSBEYXZlIEpv
+bmVzDQphZ3BnYXJ0OiBEZXRlY3RlZCBWSUEgQXBvbGxvIFBybyBLVDQwMCBjaGlwc2V0DQphZ3Bn
+YXJ0OiBNYXhpbXVtIG1haW4gbWVtb3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTogOTQxTQ0KYWdw
+Z2FydDogQUdQIGFwZXJ0dXJlIGlzIDI1Nk0gQCAweGMwMDAwMDAwDQpTZXJpYWw6IDgyNTAvMTY1
+NTAgZHJpdmVyICRSZXZpc2lvbjogMS45MCAkIElSUSBzaGFyaW5nIGRpc2FibGVkDQp0dHlTMCBh
+dCBJL08gMHgzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBDQp0dHlTMyBhdCBJL08gMHgyZTggKGly
+cSA9IDMpIGlzIGEgMTY1NTBBDQozYzU5eDogRG9uYWxkIEJlY2tlciBhbmQgb3RoZXJzLiB3d3cu
+c2N5bGQuY29tL25ldHdvcmsvdm9ydGV4Lmh0bWwNCjAwMDA6MDA6MGEuMDogM0NvbSBQQ0kgM2M5
+MDVDIFRvcm5hZG8gYXQgMHg5MDAwLiBWZXJzIExLMS4xLjE5DQpVbml2ZXJzYWwgVFVOL1RBUCBk
+ZXZpY2UgZHJpdmVyIDEuNSAoQykxOTk5LTIwMDIgTWF4aW0gS3Jhc255YW5za3kNClVuaWZvcm0g
+TXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9uOiA3LjAwYWxwaGEyDQppZGU6IEFz
+c3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0
+aCBpZGVidXM9eHgNClBEQzIwMjc2OiBJREUgY29udHJvbGxlciBhdCBQQ0kgc2xvdCAwMDAwOjAw
+OjBmLjANClBEQzIwMjc2OiBjaGlwc2V0IHJldmlzaW9uIDENClBEQzIwMjc2OiAxMDAlIG5hdGl2
+ZSBtb2RlIG9uIGlycSAxOQ0KICAgIGlkZTI6IEJNLURNQSBhdCAweGFjMDAtMHhhYzA3LCBCSU9T
+IHNldHRpbmdzOiBoZGU6cGlvLCBoZGY6cGlvDQogICAgaWRlMzogQk0tRE1BIGF0IDB4YWMwOC0w
+eGFjMGYsIEJJT1Mgc2V0dGluZ3M6IGhkZzpwaW8sIGhkaDpwaW8NCmhkZzogUVVBTlRVTSBTSVJP
+Q0NPMTcwMEEsIEFUQSBESVNLIGRyaXZlDQpQTTogQWRkaW5nIGluZm8gZm9yIE5vIEJ1czppZGUz
+DQpoZGg6IFNBTVNVTkcgU1YwMzIyQSwgQVRBIERJU0sgZHJpdmUNClVzaW5nIGFudGljaXBhdG9y
+eSBzY2hlZHVsaW5nIGVsZXZhdG9yDQppZGUzIGF0IDB4YTQwMC0weGE0MDcsMHhhODAyIG9uIGly
+cSAxOQ0KUE06IEFkZGluZyBpbmZvIGZvciBpZGU6My4wDQpQTTogQWRkaW5nIGluZm8gZm9yIGlk
+ZTozLjENClZQX0lERTogSURFIGNvbnRyb2xsZXIgYXQgUENJIHNsb3QgMDAwMDowMDoxMS4xDQpW
+UF9JREU6IGNoaXBzZXQgcmV2aXNpb24gNg0KVlBfSURFOiBub3QgMTAwJSBuYXRpdmUgbW9kZTog
+d2lsbCBwcm9iZSBpcnFzIGxhdGVyDQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3Bl
+ZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgNClZQX0lERTogVklBIHZ0
+ODIzNSAocmV2IDAwKSBJREUgVURNQTEzMyBjb250cm9sbGVyIG9uIHBjaTAwMDA6MDA6MTEuMQ0K
+ICAgIGlkZTA6IEJNLURNQSBhdCAweGJjMDAtMHhiYzA3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1B
+LCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4YmMwOC0weGJjMGYsIEJJT1Mgc2V0dGlu
+Z3M6IGhkYzpETUEsIGhkZDpwaW8NCmhkYTogV0RDIFdEODAwSkItMDBFVEEwLCBBVEEgRElTSyBk
+cml2ZQ0KUE06IEFkZGluZyBpbmZvIGZvciBObyBCdXM6aWRlMA0KaWRlMCBhdCAweDFmMC0weDFm
+NywweDNmNiBvbiBpcnEgMTQNClBNOiBBZGRpbmcgaW5mbyBmb3IgaWRlOjAuMA0KaGRjOiBQaW9u
+ZWVyIERWRC1ST00gQVRBUElNb2RlbCBEVkQtMTEzIDAxMTQsIEFUQVBJIENEL0RWRC1ST00gZHJp
+dmUNClBNOiBBZGRpbmcgaW5mbyBmb3IgTm8gQnVzOmlkZTENCmlkZTEgYXQgMHgxNzAtMHgxNzcs
+MHgzNzYgb24gaXJxIDE1DQpQTTogQWRkaW5nIGluZm8gZm9yIGlkZToxLjANCmhkZzogbWF4IHJl
+cXVlc3Qgc2l6ZTogMTI4S2lCDQpoZGc6IDMzMzU0NzIgc2VjdG9ycyAoMTcwNyBNQikgdy83NUtp
+QiBDYWNoZSwgQ0hTPTMzMDkvMTYvNjMsIERNQQ0KIGhkZzogaGRnMSBoZGcyDQpoZGg6IG1heCBy
+ZXF1ZXN0IHNpemU6IDEyOEtpQg0KaGRoOiA2MjUwNjA4IHNlY3RvcnMgKDMyMDAgTUIpIHcvNDc4
+S2lCIENhY2hlLCBDSFM9MTEwMjQvOS82MywgVURNQSgzMykNCiBoZGg6DQpoZGE6IG1heCByZXF1
+ZXN0IHNpemU6IDEwMjRLaUINCmhkYTogMTU2MzAxNDg4IHNlY3RvcnMgKDgwMDI2IE1CKSB3Lzgx
+OTJLaUIgQ2FjaGUsIENIUz0xNjM4My8yNTUvNjMsIFVETUEoMTAwKQ0KIGhkYTogaGRhMSBoZGEy
+DQpkcml2ZXJzL3VzYi9ob3N0L3VoY2ktaGNkLmM6IFVTQiBVbml2ZXJzYWwgSG9zdCBDb250cm9s
+bGVyIEludGVyZmFjZSBkcml2ZXIgdjIuMQ0KdWhjaS1oY2QgMDAwMDowMDoxMC4wOiBVSENJIEhv
+c3QgQ29udHJvbGxlcg0KdWhjaS1oY2QgMDAwMDowMDoxMC4wOiBpcnEgMjEsIGlvIGJhc2UgMDAw
+MGIwMDANCnVoY2ktaGNkIDAwMDA6MDA6MTAuMDogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNz
+aWduZWQgYnVzIG51bWJlciAxDQpQTTogQWRkaW5nIGluZm8gZm9yIHVzYjp1c2IxDQpodWIgMS0w
+OjA6IFVTQiBodWIgZm91bmQNCmh1YiAxLTA6MDogMiBwb3J0cyBkZXRlY3RlZA0KUE06IEFkZGlu
+ZyBpbmZvIGZvciB1c2I6MS0wOjANCnVoY2ktaGNkIDAwMDA6MDA6MTAuMTogVUhDSSBIb3N0IENv
+bnRyb2xsZXINCnVoY2ktaGNkIDAwMDA6MDA6MTAuMTogaXJxIDIxLCBpbyBiYXNlIDAwMDBiNDAw
+DQp1aGNpLWhjZCAwMDAwOjAwOjEwLjE6IG5ldyBVU0IgYnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVk
+IGJ1cyBudW1iZXIgMg0KUE06IEFkZGluZyBpbmZvIGZvciB1c2I6dXNiMg0KaHViIDItMDowOiBV
+U0IgaHViIGZvdW5kDQpodWIgMi0wOjA6IDIgcG9ydHMgZGV0ZWN0ZWQNClBNOiBBZGRpbmcgaW5m
+byBmb3IgdXNiOjItMDowDQp1aGNpLWhjZCAwMDAwOjAwOjEwLjI6IFVIQ0kgSG9zdCBDb250cm9s
+bGVyDQp1aGNpLWhjZCAwMDAwOjAwOjEwLjI6IGlycSAyMSwgaW8gYmFzZSAwMDAwYjgwMA0KdWhj
+aS1oY2QgMDAwMDowMDoxMC4yOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMg
+bnVtYmVyIDMNClBNOiBBZGRpbmcgaW5mbyBmb3IgdXNiOnVzYjMNCmh1YiAzLTA6MDogVVNCIGh1
+YiBmb3VuZA0KaHViIDMtMDowOiAyIHBvcnRzIGRldGVjdGVkDQpQTTogQWRkaW5nIGluZm8gZm9y
+IHVzYjozLTA6MA0KZHJpdmVycy91c2IvY29yZS91c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVy
+IGhpZGRldg0KZHJpdmVycy91c2IvY29yZS91c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIGhp
+ZA0KZHJpdmVycy91c2IvaW5wdXQvaGlkLWNvcmUuYzogdjIuMDpVU0IgSElEIGNvcmUgZHJpdmVy
+DQptaWNlOiBQUy8yIG1vdXNlIGRldmljZSBjb21tb24gZm9yIGFsbCBtaWNlDQpzZXJpbzogaTgw
+NDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMg0KaW5wdXQ6IEFUIFNldCAyIGtleWJvYXJk
+IG9uIGlzYTAwNjAvc2VyaW8wDQpzZXJpbzogaTgwNDIgS0JEIHBvcnQgYXQgMHg2MCwweDY0IGly
+cSAxDQppMmMgL2RldiBlbnRyaWVzIGRyaXZlciBtb2R1bGUgdmVyc2lvbiAyLjcuMCAoMjAwMjEy
+MDgpDQpBZHZhbmNlZCBMaW51eCBTb3VuZCBBcmNoaXRlY3R1cmUgRHJpdmVyIFZlcnNpb24gMC45
+LjYgKFdlZCBBdWcgMjAgMjA6Mjc6MTMgMjAwMyBVVEMpLg0KcmVxdWVzdF9tb2R1bGU6IGZhaWxl
+ZCAvc2Jpbi9tb2Rwcm9iZSAtLSBzbmQtY2FyZC0wLiBlcnJvciA9IC0xNg0KQUxTQSBkZXZpY2Ug
+bGlzdDoNCiAgIzA6IFNvdW5kIEJsYXN0ZXIgTGl2ZSEgKHJldi43KSBhdCAweDk0MDAsIGlycSAx
+OQ0KTkVUNDogTGludXggVENQL0lQIDEuMCBmb3IgTkVUNC4wDQpJUDogcm91dGluZyBjYWNoZSBo
+YXNoIHRhYmxlIG9mIDgxOTIgYnVja2V0cywgNjRLYnl0ZXMNClRDUDogSGFzaCB0YWJsZXMgY29u
+ZmlndXJlZCAoZXN0YWJsaXNoZWQgMjYyMTQ0IGJpbmQgNjU1MzYpDQppcF9jb25udHJhY2sgdmVy
+c2lvbiAyLjEgKDgxOTEgYnVja2V0cywgNjU1MjggbWF4KSAtIDE2MCBieXRlcyBwZXIgY29ubnRy
+YWNrDQppcF90YWJsZXM6IChDKSAyMDAwLTIwMDIgTmV0ZmlsdGVyIGNvcmUgdGVhbQ0KaXB0X3Jl
+Y2VudCB2MC4zLjE6IFN0ZXBoZW4gRnJvc3QgPHNmcm9zdEBzbm93bWFuLm5ldD4uICBodHRwOi8v
+c25vd21hbi5uZXQvcHJvamVjdHMvaXB0X3JlY2VudC8NCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tl
+dHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLg0KQklPUyBFREQgZmFjaWxpdHkgdjAuMDkgMjAw
+My1KYW4tMjIsIDMgZGV2aWNlcyBmb3VuZA0KQUNQSTogKHN1cHBvcnRzIFMwIFMzIFM0IFM1KQ0K
+RVhUMy1mczogSU5GTzogcmVjb3ZlcnkgcmVxdWlyZWQgb24gcmVhZG9ubHkgZmlsZXN5c3RlbS4N
+CkVYVDMtZnM6IHdyaXRlIGFjY2VzcyB3aWxsIGJlIGVuYWJsZWQgZHVyaW5nIHJlY292ZXJ5Lg0K
+a2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMy1mczog
+cmVjb3ZlcnkgY29tcGxldGUuDQpFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBvcmRl
+cmVkIGRhdGEgbW9kZS4NClZGUzogTW91bnRlZCByb290IChleHQzIGZpbGVzeXN0ZW0pIHJlYWRv
+bmx5Lg0KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMzY4ayBmcmVlZA0KaHViIDEtMDow
+OiBkZWJvdW5jZTogcG9ydCAyOiBkZWxheSAxMDBtcyBzdGFibGUgNCBzdGF0dXMgMHgzMDENCmh1
+YiAxLTA6MDogbmV3IFVTQiBkZXZpY2Ugb24gcG9ydCAyLCBhc3NpZ25lZCBhZGRyZXNzIDINClBN
+OiBBZGRpbmcgaW5mbyBmb3IgdXNiOjEtMg0KRVhUMyBGUyBvbiBoZGEyLCBpbnRlcm5hbCBqb3Vy
+bmFsDQp0dHlTMTogTFNSIHNhZmV0eSBjaGVjayBlbmdhZ2VkIQ0KdHR5UzE6IExTUiBzYWZldHkg
+Y2hlY2sgZW5nYWdlZCENCmRyaXZlcnMvdXNiL2lucHV0L2hpZC1jb3JlLmM6IGN0cmwgdXJiIHN0
+YXR1cyAtMTA0IHJlY2VpdmVkDQpkcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jOiB0aW1lb3V0
+IGluaXRpYWxpemluZyByZXBvcnRzDQoNCmlucHV0OiBVU0IgSElEIHYxLjAwIE1vdXNlIFtMb2dp
+dGVjaCBJbmMuIGlGZWVsIE1vdXNlICAgXSBvbiB1c2ItMDAwMDowMDoxMC4wLTINClBNOiBBZGRp
+bmcgaW5mbyBmb3IgdXNiOjEtMjowDQpodWIgMy0wOjA6IGRlYm91bmNlOiBwb3J0IDI6IGRlbGF5
+IDEwMG1zIHN0YWJsZSA0IHN0YXR1cyAweDEwMQ0KaHViIDMtMDowOiBuZXcgVVNCIGRldmljZSBv
+biBwb3J0IDIsIGFzc2lnbmVkIGFkZHJlc3MgMg0KUE06IEFkZGluZyBpbmZvIGZvciB1c2I6My0y
+DQpodWIgMy0yOjA6IFVTQiBodWIgZm91bmQNCmh1YiAzLTI6MDogMyBwb3J0cyBkZXRlY3RlZA0K
+UE06IEFkZGluZyBpbmZvIGZvciB1c2I6My0yOjANCklQdjYgdjAuOCBmb3IgTkVUNC4wDQpJUHY2
+IG92ZXIgSVB2NCB0dW5uZWxpbmcgZHJpdmVyDQpodWIgMy0yOjA6IGRlYm91bmNlOiBwb3J0IDE6
+IGRlbGF5IDEwMG1zIHN0YWJsZSA0IHN0YXR1cyAweDEwMQ0KaHViIDMtMjowOiBuZXcgVVNCIGRl
+dmljZSBvbiBwb3J0IDEsIGFzc2lnbmVkIGFkZHJlc3MgMw0KUE06IEFkZGluZyBpbmZvIGZvciB1
+c2I6My0yLjENCmlucHV0OiBVU0IgSElEIHYxLjAwIEtleWJvYXJkIFtDaGljb255ICBQRlUtNjUg
+VVNCIEtleWJvYXJkXSBvbiB1c2ItMDAwMDowMDoxMC4yLTIuMQ0KUE06IEFkZGluZyBpbmZvIGZv
+ciB1c2I6My0yLjE6MA0KaHViIDItMDowOiBkZWJvdW5jZTogcG9ydCAyOiBkZWxheSAxMDBtcyBz
+dGFibGUgNCBzdGF0dXMgMHgxMDENCmh1YiAyLTA6MDogbmV3IFVTQiBkZXZpY2Ugb24gcG9ydCAy
+LCBhc3NpZ25lZCBhZGRyZXNzIDINClBNOiBBZGRpbmcgaW5mbyBmb3IgdXNiOjItMg0KUE06IEFk
+ZGluZyBpbmZvIGZvciB1c2I6Mi0yOjANCk==
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 650 Host (rev 01)
-	Flags: bus master, medium devsel, latency 32
-	Memory at e0000000 (32-bit, non-prefetchable) [size=128M]
-	Capabilities: [c0] AGP version 2.0
+--=-xbNXRzb6Wp99tbAEYQZL
+Content-Disposition: attachment; filename=fdisk.txt
+Content-Type: text/plain; name=fdisk.txt; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
 
-00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SiS 530 Virtual PCI-to-PCI bridge (AGP) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 64
-	Bus: primary=00, secondary=01, subordinate=02, sec-latency=0
-	Memory behind bridge: ddd00000-dfefffff
-	Prefetchable memory behind bridge: cd900000-ddbfffff
+VW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1
+YWwgYWRkcmVzcyAwMDAwMDAwMA0KIHByaW50aW5nIGVpcDoNCmMwMjFhMWZkDQoqcGRlID0gMDAw
+MDAwMDANCk9vcHM6IDAwMDAgWyMxXQ0KUFJFRU1QVCANCkNQVTogICAgMA0KRUlQOiAgICAwMDYw
+Ols8YzAyMWExZmQ+XSAgICBOb3QgdGFpbnRlZCBWTEkNCkVGTEFHUzogMDAwMTAyNDYNCkVJUCBp
+cyBhdCBnZW5lcmljX2lkZV9pb2N0bCsweDMwZC8weDdhMA0KZWF4OiAwMDAwMDAwMCAgIGVieDog
+YmZmZmZiNjggICBlY3g6IGY3ZmYxMDQwICAgZWR4OiAwMDAwMDAwMA0KZXNpOiBiZmZmZmI2MCAg
+IGVkaTogMDAwMDBjZWQgICBlYnA6IGY3NTc3ZjY4ICAgZXNwOiBmNzU3N2YzOA0KZHM6IDAwN2Ig
+ICBlczogMDA3YiAgIHNzOiAwMDY4DQpQcm9jZXNzIGZkaXNrIChwaWQ6IDM5OCwgdGhyZWFkaW5m
+bz1mNzU3NjAwMCB0YXNrPWY3NjI4NjcwKQ0KU3RhY2s6IGMwMzI2ZjVmIDAwMDAwNjRlIDAwMDAw
+MDAwIDAwMGIyMzQ1IGMwNDNmNGE4IGY3NTc3ZjY4IDQwMTM2M2E4IGJmZmZmYjAwIA0KICAgICAg
+IGY3NTc3ZmJjIGY3ZmYxMDQwIGJmZmZmYjYwIGY3NTlkMGZjIGY3NTc3ZjkwIGMwMjAyYTkwIGY3
+ZmYxMDQwIDAwMDAwMzAxIA0KICAgICAgIGJmZmZmYjYwIGJmZmZmYjYwIDAwMDAyMjAwIDAwMDAw
+MzAxIGY3NjA0M2MwIGZmZmZmZmU3IGY3NTc3ZmJjIGMwMTZkNWM0IA0KQ2FsbCBUcmFjZToNCiBb
+PGMwMjAyYTkwPl0gYmxrZGV2X2lvY3RsKzB4OTAvMHgzY2ENCiBbPGMwMTZkNWM0Pl0gc3lzX2lv
+Y3RsKzB4ZjQvMHgyYjANCiBbPGMwMmZlOTc3Pl0gc3lzY2FsbF9jYWxsKzB4Ny8weGINCg0KQ29k
+ZTogMDAgMDAgYzcgMDQgMjQgNWYgNmYgMzIgYzAgZTggMzAgNjQgZjAgZmYgODMgYzMgMDQgODMg
+YzMgMDQgMTkgYzAgMzkgNWUgMTggODMgZDggMDAgODUgYzAgNzUgMWEgOGIgNGQgMDggMzEgYzAg
+OGIgNzUgMTAgOGIgNTEgMzggPDhiPiAxMiA4OSA1NiAwNCAzMSBkMiA4NSBjMCAwZiA4NCA2MSBm
+ZCBmZiBmZiBiYSBmMiBmZiBmZiBmZiBlOSANCiANCg==
 
-00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 04)
-	Flags: bus master, medium devsel, latency 0
+--=-xbNXRzb6Wp99tbAEYQZL
+Content-Disposition: attachment; filename=lspci.txt
+Content-Type: text/plain; name=lspci.txt; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
 
-00:02.1 SMBus: Silicon Integrated Systems [SiS]: Unknown device 0016
-	Flags: medium devsel, IRQ 10
-	I/O ports at 0c00 [size=32]
+MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgzNzcgW0tUNDAw
+IEFHUF0gSG9zdCBCcmlkZ2UNCjAwOjAxLjAgUENJIGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywg
+SW5jLiBWVDgyMzUgUENJIEJyaWRnZQ0KMDA6MGEuMCBFdGhlcm5ldCBjb250cm9sbGVyOiAzQ29t
+IENvcnBvcmF0aW9uIDNjOTA1Qy1UWC9UWC1NIFtUb3JuYWRvXSAocmV2IDZjKQ0KMDA6MGIuMCBN
+dWx0aW1lZGlhIGF1ZGlvIGNvbnRyb2xsZXI6IENyZWF0aXZlIExhYnMgU0IgTGl2ZSEgRU1VMTBr
+MSAocmV2IDA3KQ0KMDA6MGIuMSBJbnB1dCBkZXZpY2UgY29udHJvbGxlcjogQ3JlYXRpdmUgTGFi
+cyBTQiBMaXZlISBNSURJL0dhbWUgUG9ydCAocmV2IDA3KQ0KMDA6MGYuMCBSQUlEIGJ1cyBjb250
+cm9sbGVyOiBQcm9taXNlIFRlY2hub2xvZ3ksIEluYy4gUERDMjAyNzYgSURFIChyZXYgMDEpDQow
+MDoxMC4wIFVTQiBDb250cm9sbGVyOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFVTQiAocmV2IDgw
+KQ0KMDA6MTAuMSBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xvZ2llcywgSW5jLiBVU0IgKHJl
+diA4MCkNCjAwOjEwLjIgVVNCIENvbnRyb2xsZXI6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVVNC
+IChyZXYgODApDQowMDoxMC4zIFVTQiBDb250cm9sbGVyOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMu
+IFVTQiAyLjAgKHJldiA4MikNCjAwOjExLjAgSVNBIGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywg
+SW5jLiBWVDgyMzUgSVNBIEJyaWRnZQ0KMDA6MTEuMSBJREUgaW50ZXJmYWNlOiBWSUEgVGVjaG5v
+bG9naWVzLCBJbmMuIFZUODJDNTg2L0IvNjg2QS9CIFBJUEMgQnVzIE1hc3RlciBJREUgKHJldiAw
+NikNCjAwOjExLjUgTXVsdGltZWRpYSBhdWRpbyBjb250cm9sbGVyOiBWSUEgVGVjaG5vbG9naWVz
+LCBJbmMuIFZUODIzMyBBQzk3IEF1ZGlvIENvbnRyb2xsZXIgKHJldiA1MCkNCjAwOjEzLjAgRXRo
+ZXJuZXQgY29udHJvbGxlcjogUmVhbHRlayBTZW1pY29uZHVjdG9yIENvLiwgTHRkLiBSVEwtODEz
+OS84MTM5Qy84MTM5QysgKHJldiAxMCkNCjAwOjE0LjAgRmlyZVdpcmUgKElFRUUgMTM5NCk6IFZJ
+QSBUZWNobm9sb2dpZXMsIEluYy4gSUVFRSAxMzk0IEhvc3QgQ29udHJvbGxlciAocmV2IDQ2KQ0K
+MDE6MDAuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBNYXRyb3ggR3JhcGhpY3MsIEluYy4g
+TUdBIEc0MDAgQUdQIChyZXYgODIpDQo=
 
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (prog-if 80 [Master])
-	Subsystem: Silicon Integrated Systems [SiS] SiS5513 EIDE Controller (A,B step)
-	Flags: bus master, medium devsel, latency 128
-	I/O ports at ff00 [size=16]
-
-00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] SiS7012 PCI Audio Accelerator (rev a0)
-	Subsystem: C-Media Electronics Inc: Unknown device 0300
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	I/O ports at dc00 [size=256]
-	I/O ports at d800 [size=128]
-	Capabilities: [48] Power Management version 2
-
-00:03.0 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB Controller (rev 0f) (prog-if 10 [OHCI])
-	Subsystem: Silicon Integrated Systems [SiS] SiS7001 USB Controller
-	Flags: bus master, medium devsel, latency 64, IRQ 12
-	Memory at dfffd000 (32-bit, non-prefetchable) [size=4K]
-
-00:03.1 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB Controller (rev 0f) (prog-if 10 [OHCI])
-	Subsystem: Silicon Integrated Systems [SiS] SiS7001 USB Controller
-	Flags: bus master, medium devsel, latency 64, IRQ 5
-	Memory at dfffe000 (32-bit, non-prefetchable) [size=4K]
-
-00:03.2 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB Controller (rev 0f) (prog-if 10 [OHCI])
-	Subsystem: Silicon Integrated Systems [SiS] SiS7001 USB Controller
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	Memory at dffff000 (32-bit, non-prefetchable) [size=4K]
-
-00:03.3 USB Controller: Silicon Integrated Systems [SiS] SiS7002 USB 2.0 (prog-if 20 [EHCI])
-	Subsystem: Silicon Integrated Systems [SiS] SiS7002 USB 2.0
-	Flags: bus master, medium devsel, latency 64, IRQ 12
-	Memory at dffdf000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [50] Power Management version 2
-
-00:04.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 90)
-	Subsystem: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet Adapter
-	Flags: bus master, medium devsel, latency 64, IRQ 5
-	I/O ports at d400 [size=256]
-	Memory at dffdb000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at dffa0000 [disabled] [size=128K]
-	Capabilities: [40] Power Management version 2
-
-01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX 440] (rev a3) (prog-if 00 [VGA])
-	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 5
-	Memory at de000000 (32-bit, non-prefetchable) [size=16M]
-	Memory at d0000000 (32-bit, prefetchable) [size=128M]
-	Memory at ddb80000 (32-bit, prefetchable) [size=512K]
-	Expansion ROM at dfee0000 [disabled] [size=128K]
-	Capabilities: [60] Power Management version 2
-	Capabilities: [44] AGP version 2.0
-
-
---------------070209020506050605080007--
-
+--=-xbNXRzb6Wp99tbAEYQZL--

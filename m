@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269707AbRHCXmY>; Fri, 3 Aug 2001 19:42:24 -0400
+	id <S269712AbRHCXoE>; Fri, 3 Aug 2001 19:44:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269708AbRHCXmO>; Fri, 3 Aug 2001 19:42:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22291 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269707AbRHCXmD>; Fri, 3 Aug 2001 19:42:03 -0400
+	id <S269711AbRHCXny>; Fri, 3 Aug 2001 19:43:54 -0400
+Received: from weta.f00f.org ([203.167.249.89]:10128 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269708AbRHCXnr>;
+	Fri, 3 Aug 2001 19:43:47 -0400
+Date: Sat, 4 Aug 2001 11:44:30 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Chris Mason <mason@suse.com>
 Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
-To: cw@f00f.org (Chris Wedgwood)
-Date: Sat, 4 Aug 2001 00:42:38 +0100 (BST)
-Cc: viro@math.psu.edu (Alexander Viro),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk (Alan Cox), mason@suse.com (Chris Mason)
-In-Reply-To: <20010804113525.E17925@weta.f00f.org> from "Chris Wedgwood" at Aug 04, 2001 11:35:25 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+Message-ID: <20010804114430.A18042@weta.f00f.org>
+In-Reply-To: <20010804113525.E17925@weta.f00f.org> <E15SoaV-0004Et-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15SoaV-0004Et-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15SoaV-0004Et-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For 2.5.x I assume your planning or a credentials cache?  Something
-> like dentry->d_creds or something?  If that's the case we still don't
-> need the struct file* to be passed --- but I suspect that's not the
-> case and I really don't understand.
+On Sat, Aug 04, 2001 at 12:42:38AM +0100, Alan Cox wrote:
 
-It can't come off the dentry as multiple people can have the same file open
-with different rights.
+    It can't come off the dentry as multiple people can have the same
+    file open with different rights.
+
+Yes, of course.
+
+If that's the case, I'm not sure how you pick reasonable creds. for
+fsyncing path components for a network filesystem, unless you (as the
+calling user) open each component and sync that bit by bit --- which
+could almost be done in libc (kernel is easier though).
+
+
+  --cw
+

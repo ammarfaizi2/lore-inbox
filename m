@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVCCWTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVCCWTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbVCCWTw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 17:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVCCWRh
+	id S262676AbVCCWTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 17:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVCCWRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 17:17:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29883 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262643AbVCCWOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 17:14:15 -0500
-Date: Thu, 3 Mar 2005 14:14:11 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-In-Reply-To: <20050303132011.7c80033d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503031412040.10731@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
- <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
- <20050302185508.4cd2f618.akpm@osdl.org> <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
- <20050302201425.2b994195.akpm@osdl.org> <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
- <20050302205612.451d220b.akpm@osdl.org> <Pine.LNX.4.58.0503022206001.4389@schroedinger.engr.sgi.com>
- <20050302222008.4910eb7b.akpm@osdl.org> <Pine.LNX.4.58.0503030852490.8941@schroedinger.engr.sgi.com>
- <20050303132011.7c80033d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Mar 2005 17:17:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:39094 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262676AbVCCWOb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:14:31 -0500
+Date: Thu, 3 Mar 2005 14:13:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: miklos@szeredi.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [request for inclusion] Filesystem in Userspace
+Message-Id: <20050303141352.32c6c35d.akpm@osdl.org>
+In-Reply-To: <16935.12745.191707.91582@alkaid.it.uu.se>
+References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu>
+	<20050302123123.3d528d05.akpm@osdl.org>
+	<16934.54647.354607.902748@alkaid.it.uu.se>
+	<20050303013203.245c8833.akpm@osdl.org>
+	<16935.12745.191707.91582@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Andrew Morton wrote:
-
-> Christoph Lameter <clameter@sgi.com> wrote:
-> >
-> > On Wed, 2 Mar 2005, Andrew Morton wrote:
-> >
-> >  > >  This is not relevant since it only deals with file pages.
-> >  >
-> >  > OK.   And CONFIG_DEBUG_PAGEALLOC?
-> >
-> >  Its a debug feature that can be fixed if its broken.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 >
-> It's broken.
->
-> A fix would be to restore the get_page() if CONFIG_DEBUG_PAGEALLOC.  Not
-> particularly glorious..
+>  > > perfctr has one API update pending, and then the API should be
+>   > > in it final-ish form. David Gibson at IBM has done a ppc64 port,
+>   > > which is about ready to be merged, and someone else has just
+>   > > started working on a mips port.
+>   > > 
+>   > 
+>   > That sounds good.  Where do we stand now with ia64?  Do we just end up
+>   > agreeing to differ?
+> 
+>  I think so, yes.
+> 
+>  The ia64 perfmon has some features perfctr doesn't have,
+>  but my perfctr API changes will allow perfctr to grow its
+>  feature list and adapt to HW changes without breaking the API.
+>  Its unlikely that perfctr will ever implement everything
+>  perfmon does, but multiplexing and overflow sample buffering
+>  are two features that should be added at some point.
 
-Another fix would be to have a global variable "dontunmap" and have
-the map kernel function not change the pte. But this is also not the
-cleanest way.
+Oh well, at least we tried.  perfctr supports a lot of architectures and a
+fair few people want it, so let's get this merged up.
 
-The problem with atomic operations is the difficulty of keeping state. The
-state must essentially all be bound to the atomic value replaced otherwise
-more extensive locking schemes are needed.
-
+Let's get the ppc64 port included too, just in case that forces
+late-breaking API changes.
 

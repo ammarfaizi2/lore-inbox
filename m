@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265505AbUBPNZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUBPNZ3
+	id S265528AbUBPNc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUBPNc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:25:29 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38611 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265505AbUBPNZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:25:28 -0500
-Date: Mon, 16 Feb 2004 12:39:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       matthew@wil.cx, rth@twiddle.net
-Subject: Re: When should we use likely() / unlikely() / get_unaligned() ?
-Message-ID: <20040216113946.GB470@openzaurus.ucw.cz>
-References: <1076065578.16147.72.camel@hades.cambridge.redhat.com> <20040208214335.58f351d4.rusty@rustcorp.com.au> <1076238833.12587.229.camel@imladris.demon.co.uk>
+	Mon, 16 Feb 2004 08:32:57 -0500
+Received: from dp.samba.org ([66.70.73.150]:39326 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265528AbUBPNcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:32:55 -0500
+Date: Mon, 16 Feb 2004 22:42:44 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dirk Morris <dmorris@metavize.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.2] Badness in futex_wait revisited
+Message-Id: <20040216224244.3928d477.rusty@rustcorp.com.au>
+In-Reply-To: <402D3DFF.4040609@metavize.com>
+References: <402D3DFF.4040609@metavize.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076238833.12587.229.camel@imladris.demon.co.uk>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 13 Feb 2004 13:13:35 -0800
+Dirk Morris <dmorris@metavize.com> wrote:
 
-> A probability argument for get_unaligned() allows those architectures to
-> _unconditionally_ emit inline unaligned load/store code, while allowing
-> other, saner, architectures to start doing so only when the probability
-> means it makes sense.
+> In reference to this previous post:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0401.1/1966.html
 > 
-> The alternative would be a get_unlikely_unaligned() which does the same
+> I also get:
+> Feb 13 11:43:52 timmy kernel: Call Trace:
+> Feb 13 11:43:52 timmy kernel:  [<c01387e1>] futex_wait+0x191/0x1a0
+> Feb 13 11:43:52 timmy kernel:  [<c011e9e0>] default_wake_function+0x0/0x20
+> Feb 13 11:43:52 timmy kernel:  [<c011e9e0>] default_wake_function+0x0/0x20
+> Feb 13 11:43:52 timmy kernel:  [<c0138abb>] do_futex+0x6b/0x80
+> Feb 13 11:43:52 timmy kernel:  [<c0138be6>] sys_futex+0x116/0x130
+> Feb 13 11:43:52 timmy kernel:  [<c010959f>] syscall_call+0x7/0xb
+> 
+> I get this in 2.6.1 and 2.6.2.
+> In userland a call to sem_wait returns with -1, and errno = -EINTR
 
-I think that this alternative is way better than introducing
-probabilities.
-				Pavel
+Yes...
+
+	Please send your config.  What's happening at the time?
+
+(Andrew's patch was buggy, I fixed it and can send you an update).
+
+Rusty.
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

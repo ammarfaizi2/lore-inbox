@@ -1,29 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbULYPhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbULYPgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbULYPhS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 10:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbULYPhR
+	id S261521AbULYPgx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 10:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbULYPgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 10:37:17 -0500
-Received: from coderock.org ([193.77.147.115]:17884 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261523AbULYPfO (ORCPT
+	Sat, 25 Dec 2004 10:36:52 -0500
+Received: from coderock.org ([193.77.147.115]:16348 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261521AbULYPfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 10:35:14 -0500
-Subject: [patch 2/2] linux-2.6.9/fs/proc/proc_tty.c: avoid array
+	Sat, 25 Dec 2004 10:35:09 -0500
+Subject: [patch 1/2] inux-2.6.9/fs/proc/base.c: array size
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org, wharms@bfs.de
 From: domen@coderock.org
-Date: Sat, 25 Dec 2004 16:35:16 +0100
-Message-Id: <20041225153506.E346B1F123@trashy.coderock.org>
+Date: Sat, 25 Dec 2004 16:35:12 +0100
+Message-Id: <20041225153503.10FF41EA0F@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Sorry about duplicate, had mail problems]
 
 Hi list,
-no need for an array here.  therefor no need to worry about possible 
-overflows. seq_printf() can handle this.
+i was looking for arrays (and possible overflows) when i noticed that
+proc_pid_wchan() uses a 128-Byte array for something that can change its size
+via define.
 
-avoid array in show_tty_range()
+Fix possible overflow: rewrite arraysize with correct constant
 
 re,
 walter
@@ -33,23 +35,20 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/fs/proc/proc_tty.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
+ kj-domen/fs/proc/base.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN fs/proc/proc_tty.c~remove_sprintf-fs_proc_proc_tty.c.bak fs/proc/proc_tty.c
---- kj/fs/proc/proc_tty.c~remove_sprintf-fs_proc_proc_tty.c.bak	2004-12-25 01:36:07.000000000 +0100
-+++ kj-domen/fs/proc/proc_tty.c	2004-12-25 01:36:07.000000000 +0100
-@@ -32,10 +32,8 @@ static void show_tty_range(struct seq_fi
- 	seq_printf(m, "%-20s ", p->driver_name ? p->driver_name : "unknown");
- 	seq_printf(m, "/dev/%-8s ", p->name);
- 	if (p->num > 1) {
--		char	range[20];
--		sprintf(range, "%d-%d", MINOR(from),
-+		seq_printf(m, "%3d %d-%d ", MAJOR(from), MINOR(from),
- 			MINOR(from) + num - 1);
--		seq_printf(m, "%3d %7s ", MAJOR(from), range);
- 	} else {
- 		seq_printf(m, "%3d %7d ", MAJOR(from), MINOR(from));
- 	}
-diff -L fs/proc/proc_tty.c.bak -puN /dev/null /dev/null
+diff -puN fs/proc/base.c~array_size-fs_proc_base.c.bak fs/proc/base.c
+--- kj/fs/proc/base.c~array_size-fs_proc_base.c.bak	2004-12-25 01:36:07.000000000 +0100
++++ kj-domen/fs/proc/base.c	2004-12-25 01:36:07.000000000 +0100
+@@ -401,7 +401,7 @@ static int proc_pid_wchan(struct task_st
+ 	char *modname;
+ 	const char *sym_name;
+ 	unsigned long wchan, size, offset;
+-	char namebuf[128];
++	char namebuf[KSYM_NAME_LEN+1];
+ 
+ 	wchan = get_wchan(task);
+ 
+diff -L fs/proc/base.c.bak -puN /dev/null /dev/null
 _

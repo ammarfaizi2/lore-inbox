@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSGQQit>; Wed, 17 Jul 2002 12:38:49 -0400
+	id <S315374AbSGQQlv>; Wed, 17 Jul 2002 12:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSGQQis>; Wed, 17 Jul 2002 12:38:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65041 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315265AbSGQQis>;
-	Wed, 17 Jul 2002 12:38:48 -0400
-Message-ID: <3D35A024.1635E12E@zip.com.au>
-Date: Wed, 17 Jul 2002 09:49:40 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/13] lseek speedup
-References: <3D3598F0.FBBA9DB6@zip.com.au> <5.1.0.14.2.20020717171311.00b00380@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S315416AbSGQQlv>; Wed, 17 Jul 2002 12:41:51 -0400
+Received: from cs180154.pp.htv.fi ([213.243.180.154]:54427 "EHLO
+	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S315374AbSGQQlu>;
+	Wed, 17 Jul 2002 12:41:50 -0400
+Subject: Re: Is TCP CA_LOSS to CA_RECOVERY possible
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+To: spy9599 <spy9599@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020717161834.12994.qmail@web14806.mail.yahoo.com>
+References: <20020717161834.12994.qmail@web14806.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Jul 2002 19:44:47 +0300
+Message-Id: <1026924287.4779.21.camel@devil>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+On Wed, 2002-07-17 at 19:18, spy9599 wrote:
+> In the present TCP (2.5.x) implementation, the TCP
+> sender never exits TCP_CA_Loss state until all packets
+> upto high_seq are acknowledged. But lets say while
+> doing retransmissions, some packet less than high_seq
+> are lost again. Ideally the TCP sender should just
+> enter fast retransmit and fast recovery, but from the
+> present implementation it seems the only way to come
+> out of it is after a timeout. 
 > 
-> >  Now, why are we taking i_sem for lseek/readdir
-> >exclusion and not a per-file lock?
-> 
-> Because it also excludes against directory modifications, etc. Just imagine
-> what "rm somefile" or "mv somefile otherfile" or "touch newfile" would do
-> to the directory contents and what a concurrent readdir() would do... A
-> very loud *BANG* is the only thing that springs to mind...
+> Could somebody explain this to me please.
 
-That's different.  i_size, contents of things, yes - i_sem for
-those.
+The only reliable way to detect that a retransmitted segment has been
+lost is timeout. You can't use dupacks, because at this point they are
+not necessarily caused by lost retransmissions. They might be caused by
+duplicates, delayed packets, or the acks themselves might be delayed.
+You could end up with shrinking the congestion window unnecessarily or
+just plain bad retransmission behaviour. Note that if SACK is enabled,
+the transmitter will not retransmit too many unnecessary segments
+anyway.
 
-But protection of struct file should not be via any per-inode thing.
+	MikaL
 
-> btw. the directory modification locking rules are written up in
-> Documentation/filesystems/directory-locking by our very own VFS maintainer
-> Al Viro himself... (-;
-
-Doesn't cover lseek...
-
--

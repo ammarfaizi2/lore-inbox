@@ -1,33 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287408AbSACWLW>; Thu, 3 Jan 2002 17:11:22 -0500
+	id <S287407AbSACWND>; Thu, 3 Jan 2002 17:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287407AbSACWLM>; Thu, 3 Jan 2002 17:11:12 -0500
-Received: from colorfullife.com ([216.156.138.34]:33540 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S287394AbSACWLC>;
-	Thu, 3 Jan 2002 17:11:02 -0500
-Message-ID: <3C34D6FC.9090207@colorfullife.com>
-Date: Thu, 03 Jan 2002 23:11:08 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S288332AbSACWMw>; Thu, 3 Jan 2002 17:12:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:478 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S287420AbSACWLj>;
+	Thu, 3 Jan 2002 17:11:39 -0500
+Date: Thu, 3 Jan 2002 17:11:37 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: State of the new config & build system 
+In-Reply-To: <21246.1010094652@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.GSO.4.21.0201031653420.23693-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Who uses hdx=bswap or hdx=swapdata?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the hdx=bswap or hdx=swapdata option actually in use?
-When is it needed?
-The current implementation can cause data corruptions on SMP with PIO 
-transfers:
-It modifies the source buffer during disk writes, and these temporary
-modifications (within the irq handler) are visible with mmap on SMP.
 
-Is it possible to remove the option entirely, or should it be fixed?
 
---
-    Manfred
+On Fri, 4 Jan 2002, Keith Owens wrote:
+
+> * Mount COW layer over clean tree.
+> * Edit a file, writing to the COW layer.
+> * Build the kernel.
+> * Decide that you don't want the change, delete the COW version,
+>   exposing the original version of the file, timestamp goes backwards.
+
+ITYM "creating a whiteout entry".  unlink() on unionfs doesn't expose
+the underlying object.
+
+It looks so:
+
+	* each directory in covering layer has a flag (is_transparent)
+	* all children of non-transparent directory are non-transparent
+	* lookup in non-transparent directory is a usual lookup in covering
+layer.
+	* lookup in transparent directory
+		lookup in covering layer
+		if found an object -> return it
+		else if found whiteout -> no entry
+		else
+			do lookup in covered
+			if not found -> no entry
+			else if found is a directory
+				create a directory in covering
+				mark it transparent
+				return new directory
+			else -> return what we found
+	* mkdir creates non-transparent directories
+	* unlink and rmdir leave whiteout entry
+	* attempt to modify file copies it into covering and modifies that copy.
+
+That gives you real copy-on-write semantics - when you remove object it
+stays removed; rm -rf foo && mkdir foo gives you an empty directory, etc.
+rename() support is messy - especially when it comes to renaming directories
+(if it was transparent you need to copy the entire subtree to covering layer).
+
+Whiteouts are usually represented as directory entries with no inode and
+type of entry being DT_WHT (14).  Adding support of these beasts into
+ext2 is ~ 10 lines of patch.
 

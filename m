@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277556AbRJETFk>; Fri, 5 Oct 2001 15:05:40 -0400
+	id <S277550AbRJETIa>; Fri, 5 Oct 2001 15:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277551AbRJETFa>; Fri, 5 Oct 2001 15:05:30 -0400
-Received: from dns4.captainjack.com ([63.69.184.4]:28758 "HELO
-	dns4.captainjack.com") by vger.kernel.org with SMTP
-	id <S277550AbRJETFQ>; Fri, 5 Oct 2001 15:05:16 -0400
-Message-ID: <001e01c14dd0$326264d0$2a23b1cf@win2k>
-From: "Tyler Longren" <tyler@captainjack.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: 2.4.x, smp, eepro100
-Date: Fri, 5 Oct 2001 14:01:52 -0500
-Organization: Captain Jack Communications
+	id <S277551AbRJETIU>; Fri, 5 Oct 2001 15:08:20 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:9099 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S277550AbRJETIG>;
+	Fri, 5 Oct 2001 15:08:06 -0400
+Date: Fri, 5 Oct 2001 14:41:00 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Igor Mozetic <igor.mozetic@uni-mb.si>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-ac4 (SMP, highmem) complete freeze
+In-Reply-To: <15293.65326.541017.774801@cmb1-3.dial-up.arnes.si>
+Message-ID: <Pine.LNX.4.21.0110051436560.2744-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
 
-I've been having major troubles with a machine here.  Here's my setup:
 
-OS: Slackware 8.0
-Kernel: 2.4.5_nosmp, 2.4.5, and 2.4.10
-NIC: eepro100
+On Fri, 5 Oct 2001, Igor Mozetic wrote:
 
-Anyway, installed Slackware with the default scsi kernel.  Everything worked
-fine.  I re-compiled 2.4.5 to enable smp support.  After re-compiling
-everything is stable until a few hundred megs gets uploaded to the box.
-After a few hundred megs get upped to the box (through ftp), eth0 just dies.
-The same thing happened in 2.4.9 and now also happens in 2.4.10.  There's
-some odd messages coming from dmesg:
-eth0:        8   0000a022.
-eth0:        9   0000a020.
-eth0:        10 0000a020.
-eth0:        11 0000a020.
-eth0:        12 0000a022.
-eth0:        13 0000a022.
-eth0:        14 0000a020.
-eth0:        15 0000a020.
-eth0:        16 0000a020.
-eth0:        17 00000001.
-eth0:        18 00000001.
+> The same story as with 2.4.10, only faster:
+> 
+> After one day of uptime under load 2-3 (highmem),
+> the box froze completely. Only hard reboot (actually power unplug)
+> brought it back. Nothing in logs, nothing over netconsole-C2 ...
 
-I have no idea why this is happening.  My ethernet card uses the eepro100
-module.  When I re-compile the kernel, I use the default config file for
-slackware (so it should be like the default Slackware scsi kernel).  The
-only thing I do is add SMP support.
+Can you try to get any backtraces the next time the machine locks up ?
 
-Any ideas anyone?
+You can use the SysRQ key's for that (documentation about it at
+Documentation/sysrq.txt). (Alt+SysRQ+T and Alt+SysRQ+P traces)
 
-Thanks,
-Tyler Longren
-
+Thanks 
 

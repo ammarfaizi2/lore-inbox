@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290828AbSAYXJg>; Fri, 25 Jan 2002 18:09:36 -0500
+	id <S290827AbSAYXJY>; Fri, 25 Jan 2002 18:09:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290756AbSAYXJZ>; Fri, 25 Jan 2002 18:09:25 -0500
-Received: from zero.tech9.net ([209.61.188.187]:12299 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288781AbSAYXJG>;
-	Fri, 25 Jan 2002 18:09:06 -0500
-Subject: [PATCH] add BUG_ON to 2.4 #1
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S290756AbSAYXJF>; Fri, 25 Jan 2002 18:09:05 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:59853 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S288781AbSAYXIs>; Fri, 25 Jan 2002 18:08:48 -0500
+Date: Fri, 25 Jan 2002 15:07:13 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: mingo@elte.hu
+Subject: Performance of Ingo's O(1) scheduler on 8 way NUMA-Q
+Message-ID: <23350000.1012000033@flay>
+In-Reply-To: <119440000.1011836623@flay>
+In-Reply-To: <Pine.LNX.4.33.0201211626030.12418-100000@localhost.localdomain> <119440000.1011836623@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 25 Jan 2002 18:14:05 -0500
-Message-Id: <1012000446.3799.77.camel@phantasy>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds the BUG_ON (as seen on TV and 2.5) define to
-the 2.4 kernel.  This will help in portability and back-porting from 2.5
-to 2.4, plus BUG_ON is a nice optimization and aids readability.
+Measuring the performace of a parallelized kernel compile with warm caches
+on a 8 way NUMA-Q box. Highmem support is turned OFF so I'm only using
+the first 1Gb or so of RAM (it's much faster without HIGHMEM).
 
-For the unaware, BUG_ON(condition) calls bug on !condition, which is
-marked unlikely().
+prepare:
+make -j16 dep; make -j16 bzImage; make mrproper; make -j16 dep; 
 
-This is the generalized arch-independent BUG_ON as in later 2.5 kernels.
+measured:
+time make -j16 bzImage
 
-Marcelo, please apply.
+2.4.18-pre7 
 
-	Robert Love
+330.06user 99.92system 1:00.35elapsed 712%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (411135major+486026minor)pagefaults 0swaps
 
---- linux-2.4.18-pre7/include/linux/kernel.h	Thu Jan 24 13:48:18 2002
-+++ linux/include/linux/kernel.h	Fri Jan 25 17:53:54 2002
-@@ -11,6 +11,7 @@
- #include <linux/linkage.h>
- #include <linux/stddef.h>
- #include <linux/types.h>
-+#include <linux/compiler.h>
- 
- /* Optimization barrier */
- /* The "volatile" is due to gcc bugs */
-@@ -181,4 +182,5 @@
- 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
- };
- 
-+#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
- #endif
+2.4.18-pre7 with J6 scheduler
+
+307.19user 88.54system 0:57.63elapsed 686%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (399255major+484472minor)pagefaults 0swaps
+
+Seems to give a significant improvement, not only giving a shorter 
+elapsed time, but also lower CPU load.
+
+Martin.
 

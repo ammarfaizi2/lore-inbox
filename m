@@ -1,117 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264948AbTLRGOA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 01:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbTLRGOA
+	id S265079AbTLRGUa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 01:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTLRGUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 01:14:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48522 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264948AbTLRGN5 (ORCPT
+	Thu, 18 Dec 2003 01:20:30 -0500
+Received: from moof.zeroth.org ([203.117.131.35]:61706 "EHLO moof.zeroth.org")
+	by vger.kernel.org with ESMTP id S265085AbTLRGU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 01:13:57 -0500
-Date: Wed, 17 Dec 2003 22:14:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0
-Message-Id: <20031217221432.4e1bbd60.akpm@osdl.org>
-In-Reply-To: <shsekv2ptcb.fsf@guts.uio.no>
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org>
-	<20031217211516.2c578bab.akpm@osdl.org>
-	<shsekv2ptcb.fsf@guts.uio.no>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Dec 2003 01:20:28 -0500
+Message-ID: <3FE14706.3070003@metaparadigm.com>
+Date: Thu, 18 Dec 2003 14:19:50 +0800
+From: Jamie Clark <jclark@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa1 ext3 oops
+References: <3FA713B9.3040405@metaparadigm.com>	 <20031104102816.GB2984@x30.random> <3FA79308.3070300@metaparadigm.com>	 <20031206010505.GB14904@dualathlon.random>	 <3FD7D78A.4080409@metaparadigm.com> <1071661358.13152.26.camel@imladris.demon.co.uk>
+In-Reply-To: <1071661358.13152.26.camel@imladris.demon.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+David Woodhouse wrote:
+
+>On Thu, 2003-12-11 at 10:33 +0800, Jamie Clark wrote:
+>  
 >
-> 
-> Congratulations Linus and Andrew...
+>>After a quick browse of the assembler output the zeroing would appear to 
+>>be part of the list_del inline, and edi seems to equate to &sb. 
+>>    
+>>
+>Seems reasonable. It does look like something's stomped on sb->s_dirty.
+>  
+>
+>>__mark_inode_dirty() does not appear to take sb_lock before adding to 
+>>the s_dirty list. Could that be the culprit?
+>>    
+>>
+>
+>I don't think so; it's holding the inode_lock which should be
+>sufficient. Besides -- in practice all updates to the 4-byte pointer
+>sb->s_dirty.next are going to be atomic, and there's no reason _ever_
+>for it to be set to d7ffbc08. It's hard to see how a simple locking
+>problem is going to cause such a thing.
+>  
+>
+True.  I confess I didn't think too hard after narrowing down where it 
+tripped up.
 
-Let's first see how embarrassing the next week proves to be...
+>How repeatable is this? 
+>
+The first oops ocurred after 4 or 5 days. My second run crashed in the 
+first night, this time in filemap.c: precheck_file_write().
+This oops seemed to be at or near the first dereference of inode, before 
+the f_flags test.
 
-> Will you be posting a plan for how you want the 2.6.x series to
-> proceed? I gather I'm not alone in having a load of patches that I'd
-> like to send you ASAP...
+        /* FIXME: this is for backwards compatibility with 2.4 */
+        if (!S_ISBLK(inode->i_mode) && (file->f_flags & O_APPEND))
+                *ppos = pos = inode->i_size;
 
-I believe that the processes we've all been using for the past year have
-worked well (invitation here for people to disagree).  So any changes we
-make to that process shouldn't be arbitrary.
+ >>EIP; c01306fb <precheck_file_write+53/1f8>   <=====
+Trace; c01308f8 <generic_file_write_nolock+58/4c8>
+Trace; c013108f <generic_file_write+13f/158>
+Trace; c016f3a7 <ext3_file_write+23/bc>
+Trace; c0140e57 <sys_write+8f/100>
+Trace; c0107133 <system_call+33/38>
 
-I expect that until 2.7.0 forks, Linus and I shall continue to work 2.6.x
-in much the same manner - that's what I'd prefer, anyway.
+>Can you turn on slab poisoning?
+>  
+>
+Is CONFIG_DEBUG_SLAB all that I need?
 
-Obviously, the threshold for merging things into 2.6 becomes higher, and
-large changes will be rejected pending more review and testing.  I shall
-continue to run an alternate tree for the provision of that testing
-service.
+I'm currently running 2.4.23aa1 with the inode.c patch reversions as 
+Marcelo first suggested. When (IF) that crashes, or if I can get the 
+test running on another SMP box I will revert to 2.4.23 + the qla2300 
+driver that I need for the fibre-channel array.
 
-Generally, we should expect that there will be large changes across the 2.6
-lifetime - it is unrealistic to believe otherwise.  We just need to find
-the processes to absorb those changes (and feed them into or from 2.7.x)
-without breaking stuff.  We've done that fairly well across 2.5 I think.
-
-
-We should sit tight for the next week or so, in case we need to rush out a
-2.6.1 for brown-bag bugs.  After that I need to shrink the -mm patchset
-rather a lot.
-
-> Here's a brief commentary on the NFS client related sections in your 2
-> todo lists, as well as on outstanding client issues:
-
-Nick has been maintaining these lists lately - hopefully he can send me an
-update for NFS, thanks.
-
-> Must fix:
->   - The mmap-versus-truncate NFS problem appears to be a lot more
->     difficult to reproduce these days. I need a call for testing to
->     verify that the problem still exists.
->   - I'm mystified by Andi's comments about RPC having lots of
->     uninterruptible waits. It sounds to me as if he is confusing the
->     "soft" and "intr" options. The two are very distinct...
-> 
-> Should fix:
->   - The VFS support for atomic open() has already been merged by Linus
->     (as well as the NFSv2/v3 support). I still have a couple of
->     trivial bugfixes for the VFS case (one place where we used O_READ
->     instead of FMODE_READ, and one place where the "intent" is not
->     filled in at all). NFSv4 support needs for atomic open to be
->     merged in (this will fix several NFSv4 file creation races).
-> 
-> 
-> Not listed in either:
->   - There are a few lockd fixes that need to be forward-ported from
->     2.4.x.
-> 
->   - A *lot* of progress has been made on the NFSv4 client. I would
->     very much like to merge this into 2.6.x ASAP, since it concerns
->     rather critical subjects such as adding support for locking, and
->     reboot recovery (as well as lots of stability fixes). What are
->     your feelings on a timeframe for this sort of thing?
-
-I doubt that people will be critially dependent on NFS4 client
-functionality in 2.6 for a while, and your changes will only affect NFS4,
-so go wild.
-
-If the change was more intrusive then it would be better to
-maintain+develop it in -mm until we've all happy, then merge it across.
-
->   - The RPCSEC_GSS support for NFSv2/v3 was merged in before it had
->     been thoroughly tested and reviewed. It contains a couple of
->     serious bugs that need to be ironed out.
-> 
-> If you want info beyond this mail, then my current set of NFS client
-> patches may be found on
-> 
->    http://www.fys.uio.no/~trondmy/src/Linux-2.6.x/2.6.0-test11
-> 
-> The file HEADER.html contains a list of patches and a brief
-> description of what each patch does. That should give an idea of how
-> much is currently outstanding (I still expect the list to continue
-> growing - I'm still working on several NFSv4 subtopics).
-
-OK.
+-Jamie
 

@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266959AbUBMMhn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 07:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266964AbUBMMhn
+	id S266968AbUBMMr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 07:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266975AbUBMMr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 07:37:43 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:57614 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S266959AbUBMMhl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 07:37:41 -0500
-Date: Fri, 13 Feb 2004 13:37:34 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Junio C Hamano <junkio@cox.net>, Michael Frank <mhf@linuxmail.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-In-Reply-To: <200402130918.45587.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0402131322280.12513-100000@gaia.cela.pl>
+	Fri, 13 Feb 2004 07:47:29 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:48836 "EHLO
+	mail4.ewetel.de") by vger.kernel.org with ESMTP id S266968AbUBMMr1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 07:47:27 -0500
+Date: Fri, 13 Feb 2004 13:48:36 +0100 (CET)
+From: der.eremit@email.de
+To: Nick Bartos <spam99@2thebatcave.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: getting usb mass storage to finish before running init?
+In-Reply-To: <52496.192.168.1.12.1076639642.squirrel@mail.2thebatcave.com>
+Message-ID: <Pine.LNX.4.58.0402131338510.163@neptune.local>
+References: <1oAMR-6St-13@gated-at.bofh.it> <E1ArSm1-0003ei-Pv@localhost>
+ <52496.192.168.1.12.1076639642.squirrel@mail.2thebatcave.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You haven't made your point with this post.
+On Thu, 12 Feb 2004, Nick Bartos wrote:
 
-Dots are meant to end sentences not lines.
-If a line is not a sentence there's no point in adding a period. Period.
-However if a message is basically a sentence then like any sentence it 
-should end with a period.  There's no philosophy to this.
+> well, the root filesystem is an initrd, so I can't do that.
 
-The majority of kernel messages aren't sentences and thus are dot-free. 
-Some however are, and these usually look better with the ending periods.  
-However, whether these ending periods are necessary depends mainly on the 
-length of the sentence, on whether they end with numerals or acronyms and 
-a matter of personal taste.
+Then I mean look for the filesystem you want to mount.
 
-On Fri, 13 Feb 2004, vda wrote:
+> I suppose I could compile in the extra info for /proc/partitions and see
+> if that gives me anything I can keep looking for (don't know if it puts
+> file system labels in there, but that is probably what I would have to go
+> on since that is really the only thing that is constant on all systems).
 
-> On Friday 13 February 2004 08:41, Junio C Hamano wrote:
-> 
-> > MF> +Periods terminating kernel messages are deprecated
-> > MF> +Usage of the apostrophe <'> in kernel messages is deprecated
-> >
-> > I do not think encouraging bad spelling like above has reached
-> > community consensus.  Personally I do not like those sloppy
-> > grammar ("donts" and missing period at the end of the sentence).
-> 
-> 126MB LOWMEM available
-> Detected 1196.031 MHz processor
-> Intel machine check architecture supported
-> POSIX conformance testing by UNIFIX
-> PCI: Probing PCI hardware
+Well, if you know what filesystem type is wanted you could just attempt
+to mount all the partitions from /proc/partitions with that type
+(read-only) and look for a unique file - if it's there, keep the fs
+mounted, otherwise umount and try next candidate.
 
-In your post only the above could be considered sentences and even then
-most are really too short, or end with numerals or acronyms which make
-dots look stupid.  Personally I'd think the "Intel machine check
-architecture supported." message looks better with a period and I'd leave
-all the rest alone.  Nevertheless, all 5 of the above could possibly end 
-with periods, the rest never.
+That's basically what I do in an initrd I wrote for CD-ROM booting, I'm
+just trying to mount iso9660 filesystems and look for /etc/rc.d/rc.cdrom
+when it succeeds. Better ways to identifiy a block device exist, I'm
+sure, but the approach works for me. I'm narrowing down the search by
+scanning the dmesg buffer for ATAPI and SCSI CD-ROM detection messages,
+but that approach doesn't work for your problem (and is also fragile
+when using it across several kernel versions).
 
-De gusto non est disputandum - cheers,
-MaZe.
+> Is there a quick/clean way to query a device and get the label?
 
+findfs from the e2fsprogs package, maybe.
 
+> I suppose
+> I could use tune2fs or something, but I didn't know if there is anything
+> better/simpler.  I don't know if I like the idea of running tune2fs on
+> each partition again and again.  I guess I could keep a list in memory and
+> only check each one once, but that is getting a bit more complicated &
+> time consuming.
+
+Well, it's read-only access, so I don't see a problem even with running
+it multiple times on the same device. Keeping a list of already tried
+devices isn't black magic, though.
+
+-- 
+Ciao,
+Pascal

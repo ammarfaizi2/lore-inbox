@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbQKOSjW>; Wed, 15 Nov 2000 13:39:22 -0500
+	id <S129272AbQKOSlm>; Wed, 15 Nov 2000 13:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbQKOSjC>; Wed, 15 Nov 2000 13:39:02 -0500
-Received: from pppl40.bunt.com ([195.178.11.40]:27652 "EHLO dragon.flyn.org")
-	by vger.kernel.org with ESMTP id <S129199AbQKOSiq>;
-	Wed, 15 Nov 2000 13:38:46 -0500
-Date: Wed, 15 Nov 2000 18:59:58 +0100
-From: "W. Michael Petullo" <mike@flyn.org>
-To: linux-kernel@vger.kernel.org
-Subject: EJECT ioctl fails on empty SCSI CD-ROM
-Message-ID: <20001115185958.A5072@dragon.flyn.org>
+	id <S130571AbQKOSlc>; Wed, 15 Nov 2000 13:41:32 -0500
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:51943 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S129272AbQKOSlO>; Wed, 15 Nov 2000 13:41:14 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Aamir Dogar <u970001@giki.edu.pk>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <80256998.0063DEAA.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Wed, 15 Nov 2000 17:10:56 +0000
+Subject: Re: Newbie
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux dragon.flyn.org 2.4.0-test11 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently using the CDROMEJECT ioctl with kernel 2.4-testX fails on
-a SCSI CD-ROM that does not have a disc in it.  The errno returned
-corresponds to the string ``No such file or directory.''
 
-The Linux CD-ROM Standard states that CDROMEJECT opens the drive tray.
-It does not mention any prerequisite such as media being present.
 
-Is this the expected behavior?  If so, I am curious to hear the rationale
-behind it.
+Not even Intel can spell kernal [sic] - see 486 Programmer's reference -
+description of protection mechanism.
 
-Thanks!
+BTW one of the enhancements to the Pentium was an improvement in the
+spelling of kernel. :-)
 
--- 
-W. Michael Petullo
 
-:wq
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

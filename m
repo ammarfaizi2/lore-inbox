@@ -1,266 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUICTRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269756AbUICTXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268218AbUICTRS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269766AbUICTQk
+	id S269756AbUICTXw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269758AbUICTXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:16:40 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:10654 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S269738AbUICTNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:13:18 -0400
-Date: Fri, 3 Sep 2004 12:13:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.9-rc1 2/3] zlib_inflate: Make zlib_inflate_trees_fixed(...) generate the table
-Message-ID: <20040903191307.GE6290@smtp.west.cox.net>
-References: <20040903184012.GC6290@smtp.west.cox.net> <20040903190017.GD6290@smtp.west.cox.net>
+	Fri, 3 Sep 2004 15:23:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44212 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269756AbUICTXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 15:23:20 -0400
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: george anzinger <george@mvista.com>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <1094193731.434.7232.camel@cube>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+	 <4137CB3E.4060205@mvista.com>  <1094193731.434.7232.camel@cube>
+Content-Type: text/plain
+Message-Id: <1094239113.14662.500.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903190017.GD6290@smtp.west.cox.net>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 03 Sep 2004 12:18:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following changes zlib_inflate_trees_fixed(...) from using a
-statically defined table, to generating this table.  This cuts out 4-8kB
-from inftrees.o (4kB on IBM 440GP, 8kB on PPC 74xx).
+On Thu, 2004-09-02 at 23:42, Albert Cahalan wrote:
+> > > +int ntp_leapsecond(struct timespec now)
+> > > +{
+> > > +	/*
+> > > +	 * Leap second processing. If in leap-insert state at
+> > > +	 * the end of the day, the system clock is set back one
+> > > +	 * second; if in leap-delete state, the system clock is
+> > > +	 * set ahead one second. The microtime() routine or
+> > > +	 * external clock driver will insure that reported time
+> > > +	 * is always monotonic. The ugly divides should be
+> > > +	 * replaced.
+> 
+> Don't optimize until the patch is in and stable.
+> The divides can be removed much later. Wait months,
+> if not forever, before making the code less readable.
+> 
+> The same goes for arch-specific non-syscall hacks.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Yep. Code readability is crucial, although performance is also a concern
+that *has* to be addressed. 
 
- lib/zlib_inflate/inffixed.h |  151 --------------------------------------------
- lib/zlib_inflate/infblock.c |    2 
- lib/zlib_inflate/inftrees.c |   34 +++++++--
- lib/zlib_inflate/inftrees.h |    1 
- 4 files changed, 28 insertions(+), 160 deletions(-)
---- linux-2.6.orig/lib/zlib_inflate/infblock.c
-+++ linux-2.6/lib/zlib_inflate/infblock.c
-@@ -139,7 +139,7 @@ int zlib_inflate_blocks(
-             uInt bl, bd;
-             inflate_huft *tl, *td;
- 
--            zlib_inflate_trees_fixed(&bl, &bd, &tl, &td, z);
-+            zlib_inflate_trees_fixed(&bl, &bd, &tl, &td, s->hufts, z);
-             s->sub.decode.codes = zlib_inflate_codes_new(bl, bd, tl, td, z);
-             if (s->sub.decode.codes == NULL)
-             {
---- linux-2.6.orig/lib/zlib_inflate/inftrees.c
-+++ linux-2.6/lib/zlib_inflate/inftrees.c
-@@ -374,21 +374,39 @@ int zlib_inflate_trees_dynamic(
- }
- 
- 
--/* build fixed tables only once--keep them here */
--#include "inffixed.h"
--
--
- int zlib_inflate_trees_fixed(
- 	uInt *bl,                /* literal desired/actual bit depth */
- 	uInt *bd,                /* distance desired/actual bit depth */
- 	inflate_huft **tl,       /* literal/length tree result */
- 	inflate_huft **td,       /* distance tree result */
-+	inflate_huft *hp,       /* space for trees */
- 	z_streamp z              /* for memory allocation */
- )
- {
--  *bl = fixed_bl;
--  *bd = fixed_bd;
--  *tl = fixed_tl;
--  *td = fixed_td;
-+  int i;                /* temporary variable */
-+  unsigned l[288];      /* length list for huft_build */
-+  uInt *v;              /* work area for huft_build */
-+
-+  /* set up literal table */
-+  for (i = 0; i < 144; i++)
-+    l[i] = 8;
-+  for (; i < 256; i++)
-+    l[i] = 9;
-+  for (; i < 280; i++)
-+    l[i] = 7;
-+  for (; i < 288; i++)          /* make a complete, but wrong code set */
-+    l[i] = 8;
-+  *bl = 9;
-+  v = WS(z)->tree_work_area_1;
-+  if ((i = huft_build(l, 288, 257, cplens, cplext, tl, bl, hp,  &i, v)) != 0)
-+    return i;
-+
-+  /* set up distance table */
-+  for (i = 0; i < 30; i++)      /* make an incomplete code set */
-+    l[i] = 5;
-+  *bd = 5;
-+  if ((i = huft_build(l, 30, 0, cpdist, cpdext, td, bd, hp, &i, v)) > 1)
-+    return i;
-+
-   return Z_OK;
- }
---- linux-2.6.orig/lib/zlib_inflate/inffixed.h
-+++ /dev/null
-@@ -1,151 +0,0 @@
--/* inffixed.h -- table for decoding fixed codes
-- * Generated automatically by the maketree.c program
-- */
--
--/* WARNING: this file should *not* be used by applications. It is
--   part of the implementation of the compression library and is
--   subject to change. Applications should only use zlib.h.
-- */
--
--static uInt fixed_bl = 9;
--static uInt fixed_bd = 5;
--static inflate_huft fixed_tl[] = {
--    {{{96,7}},256}, {{{0,8}},80}, {{{0,8}},16}, {{{84,8}},115},
--    {{{82,7}},31}, {{{0,8}},112}, {{{0,8}},48}, {{{0,9}},192},
--    {{{80,7}},10}, {{{0,8}},96}, {{{0,8}},32}, {{{0,9}},160},
--    {{{0,8}},0}, {{{0,8}},128}, {{{0,8}},64}, {{{0,9}},224},
--    {{{80,7}},6}, {{{0,8}},88}, {{{0,8}},24}, {{{0,9}},144},
--    {{{83,7}},59}, {{{0,8}},120}, {{{0,8}},56}, {{{0,9}},208},
--    {{{81,7}},17}, {{{0,8}},104}, {{{0,8}},40}, {{{0,9}},176},
--    {{{0,8}},8}, {{{0,8}},136}, {{{0,8}},72}, {{{0,9}},240},
--    {{{80,7}},4}, {{{0,8}},84}, {{{0,8}},20}, {{{85,8}},227},
--    {{{83,7}},43}, {{{0,8}},116}, {{{0,8}},52}, {{{0,9}},200},
--    {{{81,7}},13}, {{{0,8}},100}, {{{0,8}},36}, {{{0,9}},168},
--    {{{0,8}},4}, {{{0,8}},132}, {{{0,8}},68}, {{{0,9}},232},
--    {{{80,7}},8}, {{{0,8}},92}, {{{0,8}},28}, {{{0,9}},152},
--    {{{84,7}},83}, {{{0,8}},124}, {{{0,8}},60}, {{{0,9}},216},
--    {{{82,7}},23}, {{{0,8}},108}, {{{0,8}},44}, {{{0,9}},184},
--    {{{0,8}},12}, {{{0,8}},140}, {{{0,8}},76}, {{{0,9}},248},
--    {{{80,7}},3}, {{{0,8}},82}, {{{0,8}},18}, {{{85,8}},163},
--    {{{83,7}},35}, {{{0,8}},114}, {{{0,8}},50}, {{{0,9}},196},
--    {{{81,7}},11}, {{{0,8}},98}, {{{0,8}},34}, {{{0,9}},164},
--    {{{0,8}},2}, {{{0,8}},130}, {{{0,8}},66}, {{{0,9}},228},
--    {{{80,7}},7}, {{{0,8}},90}, {{{0,8}},26}, {{{0,9}},148},
--    {{{84,7}},67}, {{{0,8}},122}, {{{0,8}},58}, {{{0,9}},212},
--    {{{82,7}},19}, {{{0,8}},106}, {{{0,8}},42}, {{{0,9}},180},
--    {{{0,8}},10}, {{{0,8}},138}, {{{0,8}},74}, {{{0,9}},244},
--    {{{80,7}},5}, {{{0,8}},86}, {{{0,8}},22}, {{{192,8}},0},
--    {{{83,7}},51}, {{{0,8}},118}, {{{0,8}},54}, {{{0,9}},204},
--    {{{81,7}},15}, {{{0,8}},102}, {{{0,8}},38}, {{{0,9}},172},
--    {{{0,8}},6}, {{{0,8}},134}, {{{0,8}},70}, {{{0,9}},236},
--    {{{80,7}},9}, {{{0,8}},94}, {{{0,8}},30}, {{{0,9}},156},
--    {{{84,7}},99}, {{{0,8}},126}, {{{0,8}},62}, {{{0,9}},220},
--    {{{82,7}},27}, {{{0,8}},110}, {{{0,8}},46}, {{{0,9}},188},
--    {{{0,8}},14}, {{{0,8}},142}, {{{0,8}},78}, {{{0,9}},252},
--    {{{96,7}},256}, {{{0,8}},81}, {{{0,8}},17}, {{{85,8}},131},
--    {{{82,7}},31}, {{{0,8}},113}, {{{0,8}},49}, {{{0,9}},194},
--    {{{80,7}},10}, {{{0,8}},97}, {{{0,8}},33}, {{{0,9}},162},
--    {{{0,8}},1}, {{{0,8}},129}, {{{0,8}},65}, {{{0,9}},226},
--    {{{80,7}},6}, {{{0,8}},89}, {{{0,8}},25}, {{{0,9}},146},
--    {{{83,7}},59}, {{{0,8}},121}, {{{0,8}},57}, {{{0,9}},210},
--    {{{81,7}},17}, {{{0,8}},105}, {{{0,8}},41}, {{{0,9}},178},
--    {{{0,8}},9}, {{{0,8}},137}, {{{0,8}},73}, {{{0,9}},242},
--    {{{80,7}},4}, {{{0,8}},85}, {{{0,8}},21}, {{{80,8}},258},
--    {{{83,7}},43}, {{{0,8}},117}, {{{0,8}},53}, {{{0,9}},202},
--    {{{81,7}},13}, {{{0,8}},101}, {{{0,8}},37}, {{{0,9}},170},
--    {{{0,8}},5}, {{{0,8}},133}, {{{0,8}},69}, {{{0,9}},234},
--    {{{80,7}},8}, {{{0,8}},93}, {{{0,8}},29}, {{{0,9}},154},
--    {{{84,7}},83}, {{{0,8}},125}, {{{0,8}},61}, {{{0,9}},218},
--    {{{82,7}},23}, {{{0,8}},109}, {{{0,8}},45}, {{{0,9}},186},
--    {{{0,8}},13}, {{{0,8}},141}, {{{0,8}},77}, {{{0,9}},250},
--    {{{80,7}},3}, {{{0,8}},83}, {{{0,8}},19}, {{{85,8}},195},
--    {{{83,7}},35}, {{{0,8}},115}, {{{0,8}},51}, {{{0,9}},198},
--    {{{81,7}},11}, {{{0,8}},99}, {{{0,8}},35}, {{{0,9}},166},
--    {{{0,8}},3}, {{{0,8}},131}, {{{0,8}},67}, {{{0,9}},230},
--    {{{80,7}},7}, {{{0,8}},91}, {{{0,8}},27}, {{{0,9}},150},
--    {{{84,7}},67}, {{{0,8}},123}, {{{0,8}},59}, {{{0,9}},214},
--    {{{82,7}},19}, {{{0,8}},107}, {{{0,8}},43}, {{{0,9}},182},
--    {{{0,8}},11}, {{{0,8}},139}, {{{0,8}},75}, {{{0,9}},246},
--    {{{80,7}},5}, {{{0,8}},87}, {{{0,8}},23}, {{{192,8}},0},
--    {{{83,7}},51}, {{{0,8}},119}, {{{0,8}},55}, {{{0,9}},206},
--    {{{81,7}},15}, {{{0,8}},103}, {{{0,8}},39}, {{{0,9}},174},
--    {{{0,8}},7}, {{{0,8}},135}, {{{0,8}},71}, {{{0,9}},238},
--    {{{80,7}},9}, {{{0,8}},95}, {{{0,8}},31}, {{{0,9}},158},
--    {{{84,7}},99}, {{{0,8}},127}, {{{0,8}},63}, {{{0,9}},222},
--    {{{82,7}},27}, {{{0,8}},111}, {{{0,8}},47}, {{{0,9}},190},
--    {{{0,8}},15}, {{{0,8}},143}, {{{0,8}},79}, {{{0,9}},254},
--    {{{96,7}},256}, {{{0,8}},80}, {{{0,8}},16}, {{{84,8}},115},
--    {{{82,7}},31}, {{{0,8}},112}, {{{0,8}},48}, {{{0,9}},193},
--    {{{80,7}},10}, {{{0,8}},96}, {{{0,8}},32}, {{{0,9}},161},
--    {{{0,8}},0}, {{{0,8}},128}, {{{0,8}},64}, {{{0,9}},225},
--    {{{80,7}},6}, {{{0,8}},88}, {{{0,8}},24}, {{{0,9}},145},
--    {{{83,7}},59}, {{{0,8}},120}, {{{0,8}},56}, {{{0,9}},209},
--    {{{81,7}},17}, {{{0,8}},104}, {{{0,8}},40}, {{{0,9}},177},
--    {{{0,8}},8}, {{{0,8}},136}, {{{0,8}},72}, {{{0,9}},241},
--    {{{80,7}},4}, {{{0,8}},84}, {{{0,8}},20}, {{{85,8}},227},
--    {{{83,7}},43}, {{{0,8}},116}, {{{0,8}},52}, {{{0,9}},201},
--    {{{81,7}},13}, {{{0,8}},100}, {{{0,8}},36}, {{{0,9}},169},
--    {{{0,8}},4}, {{{0,8}},132}, {{{0,8}},68}, {{{0,9}},233},
--    {{{80,7}},8}, {{{0,8}},92}, {{{0,8}},28}, {{{0,9}},153},
--    {{{84,7}},83}, {{{0,8}},124}, {{{0,8}},60}, {{{0,9}},217},
--    {{{82,7}},23}, {{{0,8}},108}, {{{0,8}},44}, {{{0,9}},185},
--    {{{0,8}},12}, {{{0,8}},140}, {{{0,8}},76}, {{{0,9}},249},
--    {{{80,7}},3}, {{{0,8}},82}, {{{0,8}},18}, {{{85,8}},163},
--    {{{83,7}},35}, {{{0,8}},114}, {{{0,8}},50}, {{{0,9}},197},
--    {{{81,7}},11}, {{{0,8}},98}, {{{0,8}},34}, {{{0,9}},165},
--    {{{0,8}},2}, {{{0,8}},130}, {{{0,8}},66}, {{{0,9}},229},
--    {{{80,7}},7}, {{{0,8}},90}, {{{0,8}},26}, {{{0,9}},149},
--    {{{84,7}},67}, {{{0,8}},122}, {{{0,8}},58}, {{{0,9}},213},
--    {{{82,7}},19}, {{{0,8}},106}, {{{0,8}},42}, {{{0,9}},181},
--    {{{0,8}},10}, {{{0,8}},138}, {{{0,8}},74}, {{{0,9}},245},
--    {{{80,7}},5}, {{{0,8}},86}, {{{0,8}},22}, {{{192,8}},0},
--    {{{83,7}},51}, {{{0,8}},118}, {{{0,8}},54}, {{{0,9}},205},
--    {{{81,7}},15}, {{{0,8}},102}, {{{0,8}},38}, {{{0,9}},173},
--    {{{0,8}},6}, {{{0,8}},134}, {{{0,8}},70}, {{{0,9}},237},
--    {{{80,7}},9}, {{{0,8}},94}, {{{0,8}},30}, {{{0,9}},157},
--    {{{84,7}},99}, {{{0,8}},126}, {{{0,8}},62}, {{{0,9}},221},
--    {{{82,7}},27}, {{{0,8}},110}, {{{0,8}},46}, {{{0,9}},189},
--    {{{0,8}},14}, {{{0,8}},142}, {{{0,8}},78}, {{{0,9}},253},
--    {{{96,7}},256}, {{{0,8}},81}, {{{0,8}},17}, {{{85,8}},131},
--    {{{82,7}},31}, {{{0,8}},113}, {{{0,8}},49}, {{{0,9}},195},
--    {{{80,7}},10}, {{{0,8}},97}, {{{0,8}},33}, {{{0,9}},163},
--    {{{0,8}},1}, {{{0,8}},129}, {{{0,8}},65}, {{{0,9}},227},
--    {{{80,7}},6}, {{{0,8}},89}, {{{0,8}},25}, {{{0,9}},147},
--    {{{83,7}},59}, {{{0,8}},121}, {{{0,8}},57}, {{{0,9}},211},
--    {{{81,7}},17}, {{{0,8}},105}, {{{0,8}},41}, {{{0,9}},179},
--    {{{0,8}},9}, {{{0,8}},137}, {{{0,8}},73}, {{{0,9}},243},
--    {{{80,7}},4}, {{{0,8}},85}, {{{0,8}},21}, {{{80,8}},258},
--    {{{83,7}},43}, {{{0,8}},117}, {{{0,8}},53}, {{{0,9}},203},
--    {{{81,7}},13}, {{{0,8}},101}, {{{0,8}},37}, {{{0,9}},171},
--    {{{0,8}},5}, {{{0,8}},133}, {{{0,8}},69}, {{{0,9}},235},
--    {{{80,7}},8}, {{{0,8}},93}, {{{0,8}},29}, {{{0,9}},155},
--    {{{84,7}},83}, {{{0,8}},125}, {{{0,8}},61}, {{{0,9}},219},
--    {{{82,7}},23}, {{{0,8}},109}, {{{0,8}},45}, {{{0,9}},187},
--    {{{0,8}},13}, {{{0,8}},141}, {{{0,8}},77}, {{{0,9}},251},
--    {{{80,7}},3}, {{{0,8}},83}, {{{0,8}},19}, {{{85,8}},195},
--    {{{83,7}},35}, {{{0,8}},115}, {{{0,8}},51}, {{{0,9}},199},
--    {{{81,7}},11}, {{{0,8}},99}, {{{0,8}},35}, {{{0,9}},167},
--    {{{0,8}},3}, {{{0,8}},131}, {{{0,8}},67}, {{{0,9}},231},
--    {{{80,7}},7}, {{{0,8}},91}, {{{0,8}},27}, {{{0,9}},151},
--    {{{84,7}},67}, {{{0,8}},123}, {{{0,8}},59}, {{{0,9}},215},
--    {{{82,7}},19}, {{{0,8}},107}, {{{0,8}},43}, {{{0,9}},183},
--    {{{0,8}},11}, {{{0,8}},139}, {{{0,8}},75}, {{{0,9}},247},
--    {{{80,7}},5}, {{{0,8}},87}, {{{0,8}},23}, {{{192,8}},0},
--    {{{83,7}},51}, {{{0,8}},119}, {{{0,8}},55}, {{{0,9}},207},
--    {{{81,7}},15}, {{{0,8}},103}, {{{0,8}},39}, {{{0,9}},175},
--    {{{0,8}},7}, {{{0,8}},135}, {{{0,8}},71}, {{{0,9}},239},
--    {{{80,7}},9}, {{{0,8}},95}, {{{0,8}},31}, {{{0,9}},159},
--    {{{84,7}},99}, {{{0,8}},127}, {{{0,8}},63}, {{{0,9}},223},
--    {{{82,7}},27}, {{{0,8}},111}, {{{0,8}},47}, {{{0,9}},191},
--    {{{0,8}},15}, {{{0,8}},143}, {{{0,8}},79}, {{{0,9}},255}
--  };
--static inflate_huft fixed_td[] = {
--    {{{80,5}},1}, {{{87,5}},257}, {{{83,5}},17}, {{{91,5}},4097},
--    {{{81,5}},5}, {{{89,5}},1025}, {{{85,5}},65}, {{{93,5}},16385},
--    {{{80,5}},3}, {{{88,5}},513}, {{{84,5}},33}, {{{92,5}},8193},
--    {{{82,5}},9}, {{{90,5}},2049}, {{{86,5}},129}, {{{192,5}},24577},
--    {{{80,5}},2}, {{{87,5}},385}, {{{83,5}},25}, {{{91,5}},6145},
--    {{{81,5}},7}, {{{89,5}},1537}, {{{85,5}},97}, {{{93,5}},24577},
--    {{{80,5}},4}, {{{88,5}},769}, {{{84,5}},49}, {{{92,5}},12289},
--    {{{82,5}},13}, {{{90,5}},3073}, {{{86,5}},193}, {{{192,5}},24577}
--  };
---- linux-2.6.orig/lib/zlib_inflate/inftrees.h
-+++ linux-2.6/lib/zlib_inflate/inftrees.h
-@@ -58,6 +58,7 @@ extern int zlib_inflate_trees_fixed (
-     uInt *,                     /* distance desired/actual bit depth */
-     inflate_huft **,            /* literal/length tree result */
-     inflate_huft **,            /* distance tree result */
-+    inflate_huft *,             /* space for trees */
-     z_streamp);                 /* for memory allocation */
- 
- #endif /* _INFTREES_H */
+As much as I'm probably digging myself a hole in doing all of this, I
+really don't want to work on time for the rest of my life, so making the
+code clear and readable is my only hope for passing this on.  :)
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+-john
+
+

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263507AbTHWOHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 10:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTHWOHJ
+	id S263552AbTHWOR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 10:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263703AbTHWOR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 10:07:09 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:44811 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263507AbTHWOHD (ORCPT
+	Sat, 23 Aug 2003 10:17:26 -0400
+Received: from home.wiggy.net ([213.84.101.140]:31163 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S263488AbTHWOQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 10:07:03 -0400
-Subject: [PATCH 2.6.0-test4][TRIVIAL][USB] digi_acceleport.c: typo fix
-	spin_lock_irqrestore
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 23 Aug 2003 19:59:20 +0530
-Message-Id: <1061648960.2787.54.camel@lima.royalchallenge.com>
+	Sat, 23 Aug 2003 10:16:07 -0400
+Date: Sat, 23 Aug 2003 16:16:06 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: evms or lvm?
+Message-ID: <20030823141606.GD9232@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3F47347F.7070103@mscc.huji.ac.il> <20030823101831.GA2857@localhost> <20030823094737.C995@animx.eu.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030823094737.C995@animx.eu.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.6.0-test4/drivers/usb/serial/digi_acceleport.c	2003-08-23 13:14:37.000000000 +0530
-+++ linux-2.6.0-test4-nvk/drivers/usb/serial/digi_acceleport.c	2003-08-23 19:35:29.000000000 +0530
-@@ -218,7 +218,7 @@
- *    interrupt time.
- *  - digi_write_bulk_callback() and digi_read_bulk_callback() are
- *    called directly from interrupts.  Hence spin_lock_irqsave()
--*    and spin_lock_irqrestore() are used in the rest of the code
-+*    and spin_unlock_irqrestore() are used in the rest of the code
- *    for any locks they acquire.
- *  - digi_write_bulk_callback() gets the port lock before waking up
- *    processes sleeping on the port write_wait.  It also schedules
-@@ -571,7 +571,7 @@
- *
- *  Do spin_unlock_irqrestore and interruptible_sleep_on_timeout
- *  so that wake ups are not lost if they occur between the unlock
--*  and the sleep.  In other words, spin_lock_irqrestore and
-+*  and the sleep.  In other words, spin_unlock_irqrestore and
- *  interruptible_sleep_on_timeout are "atomic" with respect to
- *  wake ups.  This is used to implement condition variables.
- */
+Previously Wakko Warner wrote:
+> I noticed the kernel doesn't have LVM as an option now.  Does both projects
+> just use the DM from userspace?
 
+Yes.
 
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 

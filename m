@@ -1,128 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUCPOrI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUCPOqf
+	id S262490AbUCPPQa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUCPPNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:46:35 -0500
-Received: from ns.suse.de ([195.135.220.2]:21995 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262011AbUCPOaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:30:06 -0500
-Date: Tue, 16 Mar 2004 15:29:57 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic sched timeslices
-Message-ID: <20040316142957.GX4452@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-	hch@infradead.org, Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20040315224201.GX4452@tpkurt.garloff.de> <20040315154042.40c58c5b.akpm@osdl.org> <20040316113615.GK4452@tpkurt.garloff.de> <200403170013.38140.kernel@kolivas.org>
+	Tue, 16 Mar 2004 10:13:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53419 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262691AbUCPPKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 10:10:08 -0500
+Date: Tue, 16 Mar 2004 16:10:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend development list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: The verdict on the future of suspending to disk?
+Message-ID: <20040316151003.GA24837@atrey.karlin.mff.cuni.cz>
+References: <1079408330.3403.5.camel@calvin.wpcb.org.au> <20040316113717.GB2282@elf.ucw.cz> <20040316121524.GI2175@elf.ucw.cz> <opr4yiu1ar4evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4rh8KwHgidtw24lr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403170013.38140.kernel@kolivas.org>
-X-Operating-System: Linux 2.6.4-1-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <opr4yiu1ar4evsfm@smtp.pacific.net.th>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---4rh8KwHgidtw24lr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Without reliability and being able to suspend at any load
+> (when the batteries/UPS go flat)  software suspend is all
+> but useless.  What for suspend if it does not resume and
+> eats work left in RAM?
 
-Hi Con,
+It should suspend at any load, but AFAICR those hooks are not for
+that. They are neccessary for "crashed nfs server case", which kill
+-SIGSTOP does not handle. (IMNSHO thats bug in -SIGSTOP and pretty
+orthogonal to swsusp).
 
-On Wed, Mar 17, 2004 at 12:13:37AM +1100, Con Kolivas wrote:
-> 2.4 O(1) effects do not directly apply with 2.6
->=20
-> Dropping Hz will save you performance for sure on 2.6.
->=20
-> Changing the timeslices in 2.6 will be disappointing, though. Although th=
-e=20
-> apparent timeslice of nice 0 tasks is 102ms, interactive tasks round robi=
-n at=20
-> 10ms. If you drop the timeslice to 10ms you will not improve the interact=
-ive=20
-> feel but you will speed up expiration instead which will almost certainly=
-=20
-> worsen interactive feel.=20
+> Common users objectives for a software suspend mechanism are:
+> 
+> 1. To not impair system reliability. It must run without crash
+>       and reboots between kernel upgrades.
+>       100 cycles in 2 hours is a quickie
+>       1000 cycles in a day are a short test
+>       xxxx cycles in a month are a life test
 
-If you have a system with an easy workload (say one clear CPU hog and
-one interactive job), things are easy. The fact that you preempt the
-not-yet expired CPU hog is enough.
-That's easy, and that worked with 2.4 O(1) (if tweaked a bit to estimate
-interactiveness better, see other patch) and it works with 2.6.
+There's even more important goal. I'd call it
 
-Things start to get difficult if you have something like a calculation
-program with a non-multithreaded GUI. It will look like a CPU hog and
-still you'd like to see it responsive. Now add a second CPU hog.
+O. Do not impair system reliablity *when swsusp is not in use*.
+   Do not make further development of system harder by putting too
+   much hooks into other code.
 
-The kernel can not fix this problem, but it can limit the damage by=20
-not having too long timeslices.
+> 2. To handle any cpu and io load
+> 	10+ concurrent unixbenchs, 4 concurrent dd loops, nfs and ssh
+>       cross accesses, Load avg 20-40, cs of 100,000, 20MB io
+>       sustained for days at a cycle a minute... No freezing failures
+> 
+> 3. To support the spectrum of user requirements wrt functionality
+> 	for portable, desktop, and embedded apps
+> 
+> 4. To handle driver suspend and resume at any time. Apps should not
+>       have to be terminated.
+> 
+> Swsusp2 meets 1. and 2. and many of 3. Swsusp2 is also modular and can be
+> expanded to add things like NFS suspend/resume.
+> 
+> 1. and 2. require a sophisticated freezing mechanism and kernel level
+> "intrusion". Most of this "intrusion" is simetrical and easily understood.
+> This is what UGLY macros are for.
 
-There are other scenarios where the preemption will not solve all
-problems.
-Think two interactive processes, one playing audio, another one being
-your shell. The audio player may take the CPU for extended periods of
-times occasionally to decode the next N ogg frames. You still want the
-shell to react promptly, but it can't ... Thus you wish the timeslice
-not being too long.
+I still do not believe 1. and 2. *require* that ugly hooks (as long as
+your NFS server is up).
 
-Thus you'll set them not too long for desktop kind of machines to
-not have to rely completely on the interactiveness estimator.
+Now, what if NFS server is down? I'd not handle it for now; if your
+harddrive stops working you can't suspend, too, and NFS is too similar
+to disk.
 
-> If you drop timeslices below 10ms you will get=20
-> significant cache trashing and drop in performance (which your 2.4 result=
-s=20
-> confirm).
+> 3. Can be argued about: Compression or no compression, reboot functionality
+>    for multi boot or not, Escape or no Escape (I need it every day) -
+>    If you ever would dare to suspend you would want an Escape function too! 
+>    :-)
 
-No doubt. Don't overdo it. It's a tradeoff. If you impact throughput too
-much, you'll not enjoy the short latency ;-)
+For first merge, I'd like to have simplest possible version, that's no
+compression, powerdown at the end, no escape.
 
-> Increasing timeslices does benefit pure number crunching workloads. The=
-=20
-> benchmarking I've done using cache intensive workloads (which are the mos=
-t=20
-> likely to benefit) show you are chasing diminishing returns, though. You =
-can=20
-> mathematically model them based on the fact that keeping a task bound to =
-a=20
-> cpu instead of shifting it to another cpu on SMP saves about 2ms processi=
-ng=20
-> time on P4. Suffice to say the benefit is only worth it if you do nothing=
- but=20
-> cpu intensive things, and becomes virtually insignificant beyond 200ms. O=
-n=20
-> other architecture with longer cache decays you will benefit more;=20
-> arch/i386/mach-voyager seems the longest at 20ms.
+> 4. Requires PM fixes and driver level intrusion, can be worked around by
+>    killing apps and unloading drivers. Eventually this has to be fixed.
 
-That's why I think we should offer the tunables.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
-
---4rh8KwHgidtw24lr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAVw9lxmLh6hyYd04RAg58AJ9VB18C51hlyjQEizoy5iHBRS0K1gCfV9kM
-xFHIBfiMBMN8PWzMNAwCYNE=
-=/R7v
------END PGP SIGNATURE-----
-
---4rh8KwHgidtw24lr--
+Yes. People are working on that.
+									Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

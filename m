@@ -1,47 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272888AbTG3Ow6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272885AbTG3Ow6
+	id S272926AbTG3Ou7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272935AbTG3Ou7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:52:58 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:40389 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S272932AbTG3Ovq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:51:46 -0400
-Date: Wed, 30 Jul 2003 07:51:30 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1013] New: ide bus reset, never gets out of loop
-Message-ID: <16180000.1059576690@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 30 Jul 2003 10:50:59 -0400
+Received: from imap.gmx.net ([213.165.64.20]:29162 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272926AbTG3Ouo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:50:44 -0400
+Message-Id: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Wed, 30 Jul 2003 16:54:46 +0200
+To: linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: 2.6.0-test2+ext3+dbench=Buffer I/O error
+Cc: Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_39906015==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1013
+--=====================_39906015==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-           Summary: ide bus reset, never gets out of loop
-    Kernel Version: Debian sid kernel 2.6.1 test i386
-            Status: NEW
-          Severity: normal
-             Owner: bzolnier@elka.pw.edu.pl
-         Submitter: hjh@passys.nl
+Greetings,
 
+While trying to duplicate Randy Hron's "dbench has intermittent hang on 
+2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
+/dev/hda8, logical block N" messages.  (changing elevators makes no 
+difference fwiw).  I went back to test1, and it spat up a couple of "buffer 
+layer error" messages and associated traces.   Attempting to umount 
+afterward to run fsck left umount in D state.  See attachment.
 
-Distribution: Debian sid 
-Hardware Environment: IBM Thinkpad i240 
-Software Environment: Debian sid package 
-Problem Description: On boot, the system always says the unmount was unclean, fsck 
-necessary. The fsck loops at 64% on an ide bus reset (which it claims to be succcesfull), 
-but at this point, it loops in an ide reset loop. 
-The remedy: remove 2.6, mount unclean, do a manual fsck. 
-Additional issue: this procedure (of resetting the ide controller) seems to have wrecked 
-the boot sector, and some files on the root disk. 
- 
-Steps to reproduce: Install and use kernel 2.6 from Debian sid on an IBM i240
+Rebooting and running fsck turned up nothing wrong.
 
+	-Mike
+--=====================_39906015==_
+Content-Type: application/octet-stream; name="xx"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="xx"
+
+Li4uClVuaWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9uOiA3LjAwYWxw
+aGEyCmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1vZGVzOyBv
+dmVycmlkZSB3aXRoIGlkZWJ1cz14eApWUF9JREU6IElERSBjb250cm9sbGVyIGF0IFBDSSBzbG90
+IDAwMDA6MDA6MDcuMQpWUF9JREU6IGNoaXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAl
+IG5hdGl2ZSBtb2RlOiB3aWxsIHByb2JlIGlycXMgbGF0ZXIKaWRlOiBBc3N1bWluZyAzM01IeiBz
+eXN0ZW0gYnVzIHNwZWVkIGZvciBQSU8gbW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4ClZQ
+X0lERTogVklBIHZ0ODJjNTk2YiAocmV2IDExKSBJREUgVURNQTY2IGNvbnRyb2xsZXIgb24gcGNp
+MDAwMDowMDowNy4xCiAgICBpZGUwOiBCTS1ETUEgYXQgMHhlMDAwLTB4ZTAwNywgQklPUyBzZXR0
+aW5nczogaGRhOkRNQSwgaGRiOnBpbwogICAgaWRlMTogQk0tRE1BIGF0IDB4ZTAwOC0weGUwMGYs
+IEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhkZDpwaW8KaGRhOiBJQk0tREpOQS0zNTIwMzAsIEFU
+QSBESVNLIGRyaXZlCmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0CmhkYzogTUFU
+U0hJVEFEVkQtUk9NIFNSLTg1ODNBLCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlkZTEgYXQgMHgx
+NzAtMHgxNzcsMHgzNzYgb24gaXJxIDE1CmhkYTogbWF4IHJlcXVlc3Qgc2l6ZTogMTI4S2lCCmhk
+YTogaG9zdCBwcm90ZWN0ZWQgYXJlYSA9PiAxCmhkYTogMzk4NzY0ODAgc2VjdG9ycyAoMjA0MTcg
+TUIpIHcvMTk2NktpQiBDYWNoZSwgQ0hTPTM5NTYwLzE2LzYzCiBoZGE6IGhkYTEgaGRhMiBoZGEz
+IDwgaGRhNSBoZGE2IGhkYTcgaGRhOCA+CmVuZF9yZXF1ZXN0OiBJL08gZXJyb3IsIGRldiBoZGMs
+IHNlY3RvciAwCmhkYzogQVRBUEkgMzJYIERWRC1ST00gZHJpdmUsIDUxMmtCIENhY2hlLCBETUEK
+VW5pZm9ybSBDRC1ST00gZHJpdmVyIFJldmlzaW9uOiAzLjEyCm1pY2U6IFBTLzIgbW91c2UgZGV2
+aWNlIGNvbW1vbiBmb3IgYWxsIG1pY2UKaW5wdXQ6IFBTLzIgR2VuZXJpYyBNb3VzZSBvbiBpc2Ew
+MDYwL3NlcmlvMQpzZXJpbzogaTgwNDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgppbnB1
+dDogQVQgU2V0IDIga2V5Ym9hcmQgb24gaXNhMDA2MC9zZXJpbzAKc2VyaW86IGk4MDQyIEtCRCBw
+b3J0IGF0IDB4NjAsMHg2NCBpcnEgMQppMmMgL2RldiBlbnRyaWVzIGRyaXZlciBtb2R1bGUgdmVy
+c2lvbiAyLjcuMCAoMjAwMjEyMDgpCkFkdmFuY2VkIExpbnV4IFNvdW5kIEFyY2hpdGVjdHVyZSBE
+cml2ZXIgVmVyc2lvbiAwLjkuNCAoTW9uIEp1biAwOSAxMjowMToxOCAyMDAzIFVUQykuCnJlcXVl
+c3RfbW9kdWxlOiBmYWlsZWQgL3NiaW4vbW9kcHJvYmUgLS0gc25kLWNhcmQtMC4gZXJyb3IgPSAt
+MTYKUENJOiBGb3VuZCBJUlEgOSBmb3IgZGV2aWNlIDAwMDA6MDA6MGMuMApQQ0k6IFNoYXJpbmcg
+SVJRIDkgd2l0aCAwMDAwOjAwOjBmLjAKQUxTQSBkZXZpY2UgbGlzdDoKICAjMDogWWFtYWhhIERT
+LVhHIFBDSSAoWU1GNzQwQykgYXQgMHhlYzAwMDAwMCwgaXJxIDkKTkVUNDogTGludXggVENQL0lQ
+IDEuMCBmb3IgTkVUNC4wCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNTEyIGJ1Y2tl
+dHMsIDRLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCA4MTky
+IGJpbmQgODE5MikKTGludXggSVAgbXVsdGljYXN0IHJvdXRlciAwLjA2IHBsdXMgUElNLVNNCk5F
+VDQ6IFVuaXggZG9tYWluIHNvY2tldHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLgpram91cm5h
+bGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMtZnM6IG1vdW50ZWQg
+ZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLgpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0
+MyBmaWxlc3lzdGVtKSByZWFkb25seS4KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMTEy
+ayBmcmVlZApBZGRpbmcgMjY1MDY0ayBzd2FwIG9uIC9kZXYvaGRhMi4gIFByaW9yaXR5OjIgZXh0
+ZW50czoxCmJsazogcXVldWUgYzA0OGRkYmMsIEkvTyBsaW1pdCA0MDk1TWIgKG1hc2sgMHhmZmZm
+ZmZmZikKRVhUMyBGUyBvbiBoZGE2LCBpbnRlcm5hbCBqb3VybmFsCmtqb3VybmFsZCBzdGFydGlu
+Zy4gIENvbW1pdCBpbnRlcnZhbCA1IHNlY29uZHMKRVhUMyBGUyBvbiBoZGE3LCBpbnRlcm5hbCBq
+b3VybmFsCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2Rl
+Lgpram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMgRlMg
+b24gaGRhOCwgaW50ZXJuYWwgam91cm5hbApFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0
+aCBvcmRlcmVkIGRhdGEgbW9kZS4KU3lzUnEgOiBDaGFuZ2luZyBMb2dsZXZlbApMb2dsZXZlbCBz
+ZXQgdG8gOQpidWZmZXIgbGF5ZXIgZXJyb3IgYXQgZnMvYnVmZmVyLmM6MTc5NgpDYWxsIFRyYWNl
+OgogWzxjMDE0MTVlOT5dIF9fYnVmZmVyX2Vycm9yKzB4MjkvMHgzMAogWzxjMDE0MmMxMz5dIF9f
+YmxvY2tfd3JpdGVfZnVsbF9wYWdlKzB4MWFmLzB4MzE4CiBbPGMwMTQ0MTMxPl0gYmxvY2tfd3Jp
+dGVfZnVsbF9wYWdlKzB4YTEvMHhhYwogWzxjMDE0NjI4ND5dIGJsa2Rldl9nZXRfYmxvY2srMHgw
+LzB4NTQKIFs8YzAxNDYzYWM+XSBibGtkZXZfd3JpdGVwYWdlKzB4MTQvMHgxOAogWzxjMDE0NjI4
+ND5dIGJsa2Rldl9nZXRfYmxvY2srMHgwLzB4NTQKIFs8YzAxNWFiYjk+XSBtcGFnZV93cml0ZXBh
+Z2VzKzB4MTc1LzB4MjRjCiBbPGMwMTQ2Mzk4Pl0gYmxrZGV2X3dyaXRlcGFnZSsweDAvMHgxOAog
+WzxjMDE0NzBjNT5dIGdlbmVyaWNfd3JpdGVwYWdlcysweDExLzB4MTUKIFs8YzAxMmYyMDQ+XSBk
+b193cml0ZXBhZ2VzKzB4MTgvMHgyYwogWzxjMDE1OTY1Mz5dIF9fc3luY19zaW5nbGVfaW5vZGUr
+MHg5Zi8weDFkMAogWzxjMDE1OTdmMD5dIF9fd3JpdGViYWNrX3NpbmdsZV9pbm9kZSsweDZjLzB4
+NzQKIFs8YzAxNTk5YTE+XSBzeW5jX3NiX2lub2RlcysweDFhOS8weDIyMAogWzxjMDE1OWE0ZD5d
+IHdyaXRlYmFja19pbm9kZXMrMHgzNS8weDRjCiBbPGMwMTJlZTBjPl0gYmFsYW5jZV9kaXJ0eV9w
+YWdlcysweDY0LzB4MTJjCiBbPGMwMTJlZjBiPl0gYmFsYW5jZV9kaXJ0eV9wYWdlc19yYXRlbGlt
+aXRlZCsweDM3LzB4NDAKIFs8YzAxMmNjOGM+XSBnZW5lcmljX2ZpbGVfYWlvX3dyaXRlX25vbG9j
+aysweDg1OC8weDk0MAogWzxjMDFmOWFjND5dIF9faWRlX2RtYV9yZWFkKzB4OTgvMHhhMAogWzxj
+MDFmOTIyOD5dIGlkZV9kbWFfaW50cisweDAvMHhhYwogWzxjMDFmOTc4MD5dIGRtYV90aW1lcl9l
+eHBpcnkrMHgwLzB4YjAKIFs8YzAxMmNlNjY+XSBnZW5lcmljX2ZpbGVfYWlvX3dyaXRlKzB4NjYv
+MHg3YwogWzxjMDE2Y2UxZj5dIGV4dDNfZmlsZV93cml0ZSsweDJiLzB4YmMKIFs8YzAxNDA3YmQ+
+XSBkb19zeW5jX3dyaXRlKzB4ODEvMHhiMAogWzxjMDE0ODE4ZD5dIHN5c19mc3RhdDY0KzB4MjUv
+MHgzMAogWzxjMDE0MDg4Yz5dIHZmc193cml0ZSsweGEwLzB4ZDAKIFs8YzAxNDA5ZjA+XSBzeXNf
+cHdyaXRlNjQrMHg0MC8weDVjCiBbPGMwMTA4OWQzPl0gc3lzY2FsbF9jYWxsKzB4Ny8weGIKCmJ1
+ZmZlciBsYXllciBlcnJvciBhdCBmcy9idWZmZXIuYzoyNjQyCkNhbGwgVHJhY2U6CiBbPGMwMTQx
+NWU5Pl0gX19idWZmZXJfZXJyb3IrMHgyOS8weDMwCiBbPGMwMTQ0MjNmPl0gc3VibWl0X2JoKzB4
+ODcvMHgxNzgKIFs8YzAxMmFmNzY+XSB1bmxvY2tfcGFnZSsweGEvMHgzYwogWzxjMDE0MmM3OD5d
+IF9fYmxvY2tfd3JpdGVfZnVsbF9wYWdlKzB4MjE0LzB4MzE4CiBbPGMwMTQ0MTMxPl0gYmxvY2tf
+d3JpdGVfZnVsbF9wYWdlKzB4YTEvMHhhYwogWzxjMDE0NjI4ND5dIGJsa2Rldl9nZXRfYmxvY2sr
+MHgwLzB4NTQKIFs8YzAxNDYzYWM+XSBibGtkZXZfd3JpdGVwYWdlKzB4MTQvMHgxOAogWzxjMDE0
+NjI4ND5dIGJsa2Rldl9nZXRfYmxvY2srMHgwLzB4NTQKIFs8YzAxNWFiYjk+XSBtcGFnZV93cml0
+ZXBhZ2VzKzB4MTc1LzB4MjRjCiBbPGMwMTQ2Mzk4Pl0gYmxrZGV2X3dyaXRlcGFnZSsweDAvMHgx
+OAogWzxjMDE0NzBjNT5dIGdlbmVyaWNfd3JpdGVwYWdlcysweDExLzB4MTUKIFs8YzAxMmYyMDQ+
+XSBkb193cml0ZXBhZ2VzKzB4MTgvMHgyYwogWzxjMDE1OTY1Mz5dIF9fc3luY19zaW5nbGVfaW5v
+ZGUrMHg5Zi8weDFkMAogWzxjMDE1OTdmMD5dIF9fd3JpdGViYWNrX3NpbmdsZV9pbm9kZSsweDZj
+LzB4NzQKIFs8YzAxNTk5YTE+XSBzeW5jX3NiX2lub2RlcysweDFhOS8weDIyMAogWzxjMDE1OWE0
+ZD5dIHdyaXRlYmFja19pbm9kZXMrMHgzNS8weDRjCiBbPGMwMTJlZTBjPl0gYmFsYW5jZV9kaXJ0
+eV9wYWdlcysweDY0LzB4MTJjCiBbPGMwMTJlZjBiPl0gYmFsYW5jZV9kaXJ0eV9wYWdlc19yYXRl
+bGltaXRlZCsweDM3LzB4NDAKIFs8YzAxMmNjOGM+XSBnZW5lcmljX2ZpbGVfYWlvX3dyaXRlX25v
+bG9jaysweDg1OC8weDk0MAogWzxjMDFmOWFjND5dIF9faWRlX2RtYV9yZWFkKzB4OTgvMHhhMAog
+WzxjMDFmOTIyOD5dIGlkZV9kbWFfaW50cisweDAvMHhhYwogWzxjMDFmOTc4MD5dIGRtYV90aW1l
+cl9leHBpcnkrMHgwLzB4YjAKIFs8YzAxMmNlNjY+XSBnZW5lcmljX2ZpbGVfYWlvX3dyaXRlKzB4
+NjYvMHg3YwogWzxjMDE2Y2UxZj5dIGV4dDNfZmlsZV93cml0ZSsweDJiLzB4YmMKIFs8YzAxNDA3
+YmQ+XSBkb19zeW5jX3dyaXRlKzB4ODEvMHhiMAogWzxjMDE0ODE4ZD5dIHN5c19mc3RhdDY0KzB4
+MjUvMHgzMAogWzxjMDE0MDg4Yz5dIHZmc193cml0ZSsweGEwLzB4ZDAKIFs8YzAxNDA5ZjA+XSBz
+eXNfcHdyaXRlNjQrMHg0MC8weDVjCiBbPGMwMTA4OWQzPl0gc3lzY2FsbF9jYWxsKzB4Ny8weGIK
+CnVtb3VudCAgICAgICAgRCBDNDM1NUUzOCAzMDE4NTg3MiAgIDQ5NSAgICAzMDQgICAgICAgICAg
+ICAgICAgICAgICAoTk9UTEIpCmM0MzU1ZTAwIDAwMDAwMDgyIGMxMTM0NmIwIGM0MzU1ZTM4IGM0
+MzU1ZTRjIGMyYTUxYzgwIDAwMDAwMDAxIGM3ZWMyMjAwIAogICAgICAgYzAxNTk0ZjkgYzEyOTc3
+NzAgYzEyOTc3NzAgYzExMzQ2YjAgYzQzNTVlMzggYzQzNTVlNGMgYzI2OGEwODAgYzQzNTVlMDgg
+CiAgICAgICBjMDExNjQzZSAwMDAwMDAwZCBjMDEyYWY1NSBjMTEzNDZiMCBjN2VmODE1NCBjNDM1
+NWVkNCAwMDAwMDAwMCBjMTE0MDQ4MCAKQ2FsbCBUcmFjZToKIFs8YzAxNTk0Zjk+XSBfX21hcmtf
+aW5vZGVfZGlydHkrMHgyOS8weGE4CiBbPGMwMTE2NDNlPl0gaW9fc2NoZWR1bGUrMHhlLzB4MTgK
+IFs8YzAxMmFmNTU+XSB3YWl0X29uX3BhZ2VfYml0KzB4OWQvMHhiNAogWzxjMDExNmEzND5dIGF1
+dG9yZW1vdmVfd2FrZV9mdW5jdGlvbisweDAvMHgzOAogWzxjMDExNmEzND5dIGF1dG9yZW1vdmVf
+d2FrZV9mdW5jdGlvbisweDAvMHgzOAogWzxjMDE1YWI4OT5dIG1wYWdlX3dyaXRlcGFnZXMrMHgx
+NDUvMHgyNGMKIFs8YzAxNDYzOTg+XSBibGtkZXZfd3JpdGVwYWdlKzB4MC8weDE4CiBbPGMwMTQ3
+MGM1Pl0gZ2VuZXJpY193cml0ZXBhZ2VzKzB4MTEvMHgxNQogWzxjMDEyZjIwND5dIGRvX3dyaXRl
+cGFnZXMrMHgxOC8weDJjCiBbPGMwMTJhYzdiPl0gX19maWxlbWFwX2ZkYXRhd3JpdGUrMHg3Zi8w
+eDhjCiBbPGMwMTJhYzk0Pl0gZmlsZW1hcF9mZGF0YXdyaXRlKzB4Yy8weDEwCiBbPGMwMTQxODBi
+Pl0gc3luY19ibG9ja2RldisweDFiLzB4M2MKIFs8YzAxNDE4OTQ+XSBmc3luY19zdXBlcisweDY4
+LzB4ODQKIFs8YzAxNDU1N2Q+XSBnZW5lcmljX3NodXRkb3duX3N1cGVyKzB4M2QvMHhmNAogWzxj
+MDE0NWQ5Nj5dIGtpbGxfYmxvY2tfc3VwZXIrMHgxMi8weDJjCiBbPGMwMTQ1NGFmPl0gZGVhY3Rp
+dmF0ZV9zdXBlcisweDMzLzB4NTgKIFs8YzAxNTYxYjI+XSBfX21udHB1dCsweDFlLzB4MjQKIFs8
+YzAxNGFjZDM+XSBwYXRoX3JlbGVhc2UrMHgyNy8weDJjCiBbPGMwMTU2NzA5Pl0gc3lzX3Vtb3Vu
+dCsweDcxLzB4N2MKIFs8YzAxMzc3NGY+XSBzeXNfbXVubWFwKzB4MzcvMHg1NAogWzxjMDE1Njcy
+MD5dIHN5c19vbGR1bW91bnQrMHhjLzB4MTAKIFs8YzAxMDg5ZDM+XSBzeXNjYWxsX2NhbGwrMHg3
+LzB4YgoK
+--=====================_39906015==_--
 

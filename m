@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283444AbRLDUGn>; Tue, 4 Dec 2001 15:06:43 -0500
+	id <S283390AbRLDUEw>; Tue, 4 Dec 2001 15:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283368AbRLDUE6>; Tue, 4 Dec 2001 15:04:58 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:26549 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S283389AbRLDUDn>;
-	Tue, 4 Dec 2001 15:03:43 -0500
-Date: Tue, 4 Dec 2001 21:03:34 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Dave Jones <davej@suse.de>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204210334.J360@khan.acc.umu.se>
-In-Reply-To: <20011204204822.H360@khan.acc.umu.se> <Pine.LNX.4.33.0112042051590.7110-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.33.0112042051590.7110-100000@Appserv.suse.de>; from davej@suse.de on Tue, Dec 04, 2001 at 08:53:11PM +0100
+	id <S281664AbRLDUDP>; Tue, 4 Dec 2001 15:03:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22537 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282910AbRLDUCL> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:02:11 -0500
+Date: Tue, 4 Dec 2001 16:45:26 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops: 0000 with kernel 2.4.17pre2
+In-Reply-To: <E16BKMt-0004SE-00@mrvdom00.schlund.de>
+Message-ID: <Pine.LNX.4.21.0112041644310.19750-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 08:53:11PM +0100, Dave Jones wrote:
-> On Tue, 4 Dec 2001, David Weinehall wrote:
+
+
+On Tue, 4 Dec 2001, Christian Bornträger wrote:
+
+> I found this in my logs.
+> I have no idea, why the log says not tainted, because I am quite sure that 
+> the nvidia-driver was loaded at this moment.
+> It seems that this happened while trying to kill a quake3-session.(I noticed 
+> today, that there is a linux version..... ;-))
 > 
-> > "So anyone happy with an older distro that didn't ship gcc-2.95.x, x > 2
-> > gets screwed when they want to build a newer kernel. Nice."
+> I don´t know if I should blame the nvidia-driver, but please have a look at 
+> it, because there were some other oops messages with 2.4.16 in the LKML.
+> The call trace has functions of the VM, of the file system layer and reiserfs.
 > 
-> The difference being that recommended compiler versions don't
-> change midway through a stable series. Neither should any other
-> part of the buildtools.
+> 
+> greetings
+> 
+> 4e 08 8b 41 04 89
+> Dec  4 16:48:12 cubus kernel:  <6>NVRM: AGPGART: freed 16 pages
+				    ^^^
+> Dec  4 16:48:14 cubus kernel:  printing eip:
+> Dec  4 16:48:14 cubus kernel: e097134a
 
-AFAIK, changes to the required versions of userland-tools wouldn't
-during a stable release happen ever-so-often. I can agree that it
-wouldn't be ideal to introduce a completely new requirement, though.
+It really seems to be the nvidia driver which is causing problems. 
 
-A C-version of CML2-configurator would be a nice solution here.
-
-But, I'm fairly confident that Marcello will make the right decisions
-on his own.
-
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbUAZOvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 09:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUAZOvS
+	id S263762AbUAZOmE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 09:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUAZOmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 09:51:18 -0500
-Received: from relay.dada.it ([195.110.100.8]:52302 "EHLO ironport.dada.it")
-	by vger.kernel.org with ESMTP id S264893AbUAZOvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 09:51:13 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: "John Stoffel" <stoffel@lucent.com>
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Date: Mon, 26 Jan 2004 15:51:02 +0100
-User-Agent: KMail/1.6
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, eric@cisu.net,
-       linux-kernel@vger.kernel.org
-References: <20040125162122.GJ513@fs.tum.de> <20040126060952.GC6519@colin2.muc.de> <16405.8292.823683.530462@gargle.gargle.HOWL>
-In-Reply-To: <16405.8292.823683.530462@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 26 Jan 2004 09:42:04 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:45188 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263762AbUAZOmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 09:42:01 -0500
+Subject: Re: gcc 2.95.3
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Stef van der Made <svdmade@planet.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040124004848.C25466@flint.arm.linux.org.uk>
+References: <20040123145048.B1082@beton.cybernet.src>
+	 <20040123100035.73bee41f.jeremy@kerneltrap.org>
+	 <20040123151340.B1130@beton.cybernet.src>
+	 <001b01c3e1ca$26101f20$1e00000a@black>
+	 <20040123163008.B1237@beton.cybernet.src>
+	 <1074882836.20723.4.camel@minerva> <4011AC22.8050903@planet.nl>
+	 <20040124004848.C25466@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1075128103.24024.64.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
+Date: Mon, 26 Jan 2004 14:41:43 +0000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401261551.02757.cova@ferrara.linux.it>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle Monday 26 January 2004 15:12, John Stoffel ha scritto:
+On Sat, 2004-01-24 at 00:48 +0000, Russell King wrote:
+> I suspect that the fs/jffs2/erase.c problem is not ARM-specific, though
+> I'm no compiler expert.
 
->
-> Just to follow up here.  On kernels 2.6.2-rc1 and 2.6.2-rc2, it just
-> hangs on bootup and doesn't give any Oops output.
->
-> When I tried out 2.6.2-rc1-mm[1,2,3], it would start booting, but
-> oops immediately with the one I posted before, but I've re-created
-> here.
-
-It seems a little bit different from my situation: 2.6.2-rcX (basically non 
--mm versions) boots and works just fine (besides some oopses on shutdown, but 
-this is another story, I'll investigate further on this).
--mm series, both 2.6.2-rcX-mmY and 2.6.1-mmZ with Z > 3 hangs after 
-decompressing image, if I leave -funit-at-time in Makefile. I can  redo any 
-of these tests, I can also use a serial interface to capture any "hidden" 
-oops, if someone sends me any needed patch to show some data (i.e. early 
-printk) and the desired tests.
-
->
-> I'm at work now, so I won't be able to do any tests besides remote
-> kernel compiles during the day.
-
-The same holds for me :)
+I think it's been seen on MIPS too.
 
 -- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+dwmw2
 

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272717AbRIGPfz>; Fri, 7 Sep 2001 11:35:55 -0400
+	id <S272718AbRIGPfl>; Fri, 7 Sep 2001 11:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272716AbRIGPfm>; Fri, 7 Sep 2001 11:35:42 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:41226 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S272717AbRIGPf0>; Fri, 7 Sep 2001 11:35:26 -0400
-Date: Fri, 7 Sep 2001 17:34:35 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Wietse Venema <wietse@porcupine.org>
-Cc: Andrey Savochkin <saw@saw.sw.com.sg>,
-        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-Message-ID: <20010907173435.A469@ping.be>
-In-Reply-To: <20010906212303.A23595@castle.nmd.msu.ru> <20010906173948.502BFBC06C@spike.porcupine.org>
-Mime-Version: 1.0
+	id <S272716AbRIGPfb>; Fri, 7 Sep 2001 11:35:31 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:29949 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S272718AbRIGPfT>;
+	Fri, 7 Sep 2001 11:35:19 -0400
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <20010906173948.502BFBC06C@spike.porcupine.org>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15256.59715.523045.796917@napali.hpl.hp.com>
+Date: Fri, 7 Sep 2001 08:35:31 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] proposed fix for ptrace() SMP race
+In-Reply-To: <20010907152858.O11329@athlon.random>
+In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
+	<20010907021900.L11329@athlon.random>
+	<15256.6038.599811.557582@napali.hpl.hp.com>
+	<20010907032801.N11329@athlon.random>
+	<15256.22858.57091.769101@napali.hpl.hp.com>
+	<20010907152858.O11329@athlon.random>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 01:39:48PM -0400, Wietse Venema wrote:
-> Andrey Savochkin:
-> > > That is not practical. Surely there is an API to find out if an IP
-> > > address connects to the machine itself. If every UNIX system on
-> > > this planet can do it, then surely Linux can do it.
-> > 
-> > Let me correct you: you need to recognize not addresses that result in
-> > connecting to the _machine_ itself, but connecting to the same _MTA_.
-> 
-> The SMTP RFC requires that user@[ip.address] is correctly recognized
-> as a final destination.  This requires that Linux provides the MTA
-> with information about IP addresses that correspond with INADDR_ANY.
+>>>>> On Fri, 7 Sep 2001 15:28:58 +0200, Andrea Arcangeli <andrea@suse.de> said:
 
-I see no such thing in the RFC.  What I do see is that you're
-allow to use the [IP address] notation.  It can't see where it
-says that if that IP address is an IP address of the local host,
-that it should accept it as the final destination.
+  Andrea> correct, I suggest to ignore SIGCONT as well while
+  Andrea> PT_PTRACED is set.
 
-I can perfectly imagine that the same hosts runs serveral MTAs,
-on different IP addresses, and that both might have the same
-username, but it's for a different person.
+Do you really think it's acceptable?  With your patch, you couldn't
+SIGKILL or SIGCONT a task that happens to be ptraced.  I certainly
+would expect to be able to do this for a task that is being strace'd,
+for example.
 
-If an MTA doesn't listen to INADDR_ANY, why should it need to
-know all addresses that might correspond to it?  That shouldn't
-mean that if it does listen to INADDR_ANY, it should know them
-all, but that could be something an MTA might want to do.
-Like Andrey says, it needs to go to the same MTA.
+Also, other signals will still wake up the task.  Yes, it won't get
+very far as do_signal() will notify the parent instead, but still, the
+task will run and that could be enough to create some race condition.
 
-If for some reason it was needed to use the IP address in the
-destination, it's very likely that when it reaches the final
-host, it will be a connection to that IP address.  Atleast, seen
-from the connecting host.  If it's using NAT, maybe there should
-be some option to tell it to accept that IP address as a final
-destination too.
+What about the other wakeup paths that I had mentioned?  E.g., what if
+the ptraced task is ptracing another task?  Couldn't notify_parent()
+end up waking up the task as well?
 
+  Andrea> Also when you restore the cpus_allowed you won't effectively
+  Andrea> wakup the task, it will just keep floating in the runqueue
+  Andrea> but we won't try to reschedule the other idle cpus it so
+  Andrea> it's broken.
 
-Kurt
+Ah, that's a good point, thanks.  Nothing that can't be fixed, though.
 
+  >> Hmmh, looking at ptrace() more closely, the entire locking
+  >> situation seems to be a bit confused.  For example, what's
+  >> stopping wait4() from releasing the task structure just after
+  >> ptrace() released the tasklist_lock and before it checked
+  >> child->state?
+
+  Andrea> the get_task_struct()
+
+Yes, I missed that.
+
+	--david

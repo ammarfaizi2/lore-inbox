@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129193AbRBTElJ>; Mon, 19 Feb 2001 23:41:09 -0500
+	id <S129535AbRBTErM>; Mon, 19 Feb 2001 23:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129535AbRBTEkt>; Mon, 19 Feb 2001 23:40:49 -0500
-Received: from server.divms.uiowa.edu ([128.255.28.165]:4612 "EHLO
-	server.divms.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S129193AbRBTEkj>; Mon, 19 Feb 2001 23:40:39 -0500
-From: Doug Siebert <dsiebert@divms.uiowa.edu>
-Message-Id: <200102200440.WAA10118@server.divms.uiowa.edu>
-Subject: Re: PROBLEM: pci bridge fails to wake up from suspend/resume( Inspiron 8000 )
-To: nfp3033@privat.cybercity.no
-Date: Mon, 19 Feb 2001 22:40:31 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129666AbRBTErC>; Mon, 19 Feb 2001 23:47:02 -0500
+Received: from [198.77.1.35] ([198.77.1.35]:41220 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S129535AbRBTEqt>;
+	Mon, 19 Feb 2001 23:46:49 -0500
+Message-ID: <3A91F65F.EBBFCAF7@mountain.net>
+Date: Mon, 19 Feb 2001 23:45:19 -0500
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
 MIME-Version: 1.0
+To: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+CC: Andre Hedrick <andre@linux-ide.org>, Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [IDE] meaningless #ifndef?
+In-Reply-To: <Pine.GSO.4.30.0102192252130.7963-100000@balu> <Pine.LNX.4.10.10102191421140.4861-100000@master.linux-ide.org> <20010219173153.B12609@ganymede.isdn.uiuc.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morten,
+Bill Wendling wrote:
+> 
+> Also sprach Andre Hedrick:
+> } On Mon, 19 Feb 2001, Pozsar Balazs wrote:
+> }
+> } > from drivers/ide/ide-features.c:
+> } >
+> } > /*
+> } >  *  All hosts that use the 80c ribbon mus use!
+> } >  */
+> } > byte eighty_ninty_three (ide_drive_t *drive)
+> } > {
+> } >         return ((byte) ((HWIF(drive)->udma_four) &&
+> } > #ifndef CONFIG_IDEDMA_IVB
+> } >                         (drive->id->hw_config & 0x4000) &&
+> } > #endif /* CONFIG_IDEDMA_IVB */
+> } >                         (drive->id->hw_config & 0x6000)) ? 1 : 0);
+> } > }
+> } >
+> } > If i see well, then this is always same whether CONFIG_IDEDMA_IVB is
+> } > defined or not.
+> } > What's the clue?
+> }
+> [snip...]
+> 
+> The use of the ternary operator is superfluous, though...and makes the
+> code look ugly IMNSHO :).
+> 
 
-I'm not subscribed to linux-kernel, but I've been following the list archive
-somewhat for the past month (watching 2.4 development so I can figure out
-when it is safe to make the jump without too much hassle)
+Check return type. 0 == ((byte) 0x6000).
 
-I just bought a Dell Inspiron 4000 laptop a month ago, and have the same
-problem with suspend/resume, with both devices on the PCI bridge (both the
-eepro100 ethernet as well as the LT winmodem) Same symptoms, both work fine
-until suspend, after resume neither work at all.  I tried your fix, and it
-worked for me.  I did the same thing you did, running 'lspci -vx' to see
-the PCI registers before and after, and then use 'setpci' to fix them.
-Since the i4000 uses a 440BX mobile chipset, it isn't exactly the same
-commands, but I got it to work (I had to ifconfig eth0 down then 'ifup
-eth0' to make it work)  Its a pretty general fix, as I'm running Redhat 6.2
-with kernel 2.2.16.  Yeah, kind of old, but I hope to be running 2.4 pretty
-soon!  (BTW, as you probably already know, your fix works fine for
-re-enabling the winmodem after resume as well)
-
-I'm cc:ing linux-kernel also, in case anyone working this problem can benefit
-from the additional data point.  If anyone working this needs further info
-from me (lspci results or whatever) feel free to email me at this address.
-
--- 
-Douglas Siebert
-douglas-siebert@uiowa.edu
-
-A computer without Microsoft software is like chocolate cake without ketchup.
+Tom

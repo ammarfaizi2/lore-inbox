@@ -1,201 +1,444 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbSKOXV3>; Fri, 15 Nov 2002 18:21:29 -0500
+	id <S266923AbSKOXeH>; Fri, 15 Nov 2002 18:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbSKOXV3>; Fri, 15 Nov 2002 18:21:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30726 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266930AbSKOXVZ>;
-	Fri, 15 Nov 2002 18:21:25 -0500
-Date: Fri, 15 Nov 2002 23:28:18 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org,
-       Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
-       Trivial Kernel Patches <trivial@rustcorp.com.au>
-Subject: [PATCH] Move request_irq & free_irq from sched.h to interrupt.h
-Message-ID: <20021115232818.O20070@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S266839AbSKOXeH>; Fri, 15 Nov 2002 18:34:07 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:48909 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266940AbSKOXeB>; Fri, 15 Nov 2002 18:34:01 -0500
+Date: Sat, 16 Nov 2002 00:40:48 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: [RFC] mini user space module loader
+Message-ID: <Pine.LNX.4.44.0211160002460.2113-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-It really makes no sense to have request_irq and free_irq in sched.h
-Let's move them to interrupt.h instead.  Note that I also remove sched.h
-from interrupt.h since it's not needed.
+Below you can find the minimum implementation to load a module from user 
+space without bloating the kernel. I tested it a bit under uml and it 
+seems to work fine.
+In order to load the module it must be prelinked, what is done with "ld -r 
+mod.o init/module.o -T modules.lds -o new.mod.o". It's not integrated into 
+kbuild yet, so that step still has to be done manually, but the important 
+point is that the resulting module can be loaded by the old insmod _and_ 
+by the new insmod. This means we can gradually clean up the module code 
+and drop the backward compatibility with 2.7, when the new tools are 
+complete and stable. 
+What's missing:
+- argument must be parsed in the kernel (until we have a better interface 
+  to pass arguments to the kernel)
+- module deps have to be added (easy to do, but could as well be managed 
+  in user space).
 
-Fix up a few drivers... there are probably others that need to be fixed,
-but it's obvious what needs to be done.
+This is how the alternative could look like. The program can be easily 
+turned into a library, so we can change the kernel-module interface as 
+much as we like, especially we can move more out of the kernel instead 
+shoving everything into it.
+Any comments are welcome. If everyone thinks a kernel loader is way 
+cooler, that's fine with me, but below is the proof that it's not the only 
+option.
 
-diff -urpNX dontdiff linux-2.5.47/arch/i386/kernel/vm86.c linux-2.5.47-wait/arch/i386/kernel/vm86.c
---- linux-2.5.47/arch/i386/kernel/vm86.c	2002-10-14 14:37:14.000000000 -0700
-+++ linux-2.5.47-wait/arch/i386/kernel/vm86.c	2002-11-15 14:32:24.000000000 -0800
-@@ -31,6 +31,7 @@
-  */
- 
- #include <linux/errno.h>
-+#include <linux/interrupt.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/signal.h>
-diff -urpNX dontdiff linux-2.5.47/drivers/input/serio/i8042.c linux-2.5.47-wait/drivers/input/serio/i8042.c
---- linux-2.5.47/drivers/input/serio/i8042.c	2002-11-15 05:42:18.000000000 -0800
-+++ linux-2.5.47-wait/drivers/input/serio/i8042.c	2002-11-15 14:34:57.000000000 -0800
-@@ -10,16 +10,16 @@
-  * the Free Software Foundation.
-  */
- 
--#include <asm/io.h>
--
- #include <linux/delay.h>
- #include <linux/module.h>
-+#include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/config.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
- #include <linux/serio.h>
--#include <linux/sched.h>
-+
-+#include <asm/io.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("i8042 keyboard and mouse controller driver");
-diff -urpNX dontdiff linux-2.5.47/drivers/pcmcia/cs.c linux-2.5.47-wait/drivers/pcmcia/cs.c
---- linux-2.5.47/drivers/pcmcia/cs.c	2002-10-11 05:24:00.000000000 -0700
-+++ linux-2.5.47-wait/drivers/pcmcia/cs.c	2002-11-15 14:39:01.000000000 -0800
-@@ -40,7 +40,7 @@
- #include <linux/errno.h>
- #include <linux/slab.h>
- #include <linux/mm.h>
--#include <linux/sched.h>
-+#include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/ioport.h>
- #include <linux/delay.h>
-diff -urpNX dontdiff linux-2.5.47/drivers/pcmcia/rsrc_mgr.c linux-2.5.47-wait/drivers/pcmcia/rsrc_mgr.c
---- linux-2.5.47/drivers/pcmcia/rsrc_mgr.c	2002-11-15 05:42:00.000000000 -0800
-+++ linux-2.5.47-wait/drivers/pcmcia/rsrc_mgr.c	2002-11-15 14:35:45.000000000 -0800
-@@ -36,7 +36,7 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
--#include <linux/sched.h>
-+#include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/types.h>
-diff -urpNX dontdiff linux-2.5.47/drivers/pnp/resource.c linux-2.5.47-wait/drivers/pnp/resource.c
---- linux-2.5.47/drivers/pnp/resource.c	2002-11-15 05:42:00.000000000 -0800
-+++ linux-2.5.47-wait/drivers/pnp/resource.c	2002-11-15 14:39:46.000000000 -0800
-@@ -9,6 +9,7 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/errno.h>
-+#include <linux/interrupt.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
- #include <asm/io.h>
-diff -urpNX dontdiff linux-2.5.47/drivers/scsi/aic7xxx/aic7xxx_osm.h linux-2.5.47-wait/drivers/scsi/aic7xxx/aic7xxx_osm.h
---- linux-2.5.47/drivers/scsi/aic7xxx/aic7xxx_osm.h	2002-08-01 14:16:20.000000000 -0700
-+++ linux-2.5.47-wait/drivers/scsi/aic7xxx/aic7xxx_osm.h	2002-11-15 14:49:38.000000000 -0800
-@@ -65,6 +65,7 @@
- #include <linux/blk.h>
- #include <linux/blkdev.h>
- #include <linux/delay.h>
-+#include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
-diff -urpNX dontdiff linux-2.5.47/drivers/scsi/hosts.c linux-2.5.47-wait/drivers/scsi/hosts.c
---- linux-2.5.47/drivers/scsi/hosts.c	2002-11-15 05:42:20.000000000 -0800
-+++ linux-2.5.47-wait/drivers/scsi/hosts.c	2002-11-15 14:36:55.000000000 -0800
-@@ -34,6 +34,7 @@
- #include <linux/mm.h>
- #include <linux/proc_fs.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/list.h>
- #include <linux/smp_lock.h>
- 
-diff -urpNX dontdiff linux-2.5.47/drivers/scsi/qla1280.c linux-2.5.47-wait/drivers/scsi/qla1280.c
---- linux-2.5.47/drivers/scsi/qla1280.c	2002-11-15 05:42:02.000000000 -0800
-+++ linux-2.5.47-wait/drivers/scsi/qla1280.c	2002-11-15 15:01:07.000000000 -0800
-@@ -246,10 +246,10 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/kernel.h>
-+#include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/delay.h>
- #include <linux/timer.h>
--#include <linux/sched.h>
- #include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/blk.h>
-diff -urpNX dontdiff linux-2.5.47/include/linux/interrupt.h linux-2.5.47-wait/include/linux/interrupt.h
---- linux-2.5.47/include/linux/interrupt.h	2002-10-01 06:13:25.000000000 -0700
-+++ linux-2.5.47-wait/include/linux/interrupt.h	2002-11-15 14:41:37.000000000 -0800
-@@ -3,15 +3,11 @@
- #define _LINUX_INTERRUPT_H
- 
- #include <linux/config.h>
--#include <linux/sched.h>
--#include <linux/kernel.h>
--#include <linux/smp.h>
--#include <linux/cache.h>
- #include <linux/bitops.h>
--
- #include <asm/atomic.h>
--#include <asm/system.h>
-+#include <asm/hardirq.h>
- #include <asm/ptrace.h>
-+#include <asm/softirq.h>
- 
- struct irqaction {
- 	void (*handler)(int, void *, struct pt_regs *);
-@@ -22,8 +18,10 @@ struct irqaction {
- 	struct irqaction *next;
+bye, Roman
+
+#include <ctype.h>
+#include <elf.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <syscall.h>
+#include <sys/stat.h>
+
+struct symbol {
+	struct symbol *next;
+	Elf32_Addr addr;
+	char *name;
+} *symlist;
+
+//#define DPRINTF(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#define DPRINTF(fmt, ...)
+
+static struct symbol *add_symbol(Elf32_Addr addr, char *name)
+{
+	struct symbol *sym;
+
+	DPRINTF("%x: %s\n", addr, name);
+	sym = calloc(1, sizeof(*sym));
+	sym->addr = addr;
+	sym->name = name;
+	sym->next = symlist;
+	symlist = sym;
+
+	return sym;
+}
+
+static struct symbol *find_symbol(char *name)
+{
+	struct symbol *sym;
+
+	for (sym = symlist; sym; sym = sym->next) {
+		if (!strcmp(sym->name, name))
+			break;
+	}
+	return sym;
+}
+
+int main(int ac, char **av)
+{
+	int fd;
+	struct stat st;
+	char *mod, *mod2, *ksyms, *str;
+	char *name, *tmp, ch;
+	char *mod_name, *mod_arg;
+	Elf32_Ehdr *ehdr;
+	Elf32_Shdr *shdr;
+	Elf32_Addr addr, base, mod_size;
+	struct symbol *sym, *name_sym, *args_sym, *this_sym;
+	int i, symsize, offset, res;
+
+	if (ac <= 1) {
+		printf("usage: %s module [arg]\n", av[0]);
+		exit(1);
+	}
+	mod_arg = ac > 2 ? av[2] : "";
+
+	fd = open(av[1], O_RDONLY);
+	if (fd == -1)
+		exit(1);
+	fstat(fd, &st);
+	mod = malloc(st.st_size);
+	read(fd, mod, st.st_size);
+	close(fd);
+
+	mod_name = strchr(av[1], '/');
+	if (mod_name)
+		mod_name++;
+	else
+		mod_name = av[1];
+	tmp = strrchr(mod_name, '.');
+	if (tmp)
+		*tmp = 0;
+
+	fd = open("/proc/ksyms", O_RDONLY);
+	if (fd == -1)
+		exit(1);
+	ksyms = NULL;
+	symsize = offset = 0;
+	while (1) {
+		if (offset + 1024 >= symsize)
+			ksyms = realloc(ksyms, symsize += 4096);
+		res = read(fd, ksyms + offset, symsize - offset);
+		if (res <= 0)
+			break;
+		offset += res;
+	}
+	close(fd);
+
+	for (tmp = ksyms; tmp < ksyms + offset; tmp++) {
+		addr = strtoul(tmp, &tmp, 16);
+		while (isspace(*tmp))
+			tmp++;
+		name = tmp;
+		while (!isspace(*tmp))
+			tmp++;
+		ch = *tmp;
+		*tmp = 0;
+		add_symbol(addr, name);
+		while (ch != '\n')
+			ch = *++tmp;
+	}
+	this_sym = add_symbol(0, "__this_module");
+	name_sym = add_symbol(0, "__module_name");
+	args_sym = add_symbol(0, "__module_args");
+
+	ehdr = (Elf32_Ehdr *)mod;
+	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) || ehdr->e_type != ET_REL)
+		exit(1);
+
+	shdr = (Elf32_Shdr *)(mod + ehdr->e_shoff);
+	str = (char *)(mod + shdr[ehdr->e_shstrndx].sh_offset);
+	addr = 0;
+	for (i = 0; i < ehdr->e_shnum; i++) {
+		DPRINTF("%d:%s: %d,%x,%d, %d,%x\n", i, str + shdr[i].sh_name,
+			shdr[i].sh_type, shdr[i].sh_flags,
+			shdr[i].sh_addralign, shdr[i].sh_link, shdr[i].sh_info);
+		if (shdr[i].sh_flags & SHF_ALLOC) {
+			addr += shdr[i].sh_addralign - 1;
+			addr -= addr % shdr[i].sh_addralign;
+			shdr[i].sh_addr = addr;
+			addr += shdr[i].sh_size;
+		}
+		if (shdr[i].sh_type == SHT_SYMTAB) {
+			Elf32_Sym *esym = (Elf32_Sym *)(mod + shdr[i].sh_offset);
+			Elf32_Sym *end = (Elf32_Sym *)(mod + shdr[i].sh_offset + shdr[i].sh_size);
+			char *symstr = (char *)(mod + shdr[shdr[i].sh_link].sh_offset);
+			for (esym++; esym < end; esym++) {
+				//if (!esym->st_name)
+				//	goto next;
+				DPRINTF("  %s:%d:%x,%d (%d,%d)\n", symstr + esym->st_name,
+					esym->st_shndx, esym->st_value, esym->st_size,
+					ELF32_ST_BIND(esym->st_info),
+					ELF32_ST_TYPE(esym->st_info));
+				if (esym->st_shndx == SHN_UNDEF) {
+					sym = find_symbol(symstr + esym->st_name);
+					if (!sym) {
+						printf("%s undefined!\n", symstr + esym->st_name);
+						exit(1);
+					} else
+						DPRINTF("    -> %x\n", sym->addr);
+				}
+			}
+		}
+	}
+
+	mod_size = addr + strlen(mod_name) + strlen(mod_arg) + 2;
+	DPRINTF("%x (%x)\n", addr, mod_size);
+	base = syscall(SYS_create_module, mod_name, mod_size);
+	mod2 = calloc(1, mod_size);
+	this_sym->addr = base;
+	name_sym->addr = base + addr;
+	strcpy(mod2 + addr, mod_name);
+	args_sym->addr = base + addr + strlen(mod_name) + 1;
+	strcpy(mod2 + addr + strlen(mod_name) + 1, mod_arg);
+
+	for (i = 0; i < ehdr->e_shnum; i++) {
+		switch (shdr[i].sh_type) {
+		case SHT_PROGBITS:
+			if (shdr[i].sh_flags & SHF_ALLOC)
+				memcpy(mod2 + shdr[i].sh_addr, mod + shdr[i].sh_offset, shdr[i].sh_size);
+			break;
+		case SHT_SYMTAB:
+		    {
+			Elf32_Sym *esym = (Elf32_Sym *)(mod + shdr[i].sh_offset);
+			Elf32_Sym *end = (Elf32_Sym *)(mod + shdr[i].sh_offset + shdr[i].sh_size);
+			char *symstr = (char *)(mod + shdr[shdr[i].sh_link].sh_offset);
+			for (esym++; esym < end; esym++) {
+				//if (!esym->st_name)
+				//	continue;
+				if (esym->st_shndx == SHN_UNDEF) {
+					sym = find_symbol(symstr + esym->st_name);
+					if (sym)
+						esym->st_value = sym->addr;
+				} else if (esym->st_shndx == SHN_ABS) {
+					/* nothing */
+				} else if (esym->st_shndx == SHN_COMMON) {
+					printf("FIXME!\n");
+				} else {
+					if (ELF32_ST_BIND(esym->st_info) == STB_WEAK &&
+					    (sym = find_symbol(symstr + esym->st_name))) {
+						esym->st_value = sym->addr;
+					} else
+						esym->st_value += base + shdr[esym->st_shndx].sh_addr;
+				}
+			}
+			break;
+		    }
+		}
+	}
+
+	for (i = 0; i < ehdr->e_shnum; i++) {
+		DPRINTF("section %d\n", i);
+		switch (shdr[i].sh_type) {
+		case SHT_REL:
+		    {
+			Elf32_Rel *rel = (Elf32_Rel *)(mod + shdr[i].sh_offset);
+			Elf32_Rel *end = (Elf32_Rel *)(mod + shdr[i].sh_offset + shdr[i].sh_size);
+			Elf32_Sym *esym = (Elf32_Sym *)(mod + shdr[shdr[i].sh_link].sh_offset);
+			char *sec_addr = mod2 + shdr[shdr[i].sh_info].sh_addr;
+			Elf32_Addr sec_base = base + shdr[shdr[i].sh_info].sh_addr;
+
+			if (!(shdr[shdr[i].sh_info].sh_flags & SHF_ALLOC))
+				break;
+			for (; rel < end; rel++) {
+				addr = esym[ELF32_R_SYM(rel->r_info)].st_value;
+				DPRINTF("%d,%x,%x,%x\n", ELF32_R_TYPE(rel->r_info),
+					sec_base, rel->r_offset, addr);
+				switch (ELF32_R_TYPE(rel->r_info)) {
+				case R_386_32:
+					*(int*)(sec_addr + rel->r_offset) += addr;
+					break;
+				case R_386_PC32:
+					*(int*)(sec_addr + rel->r_offset) += addr - (sec_base + rel->r_offset);
+					break;
+				default:
+					printf("Fix me!!!");
+				}
+			}
+			break;
+		    }
+		case SHT_RELA:
+			printf("Fix me!!!");
+			break;
+		}
+	}
+	base = syscall(SYS_init_module, mod_name, mod2);
+
+	return 0;
+}
+
+
+diff -Nur linux-2.5.org/include/linux/module.h linux-minimod/include/linux/module.h
+--- linux-2.5.org/include/linux/module.h	2002-11-11 19:57:11.000000000 +0100
++++ linux-minimod/include/linux/module.h	2002-11-15 23:59:28.000000000 +0100
+@@ -82,6 +82,13 @@
+ 	const char *kernel_data;	/* Reserved for kernel internal use */
  };
  
--#include <asm/hardirq.h>
--#include <asm/softirq.h>
-+extern int request_irq(unsigned int,
-+		       void (*handler)(int, void *, struct pt_regs *),
-+		       unsigned long, const char *, void *);
-+extern void free_irq(unsigned int, void *);
++struct module_new
++{
++	struct module old_module;
++	struct module_symbol *syms_end;
++	char *arg;
++};
++
+ struct module_info
+ {
+ 	unsigned long addr;
+@@ -278,7 +285,8 @@
+   __attribute__((section(".modinfo"), unused)) = "license=" license
  
- /*
-  * Temporary defines for UP kernels, until all code gets fixed.
-diff -urpNX dontdiff linux-2.5.47/include/linux/sched.h linux-2.5.47-wait/include/linux/sched.h
---- linux-2.5.47/include/linux/sched.h	2002-11-15 05:42:21.000000000 -0800
-+++ linux-2.5.47-wait/include/linux/sched.h	2002-11-15 15:03:30.000000000 -0800
-@@ -588,11 +567,6 @@ static inline int sas_ss_flags(unsigned 
- 		: on_sig_stack(sp) ? SS_ONSTACK : 0);
- }
+ /* Define the module variable, and usage macros.  */
+-extern struct module __this_module;
++extern struct module_new __module_initdata __attribute__ ((section (".module_initdata")));
++extern struct module __this_module __attribute__ ((weak));
  
--extern int request_irq(unsigned int,
--		       void (*handler)(int, void *, struct pt_regs *),
--		       unsigned long, const char *, void *);
--extern void free_irq(unsigned int, void *);
--
- /* capable prototype and code moved to security.[hc] */
- #include <linux/security.h>
- #if 0
-diff -urpNX dontdiff linux-2.5.47/sound/drivers/mpu401/mpu401_uart.c linux-2.5.47-wait/sound/drivers/mpu401/mpu401_uart.c
---- linux-2.5.47/sound/drivers/mpu401/mpu401_uart.c	2002-10-11 05:24:04.000000000 -0700
-+++ linux-2.5.47-wait/sound/drivers/mpu401/mpu401_uart.c	2002-11-15 14:38:12.000000000 -0800
-@@ -29,7 +29,7 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/ioport.h>
--#include <linux/sched.h>
-+#include <linux/interrupt.h>
- #include <linux/errno.h>
- #include <sound/core.h>
- #include <sound/mpu401.h>
+ #define THIS_MODULE		(&__this_module)
+ #define MOD_INC_USE_COUNT	__MOD_INC_USE_COUNT(THIS_MODULE)
+diff -Nur linux-2.5.org/init/Makefile linux-minimod/init/Makefile
+--- linux-2.5.org/init/Makefile	2002-11-05 00:29:32.000000000 +0100
++++ linux-minimod/init/Makefile	2002-11-15 23:59:28.000000000 +0100
+@@ -3,6 +3,7 @@
+ #
+ 
+ obj-y    := main.o version.o do_mounts.o initramfs.o
++obj-m    := module.o
+ 
+ # files to be removed upon make clean
+ clean-files := ../include/linux/compile.h
+diff -Nur linux-2.5.org/init/module.c linux-minimod/init/module.c
+--- linux-2.5.org/init/module.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-minimod/init/module.c	2002-11-15 23:59:46.000000000 +0100
+@@ -0,0 +1,25 @@
++#include <linux/module.h>
++
++extern int init_module(void); 
++extern void cleanup_module(void);
++extern struct module_symbol __syms_start;
++extern struct module_symbol __syms_end;
++extern const struct exception_table_entry __ex_table_start;
++extern const struct exception_table_entry __ex_table_end;
++char __module_name[] __attribute__ ((weak)) = "";
++char __module_args[] __attribute__ ((weak)) = "";
++
++struct module_new __module_initdata __attribute__ ((section (".module_initdata"))) = {
++	.old_module	= {
++		.name 		= __module_name,
++		.init		= init_module,
++		.cleanup	= cleanup_module,
++		.syms		= &__syms_start,
++		.ex_table_start	= &__ex_table_start,
++		.ex_table_end	= &__ex_table_end,
++	},
++	.syms_end	= &__syms_end,
++	.arg		= __module_args,
++};
++
++struct module __this_module;
+diff -Nur linux-2.5.org/kernel/module.c linux-minimod/kernel/module.c
+--- linux-2.5.org/kernel/module.c	2002-11-05 00:29:33.000000000 +0100
++++ linux-minimod/kernel/module.c	2002-11-15 23:59:28.000000000 +0100
+@@ -355,7 +355,7 @@
+ sys_init_module(const char *name_user, struct module *mod_user)
+ {
+ 	struct module mod_tmp, *mod;
+-	char *name, *n_name, *name_tmp = NULL;
++	char *name, *n_name = NULL, *name_tmp = NULL;
+ 	long namelen, n_namelen, i, error;
+ 	unsigned long mod_user_size;
+ 	struct module_ref *dep;
+@@ -377,7 +377,9 @@
+ 	   for a newer kernel.  But don't over do it. */
+ 	if ((error = get_user(mod_user_size, &mod_user->size_of_struct)) != 0)
+ 		goto err1;
+-	if (mod_user_size < (unsigned long)&((struct module *)0L)->persist_start
++	if (!mod_user_size) {
++		mod_user_size = sizeof(struct module_new);
++	} else if (mod_user_size < (unsigned long)&((struct module *)0L)->persist_start
+ 	    || mod_user_size > sizeof(struct module) + 16*sizeof(void*)) {
+ 		printk(KERN_ERR "init_module: Invalid module header size.\n"
+ 		       KERN_ERR "A new version of the modutils is likely "
+@@ -405,7 +407,11 @@
+ 	/* Sanity check the size of the module.  */
+ 	error = -EINVAL;
+ 
+-	if (mod->size > mod_tmp.size) {
++	if (!mod->size) {
++		struct module_new *new_mod = (struct module_new *)mod;
++		mod->size = mod_tmp.size;
++		mod->nsyms = new_mod->syms_end - mod->syms;
++	} else if (mod->size > mod_tmp.size) {
+ 		printk(KERN_ERR "init_module: Size of initialized module "
+ 				"exceeds size of created module.\n");
+ 		goto err2;
+@@ -484,6 +490,7 @@
+ 
+ 	/* Check that the user isn't doing something silly with the name.  */
+ 
++	if (mod->size_of_struct) {
+ 	if ((n_namelen = get_mod_name(mod->name - (unsigned long)mod
+ 				      + (unsigned long)mod_user,
+ 				      &n_name)) < 0) {
+@@ -497,6 +504,7 @@
+ 		       n_name, mod_tmp.name);
+ 		goto err3;
+ 	}
++	}
+ 
+ 	/* Ok, that's about all the sanity we can stomach; copy the rest.  */
+ 
+@@ -552,7 +560,8 @@
+ 	}
+ 
+ 	/* Free our temporary memory.  */
+-	put_mod_name(n_name);
++	if (n_name)
++		put_mod_name(n_name);
+ 	put_mod_name(name);
+ 
+ 	/* Initialize the module.  */
+diff -Nur linux-2.5.org/modules.lds linux-minimod/modules.lds
+--- linux-2.5.org/modules.lds	1970-01-01 01:00:00.000000000 +0100
++++ linux-minimod/modules.lds	2002-11-15 23:59:53.000000000 +0100
+@@ -0,0 +1,24 @@
++SECTIONS
++{
++        .module : {
++		*(.module_initdata)
++	}
++        .text : {
++                *(.text)
++                PROVIDE(init_module = 0);
++                PROVIDE(cleanup_module = 0);
++        }
++        .data : { *(.data) }
++        .syms : {
++                __syms_start = .;
++                *(__ksymtab)
++                __syms_end = .;
++        }
++        .ex_table : {
++                __ex_table_start = .;
++                *(__ex_table)
++                __ex_table_end = .;
++        }
++        .bss : { *(.bss) *(COMMON) }
++}
++
 
--- 
-Revolutions do not require corporate support.

@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136193AbRAZQ3m>; Fri, 26 Jan 2001 11:29:42 -0500
+	id <S135538AbRAZQ3W>; Fri, 26 Jan 2001 11:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136256AbRAZQ3e>; Fri, 26 Jan 2001 11:29:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:20751 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136193AbRAZQ3Z>; Fri, 26 Jan 2001 11:29:25 -0500
-Message-ID: <3A71A5B5.7AE35C97@transmeta.com>
-Date: Fri, 26 Jan 2001 08:28:37 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: Lars Marowsky-Bree <lmb@suse.de>, James Sutherland <jas88@cam.ac.uk>,
-        "David S. Miller" <davem@redhat.com>,
-        Matti Aarnio <matti.aarnio@zmailer.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <20010126124426.O2360@marowsky-bree.de> <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk> <20010126154447.L3849@marowsky-bree.de> <20010126160342.B7096@pcep-jamie.cern.ch>
+	id <S136193AbRAZQ3M>; Fri, 26 Jan 2001 11:29:12 -0500
+Received: from nathan.polyware.nl ([193.67.144.241]:22797 "EHLO
+	nathan.polyware.nl") by vger.kernel.org with ESMTP
+	id <S136162AbRAZQ3B>; Fri, 26 Jan 2001 11:29:01 -0500
+Date: Fri, 26 Jan 2001 17:28:56 +0100
+From: Pauline Middelink <middelink@polyware.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mapping physical memory
+Message-ID: <20010126172856.A8069@polyware.nl>
+Mail-Followup-To: Pauline Middelink <middelin@polyware.nl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <fa.h16635v.l0uu8m@ifi.uio.no> <027801c08784$48a04630$0701a8c0@morph>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <027801c08784$48a04630$0701a8c0@morph>; from dmaas@dcine.com on Fri, Jan 26, 2001 at 05:39:38AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Fri, 26 Jan 2001 around 05:39:38 -0500, Dan Maas wrote:
+> > I need to be able to obtain and pin approximately 8 MB of
+> > contiguous physical memory in user space.  How would I go
+> > about doing that under Linux if it is at all possible?
 > 
-> Lars Marowsky-Bree wrote:
-> > First, you are ignoring a TCP_RST, which means "stop trying".
-> 
-> That's why we stop when we receive the second TCP RST.
-> It's just like dropping due to congestion, which is of course perfectly
-> safe in moderation.
-> 
+> The only way to allocate that much *physically* contiguous memory is by
+> writing a driver that grabs it at boot-time (I think the "bootmem" API is
+> used for this). This is an extreme measure and should rarely be necessary,
+> except in special cases such as primitive PCI cards that lack support for
+> scatter/gather DMA.
 
-No, you can't issue multiple connects in response to a single socket
-option.  One can argue that it would have been OK for these firewalls to
-drop ECN packets, but replying with RST is just too broken to live.
+Or is you want to reuse that memory between apps, use the bigphysarea
+patch. Yes, its available for 2.4.0 now :)
 
-	-hpa
-
+    Met vriendelijke groet,
+        Pauline Middelink
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+GPG Key fingerprint = 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
+For more details look at my website http://www.polyware.nl/~middelink
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

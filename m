@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291525AbSBMKgX>; Wed, 13 Feb 2002 05:36:23 -0500
+	id <S291522AbSBMKgn>; Wed, 13 Feb 2002 05:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291531AbSBMKgN>; Wed, 13 Feb 2002 05:36:13 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:65035 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S291522AbSBMKf7>; Wed, 13 Feb 2002 05:35:59 -0500
-Date: Wed, 13 Feb 2002 11:35:26 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Larry McVoy <lm@bitmover.com>
-cc: Tom Lord <lord@regexps.com>, <tytso@mit.edu>, <jmacd@cs.berkeley.edu>,
-        <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <20020212145412.E25559@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0202131133040.17391-100000@serv>
+	id <S291531AbSBMKgd>; Wed, 13 Feb 2002 05:36:33 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:3846 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S291522AbSBMKgW>;
+	Wed, 13 Feb 2002 05:36:22 -0500
+Message-ID: <3C6A418A.8040105@evision-ventures.com>
+Date: Wed, 13 Feb 2002 11:35:54 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+        Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <Pine.LNX.4.10.10202122147550.32729-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andre Hedrick wrote:
 
-On Tue, 12 Feb 2002, Larry McVoy wrote:
+>Just maybe if the LOT of you would back off you may see
+>
+>Uniform Storage Driver.
+>
+>Just catch a clue for two seconds and see that I have packetized the
+>ATA-Command Block IO.  Since you have not a clue of why it was done,
+>please continue with your hair brained ideas.
+>
+>Ever heard of SAS or FPDMA ?
+>
+>Don't screw with what you do not know about.
+>
+Well, after looking at yours code close engough I have one advice for 
+you as well: LEARN C.
 
-> Why the patchbot people haven't picked up on that is beyond me, they're
-> off trying to write something "simple", which I think you'll agree is
-> a strange, there is nothing simple about this problem space.
-
-Because they try to solve a completely different problem? Again, the
-patchbot is _no_ source management system.
-
-bye, Roman
 

@@ -1,71 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265835AbUBKVKL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 16:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUBKVKL
+	id S266104AbUBKVTW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 16:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266134AbUBKVTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 16:10:11 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:25571 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S265835AbUBKVKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 16:10:06 -0500
-Date: Wed, 11 Feb 2004 13:09:30 -0800
-From: Tim Hockin <thockin@sun.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: PATCH - raise max_anon limit
-Message-ID: <20040211210930.GJ9155@sun.com>
-Reply-To: thockin@sun.com
-References: <20040206221545.GD9155@sun.com> <20040207005505.784307b8.akpm@osdl.org> <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk> <20040211203306.GI9155@sun.com> <Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
+	Wed, 11 Feb 2004 16:19:22 -0500
+Received: from [144.51.25.10] ([144.51.25.10]:19176 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S266104AbUBKVTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 16:19:18 -0500
+Subject: [patch] [selinux] Fix bugs in policy loading code
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
+       Frank Mayer <mayerf@tresys.com>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1076534324.7560.170.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6CXocAQn8Xbegyxo"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Wed, 11 Feb 2004 16:18:45 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch against 2.6.3-rc2 fixes a couple of bugs in the SELinux
+policy loading code.  The first bug was reported by Magosanyi Arpad;
+kernel panic upon feeding the kernel a policy with an empty avtab due to
+cleanup code trying to free the avtab twice.  The other bugs were
+reported by Frank Mayer; failure to properly validate certain values
+read from the policy.  Please apply.
 
---6CXocAQn8Xbegyxo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ security/selinux/ss/avtab.c    |    3 ++-
+ security/selinux/ss/policydb.c |   27 +++++++++++++++++++++------
+ 2 files changed, 23 insertions(+), 7 deletions(-)
 
-On Wed, Feb 11, 2004 at 12:38:11PM -0800, Linus Torvalds wrote:
-> > Maybe that is just the simplest answer?  It can be a simple constant that is
-> > changeable at compile time, and leave it at that
-> > 
-> > What's most likely to cause the least argument?
-> 
-> I'd suggest just raising it to 64k or so, that's likely to be acceptable, 
-> and it's a static 8kB array. That's likely not much more than the code 
-> needed to worry about dynamic entries, yet I'd assume that changing it 
-> from 256 to 64k is going to make most people say "enough".
+diff -X /home/sds/dontdiff -ru linux-2.6.3-rc2/security/selinux/ss/avtab.c linux-2.6.3-rc2-fix/security/selinux/ss/avtab.c
+--- linux-2.6.3-rc2/security/selinux/ss/avtab.c	2004-02-03 22:44:05.000000000 -0500
++++ linux-2.6.3-rc2-fix/security/selinux/ss/avtab.c	2004-02-11 14:51:39.881705960 -0500
+@@ -98,7 +98,7 @@
+ 	int i;
+ 	struct avtab_node *cur, *temp;
+ 
+-	if (!h)
++	if (!h || !h->htable)
+ 		return;
+ 
+ 	for (i = 0; i < AVTAB_SIZE; i++) {
+@@ -111,6 +111,7 @@
+ 		h->htable[i] = NULL;
+ 	}
+ 	vfree(h->htable);
++	h->htable = NULL;
+ }
+ 
+ 
+diff -X /home/sds/dontdiff -ru linux-2.6.3-rc2/security/selinux/ss/policydb.c linux-2.6.3-rc2-fix/security/selinux/ss/policydb.c
+--- linux-2.6.3-rc2/security/selinux/ss/policydb.c	2004-02-03 22:43:43.000000000 -0500
++++ linux-2.6.3-rc2-fix/security/selinux/ss/policydb.c	2004-02-11 14:51:30.073060064 -0500
+@@ -124,6 +124,8 @@
+ 
+ 	comdatum = datum;
+ 	p = datap;
++	if (!comdatum->value || comdatum->value > p->p_commons.nprim)
++		return -EINVAL;
+ 	p->p_common_val_to_name[comdatum->value - 1] = key;
+ 	return 0;
+ }
+@@ -135,6 +137,8 @@
+ 
+ 	cladatum = datum;
+ 	p = datap;
++	if (!cladatum->value || cladatum->value > p->p_classes.nprim)
++		return -EINVAL;
+ 	p->p_class_val_to_name[cladatum->value - 1] = key;
+ 	p->class_val_to_struct[cladatum->value - 1] = cladatum;
+ 	return 0;
+@@ -147,6 +151,8 @@
+ 
+ 	role = datum;
+ 	p = datap;
++	if (!role->value || role->value > p->p_roles.nprim)
++		return -EINVAL;
+ 	p->p_role_val_to_name[role->value - 1] = key;
+ 	p->role_val_to_struct[role->value - 1] = role;
+ 	return 0;
+@@ -160,8 +166,11 @@
+ 	typdatum = datum;
+ 	p = datap;
+ 
+-	if (typdatum->primary)
++	if (typdatum->primary) {
++		if (!typdatum->value || typdatum->value > p->p_types.nprim)
++			return -EINVAL;
+ 		p->p_type_val_to_name[typdatum->value - 1] = key;
++	}
+ 
+ 	return 0;
+ }
+@@ -173,6 +182,8 @@
+ 
+ 	usrdatum = datum;
+ 	p = datap;
++	if (!usrdatum->value || usrdatum->value > p->p_users.nprim)
++		return -EINVAL;
+ 	p->p_user_val_to_name[usrdatum->value - 1] = key;
+ 	p->user_val_to_struct[usrdatum->value - 1] = usrdatum;
+ 	return 0;
+@@ -502,13 +513,19 @@
+ 	struct role_datum *role;
+ 	struct user_datum *usrdatum;
+ 
+-	/*
+-	 * Role must be authorized for the type.
+-	 */
+ 	if (!c->role || c->role > p->p_roles.nprim)
+ 		return 0;
+ 
++	if (!c->user || c->user > p->p_users.nprim)
++		return 0;
++
++	if (!c->type || c->type > p->p_types.nprim)
++		return 0;
++
+ 	if (c->role != OBJECT_R_VAL) {
++		/*
++		 * Role must be authorized for the type.
++		 */
+ 		role = p->role_val_to_struct[c->role - 1];
+ 		if (!ebitmap_get_bit(&role->types,
+ 				     c->type - 1))
+@@ -518,8 +535,6 @@
+ 		/*
+ 		 * User must be authorized for the role.
+ 		 */
+-		if (!c->user || c->user > p->p_users.nprim)
+-			return 0;
+ 		usrdatum = p->user_val_to_struct[c->user - 1];
+ 		if (!usrdatum)
+ 			return 0;
 
-How's this then?  It doesn't get any simpler..
 
 -- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---6CXocAQn8Xbegyxo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="max_anon_raise-2.6.2-1.diff"
-
-===== fs/super.c 1.110 vs edited =====
---- 1.110/fs/super.c	Sun Oct  5 01:07:55 2003
-+++ edited/fs/super.c	Wed Feb 11 11:56:02 2004
-@@ -535,7 +535,8 @@
-  * filesystems which don't use real block-devices.  -- jrs
-  */
- 
--enum {Max_anon = 256};
-+/* you can raise this as high as 2^MINORBITS if you REALLY need more */
-+enum {Max_anon = 65536};
- static unsigned long unnamed_dev_in_use[Max_anon/(8*sizeof(unsigned long))];
- static spinlock_t unnamed_dev_lock = SPIN_LOCK_UNLOCKED;/* protects the above */
- 
-
---6CXocAQn8Xbegyxo--

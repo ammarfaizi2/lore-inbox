@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSHHQqU>; Thu, 8 Aug 2002 12:46:20 -0400
+	id <S317653AbSHHQu4>; Thu, 8 Aug 2002 12:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317653AbSHHQqU>; Thu, 8 Aug 2002 12:46:20 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50310 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317649AbSHHQp6>; Thu, 8 Aug 2002 12:45:58 -0400
-Date: Thu, 8 Aug 2002 12:52:05 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Bryan K. Walton" <thisisnotmyid@tds.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with 1gb ddr memory sticks on linux
-In-Reply-To: <20020808160456.GI16225@weccusa.org>
-Message-ID: <Pine.LNX.3.95.1020808124904.1372A-100000@chaos.analogic.com>
+	id <S317661AbSHHQuz>; Thu, 8 Aug 2002 12:50:55 -0400
+Received: from mons.uio.no ([129.240.130.14]:63957 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S317653AbSHHQuy>;
+	Thu, 8 Aug 2002 12:50:54 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15698.41542.250846.334946@charged.uio.no>
+Date: Thu, 8 Aug 2002 18:54:30 +0200
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.30+] Second attempt at a shared credentials patch
+In-Reply-To: <44050000.1028823650@baldur.austin.ibm.com>
+References: <23130000.1028818693@baldur.austin.ibm.com>
+	<shsofcdfjt6.fsf@charged.uio.no>
+	<44050000.1028823650@baldur.austin.ibm.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Aug 2002, Bryan K. Walton wrote:
+>>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
 
-> I have a box running Debian 3.0 with a Via C3 800mhz processor
-> that slows to a crawl when I put in a 1GB stick of PC2100 DDR memory.
-> 
-> The board, a Gigabyte GA-6RX, supports this memory stick.
-> My 2.4.18 kernel is compiled with High Memory support and linux and the
-> bios see all of the memory.  However, the box is VERY slow.  It takes
-> about 5 minutes to install .deb binary.  It took me 12 hours to compile
-> the 2.4.18 kernel!
-> 
-> Here is what I have done to rule things out . . .
-> 
-> 1) The box runs FAST with M$ Windows 2000.
-> 2) The box runs FAST when using identical kinds of memory but in
-> quantities of 512MB or less.
-> 3) The box runs slow with other linux distos also. (I tried Redhat 7.2)
-> 
-> It seems to me that the problem has something to do with the linux
-> kernel and 1GB memory sticks.  Am I off base?
-> 
-> Anyone have any ideas?
+    >> Instead of doing this as one big unreadable monolithic patch
+    >> and risking getting things wrong like in the above case, it
+    >> would be nice if you could go via a set of wrapper functions:
+    >>
+    >> # define get_current_uid() (current->uid) define
+    >> # set_current_uid(a) current->uid = a
 
-Maybe, just maybe, you have a PCI-based disk-drive controller and,
-maybe, just maybe, you are running out of address-space when you
-install all that RAM, so the disk driver falls-back to PIO?
+     > I don't see this as a win.  I *could* do a big monolithic patch
+     > to change all references to current->*id to macros, then change
+     > the macros in a separate patch.  But then we'd be stuck with
+     > macros for all those references forever, and they're not likely
+     > to change again any time soon.  I don't think we'd really want
+     > to have macros for all our structure references on the off
+     > chance that someone might change it in the future.
 
-Try just one, 1GB stick. See if it works okay, then try two, etc.
+Why? Macros (and inlined functions) have the advantage that they
+enforce good policy. Doing 'task->cred->uid = a' on tasks other than
+'current' is in general not a very safe thing to do. This sort of
+issue w.r.t. safe policies should in particular be worrying you when
+you start adding CRED_CLONE...
+There are good precedents for this sort of argument: see
+'set_current_state()' & friends.
+
+In addition, those macros would allow you to set up compatibility with
+2.4.x and simplify patch backports.
+
+
+As for changing the structure: As I said previously I'd like to unify
+all those { fsuid, fsgid, group } things into a proper ucred, so that
+we can share these objects around the VFS, and cache them...
+Your 'struct cred' as it stands will not suffice to do all that since
+it does not provide the necessary Copy On Write protection. (For
+instance if some thread temporarily raises my process privileges, I
+will *not* want all my already opened 'struct file's to suddenly gain
+root access).
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+  Trond

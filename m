@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbSKCX3V>; Sun, 3 Nov 2002 18:29:21 -0500
+	id <S263571AbSKCX3D>; Sun, 3 Nov 2002 18:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSKCX3V>; Sun, 3 Nov 2002 18:29:21 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:21777 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP
-	id <S263837AbSKCX3T>; Sun, 3 Nov 2002 18:29:19 -0500
-Date: Sun, 3 Nov 2002 18:35:52 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: <stern@netrider.rowland.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fixes for the ide-tape driver
-In-Reply-To: <20021103140328.GL807@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0211031822200.26264-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263837AbSKCX3D>; Sun, 3 Nov 2002 18:29:03 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29839 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263571AbSKCX3C>; Sun, 3 Nov 2002 18:29:02 -0500
+Subject: Re: swsusp: don't eat ide disks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: benh@kernel.crashing.org, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021103222755.GL28704@atrey.karlin.mff.cuni.cz>
+References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
+	<20021103145735.14872@smtp.wanadoo.fr>
+	<1036340733.29642.41.camel@irongate.swansea.linux.org.uk>
+	<20021103201251.GE27271@elf.ucw.cz>
+	<1036359207.30629.31.camel@irongate.swansea.linux.org.uk>
+	<20021103220904.GE28704@atrey.karlin.mff.cuni.cz>
+	<1036363284.30679.33.camel@irongate.swansea.linux.org.uk> 
+	<20021103222755.GL28704@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 23:56:53 +0000
+Message-Id: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002, Jens Axboe wrote:
+On Sun, 2002-11-03 at 22:27, Pavel Machek wrote:
+> Hi!
+> 
+> > > You are probably right that for ide disk quiescing a queue is enough,
+> > > but nothing prevents block device to do some DMA just for fun. Also I
+> > > want to spindown on suspend (andre wanted that, to flush caches), so I
+> > > guess that the patch is quite good as-is....
+> > 
+> > That will get done by the power down part of the process as its needed
+> > in both cases
+> 
+> At least in suspend-to-ram (S3), power down part is not even
+> called. [Its suspend, we are not powering off, after all.]
+> On S3 resume you should wait for disks to spin up, so you need resume
+> handler.
+> 
+> I used same stuff for S3 and S4, which means I do need to spin them
+> down even for S4. I believe same handlers for S3 and S4 suspend/resume
+> is right thing to do...
 
-> On Sat, Nov 02 2002, Alan Cox wrote:
-> > Thanks for the 2.5 bits. For the 2.4 tree send them on to Marcelo after
-> > 2.4.20 is out. You might also want to talk to Pete Zaitcev
-> > <zaitcev@redhat.com> as I know he posted some fixes too recently
->
-> The use of IDETAPE_RQ_CMD looks shady, at best. And idetape_do_request()
-> does a direct switch() on the flags, ugh.
-
-I agree, absolutely.  Those are the least of this driver's stylistic
-infelicities.  The two things I have found to be most objectionable are:
-
-First, the driver is a mish-mash, including code for handling OnStream
-devices along with generic ATAPI devices.  In some places the specialized
-code is set off with regular conditional tests, in others by pre-processor
-conditionals, and in others not at all.  Willem Riede has expressed his
-intention to write a different driver just for the OnStream, which I think
-is a very good idea.
-
-Second, the use of write buffering means that the driver is unable to
-detect and report end-of-media or other write errors until they occur,
-long after returning successfully from the corresponding system call.
-Considering that tape drives are often used for backups, this lack of
-proper error-reporting is not appropriate for such a mission-critical
-application.  (This was a conscious decision on the part of the original
-author of the driver.  There is supposed to be support for compiling it
-without the write buffer, but -- presumably as a result of later changes
--- it doesn't work.)
-
-My version of the driver is not perfect.  For example, I know (because I
-have seen it happen) that the driver can hang when encountering a
-faulty-media error.  All I have done is add a more-or-less minimal number
-of changes that suffice to make the driver work okay on my system, and
-hence presumably for other ATAPI systems as well.  It might be nice to
-make larger-scale changes, but I don't have the time or the desire to do
-so.
-
-Alan Stern
+S4 the bios has spun the disks back up, S3 we may need to let the disks
+perform the IDE power on and diskware load. Ben has some possible code
+for that
 

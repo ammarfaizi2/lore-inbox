@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266787AbUAWXqU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 18:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266788AbUAWXqT
+	id S266798AbUAXAAn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 19:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266799AbUAXAAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 18:46:19 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:65216 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266787AbUAWXqP
+	Fri, 23 Jan 2004 19:00:43 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:21436 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266798AbUAXAAk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 18:46:15 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Pascal Schmidt <der.eremit@email.de>, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
-Date: Sat, 24 Jan 2004 00:50:54 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0401240028030.878-100000@neptune.local>
-In-Reply-To: <Pine.LNX.4.44.0401240028030.878-100000@neptune.local>
+	Fri, 23 Jan 2004 19:00:40 -0500
+Message-ID: <4011B586.1090101@cyberone.com.au>
+Date: Sat, 24 Jan 2004 11:00:06 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Randy Appleton <rappleto@nmu.edu>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Unneeded Code Found??
+References: <3FFF3931.4030202@nmu.edu> <4006B998.5040403@tmr.com> <400B2BCF.7090003@nmu.edu> <400B7100.7090600@cyberone.com.au> <40119EC6.9010803@nmu.edu>
+In-Reply-To: <40119EC6.9010803@nmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401240050.54792.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 of January 2004 00:29, Pascal Schmidt wrote:
-> On Fri, 23 Jan 2004, Pascal Schmidt wrote:
-> > With this patch applied, I can successfully use a 512 byte sector disc.
-> > However, then inserting a 2048 byte sector disk and trying to fsck it,
-> > I get a dozen of:
-> >
-> > hde: command error: status=0x51 { DriveReady SeekComplete Error }
-> > hde: command error: error=0x70
-> > end_request: I/O error, dev hde, sector 196608
-> > Buffer I/O error on device hde, logical block 24576
-> > lost page write due to I/O error on hde
-> >
-> > Notice how the sector and logical sector numbers are different by a
-> > factor of 8. Shouldn't this be a factor of 4?
-> >
-> > I don't see why this behaves differently than my previous patch, which
-> > shows no such problem.
+
+
+Randy Appleton wrote:
+
+> Nick Piggin wrote: 
+
+
 >
-> Slightly better patch, but I still don't get why this doesn't work while
-> my first patch does.
+>> Yes it gets used.
+>>
+>> I think its a lot more common with direct io and when you have lots of
+>> processes.
+>
+>
+> I'm not arguing, but how do you know this?  I'm trying to convince 
+> myself that the code is used, and at least on my system
+> a few days of general use, followed by heavy parallel compiles, 
+> doesn't use the code even once.
+>
+> I have not tested direct I/O.  Otherwise it looks unused.
+>
 
-Maybe you've tested them differently?
-You can start from your first patch then incrementally:
-apply some changes, check, repeat.
+Because I have seen it - I have instrumented it.
 
---bart
+Your usage patterns are pretty tame actually. I remember having 100 
+processes
+randomly reading from the same part of the disk was one of my test cases.
+You need direct IO otherwise everything ends up in pagecache.
+
+I haven't seen workloads where it gets used a lot, but that doesn't mean 
+they
+don't exist, and I've never seen the code cause any problems, so there is no
+need to make any trade offs by removing it.
+
 

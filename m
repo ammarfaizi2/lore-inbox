@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266770AbUGLKGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUGLKIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266770AbUGLKGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 06:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266773AbUGLKGQ
+	id S266775AbUGLKIu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 06:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUGLKIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 06:06:16 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:45748 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S266770AbUGLKGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 06:06:14 -0400
-Date: Mon, 12 Jul 2004 12:05:47 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040712100547.GF3933@marowsky-bree.de>
-References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com>
+	Mon, 12 Jul 2004 06:08:50 -0400
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:27041 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S266775AbUGLKIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 06:08:48 -0400
+Date: Mon, 12 Jul 2004 12:08:44 +0200
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with __user annotation in drivers/block/ida_ioctl.h
+Message-ID: <20040712100843.GA17273@hout.vanvergehaald.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1089615523.2806.5.camel@laptop.fenrus.com>
-X-Ctuhulu: HASTUR
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-07-12T08:58:46,
-   Arjan van de Ven <arjanv@redhat.com> said:
+Hi,
 
-> Running realtime and mlocked (prealloced) is most certainly not
-> sufficient for causes like this; any system call that internally
-> allocates memory (even if it's just for allocating the kernel side of
-> the filename you handle to open) can lead to this RT, mlocked process to
-> cause VM writeout elsewhere. 
+I'm using the cpqarrayd-2.0 daemon in order to monitor the volumes that
+are managed by the cciss driver. After I upgraded the kernel to 2.6.7
+(coming from 2.6.0), the compilation of the daemon failed because of the
+__user annotation that was added in the file drivers/block/ida_ioctl.h
+as part of the sparse fixes.
 
-Of course; appropriate safety measures - like not doing any syscall
-which could potentially block, or isolating them from the main task via
-double-buffering childs - need to be done. (heartbeat does this in
-fact.)
+I did some research (read: googling) and found out that this could
+be solved by including /usr/src/linux/include/linux/compiler.h.
+To prove this, I inserted #include statements for the compiler.h file in
+all source files of the cpqarrayd-2.0 daemon where ida_ioctl.h was included.
+With these changes the daemon compiled and ran without problems.
 
-Again, if we have "many" in kernel users requiring high performance &
-low-latency, running in the kernel may not be as bad, but I still don't
-entirely like it.
+QUESTION: what is the right fix for this?
+I think the header file linux/compiler.h needs to be included in
+the file drivers/block/ida_ioctl.h.  This way we prevent all user
+space tools from breaking.  Am I right?
 
-But user-space can also manage just fine, and instead continuing the "we
-need highperf, low-latency and non-blocking so it must be in the
-kernel", we may want to consider how to have high-perf low-latency
-kernel/user-space communication so that we can NOT move this into the
-kernel.
-
-Suffice to say that many user-space implementations exist which satisfy
-these needs quite sufficiently; in the case of a CFS, this argument may
-be different, but I'd like to see some hard data to back it up.
-
-(On a practical note, a system which drops out of membership because
-allocating a 256 byte buffer for a filename takes longer than the node
-deadtime (due to high load) is reasonably unlikely to be a healthy
-cluster member anyway and is on its road to eviction already.)
-
-The main reason why I'd like to see cluster infrastructure in the kernel
-is not technical, but because it increases the pressure on unification
-so much that people might actually get their act together this time ;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
+Regards,
+Toon.
 -- 
-High Availability & Clustering	    \ ever tried. ever failed. no matter.
-SUSE Labs, Research and Development | try again. fail again. fail better.
-SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
-
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

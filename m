@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbUACVA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 16:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUACVA2
+	id S264113AbUACU5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 15:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbUACU5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 16:00:28 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:3518
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263946AbUACVAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 16:00:23 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Soeren Sonnenburg <kernel@nn7.de>, Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Date: Sun, 4 Jan 2004 08:00:06 +1100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <1073161172.9851.260.camel@localhost>
-In-Reply-To: <1073161172.9851.260.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 15:57:04 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:34690 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264113AbUACU4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 15:56:54 -0500
+Date: Sat, 3 Jan 2004 21:56:42 +0100
+From: Tobias Diedrich <ranma@gmx.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
+Message-ID: <20040103205642.GA517@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
+	linux-kernel@vger.kernel.org
+References: <200401021658.41384.ornati@lycos.it> <3FF5B3AB.5020309@wmich.edu> <200401022200.22917.ornati@lycos.it> <20040103033327.GA413@melchior.yamamaya.is-a-geek.org> <200401030415.i034FJoc006230@turing-police.cc.vt.edu> <20040103133945.GB396@melchior.yamamaya.is-a-geek.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401040800.06529.kernel@kolivas.org>
+In-Reply-To: <20040103133945.GB396@melchior.yamamaya.is-a-geek.org>
+X-GPG-Fingerprint: 7168 1190 37D2 06E8 2496  2728 E6AF EC7A 9AC7 E0BC
+X-GPG-Key: http://studserv.stud.uni-hannover.de/~ranma/gpg-key
+User-Agent: Mutt/1.5.4i
+X-Seen: false
+X-ID: b7Xs7uZpgeUX8ncKJUQDQ4U6HRCw1OeMJ5zx8Iyz5lAnge8RKEeS4S@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jan 2004 07:19, Soeren Sonnenburg wrote:
-> On Sat, 2004-01-03 at 20:40, Mark Hahn wrote:
-> > > yeah, I think so... but as generating output in a shell is a very
-> > > common thing to do there should either be an option to turn that
-> > > unwanted behaviour off or to fix this issue...
-> >
-> > has anyone said it's desired behavior?  you probably need to describe
-> > your setup more.  for instance, is your X niced to negative?  are there
-> > some background processes which would be consuming cycles?
->
-> freshly booted system with X running at niceness 0 no other processes
-> consume cpu cycles.
->
-> it is reproducable by creating any kind of output which reads from disk...
-> so i.e. a find ./ in my home directory takes sometimes like 30 minutes on
-> 2.6 (100%cpu load) and sometimes 5 minutes (on 2.4 always 5 minutes
-> ~40%load).
->
-> dmesg is another candidate... just doing cat <file> seems not to trigger
-> that problem.
->
-> As Willy Tarreau also oberves this very same weirdness - I now know the
-> problem is there and it is not specific to my setup.
+I wrote:
 
-There is a BASH bug that Linus noticed brought out by the more sensitive 
-timing in 2.6. The BASH developer has been informed it is there and it is 
-fixed in the latest version. Perhaps you're both seeing that. Check the lkml 
-archives.
+> Valdis.Kletnieks@vt.edu wrote:
+> 
+> > 'cat' is probably doing a stat() on stdout and seeing it's connected
+> > to /dev/null and not even bothering to do the write() call.  I've seen
+> > similar behavior in other GNU utilities.
+> 
+> I can't see any special casing for /dev/null in cat's source, but I
+> forgot to check dd with bigger block size. It's ok with bs=4096...
 
-Con
+However with 2.4 dd performs fine even with bs=512.
 
+-- 
+Tobias						PGP: http://9ac7e0bc.2ya.com
+Be vigilant!
+np: PHILFUL3

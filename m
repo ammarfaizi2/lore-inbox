@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265942AbUAPXza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 18:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUAPXza
+	id S265948AbUAPX5y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 18:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUAPX5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 18:55:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51436 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265942AbUAPXz1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 18:55:27 -0500
-Date: Fri, 16 Jan 2004 15:56:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravi Wijayaratne <ravi_wija@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Page Cache performance
-Message-Id: <20040116155645.732e1fda.akpm@osdl.org>
-In-Reply-To: <20040116191102.98783.qmail@web40602.mail.yahoo.com>
-References: <20040116191102.98783.qmail@web40602.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 18:57:54 -0500
+Received: from p50821B7E.dip.t-dialin.net ([80.130.27.126]:43911 "EHLO
+	averell.firstfloor.org") by vger.kernel.org with ESMTP
+	id S265948AbUAPX5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 18:57:53 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug 1895] New: oops on test_wp_bit
+References: <1eLgj-8fz-7@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 17 Jan 2004 00:57:42 +0100
+In-Reply-To: <1eLgj-8fz-7@gated-at.bofh.it> (Martin J. Bligh's message of
+ "Sat, 17 Jan 2004 00:10:07 +0100")
+Message-ID: <m3isjbzbt5.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravi Wijayaratne <ravi_wija@yahoo.com> wrote:
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
+
+> http://bugme.osdl.org/show_bug.cgi?id=1895
 >
-> Hi All.
-> 
-> We are running dbench on a machine with Dual Xeon (Hyper threading 
-> turned off), 1GB RAM
-> and 4 Drive software RAID5. The kernel is 2.4.29-xfs 1.2. We are using 
-> LVM. However
-> similar test done using ext2 on a disk partiotion (no md or LVM) shows 
-> 
-> The throughput is find till the number of clients are Around 16. At 
-> that point the throughput
-> plummets about 40%. We are trying to avoid that and see how we could 
-> have a consistent throughput
-> perhaps sacrificing some peak performance.
+>            Summary: oops on test_wp_bit
+>     Kernel Version: 2.6.1-bk4, 2.6.1-mm4, 2.6.1
 
-Once the amount of dirty memory in the machine hits 40% of the total, the
-VM starts to initiate writeout.  At 60% dirty the VM starts to deliberately
-throttle the processes which are dirtying memory.
+The -funit-at-a-time patch was applied without  the sort extables patch.
+I believe Andrew fixed it already.
 
-So you would expect to see extremely sudden transitions in overall
-throughput at that point.  Note that if the test were to run for a longer
-period of time, or if it were to leave the files behind rather than
-suddenly removing them you would not notice this effect.
-
-
-The probability that dbench's access patterns have any similarity to the
-access patterns of the application which you care about is vanishingly
-small.  The same can most probably be said of all the other off-the-shelf
-benchmarks.  They're not very impressive.
-
-You will need to analyse your application's access patterns and design a
-benchmark which reasonably closely and repeatably models them.  Or, if
-possible, use the live application itself.
-
+-Andi

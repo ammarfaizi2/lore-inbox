@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286934AbSAFCIh>; Sat, 5 Jan 2002 21:08:37 -0500
+	id <S286935AbSAFCKR>; Sat, 5 Jan 2002 21:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286931AbSAFCI1>; Sat, 5 Jan 2002 21:08:27 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:42504 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286934AbSAFCIN>; Sat, 5 Jan 2002 21:08:13 -0500
-Date: Sat, 5 Jan 2002 18:12:59 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
+	id <S286938AbSAFCKI>; Sat, 5 Jan 2002 21:10:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55824 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286935AbSAFCJy>; Sat, 5 Jan 2002 21:09:54 -0500
 Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <E16N2oW-00021c-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201051812080.1607-100000@blue1.dev.mcafeelabs.com>
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Sun, 6 Jan 2002 02:20:47 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mingo@elte.hu (Ingo Molnar),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.40.0201051812080.1607-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Jan 05, 2002 06:12:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16N2vX-00023B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Alan Cox wrote:
+> > then it represents a huge win since an 8bit ffz can be done by lookup table
+> > and that is fast on all processors
+> 
+> It's here that i want to go, but i'd liketo do it gradually :)
+> unsigned char first_bit[255];
 
-> > Ingo, you don't need that many queues, 32 are more than sufficent.
-> > If you look at the distribution you'll see that it matters ( for
-> > interactive feel ) only the very first ( top ) queues, while lower ones
-> > can very easily tollerate a FIFO pickup w/out bad feelings.
->
-> 64 queues costs a tiny amount more than 32 queues. If you can get it down
-> to eight or nine queues with no actual cost (espcially for non realtime queues)
-> then it represents a huge win since an 8bit ffz can be done by lookup table
-> and that is fast on all processors
-
-It's here that i want to go, but i'd liketo do it gradually :)
-
-unsigned char first_bit[255];
-
-
-
-
-- Davide
-
-
+Make it [256] and you can do 9 queues since the idle task will always
+be queued...

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271656AbRH0F6H>; Mon, 27 Aug 2001 01:58:07 -0400
+	id <S271657AbRH0GU0>; Mon, 27 Aug 2001 02:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271657AbRH0F55>; Mon, 27 Aug 2001 01:57:57 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:43527 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S271656AbRH0F5h>; Mon, 27 Aug 2001 01:57:37 -0400
-Message-Id: <200108270557.f7R5vkY71296@aslan.scsiguy.com>
-To: "Manfred H. Winter" <mahowi@gmx.net>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.9] aic7xxx modules don't compile 
-In-Reply-To: Your message of "Sun, 26 Aug 2001 12:00:18 +0200."
-             <20010826120017.A2998@marvin.mahowi.de> 
-Date: Sun, 26 Aug 2001 23:57:46 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S271658AbRH0GUQ>; Mon, 27 Aug 2001 02:20:16 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:56235 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271657AbRH0GUJ>; Mon, 27 Aug 2001 02:20:09 -0400
+Date: Mon, 27 Aug 2001 00:20:28 -0600
+Message-Id: <200108270620.f7R6KST12679@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v191 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi!
->
->The compilation of the kernel modules (2.4.9) stops with:
->
->make -C aic7xxx modules
->make[3]: Entering directory `/usr/src/linux-2.4.9/drivers/scsi/aic7xxx'
+  Hi, all. Version 191 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-...
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
->Is this a known problem?
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-Did you check the list archives? 8-)
+REMINDER: this patch and earlier patches include support for >2000
+SCSI discs.
 
-You need to either:
+This is against 2.4.9. Highlights of this release:
 
-A) cd /usr/src/linux-2.4.89drivers/scsi/aic7xxx/aicasm && make clean
+- Replaced global rwsem for symlink with per-link refcount
 
-or
+				Regards,
 
-B) Turn of "build driver firmware" below the aic7xxx option in your
-   kernel config.
-
-Prior to doing this, I would appreciate seeing an:
-
-ls -l /usr/src/linux-2.4.9/drivers/scsi/aic7xxx/aicasm
-
-so I can verify that my fix to the aicasm Makefile will correct your
-problem.
-
---
-Justin
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

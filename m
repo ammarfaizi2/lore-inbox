@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266918AbRGHQrs>; Sun, 8 Jul 2001 12:47:48 -0400
+	id <S266919AbRGHQsl>; Sun, 8 Jul 2001 12:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266919AbRGHQrk>; Sun, 8 Jul 2001 12:47:40 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:6660 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266918AbRGHQrY>;
-	Sun, 8 Jul 2001 12:47:24 -0400
-Date: Sat, 30 Jun 2001 14:24:39 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Zach Brown <zab@osdlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] cutting up struct kernel_stat into cpu_stat
-Message-ID: <20010630142438.A255@toy.ucw.cz>
-In-Reply-To: <20010621113107.A16934@osdlab.org>
+	id <S266920AbRGHQs3>; Sun, 8 Jul 2001 12:48:29 -0400
+Received: from geos.coastside.net ([207.213.212.4]:38887 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S266919AbRGHQsQ>; Sun, 8 Jul 2001 12:48:16 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010621113107.A16934@osdlab.org>; from zab@osdlab.org on Thu, Jun 21, 2001 at 11:31:07AM -0700
+Message-Id: <p05100312b76e3e9b2e53@[207.213.214.37]>
+In-Reply-To: <Pine.GSO.4.21.0107080320280.28651-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0107080320280.28651-100000@weyl.math.psu.edu>
+Date: Sun, 8 Jul 2001 09:46:18 -0700
+To: Alexander Viro <viro@math.psu.edu>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+At 3:26 AM -0400 2001-07-08, Alexander Viro wrote:
+>On Sat, 7 Jul 2001, Jamie Lokier wrote:
+>
+>>  Daniel Phillips wrote:
+>>  > > Reading a tarball is the distillation of what you describe into
+>>  > > efficient form :)
+>>  >
+>>  > /me downloads tar file definition
+>>  >
+>>  > Um, gnu tar or posix tar? or some new, improved tar?
+>>
+>>  I suggest cpio, which is more compact and in some ways more standard.
+>>  (tar has a silly pad-to-multiple-of-512-byte per file rule, which is
+>>  inappropriate for this).  GNU cpio creates cpio format just fine.
+>
+>GNU cpio is a race-ridden unmaintained pile of junk. Look at the size
+>of, say it, Debian patch to upstream source. Then try to read the
+>patched code.  Quite a few of us simply don't have that FPOS on their
+>boxen.
+>
+>Using cpio archive layout is OK, but _please_, don't make it dependent
+>on GNU cpio.
 
-> The attached patch-in-progress removes the per-cpu statistics from
-> struct kernel_stat and puts them in a cpu_stat structure, one per cpu,
-> cacheline padded.  The data is still coolated and presented through
-> /proc/stat, but another file /proc/cpustat is also added.  The locking
-> is as nonexistant as it was with kernel_stat, but who cares, they're
-> just fuzzy stats to be eyeballed by system tuners :).
-
-Looks good to me... Should improve performance plus adds per-cpu data...
-
-
+If size is an issue (and of course it is), presumably the archive 
+would be compressed. As long as tar can be convinced to pad with 
+(say) nulls, the padding shouldn't have that much of an impact on 
+archive size.
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+/Jonathan Lundell.

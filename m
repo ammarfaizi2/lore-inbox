@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131323AbRDNJBd>; Sat, 14 Apr 2001 05:01:33 -0400
+	id <S131479AbRDNJbR>; Sat, 14 Apr 2001 05:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131459AbRDNJBY>; Sat, 14 Apr 2001 05:01:24 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:29193 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131323AbRDNJBL>; Sat, 14 Apr 2001 05:01:11 -0400
-Date: Sat, 14 Apr 2001 02:00:52 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <200104140758.AAA06084@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.31.0104140136520.25138-100000@cesium.transmeta.com>
+	id <S131631AbRDNJbI>; Sat, 14 Apr 2001 05:31:08 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:32529 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131479AbRDNJbB> convert rfc822-to-8bit; Sat, 14 Apr 2001 05:31:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SW-RAID0 Performance problems
+Date: Sat, 14 Apr 2001 11:38:06 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041318282003.00665@debian> <20010414000433.F4557@greenhydrant.com>
+In-Reply-To: <20010414000433.F4557@greenhydrant.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01041411380600.00516@debian>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Samstag, 14. April 2001 09:04 schrieb David Rees:
 
+> OK, so it's not the RAID setup.  There's two things that can cause this.
+> One is that DMA is turned off  (what does hdparm /dev/hda and hdparm
+> /dev/hdc show?), the second was that the drives are on the same channel
+> (which obviously isn't the case here).  Can you verify that the drives are
+> in DMA mode?
 
-On Sat, 14 Apr 2001, Adam J. Richter wrote:
->
-> [...]
-> >If it turns out to be beneficial to run the child first (you
-> >can measure this), why not leave everything the same as it is
-> >now but have do_fork() "switch threads" internally ?
->
-> 	That is an elegant idea.
+hdparm /dev/hda 
 
-I doubt it. It sounds like one of those "cool value" ideas that are
-actually really stupid except they sound cool because you have to think
-about the twists and turns.
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 59556/16/63, sectors = 60032448, start = 0
 
-So yes, you could "give" your TLB state to the child, and take the childs
-state yourself (eventually, when you re-schedule back to the parent).
-They're supposed to be the same, after all. And by doing so, you could do
-a "switch_to()" to the child, without actually switching mm state at all.
-Fine. Cool TLB optimization.
+the same on /dev/hdc
 
-Except you don't actually _have_ any TLB state to optimize away, as you
-just invalidated it anyway when you did the COW thing on the page tables.
-So you would only optimize away a "mov xxx,%cr3" - which is the least
-expensive part of switching TLB's. You would NOT optimize away any actual
-TLB reloads.
+I played with different hdparm-settings, but it's not possible to speed up 
+the HDs
 
-And oh, btw, it also means that you'd better make sure that /proc knows
-about the fact that the MM state is no longer yours, but your childs, so
-that a concurrent "ps" doesn't mess us. Maybe it works as-is, and maybe it
-doesn't.
-
-And what if the guy who did the fork() had done a clone(CLONE_MM) before,
-or was the child of a vfork'ing parent?  We can't give the mm state to the
-child, because we're sharing it with somebody else who expects to share it
-with the _parent_. Oh, and the co-thread, btw, might be _using_ those page
-tables on another CPU at any time.
-
-And oh, there's the small special case of "init", which uses a fork() to
-create the first user-mode mm state, so we'd have to special-case that one
-too - we can't let "init_mm" go to a user process. So at the very least it
-would have to be conditional on both that and the thread case.
-
-There's a ton of reasons why you _really_ don't want to play games here.
-Switching contexts is tricky enough as it is. Let's not try to be "clever"
-about it.
-
-So the best you could do is to do a full context switch to the child.
-Which setting "current->need_resched = 1" will already end up doing. Plus
-it does the right thing on SMP.
-
-		Linus
+Andreas
+-- 
+Andreas Peter *** ujq7@rz.uni-karlsruhe.de
 

@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129957AbRAMHMt>; Sat, 13 Jan 2001 02:12:49 -0500
+	id <S130663AbRAMHQ3>; Sat, 13 Jan 2001 02:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130663AbRAMHMk>; Sat, 13 Jan 2001 02:12:40 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12811
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129957AbRAMHM1>; Sat, 13 Jan 2001 02:12:27 -0500
-Date: Fri, 12 Jan 2001 23:12:02 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <93njuq$21n$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101122303260.3291-100000@master.linux-ide.org>
+	id <S135542AbRAMHQU>; Sat, 13 Jan 2001 02:16:20 -0500
+Received: from cr125998-a.ktchnr1.on.wave.home.com ([24.112.244.165]:64004
+	"HELO ns.penultima.org") by vger.kernel.org with SMTP
+	id <S130663AbRAMHQH>; Sat, 13 Jan 2001 02:16:07 -0500
+Date: Sat, 13 Jan 2001 02:15:47 -0500
+From: Isaac Connor <iconnor@penultima.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 boot failure on Micronic W6Li
+Reply-To: iconnor@penultima.org
+X-Mailer: Spruce 0.7.5 for X11 w/smtpio 0.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010113071614Z130663-692+339@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jan 2001, Linus Torvalds wrote:
 
-> In article <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org>,
-> Andre Hedrick  <andre@linux-ide.org> wrote:
-> >
-> >Well that "experimental patch" is designed to get out of the dreaded
-> >"DMA Timeout Hang" or deadlock that is most noted by the PIIX4 on the
-> >Intel 440*X Chipset groups.  Since it appears that their bug was copied
-> >but other chipset makers......you see the picture clearly, right?
-> 
-> No.
+2.4.0 doesn't seem to want to boot on my W6Li with two PPRO 150's.  
+THis machine has no problems with 2.2 kernels, and is currently running
+2.2.17.
 
-Oh, then I need to explain....but later.
+It uncompresses, and prints that it is booting, then locks hard.  Must
+reset.
 
-> That experimental patch is _experimental_, and has not been reported by
-> anybody to fix anything at all.  Also, the DMA timeout on PIIX4 seems to
-> have nothing at all to do with the very silent corruption on VIA. At
-> least nobody has reported any error messages being produced on the VIA
-> corruption cases.
+I have tried the noapic option, with no effect.
 
-Yes corruption verses deadlock that can wack superblock....hummm
-Two evils, mame or kill one or leave both active...
+I have searched for information on this problem, but I can't seem to find
+anything.  I guess no one else is having this problem ona W6Li.
 
-> In short, let's leave it out of a stable kernel for now, and add
-> blacklisting of auto-DMA. Alan has a list. We can play around with
-> trying to _fix_ DMA on the VIA chipsets in 2.5.x (and possibly backport
-> the thing once it has been sufficiently battletested that people believe
-> it truly will work).
+Please help.
 
-Linus we are talking about blacklisting every PIIX4 that is 440BX/GX/LX/NX 
-in this case and that is a major list.  VIA has its own problems and that
-need special cases attention by one person work on always, thus the
-poor^H^H^H^H bold sucker^H^H^H^H^H^H guy known as Vojtech Pavlik from SuSE
-is having to much fun....
-
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
-
-
+Isaac Connor
+iconnor@penultima.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

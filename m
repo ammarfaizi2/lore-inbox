@@ -1,46 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUD0K1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263984AbUD0Kh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUD0K1G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 06:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUD0K1G
+	id S263984AbUD0Kh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 06:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbUD0Kh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 06:27:06 -0400
-Received: from gprs214-177.eurotel.cz ([160.218.214.177]:39040 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263972AbUD0K1C (ORCPT
+	Tue, 27 Apr 2004 06:37:29 -0400
+Received: from imap.gmx.net ([213.165.64.20]:16010 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263984AbUD0Kh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 06:27:02 -0400
-Date: Tue, 27 Apr 2004 12:26:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nigel Cunningham <ncunningham@linuxmail.com>,
-       Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
+	Tue, 27 Apr 2004 06:37:26 -0400
+X-Authenticated: #21910825
+Message-ID: <408E37D9.7030804@gmx.net>
+Date: Tue, 27 Apr 2004 12:37:13 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: Rusty Russell <rusty@rustcorp.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Message-ID: <20040427102644.GC10593@elf.ucw.cz>
-References: <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426131152.GN2595@openzaurus.ucw.cz> <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz> <20040427102344.GA24313@gondor.apana.org.au>
-Mime-Version: 1.0
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de>
+In-Reply-To: <20040427092159.GC29503@lug-owl.de>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040427102344.GA24313@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > BTW what is performance penalty of not running 4MB pages on kernel?
-> > Every user with intel-agp (etc) eats it, even if they are not using 3D
-> > on the machine...
+Jan-Benedict Glaw wrote:
+> On Tue, 2004-04-27 16:04:06 +1000, Rusty Russell <rusty@rustcorp.com.au>
+> wrote in message <1083045844.2150.105.camel@bach>:
 > 
-> The penalty only applies to the 4M region around the gatt table.
+>>On Tue, 2004-04-27 at 14:31, Linus Torvalds wrote:
+>>diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31262-linux-2.6.6-rc2-bk4/include/linux/module.h .31262-linux-2.6.6-rc2-bk4.updated/include/linux/module.h
+>>--- .31262-linux-2.6.6-rc2-bk4/include/linux/module.h	2004-04-22 08:03:55.000000000 +1000
+>>+++ .31262-linux-2.6.6-rc2-bk4.updated/include/linux/module.h	2004-04-27 15:52:19.000000000 +1000
+>>@@ -61,7 +64,14 @@ void sort_main_extable(void);
+>> #ifdef MODULE
+>> #define ___module_cat(a,b) __mod_ ## a ## b
+>> #define __module_cat(a,b) ___module_cat(a,b)
+>>+/* Some sick fucks embeded NULs in MODULE_LICENSE to circumvent checks. */
+>>+#define __MODULE_INFO_CHECK(info)					  \
+>>+	static void __init __attribute_used__				  \
+>>+	__module_cat(__mc_,__LINE__)(void) {				  \
+>>+		BUILD_BUG_ON(__builtin_strlen(info) + 1 != sizeof(info)); \
+>>+	}
+>> #define __MODULE_INFO(tag, name, info)					  \
+>>+__MODULE_INFO_CHECK(info);						  \
+>> static const char __module_cat(name,__LINE__)[]				  \
+>>   __attribute_used__							  \
+>>   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
+> 
+> 
+> Erm, that's a pure compile-time check, which the companies can remove.
+> So they can still put their fucked up license string into the module,
+> customer's kernel won't detect it.
+> 
+> So I'm full for embedding the supplied string's size into the module, or
+> some compile-time generated checksum. We need something that can be
+> checked at module load time, not at compile time, or do I misread the
+> code?
 
-I thought that kernel should pretty much fit to single 4M region, but
-I guess that's not case here. Thanks.
+# objdump -t forcedeth.ko |grep '\.modinfo'|sort
+00000000 l    d  .modinfo       00000000
+00000000 l     O .modinfo       0000000c __mod_license1618
+00000020 l     O .modinfo       00000036 __mod_description1617
+00000060 l     O .modinfo       00000031 __mod_author1616
+000000a0 l     O .modinfo       00000047 __mod_max_interrupt_work1614
+00000100 l     O .modinfo       0000002b __mod_alias58
+00000140 l     O .modinfo       0000002b __mod_alias57
+00000180 l     O .modinfo       0000002b __mod_alias56
+000001ab l     O .modinfo       00000009 __module_depends
+000001c0 l     O .modinfo       0000002d __mod_vermagic5
 
-(Compiled kernel is still <4M, so having gatt near to kernel code
-would hurt quite a bit; but that's probably not the case).
-								Pavel
+Wouldn't it be possible to check the length info from the module symbol
+table and compare it with the strlen for the corresponding symbol? If that
+gives us a mismatch, refuse to load the module (or mark it as
+proprietary). Additionally, check that nothing but NULLs is used as
+padding between the strings.
+
+This way, the module format doesn't change, but we can do additional
+verification in the loader.
+
+Regards,
+Carl-Daniel
 -- 
-934a471f20d6580d5aad759bf0d97ddc
+http://www.hailfinger.org/
+

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbUBGXRD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 18:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUBGXRD
+	id S261368AbUBGXaI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 18:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbUBGXaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 18:17:03 -0500
-Received: from main.gmane.org ([80.91.224.249]:40580 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261411AbUBGXRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 18:17:01 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: cpufreq - less possible freqs with 2.6.2 and P4M
-Date: Sun, 08 Feb 2004 00:16:58 +0100
-Message-ID: <yw1xd68q4h05.fsf@kth.se>
-References: <402562D4.7010706@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti200710a080-1862.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:k0BMhsvzgQF1g10Wlt9ouKSPKQk=
+	Sat, 7 Feb 2004 18:30:08 -0500
+Received: from mta6.srv.hcvlny.cv.net ([167.206.5.72]:36811 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261368AbUBGXaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 18:30:04 -0500
+Date: Sat, 07 Feb 2004 18:31:25 -0500
+From: Robert F Merrill <griever@t2n.org>
+Subject: Re: 2.6.2 Compile Failure - Redhat 7.3 Distro
+In-reply-to: <169747427.20040207160043@webspires.com>
+To: Elikster <elik@webspires.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <4025754D.5050709@t2n.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
+ Debian/1.5-3
+References: <20040207222148.GA3209@bitwiser.org>
+ <169747427.20040207160043@webspires.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Georg Müller <georgmueller@gmx.net> writes:
+Elikster wrote:
 
-> Hi,
+>fs/proc/array.c: In function `proc_pid_stat':
+>fs/proc/array.c:398: Unrecognizable insn:
+>(insn/i 721 1009 1003 (parallel[
+>            (set (reg:SI 0 eax)
+>                (asm_operands ("") ("=a") 0[
+>                        (reg:DI 1 edx)
+>                    ]
+>                    [
+>                        (asm_input:DI ("A"))
+>                    ]  ("include/linux/times.h") 38))
+>            (set (reg:SI 1 edx)
+>                (asm_operands ("") ("=d") 1[
+>                        (reg:DI 1 edx)
+>                    ]
+>                    [
+>                        (asm_input:DI ("A"))
+>                    ]  ("include/linux/times.h") 38))
+>            (clobber (reg:QI 19 dirflag))
+>            (clobber (reg:QI 18 fpsr))
+>            (clobber (reg:QI 17 flags))
+>        ] ) -1 (insn_list 715 (nil))
+>    (nil))
+>fs/proc/array.c:398: confused by earlier errors, bailing out
+>make[2]: *** [fs/proc/array.o] Error 1
+>make[1]: *** [fs/proc] Error 2
+>make: *** [fs] Error 2
+>root@longmont [/usr/src/linux-2.6.2]#
 >
-> I have a Pentium 4M at 1.8GHz.
-> With 2.6.0 it was possible to slow down my CPU in several steps down
-> to 200MHz via cpufreq.
-> With 2.6.2 I can only switch between 1.2 and 1.8GHz (as it was with
-> 2.4 too).
+>  
+>
+ICE ICE baby!
+Common Redhat GCC bug.
+If gcc -v reports a big number starting with 2.96 (NOT .95),
+it's probably broken.
 
-Which cpufreq module are you using?  With p4-clockmod I get lots of
-choices, with acpi only the two you mentioned.
 
--- 
-Måns Rullgård
-mru@kth.se
 

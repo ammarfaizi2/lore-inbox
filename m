@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131139AbQLOU7w>; Fri, 15 Dec 2000 15:59:52 -0500
+	id <S131244AbQLOVDc>; Fri, 15 Dec 2000 16:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131244AbQLOU7m>; Fri, 15 Dec 2000 15:59:42 -0500
-Received: from marjorie.loran.com ([209.167.240.3]:31499 "HELO
-	marjorie.loran.com") by vger.kernel.org with SMTP
-	id <S131139AbQLOU70>; Fri, 15 Dec 2000 15:59:26 -0500
-Message-ID: <037a01c066d5$56706e90$890216ac@ottawa.loran.com>
-From: "Dana Lacoste" <dana.lacoste@peregrine.com>
-To: "Rob Landley" <telomerase@yahoo.com>, "Larry McVoy" <lm@bitmover.com>
-Cc: <maddog@valinux.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001215194059.10333.qmail@web5202.mail.yahoo.com>
-Subject: [OT] Re: Is there a Linux trademark issue with sun?
-Date: Fri, 15 Dec 2000 15:26:42 -0500
+	id <S131409AbQLOVDW>; Fri, 15 Dec 2000 16:03:22 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:40453 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S131244AbQLOVDM>; Fri, 15 Dec 2000 16:03:12 -0500
+Message-ID: <3A3A7F25.2050203@redhat.com>
+Date: Fri, 15 Dec 2000 14:29:25 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+CC: ferret@phonewave.net, Alexander Viro <viro@math.psu.edu>,
+        LA Walsh <law@sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linus's include file strategy redux
+In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote :
-> Sun feels that their core product, Solaris, is
-> threatened by Linux.  They have several options:
+My solution to this has always been to make a cross compiler environment 
+(even if it is the same processor family). Thusly i386-linux-gcc knows 
+that the target system's include files are in:
 
-> A) Jump on board and use Linux on their hardware.
-> B) Improve Solaris until it can compete on its own
-> merits.
-> C) Market Solaris better, to make people want Solaris
-> instead of Linux.
-> D) Confuse people into thinking that Linux and Solaris
-> are the same thing.
+/usr/local/<project>-tools/i386-linux/include (/linux, /asm)
+
+The other advantage to this is that I can switch my host environment 
+(within reason - compatible host glibcs, ok) and not have to change the 
+target compiler.
+
+Werner Almesberger wrote:
+
+> ferret@phonewave.net wrote:
 > 
-> He's gone for D, and he's run straight into the Linux
-> trademark doing so.  If everybody wants to abolish the
-> Linux trademark, that's fine.  But if we don't defend
-> it here, I really do think it becomes too weak to be
-> useful in other situations.
+>> Just out of curiosity, what would happen with redirection if your source
+>> tree for 'the currently running kernel' version happens to be configured
+>> for a different 'the currently running kernel', perhaps a machine of a
+>> foreign arch that you are cross-compiling for?
+> 
+> 
+> Two choices:
+>  1) try to find an alternative. If there's none, fail.
+>  2) make the corresponding asm or asm/arch branch available (non-trivial
+>     and maybe not desirable)
+> 
+> 
+>> I do this: I use ONE machine to compile kernels for five: four i386 and
+>> one SUN4C. My other machines don't even HAVE /usr/src/linux, so where does
+>> this redirection leave them?
+> 
+> 
+> Depends on your distribution: if it doesn't install any kernel-specific
+> headers, you wouldn't be able to compile programs requiring anything
+> beyond what it provided by your libc. Otherwise, there could be a
+> default location (such as /usr/src/linux is a default location now).
+> 
+> The main advantage of a script would be that one could easily compile
+> for multiple kernels, e.g. with
+> 
+> export TARGET_KERNEL=2.0.4
+> make
+> 
+> Even if your system is running 2.4.13-test1.
+> 
+> The architecture could be obtained from the tree or the tree could be
+> picked based on the architecture. This is a policy decision that could
+> be hidden in the script.
+> 
+> - Werner
 
-I don't think he did that at all :
-(Devil's Advocate time :)
 
-What he did was say that, while everyone was looking
-at Linux as the solution to modern computing problems,
-he didn't need to : he already has Solaris.  So Solaris
-is his "Linux".
-
-A matter of grammar, not legal or technical terms : he
-didn't say that Solaris IS linux; he used a metaphor :
-"[Solaris] is our implementation of Linux".
-
-I'm not saying he's RIGHT : I'm just saying that he
-didn't intend to abuse the Linux trademark.  He's
-taken a mix of (B) and (C) from above, claiming that
-his Solaris product can accomplish the same product
-targets that Linux does.
-
-Why should Sun provide anything for Linux if they
-already have Solaris providing all of the functionality?
-
-Could I say that Wine is my Windows implementation?  Windows
-is a trademark, but everyone knows what I mean, right?
-Microsoft's not going to be writing me any letters, right?
-(well, none that I'm going to pay attention to, right? :)
-
-All just rhetoric, of course.
-Advocacy doesn't belong on linux-kernel :)
-
---
-Dana Lacoste
-Linux Developer
-Peregrine Systems
+-- 
+Joe deBlaquiere
+Red Hat, Inc.
+307 Wynn Drive
+Huntsville AL, 35805
+voice : (256)-704-9200
+fax   : (256)-837-3839
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

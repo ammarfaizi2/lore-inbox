@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVAUA34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVAUAbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVAUA34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 19:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVAUA34
+	id S261833AbVAUAbM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 19:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVAUAbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 19:29:56 -0500
-Received: from mail.joq.us ([67.65.12.105]:37050 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262230AbVAUA3c (ORCPT
+	Thu, 20 Jan 2005 19:31:12 -0500
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:1783 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261833AbVAUAbB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 19:29:32 -0500
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
- scheduling
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-	<87y8eo9hed.fsf@sulphur.joq.us>
-	<16880.10712.159729.934973@wombat.chubb.wattle.id.au>
-From: "Jack O'Quin" <joq@io.com>
-Date: Thu, 20 Jan 2005 18:30:31 -0600
-In-Reply-To: <16880.10712.159729.934973@wombat.chubb.wattle.id.au> (Peter
- Chubb's message of "Fri, 21 Jan 2005 08:59:52 +1100")
-Message-ID: <87oefj39p4.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Jan 2005 19:31:01 -0500
+Date: Fri, 21 Jan 2005 09:30:46 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mips: fixed LTT build errors
+Message-Id: <20050121093046.11ff2811.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb <peterc@gelato.unsw.edu.au> writes:
+This patch had fixed LTT build errors on MIPS.
 
->>>>>> "Jack" == Jack O'Quin <joq@io.com> writes:
->
-> Jack> Looks like we need to do another study to determine which
-> Jack> filesystem works best for multi-track audio recording and
-> Jack> playback.  XFS looks promising, but only if they get the latency
-> Jack> right.  Any experience with that?  
->
-> The nice thing about audio/video and XFS is that if you know ahead of
-> time the max size of a file (and you usually do -- because you know
-> ahead of time how long a take is going to be) you can precreadte the
-> file as a contiguous chunk, then just fill it in, for minimum disc
-> latency.
+Yoichi
 
-I am not talking about disk latency.  The problem Con uncovered in
-ReiserFS was CPU hogging.  Every 20 seconds there was a 6msec latency
-glitch in system response.
--- 
-  joq
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -urN -X dontdiff a-orig/arch/mips/kernel/irq.c a/arch/mips/kernel/irq.c
+--- a-orig/arch/mips/kernel/irq.c	Fri Jan 21 00:15:19 2005
++++ a/arch/mips/kernel/irq.c	Fri Jan 21 08:17:31 2005
+@@ -14,6 +14,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel_stat.h>
++#include <linux/ltt-events.h>
+ #include <linux/module.h>
+ #include <linux/proc_fs.h>
+ #include <linux/slab.h>
+diff -urN -X dontdiff a-orig/arch/mips/kernel/traps.c a/arch/mips/kernel/traps.c
+--- a-orig/arch/mips/kernel/traps.c	Fri Jan 21 00:15:19 2005
++++ a/arch/mips/kernel/traps.c	Fri Jan 21 08:17:31 2005
+@@ -13,6 +13,7 @@
+  */
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/ltt-events.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/sched.h>
+diff -urN -X dontdiff a-orig/arch/mips/mm/fault.c a/arch/mips/mm/fault.c
+--- a-orig/arch/mips/mm/fault.c	Fri Jan 21 00:15:19 2005
++++ a/arch/mips/mm/fault.c	Fri Jan 21 08:17:31 2005
+@@ -13,6 +13,7 @@
+ #include <linux/string.h>
+ #include <linux/types.h>
+ #include <linux/ptrace.h>
++#include <linux/ltt-events.h>
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/smp.h>

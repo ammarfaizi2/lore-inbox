@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUH0TIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267302AbUH0TMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267291AbUH0TIl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 15:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbUH0TIl
+	id S267302AbUH0TMb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 15:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267346AbUH0TJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 15:08:41 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49849 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267497AbUH0TGP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 15:06:15 -0400
-Message-ID: <412F8603.6000801@us.ibm.com>
-Date: Fri, 27 Aug 2004 12:05:39 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Fri, 27 Aug 2004 15:09:48 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57914 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S267285AbUH0TIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 15:08:17 -0400
+Date: Fri, 27 Aug 2004 20:08:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Ram Pai <linuxram@us.ibm.com>
+cc: Gergely Tamas <dice@mfa.kfki.hu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: data loss in 2.6.9-rc1-mm1
+In-Reply-To: <1093631420.11648.14.camel@dyn319181.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0408271950460.8349-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Wouter Van Hemel <wouter@pair.com>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Summarizing the PWC driver questions/answers
-References: <20040827162613.GB32244@kroah.com> <1093625925.14552.16180.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0408271949250.731@senta.theria.org>
-In-Reply-To: <Pine.LNX.4.61.0408271949250.731@senta.theria.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wouter Van Hemel wrote:
-
-> On Fri, 27 Aug 2004, David Woodhouse wrote:
+On 27 Aug 2004, Ram Pai wrote:
+> On Fri, 2004-08-27 at 06:56, Hugh Dickins wrote:
+> > 
+> > Hmm, 2.6.9-rc1-mm1 looks like not a release to trust your (page
+> > size multiple) data to!  You should find the patch below fixes it
+> > (and, I hope, the issue the erroneous patches were trying to fix).
 > 
->> Again, that is intentional. People are free to go use BSD if the GPL is
->> not compatible with their desires. Or Windows, perhaps.
->>
->> People seem to be whining that Linux is released under the GPL instead
->> of a BSD licence. Perhaps the users concerned should be gently
->> encouraged to go elsewhere?
+> Hmm.. now I fail to understand how this code works.
 > 
-> Very constructive. If you would use this zealotry energy in getting 
-> results from Philips, we might not be here arguing. I get the feeling 
-> some seem to think of the removal of this popular driver as a 
-> *contribution* to Linux. This attitude contributes nothing to Linux. If 
-> you don't like a partially binary driver, then I suggest you, too, 
-> contact Philips instead of turning on your own users and contributors, 
-> or fighting with driver maintainers that simply can't change the world 
-> to fit your wishes. We are all in this mess, we all want good working 
-> drivers, preferably opensource.
+> assuming page size is 4096, if the size of the file is 4096, is the
+> end_index 0 or is it 1?
 
-You've got things a little out of perspective.
+Before your change and after mine, 1; with your change, 0.
 
-1. Linux does not serve Philips.
-2. Philips does not serve Linux.
+> I had this assumption:  
+> 
+> 	file size in bytes			end_index
+> 	-----------------			---------
+> 		1 to 4096			0
+> 		4097 to 2*4096			1
+> 		2*4096+1 to 3*4096		2
+> 		...				..
 
-Can we agree on that much?
+Well, that's what you changed it to, when you patched from the original
+		end_index = isize >> PAGE_CACHE_SHIFT;
+to		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
 
-3. Linux's licensing (i.e., the GPL) does not allow partial 
-closed-source drivers.
+But the "nr <= offset" check(s) relies on the original convention:
+		0 to 4095			0
+		4096 to 8191			1
+		...				..
 
-You can agree or disagree with that until your face falls off.  That is 
-the way that it is.  Allowing a license violation to continue would set 
-a bad precedent that goes beyond open-source dogma.  It has nothing to 
-do with zealotry.  It *is* a legal issue.  You're not free to pick and 
-choose the parts of the license you like or don't like.  Using a 
-license, ANY license, is like being pregnant:  there is no half-way.
+> or is the isize value reported by i_size_read(inode) one less than the
+> size of the real file?
 
-4. Philips serves *its* customers.
+No!
 
-The logical conclusion is that, one way or another, Philips needs to 
-make a driver available that is compatible with Linux's licensing.  It 
-can do that or decide that it doesn't care about its customers that use 
-Linux.  The license really doesn't leave room for a third option.
+> What am I missing?
 
-Further bickering about it here is an exercise in futility.
+You're expecting end_index to be the index of the last (possibly
+incomplete) page of the file.  And that might be a reasonable way
+of working it (though the special case of an empty file hints not).
+But the nr,offset checks (I say checks because I added another like
+the one further down, hopefully to fix the extra readahead issue)
+require the original convention.  Just try it out with numbers.
+
+Hugh
 

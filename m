@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280907AbRKLSPj>; Mon, 12 Nov 2001 13:15:39 -0500
+	id <S280815AbRKLSU3>; Mon, 12 Nov 2001 13:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280894AbRKLSP3>; Mon, 12 Nov 2001 13:15:29 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:56846 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S280815AbRKLSPO>;
-	Mon, 12 Nov 2001 13:15:14 -0500
-Date: Mon, 12 Nov 2001 11:14:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephan Gutschke <stephan@gutschke.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
-Message-ID: <20011112111424.J25962@kroah.com>
-In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE9BDD0.2070703@gutschke.com> <20011107151806.A22444@kroah.com> <3BEAD904.2050406@gutschke.com>
-Mime-Version: 1.0
+	id <S280911AbRKLSUJ>; Mon, 12 Nov 2001 13:20:09 -0500
+Received: from mail010.mail.bellsouth.net ([205.152.58.30]:47352 "EHLO
+	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280815AbRKLSUC>; Mon, 12 Nov 2001 13:20:02 -0500
+Message-ID: <3BF012BE.E82911C0@mandrakesoft.com>
+Date: Mon, 12 Nov 2001 13:19:42 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>,
+        Anton Blanchard <anton@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] arbitrary size memory allocator, memarea-2.4.15-D6
+In-Reply-To: <Pine.LNX.4.33.0111121714100.14093-200000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BEAD904.2050406@gutschke.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 15 Oct 2001 17:52:31 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 08:12:04PM +0100, Stephan Gutschke wrote:
+Ingo Molnar wrote:
+> the attached memarea-2.4.15-D6 patch does just this: it implements a new
+> 'memarea' allocator which uses the buddy allocator data structures without
+> impacting buddy allocator performance. It has two main entry points:
 > 
-> listen serial {
->                protocol: simple;
->                }
+>         struct page * alloc_memarea(unsigned int gfp_mask, unsigned int pages);
+>         void free_memarea(struct page *area, unsigned int pages);
+> 
+> the main properties of the memarea allocator are:
+> 
+>  - to be an 'unlimited size' allocator: it will find and allocate 100 GB
+>    of physically continuous memory if that much RAM is available.
+[...]
+> Obviously, alloc_memarea() can be pretty slow if RAM is getting full, nor
+> does it guarantee allocation, so for non-boot allocations other backup
+> mechanizms have to be used, such as vmalloc(). It is not a replacement for
+> the buddy allocator - it's not intended for frequent use.
 
-I just had a report of someone getting this to work by using 
-"protocol: net"
+What's wrong with bigphysarea patch or bootmem?  In the realm of frame
+grabbers this is a known and solved problem...
 
-Could you try that?
+With bootmem you know that (for example) 100GB of physically contiguous
+memory is likely to be available; and after boot, memory get fragmented
+and the likelihood of alloc_memarea success decreases drastically...
+just like bootmem.
 
-thanks,
+Back when I was working on the Matrox Meteor II driver, which requires
+as large of a contiguous RAM area as you can give it, bootmem was
+suggested as the solution.
 
-greg k-h
+IMHO your patch is not needed.  If someone needs a -huge- slab of
+memory, then they should allocate it at boot time when they are sure
+they will get it.  Otherwise it's an exercise in futility, because they
+will be forced to use a fallback method like vmalloc anyway.
+
+	Jeff
+
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

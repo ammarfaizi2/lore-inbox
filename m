@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266284AbUAGR4N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 12:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266285AbUAGR4M
+	id S266295AbUAGSAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUAGR7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:56:12 -0500
-Received: from hera.kernel.org ([63.209.29.2]:53196 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266284AbUAGR4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:56:06 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-Date: Wed, 07 Jan 2004 09:55:39 -0800
-Organization: Zytor Communications
-Message-ID: <3FFC481B.5030905@zytor.com>
-References: <3FFB12AD.6010000@sun.com> <3FFB223A.8000606@zytor.com> <20040106215018.GA911@sun.com> <3FFB316A.6000004@zytor.com> <20040106221502.GA7398@hockin.org> <20040106221502.GA7398@hockin.org> <3FFB34C9.5010305@zytor.com> <3FFC3187.4010004@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 Jan 2004 12:59:19 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:7093 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S266288AbUAGR65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 12:58:57 -0500
+Date: Wed, 07 Jan 2004 09:58:54 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: nuno.grilo@netcabo.pt
+Subject: [Bug 1803] New: Unable to handle kernel paging request	at schedule_timeout+0x7f/0xc0
+Message-ID: <3670000.1073498334@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: terminus.zytor.com 1073498140 30326 66.80.2.163 (7 Jan 2004 17:55:40 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 7 Jan 2004 17:55:40 +0000 (UTC)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
+http://bugme.osdl.org/show_bug.cgi?id=1803
 
-> This is clearly not 'all of userspace'.  Autofs is an exception.  As is 
-> /etc/mtab.  The way I see it, automounting is a 'mount facility', as are 
-> namespaces.  The two should be made to work together.  Yes, mount(8) 
-> should probably be fixed one way or another as well due to /etc/mtab 
-> breakage. Why? Because it too is a mount facility.
-> 
-> There are a couple problems inherent with namespaces.  Most of these are 
-> mount facilities that are broken such as mentioned above.  They *should* 
-> be fixed to work nicely.
+           Summary: Unable to handle kernel paging request  at
+                    schedule_timeout+0x7f/0xc0
+    Kernel Version: 2.6.1-rc1
+            Status: NEW
+          Severity: high
+             Owner: rml@tech9.net
+         Submitter: nuno.grilo@netcabo.pt
 
-For that one needs to know how the namespaces are used, not just how 
-they are implemented.  There was a long discussion on this on #kernel 
-yesterday, by the way.
 
-> Other parts of userspace get confused with namespaces, eg: cron and atd. 
->  These programs clearly need infrastructure added that somehow allows 
-> for arbitrary namespace joining/saving.  If you have suggestions for how 
-> we can solve this issue, please do let me know.  I'm stumped :\  I'd be 
-> more than happy to discuss this with you.
+Distribution: Gentoo R1.4
+Hardware Environment: 
+Epia MINI-ITX 1000MHz MB
+512MB RAM
+Hauppauge PVR350 TV capture device
+Software Environment:
+XFree 4.3.99.902
+Problem Description:
+Got a kernel oops and X died.
+Here is a copy of the Oops:
+Unable to handle kernel paging request at virtual address fbeaa9de
+ printing eip:
+c012802f
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c012802f>]    Not tainted
+EFLAGS: 00013206
+EIP is at schedule_timeout+0x7f/0xc0
+eax: 00019130   ebx: 00000000   ecx: ca248000   edx: ca249ec0
+esi: 00019130   edi: 0000001a   ebp: 0000001a   esp: ca249eb4
+ds: 007b   es: 007b   ss: 0068
+Process X (pid: 5035, threadinfo=ca248000 task=ca2ad2c0)
+Stack: ca249ec0 01c57f6e c9f7f000 00100100 00200200 01c57f6e 4b87ad6e c0127fa0
+       ca2ad2c0 00000000 cbd9d200 00000000 00000000 c0168633 d613c5a0 00000000
+       00000000 00000000 00000000 00000304 03fffe1a 00000000 00000000 03fffe1a
+Call Trace:
+ [<c0127fa0>] process_timeout+0x0/0x10
+ [<c0168633>] do_select+0x193/0x2e0
+ [<c01682e0>] __pollwait+0x0/0xd0
+ [<c0168ab2>] sys_select+0x302/0x540
+ [<c0154ece>] vfs_read+0xfe/0x130
+ [<c010b477>] syscall_call+0x7/0xb
 
-Do they?  In order for that to be a "clearly", I believe one needs to 
-understand how namespaces are used in practice.  It may not be desirable 
-or even possible; this starts getting into a policy decision.
+Code: 8b 74 24 30 83 c4 34 c3 89 74 24 04 8b 44 24 34 c7 04 24 c0
+Steps to reproduce:
 
-> One not-so-far fetched approach would be to associate cron/at jobs with 
-> automount configurations so that a namespace can be re-constructed at 
-> runtime.
-
-I am not entirely sure what you mean with this, but it sounds incredibly 
-dangerous to me.
-
-	-hpa
 

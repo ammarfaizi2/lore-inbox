@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCOOcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVCOOfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVCOOcd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 09:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVCOOcc
+	id S261277AbVCOOfY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 09:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVCOOfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 09:32:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:46825 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261276AbVCOOca (ORCPT
+	Tue, 15 Mar 2005 09:35:24 -0500
+Received: from styx.suse.cz ([82.119.242.94]:16805 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261277AbVCOOfU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 09:32:30 -0500
-In-Reply-To: <20050315143412.0c60690a.sfr@canb.auug.org.au>
-References: <20050315143412.0c60690a.sfr@canb.auug.org.au>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org>
-Content-Transfer-Encoding: 7bit
-Cc: Linus <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       LKML <linux-kernel@vger.kernel.org>
-From: Hollis Blanchard <hollis@penguinppc.org>
-Subject: Re: [PATCH] PPC64 iSeries: cleanup viopath
-Date: Tue, 15 Mar 2005 08:32:27 -0600
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-X-Mailer: Apple Mail (2.619.2)
+	Tue, 15 Mar 2005 09:35:20 -0500
+Date: Tue, 15 Mar 2005 15:36:02 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm3 mouse oddity
+Message-ID: <20050315143602.GA3245@ucw.cz>
+References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005031506252c64b5d2@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 14, 2005, at 9:34 PM, Stephen Rothwell wrote:
->
-> Since you brought this file to my attention, I figured I might as well 
-> do
-> some simple cleanups.  This patch does:
-> 	- single bit int bitfields are a bit suspect and Anndrew pointed
-> 	  out recently that they are probably slower to access than ints
+On Tue, Mar 15, 2005 at 09:25:45AM -0500, Dmitry Torokhov wrote:
 
-> --- linus/arch/ppc64/kernel/viopath.c	2005-03-13 04:07:42.000000000 
-> +1100
-> +++ linus-cleanup.1/arch/ppc64/kernel/viopath.c	2005-03-15 
-> 14:02:48.000000000 +1100
-> @@ -56,8 +57,8 @@
->   * But this allows for other support in the future.
->   */
->  static struct viopathStatus {
-> -	int isOpen:1;		/* Did we open the path?            */
-> -	int isActive:1;		/* Do we have a mon msg outstanding */
-> +	int isOpen;		/* Did we open the path?            */
-> +	int isActive;		/* Do we have a mon msg outstanding */
->  	int users[VIO_MAX_SUBTYPES];
->  	HvLpInstanceId mSourceInst;
->  	HvLpInstanceId mTargetInst;
+> Vojtech activated scroll handling in keyboard code by default so now
+> your keyboard is mapped to the mouse0 and the mouse moved to mouse1.
+> 
+> Vojtech, is is possible to detect whether a keyboard has scroll
+> wheel(s) by its ID?
 
-Why not use a byte instead of a full int (reordering the members for 
-alignment)?
+If it were, I'd already have used it.
+
+> > This is a mouse connected to the ps2 port, also appearing as /dev/psaux
+> 
+> I'd recommend using /dev/input/mice unless you want to _exclude_ some
+> of your input devices. It will get data from all you mice at once and
+> is always available.
 
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

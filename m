@@ -1,135 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbUK2Vi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbUK2Vuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbUK2Vi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 16:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUK2Vi7
+	id S261810AbUK2Vuc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 16:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUK2Vub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 16:38:59 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:32710 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261811AbUK2Vie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 16:38:34 -0500
-Date: Mon, 29 Nov 2004 13:38:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM: 2/10 CKRM:  Accurate delay accounting
-Message-ID: <20041129213825.GB19892@kroah.com>
-References: <E1CYqY1-00057E-00@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CYqY1-00057E-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Nov 2004 16:50:31 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:29359 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261810AbUK2VuS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 16:50:18 -0500
+Date: Mon, 29 Nov 2004 22:50:11 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
+In-Reply-To: <1101763996l.13519l.0l@werewolf.able.es>
+Message-ID: <Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr>
+References: <1101763996l.13519l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 10:46:53AM -0800, Gerrit Huizenga wrote:
-> @@ -912,6 +915,9 @@
->  extern void set_task_comm(struct task_struct *tsk, char *from);
->  extern void get_task_comm(char *to, struct task_struct *tsk);
->  
-> +#define PF_MEMIO   	0x00400000      /* I am  potentially doing I/O for mem */
-> +#define PF_IOWAIT       0x00800000      /* I am waiting on disk I/O */
-> +
+>Hi all...
+>
+>I'm trying to get out of the mess that cd burning looks like nowadays in
+>linux...
+>
+>As I use a 2.6.x kernel, I folowed this hints:
+>- no suid cdrecord, it uses capabilities
+>- make the burner owned by console user (pam)
+>
+>cdrecord burns ok using dev=/dev/burner, but I can't get GUI tools to
+>burn using the /dev interface. All of them try to load ide-scsi, and
+>do a scan based on ATAPI:.
+>Some tools try to scan with dev=ATA:x:y:z, but that does not work as
+>normal user.
 
-Mix of tabs and spaces :(
+Maybe because it should have been dev=ATAPI: ?
 
->  #ifdef CONFIG_SMP
->  extern void wait_task_inactive(task_t * p);
->  #else
-> @@ -1111,6 +1117,86 @@
->  
->  #endif
->  
-> +/* API for registering delay info */
-> +#ifdef CONFIG_DELAY_ACCT
-> +
-> +#define test_delay_flag(tsk,flg)                ((tsk)->flags & (flg))
-> +#define set_delay_flag(tsk,flg)                 ((tsk)->flags |= (flg))
-> +#define clear_delay_flag(tsk,flg)               ((tsk)->flags &= ~(flg))
-> +
-> +#define def_delay_var(var)		        unsigned long long var
-> +#define get_delay(tsk,field)                    ((tsk)->delays.field)
-> +
-> +#define start_delay(var)                        ((var) = sched_clock())
-> +#define start_delay_set(var,flg)                (set_delay_flag(current,flg),(var) = sched_clock())
+>How can I make 'cdrecord dev=ATA -scanbus' work as non-root ?
 
-You mixed tabs and spaces here.  Just use tabs please.
+Weird, works for me:
 
-> +#define add_delay_clear(tsk,field,start_ts,flg)        \
-> +	do {                                           \
-> +		unsigned long long now = sched_clock();\
-> +           	add_delay_ts(tsk,field,start_ts,now);  \
-> +           	clear_delay_flag(tsk,flg);             \
-> +        } while (0)
+22:49 io:~ > cdrecord -dev=ATAPI: -scanbus
+Cdrecord-Clone 2.01 (i686-suse-linux) Copyright (C) 1995-2004 Jˆrg Schilling
+Note: This version is an unofficial (modified) version
+Note: and therefore may have bugs that are not present in the original.
+Note: Please send bug reports or support requests to
+http://www.suse.de/feedbackNote: The author of cdrecord should not be bothered
+with problems in this version.
+scsidev: 'ATAPI:'
+devname: 'ATAPI'
+scsibus: -1 target: -1 lun: -1
+Warning: Using ATA Packet interface.
+Warning: The related Linux kernel interface code seems to be unmaintained.
+Warning: There is absolutely NO DMA, operations thus are slow.
+cdrecord: No such file or directory. Cannot open SCSI driver.
+cdrecord: For possible targets try 'cdrecord -scanbus'. Make sure you are root.
+cdrecord: For possible transport specifiers try 'cdrecord dev=help'.
+22:50 io:/dev # chmod 666 /dev/hdd
+22:50 io:~ > cdrecord -dev=ATAPI: -scanbus
+Cdrecord-Clone 2.01 (i686-suse-linux) Copyright (C) 1995-2004 Jˆrg Schilling
+[...]
+Warning: The related Linux kernel interface code seems to be unmaintained.
+Warning: There is absolutely NO DMA, operations thus are slow.
+Using libscg version 'schily-0.8'.
+scsibus0:
+        0,0,0     0) *
+        0,1,0     1) 'AOPEN   ' 'CD-RW CRW1232PRO' '1.00' Removable CD-ROM
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
 
--ENOTABS
+And further (in addition to above):
+22:50 io:/dev # chmod 666 /dev/hdb
+22:50 io:~ > cdrecord -dev=ATAPI: -scanbus
+scsibus0:
+        0,0,0     0) *
+cdrecord: Warning: controller returns wrong size for CD capabilities page.
+        0,1,0     1) '        ' 'ATAPI CDROM     ' '100H' Removable CD-ROM
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+scsibus1:
+        1,0,0   100) *
+        1,1,0   101) 'AOPEN   ' 'CD-RW CRW1232PRO' '1.00' Removable CD-ROM
+        1,2,0   102) *
+        1,3,0   103) *
+        1,4,0   104) *
+        1,5,0   105) *
+        1,6,0   106) *
+        1,7,0   107) *
 
-> +#else
-> +
-> +#define test_delay_flag(tsk,flg)                (0)
-> +#define set_delay_flag(tsk,flg)                 do { } while (0)
-> +#define clear_delay_flag(tsk,flg)               do { } while (0)
-> +
-> +#define def_delay_var(var)			      
-> +#define get_delay(tsk,field)                    (0)
-> +
-> +#define start_delay(var)                        do { } while (0)
-> +#define start_delay_set(var,flg)                do { } while (0)
-> +
-> +#define inc_delay(tsk,field)                    do { } while (0)
-> +#define add_delay_ts(tsk,field,start_ts,now)    do { } while (0)
-> +#define add_delay_clear(tsk,field,start_ts,flg) do { } while (0)
-> +#define add_io_delay(dstart)			do { } while (0) 
-> +#define init_delays(tsk)                        do { } while (0)
-> +#endif
-> +
+Apart from the fact that scsibus shifts up by one, Works For Me(TM)
 
-It's that key over there on the left hand side of the keyboard...
 
-> +/* Changes
-> + *
-> + * 24 Aug 2003
-> + *    Created.
-> + */
-
-No changelogs in files again please.
-
-> +
-> +#ifndef _LINUX_TASKDELAYS_H
-> +#define _LINUX_TASKDELAYS_H
-> +
-> +#include <linux/config.h>
-> +#include <linux/types.h>
-> +
-> +struct task_delay_info {
-> +#if defined CONFIG_DELAY_ACCT 
-> +	/* delay statistics in usecs */
-> +	uint64_t waitcpu_total;
-> +	uint64_t runcpu_total;
-> +	uint64_t iowait_total;
-> +	uint64_t mem_iowait_total;
-> +	uint32_t runs;
-> +	uint32_t num_iowaits;
-> +	uint32_t num_memwaits;
-> +#endif				
-> +};
-
-A null structure otherwise?  Why?
-
-> +#ifdef CONFIG_DELAY_ACCT
-> +int task_running_sys(struct task_struct *p)
-> +{
-> +	return task_is_running(p);
-> +}
-> +EXPORT_SYMBOL_GPL(task_running_sys);
-> +#endif
-
-So LGPL code can use EXPORT_SYMBOL_GPL?
-
-thanks,
-
-greg k-h
+Jan Engelhardt
+-- 
+Gesellschaft f√ºr Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 G√∂ttingen, www.gwdg.de

@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264360AbUFKWMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFKWOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264360AbUFKWMW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 18:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUFKWMW
+	id S264367AbUFKWOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 18:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFKWOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 18:12:22 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17076 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264360AbUFKWMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 18:12:21 -0400
-Subject: Re: [PATCH][RFC] Spinlock-timeout
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: moilanen@austin.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>
-In-Reply-To: <Pine.A41.4.44.0406111613060.68840-100000@forte.austin.ibm.com>
-References: <Pine.A41.4.44.0406111613060.68840-100000@forte.austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1086991717.2712.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 11 Jun 2004 17:08:38 -0500
+	Fri, 11 Jun 2004 18:14:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50678 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264367AbUFKWMk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 18:12:40 -0400
+Message-ID: <40CA2E25.2060306@mvista.com>
+Date: Fri, 11 Jun 2004 15:11:49 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: ganzinger@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: ganzinger@mvista.com, Geoff Levand <geoffrey.levand@am.sony.com>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
+References: <40C7BE29.9010600@am.sony.com> <1086861862.2733.6.camel@laptop.fenrus.com> <40C8F68F.4030601@mvista.com> <20040611062256.GB13100@devserv.devel.redhat.com>
+In-Reply-To: <20040611062256.GB13100@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-11 at 16:19, moilanen@austin.ibm.com wrote:
-> > > Here's a revision to the patch that uses a HAVE_ARCH_GET_TB to allow
-> > > archs use their timebases if they have one, and if they don't, it uses
-> > > jiffies.  time_after_eq() is used to do the jiffy checking.
-> > >
-> > > I also left all of the arch/*/Kconfig changes in until a debug Kconfig
-> > > is done.  I pretty much added in the spinlock timeout on all archs that
-> > > have CONFIG_DEBUG_SPINLOCK.  If I missed your arch, I'm sorry.
-> >
-> > Nah, that's not how the abstraction should be done. Much simpler in
-> > fact. Just do something like this in the generic code:
-> >
-> > #ifndef ARCH_HAS_SPINLOCK_TIMEOUT
-> > #define get_spinlock_timeout() (jiffies + (SPINLOCK_TIMEOUT * HZ))
-> > #define check_spinlock_timeout(timeout) (time_after_eq(jiffies, timeout))
-> > #endif
-> >
-> > That's all. Then, any arch who has it's own implementation of these 2
-> > function will #define ARCH_HAS_SPINLOCK_TIMEOUT and implement them the
-> > way it wants. We shouldn't let anything like get_tb() slip into a common
-> > file, it's totally PPC specific. Other archs may have different counters
-> > they can use to impement the same thing. That part should be entirely
-> > self contained in asm-xxx
+Arjan van de Ven wrote:
+> On Thu, Jun 10, 2004 at 05:02:23PM -0700, George Anzinger wrote:
 > 
-> That's much better.  Here's hopefully a version that could be merged.
+>>Arjan van de Ven wrote:
+>>
+>>>On Thu, 2004-06-10 at 03:49, Geoff Levand wrote:
+>>>
+>>>
+>>>>Available at 
+>>>>http://tree.celinuxforum.org/pubwiki/moin.cgi/CELinux_5fPatchArchive
+>>>>
+>>>>For those interested, the set of three patches provide POSIX high-res 
+>>>>timer support for linux-2.6.6.  The core and i386 patches are updates of 
+>>>>George Anzinger's hrtimers-2.6.5-1.0.patch available on SourceForge 
+>>>><http://sourceforge.net/projects/high-res-timers/>.  The ppc32 port is 
+>>>>not available on SourceForge yet.
+>>>
+>>>
+>>>My first impression is that it has WAAAAAAAAAAAY too many ifdefs. I
+>>>would strongly suggest to not make this a config option and just
+>>>mandatory, it's a core feature that has no point in being optional. If
+>>>you accept that, the code also becomes a *LOT* cleaner.
+>>>
+>>
+>>Yes, but...  The main problem is that this would break all the archs that 
+>>don't have the needed arch dependent code yet.  By making the high-res part 
+>>depend on the arch config turning on a config, we don't break the archs and 
+>>they can sign up as they get their act together.
+> 
+> 
+> if the price is this amount of uglyness then that's the wrong approach imo.
+> Would be nicer to make dummy helpers the arch people can just take during
+> the transition instead.
 
-Hehe, almost ;) There's a bit of non-unified diff at the end ...
+I have another solution, connected with the ability to turn it off at boot time. 
+  Unsupporting archs would just not define a flag.
 
-Ben.
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

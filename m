@@ -1,117 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbTH1BK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 21:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTH1BK3
+	id S262814AbTH1BLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 21:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTH1BLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 21:10:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37004 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262787AbTH1BK0 (ORCPT
+	Wed, 27 Aug 2003 21:11:44 -0400
+Received: from [61.34.11.200] ([61.34.11.200]:22225 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S262814AbTH1BLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 21:10:26 -0400
-Date: Wed, 27 Aug 2003 18:05:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kj <kernel-janitor-discuss@lists.sourceforge.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] checkversion.pl script
-Message-Id: <20030827180527.509ae6b4.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 27 Aug 2003 21:11:39 -0400
+Date: Thu, 28 Aug 2003 10:13:41 +0900
+From: TeJun Huh <tejun@aratech.co.kr>
+To: Ville Herva <vherva@niksula.cs.hut.fi>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-ID: <20030828011341.GA19622@atj.dyndns.org>
+References: <20030729073948.GD204266@niksula.cs.hut.fi> <20030730071321.GV150921@niksula.cs.hut.fi> <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva> <20030730181003.GC204962@niksula.cs.hut.fi> <20030827064301.GF150921@niksula.cs.hut.fi> <20030827071259.GV83336@niksula.cs.hut.fi> <20030827092139.4d75ef4a.skraw@ithnet.com> <20030827073758.GW83336@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__27_Aug_2003_18:05:27_-0700_09c3e060"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030827073758.GW83336@niksula.cs.hut.fi>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, Aug 27, 2003 at 10:37:58AM +0300, Ville Herva wrote:
+> On Wed, Aug 27, 2003 at 09:21:39AM +0200, you [Stephan von Krawczynski] wrote:
+> > 
+> > Sorry, then you have to look for another explanation. 
+> 
+> Yep, but I don't have any reasonable suspects.
+> 
+> > Did you already try to exchange everything but the harddisks ?
+> 
+> No. Do you suspect faulty hardware?
+> 
+> Apart from perhaps Adaptec 2940 (Adaptecs always give me trouble), I
+> believe the hw is pretty solid. It had no problems with 2.2 kernels.  Based
+> on my experience, the i815 chipset is not that shaky (unlike the Via dung),
+> and I would expect the Intel motherboard to be on the better side as well.
+> 
+> I can't completely rule faulty hw out, though.
+> 
+> Exchanging hw will be quite difficult, as the hangs take as much as three
+> weeks to trigger (sometimes they happen withing a day after reboot), the box
+> is a production server, and I don't have much spare hardware atm.
+> 
+> What I had hoped for is to be able to get some information on where it hangs.
+> But sysrq and nmi watchdog don't cut it...
+> 
 
---Multipart_Wed__27_Aug_2003_18:05:27_-0700_09c3e060
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ Hello Ville.  Hello Stephan. :-)
 
-Hi,
+ Your problem sounds very simlar to the problem we were suffering.
+The problem was a spinlock deadlock inside drivers/char/random.c which
+is used by tcp to generate random initial sequence number.  The bug
+fix was checked into 2.4 tree on 28th July after the release of pre8
+at 14th July.
 
-I modified scripts/checkconfig.pl to make checkversion.pl.
-It checks for cases of <linux/version.h> #included but not
-needed (which makes for more rebuilds than required) and for
-cases of <linux/version.h> not #included when macros from it
-are used.  (Thanks for Randy Hron for some updates to it.)
+ChangeSet@1.1019.1.7, 2003-07-24 14:21:29-03:00, marcelo@freak.distro.conectiva
+    Changed EXTRAVERSION to -pre8
+  TAG: v2.4.22-pre8
 
-You can get it from (for future updates; also attached)
-  http://developer.osdl.org/rddunlap/scripts/checkversion.pl
+ChangeSet@1.1019.3.10, 2003-07-28 17:25:49-07:00, olof@austin.ibm.com
+  [RANDOM]: Fix SMP deadlock in __check_and_rekey().
 
-Sample from linux-2.6.0-test3, fs/ only:
+ This problem can happen on UP machine if the kernel is compiled with
+CONFIG_SMP.  Because the offending routine is called only every five
+minutes and it should receive a SYN packet while it's connecting, it
+occurs rarely, but it happens when it happens.
 
-[rddunlap@dragon fs]$ find . -name \*\.c | xargs checkversion.pl | more
-./afs/cmservice.c: 12 linux/version.h not needed.
-./afs/kafstimod.c: 12 linux/version.h not needed.
-./afs/kafsasyncd.c: 19 linux/version.h not needed.
-./cifs/file.c: 26 linux/version.h not needed.
-./cifs/transport.c: 26 linux/version.h not needed.
-./cifs/cifsfs.c: 31 linux/version.h not needed.
-./nls/nls_base.c: 11 linux/version.h not needed.
-./jffs2/super.c: 17 linux/version.h not needed.
-./jffs2/fs.c: 356: need linux/version.h
-./jffs2/file.c: 435: need linux/version.h
-./coda/coda_linux.c: 10 linux/version.h not needed.
-./adfs/super.c: 10 linux/version.h not needed.
-./adfs/dir_fplus.c: 10 linux/version.h not needed.
-./adfs/inode.c: 10 linux/version.h not needed.
-./adfs/map.c: 10 linux/version.h not needed.
-./adfs/dir_f.c: 12 linux/version.h not needed.
-./adfs/dir.c: 13 linux/version.h not needed.
-./adfs/file.c: 22 linux/version.h not needed.
-./udf/super.c: 49 linux/version.h not needed.
-./befs/datastream.c: 14 linux/version.h not needed.
-./lockd/svc.c: 24 linux/version.h not needed.
-./devfs/base.c: 677 linux/version.h not needed.
-./jffs/intrep.c: 67 linux/version.h not needed.
+ Please try 2.4.22.
 
---
-~Randy
+P.S. This bug is a real headache.  We had many servers deployed and
+they all randomly locked up about every two or four weeks.  I believe
+people should be warned about this one.
 
---Multipart_Wed__27_Aug_2003_18:05:27_-0700_09c3e060
-Content-Type: application/octet-stream;
- name="checkversion.pl"
-Content-Disposition: attachment;
- filename="checkversion.pl"
-Content-Transfer-Encoding: base64
+-- 
+tejun
 
-IyEgL3Vzci9iaW4vcGVybAojCiMgY2hlY2t2ZXJzaW9uIGZpbmQgdXNlcyBvZiBMSU5VWF9WRVJT
-SU9OX0NPREUsIEtFUk5FTF9WRVJTSU9OLCBvcgojIFVUU19SRUxFQVNFIHdpdGhvdXQgaW5jbHVk
-aW5nIDxsaW51eC92ZXJzaW9uLmg+LCBvciBjYXNlcyBvZgojIGluY2x1ZGluZyA8bGludXgvdmVy
-c2lvbi5oPiB0aGF0IGRvbid0IG5lZWQgaXQuCiMgQ29weXJpZ2h0IChDKSAyMDAzLCBSYW5keSBE
-dW5sYXAgPHJkZHVubGFwQG9zZGwub3JnPgoKJHwgPSAxOwoKbXkgJGRlYnVnZ2luZyA9IDA7Cgpm
-b3JlYWNoICRmaWxlIChAQVJHVikKewogICAgIyBPcGVuIHRoaXMgZmlsZS4KICAgIG9wZW4oRklM
-RSwgJGZpbGUpIHx8IGRpZSAiQ2FuJ3Qgb3BlbiAkZmlsZTogJCFcbiI7CgogICAgIyBJbml0aWFs
-aXplIHZhcmlhYmxlcy4KICAgIG15ICRmSW5Db21tZW50ICAgPSAwOwogICAgbXkgJGZJblN0cmlu
-ZyAgICA9IDA7CiAgICBteSAkZlVzZVZlcnNpb24gICA9IDA7CiAgICBteSAkaUxpbnV4VmVyc2lv
-biA9IDA7CgogICAgTElORTogd2hpbGUgKCA8RklMRT4gKQogICAgewoJIyBTdHJpcCBjb21tZW50
-cy4KCSRmSW5Db21tZW50ICYmIChzK14uKj9cKi8rICtvID8gKCRmSW5Db21tZW50ID0gMCkgOiBu
-ZXh0KTsKCW0rL1wqK28gJiYgKHMrL1wqLio/XCovKyArZ28sIChzKy9cKi4qJCsgK28gJiYgKCRm
-SW5Db21tZW50ID0gMSkpKTsKCgkjIFBpY2sgdXAgZGVmaW5pdGlvbnMuCglpZiAoIG0vXlxzKiMv
-byApIHsKCSAgICAkaUxpbnV4VmVyc2lvbiAgICAgID0gJC4gaWYgbS9eXHMqI1xzKmluY2x1ZGVc
-cyoibGludXhcL3ZlcnNpb25cLmgiL287Cgl9CgoJIyBTdHJpcCBzdHJpbmdzLgoJJGZJblN0cmlu
-ZyAmJiAocyteLio/IisgK28gPyAoJGZJblN0cmluZyA9IDApIDogbmV4dCk7CgltKyIrbyAmJiAo
-cysiLio/IisgK2dvLCAocysiLiokKyArbyAmJiAoJGZJblN0cmluZyA9IDEpKSk7CgoJIyBQaWNr
-IHVwIGRlZmluaXRpb25zLgoJaWYgKCBtL15ccyojL28gKSB7CgkgICAgJGlMaW51eFZlcnNpb24g
-ICAgICA9ICQuIGlmIG0vXlxzKiNccyppbmNsdWRlXHMqPGxpbnV4XC92ZXJzaW9uXC5oPi9vOwoJ
-fQoKCSMgTG9vayBmb3IgdXNlczogTElOVVhfVkVSU0lPTl9DT0RFLCBLRVJORUxfVkVSU0lPTiwg
-VVRTX1JFTEVBU0UKCWlmICgoJF8gPX4gL0xJTlVYX1ZFUlNJT05fQ09ERS8pIHx8ICgkXyA9fiAv
-XFdLRVJORUxfVkVSU0lPTi8pIHx8CgkJKCRfID1+IC9VVFNfUkVMRUFTRS8pKSB7CgkgICAgJGZV
-c2VWZXJzaW9uID0gMTsKCSAgICBsYXN0IExJTkUgaWYgJGlMaW51eFZlcnNpb247Cgl9CiAgICB9
-CgogICAgIyBSZXBvcnQgdXNlZCB2ZXJzaW9uIElEcyB3aXRob3V0IGluY2x1ZGU/CiAgICBpZiAo
-JGZVc2VWZXJzaW9uICYmICEgJGlMaW51eFZlcnNpb24pIHsKCXByaW50ICIkZmlsZTogJC46IG5l
-ZWQgbGludXgvdmVyc2lvbi5oXG4iOwogICAgfQoKICAgICMgUmVwb3J0IHN1cGVyZmx1b3VzIGlu
-Y2x1ZGVzLgogICAgaWYgKCRpTGludXhWZXJzaW9uICYmICEgJGZVc2VWZXJzaW9uKSB7Cglwcmlu
-dCAiJGZpbGU6ICRpTGludXhWZXJzaW9uIGxpbnV4L3ZlcnNpb24uaCBub3QgbmVlZGVkLlxuIjsK
-ICAgIH0KCiAgICAjIGRlYnVnOiByZXBvcnQgT0sgcmVzdWx0czoKICAgIGlmICgkZGVidWdnaW5n
-KSB7CiAgICAgICAgaWYgKCRpTGludXhWZXJzaW9uICYmICRmVXNlVmVyc2lvbikgewoJICAgIHBy
-aW50ICIkZmlsZTogdmVyc2lvbiB1c2UgaXMgT0sgKCRpTGludXhWZXJzaW9uKVxuIjsKICAgICAg
-ICB9CiAgICAgICAgaWYgKCEgJGlMaW51eFZlcnNpb24gJiYgISAkZlVzZVZlcnNpb24pIHsKCSAg
-ICBwcmludCAiJGZpbGU6IHZlcnNpb24gdXNlIGlzIE9LIChub25lKVxuIjsKICAgICAgICB9CiAg
-ICB9CgogICAgY2xvc2UoRklMRSk7Cn0K
-
---Multipart_Wed__27_Aug_2003_18:05:27_-0700_09c3e060--

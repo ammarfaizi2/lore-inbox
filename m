@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129926AbRBOTUQ>; Thu, 15 Feb 2001 14:20:16 -0500
+	id <S129154AbRBOTdj>; Thu, 15 Feb 2001 14:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129901AbRBOTUG>; Thu, 15 Feb 2001 14:20:06 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:42500 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129259AbRBOTTz>;
-	Thu, 15 Feb 2001 14:19:55 -0500
-Date: Thu, 15 Feb 2001 20:19:45 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, Ben LaHaise <bcrl@redhat.com>,
-        linux-mm@kvack.org, mingo@redhat.com, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-Message-ID: <20010215201945.A2505@pcep-jamie.cern.ch>
-In-Reply-To: <3A8C254F.17334682@colorfullife.com> <200102151905.LAA62688@google.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200102151905.LAA62688@google.engr.sgi.com>; from kanoj@google.engr.sgi.com on Thu, Feb 15, 2001 at 11:05:00AM -0800
+	id <S129373AbRBOTd2>; Thu, 15 Feb 2001 14:33:28 -0500
+Received: from unimur.um.es ([155.54.1.1]:32192 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S129319AbRBOTdP>;
+	Thu, 15 Feb 2001 14:33:15 -0500
+Message-ID: <3A8C333D.FA59D477@ditec.um.es>
+Date: Thu, 15 Feb 2001 20:51:25 +0100
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.76 [es] (X11; U; Linux 2.4.2-pre3 i686)
+X-Accept-Language: es-ES, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Remy.Card@linux.org
+Subject: [ONE-LINE PATCH](Silly?) bug in ext2/namei.c, 2.2.x, 2.4.x
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kanoj Sarcar wrote:
-> > Is the sequence
-> > << lock;
-> > read pte
-> > pte |= dirty
-> > write pte
-> > >> end lock;
-> > or
-> > << lock;
-> > read pte
-> > if (!present(pte))
-> > 	do_page_fault();
-> > pte |= dirty
-> > write pte.
-> > >> end lock;
-> 
-> No, it is a little more complicated. You also have to include in the
-> tlb state into this algorithm. Since that is what we are talking about.
-> Specifically, what does the processor do when it has a tlb entry allowing
-> RW, the processor has only done reads using the translation, and the 
-> in-memory pte is clear?
+Hi!
 
-Yes (no to the no): Manfred's pseudo-code is exactly the question you're
-asking.  Because when the TLB entry is non-dirty and you do a write, we
-_know_ the processor will do a locked memory cycle to update the dirty
-bit.  A locked memory cycle implies read-modify-write, not "write TLB
-entry + dirty" (which would be a plain write) or anything like that.
+I think that this is a bug. The buffer is always released except in this
+case.
 
-Given you know it's a locked cycle, the only sensible design from Intel
-is going to be one of Manfred's scenarios.
+Bye.
 
-An interesting thought experiment though is this:
-
-<< lock;
-read pte
-pte |= dirty
-write pte
->> end lock;
-if (!present(pte))
-	do_page_fault();
-
-It would have a mighty odd effect wouldn't it?
-
--- Jamie
+----------------------------------------------------
+*** /usr/src/linux-2.4.1/fs/ext2/namei.c        Tue Dec 12 16:48:22 2000
+--- namei.c.new Thu Feb 15 20:42:45 2001
+***************
+*** 235,240 ****
+--- 235,241 ----
+                                return retval;
+                        if (dir->i_size <= offset) {
+                                if (dir->i_size == 0) {
++                                       brelse(bh);
+                                        return -ENOENT;
+                                }
+----------------------------------------------------
+-- 
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265416AbTLRXpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 18:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265409AbTLRXpg
+	id S265401AbTLRXjq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 18:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTLRXjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 18:45:36 -0500
-Received: from opersys.com ([64.40.108.71]:53262 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S265416AbTLRXpe (ORCPT
+	Thu, 18 Dec 2003 18:39:46 -0500
+Received: from holomorphy.com ([199.26.172.102]:35221 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265401AbTLRXjo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 18:45:34 -0500
-Message-ID: <3FE23CD1.4080802@opersys.com>
-Date: Thu, 18 Dec 2003 18:48:33 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Updating real-time and nanokernel maintainers
-References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 18:39:44 -0500
+Date: Thu, 18 Dec 2003 15:38:33 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: rl@hellgate.ch, Rik van Riel <riel@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       kernel@kolivas.org, chris@cvine.freeserve.co.uk,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031218233833.GE22443@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	rl@hellgate.ch, Rik van Riel <riel@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	kernel@kolivas.org, chris@cvine.freeserve.co.uk,
+	linux-kernel@vger.kernel.org, mbligh@aracnet.com
+References: <20031217214107.GA3650@k3.hellgate.ch> <Pine.LNX.4.44.0312171921180.12531-100000@chimarrao.boston.redhat.com> <20031218225324.GA24850@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031218225324.GA24850@k3.hellgate.ch>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 18, 2003 at 11:53:25PM +0100, Roger Luethi wrote:
+> Depends on the axis in your graph. The benchmarks I am using are not
+> balancing on the verge of going bad, if that's what you mean. They
+> cut deep (30 to 100 MB) into swap through most of their run time,
+> and there's quite a bit of swap turnover with compiling stuff.
+> I also completed a best effort attempt at determining the impact of
+> any differences between mem= and actual RAM removal. I had to adapt
+> the kbuild benchmark somewhat to the available hardware. I benchmarked
+> with 48 MB RAM at mem=16M and again after removing 32MB of RAM. If there
+> was a difference in performance, it was very small for both 2.4.23 and
+> 2.6.0-test11, with the latter taking over 2.5 times as long to complete
+> the benchmark.
 
-Zwane Mwaikambo wrote:
-> But you're forgetting what the MAINTAINERS file is for. I can't but help
-> thinking that this is linked with the email you sent earlier, but that's
-> just me. Frankly i reckon this particular case could be settled by
-> removing both from MAINTAINERS as neither has code in the 2.6 linux
-> kernel. Anybody looking for realtime Linux kernel capabilities can just do
-> a Google.
+A bogon was recently fixed in 2.6 that caused the results to differ.
+They should not differ.
 
-Yes, yes, and guess what shows up top on that google results list :)
 
-Seriously though, the final decision isn't mine. I've submitted the
-patch and I personally think that it's more than justfied. I'll
-leave it to the wisdom of the people in charge to make the appropriate
-decision.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 514-812-4145
-
+-- wli

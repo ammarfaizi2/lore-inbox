@@ -1,153 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLLCyL>; Mon, 11 Dec 2000 21:54:11 -0500
+	id <S129408AbQLLCyL>; Mon, 11 Dec 2000 21:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129614AbQLLCyA>; Mon, 11 Dec 2000 21:54:00 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:29269 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129319AbQLLCxu>; Mon, 11 Dec 2000 21:53:50 -0500
-Date: Tue, 12 Dec 2000 13:49:05 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephen Rothwell <sfr@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre21 oops reading /proc/apm
-In-Reply-To: <E145B3T-0006oO-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10012121332300.25479-200000@marina.lowendale.com.au>
+	id <S129319AbQLLCyB>; Mon, 11 Dec 2000 21:54:01 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:21253 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129408AbQLLCxz>;
+	Mon, 11 Dec 2000 21:53:55 -0500
+To: Daryll Strauss <daryll@valinux.com>
+Cc: David Feuer <David_Feuer@brown.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+In-Reply-To: <E144O4d-0003vd-00@the-village.bc.nu> <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <20001209201238.A12452@zorro.pangea.ca> <4.3.2.7.2.20001209213353.00b8bef0@postoffice.brown.edu> <20001209184921.A8495@newbie>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 12 Dec 2000 03:23:20 +0100
+In-Reply-To: Daryll Strauss's message of "Sat, 9 Dec 2000 18:49:22 -0800"
+Message-ID: <d3aea2ml7r.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="449546482-465749014-976589345=:25479"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+>>>>> "Daryll" == Daryll Strauss <daryll@valinux.com> writes:
 
---449546482-465749014-976589345=:25479
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Daryll> On Sat, Dec 09, 2000 at 09:34:59PM -0500, David Feuer wrote:
+>> For what it's worth, I absolutely agree with this.  I have the same
+>> impression when I just see the word "dangerous".
 
-On Sun, 10 Dec 2000, Alan Cox wrote:
+Daryll> Why not call a spade a spade and label it BROKEN. I do think
+Daryll> that's stronger than DANGEROUS.
 
-> > Is it "obvious" that I'm dealing with the same or similar kind of
-> > bugginess here?
-> 
-> Obvious no, but its a pretty good guess.
+I doubt it will make any difference whatever we write. I have seen
+several times how users enable every single option because 'they don't
+want to miss out on anything'. It's at the order of someone with a
+Macintosh enabling something labelled "Atari internal serial port
+support" (theoretical example, no offense).
 
-FWIW, I now get:
-
--------------------------------------
-neale@gull:~$ cat /proc/apm
-1.13 1.1 0x03 0xff 0xff 0xff -1% -1 ?
--------------------------------------
-
-> > That being the case, any reason I can't/shouldn't put in a function
-> > similar to apm_battery_horked(), and call/run it based on a config-time
-> > variable?
-> 
-> None at all
-
-Diff against unmolested 2.2.18pre24 is attached.
-
-Obviously the next challenge is to figure out how I can get what
-information out of this strange beastie.
-
-Regards,
-Neale.
-
---449546482-465749014-976589345=:25479
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ashes0.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.05.10012121349040.25479@marina.lowendale.com.au>
-Content-Description: 
-Content-Disposition: attachment; filename="ashes0.diff"
-
-ZGlmZiAtdXIgLXggKi5udGIwIC14IC5jb25maWcgbGludXgtMi4yLjE4cHJl
-MjQtb3JpZy9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxwIGxpbnV4LTIu
-Mi4xOHByZTI0L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHANCi0tLSBs
-aW51eC0yLjIuMThwcmUyNC1vcmlnL0RvY3VtZW50YXRpb24vQ29uZmlndXJl
-LmhlbHAJVHVlIERlYyAxMiAxMTozOTo1MSAyMDAwDQorKysgbGludXgtMi4y
-LjE4cHJlMjQvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscAlNb24gRGVj
-IDExIDE5OjA2OjMzIDIwMDANCkBAIC0xMDI5NSw2ICsxMDI5NSwxNyBAQA0K
-ICAgYSB3b3JrLWFyb3VuZCBmb3IgYSBudW1iZXIgb2YgYnVnZ3kgQklPU2Vz
-LiBTd2l0Y2ggdGhpcyBvcHRpb24gb24gaWYNCiAgIHlvdXIgY29tcHV0ZXIg
-Y3Jhc2hlcyBpbnN0ZWFkIG9mIHBvd2VyaW5nIG9mZiBwcm9wZXJseS4NCiAN
-CitCdWdneSBiYXR0ZXJ5IHN0YXR1cyByZXBvcnRpbmcNCitDT05GSUdfQVBN
-X0FTSEVTX05PVEVCSU9TDQorICBDdXJyZW50bHkgZGlzYWJsZXMgYmF0dGVy
-eSBzdGF0dXMgcmVwb3J0aW5nIGZvciBidWdneSBCSU9TIHdoaWNoDQorICAo
-YSkgb29wc2VzIG9uIHJlYWRpbmcgZnJvbSAvcHJvYy9hcG0gYW5kIChiKSBk
-b2VzIE5PVCBoYXZlIERNSS4NCisgIChBY2VyTm90ZS05NTAgd2l0aCBQaG9l
-bml4IE5vdGVCSU9TIDE5OTQpLg0KKyAgSW4gZnV0dXJlLCB0aGlzIG1pZ2h0
-IGltcGxlbWVudCBhIGJ1Zy13b3JrYXJvdW5kLg0KKyAgDQorICBOb3RlIHRo
-YXQgaWYgdGhlIG1hY2hpbmUgaGFzIERNSSB0aGVuIHRoZSBCSU9TIHZlcnNp
-b24gc2hvdWxkIGJlDQorICBhdXRvbWFnaWNhbGx5IGRldGVjdGFibGUgYW5k
-IHRoaXMgd29ya2Fyb3VuZCBhdXRvbWF0ZWQuICBTZW5kIHRoZSBETUkNCisg
-IHN0cmluZ3MgcHJpbnRlZCBhdCBib290LXRpbWUgd2l0aCBhbnkgcmVwb3J0
-IGlmIHRoaXMgaXMgbm90IGhhcHBlbmluZy4NCisNCiBXYXRjaGRvZyBUaW1l
-ciBTdXBwb3J0IA0KIENPTkZJR19XQVRDSERPRw0KICAgSWYgeW91IHNheSBZ
-IGhlcmUgKGFuZCB0byBvbmUgb2YgdGhlIGZvbGxvd2luZyBvcHRpb25zKSBh
-bmQgY3JlYXRlIGENCmRpZmYgLXVyIC14ICoubnRiMCAteCAuY29uZmlnIGxp
-bnV4LTIuMi4xOHByZTI0LW9yaWcvYXJjaC9pMzg2L2NvbmZpZy5pbiBsaW51
-eC0yLjIuMThwcmUyNC9hcmNoL2kzODYvY29uZmlnLmluDQotLS0gbGludXgt
-Mi4yLjE4cHJlMjQtb3JpZy9hcmNoL2kzODYvY29uZmlnLmluCVR1ZSBEZWMg
-MTIgMTE6Mzk6NTQgMjAwMA0KKysrIGxpbnV4LTIuMi4xOHByZTI0L2FyY2gv
-aTM4Ni9jb25maWcuaW4JTW9uIERlYyAxMSAxOTowMDo0NCAyMDAwDQpAQCAt
-MTE2LDYgKzExNiw3IEBADQogICBib29sICcgICBSVEMgc3RvcmVzIHRpbWUg
-aW4gR01UJyBDT05GSUdfQVBNX1JUQ19JU19HTVQNCiAgIGJvb2wgJyAgIEFs
-bG93IGludGVycnVwdHMgZHVyaW5nIEFQTSBCSU9TIGNhbGxzJyBDT05GSUdf
-QVBNX0FMTE9XX0lOVFMNCiAgIGJvb2wgJyAgIFVzZSByZWFsIG1vZGUgQVBN
-IEJJT1MgY2FsbCB0byBwb3dlciBvZmYnIENPTkZJR19BUE1fUkVBTF9NT0RF
-X1BPV0VSX09GRg0KKyAgYm9vbCAnICAgQnVnZ3kgYmF0dGVyeSBzdGF0dXMg
-cmVwb3J0aW5nJyBDT05GSUdfQVBNX0FTSEVTX05PVEVCSU9TDQogZmkNCiB0
-cmlzdGF0ZSAnVG9zaGliYSBMYXB0b3Agc3VwcG9ydCcgQ09ORklHX1RPU0hJ
-QkENCiANCmRpZmYgLXVyIC14ICoubnRiMCAteCAuY29uZmlnIGxpbnV4LTIu
-Mi4xOHByZTI0LW9yaWcvYXJjaC9pMzg2L2tlcm5lbC9hcG0uYyBsaW51eC0y
-LjIuMThwcmUyNC9hcmNoL2kzODYva2VybmVsL2FwbS5jDQotLS0gbGludXgt
-Mi4yLjE4cHJlMjQtb3JpZy9hcmNoL2kzODYva2VybmVsL2FwbS5jCVR1ZSBE
-ZWMgMTIgMTE6Mzk6NTQgMjAwMA0KKysrIGxpbnV4LTIuMi4xOHByZTI0L2Fy
-Y2gvaTM4Ni9rZXJuZWwvYXBtLmMJVHVlIERlYyAxMiAwODo0NDoyMiAyMDAw
-DQpAQCAtMTMwLDYgKzEzMCw5IEBADQogICogICAgICAgICBpcyBub3cgdGhl
-IHdheSBsaWZlIHdvcmtzKS4gDQogICogICAgICAgICBGaXggdGhpbmtvIGlu
-IHN1c3BlbmQoKSAod3JvbmcgcmV0dXJuKS4NCiAgKiAgIDEuMTNhYzogQWRk
-ZWQgYXBtX2JhdHRlcnlfaG9ya2VkKCkgZm9yIENvbXBhbCBib2FyZHMgKERl
-bGwgNTAwMGUgZXRjKQ0KKyAqICAgMS4xM2FjLW5iOiBXSVA6IEFjZXJOb3Rl
-LTk1MCBvb3BzIG9uIHJlYWRpbmcgL3Byb2MvYXBtDQorICogICAgICAgICBU
-cnkgZGlzYWJsaW5nIGJhdHRlcnkgc3RhdHVzIHJlcG9ydGluZy4NCisgKiAg
-ICAgICAgIE5lYWxlIEJhbmtzIDxuZWFsZUBsb3dlbmRhbGUuY29tLmF1Pg0K
-ICAqDQogICogQVBNIDEuMSBSZWZlcmVuY2U6DQogICoNCkBAIC0yMTEsNiAr
-MjE0LDggQEANCiAgKiBQOiBUb3NoaWJhIDE5NTBTOiBiYXR0ZXJ5IGxpZmUg
-aW5mb3JtYXRpb24gb25seSBnZXRzIHVwZGF0ZWQgYWZ0ZXIgcmVzdW1lDQog
-ICogUDogTWlkd2VzdCBNaWNybyBTb3VuZGJvb2sgRWxpdGUgRFgyLzY2IG1v
-bm9jaHJvbWU6IHNjcmVlbiBibGFua2luZw0KICAqIAlicm9rZW4gaW4gQklP
-UyBbUmVwb3J0ZWQgYnkgR2Fyc3QgUi4gUmVlc2UgPHJlZXNlQGlzbi5uZXQ+
-XQ0KKyAqID86IEFjZXJOb3RlLTk1MDogb29wcyBvbiByZWFkaW5nIC9wcm9j
-L2FwbSAtIHdvcmthcm91bmQgaXMgYSBXSVANCisgKiAJTmVhbGUgQmFua3Mg
-PG5lYWxlQGxvd2VuZGFsZS5jb20uYXU+IERlY2VtYmVyIDIwMDANCiAgKg0K
-ICAqIExlZ2VuZDogVSA9IHVudXNhYmxlIHdpdGggQVBNIHBhdGNoZXMNCiAg
-KiAgICAgICAgIFAgPSBwYXJ0aWFsbHkgdXNhYmxlIHdpdGggQVBNIHBhdGNo
-ZXMNCkBAIC0zMjcsNiArMzMyLDExIEBADQogc3RhdGljIGludAkJCXBvd2Vy
-X29mZl9lbmFibGVkID0gMTsNCiAjZW5kaWYNCiBzdGF0aWMgaW50IAkJCWRl
-bGxfY3JhcCA9IDA7CS8qU2V0IGlmIHdlIGZpbmQgYSA1MDAwZSAqLw0KKyNp
-ZmRlZiBDT05GSUdfQVBNX0FTSEVTX05PVEVCSU9TDQorc3RhdGljIGludCAJ
-CQlhc2hlc19ub3RlYmlvcyA9IDE7CS8qU2V0IGJ5IGNvbmZpZ3VyZSovDQor
-I2Vsc2UNCitzdGF0aWMgaW50IAkJCWFzaGVzX25vdGViaW9zID0gMDsJLyog
-RGVmYXVsdCB0byBPSyAqLw0KKyNlbmRpZg0KIA0KIHN0YXRpYyBERUNMQVJF
-X1dBSVRfUVVFVUVfSEVBRChhcG1fd2FpdHF1ZXVlKTsNCiBzdGF0aWMgREVD
-TEFSRV9XQUlUX1FVRVVFX0hFQUQoYXBtX3N1c3BlbmRfd2FpdHF1ZXVlKTsN
-CkBAIC0xMjcyLDcgKzEyODIsNyBAQA0KIA0KIAlwID0gYnVmOw0KIA0KLQlp
-ZiAoKHNtcF9udW1fY3B1cyA9PSAxKSAmJiAoIWRlbGxfY3JhcCkgJiYgDQor
-CWlmICgoc21wX251bV9jcHVzID09IDEpICYmICghZGVsbF9jcmFwKSAmJiAo
-IWFzaGVzX25vdGViaW9zKSAmJg0KIAkgICAgIShlcnJvciA9IGFwbV9nZXRf
-cG93ZXJfc3RhdHVzKCZieCwgJmN4LCAmZHgpKSkgew0KIAkJYWNfbGluZV9z
-dGF0dXMgPSAoYnggPj4gOCkgJiAweGZmOw0KIAkJYmF0dGVyeV9zdGF0dXMg
-PSBieCAmIDB4ZmY7DQpAQCAtMTQ5Miw2ICsxNTAyLDkgQEANCiAJCShhcG1f
-Ymlvc19pbmZvLnZlcnNpb24gJiAweGZmKSwNCiAJCWFwbV9iaW9zX2luZm8u
-ZmxhZ3MsDQogCQlkcml2ZXJfdmVyc2lvbik7DQorCWlmIChkZWxsX2NyYXAg
-fHwgYXNoZXNfbm90ZWJpb3MpIHsNCisJCXByaW50ayhLRVJOX0lORk8gImFw
-bTogYmF0dGVyeSBzdGF0dXMgcmVwb3J0aW5nIGRpc2FibGVkXG4iKTsNCisJ
-fQ0KIAlpZiAoKGFwbV9iaW9zX2luZm8uZmxhZ3MgJiBBUE1fMzJfQklUX1NV
-UFBPUlQpID09IDApIHsNCiAJCXByaW50ayhLRVJOX0lORk8gImFwbTogbm8g
-MzIgYml0IEJJT1Mgc3VwcG9ydFxuIik7DQogCQlyZXR1cm4gLUVOT0RFVjsN
-Cg==
---449546482-465749014-976589345=:25479--
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

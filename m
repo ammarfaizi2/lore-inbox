@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266302AbUGAVwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266303AbUGAVyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266302AbUGAVwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 17:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUGAVwv
+	id S266303AbUGAVyv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 17:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUGAVyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 17:52:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28105 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266302AbUGAVwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 17:52:49 -0400
-Date: Thu, 1 Jul 2004 14:55:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, david@gibson.dropbear.id.au,
-       torvalds@osdl.org, William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
-Message-Id: <20040701145541.0ece2898.akpm@osdl.org>
-In-Reply-To: <40E43BDE.85C5D670@tv-sign.ru>
-References: <40E43BDE.85C5D670@tv-sign.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jul 2004 17:54:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59304 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266303AbUGAVyq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 17:54:46 -0400
+Message-ID: <40E48817.3060901@pobox.com>
+Date: Thu, 01 Jul 2004 17:54:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fabio Coatti <cova@ferrara.linux.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA problems in 2.6.7-mm[1,5] vanilla works
+References: <200407012352.16816.cova@ferrara.linux.it>
+In-Reply-To: <200407012352.16816.cova@ferrara.linux.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
->
-> Hugetlbfs mmap with MAP_PRIVATE becomes MAP_SHARED
-> silently, but vma->vm_flags have no VM_SHARED bit.
-> I think it make sense to forbid MAP_PRIVATE in
-> hugetlbfs_file_mmap() because it may confuse user
-> space applications. But the real bug is that reading
-> from /dev/zero into hugetlb will do:
-> 
-> read_zero()
-> 	read_zero_pagealigned()
-> 		if (vma->vm_flags & VM_SHARED)
-> 			break;	// OK if MAP_PRIVATE
-> 		zap_page_range();
-> 		zeromap_page_range();
-> 
-> We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
-> or both.
+Fabio Coatti wrote:
+> I'm having problems with sata starting from 2.6.7-mm1: 
+> the system hangs at boot, during the sata bus scan.
 
-This could break existing applications, yes?
+does 'acpi=off' fix the problem?
 
-If so, would an appropriate fixup be to coerce private mappings
-of hugetlb files into shared ones in-kernel?
+

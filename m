@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129906AbQLYSML>; Mon, 25 Dec 2000 13:12:11 -0500
+	id <S130250AbQLYSQw>; Mon, 25 Dec 2000 13:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130250AbQLYSMC>; Mon, 25 Dec 2000 13:12:02 -0500
-Received: from tahallah.claranet.co.uk ([212.126.138.206]:16900 "EHLO
-	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
-	id <S129906AbQLYSLr>; Mon, 25 Dec 2000 13:11:47 -0500
-Date: Mon, 25 Dec 2000 17:40:26 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.clara.co.uk>
-Reply-To: <alex.buell@tahallah.clara.co.uk>
-To: Manfred <manfred@colorfullife.com>
-cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Netgear FA311
-In-Reply-To: <3A477AF3.E76A8083@colorfullife.com>
-Message-ID: <Pine.LNX.4.30.0012251730020.804-100000@tahallah.clara.co.uk>
+	id <S130694AbQLYSQl>; Mon, 25 Dec 2000 13:16:41 -0500
+Received: from www.wen-online.de ([212.223.88.39]:5385 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130250AbQLYSQb>;
+	Mon, 25 Dec 2000 13:16:31 -0500
+Date: Mon, 25 Dec 2000 18:45:14 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Andreas Franck <afranck@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
+In-Reply-To: <00122513292000.00531@dg1kfa.ampr.org>
+Message-ID: <Pine.Linu.4.10.10012251818510.545-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Dec 2000, Manfred wrote:
+On Mon, 25 Dec 2000, Andreas Franck wrote:
 
-> Could you try this setup?
-> <<<<<<<<
->  /* Configure the PCI bus bursts and FIFO thresholds. */
->  /* Configure for standard, in-spec Ethernet. */
->  np->tx_config = (1<<28) +       /* Automatic transmit padding */
->              (1<<23) +       /* Excessive collision retry */
->              (6<<20) +     /* Max DMA burst = 128 byte */
->              (8<<8) +        /* fill threshold = 256 byte */
->              8;              /* drain threshold = 256 byte */
->  writel(np->tx_config, ioaddr + TxConfig);
-> >>>>>>>>
+> Hello Mike, hello linux-kernel hackers,
+> 
+> Mike Galbraith wrote:
+> > I wouldn't (not going to here;) spend a lot of time on it.  The compiler
+> > has problems.  It won't build glibc-2.2, and chokes horribly on ipchains.
+> 
+> Maybe, but after having spent several hours debugging now, I think it was 
+> worth it: I am almost sure this is not a gcc bug, but a nasty race condition 
+> involving the semaphore handling bdflush_init. 
+> 
+> I figured out by spilling some printk's around in bdflush_init, which made 
+> the bug magically disappear, what wasn't what I intended - but which gave me 
+> a clearer impression of what's going on.
 
-Hmm, that little change worked a lot better. However thoughput is down to
-700kb/s! Transferring files from the other machine to this machine is much
-faster - 868kb/s.
+Oh?  Can you show me (offline) what you did exactly that made it go away?
+(that's kinda scary.. _much_ prefer 'compiler has rough edges' option;)
 
-In the logs, I only got *one* message from the natsemi driver (and this
-happened when sending files from this machine to the other machine. No
-problems receiving from the other machine.
-
-Dec 25 17:28:12 tahallah kernel: eth0: Something Wicked happened! 0583.
-
-But I just realised that the other machine I'm using has an 10 megabit
-ethernet card (on the hub that one is shown on 10, my machine is shown as
-100). I think this explains the throughput problem. When I get another 4
-way power socket, I'll put my other machine (which has a 100 megabit card
-in it) on the network and see if that makes a difference.
-
-Cheers,
-Alex
--- 
-Huffapuff!
-
-http://www.tahallah.clara.co.uk
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

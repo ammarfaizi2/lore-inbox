@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265784AbUFSODq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265760AbUFSOGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265784AbUFSODq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 10:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbUFSODq
+	id S265760AbUFSOGO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 10:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbUFSOGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 10:03:46 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:21442 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265760AbUFSODo
+	Sat, 19 Jun 2004 10:06:14 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:15316 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S265760AbUFSOGJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 10:03:44 -0400
-Date: Sat, 19 Jun 2004 15:55:51 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: Brian Lazara <blazara@nvidia.com>, Christoph Hellwig <hch@infradead.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew de Quincey <adq@lidskialf.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new device support for forcedeth.c second try
-Message-ID: <20040619155551.A1517@electric-eye.fr.zoreil.com>
-References: <40D43DC3.9000909@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Jun 2004 10:06:09 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: FlashCode <flashcode@flashtux.org>
+Subject: Re: USB problems with 2.6.7 kernel / EciAdsl driver
+Date: Sat, 19 Jun 2004 16:06:08 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040619101934.GA1938@photon>
+In-Reply-To: <20040619101934.GA1938@photon>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40D43DC3.9000909@gmx.net>; from c-d.hailfinger.kernel.2004@gmx.net on Sat, Jun 19, 2004 at 03:21:07PM +0200
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406191606.08919.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net> :
-[...]
-> +static int phy_reset(struct net_device *dev)
-> +{
-> +	struct fe_priv *np = get_nvpriv(dev);
-> +	u32 miicontrol;
-> +	u32 microseconds = 0;
-> +	u32 milliseconds = 0;
-> +
-> +	miicontrol = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
-> +	miicontrol |= BMCR_RESET;
-> +	if (mii_rw(dev, np->phyaddr, MII_BMCR, miicontrol)) {
-> +		return -1;
-> +	}
-> +
-> +	//wait for 500ms
-> +	mdelay(500);
-> +
-> +	//must wait till reset is deasserted
-> +	while (miicontrol & BMCR_RESET) {
-> +		udelay(NV_MIIBUSY_DELAY);
-> +		miicontrol = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
-> +		microseconds++;
-> +		if (microseconds == 20) {
-> +			microseconds = 0;
-> +			milliseconds++;
-> +		}
-> +		if (milliseconds > 50)
-> +			return -1;
-> +	}
-> +	return 0;
-> +}
+> I'm part of EciAdsl USB ADSL modem driver developers
+> (http://eciadsl.flashtux.org)
+> I installed 2.6.7 kernel and I have some problems:
+> since I upload anything at max speed (15 kb/sec for me), I'm
+> disconnected after 2-5 sec with this USB error in /var/log/messages:
+> Jun 19 11:13:18 photon kernel: usb 1-2: bulk timeout on ep2out
+> Jun 19 11:13:18 photon kernel: usb 1-2: usbfs: USBDEVFS_BULK failed ep
+> 0x2 len 1984 ret -110
+> No problem when I download sth.
+> 
+> I've tested with 2 machines (same problem), with these USB chipsets:
+> machine 1:
+> 0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+> 1.1 Controller (rev 10)
+> machine 2:
+> 0000:00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev
+> 03)
+> 
+> I tested with noapic option, same usb crash.
 
-Afaiks this function is not called from a spinlocked nor is it time-critical.
-You should make it use schedule_timeout().
+Is it a crash?
 
---
-Ueimor
+> Many other people have same problem, maybe not for each upload, but lot
+> of disconnections with same error in logs..
+> 
+> Finally, I have no problem with 2.6.6 kernel or any older kernel (2.6 or
+> 2.4): connection is very stable.
+> 
+> Feel free to ask me more for testing.
+> Thanks for any help.
+> 
+> I've not subscribed to LKML, so please CC me for any answer.
+
+I think you should send a copy of your message to the USB mailing list
+(see linux-usb.sf.net).
+
+Ciao,
+
+Duncan.

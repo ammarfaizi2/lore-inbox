@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbRFNHx5>; Thu, 14 Jun 2001 03:53:57 -0400
+	id <S261410AbRFNH6H>; Thu, 14 Jun 2001 03:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbRFNHxr>; Thu, 14 Jun 2001 03:53:47 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:43025 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S261390AbRFNHxm>; Thu, 14 Jun 2001 03:53:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: David Luyer <david_luyer@pacific.net.au>, "Rainer Mager" <rmager@vgkk.com>
-Subject: Re: Download process for a "split kernel" (was: obsolete code must die)
-Date: Thu, 14 Jun 2001 09:56:17 +0200
-X-Mailer: KMail [version 1.2]
+	id <S261454AbRFNH5r>; Thu, 14 Jun 2001 03:57:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25097 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261410AbRFNH5k>; Thu, 14 Jun 2001 03:57:40 -0400
+Subject: Re: obsolete code must die
+To: rmager@vgkk.com (Rainer Mager)
+Date: Thu, 14 Jun 2001 08:56:06 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
-In-Reply-To: <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> from "Rainer Mager" at Jun 14, 2001 10:45:10 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01061409561702.00879@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ARz4-0004Jm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 June 2001 04:00, David Luyer wrote:
-> > Would it make sense to create some sort of 'make config' script that
-> > determines what you want in your kernel and then downloads only those
-> > components? After all, with the constant release of new hardware, isn't a
-> > 50MB kernel release not too far away? 100MB?
->
-> This might actually make sense - a kernel composed of multiple versioned
-> segments.  A tool which works out dependencies of the options being
-> selected, downloads the required parts if the latest versions of those
-> parts are not already downloaded, and then builds the kernel...
+> Would it make sense to create some sort of 'make config' script that
+> determines what you want in your kernel and then downloads only those
+> components? After all, with the constant release of new hardware, isn't a
+> 50MB kernel release not too far away? 100MB?
 
-This sounds a lot like apt-get, doesn't it?
+This should be a FAQ entry.
 
-> ... (or could even
-> build during the download, as soon as the build dependencies for each block
-> of the kernel are satisfied, if you want to be fancy...).
+For folks doing kernel development a split tree is a nightmare to manage so
+we dont bother. Nothing stops a third party splitting and maintaining the tools
+to download just the needed bits for those who want to do it that way
 
-This is fancier alright:
-
-  1) walk
-  2) run
-
-It's the kind of power tool that will be pretty easy to graft onto ESR's new 
-cml2 code base.  I'd love to see better apt-get hooks into the kernel 
-config/download/build/install.
-
---
-Daniel

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSHVQmF>; Thu, 22 Aug 2002 12:42:05 -0400
+	id <S314278AbSHVRBN>; Thu, 22 Aug 2002 13:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSHVQmF>; Thu, 22 Aug 2002 12:42:05 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:31759 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313898AbSHVQmE>; Thu, 22 Aug 2002 12:42:04 -0400
-Date: Thu, 22 Aug 2002 18:45:27 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Gonzalo Servat <gonzalo@unixpac.com.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ServerWorks OSB4 in impossible state
-Message-ID: <20020822164527.GA11488@louise.pinerecords.com>
-References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> <1030017756.9866.74.camel@biker.pdb.fsc.net>
+	id <S314396AbSHVRBN>; Thu, 22 Aug 2002 13:01:13 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:42151 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S314278AbSHVRBN>; Thu, 22 Aug 2002 13:01:13 -0400
+Date: Thu, 22 Aug 2002 18:51:08 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Yoann Vandoorselaere <yoann@prelude-ids.org>,
+       cpufreq@lists.arm.linux.org.uk, cpufreq@www.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
+Message-ID: <20020822185107.A1160@brodo.de>
+References: <3D64D51C.9040603@iram.es> <20020822143115.15323@192.168.4.1> <3D65020D.5070201@iram.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1030017756.9866.74.camel@biker.pdb.fsc.net>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 79 days, 8:27
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <3D65020D.5070201@iram.es>; from paubert@iram.es on Thu, Aug 22, 2002 at 03:23:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Yeah I expect to take heat for this one from ServerWorks and it may cost
-> > me later, but nobody else has got the guts to press the issue for the
-> > correct solution.
+Hi,
+
+> > Well... it's clearly located inside kernel/cpufreq.c, so there is
+> > little risk, though it may be worth a big bold comment
 > 
-> Let me know if we can help. I have no personal contacts to ServerWorks,
-> but we are a large customer of them and may be able to exert some
-> additional pressure. The current situation (IDE DMA must be disabled)
-> is hardly acceptable for us anyway.
+> Hmm, in my experience people hardly ever read detailed comments even 
+> when they are well-written. Perhaps if you called the function 
+> imprecise_scale or coarse_scale, it might ring a bell.
 
-AFAIK 2.4.18 as well as 2.4.19-preEARLY seemed to work flawlessly w/ OSB4
-even in DMA modes. How's the code there then? Is it dangerous to use?
+First of all, it's located in include/linux/cpufreq.h [to be accessible for
+arch/i386/kernel/time.c, called cpufreq_scale() which should mean that it is
+only meant for CPUFreq and nothing else.
 
-T.
+> >>In this case a generic scaling function, while not a standard libgcc/C
+> >>library feature has potentially more applications than this simple 
+> >>cpufreq approximation. But I don't see very much the need for scaling a 
+> >>long (64 bit on 64 bit archs) value, 32 bit would be sufficient.
+> > 
+> > 
+> > Well... if you can write one, go on then ;) In my case, I'm happy
+> > with Yoann implementation for cpufreq right now. Though I agree that
+> > could ultimately be moved to arch code.
+> 
+> Ok, I'll give it a try this week-end (PPC, i386 and all 64 bit should 
+> archs should be trivial).
+
+IMHO per-arch functions are really not needed. The only architectures which
+have CPUFreq drivers by now are ARM and i386. This will change, hopefully;
+IMHO it should be enough to include some basic limit checking in 
+cpufreq_scale().
+
+Dominik

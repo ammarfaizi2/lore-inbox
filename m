@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUGLDRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266697AbUGLD3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266695AbUGLDRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 23:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUGLDRT
+	id S266697AbUGLD3E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 23:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUGLD3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 23:17:19 -0400
-Received: from main.gmane.org ([80.91.224.249]:48043 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266695AbUGLDRS (ORCPT
+	Sun, 11 Jul 2004 23:29:04 -0400
+Received: from ENGR.ORST.EDU ([128.193.40.2]:15355 "EHLO engr.orst.edu")
+	by vger.kernel.org with ESMTP id S266697AbUGLD3C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 23:17:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ari Pollak <ajp@aripollak.com>
-Subject: synaptics driver
-Date: Sun, 11 Jul 2004 23:17:08 -0400
-Message-ID: <ccsvrq$frj$1@sea.gmane.org>
-References: <200407080155.07827.dtor_core@ameritech.net> <200407080155.38937.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 11 Jul 2004 23:29:02 -0400
+From: Eric Altendorf <EricAltendorf@orst.edu>
+Reply-To: EricAltendorf@orst.edu
+To: Jan Rychter <jan@rychter.com>
+Subject: Re: [PATCH] swsusp bootsplash support
+Date: Sun, 11 Jul 2004 20:21:37 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040708110549.GB9919@linux.nu> <20040709155614.GA8426@linux.nu> <m21xjh1gul.fsf@tnuctip.rychter.com>
+In-Reply-To: <m21xjh1gul.fsf@tnuctip.rychter.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040708)
-X-Accept-Language: en-us, en
-In-Reply-To: <200407080155.38937.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Message-Id: <200407112021.37153.EricAltendorf@orst.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again. I just wanted to let you know that under 2.6.8-mm1, I'm still 
-experiencing the same synaptics-not-being-detected-at-system-startup bug 
-that happens with the newer input patches since earlier -mm kernels. 
-Sometimes my synaptics touchpad will get detected correctly (generally 
-after a cold reboot) and both my trackpoint & touchpad will work 
-properly, but other times (after warm reboot usually) the trackpoint 
-won't work, and the Synaptics X driver won't enable the extra touchpad 
-features. Removing & reloading the psmouse module after the system has 
-booted fixes the problem. With the more recent kernels, this seems to 
-happen even if psmouse is loaded before all the USB controller modules.
+On Monday 12 July 2004 06:43, Jan Rychter wrote:
+...
+> upgrade kernels, you don't much care. But if you use a laptop and
+> you actually care about opening it and getting a stable, working
+> environment within 20s, trust me -- software suspend becomes more
+> important to you than all the scheduler improvements in the world.
+>
+> I would gladly trade all the performance improvements of the last
+> couple of years for a stable, working swsusp2 and a USB subsystem
+> which doesn't a) prohibit my CPU from using C3 sleep and b) crash
+> and burn regularly bringing the whole machine down with it.
 
+I'll second this.  I moved to 2.6 because I needed a slew of drivers 
+that were difficult to patch into 2.4 or out of date or etc.  
+However, I haven't had a working 2.6 swsusp for probably 4 months or 
+so (since I stopped using the 2.6.3 version after it ate my ext3 
+journal on my root partition).
+
+I suppose I could look at going back to 2.4....
+
+-- 
+Eric Altendorf    //    http://www.speedtoys.com/~eric

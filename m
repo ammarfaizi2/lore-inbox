@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUDSJ7a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 05:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbUDSJ73
+	id S264330AbUDSKGH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 06:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbUDSKGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 05:59:29 -0400
-Received: from rissala171.outgw.tn ([193.95.17.171]:54243 "EHLO
-	rissala171.outgw.tn") by vger.kernel.org with ESMTP id S264308AbUDSJ72
+	Mon, 19 Apr 2004 06:06:06 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:2733 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264330AbUDSKGE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 05:59:28 -0400
-Message-ID: <4083A05F.8060309@wanadoo.fr>
-Date: Mon, 19 Apr 2004 10:48:15 +0100
-From: =?ISO-8859-1?Q?M=E9her_Khiari?= <meher@wanadoo.fr>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 19 Apr 2004 06:06:04 -0400
+Date: Mon, 19 Apr 2004 12:06:03 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: [module-init-tools] Segmentation fault
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Oprofilefs cant handle > 99 cpus
+Message-ID: <20040419100603.GI12480@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040418110658.GC26086@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20040418110658.GC26086@krispykreme>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
-It is my first post here.
-I didn't find any other mailing list talking about module-init-tools 
-(nor a wiki page), so I am posting here.
-I got module-init-tools-0.9.14, I compiled and installed (as written in 
-the README) but I got a segmentation fault when I tested modprobe.
-Although, I got the testsuite and ran the test and all went well !!!!
-Is there anybody who got this pb before.
-For info, I didn't optimized the compiler options, nor I have any 
-hardware pb, because all is ok !!
-bye
+On Sun, 2004-04-18 21:06:58 +1000, Anton Blanchard <anton@samba.org>
+wrote in message <20040418110658.GC26086@krispykreme>:
+> Oprofilefs cant handle > 99 cpus. This should fix it.
+
+Erm, on what hardware are you testing? Some large POWER5 machine?
+
+MfG, JBG
+
+-- 
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!
+   ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));

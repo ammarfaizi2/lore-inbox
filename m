@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbTLTIcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 03:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTLTIcJ
+	id S263956AbTLTJfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 04:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTLTJfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 03:32:09 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:44771
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263843AbTLTIcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 03:32:07 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Christian Meder <chris@onestepahead.de>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Date: Sat, 20 Dec 2003 19:31:49 +1100
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <1071864709.1044.172.camel@localhost> <3FE3D0CB.603@cyberone.com.au> <1071897314.1363.43.camel@localhost>
-In-Reply-To: <1071897314.1363.43.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Dec 2003 04:35:43 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:43196 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263956AbTLTJfl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 04:35:41 -0500
+Date: Sat, 20 Dec 2003 10:35:32 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: ryutaroh@it.ss.titech.ac.jp
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cannot input bar with JP106 keyboards
+Message-ID: <20031220093532.GB6017@ucw.cz>
+References: <20031219.212456.74735601.ryutaroh@it.ss.titech.ac.jp> <20031219123645.GA28801@ucw.cz> <20031220.183049.74735752.ryutaroh@it.ss.titech.ac.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312201931.49831.kernel@kolivas.org>
+In-Reply-To: <20031220.183049.74735752.ryutaroh@it.ss.titech.ac.jp>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Dec 2003 16:15, Christian Meder wrote:
-> I just tried hammering on the sound drivers on the playback side. So I
-> put on a kernel compile, a find | cat >/dev/null and ogg123 playback.
-> Playback performed largely unimpressed from the load level, no skips or
-> whatever. Even adding a gnomemeeting connection didn't decrease audio
-> playback.
+On Sat, Dec 20, 2003 at 06:30:49PM +0900, ryutaroh@it.ss.titech.ac.jp wrote:
 
-Great, this is more the performance I'm used to hearing about.
+> Thank you for your very quick reply.
+> 
+> From: Vojtech Pavlik <vojtech@suse.cz>
+> > Can you try the attached patch?
+> 
+> The problem was not solved.
+> 
+> When I pressed the bar key on JP 106 keyboard, the output of "showkey
+> -k" is
+> 
+> keycode   0 press
+> keycode   1 release
+> keycode  54 release
+> keycode   0 release
+> keycode   1 release
+> keycode  54 release
+> 
+> The scancode does not change. Before applying your patch to the
+> original kernel, the output was
+> 
+> keycode   0 press
+> keycode   1 release
+> keycode  55 release
+> keycode   0 release
+> keycode   1 release
+> keycode  55 release
+> 
+> which corresponds to keycode 183 (= 1*128 + 55).
+> 
+> The output of Linux 2.4.23 was
+> 
+> keycode 124 press
+> keycode 124 release
+> 
+> 
+> By the way, the bar key on JP 106 keyboard is actually the backslash
+> key and bar is equal to shift-backslash on JP 106. But there is
+> another backslash key (scancode 0x73) and input of backslash is not a
+> problem.
 
-> My guess is that the audio drivers are ok even more so because 
-> otherwise OSS _and_ ALSA would be broken for my soundcard.
->
-> That would leave me with two possibilities: 2.6. is doing something
-> different in the gnomemeeting case or gnomemeeting is doing something
-> different in the 2.6 case. A cursory look at the gnomemeeting sources
-> didn't give me the impression that it's doing anything which would be
-> affected by 2.6 deployment but I'll ask on the gnomemeeting-devel list
-> for advice.
+Keycode 183 is correct for the japanese backslash key. 2.4 didn't
+differentiate, 2.6 does. You just need to update your keymap.
 
-Threads perhaps?
-
-Sounds more like a resource collision of some sort. IRQ conflict? Spurious 
-interrupt? Were you facing Mecca when you ran it?
-
-> Thanks for all your help, I hope I can nail it soon,
-
-Good luck and keep us informed.
-
-Con
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

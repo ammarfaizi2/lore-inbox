@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTELNDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 09:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTELNDW
+	id S262121AbTELNKL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 09:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTELNKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 09:03:22 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:25102 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262119AbTELNDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 09:03:20 -0400
-Date: Mon, 12 May 2003 14:16:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl32: kill code duplication (sparc64 tester wanted)
-Message-ID: <20030512141600.A29386@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20030512114055.GA3539@atrey.karlin.mff.cuni.cz> <20030512134353.A28931@infradead.org> <20030512130518.GA15227@atrey.karlin.mff.cuni.cz> <20030512140834.A29260@infradead.org> <20030512131326.GB15227@atrey.karlin.mff.cuni.cz>
+	Mon, 12 May 2003 09:10:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:407 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262121AbTELNKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 09:10:07 -0400
+Date: Mon, 12 May 2003 15:22:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       Oleg Drokin <green@namesys.com>, lkhelp@rekl.yi.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69, IDE TCQ can't be enabled
+Message-ID: <20030512132222.GA17033@suse.de>
+References: <200305121455.58022.oliver@neukum.org> <Pine.SOL.4.30.0305121513270.18058-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030512131326.GB15227@atrey.karlin.mff.cuni.cz>; from pavel@ucw.cz on Mon, May 12, 2003 at 03:13:26PM +0200
+In-Reply-To: <Pine.SOL.4.30.0305121513270.18058-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 03:13:26PM +0200, Pavel Machek wrote:
-> > What's the reason you can't build fs/compat_ioctl.c normally and pull
-> > in the arch magic through a magic asm/ header?  
+On Mon, May 12 2003, Bartlomiej Zolnierkiewicz wrote:
 > 
-> Some architectures need special stuff (mtrr's), so I'd have to include
-> .c files, too (the other way). [Look at how the table of ioctls is
-> generated, its asm magic].
+> On Mon, 12 May 2003, Oliver Neukum wrote:
+> 
+> > > Just a note that we have found TCQ unusable on our IBM drives and we had
+> > > some reports about TCQ unusable on some WD drives.
+> > >
+> > > Unusable means severe FS corruptions starting from mount.
+> > > So if your FSs will suddenly start to break, start looking for cause with
+> > > disabling TCQ, please.
+> >
+> > I can confirm that. This drive Model=IBM-DTLA-307045, FwRev=TX6OA60A,
+> > SerialNo=YMCYMT3Y229 has eaten my filesystem with TCQ on 2.5.69
+> >
+> > 	Regards
+> > 		Oliver
+> 
+> TCQ is marked EXPERIMENTAL and is known to be broken.
+> Probably it should be marked DANGEROUS or removed?
 
-Shouldn't that special stuff move to the dynamic ioctl handler
-registration method or the new ->compat_ioctl?
+Something external probably broke it long ago, I think it can be fixed
+pretty easily. I just need to do it... Perhaps just removing the config
+option would be safest?
 
-> Are you asking why are there #includes in compat_ioctl.c? Its because
-> there is so many of them, and having to update all archs when you
-> tuoch fs/compat_ioctl.c would be bad.
-
-I'm asking for the #ifdef INCLUDES in fs/compat_ioctl.c.  Why do you
-need it instead of including the headers uncondtionally?
+-- 
+Jens Axboe
 

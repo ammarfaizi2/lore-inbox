@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263976AbRFNDmG>; Wed, 13 Jun 2001 23:42:06 -0400
+	id <S263975AbRFNDtT>; Wed, 13 Jun 2001 23:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263975AbRFNDlq>; Wed, 13 Jun 2001 23:41:46 -0400
-Received: from 1-084.ctame701-2.telepar.net.br ([200.181.138.84]:254 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S263976AbRFNDlh>; Wed, 13 Jun 2001 23:41:37 -0400
-Date: Thu, 14 Jun 2001 00:41:28 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: "Daniel" <ddickman@nyc.rr.com>,
-        "Linux kernel" <linux-kernel@vger.kernel.org>
+	id <S263993AbRFNDtJ>; Wed, 13 Jun 2001 23:49:09 -0400
+Received: from fluent1.pyramid.net ([206.100.220.212]:27691 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S263975AbRFNDs6>; Wed, 13 Jun 2001 23:48:58 -0400
+Message-Id: <4.3.2.7.2.20010613204443.00bbb150@mail.fluent-access.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 13 Jun 2001 20:48:19 -0700
+To: Rik van Riel <riel@conectiva.com.br>, Daniel <ddickman@nyc.rr.com>
+From: Stephen Satchell <satch@fluent-access.com>
 Subject: Re: obsolete code must die
-Message-ID: <20010614004128.A8206@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	"Daniel" <ddickman@nyc.rr.com>,
-	"Linux kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <ddickman@nyc.rr.com> <200106140155.f5E1ts5X003318@sleipnir.valparaiso.cl>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0106140018140.14934-100000@imladris.rielhome
+ .conectiva>
+In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <200106140155.f5E1ts5X003318@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Wed, Jun 13, 2001 at 09:55:54PM -0400
-X-Url: http://advogato.org/person/acme
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Jun 13, 2001 at 09:55:54PM -0400, Horst von Brand escreveu:
-> "Daniel" <ddickman@nyc.rr.com> said:
-> > I really think doing a clean up is worthwhile. Maybe while looking for stuff
-> > to clean up we'll even be able to better comment the existing code. Any
-> > other features people would like to get rid of? Any comments or suggestions?
-> > I'd love to start a good discussion about this going so please send me your
-> > 2 cents.
-> 
-> Try it, and come back with patches.
+At 12:24 AM 6/14/01 -0300, Rik van Riel wrote:
+>Everything you propose to get rid of are DRIVERS.  They
+>do NOT complicate the core kernel, do NOT introduce bugs
+>in the core kernel and have absolutely NOTHING to do with
+>how simple or maintainable the core kernel is.
 
-hey, the KJP needs volunteers to tackle this bug/cleanup list:
+Not quite.  There were two non-driver suggestions that the man did 
+make:  remove 386/486 support and remove floating-point emulation 
+support.  Both are bad for the embedded-systems space, because the 486 is 
+still used there widely.
 
-http://bazar.conectiva.com.br/~acme/TODO
+Are all the bus support code exclusively in drivers, or is there something 
+compiled into the nucleus for start-up?
 
-More info available at http://kernel-janitor.sourceforge.net/, the Stanford
-Checker also found bugs that have to be fixed (link provided in the KJP
-page), please help.
+I didn't see your "don't feed the troll" sign before...
 
-As for what I want to get rid of? Bugs, getting rid of those would be
-excellent ;)
+Satch
 
-- Arnaldo (the one that is porting a network stack to 2.4 that would warrant
-           death penalty if Daniel was the judge ;) )

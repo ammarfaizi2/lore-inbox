@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbTIKOKG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbTIKOKG
+	id S261345AbTIKOEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbTIKOEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:10:06 -0400
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:54694 "EHLO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261167AbTIKOKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:10:01 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] kmalloc + memset(foo, 0, bar) = kmalloc0
-Date: Thu, 11 Sep 2003 16:11:28 +0200
-User-Agent: KMail/1.5.3
-References: <200309111540.58729@bilbo.math.uni-mannheim.de> <20030911134557.GV454@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030911134557.GV454@parcelfarce.linux.theplanet.co.uk>
-Cc: viro@parcelfarce.linux.theplanet.co.uk
+	Thu, 11 Sep 2003 10:04:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18097 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261345AbTIKOE2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:04:28 -0400
+Message-ID: <3F6080DD.3040509@pobox.com>
+Date: Thu, 11 Sep 2003 10:04:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK-PATCH] kbuild: Separate output directory support
+References: <20030911100514.GA14390@mars.ravnborg.org>
+In-Reply-To: <20030911100514.GA14390@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309111611.28198@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 11. September 2003 15:45 schrieben Sie:
-> On Thu, Sep 11, 2003 at 03:40:58PM +0200, Rolf Eike Beer wrote:
-> > Hi,
-> >
-> > a (very) simple grep in drivers/ showed more than 300 matches of code
-> > like this:
-> >
-> > foo = kmalloc(bar, baz);
-> > if (! foo)
-> > 	return -ENOMEM;
-> > memset(foo, 0, sizeof(foo));
+Sam Ravnborg wrote:
+> Usage is simple:
+> cd /path/to/kernel/src
+> mkdir ~/build/kernel
+> make O=~/build/kernel [Make options]
+> Please note: The O= syntax must be used for ALL invocations of make.
+[...]
+> How it works:
+> If the O= option is used, or KBUILD_OUTPUT is set then a second invocation
+> of make happens in the output directory.
+> The second invocation of make uses VPATH to tell make where to locate
+> the files. Furthermore include options for gcc is modifyied to point
+> both in the directory where the kernel src is located, and in the
+> directory where the output files are located. The latter is used for
+> generated .h files.
 
-> Erm.  It would better *not* be there in such amounts - sizeof(foo) would
-> be a size of pointer...
 
-Eek, yes. Typo from me.
+Sweet!  Thanks for all your hard work, Sam.
 
-> > Why not add a small inlined function doing the memset for us
-> > and reducing the code to
-> >
-> > foo = kmalloc0(bar, baz);
-> > if (! foo)
-> > 	return -ENOMEM;
->
-> Bad choice of name - too easy to confuse with kmalloc().
+	Jeff
 
-Yes, maybe. But don't expect more innovations from me today, it's someone 
-else's turn ;)
 
-Eike
+

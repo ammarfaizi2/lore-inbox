@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUHFBy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUHFCCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267819AbUHFBy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 21:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267907AbUHFByz
+	id S268049AbUHFCCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 22:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267907AbUHFCCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 21:54:55 -0400
-Received: from YahooBB219062004045.bbtec.net ([219.62.4.45]:64522 "HELO
-	linux-diald") by vger.kernel.org with SMTP id S267775AbUHFBym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 21:54:42 -0400
-Message-ID: <hqghumeayl.6189279543lfdxfircvs@N.knaulxggbwkf.com>
-From: "N.knaul" <supportlivestock@quoteland.com>
-Date: Fri, 06 Aug 2004 10:53:48 +0900
-To: linux-diald@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       linux-raid@vger.kernel.org, linux-scsi-digest@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: New O E M software
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 5 Aug 2004 22:02:11 -0400
+Received: from lakermmtao04.cox.net ([68.230.240.35]:17110 "EHLO
+	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S268049AbUHFCCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 22:02:07 -0400
+Date: Thu, 5 Aug 2004 17:10:17 -0400
+From: Chris Shoemaker <c.shoemaker@cox.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Gene Heskett <gene.heskett@verizon.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Possible dcache BUG
+Message-ID: <20040805211017.GA11395@cox.net>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408042216.12215.gene.heskett@verizon.net> <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org> <200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408050913320.24588@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408050913320.24588@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O E M (Original Equipment Manufacturer) software includes all essential
-components of Microsoft Retail products excluding support from Microsoft.
-Retail version comes in a fancy box, O E M does not. You will receive
-installation CDs only (no original retail packing).
-Although O E M software does not come with a box or a manual, it is the
-typical and actual software, no trial or demo versions.
+On Thu, Aug 05, 2004 at 09:26:10AM -0700, Linus Torvalds wrote:
+> 
+> Anyway, one other thing that makes me worry is the fact that Gene 
+> apparently has a K7. One of the things AMD has gotten wrong several times 
+> is prefetching, and it so happens that the dcache code is one of the users 
+> of the prefetch instruction. prude_dcache() in particular.
+> 
+> So I'm also entertaining the notion that there's an actual prefetch data 
+> corruption, not just the known AMD bug with occasional spurious page 
+> faults. Who else has seen the problem? What CPU's are involved?
+> 
+> 		Linus
 
-http://www.sunnynoon.com/
+Assuming that what I was seeing was the same problem...
 
-RedHat Linux 9.0
-Retail price: $79.99
-Our low Price: $60.00
-You Save: $19.99
+chris@peace:~$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Celeron (Coppermine)
+stepping        : 10
+cpu MHz         : 1002.487
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de tsc msr pae mce cx8 sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse
+bogomips        : 1982.46
 
-Adobe Photoshop CS V 8.0 PC
-Retail price: $609.99
-Our low Price: $80.00
-You Save: $529.99
 
-Adobe Pagemaker V 7.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
-   
-Adobe Illustrator CS V 11.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
+BTW, a recent oops from wli looked similar, but I don't think he's
+spoken up in this thread.
 
-CorelDraw Graphics Suite V 12 PC
-Retail price: $349.95
-Our low Price: $100.00
-You Save: $249.95
-   
-Microsoft SQL Server 2000
-Retail price: $1450.00
-Our low Price: $90.00
-You Save: $1360.00
+He seems busy tracking down other things.
 
-Microsoft Office XP Professional
-Retail price: $499.95
-Our low Price: $100.00
-You Save: $399.95
-
-Microsoft Windows 2000 Professional
-Retail price: $320.00
-Our low Price: $50.00
-You Save: $270.00
- 
-Symantec Norton Antivirus 2004 Professional
-Retail price: $69.95
-Our low Price: $15.00
-You Save: $54.95
-
-or site is http://www.sunnynoon.com/
-
+-chris
 

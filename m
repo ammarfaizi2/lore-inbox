@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUJLWfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268042AbUJLWir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268029AbUJLWfp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJLWfp
+	id S268042AbUJLWir (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJLWg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:35:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32665 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268029AbUJLWfS (ORCPT
+	Tue, 12 Oct 2004 18:36:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29121 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268045AbUJLWfv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:35:18 -0400
-Date: Tue, 12 Oct 2004 15:34:31 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.6.9-rc4
-Message-ID: <20041012223431.GA9830@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 12 Oct 2004 18:35:51 -0400
+Message-ID: <416C5C26.9020403@redhat.com>
+Date: Tue, 12 Oct 2004 15:35:18 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041010
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
+In-Reply-To: <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here are 5 USB fixes against the latest 2.6.9-rc4 tree.  They do the
-following:
-	- fix a oops in the digi_acceleport driver
-	- fix a SMP race in the ehci_hcd driver
-	- fix a lockup in the net2280 driver
-	- fix a oops in the usblp driver
-	- fix a oops in the hiddev driver
-These patches have all been in the -mm tree for the past few weeks
+Serge E. Hallyn wrote:
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/fix-2.6
+> +If a private IP was specified for the jail, then
+> +		cat /proc/$$/attr/current
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+How is this going to interact with SELinux?  Currently SELinux uses
+/proc/*/attr/current to report the current security context of the
+process.  libselinux expects the file to contain one string (not even a
+newline) which is the textual representation of the context.  Now with
+your changes you want to change this.  libselinux as-is would break
+miserably.
 
-thanks,
+I don't know the history of the file and who is hijacking the file.
+Fact is that the file content is currently unstructured and libselinux
+couldn't possibly determine what part is of interest to itself.
 
-greg k-h
+So, either you use another file, SELinux uses another file, or the file
+gets tagged lines like
 
- drivers/usb/class/usblp.c            |    8 ++++----
- drivers/usb/gadget/net2280.c         |   19 ++++++++++---------
- drivers/usb/host/ehci-hcd.c          |    9 +++++++++
- drivers/usb/host/ehci.h              |    1 +
- drivers/usb/input/hid-core.c         |    2 +-
- drivers/usb/media/konicawc.c         |    2 +-
- drivers/usb/serial/digi_acceleport.c |    7 ++++++-
- 7 files changed, 32 insertions(+), 16 deletions(-)
------
+  selinux: user_u:user_r:user_t
 
-Al Borchers:
-  o USB: corrected digi_acceleport 2.6.9-rc1 fix for hang on disconnect
+I guess you couldn't even start the userlevel code in FC3 in such a jail
+in the moment since the libselinux startup tests would fail.
 
-David Brownell:
-  o USB: net2280 updates
-  o USB: EHCI SMP fix
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Herbert Xu:
-  o USB: Fix hiddev devfs oops
-
-Vojtech Pavlik:
-  o USB: Fix oops in usblp driver
-
+iD8DBQFBbFwm2ijCOnn/RHQRAvimAJ9W3bIil5Yi1Ex/CX1FpUjzxyheIQCeNKRu
+RHv5SGG0iQSEsmbIWfHmwAA=
+=HZM3
+-----END PGP SIGNATURE-----

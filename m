@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280114AbRK0PCP>; Tue, 27 Nov 2001 10:02:15 -0500
+	id <S280531AbRK0PFF>; Tue, 27 Nov 2001 10:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280161AbRK0PB4>; Tue, 27 Nov 2001 10:01:56 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:37646 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S280727AbRK0PBY>;
-	Tue, 27 Nov 2001 10:01:24 -0500
-Date: Tue, 27 Nov 2001 16:01:22 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: "Martin A. Brooks" <martin@jtrix.com>
+	id <S280133AbRK0PE6>; Tue, 27 Nov 2001 10:04:58 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:29459 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280024AbRK0PEo>;
+	Tue, 27 Nov 2001 10:04:44 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Samuel Maftoul <maftoul@esrf.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Message-ID: <20011127160122.A3460@gondor.com>
-In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+Subject: Re: Ieee1394 
+In-Reply-To: Your message of "Tue, 27 Nov 2001 14:49:00 BST."
+             <20011127144900.A21231@pcmaftoul.esrf.fr> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
-User-Agent: Mutt/1.3.23i
+Date: Wed, 28 Nov 2001 02:04:32 +1100
+Message-ID: <4131.1006873472@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 02:38:13PM -0000, Martin A. Brooks wrote:
-> > As far as I remember this was talked about earlier. Different mobos,
-> > chipsets, processor brands, but always IRQ 7. /me wonders.
-> 
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
+On Tue, 27 Nov 2001 14:49:00 +0100, 
+Samuel Maftoul <maftoul@esrf.fr> wrote:
+>I installed the latest modutils version I found at kernel.org (rpm -Uvh
+>--force --nodeps (nodeps because it won't install because of a tiny kde
+>app called ksysguard and I don't need it.)
 
-Yes, on ASUS A7V133 board, Duron 800, Realtek network card.
+???? modutils does not need nor provide ksysguard.
+# rpm -qp --requires modutils/v2.4/modutils-2.4.12-1.i386.rpm 
+rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+ld-linux.so.2  
+libc.so.6  
+/bin/sh  
+libc.so.6(GLIBC_2.0)  
+libc.so.6(GLIBC_2.1)  
+libc.so.6(GLIBC_2.1.3)  
+rpmlib(CompressedFileNames) <= 3.0.4-1
 
-Jan
 

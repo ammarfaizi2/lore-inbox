@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129577AbQKFRQY>; Mon, 6 Nov 2000 12:16:24 -0500
+	id <S129496AbQKFRRO>; Mon, 6 Nov 2000 12:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129713AbQKFRQO>; Mon, 6 Nov 2000 12:16:14 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:2060 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S129704AbQKFRQF>;
-	Mon, 6 Nov 2000 12:16:05 -0500
-Message-ID: <3A06F3F1.37F84C10@evision-ventures.com>
-Date: Mon, 06 Nov 2000 19:09:53 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
-X-Accept-Language: en
+	id <S129467AbQKFRQ5>; Mon, 6 Nov 2000 12:16:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22612 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129703AbQKFRQe>; Mon, 6 Nov 2000 12:16:34 -0500
+Subject: Re: [PATCH] Re: Negative scalability by removal of
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Mon, 6 Nov 2000 17:17:04 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <3A06C007.99EE3746@uow.edu.au> from "Andrew Morton" at Nov 07, 2000 01:28:23 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Keith Owens <kaos@ocs.com.au>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <E13spjq-0006OE-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13sptK-0006PP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > >Just load the driver at bootup and forget about it.  Problem solved.
-> >
-> > I daily curse the name of whoever added autoload and autounload.
-> > Autoload maybe useful, autounload is just asking for problems.
-> 
-> Deal with it. Hardware is also now auto load and auto unloading too. For 2.5
-> hopefully a lot of this can be tidied up and done better - persistent storage
-> in the modules that is written to disk and put back by insmod/rmmod (in
-> userspace) will help a lot.
+> It's a 16-liner!  I'll cheerfully admit that this patch
+> may be completely broken, but hey, it's free.  I suggest
+> that _something_ has to be done for 2.2 now, because
+> Apache has switched to unserialised accept().
 
-Not quite: plugging physically hardware in and out is compleatly
-different
-then just loading a driver and unconditionally unloading it even when
-the hardware is still there!
+Interesting
+
+> The fact that the throughput is 3-4 time worse for 2, 3, 4 and 5
+> server processes is completely wierd.  Perhaps some strange miss
+> pattern, but it doesn't do it on 2.4.  I'll dump this problem
+> onto the netdev list, see if anyone has any bright ideas.
+
+That would be consistent with the fact that thttpd is single threaded and
+kicks apache for performance in 2.2 (less so 2.4!)
+
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

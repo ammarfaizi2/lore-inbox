@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278405AbRJMUoe>; Sat, 13 Oct 2001 16:44:34 -0400
+	id <S278406AbRJMUqN>; Sat, 13 Oct 2001 16:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278406AbRJMUoX>; Sat, 13 Oct 2001 16:44:23 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:19638
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S278405AbRJMUoG>; Sat, 13 Oct 2001 16:44:06 -0400
-Date: Sat, 13 Oct 2001 13:44:13 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Mike Borrelli <mike@nerv-9.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: No love for the PPC
-Message-ID: <20011013134413.A15110@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net> <200110130452.f9D4qG9288830@saturn.cs.uml.edu> <20011013114729.D16500@mikef-linux.matchmail.com>
+	id <S278407AbRJMUqE>; Sat, 13 Oct 2001 16:46:04 -0400
+Received: from nyx.poczta.fm ([217.74.65.51]:43275 "HELO nyx.poczta.fm")
+	by vger.kernel.org with SMTP id <S278406AbRJMUpo> convert rfc822-to-8bit;
+	Sat, 13 Oct 2001 16:45:44 -0400
+Message-ID: <200110132249370430.00104250@www.poczta.fm>
+In-Reply-To: <1002989621.764.35.camel@thanatos>
+In-Reply-To: <1002989621.764.35.camel@thanatos>
+X-Mailer: Calypso Version 3.10.03.02 (3)
+Date: Sat, 13 Oct 2001 22:49:37 +0200
+From: "Kamil Kompa" <kklinux@poczta.fm>
+To: linux-kernel@vger.kernel.org
+Subject: Re: APM trouble
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011013114729.D16500@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.22i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-EMID: 22b60138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 11:47:29AM -0700, Mike Fedyk wrote:
-> On Sat, Oct 13, 2001 at 12:52:16AM -0400, Albert D. Cahalan wrote:
-> > Mike Borrelli writes:
-> > > Anyway, the real question is, why does the ppc arhitecture /always/ break
-> > > between versions?
-> > 
-> > At the most recent Ottata Linux Symposium, there was a PowerPC
-> > session with about 20 people. Somebody did a poll, asking what
-> > people used. I was the only person who dared to use a kernel
-> > from Linus. Everone else was using the BenH and BitKeeper ones.
-> > 
-> > This is a sorry state of affairs. 
-> 
-> Actually, this is normal for new ports on Linux.  PPC is relatively new,
-> m68k is developed with their own cvs, as is Intel IA64.  I'm sure others
-> will be able to quote about other arches...
 
-Actually, this is a normal state of affairs for !i386.  PPC has actually
-been around in some form or another for 5 years almost... (at least?).
-m68k is older than that.  It's sort of a given that the Linus tree will
-be a bit behind.  But as far as PPC goes, we were actually pretty close
-in 2.4.10 and 2.4.12 and the stable PPC tree had very few (and for the
-most part unimportant) differences.
+How can I find my working kernel configuration?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+>Kamil Kompa wrote:
+>> I have a trouble with apmd.
+>
+>IIUC your machine works with a stock kernel but not
+>with a kernel you compile yourself.  There are many
+>possible causes of this.  What I would do is try to
+>compile a kernel identical to the stock binary kernel
+>that works.  Then reconfigure one thing at a time,
+>rebuilding and rebooting to see which change it is
+>that causes the hang.  That will give you a better
+>idea of which part of the kernel you need to look at.
+>
+>Do that, and tell us what make and model of laptop
+>you are using.
+>
+>--
+>Thomas Hood
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+----------------------------------------------------------------------
+Znajd¼ MP3 -> Wyszukiwarka multimediow. Jedyna w Polsce.
+Nowe Centrum Wyszukiwania >> http://szukaj.interia.pl/
+

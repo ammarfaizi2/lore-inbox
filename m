@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265699AbTF2OL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 10:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbTF2OL4
+	id S265678AbTF2ONe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 10:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbTF2ONe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 10:11:56 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:19587 "EHLO
-	rwcrmhc13.attbi.com") by vger.kernel.org with ESMTP id S265697AbTF2OLs
+	Sun, 29 Jun 2003 10:13:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18318 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265678AbTF2ONH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 10:11:48 -0400
-Message-ID: <3EFEF753.50100@mvista.com>
-Date: Sun, 29 Jun 2003 09:27:31 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Race condition in fs/proc/array.c with task->comm
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jun 2003 10:13:07 -0400
+Date: Sun, 29 Jun 2003 15:27:25 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Willy TARREAU <willy@w.ods.org>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH-2.4] Prevent mounting on ".."
+Message-ID: <20030629142725.GF27348@parcelfarce.linux.theplanet.co.uk>
+References: <20030629130952.GA246@pcw.home.local> <20030629141102.GE27348@parcelfarce.linux.theplanet.co.uk> <20030629142047.GA359@pcw.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030629142047.GA359@pcw.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I searched for something about this, and I couldn't find anything.
+On Sun, Jun 29, 2003 at 04:20:47PM +0200, Willy TARREAU wrote:
+> No, it works only with "..", and not with "." ! I don't know why, I believe
+> it's because the process is still attached to the old FS when mounting on ".".
 
-I was having a problem with "top" crashing occasionally, so I looked,
-and top was getting nil characters in the process name in
-/proc/<pid>/stat.  It turns out that there is a race condition when
-generating the output for task->comm.  If the task "execs" during this
-time, it copies a new name into task->comm.  When generating
-/proc/<pid>/stat, it uses sprintf to copy the string.  However, if the
-data is changing in task->comm during this time, the results can be
-corrupted, including putting nil characters into the string.
+So?  chdir around and you'll get to the covering directory.
+ 
+> > If attacker can mount of chroot - you've LOST.  Already.  End of story.
+> 
+> To me, it seems this is the *only* remaining case in an *empty* read-only
+> directory. The fact is that the attacker needs at least a mount point to mount
+> something. Not providing him one is efficient, but here he can only exploit
+> "..".
+>
+> Please reconsider the question, Al, because I really think that with this, we
+> can get reliable jails for network daemons which don't need file access at all.
 
-This seems to be a problem in all version of the kernel I looked at
-(various 2.4 and 2.5 releases).  I have only tested the problem in 2.4.20.
-
-I can think it two main ways to fix this.  You can:
-
-* Make a local copy of task->comm.  The results might still be wrong,
-but it will not contain nil characters.
-
- * Use locks so the data is consistent.
-
-I can fix this and supply a patch, but I'd like suggestions on which
-path to take.  If suggesting a lock, should I create a new lock, or is
-there an existing lock I can use?
-
-Thanks,
-
--Corey
-
+Sigh...  We _can't_ do that via chroot().  Please, stop fooling yourself -
+if attacker gets control over root process, the fight is over.  In particular,
+attacker can chmod your read-only directory and/or remount the thing.

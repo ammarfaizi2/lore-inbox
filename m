@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269246AbUIHXrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269200AbUIHX46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269246AbUIHXrc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 19:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUIHXrb
+	id S269200AbUIHX46 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269211AbUIHX46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 19:47:31 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:16553 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269246AbUIHXnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 19:43:37 -0400
-Subject: Re: multi-domain PCI and sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Jon Smirl <jonsmirl@gmail.com>, jbarnes@engr.sgi.com, willy@debian.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040908112143.330a9301.davem@davemloft.net>
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	 <200409072115.09856.jbarnes@engr.sgi.com>
-	 <20040907211637.20de06f4.davem@davemloft.net>
-	 <200409072125.41153.jbarnes@engr.sgi.com>
-	 <9e47339104090723554eb021e4@mail.gmail.com>
-	 <20040908112143.330a9301.davem@davemloft.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094683264.12335.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 23:41:05 +0100
+	Wed, 8 Sep 2004 19:56:58 -0400
+Received: from netblock-66-159-231-38.dslextreme.com ([66.159.231.38]:21425
+	"EHLO mail.cavein.org") by vger.kernel.org with ESMTP
+	id S269200AbUIHXxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 19:53:11 -0400
+Date: Wed, 8 Sep 2004 16:51:35 -0700 (PDT)
+From: Richard A Nelson <cowboy@debian.org>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1-mm4 kjournald oops (repeatable)
+In-Reply-To: <1094685396.1362.245.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.58.0409081644150.6248@hygvzn-guhyr.pnirva.bet>
+References: <Pine.LNX.4.58.0409071707100.6982@onaqvg-unyy.qla.jronurnq.voz.pbz>
+  <20040908020402.3823a658.akpm@osdl.org>  <1094635403.1985.12.camel@sisko.scot.redhat.com>
+  <Pine.LNX.4.58.0409081011170.7419@hygvzn-guhyr.pnirva.bet> 
+ <Pine.LNX.4.58.0409081604060.6248@hygvzn-guhyr.pnirva.bet>
+ <1094685396.1362.245.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-08 at 19:21, David S. Miller wrote:
-> On ppc, sparc, and other non-x86 platforms, when you perform load/store
-> instructions within the port I/O space window, the PCI controller emits
-> the IN/OUT transactions exactly as if an x86 processor had executed
-> an in{bwl}/out{bwl} instruction.
+On Wed, 8 Sep 2004, Lee Revell wrote:
 
-Some of them are not quite that pretty. In certain cases outb gets 
-translated into code that does horrors vaguely of the form
+> On Wed, 2004-09-08 at 19:07, Richard A Nelson wrote:
+> > On Wed, 8 Sep 2004, Richard A Nelson wrote:
+> >
+> > > On Wed, 8 Sep 2004, Stephen C. Tweedie wrote:
+> > >
+> > > > On Wed, 2004-09-08 at 10:04, Andrew Morton wrote:
+> > > >
+> > > > > >   Unable to handle kernel paging request at virtual address 6b6b6b93
+> > > > > > ...
+> > > > > >   EIP: 0060:[__journal_clean_checkpoint_list+199/240]    Not tainted VLI
+> > > > >
+> > > > > This might have been caused by a fishy latency-reduction patch.  I today
+> > > > > dropped that patch so could you please test next -mm and let me know?
+> > > >
+> > > > That, or preempt.  If the next -mm still breaks, time to hunt for the
+> > > > preempt problem, I guess.
+> > >
+> > > Ok, if it still fails (I'll have to wait until this afternoon for the
+> > > true test - dpkg breaks it everytime), I'll check out preempt.
+> >
+> > Well, it looks like backing out the patch was sufficient, I've made it
+> > through the torture that is a dpkg install (70+meg).
+> >
+> > So we needn't (at this time) look to preempt.
+>
+> Hmm, I have been running this patch for weeks as part of the voluntary
+> preemption patches, and put it through every torture test I can think
+> of, with nary an Oops.  None of the other VP testers have reported
+> problems either.  Maybe this is some interaction between that patch and
+> something else in -mm.
 
-	spin_lock_irqsave
-	lane = (addr & 3) << 3;
-	writel(1<<(addr&3), somecontroller->lanes);
-	writel(addr, somecontroller->offset);
-	writel(val << lane, somecontroller->somewhere);
-	spin_unlock_irqrestore
+Interestingly, I notice Zwane had a very similiar oops, posted on the
+7th: Oops in __journal_clean_checkpoint_list
+He also had preempt enabled...
 
-Other code has extra magic reads in to work around fpga pci bridges that
-forgot out is synchronous and writel is posted.
+I've found upgrading my Debian system using dselect to be a *very* good
+stress test of the filesystem...
 
-A better summary from the higher levels of the kernel would be "don't
-look behind the sofa, there might be a monster lurking".
+If you have candidates, I'll try to test them - I've typically had no
+problem reproducing the issue :)
 
-The only way I can see VGA routing working is to have some kind of arch
-code that can tell you which devices are on the same VGA legacy tree.
-That then allows a vga layer to walk VGA devices and ask arch code the
-typically simple question
-
-		pci_vga_shared_router(pdev1, pdev2)
-
-Alan
-
+-- 
+Rick Nelson
+ * Equivalent code is available from RSA Data Security, Inc.
+ * This code has been tested against that, and is equivalent,
+ * except that you don't need to include two pages of legalese
+ * with every copy.
+        -- public domain MD5 source

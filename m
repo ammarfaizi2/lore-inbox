@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVBOEV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVBOEYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVBOEV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 23:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVBOEV7
+	id S261621AbVBOEYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 23:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVBOEYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 23:21:59 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:27327 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261620AbVBOEV5 (ORCPT
+	Mon, 14 Feb 2005 23:24:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:10442 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261621AbVBOEYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 23:21:57 -0500
-Message-Id: <200502150335.j1F3ZwTb030977@laptop11.inf.utfsm.cl>
-To: Marcin Dalecki <martin@dalecki.de>
-cc: lm@bitmover.com (Larry McVoy), Jeff Sipek <jeffpc@optonline.net>,
-       Matthew Jacob <lydianconcepts@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed 
-In-Reply-To: Message from Marcin Dalecki <martin@dalecki.de> 
-   of "Tue, 15 Feb 2005 00:24:30 BST." <feeaa92384f71af9f2f7c4def9e6e9bf@dalecki.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 15 Feb 2005 00:35:58 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 15 Feb 2005 01:21:35 -0300 (CLST)
+	Mon, 14 Feb 2005 23:24:53 -0500
+Date: Mon, 14 Feb 2005 20:24:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: my bk-pci and bk-driver trees are back up
+Message-ID: <20050215042434.GA19193@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcin Dalecki <martin@dalecki.de> said:
-> On 2005-02-14, at 19:56, Larry McVoy wrote:
-> > All we are trying to do is
-> >
-> >     1.  Provide the open source community with a useful tool.
-> >     2.  Prevent that from turning into the open source community
-> >         creating a clone of our tool.
+Could you put my bk-pci and bk-driver trees back into the next -mm
+releases?  They are at:
 
-> Now that's pathetic!
+	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
+and
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
-> You recognize that point 2. is precisely the reason Linux is all about
-> in first place? Remind you: Linux - a free UNIX/POSIX system
-> clone done by people who where previously working on UNIX in first place
-> and just wanted a free version of it. By definition it is just that...
+Respectively.  I've pluled the 64bit resource stuff out of the pci tree,
+that was causing a lot of problems.  It's in a separate bk tree for now
+(at: bk://kernel.bkbits.net/gregkh/linux/resource-2.6 if anyone cares).
 
-Linus has never worked on Unix in any form, and most of the other kernel
-hackers hasn't either. Ever. It goes so far that at least at IBM people
-working on AIX aren't allowed to even look at Linux code, and viceversa.
+I've also pulled out the pm changes from my driver tree that were
+causing the merge issues before, as I see Pavel has started to split
+them up better.
 
-Please don't spread SCOX type FUD.
+For those who want to see patches of this stuff, big ones can be found
+at:
 
-> And in this copy-cat community
+PCI patch:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/pci/2.6/2.6.11-rc3/bk-pci-2.6.11-rc3-mm1.patch
+PCI description:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/pci/2.6/2.6.11-rc3/bk-pci-2.6.11-rc3-mm1.patch.desc
+	
+64bit resource patch:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/pci/2.6/2.6.11-rc3/bk-resource-2.6.11-rc3-mm1.patch
+64bit resource description:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/pci/2.6/2.6.11-rc3/bk-resource-2.6.11-rc3-mm1.patch.desc
 
-That sounds dangerously close to diffamation...
+driver patch:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/driver_core/2.6/2.6.11-rc4/bk-driver-2.6.11-rc4.patch
+driver patch description:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/driver_core/2.6/2.6.11-rc4/bk-driver-2.6.11-rc4.patch.desc
 
->                                you intend to thrive as "Mother Theresa"
-> of SCM?  You still wonder why you provoke disgruntling?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+thanks,
+
+greg k-h

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316595AbSIEBvn>; Wed, 4 Sep 2002 21:51:43 -0400
+	id <S311885AbSIEB1W>; Wed, 4 Sep 2002 21:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSIEBvn>; Wed, 4 Sep 2002 21:51:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47885 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316595AbSIEBvm>;
-	Wed, 4 Sep 2002 21:51:42 -0400
-Message-ID: <3D76B9BF.5080101@mandrakesoft.com>
-Date: Wed, 04 Sep 2002 21:56:15 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Steinmetz <ast@domdv.de>
-CC: linux.nics@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20pre5 e100 build error + trivial fix
-References: <3D769371.6000009@domdv.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316594AbSIEB1W>; Wed, 4 Sep 2002 21:27:22 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:52172 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S311885AbSIEB1V>; Wed, 4 Sep 2002 21:27:21 -0400
+Date: Wed, 4 Sep 2002 21:31:49 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x (including -ac) SiS agp not recognized
+Message-ID: <20020905013149.GA31910@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz wrote:
-> Hi,
-> the e100 driver in 2.4.20pre5 fails to build due to a static procedure 
-> declaration with an unresolved symbol (see below), trivial patch to fix 
-> this is attached.
-> ------------------------------------------------------------------------
-> 
-> --- drivers/net/e100/e100_phy.c.orig	2002-09-05 00:35:38.000000000 +0200
-> +++ drivers/net/e100/e100_phy.c	2002-09-05 01:03:32.000000000 +0200
-> @@ -622,7 +622,7 @@
->   * Returns: void
->   *
->   */
-> -static void
-> +void
->  e100_force_speed_duplex(struct e100_private *bdp)
->  {
->  	u16 control;
+SiS645DX chipset:
+
+Sep  2 03:28:17 Master kernel: Linux agpgart interface v0.99 (c) Jeff Hartmann
+Sep  2 03:28:17 Master kernel: agpgart: Maximum main memory to use for agp memory: 816M
+Sep  2 03:28:17 Master kernel: agpgart: Unsupported SiS chipset (device id: 0646), you might want to
+ try agp_try_unsupported=1.
+Sep  2 03:28:17 Master kernel: agpgart: no supported devices found.
 
 
-This is already sent to Marcelo for 2.4.x...
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.openprojects.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

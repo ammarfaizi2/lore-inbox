@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269971AbRH1Abf>; Mon, 27 Aug 2001 20:31:35 -0400
+	id <S270050AbRH1Ac4>; Mon, 27 Aug 2001 20:32:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269963AbRH1AbZ>; Mon, 27 Aug 2001 20:31:25 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57099 "EHLO
+	id <S270036AbRH1Acp>; Mon, 27 Aug 2001 20:32:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57611 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269971AbRH1AbS>; Mon, 27 Aug 2001 20:31:18 -0400
+	id <S270011AbRH1Acd>; Mon, 27 Aug 2001 20:32:33 -0400
 Subject: Re: VM: Bad swap entry 0044cb00
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Tue, 28 Aug 2001 01:31:46 +0100 (BST)
+To: moz@compsoc.man.ac.uk (John Levon)
+Date: Tue, 28 Aug 2001 01:32:33 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.33.0108280204430.13898-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Aug 28, 2001 02:07:21 AM
+In-Reply-To: <20010828012308.A36433@compsoc.man.ac.uk> from "John Levon" at Aug 28, 2001 01:23:09 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15bWnC-00055q-00@the-village.bc.nu>
+Message-Id: <E15bWnx-00055w-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I upgraded my kernel from 2.4.8ac10 to 2.4.9ac2 some hours ago and I found
-> the following message in my syslog file (I've never seen something like
-> this before):
-> 
-> Aug 27 22:40:46 r063144 kernel: VM: Bad swap entry 0044cb00
-> What does this mean (my machine seems to run fine)?
+> fwiw, this seems to be a common characteristic of hardware problems with
+> 2.4 kernels. I've had bad RAM (discovered by memtest86) which was producing
+> this error without any swapoff. Once it only occurred after an entire night
+> of kernel compiles (memtest86 found it easily however)
 
-It I suspect means that Rik still has work to do. 
+Worth testing maybe, but the -ac tree does have memory changes although not
+between 8ac12 and 9ac2.

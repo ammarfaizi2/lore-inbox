@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSHGWYq>; Wed, 7 Aug 2002 18:24:46 -0400
+	id <S315536AbSHGW3t>; Wed, 7 Aug 2002 18:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSHGWYo>; Wed, 7 Aug 2002 18:24:44 -0400
-Received: from dsl-213-023-022-051.arcor-ip.net ([213.23.22.51]:59820 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314083AbSHGWYn>;
-	Wed, 7 Aug 2002 18:24:43 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Daniel Phillips <phillips@arcor.de>
-To: Jesse Barnes <jbarnes@sgi.com>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] lock assertion macros for 2.5.30
-Date: Thu, 8 Aug 2002 00:30:10 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, jmacd@namesys.com, rml@tech9.net
-References: <20020807210855.GA27182@sgi.com> <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com> <20020807221532.GA20469@sgi.com>
-In-Reply-To: <20020807221532.GA20469@sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E17cZJi-00050N-00@starship>
+	id <S315690AbSHGW3t>; Wed, 7 Aug 2002 18:29:49 -0400
+Received: from verein.lst.de ([212.34.181.86]:59917 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S315536AbSHGW3s>;
+	Wed, 7 Aug 2002 18:29:48 -0400
+Date: Thu, 8 Aug 2002 00:33:25 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Kurt Garloff <kurt@garloff.de>, Christoph Hellwig <hch@lst.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] conditionally re-enable per-disk stats, convert to seq_file
+Message-ID: <20020808003325.A14578@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Andries Brouwer <aebr@win.tue.nl>, Kurt Garloff <kurt@garloff.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <20020806160848.A2413@lst.de> <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl> <20020807211856.GB322@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020807211856.GB322@win.tue.nl>; from aebr@win.tue.nl on Wed, Aug 07, 2002 at 11:18:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of whitespace glitches:
+On Wed, Aug 07, 2002 at 11:18:56PM +0200, Andries Brouwer wrote:
+> But why in /proc/partitions ?
+> Maybe /proc/partitions can go away eventually with all info available
+> under driverfs or so. But for the time being, /proc/partitions is used,
+> and some changes are planned to make identification of the devices
+> involved easier.
+> It is really ugly to stuff a lot of garbage into a file just because
+> it happens to exist already. If you want disk statistics, why not
+> put it in /proc/diskstatistics?
 
-> +#if defined(CONFIG_DEBUG_SPINLOCK) && defined(CONFIG_SMP)
-> +#define MUST_HOLD(lock)                        BUG_ON(!spin_is_locked(lock))
-> +#define MUST_NOT_HOLD(lock)            BUG_ON(spin_is_locked(lock))
-> +#define MUST_HOLD_RW(lock)             BUG_ON(!rwlock_is_locked(lock))
-> +#else
-> +#define MUST_HOLD(lock)                        do { } while(0)
-> +#define MUST_NOT_HOLD(lock)            do { } while(0)
-> +#define MUST_HOLD_RW(lock)             do { } while(0)
-> +#endif /* CONFIG_DEBUG_SPINLOCK && CONFIG_SMP */
+Because it's where existing tools expect it.  I agree with you that we
+want a nicer interface for 2.6, but give the userbase some time to
+prepare for a new interface.
 
-Random gripe: don't all those do { } whiles look silly?  We need
-
-   #define NADA do { } while (0)
-
-or similar.
-
--- 
-Daniel

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbRF2NqJ>; Fri, 29 Jun 2001 09:46:09 -0400
+	id <S265480AbRF2Nr3>; Fri, 29 Jun 2001 09:47:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbRF2Np7>; Fri, 29 Jun 2001 09:45:59 -0400
-Received: from flurry.inode.at ([195.58.161.103]:63186 "EHLO smtp.inode.at")
-	by vger.kernel.org with ESMTP id <S265472AbRF2Npu>;
-	Fri, 29 Jun 2001 09:45:50 -0400
-Message-ID: <013101c100a1$c2bebfa0$f216e5d5@lilly>
-From: "darx kies" <darx_kies@gmx.net>
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Subject: CLOSE_WAIT Problem
-Date: Fri, 29 Jun 2001 15:45:28 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S265472AbRF2NrT>; Fri, 29 Jun 2001 09:47:19 -0400
+Received: from freerunner-o.cendio.se ([193.180.23.130]:39668 "EHLO
+	mail.cendio.se") by vger.kernel.org with ESMTP id <S266087AbRF2NrG>;
+	Fri, 29 Jun 2001 09:47:06 -0400
+Date: Fri, 29 Jun 2001 15:46:07 +0200
+From: Jorgen Cederlof <jc@lysator.liu.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User chroot
+Message-ID: <20010629154606.B24412@lola.lkpg.cendio.se>
+In-Reply-To: <20010627014534.B2654@ondska> <83fdx$Z1w-B@khms.westfalen.de> <9hd7pl$86f$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9hd7pl$86f$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.19i
+X-eric-conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Jun 27, 2001 at 11:14:13 -0700, "H. Peter Anvin" wrote:
+> > > If we only allow user chroots for processes that have never been
+> > > chrooted before, and if the suid/sgid bits won't have any effect under
+> > > the new root, it should be perfectly safe to allow any user to chroot.
+> > 
+> > Hmm. Dos this work with initrd and root pivoting?
+> 
+> At the moment, yes.  Once Viro gets his root-changes in, this breaks,
+> since ALL processes will be chrooted.
 
-I wrote a simple server application and installed it on a linux machine
-in Slovakia, running Mandrake 7.2 (2.2.18).
-That machine loses tcp/ip packages, as it uses a Microwave connection.
-So my server works all the time, and the tcp/ip connections are set to
-TIME_WAIT, but after a couple of hours
-my server application won't get any connections anymore and the netstat
-shows a lot of CLOSE_WAITs that belong to the server.
-I've installed the same server on two SuSE 7.1 (2.2.18) machines in
-Austria, and the problem never occured.
-So does anyone know how to avoid that CLOSE_WAITs, or at least how to
-get rid of  them?
-Thanks in advance.
+What are those changes, and how will they break user chroots?
 
-Chriss.
-----------
-The last good thing written in C was Schubert's Symphony No. 9.
-
-
-
+       Jörgen

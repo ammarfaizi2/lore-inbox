@@ -1,62 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279579AbRJXTQm>; Wed, 24 Oct 2001 15:16:42 -0400
+	id <S279578AbRJXTTw>; Wed, 24 Oct 2001 15:19:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279577AbRJXTQe>; Wed, 24 Oct 2001 15:16:34 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14734 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S279576AbRJXTQ2>;
-	Wed, 24 Oct 2001 15:16:28 -0400
-Date: Wed, 24 Oct 2001 14:16:55 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Separate CLONE_PARENT and CLONE_THREAD behavior
-Message-ID: <117830000.1003951015@baldur>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S279573AbRJXTTm>; Wed, 24 Oct 2001 15:19:42 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:31241 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S279578AbRJXTT2>; Wed, 24 Oct 2001 15:19:28 -0400
+Date: Wed, 24 Oct 2001 15:24:58 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: erik-lkml@arpa.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb interface to Toshiba PDR-M4 cam hasn't worked since 2.4.5
+Message-ID: <20011024152458.G22601@sventech.com>
+In-Reply-To: <3BD7076E.EF6AB04@arpa.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BD7076E.EF6AB04@arpa.org>; from erik-lkml@arpa.org on Wed, Oct 24, 2001 at 11:24:46AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 24, 2001, erik-lkml@arpa.org <erik-lkml@arpa.org> wrote:
+> If there's a usb list this would be more appropriate in, please let me
+> know.
 
-Several versions back you added code that forces CLONE_PARENT behavior
-whenever CLONE_THREAD is specified.  This unnecesarily forces a particular
-multi-threading model at the application level, and in fact breaks some
-ways of doing multi-threading.
+linux-usb-devel@lists.sourceforge.net
 
-In particular, it requires that at least one task in an application *not*
-be part of the thread group, and that the pid returned by the original
-fork() can not be the thread group id itself.
+I thought we did a good job advertising it. Where did you look?
 
-It would still be entirely possible to code an application or threading
-library in the way you envision by specifying CLONE_PARENT and CLONE_THREAD
-together.  However, there's no good reason for forcing this model.
+> I have a Toshiba PDR-M4 digital camera with USB interface, which
+> appeared as a scsi device attached with usb-storage in linux-2.4.5, but
+> hasn't worked in any kernel since then.  Here's a snippet from dmesg from
+> 2.4.5, with a successful negotiation with the camera (and its 128MB smart
+> media card).  The usbcore, usb-uhci, usb-storage, and sd modules are
+> already loaded at this point.
+> 
+>  usb-uhci.c: v1.251 Georg Acher, Deti Fliegl, Thomas Sailer, Roman
+> Weissgaerber
+>  usb-uhci.c: USB Universal Host Controller Interface driver
+>  hub.c: USB new device connect on bus1/1, assigned device number 2
+>  usb.c: USB device 2 (vend/prod 0x1132/0x4331) is not claimed by any
+> active driver.
+>  Initializing USB Mass Storage driver...
+>  usb.c: registered new driver usb-storage
+>  usb-uhci.c: interrupt, status 2, frame# 1366
+>  scsi0 : SCSI emulation for USB Mass Storage devices
+>    Vendor: TOSHIBA   Model: PDR               Rev: 1.00
+>    Type:   Direct-Access                      ANSI SCSI revision: 02
+>  Detected scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+>  SCSI device sda: 256000 512-byte hdwr sectors (131 MB)
+>  sda: Write Protect is off
+>   /dev/scsi/host0/bus0/target0/lun0: p1
+>  WARNING: USB Mass Storage data integrity not assured
+>  USB Mass Storage device found at 2
+>  USB Mass Storage support registered.
+> 
+> And here's dmesg output from the same operation with 2.4.13:
+> 
+>    * turn camera to 'data' mode *
+>  hub.c: port 2 connection change
+>  hub.c: port 2, portstatus 101, change 1, 12 Mb/s
+>  hub.c: port 2, portstatus 103, change 0, 12 Mb/s
+>  hub.c: USB new device connect on bus1/2, assigned device number 6
+>    * 4-second pause *
+>  usb_control/bulk_msg: timeout
+>  usb.c: USB device not accepting new address=6 (error=-110)
+>  hub.c: port 2, portstatus 103, change 0, 12 Mb/s
+>  hub.c: USB new device connect on bus1/2, assigned device number 7
+>    * 4-second pause *
+>  usb_control/bulk_msg: timeout
+>  usb.c: USB device not accepting new address=7 (error=-110)
+> 
+> And no more messages until I turn off or disconnect the camera.  It
+> never procedes to initialize usb-storage on this device.
+> 
+> The same errors ("usb_control/bulk_msg: timeout" and "USB device not
+> accepting new address=7 (error=-110)") have occurred with every kernel
+> since 2.4.6 when I attempt to attach this camera.  I don't believe it
+> ever worked with 2.2.18/.19 either, but it did work with 2.2.17 with
+> Alan's usb patches.
 
-A patch to remove that restriction is below.
+Have you tried using the alternate UHCI driver?
 
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
-----------
-
---- linux-2.4.13/kernel/fork.c	Tue Oct 23 19:44:15 2001
-+++ linux-2.4.13-signal/kernel/fork.c	Wed Oct 24 11:46:09 2001
-@@ -700,10 +721,10 @@
- 	/* Need tasklist lock for parent etc handling! */
- 	write_lock_irq(&tasklist_lock);
- 
--	/* CLONE_PARENT and CLONE_THREAD re-use the old parent */
-+	/* CLONE_PARENT re-uses the old parent */
- 	p->p_opptr = current->p_opptr;
- 	p->p_pptr = current->p_pptr;
--	if (!(clone_flags & (CLONE_PARENT | CLONE_THREAD))) {
-+	if (!(clone_flags & CLONE_PARENT)) {
- 		p->p_opptr = current;
- 		if (!(p->ptrace & PT_PTRACED))
- 			p->p_pptr = current;
+JE
 

@@ -1,50 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312489AbSCZQ6t>; Tue, 26 Mar 2002 11:58:49 -0500
+	id <S312548AbSCZRB7>; Tue, 26 Mar 2002 12:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312496AbSCZQ6j>; Tue, 26 Mar 2002 11:58:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5639 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312489AbSCZQ6e>;
-	Tue, 26 Mar 2002 11:58:34 -0500
-Message-ID: <3CA0A868.5060108@mandrakesoft.com>
-Date: Tue, 26 Mar 2002 11:57:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S312550AbSCZRBt>; Tue, 26 Mar 2002 12:01:49 -0500
+Received: from web13602.mail.yahoo.com ([216.136.175.113]:5391 "HELO
+	web13602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S312548AbSCZRBi>; Tue, 26 Mar 2002 12:01:38 -0500
+Message-ID: <20020326170137.8553.qmail@web13602.mail.yahoo.com>
+Date: Tue, 26 Mar 2002 09:01:37 -0800 (PST)
+From: Balbir Singh <balbir_soni@yahoo.com>
+Subject: Re: readv() return and errno
+To: Andries.Brouwer@cwi.nl, jholly@cup.hp.com, plars@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <UTC200203261619.QAA368367.aeb@cwi.nl>
 MIME-Version: 1.0
-To: christophe =?ISO-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 3c59x and resume
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9FC76F.6050900@mandrakesoft.com> <20020326014050.GP1853@ufies.org> <3C9FF4B3.3070408@mandrakesoft.com> <20020326043943.GR1853@ufies.org> <3C9FFE1E.F9F766FF@zip.com.au> <20020326165619.GB10880@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
+I agree it is not a big thing at all, zero not
+returning any error. Yes! I read and understood the
+MAY return an error, it makes complete sense.
 
->On Mon, Mar 25, 2002 at 08:50:38PM -0800, Andrew Morton wrote:
->
->>Oh look, it compiled :)  Wanna test it?
->>
->
->Applied, Compiled, Tested.
-><marcelo> Hope to see it in 2.4.19. </marcelo>
->
-
-Great..
+I agree, the Linux man pages need a lot of work,
+if they are going to be even close to reflecting
+some of things in the kernel.
 
 
->Andrew would you be interested in a patch to ethtoolize this driver ?
->Has ethtool a futur in the next kernel serie ?
->
+Thanks,
+Balbir
 
-Yep, we want ethtool support for all net drivers, in fact...
+--- Andries.Brouwer@cwi.nl wrote:
+> Jim Hollenback wrote:
+> 
+> > According to readv(2) EINVAL is returned for an
+> invalid
+> > argument.
+> 
+> Right.
+> 
+> > The examples given were count might be greater
+> than
+> > MAX_IOVEC or zero.
+> 
+> Wrong, or at least confusingly phrased.
+> 
+> 
+> In the good old days, a man page described what the
+> system did,
+> and the ERRORS section gave the reasons for the
+> possible error
+> returns.
+> These days a man page describes a function present
+> on many
+> Unix-like systems, and not all systems have
+> precisely the
+> same behaviour. POSIX man pages therefore
+> distinguish under
+> ERRORS the two possibilities "if foo then this error
+> must be
+> returned", and "if foo then this error may be
+> returned".
+> 
+> Linux man pages do not (yet) make this distinction -
+> adding this is a lot of careful work, and so far
+> nobody is doing this [hint..].
+> In other words, the ERRORS section in Linux man
+> pages is
+> to be interpreted as "if foo then this error may be
+> returned".
+> 
+> Note that it may not be desirable at all to do
+> things that way,
+> there is no need for kernel patches, it just means
+> that systems
+> exist with this behaviour, so that authors of
+> portable programs
+> must take this into account.
+> 
+> Balbir Singh wrote:
+> 
+> > Apply this trivial patch, if you want the required
+> behaviour
+> 
+> But the behaviour is not required.
+> Paul Larson makes the same mistake.
+> 
+> Andries
 
-    Jeff
 
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Movies - coverage of the 74th Academy Awards®
+http://movies.yahoo.com/

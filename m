@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317003AbSG3SI5>; Tue, 30 Jul 2002 14:08:57 -0400
+	id <S317078AbSG3SMQ>; Tue, 30 Jul 2002 14:12:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSG3SI5>; Tue, 30 Jul 2002 14:08:57 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:64209 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S317003AbSG3SI4>; Tue, 30 Jul 2002 14:08:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: Vincent Hanquez <tab@crans.org>
-Subject: Re: 2.5.25: spurious 8259A interrupt: IRQ7
-Date: Tue, 30 Jul 2002 10:42:31 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200207300952.28460.EricAltendorf@orst.edu> <20020730175932.GA29379@darwin.crans.org>
-In-Reply-To: <20020730175932.GA29379@darwin.crans.org>
+	id <S317309AbSG3SMQ>; Tue, 30 Jul 2002 14:12:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22020 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317078AbSG3SMP>; Tue, 30 Jul 2002 14:12:15 -0400
+Date: Tue, 30 Jul 2002 11:15:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Jeff Dike <jdike@karaya.com>, Andrea Arcangeli <andrea@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: async-io API registration for 2.5.29
+In-Reply-To: <20020730140939.F10315@redhat.com>
+Message-ID: <Pine.LNX.4.33.0207301114001.2534-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207301042.31667.EricAltendorf@orst.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 July 2002 10:59, Vincent Hanquez wrote:
-> There were a discussion about this warning some time ago.
-> As far as I remember, it's just a interrupt which is not registered
-> by any peripheral.
-> this is not a kernel bug, just a buggy hardware.
 
-OK -- I'll take that explanation.  I mentioned it because it happened 
-in the first half hour of using this kernel specifically, and I'd 
-never seen it before.
+On Tue, 30 Jul 2002, Benjamin LaHaise wrote:
 
-Thanks,
+> On Tue, Jul 30, 2002 at 02:10:35PM -0500, Jeff Dike wrote:
+> > We did come up with a scheme that sounded to me like it would work.
+> 
+> A constant address is still an option with an mmap'd device.  Just do 
+> an mmap of the device and assert that it is the correct value.
 
-Eric
+That still doesn't get the TLB advantages of a globally shared page at the
+same address.. It also has the overhead of mapping it, which you don't
+have if the thing is just always in the address space, and all processes
+just get created with that page mapped. That can be a big deal for process
+startup latency for small processes.
 
--- 
-"First they ignore you.  Then they laugh at you.
- Then they fight you.  And then you win."             -Gandhi
+		Linus
+

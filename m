@@ -1,141 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbUCRVxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbUCRVxN
+	id S263000AbUCRVzf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbUCRVzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:53:13 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:48393 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S262981AbUCRVw6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:52:58 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: software suspend and modular IDE in 2.6.4
-Date: Thu, 18 Mar 2004 22:50:37 +0100
-User-Agent: KMail/1.6.1
+	Thu, 18 Mar 2004 16:55:35 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:19888 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S263000AbUCRVyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 16:54:52 -0500
+Date: Fri, 19 Mar 2004 05:50:50 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: 2.6.x atkbd.c moaning
+Cc: akpm@osdl.org, anton@samba.org,
+       "kernel mailing list" <linux-kernel@vger.kernel.org>
+References: <opr41z9zel4evsfm@smtp.pacific.net.th> <20040318120114.GN28212@krispykreme> <opr42hoctn4evsfm@smtp.pacific.net.th> <opr42nq0a24evsfm@smtp.pacific.net.th> <20040318195819.GB4248@ucw.cz> <opr42ry9kk4evsfm@smtp.pacific.net.th> <20040318210737.GA4494@ucw.cz>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403182250.37787.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr42uy0wi4evsfm@smtp.pacific.net.th>
+In-Reply-To: <20040318210737.GA4494@ucw.cz>
+User-Agent: Opera M2/7.50 (Linux, build 615)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Mar 2004 22:07:37 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-Hi,
+> On Fri, Mar 19, 2004 at 04:46:11AM +0800, Michael Frank wrote:
+>
+>> >>The Unknown key release msg is introduced in 2.6.1 with i8042
+>> >>changesets from 1.33 to 1.35 (likely 1.34 as Anton suggested). Guess i
+>> >>did not think much of it as it was "smaller" but "blaming xfree"
+>> >>during boot since 2.6.2 caught my attention.
+>> >
+>> >XFree86 was fixed (post 4.4) thanks to this message. kbdrate is also
+>> >fixed in the current version. With latest XFree86 and latest kbd package
+>> >you shouldn't be getting this message anymore.
+>>
+>> I appreciate the message when X-old or kbdrate-old is running but not
+>> during boot right after HD init. Please see dmesg.
+>>
+>> I updated to kbd-1.12-1 Change kdbrate does still create messages.
+>> Will look for later package. Which version?
+>
+> Are you running kbdrate on the console?
 
-I'm using kernel with modular IDE (modules are loaded from initrd). suspending 
-to disk works fine (it seems) but resume won't since kernel is trying to 
-resume before running initrd so I'm getting resume failed
-Resume Machine: resuming from /dev/hda2
-Resuming from device unknown-block(0,0)
-Resume Machine: Error -6 resuming
-and then initrd loading proper modules + machine starts as normal boot (see 
-log below).
+Console, ssh, serial console, xterm - all the same
 
-Would be it possible to delay resuming after loading initrd? Or some userspace 
-utility that would run from initrd after loading IDE modules and forced 
-resume from swap?
+Above is the latest package I could find for redhat.
 
-NET: Registered protocol family 17
-Resume Machine: resuming from /dev/hda2
-Resuming from device unknown-block(0,0)
-Resume Machine: Error -6 resuming
-ACPI: (supports S0 S3 S4 S5)
-RAMDISK: Compressed image found at block 0
-VFS: Mounted root (romfs filesystem) readonly.
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8231 (rev 10) IDE UDMA100 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA MK3021GAS, ATA DISK drive
-Using anticipatory io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: Samsung CD-RW/DVD-ROM SN-324B, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 58605120 sectors (30005 MB), CHS=58140/16/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
-EXT3-fs: INFO: recovery required on readonly filesystem.
-EXT3-fs: write access will be enabled during recovery.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: hda3: orphan cleanup on readonly fs
-ext3_orphan_cleanup: deleting unreferenced inode 1409662
-ext3_orphan_cleanup: deleting unreferenced inode 328817
-EXT3-fs: hda3: 2 orphan inodes deleted
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
+>
+>> >Can you give details on the mouse and the machine? I seem to have missed
+>> >them.
+>>
+>> Mouse is a noname USB mouse connected via an PS2 Adapter to the PS2 port.
+>> Dmesg included.
+>
+> Ok. Does it have a wheel and extra buttons?
 
-[arekm@mobarm ~]$ lsmod
-Module                  Size  Used by
-binfmt_misc             8072  1
-ipv6                  209728  15
-ds                     11140  2
-yenta_socket           13440  0
-pcmcia_core            59104  2 ds,yenta_socket
-via_ircc               19728  0
-via_rhine              17672  0
-mii                     3968  1 via_rhine
-crc32                   4096  1 via_rhine
-usbmouse                4352  0
-uhci_hcd               27152  0
-ohci_hcd               16004  0
-nls_iso8859_2           4480  1
-ntfs                   95468  0
-ircomm_tty             21256  0
-ircomm                 11652  1 ircomm_tty
-irda                  115132  3 via_ircc,ircomm_tty,ircomm
-snd_pcm_oss            46628  0
-snd_mixer_oss          16384  1 snd_pcm_oss
-snd_via82xx            21408  2
-snd_pcm                80264  4 snd_pcm_oss,snd_via82xx
-snd_timer              20484  1 snd_pcm
-snd_ac97_codec         55940  1 snd_via82xx
-snd_page_alloc          8964  2 snd_via82xx,snd_pcm
-gameport                3712  1 snd_via82xx
-snd_mpu401_uart         5632  1 snd_via82xx
-snd_rawmidi            19488  1 snd_mpu401_uart
-snd_seq_device          6792  1 snd_rawmidi
-snd                    45668  11 
-snd_pcm_oss,snd_mixer_oss,snd_via82xx,snd_pcm,snd_timer,snd_ac97_codec,snd_mpu401_uart,snd_rawmidi,snd_seq_device
-soundcore               7008  1 snd
-tsdev                   5760  0
-joydev                  8896  0
-evdev                   7936  0
-psmouse                16776  0
-proc_intf               3200  0
-powernow_k7             6304  0
-freq_table              3460  1 powernow_k7
-thermal                11664  0
-processor              16560  1 thermal
-fan                     3212  0
-button                  4760  0
-battery                 7948  0
-ac                      3980  0
-capability              3076  0
-commoncap               4992  1 capability
-ide_cd                 36740  0
-cdrom                  35612  1 ide_cd
-rtc                     9912  0
-hid                    49792  0
-ehci_hcd               21892  0
-usbcore                86364  7 usbmouse,uhci_hcd,ohci_hcd,hid,ehci_hcd
-ext3                  100520  1
-mbcache                 6532  1 ext3
-jbd                    48792  1 ext3
-ide_disk               14720  2
-via82cxxx              11164  0 [permanent]
-ide_core              126944  3 ide_cd,ide_disk,via82cxxx
+It has a wheel (which works with kde, opera..) and 2 buttons.
+Wheel is a wheel only (no button).
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+BTW this USB mouse would not work with USB on 2.4 using modular USB.
+
+>
+>> >>The serious issue with the mouse is that it does not recover and stays
+>> >>out of sync and interprets further movement as random coordinates/button
+>> >>clicks.
+>> >
+>> >Does unloading and reloading the psmouse module help?
+>>
+>> No, once sync lost, unload, load psmouse no use and
+>> unplug, plug mouse no use too.
+>
+> Interesting. Since the driver shouldn't be keeping any state, unplugging
+> and replugging the mouse should be well enough.
+>
+>> But: unload, remove mouse, plug mouse, load is OK
+>> except setting for acceleration is too low.
+>>
+>> Looks like psmouse reset no work on 2.6.
+>
+> I'll take a look at this code path then.
+>
+> Btw, please try with USB support compiled into the kernel. We might be
+> seeing yet another incarnation of the "Legacy USB emulation" problem.
+
+Compiled in core, ohci, hid.
+
+PCI: Found IRQ 6 for device 0000:00:03.0
+ohci_hcd 0000:00:03.0: OHCI Host Controller
+ohci_hcd 0000:00:03.0: irq 6, pci mem df80d000
+ohci_hcd 0000:00:03.0: new USB bus registered, assigned bus number 1
+usb usb1: Product: OHCI Host Controller
+usb usb1: Manufacturer: Linux 2.6.4-mhf195 ohci_hcd
+usb usb1: SerialNumber: 0000:00:03.0
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 3 ports detected
+PCI: Found IRQ 9 for device 0000:00:03.1
+ohci_hcd 0000:00:03.1: OHCI Host Controller
+ohci_hcd 0000:00:03.1: irq 9, pci mem df80f000
+ohci_hcd 0000:00:03.1: new USB bus registered, assigned bus number 2
+usb usb2: Product: OHCI Host Controller
+usb usb2: Manufacturer: Linux 2.6.4-mhf195 ohci_hcd
+usb usb2: SerialNumber: 0000:00:03.1
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 3 ports detected
+drivers/usb/core/usb.c: registered new driver hiddev
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+input: AT Translated Set 2 keyboard on isa0060/serio0
+
+Both PS2 mouse and USB mouse working :)
+
+But when plugging the mouse hotplug wanna load floppy driver ;)
+(System has no floppy). IIRC This was recently discussed.
+
+Interrupts are not shared. IRQ5 would go to EHCI, 7 to PRN.
+
+           CPU0
+   0:     549460          XT-PIC  timer
+   1:         12          XT-PIC  i8042
+   2:          0          XT-PIC  cascade
+   4:        368          XT-PIC  serial
+   6:        574          XT-PIC  ohci_hcd
+   8:          1          XT-PIC  rtc
+   9:          0          XT-PIC  ohci_hcd
+  11:       8999          XT-PIC  eth0
+  12:       1121          XT-PIC  i8042
+  14:       5181          XT-PIC  ide0
+NMI:          0
+ERR:          0
+
+APIC buggy, ACPI more buggy. Keyboard  no work at all with
+ACPI on this board. DSDT has more bugs than a tropical jungle.
+
+>
+>>  hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 hda9 > hda4
+>> mice: PS/2 mouse device common for all mice
+>> serio: i8042 AUX port at 0x60,0x64 irq 12
+>> input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+>> serio: i8042 KBD port at 0x60,0x64 irq 1
+>> input: AT Translated Set 2 keyboard on isa0060/serio0
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0).
+>> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0).
+>> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0).
+>> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0).
+>> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>> atkbd.c: Unknown key released (translated set 2, code 0x7a on
+>> isa0060/serio0).
+>> atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+>> NET: Registered protocol family 2
+>
+> This indeed looks like it. Why do you specify "nousb" on the kernel
+> command line?
+>
+
+USB is not used much and too much trouble to keep running when not in use ;)
+USB does not work with swsusp. USB breaks reboot on some hardware too.
+
+I load USB and hotplug by script only when needed.
+
+I recently had a case with swsusp user leaving usbcore and hotplug
+resulting in breaking a notebooks internal keyboard...
+
+Regards
+Michael

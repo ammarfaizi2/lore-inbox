@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUIAU1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUIBFTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267743AbUIAU1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267542AbUIAUVQ
+	id S265093AbUIBFTU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 01:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUIBFTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:21:16 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:937 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S267648AbUIAUP3 (ORCPT
+	Thu, 2 Sep 2004 01:19:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:41930 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265093AbUIBFTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:15:29 -0400
-Subject: [patch 05/12]  list_for_each: 	arch-ppc64-kernel-pSeries_pci.c
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:15:28 +0200
-Message-ID: <E1C2bVx-0006P4-8g@sputnik>
+	Thu, 2 Sep 2004 01:19:18 -0400
+Date: Wed, 1 Sep 2004 22:18:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
+       akpm@osdl.org, davem@redhat.com, raybry@sgi.com, ak@muc.de,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
+Message-ID: <20040902051845.GW5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
+	akpm@osdl.org, davem@redhat.com, raybry@sgi.com, ak@muc.de,
+	manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+References: <20040816143903.GY11200@holomorphy.com> <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com> <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com> <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com> <20040901215741.3538bbf4.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040901215741.3538bbf4.davem@davemloft.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Sep 2004 21:45:20 -0700 (PDT) Christoph Lameter <clameter@sgi.com> wrote:
+>> Where would I find that patch?
+
+On Wed, Sep 01, 2004 at 09:57:41PM -0700, David S. Miller wrote:
+> Attached.
+> It's held up because it needs to be ported to all platforms
+> before we can consider it seriously for inclusion and
+> only sparc64 and ppc{,64} are converted.
+
+Nice, I guess I can port this to a few arches. Maybe this is a good
+excuse get my new (to me) Octane running, too.
 
 
-
-Hi.
-
-s/for/list_for_each/
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/arch/ppc64/kernel/pSeries_pci.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff -puN arch/ppc64/kernel/pSeries_pci.c~list-for-each-arch_ppc64_kernel_pSeries_pci arch/ppc64/kernel/pSeries_pci.c
---- linux-2.6.9-rc1-bk7/arch/ppc64/kernel/pSeries_pci.c~list-for-each-arch_ppc64_kernel_pSeries_pci	2004-09-01 19:38:07.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/arch/ppc64/kernel/pSeries_pci.c	2004-09-01 19:38:07.000000000 +0200
-@@ -585,7 +585,7 @@ EXPORT_SYMBOL(pcibios_fixup_device_resou
- void __devinit pcibios_fixup_bus(struct pci_bus *bus)
- {
- 	struct pci_controller *hose = PCI_GET_PHB_PTR(bus);
--	struct list_head *ln;
-+	struct pci_dev *dev;
- 
- 	/* XXX or bus->parent? */
- 	struct pci_dev *dev = bus->self;
-@@ -627,8 +627,7 @@ void __devinit pcibios_fixup_bus(struct 
- 	if (!pci_probe_only)
- 		return;
- 
--	for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
--		struct pci_dev *dev = pci_dev_b(ln);
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		if ((dev->class >> 8) != PCI_CLASS_BRIDGE_PCI)
- 			pcibios_fixup_device_resources(dev, bus);
- 	}
-
-_
+-- wli

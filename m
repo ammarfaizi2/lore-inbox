@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRKSSCF>; Mon, 19 Nov 2001 13:02:05 -0500
+	id <S280479AbRKSSJG>; Mon, 19 Nov 2001 13:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280479AbRKSSBz>; Mon, 19 Nov 2001 13:01:55 -0500
-Received: from pop.gmx.de ([213.165.64.20]:27663 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S276708AbRKSSBt> convert rfc822-to-8bit;
-	Mon, 19 Nov 2001 13:01:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Reply-To: sebastian.droege@gmx.de
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-Date: Mon, 19 Nov 2001 19:01:05 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
+	id <S280481AbRKSSI4>; Mon, 19 Nov 2001 13:08:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34571 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280479AbRKSSIs>; Mon, 19 Nov 2001 13:08:48 -0500
+Date: Mon, 19 Nov 2001 10:03:34 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Simon Kirby <sim@netnation.com>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <20011119095631.A24617@netnation.com>
+Message-ID: <Pine.LNX.4.33.0111190958230.8205-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011119180153Z276708-17408+16348@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi,
-I couldn't answer ealier because I had some problems with my ISP
-the heavy swapping problem while burning a cd is solved in pre6aa1
-but if you want i can do some statistics tommorow
-Thanks and bye
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+On Mon, 19 Nov 2001, Simon Kirby wrote:
+>
+> So, uh, any idea why the server is hitting the page->mapping BUG() thing
+> in the first place? :)
 
-iD8DBQE7+UjjvIHrJes3kVIRApxEAKCwoOhYcptcm/1Q2teIY2YkVwNZGwCeNsDR
-pSi5RbK5o5qeYUWzHHYgAj0=
-=1Nvc
------END PGP SIGNATURE-----
+No.
+
+I suspect that your earlier oopses left something in a stale state - this
+is the same machine that you've reported others oopses for, no?
+
+> Is there some way to figure out if this page is special in some way or
+> track down how it broke?
+
+It looks like it's a bog-standard page, that was just free'd (probably
+because of page->count corruption) while it was still in the page cache.
+Now, how that page->count corruption actually happened, I have no idea,
+which is why I suspect you had other earlier oopses that left the machine
+in an inconsistent state.
+
+There _is_ a known race in 2.4.15pre1, where we simply test a condition
+that isn't true any more and that can cause spurious oopses (not this one,
+though) under the right circumstances. Such an oops might have left
+something in the VM in a half-way state...
+
+Can you reproduce this on pre6, for example? And if so, what's the load?
+
+		Linus
+
+

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHCmQ>; Wed, 7 Feb 2001 21:42:16 -0500
+	id <S129442AbRBHCo4>; Wed, 7 Feb 2001 21:44:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129317AbRBHCmG>; Wed, 7 Feb 2001 21:42:06 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:41746 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129033AbRBHCl6>; Wed, 7 Feb 2001 21:41:58 -0500
-Message-ID: <3A82158B.1D20F720@Hell.WH8.TU-Dresden.De>
-Date: Thu, 08 Feb 2001 04:42:03 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac5 i686)
-X-Accept-Language: en, de-DE
+	id <S129317AbRBHCoq>; Wed, 7 Feb 2001 21:44:46 -0500
+Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:29868 "EHLO
+	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129279AbRBHCom>; Wed, 7 Feb 2001 21:44:42 -0500
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
-In-Reply-To: <3A8205D4.7C7E358E@Hell.WH8.TU-Dresden.De>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14978.2306.408780.856419@pcg.localdomain>
+Date: Thu, 8 Feb 2001 03:48:34 +0100
+From: Pascal Brisset <Pascal.Brisset@wanadoo.fr>
+To: Billy Harvey <Billy.Harvey@thrillseeker.net>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
+Subject: Re: 2.4.1-ac5 - The loopback hang saga continues (not me ?)
+In-Reply-To: <14977.61456.680691.926157@rhino.thrillseeker.net>
+In-Reply-To: <Pine.LNX.4.21.0102071723090.7611-100000@winds.org>
+	<14977.61456.680691.926157@rhino.thrillseeker.net>
+X-Mailer: VM 6.87 under Emacs 20.5.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
-> 
-> I'm not sure whether this is related to the ominous ps/2 mouse bug
-> you have been chasing, but this problem is 100% reproducible and
-> very annoying.
-> 
-> After upgrading my Asus A7V Bios from 1003 to 1005D, gpm no longer
-> receives any mouse events and the mouse doesn't work in text
-> consoles. Once I kill gpm and restart gpm -t ps2 the keyboard
-> locks up.
+FYI following hints from the linux-crypto mailing-list archives, I am
+using the following configuration :
 
-Alright, I found the culprit - ACPI. Once I had compiled the kernel
-without it, all the problems mysteriously vanished. I knew there was
-a reason it was marked 'Experimental' :)
+linux-2.4.0
+patch-int-2.4.0.3
+http://www.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0/loop-1.gz
+http://www.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0/loop-bdev-inc-1.gz
+util-linux-2.10o
+Documentation/crypto/util-linux-2.10o.patch
 
-Sorry for the noise.
+I setup an encrypted 2097152000 byte loopback partition and moved
+800MB of data there, including a 90MB file.
 
--Udo.
+My only problems are:
+- rc.d/init.d/S01reboot sometimes fails to unmount partitions with
+  loop files on them (this already happened with 2.2.17).
+- losetup after losetup -d sometimes fails.
+
+-- Pascal
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

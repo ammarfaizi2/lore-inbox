@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbSKMWTG>; Wed, 13 Nov 2002 17:19:06 -0500
+	id <S262887AbSKMWRc>; Wed, 13 Nov 2002 17:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262881AbSKMWTG>; Wed, 13 Nov 2002 17:19:06 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:64384 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262692AbSKMWTE>;
-	Wed, 13 Nov 2002 17:19:04 -0500
-Date: Wed, 13 Nov 2002 14:25:54 -0800
-From: Bob Miller <rem@osdl.org>
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH 2.5.47] Fix char/raw.c to build as module
-Message-ID: <20021113222554.GA3336@doc.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S263333AbSKMWRc>; Wed, 13 Nov 2002 17:17:32 -0500
+Received: from ns.splentec.com ([209.47.35.194]:18446 "EHLO pepsi.splentec.com")
+	by vger.kernel.org with ESMTP id <S262887AbSKMWRa>;
+	Wed, 13 Nov 2002 17:17:30 -0500
+Message-ID: <3DD2D110.C122D161@splentec.com>
+Date: Wed, 13 Nov 2002 17:24:16 -0500
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adam Radford <aradford@3WARE.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3w-xxxx: additional ata->sense codes, avoid driver lockup
+References: <A1964EDB64C8094DA12D2271C04B812672C867@tabby>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small fixes that lets the raw driver be built as a module.
+Adam Radford wrote:
+> 
+> Luben,
+> 
+> Thanks for submitting the patch, however, it appears part of it is wrong:
+> 
+> -               if ((command->status == 0xc7) || (command->status == 0xcb))
+> {
+> +               if (command->status & 0xC1) {
+> 
+> What makes you think you should not check for c7 or cb, and only check c1?
 
-diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
---- a/drivers/char/raw.c	Wed Nov 13 14:09:57 2002
-+++ b/drivers/char/raw.c	Wed Nov 13 14:09:57 2002
-@@ -103,7 +103,7 @@
- {
- 	struct block_device *bdev = filp->private_data;
- 
--	return blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
-+	return ioctl_by_bdev(bdev->bd_inode, command, arg);
- }
- 
- /*
-@@ -241,3 +241,4 @@
- 
- module_init(raw_init);
- module_exit(raw_exit);
-+MODULE_LICENSE("GPL");
- 
+Hi Adam,
+
+I don't really ``only'' check for 0xc1, it just shows which bits I'm
+interested in (0xc1 is a mask anded with the status).
+
+In fact, I'm only interested in the error bit (ERR), but saw what you did
+and decided to stay as close to 0xc7 and 0xcb, both of whom are in the 
+subset of status & 0xC1, (0xC1 == BSY|DRDY|ERR). So in effect 0xC7 and 0xCB
+still match.
+
+Anyway, if you are throwing away
+
+	if (command->status & 0xC1)
+
+then you might as well throw away flags 0x11 from tw_sense_table[]
+and then we're back at ``square 1'' -- this is exactly when the
+driver gets into an inf. loop and eventually locks up the machine
+and the serial console prints ... 
+3w-xxxx: scsiX: Command failed:	status = 0xc1, flags = 0x11, unit #Y.
+... ad infinitum.
+
+I was just trying to avoid this deadlock.
+
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+Luben

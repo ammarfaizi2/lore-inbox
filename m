@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRALJyD>; Fri, 12 Jan 2001 04:54:03 -0500
+	id <S130287AbRALJyx>; Fri, 12 Jan 2001 04:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130539AbRALJxy>; Fri, 12 Jan 2001 04:53:54 -0500
-Received: from mr14.vic-remote.bigpond.net.au ([24.192.1.29]:53215 "EHLO
-	mr14.vic-remote.bigpond.net.au") by vger.kernel.org with ESMTP
-	id <S129511AbRALJxp>; Fri, 12 Jan 2001 04:53:45 -0500
-Message-ID: <000b01c07c7d$fba05980$0201a8c0@vaio>
-From: "Robert Lowery" <cangela@bigpond.net.au>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>,
-        "Nathan Thompson" <nate@thebog.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <001801c07bc4$e95ee250$0201a8c0@vaio> <20010111095853.A4442@eliot.thebog.net> <3A5DCB9D.2DAF83AF@mandrakesoft.com>
-Subject: Re: ACPI lockup on boot in 2.4.0
-Date: Fri, 12 Jan 2001 20:56:48 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130539AbRALJyo>; Fri, 12 Jan 2001 04:54:44 -0500
+Received: from mail1.rdc2.ab.home.com ([24.64.2.48]:7616 "EHLO
+	mail1.rdc2.ab.home.com") by vger.kernel.org with ESMTP
+	id <S130287AbRALJyY>; Fri, 12 Jan 2001 04:54:24 -0500
+Date: Fri, 12 Jan 2001 02:47:42 -0700
+From: "Harold Oga" <ogah@home.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Message-ID: <20010112024742.A5703@ogah.cgma1.ab.wave.home.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+	Andi Kleen <ak@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010111184645.B828@athlon.random> <Pine.LNX.4.10.10101111803580.18517-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10101111803580.18517-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 11, 2001 at 06:08:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank-you for the pointers.
-
-Looking at the ACPI mailing list, it appears that the ACPI code gets stuck
-in an infinite loop with many of the VAIO notebooks.  So it:s back to APM
-for now
-
--Robert
------ Original Message -----
-From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-To: "Nathan Thompson" <nate@thebog.net>
-Cc: "Robert Lowery" <cangela@bigpond.net.au>; <linux-kernel@vger.kernel.org>
-Sent: Friday, January 12, 2001 2:05 AM
-Subject: Re: ACPI lockup on boot in 2.4.0
-
-
-> Nathan Thompson wrote:
-> >
-> > On Thu, Jan 11, 2001 at 10:51:59PM +1100, Robert Lowery wrote:
-> >
-> > > I compiled it with ACPI compiled as a module and APM not compiled in
-at all, but on booting I get the following.
-> > > ACPI: System description tables found
-> > > ACPI: System description tables loaded
-> > >
-> > > and then the system locks up..
-> >
-> > I have a Sony Vaio PCG-F350 that behaves the same way.  I compiled in
-> > ACPI (not a module) and never got further than this.  When I enabled APM
-> > and disabled ACPI everything started to work.
+On Thu, Jan 11, 2001 at 06:08:21PM -0800, Linus Torvalds wrote:
 >
-> To get a more verbose failure scenario, grab the ACPI debug version from
-> http://developer.intel.com/technology/IAPC/acpi/downloads.htm
+>Could people with Athlons please verify that pre3 works for them?
 >
-> Jeff
->
->
-> --
-> Jeff Garzik       | "You see, in this world there's two kinds of
-> Building 1024     |  people, my friend: Those with loaded guns
-> MandrakeSoft      |  and those who dig. You dig."  --Blondie
->
+>It's basically Andrea's patch, but I moved the FPU save/restore games away
+>from arch/i386/lib/mmx.c, so that everything is properly done in one place
+>and others call the appropriate helper functions instead of thinking that
+>they know how the lazy FP switching is done.
+Hi Linus,
+   Ok, 2.4.1-pre3 seems to work fine for me on my Thunderbird 900MHz system.
+At least, XFree86 4.0.1 starts properly, and the output of ps aux looks
+correct again, which wasn't the case with 2.4.1-pre1 (I never tried
+2.4.1-pre2).
 
+-Harold
+-- 
+"Life sucks, deal with it!"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

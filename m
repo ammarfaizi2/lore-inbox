@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312939AbSDKUuS>; Thu, 11 Apr 2002 16:50:18 -0400
+	id <S312943AbSDKUxj>; Thu, 11 Apr 2002 16:53:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312943AbSDKUuR>; Thu, 11 Apr 2002 16:50:17 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:33664 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S312939AbSDKUuQ>; Thu, 11 Apr 2002 16:50:16 -0400
-Date: Thu, 11 Apr 2002 22:50:11 +0200 (CEST)
-From: Michael De Nil <linux@aerythmic.be>
-X-X-Sender: linux@LiSa
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Stolen Memory <- i830M video chip
-Message-ID: <Pine.LNX.4.44.0204112244480.4745-100000@LiSa>
+	id <S312949AbSDKUxi>; Thu, 11 Apr 2002 16:53:38 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:7699 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312943AbSDKUxh>; Thu, 11 Apr 2002 16:53:37 -0400
+Date: Thu, 11 Apr 2002 17:53:17 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Adam McKenna <adam-dated-1018989500.4371a1@flounder.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The latest -ac patch to the stable Linux kernels
+In-Reply-To: <20020411203819.GA32605@flounder.net>
+Message-ID: <Pine.LNX.4.44L.0204111752560.31387-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey
+On Thu, 11 Apr 2002, Adam McKenna wrote:
+> On Tue, Apr 09, 2002 at 04:47:47PM -0700, David Lang wrote:
+> > all the -ac kernels need to be treated as -pre
+> >
+> > if you watch in detail you can pick ones that are more likly to be stable
+> > then others, but some of them will be intentionally cutting edge.
+>
+> I was under the impression that the -ac line has a bunch of VM fixes
+> that haven't been merged into the main tree yet, which should make it
+> better under high loads than the standard kernel.
+>
+> Is this no longer the case?
 
+It is, except that the changes currently in -ac are more
+suitable to be merged into 2.5 first ;)
 
-working here on an Asus L1-laptop which contains the Intel 830M graphical
-chip. when loading the agpgart module, it prints in syslog that there is
-only 1 Meg 'stolen ram'. like that, it's not possable to run X @ 1024x768
-with more then 256 colors.
+regards,
 
-i searched on the intel-website, which told me hat i should be able to
-change this setting in my bios. *not*
+Rik
+-- 
+Will hack the VM for food.
 
-can't i reserve any more ram myselve by selecting linux only to use 256 -
-8 Meg or something @ boot-time ?
-
-
-tnx !!
-	michael
-
-
-btw: sry for my n00b'ism ;)
-
-
------------------------------------------------------------------------
-                Michael De Nil -- michael@aerythmic.be
-       Linux LiSa 2.4.18 #4 SMP ma apr 1 11:11:48 CEST 2002 i686
-      22:44:01 up  4:46,  3 users,  load average: 1.07, 0.46, 0.21
------------------------------------------------------------------------
+http://www.surriel.com/		http://distro.conectiva.com/
 

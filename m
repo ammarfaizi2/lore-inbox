@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129468AbRB0CUL>; Mon, 26 Feb 2001 21:20:11 -0500
+	id <S129478AbRB0CUv>; Mon, 26 Feb 2001 21:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129478AbRB0CUB>; Mon, 26 Feb 2001 21:20:01 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:4612 "HELO sh0n.net")
-	by vger.kernel.org with SMTP id <S129468AbRB0CTs>;
-	Mon, 26 Feb 2001 21:19:48 -0500
-Message-ID: <3A9B0EBE.BBC54F1@sh0n.net>
-Date: Mon, 26 Feb 2001 21:19:43 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Reply-To: shawn@rhua.org
-Organization: sh0n.net - http://www.sh0n.net/spstarr
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <mikeg@wen-online.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Causes more then just 
- msgs
-In-Reply-To: <Pine.LNX.4.21.0102260610030.5276-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S129491AbRB0CUb>; Mon, 26 Feb 2001 21:20:31 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:19439 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129464AbRB0CU2>; Mon, 26 Feb 2001 21:20:28 -0500
+Date: Mon, 26 Feb 2001 21:41:20 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jochen Friedrich <jochen@scram.de>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] tms380tr: update last_rx after netif_rx
+Message-ID: <20010226214120.S8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010226211403.N8692@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <20010226211403.N8692@conectiva.com.br>; from acme@conectiva.com.br on Mon, Feb 26, 2001 at 09:14:03PM -0300
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It may not be an important message but what does happen is /dev/dsp becomes
-hung and no sound works after the fault. So something is definately wrong.
+Hi,
 
-Shawn.
+	Please consider applying.
 
-Marcelo Tosatti wrote:
+- Arnaldo
 
-> On Mon, 26 Feb 2001, Alan Cox wrote:
->
-> > > We can add an allocation flag (__GFP_NO_CRITICAL?) which can be used by
-> > > sg_low_malloc() (and other non critical allocations) to fail previously
-> > > and not print the message.
-> >
-> > It is just for debugging. The message can go. If anytbing it would be more
-> > useful to tack Failed alloc data on the end of /proc/slabinfo
->
-> The issue is not the warn message.
->
-> Non critical allocations (such as this case of sg_low_malloc()) are trying
-> to get additional memory to optimize things -- we want the allocator to be
-> lazy and fail previously instead doing hard work. If kswapd cannot keep up
-> with the memory pressure, we're surely in a memory shortage state.
->
-> Its better to get out of the memory shortage instead running into OOM
-> because of some optimization, I guess.
->
-> Another example of such a flag is swapin readahead.
-
---
-Hugged a Tux today? (tm)
-
-
-
+--- linux-2.4.2/drivers/net/tokenring/tms380tr.c	Fri Feb 16 22:02:36 2001
++++ linux-2.4.2.acme/drivers/net/tokenring/tms380tr.c	Mon Feb 26 23:11:51 2001
+@@ -2203,6 +2203,7 @@
+ 				skb_trim(skb,Length);
+ 				skb->protocol = tr_type_trans(skb,dev);
+ 				netif_rx(skb);
++				dev->last_rx = jiffies;
+ 			}
+ 		}
+ 		else	/* Invalid frame */

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSFZNwT>; Wed, 26 Jun 2002 09:52:19 -0400
+	id <S316585AbSFZN5b>; Wed, 26 Jun 2002 09:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316585AbSFZNwS>; Wed, 26 Jun 2002 09:52:18 -0400
-Received: from iris.mc.com ([192.233.16.119]:45732 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S316582AbSFZNwR>;
-	Wed, 26 Jun 2002 09:52:17 -0400
-Message-Id: <200206261352.JAA09553@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: linux-kernel@vger.kernel.org
-Subject: advice on benchmarks for smp/scsi system
-Date: Wed, 26 Jun 2002 09:54:21 -0400
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S316586AbSFZN5a>; Wed, 26 Jun 2002 09:57:30 -0400
+Received: from arsenal.visi.net ([206.246.194.60]:25080 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S316585AbSFZN53>;
+	Wed, 26 Jun 2002 09:57:29 -0400
+Date: Wed, 26 Jun 2002 09:47:15 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix .text.exit error in ieee1394/ohci1394.c
+Message-ID: <20020626134715.GG496@blimpo.internal.net>
+References: <Pine.NEB.4.44.0206251547300.14220-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.NEB.4.44.0206251547300.14220-100000@mimas.fachschaften.tu-muenchen.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what tools are the state of the art benchmarking tools for network, disk and 
-interrupt latency testing?
+On Tue, Jun 25, 2002 at 03:52:58PM +0200, Adrian Bunk wrote:
+> 
+> The following error occured at the final linking of 2.4.19-rc1:
 
-I need to do some kernel performance characterization on a dual xeon, dual Gb 
-ethernet, SCSI320/RAID system.
+I thought Marcelo was already supposed to have applied this? We already
+have it in our repository, and I ok'd the patch you (or someone) sent
+him the last time. I don't want to resync our current repo with 2.4 this
+late prior to it becoming final, so please apply this simple patch.
 
-I need to measure network throughput vs CPU load, disk throughput, interrupt 
-latency, network to disk streaming and disk to net streaming.
-
-I need to characterize the stock rh7.3 2.4 smp kernel, stock + pre-emption 
-patch, stock + latency patch and stock + both.  I also need to test the same 
-basic combinations, but stripped and optimized for my specific hardware. I 
-know in a general way that I will probably find the most joy with 
-stripped/optimized + both, but I need specifics.
-
-I also need to compare compiled in scsi and e-net vs modules
-
-any recommendations for which sets of benchmarking tools to use would be 
-appreciated greatly
-
-	Thanks for your time,
-
-		Mark
 -- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-**************************************************/
+Debian     - http://www.debian.org/
+Linux 1394 - http://linux1394.sourceforge.net/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

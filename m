@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272108AbVBEOrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVBEPCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272108AbVBEOrw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 09:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272121AbVBEOrw
+	id S262048AbVBEPCh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 10:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVBEPCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 09:47:52 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:47532 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S272108AbVBEOrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 09:47:46 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume
-Date: Sat, 5 Feb 2005 15:48:26 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@suse.cz>
-References: <20050204103350.241a907a.akpm@osdl.org> <200502051411.16194.rjw@sisk.pl> <20050205143511.GA28656@elte.hu>
-In-Reply-To: <20050205143511.GA28656@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Feb 2005 10:02:37 -0500
+Received: from animx.eu.org ([216.98.75.249]:36272 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S263398AbVBEPCa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 10:02:30 -0500
+Date: Sat, 5 Feb 2005 10:11:15 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: jerome lacoste <jerome.lacoste@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Huge unreliability - does Linux have something to do with it?
+Message-ID: <20050205151115.GA3013@animx.eu.org>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	jerome lacoste <jerome.lacoste@gmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <5a2cf1f605020401037aa610b9@mail.gmail.com> <20050204121817.GA7721@animx.eu.org> <20050205122709.GD1850@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502051548.26729.rjw@sisk.pl>
+In-Reply-To: <20050205122709.GD1850@alpha.home.local>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 5 of February 2005 15:35, Ingo Molnar wrote:
+Please keep me CCd
+
+Willy Tarreau wrote:
+> On Fri, Feb 04, 2005 at 07:18:17AM -0500, Wakko Warner wrote:
+> > I have this exact same laptop.  It works perfectly for me with linux. 
+> > Originally started with a 2.4 kernel and recently went to 2.6.10.  The modem
+> > works well, the video card works well even with 3D accel.  I replaced the
+> > original 30gb hdd with a 40gb (for space reasons).  The only complaint about
+> > this thing I have is the fact they used an nvidia video chip.  I have seen
+> > more than 4 months uptime on it (I used to use it as a desktop)
 > 
-> * Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> 
-> > It looks like softlockup is not happy with suspend/resume:
-> 
-> Does it happen while writing out state to disk?
+> I think it does not like being moved. A friend of mine had his one repaired
+> several times because of either hard disk failures, backlight failure and
+> the machine refusing to boot at all. I've never seen such unreliable hardware!
 
-No, it occurs during resume, right after the image has been restored (sorry,
-I should have said this before).
+Mine didn't have that problem.  At the time it was the fastest machine I
+had.  I got away from it though with my nice xeon box =)
 
-> I've attached a patch for touch_softlockup_watchdog() below - but i think
-> what we really need is another mechanism. I'm wondering what the primary
-> reason for the lockup-detection is - did swsuspend stop the the softlockup
-> threads? 
-
-If my understanding is correct, the time between suspend (ie the creation of
-the image) and resume (ie the resotration of the image) is considered as spent
-in the kernel, so it triggers softlockup as soon as its threads are woken up (is
-that correct, Pavel?).
-
-Greets,
-Rafael
-
+I have never heard of a machine that if you move it it'd quit working. 
+That's bad.  I have heard of a machine quit working because someone looked
+at it the wrong way.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+ Lab tests show that use of micro$oft causes cancer in lab animals

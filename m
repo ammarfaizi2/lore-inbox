@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268792AbRHaSDu>; Fri, 31 Aug 2001 14:03:50 -0400
+	id <S268837AbRHaSSu>; Fri, 31 Aug 2001 14:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268835AbRHaSDl>; Fri, 31 Aug 2001 14:03:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:46340 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S268792AbRHaSDY>;
-	Fri, 31 Aug 2001 14:03:24 -0400
-Date: Fri, 31 Aug 2001 20:03:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jonathan Lahr <lahr@us.ibm.com>
-Cc: lahr@beaverton.ibm.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: io_request_lock/queue_lock patch
-Message-ID: <20010831200333.A9069@suse.de>
-In-Reply-To: <20010830134930.F23680@us.ibm.com> <20010831075613.A2855@suse.de> <20010831075201.N23680@us.ibm.com>
-Mime-Version: 1.0
+	id <S268856AbRHaSSk>; Fri, 31 Aug 2001 14:18:40 -0400
+Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:29399 "EHLO
+	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
+	id <S268837AbRHaSS2>; Fri, 31 Aug 2001 14:18:28 -0400
+Message-ID: <3B8FD501.CE027082@bigfoot.com>
+Date: Fri, 31 Aug 2001 11:18:41 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p9ai i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Hollister <david@digitalaudioresources.org>
+CC: Jan Niehusmann <jan@gondor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010831075201.N23680@us.ibm.com>; from lahr@us.ibm.com on Fri, Aug 31, 2001 at 07:52:01AM -0700
-X-OS: Linux 2.2.20 i686
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 31 2001, Jonathan Lahr wrote:
-> 
-> Jens,
-> 
-> Please elaborate on "no, no, no".   Are you suggesting that no further
-> improvements can be made or should be attempted on the 2.4 i/o subsystem?
+> It seems to work somewhat better for some if you set your BIOS to the
+> conservative settings, but that didn't help me.  I have an Epox 8KTA3+ (Via
+> KT133A) w/ a 1.4GHz Athlon and 512MB memory.  If you can't get it to work that
+> way, just stick with the K6 setting.  The point is, your hardware is likely fine
+> (fine being relative, I suppose)
+> If there are other tricks, I'm all ears.
 
-Of course not. The no no no just means that attempting to globally remove the
-io_request_lock at this point is a no-go, so don't even go there. The
-sledgehammer approach will not fly at this point, it's just way too risky.
+The i686 setting works perfectly.
 
-Jens
+rgds,
+tim.
+--

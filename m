@@ -1,148 +1,273 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSGRE2c>; Thu, 18 Jul 2002 00:28:32 -0400
+	id <S318009AbSGREUJ>; Thu, 18 Jul 2002 00:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318011AbSGRE2c>; Thu, 18 Jul 2002 00:28:32 -0400
-Received: from ip68-100-183-147.nv.nv.cox.net ([68.100.183.147]:54236 "HELO
-	ascellatech.com") by vger.kernel.org with SMTP id <S318007AbSGRE22>;
-	Thu, 18 Jul 2002 00:28:28 -0400
-Subject: Re: 2.4.18-2.4.19-rc1-ac4 + Promise SX6000 + i2o
-From: Amith Varghese <amith@xalan.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1026941364.4547.91.camel@viper>
-References: <1026941364.4547.91.camel@viper>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Jul 2002 00:31:21 -0400
-Message-Id: <1026966681.4537.119.camel@viper>
-Mime-Version: 1.0
+	id <S318005AbSGRETC>; Thu, 18 Jul 2002 00:19:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:6834 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318007AbSGRESn>;
+	Thu, 18 Jul 2002 00:18:43 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] per-cpu patch 2/3
+Date: Thu, 18 Jul 2002 13:48:10 +1000
+Message-Id: <20020718042221.36D114479@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just for more information... I too have the PDC20276 chip which Alan had
-mentioned in in linux 2.4.19rc1-ac3 changelog as the following:
+Given the ongoing races with smp_processor_id() and preempt, this
+makes sense to me.  this_cpu() was too generic a name anyway.
 
-o	Newer SX6000 has PDC20276 chips. Handle this	(me)
+Name: get_cpu_var patch
+Author: Rusty Russell
+Status: Cleanup
 
-I tried 2.4.19rc2 and 2.4.19rc1-ac7 with no success.  I'm willing to try
-and debug this, but i don't have a really good idea how to.  If someone
-can give me some ideas that would be great.
+D: This makes introduces get_cpu_var() which gets a per-cpu variable
+D: and disables preemption, and renames the (unsafe under preemption)
+D: "this_cpu()" macro to __get_cpu_var().  It also deletes the
+D: redundant definitions in linux/smp.h.
 
-Thanks
-Amith  
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/linux/percpu.h working-2.5.25-getcpu/include/linux/percpu.h
+--- linux-2.5.25/include/linux/percpu.h	Mon Jun 24 00:53:24 2002
++++ working-2.5.25-getcpu/include/linux/percpu.h	Thu Jul 11 13:32:30 2002
+@@ -8,7 +8,9 @@
+ #else
+ #define __per_cpu_data
+ #define per_cpu(var, cpu)			var
+-#define this_cpu(var)				var
++#define __get_cpu_var(var)			var
+ #endif
+ 
++#define get_cpu_var(var) ({ preempt_disable(); __get_cpu_var(var); })
++#define put_cpu_var(var) preempt_enable()
+ #endif /* __LINUX_PERCPU_H */
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/linux/smp.h working-2.5.25-getcpu/include/linux/smp.h
+--- linux-2.5.25/include/linux/smp.h	Fri Jun 21 09:41:55 2002
++++ working-2.5.25-getcpu/include/linux/smp.h	Thu Jul 11 13:32:07 2002
+@@ -89,10 +89,6 @@
+ #define cpu_online_map				1
+ #define cpu_online(cpu)				1
+ #define num_online_cpus()			1
+-#define __per_cpu_data
+-#define per_cpu(var, cpu)			var
+-#define this_cpu(var)				var
+-
+ #endif /* !SMP */
+ 
+ #define get_cpu()	({ preempt_disable(); smp_processor_id(); })
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/asm-ia64/percpu.h working-2.5.25-getcpu/include/asm-ia64/percpu.h
+--- linux-2.5.25/include/asm-ia64/percpu.h	Tue Apr 23 11:39:38 2002
++++ working-2.5.25-getcpu/include/asm-ia64/percpu.h	Thu Jul 11 13:34:05 2002
+@@ -17,7 +17,7 @@
+ extern unsigned long __per_cpu_offset[NR_CPUS];
+ 
+ #define per_cpu(var, cpu)	(*(__typeof__(&(var))) ((void *) &(var) + __per_cpu_offset[cpu]))
+-#define this_cpu(var)		(var)
++#define __get_cpu_var(var)	(var)
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/asm-ia64/processor.h working-2.5.25-getcpu/include/asm-ia64/processor.h
+--- linux-2.5.25/include/asm-ia64/processor.h	Fri Jun 21 09:41:55 2002
++++ working-2.5.25-getcpu/include/asm-ia64/processor.h	Thu Jul 11 13:33:26 2002
+@@ -181,7 +181,7 @@
+  * The "local" data pointer.  It points to the per-CPU data of the currently executing
+  * CPU, much like "current" points to the per-task data of the currently executing task.
+  */
+-#define local_cpu_data		(&this_cpu(cpu_info))
++#define local_cpu_data		(&__get_cpu_var(cpu_info))
+ #define cpu_data(cpu)		(&per_cpu(cpu_info, cpu))
+ 
+ extern void identify_cpu (struct cpuinfo_ia64 *);
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/asm-x86_64/percpu.h working-2.5.25-getcpu/include/asm-x86_64/percpu.h
+--- linux-2.5.25/include/asm-x86_64/percpu.h	Mon Jun 17 23:19:25 2002
++++ working-2.5.25-getcpu/include/asm-x86_64/percpu.h	Thu Jul 11 13:34:17 2002
+@@ -4,7 +4,7 @@
+ #include <asm/pda.h>
+ 
+ /* var is in discarded region: offset to particular copy we want */
+-#define this_cpu(var)     (*RELOC_HIDE(&var, read_pda(cpudata_offset)))
++#define __get_cpu_var(var)     (*RELOC_HIDE(&var, read_pda(cpudata_offset)))
+ #define per_cpu(var, cpu) (*RELOC_HIDE(&var, per_cpu_pda[cpu]))
+ 
+ void setup_per_cpu_areas(void);
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/arch/ia64/kernel/perfmon.c working-2.5.25-getcpu/arch/ia64/kernel/perfmon.c
+--- linux-2.5.25/arch/ia64/kernel/perfmon.c	Thu Jun 20 01:28:47 2002
++++ working-2.5.25-getcpu/arch/ia64/kernel/perfmon.c	Thu Jul 11 13:35:08 2002
+@@ -1762,7 +1762,7 @@
+ 		ia64_srlz_i();
+ 
+ #ifdef CONFIG_SMP
+-		this_cpu(pfm_dcr_pp)  = 0;
++		__get_cpu_var(pfm_dcr_pp)  = 0;
+ #else
+ 		pfm_tasklist_toggle_pp(0);
+ #endif
+@@ -2163,7 +2163,7 @@
+ 	if (ctx->ctx_fl_system) {
+ 		
+ #ifdef CONFIG_SMP
+-		this_cpu(pfm_dcr_pp)  = 1;
++		__get_cpu_var(pfm_dcr_pp)  = 1;
+ #else
+ 		pfm_tasklist_toggle_pp(1);
+ #endif
+@@ -2218,8 +2218,8 @@
+ 		ia64_srlz_i();
+ 
+ #ifdef CONFIG_SMP
+-		this_cpu(pfm_syst_wide) = 1;
+-		this_cpu(pfm_dcr_pp)    = 0;
++		__get_cpu_var(pfm_syst_wide) = 1;
++		__get_cpu_var(pfm_dcr_pp)    = 0;
+ #endif
+ 	} else {
+ 		/*
+@@ -2973,9 +2973,9 @@
+ 	p += sprintf(p, "CPU%d syst_wide   : %d\n"
+ 			"CPU%d dcr_pp      : %d\n", 
+ 			smp_processor_id(), 
+-			this_cpu(pfm_syst_wide), 
++			__get_cpu_var(pfm_syst_wide), 
+ 			smp_processor_id(), 
+-			this_cpu(pfm_dcr_pp));
++			__get_cpu_var(pfm_dcr_pp));
+ #endif
+ 
+ 	LOCK_PFS();
+@@ -3045,7 +3045,7 @@
+ 	/*
+ 	 * propagate the value of the dcr_pp bit to the psr
+ 	 */
+-	ia64_psr(regs)->pp = mode ? this_cpu(pfm_dcr_pp) : 0;
++	ia64_psr(regs)->pp = mode ? __get_cpu_var(pfm_dcr_pp) : 0;
+ }
+ #endif
+ 
+@@ -3539,8 +3539,8 @@
+ 		ia64_srlz_i();
+ 
+ #ifdef CONFIG_SMP
+-		this_cpu(pfm_syst_wide) = 0;
+-		this_cpu(pfm_dcr_pp)    = 0;
++		__get_cpu_var(pfm_syst_wide) = 0;
++		__get_cpu_var(pfm_dcr_pp)    = 0;
+ #else
+ 		pfm_tasklist_toggle_pp(0);
+ #endif
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/arch/ia64/kernel/process.c working-2.5.25-getcpu/arch/ia64/kernel/process.c
+--- linux-2.5.25/arch/ia64/kernel/process.c	Thu May 30 10:00:47 2002
++++ working-2.5.25-getcpu/arch/ia64/kernel/process.c	Thu Jul 11 13:35:21 2002
+@@ -194,7 +194,7 @@
+ 		pfm_save_regs(task);
+ 
+ # ifdef CONFIG_SMP
+-	if (this_cpu(pfm_syst_wide))
++	if (__get_cpu_var(pfm_syst_wide))
+ 		pfm_syst_wide_update_task(task, 0);
+ # endif
+ #endif
+@@ -216,7 +216,7 @@
+ 		pfm_load_regs(task);
+ 
+ # ifdef CONFIG_SMP
+-	if (this_cpu(pfm_syst_wide)) pfm_syst_wide_update_task(task, 1);
++	if (__get_cpu_var(pfm_syst_wide)) pfm_syst_wide_update_task(task, 1);
+ # endif
+ #endif
+ 
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/arch/ia64/kernel/smp.c working-2.5.25-getcpu/arch/ia64/kernel/smp.c
+--- linux-2.5.25/arch/ia64/kernel/smp.c	Thu Jun 20 01:28:47 2002
++++ working-2.5.25-getcpu/arch/ia64/kernel/smp.c	Thu Jul 11 13:35:39 2002
+@@ -99,7 +99,7 @@
+ handle_IPI (int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	int this_cpu = smp_processor_id();
+-	unsigned long *pending_ipis = &this_cpu(ipi_operation);
++	unsigned long *pending_ipis = &__get_cpu_var(ipi_operation);
+ 	unsigned long ops;
+ 
+ 	/* Count this now; we may make a call that never returns. */
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/include/asm-generic/percpu.h working-2.5.25-getcpu/include/asm-generic/percpu.h
+--- linux-2.5.25/include/asm-generic/percpu.h	Mon Apr 15 11:47:44 2002
++++ working-2.5.25-getcpu/include/asm-generic/percpu.h	Thu Jul 11 13:32:42 2002
+@@ -8,6 +8,6 @@
+ 
+ /* var is in discarded region: offset to particular copy we want */
+ #define per_cpu(var, cpu) (*RELOC_HIDE(&var, __per_cpu_offset[cpu]))
+-#define this_cpu(var) per_cpu(var, smp_processor_id())
++#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+ 
+ #endif /* _ASM_GENERIC_PERCPU_H_ */
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/kernel/softirq.c working-2.5.25-getcpu/kernel/softirq.c
+--- linux-2.5.25/kernel/softirq.c	Sun Jul  7 02:12:24 2002
++++ working-2.5.25-getcpu/kernel/softirq.c	Thu Jul 11 13:31:26 2002
+@@ -162,8 +162,8 @@
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	t->next = this_cpu(tasklet_vec).list;
+-	this_cpu(tasklet_vec).list = t;
++	t->next = __get_cpu_var(tasklet_vec).list;
++	__get_cpu_var(tasklet_vec).list = t;
+ 	cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
+ 	local_irq_restore(flags);
+ }
+@@ -173,8 +173,8 @@
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	t->next = this_cpu(tasklet_hi_vec).list;
+-	this_cpu(tasklet_hi_vec).list = t;
++	t->next = __get_cpu_var(tasklet_hi_vec).list;
++	__get_cpu_var(tasklet_hi_vec).list = t;
+ 	cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
+ 	local_irq_restore(flags);
+ }
+@@ -184,8 +184,8 @@
+ 	struct tasklet_struct *list;
+ 
+ 	local_irq_disable();
+-	list = this_cpu(tasklet_vec).list;
+-	this_cpu(tasklet_vec).list = NULL;
++	list = __get_cpu_var(tasklet_vec).list;
++	__get_cpu_var(tasklet_vec).list = NULL;
+ 	local_irq_enable();
+ 
+ 	while (list) {
+@@ -205,8 +205,8 @@
+ 		}
+ 
+ 		local_irq_disable();
+-		t->next = this_cpu(tasklet_vec).list;
+-		this_cpu(tasklet_vec).list = t;
++		t->next = __get_cpu_var(tasklet_vec).list;
++		__get_cpu_var(tasklet_vec).list = t;
+ 		__cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
+@@ -217,8 +217,8 @@
+ 	struct tasklet_struct *list;
+ 
+ 	local_irq_disable();
+-	list = this_cpu(tasklet_hi_vec).list;
+-	this_cpu(tasklet_hi_vec).list = NULL;
++	list = __get_cpu_var(tasklet_hi_vec).list;
++	__get_cpu_var(tasklet_hi_vec).list = NULL;
+ 	local_irq_enable();
+ 
+ 	while (list) {
+@@ -238,8 +238,8 @@
+ 		}
+ 
+ 		local_irq_disable();
+-		t->next = this_cpu(tasklet_hi_vec).list;
+-		this_cpu(tasklet_hi_vec).list = t;
++		t->next = __get_cpu_var(tasklet_hi_vec).list;
++		__get_cpu_var(tasklet_hi_vec).list = t;
+ 		__cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
 
-On Wed, 2002-07-17 at 17:29, Amith Varghese wrote:
-> I'm getting similar results, but I haven't tried anyting in 2.4.19
-> series yet... this is my situation
-> 
-> I am trying to put together a new machine using the promise sx6000
-> raid card and I am having some problems with getting the OS to
-> recognize the raid array.  Here are the facts
-> 
-> * dual athlon 1900
-> * asus a7m266-d motherboard w/ latest bios (A006)
-> * 1GB RAM
-> * Realtek RTL-8139 ethernet card
-> * Promise SX6000
-> 
-> * using 6 120GB western digital HD's
-> * total array size is 600GB defined as RAID 5
-> * using the latest bios (Revision 77) for the promise sx6000
-> * have the OS set to "Other"
-> 
-> The redhat 7.3 doesn't seem to load the i20 block driver on boot and
-> therefore it can't find any drives when trying to install the OS.  So
-> what I have done is compiled a new kernel on my other linux machine
-> that has the i2o support, i2o pci support, and i2o block support.  I
-> then replaced the vmlinuz file within the boot.img file provided by
-> redhat.  When I boot the machine it looks promising.  I get the
-> following messages:
-> 
-> Loading I2O core - (c) Copyright 1999 Red Hat Software
-> Linux I2O PCI support (c) 1999 Red Hat Software
-> i2o: Checking for PCI I2O controllers...
-> i2o: I2O controller on bus 2 at 49.
-> i2o: PCI I2O controller at 0xF3000000 size=4194304
-> I2O: Promise workarounds activated.
-> i2o/iop0: Installed at IRQ 10
-> i2o: 1 I2O controller found and installed.
-> Activating I2O controllers...
-> This may take a few minutes if there are many devices
-> i2o/iop0: Reset rejected, trying to clear
-> i2o/iop0: LCT has 5 entries
-> i2o/iop0: Configuration dialog desired.
-> I2O configuration manager v 0.04.
->   (C) Copyright 1999 Red Hat Software
-> I2O Block Storage OSM v0.9
->   (C) Copyright 1999-2001 Red Hat Software
-> i2o_block: Checking for Boot device...
-> i2o_block: Checking for I2O Block devices...
-> i2ob: Installing tid 11 device at unit 0
-> i2o/hda: Max segments 28, queue def 32, byte limit 14336.
-> i2o/hda: Type 128: 572366MB, 512 byte sectors.
-> i2o/hda: Maximum sectors/read set 2 256.
-> Partitition check:
->   i2o/hda:
-> 
-> However, it hangs here and does nothing.  I left it on all night and
-> no change.  Does anyone have any ideas why it might be hanging?  Is
-> there something else I should try?  Do I need to pass any arguments to
-> the kernel?  If anyone needs more info I would be glad to give it. 
-> Any help would be greatly appreciated.
-> 
-> Thanks
-> Amith  
-> 
-> 
-> 
-> Viktors Rotanovs <Viktors@Rotanovs.com> wrote in message
-> news:<linux.kernel.9016512704.20020717045236@Rotanovs.com>...
-> > Hi,
-> > 
-> > I've found numerious reports that Promise SX6000 works fine with
-> > 2.4.18+ kernels, and tried it with 2.4.18 and 2.4.19-rc1-ac4 kernels
-> > with i2o support.
-> > 
-> > Here are the results:
-> > 
-> > 2.4.18: finds controller, but doesn't find disk device on it.
-> > 2.4.19-rc1-ac4: loads i2o_block and i2o_core fine and doesn't load
-> > i2o_pci. When I try to load i2o_pci manually, it shows a lot of
-> > timeouts.
-> > 
-> > I seem to have PDC20276 chip (if i'm not mistaken) marked as new
-> > by Alan Cox.
-> > 
-> > OS type on the RAID is set to Other.
-> > 
-> > When I try to run original driver Promise's driver instead of i2o on
-> > 2.4.18, it starts showing SCSI timeouts after some time when working
-> > under heavy load.
-> > 
-> > I use RAID with ReiserFS.
-> > 
-> > Thanks for any help and have a nice day!
-> > 
-> > Best Wishes,
-> > Viktors
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbTAWThF>; Thu, 23 Jan 2003 14:37:05 -0500
+	id <S266210AbTAWTxV>; Thu, 23 Jan 2003 14:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266731AbTAWThF>; Thu, 23 Jan 2003 14:37:05 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:16572 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S266320AbTAWThE>; Thu, 23 Jan 2003 14:37:04 -0500
-Message-ID: <3E30468A.3DAF4BF0@attbi.com>
-Date: Thu, 23 Jan 2003 14:46:18 -0500
-From: Jim Houston <jim.houston@attbi.com>
-Reply-To: jim.houston@attbi.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: alternate high-res-timers patch comments (II)
-References: <Pine.LNX.4.33L2.0301221712200.3511-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S266310AbTAWTxV>; Thu, 23 Jan 2003 14:53:21 -0500
+Received: from h80ad266c.async.vt.edu ([128.173.38.108]:17282 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266210AbTAWTxT>; Thu, 23 Jan 2003 14:53:19 -0500
+Message-Id: <200301232002.h0NK2875012830@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: User & <breno_silva@beta.bandnet.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Expand VM 
+In-Reply-To: Your message of "Thu, 23 Jan 2003 16:40:14 -0300."
+             <20030123194014.M374@beta.bandnet.com.br> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030123155627.M95099@beta.bandnet.com.br> <200301231655.h0NGtc75010414@turing-police.cc.vt.edu>
+            <20030123194014.M374@beta.bandnet.com.br>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-264112535P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Jan 2003 15:02:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Here are more comments/questions on Jim's alternate high-res-timers
-> patch.  Some of this is just to understand the code.
-> 
-> a.  Why return here and skip profiling?
->     Is this an intermediate (high-res) timer interrupt that shouldn't be
->     used for profiling?
-> 
->  inline void smp_local_timer_interrupt(struct pt_regs * regs)
->  {
->         int cpu = smp_processor_id();
-> +
-> +       if (!run_posix_timers((void *)regs))
-> +               return;
-> 
->         x86_do_profile(regs);
-> 
-> b.  In kernel/id2ptr.c,
-> 
-> <id_free_cnt>:  change cnt to count; just a style thing.
-> Linux doesn't use many abbreviations, which makes it easier on
-> everyone not having to remember "what is the abbreviation that code
-> uses for <whatever>?".
-> 
-> sub_alloc() is recursive.  How bounded is it?  32 calls max?
-> I'm not totally against recursion, but it needs to be *well-bounded*.
-> 
-> Same for sub_remove().
-> 
+--==_Exmh_-264112535P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hi Randy,
+On Thu, 23 Jan 2003 16:40:14 -0300, User & said:
+> Create a new VMA on Linux B for Linux A is easy , but i have a problem =
+, the =
 
-Yes, the code fragment in a) above is how the timer code shares the 
-APIC timer interrupt.  There is an in-kernel "Posix style" timer
-which is used to generate the profile tick.  This still needs
-a bit of work to allow the profile tick rate to be set.  It defaults
-to HZ.  In the long run, it might make sense to call the profiling
-code from the "case TICK" in check_expiry() perhaps generalizing the interface
-so that it would call through a function pointer.  There are a few 
-bits of code that would benifit from having in-kernel repeating timers.
-An example would be the code which syncs the hardware clock every 18 minutes.
+> address of VMA is returned on Linux B , so the VMA created on Linux B c=
+an not
+ =
 
-Yes, the id allocator uses a recursive approach.  This has been discussed
-before. It is well bounded, has a tiny stack frame and will never
-require more than 6 levels of nesting.  I have been following the changes
-George has made to his version.  This "simple problem" is a real time sink.
+> be used for process of linux A.
 
-Jim Houston - Concurrent Computer Corp.
+It's unclear whether you're just trying to use B for added swap space, or=
+
+if you want B to actually run code.
+
+If it's the former, all you have to do is allocate a lot of disk space on=
+ B,
+and NFS export it to A, and then have A mount it (you might need to
+use a loopback mount of a file on the NFS partition and then 'swapon' the=
+
+loopback - I dont think swapon will directly take an NFS file)
+
+> The problem is "how can i return address of VMA created on LINUX B to L=
+inux =
+
+> A , and use this space ?".
+
+If you're trying to get B to actually run code, it gets a lot more messy,=
+ as
+you have to worry about open file descriptors, race conditions, and many
+other things.
+-- =
+
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_-264112535P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+MEo/cC3lWbTT17ARAq1cAKDspBeZAwaGLpcF0YoHEKBFL0xToQCbBMh8
+A4Q7l+K8FVwkHnTeQnGVMLI=
+=jSLd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-264112535P--

@@ -1,79 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263958AbTEFQty (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTEFQty
+	id S263944AbTEFQ0B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTEFQZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:49:54 -0400
-Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:22400 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id S263958AbTEFQtw
+	Tue, 6 May 2003 12:25:44 -0400
+Received: from mail.convergence.de ([212.84.236.4]:9417 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263944AbTEFQOB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:49:52 -0400
-Date: Tue, 6 May 2003 10:01:23 -0700
-From: Jerry Cooperstein <coop@axian.com>
-To: linux-kernel@vger.kernel.org, Yoav Weiss <ml-lkml@unpatched.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030506170123.GA2025@p3.attbi.com>
-References: <Pine.LNX.4.44.0305061133290.2977-100000@marcellos.corky.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305061133290.2977-100000@marcellos.corky.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 May 2003 12:14:01 -0400
+Message-ID: <3EB7E110.80500@convergence.de>
+Date: Tue, 06 May 2003 18:21:36 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: [PATCH[[2.5][9-11] correct the i2c address of the saa7111
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090303040309090109080109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's much simpler than that: Do either
+This is a multi-part message in MIME format.
+--------------090303040309090109080109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-nm vmlinux | grep sys_call_table
-  
-  or
+Hello,
 
-grep sys_call_table System.map 
+this patch corrects the i2c address from "34>>1" to 0x24 and 0x25. 
+Believe me -- or look at the data sheet, for example from
+http://www.gdv.uni-hannover.de/~hunold1/linux/saa7146/specs/saa7111a.pdf
 
-extract the address, use the header file to get the syscall number and
-the offset.
+Page 41 says: "Slave address read = 49H or 4BH; note 2 write = 48H or 4AH"
 
-Of course this all breaks the GPL, but you can get any non-exported
-symbol address that way.
+They use 8-bit addresses here, but i2c addresses are 7-bit, ie. 0x48>>1 
+== 0x24 and 0x4a>>1 = 0x25
 
-======================================================================
- Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
- Axian, Inc., Software Consulting and Training
- 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
+Please apply.
 
-
+Thanks
+Michael Hunold.
 
 
-On Tue, May 06, 2003 at 11:45:41AM +0300, Yoav Weiss wrote:
-> > But how? When some global will not be exported, it would not be listed
-> > in /proc/ksyms.
-> 
-> So what ?
-> You just find the right address (in this case by getting the addresses of
-> exported syscalls and finding a list in memory, containing them in the
-> right order), and cast it to be the syscall table.  If you want it to work
-> with a binary-only driver, you can even insmod a small module that does
-> that and adds the result to the symbol table for other modules to use.
-> 
-> We've been doing that for years on closed-source systems like AIX.  The
-> above is just one way to locate a struct in memory.  A faster way is to
-> find some exported structs which are known to point to the unexported
-> symbol from some offset, extract the symbol's address, and "re-export" it.
-> 
-> In fact, in linux which is opensource, you can probably write a script
-> that extracts any unexported symbol from the source code, find a path to
-> it from some exported symbol, and automagically create a module that
-> re-exports this symbol for your legacy driver to use.
-> 
-> If you write the script, don't forget to GPL it :)
-> 
-> 	Yoav Weiss
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+
+
+
+
+
+--------------090303040309090109080109
+Content-Type: text/plain;
+ name="09-saa7111-i2c-address-fixup.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="09-saa7111-i2c-address-fixup.diff"
+
+diff -uNrwB -x '*.o' --new-file linux-2.5.69/drivers/media/video/saa7111.c linux-2.5.69.patch/drivers/media/video/saa7111.c
+--- linux-2.5.69/drivers/media/video/saa7111.c	2003-05-06 13:16:21.000000000 +0200
++++ linux-2.5.69.patch/drivers/media/video/saa7111.c	2003-05-06 17:18:27.000000000 +0200
+@@ -57,7 +57,7 @@
+ 	int sat;
+ };
+ 
+-static unsigned short normal_i2c[] = { 34>>1, I2C_CLIENT_END };	
++static unsigned short normal_i2c[] = { 0x24, 0x25, I2C_CLIENT_END };    
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };	
+ 
+ I2C_CLIENT_INSMOD;
+
+--------------090303040309090109080109--
+
+

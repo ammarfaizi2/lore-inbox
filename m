@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269875AbRHIXfL>; Thu, 9 Aug 2001 19:35:11 -0400
+	id <S270613AbRHIXfM>; Thu, 9 Aug 2001 19:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270618AbRHIXel>; Thu, 9 Aug 2001 19:34:41 -0400
-Received: from mail12.speakeasy.net ([216.254.0.212]:59664 "EHLO
-	mail12.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S270606AbRHIXdb>; Thu, 9 Aug 2001 19:33:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: kapm-idled shows 90+% cpu usage when idle
-Date: Thu, 9 Aug 2001 19:33:42 -0400
-X-Mailer: KMail [version 1.3]
+	id <S270606AbRHIXem>; Thu, 9 Aug 2001 19:34:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22795 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270613AbRHIXdk>; Thu, 9 Aug 2001 19:33:40 -0400
+Subject: Re: Linux 2.4.7-ac10
+To: louisg00@bellsouth.net (Louis Garcia)
+Date: Fri, 10 Aug 2001 00:35:59 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <997399528.9396.3.camel@tiger> from "Louis Garcia" at Aug 09, 2001 07:25:27 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010809233425Z270606-28344+3498@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15UzLL-0008OL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this a true usage reading or just some quirk that's supposed to happen?   
-I really doubt that this kernel daemon should really be using  cpu.  It seems 
-to respond with a higher cpu usage when i'm idle.  It immediately goes away 
-when something else uses cpu.   If you need any more info just ask.   I'm 
- 
-I'm using 2.4.8-pre7  
-00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP] 
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
-22)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
-30)
+> > o Merge DRM for XFree 4.1.x (XFree86 and others)
+> Can I still use my RH7.1 box with X-4.0.3 and ATI DRI?
 
-I didn't see acpi in my motherboard manual at the time of configuring the 
-kernel, should i be using the acpi idle daemon instead of the supposedly 
-supported APM idle daemon?
+The -ac tree lets you build either 4.0 or 4.1 DRM - its a config option -
+pick 4.0

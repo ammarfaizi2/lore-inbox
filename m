@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSEELwU>; Sun, 5 May 2002 07:52:20 -0400
+	id <S311025AbSEEMEr>; Sun, 5 May 2002 08:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310835AbSEELwT>; Sun, 5 May 2002 07:52:19 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:39688 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S310769AbSEELwT>; Sun, 5 May 2002 07:52:19 -0400
-Message-Id: <200205051149.g45BnGX13620@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Tomas Szepe <szepe@pinerecords.com>,
-        "M. Edward Borasky" <znmeb@aracnet.com>
-Subject: Re: IO stats in /proc/partitions
-Date: Sun, 5 May 2002 14:55:03 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <UTC200205041959.g44JxQa20044.aeb@smtp.cwi.nl> <HBEHIIBBKKNOBLMPKCBBCEAOEMAA.znmeb@aracnet.com> <20020504213534.GA3034@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S311121AbSEEMEq>; Sun, 5 May 2002 08:04:46 -0400
+Received: from rm-f.net ([216.227.60.122]:23309 "EHLO SirDrinkalot.rm-f.net")
+	by vger.kernel.org with ESMTP id <S311025AbSEEMEp>;
+	Sun, 5 May 2002 08:04:45 -0400
+Date: Sun, 5 May 2002 05:04:33 -0700
+From: Dec <dec@rm-f.net>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Subject: [PATCH] linux-2.4.19-pre8/fs/ufs/super.c
+Message-ID: <20020505050432.A17330@SirDrinkalot.rm-f.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 May 2002 19:35, Tomas Szepe wrote:
-> > I recently spent a week trying to track down the units used for the disk
-> > stats in /proc/stat. Through a combination of queries on the LKML and
-> > trucking through the source with rgrep, I managed to get my questions
-> > answered. It matters to me and to the people I work for exactly how many
-> > bytes the I/O subsystem is handling per second, and how close to the
-> > capacity of the I/O subsystem a machine is operating. I consider the fact
-> > that I had to dig for and ask for this information unacceptable.
->
-> But hey, you've suffered thru it, which, guess what, makes you the perfect
-> candidate to have the honor of writing the docs!
+This patch fixes an UFS enabled 2.4.19-pre8 kernel compile problem.
+Some printk() calls' format strings and their variable
+arguments haven't been properly separated with commas.
 
-And peppering code with cute little comments + feeding patches to Rusty's
-'trivial' patchbot.
 
-BTW, are units consistent? Kilobytes? Pages? Sectors?
---
-vda
+--- linux-2.4.19-pre8/fs/ufs/super.c.orig	Sun May  5 14:27:16 2002
++++ linux-2.4.19-pre8/fs/ufs/super.c	Sun May  5 14:21:21 2002
+@@ -663,12 +663,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 512) {
+-		printk("ufs_read_super: fragment size %u is too small\n"
++		printk("ufs_read_super: fragment size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize > 4096) {
+-		printk("ufs_read_super: fragment size %u is too large\n"
++		printk("ufs_read_super: fragment size %u is too large\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+@@ -678,12 +678,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 4096) {
+-		printk("ufs_read_super: block size %u is too small\n"
++		printk("ufs_read_super: block size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize / uspi->s_fsize > 8) {
+-		printk("ufs_read_super: too many fragments per block (%u)\n"
++		printk("ufs_read_super: too many fragments per block (%u)\n",
+ 			uspi->s_bsize / uspi->s_fsize);
+ 		goto failed;
+ 	}

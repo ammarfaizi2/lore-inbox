@@ -1,56 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261691AbTCaP2a>; Mon, 31 Mar 2003 10:28:30 -0500
+	id <S261690AbTCaPgr>; Mon, 31 Mar 2003 10:36:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbTCaP2a>; Mon, 31 Mar 2003 10:28:30 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:37843 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261691AbTCaP23>; Mon, 31 Mar 2003 10:28:29 -0500
-Date: Mon, 31 Mar 2003 16:39:39 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: MCE error
-Message-ID: <20030331153939.GA32463@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Lawrence Walton <lawrence@the-penguin.otak.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030330184756.GA22307@the-penguin.otak.com>
+	id <S261692AbTCaPgq>; Mon, 31 Mar 2003 10:36:46 -0500
+Received: from almesberger.net ([63.105.73.239]:787 "EHLO host.almesberger.net")
+	by vger.kernel.org with ESMTP id <S261690AbTCaPgp>;
+	Mon, 31 Mar 2003 10:36:45 -0500
+Date: Mon, 31 Mar 2003 12:48:00 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PTRACE_KILL doesn't (2.5.44 and others)
+Message-ID: <20030331124800.H7414@almesberger.net>
+References: <20030330205126.G7414@almesberger.net> <20030331145519.GA12984@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030330184756.GA22307@the-penguin.otak.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030331145519.GA12984@win.tue.nl>; from aebr@win.tue.nl on Mon, Mar 31, 2003 at 04:55:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 30, 2003 at 10:47:56AM -0800, Lawrence Walton wrote:
- > I just got a MCE error while running 2.5.65 "MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
- > Bank 2: 940040000000017a" did a google search and found Dave Jones's parsemce, and decoded it to
- > 
- > Status: (ba) Error IP valid
- > Restart IP invalid.
- > 
- > And was wondering what that actually meant. :) 
+Andries Brouwer wrote:
+> First of all, it is dangerous to depend on subtle properties
+> of obscure calls like ptrace.
 
-Incomplete dump, what it really means.. 
+Indeed ;-) Well, there are worse things, e.g. DWARF2
+information versus optimization.
 
-(davej@deviant:davej)$ ./a.out -b 2 -e 0xba -s 940040000000017a -a 0
-Status: (186) Error IP valid
-Restart IP invalid.
-parsebank(2): 940040000000017a @ 0
-	External tag parity error
-	Correctable ECC error
-	Address in addr register valid
-	Error enabled in control register
-	Memory heirarchy error
-	Request: Generic error
-	Transaction type : Generic
-	Memory/IO : I/O
+> The Linux man page says
 
-Looks like the L2 cache ECC checking spotted something going wrong,
-and fixed it up. This can happen in cases where there is inadequate
-cooling, power, or overclocking (or in rare circumstances, flaky CPUs)
+It also says (man-pages-1.56):
 
-		Dave
+| For requests other than  PTRACE_KILL,  the  child  process
+| must be stopped.
 
+Of course, it doesn't explicitly say that PTRACE_KILL will do
+anything in this case, but the wording kind of suggests that.
+
+> Since it is not clear what the right behaviour is, it is not clear
+> whether there is something to fix.
+
+Yes, that's my question. If we're trying to emulate the exact
+behaviour of some other OS or some specification, that would
+give the answer. If not, we can decide what makes sense, and,
+if a change would be needed for the semantics to make sense,
+whether it's worth making that change.
+
+At least it seems that existing code is fine with how
+PTRACE_KILL works, given how long it has behaved like that.
+(But then, existing code may rarely use PTRACE_KILL, and may
+not be particularly picky about the result.)
+
+What puzzles me a little is that kill(2) seems to do precisely
+what I would have expected PTRACE_KILL to do, i.e. kill the
+process no matter whether it's stopped or not, and detach from
+it. So why is there a PTRACE_KILL in the first place ?
+
+The non-Linux man page you quote says:
+
+|    8     This request causes the child to  terminate  with  the
+|          same consequences as exit(2).
+
+Then it would make sense. Of course, this isn't what
+PTRACE_KILL does under Linux. Does that non-Linux man page
+also say anything about the exit status ?
+
+Another subtlety, seen under 2.5.44: if PTRACE_ATTACH is
+immediately followed by PTRACE_KILL, PTRACE_KILL is silently
+ignored (no error).
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,90 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267405AbSLLDEM>; Wed, 11 Dec 2002 22:04:12 -0500
+	id <S267411AbSLLDjL>; Wed, 11 Dec 2002 22:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267407AbSLLDEM>; Wed, 11 Dec 2002 22:04:12 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:12421 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267405AbSLLDEL>; Wed, 11 Dec 2002 22:04:11 -0500
-Date: Wed, 11 Dec 2002 22:16:19 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is this going to be true ?
-In-Reply-To: <at8jlj$nc6$1@forge.intermeta.de>
-Message-ID: <Pine.LNX.3.95.1021211214435.28053A-100000@chaos.analogic.com>
+	id <S267413AbSLLDht>; Wed, 11 Dec 2002 22:37:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:49380 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267411AbSLLDhk>;
+	Wed, 11 Dec 2002 22:37:40 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15864.1386.543811.337732@argo.ozlabs.ibm.com>
+Date: Thu, 12 Dec 2002 14:41:30 +1100
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: [PATCH] fix endian problem in color_imageblit
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Dec 2002, Henning P. Schmiedehausen wrote:
+This patch fixes the endian problems in color_imageblit().  With this
+patch, I get the penguin drawn properly on boot.
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> 
-> >> Why would that be good?  People would start using their programs and
-> >> blame Linux when they crash.
-> 
-> >Well, when the program crashes, you get to run it again under Linux
-> >and Unix operating systems. Not so with Windows. With Windows, you
-> >reinstall windows after first booting DOS from a floppy and using
-> 
-> Grow up and stop spreading FUD. I haven't had to reinstall a Windows
-> 2000 server ever since it was released (not that there were many that
-> I ever used. But I actually did and deployed apps on them). 95, 98 and
-> ME maybe. NT4 almost never and W2K is a quite stable platform even
-> under load.
-> 
-> I'm amazed that the most violent Windows critique comes from people
-> that claim to "never have touched a M$ operating system in their whole
-> life".  But then again, same goes to the Linux critics... :-)
-> 
-> 	Regards
-> 		Henning
+The main change is that on big-endian systems, when we load a pixel
+from the source, we now shift it to the left-hand (most significant)
+end of the word.  With this change the rest of the logic is correct on
+big-endian systems.  This may not be the most efficient way to do
+things but it is a simple change that works and avoids disturbing the
+rest of the code.
 
+Paul.
 
-I  wish to hell it was FUD. I have watched all the Sun Workstations
-at work be replaced with Windows/2000/Professional PCs. I have watched
-all the 'nix programmers leave, replaced by Internet junkies who
-don't (can't) write any code. In spite of the fact that don't actually
-use their machines for any work, about 10 percent out of 600++ are
-down at any one moment, most always to "reload Windows".
-
-Just to get this Windows machine up at home, tonight, I had to reconfigure
-the network because it "forgot" everything it knew  last night
-about the LAN. I use Windows at home only because I compose music
-using Cake-walk and it hasn't been ported to Linux. It is a corrupt,
-defective, dastardly, incredibly obnoxious operating system that
-has no redeeming qualities at all. Virtually every Windows program
-has horrible bugs that make it barely usable. Even Microsoft Visual
-C/C++ will take down the whole machine when it encounters source files
-that don't have a CR/LF sequence as an end-of-line (accidental Unix LF
-files). It is the worse programming environment, ever, and I have even
-used a MDS-200 "Green Monster" during my 35 years as an Engineer. 
-
-This machine used to have two CPUs. I had to take one out when I
-changed it from a Linux machine to a Windows machine. Two CPUs under
-Windows will trash the file-system so it won't boot if it's been
-up for over an hour. I have reloaded Windows on my two Windows machines
-at least once per week, usually more often than that. My Linux machines
-run until I break them by installing a buggy driver. Even then, I
-can reboot and nothing bad happens to the file-systems.
-
-Once Windows fails to boot, you can reinstall from a CD/ROM, but
-it won't boot after the reinstall! You need to make Windows "think"
-that the boot disk is new by deleting all partitions before you
-"reinstall" Windows or the new installation won't boot.
-
-Microsoft has trained the "new breed" of Engineer that bugs are
-normal and a natural consequence of using computers. This has
-helped destroy software development as an Engineering endeavor and
-substituted in its place, a developmental crap-game.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+diff -urN linux-2.5/drivers/video/cfbimgblt.c pmac-2.5/drivers/video/cfbimgblt.c
+--- linux-2.5/drivers/video/cfbimgblt.c	2002-12-10 15:20:32.000000000 +1100
++++ pmac-2.5/drivers/video/cfbimgblt.c	2002-12-12 09:14:47.000000000 +1100
+@@ -103,10 +103,10 @@
+ {
+ 	/* Draw the penguin */
+ 	int i, n;
+-	unsigned long bitmask = SHIFT_LOW(~0UL, BITS_PER_LONG - p->var.bits_per_pixel);
++	int bpp = p->var.bits_per_pixel;
+ 	unsigned long *palette = (unsigned long *) p->pseudo_palette;
+ 	unsigned long *dst, *dst2, color = 0, val, shift;
+-	unsigned long null_bits = BITS_PER_LONG - p->var.bits_per_pixel; 
++	unsigned long null_bits = BITS_PER_LONG - bpp;
+ 	u8 *src = image->data;
+ 
+ 	dst2 = (unsigned long *) dst1;
+@@ -125,9 +125,10 @@
+ 		while (n--) {
+ 			if (p->fix.visual == FB_VISUAL_TRUECOLOR ||
+ 			    p->fix.visual == FB_VISUAL_DIRECTCOLOR )
+-				color = palette[*src] & bitmask;
++				color = palette[*src];
+ 			else
+-				color = *src & bitmask;	
++				color = *src;
++			color <<= LEFT_POS(bpp);
+ 			val |= SHIFT_HIGH(color, shift);
+ 			if (shift >= null_bits) {
+ 				FB_WRITEL(val, dst++);
+@@ -136,7 +137,7 @@
+ 				else
+ 					val = SHIFT_LOW(color, BITS_PER_LONG - shift);
+ 			}
+-			shift += p->var.bits_per_pixel;
++			shift += bpp;
+ 			shift &= (BITS_PER_LONG - 1);
+ 			src++;
+ 		}

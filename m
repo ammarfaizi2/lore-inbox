@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261756AbREYTYA>; Fri, 25 May 2001 15:24:00 -0400
+	id <S261783AbREYTew>; Fri, 25 May 2001 15:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbREYTXu>; Fri, 25 May 2001 15:23:50 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22242 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261756AbREYTXl>;
-	Fri, 25 May 2001 15:23:41 -0400
-Date: Fri, 25 May 2001 15:23:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (part 7) fs/super.c cleanups
-Message-ID: <Pine.GSO.4.21.0105251511300.27912-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261782AbREYTem>; Fri, 25 May 2001 15:34:42 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:44668
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S261783AbREYTea>; Fri, 25 May 2001 15:34:30 -0400
+Date: Fri, 25 May 2001 21:34:22 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] check kmalloc return in ide-cd.c (244-ac16)
+Message-ID: <20010525213422.B851@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Handling of refcounts for FS_SINGLE filesystems moved to
-add_vfsmnt(). That's the first half of real fix for FS_SINGLE mess -
-we should make it "read_super() if we hadn't done it yet, otherwise
-return what we have". That will make kern_mount() uses simpler and
-remove all special-casing with refcounts. in the hindsight, the trick
-I've used in 2.4.0-test2 merge was ugly - kern_mount() should be used
-only when kernel explicitly asks for a vfsmount of its own, not as
-as part of init for FS_SINGLE filesystems. Fix is easy, but that chunk
-touches several files besides fs/super.c and requires sane locking
-to be safe. Patch below is the preliminary part local to fs/super.c.
+Hi.
 
-	Please, apply.
+This patch adds a check for the return value from kmalloc in
+ide_cdrom_open. Applies against ac16.
 
-diff -urN S5-pre6-kern_mount/fs/super.c S5-pre6-single1/fs/super.c
---- S5-pre6-kern_mount/fs/super.c	Fri May 25 15:07:19 2001
-+++ S5-pre6-single1/fs/super.c	Fri May 25 15:12:36 2001
-@@ -367,6 +367,8 @@
- 	list_add(&mnt->mnt_instances, &sb->s_mounts);
- 	list_add(&mnt->mnt_list, vfsmntlist.prev);
- 	spin_unlock(&dcache_lock);
-+	if (sb->s_type->fs_flags & FS_SINGLE)
-+		get_filesystem(sb->s_type);
- out:
- 	return mnt;
- fail:
-@@ -852,7 +854,6 @@
- 	sb = fs_type->kern_mnt->mnt_sb;
- 	if (!sb)
- 		BUG();
--	get_filesystem(fs_type);
- 	do_remount_sb(sb, flags, data);
- 	return sb;
- }
-@@ -1165,8 +1166,6 @@
- 		goto out2;
+
+--- linux-244-ac16-clean/drivers/ide/ide-cd.c	Fri May 25 21:11:08 2001
++++ linux-244-ac16/drivers/ide/ide-cd.c	Fri May 25 21:30:20 2001
+@@ -2869,12 +2869,12 @@
+ int ide_cdrom_open (struct inode *ip, struct file *fp, ide_drive_t *drive)
+ {
+ 	struct cdrom_info *info = drive->driver_data;
+-	int rc;
++	int rc = -ENOMEM;
  
- 	err = -ENOMEM;
--	if (old_nd.mnt->mnt_sb->s_type->fs_flags & FS_SINGLE)
--		get_filesystem(old_nd.mnt->mnt_sb->s_type);
- 		
- 	down(&mount_sem);
- 	/* there we go */
-@@ -1177,8 +1176,6 @@
- 		err = 0;
- 	up(&new_nd.dentry->d_inode->i_zombie);
- 	up(&mount_sem);
--	if (err && old_nd.mnt->mnt_sb->s_type->fs_flags & FS_SINGLE)
--		put_filesystem(old_nd.mnt->mnt_sb->s_type);
- out2:
- 	path_release(&new_nd);
- out1:
-@@ -1369,8 +1366,6 @@
- 	return retval;
- 
- fail:
--	if (fstype->fs_flags & FS_SINGLE)
--		put_filesystem(fstype);
- 	kill_super(sb);
- 	goto unlock_out;
- }
+ 	MOD_INC_USE_COUNT;
+ 	if (info->buffer == NULL)
+ 		info->buffer = (char *) kmalloc(SECTOR_BUFFER_SIZE, GFP_KERNEL);
+-	if ((rc = cdrom_fops.open(ip, fp))) {
++        if ((info->buffer == NULL) || (rc = cdrom_fops.open(ip, fp))) {
+ 		drive->usage--;
+ 		MOD_DEC_USE_COUNT;
+ 	}
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
+The police are not here to create disorder.  They're here to preserve
+disorder." -Former Chicago mayor Daley during the infamous 1968 Democratic
+Party convention

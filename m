@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263445AbTCNRsT>; Fri, 14 Mar 2003 12:48:19 -0500
+	id <S263458AbTCNRwe>; Fri, 14 Mar 2003 12:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263446AbTCNRsT>; Fri, 14 Mar 2003 12:48:19 -0500
-Received: from janus.zeusinc.com ([205.242.242.161]:51048 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id <S263445AbTCNRsR>; Fri, 14 Mar 2003 12:48:17 -0500
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-In-Reply-To: <20030314165829.GA12571@work.bitmover.com>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-	 <20030314115055.GR1211@marowsky-bree.de>
-	 <20030314144347.GA8937@work.bitmover.com>
-	 <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
-	 <20030314151455.GB8937@work.bitmover.com>
-	 <1047659394.29595.38.camel@irongate.swansea.linux.org.uk>
-	 <20030314152944.GC8937@work.bitmover.com>
-	 <1047660074.1831.8.camel@iso-8590-lx.zeusinc.com>
-	 <20030314165829.GA12571@work.bitmover.com>
-Content-Type: text/plain
-Message-Id: <1047664584.1830.47.camel@iso-8590-lx.zeusinc.com>
+	id <S263459AbTCNRwe>; Fri, 14 Mar 2003 12:52:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:23698 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263458AbTCNRwd>;
+	Fri, 14 Mar 2003 12:52:33 -0500
+Date: Fri, 14 Mar 2003 19:03:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: joern@wohnheim.fh-wedel.de, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Top stack (l)users for 2.5.64-ac4
+Message-ID: <20030314180327.GY791@suse.de>
+References: <200303141509.h2EF9R017016@devserv.devel.redhat.com> <20030314172820.GH23161@wohnheim.fh-wedel.de> <20030314174154.GX791@suse.de> <20030314095906.20a270cb.rddunlap@osdl.org>
 Mime-Version: 1.0
-Date: 14 Mar 2003 12:56:24 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030314095906.20a270cb.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-14 at 11:58, Larry McVoy wrote:
-> > So are you exhibiting worse corporate behavior than Microsoft?  It would
-> > seem so.  
+On Fri, Mar 14 2003, Randy.Dunlap wrote:
+> On Fri, 14 Mar 2003 18:41:54 +0100 Jens Axboe <axboe@suse.de> wrote:
 > 
-> Microsoft doesn't give you Windows for free.  We wrote BK from scratch, 
-> unlike any of the distro vendors, so saying they give out their stuff
-> for free isn't a valid comparison either.
+> | On Fri, Mar 14 2003, Joern Engel wrote:
+> | > Hi!
+> | > 
+> | > 47 functions using >=1k of kernel stack on i386.
+> | > 
+> | > One improvement over 2.5.64, i2o_proc_* is gone. 4 down, 47 to go. :)
+> | > 
+> | > 0xc02063f6 presto_get_fileid:                            sub    $0x1168,%esp
+> | > 0xc0204fc6 presto_copy_kml_tail:                         sub    $0x101c,%esp
+> | > 0xc07b92c8 isp2x00_make_portdb:                          sub    $0xc38,%esp
+> | > 0xc0879c05 cdromread:                                    sub    $0xa84,%esp
+> | 
+> | which function is this (cdromread)?
+> 
+> must be drivers/cdrom/optcd.c::cdromread() (line 1601 in 2.5.64),
+> due to
+> 	char buf[CD_FRAMESIZE_RAWER];
+> and
+> #define CD_FRAMESIZE_RAWER 2646 /* The maximum possible returned bytes */ 
+> in include/linux/cdrom.h.
 
-But now you are changing your own argument, it was you who wanted to see
-examples of Redhat or SuSE not pursuing such things, I gave you an
-example of Microsoft not pursuing such thing and now your saying that
-not fair because they didn't give anything away, well, it was your
-request to see such comparisons.
+Ahh, ok so a lot less interesting. Also why I didn't catch it here. I'd
+be inclining to just making buf global there.
 
-Also, here's a link to a release announcement for Mandrake 5.2
-http://lwn.net/1999/0128/mandrake.html if you look at the "What is
-Mandrake-Linux" you will see the example of Mandrake claiming 100%
-Redhat compatibility.
-
-ASPLinux also claims 100% Redhat compatibility on their website.  Yellow
-Dog Linux is a Redhat based distribution and uses that exact term on
-their website.
-
-> We built a product, we gave out for free to help the kernel, everyone
-> agrees it is helping, and we get constantly attacked.  You might stop
-> to consider that the smartest thing we could do would be to give up
-> but the cost of giving up is slowing down kernel development and 
-> contributing to Linus' burnout.
-
-No, you haven't really given the product away for free.  You have given
-us the use of the tool for free, with a lot of strings attached, similar
-to Microsoft giving IE away for free.  Many people believe that the cost
-to the community of using BitKeeper is much higher than the cost of
-kernel development moving more slowly.
-
-BTW, I'm not really against the use of BitKeeper for kernel development,
-I just think that in this case you're being a little unreasonable.  I
-was more understanding when his initial post claimed to be a "clone of
-BitKeeper" which was certainly not the case, but as a "tool for reading
-BitKeeper repositories" that seems to be reasonable.  You argument that
-it doesn't support all of the features seems pointless, of course it
-doesn't, it's the first release of an open product in development, it
-doesn't have to support all of the features.  WINE still doesn't
-implement many features of the Win32 API, but that is the goal of the
-project and they can state that.
-
-Later,
-Tom
-
+-- 
+Jens Axboe
 

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbTI1Lvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 07:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTI1Lvy
+	id S262457AbTI1Lrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 07:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTI1Lrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 07:51:54 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:23231 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262522AbTI1Lvx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 07:51:53 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 28 Sep 2003 13:51:46 +0200 (MEST)
-Message-Id: <UTC200309281151.h8SBpkH15931.aeb@smtp.cwi.nl>
-To: torvalds@osdl.org
-Subject: [PATCH] small dev_t fix
-Cc: linux-kernel@vger.kernel.org
+	Sun, 28 Sep 2003 07:47:49 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:21142 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id S262457AbTI1Lrs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 07:47:48 -0400
+Subject: Re: Syscall security
+From: Kenneth Johansson <ken@kenjo.org>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0309261611510.6080-100000@gaia.cela.pl>
+References: <Pine.LNX.4.44.0309261611510.6080-100000@gaia.cela.pl>
+Content-Type: text/plain
+Message-Id: <1064749134.2095.9.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sun, 28 Sep 2003 13:38:54 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See that we finally got a larger dev_t. Very good!
-Will check over time what form my patches got in the current tree.
-The first one I checked was broken a little. Below a fix.
+On Fri, 2003-09-26 at 16:16, Maciej Zenczykowski wrote:
+> > if this syscall activity is so low then it might be much more flexible to
+> > control the binary via ptrace and reject all but the desired syscalls.  
+> > This will cause a context switch but if it's stdio only then it's not a
+> > big issue. Plus this would work on any existing Linux kernel.
+> 
+> Unfortunately sometimes the data transfer through stdio can be counted in 
+> hundreds of MB (or even in extreme cases a couple of GB), plus it is 
+> important to not slow down the execution of the code (we're timing and 
+> comparing execution speed of different approaches).  Would doing this via 
+> ptrace increase the runtime of the parent pid or of the child pid or both?  
+> ie. would this make any syscall costly timewise (stdio is either from a 
+> ram disk or piped to/from a generating/checking process) or would this be 
+> unnoticeable?
 
-[ext2 used a 32-bit field for dev_t, with possibly undefined
-storage following; thus, no action was required to go to
-32-bit dev_t, but going to 64-bit dev_t required some subtlety:
-0 was written in the first word and the 64 bits in the following two.
-Al truncated my 64-bit stuff to 32 bits but did not understand why
-there was this split, and wrote 0 followed by a single word.
-We should at least zero the word following to have well-defined
-storage later.]
+Depends how the application writes the data it's not the amount that is
+the problem it's the frequency of the calls.
 
-Andries
+It should however be possible to meassure the overhead and remove that
+from the result.
 
-This is for fs/ext2/inode.c.
+As far as I know it's not possible to abort a syscall with ptrace on
+entry but you can change the syscall number to something harmless like
+getpid and fix the return values on exit. But it is all very much arch
+dependent code.
 
---- inode.c~	Sun Sep 28 12:42:15 2003
-+++ inode.c	Sun Sep 28 13:25:03 2003
-@@ -1228,6 +1228,7 @@
- 			raw_inode->i_block[0] = 0;
- 			raw_inode->i_block[1] =
- 				cpu_to_le32(new_encode_dev(inode->i_rdev));
-+			raw_inode->i_block[2] = 0;
- 		}
- 	} else for (n = 0; n < EXT2_N_BLOCKS; n++)
- 		raw_inode->i_block[n] = ei->i_data[n];

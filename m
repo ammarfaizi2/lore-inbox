@@ -1,105 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUELVxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbUELV4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUELVxG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 17:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUELVxG
+	id S262866AbUELV4J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 17:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUELVz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 17:53:06 -0400
-Received: from zlynx.org ([199.45.143.209]:35076 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S261991AbUELVvO (ORCPT
+	Wed, 12 May 2004 17:55:56 -0400
+Received: from ns.suse.de ([195.135.220.2]:37083 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261920AbUELVzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 17:51:14 -0400
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-From: Zan Lynx <zlynx@acm.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+	Wed, 12 May 2004 17:55:48 -0400
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Ingo Molnar <mingo@elte.hu>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Netdev <netdev@oss.sgi.com>
-In-Reply-To: <20040512211255.GA20800@elte.hu>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
 References: <20040512020700.6f6aa61f.akpm@osdl.org>
-	 <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com>
-	 <20040512193349.GA14936@elte.hu>
-	 <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
-	 <20040512200305.GA16078@elte.hu>
-	 <Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com>
-	 <20040512211255.GA20800@elte.hu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TSvOT4uBe9kejsl+Vsvr"
-Message-Id: <1084398565.27252.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7jb) 
-Date: Wed, 12 May 2004 15:49:25 -0600
+	<20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com>
+	<20040512193349.GA14936@elte.hu>
+	<Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
+	<20040512200305.GA16078@elte.hu>
+	<Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com>
+	<20040512213913.GA16658@fieldses.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Where's th' DAFFY DUCK EXHIBIT??
+Date: Wed, 12 May 2004 23:55:18 +0200
+In-Reply-To: <20040512213913.GA16658@fieldses.org> (J. Bruce Fields's
+ message of "Wed, 12 May 2004 17:39:13 -0400")
+Message-ID: <jevfj1nwe1.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"J. Bruce Fields" <bfields@fieldses.org> writes:
 
---=-TSvOT4uBe9kejsl+Vsvr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> If gcc really optimizes that to just the identity function, then surely
+> that's a gcc bug?  Multiplication is left-associative, so i * 1000 /
+> 1000 = (i * 1000) / 1000, but (i * 1000) should be zero for any i
+> divisible by i^(sizeof(int) - 12).
 
-On Wed, 2004-05-12 at 15:12, Ingo Molnar wrote:
-> * Davide Libenzi <davidel@xmailserver.org> wrote:
->=20
-> > int foo(int i) {
-> >=20
-> >=20
-> >         return i * 1000 / 1000;
-> > }
->=20
-> try unsigned and you'll see:
->=20
->         pushl   %ebp
->         movl    %esp, %ebp
->         movl    8(%ebp), %edx
->         movl    %edx, %eax
->         sall    $2, %eax
->         addl    %edx, %eax
->         leal    0(,%eax,4), %edx
->         addl    %edx, %eax
->         leal    0(,%eax,4), %edx
->         addl    %edx, %eax
->         leal    0(,%eax,8), %edx
->         movl    $274877907, %eax
->         mull    %edx
->         movl    %edx, %eax
->         shrl    $6, %eax
->         leave
->         ret
->=20
->     Ingo
+Signed integer overflow is undefined in C, so the compiler is allowed to
+assume it does not happen.
 
-Being curious, I tried that and got the same results.  But this:
+Andreas.
 
-int f(unsigned int x)
-{
-        return x * (1000 / 1000);
-}
-
-creates this:
-f:
-        pushl   %ebp
-        movl    %esp, %ebp
-        movl    8(%ebp), %eax
-        leave
-        ret
-        .size   f, .-f
-        .section        .note.GNU-stack,"",@progbits
-        .ident  "GCC: (GNU) 3.3.2 20031022 (Red Hat Linux 3.3.2-1)"
-
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-TSvOT4uBe9kejsl+Vsvr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAopvlG8fHaOLTWwgRAilYAJoCetflU/b9t1jCd3TTmt1pr8y1vgCgl3nl
-iIZzbe7veMs6dG/SQTrHMxo=
-=cMga
------END PGP SIGNATURE-----
-
---=-TSvOT4uBe9kejsl+Vsvr--
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

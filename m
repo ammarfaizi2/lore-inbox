@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276632AbRJKRmh>; Thu, 11 Oct 2001 13:42:37 -0400
+	id <S276631AbRJKRoH>; Thu, 11 Oct 2001 13:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276631AbRJKRmS>; Thu, 11 Oct 2001 13:42:18 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:33553 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S276622AbRJKRmM>; Thu, 11 Oct 2001 13:42:12 -0400
-Date: Thu, 11 Oct 2001 18:42:41 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] tainting FAQ
-Message-ID: <20011011184241.A95852@compsoc.man.ac.uk>
+	id <S276634AbRJKRn6>; Thu, 11 Oct 2001 13:43:58 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:28447 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S276633AbRJKRnv>; Thu, 11 Oct 2001 13:43:51 -0400
+Subject: Re: Kernel 2.4.12 Compiling error.
+From: Robert Love <rml@tech9.net>
+To: Malcolm Mallardi <magamo@mirkwood.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011011132003.A13730@trianna.upcommand.net>
+In-Reply-To: <20011011132003.A13730@trianna.upcommand.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 11 Oct 2001 13:44:13 -0400
+Message-Id: <1002822259.864.34.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2001-10-11 at 13:20, Malcolm Mallardi wrote:
+> In the new Kernel 2.4.12, when attempting to compile modules, the parport 
+> module dies, I'm attempting to compile it with IEEE1284 readback support 
+> (HP OJ T45 printer)
 
-short and sweet. (useful) comments ?
+This patch fixes:
 
-thanks
-john
+--- ieee1284_ops.c~     Thu Oct 11 11:10:37 2001
++++ ieee1284_ops.c      Thu Oct 11 11:22:31 2001
+@@ -362,7 +362,7 @@
+        } else {
+                DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
+                         port->name);
+-               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+        }
 
---- faq.html	Thu Oct 11 18:42:44 2001
-+++ faqnew.html	Thu Oct 11 18:51:22 2001
-@@ -513,6 +513,10 @@
- and Alan Cox's -ac series of patches?</A>
- </LI>
- 
-+<LI>
-+<A HREF="#s1-22">What does it mean for a module to be tainted ?</A>
-+</LI>
-+
- </OL>
- 
- <H4>
-@@ -1794,6 +1798,34 @@
- 
- </UL>
- 
-+<LI>
-+<A NAME="s1-22"></A><B>What does it mean for a module to be tainted?</B>
-+</LI>
-+
-+<UL>
-+<LI>
-+Some vendors distribute binary modules (i.e. modules without available
-+source code under a free software license).
-+As the source is not freely available, any bugs uncovered whilst such
-+modules are loaded cannot be investigated by the kernel hackers. All
-+problems discovered whilst such a module is loaded must be reported
-+to the vendor of that module, <I>not</I> the Linux kernel hackers and
-+the linux-kernel mailing list. The tainting scheme is used to identify
-+bug reports from kernels with binary modules loaded: such kernels are
-+marked as "tainted" by means of the <TT>MODULE_LICENSE</TT> tag. If a
-+module is loaded that does not specify an approved license, the kernel
-+is marked as tainted. The canonical list of approved license strings
-+is in <TT>linux/include/module.h</TT>.<BR>
-+"oops" reports marked as tainted are of no use to the kernel developers
-+and will be ignored. A warning is output when such a module is loaded.
-+Note that you may come across module source that is under a compatible
-+license, but does not have a suitable <TT>MODULE_LICENSE</TT> tag. If you
-+see a warning from <TT>modprobe</TT> or <TT>insmod</TT> for a module
-+under a compatible license, please report this bug to the maintainers of
-+the module, so that they can add the necessary tag.
-+</LI>
-+</UL>
-+ 
- </OL>
- 
- <H2>
+        return retval;
+@@ -394,7 +394,7 @@
+                DPRINTK (KERN_DEBUG
+                         "%s: ECP direction: failed to switch forward\n",
+                         port->name);
+-               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+        }
+
+
+
+	Robert Love
+

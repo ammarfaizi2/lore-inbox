@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUEGCwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUEGDCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUEGCwq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 22:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUEGCwp
+	id S262605AbUEGDCe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 23:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbUEGDCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 22:52:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21122 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262476AbUEGCwo (ORCPT
+	Thu, 6 May 2004 23:02:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24200 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262605AbUEGDCd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 22:52:44 -0400
-Date: Thu, 6 May 2004 19:52:23 -0700
+	Thu, 6 May 2004 23:02:33 -0400
+Date: Thu, 6 May 2004 20:02:10 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Bruce Guenter <bruceg@em.ca>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.6.6-rc3-mm2
-Message-Id: <20040506195223.017cd7f6.akpm@osdl.org>
-In-Reply-To: <20040506214635.GA29187@em.ca>
-References: <20040505013135.7689e38d.akpm@osdl.org>
-	<20040506214635.GA29187@em.ca>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Cache queue_congestion_on/off_threshold
+Message-Id: <20040506200210.44b04c38.akpm@osdl.org>
+In-Reply-To: <200405062030.i46KUuF13625@unix-os.sc.intel.com>
+References: <20040506064301.GC10069@suse.de>
+	<200405062030.i46KUuF13625@unix-os.sc.intel.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,18 +25,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruce Guenter <bruceg@em.ca> wrote:
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
 >
-> On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
-> > Move-saved_command_line-to-init-mainc.patch
-> >   Move saved_command_line to init/main.c
+> >>>> Jens Axboe wrote on Wed, May 05, 2004 11:43 PM
+> > On Wed, May 05 2004, Andrew Morton wrote:
+> > > Jens Axboe <axboe@suse.de> wrote:
+> > > >
+> > > > Do you have any numbers at all for this? I'd say these calculations are
+> > > >  severly into the noise area when submitting io.
+> > >
+> > > The difference will not be measurable, but I think the patch makes sense
+> > > regardless of what the numbers say.
+> >
+> > Humm dunno, I'd rather save the sizeof(int) * 2.
 > 
-> This patch appears to be breaking serial console for me.  Reverting this
-> patch with patch -R makes it work again.  I can't tell from the contents
-> of the patch why it causes problems, but it does.  I'd be happy to
-> provide any further details if required.
+> Strictly speaking from memory consumption point of view, it probably comes
+> for free since sizeof(struct request_queue) currently is 456 bytes on x86
+> and 816 on 64bit arch.  The structure is being rounded to 512 or 1024 with
+> kmalloc.
 
-Thanks for narrowing it down - I'd been meaning to look into the serial
-console problem.
-
-Rusty, can you have a ponder please?
+That's a good argument for creating a standalone slab cache for request
+queue structures ;)

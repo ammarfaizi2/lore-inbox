@@ -1,88 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbUJ1QXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUJ1QWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbUJ1QXm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 12:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1QXZ
+	id S261692AbUJ1QWu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 12:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbUJ1QUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 12:23:25 -0400
-Received: from ms002msg.fastwebnet.it ([213.140.2.52]:30945 "EHLO
-	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261722AbUJ1QVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 12:21:48 -0400
-From: Alessandro Amici <lists@b-open-solutions.it>
-Organization: B-Open Solutions srl
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: massive cross-builds without too much PITA
-Date: Thu, 28 Oct 2004 18:21:22 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041028054833.GP24336@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 28 Oct 2004 12:20:14 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:54688 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261757AbUJ1PwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 11:52:25 -0400
+Message-Id: <200410281549.i9SFnOYt011916@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       jfannin1@columbus.rr.com, agk@redhat.com, christophe@saout.de,
+       linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch) 
+In-Reply-To: Your message of "Wed, 27 Oct 2004 17:36:14 +0200."
+             <877jpcgolt.fsf@barad-dur.crans.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net> <20041026123651.GA2987@zion.rivenstone.net> <20041026135955.GA9937@agk.surrey.redhat.com> <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org> <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org> <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
+            <877jpcgolt.fsf@barad-dur.crans.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1592643225P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410281821.22486.lists@b-open-solutions.it>
+Date: Thu, 28 Oct 2004 11:49:24 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1592643225P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <16130.1098978563.1@turing-police.cc.vt.edu>
 
-Al,
+On Wed, 27 Oct 2004 17:36:14 +0200, Mathieu Segaud said:
 
-I happen to be learning how to cross-compile on Debian right now, so i can 
-testify that building the cross toolchain 'The Debian Way' is even easier 
-than you describe ;).
+> As 2.6.10-rc1-mm1 failed (as expected), I tried tour fix applied upon
+> 2.6.10-rc1-mm1. This did not make any difference.
+> The only workaround for now is backing out dio-handle-eof-fix.patch and
+> dio-handle-eof.patch
+> I am willing to test anything you could send :)
 
-On Thursday 28 October 2004 07:48, Al Viro wrote:
-> Building cross-toolchain is surprisingly easy these days; I'm using debian
-> on build boxen and cross-compilers are not hard to do:
->  apt-get build-dep binutils
->  apt-get build-dep gcc-3.3
->  apt-get install dpkg-cross
->  apt-get source binutils
->  get binutils-cross-... patch from bugs.debian.org/231707
->  cd binutils-...
->  apply patch
->  TARGET=<target>-linux fakeroot debian/rules binary-cross
->  cd ..
->  dpkg -i binutils-<target>-....deb
->  got linux-kernel-headers, libc6, libc6-dev and libdb1-compat for target
->  dpkg-cross -a <target> -b on all of those
->  dpkg -i resulting packages
->  apt-get source gcc-3.3
->  cd gcc-3.3-...
->  GCC_TARGET=<gcc_target> debian/rules control
->  GCC_TARGET=<gcc_target> debian/rules build
->  GCC_TARGET=<gcc_target> fakeroot debian/rules binary
->  cd ..
->  dpkg -i resulting packages.
-> One note: <target> here is debian platform name (e.g. ppc), but
-> <gcc_target> is *gcc* idea of what that bugger is called (e.g. powerpc).
->
-> IIRC, Nikita Youshchenko had pre-built debs somewhere, but they were not
-> for the host I'm using (amd64/sid).
+For what it's worth, I hit the exact same problem with 2.6.10-rc1-mm1
+(failure to get the LVM together at boot, causing a wedge because
+my / filesystem is on an LVM), and backing out those two patches has
+me up and running.
 
-The package toolchain-source (together with dpkg-cross) makes the process even 
-more automatic. Detailed instructions are at:
-http://people.debian.org/~debacle/cross.html
+# fdisk -l /dev/hda
 
-The short story is:
-# apt-get toolchain-source dpkg-cross autoconf2.13 fakeroot
-# tpkg-install-libc <terget>-linux # grabs, converts and install the headers
-$ tpkg-make <target>-linux  # no need to patch anything
-$ cd binutils...
-$ debuild -us -uc    # no magic env variables
-# dpkg -i ../binutils...deb
-$ cd ../gcc...
-$ debuild -us -uc
-# dpkg -i ../gcc...deb
+Disk /dev/hda: 40.0 GB, 40007761920 bytes
+255 heads, 63 sectors/track, 4864 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
 
-If I'm not mistaken, that's all.
+   Device Boot      Start         End      Blocks   Id  System
+/dev/hda1               1          29      232911   84  OS/2 hidden C: drive
+/dev/hda2              30        4864    38837137+   5  Extended
+/dev/hda5   *          30          32       24066   83  Linux
+/dev/hda6              33        2327    18434556   8e  Linux LVM
+/dev/hda7            2328        2458     1052226   82  Linux swap
+/dev/hda8            2459        4864    19326163+  8e  Linux LVM
 
-> In practical terms it means no ppc64.
+(Basically, a 24M /boot, a swap, and *two* LVM partitions - I wonder if that
+has anything to do with it - it found one and didn't find the other, and gave
+up with much complaining). That OS/2 partition is a remnant of what the docs 2
+years ago said was needed for suspend-to-disk...
 
-Sadly right! guess which platform I needed to cross compile :-/
+Am also able to test patches if needed...
 
-Cheers,
-Alessandro
+--==_Exmh_1592643225P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBgRUDcC3lWbTT17ARAo3LAKDhIL/ydurZOWU7wKQWe0pTbRtZ9gCg1jPi
+2vlLvdLvRUTwWaP8DDSobdI=
+=hJUd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1592643225P--

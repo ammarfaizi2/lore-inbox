@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUIGKgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUIGKnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUIGKgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 06:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267833AbUIGKgP
+	id S265207AbUIGKnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 06:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267520AbUIGKnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 06:36:15 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:12202 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S267826AbUIGKf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 06:35:58 -0400
-Date: Tue, 7 Sep 2004 13:35:52 +0300 (EEST)
-From: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: netdev@oss.sgi.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial fix for out of bounds array access in xfrm4_policy_check
-Message-ID: <Pine.LNX.4.61.0409071322100.8637@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1646943047-1948299716-1094553352=:8637"
+	Tue, 7 Sep 2004 06:43:25 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:55204 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265207AbUIGKnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 06:43:24 -0400
+Subject: Re: [BUG] r200 dri driver deadlocks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <d577e5690409070207448961a4@mail.gmail.com>
+References: <d577e569040904021631344d2e@mail.gmail.com>
+	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090413365f5e223d@mail.gmail.com>
+	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090501224f252dbc@mail.gmail.com>
+	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
+	 <d577e569040905131870fa14a3@mail.gmail.com>
+	 <1094429682.29921.6.camel@krustophenia.net>
+	 <d577e569040906040147c2277f@mail.gmail.com>
+	 <1094494329.31464.187.camel@admin.tel.thor.asgaard.local>
+	 <d577e5690409070207448961a4@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094550056.9152.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 07 Sep 2004 10:41:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Maw, 2004-09-07 at 10:07, Patrick McFarland wrote:
+> Also, what happens to r200 users who happen to use Debian? Using dri
+> cvs snapshots
 
----1646943047-1948299716-1094553352=:8637
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+If Debian is currently shipping a buggy driver then Debian needs to ship
+a working driver. Same as anyone else. You'll also need the newest
+dri driver for Radeon IGP (most ATI chipset laptops) and the newer
+R2xx hardware.
 
-Hello!
+Alan
 
-Coverity found a bug in accessing xfrm4_policy_check using XFRM_POLICY_FWD 
-(=2) as index in sk->sk_policy.
-
-sk->sk_policy[] is defined in sock.h as:
-
-struct xfrm_policy *sk_policy[2];
-
-Attached is the fix.
-
-http://linuxbugs.coverity.com/external/editbugparent.php?viewbugid=2138&checkers%5B%5D=all&status%5B%5D=BUG&status%5B%5D=UNINSPECTED&status%5B%5D=UNKNOWN&status%5B%5D=DON%27T%20CARE&status%5B%5D=PENDING&product%5B%5D=all&component%5B%5D=all&file=&fn=&sortby=reverse_rank&before=&after=&curpage=2&bugid=-1&comment=&reason=
-
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
----1646943047-1948299716-1094553352=:8637
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="out-of-bounds-xfrm_policy.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0409071335520.8637@hosting.rdsbv.ro>
-Content-Description: 
-Content-Disposition: attachment; filename="out-of-bounds-xfrm_policy.patch"
-
-LS0tIGxpbnV4L2luY2x1ZGUvbmV0L3NvY2suaAkyMDA0LTA5LTA3IDEzOjEz
-OjMxLjAwMDAwMDAwMCArMDMwMA0KKysrIG15bGludXgvaW5jbHVkZS9uZXQv
-c29jay5oCTIwMDQtMDktMDcgMTM6MTQ6MzYuMDAwMDAwMDAwICswMzAwDQpA
-QCAtMjAxLDcgKzIwMSw3IEBAIHN0cnVjdCBzb2NrIHsNCiAJd2FpdF9xdWV1
-ZV9oZWFkX3QJKnNrX3NsZWVwOw0KIAlzdHJ1Y3QgZHN0X2VudHJ5CSpza19k
-c3RfY2FjaGU7DQogCXJ3bG9ja190CQlza19kc3RfbG9jazsNCi0Jc3RydWN0
-IHhmcm1fcG9saWN5CSpza19wb2xpY3lbMl07DQorCXN0cnVjdCB4ZnJtX3Bv
-bGljeQkqc2tfcG9saWN5WzNdOw0KIAlhdG9taWNfdAkJc2tfcm1lbV9hbGxv
-YzsNCiAJc3RydWN0IHNrX2J1ZmZfaGVhZAlza19yZWNlaXZlX3F1ZXVlOw0K
-IAlhdG9taWNfdAkJc2tfd21lbV9hbGxvYzsNCg==
-
----1646943047-1948299716-1094553352=:8637--

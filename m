@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSCMSr0>; Wed, 13 Mar 2002 13:47:26 -0500
+	id <S310981AbSCMSyh>; Wed, 13 Mar 2002 13:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310981AbSCMSrS>; Wed, 13 Mar 2002 13:47:18 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:12473 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S310979AbSCMSrF>;
-	Wed, 13 Mar 2002 13:47:05 -0500
-Date: Wed, 13 Mar 2002 18:50:49 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: Gerd Knorr <kraxel@bytesex.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] vmalloc_to_page() backport for 2.4
-In-Reply-To: <20020313175122.C7949@bytesex.org>
-Message-ID: <Pine.LNX.4.33.0203131848460.1251-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310989AbSCMSy1>; Wed, 13 Mar 2002 13:54:27 -0500
+Received: from cm-24-25-132-100.nycap.rr.com ([24.25.132.100]:1922 "EHLO lain")
+	by vger.kernel.org with ESMTP id <S310981AbSCMSyS>;
+	Wed, 13 Mar 2002 13:54:18 -0500
+Subject: ACPI (not) interfacing w/ laptop
+From: Brenden Conte <conteb@rpi.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 13 Mar 2002 13:51:37 -0500
+Message-Id: <1016045497.5283.2.camel@lain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Gerd Knorr wrote:
-> +EXPORT_SYMBOL_GPL(vmalloc_to_page);
+I don't think that the ACPI can / is interfacing with my bios properly. 
+On every "event", like closing the laptop for example, generates
 
-Can you (or whoever made it EXPORT_SYMBOL_GPL in 2.5) please explain what
-is so "GPL" about exporting this symbol, please? I can understand when
-symbols related to the internals of some subsystem are GPL-only-exported
-but this does not appear to be such a case.
+"ecgpe-0131 [05] ec_gpe_handler        : Unable to send 'query command'
+to EC"
 
-Regards
-Tigran
+Does this mean i should just stick with APM?  Is there something i can
+do to help figure out how to make it work?
+
+thanks,
+Brenden 
 
 

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290827AbSBVB3v>; Thu, 21 Feb 2002 20:29:51 -0500
+	id <S290958AbSBVBgD>; Thu, 21 Feb 2002 20:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290878AbSBVB3a>; Thu, 21 Feb 2002 20:29:30 -0500
-Received: from starbug.ugh.net.au ([203.31.238.37]:36876 "EHLO
-	starbug.ugh.net.au") by vger.kernel.org with ESMTP
-	id <S290827AbSBVB3W>; Thu, 21 Feb 2002 20:29:22 -0500
-Date: Fri, 22 Feb 2002 12:29:20 +1100 (EST)
-From: David Burrows <snadge@ugh.net.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dodgey Linus BogoMIPS code ;) (was Re: baffling linux bug)
-In-Reply-To: <20020222011209.GE20060@matchmail.com>
-Message-ID: <20020222122108.I15623-100000@starbug.ugh.net.au>
+	id <S290965AbSBVBfx>; Thu, 21 Feb 2002 20:35:53 -0500
+Received: from mail.myrio.com ([63.109.146.2]:38905 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S290958AbSBVBff> convert rfc822-to-8bit;
+	Thu, 21 Feb 2002 20:35:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: boot messeage
+Date: Thu, 21 Feb 2002 17:34:00 -0800
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420D730A@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: boot messeage
+Thread-Index: AcG7QBG1MmBelJuPRhe+tmQG/b3avgAAHj3g
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Pozsar Balazs" <pozsy@sch.bme.hu>,
+        "hanhbkernel" <hanhbkernel@yahoo.com.cn>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Feb 2002 01:34:55.0201 (UTC) FILETIME=[217A3510:01C1BB41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Mike Fedyk wrote:
-> I didn't see one thing mentioning Linus in there... ;)  I could sue if you
-> were selling something. ;)
+> On Fri, 22 Feb 2002, [gb2312] hanhbkernel wrote:
+> 
+> > When booting Linux, the kernel messages are shown on
+> > screen.
+> > I don't like to show these messages, so  "Support for
 
-Kind of.  Except Linus wrote the particular section of code in question.
-=)
+[...]
 
-> Anyway, jiffies are same as HZ and on i386 100 jiffies/sec, and one timer
-> interrupt per jiffie.
+Or, you can put the console on the second tty, and then you will not see the
+messages unless you want to. 
 
-Or perhaps not in the case of my hardware functioning properly one day,
-and never to boot linux (but fine with everything else) again..
+Compile in support for console on virtual terminal, and also VGA text console
+or one of the framebuffer consoles.
 
-I need a sure fire way of testing whether the timer interrupt works,
-perhaps even a kernel patch to include such a check before initialising
-the timers.  Is there a possibility of working around such problem?  I
-would rather destroy this motherboard than sacrifice it to running
-inferior operating systems for the remainder of its life. =)
+Then use append="console=/dev/tty2 CONSOLE=/dev/tty2", and you won't
+see anything on the boot screen except the linux logo (if you choose a 
+framebuffer console).  But, you can type "Alt-F2" to bring up the second 
+console with the boot messages on it.  This is useful when things go wrong.
 
-Regards,
+If you want a prettier boot logo, check out www.arnor.net/linuxlogo for some
+patches that let you build in any logo you want at kernel compile time.
 
-Dave.
+Torrey Hoffman
 

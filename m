@@ -1,36 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263144AbUK0CX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbUK0CTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263144AbUK0CX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUK0CTr
+	id S263121AbUK0CTl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUK0CKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:19:47 -0500
-Received: from chiark.greenend.org.uk ([193.201.200.170]:9928 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S263138AbUK0CTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 21:19:21 -0500
-To: ncunningham@linuxmail.org, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-In-Reply-To: <1101427035.27250.161.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101298112.5805.330.camel@desktop.cunninghams> <20041125233243.GB2909@elf.ucw.cz> <20041125233243.GB2909@elf.ucw.cz> <1101427035.27250.161.camel@desktop.cunninghams>
-Date: Sat, 27 Nov 2004 02:19:15 +0000
-Message-Id: <E1CXsB9-00022M-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Fri, 26 Nov 2004 21:10:18 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262824AbUKZTha (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:37:30 -0500
+Date: Thu, 25 Nov 2004 17:58:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+Message-ID: <20041125165829.GA24121@elte.hu>
+References: <20041124101854.GA686@elte.hu> <Pine.OSF.4.05.10411251159520.12827-101000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10411251159520.12827-101000@da410.ifa.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
 
-> You want your cake and to eat it too? :> We don't want to warn the user
-> before they shoot themselves in the foot, but not loudly enough that
-> they can't help notice and choose to do something before the damage is
-> done?
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-We have userspace to do this, surely? Make the standard method of
-triggering resume involve an initrd, and have a small application that
-does sanity checks before the resume. In case of failure, have it prompt
-the user. As long as it doesn't do bad things to the filesystem,
-there's no danger. There's no reason to do this in the kernel.
+> I finally got time to run the test on 2.6.10-rc2-mm2-V0.7.30-10.
+> Conclusion: The bound on the locking time seems not to be bounded by
+> depth*1ms as predicted: The more blocking tasks there is the higher
+> the bound is.  There _is_ some kind of bound in that I don't see wild
+> locking times. The distributions stops nicely at N *1ms N in is higher
+> than depth.
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+i've fixed a couple of minor, priority-related bugs in kernels post
+-30-10, the latest being -31-7 - there's some chance that one of them
+might fix this final anomaly.
+
+> which is depth 3 and 20 blocking tasks. There is a clean upper bound
+> of 7ms (7.1 to be exact) but where does the 7 come from??? A formula
+> like N=2*depth+1 might fit the results.
+
+there's one thing i noticed, now that the blocker device is in the
+kernel, you have to be really careful to compile the userspace loop()
+code via the same gcc flags as the kernel did. Minor differences in
+compiler options can skew the timing calibration.
+
+but any such bug should at most cause a linear deviation via a constant
+factor multiplication, while the data shows a systematic nonlinear
+transformation.
+
+> If we understand what is going on this might end up being "good
+> enough" in the sense it is deterministic. The end result doesn't have
+> to be the best case formula. But the maximum locking time have to
+> independent of the number of lower priority tasks banging on the
+> protected region as that is something uncontrolable. We have to be
+> able to predict a bound based solely on the depth before we can say it
+> is "good enough".
+
+yeah, i agree that this has to be further investigated. What type of box
+did you test it on - UP or SMP? (SMP scheduling of RT tasks only got
+fully correct in the very latest -31-7 kernel.)
+
+	Ingo

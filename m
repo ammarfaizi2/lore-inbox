@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135663AbREBRZE>; Wed, 2 May 2001 13:25:04 -0400
+	id <S135659AbREBR3E>; Wed, 2 May 2001 13:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135659AbREBRYy>; Wed, 2 May 2001 13:24:54 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:59659 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S135663AbREBRYc>; Wed, 2 May 2001 13:24:32 -0400
-Message-ID: <3AF042C2.2BF4716B@lexus.com>
-Date: Wed, 02 May 2001 10:24:18 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.2 i686)
+	id <S135670AbREBR2y>; Wed, 2 May 2001 13:28:54 -0400
+Received: from chicago.cheek.com ([64.16.171.55]:12810 "EHLO chicago.cheek.com")
+	by vger.kernel.org with ESMTP id <S135659AbREBR2w>;
+	Wed, 2 May 2001 13:28:52 -0400
+Message-ID: <3AF0438E.2090709@cheek.com>
+Date: Wed, 02 May 2001 10:27:42 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; 0.8.1) Gecko/20010403
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: Linux NAT questions- (kernel upgrade??)
-In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A4@sinxsn02.ap.rabobank.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: bug: can't mount -o loop or -t nfs in 2.4.4, 2.4.4-ac2
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Sim, CT (Chee Tong)" schrieb:
+2.4.4-pre7 worked fine.
 
-> Hi.. I follow your instruction, but I encounter this issue, my kernel need
-> to be upgrade? MAy I know how to determine the current kernel version
+situation:
 
-uname -a
+mounting a remote nfs share or a loopback local filesystems doesn't 
+work.  it doesn't crash the system, the userspace process just hangs on 
+the mount() call.
 
-> and
-> how to upgrade it??
+all of these hang:
 
-Either upgrade to a distro that includes the new kernel
-(e.g. latest SuSE or Red Hat) or download kernel source
-and compile. It might be helpful to provide the distribution
-and version you are using (Red Hat 6.2, Slackware 7,
-Debian Potato, etc)
+# mount -o loop /my/ext2/image /mnt/ext2
+# mount -o loop /my/fat16/image /mnt/fat16
+# mount -o loop /my/iso9660/image /mnt/iso
+# mount other.system:/export /import
 
-> [root@guava /root]# iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i
-> eth1 -j D
-> NAT --to-destination 192.168.200.2
-> iptables v1.1.1: can't initialize iptables table `nat': iptables who? (do
-> you need to insm
-> od?)
-> Perhaps iptables or your kernel needs to be upgraded.
->
-> [root@guava simc]# rpm -ivh iptables-1_2_0-6_i386.rpm
-> error: failed dependencies:
->         kernel >= 2.4.0 is needed by iptables-1.2.0-6
+mounting local drives works fine, as long as it isn't nfs - i can mount 
+my ext2 and vfat drives, but not a local export on the same local machine.
 
-Yes, of course iptables won't work with the old kernel.
-If you want to stay with the old kernel, you must use
-ipchains instead.
+i can give strace output if desired.  please help!
 
-cu
+thanks!
 
-Jup
+joe
 

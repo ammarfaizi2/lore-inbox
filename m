@@ -1,166 +1,222 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316261AbSEZSrU>; Sun, 26 May 2002 14:47:20 -0400
+	id <S316289AbSEZS6i>; Sun, 26 May 2002 14:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316267AbSEZSrT>; Sun, 26 May 2002 14:47:19 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:15265 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S316261AbSEZSrS>; Sun, 26 May 2002 14:47:18 -0400
-Date: Sun, 26 May 2002 14:52:19 -0400
-From: jay <jbeatty@optonline.net>
-Subject: usb mass storage  fails in 2.5.18
-To: linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3CF12EE3.6070609@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+	id <S316293AbSEZS6h>; Sun, 26 May 2002 14:58:37 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:64667 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316289AbSEZS6f>;
+	Sun, 26 May 2002 14:58:35 -0400
+Date: Sun, 26 May 2002 20:57:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp for 2.5.18: kill broken Magic-D support
+Message-ID: <20020526185724.GA16004@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to set up 2.5.18 to read a digital camera memory stick - 
-which I can in 2.4.18.
+Hi!
 
-I think I've configured the kernel correctly:
+It is probably good idea to create rule that suspend may only be done
+from process context... And it simplifies code a lot. Here's the
+patch.
 
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-.
-.
-.
-.
-#
-# USB support
-#
-CONFIG_USB=y
-CONFIG_USB_DEBUG=y
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_LONG_TIMEOUT is not set
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_EHCI_HCD is not set
-# CONFIG_USB_OHCI_HCD is not set
-CONFIG_USB_UHCI_HCD=y
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-CONFIG_USB_STORAGE=y
-CONFIG_USB_STORAGE_DEBUG=y
-# CONFIG_USB_STORAGE_DATAFAB is not set
-..............
+Plus I move acpi_wakeup from acpi_wakeup.S to setup.c, to avoid
+ifdef and clean up floppy.c a bit (first three hunks). Please apply, 
+
+									Pavel
+
+--- clean/arch/i386/kernel/acpi_wakeup.S	Sun May 26 19:31:44 2002
++++ linux-swsusp/arch/i386/kernel/acpi_wakeup.S	Wed May 22 23:22:53 2002
+@@ -262,7 +262,6 @@
+ 
+ ENTRY(saved_magic)	.long	0
+ ENTRY(saved_magic2)	.long	0	
+-ENTRY(saved_videomode)	.long	0
+ 
+ ALIGN
+ # saved registers
+--- clean/arch/i386/kernel/setup.c	Sun May 26 19:31:44 2002
++++ linux-swsusp/arch/i386/kernel/setup.c	Sun May 26 19:46:10 2002
+@@ -168,6 +168,8 @@
+ static int disable_x86_serial_nr __initdata = 1;
+ static int disable_x86_fxsr __initdata = 0;
+ 
++unsigned long saved_videomode;
++
+ extern unsigned long saved_videomode;
+ 
+ /*
+@@ -684,10 +686,8 @@
+  	drive_info = DRIVE_INFO;
+  	screen_info = SCREEN_INFO;
+ 	apm_info.bios = APM_BIOS_INFO;
+-#ifdef CONFIG_ACPI_SLEEP
+ 	saved_videomode = VIDEO_MODE;
+ 	printk("Video mode to be used for restore is %lx\n", saved_videomode);
+-#endif
+ 	if( SYS_DESC_TABLE.length != 0 ) {
+ 		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
+ 		machine_id = SYS_DESC_TABLE.table[0];
+--- clean/drivers/block/floppy.c	Sun May 26 19:31:49 2002
++++ linux-swsusp/drivers/block/floppy.c	Sun May 26 19:57:41 2002
+@@ -4226,14 +4226,15 @@
+ 
+ static int have_no_fdc= -ENODEV;
+ 
+-static struct device device_floppy;
++static struct device device_floppy = {
++	name:		"floppy",
++	bus_id:		"03?0",
++};
+ 
+ int __init floppy_init(void)
+ {
+ 	int i,unit,drive;
+ 
+-	strcpy(device_floppy.name, "floppy");
+-	strcpy(device_floppy.bus_id, "03?0");
+ 	register_sys_device(&device_floppy);
+ 
+ 	raw_cmd = NULL;
+--- clean/fs/buffer.c	Sun May 26 19:31:59 2002
++++ linux-swsusp/fs/buffer.c	Sun May 26 19:48:20 2002
+@@ -122,8 +122,6 @@
+ 	wake_up_buffer(bh);
+ }
+ 
+-DECLARE_TASK_QUEUE(tq_bdflush);
+-
+ /*
+  * Block until a buffer comes unlocked.  This doesn't stop it
+  * from becoming locked again - you have to lock it yourself
+--- clean/include/linux/tqueue.h	Sun May 26 19:32:04 2002
++++ linux-swsusp/include/linux/tqueue.h	Sun May 26 20:00:06 2002
+@@ -66,7 +66,7 @@
+ #define DECLARE_TASK_QUEUE(q)	LIST_HEAD(q)
+ #define TQ_ACTIVE(q)		(!list_empty(&q))
+ 
+-extern task_queue tq_timer, tq_immediate, tq_disk, tq_bdflush;
++extern task_queue tq_timer, tq_immediate, tq_disk;
+ 
+ /*
+  * To implement your own list of active bottom halfs, use the following
+--- clean/kernel/suspend.c	Sun May 26 19:32:05 2002
++++ linux-swsusp/kernel/suspend.c	Sun May 26 20:01:48 2002
+@@ -34,13 +34,6 @@
+  * For TODOs,FIXMEs also look in Documentation/swsusp.txt
+  */
+ 
+-/*
+- * TODO:
+- *
+- * - we should launch a kernel_thread to process suspend request, cleaning up
+- * bdflush from this task. (check apm.c for something similar).
+- */
+-
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/swapctl.h>
+@@ -66,6 +59,7 @@
+ #include <linux/swap.h>
+ #include <linux/pm.h>
+ #include <linux/device.h>
++#include <linux/buffer_head.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -784,9 +778,6 @@
+ 	/* NOTREACHED */
+ }
+ 
+-/* forward decl */
+-void do_software_suspend(void);
+-
+ /*
+  * Magic happens here
+  */
+@@ -823,7 +814,6 @@
+ #ifdef SUSPEND_CONSOLE
+ 	update_screen(fg_console);	/* Hmm, is this the problem? */
+ #endif
+-	suspend_tq.routine = (void *)do_software_suspend;
+ }
+ 
+ static void do_magic_suspend_1(void)
+@@ -852,7 +842,6 @@
+ 	drivers_resume(RESUME_PHASE1);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+-	suspend_tq.routine = (void *)do_software_suspend;
+ 	printk(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
+ }
+ 
+@@ -860,10 +849,9 @@
+ #include <asm/suspend.h>
+ 
+ /*
+- * This function is triggered using process bdflush. We try to swap out as
+- * much as we can then make a copy of the occupied pages in memory so we can
+- * make a copy of kernel state atomically, the I/O needed by saving won't
+- * bother us anymore.
++ * We try to swap out as much as we can then make a copy of the
++ * occupied pages in memory so we can make a copy of kernel state
++ * atomically, the I/O needed by saving won't bother us anymore. 
+  */
+ void do_software_suspend(void)
+ {
+@@ -890,13 +878,9 @@
+ 	restore_console ();
+ }
+ 
+-struct tq_struct suspend_tq =
+-	{ routine: (void *)(void *)do_software_suspend, 
+-	  data: 0 };
+-
+ /*
+- * This is the trigger function, we must queue ourself since we
+- * can be called from interrupt && bdflush context is needed
++ * This is main interface to the outside world. It needs to be
++ * called from process context.
+  */
+ void software_suspend(void)
+ {
+@@ -904,8 +888,8 @@
+ 		return;
+ 
+ 	software_suspend_enabled = 0;
+-	queue_task(&suspend_tq, &tq_bdflush);
+-	wakeup_bdflush();
++	BUG_ON(in_interrupt());
++	do_software_suspend();
+ }
+ 
+ /* More restore stuff */
+--- clean/mm/pdflush.c	Sun May 26 19:32:05 2002
++++ linux-swsusp/mm/pdflush.c	Sun May 26 19:54:22 2002
+@@ -106,15 +106,12 @@
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_irq(&pdflush_lock);
+ 
+-#ifdef CONFIG_SOFTWARE_SUSPEND
+-		run_task_queue(&tq_bdflush);
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
+-#endif
+ 		schedule();
+ 
+ 		if (my_work->fn)
+ 			(*my_work->fn)(my_work->arg0);
+ 
+ 		/*
+ 		 * Thread creation: For how long have there been zero
 
 
-And the kernel sees it on bootup. See the dmesg snip below. But there is 
-nothing in /proc/bus/usb. OTOH /proc/scsi/usb-storage-0 does exist. When 
-I try to mount /dev/sda1 I get it's not a valid block device.
 
-Can I get this to work? What am I missing?
-
-thanks for any help
-jay
-
-
-
-cdrecord -scanbus
-Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
-Linux sg driver version: 3.5.25
-Using libscg version 'schily-0.5'
-scsibus0:
-         0,0,0     0) 'ATAPI   ' 'CD-R/RW 20X10   ' 'H.PF' Removable CD-ROM
-         0,1,0     1) *
-         0,2,0     2) *
-         0,3,0     3) *
-         0,4,0     4) *
-         0,5,0     5) *
-         0,6,0     6) *
-         0,7,0     7) *
-
-
-Here the dmesg snippet:
-
-May 26 14:26:10 daddy kernel: PCI: Sharing IRQ 14 with 00:09.0
-May 26 14:26:10 daddy kernel: hcd.c: usb-uhci-hcd @ 00:04.2, Intel Corp. 
-82371AB PIIX4 USB
-May 26 14:26:10 daddy kernel: hcd.c: irq 14, io base 0000d400
-May 26 14:26:10 daddy kernel: hcd.c: new USB bus registered, assigned 
-bus number 1
-May 26 14:26:10 daddy kernel: usb-uhci-hcd.c: Detected 2 ports
-May 26 14:26:10 daddy kernel: Manufacturer: Linux 2.5.18 usb-uhci-hcd
-May 26 14:26:10 daddy kernel: Product: Intel Corp. 82371AB PIIX4 USB
-May 26 14:26:10 daddy kernel: SerialNumber: 00:04.2
-May 26 14:26:10 daddy kernel: hub.c: USB hub found at /
-........
-
-May 26 14:26:10 daddy kernel: hub.c: new USB device 00:04.2-1, assigned 
-address 2
-May 26 14:26:10 daddy kernel: Manufacturer: Sony
-May 26 14:26:10 daddy kernel: Product: Sony DSC
-May 26 14:26:10 daddy kernel: scsi1 : SCSI emulation for USB Mass 
-Storage devices
-May 26 14:26:10 daddy kernel: usb-uhci-hcd.c: interrupt, status 2, 
-frame# 820
-May 26 14:26:10 daddy kernel: hub.c: new USB device 00:04.2-2, assigned 
-address 3
-May 26 14:26:10 daddy kernel: hub.c: USB hub found at 2
-May 26 14:26:10 daddy kernel: hub.c: 4 ports detected
-May 26 14:26:10 daddy kernel: hub.c: new USB device 00:04.2-2.4, 
-assigned address 4
-May 26 14:26:10 daddy kernel: usb.c: USB device 4 (vend/prod 0x452/0x51) 
-is not claimed by any active driver.
-May 26 14:26:10 daddy kernel:   Length              = 18
-May 26 14:26:10 daddy kernel:   DescriptorType      = 01
-May 26 14:26:10 daddy kernel:   USB version         = 1.00
-May 26 14:26:10 daddy kernel:   Vendor:Product      = 0452:0051
-May 26 14:26:10 daddy kernel:   MaxPacketSize0      = 8
-May 26 14:26:10 daddy kernel:   NumConfigurations   = 1
-May 26 14:26:10 daddy kernel:   Device version      = 2.06
-May 26 14:26:10 daddy kernel:   Device Class:SubClass:Protocol = 00:00:00
-May 26 14:26:10 daddy kernel:     Per-interface classes
-May 26 14:26:10 daddy kernel: Configuration:
-May 26 14:26:10 daddy kernel:   bLength             =    9
-May 26 14:26:10 daddy kernel:   bDescriptorType     =   02
-May 26 14:26:10 daddy kernel:   wTotalLength        = 0022
-May 26 14:26:10 daddy kernel:   bNumInterfaces      =   01
-May 26 14:26:10 daddy kernel:   bConfigurationValue =   01
-May 26 14:26:10 daddy kernel:   iConfiguration      =   00
-May 26 14:26:10 daddy kernel:   bmAttributes        =   40
-May 26 14:26:10 daddy kernel:   MaxPower            =  100mA
-May 26 14:26:10 daddy kernel:
-May 26 14:26:10 daddy kernel:   Interface: 0
-May 26 14:26:10 daddy kernel:   Alternate Setting:  0
-May 26 14:26:10 daddy kernel:     bLength             =    9
-May 26 14:26:10 daddy kernel:     bDescriptorType     =   04
-May 26 14:26:10 daddy kernel:     bInterfaceNumber    =   00
-May 26 14:26:10 daddy kernel:     bAlternateSetting   =   00
-May 26 14:26:10 daddy kernel:     bNumEndpoints       =   01
-May 26 14:26:10 daddy kernel:     bInterface Class:SubClass:Protocol = 
-  03:00:00
-May 26 14:26:10 daddy kernel:     iInterface          =   00
-May 26 14:26:10 daddy kernel:     Endpoint:
-May 26 14:26:10 daddy kernel:       bLength             =    7
-May 26 14:26:10 daddy kernel:       bDescriptorType     =   05
-May 26 14:26:10 daddy kernel:       bEndpointAddress    =   81 (in)
-May 26 14:26:10 daddy kernel:       bmAttributes        =   03 (Interrupt)
-May 26 14:26:10 daddy kernel:       wMaxPacketSize      = 0008
-May 26 14:26:10 daddy kernel:       bInterval           =   20
-
-
-
-
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

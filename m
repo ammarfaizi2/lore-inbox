@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVBOX0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVBOX1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVBOX0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVBOX0L
+	id S261947AbVBOX1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVBOX1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 18:26:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16846 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261942AbVBOX0C (ORCPT
+	Tue, 15 Feb 2005 18:27:33 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:54850 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261947AbVBOX10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 18:26:02 -0500
-Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       ext3 users list <ext3-users@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050215232939.GD16892@gaz.sfgoth.com>
-References: <200502151246.06598.adobriyan@mail.ru>
-	 <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050215232939.GD16892@gaz.sfgoth.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1108509952.9776.101.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 15 Feb 2005 18:27:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=f/0ylfDiNlS14RcKlXol4MfGwmtf2z/tc2c170FmRr63LNfDhhQjk5ftlV65BRrGTY7K4PaLqgc6aFO14113FNyxWCTYV12Z43Ttt8sjtHOQ07zOygkmIPqOB+OmFMf6oxLAcQmFjT7EJnve2bybDBKbsZhzzeOmBR/dcce49DY=
+Message-ID: <90f56e480502151527696ef315@mail.gmail.com>
+Date: Tue, 15 Feb 2005 15:27:25 -0800
+From: Ajay Patel <patela@gmail.com>
+Reply-To: Ajay Patel <patela@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10 on PowerMac9,1 G5 Fan problem
+Cc: benh@kernel.crashing.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 15 Feb 2005 23:25:53 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, 2005-02-15 at 23:29, Mitchell Blank Jr wrote:
+I have a single processor PowerMac G5 where
+the model property is PowerMac9,1.
+I do have therm_pm72 and I2C_keywest option
+enabled in my config. Still fans are always on.
 
-> Of course that's less efficient though since "mask" is probably constant..
-> so now the endian conversion changed from compile-time to run-time.
-> 
-> Would something like
-> 
->  	( ( EXT3_SB(sb)->s_es->s_feature_compat & cpu_to_le32(mask) ) != 0)
-> 
-> be enough to satisfy sparse?
+Any thermal control driver patch available for this newer G5?
 
-Yes, but it breaks other places: there are a few places where callers
-actually want the real return value from the "&", so that (for example)
-they can tell the user which feature failed the compatibility test.
-
---Stephen
-
+Thanks in advance for your help.
+Aj

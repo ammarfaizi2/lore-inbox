@@ -1,102 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUGLWj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUGLWkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUGLWj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 18:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUGLWj5
+	id S264002AbUGLWkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 18:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUGLWkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 18:39:57 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:26302 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S264045AbUGLWjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 18:39:54 -0400
-Message-ID: <40F313A6.909@am.sony.com>
-Date: Mon, 12 Jul 2004 15:41:42 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+	Mon, 12 Jul 2004 18:40:43 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:36751 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S264002AbUGLWk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 18:40:29 -0400
+Message-ID: <40F31348.70807@tlinx.org>
+Date: Mon, 12 Jul 2004 15:40:08 -0700
+From: L A Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Adam Kropelin <akropel1@rochester.rr.com>
-CC: Andrew Morton <akpm@osdl.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       karim@opersys.com, linux-kernel@vger.kernel.org,
-       celinux-dev@tree.celinuxforum.org, tpoynor@mvista.com
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-References: <40EEF10F.1030404@am.sony.com> <200407102351.05059.dtor_core@ameritech.net> <40F0C8E8.2060908@opersys.com> <200407110019.14558.dtor_core@ameritech.net> <20040710222702.3718842e.akpm@osdl.org> <Pine.GSO.4.58.0407110945010.3013@waterleaf.sonytel.be> <20040711005156.1d6558dd.akpm@osdl.org> <20040711094128.A27649@mail.kroptech.com> <40F2DDFC.8010501@am.sony.com> <20040712153248.A3743@mail.kroptech.com>
-In-Reply-To: <20040712153248.A3743@mail.kroptech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Chris Wedgwood <cw@f00f.org>
+CC: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       Jan Knutar <jk-lkml@sci.fi>, L A Walsh <lkml@tlinx.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <20040710191914.GA5471@taniwha.stupidest.org> <20040712212020.GA22372@taniwha.stupidest.org>
+In-Reply-To: <20040712212020.GA22372@taniwha.stupidest.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin wrote:
-> On Mon, Jul 12, 2004 at 11:52:44AM -0700, Tim Bird wrote:
-> 
->>Adam Kropelin wrote:
+<aside>
+Chris, I'd never say you were full of shit or lied in any circumstance.
+Mistakes are human -- not being "full of shit" or "lying".  Get over it.
+Don't inflate error.  Seems to be related to pervasive belief that people
+have to be either all good or all bad or all perfect, or flawed, or all 
+white
+hat or black hat, God or imperfect and to be "good" in programming field
+one must be perfect and never be _known_ to make a mistake (like some
+who portray others as dangerous or fools because they may hold knowledge of
+that name-callers' faults).  The ones who pose the real danger are those
+who censor others because the "masses" can't handle the truth.  Anyway
+it's unuseful to demean yourself or others.  </aside>
+
+If it is of any help (I doubt it, it perplexes me)...the files I've
+written out with vim and have returned "nulls" have been files that were
+written out 2-3 _DAYS_ earlier -- often with more recent write having
+been saved fine. 
+
+I've also seen sections in log files where blocks would return zero in the
+middle of a log.  Obviously blocks before and after successfully made it to
+disk, but in _RARE_ circumstances (crashes and unplanned shutdowns are 
+already
+rare enough, so it's a rare bug that only shows up on a 'rare' 
+occasion...:-).
+
+Almost (shot in the dark), like some code that was supposed to zero 
+unused but allocated
+datablocks got pointed at the wrong blocks, since these files are 
+readable as having
+been written (yes may all be out of membuffs) and are often recoverable 
+from the day's
+backup. 
+
+If it was a file I just edited and then it crashed, that I could 
+understand more than
+having files I haven't touched for a few days be zapped.
+
+-l
+
+
+
+Chris Wedgwood wrote:
+
+>On Sat, Jul 10, 2004 at 12:19:14PM -0700, Chris Wedgwood wrote:
+>
+>  
+>
+>>It would be nice for some people to prevent log-replay zeroing files
+>>but then something would have to be able to determine whether or not
+>>these blocks were newly allocated (and this might contain
+>>confidential data and need to be zeroed) or previously part of the
+>>file in which case we probably would like them left alone.
+>>    
 >>
->>>Here's a patch. It places the relevant information on the same line as
->>>bogomips and does so without encouraging anyone to fiddle with
->>>loops_per_jiffy and screw up their kernel. 
+>
+>I told lies.
+>
+>  
+>
+>>I don't know any of the code well enough to know how easy this is or
+>>even if I'm telling the truth :) Hopefully someone who does can
+>>speak up on this.
+>>    
 >>
->>The patch is missing the Kconfig piece.  Is the wording the
->>same as from your earlier patch?
-> 
-> 
-> Andrew requested that the config option be removed, so there are no
-> longer any changes to Kconfig.
-
-Oh - I missed the change where preset_lpj is no longer initialized
-from CONFIG_PRESET_LPJ.  I see it now.  I saw the comment from
-Andrew, but thought he was talking about the first version of the
-patch that had ifdefs.
-
-Here's what Andrew Morton said:
-> a) I don't see much point in making it configurable.  Just add the boot
->    option and be done with it.  The few hundred bytes of extra code will be
->    dropped from core anyway.
-> 
->    The main reason for this is that most people won't turn on the config
->    option, so your new code could get accidentally broken quite easily. 
->    Plus it removes some ifdefs.
-
-I have one or two arguments in favor of keeping the config option.
-First, for embedded systems it is sometimes necessary to compile-in
-the value. Unfortunately, not all architectures allow the
-kernel command line to be compiled in. (It would be nice if they did,
-but that's something to fix separately.)
-
-The first restructuring of the patch that you did, I think addresses
-the issues that Andrew raised.  There are now no ifdefs, and since the
-core code doesn't drop away (and indeed can be turned on at boot time
-if needed), I think the code is not susceptible to accidental breakage
-like the first version was.  I think Andrew is right that the preset
-code path won't get much testing outside of embedded circles, so it is
-important that it be as simple as possible.
-
-The only *code* change from the configurable to the config-less version
-of the code is:
-
-+static unsigned long preset_lpj = CONFIG_PRESET_LPJ;
-   vs.
-+static unsigned long preset_lpj;
-
-Secondly, I was hoping to get the FASTBOOT menu in the kernel, because
-CELF has a few more patches to submit that have the same theme as this
-one.  (I realize this is not justification for making this option
-configurable, per se.  If we need to push for this on a subsequent patch,
-that's OK.)
-
-If we do put the config option back in, then there's a mistake in the
-wording that needs to be fixed.  The statement "loops_per_jiffy is
-roughly BogoMips * 5000."  This is only true when HZ is 100.  This
-statement should just be removed - the rest of the wording works
-without it.
-
-With regard to testing - everything worked as expected.  I think the
-config option issue is the last thing to be resolved before recommending
-that the patch be applied.
-
-=============================
-Tim Bird
-Architecture Group Co-Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-E-mail: tim.bird@am.sony.com
-=============================
+>
+>I knew I was completely full of shit.
+>
+>
+>XFS does *not* zero files, it simply returns zeros for unwritten
+>extents.  If you open an existing file and scribble all over it, you
+>might see the old data during a crash, or the new data if it was
+>flushed.  You shouldn't see zero's though.
+>
+>What does happen though, is that dotfiles are truncated and rewritten,
+>if the data blocks aren't flushed you will get zeros back because the
+>extents were unwritten.  This is really the only sensible thing to do
+>given the circumstances.
+>
+>My guess is that with other fs' (when journaling metadata only) the
+>blocks allocated for the newly written data are *usually* the same as
+>the recently freed blocks from the truncate so things appear to work
+>but in reality it's probably mostly luck.  XFS could behave the same
+>way, but sooner or later you will still loose when you get crap back
+>instead of old data.
+>
+>Some applications just need to be fixed.
+>
+>
+>   --cw
+>  
+>

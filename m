@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129496AbRCBUqg>; Fri, 2 Mar 2001 15:46:36 -0500
+	id <S129495AbRCBU5R>; Fri, 2 Mar 2001 15:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129498AbRCBUq1>; Fri, 2 Mar 2001 15:46:27 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:56003 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129496AbRCBUqQ>;
-	Fri, 2 Mar 2001 15:46:16 -0500
-Message-ID: <3AA00694.7A65A3B2@mandrakesoft.com>
-Date: Fri, 02 Mar 2001 15:46:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-4mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Grant Grundler <grundler@cup.hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.0 parisc PCI support
-In-Reply-To: <200103021932.LAA29704@milano.cup.hp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129498AbRCBU5I>; Fri, 2 Mar 2001 15:57:08 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:24080 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129495AbRCBU5C>; Fri, 2 Mar 2001 15:57:02 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: scsi vs ide performance on fsync's
+Date: 2 Mar 2001 12:56:52 -0800
+Organization: Transmeta Corporation
+Message-ID: <97p1ek$10t$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L2.0103021241550.14586-200000@srv2.ecropolis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> Index: drivers/pci/pci.c
-> ===================================================================
-> RCS file: /home/cvs/parisc/linux/drivers/pci/pci.c,v
-> retrieving revision 1.1.1.6
-> diff -u -p -r1.1.1.6 pci.c
-> --- pci.c       2001/01/09 16:57:56     1.1.1.6
-> +++ pci.c       2001/03/02 18:44:59
-> @@ -644,12 +645,16 @@ void __init pci_read_bridge_bases(struct
->         } else {
-> +
->                 /*
-> -                * Ugh. We don't know enough about this bridge. Just assume
-> -                * that it's entirely transparent.
-> +                * Either this is not a PCI-PCI bridge or it's not
-> +                * configured yet. Since this code only supports PCI-PCI
-> +                * bridge, we better not be called for any other type.
-> +                * Don't muck the resources since it will confuse the
-> +                * platform specific code which does that.
->                  */
-> -               printk("Unknown bridge resource %d: assuming transparent\n", 0);
-> -               child->resource[0] = child->parent->resource[0];
-> +               printk("PCI : ignoring %s PCI-PCI bridge (I/O BASE not configured)\n", child->self->slot_name);
-> +               return;
->         }
-> 
->         res = child->resource[1];
-> @@ -664,8 +669,8 @@ void __init pci_read_bridge_bases(struct
->                 res->name = child->name;
->         } else {
->                 /* See comment above. Same thing */
-> -               printk("Unknown bridge resource %d: assuming transparent\n", 1);
-> -               child->resource[1] = child->parent->resource[1];
-> +               printk("PCI : ignoring %s PCI-PCI bridge (MMIO base not configured)\n", child->self->slot_name);
-> +               return;
->         }
-> 
->         res = child->resource[2];
-> @@ -690,11 +695,10 @@ void __init pci_read_bridge_bases(struct
->                 res->end = limit + 0xfffff;
->                 res->name = child->name;
->         } else {
-> -               /* See comments above */
-> -               printk("Unknown bridge resource %d: assuming transparent\n", 2);
-> -               child->resource[2] = child->parent->resource[2];
-> +               /* Base > limit means the prefetchable mem is disabled.*/
->         }
+In article <Pine.LNX.4.33L2.0103021241550.14586-200000@srv2.ecropolis.com>,
+Jeremy Hansen  <jeremy@xxedgexx.com> wrote:
+>
+>The SCSI adapter on the raid array is an Adaptec 39160, the raid
+>controller is a CMD-7040.  Kernel 2.4.0 using XFS for the filesystem on
+>the raid array, kernel 2.2.18 on ext2 on the IDE drive.  The filesystem is
+>not the problem, as I get almost the exact same results running this on
+>ext2 on the raid array.
 
+Did you try a 2.4.x kernel on both?
 
-IIRC these "assuming transparent" lines were put in to -fix- PCI-PCI
-bridges on at least some x86 boxes...  I didn't really understand the
-bridge code well enough at the time to comment one way or the other on
-its correctness, but it definitely fixed some problems.
+2.4.0 has a bad elevator, which may show problems, so please check 2.4.2
+if the numbers change. Also, "fsync()" is very different indeed on 2.2.x
+and 2.4.x, and I would not be 100% surprised if your IDE drive does
+asynchronous write caching and your RAID does not... That would not show
+up in bonnie.
 
-	Jeff
+Also note how your bonnie file remove numbers for IDE seem to be much
+better than for your RAID array, so it is not impossible that your RAID
+unit just has a _huge_ setup overhead but good throughput, and that the
+IDE numbers are better simply because your IDE setup is much lower
+latency. Never mistake throughput for _speed_.
 
-
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+		Linus

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVBNT30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVBNTeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVBNT30 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 14:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVBNT30
+	id S261537AbVBNTeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 14:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVBNTeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 14:29:26 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:13747 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261534AbVBNT3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 14:29:22 -0500
-Date: Mon, 14 Feb 2005 11:29:20 -0800
-To: Russell Miller <rmiller@duskglow.com>, Marcin Dalecki <martin@dalecki.de>,
+	Mon, 14 Feb 2005 14:34:09 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:59881 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261537AbVBNTeH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 14:34:07 -0500
+Date: Mon, 14 Feb 2005 20:34:38 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: James Simmons <jsimmons@www.infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050214192920.GA18876@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Russell Miller <rmiller@duskglow.com>,
-	Marcin Dalecki <martin@dalecki.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050214020802.GA3047@bitmover.com> <20050214154015.GA8075@bitmover.com> <3586df11f3bb037ab4b0284109ff9c0a@dalecki.de> <200502140923.03155.rmiller@duskglow.com> <20050214174932.GB8846@bitmover.com>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Message-ID: <20050214193438.GB7763@ucw.cz>
+References: <20050213004729.GA3256@stusta.de> <Pine.LNX.4.56.0502141756220.7398@pentafluge.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050214174932.GB8846@bitmover.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+In-Reply-To: <Pine.LNX.4.56.0502141756220.7398@pentafluge.infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 09:49:32AM -0800, lm wrote:
-> If it were spread out over the thousands of sites like your
-> usage is then it would be more, there's a lot more overhead.  There are
-> currently more than 2,200 top level domains using BK for free (where
-> top level means my-company.com, not my-workstation.my-company.com).
+On Mon, Feb 14, 2005 at 06:04:03PM +0000, James Simmons wrote:
+> 
+> > In 2.6, drivers/input/power.c would only have been built if 
+> > CONFIG_INPUT_POWER was enabled - but it is nowhere possible to enable 
+> > this option.
+> 
+> That was written a long time ago before the new power management went in. 
+> On PDA's there is a power button and suspend button. So this was a hook 
+> so that the input layer could detect the power/suspend button being 
+> presses and then power down or turn off the device. Now that the new power
+> management is in what should we do?
+ 
+Change power.c to generate power events like ACPI does, most likely.
 
-http://www.bitkeeper.com/domains.html
-
-is a listing of the domains which have used bk-3.2.3 in the last 4
-months.  It's slightly less than the claimed 2,200 because we looked
-only at the bk-3.2.3 usage.
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Vojtech Pavlik
+SuSE Labs, SuSE CR

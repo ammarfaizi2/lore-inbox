@@ -1,144 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266846AbUFYTNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266842AbUFYTM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266846AbUFYTNe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 15:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266847AbUFYTNd
+	id S266842AbUFYTM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 15:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266847AbUFYTM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 15:13:33 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:44765 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S266846AbUFYTM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 15:12:56 -0400
-Date: Fri, 25 Jun 2004 13:12:53 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Goldwyn Rodrigues <goldwyn_r@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Breaking ext2 file size limit of 2TB
-Message-ID: <20040625191253.GG31203@schnapps.adilger.int>
-Mail-Followup-To: Goldwyn Rodrigues <goldwyn_r@myrealbox.com>,
-	linux-kernel@vger.kernel.org
-References: <1088168646.d642871cgoldwyn_r@myrealbox.com>
+	Fri, 25 Jun 2004 15:12:57 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:3555 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266842AbUFYTMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 15:12:06 -0400
+Date: Fri, 25 Jun 2004 12:12:04 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] ioremap() clarification && ioremap_resource()
+Message-ID: <20040625191204.GA14246@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kgh2FNDOY+603hGA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1088168646.d642871cgoldwyn_r@myrealbox.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Kgh2FNDOY+603hGA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Jun 25, 2004  18:34 +0530, Goldwyn Rodrigues wrote:
-> I have made a patch to enable file creation greater than 2TB. I tested it
-> using sparse files and it works good.
->=20
-> Working:
-> The file size limit of the ext3 filesystem is limited to 2TB because of
-> i_blocks, a variable which stores the number of 512 blocks in the inode.
-> i_blocks is a 32 which limits the number it can hold. The patch makes
-> use of l_i_reserved1 field to keep the higher order bits of i_blocks.
-
-Do you have a real demand for doing this?  Given that block devices are
-limited to 16TB on 32-bit architectures (page size * long), and ext3
-files themselves are limited to 4TB+ (i386 page size again) because of
-the triple-indirect block limit this isn't much of a win until we go to
-something like extents.  Are you using a non-i386 architecture?
-
-If we started using larger blocksizes for systems that have larger than
-4kB pages (i.e. not i386) this would become an issue.  At some point
-having giant files w/o extents is pointless (performance is too bad),
-so we could also put the high blocks count in as part of the extent data
-(e.g. i_blocks[14]) since the format would be gratuitously incompatible
-anyways.
-
-> @@ -1003,9 +1003,9 @@
->  	res +=3D 1LL << (bits-2);
->  	res +=3D 1LL << (2*(bits-2));
->  	res +=3D 1LL << (3*(bits-2));
-> -	res <<=3D bits;
-> -	if (res > (512LL << 32) - (1 << bits))
-> -		res =3D (512LL << 32) - (1 << bits);
-> +	/* Since another block is added, we add the same number again */
-> +	res +=3D 1LL << (3*(bits-2));
-> +	res <<=3Dbits;
-
-This is incorrect.  All that this change does is remove the extra
-"res > (512LL << 32) - (1 << bits)" limit.  Even that could be removed
-for sparse files without any of these changes if we wanted to check
-at block allocation time whether we would overflow the i_blocks limit.
-
->  struct buffer_head *ext3_bread(handle_t *handle, struct inode * inode,
-> -                              int block, int create, int *err)
-> +                              sector_t block, int create, int *err)
-> {
->         struct buffer_head * bh;
-> -       int prev_blocks;
-> +       sector_t prev_blocks;
-
-This is a good fix regardless (at least change it to long from int).
-
-> This has been developed and tested on kernel version 2.6.5 using sparse f=
-iles.
-
-That isn't really a test of anything, since a sparse file will not use=20
-more than 2^32 blocks.
-
-> #define i_blocks_high		osd1.linux1.l_i_reserved1
-
-If we really wanted to avoid being incompatible with Hurd (I personally
-don't care about that, but someone who knows more should comment on how
-badly this will screw things for it) we could use one of the other fields in
-the inode like m_i_frag + m_i_fsize, or i_faddr as none of them is actually
-used.  We also only really need 24 bits of this word before we hit the
-64-bit byte i_size limit so we may as well be prudent and mask off the high
-byte for later use.
-
-Does anyone know if Hurd actually use both i_translator (i_reserved1) and
-i_mode_high field (i_pad1)?
-
-In any case, we need to wrap this with some sort of COMPAT flag in the
-superblock, and probably a per-inode flag as well, so we know to trust
-this value.
-
-> --- linux-2.6.5-orig/include/linux/fs.h	2004-04-04 09:06:52.000000000 +05=
-30
-> +++ linux-2.6.5-4TB/include/linux/fs.h	2004-06-23 12:18:43.000000000 +0530
-> @@ -393,7 +393,11 @@
->  	unsigned int		i_blkbits;
->  	unsigned long		i_blksize;
->  	unsigned long		i_version;
-> +#if !defined(CONFIG_EXT3_LARGE_FILE_SUPPORT) || defined(CONFIG_64BIT)
->  	unsigned long		i_blocks;
-> +#else
-> +	unsigned long long	i_blocks;
-> +#endif /* CONFIG_EXT3_LARGE_FILE_SUPPORT */
-
-Why not just declare this as sector_t?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+What is the general consensus among folks on using ioremap() for
+non-PCI devices?  Looking at IO-mapping.txt (which is really really 
+oudated) and io.h for various architectures, there really does not 
+seem to be any agreement on what the cookie going into ioremap() means. 
+IO-mapping.txt just states that it is a bus address. The reason I am
+asking is b/c I have a system that breaks the following assumption 
+in IO-mapping.txt by having different bus address domains.
 
 
---Kgh2FNDOY+603hGA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ - bus address. This is the address of memory as seen by OTHER devices, 
+   not the CPU. Now, in theory there could be many different bus 
+   addresses, with each device seeing memory in some device-specific way, 
+   but happily most hardware designers aren't actually actively trying to 
+   make things any more complex than necessary, so you can assume that all 
+   external hardware sees the memory the same way. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+The system I am working on has a 32-bit SOC with many on-chip devices
+and SDRAM taking up over 2G of CPU bus ("physical") address space. In 
+addition, there is about 3.5GB worth of devices on the PCI bus. The SOC 
+has an in direct PCI access mechanism via command/data registers, so there 
+is no need to map any PCI devices into kernel VM. ioremap() can simply 
+return the incoming value and read*/write* can use the PCI control 
+registers on the SOC to perform PCI mem accesses. This does mean that
+PCI mmap won't work, but that's not a requirement on this system.
 
-iD8DBQFA3Hk1pIg59Q01vtYRAuw5AKC7JHU5oJCxImI4WiounI8KHCU3rQCeOx07
-7yjH/AJGuMNQUMVpoCptz3Y=
-=MX/2
------END PGP SIGNATURE-----
+The problem I have is that since some of the on-chip devices have
+overlapping CPU bus addresses with devices on the PCI bus, there is no way 
+for ioremap() to tell if the incoming address is a PCI bus address or a 
+CPU bus address. Therefore, ioremap() does not know if really needs to
+map the incoming region into VM or whether it should simply return
+the value it was given. The same issue exists with read*/write* since 
+there are non-PCI drivers that use these interfaces. [1]
 
---Kgh2FNDOY+603hGA--
+I can easilly get around this issue by having my SOC-specific drivers
+call the low level ARM __ioremap() which is defined as taking a CPU
+physaddr and have my ioremap() assume that it is used only for PCI
+devices, but it seems that we really need a consistent interface for
+mapping devices regardless of the bus they are on.  There's been some 
+discussion before on providing a ioremap_resource() [2], but it 
+looks like the discussion just kind of died off and there were 
+still some unresolved issues such as whether this interface should 
+take a device pointer or not. 
+
+One thing to note is that simply having a ioremap_resource() is not
+enough and we also need someway of telling read*/write* what bus/device
+we are accessing. In my situation, the PCI address for a device that
+is passed to and returned by ioremap_resource() could easilly overlap
+with the virtual address for a real VM-mapped device or even something 
+in the PHYS_OFFSET -> VMALLOC_START region, so I can't just have 
+readl/writel assume that it is a PCI address..or are readl/writel only
+supposed to be used with PCI devices? 
+
+What I'd like to propose is something that looks like the following
+from the driver writer's perspective:
+
+	cookie = dev_remap(dev, resource, offset, len);
+	value = dev_readl(dev, cookie + register_offset);
+	dev_writel(dev, cookie + offset, value);
+	...
+	dev_unmap(dev, cookie);
+
+Is anyone else still interested in an API similar to ioremap_resource()
+or am I the only one who really needs this ATM? Is this something that's 
+is acceptalbe in 2.6 if we update drivers as needed (I only need e100 and 
+e1000 for now) and make the generic case on systems that don't need the 
+resource default to ioremap() or is this a 2.7 only change? 
+
+Regardless of the answer, I'll try to throw together a patch in the
+next few days.
+
+~Deepak
+
+[1] See drivers/serial/8250.c for ioremap && read*/write* on non-PCI
+
+[2] http://www.uwsg.iu.edu/hypermail/linux/kernel/0309.0/1117.html
+
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

@@ -1,31 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUHESlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUHETCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267923AbUHESlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 14:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267877AbUHESgF
+	id S267903AbUHETCk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267895AbUHETAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 14:36:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25837 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267874AbUHES0t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 14:26:49 -0400
-Date: Thu, 5 Aug 2004 19:26:03 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: cciss update [1 of 6]
-Message-ID: <20040805182603.GD12308@parcelfarce.linux.theplanet.co.uk>
-References: <D4CFB69C345C394284E4B78B876C1CF107DBFBA7@cceexc23.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DBFBA7@cceexc23.americas.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 5 Aug 2004 15:00:50 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:663 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267903AbUHES7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 14:59:52 -0400
+Message-Id: <200408051859.i75Ix1Y16640@owlet.beaverton.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Ingo Molnar <mingo@elte.hu>, mbligh@aracnet.com, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: 2.6.8-rc2-mm2, schedstat-2.6.8-rc2-mm2-A4.patch 
+In-reply-to: Your message of "Thu, 05 Aug 2004 11:36:27 PDT."
+             <20040805113627.13e0feab.akpm@osdl.org> 
+Date: Thu, 05 Aug 2004 11:59:01 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 09:23:20AM -0500, Miller, Mike (OS Dev) wrote:
-> Sorry, I thought the descriptions in the patch were sufficient. 
-> Again, I wish viro would copy me on patches to cciss. Isn't that the normal protocol, include the maintainer in any updates?
+Adrian's problem was due to using schedstats on a non CONFIG_SMP system,
+which I hadn't tried since sched-domains was added.  I'll send a patch
+to you separately against this tree
 
-My apologies; it *was* a part of huge series, though ;-/
+    http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2.
+
+to address that.
+
+Since schedstats digs deep into the internals of the scheduler, major
+scheduler changes will probably always require some major revamping
+of schedstats, at least to deprecate old counters and possibly to add
+new ones.  I think, though, that after this initial settling-in period
+minor scheduler changes should result in just tweaks to schedstat.
+
+Rick

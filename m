@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbUJ3Ntz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbUJ3N5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbUJ3Ntz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 09:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUJ3Ntz
+	id S261176AbUJ3N5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 09:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbUJ3N5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 09:49:55 -0400
-Received: from CPE-203-51-26-106.nsw.bigpond.net.au ([203.51.26.106]:39921
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S261178AbUJ3Ntu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 09:49:50 -0400
-Message-ID: <41839BFC.1070302@eyal.emu.id.au>
-Date: Sat, 30 Oct 2004 23:49:48 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
+	Sat, 30 Oct 2004 09:57:25 -0400
+Received: from cantor.suse.de ([195.135.220.2]:42900 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261176AbUJ3N5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 09:57:19 -0400
+To: Dave Airlie <airlied@gmail.com>
+Cc: linux-kernel@vger.kernel.org, eich@suse.de
+Subject: Re: status of DRM_MGA on x86_64
+References: <1099052450.11282.72.camel@hostmaster.org.suse.lists.linux.kernel.suse.lists.linux.kernel>
+	<1099061384.11918.4.camel@hostmaster.org.suse.lists.linux.kernel.suse.lists.linux.kernel>
+	<41829E39.1000909@us.ibm.com.suse.lists.linux.kernel.suse.lists.linux.kernel>
+	<1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel.suse.lists.linux.kernel>
+	<p734qkd0y0n.fsf@verdi.suse.de.suse.lists.linux.kernel>
+	<21d7e99704103004155d2826fb@mail.gmail.com.suse.lists.linux.kernel>
+	<21d7e997041030041748b60ce7@mail.gmail.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Oct 2004 15:57:18 +0200
+In-Reply-To: <21d7e997041030041748b60ce7@mail.gmail.com.suse.lists.linux.kernel>
+Message-ID: <p73k6t8z4u9.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.10-rc1 bttv oops in btcx_riscmem_free
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Watching on Mythtv, I stopped watching on the client. at this point
-the picture froze. Looking in dmesg I see this oops. The machine
-quicly becomes unusable ('ps aux' hangs).
+Dave Airlie <airlied@gmail.com> writes:
 
-I then applied the v4l patches off the list. Still the same problem.
+> sorry missed the list....
+> 
 
-Unable to handle kernel paging request at virtual address 85525fe9
-  printing eip:
-c010b567
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP
-Modules linked in: nls_iso8859_1 smbfs tsdev psmouse mt352 sp887x v4l1_compat dvb_bt8xx dvb_core i810_audio ac97_codec sr_mod sg ide_scsi ide_cd cdrom it87 eeprom i2c_isa i2c_i801 i2c_sensor eth1394 ohci_hcd ohci1394 ieee1394 dc395x scsi_mod snd_bt87x bt878 bttv tuner video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc videodev e1000 snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore i2c_core cfi_cmdset_0002 cfi_util mtdpart jedec_probe cfi_probe gen_probe ichxrom mtdcore chipreg map_funcs ehci_hcd uhci_hcd usbcore shpchp pciehp pci_hotplug intel_mch_agp intel_agp agpgart parport_pc parport 8250_pnp 8250 serial_core evdev nls_cp437 msdos fat dm_mod rtc unix
-CPU:    0
-EIP:    0060:[<c010b567>]    Not tainted VLI
-EFLAGS: 00210282   (2.6.10-rc1-d1)
-EIP is at dma_free_coherent+0x30/0x67
-eax: 00000000   ebx: e3f9e000   ecx: e3f9e000   edx: 00000001
-esi: 85525fe9   edi: eae38438   ebp: d86ec8ac   esp: e0c2fedc
-ds: 007b   es: 007b   ss: 0068
-Process mythbackend (pid: 15225, threadinfo=e0c2f000 task=f3290a20)
-Stack: e7f36b80 eae38380 f8f9d03d e7f36bc4 00001f18 e3f9e000 23f9e000 eae383a4
-        d8931e80 f9091bdd e7f36b80 eae38438 00000000 00000000 f5034ca0 d86ec8ac
-        f9020ba9 d8931e80 eae38380 00000000 c180f400 e6d09e94 e6d09e94 e6d09ebc
-Call Trace:
-  [<f8f9d03d>] btcx_riscmem_free+0x3d/0x84 [btcx_risc]
-  [<f9091bdd>] bttv_dma_free+0x74/0x9f [bttv]
-  [<f9020ba9>] videobuf_vm_close+0x97/0xc9 [video_buf]
-  [<c014b593>] remove_vm_struct+0x91/0x93
-  [<c014cd7f>] unmap_vma_list+0x1c/0x28
-  [<c014d145>] do_munmap+0x14d/0x19e
-  [<c014d1e7>] sys_munmap+0x51/0x76
-  [<c010508b>] syscall_call+0x7/0xb
-Code: 44 24 0c 8b 54 24 10 8b 5c 24 14 85 c0 74 06 8b b0 b8 00 00 00 8d 42 ff ba ff ff ff ff c1 e8 0b 83 c2 01 d1 e8 75 f9 85 f6 74 13 <8b> 0e 39 cb 72 0d 8b 46 08 c1 e0 0c 8d 04 08 39 c3 72 09 89 d8
 
--- 
-Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Ok my answers again.
+ 
+> > It was solved long ago for the Radeon driver by Egbert Eich.
+> > But for some unknown reason the DRI people never merged his patches.
+> 
+> Because no-one agreed that his solution was clean enough for use,
+> no-one contributed well described patches of the separate pieces to
+> drm or dri,
+> 
+> At the moment any solution to the 32/64-bit DRI will either break pure
+> 64-bit systems or break 32/64-bit mixed systems, nobody has stepped
+> forward and said that either of these are acceptable,
+
+In short I think it doesn't make sense. There is enough existence
+proof that you can write working 32bit emulation layers without
+breaking any backwards compatibility. From my experiences with Egberts
+patches there are also no compatibility problems.
+
+You pay some cost for the conversion, but it tends to be not significant
+(iirc from Egbert's results the non native case was not significantly
+slower in ViewPerf)
+
+Some people have attempted to design biarch ABIs in the past
+for new interfaces, but more often than not they got it wrong in some
+subtle detail and in the end you had to convert anyways. 
+
+> and no drm
+> developer has the hardware to work on it,
+
+Well, Egbert has and he wrote the code.
+
+There is a working patch that you just need to apply, isn't there?
+
+> This 64-bit vs 32/64-bit stuff has been on my drm todo list for ages
+> but I've neither received clean patches or someone who has the test
+> environment to convince me that breaking one or other of the currently
+> working systems is acceptable... 
+
+Again you don't need to break anything. You just convert the ABI.
+
+As a short layman's introduction on how Linux 32bit compatibility
+works see http://www.firstfloor.org/~andi/writing-ioctl32
+(some details are unfortunately outdated for 2.6, but you'll get
+the high level view) 
+
+-Andi

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUKIMOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbUKIMTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUKIMOB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 07:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUKIMLr
+	id S261253AbUKIMTD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 07:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbUKIMTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 07:11:47 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:1988 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S261536AbUKIMLU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 07:11:20 -0500
-Date: Tue, 9 Nov 2004 21:11:09 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, diffie@gmail.com,
-       linux-kernel@vger.kernel.org, diffie@blazebox.homeip.net,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>
-Subject: Re: 2.6.10-rc1-mm3
-Message-ID: <20041109121109.GA31781@home-tj.org>
-References: <9dda349204110611043e093bca@mail.gmail.com> <20041107024841.402c16ed.akpm@osdl.org> <20041108075934.GA4602@elte.hu> <20041107234225.02c2f9b6.akpm@osdl.org> <20041108224259.GA14506@kroah.com> <20041108212747.33b6e14a.akpm@osdl.org> <20041109071455.GA11643@kroah.com> <20041109080509.GA10724@kroah.com>
+	Tue, 9 Nov 2004 07:19:02 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:18637 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261253AbUKIMS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 07:18:58 -0500
+Subject: Re: [PATCH] Correctly flush 8250 buffers, notify ldisc of line
+	status changes.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, rmk@arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1099998437.6081.68.camel@localhost.localdomain>
+References: <1099659997.20469.71.camel@localhost.localdomain>
+	 <20041109012212.463009c7.akpm@osdl.org>
+	 <1099998437.6081.68.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099998926.15462.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109080509.GA10724@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 09 Nov 2004 11:15:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 12:05:09AM -0800, Greg KH wrote:
-> Ah, found it.  Was caused by a patch from Tejun Heo <tj@home-tj.org>
-> that went into the tree in my last round of driver core changes.
-> 
-> Tejun, the call to unlink() in the error path in kobject_add() does a
-> kobject_put().  Your patch added an extra kobject_put() which caused bad
-> things to happen when we failed.
+On Maw, 2004-11-09 at 11:07, David Woodhouse wrote:
+> + *	tty_status_change -	notify of line status changes
+> + *	@tty: terminal
+> + *
+> + *	Helper for informing the line discipline that the modem
+> + *	status lines may have changed.
+> + */
+> +
+> +void tty_status_changed(struct tty_struct *tty)
+> +{
+> +	struct tty_ldisc *ld = tty_ldisc_ref(tty);
+> +	if(ld) {
+> +		if(ld->status_changed)
+> +			ld->status_changed(tty);
+> +		tty_ldisc_deref(ld);
+> +	}
+> +}
+> +
 
- Yeah, that's right.  I thought I had a unreleased kobject due to
-above code but I must have been confused somewhere.  Sorry about that.
+This is the wrong way to do it. I've been trying this and discarded it.
+The problem is that data arrival is asynchronous to the event which
+means you've not got a clue how to combine the status change and the
+data stream. This in itself makes the whole feature useless.
 
- Please forgive me. :-)
+Modem changes have to go inline with the data just like break and
+parity.
 
--- 
-tejun
+> + *
+> + * void (*status_changed)(struct tty_struct *)
+> + *
+> + *	Called when the modem status lines (CTS, DSR, DCD etc.) are
+> + *	changed. May not sleep. 
+>   */
+
+You also forgot to update the Documentation directory.
 

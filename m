@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266162AbRF2Thi>; Fri, 29 Jun 2001 15:37:38 -0400
+	id <S266165AbRF2TiU>; Fri, 29 Jun 2001 15:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266163AbRF2Th3>; Fri, 29 Jun 2001 15:37:29 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:62219 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S266162AbRF2ThN>;
-	Fri, 29 Jun 2001 15:37:13 -0400
-Date: Fri, 29 Jun 2001 20:36:56 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cosmetic JFFS patch. 
-In-Reply-To: <31074.993745533@redhat.com>
-Message-ID: <Pine.LNX.4.33.0106281814010.12626-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266164AbRF2TiI>; Fri, 29 Jun 2001 15:38:08 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:50840 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S266163AbRF2Thy>;
+	Fri, 29 Jun 2001 15:37:54 -0400
+Date: Fri, 29 Jun 2001 21:37:52 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106291937.VAA463690.aeb@vlet.cwi.nl>
+To: jordan.breeding@inet.com, ledzep37@home.com
+Subject: Re: USB Keyboard errors with 2.4.5-ac
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David.
+> is it totally hopeless to want to try and get a USB keyboard to work
+> as the systems only keyboard and have it work under X
+> and also not freeze the whole system when hitting certain keys?
 
- >> Perhaps even a boot flag of some sort to de-activate the
- >> printing of the /proc/credits during the kernel boot sequence.
- >> Or would the community rather an opt-in scenario...
+I just tried, and everything works flawlessly here [2.4.6pre5].
 
- > KERN_BANNER
+In case you see strange things for some keys but not for others,
+try finding out what the keycodes are (say, with showkey).
 
-Where would you put that in the sequence?
-
-Best wishes from Riley.
-
-
-
+Andries

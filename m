@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263575AbTJQRqq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 13:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJQRqT
+	id S263570AbTJQRog (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 13:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTJQRog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 13:46:19 -0400
-Received: from devil.servak.biz ([209.124.81.2]:30416 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S263573AbTJQRqJ (ORCPT
+	Fri, 17 Oct 2003 13:44:36 -0400
+Received: from main.gmane.org ([80.91.224.249]:5021 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263570AbTJQRoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 13:46:09 -0400
-Subject: Re: [Linux-fbdev-devel] FBDEV 2.6.0-test7 updates.
-From: Torrey Hoffman <thoffman@arnor.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0310171824190.966-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0310171824190.966-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Message-Id: <1066412752.1675.20.camel@torrey.et.myrio.com>
+	Fri, 17 Oct 2003 13:44:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Software RAID5 with 2.6.0-test
+Date: Fri, 17 Oct 2003 19:44:31 +0200
+Message-ID: <yw1xu167kbcw.fsf@users.sourceforge.net>
+References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 17 Oct 2003 10:45:52 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:RJf7p63iwQdjxJxq7IcI5Vo3K6c=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-17 at 10:25, James Simmons wrote:
-[...]
+Bill Davidsen <davidsen@tmr.com> writes:
 
-> The BK tree doesn't have the new radeon driver. I placed the new radeon 
-> driver into the patch so people coudl test it.
+>> However, I wouln't count on superior performance from software based
+>> RAID 5 (ata/fakeraid or otherwise), that is whats real raid controllers
+>> are for.
+>
+> While an overloaded system may benefit from offloaded the CPU
+> requirements of RAID, unless you go to a very expensive external unit
+> the kernel RAID will usually outperform the inexpensive RAID embedded on
+> a controller. The kernel simply knows more about the data needs and can
+> can do things a controller can't.
 
-I have a Radeon All-In-Wonder 7500.  I downloaded the tar.gz patch and
-applied it to -test7.  The resulting kernel panics at startup, while
-test7 with the same config works fine for me.
-
-Before it panics, the penguin shows up at least, so it works a little
-bit :-/
-
-I have not had time to attach a serial console to capture the oops yet,
-but hope to do that by the end of the day...
-
+What about the RAID controllers in the $400 category?  Surely, they
+must be doing something better than the $50 fakeraid controllers.
 
 -- 
-Torrey Hoffman <thoffman@arnor.net>
+Måns Rullgård
+mru@users.sf.net
 

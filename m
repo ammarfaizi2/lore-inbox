@@ -1,105 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbTLQN50 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 08:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTLQN50
+	id S264405AbTLQOKm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 09:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTLQOKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 08:57:26 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:6529
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264314AbTLQN5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 08:57:23 -0500
-Date: Wed, 17 Dec 2003 08:56:34 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.6.0-test11-mm1
-In-Reply-To: <20031217014350.028460b2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0312170853370.2159@montezuma.fsmlabs.com>
-References: <20031217014350.028460b2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Dec 2003 09:10:42 -0500
+Received: from outbound02.telus.net ([199.185.220.221]:64176 "EHLO
+	priv-edtnes04.telusplanet.net") by vger.kernel.org with ESMTP
+	id S264405AbTLQOKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 09:10:40 -0500
+Subject: ieee1394 subsystem causes segfaults
+From: Dale K Dicks <dale_d@telusplanet.net>
+Reply-To: dale_d@telusplanet.net
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hQ4LU40/77p2IqvINvVZ"
+Organization: Home
+Message-Id: <1071670222.2519.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Dec 2003 07:10:22 -0700
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hullo Andrew,
-	I believe this was the intention;
+--=-hQ4LU40/77p2IqvINvVZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 17 Dec 2003, Andrew Morton wrote:
+1. when unloading the ochi1394 or sbp2 modules from a 2.6.0-test11
+kernel, a segfault occurs every time.
 
-> mpparse_es7000.patch
->   mpparse: fix IRQ breakage from the es7000 merge
+2. modprobe ohci1394, modprobe sbp2, rmmod sbp2 and/or rmmod ohci1394,
+segfault, lsmod hangs after this as well as the originating tty
 
-For ES7000 add an offset of 16 to the irq in order to setup a mapping where
-ISA/legacy interrupts are in the 0-15 range and PCI 16 and above. This was
-a cleanup fix in order to facilitate easy differentiating between legacy
-and non legacy interrupt setup.
+3. modules
 
-===
-The ES7000 merge added a bit of code of offset the IRQ numbers.  We're not
-too sure why; it wasn't changelogged.
+4. 2.6.0-test11
 
-But it broke other systems, so this patch arranges for that code to only be
-activated on es7000 machines.
+5. no oops message
+
+6. see 2.
+
+7. Gentoo Linux
+
+7.2. [ ddicks@linuxbox ~ ] $ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 1
+model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
+stepping        : 2
+cpu MHz         : 1808.041
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3588.09
 
 
+DKD
+Calgary, Alberta, Canada
+dale_D at telusplanet dot net
 
- arch/i386/kernel/dmi_scan.c    |    1 +
- arch/i386/kernel/mpparse.c     |    7 +++++--
- arch/i386/mach-es7000/es7000.c |    2 --
- include/asm-i386/system.h      |    1 +
- 4 files changed, 7 insertions(+), 4 deletions(-)
+--
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
 
-diff -puN arch/i386/kernel/dmi_scan.c~mpparse_es7000 arch/i386/kernel/dmi_scan.c
---- 25/arch/i386/kernel/dmi_scan.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
-+++ 25-akpm/arch/i386/kernel/dmi_scan.c	2003-11-21 01:30:11.000000000 -0800
-@@ -16,6 +16,7 @@ EXPORT_SYMBOL(dmi_broken);
 
- int is_sony_vaio_laptop;
- int is_unsafe_smbus;
-+int es7000_plat = 0;
+--=-hQ4LU40/77p2IqvINvVZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
- struct dmi_header
- {
-diff -puN arch/i386/kernel/mpparse.c~mpparse_es7000 arch/i386/kernel/mpparse.c
---- 25/arch/i386/kernel/mpparse.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
-+++ 25-akpm/arch/i386/kernel/mpparse.c	2003-11-21 01:30:11.000000000 -0800
-@@ -1129,8 +1129,11 @@ void __init mp_parse_prt (void)
- 			continue;
- 		ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
--		if (!ioapic && (irq < 16))
--			irq += 16;
-+		if (es7000_plat) {
-+			if (!ioapic && (irq < 16))
-+				irq += 16;
-+		}
-+
- 		/*
- 		 * Avoid pin reprogramming.  PRTs typically include entries
- 		 * with redundant pin->irq mappings (but unique PCI devices);
-diff -puN arch/i386/mach-es7000/es7000.c~mpparse_es7000 arch/i386/mach-es7000/es7000.c
---- 25/arch/i386/mach-es7000/es7000.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
-+++ 25-akpm/arch/i386/mach-es7000/es7000.c	2003-11-21 01:30:11.000000000 -0800
-@@ -51,8 +51,6 @@ struct mip_reg		*host_reg;
- int 			mip_port;
- unsigned long		mip_addr, host_addr;
+iD8DBQA/4GPOTy0R239cY34RAupYAJ0aK6r5xN1u5MRujQqcmm6mw18CaACeP1tq
+dMsn0wbnKCz5hAquAzes3Jk=
+=R5vC
+-----END PGP SIGNATURE-----
 
--static int		es7000_plat;
--
- /*
-  * Parse the OEM Table
-  */
-diff -puN include/asm-i386/system.h~mpparse_es7000 include/asm-i386/system.h
---- 25/include/asm-i386/system.h~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
-+++ 25-akpm/include/asm-i386/system.h	2003-11-21 01:30:11.000000000 -0800
-@@ -470,6 +470,7 @@ void enable_hlt(void);
+--=-hQ4LU40/77p2IqvINvVZ--
 
- extern unsigned long dmi_broken;
- extern int is_sony_vaio_laptop;
-+extern int es7000_plat;
-
- #define BROKEN_ACPI_Sx		0x0001
- #define BROKEN_INIT_AFTER_S1	0x0002
-
-_

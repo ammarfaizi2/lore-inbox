@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266478AbUBLUdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 15:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266570AbUBLUdY
+	id S266576AbUBLUmO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 15:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUBLUmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 15:33:24 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:32937 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S266478AbUBLUdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 15:33:12 -0500
-Date: Thu, 12 Feb 2004 21:33:07 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-Subject: Re: 2.6.3-rc2-mm1 (dm)
-Message-ID: <20040212203306.GA13192@cistron.nl>
-References: <20040212015710.3b0dee67.akpm@osdl.org>
+	Thu, 12 Feb 2004 15:42:14 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:11012 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266576AbUBLUmJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 15:42:09 -0500
+Date: Thu, 12 Feb 2004 21:55:03 +0100
+To: Valdis.Kletnieks@vt.edu
+Cc: Michael Frank <mhf@linuxmail.org>, Nick Piggin <piggin@cyberone.com.au>,
+       Giuliano Pochini <pochini@shiny.it>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
+Message-ID: <20040212205503.GA13934@hh.idb.hist.no>
+References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au> <200402130105.22554.mhf@linuxmail.org> <200402121718.i1CHITFf018390@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040212015710.3b0dee67.akpm@osdl.org>
-X-NCC-RegID: nl.cistron
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200402121718.i1CHITFf018390@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Andrew Morton:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc2/2.6.3-rc2-mm1/
-> +dm-01-export-dm_vcalloc.patch
-> +dm-02-move-to_bytes-to_sectors.patch
-> +dm-03-remove-dm_deferred_io.patch
-> +dm-04-maintain-bio-ordering.patch
-> +dm-05-alloc_dev-error-cleanup.patch
-> +dm-07-dm_table_create-GFP-fix.patch
-> +dm-08-zero-size-target-fix.patch
-> +dm-09-dec_pending-locking-cleanup.patch
-> +dm-10-drop-BIO_SEG_VALID.patch
+On Thu, Feb 12, 2004 at 12:18:29PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 13 Feb 2004 01:05:20 +0800, Michael Frank said:
+> 
+> > What I am getting at is being annoyed with updatedb ___saturating___ 
+> > the the disk so easily as the "ancient" method of renicing does not 
+> > consider the fact that the CPU pwrformance has increased 20-50 fold 
+> > over disk performace.
+> > 
+> > Bottom line: what about assigning "io niceness" to processes, which
+> > would also help with actively scheduling io toward processes 
+> > needing it.
+> 
+> The problem is that unlike CPU niceness, where you can literally rip the
+> CPU away from a hog and give it to some more deserving process, it's not
+> as easy to rip an active disk I/O away so somebody else can have it.
+> 
+You can't take the disk away, but you can be careful with it.
+The anticipatory scheduler already does that - avoids seeking
+away from a read for a while just in case the reader will submit
+an adjacent read in short order. (Wonder if it ought to read ahead
+a little instead of just waiting?)
 
-The maintain-bio-ordering patch mostly fixes the performance problem
-I was seeing on XFS-over-LVM-on-3ware-raid5. (See my earlier message
-at http://www.ussg.iu.edu/hypermail/linux/kernel/0312.3/0684.html )
-Excellent!
+Something similiar could be done for io niceness.  If we run out of
+normal priority io, how about not issuing the low priority io
+right away.  Anticipate there will be more high-priority io
+and wait for some idle time before letting low-priority
+requests through.  And of course some maximum wait to prevent
+total starvation.
 
-However there's still one issue:
+> If the updatedb issues a seek/read combo to the disk, and your process gets
+> into the I/O queue even 200 nanoseconds later, it *still* has to wait for that
+> I/O to finish before it can start its seeks and reads.
+> 
+Anticipatory io niceness might solve that.
 
-I created a LVM volume on /dev/sda2, called /dev/vg0/test. Then
-I created and mounted an XFS partition on /dev/vg0/test. XFS uses
-a 512 byte blocksize by default, but the underlying /dev/sda2
-device had a soft blocksize of 4096 (default after boot is 1024,
-but I had been mucking around with it so it got set to 4096).
+> For an extreme example, consider those IDE interfaces where fixating or
+> blanking a CD/RW will cause *all* the disks to lock up for the duration.
+> No matter how high your priority is, you *cant* get that I/O out the door
+> for the next 60-70 seconds unless you're willing to create a coaster.
 
-As a result, I couldn't get more than 35 MB/sec write speed out
-of XFS mounted on the LVM device.
+There's no cure for truely stupid hw.  Sometimes I forget why I buy
+these expensive scsi drives . . .  
 
-I added this little patch:
 
---- drivers/md/dm-table.c.ORIG  2004-02-12 20:49:47.000000000 +0100
-+++ drivers/md/dm-table.c       2004-02-12 20:56:59.000000000 +0100
-@@ -361,7 +361,7 @@
-                blkdev_put(bdev, BDEV_RAW);
-        else {
-                d->bdev = bdev;
--               set_blocksize(bdev, d->bdev->bd_block_size);
-+               set_blocksize(bdev, 512);
-        }
-        return r;
- }
-
-This forces the underlying device(s) to a soft blocksize of 512. And
-I had my 80 MB/sec write speed back !
-
-I'm not sure if setting the blocksize of the underlying device
-always to 512 is the right solution. I think that set_blocksize
-for dm devices should also set the size for the underlying devices,
-but that probably means adding an extra hook so that
-set_blocksize can call bdev->bd_disk->fops->set_blocksize(bdev, size).
-Which, in the case of dm, would basically call set_blocksize for the
-underlying devices again.
-
-Correct ?
-
-Mike.
+Helge Hafting

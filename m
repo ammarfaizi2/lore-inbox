@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUFIWs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266177AbUFIWt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUFIWs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266201AbUFIWs4
+	id S266177AbUFIWt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266202AbUFIWtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:48:56 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:41149 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266143AbUFIWsl (ORCPT
+	Wed, 9 Jun 2004 18:49:14 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:16821 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S266177AbUFIWsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:48:41 -0400
-Date: Wed, 9 Jun 2004 15:47:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
-Message-Id: <20040609154750.241df741.pj@sgi.com>
-In-Reply-To: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
-References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Jun 2004 18:48:54 -0400
+Message-ID: <40C793CE.6000609@g-house.de>
+Date: Thu, 10 Jun 2004 00:48:46 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: NetDev Mailinglist <netdev@oss.sgi.com>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-rc3: waiting for eth0 to become free
+References: <1086722310.1682.1.camel@teapot.felipe-alfaro.com>	 <20040608124215.291a7072@dell_ss3.pdx.osdl.net>	 <1086725369.1806.1.camel@teapot.felipe-alfaro.com>	 <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net> <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Clean up perfctr/virtual by using the new cpus_andnot() operation
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Neat.
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+|>What is happening is that some subsystem is holding a reference to the
+device (calling dev_hold())
+|>but not cleaning up (calling dev_put).  It can be a hard to track
+which of the many
+|>things routing, etc are not being cleared properly.  Look for routes
+that still
+|>get stuck (ip route) and neighbor cache entries.  Most of these end up
+being
+|>protocol bugs.
+|
+|
+| The two attached patches, one for net/ipv4/route.c, the other for net/
+| ipv6/route.c fix all my problems when running "cardctl eject" while a
+| program mantains an open network socket (ESTABLISHED).
+|
+| Both patches apply cleanly against 2.6.7-rc3 and 2.6.7-rc3-mm1.
+| I'm not completely sure what has changed in 2.6.7-rc3 that is breaking
+| cardctl for me, as it Just Worked(TM) fine in 2.6.7-rc2.
 
-Do you still need "tmp" ?  Perhaps you could further add the
-following patch (untested, unbuilt, ...).
+do you know, by any chance, if this error is dependent to eth0 only or
+could help for my error message too:
 
-This saves copies and stack space for one cpumask (that's
-512 bits on my SN2 systems).
+unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+happened just a few hours ago (2.6.7-rc3), i had to reboot the box
+anyway, but pppd was not able to die (even with kill -9)
 
-Index: 2.6.7-rc3-mm1/drivers/perfctr/virtual.c
-===================================================================
---- 2.6.7-rc3-mm1.orig/drivers/perfctr/virtual.c	2004-06-09 15:34:34.000000000 -0700
-+++ 2.6.7-rc3-mm1/drivers/perfctr/virtual.c	2004-06-09 15:38:32.000000000 -0700
-@@ -403,11 +403,10 @@
- 		return -EFAULT;
- 
- 	if (control.cpu_control.nractrs || control.cpu_control.nrictrs) {
--		cpumask_t tmp, old_mask, new_mask;
-+		cpumask_t old_mask, new_mask;
- 
--		tmp = perfctr_cpus_forbidden_mask;
- 		old_mask = tsk->cpus_allowed;
--		cpus_andnot(new_mask, old_mask, tmp);
-+		cpus_andnot(new_mask, old_mask, perfctr_cpus_forbidden_mask);
- 
- 		if (cpus_empty(new_mask))
- 			return -EINVAL;
+Christian.
+- --
+BOFH excuse #258:
 
+That's easy to fix, but I can't be bothered.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+iD8DBQFAx5PN+A7rjkF8z0wRAuR+AJ41024qDMPVWYlVeofUZ6N50E3oRwCfeqhs
+/GxxIqmDbClJXw/i2WNhJt4=
+=lHgP
+-----END PGP SIGNATURE-----

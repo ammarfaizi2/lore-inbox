@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVDFCwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDFDHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVDFCwM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 22:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVDFCwM
+	id S262087AbVDFDHY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 23:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVDFDHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 22:52:12 -0400
-Received: from wip-ec-wd.wipro.com ([203.101.113.39]:57011 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP id S262085AbVDFCwH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 22:52:07 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 5 Apr 2005 23:07:23 -0400
+Received: from mail43-s.fg.online.no ([148.122.161.43]:63121 "EHLO
+	mail43-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S262087AbVDFDHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 23:07:18 -0400
+From: Kenneth =?iso-8859-1?q?Aafl=F8y?= <lists@kenneth.aafloy.net>
+To: arun.prabha@wipro.com
+Subject: Re: Scheduling tasklets from process context...
+Date: Wed, 6 Apr 2005 05:07:15 +0200
+User-Agent: KMail/1.8
+References: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
+In-Reply-To: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Scheduling tasklets from process context...
-Date: Wed, 6 Apr 2005 08:20:28 +0530
-Message-ID: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Scheduling tasklets from process context...
-Thread-Index: AcU5o2nE/voz6U0GTVKOrkpf1wqXXw==
-From: <arun.prabha@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Apr 2005 02:55:38.0093 (UTC) FILETIME=[1C9221D0:01C53A54]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504060507.15560.lists@kenneth.aafloy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 06 April 2005 04:50, you wrote:
+> Since tasklets are typically used for bottom half processing, is it
+> acceptable/recommended that they be scheduled from a process context
+> (say an ioctl handler)? 
+> 
+> Should one try to minimize such scheduling and try to do things in process
+> context if possible, as tasklets run in interrupt context? Or is the driver
+> writer free to use the tasklets at will? What is recommended here?
 
-Hi,
+A tasklet does not run in interrupt context, it runs as a high priority thread,
+that is scheduled from either user or interrupt context. The purpose is mostly
+to defer workloads from interrupt context, to reduce the time spent with
+interrupts disabled.
 
-I have a query.
+It would make sense to defer work from userspace to a tasklet if the hardware
+takes an unusual amount of time to process the userspace data.
 
-Since tasklets are typically used for bottom half
-processing, is it acceptable/recommended that they
-be scheduled from a process context (say an ioctl handler)?
+Correct me if I'm wrong :)
 
-Should one try to minimize such scheduling and try to
-do things in process context if possible, as tasklets run
-in interrupt context? Or is the driver writer free to use
-the tasklets at will? What is recommended here?
-
-Thanks in advance,
-Arun.
+Kenneth

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSGGPnT>; Sun, 7 Jul 2002 11:43:19 -0400
+	id <S316088AbSGGQIz>; Sun, 7 Jul 2002 12:08:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSGGPnS>; Sun, 7 Jul 2002 11:43:18 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:34316 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316070AbSGGPnS>; Sun, 7 Jul 2002 11:43:18 -0400
-Date: Sun, 7 Jul 2002 16:45:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Douglas Gilbert <dougg@torque.net>
+	id <S316089AbSGGQIy>; Sun, 7 Jul 2002 12:08:54 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:9388 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316088AbSGGQIy>;
+	Sun, 7 Jul 2002 12:08:54 -0400
+Date: Mon, 8 Jul 2002 02:10:27 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Dominik Geisel <devnull@geisel.info>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: dead keyboard in lk 2.5.25
-Message-ID: <20020707164554.B15933@flint.arm.linux.org.uk>
-References: <3D284E20.D5D00F99@torque.net>
+Subject: Re: 2.5.25 compile error
+Message-Id: <20020708021027.79932e29.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.44.0207061345080.4005-100000@pc1.geisel.info>
+References: <Pine.LNX.4.44.0207061345080.4005-100000@pc1.geisel.info>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D284E20.D5D00F99@torque.net>; from dougg@torque.net on Sun, Jul 07, 2002 at 10:20:16AM -0400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 10:20:16AM -0400, Douglas Gilbert wrote:
-> --- linux/drivers/input/serio/i8042.c	Sat Jul  6 08:57:35 2002
-> +++ linux/drivers/input/serio/i8042.c2525fix	Sun Jul  7 09:52:50 2002
-> @@ -269,8 +269,11 @@
->   */
->  
->  	if (request_irq(values->irq, i8042_interrupt, 0, "i8042", NULL)) {
-> -		printk(KERN_ERR "i8042.c: Can't get irq %d for %s\n", values->irq, values->name);
-> -		return -1;
-> +		free_irq(values->irq, NULL);
-> +		if (request_irq(values->irq, i8042_interrupt, 0, "i8042", NULL)) {
-> +			printk(KERN_ERR "i8042.c: Can't get irq %d for %s\n", values->irq, values->name);
-> +			return -1;
-> +		}
->  	}
->  
->  /*
+Hi Dominik,
 
-Hmm, interesting concept.  "If someone else is using my resource, I'll
-free it for them, and re-claim it".  It sounds very much like a hack
-rather than a fix to me.
+On Sat, 6 Jul 2002 13:45:58 +0200 (CEST) Dominik Geisel <devnull@geisel.info> wrote:
+>
+> on 'make dep' with 2.5.25 I get the following error:
+> 
+> -----------------------------------------------------------------------------
+> make[1]: Wechsel in das Verzeichnis Verzeichnis »/usr/src/linux«
+> make[2]: Wechsel in das Verzeichnis Verzeichnis »/usr/src/linux/scripts«
+>   gcc -Wp,-MD,./.split-include.d -Wall -Wstrict-prototypes -O2 
+> -fomit-frame-pointer   -o split-include split-include.c
+> In file included from /usr/include/linux/errno.h:4,
+>                  from /usr/include/bits/errno.h:25,
+>                  from /usr/include/errno.h:36,
+>                  from split-include.c:26:
+> /usr/include/asm/errno.h:4:31: asm-generic/errno.h: No such file or 
+> directory
+> make[2]: *** [split-include] Fehler 1
+> make[2]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux/scripts«
+> make[1]: *** [scripts] Fehler 2
+> make[1]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux«
+> make: *** [.hdepend] Fehler 2
+> -----------------------------------------------------------------------------
+> 
+> Any ideas?
 
-I'd guess the real solution would be to stop pc_keyb being initialised
-when you're trying to use i8042.c.  Vojtech?
+Remove the symlinks between /usr/include/{linux,asm} and your kernel
+source tree ...
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

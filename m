@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbTAPKdC>; Thu, 16 Jan 2003 05:33:02 -0500
+	id <S266320AbTAPKyj>; Thu, 16 Jan 2003 05:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbTAPKdC>; Thu, 16 Jan 2003 05:33:02 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:32273 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S266095AbTAPKdB>; Thu, 16 Jan 2003 05:33:01 -0500
-Date: Thu, 16 Jan 2003 02:41:54 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: any brand recomendation for a linux laptop ?
-Message-ID: <20030116104154.GL25246@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
-	linux-kernel@vger.kernel.org
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+	id <S266322AbTAPKyj>; Thu, 16 Jan 2003 05:54:39 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:30987 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S266320AbTAPKyi>;
+	Thu, 16 Jan 2003 05:54:38 -0500
+Date: Thu, 16 Jan 2003 12:03:24 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: MB without keyboard controller / USB-only keyboard ?
+Message-Id: <20030116120324.2b97e010.skraw@ithnet.com>
+In-Reply-To: <20030109232459.A24656@ucw.cz>
+References: <20030109114247.211f7072.skraw@ithnet.com>
+	<20030109232459.A24656@ucw.cz>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 11:00:45AM +0100, Nicolas Turro wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Thu, 9 Jan 2003 23:24:59 +0100
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+
+> On Thu, Jan 09, 2003 at 11:42:47AM +0100, Stephan von Krawczynski wrote:
+> > Hello all,
+> > 
+> > how do I work with a mb that contains no keyboard controller, but has only
+> > USB for keyboard and mouse?
+> > While booting the kernel I get:
+> > 
+> > pc_keyb: controller jammed (0xFF)
+> > 
+> > (a lot of these :-)
+> > 
+> > and afterwards I cannot use the USB keyboard.
+> > Everything works with a mb that contains a keyboard-controller, but where I
+> > use a USB keyboard.
 > 
-> 
-> Hi, 
-> I am software engineer at a french research institute, in charge of the linux 
-> support on about 600 computers. I am looking for laptops whith linux
-> support/certification. I couln't find any recent laptop model on your
-> certification page. Would you recomend me any brand of computer ?
-> We curently buy Compaq Evos laptops, but enabling linux on those laptops
-> is terrible :
-> - - power management seems to be ACPI only (which linux barely supports)
-> - - sound is hard or impossible to setup correctly.
-> 
-> Any help/advice would be apreciated.
+> Get 2.5. ;) It should work without a kbd controller ... you can even
+> disable it in the kernel config ...
 
-You will get almost as many different answers as responses
-to this question.  Frankly, given the way things are i'm not
-sure it is safe to recommend any brand per se.  For a given
-brand the hardware will be different in each model and may
-even differ between production runs of the same model.
-
-I've been happy with my Sony Vaio F160 but some people have
-reported problems with the F series.  Most major brands have
-at least one model that has caused problems.  Dell and
-Compaq are notorious and yet there are many people have
-gotten them to work.
-
-The best thing i can recommend is to go to
-http://www.linux-on-laptops.com/, Read the HOWTOs, and
-finally find some models you like and check to see how
-others have fared with them.
-
-Alternatively you could buy a laptop with linux already
-installed.  Unfortunately that is often more expensive than
-buying one with MS-flavor-of-the-month installed and
-reformatting.
+Nice idea, but not acceptable as this setup is for production use, you simply
+won't do that.
+It would be helpful if there was a kernel parameter for disabling the
+keyboard(-check) in 2.4. We found out that disabling it as kernel patch is not
+the right way, as standard setups with keyboard controller do not work any
+longer afterwards. This is a setup where user should be able to choose...
+The box contains a BIOS where I can type around with USB-keyboard, btw.
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Regards,
+Stephan

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312326AbSDEG6N>; Fri, 5 Apr 2002 01:58:13 -0500
+	id <S312235AbSDEHEy>; Fri, 5 Apr 2002 02:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312334AbSDEG6E>; Fri, 5 Apr 2002 01:58:04 -0500
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:14601 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S312326AbSDEG5r>; Fri, 5 Apr 2002 01:57:47 -0500
-Date: Fri, 5 Apr 2002 07:57:43 +0100
-To: "Jonathan A. Davis" <davis@jdhouse.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch-2.4.19-pre5-ac2
-Message-ID: <20020405065743.GA751@berserk.demon.co.uk>
-Mail-Followup-To: "Jonathan A. Davis" <davis@jdhouse.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204041720210.1546-100000@penguin.transmeta.com> <Pine.LNX.4.44.0204041958070.1384-100000@bacchus.jdhouse.org>
-Mime-Version: 1.0
+	id <S312332AbSDEHEn>; Fri, 5 Apr 2002 02:04:43 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41878 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S312235AbSDEHEf>; Fri, 5 Apr 2002 02:04:35 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Date: Fri, 5 Apr 2002 17:07:15 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15533.19747.471321.592478@notabene.cse.unsw.edu.au>
+Subject: 2.5.7 Rules.make change break nfsd.
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 08:19:49PM -0600, Jonathan A. Davis wrote:
-> 
-> The radeon updates in pre5-ac2 seem to make a minor mess out of my Radeon
-> 7500's console fb.  After X starts up -- switching back to a text console
-> results in artifacts from the X display contents plus borked scrolling.  
-> No tendency to crash though and switching back to X results in a normal X
-> display.  I dropped out the patches to:
-> 
 
-Yep. The accelerator needs resetting on each console switch so that we
-can cope when X leaves it in a funky state. The new patch I posted
-yesterday should fix it, or for a quick fix add the lines
 
-	if(accel)
-		radeon_engine_init_var();
+2.5.7 introduces:
 
-after the call to do_install_cmap() in radeon_fb_setvar().
+-------------------------------------------------------------
+#
+# Rule to link composite objects
+#
 
-P.
+# for make >= 3.78 the following is cleaner:
+# multi-used := $(foreach m,$(obj-y) $(obj-m), $(if $($(basename $(m))-Objs), $(m)))
+multi-used := $(sort $(foreach m,$(obj-y) $(obj-m),$(patsubst %,$(m),$($(basename $(m))-objs))))
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^
+ld-multi-used := $(filter-out $(list-multi),$(multi-used))
+ld-multi-objs := $(foreach m, $(ld-multi-used), $($(basename $(m))-objs))
+------------------------------------------------------------
+
+
+If the basename of some object is "export" (i.e. export.o), then the
+underlined section referes to "export-objs" which is a macro that
+already has a well defined meaning.
+
+Maybe it should be "-Objs" or "-components" or ...
+
+NeilBrown

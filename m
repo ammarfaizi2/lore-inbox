@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292633AbSBZSRM>; Tue, 26 Feb 2002 13:17:12 -0500
+	id <S292638AbSBZSRV>; Tue, 26 Feb 2002 13:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292638AbSBZSRH>; Tue, 26 Feb 2002 13:17:07 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:11249 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S292648AbSBZSQF>;
-	Tue, 26 Feb 2002 13:16:05 -0500
-Date: Tue, 26 Feb 2002 11:15:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Rose, Billy" <wrose@loislaw.com>,
-        "'Martin Dalecki'" <dalecki@evision-ventures.com>,
-        Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020226111509.J12832@lynx.adilger.int>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	"Rose, Billy" <wrose@loislaw.com>,
-	'Martin Dalecki' <dalecki@evision-ventures.com>,
-	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4188788C3E1BD411AA60009027E92DFD063077D8@loisexc2.loislaw.com> <3C7BCD4A.9020400@zytor.com>
+	id <S292612AbSBZSRS>; Tue, 26 Feb 2002 13:17:18 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42229
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S292637AbSBZSPV>; Tue, 26 Feb 2002 13:15:21 -0500
+Date: Tue, 26 Feb 2002 10:15:59 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Fridtjof Busse <fridtjof.busse@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.18-ac1] Unable to mount root fs
+Message-ID: <20020226181559.GQ4393@matchmail.com>
+Mail-Followup-To: Fridtjof Busse <fridtjof.busse@gmx.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202261722.13431@fbunet.de> <200202261834.39908@fbunet.de> <20020226174455.GO4393@matchmail.com> <200202261907.20103@fbunet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C7BCD4A.9020400@zytor.com>; from hpa@zytor.com on Tue, Feb 26, 2002 at 10:00:42AM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200202261907.20103@fbunet.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 26, 2002  10:00 -0800, H. Peter Anvin wrote:
-> Rose, Billy wrote:
-> > My company can tolerate 0% loss of data (which is why I raised this issue).
+On Tue, Feb 26, 2002 at 07:11:21PM +0100, Fridtjof Busse wrote:
+> On Tuesday, 26. February 2002 18:44, Mike Fedyk wrote:
+> > Did you run 'make oldconfig' after using your old .config file?
 > 
-> There is no such thing as 0% loss of data.  You can get some amount of 
-> security with backups, snapshots (really useful!) or undelete, but you 
-> can *NEVER* guarantee 0% loss of data... consider the case when a 
-> (l)user overwrites (not just deletes) a newly created file.
+> Yes
+> 
+> > Post your .config.  That is probably the problem.
+> 
+> Attached
+> 
 
-Snapshots at the filesystem level could handle the overwrite case.
+> # CONFIG_BLK_DEV_PDC202XX is not set
 
-However, even then it cannot be 0% loss of data, unless you have snapshots
-for _every_ write of the file, which would quickly become prohibitive in
-space usage (think autobackup from an editor on a large file).  Sometimes
-people just have to learn from their mistakes...
+Here you go.  Promise IDE is not compiled into the kernel.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Mike

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267271AbTBDOk6>; Tue, 4 Feb 2003 09:40:58 -0500
+	id <S267273AbTBDOsE>; Tue, 4 Feb 2003 09:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267273AbTBDOk6>; Tue, 4 Feb 2003 09:40:58 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:58375 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267271AbTBDOk5>; Tue, 4 Feb 2003 09:40:57 -0500
-Date: Tue, 4 Feb 2003 15:49:37 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>, <greg@kroah.com>, <jgarzik@pobox.com>
-Subject: Re: [PATCH] Module alias and device table support. 
-In-Reply-To: <200302040805.h1485lhI002898@eeyore.valparaiso.cl>
-Message-ID: <Pine.LNX.4.44.0302041451370.1358-100000@serv>
-References: <200302040805.h1485lhI002898@eeyore.valparaiso.cl>
+	id <S267275AbTBDOsE>; Tue, 4 Feb 2003 09:48:04 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:33201 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S267273AbTBDOsD> convert rfc822-to-8bit; Tue, 4 Feb 2003 09:48:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Axel Kittenberger <Axel.Kittenberger@maxxio.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch: oom_kill
+Date: Tue, 4 Feb 2003 08:55:14 -0600
+User-Agent: KMail/1.4.1
+Cc: riel@nl.linux.org
+References: <200302041332.05096.Axel.Kittenberger@maxxio.com> <200302040807.03214.pollard@admin.navo.hpc.mil> <200302041513.29093.Axel.Kittenberger@maxxio.com>
+In-Reply-To: <200302041513.29093.Axel.Kittenberger@maxxio.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302040855.14469.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 04 February 2003 08:13 am, Axel Kittenberger wrote:
+> > And what about processes that get reparented to init? These could be
+> > causing the OOM. I didn't think that the p_ptr was null when reparenting
+> > happens.
+>
+> Okay good, should we use the "original parent" instead?
 
-On Tue, 4 Feb 2003, Horst von Brand wrote:
+I'm not familiar enough with the reparenting to know. I'm not sure you can 
+tell the difference.
 
-> People
-> backward compatibility and minimal upgrading pain (to get your random BOFH
-> to recompile a kernel is _not_ trivial today!) is much more important than
-> code backward compatibility, IMHO. [I'm speaking from the perspective of
-> the user/sysadmin, _not_ the kernel hacker here].
+> Yes, I'm not absolutly not sure if the != NULL expression is necessary,
+> Don't know enough about the task structering for this. I tried without and
+> the machine at least didn't crash, but just wanted to be safe.
 
-I can only agree and I hope more people realize the importance of this.
-My main problem with the module fiasco are the complete new user space 
-tools. I urge anyone who only cares a little bit about modules to compare 
-modules.conf(5) with modprobe.conf(5) and to tell me whether _all_ the
-removed options are really unnecessary? What happened to deprecating 
-features _first_?
+I was considering that a possible test for a reparented process since the
+original parent doesn't necessarily exist anymore, though it would make
+more sense to have that point to init, than point to anything else.
 
-bye, Roman
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

@@ -1,60 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267125AbSLKMB6>; Wed, 11 Dec 2002 07:01:58 -0500
+	id <S267119AbSLKL7R>; Wed, 11 Dec 2002 06:59:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267126AbSLKMB5>; Wed, 11 Dec 2002 07:01:57 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:6155 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267125AbSLKMB4>; Wed, 11 Dec 2002 07:01:56 -0500
-Subject: Re: "bio too big" error
-From: Wil Reichert <wilreichert@yahoo.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DF6CAA9.BC34612@digeo.com>
-References: <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin>
-	 <3DF6CAA9.BC34612@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039608579.384.5.camel@darwin>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 11 Dec 2002 07:09:39 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267122AbSLKL7R>; Wed, 11 Dec 2002 06:59:17 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59776 "EHLO
+	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S267119AbSLKL7Q>;
+	Wed, 11 Dec 2002 06:59:16 -0500
+Date: Wed, 11 Dec 2002 07:07:01 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@bilbo.tmr.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] ctxbench for some recent kernels
+Message-ID: <Pine.LNX.4.44.0212110704130.4060-100000@bilbo.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you please enable CONFIG_KALLSYMS and regenerate the backtrace?
+Comparing the Redhat 7.3 kernel with some recent 2.5 kernels. All on a 
+dual Celeron 500 with an SMP kernel run with the "nosmp" option.
 
-darwin:~$ cp /a01/movies/metropolis.avi .
-bio too big device ide2(33,0) (256 > 255)
-Call Trace:
- [<c02035ee>] generic_make_request+0x1ce/0x210
- [<e093046d>] __clone_and_map+0xbd/0x120 [dm_mod]
- [<e0930558>] __split_bio+0x88/0xb0 [dm_mod]
- [<e09305f5>] dm_request+0x75/0xb0 [dm_mod]
- [<c020359a>] generic_make_request+0x17a/0x210
- [<c01dd314>] radix_tree_extend+0x64/0x90
- [<c0203684>] submit_bio+0x54/0xa0
- [<c017209e>] mpage_bio_submit+0x2e/0x40
- [<c0172689>] mpage_readpages+0xc9/0x160
- [<c0189780>] ext3_get_block+0x0/0xb0
- [<c013a526>] read_pages+0x116/0x120
- [<c0189780>] ext3_get_block+0x0/0xb0
- [<c013853d>] __alloc_pages+0x8d/0x290
- [<c013a624>] do_page_cache_readahead+0xf4/0x180
- [<c013a7fe>] page_cache_readahead+0x14e/0x190
- [<c0135168>] do_generic_mapping_read+0xb8/0x410
- [<c0154443>] __block_commit_write+0x93/0xa0
- [<c0135500>] file_read_actor+0x0/0xf0
- [<c01357c4>] __generic_file_aio_read+0x1d4/0x220
- [<c0135500>] file_read_actor+0x0/0xf0
- [<c013586a>] generic_file_aio_read+0x5a/0x80
- [<c015076b>] do_sync_read+0x8b/0xc0
- [<c0136e3c>] generic_file_write+0x5c/0x80
- [<c015085e>] vfs_read+0xbe/0x130
- [<c0150afe>] sys_read+0x3e/0x60
- [<c01096af>] syscall_call+0x7/0xb
 
-Wil
+================================================================
+    Results by IPC type
+================================================================
+
+                                   loops/sec
+SIGUSR1                     low       high    average
+  2.4.18-10nosmp-bl       62700      63254      63049
+  2.5.41nosmp-bl          55048      55660      55418
+  2.5.43nosmp-bl          50093      50250      50176
+  2.5.47-ac6nosmp-bl      54200      54236      54215
+  2.5.50nosmp-bl          51675      56403      54818
+
+                                   loops/sec
+message queue               low       high    average
+  2.4.18-10nosmp-bl      105275     105737     105513
+  2.5.41nosmp-bl         108057     108413     108232
+  2.5.43nosmp-bl         100698     101835     101325
+  2.5.47-ac6nosmp-bl      98086      98223      98157
+  2.5.50nosmp-bl         104965     105261     105105
+
+                                   loops/sec
+pipes                       low       high    average
+  2.4.18-10nosmp-bl       86794      88484      87637
+  2.5.41nosmp-bl          74026      78242      76734
+  2.5.43nosmp-bl          80559      81233      80953
+  2.5.47-ac6nosmp-bl      71277      78883      75415
+  2.5.50nosmp-bl          81211      81529      81411
+
+                                   loops/sec
+semiphore                   low       high    average
+  2.4.18-10nosmp-bl      114407     114644     114537
+  2.5.41nosmp-bl         114459     114658     114535
+  2.5.43nosmp-bl         113222     113423     113322
+  2.5.47-ac6nosmp-bl      95986      96347      96179
+  2.5.50nosmp-bl         110582     112044     111450
+
+                                   loops/sec
+spin+yield                  low       high    average
+  2.4.18-10nosmp-bl      189489     190677     190102
+  2.5.41nosmp-bl         250737     251116     250867
+  2.5.43nosmp-bl         249474     249836     249607
+  2.5.47-ac6nosmp-bl     245594     245905     245740
+  2.5.50nosmp-bl         252055     252529     252361
+
+                                   loops/sec
+spinlock                    low       high    average
+  2.4.18-10nosmp-bl           3          3          3
+  2.5.41nosmp-bl              3          3          3
+  2.5.43nosmp-bl              3          3          3
+  2.5.47-ac6nosmp-bl          3          3          3
+  2.5.50nosmp-bl              3          3          3
+
+-- 
+bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
+  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
+since using 2.5 kernels includes a lot of things jumping out of dark
+corners to scare you.
 
 

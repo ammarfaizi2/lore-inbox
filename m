@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHJDdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266824AbUHJDs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUHJDdH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 23:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266824AbUHJDdH
+	id S266824AbUHJDs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 23:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266925AbUHJDs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 23:33:07 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:59027 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266864AbUHJDdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 23:33:02 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Albert Cahalan <albert@users.sf.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
-In-Reply-To: <cone.1092092365.461905.29067.502@pc.kolivas.org>
-References: <1092082920.5761.266.camel@cube>
-	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
+	Mon, 9 Aug 2004 23:48:56 -0400
+Received: from smtp.knology.net ([24.214.63.101]:12458 "HELO smtp.knology.net")
+	by vger.kernel.org with SMTP id S266824AbUHJDsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 23:48:55 -0400
+Subject: Re: Multicast Driver Testing Quick How-To v 0.3 [was: Re: List of
+	pending v2.4 kernel bugs]
+From: David Dillow <dave@thedillows.org>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040805133359.GA15129@k3.hellgate.ch>
+References: <20040720142640.GB2348@dmt.cyclades>
+	 <20040721112336.GA9537@k3.hellgate.ch> <20040730155613.GD2748@logos.cnet>
+	 <410A8077.7020308@pobox.com> <20040730172939.GA24235@k3.hellgate.ch>
+	 <410A8F17.8070401@pobox.com> <20040730182006.GA26545@k3.hellgate.ch>
+	 <20040805133359.GA15129@k3.hellgate.ch>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1092099669.5759.283.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Aug 2004 21:01:09 -0400
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1092109732.15778.22.camel@ori.thedillows.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Aug 2004 23:48:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 18:59, Con Kolivas wrote:
-> Albert Cahalan writes:
+On Thu, 2004-08-05 at 09:33, Roger Luethi wrote:
+
+> We haven't joined the next group yet, so there should be no answer:
 > 
+> tester# ping -r -I eth0 -t 1 -c 2 224.1.1.37
 > 
-> > Joerg:
-> >    "WARNING: Cannot do mlockall(2).\n"
-> >    "WARNING: This causes a high risk for buffer underruns.\n"
-> > Fixed:
-> >    "Warning: You don't have permission to lock memory.\n"
-> >    "         If the computer is not idle, the CD may be ruined.\n"
-> > 
-> > Joerg:
-> >    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
-> >    "WARNING: This causes a high risk for buffer underruns.\n"
-> > Fixed:
-> >    "Warning: You don't have permission to hog the CPU.\n"
-> >    "         If the computer is not idle, the CD may be ruined.\n"
+> Use packet sniffer to confirm that target is not seeing the request
+> (use -p option for tcpdump or tethereal to prevent promiscuous mode)
 > 
-> Huh? That can't be right. Every cd burner this side of the 21st century has 
-> buffer underrun protection.
+> Now join the group (Ethernet level):
+> 
+> target# ip maddr add 01:00:5e:01:01:25 dev eth0
+> 
+> tester# ping -r -I eth0 -t 1 -c 2 224.1.1.37
+> 
+> Use packet sniffer to confirm that target is seeing the request now.
 
-I'm pretty sure my FireWire CD-RW/CD-R is from
-another century. Not that it's unusual in 2004.
+Some versions of tcpdump/libpcap will enable all-multicast mode
+regardless of options given and user. This bit me on RedHat 9 using
+libpcap 0.7.2 and tcpdump 3.7.2 while testing the typhoon driver.
 
-> I've burnt cds _while_ capturing and encoding 
-> video using truckloads of cpu and I/O without superuser privileges, had all 
-> the cdrecord warnings and didn't have a buffer underrun.
-
-That's cool. My hardware won't come close to that.
-Burning a coaster costs money.
-
-Let me put it this way: $$ $ $$$ $$ $ $$$ $$ $
-
-The warning, if re-worded, will save people from
-frustration and wasted money.
-
-> Last time I gave 
-> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
-> rt_task safe.
-
-So, you've been working on the scheduler anyway...
-An option to reserve some portion of CPU time for
-emergency use (say, 5% after 1 second has passed)
-would let somebody get out of this situation.
-
-Reporting and/or fixing the cdrecord bug is nice too.
-
-
+Dave

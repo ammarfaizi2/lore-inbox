@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVBMTaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVBMTbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVBMTaq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 14:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVBMTaq
+	id S261297AbVBMTbU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 14:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVBMTbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 14:30:46 -0500
-Received: from frankvm.xs4all.nl ([80.126.170.174]:3712 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261296AbVBMTai
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 14:30:38 -0500
-Date: Sun, 13 Feb 2005 20:30:37 +0100
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: repost: 2.6.11-rc4 BUG: using smp_processor_id() in preemptible [00000001] code: ip/6840
-Message-ID: <20050213193037.GA2802@janus>
-References: <20050206195111.GA28814@janus>
+	Sun, 13 Feb 2005 14:31:20 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:39602 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261297AbVBMTbQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 14:31:16 -0500
+Date: Sun, 13 Feb 2005 20:31:49 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stephen Evanchik <evanchsa@gmail.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
+Message-ID: <20050213193149.GA4315@ucw.cz>
+References: <a71293c20502031443764fb4e5@mail.gmail.com> <200502031934.16642.dtor_core@ameritech.net> <200502032252.45309.dtor_core@ameritech.net> <a71293c2050213111345d072b0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050206195111.GA28814@janus>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+In-Reply-To: <a71293c2050213111345d072b0@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 08:51:11PM +0100, Frank van Maarseveen wrote:
-> While executing
-> iptables -t nat -D OUTPUT -d 80.126.170.174 -p tcp --dport https -j DNAT --to 192.168.0.1
-> iptables -t nat -D OUTPUT -d 80.126.170.174 -p tcp --dport http  -j DNAT --to 192.168.0.1
+On Sun, Feb 13, 2005 at 02:13:15PM -0500, Stephen Evanchik wrote:
 
-still present in -rc4:
-kernel: BUG: using smp_processor_id() in preemptible [00000001] code: ip/6351
-kernel: caller is get_next_corpse+0x13/0x260
-kernel:  [<c010385e>] dump_stack+0x1e/0x30
-kernel:  [<c024f60f>] smp_processor_id+0xaf/0xc0
-kernel:  [<c0408c03>] get_next_corpse+0x13/0x260
-kernel:  [<c0408e86>] ip_ct_iterate_cleanup+0x36/0xc0
-kernel:  [<c041981a>] masq_inet_event+0x3a/0x70
-kernel:  [<c012ee4d>] notifier_call_chain+0x2d/0x50
-kernel:  [<c03f02d9>] inet_del_ifa+0x99/0x150
-kernel:  [<c03f084b>] inet_rtm_deladdr+0x12b/0x170
-kernel:  [<c03b290b>] rtnetlink_rcv+0x35b/0x420
-kernel:  [<c03c26c0>] netlink_data_ready+0x60/0x70
-kernel:  [<c03c1ad1>] netlink_sendskb+0x31/0x60
-kernel:  [<c03c2391>] netlink_sendmsg+0x261/0x320
-kernel:  [<c039f16b>] sock_sendmsg+0xbb/0xe0
-kernel:  [<c03a0d14>] sys_sendmsg+0x1c4/0x230
-kernel:  [<c03a11bc>] sys_socketcall+0x21c/0x240
-kernel:  [<c01029f3>] syscall_call+0x7/0xb
-kernel: BUG: using smp_processor_id() in preemptible [00000001] code: ip/6351
-kernel: caller is get_next_corpse+0x23f/0x260
-kernel:  [<c010385e>] dump_stack+0x1e/0x30
-kernel:  [<c024f60f>] smp_processor_id+0xaf/0xc0
-kernel:  [<c0408e2f>] get_next_corpse+0x23f/0x260
-kernel:  [<c0408e86>] ip_ct_iterate_cleanup+0x36/0xc0
-kernel:  [<c041981a>] masq_inet_event+0x3a/0x70
-kernel:  [<c012ee4d>] notifier_call_chain+0x2d/0x50
-kernel:  [<c03f02d9>] inet_del_ifa+0x99/0x150
-kernel:  [<c03f084b>] inet_rtm_deladdr+0x12b/0x170
-kernel:  [<c03b290b>] rtnetlink_rcv+0x35b/0x420
-kernel:  [<c03c26c0>] netlink_data_ready+0x60/0x70
-kernel:  [<c03c1ad1>] netlink_sendskb+0x31/0x60
-kernel:  [<c03c2391>] netlink_sendmsg+0x261/0x320
-kernel:  [<c039f16b>] sock_sendmsg+0xbb/0xe0
-kernel:  [<c03a0d14>] sys_sendmsg+0x1c4/0x230
-kernel:  [<c03a11bc>] sys_socketcall+0x21c/0x240
-kernel:  [<c01029f3>] syscall_call+0x7/0xb
+> On Thu, 3 Feb 2005 22:52:44 -0500, Dmitry Torokhov
+> <dtor_core@ameritech.net> wrote:
+> > OK, I have read the code once again, and saw that you have special
+> > handling within PS/2 protocol based on model constant. Please set
+> > psmouse type to PSMOUSE_TRACKPOINT instead of model and provide full
+> > protocol handler, like ALPS, Synaptics and Logitech do. Trackpoint
+> > is different and complex enough to warrant it.
+> 
+> I'm not sure that I think a protocol handler is necessary unless I am
+> misunderstanding what you mean. The TrackPoint is nothing more than a
+> PS/2 mouse with 2 or 3 buttons that responds to an additional set of
+> commands. The extra handling has to do with middle-to-scroll which
+> could be done in userspace.
+> 
+> Aside from that the only time TracKPoint specific processing occurs is
+> when some property is being manipulated.
+> 
+> Do you still think a custom handler is necessary? 
+ 
+You're right. The IBM trackpoints unfortunately don't have a 'native'
+mode, they always do full processing and send classic PS/2 packets.
+
+I think we shouldn't need a handler, since we can use the PS/2 protocol
+one. We'll need some options to set the trackpoint tap behavior (as far
+as I know it can only be mapped to a button), and we'll need a safe
+detection, but that's all.
 
 -- 
-Frank
+Vojtech Pavlik
+SuSE Labs, SuSE CR

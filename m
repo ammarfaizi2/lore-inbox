@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129814AbQKQBCX>; Thu, 16 Nov 2000 20:02:23 -0500
+	id <S129380AbQKQBTI>; Thu, 16 Nov 2000 20:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129380AbQKQBCO>; Thu, 16 Nov 2000 20:02:14 -0500
-Received: from lsne-cable-1-p21.vtxnet.ch ([212.147.5.21]:51717 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129130AbQKQBCE>;
-	Thu, 16 Nov 2000 20:02:04 -0500
-Date: Fri, 17 Nov 2000 01:31:57 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: linux-kernel@vger.kernel.org
-Subject: BTTV detection broken in 2.4.0-test11-pre5
-Message-ID: <20001117013157.A21329@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131507AbQKQBS7>; Thu, 16 Nov 2000 20:18:59 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:52468 "HELO
+	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
+	id <S131010AbQKQBSq>; Thu, 16 Nov 2000 20:18:46 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: More modutils: It's probably worse. 
+In-Reply-To: Your message of "Wed, 15 Nov 2000 10:27:43 +1100."
+             <11900.974244463@ocs3.ocs-net> 
+Date: Fri, 17 Nov 2000 11:48:30 +1100
+Message-Id: <20001117004830.ABA3B813F@halfway.linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The BTTV driver 0.7.48 doesn't detect my old Hauppauge card anymore.
-The problem seems to be that my card sets PCI_SUBSYSTEM_ID and
-PCI_SUBSYSTEM_VENDOR_ID to zero (lspci output below).
+In message <11900.974244463@ocs3.ocs-net> you write:
+> On 14 Nov 2000 11:42:42 -0800, 
+> "H. Peter Anvin" <hpa@zytor.com> wrote:
+> >Seriously, though, I don't see any reason modprobe shouldn't accept
+> >funky filenames.  There is a standard way to do that, which is to have
+> >an argument consisting of the string "--"; this indicates that any
+> >further arguments should be considered filenames and not options.
+> 
+> The original exploit had nothing to do with filenames masquerading as
+> options, it was: ping6 -I ';chmod o+w .'.  Then somebody pointed out
+> that -I '-C/my/config/file' could be abused as well.  '--' fixes the
+> second exploit but not the first.
 
-In 2.4.0-test10-pre5, the card was correctly detected as a
-"Hauppauge old". If I set btv->type to 2 in 2.4.0-test11-pre5, the
-card is properly initialized and works.
+Yes, modprobe code is stupid (execing insmod without "--").  Of
+course, the passing of flags to modprobe is pretty broken too (the
+kernel shouldn't assume anything about modprobe, otherwise why bother
+with the /proc entry?)
 
-Not sure what the correct fix is. Maybe to fall back to vendor/device
-ID if there's no subsystem information ?
+But the kernel should be fixed for future:
 
-- Werner
-
----------------------------------- cut here -----------------------------------
-
-# lspci -v -s 00:0f.0      
-00:0f.0 Multimedia video controller: Brooktree Corporation Bt848 TV with DMA push (rev 12)
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        Memory at eddfe000 (32-bit, prefetchable) [size=4K]
-# lspci -x -s 00:0f.0 -n
-00:0f.0 Class 0400: 109e:0350 (rev 12)
-00: 9e 10 50 03 06 00 80 02 12 00 00 04 00 40 00 00
-10: 08 e0 df ed 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 10 28
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+--- working-2.4.0-test11-5/kernel/kmod.c.~1~	Wed Oct  4 15:17:12 2000
++++ working-2.4.0-test11-5/kernel/kmod.c	Fri Nov 17 11:44:09 2000
+@@ -133,7 +133,7 @@
+ static int exec_modprobe(void * module_name)
+ {
+ 	static char * envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-	char *argv[] = { modprobe_path, "-s", "-k", (char*)module_name, NULL };
++	char *argv[] = { modprobe_path, "-s", "-k", "--", (char*)module_name, NULL };
+ 	int ret;
+ 
+ 	ret = exec_usermodehelper(modprobe_path, argv, envp);
+--
+Hacking time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,149 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVALNDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVALNJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVALNDR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 08:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVALNDR
+	id S261176AbVALNJL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 08:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVALNJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 08:03:17 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:48270 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261179AbVALNDF (ORCPT
+	Wed, 12 Jan 2005 08:09:11 -0500
+Received: from coderock.org ([193.77.147.115]:9419 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261176AbVALNJH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 08:03:05 -0500
-Date: Wed, 12 Jan 2005 21:01:10 +0800
-From: hugang@soulinfo.com
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH swsusp: page rellocation speed up
-Message-ID: <20050112130110.GA28919@hugang.soulinfo.com>
-References: <20050111010122.GA3013@mail.muni.cz> <20050112124948.GA15687@hugang.soulinfo.com>
+	Wed, 12 Jan 2005 08:09:07 -0500
+Date: Wed, 12 Jan 2005 14:09:01 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Greg KH <greg@kroah.com>
+Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI patches for 2.6.10
+Message-ID: <20050112130901.GJ4978@nd47.coderock.org>
+References: <20050110171827.GA30296@kroah.com> <11053776551683@kroah.com> <20050111223902.GJ2995@waste.org> <20050111224447.GA19240@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112124948.GA15687@hugang.soulinfo.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050111224447.GA19240@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 08:49:49PM +0800, hugang@soulinfo.com wrote:
-> On Tue, Jan 11, 2005 at 02:01:23AM +0100, Lukas Hejtmanek wrote:
-> > Hello,
+On 11/01/05 14:44 -0800, Greg KH wrote:
+> On Tue, Jan 11, 2005 at 02:39:02PM -0800, Matt Mackall wrote:
+> > On Mon, Jan 10, 2005 at 09:20:55AM -0800, Greg KH wrote:
+> > > ChangeSet 1.1938.439.44, 2005/01/07 10:32:39-08:00, domen@coderock.org
+> > > 
+> > > [PATCH] hotplug/acpiphp_ibm: module_param fix
+> > > 
+> > > File permissins should be octal number.
 > > 
-> > attached patch should speed up page rellocation at time of resume. Please test.
-> > The diff is against 2.6.10-bk8
+> > > -module_param(debug, bool, 644);
+> > > +module_param(debug, bool, 0644);
 > > 
-> ....
+> > Perhaps the sysfs code could do:
+> > 
+> > 	/* did we forget to write in octal? */
+> > 	BUG_ON(mode > 0666 || mode & 0111);
+
+Some drivers assumed last parameter is default value, so this wouldn't
+help in all cases :-)
+
 > 
-> really cool, Passed in my x86 and ppc.
-> 
-> Here is a patch to make pagedir using non-continuity page, 
->  2.6.10 -> mm1 -> this patch -> my patch
-> 
+> I think the whole tree has now been audited.  Mistakes from now on are
+> the developer who did the change's fault (like all other kernel bugs...)
 
-support for PowerPc.
-  2.6.10 -> mm1 -> Lukas Hejtmanek's patch -> agx's patch -> pbe core ->
-   this patch
+I think I checked all of them.
 
-  agx swsusp patch from http://honk.physik.uni-konstanz.de/~agx/linux-ppc/kernel/
 
---- 2.6.10-mm1-axg-swap_mem/arch/ppc/kernel/swsusp.S~old	2005-01-12 20:55:31.000000000 +0800
-+++ 2.6.10-mm1-axg-swap_mem/arch/ppc/kernel/swsusp.S	2005-01-12 20:57:59.000000000 +0800
-@@ -159,43 +159,57 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
- 	sync
- 	isync
- 
--	/* Load ptr the list of pages to copy in r3 */
--	lis	r11,(pagedir_nosave - KERNELBASE)@h
--	ori	r11,r11,pagedir_nosave@l
--	lwz	r10,0(r11)
--	tophys(r3,r10)
--
--	/* Load the count of pages to copy in r4 */
--	lis	r11,(nr_copy_pages - KERNELBASE)@h
--	ori	r11,r11,nr_copy_pages@l
--	lwz	r4,0(r11)
-+	/* Load ptr the list of pages to copy in r11 */
-+	lis     r9,pagedir_nosave@ha
-+	addi    r9,r9,pagedir_nosave@l
- 
-+	tophys(r9,r9)
-+	lwz     r9, 0(r9)
-+#if 0
-+	twi     31,r0,0 /* triger trap */
-+#endif
-+	cmpwi   r9, 0
-+	beq copy_loop_end
- 
--	/* Copy the pages. This is a very basic implementation, to
--	 * be replaced by something more cache efficient */
--1:
--	li	r0,256
--	mtctr	r0
--	lwz	r11,0(r3)	/* source */
--	tophys(r5,r11)
--	lwz	r10,4(r3)	/* destination */
--	tophys(r6,r10)
--2:
--	lwz	r8,0(r5)
--	lwz	r9,4(r5)
--	lwz	r10,8(r5)
--	lwz	r11,12(r5)
--	addi	r5,r5,16
--	stw	r8,0(r6)
--	stw	r9,4(r6)
--	stw	r10,8(r6)
--	stw	r11,12(r6)
--	addi	r6,r6,16
--	bdnz	2b
--	addi	r3,r3,16
--	subi	r4,r4,1
--	cmpwi	0,r4,0
--	bne	1b
-+copy_loop:
-+	tophys(r9,r9)
-+	lwz    r6, 12(r9)
-+	li     r10, 0
-+
-+copy_one_pgdir:
-+	lwz    r11, 4(r9)
-+	addi   r8,r10,1
-+	cmpwi  r11, 0
-+	addi   r7,r9,16
-+	beq copy_loop_end
-+	li     r0, 256
-+	mtctr  r0
-+	lwz    r9,0(r9)
-+#if 0
-+	twi    31,r0,0 /* triger trap */
-+#endif
-+	tophys(r10,r11)
-+	tophys(r11,r9)
-+
-+copy_one_page:
-+	lwz    r0, 0(r11)
-+	stw    r0, 0(r10)
-+	lwz    r9, 4(r11)
-+	stw    r9, 4(r10)
-+	lwz    r0, 8(r11)
-+	stw    r0, 8(r10)
-+	lwz    r9, 12(r11)
-+	addi   r11,r11,16
-+	stw    r9, 12(r10)
-+	addi   r10,r10,16
-+	bdnz copy_one_page
-+	mr     r10, r8
-+	cmplwi r10, 255
-+	mr     r9, r7
-+	ble copy_one_pgdir
-+	mr     r9, r6
-+	bne copy_loop
-+copy_loop_end:
- 
- 	/* Do a very simple cache flush/inval of the L1 to ensure
- 	 * coherency of the icache
-
--- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+	Domen

@@ -1,583 +1,274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbULFQOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULFQW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbULFQOt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULFQOY
+	id S261551AbULFQW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULFQW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:14:24 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:46308 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261545AbULFQHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:07:41 -0500
-Subject: Re: [RFC] dynamic syscalls revisited
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041205234605.GF2953@stusta.de>
-References: <1101741118.25841.40.camel@localhost.localdomain>
-	 <20041129151741.GA5514@infradead.org>
-	 <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>
-	 <1101748258.25841.53.camel@localhost.localdomain>
-	 <20041205234605.GF2953@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Mon, 06 Dec 2004 11:07:35 -0500
-Message-Id: <1102349255.25841.189.camel@localhost.localdomain>
+	Mon, 6 Dec 2004 11:22:28 -0500
+Received: from lug-owl.de ([195.71.106.12]:9433 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261551AbULFQVy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:21:54 -0500
+Date: Mon, 6 Dec 2004 17:21:53 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+Message-ID: <20041206162153.GH16958@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <87acsrqval.fsf@coraid.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a58rN+WbXIGauCK9"
+Content-Disposition: inline
+In-Reply-To: <87acsrqval.fsf@coraid.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-06 at 00:46 +0100, Adrian Bunk wrote:
-> 
-> Why don't you EXPORT_SYMBOL_GPL dsyscall_{,un}register?
-> 
-> This should at least fix the binary only module concerns.
 
-Done!
+--a58rN+WbXIGauCK9
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Updated on http://home.stny.rr.com/rostedt/dynamic as well as included
-in this email for ease.  
+On Mon, 2004-12-06 10:51:46 -0500, Ed L Cashin <ecashin@coraid.com>
+wrote in message <87acsrqval.fsf@coraid.com>:
+> The included patch allows the Linux kernel to use the ATA over
+> Ethernet (AoE) network protocol to communicate with any block device
+> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
+> Blade is the first hardware using AoE.
+>=20
+> Like IP, AoE is an ethernet-level network protocol, registered with
+> the IEEE.  Unlike IP, AoE is not routable.
 
-Now, I guess you can still get around this if the "Bad Vendor" were to
-write a GPL module with their added system calls, and have that module
-include hooks to their binary module.  So, until we can fix that, I
-guess Linus won't allow for this module to be included in the main line.
+So AoE is out of scope for many uses...
 
--- Steve
+However, some comments:
+
+> diff -urpN linux-2.6.9/drivers/block/Kconfig linux-2.6.9-aoe/drivers/bloc=
+k/Kconfig
+> --- linux-2.6.9/drivers/block/Kconfig	2004-11-30 08:22:33.000000000 -0500
+> +++ linux-2.6.9-aoe/drivers/block/Kconfig	2004-12-06 10:40:00.000000000 -=
+0500
+> @@ -357,5 +357,6 @@ config LBD
+>  	  bigger than 2TB.  Otherwise say N.
+> =20
+>  source "drivers/s390/block/Kconfig"
+> +source "drivers/block/aoe/Kconfig"
+> =20
+>  endmenu
+> diff -urpN linux-2.6.9/drivers/block/aoe/Kconfig linux-2.6.9-aoe/drivers/=
+block/aoe/Kconfig
+> --- linux-2.6.9/drivers/block/aoe/Kconfig	1969-12-31 19:00:00.000000000 -=
+0500
+> +++ linux-2.6.9-aoe/drivers/block/aoe/Kconfig	2004-12-06 10:40:00.0000000=
+00 -0500
+> @@ -0,0 +1,10 @@
+> +#
+> +# ATA over Ethernet configuration
+> +#
+> +config ATA_OVER_ETH
+> +	tristate "ATA over Ethernet support"
+> +	depends on NET
+> +	default m
+> +	help
+> +	This driver provides Support for ATA over Ethernet block
+> +	devices like the Coraid EtherDrive (R) Storage Blade.
+
+Since your config only contains a single element, just put it into the
+block device Kconfig.
+
+> diff -urpN linux-2.6.9/drivers/block/aoe/all.h linux-2.6.9-aoe/drivers/bl=
+ock/aoe/all.h
+> --- linux-2.6.9/drivers/block/aoe/all.h	1969-12-31 19:00:00.000000000 -05=
+00
+> +++ linux-2.6.9-aoe/drivers/block/aoe/all.h	2004-12-06 10:40:00.000000000=
+ -0500
+[...]
+> +#define nil NULL
+
+It's not April 1st today :)
+
+> +#define nelem(A) (sizeof (A) / sizeof (A)[0])
+
+Just use ARRAY_SIZE()
+
+> +#define AOE_MAJOR 152
+> +#define ROOT_PATH "/dev/etherd/"
+> +#define PATHLEN (strlen(ROOT_PATH) + 8)
+
+Looks strangely hardcoded...
+
+[many typedefs deleted]
+
+Typedefs tend to make the code harder to read and understand. Why don't
+you just use the struct xxx notation?
+
+> diff -urpN linux-2.6.9/drivers/block/aoe/aoeblk.c linux-2.6.9-aoe/drivers=
+/block/aoe/aoeblk.c
+> --- linux-2.6.9/drivers/block/aoe/aoeblk.c	1969-12-31 19:00:00.000000000 =
+-0500
+> +++ linux-2.6.9-aoe/drivers/block/aoe/aoeblk.c	2004-12-06 10:40:00.000000=
+000 -0500
+
+> +static struct block_device_operations aoe_bdops =3D {
+> +	open:			aoeblk_open,
+> +	release:		aoeblk_release,
+> +	ioctl:			aoeblk_ioctl,
+> +	owner:			THIS_MODULE,
+> +};
+
+Please use C99 syntax:
+
+	.open =3D aoeblk_open,
+
+etc.
 
 
-Index: kernel/Makefile
-===================================================================
---- kernel/Makefile	(revision 15)
-+++ kernel/Makefile	(working copy)
-@@ -29,6 +29,7 @@
- obj-$(CONFIG_SYSFS) += ksysfs.o
- obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
- obj-$(CONFIG_CRASH_DUMP) += crash.o
-+obj-$(CONFIG_DSYSCALL) += dsyscall.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-Index: kernel/dsyscall.c
-===================================================================
---- kernel/dsyscall.c	(revision 0)
-+++ kernel/dsyscall.c	(revision 0)
-@@ -0,0 +1,286 @@
-+/*
-+ * dsyscall.c
-+ *
-+ * Copyright (C) 2004 Steven Rostedt <steven.rostedt@kihontech.com>
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ */
-+#include <linux/config.h>
-+#include <linux/slab.h>
-+#include <linux/user.h>
-+#include <linux/dsyscall.h>
-+#include <linux/module.h>
-+#include <linux/rwsem.h>
-+
-+#include <asm/uaccess.h>
-+
-+#undef DEBUG
-+#ifdef DEBUG
-+#define dprintk(x...) printk(x)
-+#else
-+#define dprintk(x...) do { } while(0)
-+#endif
-+
-+#define DSYSCALL_HASH_SIZE 32
-+
-+DECLARE_RWSEM(dsyscall_sem);
-+
-+static long dsyscall_next_id = 0;
-+static long dsyscall_iterations = 0;
-+static kmem_cache_t *dsyscall_cache;
-+static struct list_head dsyscall_hash[DSYSCALL_HASH_SIZE];
-+static LIST_HEAD(dsyscall_syscalls);
-+
-+static int dsyscall_hash_add(struct dsyscall_struct *ds)
-+{
-+	list_add(&ds->link,&dsyscall_hash[ds->id & (DSYSCALL_HASH_SIZE - 1)]);
-+	return 0;
-+}
-+
-+static struct dsyscall_struct * find_dsyscall_by_name(char *name)
-+{
-+	struct list_head *li;
-+	struct dsyscall_struct *ds, *ret = NULL;
-+
-+	/* slow, but this should not be called often. */
-+	list_for_each(li,&dsyscall_syscalls) {
-+		ds = list_entry(li, struct dsyscall_struct, next);
-+		if (strcmp(ds->name,name) == 0) {
-+			ret = ds;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+static struct dsyscall_struct * find_dsyscall_by_id(struct dsyscall *d)
-+{
-+	struct list_head *li;
-+	struct dsyscall_struct *ds, *ret = NULL;
-+
-+	/* For now it's a little faster. We can optimize this if we need to */
-+	list_for_each(li,&dsyscall_hash[d->id & (DSYSCALL_HASH_SIZE - 1)]) {
-+		ds = list_entry(li, struct dsyscall_struct, link);
-+		if (ds->id == d->id) {
-+			if (likely(ds->iteration == d->iteration)) 
-+				ret = ds;
-+			break;
-+		}
-+	}
-+	return ret;
-+}
-+
-+
-+int sys_dsyscall(int type, char *user_name, struct dsyscall *dcall)
-+{
-+	int ret;
-+	struct dsyscall_struct *ds;
-+	struct dsyscall d;
-+	long argv[DSYSCALL_MAX_ARGS];
-+
-+	/*
-+	 * OK, this is pretty long to hold a semaphore, even if
-+	 * if is just for reading. But if you want speed, don't use
-+	 * dynamic system calls!
-+	 */
-+	down_read(&dsyscall_sem);
-+	switch (type) {
-+	case DSYSCALL_GET:
-+		dprintk("sys_dsyscall: DSYSCALL_GET, ");
-+		memset (&d,0,sizeof(d));
-+		ret = -EFAULT;
-+		if (strncpy_from_user(d.name,user_name,DSYSCALL_NAME_SZ-1) < 0) {
-+			dprintk(">>>BAD NAME<<<\n");
-+			goto out;
-+		}
-+		dprintk("%s: ", d.name);
-+
-+		/* just in case */
-+		d.name[DSYSCALL_NAME_SZ-1] = 0;
-+
-+		ds = find_dsyscall_by_name(d.name);
-+
-+		if (!ds) {
-+			dprintk("not found\n");
-+			ret = -ENODEV;
-+			goto out;
-+		}
-+
-+		dprintk("found\n");
-+		d.id = ds->id;
-+		d.iteration = ds->iteration;
-+		d.argc = ds->args;
-+
-+		ret = 0;
-+		if (copy_to_user(dcall,&d,sizeof(d)) != 0) { 
-+			ret = -EFAULT;
-+		}
-+		break;
-+
-+	case DSYSCALL_CALL:
-+		ret = -EFAULT;
-+		if (copy_from_user(&d,dcall,sizeof(d)) != 0) {
-+			goto out;
-+		}
-+
-+		ds = find_dsyscall_by_id(&d);
-+		if (!ds) {
-+			ret = -ENODEV;
-+			goto out;
-+		}
-+		/* Comparing to ds->args which can not be bigger than DSYSCALL_MAX_ARGS */
-+		if (d.argc != ds->args) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+		
-+		if (d.argc > 0) {
-+			if (copy_from_user(argv,d.argv,sizeof(char*)*d.argc) != 0) {
-+				ret = -EFAULT;
-+				goto out;
-+			}
-+		}
-+
-+		switch (d.argc) {
-+		case 0:
-+			ret = ds->func(0); /* The argument should be ignored */
-+			break;
-+		case 1:
-+			ret = ds->func(argv[0]);
-+			break;
-+		case 2:
-+			ret = ds->func(argv[0],argv[1]);
-+			break;
-+		case 3:
-+			ret = ds->func(argv[0],argv[1],argv[2]);
-+			break;
-+		case 4:
-+			ret = ds->func(argv[0],argv[1],argv[2],argv[3]);
-+			break;
-+		case 5:
-+			ret = ds->func(argv[0],argv[1],argv[2],argv[3],argv[4]);
-+			break;
-+		case 6:
-+			ret = ds->func(argv[0],argv[1],argv[2],argv[3],argv[4],argv[5]);
-+			break;
-+		}	
-+		goto out;
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+ out:
-+	up_read(&dsyscall_sem);
-+
-+	return ret;
-+}
-+
-+int dsyscall_register(char *name, int args, int (*func)(long,...))
-+{
-+	int ret = -1;
-+	struct dsyscall_struct *ds;
-+
-+	dprintk("dsyscall_register: %s args: %d func=%p\n",name,args,func);
-+
-+	if (strlen(name) >= DSYSCALL_NAME_SZ) {
-+		printk(KERN_INFO "dsyscall: name %s is too large.", name);
-+		return -1;
-+	}
-+	if (args > DSYSCALL_MAX_ARGS) {
-+		printk(KERN_INFO "dsyscall: args is too big.");
-+		return -1;
-+	}
-+	
-+	down_write(&dsyscall_sem);
-+	if ((ds = find_dsyscall_by_name(name)) != NULL) {
-+		printk(KERN_INFO "dsyscall: name %s is already in use.",name);
-+		goto out;
-+	}
-+
-+	ds = kmem_cache_alloc(dsyscall_cache,GFP_KERNEL);
-+	if (!ds) {
-+		printk(KERN_INFO "dsyscall: could not allocate dsyscall_struct");
-+		goto out;
-+	}
-+
-+	ds->args = args;
-+	ds->func = func;
-+	ds->id = dsyscall_next_id++;
-+	ds->iteration = dsyscall_iterations;
-+	if (!dsyscall_next_id) {
-+		if (!++dsyscall_iterations) {
-+			printk(KERN_WARNING "dsyscall: iterations has overflowed???");
-+		}
-+	}
-+	strcpy(ds->name,name);
-+	
-+	list_add(&ds->next,&dsyscall_syscalls);
-+	dsyscall_hash_add(ds);
-+
-+	ret = 0;
-+ out:
-+	up_write(&dsyscall_sem);
-+	return ret;
-+}
-+
-+int dsyscall_unregister(char *name)
-+{
-+	struct dsyscall_struct *ds;
-+
-+	down_write(&dsyscall_sem);
-+	if ((ds = find_dsyscall_by_name(name)) == NULL) {
-+		printk("dsyscall: name %s is not registered\n",name);
-+		up_write(&dsyscall_sem);
-+		return -1;
-+	}
-+
-+	list_del(&ds->next);
-+	list_del(&ds->link);
-+
-+	up_write(&dsyscall_sem);
-+
-+	kmem_cache_free(dsyscall_cache,ds);
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL_GPL(dsyscall_register);
-+EXPORT_SYMBOL_GPL(dsyscall_unregister);
-+
-+int __init dsyscall_init(void)
-+{
-+	int i;
-+
-+	dsyscall_cache = kmem_cache_create("dsyscalls", sizeof(struct dsyscall_struct),
-+					   0, 0, NULL, NULL);
-+	if (!dsyscall_cache)
-+		panic ("Can't allocate dsyscall cache!");  /* Too much? something else is wrong if
-+							      we fail here. */
-+	
-+	for (i=0; i < DSYSCALL_HASH_SIZE; i++) {
-+		INIT_LIST_HEAD(&dsyscall_hash[i]);
-+	}
-+
-+	return 0;
-+}
-+__initcall(dsyscall_init);
-Index: include/asm-i386/unistd.h
-===================================================================
---- include/asm-i386/unistd.h	(revision 15)
-+++ include/asm-i386/unistd.h	(working copy)
-@@ -300,8 +300,9 @@
- #define __NR_vperfctr_unlink	(__NR_perfctr_info+3)
- #define __NR_vperfctr_iresume	(__NR_perfctr_info+4)
- #define __NR_vperfctr_read	(__NR_perfctr_info+5)
-+#define __NR_dsyscall		295
- 
--#define NR_syscalls 295
-+#define NR_syscalls 296
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-Index: include/linux/dsyscall.h
-===================================================================
---- include/linux/dsyscall.h	(revision 0)
-+++ include/linux/dsyscall.h	(revision 0)
-@@ -0,0 +1,174 @@
-+/*
-+ * dsyscall.h
-+ *
-+ * Copyright (C) 2004 Steven Rostedt <steven.rostedt@kihontech.com>
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ */
-+#ifndef _LINUX_DSYSCALL_H
-+#define _LINUX_DSYSCALL_H
-+
-+#define DSYSCALL_NAME_SZ 128
-+#define DSYSCALL_MAX_ARGS 6
-+
-+enum dsyscall_cmd {
-+	DSYSCALL_GET = 1,
-+	DSYSCALL_CALL,
-+};
-+
-+struct dsyscall {
-+	char name[DSYSCALL_NAME_SZ];	/* Name of system call */
-+	long id;			/* unique id of available dynamic syscalls */
-+	long iteration;			/* incase this box runs longer than we have been on earth
-+					   count the iterations of id's. If interation overflows,
-+					   then we are simply out of luck! */
-+	int argc;			/* Number of arguments that this system call takes. */
-+	long *argv;			/* pointer to the argument list */
-+};
-+
-+#define DSYSCALL_FUNC(func) ((int(*)(long,...))func)
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/list.h>
-+
-+struct dsyscall_struct {
-+	struct list_head next;		/* list of all dynamic syscalls */
-+	struct list_head link;		/* used in the hash */
-+	char name[DSYSCALL_NAME_SZ];	/* name of the dynamic syscall */	
-+	int args;			/* number of arguments for this syscall */
-+	int (*func)(long,...);		/* The actual dynamic system call */
-+	long id;
-+	long iteration;
-+
-+};
-+
-+int dsyscall_register(char *name, int args, int (*func)(long,...));
-+int dsyscall_unregister(char *name);
-+
-+#else /* !__KERNEL__ */
-+
-+/* OK, this should probably be in another file for users */
-+#include <asm/unistd.h>
-+
-+#define _dsyscall_call(name,args,arg) \
-+{ \
-+ long __res;  \
-+ static int has_init = 0; \
-+ static struct dsyscall ds; \
-+ if (!has_init) { \
-+	 __res = dsyscall(DSYSCALL_GET,#name,&ds); \
-+	 if (!__res) \
-+		 has_init = 1; \
-+	 else \
-+		 return __res; \
-+ } \
-+ ds.argc = args; \
-+ ds.argv = arg; \
-+ __res = dsyscall(DSYSCALL_CALL,#name,&ds); \
-+ if (__res < 0 && errno == ENODEV) { \
-+	 has_init = 0; \
-+ } \
-+ return __res; \
-+}
-+
-+#define _dsyscall0(type,name) \
-+type name(void) \
-+{ \
-+ long argv[0]; \
-+ _dsyscall_call(name,0,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall1(type,name,type1,arg1) \
-+type name(type1 arg1) \
-+{ \
-+ long argv[1]; \
-+ argv[0] = (long)arg1; \
-+ _dsyscall_call(name,1,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall2(type,name,type1,arg1,type2,arg2) \
-+type name(type1 arg1, type2 arg2) \
-+{ \
-+ long argv[2]; \
-+ argv[0] = (long)arg1; \
-+ argv[1] = (long)arg2; \
-+ _dsyscall_call(name,2,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-+type name(type1 arg1, type2 arg2, type3 arg3) \
-+{ \
-+ long argv[3]; \
-+ argv[0] = (long)arg1; \
-+ argv[1] = (long)arg2; \
-+ argv[2] = (long)arg3; \
-+ _dsyscall_call(name,3,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall4(type,name,type1,arg1,type2,arg2,type3,arg3, \
-+                   type4,arg4) \
-+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
-+{ \
-+ long argv[4]; \
-+ argv[0] = (long)arg1; \
-+ argv[1] = (long)arg2; \
-+ argv[2] = (long)arg3; \
-+ argv[3] = (long)arg4; \
-+ _dsyscall_call(name,4,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall5(type,name,type1,arg1,type2,arg2,type3,arg3, \
-+                   type4,arg4,type5,arg5) \
-+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, \
-+          type5 arg5) \
-+{ \
-+ long argv[5]; \
-+ argv[0] = (long)arg1; \
-+ argv[1] = (long)arg2; \
-+ argv[2] = (long)arg3; \
-+ argv[3] = (long)arg4; \
-+ argv[4] = (long)arg5; \
-+ _dsyscall_call(name,5,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#define _dsyscall6(type,name,type1,arg1,type2,arg2,type3,arg3, \
-+                   type4,arg4,type5,arg5,type6,arg6) \
-+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, \
-+          type5 arg5, type6 arg6) \
-+{ \
-+ long argv[6]; \
-+ argv[0] = (long)arg1; \
-+ argv[1] = (long)arg2; \
-+ argv[2] = (long)arg3; \
-+ argv[3] = (long)arg4; \
-+ argv[4] = (long)arg5; \
-+ argv[5] = (long)arg6; \
-+ _dsyscall_call(name,6,argv); \
-+ return 0; /* not reached */ \
-+}
-+
-+#endif /* __KERNEL__ */
-+#endif /* _LINUX_DSYSCALL_H */
-Index: init/Kconfig
-===================================================================
---- init/Kconfig	(revision 15)
-+++ init/Kconfig	(working copy)
-@@ -249,6 +249,14 @@
- 	  through /proc/config.gz.
- 
- 
-+config DSYSCALL
-+	bool "Enable dynamic system calls"
-+	default y
-+	help
-+	  This option enables usage of dynamic system calls by drivers.
-+	  This allows drivers to register system calls that are not
-+	  already defined by the compiled kernel.
-+
- menuconfig EMBEDDED
- 	bool "Configure standard kernel features (for small systems)"
- 	help
-Index: arch/i386/kernel/entry.S
-===================================================================
---- arch/i386/kernel/entry.S	(revision 15)
-+++ arch/i386/kernel/entry.S	(working copy)
-@@ -906,5 +906,10 @@
- 	.long sys_vperfctr_unlink
- 	.long sys_vperfctr_iresume
- 	.long sys_vperfctr_read
-+#ifdef CONFIG_DSYSCALL
-+	.long sys_dsyscall		/* 295 */
-+#else
-+	.long sys_ni_syscall		/* 295 */
-+#endif
- 
- syscall_table_size=(.-sys_call_table)
+> +void
+> +aoeblk_gdalloc(void *vp)
+> +{
+> +	if (gd =3D=3D nil) {
 
+Could be shorter like "if (!gd) {"
+
+> +void
+> +aoeblk_exit(void)
+> +{
+> +	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
+> +}
+> +
+> +int
+> +aoeblk_init(void)
+> +{
+> +	int n;
+> +
+> +	n =3D register_blkdev(AOE_MAJOR, DEVICE_NAME);
+> +	if (n < 0) {
+> +		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
+> +		return n;
+> +	}
+> +	return 0;
+> +}
+
+__exit and __init are missing here.
+
+> diff -urpN linux-2.6.9/drivers/block/aoe/aoechr.c linux-2.6.9-aoe/drivers=
+/block/aoe/aoechr.c
+> --- linux-2.6.9/drivers/block/aoe/aoechr.c	1969-12-31 19:00:00.000000000 =
+-0500
+> +++ linux-2.6.9-aoe/drivers/block/aoe/aoechr.c	2004-12-06 10:40:00.000000=
+000 -0500
+> +struct file_operations aoe_fops =3D {
+> +	write:		aoechr_write,
+> +	read: 		aoechr_read,
+> +	open:		aoechr_open,
+> +	release:  	aoechr_rel,
+> +	owner:		THIS_MODULE,
+> +};
+
+C99
+
+> +u16
+> +nhget16(uchar *p)
+> +{
+> +	u16 n;
+> +
+> +	n =3D p[0];
+> +	n <<=3D 8;
+> +	return n |=3D p[1];
+> +}
+> +
+> +u32
+> +nhget32(uchar *p)
+> +{
+> +	u32 n;
+> +
+> +	n =3D nhget16(p);
+> +	n <<=3D 16;
+> +	return n |=3D nhget16(p+2);
+> +}
+> +
+> +void
+> +hnput16(uchar *p, u16 n)
+> +{
+> +	p[1] =3D n;
+> +	p[0] =3D n >>=3D 8;
+> +}
+> +
+> +void
+> +hnput32(uchar *p, u32 n)
+> +{
+> +	hnput16(p+2, n);
+> +	hnput16(p, n >>=3D 16);
+> +}
+> +
+> +u16
+> +lhget16(uchar *p)
+> +{
+> +	u16 n;
+> +
+> +	n =3D p[1];
+> +	n <<=3D 8;
+> +	return n |=3D p[0];
+> +}
+> +
+> +u32
+> +lhget32(uchar *p)
+> +{
+> +	u32 n;
+> +
+> +	n =3D lhget16(p+2);
+> +	n <<=3D 16;
+> +	return n |=3D lhget16(p);
+> +}
+> +
+> +u64
+> +lhget64(uchar *p)
+> +{
+> +	u64 n;
+> +
+> +	n =3D lhget32(p+4);
+> +	n <<=3D 32;
+> +	return n |=3D lhget32(p);
+> +}
+
+There are function available for this, look at the endianess header
+files.
+
+
+After all, especially keeping in mind that AoE isn't routeable, my
+thinking is that this had better written as a (E)NBD server process
+running in userspace. This way, you'd use the in-kernel NBD driver (or
+the ENBD which isn't in the kernel) and you the the routing stuff for
+free :)
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--a58rN+WbXIGauCK9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBtIchHb1edYOZ4bsRAqZwAKCSYiYBkidFS+tWirm2G2FXbYQxWQCgiVFs
+reglP0+YruRJNfWoh0Ac8lk=
+=O4w7
+-----END PGP SIGNATURE-----
+
+--a58rN+WbXIGauCK9--

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275193AbTHAH6U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 03:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275194AbTHAH6T
+	id S270692AbTHAIdL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 04:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275194AbTHAIdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 03:58:19 -0400
-Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:10467 "EHLO
-	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
-	id S275193AbTHAH6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 03:58:18 -0400
-X-Version: Mailcentro(english)
-X-SenderIP: 80.58.9.46
-X-SenderID: 7831070
-From: "Jose Luis Alarcon" <jlalarcon@chevy.zzn.com>
-Message-Id: <F759403221D30FB40B5B2C15610E4950@jlalarcon.chevy.zzn.com>
-Date: Fri, 1 Aug 2003 09:58:05 +0200
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: nathans@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: xfs problems (2.6.0-test2)
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
+	Fri, 1 Aug 2003 04:33:11 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28823
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S270692AbTHAIdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 04:33:10 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH][Trivial] documentation fix: driverfs->sysfs.
+Date: Fri, 1 Aug 2003 04:35:33 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308010050.33136.rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hi there,
->
->What XFS blocksize are you using, and what is your page size?
->There are known issues when using blocksizes smaller than the
->page size in the 2.6 XFS code at the moment.
->
+Patch against -test2.
 
-  Hi Nathan, and congratilations for the SGI work.
+diff -u linux-old/arch/i386/Kconfig linux-2.6.0-test2/arch/i386/Kconfig
+--- linux-old/arch/i386/Kconfig 2003-07-27 12:57:48.000000000 -0400
++++ linux-2.6.0-test2/arch/i386/Kconfig 2003-08-01 00:45:44.000000000 -0400
+@@ -621,7 +621,7 @@
+        help
+          Say Y or M here if you want to enable BIOS Enhanced Disk Drive
+          Services real mode BIOS calls to determine which disk
+-         BIOS tries boot from.  This information is then exported via driverfs.
++         BIOS tries boot from.  This information is then exported via sysfs.
 
-  Now i have a Mandrake with the 2.5.75 kernel and XFS in
-all partitions. The filesystem looks work very well.
+          This option is experimental, but believed to be safe,
+          and most disk controller BIOS vendors do not yet implement this feature.
 
-  I am planning install 2.6.0-test3 when it comes and i wanna
-ask you: how can i know what blocksize am i using?, and how
-know what is the page size in my system?.
-
-  Thanks you, very much, in advance.
-
-  Regards.
-
-  Jose.
+Rob
 
 
-http://linuxespana.scripterz.org
-
-FreeBSD RELEASE 4.8.
-Mandrake Linux 9.1 Kernel 2.5.75 XFS.
-Registered BSD User 51101.
-Registered Linux User #213309.
-Memories..... You are talking about memories. 
-Rick Deckard. Blade Runner.
-
-
-Get your Free E-mail at http://chevy.zzn.com
-___________________________________________________________
-Get your own Web-based E-mail Service at http://www.zzn.com

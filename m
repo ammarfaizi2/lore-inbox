@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267763AbSLSXpM>; Thu, 19 Dec 2002 18:45:12 -0500
+	id <S267665AbSLSXv3>; Thu, 19 Dec 2002 18:51:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267700AbSLSXpM>; Thu, 19 Dec 2002 18:45:12 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:58385
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267763AbSLSXpL>; Thu, 19 Dec 2002 18:45:11 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-From: Robert Love <rml@tech9.net>
-To: Con Kolivas <conman@kolivas.net>
-Cc: Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212201042.48161.conman@kolivas.net>
-References: <200212200850.32886.conman@kolivas.net>
-	 <1040337982.2519.45.camel@phantasy> <3E0253D9.94961FB@digeo.com>
-	 <200212201042.48161.conman@kolivas.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040341995.2521.81.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 18:53:16 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267669AbSLSXv3>; Thu, 19 Dec 2002 18:51:29 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:12225 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267665AbSLSXv2>; Thu, 19 Dec 2002 18:51:28 -0500
+Date: Thu, 19 Dec 2002 18:59:30 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200212192359.gBJNxUI09113@devserv.devel.redhat.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+In-Reply-To: <mailman.1040338801.24520.linux-kernel2news@redhat.com>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <mailman.1040338801.24520.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 18:42, Con Kolivas wrote:
+> Why are bugs automatically assigned to owners? 
+> 	If there was an unassigned category that would make it 
+> 	easy to query.
 
-> I guess this explains why my variable timeslice thingy in -ck helps on the 
-> desktop. Basically by shortening the timeslice it is masking the effect of 
-> the interactivity estimator under load. That is, it is treating the symptoms 
-> of having an interactivity estimator rather than tackling the cause.
+Query for "NEW" status for a component and do not put anything
+into "owner" fireld.
 
-You would probably get the same effect or better by setting
-prio_bonus_ratio lower (or off).
+> How else are those of us who want to help stabilize the 2.5 kernel supposed 
+> 	to know which bugs are being worked on and which are not? 
+> 	(Please dont tell me "email". Am I really supposed to email every 
+> 	person who has a bug asking if they are really working on it or not?)
 
-Setting it lower will also give less priority bonus/penalty and not
-reinsert the tasks so readily into the active array.
+Of course.
 
-Something like the attached patch may help...
+> Could you make a list of all the people who have volunteered to be
+> 	bugtracker maintainers and their respective kernel pieces. 
 
-	Robert Love
+This is a reasonable request, IMHO.
 
---- linux-2.5.52/kernel/sched.c	2002-12-19 18:47:53.000000000 -0500
-+++ linux/kernel/sched.c	2002-12-19 18:48:05.000000000 -0500
-@@ -66,8 +66,8 @@
- int child_penalty = 95;
- int parent_penalty = 100;
- int exit_weight = 3;
--int prio_bonus_ratio = 25;
--int interactive_delta = 2;
-+int prio_bonus_ratio = 5;
-+int interactive_delta = 1;
- int max_sleep_avg = 2 * HZ;
- int starvation_limit = 2 * HZ;
- 
+> Also a list of people who arent maintainers but are available to help 
+> 	could be useful for the owners to assign bugs to.
 
+That's putting a cart in front of a horse. Such people have
+to execute a simple Bugzilla to get lists, then select bugs
+which they like. This way the overhead of maintaining such
+lists disappears instantly.
 
-
+-- Pete

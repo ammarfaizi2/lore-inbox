@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbTGHOgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 10:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTGHOgX
+	id S267400AbTGHOls (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 10:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbTGHOls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 10:36:23 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:51361 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263285AbTGHOgU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 10:36:20 -0400
-Date: Tue, 8 Jul 2003 07:49:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: root@chaos.analogic.com
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
-Subject: Re: syscall __NR_mmap2
-Message-Id: <20030708074919.4d5db00d.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0307081033190.267@chaos>
-References: <Pine.LNX.4.53.0307071655470.22074@chaos>
-	<20030708003656.GC12127@mail.jlokier.co.uk>
-	<Pine.LNX.4.53.0307080749160.24488@chaos>
-	<20030708140546.GA15612@mail.jlokier.co.uk>
-	<Pine.LNX.4.53.0307081033190.267@chaos>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jul 2003 10:41:48 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:51212 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267400AbTGHOlq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 10:41:46 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: FAT statfs loop abort on read-error
+References: <5.0.2.1.2.20030704123653.03140b70@pop.puretec.de>
+	<20030706102410.2becd137.rddunlap@osdl.org>
+	<87u19ypc1j.fsf@devron.myhome.or.jp>
+	<20030707172431.A26138@infradead.org>
+	<874r1xi53w.fsf@devron.myhome.or.jp>
+	<20030708133349.A24315@infradead.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 08 Jul 2003 23:56:05 +0900
+In-Reply-To: <20030708133349.A24315@infradead.org>
+Message-ID: <87smphnk3e.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003 10:40:15 -0400 (EDT) "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+Christoph Hellwig <hch@infradead.org> writes:
 
-| On Tue, 8 Jul 2003, Jamie Lokier wrote:
-| 
-| > Richard B. Johnson wrote:
-| > > > The offset argument to mmap2 is divided by PAGE_SIZE.
-| > > > That is the whole point of mmap2 :)
-| > >
-| > > Okay. Do you know where that's documented? Nothing in linux/Documentation,
-| > > and nothing in any headers. Do you have to read the code to find out?
-| > >
-| > > So, the address is now the offset in PAGES, not bytes. Seems logical,
-| > > but there is no clue in any documentation.
-| >
-| > I found this great command which really helps.  Only 1337 kernel
-| > gnurus know about it, now u can be 1 2 :)
-| >
-| > $ man mmap2
-| > [...]
-| >        The  function mmap2 operates in exactly the same way as mmap(2), except
-| >        that the final argument specifies the offset into the file in units  of
-| >        the  system  page  size  (instead of bytes).
-| >
-| > -- Jamie
-| >
-| 
-| Yeah? So the Linux kernel now requires a specific vendor distribution?
-| Since when?
-| 
-| So, to get the proper documentation of the Linux Kernel, I now
-| need to purchase a vendor's distribution??? I think not. I think
-| the sys-calls need to be documented and I think that I have established
-| proof of that supposition.
+> On Tue, Jul 08, 2003 at 09:18:43PM +0900, OGAWA Hirofumi wrote:
+> > Thank you very much. I try it.
+> > 
+> > Please apply the following patch.
+> 
+> You've forgot to add yourself for the generic fat and msdosfs bits :)
 
-I can read that mmap2 man page by downloading the latest tarball
-from http://www.kernel.org/pub/linux/docs/manpages/ ,
-regardless of my distro.
+Ok. Please apply the following patch.
 
-And if what you want/need isn't there, aeb accepts contributions
-to it as well.
+ MAINTAINERS |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+diff -puN MAINTAINERS~maintainers-bk6 MAINTAINERS
+--- linux-2.5.74/MAINTAINERS~maintainers-bk6	2003-07-08 23:47:05.000000000 +0900
++++ linux-2.5.74-hirofumi/MAINTAINERS	2003-07-08 23:47:36.000000000 +0900
+@@ -2103,11 +2103,10 @@ L:	user-mode-linux-user@lists.sourceforg
+ W:	http://user-mode-linux.sourceforge.net
+ S:	Maintained
+ 	
+-VFAT FILESYSTEM:
+-P:	Gordon Chaffee
+-M:	chaffee@cs.berkeley.edu
++FAT/VFAT/MSDOS FILESYSTEM:
++P:	OGAWA Hirofumi
++M:	hirofumi@mail.parknet.co.jp
+ L:	linux-kernel@vger.kernel.org
+-W:	http://bmrc.berkeley.edu/people/chaffee
+ S:	Maintained
+ 
+ VIA 82Cxxx AUDIO DRIVER
+
+_
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,148 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbSJZTLQ>; Sat, 26 Oct 2002 15:11:16 -0400
+	id <S261475AbSJZTPl>; Sat, 26 Oct 2002 15:15:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261475AbSJZTLQ>; Sat, 26 Oct 2002 15:11:16 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:30428 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261459AbSJZTLO>; Sat, 26 Oct 2002 15:11:14 -0400
-Date: Sat, 26 Oct 2002 12:14:49 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       mingo@redhat.com, habanero@us.ibm.com
-cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
-Message-ID: <3022997410.1035634489@[10.10.2.3]>
-In-Reply-To: <200210251015.46388.efocht@ess.nec.de>
-References: <200210251015.46388.efocht@ess.nec.de>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S261485AbSJZTPl>; Sat, 26 Oct 2002 15:15:41 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:51125 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261475AbSJZTPk>;
+	Sat, 26 Oct 2002 15:15:40 -0400
+Message-ID: <3DBAEB64.1090109@colorfullife.com>
+Date: Sat, 26 Oct 2002 21:22:12 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH,RFC] faster kmalloc lookup
+Content-Type: multipart/mixed;
+ boundary="------------060408060206060505050903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> From my point of view, the reason for focussing on this was that
->> your scheduler degraded the performance on my machine, rather than
->> boosting it. Half of that was the more complex stuff you added on
->> top ... it's a lot easier to start with something simple that works
->> and build on it, than fix something that's complex and doesn't work
->> well.
-> 
-> You're talking about one of the first 2.5 versions of the patch. It
-> changed a lot since then, thanks to your feedback, too.
+This is a multi-part message in MIME format.
+--------------060408060206060505050903
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-OK, I went to your latest patches (just 1 and 2). And they worked!
-You've fixed the performance degradation problems for kernel compile
-(now a 14% improvement in systime), that core set works without 
-further futzing about or crashing, with or without TSC, on either 
-version of gcc ... congrats!
+kmalloc spends a large part of the total execution time trying to find 
+the cache for the passed in size.
 
-It also produces the fastest system time for kernel compile I've ever
-seen ... this core set seems to be good (I'm still less than convinced
-about the further patches, but we can work on those one at a time now
-you've got it all broken out and modular). Michael posted slightly 
-different looking results for virgin 44 yesterday - the main difference between virgin 44 and 44-mm4 for this stuff is probably the per-cpu 
-hot & cold pages (Ingo, this is like your original per-cpu pages).
+What about the attached patch (against 2.5.44-mm5)?
+It uses fls jump over the caches that are definitively too small.
 
-All results are for a 16-way NUMA-Q (P3 700MHz 2Mb cache) 16Gb RAM.
+--
+    Manfred
 
-Kernbench:
-                             Elapsed        User      System         CPU
-              2.5.44-mm4     19.676s    192.794s     42.678s     1197.4%
-        2.5.44-mm4-hbaum     19.422s    189.828s     40.204s     1196.2%
-      2.5.44-mm4-focht12     19.316s    189.514s     36.704s     1146.8%
+--------------060408060206060505050903
+Content-Type: text/plain;
+ name="patch-fast-kmalloc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-fast-kmalloc"
 
-Schedbench 4:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-              2.5.44-mm4       32.45       49.47      129.86        0.82
-        2.5.44-mm4-hbaum       31.31       43.85      125.29        0.84
-      2.5.44-mm4-focht12       38.50       45.34      154.05        1.07
+--- 2.5/mm/slab.c	Sat Oct 26 21:13:33 2002
++++ build-2.5/mm/slab.c	Sat Oct 26 20:40:09 2002
+@@ -424,6 +430,7 @@
+ 	CN("size-131072")
+ }; 
+ #undef CN
++static struct cache_sizes *malloc_hints[sizeof(size_t)*8];
+ 
+ struct arraycache_init initarray_cache __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
+ struct arraycache_init initarray_generic __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
+@@ -587,6 +594,7 @@
+ void __init kmem_cache_init(void)
+ {
+ 	size_t left_over;
++	int i;
+ 
+ 	init_MUTEX(&cache_chain_sem);
+ 	INIT_LIST_HEAD(&cache_chain);
+@@ -604,6 +612,18 @@
+ 	 * that initializes ac_data for all new cpus
+ 	 */
+ 	register_cpu_notifier(&cpucache_notifier);
++
++	for (i=0;i<sizeof(size_t)*8;i++) {
++		struct cache_sizes *csizep = malloc_sizes;
++		int size = (1<<i)/2+1;
++
++		for ( ; csizep->cs_size; csizep++) {
++			if (size > csizep->cs_size)
++				continue;
++			break;
++		}
++		malloc_hints[i] = csizep;
++	}
+ }
+ 
+ 
+@@ -1796,7 +1816,11 @@
+  */
+ void * kmalloc (size_t size, int flags)
+ {
+-	struct cache_sizes *csizep = malloc_sizes;
++	struct cache_sizes *csizep;
++	
++	if(unlikely(size<2))
++		size=2;
++	csizep = malloc_hints[fls((size-1))];
+ 
+ 	for (; csizep->cs_size; csizep++) {
+ 		if (size > csizep->cs_size)
 
-Schedbench 8:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-              2.5.44-mm4       39.90       61.48      319.26        2.79
-        2.5.44-mm4-hbaum       32.63       46.56      261.10        1.99
-      2.5.44-mm4-focht12       35.56       46.57      284.53        1.97
-
-Schedbench 16:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-              2.5.44-mm4       62.99       93.59     1008.01        5.11
-        2.5.44-mm4-hbaum       49.78       76.71      796.68        4.43
-      2.5.44-mm4-focht12       51.94       61.43      831.26        4.68
-
-Schedbench 32:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-              2.5.44-mm4       88.13      194.53     2820.54       11.52
-        2.5.44-mm4-hbaum       54.67      147.30     1749.77        7.91
-      2.5.44-mm4-focht12       55.43      119.49     1773.97        8.41
-
-Schedbench 64:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-              2.5.44-mm4      159.92      653.79    10235.93       25.16
-        2.5.44-mm4-hbaum       65.20      300.58     4173.26       16.82
-      2.5.44-mm4-focht12       56.49      235.78     3615.71       18.05
-
-There's a small degredation at the low end of schedbench (Erich's
-numa_test) in there ... would be nice to fix, but I'm less worried
-about that (where the machine is lightly loaded) than the other 
-numbers. Kernbench is just gcc-2.95-4 compiling the 2.4.17 kernel
-doing a "make -j24 bzImage".
-
-diffprofile 2.5.44-mm4 2.5.44-mm4-hbaum
-(for kernbench, + got worse by adding the patch, - got better)
-
-184 vm_enough_memory
-154 d_lookup
-83 do_schedule
-75 page_add_rmap
-73 strnlen_user
-58 find_get_page
-52 flush_signal_handlers
-...
--61 pte_alloc_one
--63 do_wp_page
--85 .text.lock.file_table
--96 __set_page_dirty_buffers
--112 clear_page_tables
--118 get_empty_filp
--134 free_hot_cold_page
--144 page_remove_rmap
--150 __copy_to_user
--213 zap_pte_range
--217 buffered_rmqueue
--875 __copy_from_user
--1015 do_anonymous_page
-
-diffprofile 2.5.44-mm4 2.5.44-mm4-focht12
-(for kernbench, + got worse by adding the patch, - got better)
-
-<nothing significantly degraded>
-....
--57 path_lookup
--69 do_page_fault
--73 vm_enough_memory
--77 filemap_nopage
--78 do_no_page
--83 __set_page_dirty_buffers
--83 __fput
--84 do_schedule
--97 find_get_page
--106 file_move
--115 free_hot_cold_page
--115 clear_page_tables
--130 d_lookup
--147 atomic_dec_and_lock
--157 page_add_rmap
--197 buffered_rmqueue
--236 zap_pte_range
--264 get_empty_filp
--271 __copy_to_user
--464 page_remove_rmap
--573 .text.lock.file_table
--618 __copy_from_user
--823 do_anonymous_page
-
+--------------060408060206060505050903--
 

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266468AbUBLOzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 09:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUBLOzq
+	id S266481AbUBLO7o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 09:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUBLO7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 09:55:46 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:11444 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S266468AbUBLOzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 09:55:45 -0500
-Date: Thu, 12 Feb 2004 09:47:34 -0500
-From: Ben Collins <bcollins@debian.org>
-To: walt <wa1ter@myrealbox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.3-rc2 bk]  ieee1394 oops on bootup
-Message-ID: <20040212144734.GA639@phunnypharm.org>
-References: <fa.fjveksa.v44uhu@ifi.uio.no> <402B92A4.7040703@myrealbox.com>
+	Thu, 12 Feb 2004 09:59:44 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36237
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266481AbUBLO7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 09:59:42 -0500
+Date: Thu, 12 Feb 2004 15:59:41 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
+Message-ID: <20040212145940.GU4478@dualathlon.random>
+References: <20040212022314.GS4478@dualathlon.random> <XFMail.20040212104215.pochini@shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <402B92A4.7040703@myrealbox.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <XFMail.20040212104215.pochini@shiny.it>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 06:50:12AM -0800, walt wrote:
-> walt wrote:
-> >This problem started with the bk changesets from Linus yesterday (11Feb).
-> >
-> >I get the oops below if Firewire is compiled into the kernel or if the
-> >modules are loaded at bootime (I'm using hotplug+udev).  The strange
-> >thing is that if I load the Firewire modules by hand after bootup then
-> >everything is okay....
+On Thu, Feb 12, 2004 at 10:42:15AM +0100, Giuliano Pochini wrote:
 > 
-> Sorry, I just discovered that this is wrong.  I can load the ieee1394
-> module with no errors.  It is only when I load the ohci1394 module
-> that the oops occurs -- even after booting.
+> On 12-Feb-2004 Andrea Arcangeli wrote:
+> 
+> > the main difference is that 2.4 isn't in function of time, it's in
+> > function of requests, no matter how long it takes to write a request,
+> > so it's potentially optimizing slow devices when you don't care about
+> > latency (deadline can be tuned for each dev via
+> > /sys/block/*/queue/iosched/).
+> 
+> IMHO it's the opposite. Transfer speed * seek time of some
+> slow devices is lower than fast devices. For example:
+> 
+> Hard disk  raw speed= 40MB/s   seek time =  8ms
+> MO/ZIP     raw speed=  3MB/s   seek time = 25ms
+> 
+> One seek of HD costs about 320KB, while on a slow drive it's
+> only 75KB. 2.4 has a terrible latency on slow devices, and it
+> has very small advantage in terms of speed. On CDs and DVDs
+> the cost of a seek is much higher, but since the data is
+> usually accessed sequentially you have the high latency
+> penalty with no appreciable speed gain in this case too.
 
-I've already got a fix for this. Getting ready to post it to the list.
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+I was thinking at old slow harddisks (5M/sec), and I don't think all
+data on cds is always accessed sequentially, you only need two tasks
+reading two files.

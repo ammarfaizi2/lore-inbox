@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUKAPpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266875AbUKAPqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbUKAPpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 10:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272779AbUKAPhX
+	id S266875AbUKAPqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 10:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbUKAPhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 10:37:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43527 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266753AbUKAOfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:35:16 -0500
-Date: Mon, 1 Nov 2004 14:35:10 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tim_T_Murphy@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
-Message-ID: <20041101143510.A5079@flint.arm.linux.org.uk>
-Mail-Followup-To: Tim_T_Murphy@Dell.com, linux-kernel@vger.kernel.org
-References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC7@ausx2kmps304.aus.amer.dell.com>
+	Mon, 1 Nov 2004 10:37:42 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:58067 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261949AbUKAPRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 10:17:37 -0500
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, xorg@freedesktop.org
+In-Reply-To: <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
+	 <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1099170891.1424.1.camel@krustophenia.net>
+	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <20041030222720.GA22753@hockin.org>
+	 <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Mon, 01 Nov 2004 10:17:33 -0500
+Message-Id: <1099322253.3647.5.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC7@ausx2kmps304.aus.amer.dell.com>; from Tim_T_Murphy@Dell.com on Mon, Nov 01, 2004 at 08:28:35AM -0600
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 08:28:35AM -0600, Tim_T_Murphy@Dell.com wrote:
-> > Ok, could you check whether this patch automatically detects 
-> > the serial port please?
+On Sun, 2004-10-31 at 07:49 +0100, Jan Engelhardt wrote:
+> Z Smith wrote:
+> >Or join me in my effort to limit bloat. Why use an X server
+> >that uses 15-30 megs of RAM when you can use FBUI which is 25 kilobytes
+> >of code with very minimal kmallocing?
 > 
-> Yes, other than fixing a couple typos: 
-> 	uart_offest -> uart_offset
-> 	PCI_ID_ANY -> PCI_ANY_ID
+> FBUI does not have 3d acceleration?
 
-Thanks for testing - I'll be adding this to mainline kernels.
+Um I don't think chucking X is the answer.  The problem is that it's
+embarassingly slow compared to any modern GUI.  If the display were as
+snappy as WinXP I don't care if it's 200MB.  On my desktop I constantly
+see windows redrawing every freaking widget in situations where XP would
+just blit from an offscreen buffer or something.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Anyway please keep replies off LKML and on the Xorg list...
+
+Lee
+

@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbTFXWLR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 18:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTFXWLR
+	id S262430AbTFXWOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 18:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTFXWOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 18:11:17 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:28940 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263171AbTFXWLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 18:11:15 -0400
-Message-ID: <3EF8D3A9.4040109@techsource.com>
-Date: Tue, 24 Jun 2003 18:41:45 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: John Bradford <john@grabjohn.com>, felipe_alfaro@linuxmail.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler & interactivity improvements
-References: <200306231244.h5NCiE1Q000920@81-2-122-30.bradfords.org.uk> <20030623163234.GA1184@hh.idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 Jun 2003 18:14:25 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:35079 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id S262430AbTFXWOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 18:14:18 -0400
+Message-Id: <200306242228.h5OMSIZq061503@sirius.nix.badanka.com>
+Date: Wed, 25 Jun 2003 00:28:17 +0200
+From: Henrik Persson <nix@syndicalist.net>
+To: azarah@gentoo.org
+Cc: rickh@capaccess.org, linux-kernel@vger.kernel.org
+Subject: Re: 4 is good. .00000001% is good.
+In-Reply-To: <1056492991.8026.46.camel@nosferatu.lan>
+References: <1056492991.8026.46.camel@nosferatu.lan>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Jun 2003 00:16:31 +0200
+Martin Schlemmer <azarah@gentoo.org> wrote:
 
-
-Helge Hafting wrote:
-> On Mon, Jun 23, 2003 at 01:44:14PM +0100, John Bradford wrote:
+> I have no idea if your project is any good or not, but the fact is that
+> this list is for issues regarding the linux kernel.
 > 
->>Well, no, opaque window moving is fine if the CPU isn't at 100%.  If
->>it is, I'd rather see choppy window movements than have a server
->>application starved of CPU.  That's just my preference, though.
->>
+> In general if you want people to start using your work, you need to make
+> sure it:
+> 1) Will be of use for them
+> 2) Will be of exceptional quality, so that it will be better than the
+>    competition, etc.
+> 3) Try not to be an annoying bastard.
 > 
-> That could be an interesting hack to a window manager - 
-> don't start the move in opaque mode when the load is high.
+> As for 1) and 2), I do not know, but in 3) your are starting to lean
+> toward not accomplishing it, as you keep pissing people like me off
+> that usually rather wont get involved in trolling.
+> 
+> Also, you should consider the fact that trying to publicly humiliate
+> someone usually points to a low self esteem ?  I do not know what
+> Alan Cox did to you, but do not want to read about it as:
+> 1) It has nothing to do with me and the other people on this list - mail
+>    him in private if it helps you sleep at night telling him how
+>    worthless his is.
+> 2) I do not give a flying f**k.
+> 
+> Please stop this shit, as I for one are starting to get fed up with
+> pointless threads that never seem to die, and just keeps filling
+> up my mailbox - I am sure I am not the only one.
 
-This isn't really an issue if the graphics engine is doing the work and 
-the X server doesn't busy-wait on the bitblt to finish (ie. does DMA or 
-calls ioctl to sleep until command-fifo-has-free-space interrupt).
+Nope, you are not the only one.
 
+Though I find all this kind of amusing, it would probably be best if the
+trolling would be off the list ;o)
+
+But err, amusing things like the www.alancoxonachip.com really makes my
+day. :o)
+
+-- 
+Henrik Persson  nix@syndicalist.net  http://nix.badanka.com

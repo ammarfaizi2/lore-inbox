@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265936AbSL3WsI>; Mon, 30 Dec 2002 17:48:08 -0500
+	id <S266774AbSL3WwK>; Mon, 30 Dec 2002 17:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbSL3WsH>; Mon, 30 Dec 2002 17:48:07 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56335 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265936AbSL3WsH>;
-	Mon, 30 Dec 2002 17:48:07 -0500
-Date: Mon, 30 Dec 2002 14:51:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>,
-       Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pnp & pci structure cleanups
-Message-ID: <20021230225134.GD814@kroah.com>
-References: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz> <20021230221212.GE32324@kroah.com> <1041289960.13684.180.camel@irongate.swansea.linux.org.uk> <20021230225012.GA19633@gtf.org>
+	id <S266650AbSL3WwJ>; Mon, 30 Dec 2002 17:52:09 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:46792 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266042AbSL3WwJ> convert rfc822-to-8bit; Mon, 30 Dec 2002 17:52:09 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <tomlins@cam.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Mon, 30 Dec 2002 15:00:29 -0800
+In-Reply-To: <200212301645.50278.tomlins@cam.org>
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230225012.GA19633@gtf.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021230230030.AAA103@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 05:50:12PM -0500, Jeff Garzik wrote:
-> On Mon, Dec 30, 2002 at 11:12:40PM +0000, Alan Cox wrote:
-> > On Mon, 2002-12-30 at 22:12, Greg KH wrote:
-> > > Yeah!  Thanks for taking these fields out of pci.h, I really appreciate
-> > > it.  I'll send this on to Linus in a bit.
-> > 
-> > Argh I was using those to implement a test "pci_compatible" driver so
-> > that you could feed new pci idents to old drivers. Oh well 
-> 
-> Note that we need a way to do field replacement of PCI id tables.
-> 
-> I've been harping on that to various ears for years :)
 
-And USB id tables.  A number of usb drivers are slowly adding module
-paramater hacks to get around this, but it would be really nice to do
-this "correctly" for all drivers.  Somehow...
+On Mon, 30 Dec 2002 16:45:50 -0500, Ed Tomlinson wrote:
 
-> <tangent>
-> I also want to add PCI revision id and mask to struct pci_device_id.
-> </tangent>
+>What this patches does is recognise threads as process that clone both
+>mm and files.  For these 'threads' it tracks how many are active in a
+>given group.  When many are active it reduces their timeslices as below
 
-Do any drivers need that today?  It shouldn't be that hard to do it, and
-now is the time :)
+	In general, changes that cause the system to become less efficient as load 
+increases are not such a good idea. By reducing timeslices, you increase 
+context-switching overhead. So the busier you are, the less efficient you 
+get. I think it would be wiser to keep the timeslice the same but assign 
+fewer timeslices.
 
-thanks,
+	DS
 
-greg k-h
+

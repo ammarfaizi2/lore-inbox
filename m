@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSBKT0w>; Mon, 11 Feb 2002 14:26:52 -0500
+	id <S290236AbSBKT3t>; Mon, 11 Feb 2002 14:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290236AbSBKTY4>; Mon, 11 Feb 2002 14:24:56 -0500
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:32527 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S290229AbSBKTYh>; Mon, 11 Feb 2002 14:24:37 -0500
-Date: Mon, 11 Feb 2002 16:30:59 +0000
-From: Nick Craig-Wood <ncw@axis.demon.co.uk>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what serial driver restructure is planned?
-Message-ID: <20020211163059.A22996@axis.demon.co.uk>
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A768A@EXCHANGE> <20020207102144.B15226@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020207102144.B15226@flint.arm.linux.org.uk>; from linux@arm.linux.org.uk on Thu, Feb 07, 2002 at 10:21:44AM +0000
+	id <S290249AbSBKT3f>; Mon, 11 Feb 2002 14:29:35 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56582 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290237AbSBKT2k>; Mon, 11 Feb 2002 14:28:40 -0500
+Date: Mon, 11 Feb 2002 14:26:36 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Rohland <cr@sap.com>,
+        Andries.Brouwer@cwi.nl, hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <Pine.LNX.4.33L2.0202111010560.10878-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.96.1020211142113.642E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 10:21:44AM +0000, Russell King - ARM Linux wrote:
-> It basically started out by pulling 65K worth of the duplicated code out
-> of various serial drivers.  Its currently moving towards allowing the
-> input layer to talk to serial devices (needed for things like iPAQ
-> keyboards and IrDA-based keyboards), as well as allowing things like
-> USB serial devices to use the core code.
+On Mon, 11 Feb 2002, Randy.Dunlap wrote:
 
-Could we also have an interface to serial devices which bypass the tty
-layer?  Ie a /dev/ttyraw* which just speaks to the serial port without
-going through the labyrinthine tty layers?
+> On Sat, 9 Feb 2002, Bill Davidsen wrote:
+> 
+> | On Wed, 6 Feb 2002, Randy.Dunlap wrote:
+> |
+> | > I still prefer your suggestion to append it to the kernel image
+> | > as __initdata so that it's discarded from memory but can be
+> | > read with some tool(s).
+> |
+> | The problem is that it make the kernel image larger, which lives in /boot
+> | on many systems. Putting it in a module directory, even if not a module,
+> | would be a better place for creative boot methods, of which there are
+> | many.
+> 
+> Yes, it can add a few KB to a kernel image.
+> Some people could think that it's worth it...especially
+> if it's a build option.
 
-This would need to keep some basic ioctls for changing baud rate etc.
+The capability is definitely desirable, I think it's just implementation
+being discussed.
+ 
+> I prefer this to using /proc/config.gz (which SuSE currently does),
+> since the config data won't be in permanent memory, and it's
+> attached to a kernel image on disk -- the kernel doesn't have to
+> be loaded in memory to view it.  (or maybe there's a way to
+> view config.gz in a SuSE kernel image ?)
+> 
+> I don't see how making it a binary module (living in
+> /lib/modules/version/kernel/configs.o e.g.) has any advantages
+> over kbuild (?) just copying the .config file to
+> /lib/modules/2.5.4/.config .
 
-9 times out of 10 when I reach for /dev/ttyS* that is all I want and
-the tty layer is just wasteful and gets in the way of a conceptually
-very simple device.
+There are already uncompressed pure text files in the modules directory,
+such as modules.dep. Adding one more is probably not a space issue on most
+systems, while kernel size may be, since it has to be present at boot.
 
-> Some people would also like to see a "serial major" where all serial
-> devices live.
-
-Gets my vote.
+I don't have any issue with allowing a symbolic link in /proc down to the
+config, if people want it there. I always Slink the /lib/modules/xxx dir
+to /boot/Modules and the current symbols to /boot/System.map as well.
+Links in known places are good.
 
 -- 
-Nick Craig-Wood
-ncw@axis.demon.co.uk
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

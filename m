@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272287AbRIPHP2>; Sun, 16 Sep 2001 03:15:28 -0400
+	id <S273179AbRIPIDq>; Sun, 16 Sep 2001 04:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273170AbRIPHPS>; Sun, 16 Sep 2001 03:15:18 -0400
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:7437 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S272287AbRIPHPE>; Sun, 16 Sep 2001 03:15:04 -0400
-Posted-Date: Sun, 16 Sep 2001 07:09:14 GMT
-Date: Sun, 16 Sep 2001 08:09:14 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Vinolin <vinolin@nodeinfotech.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Latest stable
-In-Reply-To: <006c01c13b90$104b8a40$080aa8c0@nodeinfotech.com>
-Message-ID: <Pine.LNX.4.21.0109160803210.24288-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273176AbRIPID0>; Sun, 16 Sep 2001 04:03:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:14605 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S273174AbRIPIDX>;
+	Sun, 16 Sep 2001 04:03:23 -0400
+Date: Sun, 16 Sep 2001 10:03:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: kelley eicher <keicher@nws.gov>, J <jack@i2net.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 0-order allocation failed in 2.4.10-pre8
+Message-ID: <20010916100325.B1045@suse.de>
+In-Reply-To: <3BA24EB0.5000402@i2net.com> <Pine.LNX.4.33.0109141342340.14906-100000@home.nohrsc.nws.gov> <20010914210903.E806@suse.de> <20010916015917Z16125-2757+260@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010916015917Z16125-2757+260@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vinolin.
+On Sun, Sep 16 2001, Daniel Phillips wrote:
+> > Use the
+> > 
+> > *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.9/block-highmem-all
+> > 
+> > patch and you can use highmem without having to worry about failed
+> > 0-order bounce pages allocations.
+> 
+> Right, by using 64 bit DMA instead of bounce buffers.  But aren't there cases
+> where the 64 bit capable hardware isn't there but somebody still wants to use
+> highmem?
 
-> Can you please reply me "which is the stable version of linux" now?
+Yes of course. The common case is not 64-bit dma here though, it's just
+being able to DMA to highmem pages (just full 32-bit dma instead of low
+memory dma). And that should cover most systems out there.
 
-That depends what you mean by "stable", as there are currently two
-parallel stable development trees:
-
- 1. "Stable and ready for production use" is the latest 2.2 series
-    kernel, found at ftp://ftp.kernel.org/pub/linux/kernel/v2.2/ on
-    the Internet.
-
- 2. "Stable but untested in production use" is the latest 2.4 series
-    kernel, found at ftp://ftp.kernel.org/pub/linux/kernel/v2.4/ on
-    the Internet.
-
-Basically, the 2.4 series kernels are stable and contain all the latest
-kernel technology, but you are advised to test your setup on a system
-whose stability doesn't matter and satisfy yourself that they are
-suitable for your use.
-
-Best wishes from Riley.
+-- 
+Jens Axboe
 

@@ -1,36 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277024AbRKHRvf>; Thu, 8 Nov 2001 12:51:35 -0500
+	id <S277012AbRKHRvp>; Thu, 8 Nov 2001 12:51:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276988AbRKHRv0>; Thu, 8 Nov 2001 12:51:26 -0500
-Received: from zero.tech9.net ([209.61.188.187]:48656 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S276751AbRKHRvV>;
-	Thu, 8 Nov 2001 12:51:21 -0500
-Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
-From: Robert Love <rml@tech9.net>
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111081141270.4578-100000@rtlab.med.cornell.edu>
-In-Reply-To: <Pine.LNX.4.30.0111081141270.4578-100000@rtlab.med.cornell.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 08 Nov 2001 12:51:34 -0500
-Message-Id: <1005241894.939.37.camel@phantasy>
-Mime-Version: 1.0
+	id <S276988AbRKHRvf>; Thu, 8 Nov 2001 12:51:35 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61673 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277012AbRKHRvb>; Thu, 8 Nov 2001 12:51:31 -0500
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andreas Dilger <adilger@turbolabs.com>, ak@muc.de, andrewm@uow.edu.au,
+        "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+        owner-netdev@oss.sgi.com, tim@physik3.uni-rostock.de
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFD59796BB.88D69925-ON88256AFE.006169C1@boulder.ibm.com>
+From: "Krishna Kumar" <kumarkr@us.ibm.com>
+Date: Thu, 8 Nov 2001 09:47:17 -0800
+X-MIMETrack: Serialize by Router on D03NM066/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 11/08/2001 10:51:16 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-08 at 11:46, Calin A. Culianu wrote:
-> Hi, I am wondering if maybe there are any lingering Athlon bugs in Kernel
-> 2.4.14?
-> [...]
-> Any help/advice/thoughts/even flames would be appreciated... :)
 
-Would you mind trying Alan's tree?  Get linux-2.4.13 and
-patch-2.4.13-ac7.  The newest is 2.4.13-ac8, but stick with 7 for now.
+Hi Linus,
 
-Ie, give kernel 2.4.13-ac7 a whirl.
+Thanks for your clarification, it does make sense. I did only
+the jiffies overflowing case, and missed the case where it
+does not overflow.
 
-	Robert Love
+Thanks,
+
+- KK
+-----------------------------------------------------------------------------
+
+Ok.
+
+Let's give an example. HZ is 100, and we started just before jiffies
+wrapped, and we want to check that we're within one second.
+
+So "start" equals 0xfffffff0, and "jiffies" equals 0xfffffff5.
+
+The first if-statement will say
+
+           if (0xfffffff5 <= 0xfffffff0+100)
+
+which is the same as
+
+           if (0xfffffff5 <= 0x54)
+
+which is
+
+           if (0)
+
+in short, the first statement will say that jiffies is _not_ within 100
+ticks of "start", which is obviously wrong. Jiffies _is_ within 100 ticks,
+it is in fact just 5 ticks after "start".
+
+The second statement will say
+
+           if (0xfffffff5 - 0xfffffff0 <= 100)
+
+which is
+
+           if (5 <= 100)
+
+which is
+
+           if (1)
+
+which is _correct_. We _are_ within 100 ticks.
+
+See?
+
+Ok, that was wrap-around one way: the "+HZ" wrapped. Let's see the other
+case, which is that "jiffies" has wrapped: start is still 0xfffffff0, but
+jiffies has wrapped around and is 0x00000001.
+
+The first if-statement will say
+
+           if (0x00000001 <= 0xfffffff0+100)
+
+which is
+
+           if (0x00000001 <= 0x54)
+
+which is
+
+           if (1)
+
+which is correct. The second one will say
+
+           if (0x00000001 - 0xfffffff0 <= 100)
+
+which is
+
+           if (11 <= 100)
+
+which is
+
+           if (1)
+
+which is correct.
+
+In short, the _correct_ one ALWAYS gets the right answer. Even when the
+subtraction overflows.
+
+While the first (and incorrect one) gets the wrong answer when the
+addition overflows.
+
+Do you see the difference now?
+
+                     Linus
 

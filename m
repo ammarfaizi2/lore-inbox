@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317373AbSFHA5z>; Fri, 7 Jun 2002 20:57:55 -0400
+	id <S317372AbSFHA5B>; Fri, 7 Jun 2002 20:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317374AbSFHA5y>; Fri, 7 Jun 2002 20:57:54 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:12672
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP
-	id <S317373AbSFHA5x>; Fri, 7 Jun 2002 20:57:53 -0400
-Message-Id: <200206080057.g580vmJh001282@orion.dwf.com>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: I2C stuff has undefined externals in 2.4.18
+	id <S317373AbSFHA5A>; Fri, 7 Jun 2002 20:57:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:56848 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317372AbSFHA5A>;
+	Fri, 7 Jun 2002 20:57:00 -0400
+Date: Sat, 8 Jun 2002 02:57:00 +0200
+From: Dave Jones <davej@suse.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        diego@biurrun.de, jerry.c.t@web.de, mike@pieper-family.de,
+        hollis@austin.ibm.com
+Subject: Re: Updates to matroxfb: do you want DFP or TVOut on G450/G550?
+Message-ID: <20020608025700.B13140@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Petr Vandrovec <vandrove@vc.cvut.cz>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, diego@biurrun.de, jerry.c.t@web.de,
+	mike@pieper-family.de, hollis@austin.ibm.com
+In-Reply-To: <20020608004539.GB5090@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Jun 2002 18:57:48 -0600
-From: reg@dwf.com
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tried building the I2C stuff in 2.4.18, 
-I selected 
-	I2C support
-and     I2C /proc interface.
+On Sat, Jun 08, 2002 at 02:45:39AM +0200, Petr Vandrovec wrote:
+ > (4) You can read PINS through /proc.
+ > (H) Change /proc code to use driverfs instead. Linus refused
+ >     /proc based code already.
 
-as modules.  
-The compile went ok, but the depmod after the install claimed that
-	i2c-hydra
-	i2c-i810
-	i2c-via
-	i2c-voodoo3
-all had undefined externals.
-Does someone familiar with the code want to take a look?
+One of the first things I ever wrote for Linux was a PINS decoder.
+It read from /dev/mem to get the PINS structure. Any reason
+why this isn't good enough, and we need the kernel exporting PINS ?
 
+
+        Dave
 
 -- 
-                                        Reg.Clemens
-                                        reg@dwf.com
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

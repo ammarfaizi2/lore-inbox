@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbTIHSKp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTIHSKp
+	id S263460AbTIHSSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTIHSSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:10:45 -0400
-Received: from hoemail1.lucent.com ([192.11.226.161]:57493 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S263439AbTIHSKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:10:40 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Sep 2003 14:18:15 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:7586 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S263460AbTIHSSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 14:18:13 -0400
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+From: Stian Jordet <liste@jordet.nu>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Cc: linux-kernel@vger.kernel.org, dri-users@lists.sourceforge.net
+In-Reply-To: <1063044345.1895.10.camel@hades>
+References: <1063044345.1895.10.camel@hades>
+Content-Type: text/plain
+Message-Id: <1063045080.21991.13.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 08 Sep 2003 18:18:01 +0000
 Content-Transfer-Encoding: 7bit
-Message-ID: <16220.50701.478007.233356@gargle.gargle.HOWL>
-Date: Mon, 8 Sep 2003 14:10:21 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware supported by the kernel
-Newsgroups: hometree.linux.kernel
-In-Reply-To: <bjidv8$9cl$1@tangens.hometree.net>
-References: <3F59DF81.8000407@bluewin.ch>
-	<20030906134029.GE69@DervishD>
-	<20030907223258.GE28927@redhat.com>
-	<20030908092952.GA51@DervishD>
-	<20030908095357.GD10358@redhat.com>
-	<bjidv8$9cl$1@tangens.hometree.net>
-X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+man, 08.09.2003 kl. 18.05 skrev Mika Liljeberg:
+> Hi All,
+> 
+> Just in case anyone is interested, ATI has released version 3.2.5 of
+> their FireGL driver for XFree86. The driver supports all their high end
+> graphics cards. This is the first version that has DRM support for the
+> 2.6 series of kernels.
 
-Henning> Dave Jones <davej@redhat.com> writes:
->> Matrox - Not exactly a speed demon any more in the 3d market. Open
->> drivers though. Not sure about Parhelia.
+Well.. Not really :)
 
-Henning> LOL. Buying a G550 was the biggest mistake I ever did. DVI-D
-Henning> support only with a binary only module and still a heavy bug
-Henning> in it (basically it takes a 90 second break when starting X).
+chevrolet:/lib/modules/fglrx/build_mod/2.6.x# make
+make -C /lib/modules/2.6.0-test4/build
+SUBDIRS=/lib/modules/fglrx/build_mod/2.6.x modules
+make[1]: Entering directory `/usr/src/linux-2.6.0-test4'
+make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
+*** Warning: Overriding SUBDIRS on the command line can cause
+***          inconsistencies
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agp3.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/nvidia-agp.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agpgart_be.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/i7505-agp.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/firegl_public.o
+/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
+`firegl_stub_open':
+/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:421: error: called
+object is not a function
+/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
+`__ke_inode_rdev_minor':
+/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:847: warning:
+implicit declaration of function `minor'
+make[2]: *** [/lib/modules/fglrx/build_mod/2.6.x/firegl_public.o] Error
+1
+make[1]: *** [/lib/modules/fglrx/build_mod/2.6.x] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.0-test4'
+make: *** [kmod_build] Error 2
+chevrolet:/lib/modules/fglrx/build_mod/2.6.x#
 
-I've got a couple of G200s and a G450 as my main display.  I'm more
-interested in wonderfully sharp 2-D display, not so much in 3-D.
-Everything I've read says that the Matrox still makese the best 2d
-boards...
+Regards,
+Stian
 
-John

@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTEZRKa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTEZRKa
+	id S261798AbTEZRHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEZRHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:10:30 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:49880 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261807AbTEZRK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:10:29 -0400
-Date: Mon, 26 May 2003 19:22:41 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 patches: description.
-Message-ID: <20030526172241.GA3748@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 26 May 2003 13:07:24 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:3477 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261798AbTEZRHX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:07:23 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 26 May 2003 10:20:18 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Thomas Winischhofer <thomas@winischhofer.net>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sis650 irq router fix for 2.4.x 
+In-Reply-To: <3ED21CE3.9060400@winischhofer.net>
+Message-ID: <Pine.LNX.4.55.0305261006420.2419@bigblue.dev.mcafeelabs.com>
+References: <3ED21CE3.9060400@winischhofer.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-10 patches for s390, some with important fixes - at least for s390.
+On Mon, 26 May 2003, Thomas Winischhofer wrote:
 
-Short descriptions:
-1) Various s390 bug fixes. The most important is the one in pgtable.h.
-   The bits for the invalid pages did not include the invalid bit ...
-   This patch also contains the do_fork patch I sent to linux-arch.
-2) Optimze s390 inline assemblies.
-3) Add module alias support for ccw devices.
-4) Add "steal lock" support to the common i/o layer. This is needed for dasd
-   devices that have been reserved but not released. To get them going again
-   you'll have to steal the lock.
-5) Remove remaining MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT pairs from s390 code. 
-6) 32 bit compatabiliy fixes. We now use the new compat ioctl mechanism.
-   Define compat_alloc_user_space.
-7) Bug fixes for the s390 block device drivers (dasd and xpram).
-8) Bug fixes for the s390 console drivers (3215 and sclp).
-9) Bug fixes for the s390 tape device driver.
-10) Bug fixes for the s390 network devices drivers (ctc, lcs and iucv).
+>
+> How many samples of the SiS650 did you have for testing?
 
-Patches are against linux-bk as of 2003/05/26.
+Only the following ...
 
-blue skies,
-  Martin.
+
+> -) a M650 (host bridge ID 1039:0650, rev 11),
+>     with ISA bridge (1039:0008) revision 0x04, and
+
+Can you send me a "lscpi -vxxx" of this machine ?
+
+
+
+> and I had (and have) no problems with irqs or USB (or anything) on any
+> of these machines.
+>
+> Are you sure that checking the revision number of the device is enough?
+>
+> Are you aware of the fact that SiS only produces the chips but never the
+> mainboards, and that SiS chips are in a 1000 ways "customizible" which
+> not in a single case I came accross so far was detectable by the device
+> revision number?
+
+Well, it can't get easier than that. My machine (CPQ Presario 3045US)
+issues router requests for 0x60...0x63 for the 3 OHCI and 1 EHCI, and
+without the patch USB does not come up not even if you start crying like a
+baby. The patch also add the "stdroute" thingy that will enable future
+cases like mine, to boot the kernel without requiring any other patches
+(at least for pass thru router requests like the one I'm seeing here).
+
+
+
+- Davide
 

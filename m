@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315943AbSENSAY>; Tue, 14 May 2002 14:00:24 -0400
+	id <S315946AbSENSAf>; Tue, 14 May 2002 14:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315944AbSENSAX>; Tue, 14 May 2002 14:00:23 -0400
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:56505 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S315943AbSENSAW>; Tue, 14 May 2002 14:00:22 -0400
-Date: Tue, 14 May 2002 13:59:40 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow.websense.net
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Dead2 <dead2@circlestorm.org>
-cc: Tigran Aivazian <tigran@veritas.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Initrd or Cdrom as root
-In-Reply-To: <009701c1fb6f$68282e90$0d01a8c0@studio2pw0bzm4>
-Message-ID: <Pine.LNX.4.44.0205141357410.2626-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315945AbSENSAd>; Tue, 14 May 2002 14:00:33 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:39282 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S315944AbSENSAb>; Tue, 14 May 2002 14:00:31 -0400
+Date: Tue, 14 May 2002 13:00:23 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200205141800.NAA73317@tomcat.admin.navo.hpc.mil>
+To: mark@mark.mielke.cc, Elladan <elladan@eskimo.com>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+Cc: Christoph Hellwig <hch@infradead.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Mr. Expired,
+Mark Mielke <mark@mark.mielke.cc>:
+> 
+> Notice how the space can only be filled up if a setuid program is used
+> to actually fill it up. Even if it is a partial 'security feature', every
+> administrator knows that setuid violates security in a non-natural way.
 
-On Tue, 14 May 2002, Dead2 wrote:
+Actually, any existing daemon (read "syslog") can use this space. This is
+partly why it is a "security feature" so that the logs can still get to disk
+even if the filesystem is "full".
 
-> Unfortunately it boots too fast for me to see that message..
+> 1) Provide a patch and see if it is accepted.
 
-dmesg | less
-less /var/log/dmesg
-	Some distributions save the boot time dmesg output here.
-	Cheers,
-	- Bill
+Patch not necessary - it is a tuneable feature. All that is missing is
+an understanding of what the reservation is/can be used for.
 
----------------------------------------------------------------------------
-        "Of course my password is the same as my pet's name.  My dog's
-name was Q47pY!3$H9x, but I change it every 90 days."
-        -- Ken Pfeil <kpfeil@MIRADIANT.COM>
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                        http://www.stearns.org
---------------------------------------------------------------------------
+> 2) Convince somebody else that they should put time into features of
+>    questionable value such as this one.
 
+Already done - see "man tune2fs".
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

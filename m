@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUHPKml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUHPKmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267521AbUHPKml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 06:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUHPKmk
+	id S267527AbUHPKmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 06:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHPKmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 06:42:40 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:58046 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267528AbUHPKmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 16 Aug 2004 06:42:31 -0400
-Date: Mon, 16 Aug 2004 11:42:00 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Keith Whitwell <keith@tungstengraphics.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: DRM and 2.4 ...
-In-Reply-To: <20040816101426.GB31696@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0408161137330.21177@skynet>
-References: <Pine.LNX.4.58.0408160652350.9944@skynet>
- <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com>
- <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com>
- <20040816101426.GB31696@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from viper.oldcity.dca.net ([216.158.38.4]:58277 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267527AbUHPKmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 06:42:14 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Scott Wood <scott@timesys.com>
+In-Reply-To: <s5h8ycfbc5c.wl@alsa2.suse.de>
+References: <1090732537.738.2.camel@mindpipe>
+	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <1091141622.30033.3.camel@mindpipe> <20040730064431.GA17777@elte.hu>
+	 <1091228074.805.6.camel@mindpipe> <s5hfz75sh30.wl@alsa2.suse.de>
+	 <1091847265.949.8.camel@mindpipe>  <s5h8ycfbc5c.wl@alsa2.suse.de>
+Content-Type: text/plain
+Message-Id: <1092652981.13981.11.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 06:43:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-16 at 06:38, Takashi Iwai wrote:
+> Hi,
+> 
+> (sorry for late reply, just back from vacation)
+> 
+> At Fri, 06 Aug 2004 22:54:26 -0400,
+> Lee Revell wrote:
+> > 
+> > On Mon, 2004-08-02 at 11:19, Takashi Iwai wrote:
+> > > At Fri, 30 Jul 2004 18:54:39 -0400,
+> > > Lee Revell wrote:
+> > > > 
+> > > > I discovered that a few of the XRUN traces were spurious - jackd
+> > > > apparently does something while stopping and starting that produces an
+> > > > XRUN trace but that jackd does not consider an error.  I will fix this
+> > > > in jackd.  The msync() related XRUN triggered by apt-get is definitely
+> > > > real.
+> > > 
+> > > Yes.  There is a bogus report at stopping (snd_pcm_drain is called).
+> > > It was fixed in the recent ALSA cvs tree, but seems not propagated to
+> > > bk yet...
+> > > 
+> > 
+> > It also seems to produce an xrun at startup.  This is with the latest
+> > ALSA CVS.  Is this behavior by design?
+> 
+> No, this is not.  It should be a real XRUN, I believe.
+> 
 
->
-> DRM_IOCTL_ARGS, DRM_ERR, DRM_CURRENTPID, DRM_UDELAY, DRM_READMEMORYBARRIER,
-> DRM_COPY_FROM_USER_IOCTL etc etc existed prior to freebsd support? Oh my
-> god...
+This one has still defied explanation.  The working theory was that it
+was the same bug causing an xrun if an unrelated process called
+mlockall, but now that bug has been fixed, and this xrun at startup
+still happens.
 
-I'm currently open for constructive critics with ideas on how to fix these
-things, the DRM is open for business if we can fix things up now it will
-be a lot easier while I'm knee deep with time than after I'm finished and
-back travelling .. should we have try to implement Linux fns in BSD, what
-do we do if more parameters/info are needed from a BSD side, or do we try
-and sideline all these into a separate library of functions and wrap them
-on both bsd and linux?
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Lee
 

@@ -1,120 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316993AbSFFRut>; Thu, 6 Jun 2002 13:50:49 -0400
+	id <S317026AbSFFRxZ>; Thu, 6 Jun 2002 13:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSFFRus>; Thu, 6 Jun 2002 13:50:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49926 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316993AbSFFRur>;
-	Thu, 6 Jun 2002 13:50:47 -0400
-Date: Thu, 6 Jun 2002 18:50:48 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-        Trivial Kernel Patches <trivial@rustcorp.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] fs/locks.c: remove MSNFS define
-Message-ID: <20020606185048.K27186@parcelfarce.linux.theplanet.co.uk>
+	id <S317035AbSFFRxY>; Thu, 6 Jun 2002 13:53:24 -0400
+Received: from 24-205-207-61.cs-dyn.charterpipeline.net ([24.205.207.61]:37508
+	"EHLO tarot.internal.aom.geek") by vger.kernel.org with ESMTP
+	id <S317026AbSFFRxX>; Thu, 6 Jun 2002 13:53:23 -0400
+Date: Thu, 6 Jun 2002 10:52:59 -0700
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: 3dfx framebuffer driver borked in 2.5.19 kernel
+Message-ID: <20020606175259.GB14272@ahrairah.internal.aom.geek>
+In-Reply-To: <20020530165031.GA18544@kira.glasswings.com.au> <Pine.LNX.4.10.10205301139260.9282-100000@www.transvirtual.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
+From: idalton@ferret.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch removes the MSNFS defines.  These locks have a wider purpose
-than emulating Microsoft NFS semantics.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- fs/locks.c2	Thu Jun  6 11:25:15 2002
-+++ fs/locks.c3	Thu Jun  6 11:44:03 2002
-@@ -1,4 +1,3 @@
--#define MSNFS	/* HACK HACK */
- /*
-  *  linux/fs/locks.c
-  *
-@@ -576,10 +575,8 @@
- 	 */
- 	if (!IS_FLOCK(sys_fl) || (caller_fl->fl_file == sys_fl->fl_file))
- 		return (0);
--#ifdef MSNFS
- 	if ((caller_fl->fl_type & LOCK_MAND) || (sys_fl->fl_type & LOCK_MAND))
- 		return 0;
--#endif
- 
- 	return (locks_conflict(caller_fl, sys_fl));
- }
-@@ -1029,10 +1026,8 @@
- }
- 
- static inline int flock_translate_cmd(int cmd) {
--#ifdef MSNFS
- 	if (cmd & LOCK_MAND)
- 		return cmd & (LOCK_MAND | LOCK_RW);
--#endif
- 	switch (cmd &~ LOCK_NB) {
- 	case LOCK_SH:
- 		return F_RDLCK;
-@@ -1325,11 +1320,7 @@
- 	type = error;
- 
- 	error = -EBADF;
--	if ((type != F_UNLCK)
--#ifdef MSNFS
--		&& !(type & LOCK_MAND)
--#endif
--		&& !(filp->f_mode & 3))
-+	if ((type != F_UNLCK) && !(type & LOCK_MAND) && !(filp->f_mode & 3))
- 		goto out_putf;
- 
- 	lock_kernel();
-@@ -1718,27 +1709,25 @@
- 			      (inode->i_mode & (S_IXGRP | S_ISGID)) == S_ISGID) ?
- 			     "MANDATORY" : "ADVISORY ");
- 	} else if (IS_FLOCK(fl)) {
--#ifdef MSNFS
- 		if (fl->fl_type & LOCK_MAND) {
- 			out += sprintf(out, "FLOCK  MSNFS     ");
--		} else
--#endif
-+		} else {
- 			out += sprintf(out, "FLOCK  ADVISORY  ");
-+		}
- 	} else if (IS_LEASE(fl)) {
- 		out += sprintf(out, "LEASE  MANDATORY ");
- 	} else {
- 		out += sprintf(out, "UNKNOWN UNKNOWN  ");
- 	}
--#ifdef MSNFS
- 	if (fl->fl_type & LOCK_MAND) {
- 		out += sprintf(out, "%s ",
- 			       (fl->fl_type & LOCK_READ)
- 			       ? (fl->fl_type & LOCK_WRITE) ? "RW   " : "READ "
- 			       : (fl->fl_type & LOCK_WRITE) ? "WRITE" : "NONE ");
--	} else
--#endif
-+	} else {
- 		out += sprintf(out, "%s ",
- 			       (fl->fl_type & F_WRLCK) ? "WRITE" : "READ ");
-+	}
- 	out += sprintf(out, "%d %s:%ld ",
- 		     fl->fl_pid,
- 		     inode ? kdevname(inode->i_dev) : "<none>",
-@@ -1818,7 +1807,6 @@
- 	return length;
- }
- 
--#ifdef MSNFS
- /**
-  *	lock_may_read - checks that the region is free of locks
-  *	@inode: the inode that is being read
-@@ -1892,7 +1880,6 @@
- 	unlock_kernel();
- 	return result;
- }
--#endif
- 
- static int __init filelock_init(void)
- {
+On Thu, May 30, 2002 at 11:40:14AM -0700, James Simmons wrote:
+>=20
+> > With the port to the new fbdev interface in kernel
+> > 2.5.19 the system now only displays a few unchanging coloured pixels
+> > on the first line of the screen.  The rest of the screen remains black
+> > until X11 starts.  I am using append=3D"video=3Dtdfx:1024x768" in LILO.
+>=20
+> I'm tracking down the bug you are experiencing. Almost done.=20
 
--- 
-Revolutions do not require corporate support.
+Does the new interface handle multihead any better? I have a dual tdfx
+system..
+
+Am interested in testing patches. Head up?
+
+--=20
+Ferret
+
+-- Support your government, give Echelon / Carnivore something to parse --
+classfield top-secret government restricted data  information project  CIA
+Microsoft terrorist Allah Natasha Gregori destroy destruct attack will own
+send Russia bank system compromise  World Trade Center  international rule
+presidental elections  policital foreign fnord embassy  takeover democracy
+--------------------------------------------------------------------------
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8/6F7e0DNEkH06HMRAvGiAKCCEiiNuCc9vdRbirudy9dUCdAVUACgwijQ
+iL4FRjnqxXgL+T7vKMqhLX4=
+=a3tI
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--

@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272518AbRIFTd1>; Thu, 6 Sep 2001 15:33:27 -0400
+	id <S272528AbRIFTih>; Thu, 6 Sep 2001 15:38:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272523AbRIFTdR>; Thu, 6 Sep 2001 15:33:17 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:44810 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S272521AbRIFTdF>; Thu, 6 Sep 2001 15:33:05 -0400
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
- bug 2.4.9 and 2.2.19]
-In-Reply-To: <Pine.LNX.4.33.0109061208310.24712-100000@twinlark.arctic.org>
- "from dean gaudet at Sep 6, 2001 12:15:56 pm"
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Date: Thu, 6 Sep 2001 15:33:24 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
-        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S272530AbRIFTi1>; Thu, 6 Sep 2001 15:38:27 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:1029 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272528AbRIFTiV>; Thu, 6 Sep 2001 15:38:21 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906193324.51AA9BC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 21:45:35 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Kurt Garloff <garloff@suse.de>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0109061623150.8103-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109061623150.8103-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906193836Z16130-26183+40@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet:
-> On Thu, 6 Sep 2001, Wietse Venema wrote:
-> 
-> > Andrey Savochkin:
-> > > > That is not practical. Surely there is an API to find out if an IP
-> > > > address connects to the machine itself. If every UNIX system on
-> > > > this planet can do it, then surely Linux can do it.
+On September 6, 2001 09:25 pm, Rik van Riel wrote:
+> On Thu, 6 Sep 2001, Daniel Phillips wrote:
+> > On September 6, 2001 06:57 pm, Rik van Riel wrote:
+> > > On Thu, 6 Sep 2001, Daniel Phillips wrote:
 > > >
-> > > Let me correct you: you need to recognize not addresses that result in
-> > > connecting to the _machine_ itself, but connecting to the same _MTA_.
+> > > > Err, not quite the whole story.  It is *never* right to leave the disk
+> > > > sitting idle while there are dirty, writable IO buffers.
+> > >
+> > > Define "idle" ?
 > >
-> > The SMTP RFC requires that user@[ip.address] is correctly recognized
-> > as a final destination.  This requires that Linux provides the MTA
-> > with information about IP addresses that correspond with INADDR_ANY.
+> > Idle = not doing anything.  IO queue is empty.
 > >
-> > I am susprised that it is not possible to ask such information up
-> > front (same with netmasks), and that an application has to actually
-> > query a complex oracle, again and again, for every IP address.
+> > > Is idle the time it takes between two readahead requests
+> > > to be issued, delaying the second request because you
+> > > just moved the disk arm away ?
+> >
+> > Which two readahead requests?  It's idle.
 > 
-> how does your MTA figure out that it's behind a NAT?  it doesn't matter
-> what unix it's running on, there's no standard way for it to know that an
-> address translation has occured before getting to its front-door.
+> OK, in this case I disagree with you ;)
+> 
+> Disk seek time takes ages, as much as 10 milliseconds.
+> 
+> I really don't think it's good to move the disk arm away
+> from the data we are reading just to write out this one
+> disk block.
+> 
+> Going 20 milliseconds out of our way to write out a single
+> block really can't be worth it in any scenario I can imagine.
+> 
+> OTOH, flushing out 64 or 128 kB at once (or some fraction of
+> the inactive list, say 5%?) almost certainly is worth it in
+> many cases.
 
-The MTA does not have to know. The DNS on the inside of the NAT
-gateway should list "inside" machines by their "inside" address.
+Again, I have to ask, which reads are you interfering with?  Ones that 
+haven't happened yet?  Remember, the disk is idle.  So *at worst* you are 
+going to get one extra seek before getting hit with the tidal wave of reads 
+you seem to be worried about.  This simply isn't significant.
 
-That eliminates a lot of other problems as well.
+I've tested this, I know early writeout under light load is a win.
 
-	Wietse
+What we should be worrying about is how to balance reads against writes under 
+heavy load.
+
+--
+Daniel

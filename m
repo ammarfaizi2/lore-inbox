@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUB1Wir (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 17:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbUB1Wir
+	id S261938AbUB1WiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 17:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbUB1WiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 17:38:47 -0500
-Received: from mail.tmr.com ([216.238.38.203]:61319 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261940AbUB1Wil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 17:38:41 -0500
-Message-ID: <404118A2.1060301@tmr.com>
-Date: Sat, 28 Feb 2004 17:39:30 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x: iowait problem while burning a CD
-References: <200402271802.51604.ornati@fastwebnet.it> <Pine.LNX.4.44.0402271915590.1747-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402271915590.1747-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Feb 2004 17:38:09 -0500
+Received: from mail.convergence.de ([212.84.236.4]:57798 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261938AbUB1WiC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 17:38:02 -0500
+Date: Sat, 28 Feb 2004 23:39:41 +0100
+From: Johannes Stezenbach <js@convergence.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] further __KERNEL_SYSCALLS__ removal
+Message-ID: <20040228223941.GC1994@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Arnd Bergmann <arnd@arndb.de>, arjanv@redhat.com,
+	linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+References: <200402271835.48649.arnd@arndb.de> <1077904855.10066.2.camel@laptop.fenrus.com> <200402271957.47235.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402271957.47235.arnd@arndb.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Fri, 27 Feb 2004, Paolo Ornati wrote:
+On Fri, Feb 27, 2004 at 07:57:47PM +0100, Arnd Bergmann wrote:
+> On Friday 27 February 2004 19:00, Arjan van de Ven wrote:
+> > On Fri, 2004-02-27 at 18:35, Arnd Bergmann wrote:
+> > > ===== drivers/media/dvb/frontends/alps_tdlb7.c 1.8 vs edited =====
+> > > --- 1.8/drivers/media/dvb/frontends/alps_tdlb7.c	Thu Feb 26 03:09:55 2004
+> > > +++ edited/drivers/media/dvb/frontends/alps_tdlb7.c	Thu Feb 26 23:57:05
 > 
+> >
+> > this is the wrong way to "fix" this; might as well leave this driver as
+> > is until it is fixed to use request_firmware()
 > 
->>trying to burn a CD "on the fly" I have noticed a strange thing. During the 
->>burning "iowait" remains enough low (~3%, MAX 10%) but, after a little 
->>time, it suddenly and quickly goes up to 80-90%: in this condition MKFS 
->>seems unable to fill the FIFO buffer as quickly as the CD-writer writes  
-> 
-> 
->>Any ideas?
-> 
-> 
-> At that point, mkisofs is probably running into a bazillion
-> small files, in subdirectories all over the place.
-> 
-> Because a disk seek + track read takes 10ms, it's simply not
-> possible to read more than maybe 100 of these small files a
-> second, so mkisofs can't keep up.
+> My idea was to finally eliminate __KERNEL_SYSCALLS__ without breaking
+> the in-tree drivers, so I changed all I could.
+> This patch leaves the syscalls in device drivers and fixes all
+> necessary uses in init/*.c.
+> Maybe we can find a better solution for calling execve in do_linuxrc(),
+> run_init_process() and ____call_usermodehelper(). Then a #warning can
+> be added __KERNEL_SYSCALLS__ is defined.
 
-I certainly have seen this, although there is something odd in the 
-process with large files as well. I sometimes see it in 2.4 as well, so 
-it may be a characteristic of the application.
+Michael Hunold already has some patches to change DVB to
+use the kernel I2C stuff, so we can then convert frontends
+to use request_firmware() properly. However, this work
+is not finished yet, and needs more testing.
 
-What to do about it (things to try, not requirements):
-
-- use fs= to increase the size of the fifo a bit, remember to put "m"
-   after the buffer size or it will be taken in bytes. This helps with
-   the problem Rik describes
-- be sure DMA is on the CD and the drive
-- allow ints during io
-- I'm told deadline schedular but haven't tried it
-- get a new version of cdrecord, build with the 2.6 headers, use
-   ATAPI:/dev/hdX for dev= instead of ide-scsi (this is probably not
-   critical for data CD in 2.6.2 and later, ide-scsi seems to work)
-- use burn-free
-- drop the speed of the burn
-- build the ISO image first, burn from that instead of a pipe
-- use growisofs for DVD
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Johannes

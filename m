@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267719AbSLTFvP>; Fri, 20 Dec 2002 00:51:15 -0500
+	id <S267744AbSLTF7P>; Fri, 20 Dec 2002 00:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267720AbSLTFvP>; Fri, 20 Dec 2002 00:51:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36616 "EHLO
+	id <S267745AbSLTF7P>; Fri, 20 Dec 2002 00:59:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5129 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267719AbSLTFvO>; Fri, 20 Dec 2002 00:51:14 -0500
+	id <S267744AbSLTF7O>; Fri, 20 Dec 2002 00:59:14 -0500
 To: linux-kernel@vger.kernel.org
 From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: PATCH 2.5.x disable BAR when sizing
-Date: Fri, 20 Dec 2002 05:57:23 +0000 (UTC)
+Date: Fri, 20 Dec 2002 06:05:29 +0000 (UTC)
 Organization: Transmeta Corporation
-Message-ID: <atubg3$699$1@penguin.transmeta.com>
-References: <20021219213712.0518B12CB2@debian.cup.hp.com>
-X-Trace: palladium.transmeta.com 1040363947 14707 127.0.0.1 (20 Dec 2002 05:59:07 GMT)
+Message-ID: <atubv9$69s$1@penguin.transmeta.com>
+References: <20021219213712.0518B12CB2@debian.cup.hp.com> <1040352868.30778.12.camel@irongate.swansea.linux.org.uk> <15874.32773.829438.109509@napali.hpl.hp.com>
+X-Trace: palladium.transmeta.com 1040364433 14794 127.0.0.1 (20 Dec 2002 06:07:13 GMT)
 X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 20 Dec 2002 05:59:07 GMT
+NNTP-Posting-Date: 20 Dec 2002 06:07:13 GMT
 Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
 X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021219213712.0518B12CB2@debian.cup.hp.com>,
-Grant Grundler <grundler@cup.hp.com> wrote:
+In article <15874.32773.829438.109509@napali.hpl.hp.com>,
+David Mosberger  <davidm@napali.hpl.hp.com> wrote:
+>  Alan> And yes this happens on some PC class systems.
 >
->In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x patch to disable
->BARs while the BARs were being sized.  I've "forward ported" this patch
->to 2.5.x (appended).  turukawa's excellent problem description and
->original posting are here:
->	https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
->
->David Mosberger agrees this is an "obvious fix".
+>And yet it's OK to remap that memory?  That seems unlikely.
 
-It is NOT an "obvious fix".
+Alan is right, however "unlikely" you think it is. 
 
-It breaks stuff horribly. When you turn off the MEM bit on the
-northbridge, there are northbridges that will stop forwarding RAM<->PCI.
+Turning off stuff in the config register not only turns off the standard
+BAR's, it can turn off _everything_.  Including stuff that isn't even
+covered by the standard BARs that are beng probed. 
 
->We've been using this in the ia64 2.4 code stream since about August.
-
-And it's CRAP.
-
-DO NOT DO THIS. It locks up some machines at bootup. Hard. Total bus
-lockup if you have legacy USB enabled (or anything else that does DMA,
-for that matter) at the same time as probing the northbridge with this.
-
-Trust me.  If you have some new silly ia64-specific bug, the fix is
-_not_ to break real and existing hardware out there. 
-
-We've had this "obviously correct" patch floating around several times,
-and it even made it into the kernel at least once. It was reverted
-because it is WRONG.
+It's like shutting off the power for the whole house because you want to
+change a lightbulb.  Sure, it's safer for the lightbulb, but if you
+don't know what -else- needs power in the house, it sure as hell isn't
+a good idea. Maybe you just trashed your wifes work because she happened
+to be in front of the computer when you turned off the lights.
 
 		Linus

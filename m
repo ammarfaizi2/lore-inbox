@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbUK2KTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbUK2KcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbUK2KTa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 05:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbUK2KT3
+	id S261650AbUK2KcT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 05:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUK2KcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 05:19:29 -0500
-Received: from grendel.firewall.com ([66.28.58.176]:44988 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S261649AbUK2KTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 05:19:24 -0500
-Date: Mon, 29 Nov 2004 11:19:19 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: linux-kernel@vger.kernel.org
-Subject: user- vs kernel-level resource sandbox for Linux?
-Message-ID: <20041129101919.GB9419@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 29 Nov 2004 05:32:19 -0500
+Received: from www.linux4media.com ([213.133.97.116]:18361 "EHLO archimedis.tv")
+	by vger.kernel.org with ESMTP id S261650AbUK2KcN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 05:32:13 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+Organization: LINUX4MEDIA GmbH
+To: linux-kernel@vger.kernel.org, linux@syskonnect.de
+Subject: [PATCH] Use MODULE_DEVICE_TABLE in sk98lin driver
+Date: Mon, 29 Nov 2004 11:31:03 +0100
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_opvqBV7AHWD6lbT"
+Message-Id: <200411291131.04843.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=utf-8
+--Boundary-00=_opvqBV7AHWD6lbT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Hello,
+Hi,
+I just noticed sk98lin devices don't appear in modules.pcimap -- fix attached.
+The patch is relative to 2.6.10-rc2-mm3, but it should apply to mostly all 
+other kernels with little to no modifications.
 
-  I am looking for advice on how to limit resource (memory in particular)
-usage on a linux machine (running either kernel v2.4 or2.6) on the per-user
-(vs per-process) basis. I am aware that I could use Xen or UML for that
-purpose, but I am wondering whether anybody knows any solution that can
-implement that entirely in the userland (e.g. a monitor application that
-intercepts system calls responsible for resource allocation and controls the
-memory usage that way). My problem is apache which spawns a certain process
-on which sometimes runs away and causes the kernel to kill apache, the
-offending process and cause all fork(2) attempts to fail (which effectively
-disables ssh). I've tried limiting resources on the apache startup, but that
-isn't of much help since each apache process will get the same resources and
-it's enough that several of them allocate too much memory at the same time
-and the effect is as described above. I've also played with overcommit on
-the 2.6 kernel in hope that it will stop the process from allocating
-excessive amounts of memory, but it wasn't of much help either, alas...
-  I would appreciate any pointers to the userland solutions for that problem
-(if any exist) before I resort to Xen/UML.
+LLaP
+bero
 
-  thanks in advance,
+--Boundary-00=_opvqBV7AHWD6lbT
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.6.9-sk98lin-MDT.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="linux-2.6.9-sk98lin-MDT.patch"
 
-marek
+--- linux-2.6.9/drivers/net/sk98lin/skge.c.ark	2004-11-29 11:26:17.000000000 +0100
++++ linux-2.6.9/drivers/net/sk98lin/skge.c	2004-11-29 11:27:17.000000000 +0100
+@@ -72,8 +72,8 @@
+  *		<linux/slab.h>
+  *		<linux/interrupt.h>
+  *		<linux/pci.h>
++ *		<linux/bitops.h>
+  *		<asm/byteorder.h>
+- *		<asm/bitops.h>
+  *		<asm/io.h>
+  *		<linux/netdevice.h>
+  *		<linux/etherdevice.h>
+@@ -303,7 +303,7 @@
+ 	/*
+ 	 * Remap the regs into kernel space.
+ 	 */
+-	pAC->IoBase = (char*)ioremap_nocache(dev->mem_start, 0x4000);
++	pAC->IoBase = ioremap_nocache(dev->mem_start, 0x4000);
+ 
+ 	if (!pAC->IoBase){
+ 		retval = 3;
+@@ -5169,6 +5169,8 @@
+ 	{ 0, }
+ };
+ 
++MODULE_DEVICE_TABLE(ci, skge_pci_tbl);
++
+ static struct pci_driver skge_driver = {
+ 	.name		= "skge",
+ 	.id_table	= skge_pci_tbl,
 
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBqvenq3909GIf5uoRAjNOAJ43H8B3qfdn0miTZv5R5xOZL2oYgwCfaBQm
-ytYd7X1IqVPGW4HTojd219w=
-=iy73
------END PGP SIGNATURE-----
-
---xHFwDpU9dbj6ez1V--
+--Boundary-00=_opvqBV7AHWD6lbT--

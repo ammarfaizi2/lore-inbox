@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130842AbRAQGTj>; Wed, 17 Jan 2001 01:19:39 -0500
+	id <S131231AbRAQGxh>; Wed, 17 Jan 2001 01:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132563AbRAQGT3>; Wed, 17 Jan 2001 01:19:29 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:4365 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S130842AbRAQGTV>;
-	Wed, 17 Jan 2001 01:19:21 -0500
-Message-ID: <3A650902.7D2FA957@goingware.com>
-Date: Wed, 17 Jan 2001 02:52:50 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S132002AbRAQGx1>; Wed, 17 Jan 2001 01:53:27 -0500
+Received: from mail.crc.dk ([130.226.184.8]:15121 "EHLO mail.crc.dk")
+	by vger.kernel.org with ESMTP id <S131231AbRAQGxT>;
+	Wed, 17 Jan 2001 01:53:19 -0500
+Message-ID: <3A65415C.5A0D57F@crc.dk>
+Date: Wed, 17 Jan 2001 07:53:16 +0100
+From: Mogens Kjaer <mk@crc.dk>
+Organization: Carlsberg Laboratory
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: da, en, de
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Where to get reiserfs-utils?
+Subject: Re: nfs client problem in kernel 2.4.0
+In-Reply-To: <3A6466E3.AB55716@crc.dk> <shsy9wb334a.fsf@charged.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-www & ftp.namesys.com seem to be down (or at least I get "no route to host) so I
-can't go look there.
+Trond Myklebust wrote:
 
-I get the impression that with previous patches utilities like "mkreiserfs" were
-in
-linux/fs/reiserfs/utils, but now that ReiserFS is in the main kernel tree the
-utilities aren't there.
+> I'll bet it's the lseek that's screwing things up again. IIRC IRIX has
+> an export option to cause it to generate 32-bit readdir cookies. Could
+> you please try enabling it?
 
-I've searched everywhere to find a mirror that would have a matching set of
-utilities to what's in the kernel (Hans Reiser warns about the need to keep
-versions in sync in his README) but I can only find older patches, no current
-reiserfs-utils.
+Sorry, I forgot to mention this: This option was already enabled.
 
-Does anyone know where there is a mirror?
-
-Another question: I'll try it when I get the utilities, but do you know if it
-should work to mount a ReiserFS filesystem using loopback from a regular file in
-an Ext2 filesystem?  Yes this sounds like a silly thing to do (journaling on top
-of non-journaled storage) but is a safe way to exercise the code.  I don't have
-an extra partition handy to try it out on, and I don't want to use it on my real
-files yet.
-
-Thanks,
-
-Mike
+Mogens
 -- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
+Mogens Kjaer, Carlsberg Laboratory, Dept. of Chemistry
+Gamle Carlsberg Vej 10, DK-2500 Valby, Denmark
+Phone: +45 33 27 53 25, Fax: +45 33 27 47 08
+Email: mk@crc.dk Homepage: http://www.crc.dk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

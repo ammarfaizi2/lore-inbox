@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136033AbRD0NZ4>; Fri, 27 Apr 2001 09:25:56 -0400
+	id <S136022AbRD0NZq>; Fri, 27 Apr 2001 09:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136024AbRD0NZq>; Fri, 27 Apr 2001 09:25:46 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14343 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136025AbRD0NZh>; Fri, 27 Apr 2001 09:25:37 -0400
-Date: Fri, 27 Apr 2001 08:45:52 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104271500300.243-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0104270844560.2863-100000@freak.distro.conectiva>
+	id <S136031AbRD0NZg>; Fri, 27 Apr 2001 09:25:36 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:15092 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136022AbRD0NZX>;
+	Fri, 27 Apr 2001 09:25:23 -0400
+Date: Fri, 27 Apr 2001 09:23:57 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <20010427095840.A701@suse.cz>
+Message-ID: <Pine.GSO.4.21.0104270922360.18661-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,53 +21,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 27 Apr 2001, Mike Galbraith wrote:
+On Fri, 27 Apr 2001, Vojtech Pavlik wrote:
 
-> On Thu, 26 Apr 2001, Rik van Riel wrote:
+> Actually this is done quite often, even on mounted fs's:
 > 
-> > On Thu, 26 Apr 2001, Mike Galbraith wrote:
-> >
-> > > > > > No.  It livelocked on me with almost all active pages exausted.
-> > > > > Misspoke.. I didn't try the two mixed.  Rik's patch livelocked me.
-> > > >
-> > > > Interesting. The semantics of my patch are practically the same as
-> > > > those of the stock kernel ... can you get the stock kernel to
-> > > > livelock on you, too ?
-> > >
-> > > Generally no.  Let kswapd continue to run?  Yes, but not always.
-> >
-> > OK, then I guess we should find out WHY the thing livelocked...
-> 
-> Hi Rik,
-> 
-> I decided to take a break from pondering input and see why the thing
-> ran itself into the ground.  Methinks I was sent the wrooong patch :)
+> hdparm -t /dev/hda
 
-Mike,
+You would need either hdparm -t /dev/hda<something> or mounting the
+whole /dev/hda.
 
-Please apply this patch on top of Rik's v2 patch otherwise you'll get the
-livelock easily:
-
---- linux.orig/mm/vmscan.c      Fri Apr 27 04:32:52 2001
-+++ linux/mm/vmscan.c   Fri Apr 27 04:32:34 2001
-@@ -644,6 +644,7 @@
-        struct page * page;
-        int maxscan = nr_active_pages >> priority;
-        int page_active = 0;
-+       int start_count = count;
-
-        /*
-         * If no count was specified, we do background page aging.
-@@ -725,7 +726,7 @@
-        }
-        spin_unlock(&pagemap_lru_lock);
-
--       return count;
-+       return (start_count - count);
- }
-
- /*
-
-
-
+Buffer cache for the disk is unrelated to buffer cache for parititions.
 

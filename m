@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263967AbTDWMRf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 08:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTDWMRf
+	id S263160AbTDWMQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 08:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTDWMQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 08:17:35 -0400
-Received: from web14002.mail.yahoo.com ([216.136.175.93]:44154 "HELO
-	web14002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263967AbTDWMRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 08:17:33 -0400
-Message-ID: <20030423122940.51011.qmail@web14002.mail.yahoo.com>
-Date: Wed, 23 Apr 2003 05:29:40 -0700 (PDT)
-From: Tony Spinillo <tspinillo@yahoo.com>
-Subject: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+	Wed, 23 Apr 2003 08:16:12 -0400
+Received: from mail.gmx.de ([213.165.65.60]:62199 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263160AbTDWMQM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 08:16:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Kirilenko <icedank@gmx.net>
 To: linux-kernel@vger.kernel.org
-Cc: stelian.pop@fr.alcove.com
+Subject: Re: Data storing
+Date: Wed, 23 Apr 2003 15:28:08 +0300
+User-Agent: KMail/1.4.3
+References: <200304231459.37955.icedank@gmx.net> <Pine.LNX.4.53.0304230817340.22823@chaos>
+In-Reply-To: <Pine.LNX.4.53.0304230817340.22823@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304231528.08720.icedank@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian
+Hello!
 
-Similiar problem here. Machine boots fine, but when I plug my DV
-camera in I can't cat /proc/bus/ieee1394/ devices, and I get looping
-messages in dmesg. If I move the 1394 drivers from pre-7 in, all works
-fine.
-(Thanks Dan). I submitted my logs and hw info to:
-http://sourceforge.net/mailarchive/forum.php?thread_id=2009188&forum_id=5387
 
-Tony
-
->Something gone wrong with this changes. My Sony Vaio Picturebook C1VE
->hangs on boot when the firewire controller is probed by the init
->scripts.
-
->This happens exactly in the sequence:
->	modprobe ohci1394
->	grep something /proc/bus/ieee1394/devices
->I'm not sure yet if the lockup is related to the ohci1394
-initialisation
->or the read in /proc possibly eariler than the driver expects.
+> > I need to make some checks (search for particular BIOS version) in the
+> > very start of the kernel. I need to store this data (zero page is pretty
+> > good for this, I think) and access it from arch/i386/boot/setup.S,
+> > arch/i386/boot/compressed/misc.c and in some other places. Can somebody
+> > suggest me good place to put check procedure and how to pass data?
 >
->The kernel still reacts to sysrq (umount/sync etc), however
-task/memory/pc
->sysrq function do NOT work...
->
->I'll investigate a bit further on this today.
+> I use 0x000001f0 (absolute) for relocating virtual disk code
+> for booting embedded systems. After Linux is up, the code remains
+> untouched. This might be a good location because the BIOS doesn't
+> use it during POST/boot and Linux (currently) leaves it alone.
+> Of course, this doesn't mean that somebody will not destroy this
+> area in the future (probably to spite you and me!!!).
+
+Yes, I know about this area, as I wrote (Documentation/i386/zero-page.txt). 
+And I even know how to pass parameter from zero-page into kernel space 
+(setup.c). But I need to use this parm, I fetched, in both setup.S and misc.c 
+(see below). And I don't have any ideas about execute order of setup.S, 
+misc.c and setup.c.
+
+Best regards,
+Andrew.

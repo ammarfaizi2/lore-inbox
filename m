@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319545AbSIMHmT>; Fri, 13 Sep 2002 03:42:19 -0400
+	id <S319547AbSIMHqk>; Fri, 13 Sep 2002 03:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319547AbSIMHmT>; Fri, 13 Sep 2002 03:42:19 -0400
-Received: from dns.vamo.orbitel.bg ([195.24.63.30]:16403 "EHLO
-	dns.vamo.orbitel.bg") by vger.kernel.org with ESMTP
-	id <S319545AbSIMHmS>; Fri, 13 Sep 2002 03:42:18 -0400
-Date: Fri, 13 Sep 2002 10:47:04 +0300 (EEST)
-From: Ivan Ivanov <ivandi@vamo.orbitel.bg>
-To: linux-kernel@vger.kernel.org
-Subject: XFS?
-Message-ID: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
+	id <S319548AbSIMHqj>; Fri, 13 Sep 2002 03:46:39 -0400
+Received: from denise.shiny.it ([194.20.232.1]:37789 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S319547AbSIMHqj>;
+	Fri, 13 Sep 2002 03:46:39 -0400
+Message-ID: <XFMail.20020913095116.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.44.0209121551310.10048-100000@hawkeye.luckynet.adm>
+Date: Fri, 13 Sep 2002 09:51:16 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Subject: Re: Killing/balancing processes when overcommited
+Cc: riel@conectiva.com.br
+Cc: riel@conectiva.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jim Sibley <jlsibley@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jesse Pollard <pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that you missed the main problem with all this new "great"
-filesystems. And the main problem is potential data loss in case of a
-crash. Only ext3 supports ordered or journal data mode.
 
-XFS and JFS are designed for large multiprocessor machines powered by UPS
-etc., where the risk of power fail, or some kind of tecnical problem is
-veri low.
+>> Now, which of these processes should be killed?
+> 
+> ...the last of the user who has the most processes?
 
-On the other side Linux works in much "risky" environment - old
-machines, assembled from "yellow" parts, unstable power suply and so on.
-
-With XFS every time when power fails while writing to file the entire file
-is lost. The joke is that it is normal according FAQ :)
-JFS has the same problem.
-With ReiserFS this happens sometimes, but much much rarely. May be v4 will
-solve this problem at all.
-
-The above three filesystems have problems with badblocks too.
-
-So the main problem is how usable is the filesystem. I mean if a company
-spends a few tousand $ to provide a "low risky" environment, then may be
-it will use AIX or IRIX, but not Linux.
-And if I am running a <$1000 "server" I will never use XFS/JFS.
-
------------------
-Best Regards
-Ivan
+No, the last one it's likely to be the sysadmin that
+logged in to try to fix the situation.
 
 
+Bye.
 

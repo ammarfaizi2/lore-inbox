@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267692AbTAMQYw>; Mon, 13 Jan 2003 11:24:52 -0500
+	id <S267879AbTAMQjX>; Mon, 13 Jan 2003 11:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTAMQYw>; Mon, 13 Jan 2003 11:24:52 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:22705 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267692AbTAMQYt>;
-	Mon, 13 Jan 2003 11:24:49 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Date: Mon, 13 Jan 2003 17:33:27 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: patch for errno-issue (with soundcore)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk
-X-mailer: Pegasus Mail v3.50
-Message-ID: <D206AA476EB@vcnet.vc.cvut.cz>
+	id <S267882AbTAMQjW>; Mon, 13 Jan 2003 11:39:22 -0500
+Received: from [195.20.32.236] ([195.20.32.236]:33973 "HELO euro.verza.com")
+	by vger.kernel.org with SMTP id <S267879AbTAMQjV>;
+	Mon, 13 Jan 2003 11:39:21 -0500
+Date: Mon, 13 Jan 2003 17:10:45 +0100
+From: Alexander Kellett <lypanov@kde.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Rob Wilkens <robw@optonline.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*? -> goto example
+Message-ID: <20030113161045.GA19270@groucho.verza.com>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	Rob Wilkens <robw@optonline.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com> <1042404503.1208.95.camel@RobsPC.RobertWilkens.com> <20030112224829.GA29534@alpha.home.local> <1042419236.3162.257.camel@RobsPC.RobertWilkens.com> <20030113013133.GA31596@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030113013133.GA31596@alpha.home.local>
+User-Agent: Mutt/1.4i
+X-Disclaimer: My opinions do not necessarily represent those of my employer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jan 03 at 15:57, Thomas Schlichter wrote:
-> On Mon, 13. Jan. 2003 16:13, Alan Cox wrote:
-> > This actually shows a bug that has always been lurking. What if we load two
-> > modules firmware at the same time. errno needs to be task private or we
-> > perhaps need an errno_sem ?
-> 
-> OK, I think I see the problem now!
-> But is soundcore the only place where 'errno' is used? Does this problem not 
-> occur if any task modifies the errno value and an other one depends on its 
-> previous value? I think this could happen even if no modules are used...
+On Mon, Jan 13, 2003 at 02:31:33AM +0100, Willy Tarreau wrote:
+> Oh and if you have complaints about comments after the 80th column, remove them.
+> And if the order of the declaration doesn't match your habits, just know that
+> this is the order which gives me best performance, since swapping any 2 of its
+> members induces a loss of about 20%. You know, L1, cache line size... all the
+> things that your teachers didn't tell you because the story of the evil goto was
+> better to keep children quiet !
 
-There is no problem currently, because of nobody uses errno value at
-all (in the firmware loader), it is just that inline functions generated 
-by syscallX() store error codes into errno...
+:)
 
-Real problem is that firmware loader should use 
-filp_open/vfs_read/filp_close (or sys_open/sys_llseek/sys_read/sys_close if 
-you want to use fd interface, but filp_{open,close} and vfs_read are already 
-exported for modules while sys_open/sys_llseek/sys_read are not).
+As much as I absolutely love the utility of this 
+piece of code you really do have to admit that it 
+_is_ rather difficult to understand :)
 
-As an alternative, do_mod_firmware_load should be standalone userspace
-program executed through call_usermodehelper or something like that... 
-Unfortunately we do not have an interface to distribute userspace binaries 
-together with kernel (except initrd) yet, so it would require either
-adding do_mod_firmware_load into module-init-tools, or some simillar
-package required by 2.[56].x kernels.
+Is it so flawed of me to expect that some day this
+code could be rewritten in an extremely clean
+fashion and compilers made to do the work that
+was put in to make this fast?
 
-Also adding "#define errno (current()->exit_code)" at the beginning of
-sound_firmware.c (just below #define __KERNEL_SYSCALLS__) should do
-the trick, but I do not recommend taking this path.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+mvg,
+Alex
+
+-- 
+"[...] Konqueror open source project. Weighing in at less than
+            one tenth the size of another open source renderer"
+Apple,  Jan 2003 (http://www.apple.com/safari/)

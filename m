@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131916AbQL2UxB>; Fri, 29 Dec 2000 15:53:01 -0500
+	id <S131562AbQL2VPp>; Fri, 29 Dec 2000 16:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132227AbQL2Uww>; Fri, 29 Dec 2000 15:52:52 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:36450 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131916AbQL2Uwo>; Fri, 29 Dec 2000 15:52:44 -0500
-Date: Fri, 29 Dec 2000 21:21:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: vonbrand@inf.utfsm.cl, Alan.Cox@linux.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre3 on sparc64: Hangs on boot, "no cont in shutdown!"??
-Message-ID: <20001229212146.B28549@athlon.random>
-In-Reply-To: <200012261709.eBQH99D02130@pincoya.inf.utfsm.cl> <200012290559.VAA03384@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200012290559.VAA03384@pizda.ninka.net>; from davem@redhat.com on Thu, Dec 28, 2000 at 09:59:55PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131886AbQL2VPf>; Fri, 29 Dec 2000 16:15:35 -0500
+Received: from [63.109.193.245] ([63.109.193.245]:38128 "EHLO
+	ninigret.metatel.office") by vger.kernel.org with ESMTP
+	id <S131562AbQL2VPX>; Fri, 29 Dec 2000 16:15:23 -0500
+Message-Id: <200012292045.PAA17190@ninigret.metatel.office>
+From: Rafal Boni <rafal.boni@eDial.com>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: 2.2.19pre3 and poor reponse to RT-scheduled processes?
+X-Mailer: NMH 1.0 / EXMH 2.1.1
+Date: Fri, 29 Dec 2000 15:45:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2000 at 09:59:55PM -0800, David S. Miller wrote:
-> 
-> "make check_asm" should fix it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It doesn't work out of the box starting from pre3 because there are a
-few fields in the task struct implemented this way:
+Content-Type: text/plain; charset=us-ascii
 
-	struct list_head local_pages; int allocation_order, nr_local_pages;
+[...Please CC me on any replies, as I'm not on the list(s)...]
 
-that is perfectly valid C code but I wasn't aware of the check_asm.sh sed
-script assumptions and so I incidentally broke sparc's `make check_asm', sorry.
-To make my 2.2.x tree to work on sparc64 I temporarly broken the above line in
-two for the time of `make check_asm'. I guess we can go with this patch for
-2.2.x instead of doing the right fix ;)
+Folks:
+	I was experiencing problems with 2.2.16 where the box would go out
+	to lunch for a few seconds flushing buffer or paging at inopportune
+	times (is there ever an opportune time for the box to become non-
+	reponsive for 5 seconds? 8-).
 
---- 2.2.19pre3aa4/include/linux/sched.h.~1~	Fri Dec 29 20:55:57 2000
-+++ 2.2.19pre3aa4/include/linux/sched.h	Fri Dec 29 21:14:32 2000
-@@ -329,7 +329,8 @@
- 	struct files_struct *files;
- /* memory management info */
- 	struct mm_struct *mm;
--	struct list_head local_pages; int allocation_order, nr_local_pages;
-+	struct list_head local_pages;
-+	int allocation_order, nr_local_pages;
- 	int fs_locks;
- 
- /* signal handlers */
+	2.2.19pre3 makes the behaviour much better, but I still see ~ 2sec
+	pauses at times.  I'm sending this to the MM list as well, since I
+	believe the poor behaviour in 2.2.16 was an MM issue... I don't 
+	know where the slowdowns are happening this time around.
 
-Andrea
+	The box in question is running the linux-ha.org heartbeat package,
+	which is a RT-scheduled, mlock()'ed process, and as such should
+	get as good service as the box is able to mange.  Often, under
+	high disk (and/or MM) loads, the box becomes unreponsive for a
+	period of time from ~ 1 sec to a high of ~ 2.8sec.
+
+	The test is simply running a 'dd if=/dev/zero of=/u1/big-empty-file
+	bs=1k count=512000 && date'.  Generally, the box will sieze up around
+	the same time as the the 'dd' finishes (maybe trying to exec date?).
+
+	I'd appreciate any hints at how to reduce the non-reponsiveness 
+	window down as much as possible.  I haven't yet looked to see if
+	there is a version of the low-latency patches for 2.2.18 or 19pre,
+	but I'd appreciate other ideas on tracking this down as well.
+
+Thanks!
+- --rafal
+
+- ----
+Rafal Boni                                               rafal.boni@eDial.com
+ PGP key C7D3024C, print EA49 160D F5E4 C46A 9E91  524E 11E0 7133 C7D3 024C
+    Need to get a hold of me?  http://800.eDial.com/rafal.boni@eDial.com
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.0 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE6TPfjEeBxM8fTAkwRAiPaAKDSp1udFSypqq838fwAjQnlFW0m2wCgtycm
+xF7xuBroSl3YXCTqUXGDAy0=
+=JHLL
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

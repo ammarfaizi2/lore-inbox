@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUD0Mx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264052AbUD0M4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUD0Mx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 08:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUD0Mx5
+	id S264052AbUD0M4w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 08:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUD0M4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 08:53:57 -0400
-Received: from FE-mail04.albacom.net ([213.217.149.84]:30866 "EHLO
-	FE-mail04.sfg.albacom.net") by vger.kernel.org with ESMTP
-	id S264058AbUD0Mxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 08:53:52 -0400
-Message-ID: <001f01c42c56$c09c87f0$0200a8c0@arrakis>
-Reply-To: "Marco Cavallini" <linux@koansoftware.com>
-From: "Marco Cavallini" <linux@koansoftware.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH]arm/boot/compressed/headxxx errors
-Date: Tue, 27 Apr 2004 14:54:16 +0200
-Organization: Koan s.a.s.
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_001C_01C42C67.83091280"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 27 Apr 2004 08:56:52 -0400
+Received: from [203.14.152.115] ([203.14.152.115]:48136 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264052AbUD0M4t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 08:56:49 -0400
+Date: Tue, 27 Apr 2004 22:54:02 +1000
+To: Pavel Machek <pavel@suse.cz>
+Cc: seife@suse.de, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nigel Cunningham <ncunningham@linuxmail.com>,
+       Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040427125402.GA16740@gondor.apana.org.au>
+References: <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426131152.GN2595@openzaurus.ucw.cz> <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz> <20040427102344.GA24313@gondor.apana.org.au> <20040427124837.GK10593@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040427124837.GK10593@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, Apr 27, 2004 at 02:48:38PM +0200, Pavel Machek wrote:
+> 
+> This should be better solution, could anyone test it? [It compiles,
+> and I'm out of time now].
 
-------=_NextPart_000_001C_01C42C67.83091280
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Well it still doen't solve the non-PSE case since you're only copying the
+top-level page table.
+  
+> --- tmp/linux/arch/i386/power/cpu.c	2003-09-28 22:05:30.000000000 +0200
+> +++ linux/arch/i386/power/cpu.c	2004-04-27 14:44:03.000000000 +0200
+> @@ -35,6 +35,9 @@
+>  unsigned long saved_context_esi, saved_context_edi;
+>  unsigned long saved_context_eflags;
+>  
+> +/* Special page directory for resume */
+> +char swsusp_pg_dir[PAGE_SIZE];
+> +
 
-Hello,
-building linux-2.6.6-rc2-bk5 with arm-linux-gcc ver. 2.95.3
-default configuration cerfcube_defconfig
-there are two little errors solved in the attached patch.
-HTH
-
-Regards
-Marco Cavallini
-==============================================
-Koan s.a.s. - Software Engineering  (x86 and ARM)
-Linux solutions for Embedded and Real-Time Software
-Via Pascoli, 3  - 24121 Bergamo - ITALIA
-Tel./Fax (++39) +35 - 255.235 - www.koansoftware.com
-==============================================
-------=_NextPart_000_001C_01C42C67.83091280
-Content-Type: application/octet-stream;
-	name="patch-2.6.6-rc2-bk5-mck1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="patch-2.6.6-rc2-bk5-mck1"
-
-diff -urNp linux-2.6.6-rc2-bk5/arch/arm/boot/compressed/head.S =
-linux-2.6.6-rc2-bk5-mck1/arch/arm/boot/compressed/head.S=0A=
---- linux-2.6.6-rc2-bk5/arch/arm/boot/compressed/head.S	2004-04-20 =
-23:30:01.000000000 +0200=0A=
-+++ linux-2.6.6-rc2-bk5-mck1/arch/arm/boot/compressed/head.S	2004-04-27 =
-14:35:15.000000000 +0200=0A=
-@@ -169,7 +169,7 @@ not_angel:=0A=
- 		ldmia	r0, {r1, r2, r3, r4, r5, r6, ip, sp}=0A=
- 		subs	r0, r0, r1		@ calculate the delta offset=0A=
- =0A=
--						@ if delta is zero, we're=0A=
-+						@ if delta is zero, we are=0A=
- 		beq	not_relocated		@ running at the address we=0A=
- 						@ were linked at.=0A=
- =0A=
-diff -urNp linux-2.6.6-rc2-bk5/arch/arm/boot/compressed/head-sa1100.S =
-linux-2.6.6-rc2-bk5-mck1/arch/arm/boot/compressed/head-sa1100.S=0A=
---- linux-2.6.6-rc2-bk5/arch/arm/boot/compressed/head-sa1100.S	=
-2004-04-20 23:28:26.000000000 +0200=0A=
-+++ linux-2.6.6-rc2-bk5-mck1/arch/arm/boot/compressed/head-sa1100.S	=
-2004-04-27 14:35:42.000000000 +0200=0A=
-@@ -35,7 +35,7 @@ __SA1100_start:=0A=
- 		mov	r7, #MACH_TYPE_PFS168=0A=
- #endif=0A=
- #ifdef CONFIG_SA1100_SIMPAD=0A=
--		@ UNTIL we've something like an open bootldr=0A=
-+		@ UNTIL we have something like an open bootldr=0A=
- 		mov	r7, #MACH_TYPE_SIMPAD @should be 87=0A=
- #endif=0A=
-=0A=
-
-------=_NextPart_000_001C_01C42C67.83091280--
-
+You forgot to mark this as nosave.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

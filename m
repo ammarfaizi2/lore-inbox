@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265086AbTIJAGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 20:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTIJAGm
+	id S265076AbTIJAXo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 20:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTIJAXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 20:06:42 -0400
-Received: from gprs150-72.eurotel.cz ([160.218.150.72]:3968 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265086AbTIJAGk (ORCPT
+	Tue, 9 Sep 2003 20:23:44 -0400
+Received: from gprs150-72.eurotel.cz ([160.218.150.72]:4992 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265076AbTIJAXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 20:06:40 -0400
-Date: Wed, 10 Sep 2003 02:06:27 +0200
+	Tue, 9 Sep 2003 20:23:42 -0400
+Date: Wed, 10 Sep 2003 02:19:56 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: Patrick Mochel <mochel@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+Cc: Linux usb mailing list <linux-usb-devel@lists.sourceforge.net>,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Passing suspend level down to drivers
-Message-ID: <20030910000627.GD217@elf.ucw.cz>
-References: <20030909230755.GG211@elf.ucw.cz> <Pine.LNX.4.44.0309091615400.695-100000@cherise>
+Subject: [PATCH] Re: Driver model problems in -test5: usb this time
+Message-ID: <20030910001955.GF217@elf.ucw.cz>
+References: <20030909230118.GF211@elf.ucw.cz> <Pine.LNX.4.44.0309091628000.695-100000@cherise>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309091615400.695-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0309091628000.695-100000@cherise>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,35 +28,54 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > APM suspend-to-ram
-> > APM suspend-to-disk
-> > ACPI standby (S1)
-> > ACPI suspend-to-ram (S3)
-> > ACPI suspend-to-disk (S4bios)
-> > swsusp
+> > > The latter two functions do not exist in -test5. It would helpful if you 
+> > > tried to reproduce with a virgin -test5. It would be courteous to state 
+> > > what patches you applied on top of the virgin -test5 kernel. 
 > > 
-> > Do we want to support ACPI S2? I don't think so. That list is not
-> > *that* bad.
+> > Lot of them, but only "revert to -test3 swsusp" should be important
+> > here.
 > 
-> ACPI S2 is irrelevant. Nonetheless, you're suggesting that we add manual 
-> checks at runtime for each device to determine what state to go into, 
-> depending on whether the system is entering suspend-to-disk or suspend-to-
-> ram. 
-> 
-> That's a bad idea because:
-> 
-> - It doesn't need to be done at runtime, only initialization. Though it's 
->   not a permformant path, it's still more efficient to do it once only. 
-> 
-> - It forces policy into the drivers, instead of having them specify a 
->   changeable default. 
+> Then all bets are off. I cannot expect to reproduce the problems until you 
+> narrow down which patch causes the problem or verify that it appears on a 
+> standard kernel release.
 
-Okay, so you suggest "driver has table of default things to do on
-suspend-to-X, changeable by user", while I say "driver has table of
-default things to do on suspend-to-X". I do not thing changeability by
-user is so important here, but I'm not going to argue too much about
-that.
-								Pavel
+Here's patch that should fix it. [First part of first hunk defitely
+triggered twice during suspend, and made machine survive that.] Please
+apply,
+
+									Pavel
+
+--- clean/drivers/usb/core/usb.c	2003-09-09 12:45:35.000000000 +0200
++++ linux/drivers/usb/core/usb.c	2003-09-10 02:16:10.000000000 +0200
+@@ -1429,9 +1429,11 @@
+ 		return 0;
+ 
+ 	intf = to_usb_interface(dev);
++	if (!dev->driver)
++		return 0;
+ 	driver = to_usb_driver(dev->driver);
+ 
+-	if (driver && driver->suspend)
++	if (driver->suspend)
+ 		return driver->suspend(intf, state);
+ 	return 0;
+ }
+@@ -1446,9 +1448,11 @@
+ 		return 0;
+ 
+ 	intf = to_usb_interface(dev);
++	if (!dev->driver)
++		return 0;
+ 	driver = to_usb_driver(dev->driver);
+ 
+-	if (driver && driver->resume)
++	if (driver->resume)
+ 		return driver->resume(intf);
+ 	return 0;
+ }
+
+
+
 -- 
 When do you have a heart between your knees?
 [Johanka's followup: and *two* hearts?]

@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbSKVJ4X>; Fri, 22 Nov 2002 04:56:23 -0500
+	id <S261353AbSKVKGT>; Fri, 22 Nov 2002 05:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSKVJ4X>; Fri, 22 Nov 2002 04:56:23 -0500
-Received: from ganon.smb.utfors.se ([195.58.112.27]:26501 "EHLO
-	ganon.smb.utfors.se") by vger.kernel.org with ESMTP
-	id <S261337AbSKVJ4W>; Fri, 22 Nov 2002 04:56:22 -0500
-Date: Fri, 22 Nov 2002 11:03:30 +0100
-From: Joakim Tjernlund <joakim.tjernlund@lumentis.se>
-Subject: Re: [PATCH 2.5] crc32 static initialization
-To: brm@murphy.dk
-Cc: linux-kernel@vger.kernel.org
-Reply-to: joakim.tjernlund@lumentis.se
-Message-id: <IGEFJKJNHJDCBKALBJLLIEDMFIAA.joakim.tjernlund@lumentis.se>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	id <S261686AbSKVKGT>; Fri, 22 Nov 2002 05:06:19 -0500
+Received: from robur.slu.se ([130.238.98.12]:61703 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S261353AbSKVKGR>;
+	Fri, 22 Nov 2002 05:06:17 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15838.1306.900100.541977@robur.slu.se>
+Date: Fri, 22 Nov 2002 11:21:14 +0100
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Robert Olsson <Robert.Olsson@data.slu.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: e1000 fixes (NAPI)
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Brian
 
-Would you please also add the CRC32 patch I sent you earlier?
-It is much faster.
 
-  Thanks 
-         Jocke
 
+Seems like FreeBSD is now getting on this train too. Someone sent me this link.
+http://info.iet.unipi.it/~luigi/polling/
+
+Cheers.
+
+						--ro
+
+
+Jeff V. Merkey writes:
+ > 
+ > Thanks
+ > 
+ > jeff
+ > 
+ > On Thu, Nov 21, 2002 at 12:31:08PM -0500, Jeff Garzik wrote:
+ > > Jeff V. Merkey wrote:
+ > > 
+ > > > >NAPI poll does not happen in an interrupt.  Doing things in interrupts
+ > > > >is the source of problems that NAPI is trying to solve.
+ > > > >
+ > > > >Other than that, please read the code and NAPI paper...  :)
+ > > >
+ > > >
+ > > >
+ > > >
+ > > > Where can I find it?
+ > > 
+ > > 
+ > > 
+ > > In the link Robert Ollson gave to you (paper), and the Linux kernel (code).
+ > > 
+ > > 	Jeff
+ > > 
+ > > 

@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbULEKNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbULEKQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbULEKNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 05:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbULEKNO
+	id S261291AbULEKQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 05:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULEKQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 05:13:14 -0500
-Received: from gate.ibr.ch ([213.144.140.114]:33038 "EHLO gate.ibr.ch")
-	by vger.kernel.org with ESMTP id S261289AbULEKNE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 05:13:04 -0500
-Date: Sun, 5 Dec 2004 11:13:01 +0100
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.9: Mouse lost synchronization
-Message-ID: <20041205101301.GA12435@coruba.ibr.ch>
-Mail-Followup-To: uwe@ibr.ch, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: Uwe Storbeck <uwe@ibr.ch>
+	Sun, 5 Dec 2004 05:16:10 -0500
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:42909 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S261291AbULEKP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 05:15:59 -0500
+Date: Sun, 5 Dec 2004 05:15:42 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc3 oops when 'modprobe -r dvb-bt8xx'
+In-Reply-To: <41B1BD24.4050603@eyal.emu.id.au>
+Message-ID: <Pine.LNX.4.61.0412050455440.27512@linaeum.absolutedigital.net>
+References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
+ <41B1BD24.4050603@eyal.emu.id.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 5 Dec 2004, Eyal Lebedinsky wrote:
 
-I don't know if this is the right place for reporting kernel bugs,
-but I haven't found a direct e-mail address.
+> In the spirit of festive testing I would like to say that the oops that I
+> enjoyed throughout rc2-bk* is still present in -rc3. -mm series does not
+> have this problem.
+> 
+> EIP is at bttv_i2c_info+0x36/0x6a [bttv]
 
-With kernel 2.6.9 my mouse is nearly unusable. It's a Logitech
-optical mouse on the PS/2 port.
+Hi Eyal,
 
-I get lots of syslog messages like this:
+>From what I can tell the oops comes from the above function calling 
+dvb_bt8xx_i2c_info after the module that holds it (dvb-bt8xx) gets 
+unloaded. The dvb_bt8xx... function has been removed from rc2-mm4 so 
+that's prolly why you don't get the oops in the -mm kernels.
 
-Dec  4 03:19:17 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
-Dec  4 03:19:44 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-Dec  4 03:19:45 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
-Dec  4 03:19:46 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-Dec  4 03:19:47 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-Dec  4 03:19:53 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+Until the changes propagate from -mm to Linus' tree the below patch should 
+take care of it.
 
-If I move the mouse it wildly generates button events instead
-of movement events, which completely scambles my desktop.
+-- Cal
 
-I've tried multiple variations, with gpm and without it, with
-mouse set to autodetect and fix configured, all without success.
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
 
-I have replaced the mouse for testing with an old Logitech
-mechanical mouse. This works a bit better, but also often
-loses its synchronization:
-
-Dec  5 09:33:42 c3 kernel: psmouse.c: bad data from KBC - bad parity
-Dec  5 09:33:52 c3 last message repeated 2 times
-Dec  5 09:34:19 c3 kernel: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-
-This makes kernel 2.6 nearly unusable for a desktop system (with X11).
-
-I also get problems with the keyboard if I use my KVM switch with kernel
-2.6.9. After switching keyboard to another machine and switching back to
-the system with kernel 2.6 the keyboard is disconnected. Nothing happens
-if I press a key. After switching KVM back and forth several times and
-pressing arbitrary keys multiple times keyboard comes back on line after
-a while.
-
-All of this hardware is working trouble-free with kernel 2.2.26 and
-2.4.28. For now I'm forced to switch back to the stable kernel.
-
-If you need more information please drop me a CC.
-
-Regards,
-
-Uwe
+--- linux-2.6.10-rc3/drivers/media/dvb/bt8xx/dvb-bt8xx.c.orig	2004-12-05 02:19:58.000000000 -0500
++++ linux-2.6.10-rc3/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2004-12-05 05:11:14.000000000 -0500
+@@ -331,24 +331,6 @@
+ 	return 0;
+ 	}
+ 
+-static void dvb_bt8xx_i2c_info(struct bttv_sub_device *sub,
+-			       struct i2c_client *client, int attach)
+-{
+-	struct dvb_bt8xx_card *card = dev_get_drvdata(&sub->dev);
+-
+-	if (attach) {
+-		printk("xxx attach\n");
+-		if (client->driver->command)
+-			client->driver->command(client, FE_REGISTER,
+-						card->dvb_adapter);
+-	} else {
+-		printk("xxx detach\n");
+-		if (client->driver->command)
+-			client->driver->command(client, FE_UNREGISTER,
+-						card->dvb_adapter);
+-	}
+-}
+-
+ static struct bttv_sub_driver driver = {
+ 	.drv = {
+ 		.name		= "dvb-bt8xx",
+@@ -360,7 +342,6 @@
+ 		 * .resume	= dvb_bt8xx_resume,
+ 		 */
+ 	},
+-	.i2c_info = dvb_bt8xx_i2c_info,
+ };
+ 
+ static int __init dvb_bt8xx_init(void)

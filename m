@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273714AbSISWwN>; Thu, 19 Sep 2002 18:52:13 -0400
+	id <S273730AbSISXBz>; Thu, 19 Sep 2002 19:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273730AbSISWwM>; Thu, 19 Sep 2002 18:52:12 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:28327 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S273714AbSISWwL>;
-	Thu, 19 Sep 2002 18:52:11 -0400
-Subject: 
-To: akpm@digeo.com, taka@valinux.co.jp
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFDCC62A37.55EFB5E3-ON87256C39.007C43C5@boulder.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Thu, 19 Sep 2002 17:56:42 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 09/19/2002 04:56:44 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S273732AbSISXBz>; Thu, 19 Sep 2002 19:01:55 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:26122 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S273730AbSISXBy>;
+	Thu, 19 Sep 2002 19:01:54 -0400
+Date: Thu, 19 Sep 2002 16:06:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.26 hotplug failure
+Message-ID: <20020919230643.GD18000@kroah.com>
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com> <200209200656.23956.bhards@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209200656.23956.bhards@bigpond.net.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote ...
+On Fri, Sep 20, 2002 at 06:56:23AM +1000, Brad Hards wrote:
+> On Fri, 20 Sep 2002 02:49, Greg KH wrote:
+> > The main reason is this information is no longer available to the USB
+> > core.  It isn't keeping a list of registered drivers anymore, only the
+> > driver core is.  So there's no way that usbfs can get to that
+> > information.  As the info is available in driverfs, duplication of it in
+> > usbfs would be bloat.
+> This doesn't follow. driverfs != driver core, just as usbfs != USB core.
 
->It seems that movsl works acceptably with all alignments on AMD
->hardware, although this needs to be checked with more recent machines.
+I agree.  But the info is now in the driver core, it's not present in
+the USB core at all anymore.  So since drverfs exports what's in the
+driver core, that info shows up there.  usbfs doesn't have access to
+this info, so it can't display it.
 
+> I wasn't joking about putting back the /proc/bus/usb/drivers file. This is 
+> really going to hurt us in 2.6. 
 
->movsl is a (bad) loss on PII and PIII for all alignments except 8&8.
->Don't know about P4 - I can test that in a day or two.
+Is this file _really_ used?  All it did was show the USB drivers
+registered.  Even so, that same information is now present in driverfs,
+I haven't taken away anything, just moved it.  Lots of things are
+starting to move to driverfs, this isn't the first, and will not be the
+last.
 
+thanks,
 
->I expect that a minimal, 90% solution would be just:
-
-
->fancy_copy_to_user(dst, src, count)
->{
->        if (arch_has_sane_movsl || ((dst|src) & 7) == 0)
->                movsl_copy_to_user(dst, src, count);
->        else
->                movl_copy_to_user(dst, src, count);
->}
-
->and
-
->#ifndef ARCH_HAS_FANCY_COPY_USER
->#define fancy_copy_to_user copy_to_user
->#endif
-
-
->and we really only need fancy_copy_to_user in a handful of
->places - the bulk copies in networking and filemap.c. For all
->the other call sites it's probably more important to keep the
->code footprint down than it is to squeeze the last few drops out
->of the copy speed.
-
-
->Mala Anand has done some work on this. See
->http://www.uwsg.iu.edu/hypermail/linux/kernel/0206.3/0100.html
-
-
-><searches> Yes, I have a copy of Mala's patch here which works
->against 2.5.current. Mala's patch will cause quite an expansion
->of kernel size; we would need an implementation which did not
->use inlining. This work was discussed at OLS2002. See
->http://www.linux.org.uk/~ajh/ols2002_proceedings.pdf.gz
-
-I will move the code from uaccess.h (inline) to usercopy.c (routine)
-and will post it soon. It is in my list of things to do.
-
-Regards,
-    Mala
-
-
-   Mala Anand
-   IBM Linux Technology Center - Kernel Performance
-   E-mail:manand@us.ibm.com
-   http://www-124.ibm.com/developerworks/opensource/linuxperf
-   http://www-124.ibm.com/developerworks/projects/linuxperf
-   Phone:838-8088; Tie-line:678-8088
-
-
-
-
+greg k-h

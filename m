@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbRFKOzQ>; Mon, 11 Jun 2001 10:55:16 -0400
+	id <S263494AbRFKPBg>; Mon, 11 Jun 2001 11:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263404AbRFKOzG>; Mon, 11 Jun 2001 10:55:06 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46310 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261454AbRFKOzA>;
-	Mon, 11 Jun 2001 10:55:00 -0400
-Message-ID: <3B24DBAF.390F3BD8@mandrakesoft.com>
-Date: Mon, 11 Jun 2001 10:54:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre2 i686)
-X-Accept-Language: en
+	id <S263536AbRFKPB0>; Mon, 11 Jun 2001 11:01:26 -0400
+Received: from web3505.mail.yahoo.com ([216.115.111.72]:49164 "HELO
+	web3505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263494AbRFKPBM>; Mon, 11 Jun 2001 11:01:12 -0400
+Message-ID: <20010611150111.7747.qmail@web3505.mail.yahoo.com>
+Date: Mon, 11 Jun 2001 16:01:11 +0100 (BST)
+From: =?iso-8859-1?q?Mich=E8l=20Alexandre=20Salim?= 
+	<salimma1@yahoo.co.uk>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: sebastien person <sebastien.person@sycomore.fr>
-Cc: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: netif_start_queue
-In-Reply-To: <20010611160330.42083f1e.sebastien.person@sycomore.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sebastien person wrote:
-> 
-> hi,
-> 
-> I'm trying to port a ethernet device from 2.2 to 2.4. whith the new way of
-> dealing with dev->tbusy and dev->start (e.g. by using netif_startqueue for
-> example) I've understand that the netif_start_queue call put a flag that
-> telling
-> the device isn't busy but I can't found when does the start flag is set .
-> 
-> I've read somewhere that it is set when the open function return, but I
-> haven't
-> found where is the matching code.
-> 
-> In 2.4, must we always check if the device is busy or started, or it is
-> upper
-> layer work ?
+Hello,
 
-As you appear to be guessing, the upper layer handles the work that
-'start' previously did.  If you need to check if the interface is up
-inside your driver, call netif_running(dev).
+Searching through the mailing list I could not find a
+reference to this problem, hence this post.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Having ran various kernel and distribution
+combinations (SGI's 2.4.2-xfs bundled with their Red
+Hat installer, 2.4-xfs-1.0 and 2.4 CVS trees, Linux
+Mandrake with default kernel 2.4.3, and lastly
+2.4.5-ac9), compiled for generic i386 and/or Transmeta
+Crusoe with APM off or on, one thing sticks out : a
+clock drift of a few minutes per day.
+
+This problem might not be noticeable for most users
+since notebooks are not normally left running that
+long, but it is rather serious. I can choose not to
+sync the software and hardware clock on shutdown and
+re-read the hardware clock every hour or so but it is
+rather kludgy.
+
+Anyone experienced this before or willing to try it
+out?
+
+Regards,
+
+Michel
+
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+or your free @yahoo.ie address at http://mail.yahoo.ie

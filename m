@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVC2WdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVC2WfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVC2WdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2Wb5
+	id S261602AbVC2WfF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVC2Wdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 29 Mar 2005 17:33:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:1774 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261588AbVC2Wb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 29 Mar 2005 17:31:57 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:5269 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261579AbVC2W37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:29:59 -0500
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp
-	at fault?
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: dtor_core@ameritech.net, Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-In-Reply-To: <20050329214408.GH8125@elf.ucw.cz>
-References: <4243D854.2010506@suse.de>
-	 <d120d50005032908183b2f622e@mail.gmail.com>
-	 <20050329181831.GB8125@elf.ucw.cz>
-	 <d120d50005032911114fd2ea32@mail.gmail.com>
-	 <20050329192339.GE8125@elf.ucw.cz>
-	 <d120d50005032912051fee6e91@mail.gmail.com>
-	 <20050329205225.GF8125@elf.ucw.cz>
-	 <d120d500050329130714e1daaf@mail.gmail.com>
-	 <20050329211239.GG8125@elf.ucw.cz>
-	 <d120d50005032913331be39802@mail.gmail.com>
-	 <20050329214408.GH8125@elf.ucw.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <20050325145908.GA7146@elte.hu>
+References: <20050325145908.GA7146@elte.hu>
 Content-Type: text/plain
-Message-Id: <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
+Date: Tue, 29 Mar 2005 17:31:56 -0500
+Message-Id: <1112135516.5386.27.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 30 Mar 2005 08:31:18 +1000
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 2005-03-25 at 15:59 +0100, Ingo Molnar wrote:
+> i have released the -V0.7.41-10 Real-Time Preemption patch, which can be 
+> downloaded from the usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
 
-On Wed, 2005-03-30 at 07:44, Pavel Machek wrote:
-> We currently freeze processes for suspend-to-ram, too. I guess that
-> disable_usermodehelper is probably better and that in_suspend() should
-> only be used for sanity checks... go with disable_usermodehelper and
-> sorry for the noise.
+Ingo,
 
-Here's another possibility: Freeze the workqueue that
-call_usermodehelper uses (remember that code I didn't push hard enough
-to Andrew?), and let invocations of call_usermodehelper block in
-TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on kernel
-processes in that state. Of course if you won't want the freeze
-processes for str, but do want to freeze call_usermodehelper, I guess
-you'd still need the in_suspend() macro.
+-15 has a typo that prevents building with my config.
 
-Regards,
+Lee
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+--- include/linux/mm.h~	2005-03-29 17:28:57.000000000 -0500
++++ include/linux/mm.h	2005-03-29 17:30:05.000000000 -0500
+@@ -845,7 +845,7 @@
+ #else
+  static inline int check_no_locks_freed(const void *from, const void *to)
+  {
+-	return 0
++	return 0;
+  }
+ #endif
+ 
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
 

@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265691AbUHSLq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUHSL4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265691AbUHSLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUHSLq3
+	id S265722AbUHSL4g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 07:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUHSL4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 07:46:29 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:64997 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S265691AbUHSLqT (ORCPT
+	Thu, 19 Aug 2004 07:56:35 -0400
+Received: from zenon.apartia.fr ([82.66.93.83]:48085 "EHLO zenon.apartia.com")
+	by vger.kernel.org with ESMTP id S265722AbUHSL4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 07:46:19 -0400
-Subject: Re: Use global system_state to avoid system-state confusion
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, david-b@pacbell.net
-In-Reply-To: <20040819113600.GA1317@elf.ucw.cz>
-References: <20040819113600.GA1317@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092915767.19218.50.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 19 Aug 2004 21:42:48 +1000
+	Thu, 19 Aug 2004 07:56:33 -0400
+Message-ID: <41249570.20208@apartia.fr>
+Date: Thu, 19 Aug 2004 13:56:32 +0200
+From: Laurent CARON <lcaron@apartia.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040722 Debian/1.7.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Crash using Kernel 2.8.1 and HTB
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello,
 
-On Thu, 2004-08-19 at 21:36, Pavel Machek wrote:
-> +		if (system_state == SYSTEM_SWSUSP_SNAPSHOT)
+I'm experiencing a strange behavior with the HTB part of the 2.8.1 kernel.
 
-Would you consider getting rid of the 'SWSUSP'? It's so ugly!
-SYSTEM_SNAPSHOT would be clear and concise.
+My computer boots fine, but when I enable HTB (via Fiaif) the computer 
+hangs.
 
-Regards,
+Did anyone get the same problem?
 
-Nigel 
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
-
+Thanks

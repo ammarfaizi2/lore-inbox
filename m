@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289054AbSAGAXa>; Sun, 6 Jan 2002 19:23:30 -0500
+	id <S289055AbSAGA3a>; Sun, 6 Jan 2002 19:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAGAXV>; Sun, 6 Jan 2002 19:23:21 -0500
-Received: from dsl-213-023-043-049.arcor-ip.net ([213.23.43.49]:20491 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289054AbSAGAXP>;
-	Sun, 6 Jan 2002 19:23:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] Unbork fs.h, 1 of 4
-Date: Mon, 7 Jan 2002 01:27:08 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <E16NLbK-0001LE-00@starship.berlin>
-In-Reply-To: <E16NLbK-0001LE-00@starship.berlin>
+	id <S289056AbSAGA3V>; Sun, 6 Jan 2002 19:29:21 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:62218 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S289055AbSAGA3L>; Sun, 6 Jan 2002 19:29:11 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: The COUGAR Project
+Date: Sun, 6 Jan 2002 16:29:28 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBOEHJEFAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NNd6-0001Lx-00@starship.berlin>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20020106233726.GA26491@weta.f00f.org>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The approach I used to modify Ext2 would work well for all the filesystems in 
-> the tree.  Most of the work consists of a simple global edit along the lines 
-> of:
-> 
->    s/u.ext2_i./ext2_i(inode)->/
-
-Whoops, please excuse me:
-
-     s/inode->u.ext2_i./ext2_i(inode)->/
+The COUGAR project is something I've been thinking about the past few
+months. Unfortunately I no longer have *any* free time to devote to it. So
+I'm releasing the proposal on the web, in the hopes that someone in the
+kernel community will pick it up and make a project out of it. See
+http://www.borasky-research.net/Cougar.htm.
 
 --
-Daniel
+M. Edward Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+

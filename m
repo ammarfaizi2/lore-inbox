@@ -1,109 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbUBYXVL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 18:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUBYXNr
+	id S261569AbUBYXYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 18:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUBYXVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 18:13:47 -0500
-Received: from lakemtao08.cox.net ([68.1.17.113]:61928 "EHLO
-	lakemtao08.cox.net") by vger.kernel.org with ESMTP id S261822AbUBYXKs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 18:10:48 -0500
-From: "Michael Joy" <mdj00b@acu.edu>
-To: "'Nathan Scott'" <nathans@sgi.com>,
-       "'Nico Schottelius'" <nico-kernel@schottelius.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: another hard disk broken or xfs problems?
-Date: Wed, 25 Feb 2004 17:10:59 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-reply-to: <20040225223428.GD640@frodo>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-index: AcP78Nyz5NW+qFE+QvacJ2ZzceMHjwAA3LQg
-Message-Id: <20040225231045.LJJM25915.lakemtao08.cox.net@nagasaki>
+	Wed, 25 Feb 2004 18:21:46 -0500
+Received: from mail.gmx.net ([213.165.64.20]:12938 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261572AbUBYXPM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 18:15:12 -0500
+X-Authenticated: #20799612
+Date: Thu, 26 Feb 2004 00:14:39 +0100
+From: Hansjoerg Lipp <hjlipp@web.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: aebr@win.tue.nl, jamie@shareable.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040225231439.GB7744@hobbes>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com> <20040223202524.GC13914@hobbes> <20040223140027.5c035157.pj@sgi.com> <20040224001313.GA6426@hobbes> <20040223173246.5998e0a1.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040223173246.5998e0a1.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing I've run into recently is that Hitachi drives come from the
-factory with bad sectors out of the box. If you run a full format on the
-drive checking for bad sectors the first time you use the drive, it will
-occasionally find an error, the format will die, and the next time you
-format nothing will be found.
-
-It's a symptom of Hitachi not properly QC'ing their drives by fully
-formatting them several times. The problem can reoccur over the first few
-days until the drive finds all the questionable bad sectors and reallocates
-backup sectors to cover for it.
-
-This is OS independent as NTFS has serious issues with this :)
-
-I hope this helps.
-
-Michael
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Nathan Scott
-Sent: Wednesday, February 25, 2004 4:34 PM
-To: Nico Schottelius; Linux Kernel Mailing List
-Subject: Re: another hard disk broken or xfs problems?
-
-On Wed, Feb 25, 2004 at 11:00:51PM +0100, Nico Schottelius wrote:
-> Hello!
+On Mon, Feb 23, 2004 at 05:32:46PM -0800, Paul Jackson wrote:
+> > So, I really can't see any problem with such a shell...
 > 
-> I am now using a brand new 40GB Hitachi hard disk for my notebook and
-> today I got the first problems:
+> I think we are agreeing on the technical details.
 > 
-> 
-> Starting XFS recovery on filesystem: hda3 (dev: hda3)
-> Ending XFS recovery on filesystem: hda3 (dev: hda3)
-> VFS: Mounted root (xfs filesystem) readonly.
-> Mounted devfs on /dev
-> Freeing unused kernel memory: 156k freed
-> XFS mounting filesystem hda1
-> Starting XFS recovery on filesystem: hda1 (dev: hda1)
-> Ending XFS recovery on filesystem: hda1 (dev: hda1)
-> XFS mounting filesystem loop0
-> Starting XFS recovery on filesystem: loop0 (dev: loop0)
-> XFS internal error XFS_WANT_CORRUPTED_GOTO at line 1589 of file
-fs/xfs/xfs_alloc.c.  Caller 0xc0198272
-> Call Trace: [<c0197151>]  [<c0198272>]  [<c0198272>]  [<c01c7fff>]
-[<c01ee628>]  [<c01e5286>]  [<c01e5355>]  [<c01e6b04>]  [<c01d24fa>]
-[<c01dd2cc>]  [<c01e83bd>]  [<c0203c60>]  [<c01d908f>]  [<c01f02c6>]
-[<c02048e3>]  [<c02046c8>]  [<c0215517>]  [<c0185764>]  [<c015c835>]
-[<c015c268>]  [<c0204890>]  [<c0204630>]  [<c015c4af>]  [<c0171ee8>]
-[<c01721f4>]  [<c0172044>]  [<c01725ef>]  [<c010b34b>] 
-> Ending XFS recovery on filesystem: loop0 (dev: loop0)
-> Adding 192772k swap on /dev/discs/disc0/part2.  Priority:-1 extents:1
-> 
-> 
-> I got this after a clean shutdown. Just tell me it's an xfs error and my
-> harddisk is fine...
+> But not on the relative weight of the potential problems
+> versus the value of the change you propose.
 
-Filesystem recovery doesn't run after a clean shutdown...
-the "Starting/Ending XFS recovery" messages indicate that
-all of your filesystems were not unmounted by the look of
-it.
+Okay. So the "result" of this discussion seems to be:
 
-Probably file data for the file backing your loopback device
-has been lost/corrupted due to what looks like an "abrupt" end
-before reboot (only metadata is journalled), and hence trying
-to recover the loop device is going horribly wrong.
+We agree, that it is not that likely that there will be a lot of
+problems caused by existing scripts with a shebang line with one
+argument containing spaces. But you still consider this too risky,
+whereas Jamie Lokier (if I understood him right) and I think, the risk
+is low enough.
 
-So, doesn't look like a hard disk error to me, and nor does it
-look like an XFS problem.  You should be able to run xfs_repair
-on your loopback file to fix the problem.
+The '\'-part seems to be more problematic and not that useful. So, this
+part could be removed from the patch.
 
-cheers.
+Andries Brouwer's web page shows me, that there are operating systems
+that already split arguments, which seems to work without a lot of
+problems, while you emphasize the fact, that there are more operating
+systems parsing the shebang line the "old" way.
 
--- 
-Nathan
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+So, talking about the same facts, we still disagree, and I don't think
+further discussion will change this. How should we proceed? Should we
+still wait for other comments (I'd really like to know what people
+think about it)? Should I ask Andrew Morton what he thinks about it,
+also with regard to our discussion? Or do you still see facts, we should
+talk about?
 
+Regards,
+
+	Hansjoerg Lipp

@@ -1,182 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314232AbSDSBvP>; Thu, 18 Apr 2002 21:51:15 -0400
+	id <S314465AbSDSC2v>; Thu, 18 Apr 2002 22:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314233AbSDSBvO>; Thu, 18 Apr 2002 21:51:14 -0400
-Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:27870 "EHLO
-	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S314232AbSDSBvN>; Thu, 18 Apr 2002 21:51:13 -0400
-Date: Fri, 19 Apr 2002 03:51:29 +0200 (CEST)
-From: Erich Focht <focht@ess.nec.de>
-X-X-Sender: focht@beast.local
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>,
-        Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>,
-        <torvalds@transmeta.com>
-Subject: Re: [PATCH] migration thread fix
-In-Reply-To: <20020418232753.GP23767@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0204190201570.3004-100000@beast.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314469AbSDSC2v>; Thu, 18 Apr 2002 22:28:51 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:1509 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314465AbSDSC2u>;
+	Thu, 18 Apr 2002 22:28:50 -0400
+Date: Thu, 18 Apr 2002 19:27:10 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        irda-users@lists.sourceforge.net
+Subject: IrDA patches on the way...
+Message-ID: <20020418192710.A988@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bill,
+	Hi Jeff,
 
-> It does keep the original philosophy, and it's not too complicated:
-[...]
->
-> It's really a very conservative algorithm.
+	Would you mind to push the following batch of patches to Linus ?
+	The first two patches feature a partial rewrite of the TTP
+layer that fixes lots of things. Has been on my web page for over a
+month and tested intensively.
+	The remaining patches are less interesting. You may have
+followed discussions about the wait_event stuff ;-)
+	Regards,
 
-thanks for the explanations. Usually I'm also conservative with changes.
+	Jean
 
-I'm currently working on a node affine scheduler extension for NUMA
-machines and the load balancer behaves a bit different from the original.
-So after a few boot failures with those slowly booting 16 CPU IA64
-machines I thought there must be a simpler solution than synchronizing and
-waiting for the load balancer: just let migration_CPU0 do what it is
-designed for. So my proposal is:
-   - start all migration threads on CPU#0
-   - initialize migration_CPU0 (trivial, reliable, as it already is on
-     the right CPU)
-   - let all other migration threads use set_cpus_allowed() to get to the
-     right place
+--------------------------------------------------------
 
-The only synchronization needed is the non-zero migration threads waiting
-for migration_CPU0 to start working, which it will, as it is already on
-the right CPU. This saves quite some lines of code.
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
 
-I first posted this to LKML on March 6th (BTW, the fix #1, too) and since
-then it was tested on several big NUMA platforms: 16 CPU NEC AzusA (IA64)
-(also known as HP rx....), up to 32 CPU SGI IA64, 16 CPU IBM NUMA-Q
-(IA32). No more lock-ups at boot since then. So I consider it working.
+ir258_flow_sched_lap_lmp-6.diff :
+-------------------------------
+		<Won't compile without ir258_flow_sched_ttp-6.diff>
+	o [FEATURE] Reduce LAP Tx queue to 2 packets (from 10)
+		Improve latency, reduce buffer usage
+	o [FEATURE] LAP Tx queue not full notification (flow start)
+		Poll higher layer to fill synchronously LAP window (7 packets)
+	o [FEATURE] LMP LSAP scheduler
+		Ensure Tx fairness between LSAPs (sockets, IrCOMM, IrNET...)
 
-There is another good reason for this approach: the integration of the CPU
-hotplug patch with the new scheduler becomes easier. One just needs to
-create the new migration thread, it will move itself to the right CPU
-without any additional magic (which you otherwise need because of the
-synchronizations which won't be there at hotplug). Kimi Suganuma in the
-neighboring cube is fiddling this out currently.
+ir258_flow_sched_ttp-6.diff :
+---------------------------
+		<Won't compile without ir258_flow_sched_lap_lmp-6.diff>
+	o [CORRECT] Fix race condition when starting todo timer
+	o [CORRECT] Fix race condition when stopping higher layer
+		Higher layer would think it is stopped and us it is started
+	o [CORRECT] Give credit even if packets in Tx queue
+		If Tx queue was stopped, could starve peer and deadlock
+	o [CORRECT] Protect Rx credit update with spinlock
+	o [CORRECT] Calculate properly self->avail_credit
+		Didn't take into account queued Rx fragments
+		Incremented even if Rx frame not delivered to higher layer
+		-> would never stop the peer (i.e. not flow control)
+		-> could become infinite
+	o [CORRECT] Send credit when higher layer reenable receive
+		Peer wouldn't restart Tx to us if flow stopped
+	o [FEATURE] Implement LAP queue not full notification
+		Lower latency, ...
+	o [FEATURE] Reduce Tx queue to 8 packets (from 10)
+		But make sure we can always send a full LAP window (7)
+	o [FEATURE] Fix and optimise TTP flow control
+		Make sure peer can always send a full LAP window (7)
+		Minimise explicit credit updates (give_credit)
+	o [FEATURE] Remove need for todo timer in Tx/Rx paths
+		Less potential races, lower latency, lower context switches
+		Could not use tasklet because broken API, better anyway ;-)
 
+ir258_wait_event_fixes-2.diff :
+-----------------------------
+	        <Following patch from Martin Diehl, mangled by me>
+	o [FEATURE] Replace interruptible_sleep_on() with wait_event().
+		Most races were taken care off, but cleaner anyway
 
-> yourself. The side issues are non-issues to me; I just want kernels that
-> do a little more than hang at boot so I can hack on other parts of it.
-> I'll get around to testing it soon, but it's kind of a pain, because
-> failed attempts didn't fail every time, and the machines where it fails
-> are not swift to boot... though I imagine you're in a similar position
-> wrt. testing being a hassle. =)
+ir258_mcp2120_driver.diff :
+-------------------------
+	        <Following patch from Felix Tang>
+	o [FEATURE] Dongle driver for mcp2120/crystal hardware
 
-:-) I know exactly what you mean...
+ir258_dongle_locking.diff :
+-------------------------
+	o [CORRECT] Load dongle module with irq disabled in irtty
+	<Same fix need to go in irport, but irport doesn't work for me>
 
-Best regards,
-Erich
+ir258_lsap_lap_close-2.diff :
+---------------------------
+		<apply after ir258_flow_sched_lap_lmp-6.diff to avoid fuzz>
+	o [CORRECT] Cancel LSAP watchdog when putting socket back to listen
+	o [CORRECT] Try to close LAP when closing LSAP still active
+	        <Following patch from Felix Tang>
+	o [CORRECT] Header fix for compile on Alpha architecture
 
-PS: attached is the patch against Linus' latest kernel. This patch is only
-for the migration_init change (#2), the fix for problem #1 is in the patch
-sent by Robert, it has to be applied before.
-
-
---- 2.5.8-EF/kernel/sched.c.orig	Fri Apr 19 03:45:13 2002
-+++ 2.5.8-EF/kernel/sched.c	Fri Apr 19 03:43:48 2002
-@@ -1672,10 +1672,9 @@
- 	preempt_enable();
- }
-
--static volatile unsigned long migration_mask;
--
--static int migration_thread(void * unused)
-+static int migration_thread(void * bind_cpu)
- {
-+	int cpu = cpu_logical_map((int) (long) bind_cpu);
- 	struct sched_param param = { sched_priority: 99 };
- 	runqueue_t *rq;
- 	int ret;
-@@ -1683,36 +1682,20 @@
- 	daemonize();
- 	sigfillset(&current->blocked);
- 	set_fs(KERNEL_DS);
--	ret = setscheduler(0, SCHED_FIFO, &param);
--
- 	/*
--	 * We have to migrate manually - there is no migration thread
--	 * to do this for us yet :-)
--	 *
--	 * We use the following property of the Linux scheduler. At
--	 * this point no other task is running, so by keeping all
--	 * migration threads running, the load-balancer will distribute
--	 * them between all CPUs equally. At that point every migration
--	 * task binds itself to the current CPU.
-+	 * The first migration thread is started on CPU #0. This one can migrate
-+	 * the other migration threads to their destination CPUs.
- 	 */
--
--	/* wait for all migration threads to start up. */
--	while (!migration_mask)
--		yield();
--
--	for (;;) {
--		preempt_disable();
--		if (test_and_clear_bit(smp_processor_id(), &migration_mask))
--			current->cpus_allowed = 1 << smp_processor_id();
--		if (test_thread_flag(TIF_NEED_RESCHED))
--			schedule();
--		if (!migration_mask)
--			break;
--		preempt_enable();
-+	if (cpu != 0) {
-+		while (!cpu_rq(cpu_logical_map(0))->migration_thread)
-+			yield();
-+		set_cpus_allowed(current, 1UL << cpu);
- 	}
-+	printk("migration_task %d on cpu=%d\n",cpu,smp_processor_id());
-+	ret = setscheduler(0, SCHED_FIFO, &param);
-+
- 	rq = this_rq();
- 	rq->migration_thread = current;
--	preempt_enable();
-
- 	sprintf(current->comm, "migration_CPU%d", smp_processor_id());
-
-@@ -1766,33 +1749,18 @@
-
- void __init migration_init(void)
- {
--	unsigned long tmp, orig_cache_decay_ticks;
- 	int cpu;
-
--	tmp = 0;
-+	current->cpus_allowed = 1UL << cpu_logical_map(0);
- 	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
--		if (kernel_thread(migration_thread, NULL,
-+		if (kernel_thread(migration_thread, (void *) (long) cpu,
- 				CLONE_FS | CLONE_FILES | CLONE_SIGNAL) < 0)
- 			BUG();
--		tmp |= (1UL << cpu_logical_map(cpu));
- 	}
-+	current->cpus_allowed = -1L;
-
--	migration_mask = tmp;
--
--	orig_cache_decay_ticks = cache_decay_ticks;
--	cache_decay_ticks = 0;
--
--	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
--		int logical = cpu_logical_map(cpu);
--
--		while (!cpu_rq(logical)->migration_thread) {
--			set_current_state(TASK_INTERRUPTIBLE);
-+	for (cpu = 0; cpu < smp_num_cpus; cpu++)
-+		while (!cpu_rq(cpu)->migration_thread)
- 			schedule_timeout(2);
--		}
--	}
--	if (migration_mask)
--		BUG();
--
--	cache_decay_ticks = orig_cache_decay_ticks;
- }
- #endif
-
-
-
+ir258_irnet_simult_race-2.diff :
+------------------------------
+	o [CORRECT] Prevent dealock on simultaneous peer IrNET connections
+		Only the primary peer will accept the IrNET connection

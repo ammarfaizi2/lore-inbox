@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbRE2U6r>; Tue, 29 May 2001 16:58:47 -0400
+	id <S261827AbRE2VCG>; Tue, 29 May 2001 17:02:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261827AbRE2U61>; Tue, 29 May 2001 16:58:27 -0400
-Received: from brauhaus.paderlinx.de ([194.122.103.4]:18580 "EHLO
-	imail.paderlinx.de") by vger.kernel.org with ESMTP
-	id <S261805AbRE2U60>; Tue, 29 May 2001 16:58:26 -0400
-Date: Tue, 29 May 2001 22:58:00 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
+	id <S261913AbRE2VB4>; Tue, 29 May 2001 17:01:56 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:17671 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S261855AbRE2VBv>; Tue, 29 May 2001 17:01:51 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: serial console problems under 2.4.4/5
+Date: Tue, 29 May 2001 21:01:50 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9f12nu$dig$1@ncc1701.cistron.net>
+In-Reply-To: <yrxofscdnpj.fsf@terra.mcs.anl.gov> <9f0qoj$ttr$1@ncc1701.cistron.net> <yrxsnhot1ec.fsf@terra.mcs.anl.gov>
+X-Trace: ncc1701.cistron.net 991170110 13904 195.64.65.67 (29 May 2001 21:01:50 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Subject: Re: Promise Ultra 100 TX2
-Message-ID: <20010529225800.A7709@citd.de>
-In-Reply-To: <Pine.LNX.4.20.0105291826220.32482-100000@citd.owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.20.0105291826220.32482-100000@citd.owl.de>; from ms@citd.de on Tue, May 29, 2001 at 06:30:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just bought one of $subject (PDC 20268)
-> 
-> Removed a Ultra 66 from my system and plugged the new one into the 66Mhz
-> PCI-Bus (Intependent from the 33Mhz PCI-Bus (Tyan Thunder HE-SL Mainboard
-> with Serverworks HE-SL-Chipset))
-> 
-> Kernel is 2.4.4 with Promise support compiled in. (The Ultra 66 works like
-> a charm with this kernel)
-> 
-> 
-> But the new controller wasn't deteced by the IDE-Subsystem AT ALL. (It
-> only showed the onboard OSB4-Adapter)
+In article <yrxsnhot1ec.fsf@terra.mcs.anl.gov>,
+Narayan Desai <desai@mcs.anl.gov> wrote:
+>>>>>> "Mike" == Miquel van Smoorenburg <miquels@cistron-office.nl> writes:
+>
+>Mike> In article <yrxofscdnpj.fsf@terra.mcs.anl.gov>,
+>Mike> Narayan Desai <desai@mcs.anl.gov> wrote:
+>>> Hi. I have started having serial console problems in the last bunch
+>>> of kernel releases. I have tried various 2.4.4 and 2.4.5 ac kernels
+>>> (up to and including 2.4.5-ac4) and the problem has persisted. The
+>>> problem is basically that serial console doesn't recieve.
+>
+>Mike> The serial driver now pays attention to the CREAD bit. Sysvinit
+>Mike> clears it, so that's where it goes wrong.
+>
+>Mike> I don't think this change should have gone into a 'stable'
+>Mike> kernel version. 2.5.0 would have been fine, not 2.4.4
 
-with "ide.2.4.4-p1.04092001.patch.bz2" it now works like a charm. :-)
+Okay it was 2.4.3 when it went in
 
-(As there is no update in 2.4.5 or in (current) 2.4.5ac4 i look what Andre
-has produced and found that patch.)
+>How would I go about resetting this so that serial console worked
+>again? thanks...
 
+Fix sysvinit. Oh and all getty programs etc - everything that
+mucks around with termios.
 
+Alternatively revert the change to drivers/char/serial.c
 
+See also http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg42426.html
 
+Oh *ahem* I just read the entire thread again and I remembered it
+wrong. It's not the CREAD handling perse, it's something else that
+has changed that caused this, but it appears that a solution
+hasn't been found yet. Except for fixing all user-space programs.
+Sysvinit, agetty, busybox etc etc
 
-Bis denn
+Okay so ignore my earlier comments. Sorry.
 
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+Mike.
 

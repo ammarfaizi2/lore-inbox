@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbTKYT2z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 14:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbTKYT2z
+	id S262901AbTKYTYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 14:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbTKYTYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 14:28:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46725 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262960AbTKYT2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 14:28:54 -0500
-Date: Tue, 25 Nov 2003 11:28:45 -0800
-From: Chris Wright <chrisw@osdl.org>
+	Tue, 25 Nov 2003 14:24:46 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:54386 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262901AbTKYTYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 14:24:45 -0500
+Date: Tue, 25 Nov 2003 14:24:41 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
 To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
-Message-ID: <20031125112845.A3067@osdlab.pdx.osdl.net>
-References: <Pine.LNX.4.44.0311251158110.2870-100000@chimarrao.boston.redhat.com> <3FC3A797.4060108@softhome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3FC3A797.4060108@softhome.net>; from filia@softhome.net on Tue, Nov 25, 2003 at 08:03:51PM +0100
+In-Reply-To: <3FC3A797.4060108@softhome.net>
+Message-ID: <Pine.LNX.4.44.0311251423470.9182-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ihar 'Philips' Filipau (filia@softhome.net) wrote:
->    I cannot tell what it does - but name 'security_vm_enough_memory()' 
-> sounds promising ;-)
+On Tue, 25 Nov 2003, Ihar 'Philips' Filipau wrote:
 
-This allows a security module to verify that a process can add mapping
-for the new pages it's trying to grab.  And can be used to control
-overcommit.
+> > # echo 2 > /proc/sys/vm/overcommit_memory
+> > 
+> > Then try again.
+> 
+>    What do you know what is not said in docs?
+>    What '2' means?
 
-thanks,
--chris
+Strict non-overcommit mode.  You can allocate as much
+non-file-backed virtual memory as will fit in swap,
+plus /proc/sys/vm/overcommit_percentage worth of memory.
+
+>    this is what 2.6-test10 says:
+
+OK, outdated docs.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275068AbRJANjK>; Mon, 1 Oct 2001 09:39:10 -0400
+	id <S275082AbRJANuK>; Mon, 1 Oct 2001 09:50:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275067AbRJANjA>; Mon, 1 Oct 2001 09:39:00 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56588 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275061AbRJANis>; Mon, 1 Oct 2001 09:38:48 -0400
+	id <S275086AbRJANuA>; Mon, 1 Oct 2001 09:50:00 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:2309 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S275082AbRJANtu>;
+	Mon, 1 Oct 2001 09:49:50 -0400
+To: julien23@alcove.fr
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
-To: jdthood@home.dhs.org (Thomas Hood)
-Date: Mon, 1 Oct 2001 14:44:20 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011001125401.9684B8BF@thanatos.toad.net> from "Thomas Hood" at Oct 01, 2001 08:54:01 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15o3Mq-0001Kq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20011001120432.A5531@come.alcove-fr>
+In-Reply-To: <20010930174627.52817587@thanatos.toad.net> <20011001120432.A5531@come.alcove-fr>
+Reply-To: stephane.list@fr.alcove.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+Message-Id: <E15o3SZ-0005mL-00@wiliam.alcove-fr>
+From: St?phane List <stephane@alcove.fr>
+Date: Mon, 01 Oct 2001 15:50:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stelian and others:  So the fix works using is_sony_vaio_laptop
-> to set the pnp_bios_dont_use_current_config flag.  (Alan can
-> shorten this name if he wants ;)  The is_sony_vaio_laptop
-> flag is only found in the i386 and x86_64 arches.  Is the
-> pnpbios driver used on other arches?  If so then we'll have
-> to provide the flag in those arches or pnpbios won't link.
-> Alan?
+Le driver de stelian est tombé en marche ;-)
 
-PnPBIOS is a PC specific affliction. Other platforms have more elegantly
-designed but even buggier solutions
+
+In alcove.lists.linux.kernel, you wrote:
+> On Sun, Sep 30, 2001 at 01:46:26PM -0400, Thomas Hood wrote:
+> 
+> > Here's the patch to the PnP BIOS driver for Vaio laptops again,
+> > this time against 2.4.9-ac18.  It's unchanged, but as per the
+> > "SubmittingPatches" file, I append rather than attach it.   
+> > // Thomas
+> 
+> Ok, here I am again, sorry for not being able to react on 
+> your patches this weekend...
+> 
+> I tested your latest patches with a 2.4.9-ac18 kernels, and,
+> surprise, the kernel now boots correctly, _without_ any
+> pnpbios* boot option.
+> 
+> Since the DMI / PNP order was not modified as of ac18, I
+> suppose the patches change something else which makes it
+> work...
+> 
+> Stelian.
+> -- 
+> Stelian Pop <stelian.pop@fr.alcove.com>
+> |---------------- Free Software Engineer -----------------|
+> | Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+> |------------- Alcôve, liberating software ---------------|
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

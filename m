@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264491AbRFTCw5>; Tue, 19 Jun 2001 22:52:57 -0400
+	id <S264496AbRFTC6H>; Tue, 19 Jun 2001 22:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264494AbRFTCws>; Tue, 19 Jun 2001 22:52:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37250 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264491AbRFTCw2>;
-	Tue, 19 Jun 2001 22:52:28 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15152.4073.812901.656882@pizda.ninka.net>
-Date: Tue, 19 Jun 2001 19:52:25 -0700 (PDT)
-To: "Zack Weinberg" <zackw@Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, tridge@samba.org
-Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
-In-Reply-To: <20010619194827.F5679@stanford.edu>
-In-Reply-To: <15152.1911.886630.381952@pizda.ninka.net>
-	<20010619194827.F5679@stanford.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S264567AbRFTC55>; Tue, 19 Jun 2001 22:57:57 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:51213 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S264496AbRFTC5p>; Tue, 19 Jun 2001 22:57:45 -0400
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E15CQlA-0006Tr-00@the-village.bc.nu>
+In-Reply-To: <E15CQlA-0006Tr-00@the-village.bc.nu>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 19 Jun 2001 22:57:38 -0400
+Message-Id: <993005859.1799.1.camel@gromit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 Jun 2001 20:01:56 +0100, Alan Cox wrote:
 
-Zack Weinberg writes:
- > It *has* been fixed in 2.4, though.  Some sort of compatibility issue?
+> Linux inherits several unix properties which are not friendly to good state
+> based programming - lack of good AIO for one.
 
-No, some kind of "it doesn't matter" issue.
+Oh, how I would love for select() and poll() to work on files... or for
+any other working AIO mothods to be present.
 
-Later,
-David S. Miller
-davem@redhat.com
+What would get broken if things were changed to let select() work for
+filesystem fds?
+
+

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310629AbSCHBC4>; Thu, 7 Mar 2002 20:02:56 -0500
+	id <S310631AbSCHBKS>; Thu, 7 Mar 2002 20:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310631AbSCHBCr>; Thu, 7 Mar 2002 20:02:47 -0500
-Received: from web9906.mail.yahoo.com ([216.136.129.249]:21766 "HELO
-	web9906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S310629AbSCHBCi>; Thu, 7 Mar 2002 20:02:38 -0500
-Message-ID: <20020308010238.739.qmail@web9906.mail.yahoo.com>
-Date: Thu, 7 Mar 2002 17:02:38 -0800 (PST)
-From: Beef Arrowny <tanfhltu@yahoo.com>
-Subject: Re: Kernel Oops in 2.4.18 (ide.c)
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-        Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <Pine.LNX.4.44.0203070909590.19993-100000@netfinity.realnet.co.sz>
+	id <S310632AbSCHBKI>; Thu, 7 Mar 2002 20:10:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15112 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310631AbSCHBKE>;
+	Thu, 7 Mar 2002 20:10:04 -0500
+Message-ID: <3C880EFF.A0789715@zip.com.au>
+Date: Thu, 07 Mar 2002 17:08:15 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: truncate_list_pages()  BUG and confusion
+In-Reply-To: <3C8809BA.4070003@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
-> On Wed, 6 Mar 2002, Beef Arrowny wrote:
+Dave Hansen wrote:
 > 
-> > I think I've got all the right info, but here
-> goes:
-> > 
-> > I'm trying to get my RICOH MP6200A CD-RW to work
-> on
-> > this new machine I just built.  I've gotten it to
-> work
-> > in the past, but it's always been blind luck. 
-> This is
-> > the first time I've gotten an oops however.
+> in truncate_list_pages()
 > 
-> I sent a patch to fix the oops, but not the
-> underlying problem a while 
-> back, so thats probably why it hasn't made it into
-> mainline. Jens might 
-> know wether the drive is a problematic one.
+>    failed = TryLockPage(page);
 > 
-> Regards,
-> 	Zwane
+> So, the page is always locked here.
 > 
+>    truncate_complete_page(page);
+>          remove_inode_page(page);
+>               if (!PageLocked(page))
+>                  PAGE_BUG(page);
+> 
+>          page_cache_release(page);
+>              calls __free_pages_ok(page, 0);
+>                  if (PageLocked(page))
+>                     BUG();
+> 
+> It is a BUG if the page is not locked in remove_inode_page() and also a
+> bug if it IS locked in __free_pages_ok().  What am I missing?
 
-Can you give me a hint as to what I might be able to
-do to modify it and fix it?  I'm not an expert in C
-coding, but I can mill my way around... I can
-understand why such a patch may be left out of the
-mainstream kernel, but I wouldn't mind applying it in
-my case.
+the page_cache_release() in truncate_complete_page() is just dropping
+the reference count against the page which is due to that page's
+presence in the pagecache.  We just took it out, so we drop the reference.
 
-Just for some more info on the problem.  I did some
-more reboots last night, and I did get the 'eject sr0'
-to work once. I then pressed the CD back in and tried
-the eject again, and froze up hard.  no Oops that
-time.  So it works intermittently.
+Note that the caller of truncate_complete_page() also took a reference to
+the page, and undoes that reference *after* unlocking the page.  This
+additional reference will prevent __free_pages_ok() from being called
+by truncate_complete_page().
 
-Thanks for your prompt reply.
+> ksymoopsed output follows:
+>
+> kernel BUG at page_alloc.c:109!
 
-Regards,
-Toby
+Now how did you manage that?  Looks like someone re-locked
+the page after truncate_list_pages unlocked it.
 
-
-__________________________________________________
-Do You Yahoo!?
-Try FREE Yahoo! Mail - the world's greatest free email!
-http://mail.yahoo.com/
+-

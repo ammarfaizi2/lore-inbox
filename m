@@ -1,58 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVBKJMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVBKJLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbVBKJMA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 04:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVBKJL7
+	id S262045AbVBKJLj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 04:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVBKJLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 04:11:59 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:37255 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262050AbVBKJFt (ORCPT
+	Fri, 11 Feb 2005 04:11:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:57 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262045AbVBKJJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 04:05:49 -0500
-Date: Fri, 11 Feb 2005 10:04:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Chris Wright <chrisw@osdl.org>,
-       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
-Subject: Re: 2.6.11-rc3-mm2
-Message-ID: <20050211090419.GD3980@elte.hu>
-References: <420C25D6.6090807@bigpond.net.au> <200502110341.j1B3fS8o017685@localhost.localdomain> <20050211065753.GE15058@waste.org> <20050211075417.GA2287@elte.hu> <20050211082536.GF15058@waste.org>
+	Fri, 11 Feb 2005 04:09:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=MeUCiajYwMID5Q4WmQQZs4wmxQebKSj1Qbia+STRyy+6CrQ5cAWK0cEH/8NM4TPJwdikC8iGXke2131WkkqGZ4CrbTcxHfxOs/tqQxR2UjgV2N982ENSGHmid2TAbnD9TI/CxJEgd5t/f8QxzuQEmkUJz7gfHNlmmzTU8tIG3+g=
+Message-ID: <25349aa4050211010930333ae3@mail.gmail.com>
+Date: Fri, 11 Feb 2005 02:09:10 -0700
+From: Tipp Moseley <tipp.moseley@gmail.com>
+Reply-To: Tipp Moseley <tipp.moseley@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Potential timer bug
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050211082536.GF15058@waste.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_219_19283938.1108112950229"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_Part_219_19283938.1108112950229
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-* Matt Mackall <mpm@selenic.com> wrote:
+Hello,
 
-> So the comparison boils down to putting a magic gid in a sysfs
-> file/module parameter or setting an rlimit with standard tools (PAM,
-> etc). I'm really boggled that anyone could prefer the former,
-> especially since we had almost this exact debate over what became the
-> mlock rlimit!
+I am running on a uniprocessor x86 with CONFIG_SMP disabled and
+CONFIG_PREEMPT enabled.
 
-the big difference to mlock is that for mlock there _is_ a _limit_. For
-RT scheduling the priority is _NOT_ a _limit_. Okay? So you give the
-false pretense of this being some kind of resource 'limit', while in
-fact allowing SCHED_FIFO prio 1 alone enables unprivileged users to lock
-up the system.
+The problem I have encountered is when using a timer in a module.  The
+timer is set to execute every 3 ticks, and does nothing but increment
+a counter, and that works fine.  However, when the module is unloaded
+sometimes the system hangs on module exit and barfs something like:
 
-so i could agree with RLIMIT_NICE (which _is_ a limit), but
-RLIMIT_RTPRIO sends the wrong message. The proper rlimit would be
-RLIMIT_RT_CPU (the patch i did).
+Unable to handle kernel paging request at virtual address e18861bc
+ printing eip:
+c0122a88
+*pde = 015e5067
+*pte = 00000000
+Oops: 0002 [#1]
+PREEMPT
+Modules linked in: yenta socket, rsrc_nonstatic sonypi
+CPU: 0
+...
+Call Trace:
+ __do_softirq+0x76/0x90
+ do_softirq+0x41/0x50
+...
+<0>Kernel panic - not syncing: Fatal exception in interrupt
 
-	Ingo
+
+I am using del_timer_sync to delete the timer in the module_exit
+routine, and sometimes it works correctly.  My theory is that since
+with CONFIG_SMP disabled, del_timer_sync is the same as del_timer. 
+This allows the timer to potentially execute after the module has
+unloaded, causing the invalid paging request.
+
+My solution to the problem (which works, but is probably not optimal)
+is to change '#ifdef CONFIG_SMP' to '#if defined(CONFIG_SMP) ||
+defined(CONFIG_PREEMPT)' around the code defining timer_del_sync.  A
+patch is attached.  Let me know if there's any more information that I
+can provide.
+
+Thanks,
+
+Tipp Moseley
+
+------=_Part_219_19283938.1108112950229
+Content-Type: application/octet-stream; name=linux-2.6.11-rc3-bk7-timer
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="linux-2.6.11-rc3-bk7-timer"
+
+diff -urN linux-2.6.11-rc3-bk7/include/linux/timer.h linux-2.6.11-rc3-bk7-patched/include/linux/timer.h
+--- linux-2.6.11-rc3-bk7/include/linux/timer.h	2004-12-24 14:35:23.000000000 -0700
++++ linux-2.6.11-rc3-bk7-patched/include/linux/timer.h	2005-02-11 01:16:39.000000000 -0700
+@@ -87,7 +87,7 @@
+ 	__mod_timer(timer, timer->expires);
+ }
+ 
+-#ifdef CONFIG_SMP
++#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+   extern int del_timer_sync(struct timer_list *timer);
+   extern int del_singleshot_timer_sync(struct timer_list *timer);
+ #else
+diff -urN linux-2.6.11-rc3-bk7/kernel/timer.c linux-2.6.11-rc3-bk7-patched/kernel/timer.c
+--- linux-2.6.11-rc3-bk7/kernel/timer.c	2005-02-11 01:09:38.000000000 -0700
++++ linux-2.6.11-rc3-bk7-patched/kernel/timer.c	2005-02-11 01:16:53.000000000 -0700
+@@ -318,7 +318,7 @@
+ 
+ EXPORT_SYMBOL(del_timer);
+ 
+-#ifdef CONFIG_SMP
++#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+ /***
+  * del_timer_sync - deactivate a timer and wait for the handler to finish.
+  * @timer: the timer to be deactivated
+
+------=_Part_219_19283938.1108112950229--

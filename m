@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278795AbRKDFTT>; Sun, 4 Nov 2001 00:19:19 -0500
+	id <S278769AbRKDFPj>; Sun, 4 Nov 2001 00:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278789AbRKDFTJ>; Sun, 4 Nov 2001 00:19:09 -0500
-Received: from core.kaist.ac.kr ([143.248.147.118]:55300 "HELO
-	core.kaist.ac.kr") by vger.kernel.org with SMTP id <S278795AbRKDFS5> convert rfc822-to-8bit;
-	Sun, 4 Nov 2001 00:18:57 -0500
-Message-ID: <008f01c164f1$30a06b00$9da5f88f@kaist.ac.kr>
-From: "Chul Lee" <chullee@core.kaist.ac.kr>
-To: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-Cc: "khttpd mailing list" <khttpd-users@zgp.org>
-In-Reply-To: <Pine.LNX.4.30.0111031720270.8761-100000@mustard.heime.net>
-Subject: Re: [khttpd-users] khttpd vs tux
-Date: Sun, 4 Nov 2001 14:26:00 +0900
+	id <S278789AbRKDFPa>; Sun, 4 Nov 2001 00:15:30 -0500
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:30394 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S278769AbRKDFPX>; Sun, 4 Nov 2001 00:15:23 -0500
+Message-ID: <08dd01c164ef$db350190$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "victor" <ixnay@infonegocio.com>
+Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@redhat.com>
+In-Reply-To: <fa.it8dqhv.r6qaig@ifi.uio.no>
+Subject: Re: linux 2.2.20 compile fails on alpha
+Date: Sun, 4 Nov 2001 00:16:27 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You had better refer a paper whose tile is High-Performance Memory-Based Web Servers: Kernel and User-Space Performance, by Philippe  at IBM.T.J Watson
-They also have experiments on performance between various kernel mode web server and user mode web server.
+> asm/pci.h: In function `pci_controller_num':
+> asm/pci.h:62: structure has no member named `pci_host_index'
+> asm/pci.h:63: warning: control reaches end of non-void function
+> make: *** [init/main.o] Error 1
 
-Chul
+I was able to get 2.2.20 to compile by changing asm/pci.h line 62 to
+"pci_hose_index" (s/host/hose/); see the struct definition at the top of
+that file. Also I needed to add "#include <asm/errno.h>" to the same file to
+get the definition of ENXIO... Be warned, I have not actually booted the
+resulting kernel.
 
------ Original Message ----- 
-From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: "khttpd mailing list" <khttpd-users@zgp.org>
-Sent: Sunday, November 04, 2001 1:21 AM
-Subject: [khttpd-users] khttpd vs tux
+Are pci_hose_* really meant to be named like that, or was it an overzealous
+search-and-replace?
 
-
-> hi
-> 
-> can someone tell me what the difference is, in functionality, speed etc.
-> between the tux (2.0?) webserver and khttpd? I'm working on a project
-> where all I need is raw speed - really raw speed - and I really don't know
-> which to choose.
-> 
-> roy
-> 
-> ---
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-> 
-> _______________________________________________
-> khttpd-users maillist  -  khttpd-users@zgp.org
-> http://zgp.org/mailman/listinfo/khttpd-users
+Regards,
+Dan
 

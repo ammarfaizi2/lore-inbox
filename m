@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310430AbSCBTxF>; Sat, 2 Mar 2002 14:53:05 -0500
+	id <S310429AbSCBTu2>; Sat, 2 Mar 2002 14:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310432AbSCBTwz>; Sat, 2 Mar 2002 14:52:55 -0500
-Received: from ja.mac.ssi.bg ([212.95.166.194]:57095 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S310430AbSCBTwl>;
-	Sat, 2 Mar 2002 14:52:41 -0500
-Date: Sat, 2 Mar 2002 21:52:12 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: ja@u.domain.uli
-To: erich@uruk.org
-cc: Szekeres Bela <szekeres@lhsystems.hu>,
-        Daniel Gryniewicz <dang@fprintf.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Network Security hole (was -> Re: arp bug )
-In-Reply-To: <E16hESa-0000Gn-00@trillium-hollow.org>
-Message-ID: <Pine.LNX.4.44.0203022051100.5003-100000@u.domain.uli>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310430AbSCBTuT>; Sat, 2 Mar 2002 14:50:19 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9770 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S310429AbSCBTuK>; Sat, 2 Mar 2002 14:50:10 -0500
+Date: Sat, 2 Mar 2002 20:49:16 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@tech9.net>, h@dualathlon.random
+Cc: Chris Rankin <cj.rankin@ntlworld.com>, rgooch@vindaloo.ras.ucalgary.ca,
+        linux-kernel@vger.kernel.org
+Subject: Re: NOW have 'D-state' processes in 2.4.17 !!!
+Message-ID: <20020302204916.D27020@dualathlon.random>
+In-Reply-To: <200203021818.g22IIo27021932@twopit.underworld> <1015093468.14000.1.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1015093468.14000.1.camel@phantasy>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 02, 2002 at 01:24:27PM -0500, Robert Love wrote:
+> On Sat, 2002-03-02 at 13:18, Chris Rankin wrote:
+> 
+> > [Linux 2.4.17, SMP, devfs, 1.2 GB memory, compiled with gcc-2.95.3,
+> > root partition using EXT3]
+> > 
+> > I upgraded to 2.4.18 a few days ago, but immediately downgraded
+> > because I suddenly had lots of 'D-state' processes. Well I have now
+> > produced a suspiciously-similar-looking D-state process using 2.4.17,
+> > and I strongly suspect that either EXT3 or ALSA is somehow involved
+> > because mounting my root partition as EXT3 and adding the latest CVS
+> > ALSA modules are the only changes that I have made from my previous
+> > reliable 2.4.17 setup.
+> > 
+> > The trace of the misbehaving process looks almost exactly like the
+> > last trace from 2.4.18, except this time I have run it through
+> > ksymoops:
+> 
+> Pretty clear from these traces it is ALSA - the tasks are going to sleep
+> on some ALSA method and are not waking up.  Bug the ALSA people.
+> 
+> A good test would be to not use ALSA and see if it goes away.
 
-	Hello,
+Indeed.
 
-On Sat, 2 Mar 2002 erich@uruk.org wrote:
+Also please, don't call that 2.4.18 and 2.4.17 (like in subject and in a
+earlier message you said 2.4.18 isn't going to be a keeper, you never
+run 2.4.18 so you cannot say that). 2.4.18 is only this one:
 
-> [My apologies for getting into this thread rather late, but I just
->  came across this on a network I'm working with which is all on the
->  same switch/VLAN...  I had 2 network  cards per machine and was
->  puzzled why traffic destined for one interface went to the other]
+	ftp://ftp.kernel.org/pub/linux/kernel/linux-2.4.18.tar.gz
 
-	If another host (spoofer) on the LAN is faster all
-your devices lose the race.
+As soon as you apply a patch to it, it's not longer 2.4.18, it's
+2.4.18+patch.
 
-> I.e. the machine still may be accepting traffic destined for one
-> interface on another, even though it won't *advertise* that fact
-> any more.
+It is very important to get accurate feedback. Linux isn't a microkernel
+architecture, anything you change in any kernel subsystem can lead to
+destabilize the rest of the kernel completly and so we need to know
+exactly what change you made to the kernel before we can debug it.
 
-	You mix two different issues:
-
-1. ARP replying for same request through many devices
-
-2. ARP probes advertising same source IP through many devices
-
-	Your statement is related to (1). There are some golden
-rules on this issue:
-
-- use rp_filter protection for all your external interface
-
-- use different "external" interfaces for the different external
-networks if you want to differentiate the traffic from/to them
-and protect them with rp_filter
-
-- use rp_filter protection for all "internal" interfaces
-attached to same medium (hub) as the "external" interfaces
-
-- no need to use rp_filter protection for the other "internal"
-interfaces, it is recommended, though
-
-- if you want to differentiate traffic by protocol or ports
-use firewall rules (IPSec, stateful conntracking, etc)
-
-	As for (2) I don't see how this can be remotely
-exploited but my opinion is that it should be fixed.
-The current behavior is still valid: if you can talk
-from one local IP to some remote IP through one device
-then you should allow the reverse traffic to work. With
-my fix we just want to reduce the set of the local IPs
-that can be used for ARP announcement. It is only a local
-problem - ARP uses scope link routes. Make sure (1) does
-not lead to problems caused remotely.
-
-> Am I the only one that saw this kind of scary hole?
-
-	The users prefer protection provided from firewall
-rules, even for address spoofing, a matter of taste.
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+Andrea

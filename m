@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265397AbTFMNvP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 09:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTFMNvP
+	id S265398AbTFMOHD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 10:07:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTFMOHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 09:51:15 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:42418 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S265397AbTFMNvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 09:51:14 -0400
-Message-ID: <3EE9DA08.2020707@nortelnetworks.com>
-Date: Fri, 13 Jun 2003 10:04:56 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 13 Jun 2003 10:07:02 -0400
+Received: from windsormachine.com ([206.48.122.28]:1041 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S265398AbTFMOHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 10:07:00 -0400
+Date: Fri, 13 Jun 2003 10:20:46 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 3ware and two drive hardware raid1
+In-Reply-To: <1055494998.5162.26.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0306131017010.16766-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions
-References: <E19Qeoz-0004CM-00@calista.inka.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
+On 13 Jun 2003, Alan Cox wrote:
 
-> does that mean the current linux source tree does not benefit in any way
-> from this patch?
+> On Iau, 2003-06-12 at 16:56, Mike Dresser wrote:
+> > If i have a hardware raid1 array of two 120 gig Maxtor DiamondMax 9 drives
+> > on a 3ware 7000-2.  Failure of one disk should not go all the way up to
+> > the OS and cause the OS to report hard errors, and remount the drive as
+> > read-only, right?
+>
+> Yes, but that won't help you if you lost both drives, which does happen
+> now and again - overheating, bad PSU, using two drives from the same
+> batch together and so on.
+>
+> The trace looks like you may have lost both drives.
+>
+> Alan
+>
 
-I suspect that currently all such instances are wrapped in #ifdef and are not 
-currently compiled in. As he said in the original message,  "it'd be nice to 
-discard unused functions (think CONFIG_PROC_FS=n) without needing to #ifdef 
-around them."
+I'm heading out there today to take a look at the machine and see what
+happened.  I'm rather dissappointed in the 3ware utility, it alternately
+claims both drives are ok(./tw_cli info c1 is different from ./tw_cli
+info c1 u0)
 
-This would allow us to remove those #ifdefs.
+I was relying on that too much, and ignored the possiblity of two drive
+failure.  Looks like both drives would have failed at exactly the same
+time, which sounds like a power spike.
 
-Chris
+I just got a report that another Windows98 workstation is randomly
+rebooting after an hour of uptime at the same facility, so I'm suspecting
+hardware failure like you did.
 
+I'll see what's up when I get there.  Powermax will tell me what's up.
 
+Luckily the damage is contained to the data drive, I will be able to copy
+everything over to a new set of drives and not lose anything that's not
+trivially replaceable.
 
+Thank you Alan,
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Mike
 

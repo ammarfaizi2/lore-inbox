@@ -1,85 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270971AbTHOVWv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 17:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270984AbTHOVWv
+	id S270982AbTHOVTk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 17:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270984AbTHOVTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 17:22:51 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:52705 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S270971AbTHOVWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 17:22:48 -0400
-Subject: Re: Centrino support
-From: Martin List-Petersen <martin@list-petersen.se>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Christian Axelsson <smiler@lanil.mine.nu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1060980941.29086.25.camel@serpentine.internal.keyresearch.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-	 <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-	 <3F3D417A.5090404@lanil.mine.nu>
-	 <1060980941.29086.25.camel@serpentine.internal.keyresearch.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xTHmq0Ys7mJ4Jgn37AfU"
-Message-Id: <1060982549.15347.30.camel@loke>
+	Fri, 15 Aug 2003 17:19:39 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:54401 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270982AbTHOVTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 17:19:38 -0400
+Date: Fri, 15 Aug 2003 22:19:37 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: mouschi@wi.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: Interesting VM feature?
+Message-ID: <20030815211937.GA20208@mail.jlokier.co.uk>
+References: <147bb3140e7a.140e7a147bb3@rdc-kc.rr.com> <20030815200020.GM1027@matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Aug 2003 23:22:29 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815200020.GM1027@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Fedyk wrote:
+> On Fri, Aug 15, 2003 at 02:56:02PM -0500, mouschi@wi.rr.com wrote:
+> > Is madvise required to result in zero filled pages
+> > by a standard, or is this just the commonly accepted
+> > behavior?
+> 
+> I believe it is the standard for clean pages, though someone else will have
+> to point out where...
 
---=-xTHmq0Ys7mJ4Jgn37AfU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That's the answer to a different question.
 
-On Fri, 2003-08-15 at 22:55, Bryan O'Sullivan wrote:
-> On Fri, 2003-08-15 at 13:24, Christian Axelsson wrote:
->=20
-> > Got a list of supported good working cards?
->=20
-> There's a Dell TrueMobile card that uses the Orinoco chipset.  If you're
-> feeling like life is too boring, there are cards based on the newer
-> Intersil dual 802.11b/g chipsets available, too, and though I haven't
-> checked into the shape of the drivers, I know they're under active
-> development.
+The unanswered question is: what should madvise(MADV_DONTNEED) do,
+given dirty pages?
 
-The Dell TrueMobile 1150 series are Agere/Orinoco/Hermes based (MiniPCI
-and PC-Card available). All other Dell TrueMobile cards are Broadcom
-based and have no Linux driver support either.
+man madvise(*) says that it zero-fills anonymous private mappings, and
+restores private file-backed mappings to the original file pages.
 
-There are also MiniPCI, PC-Card, USB adapters with 802.11a/b/g and Linux
-drivers available: http://sf.net/projects/madwifi
+That is not surprising, as the CPU-friendly semantic is more
+complicated to implement, needing an extra flag in the page table
+(or rmap structure).
 
-These are based on the Ateros chipset, which also is around in some OEM
-products.
-
-> > > As far as CPU is concerned, if you're using recent 2.5 or 2.6
-> > > kernels, there's Pentium M support in cpufreq.  Jeremy
-> > > Fitzhardinge has written a userspace daemon that varies the
-> > > Pentium M CPU frequency in response to
-> > > load.
-> >
-> > Can you please point me to this daemon?
-
-http://sf.net/projects/cpufreqd
-
-Regards,
-Martin List-Petersen
-martin at list-petersen dot se
---
-"An idealist is one who, on noticing that a rose smells better than a
-cabbage, concludes that it will also make better soup." - H.L. Mencken
-
---=-xTHmq0Ys7mJ4Jgn37AfU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/PU8UzAGaxP8W1ugRAvKSAKDljWAr7K1H/4/Ac+XjB+ppuU8cBgCePhAe
-dkqMKOLR1yZ7MeSv/KyKzeU=
-=5yRH
------END PGP SIGNATURE-----
-
---=-xTHmq0Ys7mJ4Jgn37AfU--
-
+-- Jamie

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268270AbTB1X6R>; Fri, 28 Feb 2003 18:58:17 -0500
+	id <S268512AbTB1X45>; Fri, 28 Feb 2003 18:56:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268269AbTB1X6Q>; Fri, 28 Feb 2003 18:58:16 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45578 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268270AbTB1X6M>;
-	Fri, 28 Feb 2003 18:58:12 -0500
-Date: Fri, 28 Feb 2003 15:59:47 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [BK PATCH] PCI hotplug changes for 2.5.63
-Message-ID: <20030228235947.GA29946@kroah.com>
-References: <20030225011303.GA5182@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030225011303.GA5182@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S268492AbTB1X45>; Fri, 28 Feb 2003 18:56:57 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:4494 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S268512AbTB1X4z>; Fri, 28 Feb 2003 18:56:55 -0500
+Message-Id: <200303010005.h2105dls031131@wildsau.idv.uni.linz.at>
+Subject: Re: emm386 hangs when booting from linux
+In-Reply-To: <3E5FF7E4.FB290D8F@daimi.au.dk> from Kasper Dupont at "Mar 1, 3 00:59:32 am"
+To: kasperd@daimi.au.dk (Kasper Dupont)
+Date: Sat, 1 Mar 2003 01:05:39 +0100 (MET)
+Cc: kernel@wildsau.idv.uni.linz.at, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org, herp@wildsau.idv.uni.linz.at
+From: hr@gup.uni-linz.ac.at
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 05:13:03PM -0800, Greg KH wrote:
-> Hi,
+> > On the other hand, when instead of loadling MBR and executing it, I
+> > do a far jmp to 0xf000:0xfff0 from "machine_real_start",
 > 
-> Here's some patches that clean up the remove logic a lot for the PCI
-> hotplug drivers.  The main PCI patches were done by Russell King and
-> Christoph Hellwig, and then I went and cleaned up the PCI Hotplug
-> drivers a lot based on their changes.  I also fixed up some exit logic
-> in the IBM PCI hotplug driver, as it was a mess.
-> 
-> Please pull from:  bk://kernel.bkbits.net/gregkh/linux/pci-2.5
+> Isn't that code conventionally called by jumping to
+> 0xffff:0x0000? (Not that it matters, because the first
+> instruction in all BIOSes I have seen is a jump to
+> 0xf000:0xe05b.)
 
-I've merged with your latest tree again, and it's available at the above
-place.  Could you please pull these changes?
+my processor book says that a RESET sets cs to f000 and ip to fff0,
+so I used the same values.
+ 
 
-thanks,
-
-greg k-h

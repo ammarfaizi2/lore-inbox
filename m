@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263698AbUELUZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263444AbUELU0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbUELUZa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbUELUZa
+	id S263444AbUELU0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUELU0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:25:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19081 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263698AbUELUZL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:25:11 -0400
-Message-ID: <40A28815.2020009@pobox.com>
-Date: Wed, 12 May 2004 16:24:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>, davidel@xmailserver.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-References: <20040512020700.6f6aa61f.akpm@osdl.org>	<20040512181903.GG13421@kroah.com>	<40A26FFA.4030701@pobox.com>	<20040512193349.GA14936@elte.hu>	<Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>	<20040512200305.GA16078@elte.hu> <20040512132050.6eae6905.akpm@osdl.org>
-In-Reply-To: <20040512132050.6eae6905.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 May 2004 16:26:39 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:19977 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265227AbUELU0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 16:26:16 -0400
+Date: Wed, 12 May 2004 21:26:15 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mike Werner <werner@sgi.com>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [RFC/PATCH]Allow agp memory allocations to use node information
+Message-ID: <20040512212615.A597@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mike Werner <werner@sgi.com>, linux-kernel@vger.kernel.org,
+	davej@redhat.com
+References: <40A2714B.2F27EA35@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40A2714B.2F27EA35@sgi.com>; from werner@sgi.com on Wed, May 12, 2004 at 11:47:39AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Yes, that's a correct optimisation.  This is simply a namespace clash.
-
-Agreed.
+not a lot of description here, he? :-)
 
 
-> How about we do:
+On Wed, May 12, 2004 at 11:47:39AM -0700, Mike Werner wrote:
+> diff -u linux-2.6.6.orig/drivers/char/agp/agp.h
+> linux-2.6.6/drivers/char/agp/agp.h
+> --- linux-2.6.6.orig/drivers/char/agp/agp.h     Sun May  9 19:32:28 2004
 > 
-> #if HZ=1000
-> #define	MSEC_TO_JIFFIES(msec) (msec)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies)
-> #elif HZ=100
-> #define	MSEC_TO_JIFFIES(msec) (msec * 10)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
-> #else
-> #define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
-> #define	JIFFIES_TO_MSEC(jiffies) ...
-> #endif
+> +++ linux-2.6.6/drivers/char/agp/agp.h  Wed May 12 11:43:19 2004
+> @@ -111,7 +111,7 @@
+>         int (*remove_memory)(struct agp_memory *, off_t, int);
+>         struct agp_memory *(*alloc_by_type) (size_t, int);
+>         void (*free_by_type)(struct agp_memory *);
+> -       void *(*agp_alloc_page)(void);
+> +       void *(*agp_alloc_page)(int);
+>         void (*agp_destroy_page)(void *);
+
+Wrong interface.  We need to pass a struct agp_bridge_data to
+each of the methods anyway for proper support for multiple AGP
+bridges in a single system.  And once you have that you can simply
+use the node id your patches stores in agp_bridge_data.
+
+> +++ linux-2.6.6/drivers/char/agp/intel-mch-agp.c        Wed May 12
+> 11:16:02 2004
+> @@ -43,7 +43,7 @@
+>         if (pg_count != 1)
+>                 return NULL;
 > 
-> in some kernel-wide header then kill off all the private implementations?
+> -       addr = agp_bridge->driver->agp_alloc_page();
+> +       addr = agp_bridge->driver->agp_alloc_page(AGPGART_DEFAULT_NODE);
 
-
-include/linux/time.h.  One of the SCTP people already did this, but I 
-suppose it's straightforward to reproduce.
-
-	Jeff
-
-
+wrong default again.  for the agp bridges that have an associated pci
+device (aka about everything except hpzx and alpha IIRC) you should
+use pcibus_to_cpumask (or what the thing was called).  For the others
+you should try to contact the maintainers for a proper choice.
 

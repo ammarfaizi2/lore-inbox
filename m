@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTICHPv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 03:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbTICHPv
+	id S261455AbTICHbY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 03:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTICHbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 03:15:51 -0400
-Received: from [202.54.64.126] ([202.54.64.126]:22144 "EHLO
-	turaco.siptech.co.in") by vger.kernel.org with ESMTP
-	id S261332AbTICHPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 03:15:50 -0400
-Message-ID: <3F55985F.6000602@siptech.co.in>
-Date: Wed, 03 Sep 2003 12:59:35 +0530
-From: Elanjchezhiyan <chezhiyan@siptech.co.in>
-Organization: SIP Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Any one working or worked  on with Ethtool??????????
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: SIP - Found to be clean
+	Wed, 3 Sep 2003 03:31:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54284 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261455AbTICHbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 03:31:23 -0400
+Date: Wed, 3 Sep 2003 08:31:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Larry McVoy <lm@work.bitmover.com>, Jamie Lokier <jamie@shareable.org>,
+       "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030903083118.A17670@flint.arm.linux.org.uk>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>,
+	"Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+	linux-kernel@vger.kernel.org
+References: <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk> <20030902053415.GA7619@mail.jlokier.co.uk> <20030902091553.A29984@flint.arm.linux.org.uk> <20030902115731.GA14354@mail.jlokier.co.uk> <20030902195222.D9345@flint.arm.linux.org.uk> <20030902235900.GA5769@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030902235900.GA5769@work.bitmover.com>; from lm@bitmover.com on Tue, Sep 02, 2003 at 04:59:00PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- Urgent Help...............................................
+On Tue, Sep 02, 2003 at 04:59:00PM -0700, Larry McVoy wrote:
+> On Tue, Sep 02, 2003 at 07:52:22PM +0100, Russell King wrote:
+> > Multiple mappings of the same object rarely occur in my experience, so
+> > the resulting performance loss caused by working around the cache and
+> > writebuffer is something we can live with.
+> 
+> Multiple *writable* mappings.   Don't forget about libc et al.
+
+I mean in the same group of threads with the same struct mm, not the whole
+system.
 
 -- 
-T.Elanjchezhiyan
-Core Technology Group
- 
-SIP Technologies & Exports Ltd
-G4, Elnet Software City,CPT Road
-Taramani, Chennai 600 113
-India
-Phone: +91-44-22541401
-           +91-44-22541031
-Fax    : +91-44-22541475
-Website: http://www.siptech.com
------------------------------------------
-  
-
-
-
-. 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

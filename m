@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288994AbSAZCmG>; Fri, 25 Jan 2002 21:42:06 -0500
+	id <S288995AbSAZCqg>; Fri, 25 Jan 2002 21:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288995AbSAZCl4>; Fri, 25 Jan 2002 21:41:56 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:18306 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S288994AbSAZClq>; Fri, 25 Jan 2002 21:41:46 -0500
-Date: Sat, 26 Jan 2002 02:36:58 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: yodaiken@fsmlabs.com
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Robert Love <rml@tech9.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020126023658.A5730@kushida.apsleyroad.org>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <1011650506.850.483.camel@phantasy> <20020121165659.A20501@hq.fsmlabs.com> <E16SqOY-0001mL-00@starship.berlin> <20020124081950.A5668@hq.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020124081950.A5668@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Thu, Jan 24, 2002 at 08:19:50AM -0700
+	id <S288996AbSAZCq0>; Fri, 25 Jan 2002 21:46:26 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:32268 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S288995AbSAZCqL>; Fri, 25 Jan 2002 21:46:11 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 25 Jan 2002 18:53:16 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andi Kleen <ak@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] syscall latency improvement #1
+In-Reply-To: <Pine.LNX.4.33.0201251810270.16989-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.40.0201251851420.1647-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com wrote:
-> > > 	It has no demonstrated benefits.
-> > 
-> > Demonstrated to who?  I have certainly demonstrated the benefits to
-> > myself, and others have attested to doing the same.
-> 
-> I've heard similar arguments in favor of aromatherapy and Scientology.
-> 
-> What's amazing about all the arguments in favor of preemption is that we
-> don't see any published numbers of the obvious application: a periodic
-> SCHED_FIFO process. We've done these experiments and the results are
-> _dismal_. 
+On Fri, 25 Jan 2002, Linus Torvalds wrote:
 
-Hi Victor,
+>
+> On Sat, 26 Jan 2002, Andi Kleen wrote:
+> > On Fri, Jan 25, 2002 at 05:53:57PM -0800, Linus Torvalds wrote:
+> > >
+> > > On 26 Jan 2002, Andi Kleen wrote:
+> > > >
+> > > > It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles.
+> > >
+> > > .. and it probably serializes the instruction stream.
+> >
+> > I have word from AMD engineering that it doesn't stall the pipeline
+> > or serializes.
+>
+> Note that it may not be the "cli" itself - the "iret" may be slower if it
+> has to enable interrupts that were disabled before. Ie the iret microcode
+> may have the equivalent of
+>
+> 	/* Did eflags change? */
+> 	if ((new_eflags ^ old_eflags) & IF_MASK)
+> 		.. do sti/cli as appropriate ..
+>
+> which would mean that the "cli" itself may take 4 cycles, but the "sti"
+> implicit in the iret will _also_ take 4 cycles and is optimized away when
+> not needed.
+>
+> Which would add up to the 8 cycles needed for a ~3.4% speedup (this is
+> assuming the baseline is something like 250 cycles per system call, I've
+> not checked that assumption).
 
-I am specifically interested in SCHED_FIFO performance (for a software
-modem driver).  Can you publish thes results of yours of SCHED_FIFO
-performance with & without the preempt patches?
+guys, why don't you use #rdtsc to discover where perf improvement comes from ?
 
-Thanks,
--- Jamie
+
+
+
+- Davide
+
+

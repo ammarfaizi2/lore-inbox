@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUIOPn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUIOPpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUIOPn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIOPn3
+	id S266490AbUIOPpW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIOPpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:43:29 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:38879 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S266490AbUIOPnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:43:17 -0400
-Date: Wed, 15 Sep 2004 16:43:59 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Latest microcode data from Intel.
-In-Reply-To: <Pine.LNX.3.96.1040915111445.10950I-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0409151641430.3504-100000@einstein.homenet>
+	Wed, 15 Sep 2004 11:45:22 -0400
+Received: from pyxis.pixelized.ch ([213.239.200.113]:30126 "EHLO
+	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S266490AbUIOPpN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:45:13 -0400
+Message-ID: <4148637F.9060706@debian.org>
+Date: Wed, 15 Sep 2004 17:45:03 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tonnerre <tonnerre@thundrix.ch>
+CC: Ian Campbell <icampbell@arcom.com>, Greg KH <greg@kroah.com>,
+       "Marco d'Itri" <md@Linux.IT>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: udev is too slow creating devices
+References: <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch>
+In-Reply-To: <20040915152019.GD24818@thundrix.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Bill Davidsen wrote:
-> That's exactly why I mentioned using the per-cpu device if present. While
-> having CPUs with different loaders is not a feature today, I wouldn't bet
-> that will always be true. We know that AMD expects to ship dual core CPUs
-> in an Opteron form factor. If I have a dual opteron system and replace one
-> CPU with dual core, will I need a different loader? I have no idea, but
-> since it's easy to use the per-CPU microcode I would.
 
-The microcode driver handles the case of different types of CPUs in an SMP 
-system internally. Namely, it selects the appropriate microcode data 
-chunks for each CPU and then uploads them correctly to each one. Anyway, 
-it only works for Intel processors, so AMD is not in the equation anyway 
-(unless I discover that AMD processors support similar feature and enhance 
-the driver to support it).
 
-Kind regards
-Tigran
+Tonnerre wrote:
+> 
+> On Wed, Sep 15, 2004 at 03:36:06PM +0100, Ian Campbell wrote:
+> 
+>>I wonder if it would be feasible for modprobe (or some other utility) to
+>>have a new option: --wait-for=/dev/something which would wait for the
+>>device node to appear. Perhaps by:
+>>	- some mechanism based on HAL, DBUS, whatever
+>>	- dnotify on /dev/?
+>>	- falling back to spinning and waiting.
+> 
+> 
+> This would  end up  as hideous misfeature  as you can't  guarantee the
+> device to show up *at* *all*.
+> 
+> The reason udev is there is that we can dynamically respond to created
+> device nodes and  devices that show up. They  might have changed since
+> the last boot. Maybe they don't show up at all.
+> 
+> Thus you should trigger your actions from /etc/dev.d.
 
+It is right.
+But an option --wait would be sufficient.
+This option will require modprobe to wait (with a timeout of
+x seconds) that hotplug event finish (so if device is created or
+not is no more a problem).
+Ideally this should be done modifing only hotplug and IMHO
+should be enabled by default.
+
+ciao
+	cate

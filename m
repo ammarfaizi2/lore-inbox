@@ -1,89 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUDBMGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 07:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbUDBMGS
+	id S263460AbUDBMIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 07:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbUDBMIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 07:06:18 -0500
-Received: from zigzag.lvk.cs.msu.su ([158.250.17.23]:65173 "EHLO
-	zigzag.lvk.cs.msu.su") by vger.kernel.org with ESMTP
-	id S263003AbUDBMGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 07:06:16 -0500
-From: "Nikita V. Youshchenko" <yoush@cs.msu.su>
-To: linux-kernel@vger.kernel.org
-Subject: Exploring sigqueue leak (was: Strange 'zombie' problem both in 2.4 and 2.6)
-Date: Fri, 2 Apr 2004 16:05:15 +0400
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 07:08:04 -0500
+Received: from mailout.zma.compaq.com ([161.114.64.105]:55568 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S263460AbUDBMH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 07:07:58 -0500
+Date: Fri, 2 Apr 2004 14:07:12 +0200
+From: Torben Mathiasen <torben.mathiasen@hp.com>
+To: benh@kernel.crashing.org, trini@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 40x PPC relocation issue during boot
+Message-ID: <20040402120712.GF1756@tmathiasen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404021605.15909@zigzag.lvk.cs.msu.su>
-X-Scanner: exiscan *1B9NQC-0000dc-00*VqARkqiIoA6*
+User-Agent: Mutt/1.4.1i
+X-OS: Linux 2.6.5-rc3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Looking at the current 2.6 tree, there's an issue when one tries to boot a
+zImage image (with or without an attached initrd). This is present in the -benh
+tree as well.
 
-Yesterday I posted to linux-kernel describind a problem that caused both 
-2.4 and 2.6 kernels to leave lots of zombies.
-I analysed the problem and found it is caused by overflow of 'sigqueue' 
-slab cache (I may be wrong in terminology here). Details are in my 
-previous post.
+In ~/arch/ppc/boot/simple/relocate.S the following snip is present:
 
-Now I'm looking for advice from somebody who understands how stuff in 
-linux/signal.c works.
+..
+	li	r9,0xc
+	mtlr	r9
+#ifdef CONFIG_PPC_MULTIPLATFORM
+	/* tell kernel we're prep, by putting 0xdeadc0de at KERNELLOAD,
+	 * and tell the kernel to start on the 4th instruction since we
+	 * overwrite the first 3 sometimes (which are 'nop').
+	 */
+	lis	r10,0xdeadc0de@h
+	ori	r10,r10,0xdeadc0de@l
+	li	r9,0
+	stw	r10,0(r9)
+#endif
+	blr
 
-[the following ins about unpatched 2.6.4 kernel]
 
-Seems that 'sigqueue' objects are allocated exactly in 2 places: in 
-__sigqueue_alloc() and in send_signal().
+We jump to the 4th instruction, but for the 40x class of cpu's this inst being
+taken into account anymore. 3 nop's are missing from head_4xx.S:
 
-__sigqueue_alloc() seems to be used only by sigqueue_alloc();
-sigqueue_alloc() seems only to be used by alloc_posix_timer() from 
-kernel/posix-timers.c;
-alloc_posix_timer() is a static function used only by sys_timer_create() 
-syscall handler.
-This syscall is not one widely used; I'm not sure it it is actually used by 
-anything running here.
+	.text
+_GLOBAL(_stext)
+_GLOBAL(_start)
 
-So the leak seems to happen through allocation of 'sigqueue' objects in 
-send_signal().
-However, if I understand correctly, object allocated here keeps information 
-about signal being transferred, and lives as long as this tranfer is in 
-progress.
-Signal transfer is somewhat very fast.
-So, if everything is working ok, usually zero 'sigqueue' objects should be 
-allocated.
+	/* Save parameters we are passed.
+	*/
+	mr	r31,r3
+	mr	r30,r4
+	...
+	...
 
-Seems that it is possible to find out how many 'sigqueue' objects are 
-currently allocated by running
-   grep sigqueue /proc/slabinfo
-and looking at the first number of output.
-So seems that almost always the first number in the output of the above 
-command should be zero.
-And that's exactly what happens on all hosts here expect the server.
+The requirements of the 3 nops is silly anyway, but the relocation code needs
+to be fixed. I haven't done the patch as I'm not sure if any other code will
+overwrite the first 3 instructions. I hit this bug on an IBM 405EP dev
+platform.
 
-Just after reboot and starting all services, the number on the server was 
-135. Later it changes, sometimes getting down to about 40, sometimes 
-rising to something about 200. It is never becoming zero.
-
-And after some time, when happens what I've described in the previous 
-postings, it gets up to 1024 and stays there forever, causing some 
-user-space visible misbehaves. The zombie keeping is not the only one. 
-Other is strange and definitly incorrect failures inside threaded 
-programs.
-
-I thought that some 'sigqueue' objects could correspond to pending signals 
-that are blocked by their reciever processes. However, I can't see any 
-pending signals running
-   grep SigPnd /proc/*/status
-- all displayed masks are zeroes, while there are more than 100 allocated 
-'sigqueue' objects.
-
-So that's what I found.
-Please correct me if I'm wrong, and/or advice where to look for the leak.
-
-Nikita
-
+Torben
+- 

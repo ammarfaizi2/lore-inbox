@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313968AbSDFETR>; Fri, 5 Apr 2002 23:19:17 -0500
+	id <S313641AbSDFBv2>; Fri, 5 Apr 2002 20:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313969AbSDFETH>; Fri, 5 Apr 2002 23:19:07 -0500
-Received: from mail.gmx.de ([213.165.64.20]:34059 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313968AbSDFESt>;
-	Fri, 5 Apr 2002 23:18:49 -0500
-Date: Sat, 6 Apr 2002 13:46:40 +0930
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel panic
-Message-ID: <20020406041640.GA451@gmx.net>
+	id <S313916AbSDFBvS>; Fri, 5 Apr 2002 20:51:18 -0500
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:10196 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S313641AbSDFBvJ> convert rfc822-to-8bit; Fri, 5 Apr 2002 20:51:09 -0500
+Message-Id: <5.1.0.14.2.20020405174611.00b1dad0@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 05 Apr 2002 17:49:02 -0800
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: some more nifty benchmarks
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Robert Love <rml@tech9.net>,
+        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@zip.com.au>,
+        George Anzinger <george@mvista.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrea Arcange <andrea@suse.de>
+In-Reply-To: <200204052237.29299.Dieter.Nuetzel@hamburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Daniel Mundy <djmunds@gmx.net>
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+At 10:37 PM 5/04/2002 +0200, Dieter Nützel wrote:
+>That's not true with the O(1)-scheduler.
+>In most of my tests (Ingo got my results) you have to renice the audio daemon
+>to something like -16 (first "real time" class) and X to -10 (for good
+>interactivity) during "heavy" background stuff (40 gcc and 40 g++ processes
+>reniced +19 for example). This load resulting in ~350 processes, 80~85
+>running in parallel and sound playing on my "old" 1 GHz Athlon II with 640
+>MB...;-)
 
-Lately I am having kernel panic's, and I have no idea why.. I have not changed anything lately except for regular
-software updates. I am using Debian Woody 3.0, packages updated daily, with a 2.4.18 kernel. I have not noticed any
-pattern in occurance, the other day it happened just after I dialed my ISP, about 20 minutes ago I was simply using
-vim from my windows box via ssh, and just now I had it freeze again after typing `vim .<tab>`..
+you've completely missed the point.
 
-I also noticed that on reboot, it presents me with "(none) login:" rather than using my hostname of xion as per
-usual.. an `ifconfig` shows nothing, ifconfig simply lists lo, and no eth0. Another reboot fixes this. This has only
-happened once, I just had another kernel panic and this time on reboot my network is fine, so I am not sure whether
-this is related.
+for "CPU intensive" tasks (which GCC will be for large files being 
+compiled), it will want to use its entire time-slice.
+with HZ set at 100 for x86, that means it can run for up to 10msec without 
+being preempted (if its not performing any system calls, I/O or other 
+things which can cause a context-switch).
 
-These are the messages I see on my terminal, I cannot see any more as this is the highest mode my monitor can support:
+with 40 of these running, i have no doubt that you'll get skips on your audio.
 
--------------------------
-<1>Unable to handle kernel NULL pointer deference at virtual address 00000000
- printing eip:
-000000
-*pde = 000000
-Oops: 0000
-CPU:   0
-EIP:   0010:[<00000000>]   Tainted: P
-EFLAGS: 00010246
-eax: 00000000   ebx: c6af3b40   ecx: c52df1eo   edx: 00000014
-esi: c6af3c78   edi: c6d530bc   ebp: c6af3c78   esp: c030dd9c
-ds: 0018   es: 0018   ss: 0018
-Process Swapper (pid: 0, stackpage=c030d000)
-Stack: c02636oe c6af3b40 c6d530bc 00000014 c52df1e0 61f6f8a5 c6af3b40 c52df640
-(more lines of this, my monitor is almost dead so was hard to read, if it is needed though I can find it out the next
-time this problem occurs)
-Call Trace: [<c026360e>] [<c0265bd6>] (etc, see above)
+are you using xmms?  if so, this has been discussed to death previously - 
+and the fault lies with the userspace application.
 
-Code: Bad EIP value.
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
--------------------------
 
-I asked around a bit on IRC and it was suggested I try asking here as this seems a kernel related problem. Thanks for
-any help you can offer, if any more information about my situation is required let me know.
+cheers,
 
-Regards,
-Daniel Mundy
+lincoln.
+

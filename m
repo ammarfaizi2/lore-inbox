@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265514AbTFSUfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 16:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265481AbTFSUfI
+	id S265665AbTFSUgy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbTFSUgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 16:35:08 -0400
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:47567
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id S265514AbTFSUdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 16:33:02 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com
-Reply-To: davidm@hpl.hp.com
-Subject: Re: common name for the kernel DSO
-References: <20030618192007$14a5@gated-at.bofh.it>
-	<20030619062011$555e@gated-at.bofh.it>
-	<20030619192018$5cab@gated-at.bofh.it>
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Date: 19 Jun 2003 13:26:42 -0700
-In-Reply-To: <20030619192018$5cab@gated-at.bofh.it>
-Message-ID: <ug3ci5zud9.fsf@panda.mostang.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 19 Jun 2003 16:36:50 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7179 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265665AbTFSUgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 16:36:37 -0400
+Date: Thu, 19 Jun 2003 16:43:36 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: James Simmons <jsimmons@infradead.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.71 - random console corruption
+In-Reply-To: <Pine.LNX.4.44.0306172149490.21214-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.3.96.1030619164055.12043B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 19 Jun 2003 21:20:19 +0200, Jamie Lokier <jamie@shareable.org> said:
+On Tue, 17 Jun 2003, James Simmons wrote:
 
-  Jamie> H. Peter Anvin wrote:
-  >> It's a pretty ugly name, quite frankly, since it doesn't explain
-  >> what it is a gate from or to.  linux-syscall.so.1 or
-  >> linux-kernel.so.1 would make a lot more sense.
+> 
+> > > For userland<->kernel transactions we have the console_semaphore to 
+> > > protect us. It is also used for console_callback. The console_semaphore is
+> > > not used internally to protect global variables :-( To do this properly 
+> > > would take quite a bit of work.  
+> > 
+> > It looks like all these globals need a lock -- they can race on SMP or
+> > with kernel preemption.
+> > 
+> > Is it really going to be that hard to wrap a lock around their access,
+> > because I think this is going to bite SMP users.
+> 
+> For things like fg_console and currcon it will be. Those variables are 
+> used everyway like mad. That is a whole lot of locks. I doubt this issue 
+> will be solved until 2.7.X.
 
-  Jamie> linux-syscall.so.1 makes most sense to me.
+Given that it has just become easy to replicate, I suspect that it will
+get fixed by someone looking at the recent changes. Agreed, a perfect fix
+may wait, but when preempt fails regularly and SMP works, as described in
+posts and by some mail, I don't think a rewrite is needed, just one or a
+few locks.
 
-  Jamie> It's the only one which is correct and unambiguous.
+My guess only.
 
-It's not really correct.  The DSO can be used for up-calls (e.g.,
-signal trampolines), too.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Like I said, I can _live_ with "syscall", but would prefer "gate",
-because it's technically more accurate.  It's also shorter, always a
-bonus... ;-)
-
-	--david

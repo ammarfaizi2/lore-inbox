@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270138AbTGUOh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUOh1
+	id S270109AbTGUOfw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUOfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:37:27 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:16115 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S270138AbTGUOhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:37:25 -0400
-Subject: Re: devfsd/2.6.0-test1
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, KML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20030721143645.GA9480@kroah.com>
-References: <200307202117.32753.arvidjaar@mail.ru>
-	 <1058741336.19817.147.camel@nosferatu.lan>
-	 <20030721143645.GA9480@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058799142.5132.5.camel@workshop.saharacpt.lan>
+	Mon, 21 Jul 2003 10:35:52 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:16267 "EHLO
+	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
+	id S270109AbTGUOfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:35:42 -0400
+Date: Mon, 21 Jul 2003 15:50:42 +0100
+From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SVR4 STREAMS (for example LiS)
+Message-ID: <20030721145042.GA17555@lsd.di.uminho.pt>
+Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+	linux-kernel@vger.kernel.org
+References: <3F1BF509.1000608@giga-stream.de> <Pine.LNX.4.53.0307211031460.18968@chaos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 21 Jul 2003 16:52:22 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307211031460.18968@chaos>
+User-Agent: Mutt/1.4.1i
+X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
+X-Organization: 'GSD'
+X-Section: 'BIC'
+X-Priority: '1 (Highest)'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-21 at 16:36, Greg KH wrote:
-> On Mon, Jul 21, 2003 at 12:48:56AM +0200, Martin Schlemmer wrote:
-> > On Sun, 2003-07-20 at 19:17, Andrey Borzenkov wrote:
-> > > > Also, read the threads on the list about udev/hotplug - apparently
-> > > > devfsd is going out ...
-> > > 
-> > > as long as you have memory-based /dev you need devfsd even if it is called 
-> > > differently.
-> > >
-> > 
-> > I have not looked at it myself, but as far as I have it, you do not
-> > mount /dev, and just need udev/hotplug/libsysfs (not sure on libsysfs).
-> > Currently udev still call mknod, but I think Greg said he will fix that
-> > in the future.
-> 
-> What's wrong with calling mknod?
-> 
-> I did say I thought about calling sys_mknod directly from udev, but
-> that's just a minor change.  Is that what you were referring to?
-> 
+On Mon, Jul 21, 2003 at 10:38:38AM -0400, Richard B. Johnson wrote:
+> Streams are an extension of buffered I/O implimented by the 'C'
+> runtime library. Streams really have nothing to do with the
+> internal workings of kernel I/O. As far as kernel I/O goes,
+> one reads() and writes() from user-space.
 
-Yep.  Nothing major - I just want to remember somebody moaning
-about too much overhead with udev spawning for every event in
-/dev.
+Actually, SysV Streams do.
 
+An ex, for openning a pty, on svr4:
+fds = open(pts_name, O_RDWR)
+ioctl(fds, I_PUSH, "ptem")
+ioctl(fds, I_PUSH, "ldterm")
+ioctl(fds, I_PUSH, "ttcompat")
 
-Cheers,
+Where ptem, ldterm, ttcompat work as independent modules converting the
+stream, resulting in a pseudo-terminal implementation.
 
--- 
-Martin Schlemmer
+New programs should just use openpty directly, and let libc take care
+of the actual implementation.
 
+Also, BSD sockets were implemented using streams also, thus the compatibility
+libraries.
 
+Anyway, I see no point in caring wether streams are used or not in normal
+programs.
+
+Regards,
+Luciano Rocha

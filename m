@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263114AbTCLI7E>; Wed, 12 Mar 2003 03:59:04 -0500
+	id <S263111AbTCLI4d>; Wed, 12 Mar 2003 03:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263115AbTCLI7E>; Wed, 12 Mar 2003 03:59:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38054 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263114AbTCLI7C>;
-	Wed, 12 Mar 2003 03:59:02 -0500
-Date: Wed, 12 Mar 2003 10:09:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: scott thomason <scott-kernel@thomasons.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bio too big device
-Message-ID: <20030312090943.GA3298@suse.de>
-References: <20030312085145.GJ811@suse.de> <Pine.LNX.4.10.10303120100490.391-100000@master.linux-ide.org>
+	id <S263112AbTCLI4c>; Wed, 12 Mar 2003 03:56:32 -0500
+Received: from elin.scali.no ([62.70.89.10]:42681 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S263111AbTCLI4A>;
+	Wed, 12 Mar 2003 03:56:00 -0500
+Subject: Re: User Process and a Kernel Thread
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Prasad <prasad_s@students.iiit.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303111559001.26984-100000@students.iiit.net>
+References: <Pine.LNX.4.44.0303111559001.26984-100000@students.iiit.net>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1047459991.26850.1261.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10303120100490.391-100000@master.linux-ide.org>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 12 Mar 2003 10:06:31 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12 2003, Andre Hedrick wrote:
+You should have very good reasons for making a kernel thread. 
+As in "it can't be done in userspace".
+
+When running a kernel thread you have "process" that is 
+a) using the kernel memory, not it own private
+b) the CPU is in privilege mode, not user mode
+c) libc don't exist
+
+If you don't understand the difference between kernel mode and user
+mode, your question suggest you don't, read chapter two in 
+http://www.xml.com/ldd/chapter/bookindexpdf.html
+and please keep of lkml, and direct you questions to the kernelnewbie
+list : http://www.kernelnewbies.org/
+
+Terje
+
+On Tue, 2003-03-11 at 11:32, Prasad wrote:
+> Hi all,
+> 	Whats the difference between the user process and a kernel thread? 
+> IS it possible to make the kernel thread a user process? if yes, how do we 
+> do that?
 > 
-> So lets dirty list the one drive by Paul G. and be done.
-> Can we do that?
-
-Who cares, really? There's not much point in doing it, we're talking 248
-vs 256 sectors in reality. I think it's a _bad_ idea, lets just keep it
-at 255 and avoid silly drive bugs there.
-
+> Prasad.
 -- 
-Jens Axboe
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

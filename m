@@ -1,64 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282907AbRK0Txs>; Tue, 27 Nov 2001 14:53:48 -0500
+	id <S282920AbRK0T66>; Tue, 27 Nov 2001 14:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282920AbRK0Tx2>; Tue, 27 Nov 2001 14:53:28 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:64920 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S282907AbRK0TxX>; Tue, 27 Nov 2001 14:53:23 -0500
-Message-Id: <5.1.0.14.2.20011127193412.00acb450@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 27 Nov 2001 19:53:10 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Absence of PS/2 keyboard causes spurious IRQ7? - Was Re:
-  'spurious 8259A interrupt: IRQ7'
-Cc: martin@jtrix.com (Martin A. Brooks), lkml@patrickburleson.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E168jk1-0001J7-00@the-village.bc.nu>
-In-Reply-To: <1793.10.119.8.1.1006872608.squirrel@extranet.jtrix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282923AbRK0T6s>; Tue, 27 Nov 2001 14:58:48 -0500
+Received: from law2-oe31.hotmail.com ([216.32.180.24]:22280 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S282921AbRK0T6n> convert rfc822-to-8bit;
+	Tue, 27 Nov 2001 14:58:43 -0500
+X-Originating-IP: [62.98.82.94]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <chaffee@cs.berkeley.edu>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <LAW2-OE64dLLZfOfAD200002cce@hotmail.com> <20011127091137.Z5129@suse.de>
+Subject: Re: Kernel Panic: too few segs for DMA mapping increase AHC_NSEG
+Date: Tue, 27 Nov 2001 20:59:04 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <LAW2-OE31k2VkJBQmE000002f0a@hotmail.com>
+X-OriginalArrivalTime: 27 Nov 2001 19:58:35.0355 (UTC) FILETIME=[E5D392B0:01C1777D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 15:01 27/11/01, Alan Cox wrote:
->With IO Apic support included ? If you are using an AMD/VIA combo chipset
->board that would explain it
+I have applied your patch against kernel 2.4.16
+This was the message:
 
-I do use IO Apic on both my machines (one athlon/via kt133, one p4/i845) 
-and as long as I have a PS/2 keyboard attached I NEVER see the spurious 
-interrupt message on either system.
+(Stripping trailing CRs from patch.)
+patching file drivers/scsi/aic7xxx/aic7xxx_linux.c
+Hunk #1 succeeded at 625 (offset 1 line).
+Hunk #3 succeeded at 1714 (offset 1 line).
 
-With a USB keyboard instead of a PS/2 keyboard the VIA box but not the i845 
-box starts showing the spurious IRQ7. It appears during boot exactly once 
-(always) and then occasionally during system run time. Usually associated 
-with me loading/unloading the ntfs module during testing.
+Then I built a kernel with hi mem support, and vfat driver built as a module.
+reboot machine with new kernel.
 
-Also when using the USB keyboard I get keyboard: Timeout - AT keyboard not 
-present?(f4) messages popping up from time to time. Usually accompanied by 
-a spurious IRQ7 message.
+Root login, modprobe vfat (modutils 2.4.12) and I always get this message:
 
-So at least on my VIA box there seems to be a relationship between the lack 
-of PS/2 keyboard and the IRQ7 messages.
+Warning: loading /lib/modules/2.4.16/kernel/fs/vfat/vfat.o will taint the kernel: no license
 
-Note, with my PS/2 keyboard (before I upgraded to USB one) I never saw 
-either of the above messages.
+Then I try I mount the vfat filesystem:
 
-I recently upgraded the i845 box to USB keyboard as well and while I do see 
-the kyboard: Timeout messages I do not see any spurious interrupts.
+mount /dev/sda2 /mnt
 
-Very odd.
+and when I try to copy a file from the vfat FS to the linux root FS I get this kernel panic message
 
-Best regards,
+code: 0f 0b 80 4f 07 80 8b 03 8b 53 2c 83 ca 82 89 50 14 8b 13 8b
+too few segs for dma mapping increase ahc-nseg
+invalid operand: 0000
+cpu: 0
+eip: 0010 : [<c017f8b5>] tainted: P
+eflags: 000010046
+eax: ffffffff ebx: f7ea58f0 ecx: c0214000 edx: 00000000
+esi: 00001000 edi: e3062800 ebp: f7ea1b40 esp: c0215e08
+ds: 0018 es: 0018 ss: 0018
+process swapper (pid:0, stackpage=c0215000)
 
-         Anton
+<0>Kernel panic: Aiee, killing interrupt handler!
+in interrupt handler_not syncing.
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+ebx, edi, ebp values change at every panic.
 
+Hope this help you.
+
+----- Original Message ----- 
+From: "Jens Axboe" <axboe@suse.de>
+To: "Marco Berizzi" <pupilla@hotmail.com>
+Cc: <chaffee@cs.berkeley.edu>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 27, 2001 9:11 AM
+Subject: Re: Kernel Panic: too few segs for DMA mapping increase AHC_NSEG
+
+
+> On Tue, Nov 27 2001, Marco Berizzi wrote:
+> > I have upgraded my PC from 768MB RAM to 1GB.
+> > I have recompiled the kernel (2.4.16) for hi mem support (4GB).
+> >
+> > I have several file system on the same disk (vfat file system). I have
+> > compiled vfat driver both in the main kernel and as a module. When I
+> > load the module I issue a
+> > 'modprobe vfat' and I get this message (only with hi mem kernel
+> > support):
+> >
+> > Warning: loading /lib/modules/2.4.16/kernel/fs/vfat/vfat.o will taint
+> > the kernel: no license
+> >  I'm using Slackware 8.0. + modutils 2.4.12
+> >
+> > Then if I try to copy a file from that filesystem to the root filesystem
+> > I get this error:
+> >
+> > Kernel panic: too few segs for DMA mappings increase AHC_NSEG
+> >
+> > Kernel panic: too few segs for DMA mappings increase AHC_NSEG
+> 
+> You still haven't applied the patch I sent? Sending the same report
+> without this extra added infor 2 or 3 times isn't doing any good, sorry.
+> 
+> --
+> Jens Axboe
+> 
+> 

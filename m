@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVCNSyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVCNSzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVCNSyT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVCNSyS
+	id S261694AbVCNSzy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVCNSzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:54:18 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:38765 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261663AbVCNSxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:53:21 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: Partial fix! - Was: Re: [BUG report] UML linux-2.6 latest BK doesn't compile
-Date: Sun, 13 Mar 2005 21:06:34 +0100
-User-Agent: KMail/1.7.2
-Cc: Jeff Dike <jdike@addtoit.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk> <200503072044.49206.blaisorblade@yahoo.it> <200503080010.j280ABbc005264@ccure.user-mode-linux.org>
-In-Reply-To: <200503080010.j280ABbc005264@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503132106.35599.blaisorblade@yahoo.it>
+	Mon, 14 Mar 2005 13:55:54 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:15850 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261694AbVCNSzg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 13:55:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Gn6yDORPKNhjsvP2MTU4PD3I28WBsyQY4c6tBwMbdLDzNCG3E4/mwepxsom0zxFpvXV4NSj/YtceaUYV/duVkOYT4yZqJmiY98xqS7IAeMb0M20FUsFSTImUXsx6Ir2jUPjaoMvJvYzOGq/wlR1QMXw0389nUPalWn57da7Sd3s=
+Date: Mon, 14 Mar 2005 19:12:30 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: pavel@ucw.cz, david.lang@digitalinsight.com, davej@redhat.com,
+       hirofumi@mail.parknet.co.jp, torvalds@osdl.org, paulus@samba.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Message-Id: <20050314191230.3eb09c37.diegocg@gmail.com>
+In-Reply-To: <200503140855.18446.jbarnes@engr.sgi.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+	<20050314083717.GA19337@elf.ucw.cz>
+	<200503140855.18446.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 1.9.5+svn (GTK+ 2.6.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I think I finally solved this problem.
+El Mon, 14 Mar 2005 08:55:18 -0800,
+Jesse Barnes <jbarnes@engr.sgi.com> escribió:
 
-A note for Jeff: I forgot to send this email and complained to you because you 
-didn't answer... Sorry Jeff.
+> We already have the 'quiet' option, but even so, I think the kernel is *way* 
+> too verbose.  Someone needs to make a personal crusade out of removing 
+> unneeded and unjustified printks from the kernel before it really gets better 
+> though...
 
-However, I explained what I say here to him in chat and we agreed on the fix.
+But people who wants to know what has been and what hasn't been detected should
+start looking at sysfs, shouldn't them?. dmesg is not reliable *at all*, sometimes
+when you rmmod something, it doesn't put anything in dmesg, but it did when it was
+loaded, so you'll see some messaje in the printk saying "foo was loaded", but it isn't really
+loaded
 
-I'm sending this anyway... and I'm attaching the correct fix we discussed.
-
-On Tuesday 08 March 2005 01:10, Jeff Dike wrote:
-> blaisorblade@yahoo.it said:
-> > a) wrong because you say __GNUC_PATCHLEVEL__ > 4 rather than >=
-
-> Correct, this is now fixed.
-
-> > b) wrong because for he the link failed on __bb_init_func at the
-> > beginning. So  in the case you need to export BOTH symbols.
-
-> Incorrect, the link failure was caused by trying to export __bb_init_func,
-> which makes a reference to it, which was subsequently not being resolved.
-No, the link failure was when linking the first object together in the final 
-file.
-
-The symbol was referred to by the wrappers inserted by GCC for gprof / 
-gcov, not by the symbol exporting.
-
-Quoting Anton:
-> Yes.  I finally found a way to get it to compile.  Compiling without TT
-> mode and WITHOUT static build it still fails with the same problem
-> (__bb_init_func problem I already reported).  But compiling without TT
-> but WITH static build the __bb_init_func problem goes away but instead I
-> get a __gcov_init missing symbol in my modules.
-
-And it was fixed when linking statically, as you see (because the symbol is 
-not defined in dynamic libraries - don't know if this is a bug of glibc, I 
-hope not).
-
-What was needed was the addition of another EXPORT_SYMBOL, but it couldn't be 
-added for everybody because it causes the build to fail for old compilers 
-which don't export the symbol.
-
-And "old compilers" include normal gcc 3.3.4 (I verified this on my Gentoo 
-system).
-
-Also, maybe adding a dependency on static linking for GCOV is needed, maybe.
-
-After some successful testing (maybe I didn't test all cases), however, 
-something strange happened: the build started failing because now GCC 
-requires the GCOV options (-fprofile-arcs -ftest-coverage) even during 
-linking (because the gcov helper functions are now in a separate library). I 
-said "strange" because the same build succeeded with gcc 3.3.4, and I didn't 
-understand the difference at first.
-
-This required two changes:
-- excluding the profiling options from the mk_* utilities.
-- adding the GCOV options to linking (this is even documented now). I've 
-retested that this wasn't needed with gcc 3.3.4 (and I guess older ones).
-
-Finally, I got an unresolved symbol on __bb_fork_func, and I wasn't able to 
-solve this (is it maybe a bug in libc or whatever? I don't know).
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
-
-
+Personally I don't use dmesg anymore to look "what devices are being handled by the
+kernel", just sysfs and /proc files. I only look at dmesg when "something goes wrong"
+and it doesn't works properly. IMHO dmesg in linux is just a "debug tool" (unlike the BSDs,
+who seem to have very strict rules for dmesg messages) and it's nice that it's verbose,
+and it could even be "quiet" by default - people who have problems and can't look at sysfs
+could add a "noquiet" boot option or run dmesg if it boots. IIRC is what solaris and other
+people do by default. Why should people look at all that "horrid" debug info everytime
+they boot, except when they have a problem?

@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbUJ0LL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbUJ0LSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUJ0LL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 07:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUJ0LL6
+	id S262379AbUJ0LSf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 07:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUJ0LSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 07:11:58 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17416 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262374AbUJ0LLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 07:11:43 -0400
-Date: Wed, 27 Oct 2004 13:11:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: 2.6.10-rc1-mm1: reiser4 delete_from_page_cache compile error
-Message-ID: <20041027111102.GD2550@stusta.de>
-References: <20041026213156.682f35ca.akpm@osdl.org>
+	Wed, 27 Oct 2004 07:18:35 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:35278 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S262379AbUJ0LSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 07:18:33 -0400
+Date: Wed, 27 Oct 2004 13:18:30 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: SWsuspend in 2.6.9 - sound card does not work
+Message-ID: <20041027111830.GD4724@fi.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041026213156.682f35ca.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+	Hi all,
 
-On Tue, Oct 26, 2004 at 09:31:56PM -0700, Andrew Morton wrote:
->...
-> All 394 patches:
->...
-> reiser4-delete_from_page_cache.patch
->   reiser4 delete_from_page_cache
->...
+I have an Asus M6R laptop (http://www.fi.muni.cz/~kas/m6r/) with ATI IXP
+integrated sound card. Under 2.6.8.1 I was able to use the sound card
+after software suspend (just had to restore mixer settings using alsactl).
+With 2.6.9 the sound card does not work after suspend/restore: No output no
+matter how I change mixer settings, and the playback is not timed properly
+(e.g. when mplayer tries to synchronize audio and video stream, the video
+goes too fast using all CPU time and no output to speakers/phones.
 
+	I will do a binary search over 2.6.9-pre patches, but I want to ask
+whether this problem looks familiar to anybody.
 
-<--  snip  -->
+	Thanks,
 
-...
-  CC      fs/reiser4/page_cache.o
-fs/reiser4/page_cache.c: In function `drop_page':
-fs/reiser4/page_cache.c:763: warning: implicit declaration of function `delete_from_page_cache'
-...
-  LD      .tmp_vmlinux1
-fs/built-in.o(.text+0xd2393): In function `drop_page':
-: undefined reference to `delete_from_page_cache'
-make: *** [.tmp_vmlinux1] Error 1
+-Yenya
 
-<--  snip  -->
-
-
-Hugh already requested to drop his patch.
-
-
-cu
-Adrian
-
-- -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBf4JGmfzqmE8StAARAoq4AKCf9MLA96xH2zEAzARZm3x3pFQxxACfWqNf
-Kxdi7/k9BoAZQujxs9RjgVU=
-=lAUl
------END PGP SIGNATURE-----
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

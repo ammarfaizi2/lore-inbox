@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265820AbRF2Jum>; Fri, 29 Jun 2001 05:50:42 -0400
+	id <S265816AbRF2JtC>; Fri, 29 Jun 2001 05:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265821AbRF2Juc>; Fri, 29 Jun 2001 05:50:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14241 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265820AbRF2JuX>;
-	Fri, 29 Jun 2001 05:50:23 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S265803AbRF2Jsx>; Fri, 29 Jun 2001 05:48:53 -0400
+Received: from t2.redhat.com ([199.183.24.243]:25589 "EHLO
+	whatever.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265816AbRF2Jsj>; Fri, 29 Jun 2001 05:48:39 -0400
+Date: Fri, 29 Jun 2001 01:02:24 -0700 (PDT)
+From: Bernd Schmidt <bernds@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, FrankZhu@viatech.com.cn,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
+In-Reply-To: <E15Fkwy-0007ps-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0106290100230.29441-100000@whatever.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15164.18270.460245.219060@pizda.ninka.net>
-Date: Fri, 29 Jun 2001 02:16:14 -0700 (PDT)
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: Ben LaHaise <bcrl@redhat.com>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
-In-Reply-To: <d3pubo9pu4.fsf@lxplus015.cern.ch>
-In-Reply-To: <15163.44990.304436.360220@pizda.ninka.net>
-	<Pine.LNX.4.33.0106281830480.32276-100000@toomuch.toronto.redhat.com>
-	<15163.45534.977835.569473@pizda.ninka.net>
-	<d3pubo9pu4.fsf@lxplus015.cern.ch>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Jun 2001, Alan Cox wrote:
 
-Jes Sorensen writes:
- > Thats easy
- ...
- > This way you automatically get support for the situation Ben mentioned
- > as well, when doing large allocs and the IOMMU is full you return a
- > full 64 bit address.
+> > Here I have to disagree with you Alan. When you pass "-march=i686" to
+> > gcc, you are _not_ saying "generate code for a CPUID family 6 CPU".
+> > "-march=i686" actually means "target an Intel P6 family chip, given
+> > what we currently know about them". The gcc info pages don't talk
+> 
+> Which is fine. The Pentium Pro manual explicitly states that cmov may go
+> away. So it is not based on what we know about the CPU, its based on not
+> reading the documentation. 
+> 
+> It's a bug. -march=i6868 does not 'target an Intel P6 family chip, ...'
+> It happens to work because the error in reading the docs was never triggered
+> by intel removing cmov from a cpu as the reserved the right to do
 
-And when the IOMMU is "full" what happens to all the SAC only
-cards in the machine?  pci_map_{single,sg}() are not allowed
-to fail.
+Pedantically you  may be right, but it's not a very useful interpretation of
+the situation.  Would it make you happier if -march=i686 was documented as
+generating cmov instructions?  IMO it's only a manual bug if at all.
 
-See, it's not so easy.
 
-Later,
-David S. Miller
-davem@redhat.com
+Bernd
+

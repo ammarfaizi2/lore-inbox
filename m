@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUFPLxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266253AbUFPL4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUFPLxo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 07:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUFPLxn
+	id S266253AbUFPL4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 07:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUFPL4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 07:53:43 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:47554 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S266252AbUFPLxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 07:53:40 -0400
-Message-ID: <40D034BE.2060207@uni-paderborn.de>
-Date: Wed, 16 Jun 2004 13:53:34 +0200
-From: Bjoern Schmidt <bj-schmidt@uni-paderborn.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 16 Jun 2004 07:56:25 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:3446 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266253AbUFPL4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 07:56:24 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: kacpid takes 99% of CPU when laptop lid is closed
-References: <200406161244.55502.julien.antille@eivd.ch>
-In-Reply-To: <200406161244.55502.julien.antille@eivd.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: 'uinput' Oops upon select() or poll() on 2.6.7
+Date: Wed, 16 Jun 2004 06:56:21 -0500
+User-Agent: KMail/1.6.2
+Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <xb7ekp4cw4o.fsf@savona.informatik.uni-freiburg.de> <xb7wu27spm8.fsf@savona.informatik.uni-freiburg.de>
+In-Reply-To: <xb7wu27spm8.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="big5"
 Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
-	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-MailScanner-From: bj-schmidt@uni-paderborn.de
+Message-Id: <200406160656.21866.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antille Julien wrote:
-> I can confirm that the ACPI bug I described 
-> here :http://marc.theaimsgroup.com/?l=linux-kernel&m=108452002205471&w=2
-> is still present in the recent 2.6.7 kernel.
+On Wednesday 16 June 2004 06:34 am, Sau Dan Lee wrote:
 > 
-> However, the process taking all the CPU is kacpid now (was keventd in previous 
-> kernels)
+> But the bug is STILL in 2.6.7.  I don't understand.  What are the -rc*
+> supposed for, if bugs do not get fixed?
+> 
 
-I have the same problem if i unplug ac on a compaq armada 7400.
+Hi,
+
+Given the fact that it affects exactly one person and you can avoid it by
+fixing your program which is broken in this regard anyway (why would you
+poll device before you create it?) I don't think it is that urgent...
+
+I believe it will be merged when Linus does next pull. 
 
 -- 
-Greetings
-Bjoern Schmidt
-
+Dmitry

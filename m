@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbUBIMfK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 07:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbUBIMfK
+	id S265127AbUBIM4N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 07:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUBIM4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 07:35:10 -0500
-Received: from mail.shareable.org ([81.29.64.88]:10624 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265081AbUBIMfF
+	Mon, 9 Feb 2004 07:56:13 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12237 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265127AbUBIM4K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 07:35:05 -0500
-Date: Mon, 9 Feb 2004 12:33:55 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ross Dickson <ross@datscreative.com.au>
-Cc: linux-kernel@vger.kernel.org, Ian Kumlien <pomac@vapor.com>,
-       Jesse Allen <the3dfxdude@hotmail.com>
-Subject: Re: Nforce2 apic timer ack delay
-Message-ID: <20040209123355.GB1738@mail.shareable.org>
-References: <200312211917.05928.ross@datscreative.com.au> <20040207145544.GC17015@mail.shareable.org> <200402082141.09693.ross@datscreative.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Feb 2004 07:56:10 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Tomt <andre@tomt.net>
+Subject: Re: Linux 2.6.3-rc1
+Date: Mon, 9 Feb 2004 14:01:29 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org> <200402090234.20832.bzolnier@elka.pw.edu.pl> <4026F312.60703@tomt.net>
+In-Reply-To: <4026F312.60703@tomt.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200402082141.09693.ross@datscreative.com.au>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200402091401.29398.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Dickson wrote:
-> I was just writing you to tell you how well it prevented lockups
-> when my system experienced a hard lockup in a slightly different
-> form. Firstly mplayer bailed complaining about misuse of cpu ram
-> etc, which is an abnormal failure for this system. I then swapped
-> desktops back to continue my email and then no mouse or anything
-> else just like one of the original hard lockups.
+On Monday 09 of February 2004 03:40, Andre Tomt wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > Ok thanks, I got the same dump.  I think the problem is that memory used
+> > by previously registered ide_pci_host_proc_list entry (for pdc202xx_new
+> > driver) is already unmapped because of __initdata in pdc202xx_new.h.
+> > (This doesn't happen in built-in case because this memory is freed after
+> > all drivers are initialized.)
+> >
+> > Does this patch help?
+>
+> Ahh, indeed it does, _but_
+>
+> pdc202xx_old seems to have the same bug, making via82cxxx crash later on
+> instead.
+>
+> Doing the same change to pdc202xx_old.h (removing __initdata) fixes this
+> case too :-)
 
-Well, that's a different form of lockup so it might be a different
-culprit.  What was the mplayer error?
+Yes, __initdata needs to be removed from every ide_pci_proc_host_t.
+I will make a patch and submit it to Linus.
 
-> A bit early to draw conclusions but could it be that the bios also
-> executes a hlt instruction in a System Management Interrupt??
-> Perhaps on detecting a hot cpu or something??
+Thanks!
+--bart
 
-Perhaps.  Are you using APM or ACPI?  I think they override
-"idle=poll" and call into the BIOS for idling.
-
--- Jamie

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262158AbRENGbV>; Mon, 14 May 2001 02:31:21 -0400
+	id <S262140AbRENGV6>; Mon, 14 May 2001 02:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262176AbRENGbM>; Mon, 14 May 2001 02:31:12 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:49368 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S262158AbRENGbF>;
-	Mon, 14 May 2001 02:31:05 -0400
-Message-ID: <3AFF7AF0.F1A5E872@sun.com>
-Date: Sun, 13 May 2001 23:28:00 -0700
-From: Seth Goldberg <seth.goldberg@sun.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S262158AbRENGVt>; Mon, 14 May 2001 02:21:49 -0400
+Received: from www.wen-online.de ([212.223.88.39]:39689 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S262140AbRENGVf>;
+	Mon, 14 May 2001 02:21:35 -0400
+Date: Mon, 14 May 2001 08:21:12 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty Requirements for non-GPL Linux Kernel Modules?
+In-Reply-To: <80leePXmw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.33.0105140727270.588-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: kernel@llamas.org, linux-kernel@vger.kernel.org
-Subject: Re: Latest on Athlon Via KT133A chipset solution?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 13 May 2001, Kai Henningsen wrote:
 
-I noticed discussion of the various Via KT133A chipset problems related
-to 
-Athlon optimized kernels has trailed off. Are people successfully using 
-the patch that Alan Cox posted, or are there still problems? 
+> mikeg@wen-online.de (Mike Galbraith)  wrote on 13.05.01 in <Pine.LNX.4.33.0105131250150.338-100000@mikeg.weiden.de>:
+>
+> > On 13 May 2001, Kai Henningsen wrote:
+> >
+> > > alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 09.05.01 in
+> > > <E14xZNJ-00033f-00@the-village.bc.nu>:
+> > >
+> > > > > you stand, it'll cost you around $15K and that, in my opinion, is
+> > > > > fine. If it isn't worth $15K to protect your code then it is worth so
+> > > > > little to you that there really is no good reason not to just GPL it
+> > > > > from the start.
+> > > >
+> > > > Smart advice.
+> > >
+> > > Problem is, the people making that decision are not always the people
+> > > wanting to distribute the work in question, in which case the argument
+> > > doesn't work.
+> >
+> > if (!cost_analysis) goto darwinism;
+>
+> Thank you for completely missing the point.
 
-I just ran into this last night (I thought all the Athlon chipset bugs
-had 
-been fixed in 2.4.4 prior to last night). 
+You're welcome.
 
-Anyway, just requesting status, and I'll gladly offer any testing help 
-that's needed. 
+	-Mike
 
-====
-
-  Actually it appears that I cut cut off from the kernel list :).  Hmm
-did I say something wrong? :).  Seriously, there has not been any change
-by me... I'm running 2.4.4 with the athlon-specific fast_page_copy
-TURNED OFF.
-My system is very stable, though I'm sad that I can't get the
-performance
-out of my system as I should... I guess it may be time to look for
-another
-M/B that does not exhibit these problems...
-
- --Seth (bergsoft@home.com)

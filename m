@@ -1,38 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVBHT1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVBHTdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVBHT1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 14:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVBHT1Q
+	id S261637AbVBHTdK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 14:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVBHTdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 14:27:16 -0500
-Received: from chaos.sr.unh.edu ([132.177.249.105]:54462 "EHLO
-	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S261636AbVBHT1O
+	Tue, 8 Feb 2005 14:33:10 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28085 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261637AbVBHTdE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 14:27:14 -0500
-Date: Tue, 8 Feb 2005 14:26:56 -0500 (EST)
-From: Kai Germaschewski <kai.germaschewski@unh.edu>
-X-X-Sender: kai@chaos.sr.unh.edu
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Matthew Wilcox <matthew@wil.cx>, Roman Zippel <zippel@linux-m68k.org>,
-       Kai Germaschewski <kai@germaschewski.name>,
-       <linux-kernel@vger.kernel.org>, <dholland@eecs.harvard.edu>
-Subject: Re: [PATCH] Makefiles are not built using a Fortran compiler
-In-Reply-To: <20050208192027.GA8360@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0502081423470.30718-100000@chaos.sr.unh.edu>
+	Tue, 8 Feb 2005 14:33:04 -0500
+Message-ID: <420913E9.4010902@us.ibm.com>
+Date: Tue, 08 Feb 2005 11:32:57 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: dino@in.ibm.com, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Paul Jackson <pj@sgi.com>, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
+       Andi Kleen <ak@suse.de>, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis> <420800F5.9070504@us.ibm.com> <20050208095440.GA3976@in.ibm.com> <42088B3E.7050701@yahoo.com.au>
+In-Reply-To: <42088B3E.7050701@yahoo.com.au>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Feb 2005, Sam Ravnborg wrote:
+Nick Piggin wrote:
+> Dinakar Guniguntala wrote:
+> 
+>> On Mon, Feb 07, 2005 at 03:59:49PM -0800, Matthew Dobson wrote:
+>>
+>>
+>>> Sorry to reply a long quiet thread, but I've been trading emails with 
+>>> Paul Jackson on this subject recently, and I've been unable to 
+>>> convince either him or myself that merging CPUSETs and CKRM is as 
+>>> easy as I once believed.  I'm still convinced the CPU side is doable, 
+>>> but I haven't managed as much success with the memory binding side of 
+>>> CPUSETs.  In light of this, I'd like to remove my previous objections 
+>>> to CPUSETs moving forward.  If others still have things they want 
+>>> discussed before CPUSETs moves into mainline, that's fine, but it 
+>>> seems to me that CPUSETs offer legitimate functionality and that the 
+>>> code has certainly "done its time" in -mm to convince me it's stable 
+>>> and usable.
+>>>
+>>> -Matt
+>>>
+>>
+>>
+>> What about your proposed sched domain changes?
+>> Cant sched domains be used handle the CPU groupings and the
+>> existing code in cpusets that handle memory continue as is?
+>> Weren't sched somains supposed to give the scheduler better knowledge
+>> of the CPU groupings afterall ?
+>>
+> 
+> sched domains can provide non overlapping top level partitions.
+> It would basically just stop the multiprocessor balancing from
+> moving tasks between these partitions (they would be manually
+> moved by setting explicit cpu affinities).
 
-> The SCCS rules is the sole reason why -rR has not been enabled.
+Yep.  That's the idea! :)
 
-An easy way to make sure that the SCCS business is not a factor would be 
-to explicitly put the SCCS rules into the Makefile -- it's just two lines.
 
-This way one could easily make sure there are no other problems incurred 
-(I wouldn't think so, but...), and tackle the SCCS/bk business later.
+> I didn't really follow where that idea went, but I think at least
+> a few people thought that sort of functionality wasn't nearly
+> fancy enough! :)
 
---Kai
+Well, that's about how far the idea was supposed to go. ;)  I think named 
+hierarchical sched_domains would offer the same functionality (at least for CPU 
+partitioning) as CPUSETs.  I'm not sure who didn't think it was fancy enough, 
+but if you or anyone else can describe CPUSETs configurations that couldn't be 
+represented by sched_domains trees, I'd be very curious to hear about them.
 
+-Matt

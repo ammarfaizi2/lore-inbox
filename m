@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267992AbUHKIlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267994AbUHKIrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267992AbUHKIlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 04:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUHKIls
+	id S267994AbUHKIrm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 04:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267997AbUHKIrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 04:41:48 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:29382 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S267992AbUHKIlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 04:41:44 -0400
-Message-ID: <4119DAA2.3050206@eidetix.com>
-Date: Wed, 11 Aug 2004 10:36:50 +0200
-From: "David N. Welton" <davidw@eidetix.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
+	Wed, 11 Aug 2004 04:47:42 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:41392 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S267994AbUHKIrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 04:47:40 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Sascha Wilde <wilde@sha-bang.de>
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net>
-In-Reply-To: <200408110131.14114.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16665.56613.143598.768389@napali.hpl.hp.com>
+Date: Wed, 11 Aug 2004 01:47:33 -0700
+To: James Morris <jmorris@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kurt Garloff <garloff@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] [LSM] Rework LSM hooks
+In-Reply-To: <Xine.LNX.4.44.0408101630250.9412-100000@dhcp83-76.boston.redhat.com>
+References: <20040810131217.Q1924@build.pdx.osdl.net>
+	<Xine.LNX.4.44.0408101630250.9412-100000@dhcp83-76.boston.redhat.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please try the patch below? I am interested in tests both with
-> and without keyboard/mouse. The main idea is to leave ports that have been
-> disabled by BIOS alone... The patch compiles but otherwise untested. Against
-> 2.6.7.
+>>>>> On Tue, 10 Aug 2004 16:31:12 -0400 (EDT), James Morris <jmorris@redhat.com> said:
 
-The patch seems to work well! It doesn't apply completely cleanly
-to my sources... maybe I left some of my own stuff in. On reboot, with
-keyboard attached, I get this:
+  James> On Tue, 10 Aug 2004, Chris Wright wrote:
+  >> Thanks, James.  Since these are the only concrete numbers and
+  >> they are in the noise, I see no compelling reason to change to
+  >> unlikely().
 
-uart_close: bad serial port count; tty->count is 1, state->count2
-  while rebooting the system.
+  James> There may be some way to make it ia64 specific.  Is it a cpu
+  James> issue, or compiler?
 
-drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [121813]
+I'm pretty sure the "unlikely()" part could be dropped with little/no
+downside.  The part that's relatively expensive (10 cycles when
+mispredicted) is the indirect call.  GCC doesn't handle this well on
+ia64 and as a result, most indirect calls are mispredicted.
 
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [121886]
+An alternative solution might be to have a call_likely() macro, where
+you could predict the most likely target of an indirect call.  Perhaps
+that could help other platforms as well.
 
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [122268]
-
-drivers/input/serio/i8042.c: 20 -> i8042 (command) [122404]
-
-drivers/input/serio/i8042.c: 45 <- i8042 (return) [122404]
-
-drivers/input/serio/i8042.c: 60 -> i8042 (command) [122542]
-
-drivers/input/serio/i8042.c: 65 -> i8042 (parameter) [122542]
-
-Restarting system.
-
-> BTW, do you both have the same motherboard/chipset? Maybe a dmi entry is in
-> order...
-
-Mine is a VIA chipset with an AMD processor:
-
-http://www.ecsusa.com/products/km400-m2.html
-
-How do I fetch the exact information that would be needed for a DMI entry?
-
-Thanks much,
--- 
-David N. Welton
-davidw@eidetix.com
-
+	--david

@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268240AbUHXTig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUHXTmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268240AbUHXTig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 15:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268245AbUHXTig
+	id S268253AbUHXTmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 15:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHXTmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 15:38:36 -0400
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:46976 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S268240AbUHXTib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 15:38:31 -0400
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] ioport-cache-2.6.8.1.patch
-Date: Tue, 24 Aug 2004 12:38:26 -0700
-User-Agent: KMail/1.7
-References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0408231436370.3222@bigblue.dev.mdolabs.com> <20040824071928.GA7697@elte.hu>
-In-Reply-To: <20040824071928.GA7697@elte.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2336687.ZfKeHfAi8o";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 24 Aug 2004 15:42:38 -0400
+Received: from prime.hereintown.net ([141.157.132.3]:42920 "EHLO
+	prime.hereintown.net") by vger.kernel.org with ESMTP
+	id S268253AbUHXTkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 15:40:43 -0400
+Subject: Re: Linux 2.6.9-rc1
+From: Chris Meadors <clubneon@hereintown.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+	 <20040824184245.GE5414@waste.org>
+	 <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1093376321.1151.15.camel@clubneon.priv.hereintown.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.6.2 
+Date: Tue, 24 Aug 2004 15:38:41 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408241238.29702.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2336687.ZfKeHfAi8o
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 2004-08-24 at 12:23 -0700, Linus Torvalds wrote:
+> 
+> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
+> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
+> any ordering wrt the bugfixes), so either interdiffs or whole new full 
+> diffs are totally "logical". We just have to chose one way or the other, 
+> and I don't actually much care.
+> 
+> Any reason for your preference? 
 
-On Tuesday 24 August 2004 00:19, you wrote:
-> +=A0=A0=A0=A0=A0=A0=A0if (likely(next =3D=3D tss->io_bitmap_owner)) {
+I'm not the original poster, but after a little thought I agreed with
+his preference.  If the -rcs are going to be based on the non-bugfixed
+releases, it follows that the next full patch will also have to be off
+of the previous full release.
 
-Probably a stupid question, but what's stopping the tss->io_bitmap_owner fr=
-om=20
-being killed, and then a new thread_struct being kmalloc()'ed in the exact=
-=20
-same place as the old one? I realize it's highly unlikely, I'm just wonderi=
-ng=20
-if it's possible at all.
+If each bugfix built on the last, instead of the full release, that
+would be a number of patch files that I'd have to keep around, and then
+undo when patching up to the next release.  If each bugfix included all
+the previous bugfixes, it would just be one patch I'd have to undo.
 
-I guess clearing tss->io_bitmap_owner whenever we kfree() the bitmap owner'=
-s=20
-thread_struct would plug that up.
+-- 
+Chris
 
-=2DRyan
-
---nextPart2336687.ZfKeHfAi8o
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBK5k1W4yVCW5p+qYRAhO4AJ0ZFrtmZhgwPZVj3UavXtZZUI/7CgCeMSZX
-yrX9gzVUcjSspXvfY5/+YFQ=
-=GE3/
------END PGP SIGNATURE-----
-
---nextPart2336687.ZfKeHfAi8o--

@@ -1,100 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUJNTR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUJNTRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267380AbUJNTR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 15:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUJNTIu
+	id S267363AbUJNTRh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 15:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267360AbUJNTR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:08:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9088 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267365AbUJNTFj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:05:39 -0400
-Date: Thu, 14 Oct 2004 15:03:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dave Jones <davej@redhat.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <20041014184635.GD18321@redhat.com>
-Message-ID: <Pine.LNX.4.61.0410141455330.5232@chaos.analogic.com>
-References: <16349.1097752!349@redhat.com> <17271.1097756056@redhat.com>
- <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com>
- <Pine.GSO.4.61.0410141617100.21062@waterleaf.sonytel.be>
- <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com>
- <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com> <20041014155030.GD26025@redhat.com>
- <Pine.LNX.4.61.0410141352590.8479@chaos.analogic.com> <20041014182052.GA18321@redhat.com>
- <Pine.LNX.4.61.0410141422530.1765@chaos.analogic.com> <20041014184635.GD18321@redhat.com>
+	Thu, 14 Oct 2004 15:17:28 -0400
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:62179 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S267388AbUJNTOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 15:14:21 -0400
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Bill Huey <bhuey@lnxw.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Adam Heath <doogie@debian.org>,
+       Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFF6785669.51B69427-ON86256F2D.0066DF1F@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 14 Oct 2004 14:13:15 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 10/14/2004 02:13:17 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004, Dave Jones wrote:
+>> I would prefer to not use threaded IRQ's if possible due to lower CPU
+>> overhead [see previous email describing results...] and some problems
+>> I see with setting priorities on those IRQ's (relative to real time
+>> tasks).
+>
+>the overhead we can try to optimize later on. What problems do you see
+>with setting priorities on those IRQs?
 
-> On Thu, Oct 14, 2004 at 02:30:08PM -0400, Richard B. Johnson wrote:
->
-> > No. I didn't time `make modules`, only `make bzImage`.
-> > `make modules` takes too long to time (really) I don't
-> > want to use any CPU resources which will screw up the
-> > timing and I need to use the computer.
->
-> You still have to calculate dependancies and such for
-> anything built modular. Also a bunch of code built into
-> the bzImage changes if things are built modular.
->
-> the two comparisons aren't equal.  Additionally,
-> you haven't factored in the fact that 'make dep'
-> is no longer needed. This accounts for a big chunk
-> of time on 2.4 kernel builds.
->
-> > A wall-clock guess is that `make modules` takes about
-> > an hour on the new system while it takes about 4 minutes
-> > on the old. The new kernel build procedure is truly
-> > horrible for the wall-clock time that is used.
-> >
-> > For oranges vs oranges, if I compile Version 2.4.26
-> > on a version 2.6.8 OS computer, the compile-time
-> > is within tens of seconds. I'm not complaining about
-> > the resulting kernel code performance, only the
-> > abortion^M^M^M^M^M^Mjunk used to create a new kernel.
-> > It 'make' won't do it, we have a problem and make
-> > needs to be fixed.
->
-> oranges to oranges means _exactly_ the same options
-> (where they haven't changed from 2.4 -> 2.6) are
-> set/unset. Anything else is totally bogus.
->
-> If you find things are still taking phenomenally
-> long times to build, then something is wrong somewhere.
-> Don't you find it strange you're the only person
-> to have complained about this ? If it was as big
-> a problem as you're suggesting, those of us who
-> do nothing but build kernels all day would be up in arms.
->
-> 		Dave
->
+Perhaps I am old fashioned, but in building a real time system, I consider
+hardware interrupt processing as something that is always at a higher
+priority than real time tasks. In general that is not a problem because
+hardware interrupt processing should do just enough to keep the hardware
+happy and nothing more. I have enough spare CPU cycles within each frame
+to account for [could be a large number of] interrupts that follow that
+approach. Unthreaded IRQ's preserves that relationship.
 
-I think you guys probably got used to it. Also, you
-seldom build the whole thing, anymore, because the
-dependencies are handled differently. I was used to
-building stuff on 2.4.x. When I went to build stuff using
-the new build procedure I was shocked. It was like the
-old days with 66MHz '486s (fast) and 33MHz i386's. Of
-course there weren't modules, then so 2hrs,30min
-was normal. Now, with a CPU that's 80 times faster and
-a front-side bus that's 12 time faster, and SCSI
-disks that are 40 times faster, there just has to
-be something wrong when a complete build of the kernel
-takes an hour.
+However, with the threaded IRQ's, a real time program (e.g., latencytest)
+can request a priority higher than IRQ processing - causing problems
+interfacing with devices. At a minimum, the default priority of IRQ's
+should
+be some real time value so that nice -20 jobs won't bother them either.
+A possibility that comes to mind is to schedule IRQ's at a range higher
+than
+available to all real time application tasks. I'll mention another
+possibility below as well.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+In the systems I have to deal with, I do not have a clear criteria
+to set priorities of interrupts relative to each other. For example, I
+have a real time simulation system using the following devices:
+ - occasional disk access to simulate disk I/O
+ - real time network traffic
+ - real time delivery of interrupts from a PCI timer card and APIC timers
+ - real time interrupts from a shared memory interface
+The priorities of real time tasks are basically assigned based on the
+rate of execution. 80 Hz tasks run at a higher priority than 60 Hz, 60 Hz >
+40 Hz, and so on. A number of tasks can access each device.
+
+As noted above, I can live with a system where I can guarantee that all
+the IRQ processing has higher priority than all the real time tasks.
+
+It would be "better" if the priority of the hardware interrupts somehow
+inherited the priority (absolute or relative to other IRQ's) of the task
+making the request. So in that way, a 40 Hz task making a network transfer
+would somehow boost the priority of the network interface until that
+transfer was complete. It would also be good if the queue of pending
+transfers was reordered by RT priority, but I don't see that as an easy
+thing to implement currently in Linux (but I can ask... :-) ).
+
+Needless to say, if you implemented priority inheritance, when the 40 Hz
+task is not doing network transfers, I would just as soon prefer that
+other network operations (say from a 2 Hz tasks) does not get a priority
+boost above a 20 Hz task accessing another device.
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

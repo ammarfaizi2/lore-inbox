@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288355AbSAHVZi>; Tue, 8 Jan 2002 16:25:38 -0500
+	id <S288414AbSAHV03>; Tue, 8 Jan 2002 16:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288393AbSAHVY2>; Tue, 8 Jan 2002 16:24:28 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14098 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288394AbSAHVYR>;
-	Tue, 8 Jan 2002 16:24:17 -0500
-Date: Tue, 8 Jan 2002 19:24:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Robert Love <rml@tech9.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Andrew Morton <akpm@zip.com.au>,
-        Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <1010524532.3383.106.camel@phantasy>
-Message-ID: <Pine.LNX.4.33L.0201081920130.2985-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288402AbSAHVZl>; Tue, 8 Jan 2002 16:25:41 -0500
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:21915 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S288333AbSAHVZN>; Tue, 8 Jan 2002 16:25:13 -0500
+Date: Tue, 8 Jan 2002 13:24:59 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and =?iso-8859-1?Q?GB?=
+ =?iso-8859-1?Q?_to_KiB=2C_MiB=2C_and_GiB_=3D=3Fiso-8859-1=3Fq=3Fi?=
+ =?iso-8859-1?Q?n?= Configure=2Ehelp=2E?=
+In-Reply-To: <20011222165627.A19038@werewolf.able.es>
+Message-ID: <Pine.LNX.4.33.0201081324190.23436-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Jan 2002, Robert Love wrote:
-> On Tue, 2002-01-08 at 16:08, Rik van Riel wrote:
->
-> > The preemptible kernel ALSO has to wait for a scheduling point
-> > to roll around, since it cannot preempt with spinlocks held.
-> >
-> > Considering this, I don't see much of an advantage to adding
-> > kernel preemption.
->
-> It only has to wait if locks are held and then only until the locks are
-> dropped.  Otherwise it will preempt on the next return from interrupt.
+On Sat, 22 Dec 2001, J.A. Magallon wrote:
+> And different length for sea and land 'miles'. Very natural...
 
-So what exactly _is_ the difference between an explicit
-preemption point and a place where we need to explicitly
-drop a spinlock ?
+nautical miles are defined as 1852 meters, the exact length of one second 
+of longitude at the equator :)
 
->From what I can see, there really isn't a difference.
-
-> Future work would be to look into long-held locks and see what we can
-> do.
-
-One thing we could do is download Andrew Morton's patch ;)
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 

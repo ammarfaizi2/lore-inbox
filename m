@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135663AbRDSNXq>; Thu, 19 Apr 2001 09:23:46 -0400
+	id <S135668AbRDSNZ6>; Thu, 19 Apr 2001 09:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135664AbRDSNXh>; Thu, 19 Apr 2001 09:23:37 -0400
-Received: from marine.sonic.net ([208.201.224.37]:873 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S135663AbRDSNXW>;
-	Thu, 19 Apr 2001 09:23:22 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Thu, 19 Apr 2001 06:23:18 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cross-referencing frenzy
-Message-ID: <20010419062318.F21159@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010418233445.A28628@thyrsus.com> <200104190449.f3J4n2LF032522@webber.adilger.int>
+	id <S135666AbRDSNZv>; Thu, 19 Apr 2001 09:25:51 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58886 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S135667AbRDSNY5>;
+	Thu, 19 Apr 2001 09:24:57 -0400
+Date: Thu, 19 Apr 2001 15:24:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: block devices don't work without plugging in 2.4.3
+Message-ID: <20010419152443.B22517@suse.de>
+In-Reply-To: <20010419144025.T16822@suse.de> <200104191309.f3JD93V24427@oboe.it.uc3m.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <200104190449.f3J4n2LF032522@webber.adilger.int>; from adilger@turbolinux.com on Wed, Apr 18, 2001 at 10:49:01PM -0600
+In-Reply-To: <200104191309.f3JD93V24427@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Apr 19, 2001 at 03:09:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 10:49:01PM -0600, Andreas Dilger wrote:
-> However, I'm not sure that your reasoning for removing these is correct.
-> For example, one symbol that I saw was CONFIG_EXT2_CHECK, which is code
-> that used to be enabled in the kernel, but is currently #ifdef'd out with
-> the above symbol.  When Ted changed this, he wasn't sure whether we would
+On Thu, Apr 19 2001, Peter T. Breuer wrote:
+> "Jens Axboe wrote:"
+> > Examine _why_ you don't want plugging. In 2.2, you would have to edit
+> > the kernel manually to disable it for your device.
+> 
+> True. Except that I borrowed a major which already got that special
+> treatment.
 
-How about something besides CONFIG_ then?  Like maybe DEV_CONFIG_ or DEV_.
+Ok
 
-The CONFIG_ name space should be reserved for things that can be configured
-via the config mechanism.
+> >                                            For 2.4, as long as
+> > there has been blk_queue_pluggable, there has also been the
+> > disable-merge function mentioned. Why are you disabling plugging??
+> 
+> Fundamentally, to disable merging, as you suggest. I had merging
+> working fine in 2.0.*. Then I never could figure out what had to be
+> done in 2.2.*, so I disabled it. In 2.4, things work nicely - I don't
+> have to do anything and it all happens magically.
 
-Things that only developers or special testers might want should use
-something other than the CONFIG_ namespace.
+Great
 
-mrc
+> Nevertheless, I am left with baggage that I have to maintain -
+> certainly the driver has to work in 2.2 as well as in 2.4. Removing
+> the blah_plugging function now in 2.4 after having started off 2.4 
+> with it around gives me one more #ifdef kernel_version in my code.
+
+On the contrary, you are now given an exceptional opportunity to clean
+up your code and get rid of blk_queue_pluggable and your noop plugging
+function.
+
+> I don't think that's good for my code, and in general I don't think one
+> should remove this function half way through a stable series. Leave it
+> there, mark it as deprecated in big letters, and make it do nothing,
+> but leave it there, no?
+
+Because most people are using it for the wrong reason anyway, so I'd
+consider it a not-so-subtle hint. There should be no need for extra
+ifdef's, on the contrary.
+
 -- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+Jens Axboe
+

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285079AbRLMTpb>; Thu, 13 Dec 2001 14:45:31 -0500
+	id <S285121AbRLMTtB>; Thu, 13 Dec 2001 14:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285117AbRLMTpV>; Thu, 13 Dec 2001 14:45:21 -0500
-Received: from mustard.heime.net ([194.234.65.222]:3040 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S285079AbRLMTpE>; Thu, 13 Dec 2001 14:45:04 -0500
-Date: Thu, 13 Dec 2001 20:44:39 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] RAID sub system
-In-Reply-To: <Pine.LNX.4.30.0112132003280.27508-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.30.0112132041260.27734-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285133AbRLMTsv>; Thu, 13 Dec 2001 14:48:51 -0500
+Received: from service.sh.cvut.cz ([147.32.127.214]:23305 "HELO
+	service.sh.cvut.cz") by vger.kernel.org with SMTP
+	id <S285126AbRLMTsc>; Thu, 13 Dec 2001 14:48:32 -0500
+Date: Thu, 13 Dec 2001 20:48:28 +0100
+From: Jan Janak <J.Janak@sh.cvut.cz>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User/kernelspace stuff to set/get kernel variables
+Message-ID: <20011213204828.A21032@devitka.sh.cvut.cz>
+In-Reply-To: <20011213155532Z284289-18284+114@vger.kernel.org> <20011213172037.B22634@devitka.sh.cvut.cz> <20011213165805.F8007@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011213165805.F8007@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Dec 13, 2001 at 04:58:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This gives a total read of a little less than 800MB before giving up. Is
-> there a cache timeout that needs to be set any lower?
->
-> roy
+On Thu, Dec 13, 2001 at 04:58:05PM +0000, Russell King wrote:
+> On Thu, Dec 13, 2001 at 05:20:37PM +0100, Jan Janak wrote:
+> > If you pass a parameter that is not recognized by the kernel, it will be
+> > passed to init as environment variable, so all you need to do is check
+> > for the variable in your init scripts ($network in your example).
+> 
+> IIRC, Red Hat scripts grab them from /proc/cmdline
 
-more testing
+  Only parameters of the form foo=bar will be set as environment variables (if not
+recognized by the kernel).
+  AFAIK Red Hat scripts grab parameters of different form from /proc/cmdline.
 
-[root@linuxserver root]# swapoff -a
-[root@linuxserver root]# free
-             total       used       free     shared    buffers     cached
-Mem:        899712      74504     825208          0       4832      29408
--/+ buffers/cache:      40264     859448
-Swap:            0          0          0
-[root@linuxserver root]# vmstat -n 2
+  But parameter of the form network=dhcp will be set as environment variable and
+ this is IMHO the easiest way how to get the parameter value in startup scripts.
 
-blah blah blah
+  regards, Jan.
 
-same result.
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
-
+> 
+> --
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html

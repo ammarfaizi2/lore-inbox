@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbTHZF7A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 01:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTHZF67
+	id S263688AbTHZGMb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 02:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbTHZGMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 01:58:59 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:12358 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262634AbTHZF65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 01:58:57 -0400
-Date: Tue, 26 Aug 2003 01:58:51 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: rusty@rustcorp.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
-In-Reply-To: <20030825225011.2ad47c85.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0308260155490.1912-100000@devserv.devel.redhat.com>
+	Tue, 26 Aug 2003 02:12:31 -0400
+Received: from k-kdom.nishanet.com ([65.125.12.2]:17674 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S263538AbTHZGM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 02:12:29 -0400
+Message-ID: <3F4AF755.2000407@boxho.com>
+Date: Tue, 26 Aug 2003 01:59:49 -0400
+From: Resident Boxholder <resid@boxho.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rod Bacon <rodb@jasco.net.au>
+Subject: Re: ERROR: Broken Via-Rhine NIC In "Stable" 2.4.22
+References: <sf4b7a30.018@jchofs1.jasco.net.au>
+In-Reply-To: <sf4b7a30.018@jchofs1.jasco.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I saw that same message in 2.6.0-t3. Sometimes immediately the netcard 
+would not ping
+and sometimes it would fail after a while.
 
-On Mon, 25 Aug 2003, Andrew Morton wrote:
+Do you see an "irq ? disabled" message, too? That would be typical.
 
-> > but if all futexes pin down one page (worst-case), then to make it really
-> >  safe we'll have to use a fairly low default RLIM_NRFUTEX value - which
-> >  will decrease the generic utility of futexes.
-> 
-> We could make it RLIM_NRFUTEX_PAGES: the number of pages which the user
-> can pin via futexes, perhaps.
+Try turning apic off in bios-cmos-setup and letting linux turn it on. I 
+don't have to use drastic
+pci=noacpi, I can just disable serial and parallel and USB and turn apic 
+off in bios and run
+with no cd drives. Easier for me.
 
-the problem is that this is not really a deterministic limit. The nr of
-thread or open files limit is deterministic: it will either fail or
-succeed at clone() or open() time - and can be freely used afterwards. The
-kernel doesnt in fact know about the first use of a futex: no-contention
-futexes have zero kernel footprint. This is the big plus of them. So i'd
-really favor some sort of hashing method and no limits, that way the Linux
-VM is extended and every VM address is waitable and wakable on - a pretty
-powerful concept.
+-Bob
 
-	Ingo
+Rod Bacon wrote:
+
+>Just attempted upgrade from 2.4.21 on a Via M10000 Mini-ITX system that
+>was working perfectly. 2.4.22 results in eth0 not working, and constant
+>"NETDEV WATCHDOG: eth0: transmit timed out. Resetting".
+>  
+>
 

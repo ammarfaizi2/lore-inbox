@@ -1,35 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130416AbRCEUfh>; Mon, 5 Mar 2001 15:35:37 -0500
+	id <S130418AbRCEUpI>; Mon, 5 Mar 2001 15:45:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbRCEUf1>; Mon, 5 Mar 2001 15:35:27 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:14440 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S130416AbRCEUfU>; Mon, 5 Mar 2001 15:35:20 -0500
-Date: Mon, 5 Mar 2001 21:19:10 +0100
-From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
-To: Jim Breton <jamesb-kernel@alongtheway.com>
-Cc: Wade Hampton <whampton@staffnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: eject weirdness on NEC disc changer, kernel 2.4.2
-Message-ID: <20010305211910.A13054@frodo.uni-erlangen.de>
-In-Reply-To: <20010304205046.15690.qmail@alongtheway.com> <3AA3DE27.E34DD4B3@staffnet.com> <20010305190930.2759.qmail@alongtheway.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010305190930.2759.qmail@alongtheway.com>; from jamesb-kernel@alongtheway.com on Mon, Mar 05, 2001 at 07:09:30PM +0000
+	id <S130420AbRCEUo5>; Mon, 5 Mar 2001 15:44:57 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:53653 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S130418AbRCEUor>; Mon, 5 Mar 2001 15:44:47 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Mon, 5 Mar 2001 13:44:19 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_V9SQ6F32C0WDQKUT5NMR"
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: Index of Kernel Configuration Options
+MIME-Version: 1.0
+Message-Id: <01030513441906.01081@spc.esa.lanl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Mar 2001, Jim Breton wrote:
 
-> I have had a similar problem in the past where, for example, after
-> cancelling a burn session with cdrecord I am unable to eject the disc.
-> However that was on kernel 2.2.x and using "real" scsi (not ide-scsi).
+--------------Boundary-00=_V9SQ6F32C0WDQKUT5NMR
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-This was a bug in cdrecord which used generic scsi access to lock the
-drive. The kernel cannot notice this. AFAIK this bug is fixed in
-cdrecord.
+I'm not currently on the lkml list here, so I apologize if my cut and
+past reply messes up someone's threaded mail reader.
 
-Walter
+AJF75 wrote:
+>Does anyone know whereabouts I could go to get an index of all
+>configurations options (i.e. drivers, etc.) that are available in the
+>latest Linux kernel? I am waiting on a kernel mode driver for my USB
+>digital camera, but I don't want to go ahead and download the full 24Mb
+>just to find out if the support is available yet.
+
+Here is a script which will print out all the kernel configuration options
+found in config.in or Config.in files.  If you put this script in the
+scripts directory, run it with sh scripts/options_linux (suggested name).
+It should be run from the top of the tree, e.g. /usr/src/linux.
+
+For example, to find all the USB options,
+sh scripts/options_linux | grep USB
+
+Due to tab/space munging, I'll have to attach the script.
+
+Hope this helps. Of course, you'll still have to get the whole kernel,
+which is what you were trying to avoid in the first place. ;)
+
+Steven
+
+--------------Boundary-00=_V9SQ6F32C0WDQKUT5NMR
+Content-Type: application/x-shellscript;
+  name="options_linux"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="options_linux"
+
+IyEvYmluL3NoCiMgbW9kaWZpZWQgYnkgU3RldmVuIENvbGUgMDMvMjAwMSBmcm9tIGEgc2NyaXB0
+IGJ5IFBhdWwgR29ydG1ha2VyIDAxLzIwMDEuCiMgcnVuIHRoaXMgc2NyaXB0IHdpdGggc2ggc2Ny
+aXB0cy9vcHRpb25zX2xpbnV4IGZyb20gL3Vzci9zcmMvbGludXguCgpGSUxFUz1gZmluZCAuIC1u
+YW1lIFtjQ11vbmZpZy5pbmAKCiMgc3BhY2UgYW5kIHRhYiBpbnNpZGUgWyAgXQpjYXQgJEZJTEVT
+fGdyZXAgLXYgZGVmaW5lX3wgXApzZWQgJ3MvLipbIAldXChDT05GSUdfW0EtWmEtejAtOV9dXCtc
+KVsgCV0qLiokL1wxLzt0O2QnfHNvcnR8dW5pcQo=
+
+--------------Boundary-00=_V9SQ6F32C0WDQKUT5NMR--

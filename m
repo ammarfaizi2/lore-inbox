@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbSJVSbA>; Tue, 22 Oct 2002 14:31:00 -0400
+	id <S264868AbSJVShH>; Tue, 22 Oct 2002 14:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264803AbSJVSbA>; Tue, 22 Oct 2002 14:31:00 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:18683 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264797AbSJVSa7>; Tue, 22 Oct 2002 14:30:59 -0400
-Date: Tue, 22 Oct 2002 14:37:08 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Mielke <mark@mark.mielke.cc>,
-       "Charles 'Buck' Krasic" <krasic@acm.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-Message-ID: <20021022143708.F20957@redhat.com>
-References: <1035310415.31873.120.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0210221113390.1563-100000@blue1.dev.mcafeelabs.com>
+	id <S264870AbSJVShH>; Tue, 22 Oct 2002 14:37:07 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:54667 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S264868AbSJVShF>;
+	Tue, 22 Oct 2002 14:37:05 -0400
+Date: Tue, 22 Oct 2002 20:43:13 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: vm scenario tool / mincore(2) functionality for regular pages?
+Message-ID: <20021022184313.GA12081@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210221113390.1563-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Tue, Oct 22, 2002 at 11:18:20AM -0700
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 11:18:20AM -0700, Davide Libenzi wrote:
-> Alan, could you provide a code snipped to show how easy it is and how well
-> it fits a 1:N ( one task/thread , N connections ) architecture ? And
-> looking at Ben's presentation about benchmarks ( and for pipe's ), you'll
-> discover that both poll() and AIO are "a little bit slower" than
-> sys_epoll. Anyway I do not want anything superflous added to the kernel
-> w/out reason, that's why, beside the Ben's presentation, there're curretly
-> people benchmarking existing solutions.
+I'm building a tool to subject the VM to different scenarios and I'd like to
+be able to determine if a page is swapped out or not. For a file I can
+easily determine if a page is in memory (in the page cache) or not using the
+mincore(2) system call.
 
-That's why I was hoping async poll would get fixed to have the same 
-performance characteristics as /dev/epoll.  But.... :-/
+I want to expand my tool so it can investigate which of its pages are
+swapped out under cache pressure or real memory pressure.
 
-		-ben
+However, to do this, I need a way to determine if a page is there or if it
+is swapped out. My two questions are:
+
+	1) is there an existing way to do this
+	   (the kernel obviously knows)
+
+	2) would it be correct to expand mincore to also work on
+           non-filebacked memory so it works for 'swap-backed' memory too?
+
+Thanks.
+
+Some current output of the scenario tool:
+
+vmloader> alloc 25
+Arena now 25 megabytes, 6250 pages
+
+vmloader> sweep
+Sweeping from mbyte 0 to 25, 6250 pages. Done
+
+vmloader> rusage
+minor: 6250, major: 2, swaps: 0
+
+vmloader> sweep 0 12
+Sweeping from mbyte 0 to 12, 1440 pages. Done
+
+vmloader> rusage
+minor: 0, major: 0, swaps: 0
+
+vmloader> touch
+Touching from mbyte 0 to 25, 6250 pages. Done
+
+vmloader> rusage
+minor: 6249, major: 0, swaps: 0
+
+vmloader> rsweep
+Random sweeping from mbyte 0 to 25, 6250 pages. Done
+
+vmloader> rusage
+minor: 0, major: 0, swaps: 0
+
+
 -- 
-"Do you seek knowledge in time travel?"
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

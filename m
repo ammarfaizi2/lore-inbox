@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUGRSOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUGRSeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUGRSOa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 14:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUGRSO3
+	id S264377AbUGRSeY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 14:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUGRSeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 14:14:29 -0400
-Received: from wblv-254-37.telkomadsl.co.za ([165.165.254.37]:51179 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264371AbUGRSO0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 14:14:26 -0400
-Subject: Re: 2.6.8 rc2 still has keyboard trouble
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Steve Underwood <steveu@coppice.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <40FA7A83.60800@coppice.org>
-References: <40FA7A83.60800@coppice.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7ZghSE+4euDbitTs8xKr"
-Message-Id: <1090174625.5281.26.camel@nosferatu.lan>
+	Sun, 18 Jul 2004 14:34:24 -0400
+Received: from mail.rednet.ru ([194.105.216.5]:62734 "EHLO mail.rednet.ru")
+	by vger.kernel.org with ESMTP id S264377AbUGRSeX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 14:34:23 -0400
+Date: Sun, 18 Jul 2004 03:38:00 +0400
+From: Veider <veider@sinet.spb.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8-rc2
+Message-Id: <20040718033800.41f2a5d1.veider@sinet.spb.ru>
+Organization: Darkzone uLtd. Inc.
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 18 Jul 2004 20:17:05 +0200
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.5z'm2JOJtaU0,j"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.5z'm2JOJtaU0,j
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
---=-7ZghSE+4euDbitTs8xKr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Just installed 2.6.8-rc2..
+results: segfault when suspend to RAM, segfault when suspend to disk, vesa still exits whith
+error -6... Heh... :(
 
-On Sun, 2004-07-18 at 15:26, Steve Underwood wrote:
-> Hi all,
->=20
-> It seems widely reported that recent versions of Linux do not work=20
-> properly with non-USB keyboards and mice when built for SMP. I just=20
-> tried 2.6.8rc2, and the problem is still there. The workaround many=20
-> people have is to turn off USB legacy support in their BIOS. On my Tyan=20
-> 2665 motherboard there is no BIOS option to do this. If I turn off USB=20
-> support completely in the BIOS my machine runs OK, but then...... well,=20
-> I want USB working :-) With a non-SMP kernel I do not have any problems.
->=20
-> Is this problem being actively addressed by anyone, or is the "turn off=20
-> legacy support" workaround considered an adequate fix?
->=20
+== not subscribed mailto: veider@sinet.spb.ru
 
-Maybe try -rc1-mm1 (or whatever the latest) or try the bk-input.patch
-from the latest, as I use it, with ps/2 keyboard and legacy usb
-support enabled in the bios ...
+-- 
 
---=20
-Martin Schlemmer
+.byte EB FE
 
---=-7ZghSE+4euDbitTs8xKr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+
+--=.5z'm2JOJtaU0,j
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA+r6hqburzKaJYLYRAiHdAJ0ZhtGIcu1H1VL4ZgSc21qo1MF6bgCeM68y
-09lLrQRuzIsmsaBYW7rCVzs=
-=3Y9W
+iD8DBQFA+bhpOvFn29qbQQIRAoAsAKCHnPnSdHN5BirfVXHrL+jthQ7HZgCgtWbO
+Cp/FipO2YIfxiqPQiAzfkGc=
+=MChz
 -----END PGP SIGNATURE-----
 
---=-7ZghSE+4euDbitTs8xKr--
-
+--=.5z'm2JOJtaU0,j--

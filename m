@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUD0Fjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUD0Ft1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUD0Fjc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 01:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUD0Fjc
+	id S263786AbUD0Ft1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 01:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUD0Ft1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 01:39:32 -0400
-Received: from smtp2.cwidc.net ([154.33.63.112]:1260 "EHLO smtp2.cwidc.net")
-	by vger.kernel.org with ESMTP id S263788AbUD0Fj3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 01:39:29 -0400
-Message-ID: <408DF204.7080308@tequila.co.jp>
-Date: Tue, 27 Apr 2004 14:39:16 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: Tequila \ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
+	Tue, 27 Apr 2004 01:49:27 -0400
+Received: from [194.89.250.117] ([194.89.250.117]:43403 "EHLO
+	kimputer.holviala.com") by vger.kernel.org with ESMTP
+	id S263786AbUD0FtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 01:49:24 -0400
+From: Kim Holviala <kim@holviala.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Troubleshooting PS/2 mouse in 2.6.5
+Date: Tue, 27 Apr 2004 08:49:23 +0300
+User-Agent: KMail/1.6.1
+References: <408D4CB4.4070901@chen-becker.org>
+In-Reply-To: <408D4CB4.4070901@chen-becker.org>
 MIME-Version: 1.0
-To: Chris Meadors <clubneon@hereintown.net>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-mm2 + Adaptec I2O
-References: <408DE95F.5010201@tequila.co.jp> <1083044111.1573.3.camel@clubneon.clubneon.com>
-In-Reply-To: <1083044111.1573.3.camel@clubneon.clubneon.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404270849.23397.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 26 April 2004 20:53, Derek Chen-Becker wrote:
 
-Chris Meadors wrote:
-| On Tue, 2004-04-27 at 01:02, Clemens Schwaighofer wrote:
+>      I'm upgrading my workstation from 2.4.22 to 2.6.5 and everything is
+> working great except for /dev/input/mice: it doesn't appear to be
+> producing anything, even if I cat it. I've checked and both dmesg and
+> /proc/bus/input/devices show the mouse handler loaded and show the mouse
+> as recognized.
 
-| If it is the same patch I'm thinking of, I'm using it on a
-| (light-weight) production server.  No ill effects felt here.  Although
-| it doesn't seem to be recommended on 64-bit machines.
+What do the system logs say? I suggest you build psmouse into a module so that 
+you can modprobe/rmmod it to test stuff without rebooting.
 
-Thanks for the info. Tomorrow early morning in my maintenence window I
-will reboot that box and then I will see what happens. I'll give feeback
-to the list then.
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAjfIDjBz/yQjBxz8RAjkQAJ48/+fbLd4pPRL8rXsLExSoZ2brUgCgxsBo
-35jajUGQ0VLsyhOY/LXhaWU=
-=dnKb
------END PGP SIGNATURE-----
+
+Kim

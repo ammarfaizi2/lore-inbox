@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTFJSOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFJSOn
+	id S261561AbTFJSNo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTFJSNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:14:43 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:2031 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261292AbTFJSOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:14:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>
-Subject: Re: [RFC] New system device API
-Date: Tue, 10 Jun 2003 13:27:54 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <20030609210706.GA508@elf.ucw.cz> <Pine.LNX.4.44.0306091412440.11379-100000@cherise> <20030609213247.GC508@elf.ucw.cz>
-In-Reply-To: <20030609213247.GC508@elf.ucw.cz>
+	Tue, 10 Jun 2003 14:13:44 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:27152 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261561AbTFJSNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:13:38 -0400
+Date: Tue, 10 Jun 2003 20:27:01 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: wa@almesberger.net, <chas@cmf.nrl.navy.mil>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2)
+In-Reply-To: <20030609.163915.74729355.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0306101725220.5042-100000@serv>
+References: <Pine.LNX.4.44.0306100113420.12110-100000@serv>
+ <20030609.161435.104053652.davem@redhat.com> <Pine.LNX.4.44.0306100129460.12110-100000@serv>
+ <20030609.163915.74729355.davem@redhat.com>
 MIME-Version: 1.0
-Message-Id: <03061013275402.06462@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 June 2003 16:32, Pavel Machek wrote:
-> Hi!
->
-> > > > So? A keyboard controller is not classified as a system device.
-> > >
-> > > Its not on pci, I guess it would end up as a system device...
-> >
-> > Huh? Since when is everything that's not PCI a system device? Please read
-> > the documentation, esp. WRT system and platform devices.
->
-> Oh and btw keyboard controller is used for rebooting machine. Do you
-> still say it is not system device?
-> 								Pavel
+Hi,
 
-And here I thought it was the reset line on the bus... :-)
+On Mon, 9 Jun 2003, David S. Miller wrote:
 
-There are lots of ways to do that without involving the keyboard. The old way
-was just to wire the serial break signal from the UART to the reset line...
+>    You also have to wait for the already running 
+>    operations to finish, before you can allow the module to unload.
+> 
+> These things run under dev_base_lock, so either they find the device
+> or they don't, and since they hold a spinlock they can't preempt.
 
-Would that suddenly make the serial interfaces system devices?
+dev_base_lock mostly protects the device list, but it doesn't protect the 
+call of get_stats.
+Anyway, I'm really not against these changes. Actually it's quite close to 
+what I already proposed months ago. The basic idea was always to replace 
+the global module lock with a device specific lock (which is needed for 
+dynamic device management anyway) and to let the driver provide a module 
+use count. This is not that different and it was rejected from Rusty and 
+"really unfairly drove Rusty up a wall".
+I look forward to progress in this area and maybe then it's easier to 
+discuss how this can be generalized and applied to other parts of the 
+kernel and maybe we can also compare it to that "stuff" I proposed which 
+"stunk like pure shit". ;-)
 
-What about that "wake on lan" business... does that make the network card a
-"system  device"?
+bye, Roman
 
-The only things I think of as "system device" is the CPU, the memory bus, and
-sometimes a thing called a system controller/bus arbiter. The memory bus 
-should provide access to any ROM needed for initial program storage.
-
-Outside of that, everything is a peripheral, and should be treated as such,
-even though the memory management unit is considered part of the CPU.

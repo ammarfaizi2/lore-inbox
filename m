@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266351AbUHVVl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUHVVpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266351AbUHVVl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 17:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUHVVjg
+	id S266473AbUHVVpH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 17:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUHVVlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 17:39:36 -0400
-Received: from qfep05.superonline.com ([212.252.122.162]:62640 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S266319AbUHVVil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 17:38:41 -0400
-From: "Josan Kadett" <corporate@superonline.com>
-To: "'Albert Cahalan'" <albert@users.sf.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Cursed Checksums
-Date: Mon, 23 Aug 2004 00:38:30 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 22 Aug 2004 17:41:44 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:15248 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266473AbUHVVlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 17:41:17 -0400
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040822203321.GI19768@thundrix.ch>
+References: <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
+	 <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
+	 <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
+	 <Pine.LNX.4.58.0408221450540.297@neptune.local>
+	 <m37jrr40zi.fsf@zoo.weinigel.se> <20040822192646.GH19768@thundrix.ch>
+	 <4128FE94.nail9U42DA799@burner>  <20040822203321.GI19768@thundrix.ch>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <1093200924.5759.3088.camel@cube>
-Thread-Index: AcSIj3Pv+m1w+YlTTOau+WTjWLCOdwACJfcg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Message-Id: <S266319AbUHVVil/20040822213841Z+233@vger.kernel.org>
+Message-Id: <1093207139.25041.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 Aug 2004 21:38:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In normal conditions, when NAT translates an IP header, it should do correct
-checksumming. However; when the source IP address of a packet is
-manipulated, Iptables still seems to use the "original" IP address and
-calculate the checksum accordingly. This way even if I use 3 three boxes;
+On Sul, 2004-08-22 at 21:33, Tonnerre wrote:
+> > -	What are the minimum requirements for a machine to run Linux?
+> 
+> Intel 8086  processor with  a few ko  of RAM,  with a floppy  drive, a
+> monitor and a floppy, I think. If you take only the normal kernel into
+> account that will be an 80386 processor.
 
-Original Packet --> NAT 1 --> NAT 2 --> NAT3 --> Still incorrect checksum
+Minimum for an x86 kernel is about 2Mb and 386 CPU. The 8086 subset
+kernel isn't really "Linux", its more an escaped insanity. For non x86
+you need a bottom end mmuless 32bit processor and a couple of Mb.
 
-The wrong checksum is carried over and over the line. It is really a strange
-issue and I could not find a reason why still I get the incorrect checksum
-even after the IP header is translated three times...
+There are folks driving the size down (the -tiny patches) because
+2Mb for the entire system is still too large for some users.
 
-As I said, the original packet must be corrected before it is transmitted to
-another place and I think it is just two or three lines of code in the
-kernel, but the question is "where"...
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Albert Cahalan
-Sent: Sunday, August 22, 2004 8:55 PM
-To: linux-kernel mailing list
-Subject: RE: Cursed Checksums
-
-I'm surprised to find that there doesn't seem to
-be an ebtables mangle table. That'd be the place
-to match on a u32, then either change that or just
-mark the packet for checksuming.
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Alan
 

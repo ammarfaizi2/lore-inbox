@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSBKCWD>; Sun, 10 Feb 2002 21:22:03 -0500
+	id <S286339AbSBKC1N>; Sun, 10 Feb 2002 21:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSBKCVy>; Sun, 10 Feb 2002 21:21:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13577 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286322AbSBKCVr>; Sun, 10 Feb 2002 21:21:47 -0500
-Subject: Re: Problem with I2O block Driver in 2.4.17 and 2.4.18-pre9
-To: tkhoadfdsaf@hotmail.com (T. A.)
-Date: Mon, 11 Feb 2002 02:35:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <OE46xJO7Z6KTi1P6SM500013d46@hotmail.com> from "T. A." at Feb 10, 2002 09:13:35 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286343AbSBKC1E>; Sun, 10 Feb 2002 21:27:04 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:65037 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S286339AbSBKC0w>; Sun, 10 Feb 2002 21:26:52 -0500
+Message-ID: <3C672BE8.EF4C703F@delusion.de>
+Date: Mon, 11 Feb 2002 03:26:48 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.4-pre6 apm compile fix
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16a6JU-0005Co-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Is there a known bug in the I2O drivers (probably block) included in the
-> current 2.4.17 and 2.4.18-pre9 kernels?
 
-Its a known problem. Use the Red Hat kernel tree for now and all will be
-well. I've spent some time working on this and after a long false trail caused
-by what appear to be very very nasty bios bugs in the ASUS AM7-266D mainboard
-I think I have the i2o_block and i2o_core problems sorted for x86, at least
-on the FC920 and Promise cards I have for testing. i2o_scsi I have some thinking
-left to do and may not be able to fix because it works on my cards and fails
-on some others.
+Hi Linus,
 
-Fixing i2o for 2.5 is a major undertaking and I don't plan to address that
-until close to the point 2.5 is frozen for a new stable release.
+The attached patch fixes the following compiler warning in -pre6:
 
-Alan
+apm.c: In function `apm_mainloop':
+apm.c:1376: warning: comparison between pointer and integer
+apm.c:1384: warning: comparison between pointer and integer
+
+nr_running is really a function and not an integer.
+
+I believe this had already been applied in earlier 2.5 and then somehow
+vanished, probably due to an update by whoever maintains apm.c
+
+Regards,
+-Udo.
+
+
+--- linux-2.5.4-pre-vanilla/arch/i386/kernel/apm.c      Mon Feb 11 03:04:25 2002
++++ linux-2.5.4-pre/arch/i386/kernel/apm.c      Mon Feb 11 03:04:51 2002
+@@ -1348,7 +1348,7 @@
+  * decide if we should just power down.
+  *
+  */
+-#define system_idle() (nr_running == 1)
++#define system_idle() (nr_running() == 1)
+ 
+ static void apm_mainloop(void)
+ {

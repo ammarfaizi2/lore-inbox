@@ -1,83 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbUA3SIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbUA3SIY
+	id S263653AbUA3SAB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:00:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUA3SAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:08:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262705AbUA3SIW convert rfc822-to-8bit
+	Fri, 30 Jan 2004 13:00:01 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:40625 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263653AbUA3R7y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:08:22 -0500
-Date: Fri, 30 Jan 2004 10:02:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: arnd@arndb.de, linux-kernel@vger.kernel.org, rspchan@starhub.net.sg
-Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch
- pentium3,4
-Message-Id: <20040130100247.1a0f6eb9.rddunlap@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0401301156120.16128-100000@thoron.boston.redhat.com>
-References: <200401301643.13477.arnd@arndb.de>
-	<Xine.LNX.4.44.0401301156120.16128-100000@thoron.boston.redhat.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 30 Jan 2004 12:59:54 -0500
+Date: Fri, 30 Jan 2004 15:52:42 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, hch@infradead.org,
+       Krzysztof Halasa <khc@pm.waw.pl>
+Subject: [PATCH] PC300 update
+Message-ID: <Pine.LNX.4.58L.0401301543230.1840@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004 11:57:20 -0500 (EST) James Morris <jmorris@redhat.com> wrote:
 
-| On Fri, 30 Jan 2004, Arnd Bergmann wrote:
-| 
-| > James Morris wrote:
-| > > Have you noticed if this happens for any of the other crypto algorithms?
-| > 
-| > Just as a reminder, there is still an issue with extreme stack usage
-| > of some of the algorithms, depending on compiler version and
-| > flags.
-| > 
-| > The worst I have seen was around 16kb for twofish_setkey on 64 bit
-| > s390 with gcc-3.1 (iirc). Right now, I get up to 4kb for this
-| > function with gcc-3.3.1, which probably works but is definitely
-| > a bad sign. I've seen this as well on other architectures (iirc
-| > on x86_64), but not as severe.
-| > 
-| > Other algorithms are bad as well, these are the top scores from
-| > Jörn Engel's checkstack.pl (s390 64bit 2.6.1 gcc-3.3.1):
-| > 
-| > 0x00000a twofish_setkey:           lay    %r15,-3960(%r15)
-| > 0x0026fc aes_decrypt:              lay    %r15,-1168(%r15)
-| > 0x000c0c aes_encrypt:              lay    %r15,-1000(%r15)
-| > 0x00000e sha512_transform:         lay    %r15,-936(%r15)
-| > 0x001292 test_deflate:             lay    %r15,-784(%r15)
-| > 0x0028a2 cast6_decrypt:            lay    %r15,-696(%r15)
-| > 0x00d1a0 twofish_encrypt:          lay    %r15,-664(%r15)
-| > 0x001b34 setkey:                   lay    %r15,-656(%r15)
-| > 0x00e2b0 twofish_decrypt:          lay    %r15,-624(%r15)
-| > 0x000c9e cast6_encrypt:            lay    %r15,-600(%r15)
-| > 0x000014 sha1_transform:           lay    %r15,-504(%r15)
-| 
-| I'm not seeing anything like this on x86 (e.g. stack usage is 8 bytes), 
-| and can't see an obvious way to fix the problem for your compiler.
+Hi Linus,
 
-Here's what I see on x86 and gcc 3.2 (for Linux 2.6.1).
-What Linux version of the code are you looking at?
+This patch forward ports a few important fixes from the 2.4 driver. This
+changes have been well tested.
+
+Please apply.
+
+Changelog:
+
+- Update maintainer email address
+- Mark pci_device_id list with __devinitdata.
+
+Greg: rmk and hch checked this and found no problem.
+  A bunch of other drivers are doing the same.
+
+- Set correct protocol type on packet receive (this caused the kernel to
+  drop all packets received)
+- Add #ifdef DEBUG around debug printk()
+
+Greg, Christoph: dprintk()/etc would be nice, but we're not trying
+a rewrite here. Yes its ugly but its consistent with the rest.
+Maybe we can do it for the whole driver, later on.
+
+- ioctl: Add missing size checks before
+  copying data from userspace.
 
 
-$0x180,%esp: c01fd5aa <aes_encrypt+4/1750>
-$0x1b0,%esp: c01fecfa <aes_decrypt+4/17da>
-$0x230,%esp: c0206acd <test_deflate+b/2f8>
-$0x10c,%esp: c0205c90 <test_hmac+6/4fc>
-$0x1fc,%esp: c01e9ed8 <sha1_transform+4/178a>
-$0x120,%esp: c01eb842 <sha256_transform+6/1ef0>
-$0x384,%esp: c01ed988 <sha512_transform+4/17e8>
-$0x10c,%esp: c01f1c90 <twofish_setkey+4/7480>
+--- linux-2.6.1/drivers/net/wan/pc300_drv.c.orig	2004-01-28 12:48:48.000000000 -0200
++++ linux-2.6.1/drivers/net/wan/pc300_drv.c	2004-01-30 10:36:00.756908936 -0200
+@@ -6,9 +6,9 @@
+  * pc300.c	Cyclades-PC300(tm) Driver.
+  *
+  * Author:	Ivan Passos <ivan@cyclades.com>
+- * Maintainer:	Henrique Gobbi <henrique@cyclades.com>
++ * Maintainer:	PC300 Maintainer <pc300@cyclades.com>
+  *
+- * Copyright:	(c) 1999-2002 Cyclades Corp.
++ * Copyright:	(c) 1999-2003 Cyclades Corp.
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -252,7 +252,7 @@
+ #undef	PC300_DEBUG_RX
+ #undef	PC300_DEBUG_OTHER
 
+-static struct pci_device_id cpc_pci_dev_id[] = {
++static struct pci_device_id cpc_pci_dev_id[] __devinitdata = {
+ 	/* PC300/RSV or PC300/X21, 2 chan */
+ 	{0x120e, 0x300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x300},
+ 	/* PC300/RSV or PC300/X21, 1 chan */
+@@ -1961,7 +1961,7 @@
+ 		}
+ 		stats->rx_packets++;
+ 		skb->mac.raw = skb->data;
+-		skb->protocol = htons(ETH_P_HDLC);
++		skb->protocol = hdlc_type_trans(skb, dev);
+ 		netif_rx(skb);
+ 	}
+ }
+@@ -2088,9 +2088,10 @@
+ 					}
+ 				}
+ 				if (!(dsr_rx = cpc_readb(scabase + DSR_RX(ch)) & DSR_DE)) {
+-
+-printk("%s: RX intr chan[%d] (st=0x%08lx, dsr=0x%02x, dsr2=0x%02x)\n",
+-	dev->name, ch, status, drx_stat, dsr_rx);
++#ifdef PC300_DEBUG_INTR
++		printk("%s: RX intr chan[%d] (st=0x%08lx, dsr=0x%02x, dsr2=0x%02x)\n",
++			dev->name, ch, status, drx_stat, dsr_rx);
++#endif
+ 					cpc_writeb(scabase + DSR_RX(ch), (dsr_rx | DSR_DE) & 0xfe);
+ 				}
+ 			}
+@@ -2770,6 +2771,10 @@
+ 					if (!capable(CAP_NET_ADMIN)) {
+ 						return -EPERM;
+ 					}
++					/* incorrect data len? */
++					if (ifr->ifr_settings.size != size) {
++						return -ENOBUFS;
++					}
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+ 					if (copy_from_user(&conf->phys_settings,
+ 							   settings->ifs_ifsu.sync, size)) {
+@@ -2788,12 +2793,18 @@
+ 				case IF_IFACE_T1:
+ 				case IF_IFACE_E1:
+ 				{
++					const size_t te_size = sizeof(te1_settings);
+ 					const size_t size = sizeof(sync_serial_settings);
+
+ 					if (!capable(CAP_NET_ADMIN)) {
+ 						return -EPERM;
+ 					}
+-
++
++					/* incorrect data len? */
++					if (ifr->ifr_settings.size != te_size) {
++						return -ENOBUFS;
++					}
++
+ 					if (copy_from_user(&conf->phys_settings,
+ 							   settings->ifs_ifsu.te1, size)) {
+ 						return -EFAULT;
+@@ -3667,12 +3678,10 @@
+ }
+
+ static struct pci_driver cpc_driver = {
+-	.name = "pc300",
+-	.id_table = cpc_pci_dev_id,
+-	.probe = cpc_init_one,
+-	.remove = cpc_remove_one,
+-	.suspend = NULL,
+-	.resume = NULL,
++	.name           = "pc300",
++	.id_table       = cpc_pci_dev_id,
++	.probe          = cpc_init_one,
++	.remove         = __devexit_p(cpc_remove_one),
+ };
+
+ static int __init cpc_init(void)
+@@ -3690,6 +3699,6 @@
+
+ MODULE_DESCRIPTION("Cyclades-PC300 cards driver");
+ MODULE_AUTHOR(  "Author: Ivan Passos <ivan@cyclades.com>\r\n"
+-                "Maintainer: Henrique Gobbi <henrique.gobbi@cyclades.com");
++                "Maintainer: PC300 Maintainer <pc300@cyclades.com");
+ MODULE_LICENSE("GPL");
+

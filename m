@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHTQUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUHTQYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUHTQUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 12:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUHTQUO
+	id S268312AbUHTQYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 12:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268319AbUHTQYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 12:20:14 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:55472 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266692AbUHTQT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 12:19:56 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>
-Subject: [patch] intel8x0 latency fix
-References: <20040816033623.GA12157@elte.hu>
-	<1092627691.867.150.camel@krustophenia.net>
-	<20040816034618.GA13063@elte.hu>
-	<1092628493.810.3.camel@krustophenia.net>
-	<20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	<20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	<1092716644.876.1.camel@krustophenia.net>
-	<20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>
-	<m31xi3j901.fsf@seagha.com> <m3brh6g8yi.fsf@seagha.com>
-From: karl.vogel@seagha.com
-Date: Fri, 20 Aug 2004 18:19:12 +0200
-In-Reply-To: <m3brh6g8yi.fsf@seagha.com> (karl vogel's message of "Thu, 19
- Aug 2004 22:37:57 +0200")
-Message-ID: <m3smahwznj.fsf_-_@seagha.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Aug 2004 12:24:46 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:4878 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S268312AbUHTQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 12:24:32 -0400
+Date: Fri, 20 Aug 2004 18:20:27 +0200
+From: DervishD <disposable1@telefonica.net>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: setproctitle
+Message-ID: <20040820162027.GA1238@DervishD>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040818082851.GA32519@DervishD> <20040818085850.GW11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040818085850.GW11200@holomorphy.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-karl.vogel@seagha.com writes:
+    Hi William :)
 
-> # lspci -s 00:06.0
-> 00:06.0 Multimedia audio controller: nVidia Corporation nForce3 Audio (rev a2)
->
->  latency: 50752 us, entries: 267 (267)
+ * William Lee Irwin III <wli@holomorphy.com> dixit:
+> >     In proc/base.c you can read about 'setproctitle(3)', that is, in
+> > library space (user space), not kernel space, but AFAIK only FreeBSD
+> > has setproctitle :?
+> Observe the following, from fs/proc/base.c:
+[...]
+> The command-line arguments are being fetched from the process address
+> space, i.e. simply editing argv[] in userspace will have the desired
+> effect. Though this code is butt ugly.
 
+    The problem with this is that is non-portable. Not all Unices
+(AFAIK) have this behaviour. The portable solution for changing
+argv[0] is to use ONLY the space currently allocated to argv[0]. I
+mean, you take argv[0], do a strlen() and overwrite only strlen bytes
+of it. The problem with this is that you cannot write an arbitrary
+string there. If all Unices provide 'setproctitle' that problem
+dissapears.
 
-Following patch fixes it for 2 channel devices (like my notebook). Although I'm
-not sure if this is all that useful... if there are workloads other than audio
-work that need low latency, then this might be useful.
+    Anyway is cool to know that, under Linux, I can change the
+argv[0] with no problems.
 
-Without this patch, my machine was generating the latency each time artsd (KDE)
-re-opened the audio device.
+    Thanks for the help :)
 
+    Raúl Núñez de Arenas Coronado
 
---- a/sound/pci/intel8x0.c	2004-08-20 18:05:46.006717144 +0200
-+++ b/sound/pci/intel8x0.c	2004-08-20 17:52:02.759869688 +0200
-@@ -1021,8 +1021,10 @@
- 			/* reset to 2ch once to keep the 6 channel data in alignment,
- 			 * to start from Front Left always
- 			 */
--			iputdword(chip, ICHREG(GLOB_CNT), (cnt & 0xcfffff));
--			mdelay(50); /* grrr... */
-+			if (chip->multi4 || chip->multi6) {
-+				iputdword(chip, ICHREG(GLOB_CNT), (cnt & 0xcfffff));
-+				mdelay(50); /* grrr... */
-+			}
- 		} else if (chip->device_type == DEVICE_INTEL_ICH4) {
- 			if (sample_bits > 16)
- 				cnt |= ICH_PCM_20BIT;
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,124 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264722AbSJOUax>; Tue, 15 Oct 2002 16:30:53 -0400
+	id <S264747AbSJOUfV>; Tue, 15 Oct 2002 16:35:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264737AbSJOUax>; Tue, 15 Oct 2002 16:30:53 -0400
-Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:61392 "EHLO
-	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
-	id <S264722AbSJOUav>; Tue, 15 Oct 2002 16:30:51 -0400
-Date: Tue, 15 Oct 2002 13:36:38 -0700
-From: John Gardiner Myers <jgmyers@netscape.com>
-Subject: Re: [PATCH] async poll for 2.5
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Message-id: <3DAC7C56.6020104@netscape.com>
-MIME-version: 1.0
-Content-type: multipart/signed;
- boundary=------------ms040308020004080103020509; micalg=sha1;
- protocol="application/x-pkcs7-signature"
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a)
- Gecko/20020910
-References: <20021015150201.K14596@redhat.com>
- <Pine.LNX.4.44.0210151213170.1554-100000@blue1.dev.mcafeelabs.com>
- <20021015151238.L14596@redhat.com>
+	id <S264750AbSJOUfU>; Tue, 15 Oct 2002 16:35:20 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:38811 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264747AbSJOUe3>;
+	Tue, 15 Oct 2002 16:34:29 -0400
+Subject: Re: 2.5.x opps stopping serial
+From: Paul Larson <plars@linuxtestproject.org>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+In-Reply-To: <200210110845.24687.tomlins@cam.org>
+References: <3DA683F4.944DFC11@digeo.com> 
+	<200210110845.24687.tomlins@cam.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 15 Oct 2002 15:33:07 -0500
+Message-Id: <1034713993.17565.34.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Fri, 2002-10-11 at 07:45, Ed Tomlinson wrote:
+> Hi,
+> 
+> I have been seeing this during shutdown ever since I started using 2.5.  Figured
+> I really should report it...   There are three serial ports.  One for a serial console,
+> the second for a backUPS ups, the third for a (real) modem.  Dist is debian sid.
+> 
+> Saving state of known serial devices... Unable to handle kernel NULL pointer dereference at virtual addres
+Looks like it might be similar to one I saw with smatch recently.  There
+are several places in core.c that check info->tty before dereferencing
+it, but others that don't.  I don't think this will fix the one you are
+seeing, but if it's easily reproducible you could try doing something
+similar in uart_block_til_ready.
 
---------------ms040308020004080103020509
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Benjamin LaHaise wrote:
-
->Erm, the aio interface has support for the event ringbuffer being accessed 
->by userspace
->
-Making the event ringbuffer visible to userspace conflicts with being 
-able to support event priorities.  To support event priorities, the 
-ringbuffer would need to be replaced with some other data structure.
-
-
-
---------------ms040308020004080103020509
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
-A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
-CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
-IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
-dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
-MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
-AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
-VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
-FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
-3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
-bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
-BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
-aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
-Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
-NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
-MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
-leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
-ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
-W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
-BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
-ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
-b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
-MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
-MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
-cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
-oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
-f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
-AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
-AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
-Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
-VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
-BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
-BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
-sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
-2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
-9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
-VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
-MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
-dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
-aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
-hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
-/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
-eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
-BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
-Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
-MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
-bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
-VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
-MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
-MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
-AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
-XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
-e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
-mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
-MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
-ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
-AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
-MDE1MjAzNjM4WjAjBgkqhkiG9w0BCQQxFgQUk4xBXHu1VumrxHNHgTe+1oNv8IMwUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
-VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
-EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
-AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
-gD5PRYIWMQlLuXOMshkxRa28+aBm4h/9Bc3Ljba62K8EJuU8VGXGl6xd6e/wWiaYqwb+LZ7x
-/kwY9BzB8/4gmrT9nOyshKV84JbGTZJsQimvGbn8hHBDeS7ygLkzZ6WooFYhYTgoiEO5Cj2G
-FC+OTb71ZqruZnjezf2O/noezoc0AAAAAAAA
---------------ms040308020004080103020509--
+--- linux-2.5/drivers/serial/core.c	Wed Oct  9 13:45:11 2002
++++ linux-corefix/drivers/serial/core.c	Wed Oct  9 13:50:09 2002
+@@ -207,7 +207,7 @@
+ 			 * Setup the RTS and DTR signals once the
+ 			 * port is open and ready to respond.
+ 			 */
+-			if (info->tty->termios->c_cflag & CBAUD)
++			if (info->tty && (info->tty->termios->c_cflag & CBAUD))
+ 				uart_set_mctrl(port, TIOCM_RTS | TIOCM_DTR);
+ 		}
+ 
+Thanks,
+Paul Larson
 

@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132729AbRC2OLU>; Thu, 29 Mar 2001 09:11:20 -0500
+	id <S132728AbRC2OF3>; Thu, 29 Mar 2001 09:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132733AbRC2OLL>; Thu, 29 Mar 2001 09:11:11 -0500
-Received: from quark.analogic.com ([204.178.40.236]:3076 "EHLO
-	quark.analogic.com") by vger.kernel.org with ESMTP
-	id <S132729AbRC2OK5>; Thu, 29 Mar 2001 09:10:57 -0500
-Message-ID: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
-From: "Richard B. Johnson" <root@quark.analogic.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux connectivity trashed.
-Date: Thu, 29 Mar 2001 08:34:06 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132729AbRC2OFT>; Thu, 29 Mar 2001 09:05:19 -0500
+Received: from ox.rmplc.co.uk ([194.238.48.39]:20053 "EHLO ox.rmplc.co.uk")
+	by vger.kernel.org with ESMTP id <S132728AbRC2OFB>;
+	Thu, 29 Mar 2001 09:05:01 -0500
+X-WebMail-UserID: wrightg@edgegrove.herts.sch.uk
+Date: Thu, 29 Mar 2001 15:08:20 +0100
+From: George Wright <wrightg@edgegrove.herts.sch.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-EXP32-SerialNo: 00002300
+Subject: Newbie to Kernel Development
+Message-ID: <3ABC229A@swan.rmplc.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: WebMail (Hydra) SMTP v3.51.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-This is for information only.
+I am a newbie to Linux Kernel Development, with a very basic knowledge of C, 
+and an OK knowledge of C++/Qt.
 
-Last week a standard RH distribution of  Linux was rooted from what looks
-like a Russian invasion. The penetration used the method taught in the CERT
-Advisory CA-2000-17.
+I was wondering if the people on this list could help me with my learning of 
+C, and help me and bring me up to Kernel Developer status.
 
-The intruder(s) then attempted  to perform additional penetrations from this
-site. One of  the sites attacked was alleged to be Raytheon. Raytheon makes
-products for national security such as guided missiles.
+Looking through the source code, there are a lot of "printk"s. I believe that 
+this is an alternative to printf because printf was unsuitable for this 
+purpose, and that it was written by Linus Torvalds, but I don't see why 
+printf's not adequate.
 
-I was told that Raytheon is now suing this company.  Therefore all Linux
-machines
-are being denied access to the Internet.
+I also would like to know about the Linux security model, as well as what 
+ELF/a.out is.
 
-The penetration occurred because somebody changed our  firewall
-configuration
-so that all of the non-DHCP addresses, i.e., all the real IP addresses had
-complete
-connectivity to the outside world. This meant that every Linux and Sun
-Workstation
-in this facility was exposed to tampering from anywhere in the world. This
-appears
-to be part of a plan to remove all non-DHCP machines by getting them
-trashed.
-In other words, we were set up to take a hard fall because no machine that
-allows
-NFS mounts  can be safely exposed to the outside world without blocking
-portmap.
+Many thanks,
 
-There is a concerted effort to eliminate both Sun Workstations and Linux
-machines
-as tools in this facility. This happens as the "yuppies",  who have never,
-ever, contributed
-to product development are Peter-Principled into positions of authority.
+George
 
-The email addresses of  those who have declared that only Windows machines
-will
-be allowed access to the outside world are:
+--
 
-    Thor T. Wallace   twallace@analogic.com
-    David Pothier       dpothier@analogic.com
-
-David Pothier was a beta tester for Windows/NT. Of course he wants all
-machines to
-be Windows and,  naturally, under his control.
-
-Thor Wallace is our new "security" administrator so I am told.
-
-The only  Linux  advocate in a position of authority is:
-
-   Alex Shekhel        ashekhel@analogic.com
-
-So,  now I hooked up my lap-top,  installed Windows.... and here I am.  Only
-windows
-machines are allowed to access the outside world.
-
-
-    Cheers,
-
-    Richard B. Johnson
-    Formally root@chaos.analogic.com
-
-
+Only wimps use tape backup: _real_    | George Wright - Edge Grove School - Age 13
+men just upload their important stuff |
+on ftp and let the rest of the world  | Work:    wrightg@edgegrove.herts.sch.uk
+mirror it - Linus Torvalds            | Home:    georsoc@attglobal.net
+                                      | Play:    georsoc@navaho.net
+ _    _                               | Obsolete: geowr445@email.com
+('>  <')   the lesser-spotted         |           geowr445@mail.com
+/_\  /_\     penguin (TUX!)           |
+w w  w w                              | Website:  http://homepage.ntlworld.com/
+                                      |                        eric.rsoc/George
 

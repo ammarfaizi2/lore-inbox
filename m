@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262879AbSJJBGn>; Wed, 9 Oct 2002 21:06:43 -0400
+	id <S262825AbSJJBEs>; Wed, 9 Oct 2002 21:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSJJBGn>; Wed, 9 Oct 2002 21:06:43 -0400
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:58017 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S262879AbSJJBGm>; Wed, 9 Oct 2002 21:06:42 -0400
-Date: Thu, 10 Oct 2002 02:11:54 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-Message-ID: <20021010021154.G8102@edi-view1.cisco.com>
-References: <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com> <ur8ez9n8d.wl@sfc.wide.ad.jp> <20021010010439.C8102@edi-view1.cisco.com> <uptuj9mkq.wl@sfc.wide.ad.jp> <20021010012108.E8102@edi-view1.cisco.com> <uofa39lm9.wl@sfc.wide.ad.jp> <20021010014237.F8102@edi-view1.cisco.com> <un0pn9knb.wl@sfc.wide.ad.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <un0pn9knb.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 09:56:24AM +0900
+	id <S262828AbSJJBEr>; Wed, 9 Oct 2002 21:04:47 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:4055 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S262825AbSJJBEp>;
+	Wed, 9 Oct 2002 21:04:45 -0400
+Message-ID: <3DA4D383.1010006@candelatech.com>
+Date: Wed, 09 Oct 2002 18:10:27 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: tg3 (netgear 302t) performance numbers
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 09:56:24AM +0900, Yuji Sekiya wrote:
-> 
-> I can underdtand there is no interoperability issue with cisco box
-> (with /10 link-local prefix ?) and USAGI kernel(with /64 link-local
-> prefix). :-)
+After placing my Netgear 302t NICs into my SS50 P-IV (1.8Ghz)
+machine, they seem to work fine.  (They had various problems in
+my AMD machines, but that could all just be coincidence and other,
+non-related, problems)
 
-Mind it's interesting that the above currently works.  I suspect that
-this is because the ping was originated on the cisco box,  and hence
-ND was triggered,  with the linux box probably gleaning info from the
-NS to create a STALE entry.  That STALE entry would then probably have
-been probed to get a REACHABLE entry.
+My test-bed has two of these NICs connected to each other via
+a cross-over cable.  Both NICs are in the same machine...
 
-What happens if you clear the ND entries (on both boxes),  swap the
-link local addresses,  then ping from the Linux box to the cisco box?
+Here are some performance numbers I see:
 
-I suspect that the ping will fail.  As ND will never be triggered,  and
-hence the host routes will not be created.
+tcp/ip send + receive in user-space:
+   112Mbps on each port (does not count any packet over-head,
+     and my generator/receiver is not the fastest thing around)
 
-Another alternative would be if one was say fe80:1910::10 and the other
-say fe80:2010::20,  that would probably fail with the ping originated
-from the linux end,  but I'm not sure if the linux box would respond
-when the ping was originated from the cisco end.  Assuming my guess
-about the gleaning above is correct,  it probably will.
+pktgen (kernel pkt generator module):
+   60-byte packets, sending 1kpps in one direction, and maximum possible
+   in the other.  Was able to generate 122,000 packets-per-second.
+   (A tulip 10/100 NIC can do 140kpps in this configuration)
+   Average Latency: 22 micro-seconds.
+   0 dropped packets over 10+ minute run.
 
-DF
+   1514-byte packets, sending 1kpps in one direction, max possible in
+   the other.  25.8kpps (310Mbps) in the fast direction.
+   Average Latency:  17 miliseconds (127 micro-seconds for the 1kpps direction)
+   2000 dropped pkts, 5.8 million sent during this test.
+
+
+So, not too bad, probably the 32/33 PCI bus is most of the bottle-neck.
+The good part is, no errors or other strangnesses were seen with the driver.
+
+Enjoy,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318190AbSIEUao>; Thu, 5 Sep 2002 16:30:44 -0400
+	id <S318250AbSIEUdN>; Thu, 5 Sep 2002 16:33:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSIEUan>; Thu, 5 Sep 2002 16:30:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17417 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318190AbSIEUan>; Thu, 5 Sep 2002 16:30:43 -0400
-Date: Thu, 5 Sep 2002 13:38:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: One more bio for for floppy users in 2.5.33..
-In-Reply-To: <Pine.LNX.4.33.0209051310190.5983-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0209051336440.5983-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318255AbSIEUdN>; Thu, 5 Sep 2002 16:33:13 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:33154 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S318250AbSIEUdM>;
+	Thu, 5 Sep 2002 16:33:12 -0400
+Date: Thu, 5 Sep 2002 22:37:49 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre5-ac3 (p4-clockmod.c don't compil)
+Message-ID: <20020905203749.GB3847@ulima.unil.ch>
+References: <200209051544.g85Fi6i09215@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200209051544.g85Fi6i09215@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Thu, 5 Sep 2002, Linus Torvalds wrote:
-> 
-> With partial results, it would need to do only a slightly different 
-> traversal:
-> 
-> 	end = bio->bi_io_vec + bio->bi_vcnt*PAGE_SIZE - bio->bi_size
-> 
-> 	start = end - nr_sectors * 512
-> 
-> 	PAGE_ALIGN(start)
-> 	PAGE_ALIGN(end)
-> 
-> but it's otherwise the exact same code (doing all the edge calculations in 
-> bytes, and then only traversing pages that have now been fully done and 
-> weren't fully done last time).
-> 
-> It _looks_ like it literally needs just a few lines of changes.
+I got:
 
-Ok, so we now have two "few lines of code" changes. Who wants to actually
-_do_ these? I'll do it if nobody else wants to, but I'd much rather see
-somebody else _do_ want to do this and test it out and just send me a
-tested patch ;)
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix
+include -DKBUILD_BASENAME=acpitable  -c -o acpitable.o acpitable.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix
+include -DKBUILD_BASENAME=p4_clockmod  -c -o p4-clockmod.o p4-clockmod.c
+p4-clockmod.c: In function `cpufreq_p4_validatedc':
+p4-clockmod.c:84: `i' undeclared (first use in this function)
+p4-clockmod.c:84: (Each undeclared identifier is reported only once
+p4-clockmod.c:84: for each function it appears in.)
+p4-clockmod.c: In function `cpufreq_p4_init':
+p4-clockmod.c:146: warning: unused variable `l'
+p4-clockmod.c:146: warning: unused variable `h'
+make[1]: *** [p4-clockmod.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
-		Linus
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267909AbTBRRb2>; Tue, 18 Feb 2003 12:31:28 -0500
+	id <S267882AbTBRRc6>; Tue, 18 Feb 2003 12:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267910AbTBRRb2>; Tue, 18 Feb 2003 12:31:28 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:25614 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267909AbTBRRb1>; Tue, 18 Feb 2003 12:31:27 -0500
-Date: Tue, 18 Feb 2003 17:41:25 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Henning Schmiedehausen <hps@intermeta.de>
-Cc: Christoph Hellwig <hch@infradead.org>, lm@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
-Message-ID: <20030218174125.C19228@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Henning Schmiedehausen <hps@intermeta.de>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk> <20030214203151.GL20159@fs.tum.de> <20030214234517.GA4333@bjl1.jlokier.co.uk> <20030214235724.GA24139@work.bitmover.com> <b2l9d1$v55$3@tangens.hometree.net> <20030215115022.B18281@infradead.org> <b2lang$vf$1@tangens.hometree.net> <20030215165834.A21412@infradead.org> <1045427175.1477.47.camel@henning-pc.hutweide.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1045427175.1477.47.camel@henning-pc.hutweide.de>; from hps@intermeta.de on Sun, Feb 16, 2003 at 09:26:15PM +0100
+	id <S267874AbTBRRc6>; Tue, 18 Feb 2003 12:32:58 -0500
+Received: from p0021.as-l043.contactel.cz ([194.108.242.21]:33521 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S267917AbTBRRcf> convert rfc822-to-8bit; Tue, 18 Feb 2003 12:32:35 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: What language has Alan's portaloo changed to?
+References: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
+	<001f01c2d761$1fdea640$0201a8c0@pluto>
+	<20030218171832.GC351@lug-owl.de>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Tue, 18 Feb 2003 18:45:06 +0100
+In-Reply-To: <20030218171832.GC351@lug-owl.de> (Jan-Benedict Glaw's message
+ of "Tue, 18 Feb 2003 18:18:32 +0100")
+Message-ID: <m3k7fxiiu5.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2003 at 09:26:15PM +0100, Henning Schmiedehausen wrote:
-> The problem I have is, that at some point the BK company might be forced
-> to change the rules. Maybe Larry isn't in charge anymore. Maybe he needs
-> money. Maybe at some point kernel development _relies_ on BK. What if BK
-> decides that there are no more free licenses from this day on? 
+   From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+   Date: Tue, 18 Feb 2003 18:18:32 +0100
 
-Then we'll have to go back to old-style no-SCM releases. 
+   > Better - you're freely allowed to learn Welsh!
 
-> I have a problem with a core product of the free software movement
+I do not speak Walsh, but there are more reasons:
 
-Who said Linux is part of the Free Software Movement?  Remember that Linus
-is no fanatical GNU monk, unless I got something completly wrong he even
-writes propritary software in his daytime job..
+- you can choose who will teach Welsh to you
+- you have the *right* to learn Welsh yourself without anyone trying to
+  kill you
 
+I think that Alan's decision to start writing his diary in Welsh can be
+also a lecture for Linus: I hope Alan will change his (bad) decision to use
+Welsh and will come back to English even if writing in Welsh is good for
+him to learn Welsh but his decision hurts others. The same applies to Linus
+and BK.
+
+Only big man can change his bad decision.
+-- 
+Pavel Janík
+
+I can't make such predictions--my crystal ball is cloudy today.
+                  -- Richard Stallman in emacs-devel

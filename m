@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261346AbTC0TPI>; Thu, 27 Mar 2003 14:15:08 -0500
+	id <S261360AbTC0TYC>; Thu, 27 Mar 2003 14:24:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbTC0TPI>; Thu, 27 Mar 2003 14:15:08 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48136 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261346AbTC0TPG>;
-	Thu, 27 Mar 2003 14:15:06 -0500
-Date: Thu, 27 Mar 2003 11:25:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Jan Dittmer <j.dittmer@portrix.net>, Mark Studebaker <mds@paradyne.com>,
-       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       sensors@Stimpy.netroedge.com
-Subject: Re: lm sensors sysfs file structure
-Message-ID: <20030327192517.GJ32667@kroah.com>
-References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com> <3E83459A.3090803@portrix.net> <20030327185222.GI32667@kroah.com> <1048792523.7569.102.camel@nosferatu.lan>
+	id <S261364AbTC0TYC>; Thu, 27 Mar 2003 14:24:02 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:57869 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S261360AbTC0TXB>; Thu, 27 Mar 2003 14:23:01 -0500
+Subject: Re: [Linux-fbdev-devel] Much better framebuffer fixes.
+From: Antonino Daplas <adaplas@pol.net>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <200303271816.30636.schlicht@uni-mannheim.de>
+References: <Pine.LNX.4.44.0303270017180.25001-100000@phoenix.infradead.org>
+	<1048735712.1047.10.camel@localhost.localdomain>
+	<3E82C580.1000801@aitel.hist.no> 
+	<200303271816.30636.schlicht@uni-mannheim.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1048792470.1086.35.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048792523.7569.102.camel@nosferatu.lan>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Mar 2003 03:15:37 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 09:15:23PM +0200, Martin Schlemmer wrote:
-> On Thu, 2003-03-27 at 20:52, Greg KH wrote:
-> 
-> > > Is this the way you want to go? Just an example for the voltages.
-> > 
-> > That looks very good to me, nice 
-> 
-> While we are at it, some form question.  The w83781d have a
-> magnitude of files in sysfs if you split them like this, so
-> I went for the shorter (easier?) way.
-> 
-> This ok, or should I split it up a bit more.  Note that I
-> have not done much for indentation yet.
+On Fri, 2003-03-28 at 01:16, Thomas Schlichter wrote:
+ 
+> I had that problem, too, so I changed some code to make it compile, remove 
+> some warnings and even fix a possible memory leak... A patch is attached and 
+> applies after applying the patches fom James Simmons and Antonino Daplas.
 
-This is fine with me, whatever works for you.  Either way, we are
-abusing macros a bunch :)
+Thanks :-)  
 
-thanks,
+Tony
 
-greg k-h
+

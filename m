@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271062AbTGPTwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 15:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271093AbTGPTwW
+	id S271097AbTGPTsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 15:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271098AbTGPTsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 15:52:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51171 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S271062AbTGPTwU (ORCPT
+	Wed, 16 Jul 2003 15:48:42 -0400
+Received: from node-d-d535.a2000.nl ([62.195.213.53]:37841 "EHLO bkor.dhs.org")
+	by vger.kernel.org with ESMTP id S271097AbTGPTsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 15:52:20 -0400
-Date: Wed, 16 Jul 2003 22:07:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: patrice <patrice.dietsch@free.fr>
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: bug report : IDE RW16x10/DVD seems detected by the system but is not present in /dev (devfs)
-Message-ID: <20030716200709.GT833@suse.de>
-References: <3F15AFA3.9080001@free.fr>
+	Wed, 16 Jul 2003 15:48:41 -0400
+Date: Wed, 16 Jul 2003 22:03:25 +0200
+From: Olav Vitters <olav@bkor.dhs.org>
+To: Magnus Solvang <magnus@solvang.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gnome-terminal hangs while running mutt (kernel 2.5.70)
+Message-ID: <20030716200325.GA26150@bkor.dhs.org>
+Mail-Followup-To: Magnus Solvang <magnus@solvang.net>,
+	linux-kernel@vger.kernel.org
+References: <20030606011104.GA4700@first.knowledge.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F15AFA3.9080001@free.fr>
+In-Reply-To: <20030606011104.GA4700@first.knowledge.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16 2003, patrice wrote:
-> Hi,
+On Fri, Jun 06, 2003 at 03:11:04AM +0200, Magnus Solvang wrote:
+> Using gnome-terminal with an updated Red Hat Linux 9, and
+> ssh'ing to my mailserver, my gnome-terminal hangs while
+> mutt is sorting my mailbox. It always hangs on the same
+> sort-count, displaying:
 > 
-> I think I found a bug in the IDE driver. The bug report is following.
+>   Reading /var/spool/mail/magnus... 194 (38%)
 > 
-> Thank you for help,
+> on the bottom of the screen. This is not a problem with
+> other kernels, or using xterm in 2.5.70, so I guess it's
+> not a mutt-problem.
 > 
-> Patrice DIETSCH
+> Starting a gnome-terminal from xterm, logging into my
+> mailserver with ssh, and starting mutt, the following
+> error message loops infinitly in xterm while gnome-terminal
+> hangs:
 > 
-> 
-> #[1.] One line summary of the problem:
-> 
-> IDE RW16x10/DVD seems detected by the system but is not present in /dev 
-> (devfs)
->
-> Linux version 2.4.21-0.13mdk (flepied@bi.mandrakesoft.com) (gcc version 
-> 3.2.2 (M
-> andrake Linux 9.1 3.2.2-3mdk)) #1 Fri Mar 14 15:08:06 EST 2003
+> ** (gnome-terminal:5486): WARNING **: Error reading from
+>  child: Bad address.
 
-Report this to Mandrake, bug reports for vendor kernels don't belong
-here. Or reproduce with 2.4.21/2.4.22-pre7 and resend.
+This is actually a bug in vte and was fixed in version 0.10.26. Red Hat
+9.0 seems to have vte 0.10.25. For more information please go to
+http://bugzilla.gnome.org/show_bug.cgi?id=108066
+
 
 -- 
-Jens Axboe
-
+Regards,
+Olav

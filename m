@@ -1,105 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUHUMlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUHUMoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUHUMlP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 08:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUHUMlP
+	id S264726AbUHUMoX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 08:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUHUMoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 08:41:15 -0400
-Received: from main.gmane.org ([80.91.224.249]:24993 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264648AbUHUMlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 08:41:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Karl Vogel <karl.vogel@seagha.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P5
-Date: Sat, 21 Aug 2004 14:41:37 +0200
-Message-ID: <cg7fsv$tao$1@sea.gmane.org>
-References: <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: d51a4788e.kabel.telenet.be
-User-Agent: KNode/0.7.7
+	Sat, 21 Aug 2004 08:44:23 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:14056 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S264726AbUHUMoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 08:44:20 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Sat, 21 Aug 2004 14:43:22 +0200
+To: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
+       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <4127436A.nail9BA11B882@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <d577e5690408190004368536e9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <4124BA10.6060602@bio.ifi.lmu.de>
+ <1092925942.28353.5.camel@localhost.localdomain>
+ <4125E5B9.nail8LD2EG3NM@burner>
+ <1093001143.30940.23.camel@localhost.localdomain>
+ <41260675.nail8LDG1UIJL@burner>
+ <1093009555.30941.48.camel@localhost.localdomain>
+In-Reply-To: <1093009555.30941.48.camel@localhost.localdomain>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm regularly seeing acpi_ec_read latencies. (e.g. when closing the lid of
-my notebook, when the processor cooler activates, ...)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-I'm guessing there isn't much that can be done about this, right?!
+> On Gwe, 2004-08-20 at 15:11, Joerg Schilling wrote:
+> > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > 
+> > > > On a decently administrated Linux system, only root is able to send SCSI 
+> > > > commands because only root is able to open the apropriate /dev/* entries.
+> > >
+> > > Wrong (as usual)
+> > 
+> > Useless as usual :-(
+>
+> Unlike you I spend some of my time looking at large real world Linux
+> installations.
 
+So you just like to tell us that you have no clue?
 
-preemption latency trace v1.0.1
--------------------------------
- latency: 1151 us, entries: 94 (94)
-    -----------------
-    | task: kacpid/6, uid:0 nice:-10 policy:0 rt_prio:0
-    -----------------
- => started at: acpi_ec_read+0x6b/0xf7
- => ended at:   acpi_ec_read+0xc8/0xf7
-=======>
-00000001 0.000ms (+0.000ms): acpi_ec_read (acpi_ec_space_handler)
-00000001 0.000ms (+0.000ms): acpi_hw_low_level_write (acpi_ec_read)
-00000001 0.000ms (+0.000ms): acpi_os_write_port (acpi_hw_low_level_write)
-00000001 0.001ms (+0.001ms): acpi_ec_wait (acpi_ec_read)
-00000001 0.001ms (+0.000ms): acpi_hw_low_level_read (acpi_ec_wait)
-00000001 0.001ms (+0.000ms): acpi_os_read_port (acpi_hw_low_level_read)
-00000001 0.003ms (+0.001ms): __const_udelay (acpi_ec_wait)
-00000001 0.003ms (+0.000ms): __delay (acpi_ec_wait)
-00000001 0.003ms (+0.000ms): delay_tsc (__delay)
-[...]
-00000001 1.113ms (+0.001ms): smp_apic_timer_interrupt (acpi_ec_read)
-00010001 1.113ms (+0.000ms): profile_hook (smp_apic_timer_interrupt)
-00010002 1.113ms (+0.000ms): notifier_call_chain (profile_hook)
-00000002 1.113ms (+0.000ms): do_softirq (smp_apic_timer_interrupt)
-00000100 1.113ms (+0.000ms): __do_softirq (do_softirq)
-00010001 1.113ms (+0.000ms): do_IRQ (acpi_ec_read)
-00010002 1.113ms (+0.000ms): ack_edge_ioapic_irq (do_IRQ)
-00010002 1.113ms (+0.000ms): generic_redirect_hardirq (do_IRQ)
-00010000 1.113ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
-00010000 1.113ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
-00010001 1.113ms (+0.000ms): mark_offset_tsc (timer_interrupt)
-00010001 1.123ms (+0.009ms): do_timer (timer_interrupt)
-00010001 1.123ms (+0.000ms): update_process_times (do_timer)
-00010001 1.123ms (+0.000ms): update_one_process (update_process_times)
-00010001 1.123ms (+0.000ms): run_local_timers (update_process_times)
-00010001 1.123ms (+0.000ms): raise_softirq (update_process_times)
-00010001 1.123ms (+0.000ms): scheduler_tick (update_process_times)
-00010001 1.123ms (+0.000ms): sched_clock (scheduler_tick)
-00010002 1.123ms (+0.000ms): task_timeslice (scheduler_tick)
-00010001 1.123ms (+0.000ms): update_wall_time (do_timer)
-00010001 1.123ms (+0.000ms): update_wall_time_one_tick (update_wall_time)
-00010002 1.123ms (+0.000ms): generic_note_interrupt (do_IRQ)
-00010002 1.123ms (+0.000ms): end_edge_ioapic_irq (do_IRQ)
-00000002 1.123ms (+0.000ms): do_softirq (do_IRQ)
-00000100 1.123ms (+0.000ms): __do_softirq (do_softirq)
-00000001 1.124ms (+0.000ms): sub_preempt_count (acpi_ec_read)
+If the owners and permissions of the filesystem have been set up correctly,
+then there is no security problem. 
 
-Full trace output available on:
- http://users.telenet.be/kvogel/ec-latency.txt
+As there is no problem in the kernel, why change the kernel?
 
-Culprit is the following code in drivers/acpi/ec.c
-function acpi_ec_wait (edited for mail):
+The modification only breaks compatibility and causes trusted applications
+like cdrtools to fail if installed suid root.
 
-----
-#define ACPI_EC_UDELAY          100     /* Poll @ 100us increments */
-#define ACPI_EC_UDELAY_COUNT    1000    /* Wait 10ms max. during EC ops */
+The change _only_ affects programs that open the /dev/ nodes with euid root
+and later revert to a different user id. 
 
-u32                     i = ACPI_EC_UDELAY_COUNT;
+Programs that do not run with euid root cannot open the /dev/ nodes if owner
+and permissions have been set up correctly.
 
-do {
-    acpi_hw_low_level_read(8, &acpi_ec_status, &ec->status_addr);
-    if (acpi_ec_status & ACPI_EC_FLAG_OBF)
-            return 0;
-    udelay(ACPI_EC_UDELAY);
-} while (--i>0);
-----
+Jörg
 
-NOTE: isn't the comment on the ACPI_EC_UDELAY_COUNT wrong?! Or is my
-arithmetic not what it used to be. (1000 loops of 100us = 100ms instead of
-10ms, no?)
-
-
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbQLKXcW>; Mon, 11 Dec 2000 18:32:22 -0500
+	id <S129983AbQLKXiD>; Mon, 11 Dec 2000 18:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbQLKXcM>; Mon, 11 Dec 2000 18:32:12 -0500
-Received: from uberbox.mesatop.com ([208.164.122.9]:32521 "EHLO
-	uberbox.mesatop.com") by vger.kernel.org with ESMTP
-	id <S130670AbQLKXcF>; Mon, 11 Dec 2000 18:32:05 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-Date: Mon, 11 Dec 2000 16:02:27 -0700
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <00121008312900.00872@localhost.localdomain> <006b01c062e2$b4c3ddc0$0500a8c0@methusela>
-In-Reply-To: <006b01c062e2$b4c3ddc0$0500a8c0@methusela>
-Cc: vii@penguinpowered.com, mojomofo@mojomofo.com
+	id <S130147AbQLKXhx>; Mon, 11 Dec 2000 18:37:53 -0500
+Received: from front7m.grolier.fr ([195.36.216.57]:46517 "EHLO
+	front7m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129983AbQLKXhj> convert rfc822-to-8bit; Mon, 11 Dec 2000 18:37:39 -0500
+Date: Mon, 11 Dec 2000 23:07:01 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: "David S. Miller" <davem@redhat.com>
+cc: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <200012112221.OAA01081@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.10.10012112250330.2255-100000@linux.local>
 MIME-Version: 1.0
-Message-Id: <00121116022700.12045@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Tiensivu wrote:
->Rerun the 2.4.0 with kgcc to be fair. :)
 
-John Fremlin wrote:
->Two points: (1) gcc 2.95 makes slightly slower code than egcs-1.1
->(according to benchmarks on gcc.gnu.org) so compile 2.4 kernel with
->egcs for a fairer comparison. (2) The new VM was a performance
 
-Ok, several people have said that kgcc makes a slightly
-better (faster) kernel than gcc.  Here are some more results.
+On Mon, 11 Dec 2000, David S. Miller wrote:
 
- 1   2   3   ave.
+>    Date: Mon, 11 Dec 2000 22:30:59 +0100 (CET)
+>    From: Gérard Roudier <groudier@club-internet.fr>
+> 
+>    On Mon, 11 Dec 2000, David S. Miller wrote:
+> 
+>    > Really, in 2.4.x sparc64 requires PCI config space hackery no longer.
+> 
+>    Really?
+> 
+>    I was thinking about the pcivtophys() alias bus_dvma_to_mem() hackery used
+>    to retrieve the actual BAR address from the so-called pcidev bar cookies.
+> 
+> Really :-)  This conversation was about drivers making modifications
+> to PCI config space areas which are being argued to be only modified
+> by arch-specific PCI support layers.  That is the context in which
+> I made my statements.
 
-453 456 455  454.7 make bzImage for 2.4.0t12p7 running 2.4.0t12p7kgcc
+Was more general in my opinion. :-)
 
-compare this to my previous test using test12-pre7 compiled with gcc:
+> Interpreting physical BAR values is another issue altogether.  Kernel
+> wide interfaces for this may be easily added to include/asm/pci.h
+> infrastructure, please just choose some sane name for it and I will
+> compose a patch ok? :-)
 
-460 458 454  457.3 make bzImage for 2.4.0t12p7 running 2.4.0t12p7gcc
+Really? :-)
 
-2.4.0t12p7kgcc is shorthand for 2.4.0-test12-pre7k made with kgcc.
-2.4.0t12p7gcc is shorthand for 2.4.0-test12-pre7 made with gcc.
+It is the bar cookies in pci dev structure that are insane, in my opinion.
 
-kgcc does indeed make a slightly faster (0.5%) kernel, but I think
-we're getting into the pregnant or dimpled chad thing at this point.
+If a driver needs BARs values, it needs actual BARs values and not some
+stinking cookies. What a driver can do with BAR cookies other than using
+them as band-aid for dubiously designed kernel interface.
 
-To create a kgcc test12-pre7, I modified line 18 and 29 of the top
-level Makefile to be =kgcc.  Of course, I then restored the Makefile
-to original, since I'm not testing how fast gcc vs kgcc compiles a
-bunch of code. I modified EXTRAVERSION to be -test12k so I could
-double check with uname -r to make sure I booted the correct kernel.
+BUT, a driver does not care about handles passed to read*/write* and
+friends and should not have to care. Using cookies, handle or tag or
+whatever means 'user should not worry about but just pass them when
+needed' is good here.
 
-Kgcc made a somewhat larger kernel than gcc. The same .config file
-was used for both kernels.
+So, if you want to fix this insane PCI interface:
 
-829034 Dec  7 20:46 vmlinuz-2.4.0-test12-pre7
-854863 Dec 11 14:12 vmlinuz-2.4.0-test12-pre7k
+1) Provide the _actual_ BARs values in the pci dev structure, otherwise 
+   drivers that need them will have to deal with ugly hackery or access 
+   explicitely the PCI configuration space.
 
-I have a SMP (dual P-III 733Mhz) machine at work, but it will be 
-unavailable for testing for a few more days.  I suspect that 2.4.0-test12
-will do better than 2.2.18 with 2 CPUs.  I'll know in a few days.
+2) Provide an interface that accepts the PCI dev and the BAR offset as
+   input and that return somes cookie for read*/write* interface.
+       GiveMeSomeCookieForMmIo(pcidev, bar_offset).
 
-Building kernels is something we do so frequently and this test is so easy
-to reproduce is why I performed it in the first place.  I think it may be as 
-good a test of real performance as some of the more formal benchmarks.
-Comments anyone?
-
-Steven
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

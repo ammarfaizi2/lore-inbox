@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271792AbRIHSEr>; Sat, 8 Sep 2001 14:04:47 -0400
+	id <S271797AbRIHSG1>; Sat, 8 Sep 2001 14:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271797AbRIHSEh>; Sat, 8 Sep 2001 14:04:37 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25393 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S271792AbRIHSEe>; Sat, 8 Sep 2001 14:04:34 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: andrew.grover@intel.com (Grover, Andrew),
-        russell@coker.com.au ('Russell Coker'),
-        acpi@phobos.fachschaften.tu-muenchen.de ("Acpi-linux (E-mail)"),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-In-Reply-To: <E15cx6w-00049f-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Sep 2001 11:55:23 -0600
-In-Reply-To: <E15cx6w-00049f-00@the-village.bc.nu>
-Message-ID: <m1iteth8j8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S271798AbRIHSGR>; Sat, 8 Sep 2001 14:06:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6152 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271797AbRIHSGD>; Sat, 8 Sep 2001 14:06:03 -0400
+Date: Sat, 8 Sep 2001 11:01:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <20010908195730.D11329@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109081055440.936-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > So of course I realize this wouldn't happen any time soon, but has any
-> > discussion taken place regarding enhancing the bootloader (grub? Steal
-> > FreeBSD's?) to load modular drivers very early, and possibly abstracting
-> > SMP/UP from the kernel proper? Wouldn't this be a better solution than
-> > initrd?
-> 
-> All the discussion we have has been based on seriously enhancing and
-> expanding the use of the initrd/ramfs layer. Remember we can begin running
-> from ramfs without interrupts, pci bus scans or the like. The things it cant
-> do are - pick a kernel by processor type, pick SMP/non SMP.
-> 
-> As it happens both of those are things that are deeply buried in the whole
-> compile choices and how we generate the code itself - so they do need to
-> be boot loader driven (or user driven)
-> 
-> So the path for ACPI could indeed go
-> 
-> load kernel
-> load initial ramfs
-> Discover we have ACPI
-> load acpi core
-> load acpi irq router
-> load acpi timers
-> [init hardware]
-> load ide disk
-> load ext3
-> mount /
+On Sat, 8 Sep 2001, Andrea Arcangeli wrote:
+>
+> First of all I just __block_fsync + truncate_inode_pages(inode->i_mapping, 0) so
+> all pagecache updates are commited to disk after that, so the latest uptodate
+> data is on disk and nothing uptodate is in memory.
 
-Sounds about right.  
+Hmm. And if two openers have the device open at the same time? One dirties
+data after the first one has done __block_fsync? And the truncate will
+throw the dirtied page away?
 
-If we really need to do weird things like pick a kernel by processor
-type, or pick SMP/non SMP.  You can even do those from an initramfs
-with a linux  booting linux kernel patch.
+Now, I don't think we need to be _too_ careful about cache coherency: it's
+probably ok to do something like
 
-Eric
+	__block_fsync(dev) - sync _our_ changes
+	invalidate_inode_pages(dev) - this will only invalidate unused pages
+	invalidate_device(dev)
+
+But I'd just like to feel really comfortable about it. And part of that is
+probably to be simpler rather than be clever..
+
+		Linus
+

@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264322AbUD0TvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264315AbUD0TwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbUD0TvL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 15:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbUD0TtF
+	id S264315AbUD0TwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbUD0TwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 15:49:05 -0400
-Received: from email-out1.iomega.com ([147.178.1.82]:23202 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S264315AbUD0TsU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 15:48:20 -0400
-Subject: Re: Unable to read UDF fs on a DVD
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: gerrit.scholl@philips.com
-Cc: linux-kernel@vger.kernel.org, linux_udf@hpesjro.fc.hp.com
-In-Reply-To: <1083082286.6562.55.camel@patibmrh9>
-References: <OFA36FDF30.41353846-ONC1256E83.0039A57A-C1256E83.003B5183@phili
-	 ps.com><1083082286.6562.55.camel@patibmrh9>
-Content-Type: text/plain;
-	charset=UTF-8
-Organization: 
-Message-Id: <1083095280.6562.88.camel@patibmrh9>
+	Tue, 27 Apr 2004 15:52:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58832 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264315AbUD0Tvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 15:51:41 -0400
+Date: Tue, 27 Apr 2004 12:49:06 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Clay Haapala <chaapala@cisco.com>
+Cc: jmorris@redhat.com, Matt_Domsch@dell.com, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lib/libcrc32c, revised 040427
+Message-Id: <20040427124906.6bb753eb.davem@redhat.com>
+In-Reply-To: <yqujoepd9pb8.fsf_-_@chaapala-lnx2.cisco.com>
+References: <Xine.LNX.4.44.0403261134210.4331-100000@thoron.boston.redhat.com>
+	<yqujr7vai6k4.fsf@chaapala-lnx2.cisco.com>
+	<200403302043.22938.bzolnier@elka.pw.edu.pl>
+	<yqujwu52ywsy.fsf@chaapala-lnx2.cisco.com>
+	<20040330192350.GB5149@lists.us.dell.com>
+	<yquj1xn87mpy.fsf_-_@chaapala-lnx2.cisco.com>
+	<yqujpta3y7ia.fsf_-_@chaapala-lnx2.cisco.com>
+	<20040423164226.3d6fa2c3.davem@redhat.com>
+	<yqujoepd9pb8.fsf_-_@chaapala-lnx2.cisco.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Apr 2004 13:48:00 -0600
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 27 Apr 2004 19:48:19.0694 (UTC) FILETIME=[9734A8E0:01
-	C42C90]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:15.14840 C:49 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> compression id 16 (search for "cid:"),
-> means that the characters are coded 16 bits per character.
-> 
-> UDF 2.1.1:
-> UDF supports standard Unicode 2.0 except the 'byte-order mark'
-> chars #FEFF and #FFFE.
-> These characters are coded in OSTA Compressed Unicode format,
-> which means 8 bits per char or 16 bits per char.
-> If a file identifier contains only unicode chars with al value
-> less than #0100, compression id 8 can be used.
+On Tue, 27 Apr 2004 14:46:35 -0500
+Clay Haapala <chaapala@cisco.com> wrote:
 
-Link! Thank you. I clicked thru to:
+> Attribute(pure) was used, so I changed the patch to use the define in
+> compiler.h, as you suggest.  I will also change crc32.c, and submit in
+> a second patch.  This is a patch against 2.6.5 sources.  I did not
+> change the crypto patch, as this construct was not used there.
 
---- http://www.osta.org/specs/pdf/udf250.pdf
---- (page 17 of 165)
+Please include linux/compiler.h if you're going to use it :-)
 
-2.1.1 Character Sets
+Once you fix that, send it again and resend the crypto part to
+me as well and I'll apply everything for you.
 
-The character set used by UDF for the structures defined in this
-document is the ... OSTA CS0 character set ... defined as follows:
-...
-
----
-
-Between your English and their English, I conclude,
-
-I should expect to see 8 or 16 bits per char.  Specifically, when I'm
-looking at hex bytes, if I see x08 then thereafter I should see 8 bits
-per char thereafter, but if I see x10 then thereafter I should see x10
-bits per char.
-
-That sure sounds easier than UTF-8 is, to decode visually from a
-hexdump.  For example, I now think, with "OSTA Compressed Unicode", also
-known as the "OSTA CS0 character set", the $'\xE2\x82\xAC' x20AC € "EURO
-SIGN" will always appear as the plain hex byte pair x 20 AC.
-
-With this much context in place, now the 2004-04-23 guess of "a problem
-with 16 bit characters vs 8 bit characters" makes sense.  That guess
-says cid 8 maybe works better than cid 16, maybe especially when we need
-cid 16 to express a char outside of the x00..FF range.
-
-Pat LaVarre
-
-
+Thanks a lot for following up on this.

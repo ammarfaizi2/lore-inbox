@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265976AbRGLPXM>; Thu, 12 Jul 2001 11:23:12 -0400
+	id <S265830AbRGLPWV>; Thu, 12 Jul 2001 11:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265994AbRGLPXB>; Thu, 12 Jul 2001 11:23:01 -0400
-Received: from 64.5.206.104 ([64.5.206.104]:24072 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S265976AbRGLPWv>; Thu, 12 Jul 2001 11:22:51 -0400
-Date: Thu, 12 Jul 2001 11:22:37 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Yiping Chen <YipingChen@via.com.tw>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Whether Linux support HCLNFSD/PCNFSD daemon.
-In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D832@EXCHANGE2>
-Message-ID: <Pine.LNX.4.33.0107121121110.28086-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S265994AbRGLPWL>; Thu, 12 Jul 2001 11:22:11 -0400
+Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:31731 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S265830AbRGLPV5>; Thu, 12 Jul 2001 11:21:57 -0400
+Date: Thu, 12 Jul 2001 11:21:58 -0400
+From: Alan Shutko <ats@acm.org>
+Subject: Re: [PATCH] Pedantry.
+In-Reply-To: <3B4DBF1C.9060501@debian.org>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <8766cytbos.fsf@wesley.springies.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.103
+In-Reply-To: <fa.e8u67sv.rgkc2a@ifi.uio.no> <fa.g522o4v.26i737@ifi.uio.no>
+ <3B4DBF1C.9060501@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jul 2001, Yiping Chen wrote:
+Giacomo Catenazzi <cate@debian.org> writes:
 
-> Dear Sir:
-> I have installed "NFS Maestro" package (Hummingbird company) in Win98,  when
-> I use "NFS
-> Network Access" Software to connect with linux NFS server, it appear the
-> following error message, can anybody give me any suggestions? Thanks!
->
-> "Network Timeout or HCLNFSD/PCNFSD not running on Host"
->
-> And I can't find any HCLNFSD/PCNFSD daemon in Linux.
-> So I need help.
->
-> Ariel Chen.
+> Better:
+> Creating Linux from (nearly) random bits.........born
 
-Take a look at:
-
-  http://www.linuxdoc.org/HOWTO/NFS-HOWTO/index.html
+"Generating redundancy... done done"?
 
 -- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
-
-
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+HOLY MACRO!

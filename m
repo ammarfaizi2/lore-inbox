@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSIWVDC>; Mon, 23 Sep 2002 17:03:02 -0400
+	id <S261361AbSIWUgc>; Mon, 23 Sep 2002 16:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbSIWVDC>; Mon, 23 Sep 2002 17:03:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29883 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261391AbSIWVDB>;
-	Mon, 23 Sep 2002 17:03:01 -0400
-Date: Mon, 23 Sep 2002 13:57:08 -0700 (PDT)
-Message-Id: <20020923.135708.10698522.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: dmo@osdl.org, axboe@suse.de, phillips@arcor.de, _deepfire@mail.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: DAC960 in 2.5.38, with new changes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15759.32569.964762.776074@napali.hpl.hp.com>
-References: <15759.26918.381273.951266@napali.hpl.hp.com>
-	<20020923.134000.123546377.davem@redhat.com>
-	<15759.32569.964762.776074@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261376AbSIWUgc>; Mon, 23 Sep 2002 16:36:32 -0400
+Received: from mons.uio.no ([129.240.130.14]:18895 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261361AbSIWUgb>;
+	Mon, 23 Sep 2002 16:36:31 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15759.31838.68147.725840@charged.uio.no>
+Date: Mon, 23 Sep 2002 22:41:02 +0200
+To: Andrew Morton <akpm@digeo.com>
+Cc: trond.myklebust@fys.uio.no, Rik van Riel <riel@conectiva.com.br>,
+       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <3D8F6409.D45AA848@digeo.com>
+References: <3D811A6C.C73FEC37@digeo.com>
+	<15759.17258.990642.379366@charged.uio.no>
+	<3D8F6409.D45AA848@digeo.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Mon, 23 Sep 2002 13:53:13 -0700
-   
-     > Or perhaps every platform should provide a writeq(), on 32-bit systems
-     > it may merely be implemented as two consequetive writel() calls.
-   
-   True, but I was wondering whether driver writers will have an implicit
-   assumption on readX/writeX being atomic.  I don't think anyone ever
-   promised that, but I suspect all existing implementations are indeed
-   atomic (it's true even for old Alphas which don't have sub-word
-   load/stores).
-   
-On many platforms, two consequetive __raw_writel()'s might even
-combine to an atomic 64-bit store to PCI space. :-)
+>>>>> " " == Andrew Morton <akpm@digeo.com> writes:
 
-I don't think the proposed 32-bit behavior is off the mark, and
-anyways x86 can actually make the 64-bit store I believe if it
-wants at least on more recent processors.
+     > Well it has to be a new thread, or user processes.
+
+     > Would it be possible to mark the inode as "needs invalidation",
+     > and make user processes check that flag once they have i_sem?
+
+Not good enough unless you add those checks at the VFS/MM level. Think
+for instance about mmap() where the filesystem is usually not involved
+once a pagein has occurred.
+
+     > Do we really need to invalidate individual pages, or is it
+     > real-life acceptable to invalidate the whole mapping?
+
+Invalidating the mapping is certainly a good alternative if it can be
+done cleanly.
+Note that in doing so, we do not want to invalidate any reads or
+writes that may have been already scheduled. The existing mapping
+still would need to hang around long enough to permit them to
+complete.
+
+     > Doing an NFS-special invalidate function is not a problem, btw
+     > - my current invalidate_inode_pages() is just 25 lines.  It's
+     > merely a matter of working out what it should do ;)
+
+invalidate_inode_pages() *was* NFS-specific until you guys hijacked it
+for other purposes in 2.5.x ;-)
+
+Cheers,
+   Trond

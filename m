@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUAONO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 08:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUAONO7
+	id S265061AbUAONcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 08:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAONcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 08:14:59 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:48796 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S266481AbUAONO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 08:14:57 -0500
-Date: Thu, 15 Jan 2004 14:14:55 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 NFS stale filehandle with subtree_check
-Message-ID: <20040115141454.B17239@fi.muni.cz>
+	Thu, 15 Jan 2004 08:32:14 -0500
+Received: from dotnetslash.net ([66.199.224.19]:45830 "EHLO
+	mail.dotnetslash.net") by vger.kernel.org with ESMTP
+	id S265061AbUAONcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 08:32:12 -0500
+Date: Thu, 15 Jan 2004 08:32:10 -0500
+From: "Mark W. Alexander" <slash@dotnetslash.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS Flash changes PowerNOW frequencies?
+Message-ID: <20040115133209.GB6819@dotnetslash.net>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <20040111175610.GA26855@dotnetslash.net> <20040115120300.GA12963@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+In-Reply-To: <20040115120300.GA12963@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello all,
+On Thu, Jan 15, 2004 at 01:03:00PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > I'm not currently subscribed. Please cc: me on responses.
+> > 
+> > I'm running 2.6.0 on an HP Pavilion ze4420 Athlon version (lspci -v
+> > below).  I recently flashed the BIOS (hoping against all odds for
+> > suspend to ram capability) and the CPU frequencies discovered by
+> > PowerNOW (K7) has changed.  This is obviously caused by the BIOS
+> > update, but the stupid question of the day is "Why?". If the CPU and
+> > chipset support both sets of frequencies with different BIOS,
+> > wouldn't the _real_ set of supported frequencies be the union of the
+> > 2?
+> 
+> Well, maybe the chipset does not properly support it after all?
 
-	I have a NFS fileserver (currently based on XFS on 3ware RAID),
-which I have tried to upgrade to 2.6. kernel. After reboot, clients
-started to see partial directories, or cannot open/create files in
-their cwd, with the "stale NFS file handle" message. Using no_subtree_check
-option in /etc/exports helped, as well as going back to 2.4+XFS.
+Well, properly or not, everything I tested short of detailed benchmarking
+since -test3 has had no problems and always reported stats fine.
 
-	It is probably not XFS related, because I had the same problem
-on an older HW of this server (which had an ext3 volumes on software RAID)
-and some 2.6.0-pre kernel. At that time I did not know that I had to try
-no_subtree_check, so I don't know whether this would have fixed the
-problem on the older HW. I went back to 2.4 then.
+> Anyway, you might want to simply implant old tables into kernel, and
+> use them... Possibly even doing union.
 
-	The machine serves the home directories via NFS and Samba.
-I have home directories for ~2200 users there, each one with its own
-/etc/exports entry[1]. NFS clients are various Linux, Solaris and IRIX
-workstations and servers.
+Thanks. I vaguely remember trying something like this, for a completely
+different and forgotten issue, when I first started playing with ACPI.
+It turned out to not be necessary so that file has been erased from my
+memory and apparently over-written too much to be recovered.
 
-	Is it possible to use subtree_check in NFS in 2.6? Thanks,
+It seems the new BIOS has also given me better backlight and IDE
+power saving support (translation watching DVD's while on battery now
+sucks). It seems as if I'm going to have to become an ACPI expert to get
+some control over what this thing's doing and when. Like, it suspends
+fine in Windows but not in Linux. (Actually, it suspends fine in Linux
+too - It just won't wake up.) Can you point me to some references that
+will help be build my own tables without burning my machine up?
 
--Yenya
+> Pavel
+> --
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
 
-[1] For another unrelated user-space problem with such a big /etc/exports,
-see http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=76643
+And I've been puzzling over your sig since I first saw it. I still
+don't get it and it's driving me nuts.... When you have 13-15 high card
+points and 5 strong hearts?
 
+mwa
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|  I actually have a lot of admiration and respect for the PATA knowledge  |
-| embedded in drivers/ide. But I would never call it pretty:) -Jeff Garzik |
+Mark W. Alexander
+slash@dotnetslash.net

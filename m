@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263478AbTK1VNV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 16:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTK1VNV
+	id S263467AbTK1VP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 16:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTK1VP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 16:13:21 -0500
-Received: from mail.gmx.de ([213.165.64.20]:27868 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263478AbTK1VNU convert rfc822-to-8bit
+	Fri, 28 Nov 2003 16:15:27 -0500
+Received: from ivoti.terra.com.br ([200.176.3.20]:62644 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S263467AbTK1VPX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 16:13:20 -0500
-X-Authenticated: #11949556
-From: Michael Schierl <schierlm-usenet@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: APM Suspend Problem
-Date: Fri, 28 Nov 2003 22:12:57 +0100
-Reply-To: schierlm@gmx.de
-References: <WnPi.57n.5@gated-at.bofh.it> <WsPg.Xi.35@gated-at.bofh.it> <WAWd.BP.7@gated-at.bofh.it>
-In-Reply-To: <WAWd.BP.7@gated-at.bofh.it>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S263478AbTK1VNU/20031128211320Z+12850@vger.kernel.org>
+	Fri, 28 Nov 2003 16:15:23 -0500
+Date: Fri, 28 Nov 2003 19:15:20 -0200
+From: Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: sisopiii-l@cscience.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [SisopIII-l] Re: [PATCH] fix #endif misplacement
+Message-Id: <20031128191521.01fbe86c.rnsanchez@terra.com.br>
+In-Reply-To: <3FC781F4.7070201@terra.com.br>
+References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br>
+	<Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de>
+	<3FC77A59.2090705@elipse.com.br>
+	<3FC7803D.2050203@cyberone.com.au>
+	<3FC781F4.7070201@terra.com.br>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Nov 2003 21:30:18 +0100, in linux.kernel you wrote:
+Quoting  Felipe W Damasio <felipewd@terra.com.br>
+Sent on  Fri, 28 Nov 2003 15:12:20 -0200
 
->No luck; my ThinkPad still does not go into the proper power-saving mode. The LCD
->blanks out and the HD spins down, but it is not a real sleep mode.
+> 	Hi Nick,
+> 
+> Nick Piggin wrote:
+> > The ifdef isn't pretty, but its performance critical code, its easy to
+> > understand, and there is a big comment above it. I think its OK the
+> > way it is. Not that you would ever notice any difference probably.
+> 
+> 	You're right. As Lucas already pointed out, the ifdef CONFIG_NUMA is
+> actually an ifndef...
+> 	Like myself, I think Ricardo overlooked this :)
 
-Nearly the same on my Acer 210TEV. The LCD does not go blank, but the
-HD spins down.
+Oops!  Completely overlooked this.  Thanks for correcting me :)
 
-Worked on -test3, but not on later kernels (with or without that
-patch). 
 
-Michael
 -- 
-"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
-Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
-Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
-http://home.arcor.de/mschierlm/mschierlm.asc
+Ricardo Nabinger Sanchez
+GNU/Linux #140696 [http://counter.li.org]
+Slackware Linux
+
+  Warning: 
+    Trespassers will be shot.
+    Survivors will be shot again.

@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbUJ0Q3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbUJ0Q3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbUJ0Q3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbUJ0Q2q
+	id S262487AbUJ0Q3P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0Q1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:28:46 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:28696 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262512AbUJ0QWI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:22:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=nMoWPEqMEhi3X90pKaXchY8ETNK27hn5N4hC0aRlwI8RmnJvtt2x24ewv+FB2hL/v3OLombNPQqOFopD9qjw/WfnHjddB9nasvdoZZqdnjnUM4Kr634ZZqSDnYjEQIX13EHWjGsKXIviRsP/lSxNoI0SugFAwrgpCL736s569Bc=
-Message-ID: <58cb370e04102709221d6a9103@mail.gmail.com>
-Date: Wed, 27 Oct 2004 18:22:04 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: gene.heskett@verizon.net
-Subject: Re: [BK PATCHES] ide-2.6 update
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, linux-ide@vger.kernel.org
-In-Reply-To: <200410271215.55472.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <58cb370e04102706074c20d6d7@mail.gmail.com>
-	 <200410271215.55472.gene.heskett@verizon.net>
+	Wed, 27 Oct 2004 12:27:49 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:3506 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S262487AbUJ0QRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:17:47 -0400
+Date: Wed, 27 Oct 2004 18:17:13 +0200 (CEST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-2go.math.uni-giessen.de
+To: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
+Cc: Andi Kleen <ak@muc.de>, Andrew Walrond <andrew@walrond.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: solution Re: lost memory on a 4GB amd64
+In-Reply-To: <Pine.LNX.4.58.0410271751330.3903@pluto.physik.uni-wuerzburg.de>
+Message-Id: <Pine.LNX.4.58.0410271809090.10573@fb07-2go.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
+ <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
+ <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
+ <20041023164902.GB52982@muc.de> <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
+ <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
+ <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
+ <Pine.LNX.4.58.0410271751330.3903@pluto.physik.uni-wuerzburg.de>
+Organization: University of Giessen * Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004 12:15:55 -0400, Gene Heskett
-<gene.heskett@verizon.net> wrote:
-> On Wednesday 27 October 2004 09:07, Bartlomiej Zolnierkiewicz wrote:
-> >Please do a
-> >
-> > bk pull bk://bart.bkbits.net/ide-2.6
-> >
-> >This will update the following files:
-> >
-> > drivers/ide/ide-disk.c         |    1 +
-> > drivers/ide/ide-dma.c          |   32
-> 
-> Even after fixing the 4 wrapped lines in the patch, I'm not going in
-> cleanly here:
-> 
-> patching file drivers/ide/ide-dma.c
-> Hunk #1 FAILED at 681.
-> 1 out of 1 hunk FAILED -- saving rejects to file
-> drivers/ide/ide-dma.c.rej
-> 
-> The first 'grep' line of the patch is found at an offset of about +180
-> lines in the original file.
-> 
-> The rest of it seems to have found a home, but at offsets in excess of
-> 159 lines for a few of them.
-> 
-> This was against a 2.6.9 tree, and 2.6.9-mm1 failed in similar
-> fashion.  What src tree is this to be applied to?
+On Wed, 27 Oct 2004, Andreas Klein (AK) wrote:
 
-current linus' -bk tree, latest -bk snapshot should also be OK
+AK> > The next difference: 
+AK> > You have the S2885 (thunder K8W) and S2875S (tiger K8W single processor) 
+AK> > boards and I have a S2875 (tiger K8W double processor)
+AK> 
+AK> The boards are nearly identical (on-board lan is different, and your 
+AK> memory-slots are connected to one CPU).
+
+I don't think that LAN is of any importance for our problems. 
+
+But I was told (see previous messages) that the fact that all memory slots
+are connedted to one CPU makes a non-NUMA board of it (S2875).
+
+AK> If all memory modules are installed for one CPU, I have your problems. 
+
+I see.
+
+AK> Additionaly there are some other problems that only occur, when the 
+AK> modules are installed one pair for each CPU.
+
+IIRC [I might be wrong], Andrew is running this board (S2885) with exactly
+this memory configuration without problems.
+
+
+
+c ya
+        Sergei
+-- 
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUHCTFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266817AbUHCTcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUHCTFj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUHCTFj
+	id S266817AbUHCTcC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUHCTcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:05:39 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:5158 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266808AbUHCTFb
+	Tue, 3 Aug 2004 15:32:02 -0400
+Received: from adsl-64-109-89-108.dsl.chcgil.ameritech.net ([64.109.89.108]:45514
+	"EHLO redscar") by vger.kernel.org with ESMTP id S266807AbUHCTb7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:05:31 -0400
-Date: Tue, 3 Aug 2004 21:06:49 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       kernelnewbies <kernelnewbies@nl.linux.org>
-Subject: Re: modversion.h in kernel 2.6.x
-Message-ID: <20040803190649.GA20041@mars.ravnborg.org>
-Mail-Followup-To: Lei Yang <leiyang@nec-labs.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	kernelnewbies <kernelnewbies@nl.linux.org>
-References: <1091570120.5487.82.camel@bijar.nec-labs.com>
+	Tue, 3 Aug 2004 15:31:59 -0400
+Subject: Re: [2.6 patch] let AIC7{9,X}XX_BUILD_FIRMWARE depend
+	on!PREVENT_FIRMWARE_BUILD
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Nathan Bryant <nbryant@optonline.net>, Sam Ravnborg <sam@ravnborg.org>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, Adrian Bunk <bunk@fs.tum.de>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <410FD035.6080905@adaptec.com>
+References: <20040801185543.GB2746@fs.tum.de>
+	<20040801191118.GA7402@mars.ravnborg.org> <410FA577.4040602@adaptec.com>
+	<410FBDAA.4070907@optonline.net>
+	<1091550985.2816.10.camel@laptop.fenrus.com>  <410FD035.6080905@adaptec.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 03 Aug 2004 12:31:55 -0700
+Message-Id: <1091561517.1942.0.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091570120.5487.82.camel@bijar.nec-labs.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 02:55:20PM -0700, Lei Yang wrote:
-> Hello,
-> 
-> Could anyone tell me what happened with modversion.h in 2.6.x? I want to
-> build a module whose makefile indicates that,
-> 
-> ifdef CONFIG_MODVERSIONS
-> MODVERSIONS:= -DMODVERSIONS -include
-> $(KERNEL_DIR)/include/linux/modversions.h
-> CKERNOPS += $(MODVERSIONS)
-> endif
+On Tue, 2004-08-03 at 10:49, Luben Tuikov wrote:
+> Yes, no problem.  Whatever you guys want.
+> I can provide small incremental patches (right out of
+> perforce), and generate incremantal BKs (will have to look into
+> that).
 
-This is a sign of a broken module.
-Request the author to use the kbuild infrastructure when building the module.
-See Documentation/kbuild/modules.txt and Driver porting series at lwn.net for
-good examples.
+Actually, small incremental patches across the scsi list is what I'd
+prefer.  I can take care of doing the BK stuff to pull the patches
+straight off the list.
 
-If you do not need CONFIG_MODVERSION then try to disable it and compile
-the module, you may be lucky that it works.
+James
 
-But be carefull not to enable any options that may change ABI, for example reg-parm=3
-is know to cause problems if not used consistently.
 
-	Sam

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTHaNQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 09:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTHaNQJ
+	id S261918AbTHaNmu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 09:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTHaNmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 09:16:09 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45241 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261947AbTHaNQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 09:16:06 -0400
-Subject: Re: bandwidth for bkbits.net (good news)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030831025659.GA18767@work.bitmover.com>
-References: <20030830230701.GA25845@work.bitmover.com>
-	 <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local>
-	 <20030831013928.GN24409@dualathlon.random>
-	 <20030831025659.GA18767@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Sun, 31 Aug 2003 14:15:12 +0100
+	Sun, 31 Aug 2003 09:42:50 -0400
+Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:34455
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261918AbTHaNmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 09:42:49 -0400
+Date: Sun, 31 Aug 2003 09:41:23 -0500 (CDT)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, <zwane@holomorphy.com>
+Subject: Re: 2.6.0-test4-mm4
+In-Reply-To: <20030830161536.7e7be6d3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0308310926120.26483-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-31 at 03:56, Larry McVoy wrote:
-> I'm pretty convinced we can't solve the problem at our end.  Maybe we can
+Thank you Adrew.  I have been following a panic in store_stackinfo since 
+it was introduced with CONFIG_DEBUG_PAGEALLOC (see bugzilla #973).  
+2.6.0-test4-mm4 was the first kernel version I have tested which didn't 
+exhibit this failure mode.  
 
-For bursts of traffic you can't.
-
-> but I'm voting for throwing another T1 at the problem, we'll try working
-
-or switch to ATM ;)
-
-> with the ISP suggested solution of trunking them and rate limiting at
-> their end and if that doesn't work then we'll split them and use one for
-> bkbits.net and other bitmover related TCP traffic and use the other one
-> for phones.
-
-Fractioning the line is also doable but less flexible with some kit. 
-
+I do get a hang on boot in RedHat 8 if all the other "kernel hacking" 
+options are enabled.  This hang comes at the point in the boot sequence 
+where the next message I would expect is the mounting of /proc.  I've not 
+looked into it too deeply since it sounded similar to what others have 
+seen, and it wasn't my main focus.  I'll go back later and look into it if 
+the condition persists.
 

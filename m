@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUCHFRx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 00:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbUCHFRx
+	id S262391AbUCHFcT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 00:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbUCHFcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 00:17:53 -0500
-Received: from mail.zero.ou.edu ([129.15.0.75]:39092 "EHLO c3p0.ou.edu")
-	by vger.kernel.org with ESMTP id S261706AbUCHFRv (ORCPT
+	Mon, 8 Mar 2004 00:32:19 -0500
+Received: from [164.164.56.19] ([164.164.56.19]:35738 "EHLO mail1.sasken.com")
+	by vger.kernel.org with ESMTP id S262391AbUCHFcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 00:17:51 -0500
-Date: Sun, 07 Mar 2004 18:07:13 -0600
-From: "Stephen M. Kenton" <skenton@ou.edu>
-Subject: Re: new special filesystem for consideration in 2.6/2.7
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Message-id: <404BB931.1D3C83E8@ou.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en]C-CCK-MCD NSCPCD47  (Win98; I)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	Mon, 8 Mar 2004 00:32:18 -0500
+From: Swapnil <swapnil@sasken.com>
+Subject: fs scheduling access optimization
+Date: Mon, 8 Mar 2004 11:02:04 +0530
+Message-ID: <Pine.GSO.4.30.0403081100100.17318-100000@sunsv2.sasken.com>
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+X-News-Gateway: ncc-z.sasken.com
+Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If the recent news about giga-bit mram being a real possibility in
->> the not too far future pans out, this may be get more important.
+--=_IS_MIME_Boundary
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
->This is a reality in embedded devices.  Go read the message again...
+what are various methods to optimize data access from the secondary
+memory?
+what are the steps taken in designing an efficient and robust fs in terms
+of data mgt(not disk space mgt).
 
-Umm, yes and no.  I did not mean to dis this proposal because I think it
-is worthwhile.  Rather, I was thinking about the problems with really
-large amounts of data.  I don't really think that a few Kilo or Mega
-bytes of data  needs the same sort of infrastructure that will be
-required
-for Tera or Peta bytes.  As an extreme example the few bytes of nv ram
-in the
-cmos clock chips in the original PC/AT did not require much support
-while
-the multiple terabytes of data in my raid farm at work would be very
-vulnerable under this proposal since a rogue process could cause lots of
-damage in very sort order as would losing a memory bank to hardware
-failure.
+Please enlighten
 
-In the last discussion I saw on the topic on lkml, there was discussion
-about
-whether to even preserve the volume/directory/file abstraction at all
-for
-memory mapped data spaces.  That discussion was quite speculative given
-the lack of affordable *really large* nvram type storage to compete with
-100+ gigabyte disks and even larger raids.  That situation may be
-changing.
-Hence, this may become more important.
+Swapnil S. Garge
 
-smk
+--=_IS_MIME_Boundary
+Content-Type: text/plain;charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+***********************************************************************
+
+********************************************************************
+
+SASKEN BUSINESS DISCLAIMER
+
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email.
+
+***********************************************************************
+
+--=_IS_MIME_Boundary--

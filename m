@@ -1,75 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTLSRMm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 12:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTLSRMm
+	id S263539AbTLSRVb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 12:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbTLSRVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 12:12:42 -0500
-Received: from mx2.mail.ru ([194.67.23.22]:51980 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S263475AbTLSRMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 12:12:40 -0500
-Message-ID: <3FE33179.5000705@mail.ru>
-Date: Fri, 19 Dec 2003 12:12:25 -0500
-From: Yaroslav Klyukin <skintwin@mail.ru>
-User-Agent: Mozilla/5.0 (ICQ: 1045670, AIM: infiniteparticle)
-X-Accept-Language: ru, en-us, en
+	Fri, 19 Dec 2003 12:21:31 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:7184 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263539AbTLSRV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 12:21:29 -0500
+Date: Fri, 19 Dec 2003 11:23:01 -0600 (CST)
+From: mikem@beardog.cca.cpqcorp.net
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, mike.miller@hp.com,
+       scott.benesh@hp.com
+Subject: Re: cciss update for 2.4.24-pre1, #3
+In-Reply-To: <Pine.LNX.4.58L.0312191422100.27571@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0312191111490.7900@beardog.cca.cpqcorp.net>
+References: <Pine.LNX.4.58.0312170909380.30620@beardog.cca.cpqcorp.net>
+ <Pine.LNX.4.58L.0312191422100.27571@logos.cnet>
 MIME-Version: 1.0
-To: Danny Van Elsen <danny.van.elsen_remove@skynet.be>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 compilation error
-References: <pan.2003.12.19.16.08.21.742541@skynet.be>
-In-Reply-To: <pan.2003.12.19.16.08.21.742541@skynet.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam: Not detected
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny Van Elsen wrote:
-> hello all,
-> 
-> I've reused my .config from 2.4.21, accepted all default answers from
-> 'make oldconfig', and after 'make dep clean bzImage modules' I now have an
-> error in 'make modules_install':
+Marcelo,
+Prefetch has undergone extensive testing internally. Other groups are
+continuing to test it, also. All controllers on the street now have
+prefetch enabled. When version 1.92 of the controller f/w is released
+prefetch will be disabled by default. This patch re-enables it on x86 only
+because of a _big_ performance hit in RAID1 operations.
+This is on my list for 2.6. Since it has now been released I will begin
+submitting updates after Christmas. (My list for 2.6 is extensive.)
+Also, please include this version of the patch rather than my first
+submission. I moved a variable inside the ifdef to clean up warnings on
+non-x86 platforms.
 
-Try to save .config file, then run  "make mrproper"
-Restore .config file, run "make menuconfig" or "make oldconfig"
-Then repeat "make dep bzImage modules modules_install install"
-I hope, this is as simple.
+Thanks,
+mikem
+mike.miller@hp.com
+------------------------------------------------------------------------------
+diff -burN lx2424pre1.test2/drivers/block/cciss.c lx2424pre1.test/drivers/block/cciss.c
+--- lx2424pre1.test2/drivers/block/cciss.c	2003-12-18 09:12:52.000000000 -0600
++++ lx2424pre1.test/drivers/block/cciss.c	2003-12-18 09:09:11.000000000 -0600
+@@ -2675,6 +2675,15 @@
+ 		printk("Does not appear to be a valid CISS config table\n");
+ 		return -1;
+ 	}
++
++#ifdef CONFIG_X86
++	/* Need to enable prefetch in the SCSI core for 6400 in x86 */
++	__u32 prefetch;
++	prefetch = readl(&(c->cfgtable->SCSI_Prefetch));
++	prefetch |= 0x100;
++	writel(prefetch, &(c->cfgtable->SCSI_Prefetch));
++#endif
++
+ #ifdef CCISS_DEBUG
+ 	printk("Trying to put board into Simple mode\n");
+ #endif /* CCISS_DEBUG */
+diff -burN lx2424pre1.test2/drivers/block/cciss_cmd.h lx2424pre1.test/drivers/block/cciss_cmd.h
+--- lx2424pre1.test2/drivers/block/cciss_cmd.h	2003-06-13 09:51:32.000000000 -0500
++++ lx2424pre1.test/drivers/block/cciss_cmd.h	2003-12-18 09:10:01.000000000 -0600
+@@ -266,6 +266,7 @@
+   DWORD            Reserved;
+   BYTE             ServerName[16];
+   DWORD            HeartBeat;
++  DWORD            SCSI_Prefetch;
+ } CfgTable_struct;
+ #pragma pack()
+ #endif /* CCISS_CMD_H */
+-------------------------------------------------------------------------------
+On Fri, 19 Dec 2003, Marcelo Tosatti wrote:
 
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.4.23/kernel/drivers/block/loop.o
-> depmod:         register_disk_R1b56eb03
-> depmod:         __free_pages_R88128961
-> depmod:         schedule_timeout_R17d59d01
-> depmod:         blk_queue_make_request_R845d53c0
-> depmod:         kmem_cache_free_R891f2686
-> depmod:         kmalloc_R93d4cfe6
-> depmod:         blksize_size_R2f30b4b6
-> depmod:         __down_failed_interruptible
-> depmod:         zone_table_Rdf69790d
-> depmod:         __up_wakeup
-> depmod:         unlock_page_Rd1bff43b
-> depmod:         kernel_thread_R7ca341af
-> depmod:         flush_signals_R6bcc7377
-> depmod:         reparent_to_init_Rec6158d0
-> depmod:         generic_make_request_R3ab29a08
-> depmod:         blk_ioctl_Re7800428
-> depmod:         blk_dev_R3cb24670
-> depmod:         _alloc_pages_Rd0aa5a8b
-> depmod:         bh_cachep_Rdcc0bb37
-> depmod:         find_or_create_page_Reaf41236
-> depmod:         tq_disk_R5373dbb6
-> depmod:         sprintf_R1d26aa98
-> depmod:         daemonize_Rd66a354a
-> depmod:         fput_R90784591
-> depmod:         blk_size_Ra2e0a082
-> 
-> and so on.
-> 
-> what would I have done wrong?
-> 
-> thanks in advance for any response!
-
-
+>
+>
+> On Wed, 17 Dec 2003 mikem@beardog.cca.cpqcorp.net wrote:
+>
+> > Sorry I forgot to send this fix in with the 2 patches I submitted
+> > yesterday. We found a bug in the ASIC used on the 64xx Smart Array
+> > controllers. When prefetching from host memory we grab an extra 750 or
+> > so bytes of data. If this occurs on a memory boundary the machine will crash.
+> > This is primarily an issue on IPF and Alpha systems although it could happen
+> > on other platforms. Proliant systems are not affected by this bug because
+> > memory is contiguous and the top 4k of memory is masked off by the system
+> > firmware. The solution to the problem is to disable SCSI prefetch in the
+> > controller firmware. This results in a performance hit on x86 during RAID1
+> > operations. This patch turns on prefetch for x86 based systems only.
+> > Please consider this patch for inclusion in the 2.4.24 kernel.
+> > This patch should be applied after the 2 I submitted yesterday. It will
+> > patch into a fresh tree with offsets.
+>
+> The other two patches have been included.
+>
+> Has the prefetching been tested for long? Which kernels have it enabled?
+>
+> What about 2.6?
+>

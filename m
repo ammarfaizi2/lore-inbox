@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVBQAcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVBQAiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVBQAcy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVBQAcy
+	id S262165AbVBQAiz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVBQAiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:32:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62398 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262167AbVBQAcw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:32:52 -0500
-Date: Wed, 16 Feb 2005 15:56:50 -0800
-From: Greg KH <greg@kroah.com>
-To: Robert Schwebel <r.schwebel@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>,
-       Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: Re: recursively unregistering platform devices
-Message-ID: <20050216235649.GA15537@kroah.com>
-References: <20050206142912.GE13303@pengutronix.de>
+	Wed, 16 Feb 2005 19:38:55 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:49360 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262165AbVBQAit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 19:38:49 -0500
+Date: Wed, 16 Feb 2005 19:38:46 -0500
+From: Noel Maddy <noel@zhtwn.com>
+To: Pedro Venda <pjvenda@arrakis.dhis.org>
+Cc: Parag Warudkar <kernel-stuff@comcast.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: possible leak in kernel 2.6.10-ac12
+Message-ID: <20050217003846.GA5615@uglybox.localnet>
+Reply-To: Noel Maddy <noel@zhtwn.com>
+References: <4213D70F.20104@arrakis.dhis.org> <200502161835.26047.kernel-stuff@comcast.net> <4213DF19.10209@arrakis.dhis.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050206142912.GE13303@pengutronix.de>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <4213DF19.10209@arrakis.dhis.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 03:29:12PM +0100, Robert Schwebel wrote:
-> Hi, 
-> 
-> I have a locking problem with platform devices in a little bit unusual
-> scenario; we have an FPGA which has a device information memory block
-> for the several "parts" in the FPGA. So we have written a base driver
-> which registers the device information block with the driver model, then
-> looks what is in the FPGA, registers the according "devices" with the
-> driver model and issues hotplug events to load the related drivers. 
-> 
-> The registration works fine, although we call platform_add_devices()
-> from the base driver for all the "sub devices"; but when we try to
-> unload the drivers there is a deadlock. On driver exit we call
-> platform_device_unregister() for the base driver which seems to be run
-> under a lock which is also being aquired when unregistering the devices
-> "inside" the FPGA. 
-> 
-> Before I investigate deeper - did anyone see this behaviour before? 
+On Thu, Feb 17, 2005 at 12:02:33AM +0000, Pedro Venda wrote:
 
-Known issue, you can't recursivly register or unregister with the driver
-core right now.  I'm working on fixing this issue.
+> admin proc # cat slabinfo
+...
+> biovec-1           74224  74354     16  226    1 : tunables  120   60    0 : slabdata    329    329      0
+> bio                74212  74237     64   61    1 : tunables  120   60    0 : slabdata   1217   1217      0
 
-thanks,
+If you're using md, you need this patch to fix a bio leak:
 
-greg k-h
+http://linux.bkbits.net:8080/linux-2.6/diffs/drivers/md/md.c@1.234
+
+
+Index: ac-dev/drivers/md/md.c
+===================================================================
+--- ac-dev.orig/drivers/md/md.c	2005-02-07 17:50:37.000000000 -0500
++++ ac-dev/drivers/md/md.c	2005-02-08 17:49:57.000000000 -0500
+@@ -336,8 +336,6 @@
+ 	struct completion event;
+ 	int ret;
+ 
+-	bio_get(bio);
+-
+ 	rw |= (1 << BIO_RW_SYNC);
+ 
+ 	bio->bi_bdev = bdev;
+-- 
+It's a big galaxy, Mr. Scott.
+						    -- Lieutenant Uhura
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+Noel Maddy <noel@zhtwn.com>

@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUA1CrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 21:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbUA1CrK
+	id S265804AbUA1CsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 21:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUA1CsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 21:47:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:453 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265801AbUA1CrH (ORCPT
+	Tue, 27 Jan 2004 21:48:10 -0500
+Received: from thunk.org ([140.239.227.29]:60580 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S265804AbUA1CsF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 21:47:07 -0500
-Date: Tue, 27 Jan 2004 18:42:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
-Subject: Re: 2.6.2-rc2-bk1 oopses on boot (ACPI patch)
-Message-Id: <20040127184228.3a0b8a86.akpm@osdl.org>
-In-Reply-To: <40171B5B.4020601@oracle.com>
-References: <40171B5B.4020601@oracle.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 27 Jan 2004 21:48:05 -0500
+Date: Tue, 27 Jan 2004 21:47:12 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Christoph Hellwig <hch@infradead.org>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Florian Huber <florian.huber@mnet-online.de>,
+       JFS Discussion <jfs-discussion@oss.software.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+Message-ID: <20040128024712.GA23831@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Christoph Hellwig <hch@infradead.org>,
+	Dave Kleikamp <shaggy@austin.ibm.com>,
+	Florian Huber <florian.huber@mnet-online.de>,
+	JFS Discussion <jfs-discussion@oss.software.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1075230933.11207.84.camel@suprafluid> <1075231718.21763.28.camel@shaggy.austin.ibm.com> <1075232395.11203.94.camel@suprafluid> <1075236185.21763.89.camel@shaggy.austin.ibm.com> <20040127205324.A19913@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127205324.A19913@infradead.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
->
-> Already reported, but I'll do so once again, since it looks like
->   in a short while I won't be able to boot official kernels in my
->   current config...
-> 
-> Original report here:
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0312.3/0442.html
+On Tue, Jan 27, 2004 at 08:53:24PM +0000, Christoph Hellwig wrote:
+> Yes, it does.  But JFS should get the right size from the gendisk anyway.
+> Or did you create the raid with the filesystem already existant?  While that
+> appears to work for a non-full ext2/ext3 filesystem it's not something you
+> should do because it makes the filesystem internal bookkeeping wrong and
+> you'll run into trouble with any filesystem sooner or later.
 
-Divide by zero.  Looks like ACPI is now passing bad values into the
-frequency change notifier.
+The key words here is *appears* to work.  No matter what the
+filesystem, as Chrisoph says, you'll run into trouble sooner or
+later....
 
-Does this make the oops go away?
-
-diff -puN drivers/cpufreq/cpufreq.c~cpufreq-workaround drivers/cpufreq/cpufreq.c
---- 25/drivers/cpufreq/cpufreq.c~cpufreq-workaround	2004-01-27 18:36:05.000000000 -0800
-+++ 25-akpm/drivers/cpufreq/cpufreq.c	2004-01-27 18:36:42.000000000 -0800
-@@ -928,6 +928,11 @@ void cpufreq_notify_transition(struct cp
- 		return;   /* Only valid if we're in the resume process where
- 			   * everyone knows what CPU frequency we are at */
- 
-+	if (freqs->new == 0) {
-+		printk("%s: avoiding div-by-zero\n", __FUNCTION__);
-+		return;
-+	}
-+
- 	down_read(&cpufreq_notifier_rwsem);
- 	switch (state) {
- 	case CPUFREQ_PRECHANGE:
-
-_
-
+							- Ted

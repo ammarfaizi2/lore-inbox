@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286723AbRLVIdg>; Sat, 22 Dec 2001 03:33:36 -0500
+	id <S286729AbRLVIjh>; Sat, 22 Dec 2001 03:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286724AbRLVId0>; Sat, 22 Dec 2001 03:33:26 -0500
-Received: from bwbohh.net ([66.96.192.22]:59014 "EHLO garcia.hostnoc.net")
-	by vger.kernel.org with ESMTP id <S286723AbRLVIdR>;
-	Sat, 22 Dec 2001 03:33:17 -0500
-Date: Sat, 22 Dec 2001 03:33:34 -0500
-From: Eric Windisch <ericw@grokthis.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011222033334.B25321@grokthis.net>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <3C2310A4.1010004@purplet.demon.co.uk> <20011222082444.EXOZ22539.femail25.sdc1.sfba.home.com@there>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011222082444.EXOZ22539.femail25.sdc1.sfba.home.com@there>
-User-Agent: Mutt/1.3.20i
+	id <S286728AbRLVIjR>; Sat, 22 Dec 2001 03:39:17 -0500
+Received: from alumni.engin.umich.edu ([141.213.74.27]:41726 "EHLO
+	alumni.engin.umich.edu") by vger.kernel.org with ESMTP
+	id <S286727AbRLVIjN>; Sat, 22 Dec 2001 03:39:13 -0500
+Date: Sat, 22 Dec 2001 03:39:09 -0500 (EST)
+From: matthew david reuther <mreuther@engin.umich.edu>
+Message-Id: <200112220839.DAA15715@alumni.engin.umich.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 07:23:13PM -0500, Rob Landley wrote:
-> 
-> This may be why Andrea Arcangelli refuses to write any documentation at all, 
-> Linus seems to have a prediliction for dropping documentation-only patches, 
-> why the stuff in /linux/documentation has fallen up to two years out of date 
-> at times, and why "Rusty's Unreliable Guides" (the best source of 
-> documentation on the netfilter code, made available by the author himself at 
-> "http://netfilter.samba.org/unreliable-guides/") says, and I quote:
-> 
+This is drifting off topic, but...
 
-No doubt. The file drivers/block/loop.c has about 21 comments, although most of them are useless. The file is over 1700 lines long.
+0 degrees Fahrenheit is the freezing point of salt-water, though I don't
+recall offhand what solution
 
-It would be a lot easier to grok this code if it didn't look like an entry for the IOCCC :) Comments would be nice.
+100 degrees Fahrenheit is the rectal temperature of a cow
 
---
-Eric Windisch
-http://bwbohh.net
+I guess the reason these feel more "natural" to some people, is because
+they relate to our bodies, just like the inch, foot, hand, and cubit. It
+still doesn't explain things like pounds, but that's probably related to
+agriculture somehow.
+
+At any rate, the US allows people to continue to work in thing like pounds
+and ounces (wet and dry) because it is the standard for their trade. They
+put the metric equivalent on the package in paentheses, but it's "soft"
+metric, not "hard" metric (which would be nice round numbers).
+
+Anyway, I think the switch is a good idea, but some education is in order.

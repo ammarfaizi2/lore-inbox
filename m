@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbTE2X3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 19:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTE2X3c
+	id S263176AbTE2XfF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 19:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTE2XfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 19:29:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:9130 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263171AbTE2X3c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 19:29:32 -0400
-Date: Thu, 29 May 2003 16:41:33 -0700 (PDT)
-Message-Id: <20030529.164133.35021044.davem@redhat.com>
-To: ak@suse.de
-Cc: craiger@osdl.org, rddunlap@osdl.org, peloquin@austin.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nightly regression runs against current bk tree
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030529220540.GE11309@wotan.suse.de>
-References: <20030529.144819.102570783.davem@redhat.com>
-	<1054245840.2073.120.camel@bullpen.pdx.osdl.net>
-	<20030529220540.GE11309@wotan.suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 May 2003 19:35:05 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:45033 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S263176AbTE2XfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 19:35:04 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.5.69-mm9
+Date: Fri, 30 May 2003 00:48:16 +0100
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org
+References: <20030525172746.43b9866d.akpm@digeo.com> <20030529204324.GF25560@kroah.com>
+In-Reply-To: <20030529204324.GF25560@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200305300048.16337.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Fri, 30 May 2003 00:05:40 +0200
+On Thursday 29 May 2003 21:43, Greg KH wrote:
+> > While we're at it, any idea why this is shown in dmesg:
+> >
+> > Please use the 'usbfs' filetype instead, the 'usbdevfs' name is
+> > deprecated.
+> >
+> > Even though I've clearly got this in /etc/fstab:
+> >
+> > [alistair] 11:44 PM [~] cat /etc/fstab | grep usb
+> > none /proc/bus/usb usbfs defaults 0 0
+>
+> See the bugzilla.kernel.org bug entry for this issue:
+> 	http://bugme.osdl.org/show_bug.cgi?id=223
+> for more information on why this happens.
 
-   > To subscribe: http://www.osdl.org/mailman/listinfo/linstab
-   
-   That's fairly obscure (Nobody knew of it before). Perhaps a well publicized
-   list on vger would be better.
-   
-I don't see why the OSDL list cannot be widely publicized and
-the vger variant could.  Don't be rediculious Andi :-)
+Thanks Greg, I should've checked there first.
+
+Hope you get it fixed.
+
+Cheers,
+Alistair.

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUESHtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUESHo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbUESHtM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 03:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbUESHtM
+	id S264076AbUESHo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 03:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbUESHo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 03:49:12 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:8190 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264101AbUESHtJ (ORCPT
+	Wed, 19 May 2004 03:44:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36999 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264076AbUESHo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 03:49:09 -0400
-Date: Wed, 19 May 2004 09:48:24 +0200 (MEST)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Jeff Garzik <jgarzik@pobox.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: ata_piix: port disabled.  ignoring.
-In-Reply-To: <200405181520.54952.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.GSO.4.58.0405190945500.23702@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0405141453020.27660@waterleaf.sonytel.be>
- <Pine.GSO.4.58.0405171308580.19405@waterleaf.sonytel.be>
- <Pine.GSO.4.58.0405171545490.19405@waterleaf.sonytel.be>
- <200405181520.54952.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 May 2004 03:44:57 -0400
+Date: Wed, 19 May 2004 00:44:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, riel@redhat.com
+Subject: Re: pte_addr_t size reduction for 64 GB case?
+Message-Id: <20040519004424.72f5eb9e.akpm@osdl.org>
+In-Reply-To: <1084941731.955.836.camel@cube>
+References: <1084941731.955.836.camel@cube>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 May 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Monday 17 of May 2004 16:19, Geert Uytterhoeven wrote:
-> > If I disable CONFIG_SCSI_SATA, IDE works, but very slow (no DMA).
+Albert Cahalan <albert@users.sourceforge.net> wrote:
 >
-> due to CONFIG_BLK_DEV_PIIX=n but ata_piix.c is prefferred for SATA
+> When handling 64 GB on i386, pte_addr_t really only
+> needs 33 bits to find the PTE. It sure doesn't need
+> the full 64 bits it is using.
 
-No, I had
+yup.
 
-    CONFIG_BLK_DEV_PIIX=y
-    CONFIG_BLK_DEV_IDEDMA_PCI=y
+> How about cheating a bit? If the pte_addr_t only had
+> the high 32 bits of the 36-bit pointer, it would point
+> to a pair of the 8-byte PTEs in a 16-byte chunk of RAM.
+> Then simply examine the PTEs to see which one is the
+> correct one.
 
-but I get an error when trying to enable DMA using hdparm.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
-Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
-Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium
+They might both map the same page.  It could overflow into page->flags.

@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312735AbSCZVQM>; Tue, 26 Mar 2002 16:16:12 -0500
+	id <S312734AbSCZVTC>; Tue, 26 Mar 2002 16:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312738AbSCZVQD>; Tue, 26 Mar 2002 16:16:03 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:44477 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S312736AbSCZVPs>;
-	Tue, 26 Mar 2002 16:15:48 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 26 Mar 2002 21:15:44 GMT
-Message-Id: <UTC200203262115.VAA429771.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, balbir_soni@yahoo.com, jholly@cup.hp.com,
-        plars@austin.ibm.com
-Subject: Re: readv() return and errno
-Cc: linux-kernel@vger.kernel.org
+	id <S312737AbSCZVSx>; Tue, 26 Mar 2002 16:18:53 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:51022 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312734AbSCZVSk>; Tue, 26 Mar 2002 16:18:40 -0500
+Date: Tue, 26 Mar 2002 22:18:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap bug with drivers that adjust vm_start
+Message-ID: <20020326221820.P13052@dualathlon.random>
+In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random> <20020326135703.B25375@redhat.com> <20020326201502.J13052@dualathlon.random> <20020326154345.B25595@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From jholly@cup.hp.com Tue Mar 26 18:13:40 2002
+On Tue, Mar 26, 2002 at 03:43:45PM -0500, Benjamin LaHaise wrote:
+> I would rather see an mmap fail if it would collide with an existing mapping, 
+> but that might break some applications.
 
-    Doesn't seem confusing at all.
+That doesn't make it easier though, the time we should fail is still way
+earlier the relocation of the virtual address space area.
 
-    RETURN VALUE
-           On  success  readv  returns  the number of bytes read.  On
-           success writev returns the number of  bytes  written.   On
-           error, -1 is returned, and errno is set appropriately.
+> Thanks for looking this over.  Cheers,
 
-    ERRORS
-           EINVAL An  invalid  argument was given. For instance count
-                  might be greater than MAX_IOVEC, or zero.  fd could
-                  also  be  attached to an object  which  is  unsuit-
-                  able  for  reading  (for  readv)  or  writing  (for
-                  writev).
+You're welcome, thanks for fixing it.
 
-    I don't see much in the way of waffle words. If count is greater than
-    MAX_IOVEC or zero you get EINVAL.
+> +		if (unlikely(NULL != find_vma_prepare(mm, addr, &prev,
+> +						&rb_link, &rb_parent))) {
 
-Yes, without hesitation you choose the wrong interpretation.
-That is why I explained in so much detail what the right
-interpretation is. Since you perhaps still do not understand,
-let me reiterate:
+this looks wrong there may very well be a vma after our mapping but it
+doesn't necessairly overlap with us (also the unlikely would make more
+sense in the previous if). I hacked a bit on top of your previous patch,
+this looks ok to me but it's untested:
 
-The above ERRORS section says: In case this call returns EINVAL
-one of the possible reasons is that an invalid argument was given.
-There do exist Unix-like systems (not necessarily Linux) that
-consider a zero count invalid.
+diff -urN 2.4.19pre4aa1/mm/mmap.c vma/mm/mmap.c
+--- 2.4.19pre4aa1/mm/mmap.c	Tue Mar 26 20:43:07 2002
++++ vma/mm/mmap.c	Tue Mar 26 20:48:24 2002
+@@ -554,7 +554,26 @@
+ 	 * Answer: Yes, several device drivers can do it in their
+ 	 *         f_op->mmap method. -DaveM
+ 	 */
+-	addr = vma->vm_start;
++	if (unlikely(addr != vma->vm_start)) {
++		/*
++		 * It is a bit too late to pretend changing the virtual
++		 * area of the mapping, we just corrupted userspace
++		 * in the do_munmap, so FIXME (not in 2.4 to avoid breaking
++		 * the driver API).
++		 */
++		struct vm_area_struct * stale_vma;
++		/* Since addr changed, we rely on the mmap op to prevent 
++		 * collisions with existing vmas and just use find_vma_prepare 
++		 * to update the tree pointers.
++		 */
++		addr = vma->vm_start;
++		stale_vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
++		/*
++		 * Make sure the lowlevel driver did its job right.
++		 */
++		if (unlikely(stale_vma && stale_vma->vm_start < vma->vm_end))
++			BUG();
++	}
+ 
+ 	vma_link(mm, vma, prev, rb_link, rb_parent);
+ 	if (correct_wcount)
 
-Andries
+
+your printk also is valid debugging trick, I think it won't be necessary
+most of the time but feel free to re-add it if you like.
+
+Andrea

@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUEEQs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUEEQwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264731AbUEEQs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbUEEQs5
+	id S264733AbUEEQwj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 12:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUEEQwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:48:57 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:31769 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264731AbUEEQs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:48:56 -0400
-Date: Wed, 5 May 2004 09:47:48 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, akpm@osdl.org, hch@lst.de
-Subject: Re: [PATCH] NUMA API for Linux 5/ Add VMA hooks for policy
-Message-Id: <20040505094748.40bb7493.pj@sgi.com>
-In-Reply-To: <20040505163934.GA14963@wotan.suse.de>
-References: <20040406153322.5d6e986e.ak@suse.de>
-	<20040406153713.52a64a26.ak@suse.de>
-	<20040505090531.51ad5c89.pj@sgi.com>
-	<20040505163934.GA14963@wotan.suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 May 2004 12:52:39 -0400
+Received: from [63.81.117.28] ([63.81.117.28]:14714 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264733AbUEEQwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 12:52:36 -0400
+Message-ID: <40991A8D.5000008@xfs.org>
+Date: Wed, 05 May 2004 11:47:09 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Dominik Karall <dominik.karall@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+References: <20040505013135.7689e38d.akpm@osdl.org>	<200405051312.30626.dominik.karall@gmx.net> <20040505043002.2f787285.akpm@osdl.org>
+In-Reply-To: <20040505043002.2f787285.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps you missed a patch? (several of the patches depended on each other) 
+Andrew Morton wrote:
+> Dominik Karall <dominik.karall@gmx.net> wrote:
+> 
+>>On Wednesday 05 May 2004 10:31, you wrote:
+>>
+>>>+make-4k-stacks-permanent.patch
+>>>
+>>> Fill my inbox.
+>>
+>>Hi Andrew!
+>>
+>>Is there any reason why this patch was applied? Because NVidia users can't 
+>>work with the original drivers now without removing this patch every time.
+>>
+> 
+> 
+> We need to push this issue along quickly.  The single-page stack generally
+> gives us a better kernel and having the stack size configurable creates
+> pain.
 
-No - perhaps Christoph Hellwig removed the include.
+Is it less pain than making something like a memory allocation which comes
+out of a deep stack? Say, nfs server -> filesystem -> lvm/raid -> fiber channel,
+which itself does something like a writepage into an nfs filesystem and ends
+up in the networking stack? OK, getting back into the filesystem on a
+memory allocation from the block layer should not happen, but you could
+certainly be down in the bowels of the first filesystem when this happens.
 
-See the patch small-numa-api-fixups.patch in 2.6.6-rc3-mm2:
+There are other combinations which worry me. I do wonder how close to the
+edge some of these are living now and cutting them off at the knees, stack
+wise, is going to bite later. How many folks run the mm kernel in production
+server environments?
 
-========================= snip =========================
-From: Christoph Hellwig <hch@lst.de>
+Maybe there should be a competition to see how convoluted a stack you can
+generate out of the kernel ;-)
 
-- don't include mempolicy.h in sched.h and mm.h when a forward delcaration
-  is enough.  Andi argued against that in the past, but I'd really hate to add
-  another header to two of the includes used in basically every driver when we
-  can include it in the six files actually needing it instead (that number is
-  for my ppc32 system, maybe other arches need more include in their
-  directories)
+Steve
 
-- make numa api fields in tast_struct conditional on CONFIG_NUMA, this gives
-  us a few ugly ifdefs but avoids wasting memory on non-NUMA systems.
 
-... details omitted ...
-========================= snip =========================
 
-Christoph did add the needed #include's of mempolicy.h in the
-generic files that needed it, but not in the ia64 files, more
-or less.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

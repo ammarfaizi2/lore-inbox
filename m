@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTDQPbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 11:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTDQPbJ
+	id S261672AbTDQPoH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 11:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTDQPoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 11:31:09 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1664 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261649AbTDQPbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 11:31:08 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304171545.h3HFjPoH000129@81-2-122-30.bradfords.org.uk>
-Subject: Re: Help with virus/hackers
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 17 Apr 2003 16:45:25 +0100 (BST)
-Cc: root@chaos.analogic.com, jbriggs@briggsmedia.com (joe briggs),
-       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <1050588754.31390.72.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 17, 2003 03:12:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Thu, 17 Apr 2003 11:44:07 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:57488 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261672AbTDQPoG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 11:44:06 -0400
+Date: Thu, 17 Apr 2003 11:56:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
+       Grover Andrew <andrew.grover@intel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Subtle semantic issue with sleep callbacks in drivers
+Message-ID: <20030417155602.GC25696@gtf.org>
+References: <20030417150926.GA25402@gtf.org> <200304171547.h3HFljoK000140@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200304171547.h3HFljoK000140@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Iau, 2003-04-17 at 14:55, Richard B. Johnson wrote:
-> > (2) Boot with init=/bin/bash
-> 
-> Doesnt help you
-> > (5)  Examine /etc/inetd.conf (if one exists). If you see an
-> >      unusual entry near the end, you have been 'rooted'. Newer
-> >      systems use xinetd and won't get invaded this way.
-> Wrong. Old xinetd < 2.3.10 has remote root exploits and real
-> ones circulate
-> > (6)  Check /etc/passwd for a strange account.
-> Rootkits patch other stuff
-> > (7)  Check /bin/login for a new file-date.
-> > (8)  Check /usr/sbin/sendmail for a new file-date.
-> >      Check /usr/sbin/inetd      ""
-> >      Check /usr/sbin/xinetd     ""
-> >      Check /usr/sbin/syslogd    ""
-> >      Check /usr/sbin/klogd      ""
-> >      Check /usr/sbin/in.*       ""
-> 
-> Rootkits know about avoiding this
-> 
-> > If none of these have recent writes, just change the password on
-> > the root account and be happy. You just has some file-system
-> > corruption and you can fix up /etc/DIR_COLORS (for your color-ls
-> > problem) and fix /etc/profile or /root/.bashrc, /root/.profile
-> > to fix the bad environment variables created by these scripts.
-> 
-> Never do this. You don't know what else has changed on the system. You
-> should always (barring odd exceptions) do a full reinstall. Also clean
-> user executable files if neccessary (roots .login is often archived and
-> people rerun exploits from it...)
+On Thu, Apr 17, 2003 at 04:47:45PM +0100, John Bradford wrote:
+> Hmm, well what about with a PCI hotswap capable board - presumably
+> then we could have the situation where a new VGA card appears that we
+> _have_ to POST?
 
-Also, note that any data stored on that machine is potentially
-compromised, such as passwords for other boxes, etc.  You should
-really also change all of those.  If the box was a firewall, the
-rulesets also become known, etc.
+Then XFree86 will POST it.
 
-I've often wondered whether it would be worth connecting a very large
-serial EEPROM to a serial port interface, and have it effectively
-appear as a solid state printer, (to that you could cheaply log to an
-unmodifyable device).  Has anybody ever tried this?
+The kernel really only cares about POST'ing the primary display, too.
+Firmware typically completely disables, and does not POST, secondary
+displays.  XFree86 is charged with the responsibility of POST'ing
+secondary displays.
 
-John.
+	Jeff
+
+
+

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265570AbTFMWUf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 18:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265571AbTFMWUe
+	id S265563AbTFMWZW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 18:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTFMWZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 18:20:34 -0400
-Received: from dat.etsit.upm.es ([138.100.17.73]:30680 "HELO dat.etsit.upm.es")
-	by vger.kernel.org with SMTP id S265570AbTFMWU2 (ORCPT
+	Fri, 13 Jun 2003 18:25:22 -0400
+Received: from dp.samba.org ([66.70.73.150]:34515 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265563AbTFMWZV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 18:20:28 -0400
-Date: Sat, 14 Jun 2003 00:34:09 +0200
-From: Carlos Valdivia =?iso-8859-15?Q?Yag=FCe?= 
-	<valyag@dat.etsit.upm.es>
-To: linux-kernel@vger.kernel.org
-Subject: cs46xx compile failure in 2.4.21
-Message-ID: <20030613223409.GA10618@dat.etsit.upm.es>
+	Fri, 13 Jun 2003 18:25:21 -0400
+Date: Sat, 14 Jun 2003 08:38:41 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Herman Dierks <hdierks@us.ibm.com>,
+       "Feldman, Scott" <scott.feldman@intel.com>,
+       David Gibson <dwg@au1.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nancy J Milliner <milliner@us.ibm.com>,
+       Ricardo C Gonzalez <ricardoz@us.ibm.com>,
+       Brian Twichell <twichell@us.ibm.com>, netdev@oss.sgi.com
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+Message-ID: <20030613223841.GB32097@krispykreme>
+References: <OF0078342A.E131D4B1-ON85256D44.0051F7C0@pok.ibm.com> <1055521263.3531.2055.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1055521263.3531.2055.camel@nighthawk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-cs46xx.c doesn't compile in 2.4.21 with gcc 3.3:
+> Wouldn't you get most of the benefit from copying that stuff around in
+> the driver if you allocated the skb->data aligned in the first place? 
 
-cs46xx.c:950: error: long, short, signed or unsigned used invalidly for `off'
-cs46xx.c:951: error: long, short, signed or unsigned used invalidly for `val'
-cs46xx.c: In function `cs_ac97_init':
+Nice try, but my understanding is that on the transmit path we reserve
+the maximum sized TCP header, copy the data in then form our TCP header
+backwards from that point. Since the TCP header size changes with
+various options, its not an easy task.
 
-This patch fixes compilation issue and works fine for my soundcard:
+One thing I thought of doing was to cache the current TCP header size
+and align the next packet based on it, with an extra cacheline at the
+start for it to spill into if the TCP header grew.
 
---- linux-2.4.21/drivers/sound/cs46xx.c.orig	2003-06-13 23:29:53.000000000 +0200
-+++ linux-2.4.21/drivers/sound/cs46xx.c	2003-06-13 23:37:49.000000000 +0200
-@@ -947,8 +947,8 @@
- 
- struct InitStruct
- {
--    u32 long off;
--    u32 long val;
-+    u32 off;
-+    u32 val;
- } InitArray[] = { {0x00000040, 0x3fc0000f},
-                   {0x0000004c, 0x04800000},
+This is only worth it if most packets will have the same sized header.
+Networking guys: is this a valid assumption?
 
-Best regards.
-
--- 
-Carlos Valdivia Yagüe <valyag@dat.etsit.upm.es>
+Anton

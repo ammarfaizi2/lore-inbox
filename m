@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268030AbUHFAUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268011AbUHFAV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268030AbUHFAUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 20:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHFAUE
+	id S268011AbUHFAV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 20:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUHFAV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 20:20:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22144 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268011AbUHFATo (ORCPT
+	Thu, 5 Aug 2004 20:21:59 -0400
+Received: from holomorphy.com ([207.189.100.168]:8647 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268011AbUHFAVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 20:19:44 -0400
-Date: Thu, 5 Aug 2004 20:19:41 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
-In-Reply-To: <20040805153116.3e820106.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0408052016490.8229-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Aug 2004 20:21:47 -0400
+Date: Thu, 5 Aug 2004 17:21:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "Mr. Berkley Shands" <berkley@cse.wustl.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+Message-ID: <20040806002132.GM17188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	"Mr. Berkley Shands" <berkley@cse.wustl.edu>,
+	linux-kernel@vger.kernel.org
+References: <41126811.7020607@dssimail.com> <20040805172531.GC17188@holomorphy.com> <4112917A.3080003@cse.wustl.edu> <20040805204615.GJ17188@holomorphy.com> <20040805223319.GA18155@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805223319.GA18155@logos.cnet>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004, Andrew Morton wrote:
+On Thu, Aug 05, 2004 at 01:46:15PM -0700, William Lee Irwin III wrote:
+>> Some form of changelogging to enumerate what the contents of the
+>> 2.6.6-bk6 -> 2.6.6-bk7 delta are and to reconstruct intermediate points
+>> between 2.6.6-bk6 and 2.6.6-bk7 is needed.
 
-> I'd kinda expected that the patch would try to limit a process to its
-> RLIMIT_RSS all the time.  So if a process is set to 16MB and tries to use
-> 32MB it gets to do a lot of swapping.  But you're not doing that.  Instead,
-> the patch is preferentially penalising processes which are over their limit
-> when we enter page reclaim.  What are the pros and cons, and what is the
-> thinking behind this?
+On Thu, Aug 05, 2004 at 07:33:19PM -0300, Marcelo Tosatti wrote:
+> Indeed its nasty, the problem is there is no tagging in the main BK repository
+> representing the -bk tree's. It shouldnt be too hard to do something about 
+> this? I can't think of anything which could help...
 
-Hard limiting a process when there is memory available
-means that it's trying to saturate the IO subsystem,
-slowing down other tasks in the system.
+It would help me a lot if someone would do something about this.
+Distributed development does not require that mainline be
+nonreconstructible. I've had serious needs to do this kind of searching
+going back to early 2.4.x on several occasions, and nothing is capable
+of producing correct results (referring to attempts at cvsps + bkcvs
+and other alternatives to this).
 
-Basically when memory isn't the bottleneck, I think you
-shouldn't try to create an IO bottleneck for the other
-tasks in the system, just because an RLIMIT_RSS got set.
 
-The downside is that the pages of the process need to be
-swapped out when something else needs the memory, but if
-the alternative is constant swapping, we'd have the IO
-overhead regardless...
-
-> Also, I wonder if it would be useful if refill_inactive_zone() were to
-> unconditionally move pages from over-rss-limit mm's onto the inactive
-> list, ignoring swappiness.  Or if we should explicitly deactivate pages
-> which are newly added to the LRU on behalf of an over-rss-limit process.
-
-If the current patch isn't effective enough, we may want
-to add more code.  However, we may want to try the simplest
-possible approach first.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+-- wli

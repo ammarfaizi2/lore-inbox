@@ -1,35 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264397AbTLKXAv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 18:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbTLKXAv
+	id S264385AbTLKW7I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 17:59:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTLKW7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 18:00:51 -0500
-Received: from p508B53A2.dip.t-dialin.net ([80.139.83.162]:57811 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S264397AbTLKXAu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 18:00:50 -0500
-Date: Thu, 11 Dec 2003 23:58:19 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.24-pre1: ask for CONFIG_INDYDOG only on mips
-Message-ID: <20031211225819.GA20373@linux-mips.org>
-References: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet> <20031210204628.GA9103@fs.tum.de>
+	Thu, 11 Dec 2003 17:59:08 -0500
+Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:24450 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S264385AbTLKW7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 17:59:04 -0500
+Subject: Re: udev for dummies
+From: David T Hollis <dhollis@davehollis.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031211221604.GA2939@werewolf.able.es>
+References: <20031211221604.GA2939@werewolf.able.es>
+Content-Type: text/plain
+Message-Id: <1071183521.5900.36.camel@dhollis-lnx.kpmg.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031210204628.GA9103@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Thu, 11 Dec 2003 17:59:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 09:46:28PM +0100, Adrian Bunk wrote:
+On Thu, 2003-12-11 at 17:16, J.A. Magallon wrote:
+> Hi all...
+> 
+> I am starting to use 2.6, and I really would like to use udev.
+> But I can't find a doc about how to move from taditional heavily
+> populated /dev to new method.
+> 
+> Any pointer ?
+> 
+> I have installed udev and hotplug utils, and have hotplug enabled in
+> kernel.
+> As I undestand it, I should do now something like
+> - run udev for the first time, so it populates /udev
+> - check that basic dev files are there
+> - move /dev to /dev.old, and ln -s /udev /dev (or real-move it and
+>   change udev.conf to write directly on /dev)
+> 
+> Or just create and empty /dev, and let hotplug call hotplug scripts
+> on boot which in turn call udev. Is this correct ? Will hotplug call
+> udev for the built-in drivers ?
+> Could it also work without hotplugging, ie, can I use udev to just
+> create a minimal /dev for my system ?
+> 
+> After installing udev, I run /sbin/udev and nothing appears on
+> /udev.
+> 
+> What am I missing / misunderstanding ?
+> 
+> TIA
 
-> A dependency on a possibly undefined variable doesn't work with the 2.4 
-> config system, and "make oldconfig" asks me on i386 for CONFIG_INDYDOG.
+You may be overthinking it a bit.  I just set up udev on my box and it's
+working quite well.  It's not really intending to completely replace
+/dev, rather it provides a dynamic device structure based on hotplugged
+devices.  When you plug in some new device (USB thing, firewire,
+whatever), hotplug is run.  hotplug winds up calling udev which is able
+to use it's defined rules and permissions to create a device node in
+/udev (NOTE: not /dev).  These device nodes are perfectly valid for use
+by anything (/dev is really just a convention.  There isn't much/any
+other real significance to it).  The big win with udev is I can create
+my own rules so that certain things always have a device node that I
+want.  For example, I have a San Disk Cruzer USB storage device.  I
+don't want that to show up as /dev/sdX (where X can vary based on other
+things I have plugged in).  I tell udev to always create it's device as
+/udev/cruzer.  This way I can easily have entries in fstab to mount it,
+etc etc.  Ditto for my other USB storage devices.
 
-Applied - I hpe that's that last one of this kind lurking somewhere ...
+In short, don't start deleting your /dev directory just yet!
 
-  Ralf

@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRHYJQN>; Sat, 25 Aug 2001 05:16:13 -0400
+	id <S268100AbRHYK00>; Sat, 25 Aug 2001 06:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRHYJPx>; Sat, 25 Aug 2001 05:15:53 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:28946 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S267520AbRHYJPm> convert rfc822-to-8bit; Sat, 25 Aug 2001 05:15:42 -0400
-Date: Sat, 25 Aug 2001 11:13:10 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Marc A. Lehmann" <pcg@goof.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <Pine.LNX.4.33L.0108250007140.5646-100000@imladris.rielhome.conectiva>
-Message-ID: <20010825110340.W817-100000@gerard>
+	id <S268129AbRHYK0Q>; Sat, 25 Aug 2001 06:26:16 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:17929 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S268100AbRHYK0B>; Sat, 25 Aug 2001 06:26:01 -0400
+Message-ID: <3B877D8B.67D53F82@t-online.de>
+Date: Sat, 25 Aug 2001 12:27:23 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
+In-Reply-To: <200108231834.WAA08213@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > So we have another way besides several INTs to detect the avail mem :-)
+> 
+> Well, if this memory is available then I guess port 0x1000 is "available"
+> as well and all the rest of ports are not available. :-)
 
+Read "available" as "onboard".
+Before you use onboard resources you should know what it is !
+Surely you don't want to place a PCI ioport window over unknown ports
+(as this is what yenta did).
 
-On Sat, 25 Aug 2001, Rik van Riel wrote:
+> No, something is rotted in this kingdom.
+> 
+> > Probably PNP0C02 wants to be reserved, too.
+> 
+> What's about these, they are nice port and could be used by our irq handler.
 
-> On Sat, 25 Aug 2001, Marc A. Lehmann wrote:
-> > On Fri, Aug 24, 2001 at 05:19:07PM -0300, Rik van Riel <riel@conectiva.com.br> wrote:
-> > > Actually, no.  FIFO would be ok if you had ONE readahead
-> > > stream going on, but when you have multiple readahead
-> >
-> > Do we all agree that read-ahead is actually the problem? ATM, I serve
-> > ~800 files, read()ing them in turn. When I increase the number of
-> > threads I have more reads at the same time in the kernel, but the
-> > absolute number of read() requests decreases.
->
-> 	[snip evidence beyond all doubt]
+These ports are not nice here and should not be user by the irq handler:
+   	PNP0c02 Motherboard resources
+        io 0x0290-0x0297
 
-I am not so sure. :)
+> According to docs they replace functionality missing in standard
+> int. controller ports for this chipset.
 
-Btw, the new VM and elevator have been very long to stabilize. Such
-erratic development process does not make softwares appear trustable to
-me. I would also suspect some flaws in these parts, too.
+What docs ?
 
-> Earlier today some talking between VM developers resulted
-> in us agreeing on trying to fix this problem by implementing
-> dynamic window scaling for readahead, using heuristics not
-> all that much different from TCP window scaling.
+> 
+> What's about passing parameters from bios setup to linux...
 
-It is probably time to rewrite this old code. Good luck for that.
+The BIOS setup uses PNPBIOS to pass parameters to Linux :-)
 
-> This should make the system able to withstand a higher load
-> than currently, while also allowing fast data streams to
-> work with more efficiently than currently.
+> This is amusing, but not more. I am sorry, I still prefer to use usual
+> kernel command line instead of some ugly foreign interface.
 
-That's the wish. Just crossing finger for things to work a lot better than
-the development of your new VM and elevator improvements. :-)
+You miss the point of PNP and user-friendliness.
 
-Regards,
-  Gérard.
+This is a necessary interface to prevent (nearly undebuggable) linux hard hangs !
 
+However, Gerd's debugging forces and his new patch already solve this thread
+by giving a working solution.
+
+-
+Gunther

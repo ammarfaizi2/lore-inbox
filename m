@@ -1,50 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbTBDXmF>; Tue, 4 Feb 2003 18:42:05 -0500
+	id <S267575AbTBDXlk>; Tue, 4 Feb 2003 18:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267578AbTBDXmF>; Tue, 4 Feb 2003 18:42:05 -0500
-Received: from zeke.inet.com ([199.171.211.198]:14479 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S267577AbTBDXmE>;
-	Tue, 4 Feb 2003 18:42:04 -0500
-Message-ID: <3E405207.8080207@inet.com>
-Date: Tue, 04 Feb 2003 17:51:35 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S267577AbTBDXlk>; Tue, 4 Feb 2003 18:41:40 -0500
+Received: from unthought.net ([212.97.129.24]:59067 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S267575AbTBDXlj>;
+	Tue, 4 Feb 2003 18:41:39 -0500
+Date: Wed, 5 Feb 2003 00:51:12 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
 Subject: Re: gcc 2.95 vs 3.21 performance
+Message-ID: <20030204235112.GB17244@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
 References: <1044385759.1861.46.camel@localhost.localdomain> <200302041935.h14JZ69G002675@darkstar.example.net> <b1pbt8$2ll$1@penguin.transmeta.com> <20030204232101.GA9034@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030204232101.GA9034@work.bitmover.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
->>I'd love to see a small - and fast - C compiler, and I'd be willing to
->>make kernel changes to make it work with it.  
-> 
+On Tue, Feb 04, 2003 at 03:21:01PM -0800, Larry McVoy wrote:
+> > I'd love to see a small - and fast - C compiler, and I'd be willing to
+> > make kernel changes to make it work with it.  
 > 
 > I can't offer any immediate help with this but I want the same thing.  At
 > some point, we're planning on funding some extensions into GCC or whatever
 > reasonable C compiler is around:
+
+[snipping Linus from To:]
+
+Cool.
+
 > 
 >     - associative arrays as a builtin type
-[snip]
->     - regular expressions
-[snip]
->     - tk bindings built in
 > 
+>       {
+>       	  assoc	bar = {};	// anonymous, no file backing
+> 
+> 	  bar{"some key"} = "some value";
+> 	  if (defined(bar{"some other value"})) ...
+>       }
+
+Allow me:
+
+{
+ std::map<std::string,std::string> bar;
+
+ bar["some key"] = "some value";
+ if (bar.find("some other value") != bar.end()) ...
+}
+
+Works beautifully, all you need is to pick the existing language which
+allows for the existing standard library which already provide that
+functionality.
+
+I doubt there's much need for a C+ or C 2+/3 langauage variant  ;)
+
+> 
+>     - regular expressions
+> 
+>       {
+>       	  char	*foo = "blech";
+> 
+> 	  if (foo =~ /regex are nice/) {
+> 	  	printf("Well isn't that special?\n");
+> 	  }
+>       }
+
+Ok, I can't help you with that.
+
+You have probably seen a Perl program before... Now imagine a two
+million line Perl program... That is why the above is not a good idea ;)
+
+It's still your right to want it of course...
+
+> 
+>     - tk bindings built in
+
+Built into the language (not a library)?
+
+<sarcasm>
+Then I'd want the compiler in a kernel module  ;)
+</>
+
 > and then we'll port BK to that compiler.  It's likely to be GCC because we
 > want to support all the different architectures but if a kernel sponsered
 > cc shows up we'll happily throw money at that.
 
-Ok, dumb, (and probably flamebait) question time:  I read your list and 
-thought "In C? Why not Python?"  I'm guessing speed issues?
+If you look at http://www.codesourcery.com, you can see that there
+really are some people who do GCC extentions or optimizations for money
+- various institutions have funded additions to GCC this way.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+It's a cool idea - I have a few things I'd like my company to fund as
+well... Some time in the future...  Unless someone beats us to it.
 
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

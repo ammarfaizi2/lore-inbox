@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUAOTyf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUAOTyf
+	id S262598AbUAOT7s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAOT7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:54:35 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:44223 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261879AbUAOTyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:54:31 -0500
-Subject: Re: [PATCH] Intel Alder IOAPIC fix
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <m17jztau8l.fsf@ebiederm.dsl.xmission.com>
-References: <1073876117.2549.65.camel@mulgrave>
-	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
-	<1073948641.4178.76.camel@mulgrave>
-	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
-	<1073954751.4178.98.camel@mulgrave>
-	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
-	<1074012755.2173.135.camel@mulgrave>
-	<m1smihg56u.fsf@ebiederm.dsl.xmission.com>
-	<1074185897.1868.118.camel@mulgrave> 
-	<m17jztau8l.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 15 Jan 2004 14:54:19 -0500
-Message-Id: <1074196460.1868.250.camel@mulgrave>
+	Thu, 15 Jan 2004 14:59:47 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:35593 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262598AbUAOT7l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:59:41 -0500
+Date: Thu, 15 Jan 2004 19:59:38 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: [PATCH] update OProfile maintainer
+Message-ID: <20040115195938.GB35993@compsoc.man.ac.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AhDeU-000HWn-Kz*/En4FIxRGyk*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-15 at 14:26, Eric W. Biederman wrote:
-> And end up looking like:
-> fec00000-fec00fff : reserved
-> fec01000-fec013ff : 0000:00:0f.0
-> fec01400-fec08fff : reserved
 
-Oh, I see you're splitting an existing resource around it.
+Please apply the below and accept patches directly from Philippe for
+OProfile in the future, as necessary.
 
-So the e820 map requests reserved regions with tentative and
-insert_resource is allowed to place resources into tentative regions. 
-That works for me, but I don't see how it works for the bridge
-case...there you really want to insert the bridge resource over
-everything else.
+(Philippe is the other main developer of OProfile)
 
-James
+thanks
+john
 
-
+Index: linux-cvs/MAINTAINERS
+===================================================================
+RCS file: /home/moz/cvs/linux-2.5/MAINTAINERS,v
+retrieving revision 1.221
+diff -u -a -p -r1.221 MAINTAINERS
+--- linux-cvs/MAINTAINERS	31 Dec 2003 00:59:37 -0000	1.221
++++ linux-cvs/MAINTAINERS	15 Jan 2004 20:37:59 -0000
+@@ -1482,8 +1482,8 @@
+ S:	Maintained
+ 
+ OPROFILE
+-P:	John Levon
+-M:	levon@movementarian.org
++P:	Philippe Elie
++M:	phil.el@wanadoo.fr
+ L:	oprofile-list@lists.sf.net
+ S:	Maintained
+ 

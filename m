@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317730AbSHBCXS>; Thu, 1 Aug 2002 22:23:18 -0400
+	id <S317829AbSHBC2d>; Thu, 1 Aug 2002 22:28:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSHBCXS>; Thu, 1 Aug 2002 22:23:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59807 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317730AbSHBCXR>;
-	Thu, 1 Aug 2002 22:23:17 -0400
-Date: Thu, 01 Aug 2002 19:14:49 -0700 (PDT)
-Message-Id: <20020801.191449.101696880.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       vamsi_krishna@in.ibm.com
-Subject: Re: [PATCH] kprobes for 2.5.30
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020802021635.D8A674CA5@lists.samba.org>
-References: <20020802021635.D8A674CA5@lists.samba.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317836AbSHBC2d>; Thu, 1 Aug 2002 22:28:33 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:6606 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317829AbSHBC2d>;
+	Thu, 1 Aug 2002 22:28:33 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, rohit.seth@intel.com,
+       sunil.saxena@intel.com, asit.k.mallick@intel.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: large page patch 
+In-reply-to: Your message of Thu, 01 Aug 2002 22:55:05 -0300.
+             <Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <31864.1028255392.1@us.ibm.com>
+Date: Thu, 01 Aug 2002 19:29:52 -0700
+Message-Id: <E17aSCT-0008I0-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Fri, 02 Aug 2002 12:11:47 +1000
+In message <Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com>, > 
+: Rik van Riel writes:
+> On Thu, 1 Aug 2002, David S. Miller wrote:
+> >    From: Andrew Morton <akpm@zip.com.au>
+> 
+> >    - Minimal impact on the VM and MM layers
+> >
+> > Well the downside of this is that it means it isn't transparent
+> > to userspace.  For example, specfp2000 results aren't going to
+> > improve after installing these changes.  Some of the other large
+> > page implementations would.
+> 
+> We should also take into account that the main application that
+> needs large pages for its SHM segments is Oracle, which we don't
+> have the source code for so we can't recompile it to use the new
+> syscalls introduced by this patch ...
 
-   	Vamsi's kernel probes again, this time with EXPORT_SYMBOL_GPL
-   so people don't think this is blanket permission to hook into
-   arbitrary parts of the kernel (as separate from debugging, testing,
-   diagnostics, etc).
-   
-A nice enhancement would be to move the kprobe table and
-other generic bits into a common area so that it did not
-need to be duplicated as other arches add kprobe support.
+There are quite a few other applications that can benefit from large
+page support.  IBM Watson Research published JVM and some scientific
+workload results using large pages which showed substantial benefits.
+Also, we believe DB2, Domino, other memory piggish apps (e.g. think
+scientific) would benefit equally on many architectures.
+
+It would sure be nice if the interface wasn't some kludgey back door
+but more integrated with things like mmap() or shm*(), with semantics
+and behaviors that were roughly more predictable.  Other than that,
+no comments as yet on the patch internals...
+
+gerrit 

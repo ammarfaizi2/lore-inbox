@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVAOFIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVAOFJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVAOFIB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVAOFIB
+	id S262226AbVAOFJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVAOFJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:08:01 -0500
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:37827 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S262147AbVAOFHw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:07:52 -0500
-Date: Sat, 15 Jan 2005 07:07:50 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.10-ac9
-Message-ID: <20050115050749.GB8456@m.safari.iki.fi>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1105636996.4644.70.camel@localhost.localdomain> <20050114030135.GA6032@m.safari.iki.fi> <1105743716.9839.29.camel@localhost.localdomain>
+	Sat, 15 Jan 2005 00:09:59 -0500
+Received: from ozlabs.org ([203.10.76.45]:63876 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262226AbVAOFJm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 00:09:42 -0500
+Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, manpreet@fabric7.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org
+In-Reply-To: <20050115040951.GC13525@wotan.suse.de>
+References: <20050115040951.GC13525@wotan.suse.de>
+Content-Type: text/plain
+Date: Sat, 15 Jan 2005 16:09:19 +1100
+Message-Id: <1105765760.12263.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105743716.9839.29.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2005 at 12:32:59AM +0000, Alan Cox wrote:
-> On Gwe, 2005-01-14 at 03:01, Sami Farin wrote:
-> > at this spot I have no /dev/dsp etc.
-> > then I reload snd_ens1371:
+On Sat, 2005-01-15 at 05:09 +0100, Andi Kleen wrote:
+> Fix boot up SMP race in timer setup on i386/x86-64.
 > 
-> That sounds like the new udev rather than kernel side. The changes from
-> ac8 to ac9 are tiny on the audio side and don't involve driver setup
-> stuff.
->
-> > also, with 2.6.10 I can't disable write cache...
-> > I could do it in 2.6.9.
+> This fixes a long standing race in 2.6 i386/x86-64 SMP boot.
+> The per CPU timers would only get initialized after an secondary
+> CPU was running. But during initialization the secondary CPU would
+> already enable interrupts to compute the jiffies. When a per 
+> CPU timer fired in this window it would run into a BUG in timer.c
+> because the timer heap for that CPU wasn't fully initialized.
 > 
-> Works for me in 2.6.10-ac. Are there any diagnostics on dmesg when you
-> try and turn the cache off ?
+> The race only happens when a CPU takes a long time to boot
+> (e.g. very slow console output with debugging enabled).
+> 
+> To fix I added a new cpu notifier notifier command CPU_UP_PREPARE_EARLY
+> that is called before the secondary CPU is started. timer.c
+> uses that now to initialize the per CPU timers early before
+> the other CPU runs any Linux code.
 
-no, nothing.
+Andi, that's horrible.  I suspect you know it's horrible and were hoping
+someone would fix it properly.  The semantics of CPU_UP_PREPARE are
+supposed to do this already.
 
-how do I know now is hdparm -I or -W lying?
-(-I says it's enabled and -W0 says it was disabled just fine.)
+The cause of this bug is that (1) i386 and x86_64 actually bring the
+secondary CPUs up at boot before the core code officially brings them up
+using cpu_up(), after the appropriate callbacks, and (2) they call into
+core code tp process timer interrupts before they've been officially
+brought up.
 
-my drives do not support cache flushes, I guess your drives do?
+The former is because I just added a shim rather than rewriting the x86
+boot process, because it would have broken too much.  The fix is do the
+boot process properly, or to suppress the call to do_timer before the
+CPU is actually "up".
 
-drivers/ide/ide-disk.c:write_cache()
-if (!ide_id_has_flush_cache(drive->id))
-  return 1;
-
-cat /proc/ide/hda/settings does not work, either
-
-cat           D C0572788     0  8016   5187                6044 (NOTLB)
-cdc97eb0 00000046 cf7f00a0 c0572788 00005699 c01fe93f 000001ad 00000023 
-       01078345 00005699 cf7f00a0 00000bbb 02ed12c3 00005699 cfec51d8 c04de020 
-       cfec5080 00000246 cdc97ee8 c0409764 c04de028 00000001 cfec5080 c011ab70 
-Call Trace:
- [<c0409764>] __down+0x64/0xc0
- [<c04098ba>] __down_failed+0xa/0x10
- [<c0302acf>] .text.lock.ide_proc+0x8b/0x1fc
- [<c018c594>] proc_file_read+0xc4/0x260
- [<c0158fbf>] vfs_read+0xcf/0x150
- [<c01592db>] sys_read+0x4b/0x80
- [<c0103163>] syscall_call+0x7/0xb
-
+Sorry,
+Rusty.
 -- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

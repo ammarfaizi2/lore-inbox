@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267446AbTBQUXq>; Mon, 17 Feb 2003 15:23:46 -0500
+	id <S267459AbTBQU2V>; Mon, 17 Feb 2003 15:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267459AbTBQUXp>; Mon, 17 Feb 2003 15:23:45 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:53255 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267446AbTBQUXo>;
-	Mon, 17 Feb 2003 15:23:44 -0500
-Date: Mon, 17 Feb 2003 21:33:36 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org,
-       rob@osinvestor.com
-Subject: Re: Build problem in 2.5.61/sparc
-Message-ID: <20030217203336.GA30694@mars.ravnborg.org>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org,
-	rob@osinvestor.com
-References: <20030217152328.A7540@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S267469AbTBQU2V>; Mon, 17 Feb 2003 15:28:21 -0500
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:60687 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S267459AbTBQU2U>;
+	Mon, 17 Feb 2003 15:28:20 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: ADSL vs Leased line
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 17 Feb 2003 21:38:19 +0100
+In-Reply-To: <20030216215008$0db5@gated-at.bofh.it> (John Bradford's message
+ of "Sun, 16 Feb 2003 22:50:08 +0100")
+Message-ID: <87adgu3ao4.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i386-pc-linux-gnu)
+References: <20030216215008$5ac9@gated-at.bofh.it>
+	<20030216215008$0db5@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030217152328.A7540@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 03:23:28PM -0500, Pete Zaitcev wrote:
+John Bradford <john@grabjohn.com> writes:
 
-> [zaitcev@lebethron linux-2.5.61-sparc]$ make oldconfig
-> make -f scripts/Makefile.build obj=scripts
-> make[1]: *** No rule to make target `scripts/fixdep', needed by `__build'.  Stop.
-> make: *** [scripts] Error 2
-> [zaitcev@lebethron linux-2.5.61-sparc]$
+> A leased line is guaranteed bandwidth,
 
-Looks to me that you are missing scripts/fixdep.c
-fixdep.c got updated recently and somehow you may have lost that file in the process?
-
-	Sam
+Not at all.  Welcome to the wonderful world of ATM Traffic Management.

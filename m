@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVDEQjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVDEQjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVDEQjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDEQjP
+	id S261814AbVDEQjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVDEQj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:39:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:29010 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261806AbVDEQhi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:37:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=H9QoMFRcvyBvO3iIwNhlZ2pYmtIe5pIkksXrAF59WLi34D+NJn6EZZknUi4SjwTuJ2qdQ5yVWkI/2E40n95SOHXbHHrUysqayrxs/rYk+TBd4nmtMBHlLw+lYgthKqCnc1N/mN4j/yMv78YaojaKQ2azz2rYkVhyrYhq8GIHsNQ=
-Message-ID: <58cb370e05040509377d1313cc@mail.gmail.com>
-Date: Tue, 5 Apr 2005 18:37:34 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: jwilliams@itee.uq.edu.au
-Subject: Re: [SATA] non-PCI SATA devices and libata
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <423E0522.8050600@itee.uq.edu.au>
+	Tue, 5 Apr 2005 12:39:28 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:1248 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261808AbVDEQir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:38:47 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: Lee Revell <rlrevell@joe-job.com>
+To: cmm@us.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1112681424.3811.42.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112681424.3811.42.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 12:38:42 -0400
+Message-Id: <1112719122.15473.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-References: <423E0522.8050600@itee.uq.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2005-04-04 at 23:10 -0700, Mingming Cao wrote:
+> On Tue, 2005-04-05 at 06:13 +0200, Ingo Molnar wrote:
+> > * Lee Revell <rlrevell@joe-job.com> wrote:
+> > 
+> > > I can trigger latencies up to ~1.1 ms with a CVS checkout.  It looks
+> > > like inside ext3_try_to_allocate_with_rsv, we spend a long time in this
+> > > loop:
+> > > 
+> 
+> We have not modify the reservation create algorithm for a long time.
+> Sorry, I missed the background here, on which kernel did you see this
+> latency? And what tests you were running?
 
-On Mar 21, 2005 1:20 AM, John Williams <jwilliams@itee.uq.edu.au> wrote:
-> Hello,
-> 
-> I am looking into developing a driver for a custom, non-PCI SATA
-> controller.  The target arch is Microblaze, an FPGA-based NOMMU target
-> on a 2.4.29-uc0 kernel.
-> 
-> It seems that Jeff Garzik's libata is the way to go for SATA, however
-> there seems to be some degree of coupling between libata and PCI support.
-> 
-> Some comments/observations, please correct me if I am wrong:
-> 
->   - include/linux/libata.h appears to recognise that CONFIG_PCI may not
-> be set, however libata-compat.h is entirely PCI-specific.  Indeed, it
+Makes sense, I have been seeing this one for a long time.  I get it with
+dbench, or when doing a CVS checkout of a large module.
 
-This is because generic DMA API and generic driver model 
-are not present in 2.4.x kernels.
+Kernel is 2.6.12-rc1-RT-V0.7.43-05, with PREEMPT_DESKTOP which AFAIK
+should be equivalent to mainline.
 
-> effectively maps generic bus/dma operations onto their pci-specific
-> equivalents.  Also, libata.h unconditionally includes pci.h.
-> 
->   - All of the drivers/scsi/sata_XXX drivers target PCI devices only.
-> 
-> It seems I have a few choices here.
-> 
-> Option 1 is to just hack together stubbed PCI support for my arch,
-> making our on-chip bus pretend to be PCI for the purposes of libata (and
-> indeed many other bus subsystems, like USB).  This is pretty unclean,
-> particularly since it is entirely likely that someone will build a
-> microblaze system with a true PCI bridge and bus, meaning that this
-> temporary hack would certainly come back to haunt me[1].
-> 
-> Option 2 is to try to decouple libata from PCI support.  This may be as
-> simple as a conditional inclusion of libata-compat.h from libata.h,
-> however I am not yet familiar enough with libata to be sure.
+Lee
 
-Option 2 is better then Option 1.  You may need to add 
-#ifdefs for DMA support on your arch to libata-compat.h
-(kind of hack which shouldn't be needed in 2.6.x).
-
-> For now this will be staying in the NOMMU 2.4 kernel (uClinux), but if I
-> choose option (2) I would like to work with libata, not against it.  It
-> may well be that non-PCI SATA support is a Good Thing in a broader
-> sense, so perhaps this is a good discussion to have anyway.
-> 
-> All input, suggestions and comments welcome.
-> 
-> Thanks,
-> 
-> John
-> 
-> [1] There is a bigger picture here, that with FPGA-based CPUs like
-> Microblaze, we can build systems with arbitrary CPU/memory/IO bus
-> topologies.  Indeed, we do so on a daily basis.  In the back of my mind
-> I am envisioning some kind of generic bus abstraction API, of which PCI,
-> USB etc would be mere instances.
-
-Use 2.6.x :)
-
-Bartlomiej

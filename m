@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUCBGCv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 01:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUCBGCv
+	id S261568AbUCBGPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 01:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUCBGPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 01:02:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:49539 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261479AbUCBGCu (ORCPT
+	Tue, 2 Mar 2004 01:15:19 -0500
+Received: from freedom.icomedias.com ([62.99.232.79]:7174 "EHLO
+	freedom.grz.icomedias.com") by vger.kernel.org with ESMTP
+	id S261568AbUCBGPP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 01:02:50 -0500
-Date: Mon, 1 Mar 2004 21:58:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: wa1ter@myrealbox.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.x]  USB Zip drive kills ps2 mouse.
-Message-Id: <20040301215851.737c433d.rddunlap@osdl.org>
-In-Reply-To: <20040301122450.69a1f36e.rddunlap@osdl.org>
-References: <20040301122450.69a1f36e.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Tue, 2 Mar 2004 01:15:15 -0500
+Content-class: urn:content-classes:message
+Subject: Re: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Tue, 2 Mar 2004 07:15:11 +0100
+Message-ID: <FA095C015271B64E99B197937712FD020B01C1@freedom.grz.icomedias.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Thread-Index: AcP9LGy9DCYDtwk0RnOTuLLUfxW6jQCky7RgABbgo8A=
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: walt
-| To: Linux Kernel <linux-kernel@vger.kernel.org>
-| Subject: [2.6.x]  USB Zip drive kills ps2 mouse.
-| 
-| 
-| Could I ask anyone with a USB Zip drive and a ps2 mouse to try
-| to confirm this bizarre bug for me?
-| 
-| To reproduce it should be simple:
-| 
-| 1)  Compile USB support as modular, *not* compiled in.
-| 
-| 2)  The USB Zip drive *must* be plugged in during boot.
-|      This bug won't show if you plug in the drive later.
-| 
-| 3)  Reboot and see if your ps2 mouse works.
+Hi Scott,
 
-Hi,
+>> Board is an Asus PC-DL, Intel 875P Chipset, one Xeon 2.8Ghz 
+>> CPU, Onboard e1000 Network interface. Any idea how I can get 
+>> the onboard NIC to work?
+>
+>Martin, give 2.6.4-rc1 a try.  It removes a patch to e1000 that broke a
+>lot of folks with 875/CSA.
 
-I'm not seeing a problem with this.  I'm using 2.6.4-rc1.
+Thanks for the hint. Results:
 
-However, you didn't mention what modules were being loaded
-automatically, so we could have a difference in that area.
-If you care to specify a module list, I can test it again.
+ - Network interface works, no more lockups.
+ - ifconfig still doesn't show the interupt being used.
+ - /proc/interrupts DOES show the right interrupt.
 
-And is your USB Zip drive on a UHCI or OHCI controller?
-I have both, so I can test it either way.
+experimenting with the driver source shows that the interrupt displayed by ifconfig seems to depend on netdev->irq being set; this was removed during the netdev->irq ==> adapter->pdev->irq change. adding the following line corrects ifconfig display:
 
---
-~Randy
+diff -urN e1000_old/e1000_main.c e1000/e1000_main.c
+--- e1000_old/e1000_main.c      Mon Mar  1 09:16:29 2004
++++ e1000/e1000_main.c  Tue Mar  2 07:09:37 2004
+@@ -452,6 +452,8 @@
+	netdev->poll_controller = e1000_netpoll;
+ #endif
+
++	netdev->irq = pdev->irq;
++
+	netdev->mem_start = mmio_start;
+	netdev->mem_end = mmio_start + mmio_len;
+	netdev->base_addr = adapter->hw.io_base;
+
+Bye, Martin

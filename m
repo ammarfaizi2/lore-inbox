@@ -1,63 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264611AbSJWKTD>; Wed, 23 Oct 2002 06:19:03 -0400
+	id <S264613AbSJWK1b>; Wed, 23 Oct 2002 06:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264615AbSJWKTD>; Wed, 23 Oct 2002 06:19:03 -0400
-Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:54031 "EHLO
-	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S264611AbSJWKTC>; Wed, 23 Oct 2002 06:19:02 -0400
-Date: Wed, 23 Oct 2002 11:25:03 +0100
-To: Linux Mailing List <linux-kernel@vger.kernel.org>, linux-lvm@sistina.com,
-       Alan Cox <alan@redhat.com>
-Subject: [Patch] Latest device-mapper snapshot
-Message-ID: <20021023102503.GA25925@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
+	id <S264615AbSJWK1b>; Wed, 23 Oct 2002 06:27:31 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:56794 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264613AbSJWK13>; Wed, 23 Oct 2002 06:27:29 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: 2.5.44: How to decode call trace
+References: <87elai82xb.fsf@goat.bogus.local.suse.lists.linux.kernel>
+	<p73isztstim.fsf@oldwotan.suse.de>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Wed, 23 Oct 2002 12:33:25 +0200
+Message-ID: <878z0p1m2y.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New patchballs are available here:
+Andi Kleen <ak@suse.de> writes:
 
-http://people.sistina.com/~thornber/patches/2.5-stable/
+> Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
+>> and this is the code:
+>> static int __fscap_lookup(struct vfsmount *mnt, struct nameidata *nd)
+>> {
+>> 	static char name[] = ".capabilities";
+>> 	nd->mnt = mntget(mnt);
+>> 	nd->dentry = dget(mnt->mnt_sb->s_root);
+>> 	nd->flags = 0;
+>> 	return path_walk(name, nd);
+>> }
+>> 
+>> What does .text.lock.namei and name.810 mean?
+>
+> .text.lock.namei means that it hung in the slow path of a spinlock that
+> is referenced from namei.c
 
-Including a diff against 2.5.44-ac1.  There are a lot of changes in
-here compared to the last release, however most of these are due to
-code refactoring rather than bug fixes.  Highlights include:
+I guess this is what __down_failed means.
 
-o) Make the changes recommended by Christoph Hellwig and others:
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=103462345119681&w=2
+> name.810 is a static data variable, probably the static char name[]
+> shown above. Remember the kernel backtrace is not exact and can print
+> random stack junk that looks like return addresses too. You always have 
+> to sanity check each entry.
 
-o) Add reference count to struct mapped_device, and struct dm_table.
+Ok, I'll keep that in mind.
 
-o) Hide the above two structs in their respective .c file
+>> Is there a way to get the line number out of these hex values?
+>
+> addr2line -e vmlinux ... does this when you compile the kernel with -g 
 
-o) Move all locking of struct mapped_device into dm.c (we can do this now because
-   of the reference counting).
+Great! This is what I was searching for.
 
-o) Remove the name and uuid field from struct mapped device, these are really
-   only used by the interface as a way of refering to devices.
+When I build with "make -k EXTRA_CFLAGS=-g EXTRA_LDFLAGS=-g bzImage",
+I get a ton of error messages from drivers/acpi/include/actypes.h and
+other acpi related stuff, starting with: #error ACPI_MACHINE_WIDTH not
+defined. Maybe this is not the usual way to build with -g, but I don't
+get these errors with "make -k bzImage". Maybe someone is interested
+in this.
 
-o) Nobody needs to lookup from kdev_t -> struct mapped_device, so remove
-   that hash table (thanks to Al Viros recent bdev->bd_disk stuff).
+Anyway, I come around this by first building with "EXTRA_CFLAGS=-g
+EXTRA_LDFLAGS=-g", ignoring the error messages and then a second try
+with only EXTRA_LDFLAGS=-g.
 
-o) dm.c has no need of the dm-hash.c file any more, so merge dm-hash.c into
-   dm-ioctl.c (the fs interface uses the dcache for lookups).
-
-
-There are still open issues that prevent things working perfectly:
-
-o) The gendisk hash table is getting confused when removing a device.  eg, if
-   I create 3 devices with minors (1, 2, 3).  Then remove minor 2, get_gendisk 
-   will remove minor == 3. (Or I've done something really stupid).
-
-o) Splitting pages still doesn't work, this is a generic block layer
-   thing rather than dm.  In practise I can only trigger this with
-   striped targets.  So stick to linear targets for now.
-
-
-Filesystem interface to follow before the end of the week.
-
-- Joe
+Regards, Olaf.

@@ -1,73 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUBHAEz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 19:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUBHAEz
+	id S261506AbUBHAMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 19:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUBHAMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 19:04:55 -0500
-Received: from mail.shareable.org ([81.29.64.88]:10193 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261522AbUBHAEx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 19:04:53 -0500
-Date: Sun, 8 Feb 2004 00:04:48 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: the grugq <grugq@hcunix.net>, Hans Reiser <reiser@namesys.com>,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-Message-ID: <20040208000448.GA18936@mail.shareable.org>
-References: <40243C24.8080309@namesys.com> <40243F97.3040005@hcunix.net> <40247A63.1030200@namesys.com> <4024B618.2070202@hcunix.net> <20040207104712.GA16093@mail.shareable.org> <4024C5DF.40609@hcunix.net> <20040207110912.GB16093@mail.shareable.org> <4024D019.2080402@hcunix.net> <20040207120121.GE16093@mail.shareable.org> <20040207172222.GA318@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207172222.GA318@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Feb 2004 19:12:18 -0500
+Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:20178 "EHLO
+	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S261506AbUBHAMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 19:12:15 -0500
+Message-ID: <40257EDC.9080508@jon-foster.co.uk>
+Date: Sun, 08 Feb 2004 00:12:12 +0000
+From: Jon Foster <jon@jon-foster.co.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 37/42]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> >    - Overwriting data does not always do what you think it does.
-> >      Several block devices _do not_ overwrite the same storage blocks.
-> >      Thus it is dangerous to call something "secure deletion"
-> >      when it might not do anything at all.
+Hi,
+
+Kronos wrote:
+> Comments on the patch?
 > 
-> But you have same vulnerability, crypto does not help here. If your
-> i-node happens to be put on other place, attacker still gets the key
-> intact etc.
+> diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/page.h linux-2.4/include/asm-i386/page.h
+> --- linux-2.4-vanilla/include/asm-i386/page.h	Tue Nov 11 18:05:52 2003
+> +++ linux-2.4/include/asm-i386/page.h	Wed Feb  4 14:43:00 2004
+> @@ -95,14 +95,28 @@
+>   * undefined" opcode for parsing in the trap handler.
+>   */
+>  
+> +#ifdef __bug
+> +static inline void __dummy_noreturn(void) __bug;
+> +static inline void __dummy_noreturn(void) {
+> +	while(1) {}
+> +}
 
-Yes, you're right.  I wanted to draw attention to the fact that ext2's
-"secure deletion" attribute, when implemented, can be misleading.  I
-should have pointed out that an inode-private key has the same weakness.
+My first thought was "this obviously makes the kernel bigger".  GCC will
+actually compile this loop - it's only a single jump instruction, possibly
+with a nop for branch target alignment, but it's duplicated for every
+call to BUG().
 
-> There's not much you can do. [It may be even worse with that
-> crypto... If you kick the table while your top-secret .mpg.tgz collection
-> is accessed, you are likely to cause bad sector within i-node,
-> attacker can get the key, and decrypt it all. With on-place
-> overwriting he only gets one block.] 
+On the other hand, marking BUG() as noreturn means that GCC won't have
+to generate the code following the BUG().  Even if that code is just
+a jump, it's a similar size to the code that this patch adds.  So it's
+not as obvious as I first thought, and does need measuring.
 
-There is something which can help:
+Tested with Linux 2.4.22-gentoo-r5 & my normal kernel config, by
+measuring total uncompressed size of vmlinux:
 
-First, the idea of an inode private key, which is itself encrypted by
-a whole filesystem key, may be seen as a two level tree structure (the
-filesystem key is its root).  You can also have deeper key structures.
-The important thing is that without the root key, you cannot follow
-any path to the tree's branches.  The key tree does not have to be the
-same as the directory tree, in fact it's better if it isn't, so you
-can keep the key tree balanced.
+Without patch:   3,475,213 bytes
+With patch:      3,475,149 bytes
+This patch saves:       64 bytes
 
-You can regularly change branch keys within the filesystem, updating
-all the dependent keys when that's done.  That can be done
-incrementally, as you make changes to the flesystem.  So for example,
-whenever you want to erase an inode (secure deletion), you need to
-modify its parent key in the key tree and re-encrypt all the inode
-key's siblings with the new parent key.  Repeat all the way to the
-root.
+OK, that saving is lost in the noise, but it seems that this patch
+isn't going to change the kernel size much (if at all).  And it is
+good to let the compiler know about BUG(), so it doesn't emit
+spurious warnings and can catch unused code.  So I like this patch.
 
-If you do those updates every time, then you confine the "snapshotting
-block device" weakness to the problem of destroying old versions of
-the root key - for which you should insist on choosing an appropriate
-device.  You might also use multiple root keys, so that a single
-remapped block on a hard disk which is used to hold the root key(s) is
-not enough to decrypt old versions of the filesystem.
+Obviously, the most elegent (and space-saving) solution would be
+if GCC allowed you to mark a block of inline assembly as noreturn.
+Any GCC folks out there able to help?
 
--- Jamie
+Kind regards,
+
+Jon
+
+
+> +#else
+> +#define __dummy_noreturn() do {} while(0)
+> +#endif
+> +
+> #if 1 /* Set to zero for a slightly smaller kernel */
+> -#define BUG() \
+> - __asm__ __volatile__( "ud2\n" \
+> - "\t.word %c0\n" \
+> - "\t.long %c1\n" \
+> - : : "i" (__LINE__), "i" (__FILE__))
+> +#define BUG() do { \
+> + __asm__ __volatile__( "ud2\n" \
+> + "\t.word %c0\n" \
+> + "\t.long %c1\n" \
+> + : : "i" (__LINE__), "i" (__FILE__)); \
+> + __dummy_noreturn(); \
+> + } while(0)
+> #else
+> -#define BUG() __asm__ __volatile__("ud2\n")
+> +#define BUG() do { \
+> + __asm__ __volatile__("ud2\n"); \
+> + __dummy_noreturn(); \
+> + } while(0)
+> #endif
+> 
+> #define PAGE_BUG(page) do { \
+> diff -Nru -X dontdiff linux-2.4-vanilla/include/linux/compiler.h linux-2.4/include/linux/compiler.h
+> --- linux-2.4-vanilla/include/linux/compiler.h Tue Sep 18 23:12:45 2001
+> +++ linux-2.4/include/linux/compiler.h Tue Feb 3 18:29:56 2004
+> @@ -13,4 +13,11 @@
+> #define likely(x) __builtin_expect((x),1)
+> #define unlikely(x) __builtin_expect((x),0)
+> 
+> +#if __GNUC__ >= 3
+> +/* __noreturn__ is implemented since gcc 2.5.
+> + * __always_inline__ is not present in 2.9x
+> + */
+> +#define __bug __attribute__((__noreturn__, __always_inline__))
+> +#endif
+> +
+> #endif /* __LINUX_COMPILER_H */
+
+

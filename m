@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129845AbRB0UaN>; Tue, 27 Feb 2001 15:30:13 -0500
+	id <S129111AbRB0Ufn>; Tue, 27 Feb 2001 15:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129851AbRB0UaD>; Tue, 27 Feb 2001 15:30:03 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:2052 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129848AbRB0U3w>;
-	Tue, 27 Feb 2001 15:29:52 -0500
-Message-ID: <20010227011325.A1798@bug.ucw.cz>
-Date: Tue, 27 Feb 2001 01:13:25 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Oswald Buddenhagen <ob6@inf.tu-dresden.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] quick reboot on i386
-In-Reply-To: <20010226124931.A20095@ugly.wh8.tu-dresden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010226124931.A20095@ugly.wh8.tu-dresden.de>; from Oswald Buddenhagen on Mon, Feb 26, 2001 at 12:49:31PM +0100
+	id <S129190AbRB0Uff>; Tue, 27 Feb 2001 15:35:35 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:35076 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129111AbRB0UfS>;
+	Tue, 27 Feb 2001 15:35:18 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102272035.XAA21341@ms2.inr.ac.ru>
+Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
+To: rmk@arm.linux.ORG.UK (Russell King)
+Date: Tue, 27 Feb 2001 23:35:12 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk> from "Russell King" at Feb 27, 1 01:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-> remember quarterdeck's quickreboot from "good" (*cough*) old D{o|O}S
-> days? here it is for linux! it's only of limited use, especially
-> in it's current state, but some people might find it useful.
+> netstat on isdn-gw shows the following:
+> 
+> 	Proto Recv-Q Send-Q Local Address           Foreign Address         State
+> 	tcp    72868      0 isdn-gw.piltdown.a:1023 pilt-gw.piltdown.at:ssh ESTABLISHED
+plus
+> select(4, [3], [3], NULL, NULL)         = 2 (in [3], out [3])
 
-Hmm, I'm probably going to apply this one, as I hate behaviour of my
-bios: if you power off during POST it will not come up next time
-asking for you to adjust CPU frequency.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+
+> Maybe there is a race condition or missing wakeup in the TCP code?
+
+Moreover, even not _one_ wakeup is missing. At least two, because
+wakeups in read and write are separate and you have stuck in both directions.
+8)8)
+
+Well, if it was one I would start to dig ground inside tcp instantly.
+But as soon as two of them are missing, I have to suspect wake_up itself.
+At least, we had such bugs there until 2.4.0.
+
+Alexey

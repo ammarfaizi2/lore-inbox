@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUE2TQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUE2TXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUE2TQs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 15:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUE2TQs
+	id S263028AbUE2TXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 15:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUE2TXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 15:16:48 -0400
-Received: from lucidpixels.com ([66.45.37.187]:56961 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S264629AbUE2TQp (ORCPT
+	Sat, 29 May 2004 15:23:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47264 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263028AbUE2TXh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 15:16:45 -0400
-Date: Sat, 29 May 2004 15:16:36 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Len Brown <len.brown@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell GX1 500 MHZ locked up with Kernel 2.4.26 due to ACPI --
- Also: IPTables question.
-In-Reply-To: <1085637598.17692.53.camel@dhcppc4>
-Message-ID: <Pine.LNX.4.60.0405291516130.1611@p500>
-References: <A6974D8E5F98D511BB910002A50A6647615FC7D4@hdsmsx403.hd.intel.com>
- <1085637598.17692.53.camel@dhcppc4>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 29 May 2004 15:23:37 -0400
+Date: Sat, 29 May 2004 12:23:19 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: arnd@arndb.de
+Cc: linux-kernel@vger.kernel.org
+Subject: compat syscall args
+Message-Id: <20040529122319.49eaafe1.davem@redhat.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, I had ACPI off in the BIOS, please disregard this post.
 
-On Thu, 27 May 2004, Len Brown wrote:
+Arnd asked:
 
-> On Wed, 2004-05-26 at 06:54, Justin Piszcz wrote:
->
->> I previously have had a > 190 day uptime (without ACPI in the kernel,
->> an older kernel of course, but I believe it is ACPI that caused the
->> problem).
->
-> Can you send the dmesg for when you have ACPI enabled?
-> Does /proc/interrutps show that you are getting some kind
-> of acpi events?
->
-> Note that ACPI has a number of drivers, eg. processor, thermal etc.
-> that you can unload or unconfig to see if the problem lies there.
->
-> Note also that you should be able to boot the ACPI enabled kernel with
-> "acpi=off" to completely disable anyting ACPI in that kernel.
->
-> cheers,
-> -Len
->
->
+> If sparc64 has this problem only for the fifth syscall argument, 
+> does that mean that e.g. compat_sys_futex and 
+> compat_sys_mq_timed{send,receive} have the same bug? If this is
+> a more general, i.e. not limited to the last argument, there is a
+> potential problem in lots of syscalls.
+
+Here is the issue.  In the sparc64 C calling conventions, it is
+assumed that 32-bit signed values are sign extended by the
+caller.
+
+This means that, at syscall invocation time, we have to choose
+between either:
+
+1) sign extending all syscall args for the C code, then explicitly
+   zero-extending all non-signed syscall args.  This would require
+   the most amount of compat layer code help.
+
+2) zero extending all syscall args for the C code, then expliticly
+   sign-extending all signed syscall args.
+
+3) some mixture of 1 and 2
+
+#3 is what sparc64 does, it hits the highest number of system
+call arguments correctly.  Specifically we:
+
+arg0: zero-extend
+arg1: zero-extend
+arg2: zero-extend
+arg3: zero-extend
+arg4: leave as-is
+arg5: leave as-is
+
+I remember discussing this with Andi Kleen before.
+
+Each platform is going to behave differently in this area, so
+I suppose the right thing to do really is to have the arch
+specific code use little zero/sign extender stubs when necessary
+so that the compat layer can assume that the args are properly
+sign/zero extended already.  I guess this is how I'll fix this
+up on sparc64 for now.
+
+Comments?

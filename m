@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131585AbRAaJPz>; Wed, 31 Jan 2001 04:15:55 -0500
+	id <S131300AbRAaJOz>; Wed, 31 Jan 2001 04:14:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131702AbRAaJPp>; Wed, 31 Jan 2001 04:15:45 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:16626 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131648AbRAaJP0>; Wed, 31 Jan 2001 04:15:26 -0500
-Date: Wed, 31 Jan 2001 09:15:23 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
+	id <S131648AbRAaJOp>; Wed, 31 Jan 2001 04:14:45 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:34309 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131300AbRAaJOd>; Wed, 31 Jan 2001 04:14:33 -0500
+Date: Wed, 31 Jan 2001 09:14:30 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
 To: Timur Tabi <ttabi@interactivesi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Request: increase in PCI bus limit
-In-Reply-To: <FLRPM.A.TsC.j41d6@dinero.interactivesi.com>
-Message-ID: <Pine.SOL.4.21.0101310914060.29972-100000@green.csi.cam.ac.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <27QDuD.A.1CC.2e1d6@dinero.interactivesi.com>
+Message-ID: <Pine.LNX.4.30.0101310901030.6074-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,33 +20,57 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 30 Jan 2001, Timur Tabi wrote:
 
-> ** Reply to message from Christopher Neufeld <neufeld@linuxcare.com> on Tue, 30
-> Jan 2001 16:08:32 -0800
+> > If you have a task that looks like:
+> > 
+> >     loop:
+> >         <do something important>
+> >         sleep_on(q)
+> > 
+> > And you do wakeup(q) hoping to get something important done, then if the
+> > task isn't sleeping at the time of the wakeup it will ignore the wakeup
+> > and go to sleep, which imay not be what you wanted.
 > 
-> 
-> > Would it be possible to bump it up to 128, or even
-> > 256, in later 2.4.* kernel releases?  That would allow this customer to
-> > work with an unpatched kernel, at the cost of an additional 3.5 kB of
-> > variables in the kernel.
-> 
-> I don't think that's going to happen.  If we did this for your obscure system,
-> then we'd have to do it for every obscure system, and before you know it, the
-> kernel is 200KB larger.
-> 
-> Besides, why is your client afraid of patched kernels?  It sounds like a very
-> odd request from someone with a linuxcare.com email address.  I would think that
-> you'd WANT to provide patched kernels so that the customer can keep paying you
-> (until they learn how to use a text editor, at which point they can patch the
-> kernel themselves!!!)
+> Ok, so how should this code have been written?
 
-Should there not at least be some bounds checking on this table, though?!
+DECLARE_WAIT_QUEUE(wait, current);
 
-If it's only built at boot time, it's not performance critical. Maybe at a
-later date it could even expand (or shrink, on small PCs??) the table as
-needed?
+while(1) {
+	do_something_important()
+
+	set_current_state(TASK_INTERRUPTIBLE);
+	add_wait_queue(&q, &wait);
+
+	/* Now if something arrives, we'll be 'woken' immediately -
+	   - that is; our state will be set to TASK_RUNNING */
+
+	if (!stuff_to_do()) {
+		/* If the 'stuff' arrives here, we get woken anyway,
+			so the schedule() returns immediately. You 
+			can use schedule_timeout() here if you need
+			a timeout, obviously */
+		schedule();
+	}
+
+	set_current_state(TASK_RUNNING);
+	remove_wait_queue(&q, &wait);
+
+	if (signal_pending(current)) {
+		/* You've been signalled. Deal with it. If you don't 
+			want signals to wake you, use TASK_UNINTERRUPTIBLE
+			above instead of TASK_INTERRUPTIBLE. Be aware
+			that you'll add one to the load average all the
+			time your task is sleeping then. */
+		return -EINTR;
+	}
+}	
 
 
-James.
+Alternatively, you could up() a semaphore for each task that's do be done, 
+and down() it again each time you remove one from the queue. 
+
+-- 
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129506AbRCLFxU>; Mon, 12 Mar 2001 00:53:20 -0500
+	id <S129509AbRCLFi4>; Mon, 12 Mar 2001 00:38:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129517AbRCLFxK>; Mon, 12 Mar 2001 00:53:10 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:8968 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129506AbRCLFxB>;
-	Mon, 12 Mar 2001 00:53:01 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: george anzinger <george@mvista.com>
-cc: mingo@elte.hu, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] serial console vs NMI watchdog 
-In-Reply-To: Your message of "Sun, 11 Mar 2001 20:43:16 -0800."
-             <3AAC53E4.A8BECB23@mvista.com> 
-Mime-Version: 1.0
+	id <S129511AbRCLFir>; Mon, 12 Mar 2001 00:38:47 -0500
+Received: from smarty.smart.net ([207.176.80.102]:55813 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S129509AbRCLFio>;
+	Mon, 12 Mar 2001 00:38:44 -0500
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200103120539.AAA04151@smarty.smart.net>
+Subject: Re: linux localization
+To: linux-kernel@vger.kernel.org
+Date: Mon, 12 Mar 2001 00:39:51 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Mar 2001 16:52:07 +1100
-Message-ID: <20142.984376327@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Mar 2001 20:43:16 -0800, 
-george anzinger <george@mvista.com> wrote:
->Consider this.  Why not use the NMI to sync the cpus.  Kdb would have a
->function that is called each NMI.
 
-kdb uses NMI IPI to get the other cpu's attention.  One cpu is in
-control and may or may not be accepting NMI, it depends on the event
-that entered kdb.  The other cpus end up in kdb code, spinning waiting
-for a cpu switch.  Initially they are not receiving NMI because they
-were invoked via NMI which is masked until they exit.  However if the
-user does a cpu switch then single steps the interrupted code, the cpu
-has to return from the NMI handler to the interrupted code at which
-time this cpu starts receiving NMI again.
+>> My work will concern with the internationalization of Linux
+>> So, could anybody tell me what kinds of features should be in the
+>> consideration when linux be localized from english to Japanese or
+chinese,
+>> say using 2 bytes character set.
+>
+>Most of the Linux userspace libraries are set up for handling UTF8 and
+>other internationalisations. Fonts are more of an issue and lack of
+application>translations. Filenames are defined to be UTF8.
 
-The kdb context can change from ignoring NMI to accepting NMI.  It is
-easier to bring all the cpus into kdb and let the kdb code decide if it
-ignores any NMI that is being received.
+For the features that don't exist in Linux yet, you want to look closely
+at Plan 9 From Bell Labs, whence UTF-8 originates. Plan 9 for example has
+font cacheing in the kernel for huge glyph sets, if I read it right. The
+Plan 9 C compiler, written by Ken Thompson, author of UNIX and ed,
+specifically for writing Plan 9, is fully UTF-8 also. Everything else in
+Plan 9 is also UTF-8, from ed to libc to the GUI.
 
+Per-process namespaces are a Plan 9 idea also. That is the ultimate in
+localization. Plan 9 was released relatively recently under a license
+clearly patterned after the GPL. Congratulations once again to Richard
+Stallman. Thompson, Ritchie, Pike and so on have embraced his most
+important ideas. 
+
+Plan 9 has a narrow platform base compared to Linux or NetBSD. I myself
+haven't been able to install it on my oldish hardware. You probably need
+to see it running, I suspect. 
+
+My own Dotted Standard File Hierarchy mechanism in cLIeNUX
+(Linux/GNU/unix) may also be of interest. See my "/" below. That could
+easily be Japanese, Mandarin, Hindi, etc.
+
+ftp://linux01.gwdg.de/pub/cLIeNUX/descriptive/DSFH.html
+
+Rick Hohensee
+www.clienux.com
+
+:; cLIeNUX /dev/tty3  00:12:08   /
+:;d -d */
+Linux//        dev//          help//         mounts//       suite//
+boot//         device//       incoming//     owner//        temp//
+command//      floppy//       log//          source//
+configure//    guest//        lost+found//   subroutines//
+:; cLIeNUX /dev/tty3  00:42:44   /
+:;

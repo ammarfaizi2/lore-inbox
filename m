@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSK0UCH>; Wed, 27 Nov 2002 15:02:07 -0500
+	id <S263246AbSK0UII>; Wed, 27 Nov 2002 15:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbSK0UCH>; Wed, 27 Nov 2002 15:02:07 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:62184 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264739AbSK0UCA>; Wed, 27 Nov 2002 15:02:00 -0500
-Date: Wed, 27 Nov 2002 21:09:01 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Frederik Dannemare <tux@sentinel.dk>
+	id <S264733AbSK0UII>; Wed, 27 Nov 2002 15:08:08 -0500
+Received: from mail.somanetworks.com ([216.126.67.42]:64399 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S263246AbSK0UIH>; Wed, 27 Nov 2002 15:08:07 -0500
+Message-Id: <200211272015.gARKFHwF006320@localhost.localdomain>
+Date: Wed, 27 Nov 2002 15:15:17 -0500
+From: Georg Nikodym <georgn@somanetworks.com>
+To: Linux/ARM Kernel List <linux-arm-kernel@lists.arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Limiting max cpu usage per user (old Conectiva patch)
-Message-ID: <20021127200901.GA1143@admingilde.org>
-Mail-Followup-To: Frederik Dannemare <tux@sentinel.dk>,
-	linux-kernel@vger.kernel.org
-References: <3DE49A66.4020208@sentinel.dk>
+Subject: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab labels
+Organization: SOMA Networks
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-redhat-linux)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-In-Reply-To: <3DE49A66.4020208@sentinel.dk>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.JXwq5O4(RNa,GD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.JXwq5O4(RNa,GD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In the 2.4.18-2.4.19 timeframe:
 
-hi :)
+	http://linux.bkbits.net:8080/linux-2.4/cset@1.536
 
-On Wed, Nov 27, 2002 at 11:11:50AM +0100, Frederik Dannemare wrote:
-> do we have an effective way to limit max cpu usage per user?
+brcl (Ben LaHaise, I think) pushed in a change to mm/slab.c which
+(amongst other things) adds the following code:
 
-i'm working on a resource container implementation for linux
-for my diploma thesis.
+...
+	name = cachep->name; 
+===>	{
+===>	char tmp; 
+===>	if (__get_user(tmp, name)) 
+===>		name = "broken"; 
+===>	}       
 
-resource container provide a hierarchical way to account and
-limit resources.
-this way not only per user limits can be achieved, but any
-policy you can think of (per service, per client, ...)
+	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
+		name, active_objs, num_objs, cachep->objsize,
+		active_slabs, num_slabs, (1<<cachep->gfporder));
+...
 
-the work is due january, but interested people could have
-a look at the (undocumented for now ;) source earlier.
+to s_show() (the stuff that gets called when somebody cat's /proc/slabinfo)
 
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
+Trouble is that on my ARM platform, the __get_user() call always fails
+and all the slabinfo entries are labelled "broken".
 
---6c2NcOVqGQ03X4Wi
+For my purposes, ifdef'ing the offending block out will likely be
+sufficient (and safe?) but I'd like to know:
+
+1. Is the ARM __get_user() broken?
+2. Could I be doing something else broken that is confusing __get_user()?
+3. What was/is the intent of the test?  Or stated differently, why on earth
+   would cachep->name be a user address?
+
+-g
+
+--=.JXwq5O4(RNa,GD
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE95SZdj/Eaxd/oD7IRAhmuAKCEvCNiiZchBF6/7TPUq6b0OVJzhwCbBH+A
-i/2LNG/bOYfTvxyUk4QtgJ0=
-=nZil
+iD8DBQE95SfVoJNnikTddkMRAkc2AJ0VasIWLsTqmoB7dZIgNDNoijx9fwCeNWzj
+5Vs+tzLPHbAN6p5nJKzvu3E=
+=IZT5
 -----END PGP SIGNATURE-----
 
---6c2NcOVqGQ03X4Wi--
+--=.JXwq5O4(RNa,GD--

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUBZKCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 05:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUBZKCh
+	id S262759AbUBZKGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 05:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbUBZKGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 05:02:37 -0500
-Received: from users.linvision.com ([62.58.92.114]:36784 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262756AbUBZKCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 05:02:04 -0500
-Date: Thu, 26 Feb 2004 11:02:02 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       Nathan Scott <nathans@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: another hard disk broken or xfs problems?
-Message-ID: <20040226100202.GA7006@bitwizard.nl>
-References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo> <20040225234944.GD187@schottelius.org> <20040226032741.GB1177@frodo> <20040226082551.GA218@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040226082551.GA218@schottelius.org>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+	Thu, 26 Feb 2004 05:06:15 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:17359 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262759AbUBZKGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 05:06:10 -0500
+Message-ID: <403DC50D.2050307@helmutauer.de>
+Date: Thu, 26 Feb 2004 11:06:05 +0100
+From: Helmut Auer <vdr@helmutauer.de>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HELP Re: Keyboard not working under 2.6.2
+References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de> <20040225100707.GA3832@pclin040.win.tue.nl>
+In-Reply-To: <20040225100707.GA3832@pclin040.win.tue.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:dc795559fd1207bef82c0d6ee61125c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 09:25:51AM +0100, Nico Schottelius wrote:
-> I am really wondering about the error message, as "internal errors" 
-> indicate for me an error in the kernel.
+Andries Brouwer wrote:
 
-[...]
+>On Tue, Feb 24, 2004 at 09:49:33AM +0100, Helmut Auer wrote:
+>
+>  
+>
+>>>I am using an Intel810 MoBo with an infrared module/keyboard connected to
+>>>an onboard PS/2 connector.
+>>>With a 2.4.x kernel I get the message:
+>>>No AT keyboard found
+>>>but the keyboard works fine.
+>>>With a 2.6.2 kernel, I don't get this message, but the keyboard does not
+>>>work !!!
+>>>Any hints what I can try ? If I connect an USB keyboard, this will 
+>>>work, and also if I connect a "normal" PS/2 keyboard to that PS/2 pins.
+>>>      
+>>>
+>>Sorry for being impatient, but isn't here anyone who can give me a hint, 
+>>or is this the wrong place for this problem ?
+>>    
+>>
+>
+>Did you get precisely this message: "No AT keyboard found" ?
+>Who prints this message? (BIOS, bootloader, kernel? Which bootloader? Which kernel?)
+>
+Looks like I cannot investigate any longer in this problem. The onboard 
+PS/2 connector doesn't seem to work anymore on this machine :-(
+I will give it some more tries next weekend.
 
-> And btw, do all filesystem drivers behave in this way, printing internal
-> errors and displaying call traces when they find errors in the
-> filesystem?
-
-For a filesystem driver, things are clear: it's the only one writing
-to the data on the drive. So when things go wrong: in principle, it's
-an internal error. 
-
-It would be nice if you'd always be able to salvage your data by
-just mounting the partition, but that's not the case. A specialized
-program like ...-repair or fsck will do a better job. 
-
-Now for a logging filesystem, the assumption that it messed up itself
-is even stronger than for a classical filesystem. It should be able
-to handle whatever happens. 
-
-It's very difficult to check all assumptions about what's on the disk
-at every step and still have a reasonable performance. That's why some
-errors may only be noticed a bit late and lead to slightly misleading
-error messages. 
-
-	Roger. 
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+Helmut Auer, helmut@helmutauer.de 
+

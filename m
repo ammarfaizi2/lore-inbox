@@ -1,86 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132271AbRAYRr6>; Thu, 25 Jan 2001 12:47:58 -0500
+	id <S135359AbRAYRwk>; Thu, 25 Jan 2001 12:52:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132699AbRAYRri>; Thu, 25 Jan 2001 12:47:38 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:18507 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S132588AbRAYRr3>;
-	Thu, 25 Jan 2001 12:47:29 -0500
-Message-ID: <3A7066A1.5030608@valinux.com>
-Date: Thu, 25 Jan 2001 10:47:13 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S132027AbRAYRwD>; Thu, 25 Jan 2001 12:52:03 -0500
+Received: from office.globe.cz ([212.27.204.26]:25098 "HELO gw.office.globe.cz")
+	by vger.kernel.org with SMTP id <S132577AbRAYRvp>;
+	Thu, 25 Jan 2001 12:51:45 -0500
+Received: from ondrej.office.globe.cz (10.1.2.22)
+  by vger.kernel.org with SMTP; 25 Jan 2001 17:51:39 -0000
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 slowdown at boot.
+In-Reply-To: <118870000.980442428@tiny>
+From: Ondrej Sury <ondrej@globe.cz>
+Date: 25 Jan 2001 18:51:33 +0100
+In-Reply-To: <118870000.980442428@tiny>
+Message-ID: <87d7dby0yi.fsf@ondrej.office.globe.cz>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-To: Timur Tabi <ttabi@interactivesi.com>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: ioremap_nocache problem?
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
-		<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org> 
-		<20010125165001Z132264-460+11@vger.kernel.org> <E14LpvQ-0008Pw-00@mail.valinux.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi wrote:
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-> ** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Thu, 25 Jan
-> 2001 10:04:47 -0700
-> 
-> 
-> 
->>> The problem with this is that between the ioremap and iounmap, the page is
->>> reserved.  What happens if that page belongs to some disk buffer or user
->>> process, and some other process tries to free it.  Won't that cause a problem?
->> 
->> 	The page can't belong to some other process/kernel component.  You own 
->> the page if you allocated it.  
-> 
-> 
-> Ok, my mistake.  I wasn't paying attention to the "get_free_pages" call.  My
-> problem is that I'm ioremap'ing someone else's page, but my hardware sits on the
-> memory bus disguised as real memory, and so I need to poke around the 4GB space
-> trying to find it.
+Chris Mason <mason@suse.com> writes:
 
-As in an MMIO aperture?  If its MMIO on the bus you should be able to 
-just call ioremap with the bus address.  By nature of it being outside 
-of real ram, it should automatically be uncached (unless you've set an 
-MTRR over that region saying otherwise).
+> On Thursday, January 25, 2001 05:23:26 PM +0100 Ondrej Sury
+> <ondrej@globe.cz> wrote:
+>=20
+> >=20
+> > 2.4.1-pre10 slows down after printing those (maybe ACPI or reiserfs
+> > issue), and even SysRQ-(s,u,b) is not imediate and waits several (two+)
+> > seconds before (syncing,remounting,booting).
+> >=20
+> > ACPI: System description tables found
+> > ACPI: System description tables loaded
+> > ACPI: Subsystem enabled
+> > ACPI: System firmware supports: C2
+> > ACPI: System firmware supports: S0 S1 S4 S5
+> > reiserfs: checking transaction log (device 03:04) ...
+> > Warning, log replay starting on readonly filesystem
+> >=20
+>=20
+> Here, reiserfs is telling you that it has started replaying transactions =
+in
+> the log.  You should also have a reiserfs message telling you how many
+> transactions it replayed, and how long it took.  Do you have that message?
 
-> 
-> 
-> 
->> (I was the one who added support to 
->> the kernel to ioremap real ram, trust me.)
-> 
-> 
-> I really appreciate that feature, because it helps me a lot.  Any
-> recommendations on how I can do what I do without causing any problems?  Right
-> now, my driver never calls iounmap on memory that's in real RAM, even when it
-> exits.  Fortunately, the driver isn't supposed to exit, so all it does is waste
-> a few KB of virtual memory.
+Nope.  I rebooted with Alt-SysRQ+B after some while (aprox more than 30
+sec, normally reiserfs replay is taking ~5 sec (pre9)).  I wasn't so
+patient.  I could test it before I'll go from work to home.
 
-Look at the functions agp_generic_free_gatt_table and 
-agp_generic_create_gatt_table in agpgart_be.c (drivers/char/agp).  They 
-do the ioremap_nocache on real ram for the GATT/GART table.  Heres some 
-quick pseudo code as well.
+=2D-=20
+Ond=F8ej Sur=FD <ondrej@globe.cz>         Globe Internet s.r.o. http://glob=
+e.cz/
+Tel: +420235365000   Fax: +420235365009         Pl=E1ni=E8kova 1, 162 00 Pr=
+aha 6
+Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
+GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273
+--=-=-=
+Content-Type: application/pgp-signature
 
-I_want_a_no_cached_page() {
-alloc a page
-reserve the page
-flush every cpu's cache
-ioremap_nocache the page
-}
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
 
-I_want_to_free_a_no_cached_page() {
-iounmap the page
-unreserve the page
-free the page
-}
-
--Jeff
-
+iEYEARECAAYFAjpwZ6UACgkQ9OZqfMIN8nNX0QCgo57SEoNlC+BUmt/jbnBXEQY6
+BiEAn1g9tqG5p8O4iJm3boqysKTiMj4u
+=8aS9
+-----END PGP MESSAGE-----
+--=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

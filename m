@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbRCCSQ2>; Sat, 3 Mar 2001 13:16:28 -0500
+	id <S129652AbRCCSdY>; Sat, 3 Mar 2001 13:33:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbRCCSQT>; Sat, 3 Mar 2001 13:16:19 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:30094 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129657AbRCCSQL>; Sat, 3 Mar 2001 13:16:11 -0500
-Message-ID: <3AA13505.62109EEC@uow.edu.au>
-Date: Sun, 04 Mar 2001 05:16:37 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+	id <S129657AbRCCSdO>; Sat, 3 Mar 2001 13:33:14 -0500
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:54535 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129652AbRCCSdC>; Sat, 3 Mar 2001 13:33:02 -0500
+Message-ID: <3AA138A1.72E99C7C@jonmasters.org>
+Date: Sat, 03 Mar 2001 18:32:01 +0000
+From: Jon Masters <jonathan@jonmasters.org>
+Organization: World Organisation of Broken Dreams
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] 2.4.3-pre1 dependencies are broken
+To: Jeremy Jackson <jerj@coplanar.net>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Forwarding broadcast traffic
+In-Reply-To: <200103031054.KAA29868@localhost.localdomain> <3AA12CD8.7F948E0D@coplanar.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mkdep has got itself a new feature, but the makefiles haven't
-been updated.
+Jeremy Jackson wrote:
 
-We're getting zero-length .depend files.
+> try bridging instead if ip forwarding.  use netfilter too if you want
 
-I assume something like this was intended:
+I mentioned bridging before - I don't want some kind of transparent
+bridge, really so what I would need is for the router to be contactable
+in the same way as before and for regular traffic to pass normally but
+with a special arrangement for certain broadcast traffic.
 
+Is it possible to selectively bridge broadcast traffic in the way I have
+described?
 
+Normally of course I'd have the router either being a standard router or
+a bridge but in this case some kind of hybrid arrangement would be
+preferable.
 
---- linux-2.4.3-pre1/Makefile	Sat Mar  3 20:52:23 2001
-+++ linux-akpm/Makefile	Sun Mar  4 05:13:01 2001
-@@ -440,8 +440,8 @@
- 	find . -type f -print | sort | xargs sum > .SUMS
- 
- dep-files: scripts/mkdep archdep include/linux/version.h
--	scripts/mkdep init/*.c > .depend
--	scripts/mkdep `find $(FINDHPATH) -name SCCS -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
-+	scripts/mkdep -- init/*.c > .depend
-+	scripts/mkdep -- `find $(FINDHPATH) -name SCCS -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
- 	$(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDIRS)"
- ifdef CONFIG_MODVERSIONS
- 	$(MAKE) update-modverfile
---- linux-2.4.3-pre1/Rules.make	Sat Dec 30 09:07:19 2000
-+++ linux-akpm/Rules.make	Sun Mar  4 05:11:25 2001
-@@ -123,7 +123,7 @@
- # This make dependencies quickly
- #
- fastdep: dummy
--	$(TOPDIR)/scripts/mkdep $(wildcard *.[chS] local.h.master) > .depend
-+	$(TOPDIR)/scripts/mkdep -- $(wildcard *.[chS] local.h.master) > .depend
- ifdef ALL_SUB_DIRS
- 	$(MAKE) $(patsubst %,_sfdep_%,$(ALL_SUB_DIRS)) _FASTDEP_ALL_SUB_DIRS="$(ALL_SUB_DIRS)"
- endif
+Thanks for your help,
+			--jcm

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282604AbRKZWuH>; Mon, 26 Nov 2001 17:50:07 -0500
+	id <S282615AbRKZWtq>; Mon, 26 Nov 2001 17:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282613AbRKZWt5>; Mon, 26 Nov 2001 17:49:57 -0500
-Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:20899 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S282604AbRKZWtm>; Mon, 26 Nov 2001 17:49:42 -0500
-Message-Id: <4.3.2.7.2.20011126143930.045eec28@171.69.24.15>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 26 Nov 2001 14:44:19 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Unresponiveness of 2.4.16
-Cc: ngrennan@okcforum.org (Nathan G. Grennan), linux-kernel@vger.kernel.org
-In-Reply-To: <E168U3m-00077F-00@the-village.bc.nu>
-In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282613AbRKZWtg>; Mon, 26 Nov 2001 17:49:36 -0500
+Received: from mail209.mail.bellsouth.net ([205.152.58.149]:34612 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S282604AbRKZWt2>; Mon, 26 Nov 2001 17:49:28 -0500
+Message-ID: <3C02C6F2.71A581AB@mandrakesoft.com>
+Date: Mon, 26 Nov 2001 17:49:22 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Scalable page cache
+In-Reply-To: <Pine.LNX.4.33.0111261421320.10706-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:17 PM 26/11/2001 +0000, Alan Cox wrote:
-> > 2.4.16 becomes very unresponsive for 30 seconds or so at a time during
-> > large unarchiving of tarballs, like tar -zxf mozilla-src.tar.gz. The
-> > file is about 36mb. I run top in one window, run free repeatedly in
->
->This seems to be one of the small as yet unresolved problems with the newer
->VM code in 2.4.16. I've not managed to prove its the VM or the differing
->I/O scheduling rules however.
+Linus Torvalds wrote:
+> 
+> On Mon, 26 Nov 2001, Andrew Morton wrote:
+> >
+> > We've called block_prepare_write(), which has done the kmap.
+> > But even though block_prepare_write() returned success, this
+> > call to the filesystem's ->prepare_write() is about to fail.
+> 
+> That's _way_ too intimate knowledge of how block_prepare_write() works (or
+> doesn't work).
+> 
+> How about sending me a patch that removes all the kmap/kunmap crap from
+> _both_ ext3 and block_prepare/commit_write.
 
-it is I/O scheduling.
+FWIW Al Viro pointed out to me yesterday that block_xxx are really
+nothing but helpers...  Depending on them doing or not doing certain
+things is IMHO ok... 
 
-i have a system with a large amount of RAM.
-it has both 15K RPM SCSI disks (off a symbios controller) and some bog-slow 
-IDE/ATA disks which the system decides to use PIO for rather than DMA.  (i 
-don't use them for anything other than bootup so don't really care about it 
-deciding to use PIO..).
+If the behavior of the helpers is not what is desired, you are free to
+ignore them and roll your own... or wrap them as it appears ext3 is
+doing here.
 
-a copy to/from the 15K RPM SCSI disks doesn't show any performance problems.
-a copy to/from the PIO-based IDE disks has the same effect -- 20/30 seconds 
-of no interactiveness -- even a "vmstat 1" *stops* for 20-30 seconds while 
-200+MB of buffer-cache data gets written out to disk.
-
-i'm guessing that:
-  (a) the i/o scheduler isn't taking into account "disk speed" and thus 
-slower disks
-      show it more effectively than fast-disks
-  (b) its isolated to somewhere in the IDE drivers
+	Jeff
 
 
-cheers,
 
-lincoln.
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

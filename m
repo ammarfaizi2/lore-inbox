@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUIQWEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269186AbUIQWHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269060AbUIQWEN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 18:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUIQWEN
+	id S269186AbUIQWHc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 18:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUIQWEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 18:04:13 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:28822 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S269060AbUIQWDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 18:03:50 -0400
-Date: Fri, 17 Sep 2004 15:03:40 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, kkeil@suse.de
-Subject: Re: [patch] tune vmalloc size
-Message-ID: <20040917220340.GA2890@taniwha.stupidest.org>
-References: <2EHyq-5or-39@gated-at.bofh.it> <m34qlzbqy6.fsf@averell.firstfloor.org> <1095257576.2698.4.camel@laptop.fenrus.com>
+	Fri, 17 Sep 2004 18:04:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5279 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269034AbUIQWDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 18:03:40 -0400
+Date: Fri, 17 Sep 2004 15:07:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: stelian@popies.net, hugh@veritas.com, bruce@andrew.cmu.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-Id: <20040917150715.6b0ec457.akpm@osdl.org>
+In-Reply-To: <20040917212847.GC15426@dualathlon.random>
+References: <20040917154834.GA3180@crusoe.alcove-fr>
+	<Pine.LNX.4.44.0409171708210.3162-100000@localhost.localdomain>
+	<20040917205011.GA3049@crusoe.dsnet>
+	<20040917212847.GC15426@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095257576.2698.4.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 04:12:56PM +0200, Arjan van de Ven wrote:
+Andrea Arcangeli <andrea@novell.com> wrote:
+>
+> Thanks Stelian. Now if you like to keep working in this area and you
+> would like to also change do_syslog to use your new object, more power
+> to you and good luck! 8)
 
-> that is the case already
-
-why do we still use 128MB as a default then?  this is way over-kill
-from what i can tell looking on what my machines use.  i'd rather have
-this be a bit smaller and enable the slab/whatever to grow a little
-more
+heh, we'll burst his brain.  log_buf has two distinct `out' indices ;)

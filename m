@@ -1,22 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266659AbUBLWml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUBLWml
+	id S266664AbUBLWdA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUBLWcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:42:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18410 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266659AbUBLWmk (ORCPT
+	Thu, 12 Feb 2004 17:32:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27619 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266650AbUBLWco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:42:40 -0500
-Date: Thu, 12 Feb 2004 14:44:28 -0800
+	Thu, 12 Feb 2004 17:32:44 -0500
+Date: Thu, 12 Feb 2004 14:34:17 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: shaggy@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] JFS: sane file name handling (0 of 2)
-Message-Id: <20040212144428.05b16695.akpm@osdl.org>
-In-Reply-To: <200402122056.i1CKut1t006255@kleikamp.dyn.webahead.ibm.com>
-References: <200402122056.i1CKut1t006255@kleikamp.dyn.webahead.ibm.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: miquels@cistron.nl, linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+Subject: Re: 2.6.3-rc2-mm1 (dm)
+Message-Id: <20040212143417.41d2ce58.akpm@osdl.org>
+In-Reply-To: <20040212212811.GA655@frodo>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	<20040212203306.GA13192@cistron.nl>
+	<20040212212811.GA655@frodo>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,23 +26,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shaggy@austin.ibm.com wrote:
+Nathan Scott <nathans@sgi.com> wrote:
 >
-> Please apply the following patches to -mm.  The first is just a cleanup, but
-> the second one changes the default translation of filenames into unicode.
+> > This forces the underlying device(s) to a soft blocksize of 512. And
+> > I had my 80 MB/sec write speed back !
+> > 
+> > I'm not sure if setting the blocksize of the underlying device
+> > always to 512 is the right solution. I think that set_blocksize
 > 
-> There have been several complaints about the way that JFS tries to interpret
-> the character set of the file names rather than just treating them as strings
-> of bytes.  This patch makes the default behavior the "string of bytes"
-> treatment, while still allowing the charset-specific behavior with the
-> iocharset mount option.
-> 
-> I don't believe it will cause anyone too much trouble, but it should probably
-> spend a little time in -mm before hitting the mainline.
+> Hmm... that set_blocksize there must be new in -mm, I don't see
+> that in mainline yet.  I would guess that bdev_hardsect_size()
+> would be more appropriate here than hard-coding 512 bytes.  I
+> don't know the details of the problem being solving by adding
+> set_blocksize() in there though, so I might be completely wrong.
 
-Sure.  Please send them on to Linus as a bk pull when you're happy with them.
+Yes, 2.6.3-rc2-mm1 has a new device-mapper update.
 
-> #   Due to its roots in OS/2, JFS has always tried to convert pathnames
-> #   into unicode. 
+Miquel, thanks for picking this up.  I shall wait for the LVM team to
+suggest the preferred fix.
 
-No.....  It came from UnixWare.  I know - I read it on the internet.

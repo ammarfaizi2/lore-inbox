@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVB1QPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVB1QQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVB1QPc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVB1QPc
+	id S261675AbVB1QQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVB1QQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:15:32 -0500
-Received: from fire.osdl.org ([65.172.181.4]:65480 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261671AbVB1QPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:15:20 -0500
-Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
-From: Mark Haverkamp <markh@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
-In-Reply-To: <1109607188.30227.16.camel@markh1.pdx.osdl.net>
-References: <1109351021.5014.10.camel@markh1.pdx.osdl.net>
-	 <20050225161947.5fd6d343.akpm@osdl.org>
-	 <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org>
-	 <20050226123934.GA1254@suse.de>
-	 <1109604737.30227.3.camel@markh1.pdx.osdl.net>
-	 <20050228155127.GI8868@suse.de>
-	 <1109607188.30227.16.camel@markh1.pdx.osdl.net>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 08:15:10 -0800
-Message-Id: <1109607310.30227.18.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+	Mon, 28 Feb 2005 11:16:43 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:10655 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S261673AbVB1QPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 11:15:37 -0500
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [patch ide-dev 7/9] convert disk flush functions to use REQ_DRIVE_TASKFILE
+Date: Mon, 28 Feb 2005 17:17:06 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.58.0502241545041.13534@mion.elka.pw.edu.pl> <200502271739.16076.bzolnier@elka.pw.edu.pl> <422334CB.4010408@gmail.com>
+In-Reply-To: <422334CB.4010408@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502281717.06753.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 08:13 -0800, Mark Haverkamp wrote:
-> On Mon, 2005-02-28 at 16:51 +0100, Jens Axboe wrote:
-> > On Mon, Feb 28 2005, Mark Haverkamp wrote:
-> > > On Sat, 2005-02-26 at 13:39 +0100, Jens Axboe wrote:
-> > > > On Fri, Feb 25 2005, Linus Torvalds wrote:
-> > > > > 
-> > > > > 
-> > > > > On Fri, 25 Feb 2005, Andrew Morton wrote:
-> > > > > > 
-> > > > > > It seems very weird for dm to be shoving NULL page*'s into the middle of a
-> > > > > > bio's bvec array, so your fix might end up being a workaround pending a
-> > > > > > closer look at what's going on in there.
-> > > > > 
-> > > > > Yes. I don't see how this patch can be anything but bandaid to hide the 
-> > > > > real bug. Where do these "non-page" bvec's originate?
-> > > > 
-> > > > Yep that's the fishy part, there should not be NULL pages in the middle
-> > > > (or empty bios, for that matter) submitted for io.
-> > > > 
-> > > > Mark, what was the bug that triggered you to write this patch?
-> > > 
-> > > It happened when some pages of IO from a dm device were bounced.  It
-> > > looks to me when bio's are cloned in the dm code to split it for
-> > > physical devices that only the pointers to pages that apply to that
-> > > device are copied and th bi_idx is adjusted to point to the start,
-> > > leaving some NULL pointers at the start of the bio_vec.
+On Monday 28 February 2005 16:12, Tejun Heo wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Sunday 27 February 2005 05:51, Tejun Heo wrote:
 > > 
-> > This should fix it.
+> >> Hello, Bartlomiej,
+> >>
+> >>On Thu, Feb 24, 2005 at 03:45:39PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> >>
+> >>>Original patch from Tejun Heo <htejun@gmail.com>,
+> >>>ported over recent IDE changes by me.
+> >>>
+> >>>* teach ide_tf_get_address() about CHS
+> >>
+> >> IMHO, as patch #4 moves LBA/CHS selection into taskfile, I think
+> >>using taskfile->device to determine whether LBA or CHS is used instead
+> >>of drive->select makes more sense.
+> >>
+> >>
+> >>>* use ide_tf_get_address() and remove ide_get_error_location()
+> >>
+> >> IIRC, error responses for WIN_FLUSH_CACHE is in CHS if the LBA bit in
+> >>the device register is zero; likewise, in LBA if the LBA bit is one.
+> >>I don't know if drives can change the LBA bit when posting error
+> >>result.  The original code reads back the device register on error to
+> >>determine whether to interpret the error response in CHS or LBA.
+> >>(ATA/ATAPI-6 isn't clear on this issue.  Is ATA/ATAPI-7 updated?)
+> > 
+> > 
+> > The thing is that LBA bit is marked as "na" for FLUSH CACHE
+> > in all ATA/ATAPI drafts that I've seen.
+> > 
 > 
-> Wouldn't this potentially create bounce pages that will never be used?
+>   Yeah, and nothing is mentioned about the LBA bit in the normal output 
+> description even though the lcyl, hcyl.. registers are described to be 
+> in either form of CHS or LBA.  Strange...
+> 
+> > 
+> >> This change combined with patch #2/#5 can make error address
+> >>calculation wrong on LBA28 drives.  I think setting the LBA bit in the
+> >>device register according to the drive's addressing mode in
+> >>ide_task_init_flush() and use taskfile->device in ide_tf_get_address()
+> >>should fix the problem.
+> > 
+> > 
+> > I will change the code to set LBA bit, it shouldn't hurt. :-)
+> 
+>   IMHO, there can be cases where just setting the LBA bit isn't enough. 
+>   Theoretically, drives can report CHS and clear the LBA bit in the 
+> device register even when the LBA bit was set when the command was 
+> issued.  Maybe the intention of the original code was to handle 
+> something like this?
 
-Sorry, never mind. I didn't notice that this was for the non-highmem
-pages.
-
-
--- 
-Mark Haverkamp <markh@osdl.org>
-
+/me suspects that disks that support LBA always report LBA and disks
+that use only CHS always report CHS but this is pure speculation

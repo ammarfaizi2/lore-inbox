@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbTA2Q6C>; Wed, 29 Jan 2003 11:58:02 -0500
+	id <S266716AbTA2RDa>; Wed, 29 Jan 2003 12:03:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbTA2Q6C>; Wed, 29 Jan 2003 11:58:02 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:49917 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S266514AbTA2Q6A>; Wed, 29 Jan 2003 11:58:00 -0500
-Message-Id: <200301291425.h0TEPQ9o001322@eeyore.valparaiso.cl>
-To: Steven Dake <sdake@mvista.com>
-cc: LKML <linux-kernel@vger.kernel.org>, brand@eeyore.valparaiso.cl
-Subject: Re: New model for managing dev_t's for partitionable block devices 
-In-Reply-To: Your message of "Tue, 28 Jan 2003 10:20:31 MST."
-             <3E36BBDF.4090104@mvista.com> 
-Date: Wed, 29 Jan 2003 15:25:26 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S266717AbTA2RDa>; Wed, 29 Jan 2003 12:03:30 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:39405 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266716AbTA2RD2>; Wed, 29 Jan 2003 12:03:28 -0500
+Date: Wed, 29 Jan 2003 15:12:20 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
+       "" <Raphael_Schmid@CUBUS.COM>, "" <rob@r-morris.co.uk>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+In-Reply-To: <200301291409.57213.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.50L.0301291511420.28338-100000@imladris.surriel.com>
+References: <200301281440.h0SEeBS8001126@darkstar.example.net>
+ <200301291409.57213.roy@karlsbakk.net>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Dake <sdake@mvista.com> said:
-> I was thinking of an entirely new model for partitionable block devices. 
-> Here is how it would work:
-> 
-> Each physical disk would be assigned a minor number in a group of 
-> majors.  So assume a major was chosen of 150, 151, 152, 153, there would 
-> be a total of 1024 physical disks that could be mapped.  Then the device 
-> mapper code could be used to provide partition devices in another 
-> major/group of majors.
-> 
-> The advantage of this technique is that instead of wasting tons of 
-> minors on partitions that are never used, partitions could be 
-> dynamically allocated out of the minor list, allowing for thousands of 
-> disks with varying numbers of partitions each.  Further instead of each 
-> block device (such as i2o, scsi, etc) having their own set of majors for 
-> each partitionable disk (which wastes dev_t address space) everything 
-> would be compressed into the same set of majors.
+On Wed, 29 Jan 2003, Roy Sigurd Karlsbakk wrote:
 
-Great idea! Add another partition, and the minors for everything else on
-the system change. Not!
+> The point is that Linux should allow for a user-friendly image (yes!
+> possibly with Tux winking with the eyes or something - in a Mac sorta
+> way). This will allow for higher user-friendlyness,
+
+       0   2   4   6   8   10
+
+                        /
+                       /
+                      /
+                     /
+                    /
+                   /
+                  /
+           TROLL-O-METER
+
+
+Even though you might not have intended it, the effect on
+lkml will be the same ;)
+
+Rik
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

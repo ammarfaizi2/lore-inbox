@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280776AbRKYJNE>; Sun, 25 Nov 2001 04:13:04 -0500
+	id <S280777AbRKYJSG>; Sun, 25 Nov 2001 04:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280774AbRKYJMz>; Sun, 25 Nov 2001 04:12:55 -0500
-Received: from weta.f00f.org ([203.167.249.89]:2969 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S280776AbRKYJMm>;
-	Sun, 25 Nov 2001 04:12:42 -0500
-Date: Sun, 25 Nov 2001 22:14:18 +1300
+	id <S280779AbRKYJRy>; Sun, 25 Nov 2001 04:17:54 -0500
+Received: from weta.f00f.org ([203.167.249.89]:3481 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S280777AbRKYJRt>;
+	Sun, 25 Nov 2001 04:17:49 -0500
+Date: Sun, 25 Nov 2001 22:19:26 +1300
 From: Chris Wedgwood <cw@f00f.org>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+To: Steve Bergman <steve@rueb.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-Message-ID: <20011125221418.A9672@weta.f00f.org>
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
+Subject: Re: Disk hardware caching, performance, and journalling
+Message-ID: <20011125221926.B9672@weta.f00f.org>
+In-Reply-To: <3BFFE8A2.1010708@rueb.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
+In-Reply-To: <3BFFE8A2.1010708@rueb.com>
 User-Agent: Mutt/1.3.23i
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 24, 2001 at 02:03:11PM +0100, Florian Weimer wrote:
+On Sat, Nov 24, 2001 at 12:36:18PM -0600, Steve Bergman wrote:
 
-    When the drive is powered down during a write operation, the
-    sector which was being written has got an incorrect checksum
-    stored on disk.  So far, so good---but if the sector is read
-    later, the drive returns a *permanent*, *hard* error, which can
-    only be removed by a low-level format (IBM provides a tool for
-    it).  The drive does not automatically map out such sectors.
+    1. Disk hardware caching defaults to ON. (hdparm -W1 /dev/hda)
+    2. It makes a *big* difference in write performance.
 
-AVOID SUCH DRIVES... I have both Seagate and IBM SCSI drives which a
-are hot-swappable in a test machine that I used for testing various
-journalling filesystems a while back for reliability.
+I depends on the drive, my IDE drives do default to on, my SCSI drives
+do not.
 
-Some (many) of those tests involved removed the disk during writes
-(literally) and checking the results afterwards.
+The difference in write performance doesn't seem to be a problem other
+that in contrived situations (eg. streaming 5G of data to disk takes
+the same amount of time either way, but untar something then 'sync' is
+faster with the drive caching).
 
-The drives were set not to write-cache (they don't by default, but all
-my IDE drives do, so maybe this is a SCSI thing?)
+It also depends of your filesystems to some extent and the operations
+being performed [1].
 
-At no point did I ever see a partial write or corrupted sector; nor
-have I seen any appear in the grown table, so as best as I can tell
-even under removal with sustain writes there are SOME DRIVES WHERE
-THIS ISN'T A PROBLEM.
+    So what are the implications here for journalling?  Do I have to
+    turn off caching and suffer a huge performance hit?
 
+Yes.  I do this on workstations and it doesn't seem to hurt in
+practice (only in benchmarks).
 
-Now, since EMC, NetApp, Sun, HP, Compaq, etc. all have products which
-presumable depend on this behavior, I don't think it's going to go
-away, it perhaps will just become important to know which drives are
-brain-damaged and list them so people can avoid them.
-
-As this will affect the Windows world too consumer pressure will
-hopefully rectify this problem.
+I can't comment on your bonnie++ results and I have no idea how well
+they reflect reality (I assume to a large extent they try to though).
 
 
 
 
   --cw
 
-P.S. Write-caching in hard-drives is insanely dangerous for
-     journalling filesystems and can result in all sorts of nasties.
-     I recommend people turn this off in their init scripts (perhaps I
-     will send a patch for the kernel to do this on boot, I just
-     wonder if it will eat some drives).
+[1] XFS rm -rf some_large_dir bites with drive-caching off for example.

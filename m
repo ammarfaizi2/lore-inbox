@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbTGVChj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 22:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTGVChi
+	id S262499AbTGVClJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 22:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGVClJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 22:37:38 -0400
-Received: from fed1mtao03.cox.net ([68.6.19.242]:43497 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262464AbTGVChh
+	Mon, 21 Jul 2003 22:41:09 -0400
+Received: from www.opensource-ca.org ([168.234.203.30]:11989 "EHLO
+	guug.galileo.edu") by vger.kernel.org with ESMTP id S262499AbTGVClF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 22:37:37 -0400
-To: =?iso-2022-jp-2?b?ShsuQRtOdnJuRW5nZWw=?= 
-	<joern@wohnheim.fh-wedel.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Port SquashFS to 2.6
-References: <fa.k0do8p6.ch6pps@ifi.uio.no> <fa.hre90bn.e6k5pf@ifi.uio.no>
-From: junkio@cox.net
-Date: Mon, 21 Jul 2003 19:52:39 -0700
-In-Reply-To: <fa.hre90bn.e6k5pf@ifi.uio.no> (joern@wohnheim.fh-wedel.de's
- message of "Sun, 20 Jul 2003 08:25:16 GMT")
-Message-ID: <7vd6g3uvbc.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp-2
+	Mon, 21 Jul 2003 22:41:05 -0400
+Date: Mon, 21 Jul 2003 20:51:42 -0600
+To: linux-kernel@vger.kernel.org
+Cc: sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
+Subject: sparc scsi esp depends on pci & hangs on boot
+Message-ID: <20030722025142.GC25561@guug.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JE" == J.ANvrnEngel  <joern@wohnheim.fh-wedel.de> writes:
+Hi ppl,
 
-JE> On Sat, 19 July 2003 22:40:22 -0700, junkio@cox.net wrote:
->> - I would imagine that the acceptable stack usage for functions
->> would depend on where they are called and what they call.
->> Coulc you suggest a rule-of-thumb number for
->> address_space_operations.readpage (say, would 1kB be OK but
->> not 3kB?)
+just reporting on 2.6.0-test1 on sparcs:
 
-JE> Depending on where and what you do,...
+i am trying to compile linux-2.6.0-test1-{mm1,mm2,ac1,ac2)
+on 2 differents sparcs, both latest debian sid & gcc-3.2.3:
 
-Well, isn't asking about address_space_operations.readpage
-specific enough?
+ultra enterprise 1 (sun4u sparc64)
+sparc station 4    (sun4m sparc32)
 
-JE> ... also depends a bit on the architecture.  s390 has
-JE> giant stacks because function call overhead is huge, ...
+on both i need to enable PCI support even
+when these boxes doesn't have a PCI bus,
+i think the main bus is SBUS and i get
+errors when compiling the Sun ESP scsi
+controller about functions for DMA depending
+on PCI.  I don't think is convenient for
+these old boxes having support for PCI
+because enlarge the kernel and it really
+doesn't have that type of bus.
 
-The discussion was about putting variables (or arrays or large
-structs) the kernel programmer defines on the stack, and I do
-not think architecture calling convention has much to do with
-this.
+And when i enable PCI support the sparc32
+compiles fine but hangs inmediately on boot.
+The sparc64 doesn't compile with ac2 patch:
 
-If an architecture has a big stack usage per call that is
-imposed by the ABI, and larger kernel stack is allocated
-compared to other architectures because of this reason,
-shouldn't there be about the same amount of usable space left
-for the kernel programs within the allocated per-process kernel
-stack space to use?  If that is not the case then the port to
-that particular architecture would not be optimal, wouldn't it?
+arch/sparc64/kernel/built-in.o(.init.text+0x3bcc): In function `pdev_cookie_fillin':
+: referencia a `pci_remove_bus_device' sin definir
+make: *** [vmlinux] Error 1
+
+The others mentioned kernels hangs when booting.
+
+Yes, i have selected proper configuration for the
+CONFIG_INPUT_*=y layer, CONFIG_VT_CONSOLE=y,
+CONFIG_HW_CONSOLE=y and CONFIG_PROM_CONSOLE=y.
+
+I even tried both CONFIG_FRAMEBUFFER_CONSOLE set to y/n
+
+Any help will be apreciated as i really want
+the 2.6 kernels support both sparc32 and sparc64
+boxes, googling i found osinvestor.com/sparc but
+is down and in the sparclinux archives there are
+patches but they appear to be applied on linus
+2.6.0-test1 kernel.
+
+Thanks.
+
+-solca
 

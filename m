@@ -1,54 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRASGK4>; Fri, 19 Jan 2001 01:10:56 -0500
+	id <S130144AbRASGYJ>; Fri, 19 Jan 2001 01:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130331AbRASGKr>; Fri, 19 Jan 2001 01:10:47 -0500
-Received: from node10084.a2000.nl ([24.132.0.132]:65297 "EHLO caliban.org")
-	by vger.kernel.org with ESMTP id <S130162AbRASGKc>;
-	Fri, 19 Jan 2001 01:10:32 -0500
-Date: Fri, 19 Jan 2001 07:10:30 +0100
-From: Ian Macdonald <ianmacd@caliban.org>
-Message-Id: <200101190610.f0J6AUK05724@caliban.org>
-To: linux-kernel@vger.kernel.org
+	id <S130155AbRASGX6>; Fri, 19 Jan 2001 01:23:58 -0500
+Received: from pD905502B.dip.t-dialin.net ([217.5.80.43]:46597 "EHLO
+	tron.dynodns.net") by vger.kernel.org with ESMTP id <S130144AbRASGXt>;
+	Fri, 19 Jan 2001 01:23:49 -0500
+Message-ID: <003701c081e0$8544f440$0601a8c0@tron>
+From: "Daniel Mehrmnann" <kernel@tron.dynodns.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14JRYM-0000Ns-00@plato.bork.org> <200101190610.f0J6AUK05724@caliban.org>
 Subject: Re: pppoe in 2.4.0
-In-Reply-To: <E14JRYM-0000Ns-00@plato.bork.org>
-In-Reply-To: <E14JRYM-0000Ns-00@plato.bork.org>
-Mail-Copies-To: never
-X-OS: Linux 2.2.17
+Date: Fri, 19 Jan 2001 07:24:46 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Jan 2001 03:51:20 +0100 in caliban.linux.kernel, you wrote:
 
->Does anyone have pppoe working with 2.4.0?
+----- Original Message -----
+From: "Ian Macdonald" <ianmacd@caliban.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, January 19, 2001 7:10 AM
+Subject: Re: pppoe in 2.4.0
+
+
+> On 19 Jan 2001 03:51:20 +0100 in caliban.linux.kernel, you wrote:
 >
->I'm running 2.4.0-ac9 with ppp and pppoe compiled into the kernel (I've
->tried with modules too)
+> >Does anyone have pppoe working with 2.4.0?
+> >
+> >I'm running 2.4.0-ac9 with ppp and pppoe compiled into the kernel
+(I've
+> >tried with modules too)
+> >
+> >The pppd simply refuses to acknowlege the presence of ppp support
+in the
+> >kernel.
+> >The last release of pppd was in august 2000.  Was this before the
+ppp
+> >interface in the
+> >kernel was overhauled?
 >
->The pppd simply refuses to acknowlege the presence of ppp support in the
->kernel.
->The last release of pppd was in august 2000.  Was this before the ppp
->interface in the 
->kernel was overhauled?
+> Have you aliased the new module name to ppp?
+>
+> I'm using pppd just for simple dial-up from home, but I needed to
+add
+> the following line to /etc/modules.conf before pppd would load the
+> correct module:
+>
+> alias ppp ppp_async
+>
 
-Have you aliased the new module name to ppp?
+Yes, PPPoE works fine with 2.4.0. PLEASE read
+$YOUR_KERNEL_SOURCE/Documentation/CHANGES and setup your alias
+correctly.
+For example (my System):
 
-I'm using pppd just for simple dial-up from home, but I needed to add
-the following line to /etc/modules.conf before pppd would load the
-correct module:
+/etc/modules.conf:
 
-alias ppp ppp_async
+---------------cut-----------------
+# Ok, here we start with 2.4.x stuff !
+# LVM 0.9
+alias alias block-major-58      lvm-mod
+alias char-major-109            lvm-mod
 
-However, I couldn't get PPP to work when I compiled it directly into
-the kernel.
+#CPU
+alias char-major-10-184 microcode
 
-Ian
--- 
-Ian Macdonald               | "Language shapes the way we think, and     
-Senior System Administrator | determines what we can think about." -- B. 
-Linuxcare, Inc.             | L. Whorf                                   
-Support for the Revolution  |                                            
-                            |                                            
+#PPP
+alias char-major-108    ppp_generic
+alias /dev/ppp          ppp_generic
+alias tty-ldisc-3       ppp_async
+alias tty-ldisc-14      ppp_synctty
+alias ppp-compress-21   bsd_comp
+alias ppp-compress-24   ppp_deflate
+alias ppp-compress-26   ppp_deflate
+#end 2.4.0
+---------------cut--------------------
+
+daniel
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317945AbSHaTna>; Sat, 31 Aug 2002 15:43:30 -0400
+	id <S317978AbSHaTrT>; Sat, 31 Aug 2002 15:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317946AbSHaTna>; Sat, 31 Aug 2002 15:43:30 -0400
-Received: from inet-mail2.oracle.com ([148.87.2.202]:57591 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S317945AbSHaTn3>; Sat, 31 Aug 2002 15:43:29 -0400
-Message-ID: <3D711CEE.9060309@oracle.com>
-Date: Sat, 31 Aug 2002 21:45:50 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Consulting Premium Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Obster <michael.obster@bingo-ev.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19 and binutils 2.13.90.0.3 dont compile
-References: <3D710D21.5070101@bingo-ev.de> <3D711BDB.7000906@oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317977AbSHaTrT>; Sat, 31 Aug 2002 15:47:19 -0400
+Received: from ppp-217-133-221-247.dialup.tiscali.it ([217.133.221.247]:4824
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S317950AbSHaTrS>; Sat, 31 Aug 2002 15:47:18 -0400
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: trond.myklebust@fys.uio.no
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15728.61345.184030.293634@charged.uio.no>
+References: <15728.61345.184030.293634@charged.uio.no>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-sYEUNULf6EqN04Wodilt"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 31 Aug 2002 21:51:40 +0200
+Message-Id: <1030823500.4408.133.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote:
-> Michael Obster wrote:
-> 
->> Hi,
->>
->> can you have a look on that. Seems for me to be a problem with the new 
->> binutils version, because with binutils 2.12.90.0.4 the kernel 
->> compiles. Is there a workaround present?
-> 
-> 
-> The best thing you can do is to post the actual error you get...
 
-Argh - sorry, I didn't notice the attachment :/
+--=-sYEUNULf6EqN04Wodilt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> Anyway, 2.4.20-pre5 is happily built by binutils 2.13.90.0.4
->  and gcc-3.2.
+Forgot to mention that, of course, the vfs_cred_groups struct needs to
+be recreated if modified and we must keep an atomic reference count in
+it.
+This allows to avoid having to copy the whole groups array for each task
+on modification.
+uid and gid instead are placed directly in task_struct since checking
+them is faster and thus needs more optimization.
+Same reasoning applies for eventual ACLs or similar structures.
 
-Perhaps gcc-2.95.3 and newest binutils don't get along; have
-  you already tried the very latest binutils ?
 
---alessandro
+--=-sYEUNULf6EqN04Wodilt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-  "everything dies, baby that's a fact
-    but maybe everything that dies someday comes back"
-        (Bruce Springsteen, "Atlantic City")
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQA9cR5Mdjkty3ft5+cRAnmqAJ9KTOt3XBm/Uvb+ckyeaI9cL2hODwCfcmPa
+LC/gUQmq0D812qZf+TimNyo=
+=GAtG
+-----END PGP SIGNATURE-----
+
+--=-sYEUNULf6EqN04Wodilt--

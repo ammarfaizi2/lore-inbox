@@ -1,72 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTGKPXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTGKPXV
+	id S263407AbTGKPZT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTGKPZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:23:21 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:61446 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S263355AbTGKPXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:23:15 -0400
-Date: Sat, 12 Jul 2003 01:37:44 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Jim Keniston <jkenisto@us.ibm.com>
-cc: LKML <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Randy Dunlap <rddunlap@osdl.org>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
-In-Reply-To: <3F0DB9A5.23723BE1@us.ibm.com>
-Message-ID: <Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
+	Fri, 11 Jul 2003 11:25:19 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:53255 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S263407AbTGKPZI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:25:08 -0400
+Date: Fri, 11 Jul 2003 11:39:51 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: "David D. Hagood" <wowbagger@sktc.net>, <hzhong@cisco.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Style question: Should one check for NULL pointers?
+In-Reply-To: <Pine.LNX.4.53.0307111039400.2708@chaos>
+Message-ID: <Pine.LNX.4.44L0.0307111127140.22455-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003, Jim Keniston wrote:
+On Fri, 11 Jul 2003, Richard B. Johnson wrote:
 
-> James Morris wrote:
-> > 
-> > On Tue, 8 Jul 2003, Jim Keniston wrote:
-> > 
-> > +       kerror_nl = netlink_kernel_create(NETLINK_KERROR, kerror_netlink_rcv);
-> > +       if (kerror_nl == NULL)
-> > +               panic("kerror_init: cannot initialize kerror_nl\n");
-> > 
-> > You can simply use NULL instead of passing the dummy kerror_netlink_rcv
-> > function.
+> On Fri, 11 Jul 2003, David D. Hagood wrote:
 > 
-> That begs the question: do we trust that nobody but the kernel will send
-> packets to a NETLINK_KERROR socket?  Ordinary users can't, but any root
-> application can.  Without kerror_netlink_rcv(), such packets don't get
-> dequeued.
+> > But consider the following code:
+> >
+> > sscanf(0,0);
+> >
+> > That IS an error condition - both the string to scan and the format
+> > string are NULL. In this case sscanf should return EITHER 0 (no items
+> > matched) or better still -1 (error).
+> >
+> 
+> But it does neither. Instead, it seg-faults your code!
+> 
+> The problem lies with the original question. The question
+> referred to "Style" (look at the subject-line). It is
+> not a question about style, but a question about utility
+> and design. Style has nothing to do with it.
 
-Indeed, the kernel socket buffer fills up.
+This isn't really an example of the sort of thing I was asking about.  I
+was referring specifically to kernel code, not general-purpose userspace C
+library routines like sscanf.
 
-I think this needs to be addressed in the netlink code, per the patch 
-below.
+But maybe you mean the kernel's internal implementation of sscanf.  If 
+someone in the kernel did write "sscanf(0,0);" then that would definitely 
+be an error in the source.  It should be brought to the author's attention 
+as soon as possible, and a segfault (or BUG_ON) is a much more effective 
+way of doing so than simply returning -1.
 
-Comments?
+> If you are writing code for an embedded system, the code
+> must always run even if RAM got trashed from alpha particles
+> or EMP. In that case, you trap every possible condition and
+> force a restart off a hardware timer, refreshing everything in
+> RAM from PROM or NVRAM.
 
+Okay, but there's no way at the source level to protect against all kinds
+of events like alpha particles changing a stored value.  And what's the
+point in checking just _some_ of them in the source if you're going to
+have to check _all_ of them at a lower (hardware) level anyway?
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+> If you are writing code to examine the contents of sys_errlist[],
+> prior to adding another error-code, then you don't check anything
+> and it's file-name is probably a.out, compiled from xxx.c.
 
-diff -NurX dontdiff linux-2.5.75.orig/net/netlink/af_netlink.c linux-2.5.75.w1/net/netlink/af_netlink.c
---- linux-2.5.75.orig/net/netlink/af_netlink.c	2003-06-26 12:43:45.000000000 +1000
-+++ linux-2.5.75.w1/net/netlink/af_netlink.c	2003-07-12 01:23:49.708254261 +1000
-@@ -430,6 +430,10 @@
- 		goto no_dst;
- 	nlk = nlk_sk(sk);
- 
-+	/* Don't bother queuing skb if kernel socket has no input function */
-+        if (nlk->pid == 0 && !nlk->data_ready)
-+        	goto no_dst;
-+
- #ifdef NL_EMULATE_DEV
- 	if (nlk->handler) {
- 		skb_orphan(skb);
+I don't understand that comment.
+
+> So, the extent to which one checks for exceptions and provides
+> utility for handling exceptions depends upon the code design, not
+> it's style.
+
+But the kernel already provides a utility for handling exceptions and has 
+a fairly fixed design.  The extent to which one writes exception checks of 
+dubious value is indeed a stylistic issue, at least in this one setting.
+
+Alan Stern
 

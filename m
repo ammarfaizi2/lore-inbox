@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266568AbUHXGuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUHXGvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266568AbUHXGuR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 02:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHXGuR
+	id S266574AbUHXGvb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 02:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHXGv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 02:50:17 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:17051 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S266568AbUHXGuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 02:50:13 -0400
-Message-ID: <412AE521.5030608@bull.net>
-Date: Tue, 24 Aug 2004 08:50:09 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ELSA v0.1 for 2.6.8.1
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/08/2004 08:55:23,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/08/2004 08:55:26,
-	Serialize complete at 24/08/2004 08:55:26
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 Aug 2004 02:51:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40079 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266527AbUHXGvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 02:51:22 -0400
+Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1DZAkUvceXIR/HGTOQ1u"
+Organization: Red Hat UK
+Message-Id: <1093330271.2792.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 24 Aug 2004 08:51:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-    Enhanced Linux System Accounting is now available for kernel 2.6.8.1. This patch implements a solution for managing a group of process (called a bank) in order to provide accounting values like memory, I/O or CPU usage. Process can be added to or removed from a bank using the "elsacct" device interface with ioctl. There is no major improvements since the "bank" mechanism is working well.  
+--=-1DZAkUvceXIR/HGTOQ1u
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-    The next step is to provide more accounting metrics. Therefore we are working on the improvement of BSD accounting as ELSA accounting is based on it. We currently trying to get informations about I/O as fields are already present in BSD-like accounting but they are not updated.
+On Mon, 2004-08-23 at 23:23, Davide Libenzi wrote:
+> The following patch implements a lazy I/O bitmap copy for the i386=20
+> architecture. With I/O bitmaps now reaching considerable sizes, if the=20
+> switched task does not perform any I/O operation, we can save the copy=20
+> altogether. In my box X is working fine with the following patch, even if=
+=20
+> more test would be required.
 
-    You can download the patch from the elsa website at:
-http://prdownloads.sourceforge.net/elsa/patch-2.6.8.1-elsa?download
 
-    All project files can be found at:
-http://sourceforge.net/project/showfiles.php?group_id=105806
+the thing is that X will not hit your fault path, since it runs with
+iopl() called... your patch is a nice optimisation for X as a result,
+however as test, X is almost worthless ;(
 
+--=-1DZAkUvceXIR/HGTOQ1u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-    Any comments are welcome,
-    
-The ELSA team 
-http://elsa.sf.net
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBKuVfxULwo51rQBIRArIhAJwNuogwxTErHBKj3oSQ0lfZdRdybQCff3tU
+3DlQ4zrhFBEWIW0ulsn1WCU=
+=RxZh
+-----END PGP SIGNATURE-----
+
+--=-1DZAkUvceXIR/HGTOQ1u--
 

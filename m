@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbRGQUY7>; Tue, 17 Jul 2001 16:24:59 -0400
+	id <S266997AbRGQUX3>; Tue, 17 Jul 2001 16:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbRGQUYt>; Tue, 17 Jul 2001 16:24:49 -0400
-Received: from arleno1.dsl.sirius.com ([207.44.242.45]:37640 "EHLO
-	altair.dhs.org") by vger.kernel.org with ESMTP id <S266999AbRGQUYl>;
-	Tue, 17 Jul 2001 16:24:41 -0400
-Message-Id: <200107172024.NAA19545@altair.dhs.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Charles Samuels <charles@kde.org>
-Organization: K Desktop Environment
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Documentation
-Date: Tue, 17 Jul 2001 13:24:42 -0700
-X-Mailer: KMail [version 1.2.2]
+	id <S266999AbRGQUXT>; Tue, 17 Jul 2001 16:23:19 -0400
+Received: from adsl-207-241-136-214.mpl.michix.net ([207.241.136.214]:61706
+	"HELO cobalt.deepthought.org") by vger.kernel.org with SMTP
+	id <S266997AbRGQUXP>; Tue, 17 Jul 2001 16:23:15 -0400
+Date: Tue, 17 Jul 2001 16:15:07 -0400 (EDT)
+From: Martin Murray <mmurray@deepthought.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6
+In-Reply-To: <Pine.LNX.4.33.0107121706280.4604-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0107171610120.31029-100000@cobalt.deepthought.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry, I've been away for a few days. 
 
-I apologize for using the D-word, however, I've created some, so I think that 
-makes it acceptable.
+> Well, I think I've found the reason for your hang.
+ 
+> Your video card is also on irq11.
 
-But first, I was having a little fun kernel-hacking the other day, and I had 
-noticed that every time I want information on function-X, I have to start 
-grepping like hell, and it's even worse when I don't know the name of the 
-function. What we needed was an API (KPI?) reference.
+So does my usb controller. It seems that all the integrated stuff use IRQ
+11. 
 
-So I made one.  
+> And I bet you don't have a driver that knows about it.
 
-<blink><marquee> http://derkarl.org/kerneldoc/ </marquee></blink>
-(It seems that 10% of europe can't get that domain: 207.44.242.45)
+You know. 2.2.19 uses my cardbus controller on IRQ 11 without a
+problem. Could it be something in the way the yenta_socket driver sets up
+the controller? I was thinking of dumping the read/write's from the i82365
+from 2.2.19, and comparing it to the yenta_socket driver. Do you think
+this is worthwhile? I know your time is precious, but I'd like to fix this
+problem and will happily do the work if you can spare a few brain cycles
+on the problem. ;)
 
-Obviously, it's not complete, in fact, if it were any less complete, I could 
-call it the linux kernel :)
+Thanks, Martin
 
-The _real_ reason I post this message is, of course, for help.  I'll be more 
-than happy to accept new xml documentation files (the bottom of each page 
-contains a link to the associated XML file, as an example).
-
-PS. I'm not on this mailing list (I'm on plenty, don't worry), so I'll be 
-following it on the archives.
-
--Charles

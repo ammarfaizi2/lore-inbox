@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTIJOSx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263844AbTIJOSx
+	id S264330AbTIJOXf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTIJOXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:18:53 -0400
-Received: from gprs147-217.eurotel.cz ([160.218.147.217]:29569 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263787AbTIJOSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:18:52 -0400
-Date: Wed, 10 Sep 2003 16:17:13 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Mikael Pettersson <mikpe@csd.uu.se>, bunk@fs.tum.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       robert@schwebel.de, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030910141713.GA2589@elf.ucw.cz>
-References: <200309071647.h87Glp4t014359@harpo.it.uu.se> <20030907174341.GA21260@mail.jlokier.co.uk> <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk> <20030908101714.A25308@bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030908101714.A25308@bitwizard.nl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 10 Sep 2003 10:23:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57362 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264330AbTIJOXd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:23:33 -0400
+Date: Wed, 10 Sep 2003 10:14:37 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test5-mm1 aha152x **still** doesn't work (fwd)
+Message-ID: <Pine.LNX.3.96.1030910101202.21238F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > 	2. The CPU types are not a total order.  Say I want a kernel
-> > > 	   that supports Athlons and a Centaur for my cluster.  What
-> > > 	   CPU setting should I use?  What CPU setting will give my the best
-> > > 	   performing kernel - and is that the same as the one for smallest
-> > > 	   kernel?
-> > 
-> > You'd use two kernels. There is no sane other answer to that specific
-> > case 8)
-> 
-> Ehmm. In some cases, having multiple kernels is a pain in the @55. 
-> 
-> Having the option to make a generic kernel should remain. One that
-> works on as much as possible CPUs. Even if it's a bit suboptimal on
-> some CPUs. 
-> 
-> Also it would be nice if we can make the boot code run on anything
-> until the point where the CPU is detected. Then we can give a nice
-> message that the kernel was not compiled for this cpu instead of a 
-> blank-screen-hang. If we have to compile printk for 386 for this
+oddball:root> modprobe aha152x aha152x=0x340,9,7,1,1,1
+SCSI subsystem initialized
+aha152x: invalid module params io=0x340, irq=8,scsiid=7,reconnect=1,parity=1,sync=1,delay=1000,exttrans=0
+FATAL: Error inserting aha152x 
+(/lib/modules/2.6.0-test5-mm1/kernel/drivers/scsi/aha152x.ko): No such 
+device
 
-Better yet do the check in i386/boot/setup.S; its assembly anyway... I
-actually had check there (or somewhere near that :-) for x86-64. Not
-sure where it is now.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+It happily looks at the "9" in the init string and says "irq=8" doesn't 
+work. Works with the 2.4.18 kernel from RH7.3, so ??? The IRQ jumpers are 
+soldered on the board.
+
+Clearly if I had the option of using another board I would, that's not
+going to happen for various reasons (administrative and technical).
+

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTICMi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTICMi7
+	id S262055AbTICMmv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTICMmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:38:59 -0400
-Received: from fastlane-28a.zyb.citynet.pl ([212.244.10.137]:16374 "EHLO
-	moria.telperion.pl") by vger.kernel.org with ESMTP id S262037AbTICMi6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:38:58 -0400
-From: Marek Zachara <Marek.Zachara@telperion.pl>
-Organization: Telperion
-To: linux-kernel@vger.kernel.org
-Subject: Small mistake in 2.6.0-test4 headers
-Date: Wed, 3 Sep 2003 14:37:49 +0200
-User-Agent: KMail/1.5.2
+	Wed, 3 Sep 2003 08:42:51 -0400
+Received: from imap.gmx.net ([213.165.64.20]:38083 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262055AbTICMmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 08:42:49 -0400
+From: "Sebastian Piecha" <spi@gmxpro.de>
+To: "=?ISO-8859-1?Q?Tomasz__B=B1tor?=" <tomba@bartek.tu.kielce.pl>,
+       linux-kernel@vger.kernel.org
+Date: Wed, 03 Sep 2003 14:42:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309031437.50014.Marek.Zachara@telperion.pl>
+Subject: Re: What is the SiI 0680 chipset status?
+Message-ID: <3F55FDEC.28048.34FF5921@localhost>
+In-reply-to: <20030902165537.GA1830@bartek.tu.kielce.pl>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to compile alsa driver I have found there is a small
-mistake in the kernel headers. the file irq.h located in
-/usr/src/linux/include/asm-i386 tries to include "irq_vectors.h". 
-this fails since as I have noticed these machine specific files
-have been moved to subdirectories (machine-default, etc.)
-I am using a standard PC box.
+> 
+> Hi to all.
+> I recently got MiNt PCI IDE ATA/133 RAID controller based on SiI 0680
+> chipset. I browsed through the archives and I know that the driver is
+> known to be broken and simply doesn't work.
+> 
+> That was some time ago, meanwhile there were some fixes/hdparm
+> almost-solutions, but none of them seems to work. I remember that
+> Andre Hendrick said he's talking with SiI guys to find a final
+> solution, but no more info after that...
+> 
+> Therefore my question is: what is the current status of this driver?
+> Are there any patches available? Or I will have to just buy another
+> controller? (No problems with HPT or Promise?)
+> 
+I recently posted a problem with a Promise 
+UltraTrak 133 TX2 controller (subject: PROBLEM: Powerquest Drive 
+Image let the kernel panic). With kernel 2.4.20 every time moving 
+several GB of data I get an OOPS. I already thought trying a 
+controller with a SI680-chipset... Maybe that's not a good idea.
 
-hope it helps,
-Marek
+Mit freundlichen Gruessen/Best regards,
+Sebastian Piecha
+
+EMail: spi@gmxpro.de
 

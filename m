@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267619AbUG3F5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUG3F6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267619AbUG3F5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 01:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267622AbUG3F5P
+	id S267620AbUG3F6c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 01:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267622AbUG3F6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 01:57:15 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:22973 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267619AbUG3F5N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 01:57:13 -0400
-Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
-From: Robert Love <rml@ximian.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Dave Jones <davej@redhat.com>,
-       Edward Angelo Dayao <edward.dayao@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040730055333.GC7925@suse.de>
-References: <20040728053107.GB11690@suse.de>
-	 <c93051e8040727235123a6ed67@mail.gmail.com>
-	 <20040728065319.GD11690@suse.de> <20040728145228.GA9316@redhat.com>
-	 <20040728145543.GB18846@devserv.devel.redhat.com>
-	 <20040728163353.GJ10377@suse.de> <20040728170507.GK10377@suse.de>
-	 <1091051858.13651.1.camel@camp4.serpentine.com>
-	 <20040729084928.GR10377@suse.de> <1091166553.1982.9.camel@localhost>
-	 <20040730055333.GC7925@suse.de>
-Content-Type: text/plain
-Date: Fri, 30 Jul 2004 01:57:11 -0400
-Message-Id: <1091167031.1982.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.90 (1.5.90-5) 
+	Fri, 30 Jul 2004 01:58:32 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:45546 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S267620AbUG3F6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 01:58:22 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Date: Fri, 30 Jul 2004 15:58:12 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16649.58228.998580.791909@cse.unsw.edu.au>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Reporting "Yenta TI: socket 0000:02:03.0 no PCI interrupts. Fish. Please report."
+In-Reply-To: message from Li, Shaohua on Friday July 30
+References: <B44D37711ED29844BEA67908EAF36F03712EAF@pdsmsx401.ccr.corp.intel.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 07:53 +0200, Jens Axboe wrote:
-
-> read-ahead doesn't matter on ripping audio, just for fs work.
-
-This isn't ripping, just playing.
-
-> The audio problems might be fixed in 2.6.8-rc1-mm1 + the bounce patch
-> posted a few times (unfortunately 2.6.8-rc2-mm1 drops the patch for some
-> reason).
-
-Yah, I will retest with 2.6.8-rc2-mm1.
-
-> > [1] 
-> > hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> > hdc: command error: error=0x54
-> > end_request: I/O error, dev hdc, sector 8
-> > Buffer I/O error on device hdc, logical block 1
+On Friday July 30, shaohua.li@intel.com wrote:
+> Hi,
+> Looks like an ACPI bug. Could you please file a bug report in
+> bugme.osdl.org, and please attach your 'acpidmp' and 'lspci -vv' output.
 > 
-> So this happens during ripping, or?
 
-During playback.  Or any poking of the drive whatsoever, actually.
+grumble-grumble.... when is there going to be an Email interface for
+bugme.osdl.org.... 
 
-There will be multiple errors on different blocks, until ultimately IDE
-times out and does an ATAPI reset.
+Using that web page is soooo klunky.  I would must rather just send
+mail to new-bug@bugme.osdl.org or whatever.
 
-> The problem with the errors like the above is that they don't
-> indicate a specific problem. I can't just look at the error and see
-> what causes it, it could be a million things.
+However, bug 3132 has the information you asked for.
 
-I know :P
-
-	Robert Love
-
-
-
-
+NeilBrown

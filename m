@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUHaLOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267852AbUHaLOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267863AbUHaLOq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 07:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUHaLOq
+	id S267852AbUHaLOm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 07:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUHaLOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 07:14:46 -0400
-Received: from mp1-smtp-1.eutelia.it ([62.94.10.161]:32731 "EHLO
-	smtp.eutelia.it") by vger.kernel.org with ESMTP id S267863AbUHaLOl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 07:14:41 -0400
-Date: Tue, 31 Aug 2004 13:15:24 +0200
-From: Luca Ferroni <fferroni@cs.unibo.it>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: linux-kernel@vger.kernel.org, miklos@szeredi.hu
-Subject: Re: Userspace file systems
-Message-Id: <20040831131524.6c26036d.fferroni@cs.unibo.it>
-In-Reply-To: <20040831090158.GC14371@thundrix.ch>
-References: <20040826044425.GL5414@waste.org>
-	<1093496948.2748.69.camel@entropy>
-	<20040826053200.GU31237@waste.org>
-	<20040826075348.GT1284@nysv.org>
-	<20040826163234.GA9047@delft.aura.cs.cmu.edu>
-	<Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>
-	<20040831033950.GA32404@zero>
-	<Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
-	<413400B6.6040807@pobox.com>
-	<20040831053055.GA8654@nietzsche.lynx.com>
-	<20040831090158.GC14371@thundrix.ch>
-Organization: Ferrlabs
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Aug 2004 07:14:42 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:6122 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S267852AbUHaLOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 07:14:39 -0400
+Message-ID: <41345D91.2050202@grupopie.com>
+Date: Tue, 31 Aug 2004 12:14:25 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: What policy for BUG_ON()?
+References: <20040830201519.GH12134@fs.tum.de> <1093897329.2870.11.camel@laptop.fenrus.com> <20040831062815.GA2312@suse.de>
+In-Reply-To: <20040831062815.GA2312@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.38; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Tue, 31 Aug 2004 11:01:58 +0200,  Tonnerre <tonnerre@thundrix.ch> ha scritto:
-
-> Uh, what about enhancing lufs code in this regard and porting all fs'es to it?
+Jens Axboe wrote:
+> On Mon, Aug 30 2004, Arjan van de Ven wrote:
 > 
+>>On Mon, 2004-08-30 at 22:15, Adrian Bunk wrote:
+>>
+>>>Let me try to summarize the different options regarding BUG_ON, 
+>>>concerning whether the argument to BUG_ON might contain side effects, 
+>>>and whether it should be allowed in some "do this only if you _really_ 
+>>>know what you are doing" situations to let BUG_ON do nothing.
+>>>
+>>>Options:
+>>>1. BUG_ON must not be defined to do nothing
+>>>1a. side effects are allowed in the argument of BUG_ON
+>>>1b. side effects are not allowed in the argument of BUG_ON
+>>>2. BUG_ON is allowed to be defined to do nothing
+>>>2a. side effects are allowed in the argument of BUG_ON
+>>>2b. side effects are not allowed in the argument of BUG_ON
+>>
+>>since you quoted me earlier my 2 cents:
+>>1) I would prefer BUG_ON() arguments to not have side effects; its just 
+>>cleaner that way. (similar to assert)
+>>
+>>2) if one wants to compiel out BUG_ON, I rather alias it to panic() than
+>>to nothing.
+> 
+> 
+> I agree completely with that.
 
-I think that porting all file systems to LUFS is a mad idea :), 
-but providing a facility in the kernel for user-space file system 
-implementations could be great.
-
-I am working on PackageFS (http://packagefs.sourceforge.net)
-which is an user-space file system to manage packages:
-it relies on LUFS, but I plan to port it soon to FUSE ( http://sourceforge.net/projects/avf)
-that, at present, is maintained by Miklos Szeredi and works with latest kernels.
-
-PackageFS relies also on existent package managers, it will be transparent to all
-package formats. I. e.: you can install a package by copying, 
-and see package informations by a simple cat.
-Now it works only in Debian distro, and it is far from complete (it is 0.09 version :) ).
-
-So, what do you think about including a kernel module to make a user able 
-to develop, install and use an user-space file system ?
-
-Maybe Miklos Szeredi will write more details about FUSE which is the interesting part
-for kernel inclusion.
-
-Bye
-Luca
+This would mean that the condition would still have to be
+tested which kind of defeats the purpose of removing the
+BUG_ON in the first place, doesn't it?
 
 -- 
------------------------------------------------
-They'll never stole us our.... FREEDOM!!!
-Luca Ferroni
-ICQ #317977679
-www.cs.unibo.it/~fferroni/
------------------------------------------------
+Paulo Marques - www.grupopie.com
+
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978

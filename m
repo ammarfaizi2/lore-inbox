@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283353AbRLDUOa>; Tue, 4 Dec 2001 15:14:30 -0500
+	id <S283368AbRLDUTE>; Tue, 4 Dec 2001 15:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283388AbRLDUNJ>; Tue, 4 Dec 2001 15:13:09 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:26562 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S283392AbRLDUMU> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:12:20 -0500
-Date: Tue, 4 Dec 2001 18:18:51 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, <hps@intermeta.de>,
-        <jgarzik@mandrakesoft.com>, <lm@bitmover.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue 
-In-Reply-To: <30026.1007335642@ocs3.intra.ocs.com.au>
-Message-ID: <20011204181546.B2674-100000@gerard>
+	id <S283393AbRLDURu>; Tue, 4 Dec 2001 15:17:50 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:23147 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283413AbRLDUQN>; Tue, 4 Dec 2001 15:16:13 -0500
+Message-ID: <3C0D2F0C.8030402@redhat.com>
+Date: Tue, 04 Dec 2001 15:16:12 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <3C0C765D.8040304@optonline.net> <3C0CFDDE.40805@redhat.com> <3C0D2EB3.9090402@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nathan Bryant wrote:
 
-On Mon, 3 Dec 2001, Keith Owens wrote:
+> Doug Ledford wrote:
+> 
+>> I fixed the clocking issue in my source.  I need more details on the 
+>> artsd problem though.  Does artsd start to work and then stop, or does 
+>> it never get around to outputting any sound?  Also, do you have any of 
+>> the debugging output turned on (it *drastically* changes the timings 
+>> in the driver and can make things that normally work fail and vice 
+>> versa)?
+> 
+> 
+> It works for a while then stops. select() works properly for a while, 
+> and then starts returning timeouts.
+> 
+> I've tried this with DEBUG both on and off, and also with 
+> DEBUG_INTERRUPTS on/off... no difference.
+> 
+> I don't see anything too interesting in DEBUG+DEBUG2 output. Select() 
+> stops working after the buffer fills up (after 4 seconds with artsd set 
+> to 256byte fragments*32) and doesn't start working again after the 
+> buffer begins to drain.
+> 
 
-> On Sun, 02 Dec 2001 15:21:57 -0800 (PST),
-> "David S. Miller" <davem@redhat.com> wrote:
-> >   From: Keith Owens <kaos@ocs.com.au>
-> >   Date: Sat, 01 Dec 2001 12:17:03 +1100
-> >
-> >   What is ugly in aic7xxx is :-
-> >
-> >You missed:
-> >
-> >* #undef's "current"
->
-> Where?  fgrep -ir current 2.4.17-pre2/drivers/scsi/aic7xxx did not find it.
+Can you try this again with the 0.07 version I put on my web site about 
+30 minutes ago?  I put code in there to (hopefully) solve this problem.
 
-What is ugly is "David S. Miller" ?
+-- 
 
-The 'Z' in the first name and the 'K' in the family name. :-)
-
-  Gérard.
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUFVJLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUFVJMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUFVJLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 05:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUFVJLT
+	id S261786AbUFVJMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 05:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUFVJMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 05:11:19 -0400
-Received: from tao.natur.cuni.cz ([195.113.56.1]:531 "EHLO tao.natur.cuni.cz")
-	by vger.kernel.org with ESMTP id S261682AbUFVJLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 05:11:16 -0400
-X-Obalka-From: mmokrejs@natur.cuni.cz
-Date: Tue, 22 Jun 2004 11:10:55 +0200 (CEST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot compile linux-2.4.27-rc1 ... ipt_REJECT.c
-In-Reply-To: <16599.20905.527283.517210@alkaid.it.uu.se>
-Message-ID: <Pine.OSF.4.51.0406221110120.311179@tao.natur.cuni.cz>
-References: <Pine.OSF.4.51.0406211343160.157782@tao.natur.cuni.cz>
- <16598.56442.254480.281844@alkaid.it.uu.se> <Pine.OSF.4.51.0406211848480.202417@tao.natur.cuni.cz>
- <16599.20905.527283.517210@alkaid.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Jun 2004 05:12:33 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:24962 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261711AbUFVJM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 05:12:27 -0400
+Date: Tue, 22 Jun 2004 10:12:19 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
+Message-ID: <20040622091219.GA32146@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, mikpe@csd.uu.se,
+	linux-kernel@vger.kernel.org
+References: <200405312218.i4VMIISg012277@harpo.it.uu.se> <20040622015311.561a73bf.akpm@osdl.org> <20040622085901.GA31971@infradead.org> <20040622020417.0ec87564.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040622020417.0ec87564.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004, Mikael Pettersson wrote:
+On Tue, Jun 22, 2004 at 02:04:17AM -0700, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > On Tue, Jun 22, 2004 at 01:53:11AM -0700, Andrew Morton wrote:
+> > > Also there should be a document or a manpage or something which describes,
+> > > in detail:
+> > > 
+> > > - the user/kernel API  (separate document, probably)
+> > 
+> > It also needs moving back to /proc/<pid>/ files from the syscall API.
+> 
+> What does this mean?
 
-Thanks, this patch helped.
-
-> Martin MOKREJ? writes:
->  > gcc -D__KERNEL__ -I/usr/src/linux-2.4.27-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=vt  -c -o vt.o vt.c
->  > vt.c: In function `do_kdsk_ioctl':
->  > vt.c:166: warning: comparison is always false due to limited range of data type
->  > vt.c: In function `do_kdgkb_ioctl':
->  > vt.c:283: warning: comparison is always false due to limited range of data type
->
-> This happens with many gcc-3.x versions, not just gcc-3.4.
-> In any case, it doesn't prevent a successful kernel build.
->
->  > gcc -D__KERNEL__ -I/usr/src/linux-2.4.27-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=highmem  -c -o highmem.o highmem.c
->  > highmem.c:133: error: conflicting types for 'kmap_high'
->  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:59: error: previous declaration of 'kmap_high' was here
->  > highmem.c:133: error: conflicting types for 'kmap_high'
->  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:59: error: previous declaration of 'kmap_high' was here
->  > highmem.c:158: error: conflicting types for 'kunmap_high'
->  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:60: error: previous declaration of 'kunmap_high' was here
->  > highmem.c:158: error: conflicting types for 'kunmap_high'
->  > /usr/src/linux-2.4.27-rc1/include/asm/highmem.h:60: error: previous declaration of 'kunmap_high' was here
->
-> This is HIGHMEM which I never tested before. The problem is yet
-> another FASTCALL/fastcall discrepancy where a function's definition
-> doesn't have the exact same attributes as its prototype.
->
-> My updated gcc340 patch fixes this problem. Get
-> <http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v2-2.4.27-rc1>
-> or simply apply the patch below on top of the previous version.
->
-> /Mikael
->
-> --- linux-2.4.27-rc1/mm/highmem.c.~1~	2003-06-14 13:30:29.000000000 +0200
-> +++ linux-2.4.27-rc1/mm/highmem.c	2004-06-21 22:42:58.000000000 +0200
-> @@ -129,7 +129,7 @@
->  	return vaddr;
->  }
->
-> -void *kmap_high(struct page *page, int nonblocking)
-> +void fastcall *kmap_high(struct page *page, int nonblocking)
->  {
->  	unsigned long vaddr;
->
-> @@ -154,7 +154,7 @@
->  	return (void*) vaddr;
->  }
->
-> -void kunmap_high(struct page *page)
-> +void fastcall kunmap_high(struct page *page)
->  {
->  	unsigned long vaddr;
->  	unsigned long nr;
->
-
--- 
-Martin Mokrejs
-GPG key is at http://www.natur.cuni.cz/~mmokrejs
+Early version of perfctr used files in /proc/<pid>/ for controlling perfctr
+instead of the syscalls, and indeed that's a much better fit for most of them.
+Let's ressurect that code instead of doing the syscall approach.

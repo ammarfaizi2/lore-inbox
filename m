@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269628AbRHMAt3>; Sun, 12 Aug 2001 20:49:29 -0400
+	id <S269632AbRHMAy3>; Sun, 12 Aug 2001 20:54:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269621AbRHMAtS>; Sun, 12 Aug 2001 20:49:18 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:38047 "EHLO
-	inet-mail4.oraclecorp.com") by vger.kernel.org with ESMTP
-	id <S269633AbRHMAtP>; Sun, 12 Aug 2001 20:49:15 -0400
-Message-ID: <3B772491.3E33C5CF@oracle.com>
-Date: Mon, 13 Aug 2001 02:51:30 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-pre1 unresolved symbols in fat.o/smbfs.o
-In-Reply-To: <Pine.LNX.4.33.0108121735510.1228-100000@penguin.transmeta.com>
+	id <S269631AbRHMAyU>; Sun, 12 Aug 2001 20:54:20 -0400
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:40579 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S269621AbRHMAyM>; Sun, 12 Aug 2001 20:54:12 -0400
+Message-ID: <XFMail.20010812205406.f.duncan.m.haldane@worldnet.att.net>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Sun, 12 Aug 2001 20:54:06 -0400 (EDT)
+From: f.duncan.m.haldane@worldnet.att.net
+To: linux-kernel@vger.kernel.org
+Subject: PCI spec question/possible VIA quirk?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 13 Aug 2001, Alan Cox wrote:
-> >
-> > Oops my fault. My kernel/ksyms goes
-> >
-> > EXPORT_SYMBOL(vfs_unlink);
-> > EXPORT_SYMBOL(vfs_rename);
-> > EXPORT_SYMBOL(vfs_statfs);
-> > EXPORT_SYMBOL(generic_file_llseek);
-> > EXPORT_SYMBOL(generic_read_dir);
-> > EXPORT_SYMBOL(__pollwait);
-> > EXPORT_SYMBOL(poll_freewait);
-> >
-> > If you edit yours and drop that line in then rebuild from clean all should
-> > be well
-> 
-> Hmm.. You should probably also add "no_llseek" there..
+Hi, 
 
-Don't know about that, but Alan's suggested fix is enough for
- a clean 2.4.9-pre1 build here. Thanks,
+Can anyone tell me what the PCI specs say config registers 0x2c:0x2f 
+should contain? 
 
---alessandro
+------------------------lspci -x says:------------------------------
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00: 06 11 05 83 07 00 30 22 00 00 04 06 00 00 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 00 f0 00 00 00
+20: 00 f6 f0 f7 00 fc f0 fd 00 00 00 00 43 10 2f 80 <====== Here!
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0c 00
+---------------------------------------------------------------------
 
- "this is no time to get cute, it's a mad dog's promenade
-  so walk tall, or baby don't walk at all"
-                (Bruce Springsteen, 'New York City Serenade')
+In drivers/pci/pci.c (all 2.4.x kernels) pci_read_bridge_bases() 
+is reading "mem_limit_hi" from them.  
+(PCI_PREF_LIMIT_UPPER32 = 0x2c in pci.h) 
+
+This seems to need to be 00 00 00 00 for the pci setup to work 
+properly.  A non-zero value leads to the error:
+
+"PCI: Unable to handle 64-bit address space for %s\n"
+
+(Hacking in a line that resets mem_limit_hi to 0 seems to make 
+everything work fine; without it the AGP card doesnt get set up 
+correctly for accelerated modes)
+
+Are the strange values in these registers maybe a VIA quirk?
+(most of the pci devices have such values.)  
+
+Any suggestions would be appreciated!
+
+Duncan Haldane
+(please cc: any reply to me)
+
+----------------------------------
+E-Mail: f.duncan.m.haldane@worldnet.att.net
+Date: 12-Aug-2001
+Time: 20:46:29
+
+This message was sent by XFMail
+----------------------------------

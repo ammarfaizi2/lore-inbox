@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbUJZDUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUJZEIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbUJZDUU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 23:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUJZCxh
+	id S262085AbUJZEIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbUJZEIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 22:53:37 -0400
-Received: from mproxy.gmail.com ([216.239.56.245]:2550 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261998AbUJZCgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 22:36:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=nTTpNlz1Wco7Mx+k313jMdetNxfhtakXX47YxTsSgU7ZZpPW5zwk7osTNOOpznxOyj7z/JTe7S3AmDBm9ou4ZPKNlvLZ/gEIZ16C4gMScIofdhxaujVH4E+p6xz4gC7gBXZLpHOYh1QVhzmTg/zekY2jmWjs5xhK9ciJqRURy+g=
-Message-ID: <21d7e997041025193640d0c351@mail.gmail.com>
-Date: Tue, 26 Oct 2004 12:36:52 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Kendall Bennett <kendallb@scitechsoft.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4177ABC9.24323.20E9CA71@localhost>
+	Tue, 26 Oct 2004 00:08:19 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:60555 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S262085AbUJZEDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 00:03:39 -0400
+Date: Tue, 26 Oct 2004 06:04:29 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-ID: <20041026040429.GW14325@dualathlon.random>
+References: <20041025170128.GF14325@dualathlon.random> <Pine.LNX.4.44.0410252147330.30224-100000@chimarrao.boston.redhat.com> <20041026015825.GU14325@dualathlon.random> <417DC8F2.7000902@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4176E08B.2050706@techsource.com>
-	 <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com>
-	 <4177ABC9.24323.20E9CA71@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417DC8F2.7000902@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wrong. Companies *have* tried to go down the Open Source route and it did
-> not work out for them. ATI in particular. At one point ATI released all
-> the register level information and in fact released sample 3D driver
-> source code to the community for the early Radeon chipsets. Unfortunately
-> the Linux and Open Source community never stepped up to the plate to
-> support ATI in this effort. There are solid business reasons that ATI has
-> explained to me for why ATI decided to give up on the Open Source
-> approach and go back to proprietary 3D drivers for Linux.
+On Tue, Oct 26, 2004 at 01:48:02PM +1000, Nick Piggin wrote:
+> I see classzone_idx snuck in, can we leave that as alloc_type please?
 
-That's crap, the community did step up, the Weather Channel paid for
-the r200 drivers we have now, ATI's register information was far short
-of complete, I have the full stack of it here and it doesn't allow a
-proper implementation of any of the "cool" features, i.e. hyper-z,
-programmable hardware, so how could open source driver be as good if
-they info they give is substandard.....  to be honest if a company
-wants to do open source drivers for their cards they should support
-it, with people, they didn't try at all,
+when I wrote that code in 2.4 it was called class_idx. Just to show it
+was not an opaque type, in this 2.6 I called it classzone_idx but it's
+the same as class_idx. If you feel classzone_idx is too long I'm sure
+fine to rename to class_idx like plain 2.4.
 
-they can try and hide behind it was the communitys fault all they
-want, but it's crap I'd rather you didn't spread around here....
+The reason I renamed it is that alloc_type tells nothing to who's
+reading the code. That value in the opaque "alloc_type" variable, is
+really the classzone_idx that identify the classzone we have to allocate
+memory from. Classzone 2 means "all ram is good", classzone 2 means
+"zone-normal + zone-dma is good", classzone 0 means "zone-dma is good".
 
-> For 2D they continue to maintain XFree86/X.org drivers with full source
-> code for the community, just not 3D.
+alloc_type means very very little to me, calling it with a meaningful
+name made the code more readable for me. gfp_mask describes other alloc
+types as well that are not less singificant than the classzone_idx, so I
+don't see why we should go back to the opaque variable name when we can
+have a more descriptive one.
 
-and the difference is?? their current 3D closed source drivers are
-crap they know it, the community knows it, if they had open sourced a
-completed driver 6-8mths ago, it would now work with X 6.8.1, Linux
-2.6.9, powerpc, x86-64 and may even support doom3, and they wouldn't
-have to had done anything for that, these big companies have to meet
-the community half way, give us a complete working x86 driver for an
-up-to-date X and someone will probably be interested in keeping it
-running until the end of time... look at the (r300.sf.net to see how
-much effort some people are willing to put into reverse engineering
-the r300 3d parts...)
+I'm not going to nitpick further on this detail though, all I care about
+is the asm generated and not breaking ABIs with userspace (i.e. at least
+one forced rename to the sysctl).
 
-ATI and Nvidia not open-sourcing 3D stuff for one simple reason, IP
-issues. It is also why Intel are not even giving out their later
-chipsets docs to anyone by Tungsten, if anyone tells you differently
-send them to me :-)
-
-Dave.
+thanks for the review!

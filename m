@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbULFMZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbULFMbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbULFMZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 07:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbULFMZh
+	id S261511AbULFMbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 07:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbULFMbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 07:25:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:12469 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261508AbULFMZT (ORCPT
+	Mon, 6 Dec 2004 07:31:32 -0500
+Received: from mail.gmx.de ([213.165.64.20]:21400 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261511AbULFMb3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 07:25:19 -0500
-Date: Mon, 6 Dec 2004 13:24:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Robert Love <rml@novell.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Con Kolivas <kernel@kolivas.org>, Jeff Sipek <jeffpc@optonline.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	Mon, 6 Dec 2004 07:31:29 -0500
+X-Authenticated: #4512188
+Message-ID: <41B45134.4040005@gmx.de>
+Date: Mon, 06 Dec 2004 13:31:48 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041203)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH] Time sliced CFQ #2
-Message-ID: <20041206122444.GW10498@suse.de>
-References: <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net> <41B3BD0F.6010008@kolivas.org> <20041206022338.GA5472@optonline.net> <41B3C54B.1080803@kolivas.org> <CED75073-4743-11D9-9115-000393ACC76E@mac.com> <1102310049.6052.123.camel@localhost> <20041206071923.GC10498@suse.de> <41B44E03.8090007@hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41B44E03.8090007@hist.no>
+References: <20041204104921.GC10449@suse.de> <41B426D4.6080506@gmx.de> <20041206093517.GJ10498@suse.de>
+In-Reply-To: <20041206093517.GJ10498@suse.de>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7B1795286C3EB8E68617F26D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06 2004, Helge Hafting wrote:
-> Jens Axboe wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7B1795286C3EB8E68617F26D
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jens Axboe schrieb:
+> On Mon, Dec 06 2004, Prakash K. Cheemplavam wrote:
 > 
-> >On Mon, Dec 06 2004, Robert Love wrote:
-> > 
-> >
-> >>
-> >>	(1) separate the two values.  we have a scheduling
-> >>	    priority (distributing the finite resource of
-> >>	    processor time) and an I/O priority (distributing
-> >>	    the finite resource of disk bandwidth).
-> >>	(2) just have a single value.
-> >>   
-> >>
-> >
-> >They are inherently seperate entities, I don't think mixing them up is a
-> >good idea. IO priorities also includes things like attempting to
-> >guarentee disk bandwidth, it isn't always just a 'nice' value.
-> > 
-> >
-> Two separate entities is fine.  Those who want just one
-> entity can use a "nice wrapper" that sets both
-> simultaneously.
+>>Hi,
+>>
+>>this one crapped out on me, while having heavy disk activity. (updating 
+>> gentoo portage tree - rebuilding metadata of it). Unfortunately I 
+>>couldn't save the oops, as I had no hd access anymore and X would freeze 
+>>a little later...(and I don't want to risk my data a second time...)
+> 
+> 
+> Did you save anything at all? Just the function of the EIP would be
+> better than nothing.
 
-Did you happen to catch any info out of the crash?
+Nope, sorry. I hoped it would be in the logs, but it seems as new cfq 
+went havoc, hd access went dead. And I was a bit too nervous about my 
+data so that I didn't write it down by hand...
 
--- 
-Jens Axboe
+> Well hard to say anything qualified without an oops :/
+> 
+> I'll try with PREEMPT here.
 
+If you are not able to reproduce, I will try it again on a spare 
+partition... Should access to zip drive stil be possible if hd's 
+io-scheduler is dead?
+
+Prakash
+
+
+--------------enig7B1795286C3EB8E68617F26D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBtFE0xU2n/+9+t5gRAthvAKDlRszC0xEMG+o/SARKj+sVkRRhtwCfbdf4
+3B+HxBHIlzWTp4bT+LQ05+E=
+=w29E
+-----END PGP SIGNATURE-----
+
+--------------enig7B1795286C3EB8E68617F26D--

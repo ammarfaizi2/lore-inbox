@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUGTF7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUGTGBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUGTF7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 01:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUGTF7k
+	id S265681AbUGTGBp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 02:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUGTGBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 01:59:40 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62436 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265668AbUGTF7j (ORCPT
+	Tue, 20 Jul 2004 02:01:44 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:29675 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265681AbUGTGBa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 01:59:39 -0400
-Date: Tue, 20 Jul 2004 08:01:04 +0200
+	Tue, 20 Jul 2004 02:01:30 -0400
+Date: Tue, 20 Jul 2004 08:02:20 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: davidm@hpl.hp.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] NX: clean up legacy binary support, 2.6.8-rc2
-Message-ID: <20040720060104.GA27118@elte.hu>
-References: <20040718084406.GA4766@elte.hu> <16636.17877.90080.590149@napali.hpl.hp.com>
+To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt 2.6.8-rc2-H4
+Message-ID: <20040720060220.GB27118@elte.hu>
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710075747.GA25052@elte.hu> <2a4f155d040710011041a95210@mail.gmail.com> <20040710082846.GA29275@elte.hu> <20040719103637.GA8924@elte.hu> <40FC7778.2070909@hispalinux.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <16636.17877.90080.590149@napali.hpl.hp.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40FC7778.2070909@hispalinux.es>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,15 +33,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* David Mosberger <davidm@napali.hpl.hp.com> wrote:
+* Ramón Rey Vicente <ramon.rey@hispalinux.es> wrote:
 
-> This looks better, but is still insufficient.  Remember: on some
-> platforms, you'll want to support READ_IMPLIES_EXEC differently
-> depending on personality (e.g, native binary vs. x86 binary).
+> With 2.6.8-rc2 I get this with loop module
+> 
+> 	loop: Unknown symbol voluntary_resched
 
-> -#define LEGACY_BINARIES
-> +#define elf_read_implies_exec_binary(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
+ok, just add this to kernel/sched.c:
 
-sure, looks good to me.
+	EXPORT_SYMBOL(voluntary_resched);
+
+i'll update the patch.
 
 	Ingo

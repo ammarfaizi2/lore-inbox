@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261442AbTCJUui>; Mon, 10 Mar 2003 15:50:38 -0500
+	id <S261435AbTCJUqB>; Mon, 10 Mar 2003 15:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbTCJUuh>; Mon, 10 Mar 2003 15:50:37 -0500
-Received: from ns.suse.de ([213.95.15.193]:28167 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261442AbTCJUuh>;
-	Mon, 10 Mar 2003 15:50:37 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic thread_info->status  field.
-References: <20030310.105659.57012503.davem@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0303101119220.2240-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Mar 2003 22:01:17 +0100
-In-Reply-To: Linus Torvalds's message of "10 Mar 2003 20:32:59 +0100"
-Message-ID: <p737kb7542q.fsf@amdsimf.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S261442AbTCJUqB>; Mon, 10 Mar 2003 15:46:01 -0500
+Received: from ns.splentec.com ([209.47.35.194]:57350 "EHLO pepsi.splentec.com")
+	by vger.kernel.org with ESMTP id <S261435AbTCJUqA>;
+	Mon, 10 Mar 2003 15:46:00 -0500
+Message-ID: <3E6CFC04.7000401@splentec.com>
+Date: Mon, 10 Mar 2003 15:56:36 -0500
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] coding style addendum
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Someone may find this helpful and descriptive of how kernel code
+should be developed.
 
-> (Now, in _practice_ all processes on the machine tends to use the same
-> rounding and exception control, so the "random" state wasn't actually very
-> random, and would not lead to problems. It's a security issue, though).
+--- linux-2.5.64/Documentation/CodingStyle.orig	2003-03-10 11:23:46.000000000 -0500
++++ linux-2.5.64/Documentation/CodingStyle	2003-03-10 11:37:18.000000000 -0500
+@@ -1,3 +1,4 @@
++Updated: Mon Mar 10 16:34:35 UTC 2003
 
-Oh it does. Together with Marcus Meissner I just tracked down a 32bit
-emulation problem on x86-64 with Wine today. The program running in
-Wine would randomly crash on a flds with an floating point exception.  
+  		Linux kernel coding style
 
-Turned out the 32bit ptrace unlazy FPU path shared two lines too many
-with with the 32bit signal FPU saving path and was resetting the
-used_fpu flag. Result was that the FPU state of the child could be
-reinitialized in some circumstances on ptrace accesses.  Wine actually
-does use ptrace between the Wine server and the emulated process for
-some complicated calls. It did one unlucky ptrace and then the FPCR was
-at the linux defaults again - program crashed.
+@@ -264,3 +265,26 @@
 
--Andi
+  Remember: if another thread can find your data structure, and you don't
+  have a reference count on it, you almost certainly have a bug.
++
++
++		Chapter 9: Organization
++
++Writing efficient code is important in both complexity and
++implementation.  In other words your code organization should NOT be
++too complex to understand.  Complexity directly depends on the choice
++of data representation and code organization.  To help you stay in
++line, here are a few guidelines to follow:
++
++      Modularize.
++      Use subroutines.
++      Each subroutine/module should do one thing well.
++      Make sure every module/subroutine hides something.
++      Localize input and output in subroutines.
++
++And the most important:
++
++    Choose the data representation that makes the program simple.
++
++
++			      ----------
++
+

@@ -1,41 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUJKV3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269260AbUJKVbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUJKV3G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 17:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJKV3G
+	id S269260AbUJKVbO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 17:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269262AbUJKVbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 17:29:06 -0400
-Received: from hacksaw.org ([66.92.70.107]:62643 "EHLO hacksaw.org")
-	by vger.kernel.org with ESMTP id S269257AbUJKV3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 17:29:04 -0400
-Message-Id: <200410112128.i9BLSaF1007782@hacksaw.org>
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev: what's up with old /dev ? 
-In-reply-to: Your message of "Mon, 11 Oct 2004 22:51:44 +0200."
-             <58cb370e04101113512d569a6d@mail.gmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 11 Oct 2004 17:28:36 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	Mon, 11 Oct 2004 17:31:13 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:6228 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S269260AbUJKVbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 17:31:07 -0400
+Date: Mon, 11 Oct 2004 23:30:59 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Antonino Daplas <adaplas@pol.net>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] FrameMaster II build fix (was: Re: Linux 2.6.9-rc2)
+In-Reply-To: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0410112328340.11223@anakin>
+References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What if kernel image is hosed instead?
+On Mon, 13 Sep 2004, Linus Torvalds wrote:
+> Summary of changes from v2.6.9-rc1 to v2.6.9-rc2
+> ============================================
+> 
+> Antonino Daplas:
+>   o fbdev: Add module_init() and fb_get_options() per driver
 
-Well, there's only so far we can go. If the alternator on a car is bad, we can 
-run on the battery for a little bit to get to the auto parts store. If the 
-engine is cracked, we're going to need an engine hoist and a good mechanic. :-)
+To: linus, akpm
+Cc: lkml
+Subject: [PATCH] FrameMaster II build fix
 
->Having corrupted initrd is not so diffirent from having corrupted kernel
->image and usually they are both located on the same medium...
+fm2fb: Trivial fix for the breakage introduced by the addition of
+fb_get_options() in 2.6.9-rc2.
 
-The hosing I am imagining is one done by the fat fingers of the sys-admin, not 
-so much because of disk corruption.
--- 
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
+--- linux-2.6.9-rc4/drivers/video/fm2fb.c	2004-09-30 12:53:50.000000000 +0200
++++ linux-m68k-2.6.9-rc4/drivers/video/fm2fb.c	2004-10-11 23:06:38.000000000 +0200
+@@ -292,18 +292,7 @@ static int __devinit fm2fb_probe(struct 
+ 	return 0;
+ }
+ 
+-int __init fm2fb_setup(char *options);
+-
+-int __init fm2fb_init(void)
+-{
+-	char *option = NULL;
+-
+-	if (fb_get_options("fm2fb", &option))
+-		return -ENODEV;
+-	fm2fb_setup(option);
+-	return zorro_register_driver(&fm2fb_driver);
+-}
+-
++int __init fm2fb_setup(char *options)
+ {
+ 	char *this_opt;
+ 
+@@ -319,5 +308,15 @@ int __init fm2fb_init(void)
+ 	return 0;
+ }
+ 
++int __init fm2fb_init(void)
++{
++	char *option = NULL;
++
++	if (fb_get_options("fm2fb", &option))
++		return -ENODEV;
++	fm2fb_setup(option);
++	return zorro_register_driver(&fm2fb_driver);
++}
++
+ module_init(fm2fb_init);
+ MODULE_LICENSE("GPL");
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

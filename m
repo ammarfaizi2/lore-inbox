@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316851AbSE1Rb2>; Tue, 28 May 2002 13:31:28 -0400
+	id <S316856AbSE1RcK>; Tue, 28 May 2002 13:32:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSE1Rb1>; Tue, 28 May 2002 13:31:27 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:25618 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316851AbSE1Rb1>; Tue, 28 May 2002 13:31:27 -0400
-Date: Tue, 28 May 2002 10:31:04 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: A Guy Called Tyketto <tyketto@wizard.com>, Dave Jones <davej@suse.de>,
+	id <S316858AbSE1RcJ>; Tue, 28 May 2002 13:32:09 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13310 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316856AbSE1RcG>;
+	Tue, 28 May 2002 13:32:06 -0400
+Date: Tue, 28 May 2002 12:31:07 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Michael Sinz <msinz@wgate.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.18-dj1
-In-Reply-To: <20020526090046.A32058@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205281030250.16297-100000@www.transvirtual.com>
+Subject: Re: [RFC] POSIX personality
+Message-ID: <66450000.1022607067@baldur.austin.ibm.com>
+In-Reply-To: <3CF3BDC4.8030401@wgate.com>
+X-Mailer: Mulberry/2.2.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> --- orig/drivers/video/fbcmap.c	Fri May  3 11:12:44 2002
-> +++ linux/drivers/video/fbcmap.c	Fri May 10 19:39:38 2002
-> @@ -150,9 +150,9 @@
->      else
->  	tooff = from->start-to->start;
->      size = to->len-tooff;
-> -    if (size > from->len-fromoff)
-> +    if (size > (int)(from->len-fromoff))
->  	size = from->len-fromoff;
-> -    if (size < 0)
-> +    if (size <= 0)
->  	return;
->      size *= sizeof(u16);
+--On Tuesday, May 28, 2002 01:26:28 PM -0400 Michael Sinz <msinz@wgate.com>
+wrote:
 
-I going to push the fix very soon to linus. I have a bunch of new updates. 
+>> I've been thinking along those lines myself.  At this point I'd suggest
+>> we implement them as separate, then if in the future no one ever uses
+>> them separately we can consider combining them.  I know this can raise
+>> some backward compatibility issues but in theory if anyone cares we
+>> wouldn't do it.
+> 
+> I would be worried about the future compatibility here.  It would be
+> easier to be compatible to start with a single bit and then add
+> individual bits for those features that need to be broken out when it is
+> know to be needed. Folding the bits back in is not as easy as you now
+> have to still support the individual but yet unneeded.
 
+That's a good point.  But at this point I don't see any items where we can
+say up front that everyone will want all or none of them.  I suspect we'll
+just have to live with them as separate flags.
+
+Dave
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

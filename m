@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbUDIKXI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 06:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUDIKXI
+	id S261162AbUDIK1s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 06:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbUDIK1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 06:23:08 -0400
-Received: from smtp05.web.de ([217.72.192.209]:26509 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261161AbUDIKXG (ORCPT
+	Fri, 9 Apr 2004 06:27:48 -0400
+Received: from gprs214-56.eurotel.cz ([160.218.214.56]:41089 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261162AbUDIK1r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 06:23:06 -0400
-Message-ID: <40767997.7070908@web.de>
-Date: Fri, 09 Apr 2004 12:23:19 +0200
-From: Marcus Hartig <m.f.h@web.de>
-Organization: Linux of Borgs
-User-Agent: Mozilla Thunderbird 0.5+ (X11/20040323)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.6.5-aa5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Apr 2004 06:27:47 -0400
+Date: Fri, 9 Apr 2004 12:27:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Terhechte <ct@fdk-berlin.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: powernow-k8: broken PSB
+Message-ID: <20040409102730.GA13827@elf.ucw.cz>
+References: <1080917249.7252.13.camel@asahi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080917249.7252.13.camel@asahi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Changelog diff between 2.6.5-aa4 and 2.6.5-aa5:
+Hi!
 
-But its aa4, yet. ;-)
+> I'm running Gentoo Linux on an Athlon 64 system (board is Asus 8KV SE
+> Deluxe). I was getting the "BIOS error - no PSB" message when trying to
+> "modprobe powernow-k8", so I upgraded to 2.6.5-rc3-mm4 which includes
+> Pavel Machek's new powernow-k8 driver. Theoretically, it should be
+> getting tables through ACPI and ignore the legacy PST/PSB tables, but
+> I'm still getting the same error as before and inserting powernow-k8
+> fails with this message:
+> 
+> FATAL: Error inserting powernow_k8
+> (/lib/modules/2.6.5-rc3-mm4/kernel/arch/x86_64/cpufreq/powernow-k8.ko):
+> No such device
 
-+EXTRAVERSION =-aa4
-
-I will do today latency tests with this aa5, mc3 (with cfq and antic. 
-scheduler) and the vanilla 2.6.5 kernel with latencytest-0.5.2 from
-http://www.alsa-project.org/~iwai/alsa.html#LatencyTest
-
-I love after the stress test browsing the graphical output with firefox. :-)
-
-best regards,
-Marcus
+Try putting it directly into kernel.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbUCOWoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbUCOWoH
+	id S262766AbUCOWuN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbUCOWrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:44:07 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:4321 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262839AbUCOWlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 17:41:47 -0500
-Date: Mon, 15 Mar 2004 22:41:17 +0000
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@tux.tmfweb.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] P4 HT cpufreq driver doesn't share governor/frequency between siblings
-Message-ID: <20040315224117.GD19555@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, linux-kernel@tux.tmfweb.nl,
-	linux-kernel@vger.kernel.org
-References: <20040315223358.GA29527@mail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315223358.GA29527@mail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Mar 2004 17:47:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35502 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262839AbUCOWpJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 17:45:09 -0500
+Message-ID: <405631DF.1040904@pobox.com>
+Date: Mon, 15 Mar 2004 17:44:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jouni Malinen <jkmaline@cc.hut.fi>,
+       James Ketrenos <jketreno@linux.co.intel.com>, jt@hpl.hp.com,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
+References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com> <404FA6AC.7040009@linux.co.intel.com> <20040311023141.GB3738@jm.kir.nu> <404FD23C.4020205@pobox.com> <20040315221826.GA305@elf.ucw.cz>
+In-Reply-To: <20040315221826.GA305@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 11:33:58PM +0100, rutger@mail.com wrote:
- > Small bugreport, Pentium 4 Hyper-Threaded with SMP kernel (2.6.4-bk
- > from Mar 11) and p4-clockmod module loaded, gives:
- > 
- > # cd /sys/devices/system/cpu
- > # cat cpu*/cpufreq/scaling_governor 
- > performance
- > performance
- > # echo powersave > cpu1/cpufreq/scaling_governor 
- > # cat cpu*/cpufreq/scaling_governor
- > performance
- > powersave
- > 
- > Shouldn't the cpufreq driver be shared between the siblings?
+Pavel Machek wrote:
+> Can we have net/wifi? 802_11 looks ugly. 802.11 would be better, but
+> wifi seems best.
 
-Theoretically, as split-cores become more advanced, we will be able
-to save power on unused cores.  With the current P4's I'll bet it
-makes little to no difference at all.
+That's fine, I'm not picky about it...
 
-		Dave
+	Jeff
+
+
 

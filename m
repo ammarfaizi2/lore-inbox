@@ -1,27 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVBWUKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVBWUNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVBWUKP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVBWUKN
+	id S261562AbVBWUNL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVBWUNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:10:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:24723 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261547AbVBWUJz (ORCPT
+	Wed, 23 Feb 2005 15:13:11 -0500
+Received: from fire.osdl.org ([65.172.181.4]:63379 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261562AbVBWUM1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:09:55 -0500
-Date: Wed, 23 Feb 2005 12:09:28 -0800
+	Wed, 23 Feb 2005 15:12:27 -0500
+Date: Wed, 23 Feb 2005 12:12:07 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: zensonic@zensonic.dk (Thomas S. Iversen)
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Help tracking down problem --- endless loop in
- __find_get_block_slow
-Message-Id: <20050223120928.133778a4.akpm@osdl.org>
-In-Reply-To: <20050223130251.GA31851@zensonic.dk>
-References: <4219BC1A.1060007@zensonic.dk>
-	<20050222011821.2a917859.akpm@osdl.org>
-	<20050223120013.GA28169@zensonic.dk>
-	<20050223041036.5f5df2ff.akpm@osdl.org>
-	<20050223130251.GA31851@zensonic.dk>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
+Message-Id: <20050223121207.412c7eeb.akpm@osdl.org>
+In-Reply-To: <421C7FC2.1090402@aitel.hist.no>
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	<421C7FC2.1090402@aitel.hist.no>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,32 +25,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zensonic@zensonic.dk (Thomas S. Iversen) wrote:
+Helge Hafting <helge.hafting@aitel.hist.no> wrote:
 >
-> > OK, so we're looking for the buffer_head for block 101 and the first
-> > buffer_head which is attached to the page represents block 100.  So the
-> > next buffer_head _should_ represent block 101.  Please print it out:
+> This kernel came up, but my boot script complained about no /dev/hdb3
+>  when trying to mount /var.
+>  (I have two IDE disks on the same cable, and an IDE cdrom on another.)
+>  They are usually hda, hdb, and hdc.
 > 
-> Not quite the same, but simelar:
+>  MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
+>  /dev/hdq1 is at major:3 minor:1025 if I interpret things right. 
+>  (/dev/hda1 is at 3:1, which is correct.)
+>  These numbers did not work with my mknod, it created 7:1 instead.
+>  So I didn't get to test this mysterious device.
 > 
-> Feb 23 14:50:24 localhost kernel: __find_get_block_slow() failed. block=102,
-> b_blocknr=128, next=129
-> Feb 23 14:50:24 localhost kernel: b_state=0x00000013, b_size=2048
-> Feb 23 14:50:24 localhost kernel: device blocksize: 2048
-> Feb 23 14:50:24 localhost kernel: ------------[ cut here ]------------
+>  But I assume this is a mistake of some sort, I haven't heard about any
+>  change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
+> 
+>  It may be interesting to note that my root raid-1 came up fine,
+>  consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
 
-Something has caused the page at offset 51 (block 102) to have buffer_heads
-for blocks 128 and 129 attached to it.
+I don't know what could be causing that.  Please send .config.  If you set
+CONFIG_BASE_FULL=n, try setting it to `y'.
 
-> > Could be UFS.  But what does "transparent block encryption and sector
-> > shuffling" mean?  How is the sector shuffling implemented?
-> 
-> GDBE is a block level encrypter. It encrypts the actual sectors
-> transparently via the GEOM API (corresponds to the devicemapper api in linux).
-> 
-> GBDE assigns a key for each block, thereby introducing keysectors.
-> Furthermore the sectors are remapped so that one can not guess where e.g.
-> metadata is located on the physical disk. It is a rather simple remap:
-
-I'd be suspecting that the sector remapping is the cause of the problem. 
-How is it implemented?

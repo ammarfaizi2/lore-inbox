@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268065AbTAJAID>; Thu, 9 Jan 2003 19:08:03 -0500
+	id <S268057AbTAJAEH>; Thu, 9 Jan 2003 19:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268058AbTAJAID>; Thu, 9 Jan 2003 19:08:03 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46032 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268066AbTAJAIB> convert rfc822-to-8bit; Thu, 9 Jan 2003 19:08:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: John Bradford <john@grabjohn.com>
-Subject: Re: detecting hyperthreading in linux 2.4.19
-Date: Thu, 9 Jan 2003 16:16:14 -0800
-User-Agent: KMail/1.4.3
-Cc: lunz@falooley.org, linux-kernel@vger.kernel.org
-References: <200301092154.h09Ls5SX005123@darkstar.example.net>
-In-Reply-To: <200301092154.h09Ls5SX005123@darkstar.example.net>
+	id <S268058AbTAJAEG>; Thu, 9 Jan 2003 19:04:06 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:29811 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S268057AbTAJAEE>; Thu, 9 Jan 2003 19:04:04 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
+To: <rms@gnu.org>
+Cc: <mark@mark.mielke.cc>, <lm@bitmover.com>, <linux-kernel@vger.kernel.org>,
+       <paul@clubi.ie>, <riel@conectiva.com.br>, <billh@gnuppy.monkey.org>
+Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
+Date: Thu, 9 Jan 2003 18:12:34 -0600
+Message-ID: <014901c2b83c$fa1fc5d0$0200a8c0@wsl3>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301091616.14195.jamesclv@us.ibm.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <E18WlrH-0000NO-00@fencepost.gnu.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 January 2003 01:54 pm, John Bradford wrote:
-> > > Is there a way for a userspace program running on linux 2.4.19 to tell
-> > > the difference between a single hyperthreaded xeon P4 with HT enabled
-> > > and a dual hyperthreaded xeon P4 with HT disabled? The /proc/cpuinfos
-> > > for the two cases are indistinguishable.
-> >
-> > I don't know of any way to do this in userland.  The whole point is that
-> > the sibling processors are supposed to look like real ones.
-> >
-> > You _could_ try running two processes simultaneously in tight spin loops
-> > for 100 million cycles and comparing the amount of real time consumed. 
-> > That would be rather unreliable and kludgey though.
->
-> If /proc/interrupts shows a processor is handling interrupts then it
-> is definitely a 'real' one.  If it isn't handling interrupts, it may
-> or may not be a 'real' one.  That's another unreliable and kludgey way
-> to tell the difference :-).
->
-> John.
-> -
+Double Plus Good Richard, Double Plus Good.
 
-Not quite.  The "logical" or "sibling" processor has its own local APIC.  This 
-is necessary to send it the Startup IPI and soft IPIs while the system is 
-running.
+"Withers, however, was already an unperson. He did not exist: he had never
+existed." -- George Orwell's 1984
 
-However, it is a full function APIC and can receive I/O interrupts.  I have 
-seen this happen many times.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
+Sent: Thursday, January 09, 2003 5:13 PM
+To: billh@gnuppy.monkey.org
+Cc: mark@mark.mielke.cc; lm@bitmover.com; linux-kernel@vger.kernel.org;
+paul@clubi.ie; riel@conectiva.com.br; billh@gnuppy.monkey.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source
+drivers?
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+
+There is no such thing as an open source community.  The people who
+founded the open source movement in 1998, and the people who support
+it now, are part of the free software community.  (We in the free
+software movement built the community in the 80s with our determined
+effort.)
 

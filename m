@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUKBVcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUKBVj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUKBVcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUKBVb5
+	id S261412AbUKBVj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUKBVjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:31:57 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:38295 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261976AbUKBVbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:31:07 -0500
-Message-Id: <200411022126.iA2LQIq17357@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Theurer'" <habanero@us.ibm.com>, <kernel@kolivas.org>,
-       <ricklind@us.ibm.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC][PATCH] sched: aggressive idle balance
-Date: Tue, 2 Nov 2004 13:29:52 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcTBGQamiIpc72EvSHmRPO0laO+SkAACaPqQ
-In-Reply-To: <200411021416.38119.habanero@us.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 2 Nov 2004 16:39:13 -0500
+Received: from pat.uio.no ([129.240.130.16]:27342 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262214AbUKBViW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:38:22 -0500
+Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Brad Campbell <brad@wasp.net.au>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4187F69E.9020604@drdos.com>
+References: <41877751.502@wasp.net.au>
+	 <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com>
+	 <4187F69E.9020604@drdos.com>
+Content-Type: text/plain
+Date: Tue, 02 Nov 2004 13:37:57 -0800
+Message-Id: <1099431477.7854.21.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
+	RCVD_NUMERIC_HELO 0.33)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Theurer wrote on Tuesday, November 02, 2004 12:17 PM
->
-> So far we have seen 3-5% with these patches on online transaction workolads
-> and no regressions on SDET.  Kenneth, I am particularly interested in using
-> this with your increased cache_hot_time value, where you got your best
-> throughput:
->
-> ...but still had idle time.  Do you think you could try these patches with
-> your 25ms cache_hot_time?  I think your workload could benefit from both the
-> longer cache_hot_time for busy cpus, but more aggressive idle balances,
-> hopefully driving your workload to 100% cpu utilization.
+ty den 02.11.2004 Klokka 14:05 (-0700) skreiv Jeff V. Merkey:
+> >
+> I am seeing severe nfs problems between kernels again, 2.4 - > 2.6 -> 
+> 2.4 V3 and V4 problems connecting and filesize mismatches between
+> actual/reported. Might point to where the bug is.
 
-Looks interesting, I will queue this up on our benchmark setup.
+Nope. I'm not seeing that at all (besides, that is entirely unrelated to
+ESTALE errors).
 
-- Ken
+Mind telling us how to reproduce the problem?
 
+Cheers,
+  Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

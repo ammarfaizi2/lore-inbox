@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130343AbQK3Wsk>; Thu, 30 Nov 2000 17:48:40 -0500
+	id <S129183AbQK3W6E>; Thu, 30 Nov 2000 17:58:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130467AbQK3Wsa>; Thu, 30 Nov 2000 17:48:30 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15942 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130343AbQK3WsP>; Thu, 30 Nov 2000 17:48:15 -0500
-Date: Thu, 30 Nov 2000 23:17:16 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>,
-        Linus Torvalds <torvalds@transmeta.com>, V Ganesh <ganesh@veritas.com>,
-        linux-kernel@vger.kernel.org, linux-LVM@sistina.com, mingo@redhat.com
-Subject: Re: [PATCH] Re: [bug] infinite loop in generic_make_request()
-Message-ID: <20001130231716.H18804@athlon.random>
-In-Reply-To: <20001130214121.D18804@athlon.random> <200011302154.eAULsJZ02315@webber.adilger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011302154.eAULsJZ02315@webber.adilger.net>; from adilger@turbolinux.com on Thu, Nov 30, 2000 at 02:54:19PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129257AbQK3W5y>; Thu, 30 Nov 2000 17:57:54 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:44044 "HELO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S129183AbQK3W5f>; Thu, 30 Nov 2000 17:57:35 -0500
+Date: Thu, 30 Nov 2000 17:26:58 -0500 (EST)
+From: Phillip Ezolt <ezolt@perf.zko.dec.com>
+To: axp-list@redhat.com
+Cc: rth@twiddle.net, Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
+        clinux@zk3.dec.com, wcarr@perf.zko.dec.com
+Subject: Re: Alpha SCSI error on 2.4.0-test11
+In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru>
+Message-ID: <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 02:54:19PM -0700, Andreas Dilger wrote:
-> Andrea writes:
-> > On Thu, Nov 30, 2000 at 01:05:53PM -0700, Andreas Dilger wrote:
-> > > the RAID and LVM make_request functions should be changed to do that
-> > > instead (i.e. 0 on success, -ve on error, and maybe "1" if they do their
-> > > own recursion to break the loop)?
+Ivan,
+	We dug a little deeper, and think that we found the problem. 
+
+The error occurs if we have over 1024 MB of memory in the machine. 
+If we have less than 1024MB, the machine behaves correctly. 
+(This is a 600Mhz Digital Personal Workstation)
+
+Once again, the 2.2 kernel in RH 7.0 behaves properly. 
+
+I'll give test12-pre3 a try and see if it fixes things.
+
+Thanks,
+--Phil
+
+Compaq:  High Performance Server Division/Benchmark Performance Engineering 
+---------------- Alpha, The Fastest Processor on Earth --------------------
+Phillip.Ezolt@compaq.com        |C|O|M|P|A|Q|        ezolt@perf.zko.dec.com
+------------------- See the results at www.spec.org -----------------------
+
+On Fri, 1 Dec 2000, Ivan Kokshaysky wrote:
+
+> On Thu, Nov 30, 2000 at 03:02:42PM -0500, Phillip Ezolt wrote:
+> > Qlogic SCSI support seems broken on 2.4.0-test11 on a Miata (Digital Personal WorkStation 600au).
 > > 
-> > We preferred to let the lowlevel drivers to handle error themselfs to
-> > simplify the interface. The lowlevel driver needs to call buffer_IO_error
-> > before returning in case of error.
+> > When starting up, we get a machine check after initialing the qlogic SCSI code. 
 > 
-> Even if the lowlevel driver handles the error case, it would still
-> make more sense to stick with the normal kernel practise of -ERROR,
-> and 0 for success.  Then, if in the future we can do something with the
-> error codes, at least we don't have to change the interface yet again.
+> Try test12-pre3 - there is the new PCI init stuff. It works (to some degree)
+> on as1000a with the same qlogic scsi.
+> 
+> Ivan.
+> 
+> 
+> 
+> _______________________________________________
+> Axp-list mailing list
+> Axp-list@redhat.com
+> https://listman.redhat.com/mailman/listinfo/axp-list
+> 
 
-You shouldn't see the fact that a storage management driver returns 0 as an
-error. It has a different semantic, it only means: "the make_request callback
-completed the request, it wasn't a remap". That's all. As said the highlevel
-layer doesn't know anything about errors anymore, it only need to know when the
-request is completed.
-
-Of course if there's an error during a remap you can't continue so you have to
-say "this request is completed" and to tell this you currently have to return
-0. But 0 from the point of view of the highlevel layer doesn't mean "error".
-
-I'd suggest to take a third way that is to define only two retvals:
-
-	BLKDEV_IO_REQ_COMPLETED
-	BLKDEV_IO_REQ_REMAPPED
-
-Then it doesn't matter anymore what number they're defined to.
-generic_make_request simply keeps looping as far as it gets
-BLKDEV_IO_REQ_REMAPPED as retval.
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,106 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbUBUDen (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 22:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUBUDen
+	id S261506AbUBUDkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 22:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUBUDka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 22:34:43 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:42438 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261502AbUBUDeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 22:34:36 -0500
-Date: Fri, 20 Feb 2004 22:34:16 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.6.3rc4 floppy oops.
-In-Reply-To: <20040217233120.GA8117@redhat.com>
-Message-ID: <Pine.LNX.4.58.0402202117260.7734@montezuma.fsmlabs.com>
-References: <20040217233120.GA8117@redhat.com>
+	Fri, 20 Feb 2004 22:40:30 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:5261 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261506AbUBUDkR (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 22:40:17 -0500
+Message-ID: <4036D2EB.1090709@greatcn.org>
+Date: Sat, 21 Feb 2004 11:39:23 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+Organization: GreatCN.org & The Summit Open Source Develoment Group
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, zh
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel@vger.kernel.org
+CC: tao@acc.umu.se, Riley@Williams.Name, davej@codemonkey.org.uk,
+       hpa@zytor.com, alan@lxorguk.ukuu.org.uk, root@chaos.analogic.com,
+       torvalds@osdl.org
+References: <403114D9.2060402@lovecn.org> <40318FB0.6060109@lovecn.org>
+In-Reply-To: <40318FB0.6060109@lovecn.org>
+X-Scan-Signature: b8fca58535657f1a4e8834666070eed3
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: Re: [2.0.40 2.2.25 2.4.25] Fix boot GDT limit 0x800 to 0x7ff in setup.S
+ or not
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 3.1 (built Tue Oct 14 21:11:59 EST 2003)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, Dave Jones wrote:
+Coywolf Qi Hunt wrote:
+> Coywolf Qi Hunt wrote:
+> 
+>> Hello 2.4.xx hackers,
+>>
+>> In setup.S, i feel like that the gdt limit 0x8000 is not proper and it 
+>> should be 0x800.  How came 0x800 into 0x8000 in 2.4.xx code?  Is there 
+>> a story?  It shouldn't be a careless typo. 256 gdt entries should be 
+>> enough and since it's boot gdt, 256 is ok even if the code is run on 
+>> SMP with 64 cpus.
+>> At least the comment doesn't match the code. Either fix the code or 
+>> fix the comment.  We really needn't so many GDT entries. Let's use the 
+>> intel segmentation in a most limited way. Below follows a patch fixing 
+>> the code.
+>>
+>> I don't have the latest 2.4.24, but setup.S isn't changed from 2.4.23 
+>> to 2.4.24.
+>>
+>> Regards, Coywolf
+>>
+>> ------------------------------------------------------------------------
+>>
+>> --- arch/i386/boot/setup.S.orig    2003-11-29 02:26:20.000000000 +0800
+>> +++ arch/i386/boot/setup.S    2004-02-17 01:15:42.000000000 +0800
+>> @@ -1093,7 +1093,7 @@
+>>     .word    0                # idt limit = 0
+>>     .word    0, 0                # idt base = 0L
+>> gdt_48:
+>> -    .word    0x8000                # gdt limit=2048,
+>> +    .word    0x800                # gdt limit=2048,
+>>                         #  256 GDT entries
+>>
+>>     .word    0, 0                # gdt base (filled in later)
+>>
+>>  
+>>
+> 
+> Hello all hackers, from 2.0 to 2.4,
+> 
+> In setup.S,  from the very beginning (in boot/boot.s for 0.01 kernel),
+> all boot GDT limits are set to 0x800. GDT limit is the LIMIT, not SIZE.
+> So all these 0x800 should be 0x7ff. And actually in the current 2.4.24,
+> it is even an odd 0x8000 which I previously just sent a patch to fix to
+> 0x800. But it should be set to 0x7ff really.  Until now only 2.6 sets it
+> properly. Although these will never cause any runtime problem at all,
+> they are ugly. Please consider fix them.
+> 
+> Since it is always 0x800, i even get used to 0x800 rather then the
+> proper 0x7ff. If leave it 0x800, it's useful to distinguish the boot GDT
+> from the later final GDT setting in arch/i386/kernel/head.S. So fix it
+> or not.
+> 
+> 
+> Regards,
+> Coywolf
+> 
 
-> Another fun one on module unload..
+hello,
 
-I got delegated this bug by the acting floppy.c maintainer ( Cc'd )
+Since still no one cares, here follows a cut from the intel bible which
+every one should show his RESPECT to.
 
-It looks like a block request snuck through before we had initialised the
-motor_off_timer timers. So i pushed the timer init earlier.
 
-Tested here with a floppy in the driver on module load and without a
-floppy. Could you verify it fixes your bug too?
+IA-32 Intel Architecture Software Developer's Manual
+Volume 3: System Programming Guide
+3.5.1. Segment Descriptor Tables
+3-17 Page:81
 
-Thanks
+"Because segment descriptors are always 8 bytes long, the GDT limit 
+should always be one less than an integral multiple of eight(that is, 
+8N-1)."
 
-> kernel: Floppy drive(s): fd0 is 1.44M
-> kernel: FDC 0 is a post-1991 82077
-> kernel: Uninitialised timer!
-> kernel: This is just a warning.  Your computer is OK
-> kernel: function=0x00000000, data=0x0
-> kernel: Call Trace:
-> modprobe: FATAL: Module ide_probe not found.
-> kernel:  [<c012d2f4>] check_timer_failed+0x3c/0x58
-> kernel:  [<c012d72c>] del_timer+0x15/0xca
-> kernel:  [<c7c714d2>] floppy_ready+0x0/0x1f9 [floppy]
-> kernel:  [<c7c7149a>] start_motor+0x9e/0xd6 [floppy]
-> kernel:  [<c7c714fb>] floppy_ready+0x29/0x1f9 [floppy]
-> kernel:  [<c0135496>] worker_thread+0x1b4/0x250
-> kernel:  [<c7c714d2>] floppy_ready+0x0/0x1f9 [floppy]
-> kernel:  [<c01217e4>] default_wake_function+0x0/0xc
-> kernel:  [<c010b586>] ret_from_fork+0x6/0x20
-> kernel:  [<c01217e4>] default_wake_function+0x0/0xc
-> kernel:  [<c01352e2>] worker_thread+0x0/0x250
-> kernel:  [<c01091ed>] kernel_thread_helper+0x5/0xb
 
-Index: linux-2.6.3-mm2/drivers/block/floppy.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.3-mm2/drivers/block/floppy.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 floppy.c
---- linux-2.6.3-mm2/drivers/block/floppy.c	20 Feb 2004 23:58:43 -0000	1.1.1.1
-+++ linux-2.6.3-mm2/drivers/block/floppy.c	21 Feb 2004 03:29:57 -0000
-@@ -4242,6 +4242,15 @@ int __init floppy_init(void)
- 		disks[i] = alloc_disk(1);
- 		if (!disks[i])
- 			goto Enomem;
-+
-+		disks[i]->major = FLOPPY_MAJOR;
-+		disks[i]->first_minor = TOMINOR(i);
-+		disks[i]->fops = &floppy_fops;
-+		sprintf(disks[i]->disk_name, "fd%d", i);
-+
-+		init_timer(&motor_off_timer[i]);
-+		motor_off_timer[i].data = i;
-+		motor_off_timer[i].function = motor_off_callback;
- 	}
+Please fix 0x8000 to 0x800 in 2.4, and 0x800 to 0x7ff in 2.0~2.4, ok?
+This is my last appeal.
 
- 	devfs_mk_dir ("floppy");
-@@ -4255,13 +4264,6 @@ int __init floppy_init(void)
- 		goto fail_queue;
- 	}
 
--	for (i=0; i<N_DRIVE; i++) {
--		disks[i]->major = FLOPPY_MAJOR;
--		disks[i]->first_minor = TOMINOR(i);
--		disks[i]->fops = &floppy_fops;
--		sprintf(disks[i]->disk_name, "fd%d", i);
--	}
--
- 	blk_register_region(MKDEV(FLOPPY_MAJOR, 0), 256, THIS_MODULE,
- 				floppy_find, NULL, NULL);
+Coywolf
 
-@@ -4366,9 +4368,6 @@ int __init floppy_init(void)
- 	}
 
- 	for (drive = 0; drive < N_DRIVE; drive++) {
--		init_timer(&motor_off_timer[drive]);
--		motor_off_timer[drive].data = drive;
--		motor_off_timer[drive].function = motor_off_callback;
- 		if (!(allowed_drive_mask & (1 << drive)))
- 			continue;
- 		if (fdc_state[FDC(drive)].version == FDC_NONE)
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+

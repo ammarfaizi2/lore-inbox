@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290640AbSBFQF5>; Wed, 6 Feb 2002 11:05:57 -0500
+	id <S288967AbSBFQRj>; Wed, 6 Feb 2002 11:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290648AbSBFQFu>; Wed, 6 Feb 2002 11:05:50 -0500
-Received: from chmls05.ne.ipsvc.net ([24.147.1.143]:58776 "EHLO
-	chmls05.mediaone.net") by vger.kernel.org with ESMTP
-	id <S290640AbSBFQFl>; Wed, 6 Feb 2002 11:05:41 -0500
-From: "Guillaume Boissiere" <boissiere@mediaone.net>
-To: "Tim Pepper" <tpepper@vato.org>
-Date: Wed, 6 Feb 2002 11:05:11 -0500
+	id <S289240AbSBFQR3>; Wed, 6 Feb 2002 11:17:29 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62468 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288967AbSBFQRK>; Wed, 6 Feb 2002 11:17:10 -0500
+Date: Wed, 6 Feb 2002 11:16:15 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Roland Dreier <roland@topspincom.com>, linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+In-Reply-To: <1012951046.1064.123.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1020206105208.7298B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Subject: Re: New device naming convention
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3C610DE7.13987.25A0DAE@localhost>
-In-Reply-To: <20020201100145.A21307@vato.org>
-In-Reply-To: <3C59F1C3.21004.28F8E65B@localhost>; from boissiere@mediaone.net on Fri, Feb 01, 2002 at 01:39:15AM -0500
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Feb 2002 at 10:01, Tim Pepper wrote:
-> On Fri 01 Feb at 01:39:15 -0500 boissiere@mediaone.net done said:
-> > I added this item on my kernel 2.5 status list a few weeks ago, and 
-> > it seems to be _the_ hot topic for 2.5.
+On 5 Feb 2002, Robert Love wrote:
+
+> On Tue, 2002-02-05 at 18:02, Bill Davidsen wrote:
+> 
+> > You seem to equate root space with user space, which is a kernel way of
+> > looking at things, particularly if you haven't been noting all the various
+> > hacker attacks lately. Just because it is possible to run in user space
+> > doesn't mean it's desirable to do so, and many sites don't really want
+> > things running as root so they can feed other things to the kernel.
 > > 
-> > o Pending   Finalize new device naming convention    (Linus Torvalds)
-> > 
-> > What exactly are people expecting Linus to decide on?  And once it 
-> > has been decided, what is the next step after that?
-[snip...]
+> > The assumption that power users will know how to fix it and other users
+> > won't notice they have no entropy isn't all that appealing to me, I want
+> > Linux to be as easy to do right as the competition.
+> 
+> It is certainly desirable to run as much as feasibly possible in
+> userspace.  The only exception of things that could be handled in
+> userspace but are allowed to live in kernel space would be performance
+> critical and stable items (say, TCP/IP).
 
-Thanks for the explanations, that was pretty helpful to illustrate the
-current issues.
+  Given that there is graphics stuff in there, and web server stuff, I
+would say that having the system hang waiting for entropy is a performance
+issue. And lack of it is a security issue.
+ 
+> No one said the rngd has to run as root.  For example, run it as nobody
+> in a random group and give /dev/random write privileges to the random
+> group.
 
-> There've been huge discussions in the past about how to handle /dev;
-> they're in the archive.  Is it a problem that needs an answer?
-> Is devfs the answer?  Will an answer be in 2.5?
+  So a functional /dev/random would be a feature of power users installing
+fixes, as opposed to the kernel using the available hardware? And having
+one or more extra user space daemons crapping up the system doesn't seem
+an issue?
+ 
+> If userspace equates to insecure, and we stick things in the kernel for
+> that reason, we are beyond help ...
 
-Yes, that's the $1000 question!  If there is nothing people are 
-expecting Linus to decide on for 2.5 regarding device naming, let me 
-know and I'll remove this item from my status list.
+  Not all Linux users are hackers, and depending on users to know their
+hardware, find, build, install, and configure something, change ownership
+of a device without messing it up, and understand that not doing so is
+both a performance and security issue... seems either optimistic or just
+unconcerned with the users. 
 
--- Guillaume
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

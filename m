@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135368AbRARNDl>; Thu, 18 Jan 2001 08:03:41 -0500
+	id <S135513AbRARNHl>; Thu, 18 Jan 2001 08:07:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135554AbRARNDb>; Thu, 18 Jan 2001 08:03:31 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:24964 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S135368AbRARNDU>;
-	Thu, 18 Jan 2001 08:03:20 -0500
-Message-ID: <20010118210309.A8610@saw.sw.com.sg>
-Date: Thu, 18 Jan 2001 21:03:09 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Simon Huggins <huggie@earth.li>
-Cc: eepro100@scyld.com, linux-kernel@vger.kernel.org
-Subject: Re: eepro cmd_wait
-In-Reply-To: <20010118131011.B19784@the.earth.li> <20010118201731.A8492@saw.sw.com.sg> <20010118134250.C19784@the.earth.li>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010118134250.C19784@the.earth.li>; from "Simon Huggins" on Thu, Jan 18, 2001 at 01:42:50PM
+	id <S132960AbRARNHb>; Thu, 18 Jan 2001 08:07:31 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:65298 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131462AbRARNHR>;
+	Thu, 18 Jan 2001 08:07:17 -0500
+Date: Thu, 18 Jan 2001 14:06:46 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rick Jones <raj@cup.hp.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <3A660746.543226B@cup.hp.com>
+Message-ID: <Pine.LNX.4.30.0101181358010.823-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 01:42:50PM +0100, Simon Huggins wrote:
-> 
-> On Thu, Jan 18, 2001 at 08:17:31PM +0800, Andrey Savochkin wrote:
-[snip]
-> > These two line are a workaround for the RxAddrLoad timing bug,
-> > developed by Donald Becker.  wait_for_cmd_done timeouts may be related
-> > to this bug, too.
-> 
-> Well it now boots :)
-> I'll let you know if there are any more problems with it in use.
 
-It always boots, with different rate of successive ones.
-The question is how _often_ it boots successfully now :-)
+On Wed, 17 Jan 2001, Rick Jones wrote:
 
-Best regards
-		Andrey
+> i'd heard interesting generalities but no specifics. for instance,
+> when the send is small, does TCP wait exclusively for the app to
+> flush, or is there an "if all else fails" sort of timer running?
+
+yes there is a per-socket timer for this. According to RFC 1122 a TCP
+stack 'MUST NOT' buffer app-sent TCP data indefinitely if the PSH bit
+cannot be explicitly set by a SEND operation. Was this a trick question?
+:-)
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291637AbSBNN3j>; Thu, 14 Feb 2002 08:29:39 -0500
+	id <S291640AbSBNNdv>; Thu, 14 Feb 2002 08:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291640AbSBNN33>; Thu, 14 Feb 2002 08:29:29 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:44556 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S291637AbSBNN3V>; Thu, 14 Feb 2002 08:29:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Henrique Gobbi <henrique@cyclades.com>
-Organization: Cyclades
-To: linux-kernel@vger.kernel.org
-Subject: user-space <-> kernel-space
-Date: Thu, 14 Feb 2002 11:33:35 -0200
-X-Mailer: KMail [version 1.2]
+	id <S291641AbSBNNdj>; Thu, 14 Feb 2002 08:33:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52242 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291640AbSBNNd3>; Thu, 14 Feb 2002 08:33:29 -0500
+Subject: Re: Using kernel_fpu_begin() in device driver - feasible or not?
+To: rwestman@telia.com (Rickard Westman)
+Date: Thu, 14 Feb 2002 13:47:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C6B00B3.6000602@telia.com> from "Rickard Westman" at Feb 14, 2002 01:11:31 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <02021411333501.00959@henrique.cyclades.com.br>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bMEO-0008Up-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !!!
+> 1. Would it be sufficient to just bracket all fpu-using code code by
+> kernel_fpu_begin()/kernel_fpu_end()?  If not, what problems could I
+> run into?
 
-I am trying to develop a line analyzer to my multi-serial card but I am not 
-seeing a good solution to send data from the driver to the application in the 
-user-space.
+You can do that providing you dont
 
-Inittialy, I thought in use a char device, but all my minors are beeing used 
-and I don't wanna to use another major. 
+> 2. Would it be OK to go to sleep inside such a region, or should I
+> take care to avoid that?
 
-I'd like to know two things:
-1 - Is there any way to use more than 256 minors under a major
-2 - Is there a simple way to send data from the kernel-space to the 
-user-space?
+You can't sleep in such a region - there is nowhere left to store the
+FPU context
 
-Any help is very welcome
-thanks in advance 
--- 
-Henrique Gobbi 
-Linux User: 237230
-Cyclades Brasil
+> 3. Perhaps I should call init_fpu() at some point as well?  If so,
+> should it be done before or after kernel_fpu_begin()?
+
+After
+
+> 4. Is there any difference between doing this in the context of a user
+> process (implementation of an ioctl) compared to doing it in a
+> daemonized kernel thread (created by a loadable kernel module)?
+
+The kernel thread is actually easier, you can happily corrupt its user
+FPU context by sleeping since you are the only FPU user for the thread.
+Not nice, not portable but should work fine on x86 without any of the 
+above for the moment.
+
+You should probably also test the FPU is present and handle it accordingly
+with polite messages not an oops 8)

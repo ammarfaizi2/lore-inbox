@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130061AbRBTNBf>; Tue, 20 Feb 2001 08:01:35 -0500
+	id <S129213AbRBTNL4>; Tue, 20 Feb 2001 08:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130164AbRBTNBQ>; Tue, 20 Feb 2001 08:01:16 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:11269 "EHLO
+	id <S129304AbRBTNLr>; Tue, 20 Feb 2001 08:11:47 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:12805 "EHLO
 	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130061AbRBTNBI>; Tue, 20 Feb 2001 08:01:08 -0500
-Date: Tue, 20 Feb 2001 07:00:41 -0600
-To: Martin Dalecki <dalecki@evision-ventures.com>
+	id <S129213AbRBTNLc>; Tue, 20 Feb 2001 08:11:32 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14994.27891.171934.348706@wire.cadcamlab.org>
+Date: Tue, 20 Feb 2001 07:11:15 -0600 (CST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] new setprocuid syscall
-Message-ID: <20010220070041.A12011@cadcamlab.org>
-In-Reply-To: <Pine.A41.4.31.0102192312330.174604-100000@pandora.inf.elte.hu> <20010219230106.A23699@cadcamlab.org> <3A924CA1.10C913E7@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A924CA1.10C913E7@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Feb 20, 2001 at 11:53:21AM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <20010219230106.A23699@cadcamlab.org>
+	<E14VBBn-0006Q5-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  [Peter Samuelson]
-> > Race -- you need to make sure the task_struct doesn't disappear out
-> > from under you.
-> > 
-> > Anyway, why not use the interface 'chown uid /proc/pid'?  No new
-> > syscall, no arch-dependent part, no user-space tool, etc.
+[Alan Cox]
+> There is an assumption in the kernel that only the task changes its
+> own uid and other related data.
 
-[Martin Dalecki]
-> Becouse of exactly the same race condition as above maybe?
-
-OK then, what is the right way to make sure a task doesn't disappear?
-I assumed 'read_lock (&tasklist_lock)' was enough, from reading other
-code.
+Fair enough but could you explain the potential problems?  And how is
+it different from sys_setpriority?
 
 Peter

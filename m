@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277024AbRKMRMn>; Tue, 13 Nov 2001 12:12:43 -0500
+	id <S277112AbRKMRPo>; Tue, 13 Nov 2001 12:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277068AbRKMRMd>; Tue, 13 Nov 2001 12:12:33 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:43281 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S277024AbRKMRMZ>; Tue, 13 Nov 2001 12:12:25 -0500
-Message-ID: <3BF160D8.92E01A1F@evision-ventures.com>
-Date: Tue, 13 Nov 2001 19:05:12 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S277165AbRKMRPe>; Tue, 13 Nov 2001 12:15:34 -0500
+Received: from [216.151.155.121] ([216.151.155.121]:43793 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S277112AbRKMRPS>; Tue, 13 Nov 2001 12:15:18 -0500
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x has finally made it!
+In-Reply-To: <Pine.GSO.4.33.0111131002200.14971-100000@gurney>
+	<20011113171836.A14967@emma1.emma.line.org>
+	<m34rnyk511.fsf@belphigor.mcnaught.org>
+	<20011113174250.A15774@emma1.emma.line.org>
+From: Doug McNaught <doug@wireboard.com>
+Date: 13 Nov 2001 12:15:12 -0500
+In-Reply-To: Matthias Andree's message of "Tue, 13 Nov 2001 17:42:50 +0100"
+Message-ID: <m3vggeiodb.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: dalecki@evision.ag, linux-kernel@vger.kernel.org
-Subject: Re: Merge BUG in 2.4.15-pre4 serial.c
-In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu> <3BF14F14.21D66343@evision-ventures.com> <20011113162111.B21298@flint.arm.linux.org.uk> <3BF15A72.793A1BF2@evision-ventures.com> <20011113165354.D21298@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Tue, Nov 13, 2001 at 06:37:54PM +0100, Martin Dalecki wrote:
-> > Pushing the port numbers artificially behind doesn't make sense for me
-> > and makes some setserial unknown tricks neccessary for irtty setup.
-> 
-> The key words here are "for me".
-> 
-> What setserial "unknown tricks" are you referring to?
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
-I referr to the IrDA-HOWTO problems with the serial driver I think
-this may be precisely the cause of the culprit.
+> On Tue, 13 Nov 2001, Doug McNaught wrote:
+> 
+> > It's a benchmark, lighten up!  ;)
+> 
+> Well, he wanted to benchmark everyday use, and disk latency is also an
+> issue for everyday use, of course;
+
+But it's more a measure of your disk subsystem than your VM efficiency 
+(unless something is badly wrong). 
+
+>                                   so that's kind of pointless getting
+> rid of I/O and benchmarking the cache. fsync() efficiency comes into
+> play and wants to be benchmarked as well. How do you know if your
+> fsync() syncs what's needed, the whole partition, the partition's meta
+> data (softupdates!) or the world (all blocks)?
+
+A very good point that I hadn't considered. 
+
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

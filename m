@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262834AbTDYAub (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTDYAua
+	id S262739AbTDYAzN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 20:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbTDYAzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 20:50:30 -0400
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:58613 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S262884AbTDYAuV convert rfc822-to-8bit (ORCPT
+	Thu, 24 Apr 2003 20:55:13 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:58253 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262739AbTDYAzM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 20:50:21 -0400
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: [Patch?] SiS 746 AGP-Support
-Date: Fri, 25 Apr 2003 03:02:26 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200304250224.50431.volker.hemmann@heim9.tu-clausthal.de> <20030425004003.GA12614@suse.de>
-In-Reply-To: <20030425004003.GA12614@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200304250302.26791.volker.hemmann@heim9.tu-clausthal.de>
+	Thu, 24 Apr 2003 20:55:12 -0400
+Date: Thu, 24 Apr 2003 18:05:03 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.68 2/2] i_size atomic access
+Message-Id: <20030424180503.2c2a8bea.akpm@digeo.com>
+In-Reply-To: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net>
+References: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2003 01:07:17.0049 (UTC) FILETIME=[03878A90:01C30AC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 April 2003 02:40, Dave Jones wrote:
->  > I don't know, if the following changes are 'clean' but they give me a
->  > working agpsupport for my SiS 746Fx based mobo.
->  >
->  > This (attempt) of a patch is against 2.4.21-rc1:
+Daniel McNeil <daniel@osdl.org> wrote:
 >
-> Might work fine as long as you have an agp2.0 card in the slot, but the
-> minute you put a 3.0 (read as AGPx8) card in there, things are very
-> likely to break.
->
-> I've not seen the specs for this chipset, but most of the AGP3 chipsets
-> I've seen have a fallback mode in their register set which gets enabled
-> as soon as you plug in an AGP2 card. These registers don't get enabled
-> with an AGP3 card, instead you need to read from different registers,
-> and in most cases, act completly different to decode aperture sizes etc.
->
-> The generic routines in 2.5 *might* work, but are untested on this chipset.
-> 2.4 currently has no AGP3 support at all. Some folks did backport what
-> I've done in 2.5 a while ago, but I would advise against merging it at
-> this stage, as there is still work to be done there, including stability
-> fixes. Right there are a number of possible problems which may include
-> random memory corruption.
->
-> 		Dave
+> Andrew, can we get these patches in to -mm?
+> 
 
-I have only a AGP 2 (geforce 4-mx) card, so I missed that(and with one I would 
-only to be able to say 'it doesn't work' so thanks for your explanation). But 
-without this changes I won't even able to use dga, because the first 
-dga-enabled app completely locks up my box. 
-And to have working AGP2 and non working APG3 looks a lot better for me than 
-no AGP-support at all.  
+I don't like them really.
 
-2.5.* is able to 'mostly' boot on my mobo so I can't say anything about that..
+Yes, I know, a bug is a bug is a bug and it should be fixed.  But the fix
+is fugly and the bug seems to be very theoretical.  And the patches appear
+to not address all the i_size accesses down in filesystems.
+
+The patches add barriers and cache footprint to fastpaths, and we don't get
+a lot back.  As far as I know the bug has only been demonstrated when one
+CPU is spinning on stat() and the other is waggling the file size across
+the 4G boundary.
+
+I'd be interested in seeing if the race is demonstrable anywhere else,
+because the stat() problem can be plugged just by taking i_sem in
+sys_stat().
 
 
-Glück Auf,
-Volker
+So yeah, I know it _should_ be fixed, but it gives me the creeps, and the
+fix may not be complete anyway.
+
+And if the race _does_ hit, what is the effect?  Assuming stat() was fixed
+with i_sem, I don't think the race has a very serious effect.  We won't
+oops, or corrupt filesystems, or be insecure.  Maybe some
+probably-already-racy application gets a page of zeroes instead of live
+data.  Or maybe not - I'd need to think about that some more.
+
+

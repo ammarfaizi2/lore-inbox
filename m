@@ -1,62 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261777AbSJDODW>; Fri, 4 Oct 2002 10:03:22 -0400
+	id <S261789AbSJDOJP>; Fri, 4 Oct 2002 10:09:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261778AbSJDODV>; Fri, 4 Oct 2002 10:03:21 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:39186 "EHLO
+	id <S261790AbSJDOJP>; Fri, 4 Oct 2002 10:09:15 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:41746 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261777AbSJDODU>; Fri, 4 Oct 2002 10:03:20 -0400
-Date: Fri, 4 Oct 2002 15:08:50 +0100
+	id <S261789AbSJDOJN>; Fri, 4 Oct 2002 10:09:13 -0400
+Date: Fri, 4 Oct 2002 15:14:42 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Mark Peloquin <peloquin@us.ibm.com>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
        evms-devel@lists.sourceforge.net
 Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
-Message-ID: <20021004150849.A30635@infradead.org>
+Message-ID: <20021004151442.B30635@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-References: <OF6E4A0115.7A4BB6D7-ON85256C47.0059EE6F@pok.ibm.com>
+References: <OF25D731E3.0E245DDC-ON85256C47.00645AA7@pok.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF6E4A0115.7A4BB6D7-ON85256C47.0059EE6F@pok.ibm.com>; from peloquin@us.ibm.com on Thu, Oct 03, 2002 at 12:42:23PM -0500
+In-Reply-To: <OF25D731E3.0E245DDC-ON85256C47.00645AA7@pok.ibm.com>; from peloquin@us.ibm.com on Thu, Oct 03, 2002 at 01:59:47PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 12:42:23PM -0500, Mark Peloquin wrote:
-> >> +#define TRUE                            1
+> >> +#define SetPluginID(oem, type, id) ((oem << 16) | (type << 12) | id)
+> >> +#define GetPluginOEM(pluginid) (pluginid >> 16)
+> >> +#define GetPluginType(pluginid) ((pluginid >> 12) & 0xf)
+> >> +#define GetPluginID(pluginid) (pluginid & 0xfff)
 > 
-> > Please just use 0/1 directly just like everyone else..
+> > What is the prupose of OEM IDs?
 > 
-> More than happy to comply, however grep'ing the tree its
-> plain to see that not "everyone else" is following this
-> suggestion.
+> To allow unique identification of plugins. If you wrote
+> plugin, you might give it an ID of 1. Someone else
+> may do the same thing. However, by letting you add
+> something specific which identifies you (i.e. like
+> your initials), then possibility of collisions is
+> reduced.
 
-Sure there are other offenders in the drivers, from known offenders like
-Richard or IBM, but no core code.  There is a reason why theses defines are
-not in kernel.h..
+Please stop using magic numbers in the kernel _at all_.  The only
+sensible thing against collision is proper naming, i.e. strings.
 
 > 
-> >> +#define DEV_PATH                "/dev"
-> >> +#define EVMS_DIR_NAME                 "evms"
-> >> +#define EVMS_DEV_NAME                 "block_device"
-> >> +#define EVMS_DEV_NODE_PATH            DEV_PATH "/" EVMS_DIR_NAME "/"
-> >> +#define EVMS_DEVICE_NAME        DEV_PATH "/" EVMS_DIR_NAME "/"
-> EVMS_DEV_NAME
+> >> +struct evms_plugin_header {
+> >> +  u32 id;
+> >> +  struct evms_version version;
+> >> +  struct evms_version required_services_version;
+> >> +  struct evms_plugin_fops *fops;
+> >> +  struct list_head headers;
+> >> +};
 > 
-> > The kernel doesn't know about device names at all.
+> > What is the required services version?
 > 
-> I realize this is a goal, and I'm not opposed to it. However,
-> I know devfs is not popular, but people are using it, and it
-> *is* still available in 2.5. For the cases where ppl are
-> using it, the EVMS kernel component needs this info to tell
-> devfs the name of the devnode to create. I don't want to get
-> into a devfs flamewar, EVMS is simply offering interoperability
-> with what ppl n do today. Should that change, EVMS is more
-> than happy to adapt to the latest technology.
+> The common services are a set of functions exported
+> by the core code. We have major,minor,patchlevel
+> versions for them. Plugin writers specify the
+> version of the interface they are coded to comply
+> with. Mismatching core services and plugin
+> version expectations are caught at plugin registration
+> (load) time, and prevented from being usable.
 
-You can"t know where devfs is mounted.  So of the above only EVMS_DIR_NAME
-and EVMS_DEV_NAME make sense.
+Doesn't work in a linux enviroment.  People just have to stick to the
+kernel version they write for.  If you think you really need it make
+such checks at the cpp level as there is no such thing as binary
+compatiblity anyway.
+
+> the IOCTL entry point is used to send to volumes.
+> the DIRECT_IOCTL entry point is used for point-
+> to-point ioctls between corresponding user space
+> and kernel space plugins.
+
+Do the ioctl directly to the device node of the lower layer plugin instead.
+
+> 
+> >> +/**
+> >> + * convenience macros to use plugin's fops entry points
+> >> + **/
+> >> +#define DISCOVER(node, list) ((plugin)->fops->discover(list))
+> >> +#define END_DISCOVER(node, list) ((plugin)->fops->end_discover(list))
+> >> +#define DELETE(node) ((node)->plugin->fops->delete(node))
+> >> +#define SUBMIT_IO(node, bio) ((node)->plugin->fops->submit_io(node,
+> bio))
+> >> +#define INIT_IO(node, rw_flag, start_sec, num_secs, buf_addr) >((node)
+> ->plugin->fops->init_io(node, rw_flag, start_sec, num_secs, buf_addr))
+> >> +#define IOCTL(node, inode, file, cmd, arg)    ((node)
+> ->plugin->fops->ioctl(node, >inode, file, cmd, arg))
+> >> +#define DIRECT_IOCTL(plugin, inode, file, cmd, arg)   >((plugin)
+> ->fops->direct_ioctl(inode, file, cmd, arg))
+> 
+> > Do you really need those wrapper?
+> 
+> No the wrappers aren't really needed. However they do make the
+> code a great deal more readable.
+> 
+> > They just obsfucate the code
+> 
+> The same argument could be made about *all* macros then.
+> Its simply a tradeoff between readability and potential
+> hiding.
+
+CodingStyle is one big flamewar.  As no other operations vector
+in the linux kernel uses such wrappers the syle police seems to
+be on my side in this case :)
 

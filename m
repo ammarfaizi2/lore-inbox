@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbTAHQuH>; Wed, 8 Jan 2003 11:50:07 -0500
+	id <S267144AbTAHQm6>; Wed, 8 Jan 2003 11:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267602AbTAHQuG>; Wed, 8 Jan 2003 11:50:06 -0500
-Received: from stingr.net ([212.193.32.15]:780 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S267387AbTAHQuG>;
-	Wed, 8 Jan 2003 11:50:06 -0500
-Date: Wed, 8 Jan 2003 19:58:44 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Question for Marcelo
-Message-ID: <20030108165844.GQ12676@stingr.net>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <3E1AFA70.4070200@mindspring.com> <3E1B8E2B.9060200@rackable.com> <1042034152.24099.4.camel@irongate.swansea.linux.org.uk> <20030108131937.GI823@louise.pinerecords.com> <1042036696.24099.23.camel@irongate.swansea.linux.org.uk>
+	id <S267153AbTAHQm6>; Wed, 8 Jan 2003 11:42:58 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:24245 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S267144AbTAHQm5>; Wed, 8 Jan 2003 11:42:57 -0500
+Date: Wed, 8 Jan 2003 11:51:30 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB CF reader reboots PC
+Message-ID: <20030108165130.GA1181@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042036696.24099.23.camel@irongate.swansea.linux.org.uk>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Alan Cox:
-> 15a wasnt working very well, the base VM isn't too bad now and its
+ASUS P4S533 (SiS645DX chipset)
+P4 2GHz
+1G PC2700 RAM
+SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
 
-hmm, 15b? I have some
-ftp://stingr.net/pub/l/rmap15b-for-2.4.20-ac2.gz
+----------------------------
+devfs compiled in to kernel, devfs=nomount in lilo.conf
+  
+Insert CF card. mount it. cd to it, do reads and/or writes
+umount card. remove card.
+insert a different card (does not happen if the same card is used)
+mount it. system reboots. logs are corrupted
 
-works for me here.
+Doesn't happen every time for read - sometimes I can read 2 or 3 cards first
+Happens every time for write - if I write to a card then changing cards
+causes a reboot
 
-> a _lot_ easier to do merging with Marcelo without rmap. The other
-> related bits are seperated out but present (vm overcommit handling,
-> fixed shmem, removepage callback)
+----------------------------
+devfs=mount in lilo.conf
+              
+Insert CF card. 
+ls /dev shows sda and sda1
+mount it. 
+ls /dev shows sda - no sda1
+cd to mounted CF card
+process hangs, sd-mod & usb-storage "busy"
+rmmod -f usb-storage or sd-mod causes PC to stop
+(keyboard & mouse unresponsive, wmfire frozen, net disconnects)
 
-*sigh*
+reboot
+Insert CF card. 
+ls /dev shows sda & sda1
+mount it. 
+ls /dev shows sda - no sda1
+umount it
+ls /dev shows sda - no sda1
+modprobe -r sd-mod && modprobe sd-mod 
+ls /dev shows sda & sda1
 
 -- 
-Paul P 'Stingray' Komkoff Jr /// (icq)23200764 /// (http)stingr.net
- This message represents the official view of the voices in my head
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker
+  #cooker = moderated Mandrake Cooker
+

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUDFPxW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263882AbUDFPxW
+	id S263890AbUDFPzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbUDFPzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:53:22 -0400
-Received: from pop.gmx.de ([213.165.64.20]:15836 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263881AbUDFPxL (ORCPT
+	Tue, 6 Apr 2004 11:55:52 -0400
+Received: from host24.tni.fr ([195.25.255.24]:39442 "HELO ender.tni.fr")
+	by vger.kernel.org with SMTP id S263890AbUDFPzo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:53:11 -0400
-X-Authenticated: #271361
-Date: Tue, 6 Apr 2004 17:53:01 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Kevin B. Hendricks" <kevin.hendricks@sympatico.ca>,
+	Tue, 6 Apr 2004 11:55:44 -0400
+Subject: Re: {put,get}_user() side effects
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Andi Kleen <ak@muc.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Catching SIGSEGV with signal() in 2.6
-Message-Id: <20040406175301.1d46c0cd.froese@gmx.de>
-In-Reply-To: <40722D42.90406@redhat.com>
-References: <200404052040.54301.kevin.hendricks@sympatico.ca>
-	<4072101F.3010603@redhat.com>
-	<200404052301.28021.kevin.hendricks@sympatico.ca>
-	<40722D42.90406@redhat.com>
+In-Reply-To: <4072CD22.4010603@backtobasicsmgmt.com>
+References: <1HVGV-1Wl-21@gated-at.bofh.it>
+	 <m3fzbhfijh.fsf@averell.firstfloor.org>
+	 <1081261716.8318.7.camel@speedy.priv.grenoble.com>
+	 <4072CD22.4010603@backtobasicsmgmt.com>
+Content-Type: text/plain
+Message-Id: <1081266434.8318.12.camel@speedy.priv.grenoble.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.5.6 
+Date: Tue, 06 Apr 2004 17:47:14 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
->
-> Kevin B. Hendricks wrote:
+On Tue, 2004-04-06 at 08:30 -0700, Kevin P. Fleming wrote:
+> Xavier Bestel wrote:
 > 
-> > So the code has been wrong since the beginning and we were just "lucky" it 
-> > worked in all pre-2.6 kernels?
+> > Sorry, I read too fast. I didn't know sizeof could avoid side effects.
+> > 
 > 
-> The old code depended on undefined behavior.
+> Both typeof and sizeof are compile-time constructs, so there is no 
+> opportunity for any expression side effects to occur. Presumably one 
+> could do:
+> 
+> typeof(1/0UL)
+> 
+> without ever causing the obvious side effect either (granted, this is a 
+> pointless piece of code :-)).
 
-Maybe it's simply *old* code, possibly written under libc5.
-There, signal() used SA_RESETHAND which implies SA_NODEFER
-which in turn did not block the signal and exiting from the
-signal handler via longjmp was OK.
+Yeah, now that you tell it, it seems obvious when you consider macros
+like min/max and friends which rely on typeof to avoid side-effects.
 
-With the new signal() behaviour in glibc2 one may get results
-undefined by POSIX but it still worked as before because the
-sigprocmask was ignored for SIGSEGV under Linux <2.6.
 
-It's the combination of new glibc2 and new kernel that makes
-code like the mentioned one break.
-
-It has nothing to do with POSIX - for POSIX all of this is
-"undefined/implementation defined behaviour".  I had chosen
-to stay compatible...
-
-Ciao, ET.
-
--- 
-Not every program claims to be POSIX compliant (who reads
-3600 pages of difficult to obtain specs?) - some are simply
-Linux programs...

@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129786AbQLKUAp>; Mon, 11 Dec 2000 15:00:45 -0500
+	id <S129387AbQLKUDP>; Mon, 11 Dec 2000 15:03:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbQLKUAf>; Mon, 11 Dec 2000 15:00:35 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6530 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129786AbQLKUAQ>; Mon, 11 Dec 2000 15:00:16 -0500
-Date: Mon, 11 Dec 2000 14:26:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: stewart@neuron.com
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: kapm-idled : is this a bug?
-In-Reply-To: <Pine.LNX.4.10.10012111343570.2897-100000@localhost>
-Message-ID: <Pine.LNX.3.95.1001211141623.32709A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130251AbQLKUDF>; Mon, 11 Dec 2000 15:03:05 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:28214
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129387AbQLKUCv>; Mon, 11 Dec 2000 15:02:51 -0500
+Date: Mon, 11 Dec 2000 21:32:08 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Pavel Machek <pavel@suse.cz>, perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove warning from drivers/net/hp100.c (240-test12-pre7)
+Message-ID: <20001211213208.B600@jaquet.dk>
+In-Reply-To: <20001208211908.D599@jaquet.dk> <20001209101924.A126@bug.ucw.cz> <20001209163740.U6567@cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20001209163740.U6567@cadcamlab.org>; from peter@cadcamlab.org on Sat, Dec 09, 2000 at 04:37:40PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000 stewart@neuron.com wrote:
-
+On Sat, Dec 09, 2000 at 04:37:40PM -0600, Peter Samuelson wrote:
 > 
-> very helpful.
+> [Pavel Machek]
+> > I'd say that warning is more acceptable than #ifdef... In cases where
+> > warnings can be eliminating without ifdefs, that's okay, but this...
 > 
-> Technical merits and voter intent aside, this behavior is misleading and
-> inconsistent with previous kernels. Tools like top or a CPU dock applet show
-> a constantly loaded CPU. Hacking them to deduct the load from 'kapm-idled'
-> seems like the wrong answer.
-> 
-> stewart
-> 
+> In this case it is dead weight in the object file -- and for machines
+> that can least afford it (CONFIG_PCI=n is mostly for the low end,
+> right?).
 
-Err.. Did you see the comment about shared memory info being permanently
-removed because (something about too CPU intensive to justify...)?
+How about this patch? It moves the offending struct to the __init function
+where it is used and inside an existing #ifdef CONFIG_PCI. This would be
+up to the maintainer but since this is the only place the struct is used
+I think it is acceptable to move it from the top of the file.
 
-It looks like we need to find another way to get kernel info rather
-than from /proc. We need to calculate stuff only when it's needed.
-Calculating stuff all the time, to make it available should somebody
-care to read it in the /proc file-system is wasteful.
-
-Maybe we need to have some kind of 'kernel ioctl' where a user-mode caller
-'pays' for the CPU cycles necessary to obtain the info that the caller
-requests. A better idea might be to have the 'read' of a particular
-/proc file-system item, result in the calculation of the new values.
-That way, the read and calculation of new values gets charged to
-the reader.
-
-In any event, the continuous calculation of 'kernel stuff' that may
-be read once a week at most, is definitely a waste of CPU cycles.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Comments?
 
 
+--- linux-240-t12-pre8-clean/drivers/net/hp100.c	Sat Nov  4 23:27:07 2000
++++ linux/drivers/net/hp100.c	Mon Dec 11 21:23:12 2000
+@@ -265,13 +265,6 @@
+ 
+ #define HP100_EISA_IDS_SIZE	(sizeof(hp100_eisa_ids)/sizeof(struct hp100_eisa_id))
+ 
+-static struct hp100_pci_id hp100_pci_ids[] = {
+-  { PCI_VENDOR_ID_HP, 		PCI_DEVICE_ID_HP_J2585A },
+-  { PCI_VENDOR_ID_HP,		PCI_DEVICE_ID_HP_J2585B },
+-  { PCI_VENDOR_ID_COMPEX,	PCI_DEVICE_ID_COMPEX_ENET100VG4 },
+-  { PCI_VENDOR_ID_COMPEX2,	PCI_DEVICE_ID_COMPEX2_100VG }
+-};
+-
+ #define HP100_PCI_IDS_SIZE	(sizeof(hp100_pci_ids)/sizeof(struct hp100_pci_id))
+ 
+ static int hp100_rx_ratio = HP100_DEFAULT_RX_RATIO;
+@@ -335,6 +328,13 @@
+   int ioaddr = 0;
+ #ifdef CONFIG_PCI
+   int pci_start_index = 0;
++
++  static struct hp100_pci_id hp100_pci_ids[] = {
++	  { PCI_VENDOR_ID_HP, 		PCI_DEVICE_ID_HP_J2585A },
++	  { PCI_VENDOR_ID_HP,		PCI_DEVICE_ID_HP_J2585B },
++	  { PCI_VENDOR_ID_COMPEX,	PCI_DEVICE_ID_COMPEX_ENET100VG4 },
++	  { PCI_VENDOR_ID_COMPEX2,	PCI_DEVICE_ID_COMPEX2_100VG }
++  };
+ #endif
+ 
+ #ifdef HP100_DEBUG_B
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+It's a recession when your neighbour loses his job; it's a depression 
+when you lose yours. -- Harry S. Truman 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276439AbRJCQQB>; Wed, 3 Oct 2001 12:16:01 -0400
+	id <S276453AbRJCQRb>; Wed, 3 Oct 2001 12:17:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276448AbRJCQPv>; Wed, 3 Oct 2001 12:15:51 -0400
-Received: from hermes.toad.net ([162.33.130.251]:43653 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S276439AbRJCQPb>;
-	Wed, 3 Oct 2001 12:15:31 -0400
-Subject: call_pnp_bios() okay
-To: linux-kernel@vger.kernel.org
-Date: Wed, 3 Oct 2001 12:15:28 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20011003161528.757EA5AC@thanatos.toad.net>
-From: jdthood@home.dhs.org (Thomas Hood)
+	id <S276452AbRJCQRW>; Wed, 3 Oct 2001 12:17:22 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:52218 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S276451AbRJCQRP>; Wed, 3 Oct 2001 12:17:15 -0400
+Date: Wed, 3 Oct 2001 17:17:03 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: foner-reiserfs@media.mit.edu, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: ReiserFS data corruption in very simple configuration
+Message-ID: <20011003171703.B5209@redhat.com>
+In-Reply-To: <200109221000.GAA11263@out-of-band.media.mit.edu> <3BB88B63.AEE6EF8E@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BB88B63.AEE6EF8E@namesys.com>; from reiser@namesys.com on Mon, Oct 01, 2001 at 07:27:31PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Given that the args are u16s and u16s are unsigned shorts, it looks to me
-> as if this is going to zero out all the odd-numbered args.  But if that's
-> what's happening then I'm amazed this driver works at all.  I see that
-> in some cases the odd-numbered args are zero anyway, but in others not.
-> Result #1:  The driver isn't getting a real value for the maximum node size.
->             But a random value will sometimes not oops the kernel.
-> Result #2:  PnP BIOS is sometimes getting 0 as its DS selector
-> Result #3:  The get_dev_node config selector is always 0 (should be 1 or 2)
-> Result #4:  The set_dev_node handle is 0; but this is duplicated in the
->             node info structure, so the function may still work.  However,
->             the selector number of the node data is wrong
-> 
-> I'm off to patch this bug and see if it fixes my problem.
-> It may fix the Sony and Dell problems too.
+Hi,
 
-Well, on closer look the call_pnp_bios code is okay after all.
-The variables get promoted to 32 bits prior to the 16 bit shifts,
-despite the shifts being in parentheses.  I.e, Never Mind.  :)
+On Mon, Oct 01, 2001 at 07:27:31PM +0400, Hans Reiser wrote:
+> This is the meaning of metadata journaling: that writes in progress at the time
+> of the crash may write garbage, but you won't need to fsck.  You can get this
+> behaviour with other filesystems like FFS also.  If you cannot accept those
+> terms of service, you might use ext3 with data journaling on, but then your
+> performance will be far worse.
 
-Stelian: Sorry, I put your e-mail address in the previous subject heading
-by mistake.
+ext3 with ordered data writes has performance nearly up to the level
+of the fast-and-loose writeback mode for most workloads, and still
+avoids ever exposing stale disk blocks after a crash.
 
--- 
-Thomas Hood
-(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)
+Sure, it's a tradeoff, but there are positions between the two
+extremes (totally unordered data writes, and totally journaled data
+writes) which offer a good compromise here.
+
+Cheers,
+ Stephen

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316989AbSEWTP0>; Thu, 23 May 2002 15:15:26 -0400
+	id <S316938AbSEWTPa>; Thu, 23 May 2002 15:15:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316938AbSEWTPZ>; Thu, 23 May 2002 15:15:25 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24075
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316989AbSEWTPX>; Thu, 23 May 2002 15:15:23 -0400
-Date: Thu, 23 May 2002 12:13:50 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Tomas Szepe <szepe@pinerecords.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>, linux-kernel@vger.kernel.org
-Subject: Re: IDE problem: linux-2.5.17
-In-Reply-To: <3CED2B9D.4080402@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10205231212140.22581-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S316990AbSEWTPa>; Thu, 23 May 2002 15:15:30 -0400
+Received: from sepp-host209.dsl.visi.com ([209.98.241.209]:39326 "EHLO
+	crash.reric.net") by vger.kernel.org with ESMTP id <S316938AbSEWTP2>;
+	Thu, 23 May 2002 15:15:28 -0400
+Date: Thu, 23 May 2002 14:15:28 -0500
+From: Eric Seppanen <eds@reric.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: via timer/clock problem workaround
+Message-ID: <20020523141528.A28780@reric.net>
+Mail-Followup-To: Eric Seppanen <eds@reric.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020522221859.A24041@reric.net> <3CECB24E.D41B1527@mvista.com> <20020523103340.A27767@reric.net> <3CED076C.20C24B23@mvista.com> <20020523113943.A28069@reric.net> <3CED1AF4.7170970@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note that most of this thread occurred off-list and this is the tail end.
 
-Also the standard is clear only in what minimal expected requirements are
-needed to support the protocol.  In time you will learn where the tricks
-of the trade are and when someone is attempted to go there and/or push
-beyond.
+It looks as though the timer tick interrupt is going away.  If true, 
+that's well outside the scope of what can be detected/repaired from inside 
+do_gettimeofday().  So the workarounds posted on this list that I've seen 
+look like the wrong approach.  That includes the fix that's in 2.4.18.
 
-Cheers,
 
-On Thu, 23 May 2002, Martin Dalecki wrote:
-
-> Uz.ytkownik Andre Hedrick napisa?:
-> > Not true at all.
+On Thu, May 23, 2002 at 09:38:12AM -0700, george anzinger wrote:
+> Eric Seppanen wrote:
+> > george anzinger wrote:
+> > > The unfortunate thing about the fix is that execution of the
+> > > detection code requires some one to request the time of
+> > > day.  This, of course, could be delayed by an arbitrary
+> > > time, depending on system activity.
 > > 
-> > Many of the OEM's use 40c's to do 66 and 100, just they have to be very
-> > high quality and about 6" in length.
-> > 
-> 
-> Please don't confuse people the standard is clear.
-> The OEM's are just cheap becous they can controll what they
-> put in to the box and how they layout the cables inside
-> the box. If someone asks. The 80 lines are half the same
-> contacts as before and half signal shilding. So indeed
-> 40 wire cables can turn out to work, but thats subjec to
-> "quality" assurance on behalf of the OEM's.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > Good point.  Looking at it from that perspective, it may be a waste of
+> > time to put fixes in do_gettimeofday().  A dead timer is pretty serious,
+> > and I can't think of a simple way to detect it.
 
-Andre Hedrick
-LAD Storage Consulting Group
-
+On this note, if anybody has any hints on why the timer may be dying, how 
+to debug it, or better places to detect/fix it, I'd be grateful.

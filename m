@@ -1,91 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVA0Xxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVA0Xxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVA0Xxm (ORCPT <rfc822;willy@w.ods.org>);
+	id S261313AbVA0Xxm (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Jan 2005 18:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVA0XwS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVA0XwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:52:18 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:18426 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261161AbVA0Xky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:40:54 -0500
-X-Comment: AT&T Maillennium special handling code - c
-Message-ID: <41F97AEE.9030407@comcast.net>
-Date: Thu, 27 Jan 2005 18:36:14 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Zan Lynx <zlynx@acm.org>, Jesse Pollard <jesse@cats-chateau.net>,
-       linux-os <linux-os@analogic.com>, dtor_core@ameritech.net,
-       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <Pine.LNX.3.96.1050127181446.32523B-101000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1050127181446.32523B-101000@gatekeeper.tmr.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	Thu, 27 Jan 2005 18:52:22 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:12994
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261313AbVA0XqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 18:46:22 -0500
+Date: Thu, 27 Jan 2005 15:41:50 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org,
+       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, ahaas@airmail.net
+Subject: Re: 2.6.11-rc2 TCP ignores PMTU ICMP (Re: Linux 2.6.11-rc2)
+Message-Id: <20050127154150.360f95e2.davem@davemloft.net>
+In-Reply-To: <200501271511.58086.david-b@pacbell.net>
+References: <200501232251.42394.david-b@pacbell.net>
+	<priv$1106815487.koan@shadow.banki.hu>
+	<200501271128.48411.david-b@pacbell.net>
+	<200501271511.58086.david-b@pacbell.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-
-
-Bill Davidsen wrote:
-> On Thu, 27 Jan 2005, Zan Lynx wrote:
-> 
-> 
->>On Thu, 2005-01-27 at 10:37 -0600, Jesse Pollard wrote:
->>
->>>On Wednesday 26 January 2005 13:56, Bill Davidsen wrote:
->>>
->>>>On Wed, 26 Jan 2005, Jesse Pollard wrote:
->>>>
->>>>>On Tuesday 25 January 2005 15:05, linux-os wrote:
->>>>>
->>>>>>This isn't relavent [Stuff about the navy][...]
->>>>>
->>>>>The Navy [...]
->>>>
->>>>[...]Physical network topology[...]
->>>
->>>[...]sneakernet[...]
->>>
->>>
->>>>>[...]path[...]
->>>>
->>>>[...]internet[...]
->>>
->>>[...]hahaha[...]
->>
->>[...]NSA[...]
-> 
-> 
-> [...]security clearance[...]
-> 
-
-I'll ask again
-
-How the f!@k did the navy get involved in this discussion?
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+XrshDd4aOud5P8RAlYQAKCIoi9N6fsNcmjHrT+S5nVptw8sdACfQuZ6
-cpAXu20BIaitjRvuqwJq/K4=
-=zbim
------END PGP SIGNATURE-----
+I've forwarded this to netfilter-devel for inspection.
+Thanks for collecting all the data points so well.

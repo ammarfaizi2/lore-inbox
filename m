@@ -1,76 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbSIXAS5>; Mon, 23 Sep 2002 20:18:57 -0400
+	id <S261491AbSIXAQl>; Mon, 23 Sep 2002 20:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSIXAS4>; Mon, 23 Sep 2002 20:18:56 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:45445 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261503AbSIXASt>; Mon, 23 Sep 2002 20:18:49 -0400
-Date: Mon, 23 Sep 2002 19:24:01 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Jeff Dike <jdike@karaya.com>
-cc: linux-kernel@vger.kernel.org, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: UML kbuild patch
-In-Reply-To: <200209240109.UAA05448@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.44.0209231913060.13892-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261495AbSIXAQl>; Mon, 23 Sep 2002 20:16:41 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:15490 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S261491AbSIXAQi>; Mon, 23 Sep 2002 20:16:38 -0400
+Date: Mon, 23 Sep 2002 17:21:35 -0700
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Peter W?chtler <pwaechtler@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020924002135.GB3797@gnuppy.monkey.org>
+References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain> <3D8F82E5.90A64E8@mac.com> <20020923184423.B26887@mark.mielke.cc> <20020923230122.GA3642@gnuppy.monkey.org> <20020923191132.D26887@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020923191132.D26887@mark.mielke.cc>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Jeff Dike wrote:
+On Mon, Sep 23, 2002 at 07:11:32PM -0400, Mark Mielke wrote:
+> I do not find it to be profitable to discourage the people working on
+> this project. If they fail, nobody loses. If they succeed, they can
+> re-invent the math behind threading, and Linux ends up on the forefront
+> of operating systems offering the technology.
 
-> The UML build needs a few kbuild changes in order to work with the latest
-> stuff.
-> 
-> Since kbuild now enforces the use of the linker script on the vmlinux build,
-> UML can't use its old two-stage link, where
-> 	vmlinux is a normal relocatable object file
-> 	which is linked into the linux binary with the linker script
-> 
-> So, in order to fold those into one stage and produce an ELF binary, I need
-> the vmlinux "linker" to actually be gcc.  This implies I need a 
-> "-Wl,-T,arch/$(ARCH)/vmlinux.lds.s" instead of the usual 
-> "-T arch/$(ARCH)/vmlinux.lds.s".
-> 
-> This is done without breaking the other arches by changing the final link
-> command to $(LD_vmlinux) which is defaulted to $(LD) if the arch doesn't
-> define it.
-> 
-> The "-Wl,..." is done similarly by using $(LDFLAGS_vmlinux_default) if
-> the linker command is anything but gcc and $(LDFLAGS_vmlinux_gcc) if it is
-> gcc.
+Math, unlikely. Performance issues, maybe. Overall kernel technology,
+highly unlikely and bordering on preposterous claim.
 
-I just thought of another solution, which actually seems cleaner and has 
-less impact on the top-level (generic) Makefile.
+This is forum, like anything else, is to propose a new infrastructure
+for something that's very important to the function of this operating
+system. For this project to succeed, it must address possible problems
+that various folks bring up in examining what's been proposed or built.
+That's the role of these discussions.
 
-Let's just do the 
+> As for 'crazy synchronization', solutions such as the FUTEX have no
+> real negative aspects. It wasn't long ago that the FUTEX did not
+> exist. Why couldn't innovation make 'crazy synchronization by
+> non-web-server like applications' more efficient using kernel threads?
 
-	LDFLAGS_vmlinux := -T arch/$(ARCH)/vmlinux.lds.s
+To be blunt, I don't believe it. It's out of a technical point of view
+from my bias to a FreeBSD's scheduler activation threading and because
+people are too easily dismissing M:N performance issues while reaching
+conclusions about it that seem to be presumptuous.
 
-before including arch/$(ARCH)/Makefile.
-Normal archs can then just do
+The incorrect example where you outline what you think is a M:N call
+conversion is (traditional async wrappers instead of upcalls), is something
+that don't want to be a future technical strawman that folks create in
+this community to attack M:N threading. It may very well still have
+legitimacy in the same way that part of the performance of the JVM depends
+on accessibilty to a thread's ucontext and run state, which seem to be
+initial oversight (unknown reason) when this was originally conceived.
 
-	LDFLAGS_vmlinux += -extra_option
+Those are kind of things are what I'm most worried about that eventually
+hurt what application folks are on building on top of Linux and its
+kernel facilities.
 
-while UML does
+> Concurrency experts would welcome the change. Concurrent 'experts'
+> would not welcome the change, as it would force them to have to
+> re-learn everything they know, effectively obsoleting their 'expert'
+> status. (note the difference between the unquoted, and the quoted...)
 
-	LDFLAGS_vmlinux := -r
+Well, what I mean by concurrency experts is there can be specialized
+applications where people much become experts in concurrency to solve
+difficult problem that might be know to this group at this time.
+Dimissing that in the above paragraph doesn't negate that need.
 
-The actual executable UML generates is called "linux" anyway, so its 
-Makefile can have its own rule (as for other archs the boot images) which 
-builds "linux" from "vmlinux" using gcc and the link script. - I.e. the 
-same way as UML used to do it earlier, anyway.
+The bottom line here is that ultimately the kernel is providing useable
+primitive/terms for applications programmers. It's not the scenario
+where kernel folks just build something that's conceptually awkward and
+then it's up to applications people to work around bogus design problems
+that result from that. So what I meant by folks that have applications
+that might push the limits of what the current synchronization model
+offers.
 
-The only impact on generic code is basically
-s/LDFLAGS_vmlinux :=/LDFLAGS_vmlinux +=/
-in arch/*/Makefile, and it makes the UML "linux" build conceptually 
-similar to other archs' "bzImage" or whatever targets.
+That's the core of my rant and it took quite a while to write up. ;)
 
-What do you think?
-
---Kai
-
-
+bill
 

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283056AbRLMCtl>; Wed, 12 Dec 2001 21:49:41 -0500
+	id <S283163AbRLMCxv>; Wed, 12 Dec 2001 21:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283080AbRLMCtc>; Wed, 12 Dec 2001 21:49:32 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:25003 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S283056AbRLMCtX>;
-	Wed, 12 Dec 2001 21:49:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>,
-        "David C. Hansen" <haveblue@us.ibm.com>
-Subject: Re: [RFC] Change locking in block_dev.c:do_open()
-Date: Wed, 12 Dec 2001 18:49:20 -0800
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB01@mail0.myrio.com>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB01@mail0.myrio.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ELw0-0003Ch-00@phalynx>
+	id <S283204AbRLMCxl>; Wed, 12 Dec 2001 21:53:41 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:42193 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S283163AbRLMCx1>; Wed, 12 Dec 2001 21:53:27 -0500
+Subject: Re: Unknown bridge resource
+From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.30.0112130004310.5686-100000@balu>
+In-Reply-To: <Pine.GSO.4.30.0112130004310.5686-100000@balu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 Dec 2001 03:52:48 +0100
+Message-Id: <1008211968.16830.1.camel@nc1701d>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 12, 2001 18:40, Torrey Hoffman wrote:
-> Ryan Cumming wrote:
-> > Why not use a read-write semaphore? The sections that require
-> > the module to
-> > stay resident use a read lock, and module unloading aquires a
-> > write lock. In
-> > addition to containing the evil, evil BKL, you might actually
-> > get a tangiable
-> > scalability gain out of it.
+If the pci id is not found (see drivers/pci/pci.ids), you'll get this
+message. If you can supply the description, the maintainer is Martin
+Mares <mj@ucw.cz>, see also http://pciids.sf.net/.
 
-<random sassing snipped>
+On Thu, 2001-12-13 at 00:08, Pozsar Balazs wrote:
+> 
+> Hi all,
+> 
+> During boot, i got these two lines in dmesg:
+> Unknown bridge resource 0: assuming transparent
+> Unknown bridge resource 2: assuming transparent
+> 
+> What do they mean?
+> 
+> 
+> ps: I noticed these because they are written on the console even if quiet
+> mode is on. There was a patch for 2.4-ac, but it seems that it somehow
+> lost... :(
+> 
+> -- 
+> Balazs Pozsar
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Juergen Sawinski
+Max-Planck-Institute for Medical Research
+Dept. of Biomedical Optics
+Jahnstr. 29
+D-69120 Heidelberg
+Germany
 
-> With some improvements in this area, massively parallel SMP systems
-> could parallelize module loading, and achieve thousands of module
-> load/unload operations per second (MLUOPS).
+Phone:  +49-6221-486-309
+Fax:    +49-6221-486-325
 
-Ha, yes, I can imagine how what I said seemed rather amusing. In case it 
-wasn't clear, I mean we should use a read write semaphore to prevent things 
-that require the module to be loaded from being -serialized against each 
-other-. So, think being able to parellelize the actual -usage- of the 
-module's functions. Module unloads would still be serialized, unfortunately ;)
+priv.
+Phone:  +49-6221-418 848
+Mobile: +49-171-532 5302
 
--Ryan

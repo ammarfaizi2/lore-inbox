@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266442AbTGJUbU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 16:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbTGJUbU
+	id S266466AbTGJUiL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 16:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269526AbTGJUiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 16:31:20 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:51446 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S266442AbTGJUbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 16:31:18 -0400
-Message-ID: <3F0DD05B.3030607@mvista.com>
-Date: Thu, 10 Jul 2003 13:45:15 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+	Thu, 10 Jul 2003 16:38:11 -0400
+Received: from zeke.inet.com ([199.171.211.198]:50569 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S266466AbTGJUiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 16:38:09 -0400
+Message-ID: <3F0DD21B.5010408@inet.com>
+Date: Thu, 10 Jul 2003 15:52:43 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
-Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patch
- attached to fix
-References: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Style question: Should one check for NULL pointers?
+References: <Pine.LNX.4.44L0.0307101606060.22398-100000@netrider.rowland.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried the kernel with the special fasttrak feature enabled, and it 
-didn't work.  There are special cases in the pci-setup.c code for other 
-promise adaptors, so adding one more seems to make sense.
+Alan Stern wrote:
+[snip]
+> Ultimately this comes down to a question of style and taste.  This 
+> particular issue is not addressed in Documentation/CodingStyle so I'm 
+> raising it here.  My personal preference is for code that means what it 
+> says; if a pointer is checked it should be because there is a genuine 
+> possibility that the pointer _is_ NULL.  I see no reason for pure 
+> paranoia, particularly if it's not commented as such.
+> 
+> Comments, anyone?
 
-Thanks
--steve
+BUG_ON() perhaps?
 
-Bartlomiej Zolnierkiewicz wrote:
-
->Hi,
->
->Do you have "Special FastTrak Feature" enabled?
->
->--
->Bartlomiej
->
->On Thu, 10 Jul 2003, Steven Dake wrote:
->
->  
->
->>Folks,
->>
->>After I upgraded to 2.4.21, I noticed my Gigabyte motherboard with
->>onboard IDE Promise 20276 FastTrack RAID no longer works.  The following
->>patch fixes the problem, which appears to be an incomplete list of
->>devices in the ide setup code.  There are probably other fasttrack RAID
->>adaptors that should be added to the setup code, but I don't know what
->>they are.
->>
->>Thanks
->>-steve
->>    
->>
->
->
->
->  
->
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

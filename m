@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbRHOWII>; Wed, 15 Aug 2001 18:08:08 -0400
+	id <S267879AbRHOWUb>; Wed, 15 Aug 2001 18:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbRHOWH7>; Wed, 15 Aug 2001 18:07:59 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:61108 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S267579AbRHOWHv>;
-	Wed, 15 Aug 2001 18:07:51 -0400
-Message-Id: <m15X8pQ-000PX7C@amadeus.home.nl>
-Date: Wed, 15 Aug 2001 23:07:56 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: akpm@zip.com.au (Andrew Morton)
-Subject: Re: Dell I8000, 2.4.8-ac5 and APM
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B7AF05C.29521C46@zip.com.au>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S267844AbRHOWUL>; Wed, 15 Aug 2001 18:20:11 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:55447 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S267890AbRHOWTv>;
+	Wed, 15 Aug 2001 18:19:51 -0400
+Message-ID: <3B7AF742.9A1F6DDB@randomlogic.com>
+Date: Wed, 15 Aug 2001 15:27:14 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: [ANNOUNCE] Linux 2.4.8 Kernel Source Docs and Metrics
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B7AF05C.29521C46@zip.com.au> you wrote:
+Linux kernel 2.4.8 source code documentation and metrics is now up at http://www2.randomlogic.com/linux_html/
 
-> I occasionally hear rumours about 3c59x failing with suspend/resume,
-> but It Works For Me and nobody has stepped up with a solid problem
-> description.  If someone _can_ reproduce this and is prepared to
-> work it a bit, please let me know.
+The tarball is up at http://www.randomlogic.com/files/linux_html.tar.gz
 
-What I've seen so far is that it's not just enough to save your driver's
-state, as some bioses also forget to restore the bridge your card is on.
+PGA
 
-I've a tentative fix I want to let loose on dwmw2's laptop tomorrow
-
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261841AbSJECCw>; Fri, 4 Oct 2002 22:02:52 -0400
+	id <S261851AbSJECG6>; Fri, 4 Oct 2002 22:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbSJECCr>; Fri, 4 Oct 2002 22:02:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43747 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261841AbSJECCq>;
-	Fri, 4 Oct 2002 22:02:46 -0400
-Date: Fri, 04 Oct 2002 19:00:53 -0700 (PDT)
-Message-Id: <20021004.190053.69975722.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: oops in bk pull (oct 03)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0210041839430.13749-100000@home.transmeta.com>
-References: <20021004.181311.31550114.davem@redhat.com>
-	<Pine.LNX.4.44.0210041839430.13749-100000@home.transmeta.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261863AbSJECG6>; Fri, 4 Oct 2002 22:06:58 -0400
+Received: from postal2.lbl.gov ([131.243.248.26]:16791 "EHLO postal2.lbl.gov")
+	by vger.kernel.org with ESMTP id <S261851AbSJECG5>;
+	Fri, 4 Oct 2002 22:06:57 -0400
+Message-ID: <3D9E47FD.9060205@slackers.net>
+Date: Fri, 04 Oct 2002 19:01:33 -0700
+From: "Matthew N. Andrews" <matt@slackers.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Morris <jmorris@intercode.com.au>
+CC: "David S. Miller" <davem@redhat.com>, greearb@candelatech.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: tg3 and Netgear GA302T x 2 locks machine
+References: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Fri, 4 Oct 2002 18:41:25 -0700 (PDT)
-   
-   On Fri, 4 Oct 2002, David S. Miller wrote:
-   > Another theory is that some device just dislikes being given
-   > a 0 in one of it's base registers, but somehow ~0 is ok :-)
-   
-   I think that is the real issue. We're mapping something - probably a host
-   bridge - at address 0, and then accessing RAM (which is also is mapped at 
-   PCI address 0) and the host bridge is unhappy.
+James Morris wrote:
 
-We're current blindly putting ~0 in there, how can that be any
-better? :-)
-   
-   So excluding the change is probably the right thing to do - it's just 
-   fundamentally buggy to blindly put a base register at zero.
-   
-And putting ~0 there is ok?
+>On Fri, 4 Oct 2002, David S. Miller wrote:
+>
+>  
+>
+>>   From: Ben Greear <greearb@candelatech.com>
+>>   Date: Thu, 03 Oct 2002 21:19:37 -0700
+>>
+>>   Got my two new Netgear GA302t nics today.  They seem to use the
+>>   tg3 driver....
+>>   
+>>   I put them into the 64/66 slots on my Tyan dual amd motherboard..
+>>   Running kernel 2.4.20-pre8
+>>   
+>>You reported the other week problems with two Acenic's in
+>>this same machine right?  The second Acenic wouldn't even probe
+>>properly.  And the two Acenic's were identical.
+>>
+>>    
+>>
+>
+>FWIW, my GA302T seems fine with the kernel he originally reported 
+>(2.4.20-pre8).
+>
+>
+>- James
+>  
+>
+What version of the bios does your motherboard have? I had problems with 
+a dual syskonnect board on this motherboard(tyan 2466) where it would 
+not would not initialize properly under the older bios.
 
->From what you're saying, that whole routine is fundamentally broken.
+-Matt
+
+

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbTDWQGm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTDWQGm
+	id S264108AbTDWQJG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTDWQJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:06:42 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:5075 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264103AbTDWQGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:06:42 -0400
-Subject: Re: [cgl_discussion] Re: OSDL CGL-WG draft specs available for
-	review
-From: Mika Kukkonen <mika@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, cgl_discussion@osdl.org
-In-Reply-To: <20030422222508.A12915@infradead.org>
-References: <1051044403.1384.44.camel@miku-t21-redhat.koti>
-	 <20030422215552.B12367@infradead.org>
-	 <1051046563.1384.54.camel@miku-t21-redhat.koti>
-	 <20030422222508.A12915@infradead.org>
-Content-Type: text/plain
-Organization: OSDL
-Message-Id: <1051114725.7515.39.camel@miku-t21-redhat.koti>
+	Wed, 23 Apr 2003 12:09:06 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:49841 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264108AbTDWQJF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 12:09:05 -0400
+Date: Wed, 23 Apr 2003 09:23:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+       andmike@us.ibm.com
+Subject: Re: [RFC] Device class rework [0/5]
+Message-ID: <20030423162311.GB11175@kroah.com>
+References: <20030422205545.GA4701@kroah.com> <172940000.1051059583@w-hlinder> <20030423015454.GA6298@kroah.com> <41570000.1051114688@w-hlinder>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Apr 2003 09:18:45 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41570000.1051114688@w-hlinder>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-22 at 14:25, Christoph Hellwig wrote:
-> On Tue, Apr 22, 2003 at 02:22:48PM -0700, Mika Kukkonen wrote:
-> > Well, there are several ways to convert PDF to ASCII ("pdftotext" in RH9
-> > is one), but as expected they all produce bloody awful results. Better
-> > than nothing, I guess. If you want, I can send the results to you
-> > directly, but I am not going to spam LKML with them (these are reasonable 
-> > long documents).
+On Wed, Apr 23, 2003 at 09:18:08AM -0700, Hanna Linder wrote:
+> --On Tuesday, April 22, 2003 06:54:54 PM -0700 Greg KH <greg@kroah.com> wrote:
 > 
-> Yeah, I know - I just hoped you had some way to generate better ASCII
-> output from the original form of the document..
+> >> I did a quick sanity test of these patches on a 2-way PIII.
+> >> It built and booted fine for me. I don't have any devices that 
+> >> span multiple classes but the patch hasnt changed any of my 
+> >> existing /sys/class output.
+> > 
+> > Hm, are you sure you applied them and are using that kernel?  :)
+> > 
+> 
+> Yes. I did apply the patches... Just not to the kernel I booted ;(
+> 
+> Here is the correct tree I see on my 2xPIII:
+> 
+> 
+> /sys/class
+> |-- cpu
+> |   |-- cpu0
+> |   |   `-- device -> ../../../devices/sys/cpu0
+> |   `-- cpu1
+> |       `-- device -> ../../../devices/sys/cpu1
 
-OK, we now have a text versions available at SourceForge:
-  http://sourceforge.net/docman/index.php?group_id=48444
+Looks good.  That "foo" file in the example I posted was from an older
+kernel version on one of my boxes.  This is the correct information.
 
---MiKu
+Thanks for testing,
 
-
+greg k-h

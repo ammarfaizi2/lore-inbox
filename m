@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133056AbREEX1W>; Sat, 5 May 2001 19:27:22 -0400
+	id <S135590AbREEX2W>; Sat, 5 May 2001 19:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135590AbREEX1M>; Sat, 5 May 2001 19:27:12 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:22023 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S133056AbREEX07>;
-	Sat, 5 May 2001 19:26:59 -0400
-Date: Sat, 5 May 2001 19:27:31 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2 design philosophy heads-up
-Message-ID: <20010505192731.A2374@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
+	id <S135593AbREEX2N>; Sat, 5 May 2001 19:28:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37783 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135590AbREEX1x>;
+	Sat, 5 May 2001 19:27:53 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-ID: <15092.35947.527339.828149@pizda.ninka.net>
+Date: Sat, 5 May 2001 16:27:39 -0700 (PDT)
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+In-Reply-To: <Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>
+In-Reply-To: <Pine.LNX.4.33.0105051550000.20277-100000@twinlark.arctic.org>
+	<Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've said before on these lists that one of the purposes of CML2's single-apex
-tree design is to move the configuration dialog away from low-level platform-
-specific questions towards higher-level questions about policy or intentions.
 
-Or to put another way: away from hardware, towards capabilities.
+dean gaudet writes:
+ > also -- isn't it kind of wrong for arp to respond with addresses from
+ > other interfaces?
+ > 
+ > what if ip_forward is 0?  or if there's some other sort of routing policy
+ > in effect?
 
-As a concrete example, the CML2 rulesfile master for the m68k port
-tree now has a section that looks like this:
+This along with some other issues are why Alexey and myself want to
+do ARP filter in some other way.
 
-# These were separate questions in CML1.  They enable on-board peripheral
-# controllers in single-board computers.
-derive MVME147_NET from MVME147 & NET_ETHERNET
-derive MVME147_SCC from MVME147 & SERIAL
-derive MVME147_SCSI from MVME147 & SCSI
-derive MVME16x_NET from MVME16x & NET_ETHERNET
-derive MVME16x_SCC from MVME16x & SERIAL
-derive MVME16x_SCSI from MVME16x & SCSI
-derive BVME6000_NET from BVME6000 & NET_ETHERNET
-derive BVME6000_SCC from BVME6000 & SERIAL
-derive BVME6000_SCSI from BVME6000 & SCSI
+There are two sides to this story though, both with valid arguments.
 
-# These were separate questions in CML1
-derive MAC_SCC from MAC & SERIAL
-derive MAC_SCSI from MAC & SCSI
-derive SUN3_SCSI from (SUN3 | SUN3X) & SCSI
+Ho hum... since things have settled down in the networking and this
+is being pushed again, I guess it's time to fire up the dialogue
+once more.
 
-If it isn't obvious, the intent is that if you specify (say) both 
-MVME147 (a machine type) and SERIAL (a capability) you automatically 
-get the specific driver support under MVME147_SCC.
-
-This is different from the CML1 approach, which generally involved
-explicitly specifying each driver with mutual dependencies described 
-(if at all) in Configure.help.
-
-I've created a number of derivations of this kind recently.  I'm not
-going out of my way to do this, but what I am trying to do is reduce
-the number of symbols undocumented in Configure.help to zero (I've got
-it down to 243 from 547 when I started).  When I can eliminate the
-need for a configuration question and associated help by writing this
-kind of formula, I'm doing so.
-
-This note is a heads-up.  If others with a stake in the configuration
-system (port managers, etc.) have objections to moving further in this
-direction, I need to hear about it, and about what you think we should
-be doing instead.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Never could an increase of comfort or security be a sufficient good to be
-bought at the price of liberty.
-	-- Hillaire Belloc
+Later,
+David S. Miller
+davem@redhat.com

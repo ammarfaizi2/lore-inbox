@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbTDUUy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 16:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbTDUUy4
+	id S261962AbTDUUw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 16:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTDUUw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 16:54:56 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48091
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262024AbTDUUyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 16:54:52 -0400
-Subject: Re: [PATCH] Fix CPU Names in Kconfig
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Mon, 21 Apr 2003 16:52:58 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43789 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261962AbTDUUw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 16:52:57 -0400
+Date: Mon, 21 Apr 2003 14:04:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Andi Kleen <ak@muc.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030421205520.GA13940@averell>
-References: <20030421205520.GA13940@averell>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050955686.13841.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Apr 2003 21:08:07 +0100
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Runtime memory barrier patching
+In-Reply-To: <20030421205333.GA13883@averell>
+Message-ID: <Pine.LNX.4.44.0304211359430.17938-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-21 at 21:55, Andi Kleen wrote:
-> OldXeon for the P3 based Xeons is a bit confusing, but we cannot 
-> fix the Intel marchitecture here.
 
-"Pentium II/III Xeon" v "Pentium IV Xeon"
+On Mon, 21 Apr 2003, Andi Kleen wrote:
+>
+> Ok fixed. I used the recommendations from the Hammer optimization
+> manual, will hopefully work for Intel too.
 
-At least thats what ebay user seem to use to distinguish 8)
+They may _work_ for intel, but quite frankly they suck for most Intel (and 
+probably non-intel too) CPU's. Using prefixes tends to almost always mess 
+up the instruction decoders on most CPU's out there.
+
+I _think_ most Intel chips have one generic decoder (which knows about
+prefixes etc), and the rest only handle simple instructions.
+
+Intel has some preferred sequence that I'd much rather use by default,
+although we can obviously use a CONFIG_xxx option to switch between these
+sequences.
+
+I forget what the intel sequence is, but I think the multi-byte opcodes 
+are something like "lea 0(%esi),%esi" rather than adding operand size 
+prefixes to the nop.
+
+Does anybody have the preferred Intel sequence somewhere?
+
+			Linus
 

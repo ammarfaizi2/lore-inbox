@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132803AbRDDLpr>; Wed, 4 Apr 2001 07:45:47 -0400
+	id <S132802AbRDDL5K>; Wed, 4 Apr 2001 07:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132802AbRDDLph>; Wed, 4 Apr 2001 07:45:37 -0400
-Received: from orbita.don.sitek.net ([213.24.25.98]:38404 "EHLO
-	orbita.don.sitek.net") by vger.kernel.org with ESMTP
-	id <S132803AbRDDLpc>; Wed, 4 Apr 2001 07:45:32 -0400
-Date: Wed, 4 Apr 2001 15:43:42 +0400
-From: Andrey Panin <pazke@orbita.don.sitek.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac2
-Message-ID: <20010404154342.A16232@debian>
-In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu>
+	id <S132805AbRDDL5B>; Wed, 4 Apr 2001 07:57:01 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:47045 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S132802AbRDDL4r>;
+	Wed, 4 Apr 2001 07:56:47 -0400
+Date: Wed, 4 Apr 2001 13:56:05 +0200
+From: GOMBAS Gabor <gombasg@inf.elte.hu>
+To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/config idea
+Message-ID: <20010404135604.A192662@pandora.inf.elte.hu>
+In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es> <3ACA1A91.70401@kalifornia.com> <20010403211218.A2387@werewolf.able.es> <20010403123014.A17132@thune.yy.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 04, 2001 at 01:41:03AM +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010403123014.A17132@thune.yy.com>; from dalgoda@ix.netcom.com on Tue, Apr 03, 2001 at 12:30:14PM -0700
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 03, 2001 at 12:30:14PM -0700, Mike Castle wrote:
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+> Some patches, such as the RAID patches, sets up EXTRAVERSION to a specific
+> value.
 
-Hi Alan,
+- If you apply such a patch first, and after that you edit EXTRAVERSION,
+your value will be used - no problem.
 
-looking at 2.4.3-ac2 patch i found that 165x0 serial driver was downgraded=
-=20
-from version 5.05 to 5.02 during the 2.4.3 merge. Looks strange for me,=20
-both 2.4.3 and 2.4.2-ac28 had serial driver 5.05 included.
+- If you edit EXTRAVERSION before applying such a patch, the specific hunk
+trying to change the EXTRAVERSION will be rejected - again no problem.
+Actually this is already the case when you apply 2 patches trying to set
+EXTRAVERSION to 2 different values...
 
-Is it late 1 April joke ? :))
+> I do with the make file also had a USERVERSION that would be hands off for
+> anyone but the builder.
 
-Best regards.
+It is not needed.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
+Gabor
 
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6ywjtBm4rlNOo3YgRAhAAAJ9CQonU+sA+836Nq+IDQK6dMBmmhgCgkBH6
-J2UrSux1yvf78snmIu4k0cI=
-=ytEN
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+-- 
+Gabor Gombas                                       Eotvos Lorand University
+E-mail: gombasg@inf.elte.hu                        Hungary

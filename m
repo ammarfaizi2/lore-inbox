@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130780AbQKJObf>; Fri, 10 Nov 2000 09:31:35 -0500
+	id <S131008AbQKJOcP>; Fri, 10 Nov 2000 09:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131008AbQKJObZ>; Fri, 10 Nov 2000 09:31:25 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:47109 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130780AbQKJObO>;
-	Fri, 10 Nov 2000 09:31:14 -0500
-Message-ID: <3A0C066D.BB6B0220@mandrakesoft.com>
-Date: Fri, 10 Nov 2000 09:30:05 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S131118AbQKJOb7>; Fri, 10 Nov 2000 09:31:59 -0500
+Received: from wg.redhat.de ([193.103.254.4]:60752 "HELO mail.redhat.de")
+	by vger.kernel.org with SMTP id <S131008AbQKJObm>;
+	Fri, 10 Nov 2000 09:31:42 -0500
+Date: Fri, 10 Nov 2000 15:31:40 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@redhat.de>
+To: linux-kernel@vger.kernel.org
+Subject: APIC errors w/ 2.4.0-test11-pre2
+Message-ID: <Pine.LNX.4.21.0011101523170.14596-100000@bochum.redhat.de>
 MIME-Version: 1.0
-To: Andrey Panin <pazke@orbita.don.sitek.net>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] NIC drivers check_region() removal continues
-In-Reply-To: <20001110142957.A8245@debian>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin wrote:
-> 
-> Hi all,
-> 
-> new net drivers patchset (against 2.4.0-test11-pre1) attached.
-> 
-> Modifications: check_region() removal, passing dev->name to
-> request_region() & request_irq() etc.
-> 
-> Drivers affected: 3c501.c, 3c503.c, 3c505.c, 82596.c, eth16i.c, hp.c,
-> hp-plus.c, ibmlana.c, ne2.c, seeq8005.c, smc-mca.c, smc-ultra.c,
-> smc-ultra32.c
+Hi,
+after booting a 2.4.0 (any testx-release I've tried so far, including
+test11-pre2) on a Dual-Pentium III box, the system works ok, but the
+console gets filled with
 
-Most patches applied, thanks.  Comments:
+APIC error on CPU0: 08(08)
 
-3c505.c:  You must abort if dma_mem_alloc return value is null, not just
-print a message.
-82596.c:  Not applied.  My moving the "if checksum & 0x100" line, you
-make the code comments incorrect.
-eth16i.c:  Your diff was not created in the main linux directory...
-seeq8005.c:  Applied, but you forgot dev->name in request_region
+every couple of seconds, occasionally some lines in between say
 
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+APIC error on CPU0: 08(02)
+
+and
+
+APIC error on CPU0: 02(08)
+
+This doesn't happen with 2.2.x, but I've seen "unexpected IRQ vector 208
+on CPU0" in 2.2.18 occasionally (nowhere near as often, maybe once a
+month).
+
+This is an ASUS P2-D board (Intel 440BX chipset), 2 Pentium III-700
+processors.
+
+The same kernel works perfectly on a similar (but slower) system, Gigabyte
+P2B-D board (Intel 440BX chipset), 2 Pentium III-450 processors.
+
+LLaP
+bero
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

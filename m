@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286116AbRLIAdd>; Sat, 8 Dec 2001 19:33:33 -0500
+	id <S274752AbRLIAje>; Sat, 8 Dec 2001 19:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286111AbRLIAdW>; Sat, 8 Dec 2001 19:33:22 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:24013 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S284733AbRLIAdG>;
-	Sat, 8 Dec 2001 19:33:06 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S275973AbRLIAjZ>; Sat, 8 Dec 2001 19:39:25 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:35856 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S274752AbRLIAjN>;
+	Sat, 8 Dec 2001 19:39:13 -0500
+Message-Id: <200112090039.BAA25399@webserver.ithnet.com>
+From: Stephan von Krawczynski <skraw@ithnet.com>
+Date: Sun, 09 Dec 2001 01:39:03 +0100
+Subject: Re: Typedefs / gcc / HIGHMEM
+To: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <9uu8d8$spc$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: linux-kernel@vger.kernel.org
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15378.45358.807039.55719@napali.hpl.hp.com>
-Date: Sat, 8 Dec 2001 16:32:46 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, marcelo@conectiva.com.br (Marcelo Tosatti),
-        akpm@zip.com.au (Andrew Morton), j-nomura@ce.jp.nec.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
-In-Reply-To: <E16CoLL-0002bW-00@the-village.bc.nu>
-In-Reply-To: <15378.17075.960942.357075@napali.hpl.hp.com>
-	<E16CoLL-0002bW-00@the-village.bc.nu>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 8 Dec 2001 20:45:07 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> said:
-
-  Alan> x86_udelay_tsc wont have been set at that point so the main
-  Alan> timer is still being used.
-
-  >>  x86 does use current_cpu_data.loops_per_jiffy in the non-TSC
-  >> case, no?
-
-  Alan> I believe so.  So we should propogate that across earlier,
-  Alan> although its not needed for our current console drivers that I
-  Alan> can see
-
-I don't think you can do it early enough.  calibrate_delay() requires
-irqs to be enabled and the first printk() happens long before irqs are
-enabled on an AP.
-
-	--david
+> > The first is u64, the second u32. Either the u64 value is not     
+                                                                      
+> > required, or the statement is broken. Astonishing there is _no_   
+                                                                      
+> > compiler warning in this line.                                    
+                                                                      
+> >                                                                   
+>                                                                     
+> Why should there be?  The u32 value gets promoted to u64 before the 
+> comparison is done.                                                 
+                                                                      
+Yes, ok, you're right. This was not a well thought out statement.     
+Anyway the problem with printf statement stays. It is obviously       
+confused by a unsigned long long and "%08x". How would you fix this?  
+Downcasting to u32?                                                   
+                                                                      
+> > BTW, my personal opinion to "typedef unsigned int u32" is that it 
+                                                                      
+> > should rather be "typedef unsigned long u32", but this is         
+religious.                                                            
+>                                                                     
+> I see you have a background in environments where you move between  
+16-                                                                   
+> and 32-bit machines.  Guess what, in Linux the major movement is    
+> between 32- and 64-bit machines, and "unsigned int" is consistent,  
+> whereas "unsigned long" isn't (long is 32 bits on 32-bit machines,  
+64                                                                    
+> bits on 64-bit machines.)                                           
+                                                                      
+Ha, I always wondered what this u64 is all about :-)                  
+Honestly, this whole datatyping is gone completely mad since the 16-32
+bit  change. In my opinion                                            
+byte is 8 bit                                                         
+short is 16 bit                                                       
+long is 32 bit                                                        
+<callwhatyouwant> is 64 bit (I propose long2 for expression of bitsize
+long * 2).                                                            
+<callwhatyouwant2> is 128 bit (Ha, right I would call it long4)       
+                                                                      
+char is the standard representation of chars in the corresponding     
+environment, currently sizeof(byte).                                  
+int is the same and should move from 16 bit to 32 bit to 64 bit       
+depending on the machine. I mean whats the use of an int register in a
+64bit environment, when datatype int is only of size 32 bit? This is  
+_shit_.                                                               
+                                                                      
+How do you call a 64 bit datatype in a 128 bit environment? According 
+to your / the worlds current terminology long will then be 128 bit and
+int will (ridiculously) still be 32 bit. It will be pretty interesting
+to hear people talking about integer registers and people writing     
+portable applications do #define int long ... A wait this will break  
+your #typedef unsigned int u32 story :-)                              
+                                                                      
+Writing portable applications can be easily done by using "meta"      
+datatype char/int/etc., whereas machine dependant coding could be done
+by byte/short/long/long2/etc.                                         
+This is completely consistent as it _never_ changes.                  
+                                                                      
+Now you have an _additional_ layer where you call the stuff           
+u8/u16/u32/u64, which I find still ok, but you can then completely    
+shoot long/short/byte.                                                
+                                                                      
+But, in fact, this is more a discussion for the RMS-world than for    
+L-world :-)                                                           
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      
+                                                                      

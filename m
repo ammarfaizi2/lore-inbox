@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSLFPW2>; Fri, 6 Dec 2002 10:22:28 -0500
+	id <S263204AbSLFPUc>; Fri, 6 Dec 2002 10:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbSLFPW2>; Fri, 6 Dec 2002 10:22:28 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:33966 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263228AbSLFPW0>; Fri, 6 Dec 2002 10:22:26 -0500
-Subject: Re: Dazed and Confused
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg Boyce <gboyce@rakis.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
-References: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 16:05:19 +0000
-Message-Id: <1039190719.22971.15.camel@irongate.swansea.linux.org.uk>
+	id <S263228AbSLFPUc>; Fri, 6 Dec 2002 10:20:32 -0500
+Received: from gw-yyz.somanetworks.com ([216.126.67.39]:63420 "EHLO
+	somanetworks.com") by vger.kernel.org with ESMTP id <S263204AbSLFPUb>;
+	Fri, 6 Dec 2002 10:20:31 -0500
+Date: Fri, 6 Dec 2002 10:27:40 -0500
+From: Mark Frazer <mark@somanetworks.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ipv4: how to choose src ip?
+Message-ID: <20021206102740.A29099@somanetworks.com>
+References: <20021205190054.GE23877@louise.pinerecords.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021205190054.GE23877@louise.pinerecords.com>; from szepe@pinerecords.com on Thu, Dec 05, 2002 at 08:00:54PM +0100
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Fry: How can I live my life if I can't tell good from evil?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 14:55, Greg Boyce wrote:
-> I work in a company with a large number of Linux machine deployed all
-> around the country, and in some of the machines we've been seeing the
-> following error:
+Tomas Szepe <szepe@pinerecords.com> [02/12/05 14:08]:
 > 
-> Uhhuh. NMI received. Dazed and confused, but trying to continue
-> You probably have a hardware problem with your RAM chips
+> What I'm looking for is rather a way to
+> initiate two connections to the same destination host using the two
+> different source IP addresses.
 
-There are several causes of an NMI depending on the system - hardware
-failures is one, some systems do it for things like PCI errors, a few
-boxes you see them on power management events (notably old 486's)
-
-> Due to the number of machines and their locations, running memtest86 on
-> them isn't exactly feasible.
-
-Then buy better ram ;)
-
-> Is there anything besides failing hardware that could be the cause of this
-> error?  Also, how serious is this error?  Some of the machines reporting
-> this error have had problems with programs crashing, while others seem to
-> run fine.
-
-Take a sample set of machines which have been crashing and run memtest86
-on a couple. That should tell you if it is RAM. From a sample you can
-then figure out how to handle the rest (things that come to mind if
-memtest86 fails on the test machines include replacing the ram in a few
-more then taking the old ram back to test)
+I believe you can just bind(2) each socket to a different address
+before connect(2).
 
 
+-- 
+Fry, of all the friends I've had ... you're the first. - Bender

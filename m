@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277284AbRJEALN>; Thu, 4 Oct 2001 20:11:13 -0400
+	id <S277286AbRJEALN>; Thu, 4 Oct 2001 20:11:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277283AbRJEALE>; Thu, 4 Oct 2001 20:11:04 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:10195 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S277280AbRJEAKB>;
-	Thu, 4 Oct 2001 20:10:01 -0400
-Date: Thu, 4 Oct 2001 17:10:26 -0700
+	id <S277280AbRJEALH>; Thu, 4 Oct 2001 20:11:07 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:13523 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S277284AbRJEAKn>;
+	Thu, 4 Oct 2001 20:10:43 -0400
+Date: Thu, 4 Oct 2001 17:11:08 -0700
 To: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         linux-irda@pasta.cs.uit.no
-Subject: [PATCH] ir240_discovery_on_demand-2.diff
-Message-ID: <20011004171026.D3290@bougret.hpl.hp.com>
+Subject: [PATCH] ir240_various_cleanup-2.diff
+Message-ID: <20011004171108.E3290@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,163 +25,112 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir240_discovery_on_demand-2.diff :
---------------------------------
-	o [FEATURE] Enable IrDA discovery on demand while in passive mode
-		- Apply only to IrSock and IrNET
-		- Was accidentally removed in discovery rework one year ago
+ir240_various_cleanup-2.diff :
+----------------------------
+	o [CORRECT] Remove a comment that Dag found offensive
+	o [CORRECT] Remove unused variable (spurious warning)
+	o [CORRECT] Typo in nsc-ircc.c
+	o [FEATURE] Enable alternate IO address in smc-ircc.c
 
 
-diff -u -p linux/include/net/irda/irlmp.d0.h linux/include/net/irda/irlmp.h
---- linux/include/net/irda/irlmp.d0.h	Fri Sep 28 11:54:25 2001
-+++ linux/include/net/irda/irlmp.h	Fri Sep 28 12:52:46 2001
-@@ -216,7 +216,7 @@ int  irlmp_disconnect_request(struct lsa
- 
- void irlmp_discovery_confirm(hashbin_t *discovery_log);
- void irlmp_discovery_request(int nslots);
--struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask);
-+struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask, int nslots);
- void irlmp_do_expiry(void);
- void irlmp_do_discovery(int nslots);
- discovery_t *irlmp_get_discovery_response(void);
-diff -u -p linux/net/irda/irlmp.d0.c linux/net/irda/irlmp.c
---- linux/net/irda/irlmp.d0.c	Fri Sep 28 11:53:13 2001
-+++ linux/net/irda/irlmp.c	Fri Sep 28 13:45:21 2001
-@@ -781,10 +781,6 @@ void irlmp_do_discovery(int nslots)
-  */
- void irlmp_discovery_request(int nslots)
- {
--	/* Check if user wants to override the default */
--	if (nslots == DISCOVERY_DEFAULT_SLOTS)
--		nslots = sysctl_discovery_slots;
--
- 	/* Return current cached discovery log */
- 	irlmp_discovery_confirm(irlmp->cachelog);
- 
-@@ -792,21 +788,43 @@ void irlmp_discovery_request(int nslots)
- 	 * Start a single discovery operation if discovery is not already
-          * running 
- 	 */
--	if (!sysctl_discovery)
-+	if (!sysctl_discovery) {
-+		/* Check if user wants to override the default */
-+		if (nslots == DISCOVERY_DEFAULT_SLOTS)
-+			nslots = sysctl_discovery_slots;
-+
- 		irlmp_do_discovery(nslots);
--	/* Note : we never do expiry here. Expiry will run on the
--	 * discovery timer regardless of the state of sysctl_discovery
--	 * Jean II */
-+		/* Note : we never do expiry here. Expiry will run on the
-+		 * discovery timer regardless of the state of sysctl_discovery
+diff -u -p linux/net/irda/irlap_event.d0.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d0.c	Fri Sep 28 11:51:16 2001
++++ linux/net/irda/irlap_event.c	Fri Sep 28 11:51:33 2001
+@@ -701,7 +701,21 @@ static int irlap_state_conn(struct irlap
+ 		 * We are allowed to send two frames, but this may increase
+ 		 * the connect latency, so lets not do it for now.
+ 		 */
+-		/* What the hell is this ? - Jean II */
++		/* This is full of good intentions, but doesn't work in
++		 * practice.
++		 * After sending the first UA response, we switch the
++		 * dongle to the negociated speed, which is usually
++		 * different than 9600 kb/s.
++		 * From there, there is two solutions :
++		 * 1) The other end has received the first UA response :
++		 * it will set up the connection, move to state LAP_NRM_P,
++		 * and will ignore and drop the second UA response.
++		 * Actually, it's even worse : the other side will almost
++		 * immediately send a RR that will likely collide with the
++		 * UA response (depending on negociated turnaround).
++		 * 2) The other end has not received the first UA response,
++		 * will stay at 9600 and will never see the second UA response.
 +		 * Jean II */
-+	}
- }
+ 		irlap_send_ua_response_frame(self, &self->qos_rx);
+ #endif
  
- /*
-- * Function irlmp_get_discoveries (pn, mask)
-+ * Function irlmp_get_discoveries (pn, mask, slots)
-  *
-  *    Return the current discovery log
-  *
-  */
--struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask)
-+struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask, int nslots)
+diff -u -p linux/net/irda/irias_object.d0.c linux/net/irda/irias_object.c
+--- linux/net/irda/irias_object.d0.c	Fri Sep 28 11:41:36 2001
++++ linux/net/irda/irias_object.c	Fri Sep 28 11:42:09 2001
+@@ -435,8 +435,6 @@ struct ias_value *irias_new_integer_valu
+ struct ias_value *irias_new_string_value(char *string)
  {
-+	/* If discovery is not enabled, it's likely that the discovery log
-+	 * will be empty. So, we trigger a single discovery, so that next
-+	 * time the user call us there might be some results in the log.
-+	 * Jean II
-+	 */
-+	if (!sysctl_discovery) {
-+		/* Check if user wants to override the default */
-+		if (nslots == DISCOVERY_DEFAULT_SLOTS)
-+			nslots = sysctl_discovery_slots;
-+
-+		/* Start discovery - will complete sometime later */
-+		irlmp_do_discovery(nslots);
-+		/* Note : we never do expiry here. Expiry will run on the
-+		 * discovery timer regardless of the state of sysctl_discovery
-+		 * Jean II */
+ 	struct ias_value *value;
+-	int len;
+-	char *new_str;
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+diff -u -p linux/drivers/net/irda/nsc-ircc.d0.c linux/drivers/net/irda/nsc-ircc.c
+--- linux/drivers/net/irda/nsc-ircc.d0.c	Fri Sep 28 11:43:42 2001
++++ linux/drivers/net/irda/nsc-ircc.c	Fri Sep 28 11:44:26 2001
+@@ -112,7 +112,7 @@ static char *dongle_types[] = {
+ 	"Reserved",
+ 	"Reserved",
+ 	"HP HSDL-1100/HSDL-2100",
+-	"HP HSDL-1100/HSDL-2100"
++	"HP HSDL-1100/HSDL-2100",
+ 	"Supports SIR Mode only",
+ 	"No dongle connected",
+ };
+diff -u -p linux/drivers/net/irda/smc-ircc.d0b.c linux/drivers/net/irda/smc-ircc.c
+--- linux/drivers/net/irda/smc-ircc.d0b.c	Thu Oct  4 15:57:42 2001
++++ linux/drivers/net/irda/smc-ircc.c	Thu Oct  4 16:10:22 2001
+@@ -127,7 +127,7 @@ static smc_chip_t __initdata fdc_chips_p
+ 	{ "37M707",	KEY55_1|SIR|SERx4,	0x42, 0x00 },
+ 	{ "37M81X",	KEY55_1|SIR|SERx4,	0x4d, 0x00 },
+ 	{ "37N958FR",	KEY55_1|FIR|SERx4,	0x09, 0x04 },
+-	{ "37N972",	KEY55_1|FIR|SERx4,	0x0a, 0x00 },
++	{ "37N971",	KEY55_1|FIR|SERx4,	0x0a, 0x00 },
+ 	{ "37N972",	KEY55_1|FIR|SERx4,	0x0b, 0x00 },
+ 	{ NULL }
+ };
+@@ -158,6 +158,7 @@ static int ircc_irq=255;
+ static int ircc_dma=255;
+ static int ircc_fir=0;
+ static int ircc_sir=0;
++static int ircc_cfg=0;
+ 
+ static unsigned short	dev_count=0;
+ 
+@@ -393,6 +394,13 @@ int __init ircc_init(void)
+ 		return -ENODEV;
+ 	}
+ 
++	/* try user provided configuration register base address */
++	if (ircc_cfg>0) {
++	        MESSAGE(" Overriding configuration address 0x%04x\n", ircc_cfg);
++		if (!smc_superio_fdc(ircc_cfg))
++			ret=0;
 +	}
 +
- 	/* Return current cached discovery log */
- 	return(irlmp_copy_discoveries(irlmp->cachelog, pn, mask));
- }
-diff -u -p linux/net/irda/af_irda.d0.c linux/net/irda/af_irda.c
---- linux/net/irda/af_irda.d0.c	Fri Sep 28 13:47:38 2001
-+++ linux/net/irda/af_irda.c	Fri Sep 28 13:49:22 2001
-@@ -637,7 +637,7 @@ static int irda_discover_daddr_and_lsap_
- 	 * Note : we have to use irlmp_get_discoveries(), as opposed
- 	 * to play with the cachelog directly, because while we are
- 	 * making our ias query, le log might change... */
--	discoveries = irlmp_get_discoveries(&number, self->mask);
-+	discoveries = irlmp_get_discoveries(&number, self->mask, self->nslots);
- 	/* Check if the we got some results */
- 	if (discoveries == NULL)
- 		return -ENETUNREACH;	/* No nodes discovered */
-@@ -2091,7 +2091,8 @@ static int irda_getsockopt(struct socket
- 	switch (optname) {
- 	case IRLMP_ENUMDEVICES:
- 		/* Ask lmp for the current discovery log */
--		discoveries = irlmp_get_discoveries(&list.len, self->mask);
-+		discoveries = irlmp_get_discoveries(&list.len, self->mask,
-+						    self->nslots);
- 		/* Check if the we got some results */
- 		if (discoveries == NULL)
- 			return -EAGAIN;		/* Didn't find any devices */
-diff -u -p linux/net/irda/irnet/irnet_ppp.d0b.c linux/net/irda/irnet/irnet_ppp.c
---- linux/net/irda/irnet/irnet_ppp.d0b.c	Thu Oct  4 16:00:57 2001
-+++ linux/net/irda/irnet/irnet_ppp.c	Thu Oct  4 16:03:41 2001
-@@ -14,7 +14,7 @@
-  */
+ 	/* Trys to open for all the SMC chipsets we know about */
  
- #include "irnet_ppp.h"		/* Private header */
--#include <linux/module.h>
-+/* Please put other headers in irnet.h - Thanks */
+ 	IRDA_DEBUG(0, __FUNCTION__ 
+@@ -402,6 +410,8 @@ int __init ircc_init(void)
+ 		ret=0;
+ 	if (!smc_superio_fdc(0x370))
+ 		ret=0;
++	if (!smc_superio_fdc(0xe0))
++		ret=0;
+ 	if (!smc_superio_lpc(0x2e))
+ 		ret=0;
+ 	if (!smc_superio_lpc(0x4e))
+@@ -1229,5 +1239,7 @@ MODULE_PARM(ircc_fir, "1-4i");
+ MODULE_PARM_DESC(ircc_fir, "FIR Base Address");
+ MODULE_PARM(ircc_sir, "1-4i");
+ MODULE_PARM_DESC(ircc_sir, "SIR Base Address");
++MODULE_PARM(ircc_cfg, "1-4i");
++MODULE_PARM_DESC(ircc_cfg, "Configuration register base address");
  
- /************************* CONTROL CHANNEL *************************/
- /*
-@@ -200,7 +200,8 @@ irnet_read_discovery_log(irnet_socket *	
-       __u16		mask = irlmp_service_to_hint(S_LAN);
- 
-       /* Ask IrLMP for the current discovery log */
--      ap->discoveries = irlmp_get_discoveries(&ap->disco_number, mask);
-+      ap->discoveries = irlmp_get_discoveries(&ap->disco_number, mask,
-+					      DISCOVERY_DEFAULT_SLOTS);
-       /* Check if the we got some results */
-       if(ap->discoveries == NULL)
- 	ap->disco_number = -1;
-diff -u -p linux/net/irda/irnet/irnet_irda.d0b.c linux/net/irda/irnet/irnet_irda.c
---- linux/net/irda/irnet/irnet_irda.d0b.c	Thu Oct  4 16:00:44 2001
-+++ linux/net/irda/irnet/irnet_irda.c	Thu Oct  4 16:02:09 2001
-@@ -370,7 +370,8 @@ irnet_discover_daddr_and_lsap_sel(irnet_
-   DENTER(IRDA_SR_TRACE, "(self=0x%X)\n", (unsigned int) self);
- 
-   /* Ask lmp for the current discovery log */
--  self->discoveries = irlmp_get_discoveries(&self->disco_number, self->mask);
-+  self->discoveries = irlmp_get_discoveries(&self->disco_number, self->mask,
-+					    DISCOVERY_DEFAULT_SLOTS);
- 
-   /* Check if the we got some results */
-   if(self->discoveries == NULL)
-@@ -426,7 +427,8 @@ irnet_dname_to_daddr(irnet_socket *	self
-   DENTER(IRDA_SR_TRACE, "(self=0x%X)\n", (unsigned int) self);
- 
-   /* Ask lmp for the current discovery log */
--  discoveries = irlmp_get_discoveries(&number, 0xffff);
-+  discoveries = irlmp_get_discoveries(&number, 0xffff,
-+				      DISCOVERY_DEFAULT_SLOTS);
-   /* Check if the we got some results */
-   if(discoveries == NULL)
-     DRETURN(-ENETUNREACH, IRDA_SR_INFO, "Cachelog empty...\n");
-@@ -664,7 +666,8 @@ irnet_daddr_to_dname(irnet_socket *	self
-   DENTER(IRDA_SERV_TRACE, "(self=0x%X)\n", (unsigned int) self);
- 
-   /* Ask lmp for the current discovery log */
--  discoveries = irlmp_get_discoveries(&number, 0xffff);
-+  discoveries = irlmp_get_discoveries(&number, 0xffff,
-+				      DISCOVERY_DEFAULT_SLOTS);
-   /* Check if the we got some results */
-   if (discoveries == NULL)
-     DRETURN(-ENETUNREACH, IRDA_SERV_INFO, "Cachelog empty...\n");
+ #endif /* MODULE */

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287204AbSAGV7w>; Mon, 7 Jan 2002 16:59:52 -0500
+	id <S287253AbSAGWEC>; Mon, 7 Jan 2002 17:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287235AbSAGV7d>; Mon, 7 Jan 2002 16:59:33 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:15050 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287204AbSAGV7b>; Mon, 7 Jan 2002 16:59:31 -0500
-Message-ID: <3C3A1A31.C08DC913@folkwang-hochschule.de>
-Date: Mon, 07 Jan 2002 22:59:13 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S287244AbSAGWDw>; Mon, 7 Jan 2002 17:03:52 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:7183 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S287235AbSAGWDm>; Mon, 7 Jan 2002 17:03:42 -0500
+Date: Mon, 7 Jan 2002 22:03:36 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
+In-Reply-To: <Pine.LNX.4.33.0201071223450.6942-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0201072144110.8813-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-CC: linux-kernel@vger.kernel.org, nettings@folkwang-hochschule.de
-Subject: Re: 2.4.17 usbnet usb.c: USB device not accepting new address
-In-Reply-To: <3C3A0B1A.6441FC74@folkwang-hochschule.de> <3C3A0E29.99650F60@folkwang-hochschule.de> <20020107161544.J10145@sventech.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Erdfelt wrote:
-> 
-> It's not responding to the SETUP packet. I'd check the cable, or maybe
-> the connector on the motherboard.
-> 
-> Does it enumerate in Windows?
+On Mon, 7 Jan 2002, Linus Torvalds wrote:
 
-i don't have windows available for testing.
+> >  * It leaks.  How were you going to refcount the kernel
+> >    portions?  Could they be attached to the VM mapping?
+> >    Would a lockfs be too expensive?
+>
+> Yes, I was going to just attach to the vma,
 
-i just checked on a powerbook g3 using the ohci driver, and i get
-the same errors as with uhci.o on my intel.
-which rules out the mobo connector.
+Wouldn't that have to be an address_space, so separate maps
+of the same object will use the same count?  Or (not unlikely)
+am I misunderstanding the way these structures are laid out?
 
-the cable is a slightly wobbly cradle, but this model works fine for
-others.
-no matter how i press or tilt the ipaq, the error is the same (i.e.
-no intermittent contacts obviously). 
+> along with potentially also require a flag at mmap time (MAP_SEMAPHORE
+> - some other unixes have something like it already) to tell the OS
+> about the consistency issues that might come up on some architectures
+> (on x86 it would be a no-op).
 
-could it possibly be anything else ?
+OK.
 
-are there any measurements i can do on the cable ?
-i would expect to have two +/- voltage supplies and two data wires.
+> >  * It doesn't have a timeout.  Is there something like a
+> >    down_timeout() available?
+>
+> Not as-is, but all the kernel infrastructure should be there in
+> theory.
 
+OK, thanks.
 
+> >  * I don't do the:
+> >
+> > 	if (kfs->user_address != fs)
+> > 		goto bad_sem;
+> >
+> >    because it doesn't seem to add anything, and prevents
+> >    putting these locks in a non-fixed file or SysV SHM
+> >    map.
+>
+> Fair enough. I think I suggested that just as another sanity check,
+> and because some architectures _will_ require address issues (not
+> necessarily total equality, but at least "modulo X equality").
 
+Should being in the same place in the same page (though
+possibly at a different address) should suffice for all
+architectures?
 
+Matthew.
 
--- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://spunk.dnsalias.org
-http://www.linuxdj.com/audio/lad/

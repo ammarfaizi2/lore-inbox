@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292231AbSCIHTH>; Sat, 9 Mar 2002 02:19:07 -0500
+	id <S292423AbSCIHTI>; Sat, 9 Mar 2002 02:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292581AbSCIHRS>; Sat, 9 Mar 2002 02:17:18 -0500
+	id <S292444AbSCIHRV>; Sat, 9 Mar 2002 02:17:21 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292444AbSCIHPD>;
-	Sat, 9 Mar 2002 02:15:03 -0500
-Date: Fri, 08 Mar 2002 19:47:49 -0800 (PST)
-Message-Id: <20020308.194749.62676879.davem@redhat.com>
-To: ionut@cs.columbia.edu
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] starfire net driver update for 2.4.19pre2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0203071400080.3930-100000@age.cs.columbia.edu>
-In-Reply-To: <20020306.141809.112819805.davem@redhat.com>
-	<Pine.LNX.4.44.0203071400080.3930-100000@age.cs.columbia.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	by vger.kernel.org with ESMTP id <S292473AbSCIHPF>;
+	Sat, 9 Mar 2002 02:15:05 -0500
+Message-ID: <3C8985B5.4D3606C7@webit.com>
+Date: Sat, 09 Mar 2002 04:47:01 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org,
+        Carl-Johan Kjellander <carljohan@kjellander.com>
+Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
+In-Reply-To: <3C89273D.28BC97DB@webit.com> <20020308223513.GD28541@kroah.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ion Badulescu <ionut@cs.columbia.edu>
-   Date: Thu, 7 Mar 2002 14:13:06 -0500 (EST)
+Greg KH wrote:
+> 
+> On Fri, Mar 08, 2002 at 10:03:57PM +0100, Thomas Winischhofer wrote:
+> > Furthermore, the usb driver(s) behave strangely on
+> > connecting/disconnecting the camera. Sometimes this works flawlessly,
+> > sometimes I get a lot of USB timeout ("usb_control/bulk_msg: timeout")
+> > and/or "USBDEVFS_CONTROL failed dev x rqt 128 rq 6 len 490 ret -110"
+> > messages in the syslog. (Kernel is 2.4.16 and 2.4.18 - no difference)
+> 
+> Try removing /sbin/usbmodules (or renaming it) to see if this problem
+> goes away.  I have the same problem with some devices too, and am
+> working on tracking it down.
 
-   Ahh.. indeed, changing the burst size to 64 bytes (from the default 128)  
-   makes a big difference on my ultra5, thanks for the hint. Does it make any
-   sense to differentiate between platforms, or is 64 a good all-around
-   value?
-   
-Jeff and I want to add some pci_optimal_burst_size() or whatever
-interface so that drivers don't get stuffed with ifdefs, but for now
-use CONFIG_SPARC64 for this :-) I think on Alpha a similar situation
-exists and you should use 128 instead of 64 there.
+This actually made it, thanks so far! (usbmodules is located in
+/usr/sbin/ on my machine)
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Of course, the main problem still exists. Additionally, the USB audio
+module is not loaded any more (for the built-in microphone of this
+camera).
+
+Sorry if I ask something stupid, I am a total USB rookie - what's that
+/usr/sbin/usbmodules file for?
+
+Thomas
+
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com                  *** http://www.webit.com/tw

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSBUXiH>; Thu, 21 Feb 2002 18:38:07 -0500
+	id <S287946AbSBUXqI>; Thu, 21 Feb 2002 18:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287882AbSBUXh6>; Thu, 21 Feb 2002 18:37:58 -0500
-Received: from [65.169.83.229] ([65.169.83.229]:1920 "EHLO
-	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
-	id <S287862AbSBUXhu>; Thu, 21 Feb 2002 18:37:50 -0500
-Date: Thu, 21 Feb 2002 17:37:00 -0600
-From: Benjamin Pharr <ben@benpharr.com>
-To: davej@suse.de, linux-kernel@vger.kernel.org
-Subject: Linux 2.5.5-dj1 - Bug Reports
-Message-ID: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu>
+	id <S288012AbSBUXp7>; Thu, 21 Feb 2002 18:45:59 -0500
+Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:55786 "HELO
+	dardhal.mired.net") by vger.kernel.org with SMTP id <S287946AbSBUXps>;
+	Thu, 21 Feb 2002 18:45:48 -0500
+Date: Thu, 21 Feb 2002 00:45:59 +0100
+From: Jose Luis Domingo Lopez <jdomingo@internautas.org>
+To: Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org,
+        netfilter-devel@lists.samba.org
+Subject: Re: [netfilter]: FTP connection tracking problem
+Message-ID: <20020220234559.GA870@localhost>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
+In-Reply-To: <20020212221239.GB2161@localhost> <20020213143359.P24781@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020213143359.P24781@sunbeam.de.gnumonks.org>
 User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.18-rc1
-X-PGP-ID: 0x6859792C
-X-PGP-Key: http://www.benpharr.com/public_key.asc
-X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, 13 February 2002, at 14:33:59 +0100,
+Harald Welte wrote:
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Feb 12, 2002 at 11:12:39PM +0100, Jose Luis Domingo Lopez wrote:
+> 
+> > The strange part is that this will show up with just some FTP clients
+> > and/or remote FTP servers. For example, text-mode web browser "links"
+> > doesn't work in any case. On the other hand, text-mode browser "lynx"
+> > works nice in the same places where "links" fails. "wget", "ftp" and
+> > "ncftp" show various degrees of success with several combinations of
+> > active/passive transfer mode and remote FTP servers (tried with
+> > ftp.kernel.org, ftp.at.kernel.org, ftp.mozilla.org, ftp.rediris.es,
+> > ftp.sourceforge.net).
+> 
+The NAT/router box that seemed to have problems with FTP connection
+tracking went into production a week ago. Since them it has been working
+OK, at least there are no reports froms people on the internal network
+complaining about their file downloads stalling or failing.
 
-I tried Dave Jones' version of the kernel to see if it would compile, as I
-haven't been able to the regular 2.5 kernel to compile since I have the
-new binutils package.=20
+However, most of the users don't use the net heavily. I use the net a
+lot every day, and have had no big problems so far, except from some
+(random) combinations of browser and remote FTP server that make
+directory listing not complete (although file downloads work OK).
 
-It compiled fine. When I booted up everything looked normal with the
-exception of a=20
-eth1: going OOM=20
-message that kept scrolling down the screen. My eth1 is a natsemi card.
+So it seems the problem I was having was somewhere outside the linux
+kernel inside the router. Sorry for any inconvenience :-)
 
-Eventually that stopped and gdm came up. For some reason my keyboard and
-mouse wouldn't work.  However, I could ssh into the machine and both
-ethernet cards were functional. I noticed I had left SMP support
-selected in the configuration, so I turned that off and tried
-recompiling. It got to check.c in fs/partitions before stopping with an
-error.=20
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo AT internautas DOT   org  => Spam at your own risk
 
-So, it looks like the binutils problems are fixed, but there are some
-other issues apparently. If you need configuration information or for me
-try something please let me know.
-
-Ben Pharr
-
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8dYScROE+HmhZeSwRAoJvAKDRXBuENcQAMe82YUk4ITzBUEJ4XwCfdKs9
-AdhZb8od9YddLT3+wi7Hjak=
-=rcej
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--

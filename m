@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267559AbTACQFX>; Fri, 3 Jan 2003 11:05:23 -0500
+	id <S267569AbTACQJq>; Fri, 3 Jan 2003 11:09:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTACQFX>; Fri, 3 Jan 2003 11:05:23 -0500
-Received: from codepoet.org ([166.70.99.138]:9121 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S267559AbTACQFW>;
-	Fri, 3 Jan 2003 11:05:22 -0500
-Date: Fri, 3 Jan 2003 09:13:52 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030103161352.GA13466@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andrew Walrond <andrew@walrond.org>,
-	Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org> <3E159336.F249C2A1@aitel.hist.no> <3E15A2C8.7060903@walrond.org>
+	id <S267568AbTACQIP>; Fri, 3 Jan 2003 11:08:15 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:47770 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267567AbTACQIB>;
+	Fri, 3 Jan 2003 11:08:01 -0500
+Date: Fri, 3 Jan 2003 17:16:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Richard Baverstock <beaver@gto.net>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH] AGPGART for VIA vt8235, kernel 2.4.21-pre2
+Message-ID: <20030103171617.B4502@ucw.cz>
+References: <20030102145346.27a21ed9.beaver@gto.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E15A2C8.7060903@walrond.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030102145346.27a21ed9.beaver@gto.net>; from beaver@gto.net on Thu, Jan 02, 2003 at 02:53:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Jan 03, 2003 at 02:48:40PM +0000, Andrew Walrond wrote:
-> Oh. But I don't give you the source code to my game. Crikey - How are 
-> going to debug it if it breaks??? Am I bad again ?
+On Thu, Jan 02, 2003 at 02:53:46PM -0500, Richard Baverstock wrote:
+> Here is a patch that enables AGPGART for the VIA vt8235 chipset on P4X400 motherboards. Rather trivial, adds the pci id, then a few lines in the agp sources to get it identified. I've only been able to test this on my computer, where it works.
 
-You are comparing apples and oranges.  Software and hardware are
-fundamentally different.  Nobody can download a graphics card and
-email copies to 50 of their friends.
+The vt8235 is the southbridge chip and that the AGP bridge is
+located in the northbridge, which most likely has a different number.
 
-Your game (a piece of software) is the product.  For Nvidia,
-their card (a piece of hardware) is the product.  Nobody is
-suggesting Nvidia should give away all their hardware and chip
-designs and GPL them.  That would of course be ludicrous.
+> Rich
+> 
+> 
+> --BEGIN--
+> 
+> diff -ur linux/drivers/char/agp/agp.h linux-2.4.21-pre2/drivers/char/agp/agp.h
+> --- linux/drivers/char/agp/agp.h 2003-01-02 14:36:15.000000000 -0500
+> +++ linux-2.4.21-pre2/drivers/char/agp/agp.h 2003-01-02 14:35:02.000000000 -0500
+> @@ -157,6 +157,9 @@
+> 
+>  #define PGE_EMPTY(p) (!(p) || (p) == (unsigned long) agp_bridge.scratch_page)
+> 
+> +#ifndef PCI_DEVICE_ID_VIA_8235_0
+> +#define PCI_DEVICE_ID_VIA_8235_0       0x3168
+> +#endif
+>  #ifndef PCI_DEVICE_ID_VIA_82C691_0
+>  #define PCI_DEVICE_ID_VIA_82C691_0      0x0691
+>  #endif
+> diff -ur linux/drivers/char/agp/agpgart_be.c linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c
+> --- linux/drivers/char/agp/agpgart_be.c   2003-01-02 14:36:15.000000000 -0500
+> +++ linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c   2003-01-02 14:35:02.000000000 -0500
+> @@ -4640,6 +4640,12 @@
+>  #endif /* CONFIG_AGP_SIS */
+> 
+>  #ifdef CONFIG_AGP_VIA
+> +  { PCI_DEVICE_ID_VIA_8235_0,
+> +     PCI_VENDOR_ID_VIA,
+> +     VIA_P4X400,
+> +     "Via",
+> +     "P4X400",
+> +     via_generic_setup },
+>    { PCI_DEVICE_ID_VIA_8501_0,
+>       PCI_VENDOR_ID_VIA,
+>       VIA_MVP4,
+> diff -ur linux/drivers/pci/pci.ids linux-2.4.21-pre2/drivers/pci/pci.ids
+> --- linux/drivers/pci/pci.ids 2003-01-02 14:36:16.000000000 -0500
+> +++ linux-2.4.21-pre2/drivers/pci/pci.ids 2003-01-02 14:35:02.000000000 -0500
+> @@ -2751,6 +2751,7 @@
+>    3147  VT8233A ISA Bridge
+>    3148  P4M266 Host Bridge
+>    3156  P/KN266 Host Bridge
+> +  3168  VT8235 [P4X400 AGP]
+>    3177  VT8233A ISA Bridge
+>       1458 5001 GA-7VAX Mainboard
+>    3189  VT8377 [KT400 AGP] Host Bridge
+> diff -ur linux/include/linux/agp_backend.h linux-2.4.21-pre2/include/linux/agp_backend.h
+> --- linux/include/linux/agp_backend.h  2003-01-02 14:36:17.000000000 -0500
+> +++ linux-2.4.21-pre2/include/linux/agp_backend.h  2003-01-02 14:35:02.000000000 -0500
+> @@ -54,6 +54,7 @@
+>    INTEL_I850,
+>    INTEL_I860,
+>    VIA_GENERIC,
+> +  VIA_P4X400,
+>    VIA_VP3,
+>    VIA_MVP3,
+>    VIA_MVP4,
+> 
+> --END--
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The only thing that is hoped for is that Nvidia might choose to
-release specs on their cards so folks can talk to their hardware.
-Sortof like how Intel and AMD and many other hardware companies
-releases specs on their chips so people can do whatever they want
-with them.  Where would Linux be if Intel had never released the
-specs for their i386 chip?  Has releasing the specs for their
-CPUs hit Intel?  Nope.  Because they have a boatload of patents
-and a boatload of lawyers.  Similarly, Nvidia also has a boatload
-of patents and a boatload of lawyers...  But thus far, they have
-not chosen to release specs.  Thats their choice.  But as a
-result of their choice, I choose to buy other hardware.
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+Vojtech Pavlik
+SuSE Labs

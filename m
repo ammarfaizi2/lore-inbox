@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129488AbRBGGIX>; Wed, 7 Feb 2001 01:08:23 -0500
+	id <S129135AbRBGGZw>; Wed, 7 Feb 2001 01:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129592AbRBGGIO>; Wed, 7 Feb 2001 01:08:14 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:51397 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129488AbRBGGIH>; Wed, 7 Feb 2001 01:08:07 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 6 Feb 2001 22:08:06 -0800
-Message-Id: <200102070608.WAA08283@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: hotplugging with regular PCI cards
-Cc: linux-hotplug-devel@lists.sourceforge.net
+	id <S129216AbRBGGZm>; Wed, 7 Feb 2001 01:25:42 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:61704 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129135AbRBGGZ3>; Wed, 7 Feb 2001 01:25:29 -0500
+Date: Wed, 7 Feb 2001 00:25:10 -0600
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OK to mount multiple FS in one dir?
+Message-ID: <20010207002510.A10556@cadcamlab.org>
+In-Reply-To: <3A7E1942.5090903@goingware.com> <20010205180646.B32155@cadcamlab.org> <033601c09075$a60e43e0$de00a8c0@homeip.net> <20010206154616.A9875@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010206154616.A9875@animx.eu.org>; from wakko@animx.eu.org on Tue, Feb 06, 2001 at 03:46:16PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I saw an interesting demonstration at LinuxWorld last week.
-Compaq had a machine that did hot plugging with regular PCI cards (not
-Compact PCI).  If anyone out there is familiar with this machine,
-I would be interested in knowing what the status is on getting
-the support for that backplain integrated into the stock kernels.
 
-	When that occurs, that will be yet another reason to treat all
-new style PCI drivers as potentially hot pluggable, even if those cards
-are not currently available in a CardBus or CompactPCI form, and in
-particular to change all of the xxx_pci_tbl declarations in PCI
-drivers that are currently marked as __initdata back to __devinitdata.
+[Wakko Warner]
+> I have a question, why was this idea even considered?
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Al Viro likes Plan9 process-local namespaces.  He seems to be trying to
+move Linux in that direction.  In the past year he has been hacking the
+semantics of filesystems and mounting, probably with namespaces as an
+eventual goal, and this is one of the things that has fallen out of the
+implementation.
+
+A more useful thing to fall out of the same hacking is loopback
+mounting -- i.e. the same filesystem mounted multiple places.  In
+Linux-land I guess we call it 'mount --bind'.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

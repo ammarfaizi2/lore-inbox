@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130434AbRC0CIA>; Mon, 26 Mar 2001 21:08:00 -0500
+	id <S130388AbRC0B5u>; Mon, 26 Mar 2001 20:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130438AbRC0CHv>; Mon, 26 Mar 2001 21:07:51 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:35273 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S130434AbRC0CHn>; Mon, 26 Mar 2001 21:07:43 -0500
-From: ianh@iahastie.clara.net (Ian Hastie)
-To: linux-kernel@vger.kernel.org
-Date: Tue, 27 Mar 2001 02:06:20 +0000 (UTC)
-Subject: [PATCH] Very small fix for 2.4.3-pre8 unresolved symbols
-Organization: home using Linux
-Message-ID: <slrn9bvtcs.1ci.ianh@iahastie.local.net>
+	id <S130432AbRC0B5k>; Mon, 26 Mar 2001 20:57:40 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:43792 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP
+	id <S130388AbRC0B5V>; Mon, 26 Mar 2001 20:57:21 -0500
+Message-ID: <3ABFF2C9.96BE799B@widomaker.com>
+Date: Mon, 26 Mar 2001 20:54:17 -0500
+From: "Anthony J. Battersby" <abatters@widomaker.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] one-line bugfix 2.4.2 iobuf.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It just adds net_init.o to the definition of export-objs.
+Explanation:
 
---- linux-2.4.3-pre8/drivers/net/Makefile.symbols	Tue Mar 27 00:30:58 2001
-+++ linux-2.4.3-pre8/drivers/net/Makefile	Tue Mar 27 03:00:21 2001
-@@ -16,7 +16,7 @@
- # This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
+The bufp pointer should be indexed rather than incremented because it is used
+a few lines above as a base pointer to free successfully allocated items if
+kmalloc fails.
+
+-------- Begin Patch --------
+
+--- fs/iobuf.c.orig     Wed Mar 21 10:12:36 2001
++++ fs/iobuf.c  Wed Mar 21 10:12:30 2001
+@@ -55,7 +55,7 @@
+                        return -ENOMEM;
+                }
+                kiobuf_init(iobuf);
+-               *bufp++ = iobuf;
++               bufp[i] = iobuf;
+        }
  
- export-objs     :=	8390.o arlan.o aironet4500_core.o aironet4500_card.o ppp_async.o \
--			ppp_generic.o slhc.o pppox.o auto_irq.o
-+			ppp_generic.o slhc.o pppox.o auto_irq.o net_init.o
- 
- ifeq ($(CONFIG_TULIP),y)
-   obj-y += tulip/tulip.o
+        return 0;
 
--- 
-Ian.
+-------- End Patch --------
 
-I don't have a sig either!
+When replying, please CC me at abatters@widomaker.com since I am not subscribed to
+the mailing list.
+
+--Tony Battersby

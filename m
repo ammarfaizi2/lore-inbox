@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269412AbRIBV3i>; Sun, 2 Sep 2001 17:29:38 -0400
+	id <S269390AbRIBV2h>; Sun, 2 Sep 2001 17:28:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269413AbRIBV3U>; Sun, 2 Sep 2001 17:29:20 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:16911 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S269412AbRIBV3J>; Sun, 2 Sep 2001 17:29:09 -0400
-Date: Mon, 3 Sep 2001 00:28:18 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: COW fs (Re: Editing-in-place of a large file)
-In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
-In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269412AbRIBV22>; Sun, 2 Sep 2001 17:28:28 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:7077 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S269390AbRIBV2U>;
+	Sun, 2 Sep 2001 17:28:20 -0400
+Date: Sun, 02 Sep 2001 22:28:34 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Message-ID: <1041110124.999469713@[169.254.198.40]>
+In-Reply-To: <20010902211614Z16265-32383+3048@humbolt.nl.linux.org>
+In-Reply-To: <20010902211614Z16265-32383+3048@humbolt.nl.linux.org>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sunday, September 02, 2001, 11:21:37 PM, Bob McElrath wrote:
-BM> I would like to take an extremely large file (multi-gigabyte) and edit
-BM> it by removing a chunk out of the middle.  This is easy enough by
-BM> reading in the entire file and spitting it back out again, but it's
-BM> hardly efficent to read in an 8GB file just to remove a 100MB segment.
+--On Sunday, 02 September, 2001 11:23 PM +0200 Daniel Phillips 
+<phillips@bonn-fries.net> wrote:
 
-BM> Is there another way to do this?
+> Reposted to include Alex's correction.  Alex, could you please check this?
 
-BM> Is it possible to modify the inode structure of the underlying
-BM> filesystem to free blocks in the middle?  (What to do with the half-full
-BM> blocks that are left?)  Has anyone written a tool to do something like
-BM> this?
+Thanks, yep, including () optimisation :-)
 
-BM> Is there a way to do this in a filesystem-independent manner?
+Dear volunteer/victim: Last time I looked,
+  ping -f -s5000 victimip &
+  ping -f -s10000 victimip &
+  ping -f -s15000 victimip &
+  ping -f -s20000 victimip &
+  ping -f -s25000 victimip &
+  ping -f -s30000 victimip &
+  ping -f -s35000 victimip &
+while running something buffer intensive (bonnie etc.)
+tended to do a fair job of exercizing the machine's
+powers of memory fragmentation / defragmentation;
+reassembly of IP fragments allocates memory GFP_ATOMIC.
 
-A COW fs is a far more useful and cool. A fs where a copy of a file
-does not duplicate all blocks. Blocks get copied-on-write only when
-copy of a file is written to. There could be even a fs compressor
-which looks for and merges blocks with exactly same contents from
-different files.
-
-Maybe ext2/3 folks will play with this idea after ext3?
-
-I'm planning to write a test program which will scan my ext2 fs and
-report how many duplicate blocks with the same contents it sees (i.e
-how many would I save with a COW fs)
--- 
-Best regards,
-VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
-
-
+--
+Alex Bligh

@@ -1,29 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263181AbSJCIEe>; Thu, 3 Oct 2002 04:04:34 -0400
+	id <S263196AbSJCIMV>; Thu, 3 Oct 2002 04:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbSJCIEe>; Thu, 3 Oct 2002 04:04:34 -0400
-Received: from zok.sgi.com ([204.94.215.101]:22205 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S263181AbSJCIEd>;
-	Thu, 3 Oct 2002 04:04:33 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Xavier Bru <Xavier.Bru@bull.net>
-Cc: kdb@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Announce: kdb v2.3 is available for kernel 2.5.40 
-In-reply-to: Your message of "Thu, 03 Oct 2002 10:03:19 +0200."
-             <15771.63943.983188.268827@egalis.frec.bull.fr> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Oct 2002 18:09:22 +1000
-Message-ID: <5917.1033632562@kao2.melbourne.sgi.com>
+	id <S263197AbSJCIMV>; Thu, 3 Oct 2002 04:12:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15309 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263196AbSJCIMU>; Thu, 3 Oct 2002 04:12:20 -0400
+Date: Thu, 3 Oct 2002 10:17:46 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: peterc@gelato.unsw.edu.au
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Large Block device patch part 0/4
+In-Reply-To: <15771.54175.218430.835917@lemon.gelato.unsw.EDU.AU>
+Message-ID: <Pine.NEB.4.44.0210031005510.10143-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Oct 2002 10:03:19 +0200 (DFT), 
-Xavier Bru <Xavier.Bru@bull.net> wrote:
->What about ia64 support for 2.5 ?
+On Thu, 3 Oct 2002 peterc@gelato.unsw.edu.au wrote:
 
-Why did I know that somebody was going to ask that question?
-Give the i386 kdb code a couple of days to shake out the bugs.
+> Hi folks,
+
+Hi Peter,
+
+>...
+>    There are a couple of workarounds for gcc 2.96: gcc3.2 works a lot better.
+>...
+
+does it work correctly with 2.95? 2.95 is still the recommended compiler
+as of 2.5.40 .
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

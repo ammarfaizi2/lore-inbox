@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266202AbUAGKXp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 05:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUAGKXp
+	id S266173AbUAGKlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 05:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUAGKlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 05:23:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:37858 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266202AbUAGKXn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 05:23:43 -0500
-Date: Wed, 7 Jan 2004 11:23:40 +0100
-From: Olaf Hering <olh@suse.de>
-To: Rob Landley <rob@landley.net>
-Cc: Rob Love <rml@ximian.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040107102340.GB22770@suse.de>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Wed, 7 Jan 2004 05:41:25 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:47370 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S266173AbUAGKlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 05:41:24 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: block-major aliases (module-init-tools 3.0-pre2)
+Date: Wed, 7 Jan 2004 13:40:54 +0300
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200401010634.28559.rob@landley.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Message-Id: <200401071340.54983.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Jan 01, Rob Landley wrote:
+Apparently generate-modprobe.conf is producing block-major-N-* while kernel 
+(2.6.0) still calls request_module with block-major-N:
 
-> Fundamental problem: "Unique" depends on the other devices in the system.  You 
-> can't guarantee unique by looking at one device, more or less by definition.
+{pts/0}% grep request_module drivers/block/*
+drivers/block/genhd.c:  request_module("block-major-%d", MAJOR(dev));
 
-This is certainly not true. (well, maybe for a few device types).
+who is correct?
 
-Almost everything can be reached via a well defined bus (or more than
-one bus). Each of them does obviously require an identifier. Thats the
-hardware part.
-Software tends to put a unique identifier into the 'logical' stuff, like
-filesystem UUIDs.
-So you can construct a unique device node for every device in the
-system. And this will work even across distributions!
-Stuff like sda3, mouse1 or dsp0 will obviously break. It just happend to
-work because everyone on this list knows what to do and where to look.
+-andrey
 
-Sure, there are exceptions, like 2 identical mice, or 2 identical USB
-audio devices. But this cant be fixed.
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG

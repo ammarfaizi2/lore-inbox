@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVCREC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVCREOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVCREC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 23:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCREAn
+	id S261337AbVCREOk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 23:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCRELP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 23:00:43 -0500
-Received: from soundwarez.org ([217.160.171.123]:41103 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261327AbVCREAL (ORCPT
+	Thu, 17 Mar 2005 23:11:15 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18104 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261460AbVCREJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 23:00:11 -0500
-Date: Fri, 18 Mar 2005 05:00:08 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 4/6] kobject/hotplug split - devices core
-Message-ID: <20050318040008.GA546@vrfy.org>
+	Thu, 17 Mar 2005 23:09:37 -0500
+Date: Thu, 17 Mar 2005 20:09:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Ju, Seokmann" <sju@lsil.com>
+Cc: James.Bottomley@SteelEye.com, sju@lsil.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [ANNOUNCE][PATCH] drivers/scsi/megaraid/megaraid_{mm,mbox}
+Message-Id: <20050317200907.54e979e9.akpm@osdl.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703662772@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E5703662772@exa-atlanta>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kobject_add() and kobject_del() don't emit hotplug events anymore. Do it
-ourselves if we are finished populating the device directory.
+"Ju, Seokmann" <sju@lsil.com> wrote:
+>
+> Here, I'm sending another patch that has
+>  fix for this issue.
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+It is still wordwrapped.
 
---- 1.91/drivers/base/core.c	2004-11-12 13:16:42 +01:00
-+++ edited/drivers/base/core.c	2005-03-18 02:17:17 +01:00
-@@ -260,6 +260,8 @@ int device_add(struct device *dev)
- 	/* notify platform of device entry */
- 	if (platform_notify)
- 		platform_notify(dev);
-+
-+	kobject_hotplug(&dev->kobj, KOBJ_ADD);
-  Done:
- 	put_device(dev);
- 	return error;
-@@ -349,6 +351,7 @@ void device_del(struct device * dev)
- 		platform_notify_remove(dev);
- 	bus_remove_device(dev);
- 	device_pm_remove(dev);
-+	kobject_hotplug(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
- 	if (parent)
- 		put_device(parent);
+Please fix you email client, email the patch to yourself, ensure that the
+result still applies, then resend it with a full description.
+
+Thanks.
 

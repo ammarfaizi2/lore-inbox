@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132408AbQK3Az3>; Wed, 29 Nov 2000 19:55:29 -0500
+        id <S132450AbQK3A43>; Wed, 29 Nov 2000 19:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132436AbQK3AzT>; Wed, 29 Nov 2000 19:55:19 -0500
-Received: from io.frii.com ([216.17.128.3]:50948 "EHLO io.frii.com")
-        by vger.kernel.org with ESMTP id <S132408AbQK3AzL>;
-        Wed, 29 Nov 2000 19:55:11 -0500
-Date: Wed, 29 Nov 2000 17:24:44 -0700
-From: Nicholas Dronen <ndronen@frii.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/sysrq.txt: How to scroll back on console.
-Message-ID: <20001129172444.A24830@frii.com>
-Mime-Version: 1.0
+        id <S132436AbQK3A4T>; Wed, 29 Nov 2000 19:56:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7441 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S132450AbQK3A4K>;
+        Wed, 29 Nov 2000 19:56:10 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011292354.eATNsUU04802@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+To: darryl@netbauds.net (Darryl Miles)
+Date: Wed, 29 Nov 2000 23:54:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A252BE9.D9F7D040@netbauds.net> from "Darryl Miles" at Nov 29, 2000 04:16:41 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Darryl Miles writes:
+> Hmm, what about common symbol generation?  i.e. the linker looses the
+> ability to throw out "multiply defined symbol" errors where you fail
+> to initialise it to a value.
 
-This might be useful to add to Documentation/sysrq.txt.
+We need to build with -fno-common to be 100% safe in this case.  I'll
+run several compilations with this flag tomorrow.
 
-Regards,
+> >We already argue about the extra couple of bytes that xx change to the
+> >kernel/a module would cost.  With these change, we save kilo-bytes in
+> >disk space (which is important on some systems).
+>  
+> PDAs!!! :)  Excellent work Russell.
 
-Nick 
-
---- sysrq.txt.orig      Wed Nov 29 17:13:18 2000
-+++ sysrq.txt   Wed Nov 29 17:23:33 2000
-@@ -21,7 +21,10 @@
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- On x86   - You press the key combo 'ALT-SysRQ-<command key>'. Note - Some
-            (older?) may not have a key labeled 'SysRQ'. The 'SysRQ' key is
--           also known as the 'Print Screen' key.
-+           also known as the 'Print Screen' key.  To scroll back (as
-+           you often need to do to view all of the output of some
-+           SysRQ commands), simply press shift-pageup.  (I only know
-+           this to work on x86.  It might work elsewhere as well.)
-
- On SPARC - You press 'ALT-STOP-<command key>', I believe.
-
+Note that this only affects the storage; the run-time size is exactly
+the same in both cases.  I hope my comment above was clear about that.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQKPPde>; Thu, 16 Nov 2000 10:33:34 -0500
+	id <S130445AbQKPPfo>; Thu, 16 Nov 2000 10:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbQKPPdZ>; Thu, 16 Nov 2000 10:33:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10508 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130177AbQKPPdP>;
-	Thu, 16 Nov 2000 10:33:15 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011161120.eAGBKUm08641@flint.arm.linux.org.uk>
-Subject: Re: 2.4. continues after Aieee...
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Date: Thu, 16 Nov 2000 11:20:30 +0000 (GMT)
-Cc: dennis@etinc.com (Dennis), linux-kernel@vger.kernel.org
-In-Reply-To: <200011151630.RAA04141@cave.bitwizard.nl> from "Rogier Wolff" at Nov 15, 2000 05:30:29 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S130461AbQKPPfY>; Thu, 16 Nov 2000 10:35:24 -0500
+Received: from p3EE3C7BE.dip.t-dialin.net ([62.227.199.190]:5124 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S130445AbQKPPfN>; Thu, 16 Nov 2000 10:35:13 -0500
+Date: Thu, 16 Nov 2000 15:07:04 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.18pre21
+Message-ID: <20001116150704.A883@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fre, Nov 10, 2000 at 03:07:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
-> Dennis wrote:
-> > network card driver) and leave the system running make linux unusable in
-> > unattended environments as the machine is functionally dead.
+On Fri, 10 Nov 2000, Alan Cox wrote:
+
+> Ok so the PS/2 bug is real and the megaraid mystery continues
 > 
-> Which doesn't help in this case, as your network card COULD be dead,
-> while the system simply hasn't crashed....
+> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
+> material.
 
-Not every case causes a panic either.  This week, I had an instance of
-an i686 box lock solid with a DFE-530TX net card.  Rebooting/power
-cycling it didn't recover it (despite it working for the past month
-without any problems).  It only started working again after I moved
-it into a different PCI slot.
+Torsten Hilbrich posted a chroot "bug" that works on 2.2.17 and
+2.2.18pre21, it's in de.comp.os.unix.networking, Subject containing
+"chroot-Bug in Linux", dated 2000-11-15 20:38:38 local time (+0100).
+Its Message-ID: <87bsvhgh4x.fsf_-_@myrkr.in-berlin.de>
 
-I've seen a couple of instances now on totally different hardware where
-it is possible to lock a PCI bus solid by improper connections on some
-of the PCI bus lines, so a faulty PCI socket seem to be the most likely
-cause.
+It shows a program that saves the cwd -- open(".",...) in an open file,
+then chroots to a newly made directory below that, fchdirs back to the
+original open file (that is now outside the chroot) and calls upon
+chdir("..").
 
-In this case, a "panic" doesn't help you; the machine experiances a
-hardware lockup.  To catch these, you'd need a hardware watchdog.
+Note that it's NOT related to the current working directory, but to an
+open file outside the chroot.
 
-What I'm basically saying is that there is only a limited amount that
-Linux (or any OS) can do against these types of hardware failure.  If
-you need better protection, try a hardware with user-space policy
-implementations.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Please comment.
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

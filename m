@@ -1,42 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUJFEC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUJFECX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUJFEC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJFEC5
+	id S266884AbUJFECX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUJFECX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:02:57 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:31460 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S266879AbUJFECa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:02:30 -0400
-Date: Wed, 6 Oct 2004 06:03:23 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@novell.com>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA))
-Message-ID: <20041006040323.GL26820@dualathlon.random>
-References: <52is9or78f.fsf_-_@topspin.com> <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au> <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost> <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au> <20041006020734.GA29383@havoc.gtf.org> <20041006031726.GK26820@dualathlon.random> <4163660A.4010804@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4163660A.4010804@pobox.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Wed, 6 Oct 2004 00:02:23 -0400
+Received: from o3.xlccorp.com ([66.37.197.101]:140 "HELO o1.xlccorp.com")
+	by vger.kernel.org with SMTP id S266884AbUJFECO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 00:02:14 -0400
+Message-ID: <41636E72.7090103@allvantage.com>
+Date: Wed, 06 Oct 2004 00:02:58 -0400
+From: Kenny Bentley <crash77a@allvantage.com>
+Reply-To: crash77a@allvantage.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Converting kernel modules from 2.4 to 2.6/Suggested new driver
+References: <416345C0.4050500@allvantage.com> <20041005182716.2f3f52c0.rddunlap@osdl.org>
+In-Reply-To: <20041005182716.2f3f52c0.rddunlap@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 11:27:06PM -0400, Jeff Garzik wrote:
-> You're ignoring the argument :)
-> 
-> If users and developers are presented with the _impression_ that long 
-> latency code paths don't exist, then nobody is motivated to profile them 
-> (with any tool), much less fix them.
+Randy.Dunlap wrote:
 
-well, you are assuming those latencies are visible with eyes. they might
-be in extreme cases, but normally they're not (what people notices
-normally are disk latencies, and few people uses an RT userspace
-anyways which means they cannot claim the problem to be a lack of
-cond_resched, but more likely they want shorter timeslices in the
-scheduler etc..). So my point is that you need a measurement tool anyways...
+>| Does anyone know if there is a detailed guide on how to convert kernel 
+>| modules for 2.4 kernels to modules for 2.6 kernels?  I know very little 
+>
+>http://lwn.net/Articles/driver-porting/
+>  
+>
+I haven't had a chance to look at it in detail yet, but I think that 
+should definitely cover it.  Thanks a lot.
+
+>OSS is deprecated.  It needs an ALSA driver.
+>  
+>
+That's one reason they made it open-source.  They're hoping someone can 
+write an ALSA driver for it.
+
+>You can recommend them for inclusion, but the developer or maintainer
+>of them needs to either submit them or at least approve their
+>submission for inclusion.
+>  
+>
+I'm not suggesting adding the drivers as they are now in the kernel.  
+I'm recommending taking those drivers, revising them to fix whatever 
+problems they had (including writing an ALSA driver for the sound card 
+driver), and releasing the revised modules.  Or would even that still 
+need the original developer's approval?
+
+>How about posting their web locations (wherever you found them)
+>in case someone is interested..?
+>  
+>
+I think it was Linuxant (http://www.linuxant.com).  The links in a HOWTO 
+file on Conexant modems redirect to that.  I got them somewhere for 
+free, whereas Linuxant charges for a full version, but either I can't 
+remember where I got them from or the links I got them at redirect to 
+Linuxant.  And the documentation in the file doesn't list a Web site, 
+but it does mention a copyright by Conexant, but I'm unsure whether 
+that's for the driver itself or for the device.  Same deal with the 
+Riptide sound card driver.  That was from Linuxant, but they're not 
+posting that on their Web site any more, so I'm glad I got it when I 
+did.  The file name for the HSF modem driver is 
+"hsflinmodem-4.06.06.02.tar.bz2" and the one for the Riptide sound card 
+is "riptide-0.6lnxtbeta03122800.tar.bz2".  You might try doing a Web 
+search for those files.  Actually, I don't remember whether they were 
+originally compressed in .bz2 format or if they were compressed in .gz 
+format and I recompressed them in .bz2 format (as I did for a lot of 
+stuff), so make sure you try both extensions.
+

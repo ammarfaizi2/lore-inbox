@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280792AbRKGOW2>; Wed, 7 Nov 2001 09:22:28 -0500
+	id <S280700AbRKGOfe>; Wed, 7 Nov 2001 09:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280799AbRKGOWT>; Wed, 7 Nov 2001 09:22:19 -0500
-Received: from full215.sara.unitn.it ([193.205.210.215]:56562 "EHLO
-	dizzy.dz.net") by vger.kernel.org with ESMTP id <S280792AbRKGOWI>;
-	Wed, 7 Nov 2001 09:22:08 -0500
-From: Massimo Dal Zotto <dz@cs.unitn.it>
-Message-Id: <200111071421.fA7ELjYM015008@dizzy.dz.net>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-In-Reply-To: <20011107111339.A4155@emeraude.kwisatz.net> "from Stephane Jourdois
- at Nov 7, 2001 11:13:39 am"
-To: stephane@tuxfinder.org
-Date: Wed, 7 Nov 2001 15:21:44 +0100 (MET)
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S280801AbRKGOfY>; Wed, 7 Nov 2001 09:35:24 -0500
+Received: from yoda.planetinternet.be ([195.95.30.146]:3856 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S280700AbRKGOfJ>; Wed, 7 Nov 2001 09:35:09 -0500
+Date: Wed, 7 Nov 2001 15:34:59 +0100 (CET)
+From: Dirk Moerenhout <dirk@staf.planetinternet.be>
+X-X-Sender: <dmoerenh@dirk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Using %cr2 to reference "current"
+In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0111071527390.204-100000@dirk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Yup I did that on i8kutils-1.1, then reverted to system(), because I
-> removed the anti-repeat system, and used a slow mixer application. Then
-> the repeat was bad (sometimes slow, sometimes quick).
-> In fact, I don't really mind, as now I use aumix (and it is fast
-> enought).
-> 
-> Massimo, choose one please :-)
-> 
->         Stephane
-> 
+> > somehow encouraged by the compiler comparisions between gcc and intel's
+> > free compiler, which use the register passing for anything local
+> > to the actual code, where the speed gains are up to 20% im currently
+>
+> I was under the impression intels compiler was profoundly non-free ?
 
-I have released version 1.3 of the package. It includes the autorepeat
-feature and solves the zombie problem. You can download it from:
+Thought that too untill a minute ago. Went to the Intel site and read the
+information.
 
-  http://www.debian.org/~dz/i8k/
+http://developer.intel.com/software/products/eval/
 
-There is also a new smm-test script which can be used to test the SMM bios
-on Inspiron laptops. This command can be very dangerous, use with caution!
+Gives details about _two_ ways to get it free. The known 30 day free trial
+with support but also a less known "non commercial unsupported" option. So
+for non-commercial use you can use it as much as you want, you just don't
+get support.
 
--- 
-Massimo Dal Zotto
+Downloading it now to play some with it :-)
 
-+----------------------------------------------------------------------+
-|  Massimo Dal Zotto               email: massimo.dalzotto@libero.it   |
-|  Via Marconi, 141                phone: ++39-461534251               |
-|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
-|  Italy                                  http://www.debian.org/~dz/   |
-|  gpg:   2DB65596  3CED BDC6 4F23 BEDA F489 2445 147F 1AEA 2DB6 5596  |
-+----------------------------------------------------------------------+
+Dirk Moerenhout ///// System Administrator ///// Planet Internet NV
+

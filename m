@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbTIIU6F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTIIU6F
+	id S264451AbTIIVCL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTIIVCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:58:05 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25873 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264382AbTIIU6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:58:01 -0400
-Date: Tue, 9 Sep 2003 21:57:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
-Message-ID: <20030909215758.Q4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030909204803.N4216@flint.arm.linux.org.uk> <20030909201436.GA1382@redhat.com>
+	Tue, 9 Sep 2003 17:02:00 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42119 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264451AbTIIVBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:01:45 -0400
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Cc: Dave Jones <davej@redhat.com>,
+       Dennis Freise <Cataclysm@final-frontier.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063131362.776.11.camel@hades>
+References: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org>
+	 <20030908225401.GD681@redhat.com>
+	 <1063069344.28622.53.camel@dhcp23.swansea.linux.org.uk>
+	 <20030909075023.GA8065@redhat.com> <1063129307.777.8.camel@hades>
+	 <20030909175323.GB932@redhat.com>  <1063131362.776.11.camel@hades>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063141227.30981.2.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030909201436.GA1382@redhat.com>; from davej@redhat.com on Tue, Sep 09, 2003 at 09:14:37PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Tue, 09 Sep 2003 22:00:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 09:14:37PM +0100, Dave Jones wrote:
-> On Tue, Sep 09, 2003 at 08:48:03PM +0100, Russell King wrote:
->  > -static struct pci_device_id agp_ati_pci_table[] __initdata = {
->  > +static struct pci_device_id agp_ati_pci_table[] = {
-> 
-> Wierd. I could swear akpm had these patches in his tree no so long back.
+On Maw, 2003-09-09 at 19:16, Mika Liljeberg wrote:
+> Yeah, it's all wonderfully vague. If there are 'additional rights' I
+> would expect to see the exact license (or a reference to the license) at
+> the top of each source file.
 
-So did I, so I checked the history in bk, and it seems it never made Linus'
-tree.
+That was always the assumption. The original problem was to find a
+string to match which verified you got GPL rights but at the same time
+kept people granting more rights happy that the string was correct.
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core

@@ -1,37 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281806AbRL0OX0>; Thu, 27 Dec 2001 09:23:26 -0500
+	id <S282978AbRL0O4U>; Thu, 27 Dec 2001 09:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282099AbRL0OXM>; Thu, 27 Dec 2001 09:23:12 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:53254 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S281806AbRL0OWv>; Thu, 27 Dec 2001 09:22:51 -0500
-Date: Thu, 27 Dec 2001 15:22:49 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
+	id <S282187AbRL0O4K>; Thu, 27 Dec 2001 09:56:10 -0500
+Received: from unicef.org.yu ([194.247.200.148]:22546 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S282099AbRL0Oz6>;
+	Thu, 27 Dec 2001 09:55:58 -0500
+Date: Thu, 27 Dec 2001 15:55:42 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
 To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Configure.help editorial policy
-Message-ID: <20011227152249.B15022@suse.cz>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <esr@thyrsus.com> <20011220143247.A19377@thyrsus.com> <20011220234939.A32287@suse.cz> <8FeKj4zXw-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8FeKj4zXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Thu, Dec 27, 2001 at 01:57:00PM +0200
+In-Reply-To: <8FeKjZHHw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.33.0112271538140.4874-100000@unicef.org.yu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 01:57:00PM +0200, Kai Henningsen wrote:
+On 27 Dec 2001, Kai Henningsen wrote:
 
-> > And speaking of the 1 Mbps connection - I fear that in many cases
-> > that'll be 1024000 bytes per second. What M is that? Binary or decimal?
-> 
-> A lied-about one. These abominations deserve to die, yesterday.  
-> Preferrably messily.
+> tas@mindspring.com (Timothy A. Seufert)  wrote on 22.12.01 in <p05101000b84a980dd9e1@[10.0.0.42]>:
+>
+> > Vojtech Pavlich wrote:
+> >
+> > >4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
+> > >20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
+> >
+> > A 20 GB hard drive is always 20 * 10^9 bytes.  I'm not sure why so
+> > many people on the linux-kernel list think otherwise, but the hard
+> > drive industry is quite consistent in its use of power-of-10 units to
+> > describe capacity.  See:
+>
+> >From dmesg:
+>
+> "195371568 sectors (100030 MB)" (calls itself 100)
+> "8250001 512-byte hdwr sectors (4224 MB)" (calls itself 4330)
+>
+> I take back whatever I said. It's not 1024^n. It's not 1024*1000^n. It's
+> not 1000^n. I don't know what it is, except it's all a lie.
+>
+perhaps it is true.
 
-You can't kill ISDN that easily. And not just ISDN, actually most phone
-lines are based on 2048000 bit per second links ...
+in old days they were specified
+for floppy disks and very old hd drives
+so you had like floppy diskette 2MB diskette capacity unformated and
+ 1.44 formated. (so we had 2m1 tools for dos and we can use /dev/fd0u1680)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+the same was with hdd's there were disk with capacity 21MB unformated
+but if they were with MFM controler they would have 19 with RLL 17MB
+that was very old drives.
+
+IN old days you had declared how much can hold unformated media
+and how much in PC/CPM/MAC mode.
+
+As I remember 5.25" history floppies in CP/M were unformatted about 450KB
+on kaypro formated were 400KB / PC CP/M 86 360KB / and other 320KB
+some cp/m like commodore c128D could read all those formats.
+
+I think it is the same with HDD drives they full capcity may be
+40GB where 40GB=40*1000M*1000K but real usefull is much less than declared
+
+drive has it's own filesystem whathewer we use on top ot it,
+you will realise that if you notice that there is no more low level format
+option in bios, further more SMART in drives automatically change or
+relocate bad sectors.
+
+BUT I must admit I think it is stupid,
+if 1KB is not 1024 bytes or 1Kb is not 1024 bites or 128 bytes.
+
+regards,
+
+ Zoran
+
+
+

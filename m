@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbUCBRLk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 12:11:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUCBRLk
+	id S261713AbUCBRpW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 12:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUCBRpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 12:11:40 -0500
-Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:20878 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id S261707AbUCBRLj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 12:11:39 -0500
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-From: Ray Lee <ray-lk@madrabbit.org>
-To: pnelson@andrew.cmu.edu
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1078247497.1157.1886.camel@orca.madrabbit.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 02 Mar 2004 09:11:38 -0800
+	Tue, 2 Mar 2004 12:45:22 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:43117 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261713AbUCBRpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 12:45:18 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/9] New set of input patches
+Date: Tue, 2 Mar 2004 12:45:10 -0500
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <200402290153.08798.dtor_core@ameritech.net> <20040302130212.GA1963@ucw.cz>
+In-Reply-To: <20040302130212.GA1963@ucw.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403021245.10915.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey there,
+On Tuesday 02 March 2004 08:02 am, Vojtech Pavlik wrote:
+> On Sun, Feb 29, 2004 at 01:53:58AM -0500, Dmitry Torokhov wrote:
+> 
+> > Here is the new set of input patches that I have. You have seen some of
+> > them, buit this time they are rediffed against 2.6.4-rc1 and in nice order.
+> 
+> I like them very much. Do you have a bitkeeper tree anywhere where I
+> could pull from, so that I don't have to apply these by hand?
+>
+ 
+No, unfortunately I don't have an accessible tree... Hmm, what does it take
+to get an account at kernel.bkbits.net?
 
-> Based on these results I personally am now going with XFS as it's
-> faster than ReiserFS in the real-world benchmarks and my current
-> Ext3 partition's performance is getting worse and worse.
-
-If your current Ext3 partition was created under 2.4.x, you may wish to
-recreate it under 2.6. 2.6 uses a different algorithm to lay out
-directory blocks (google on 'orlov allocator') and this can affect
-performance.
-
-                                  ~ ~
-
-Nicely done, btw.
-
-Ray
-
+-- 
+Dmitry

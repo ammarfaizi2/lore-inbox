@@ -1,99 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVAHWJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVAHWNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVAHWJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVAHWHT
+	id S261924AbVAHWNl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVAHWKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:07:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33797 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261864AbVAHWDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:03:40 -0500
-Date: Sat, 8 Jan 2005 23:03:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: al@alarsen.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/qnx4/: make some code static
-Message-ID: <20050108220336.GE14108@stusta.de>
+	Sat, 8 Jan 2005 17:10:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:16920 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261924AbVAHWJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:09:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=gEkLKx/wvuJbQO3Cb5QZiMhovY6R8l61rke13qG6r+Lzq8lU3CXQpFqraYOvJ/HtVKceSm7S0LCke65XerPZhuajF9h0PCexX7HcV7NB9QgCsgsd+uTRPseoeCwJA4ML+GnnqfLpOzzVq9AHHXcSzCtz628XslHVP3u4T1ouWKw=
+Message-ID: <58cb370e05010814097c8ae8d9@mail.gmail.com>
+Date: Sat, 8 Jan 2005 23:09:26 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] ide-scsi.c: make 2 functions static (fwd) (fwd)
+Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@steeleye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050108214008.GT14108@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050108214008.GT14108@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global code static.
+On Sat, 8 Jan 2005 22:40:08 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> The patch forwarded below still applies and compiles against 2.6.10-mm2.
 
+hmm, latest IDE update (in -bk) also makes these functions static
 
-diffstat output:
- fs/qnx4/bitmap.c        |    4 ++--
- fs/qnx4/inode.c         |    8 ++++----
- include/linux/qnx4_fs.h |    2 --
- 3 files changed, 6 insertions(+), 8 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-mm2-full/fs/qnx4/bitmap.c.old	2005-01-08 17:14:26.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/qnx4/bitmap.c	2005-01-08 17:14:38.000000000 +0100
-@@ -28,8 +28,8 @@
- 	return 0;
- }
- 
--void count_bits(register const char *bmPart, register int size,
--		int *const tf)
-+static void count_bits(register const char *bmPart, register int size,
-+		       int *const tf)
- {
- 	char b;
- 	int tot = *tf;
---- linux-2.6.10-mm2-full/include/linux/qnx4_fs.h.old	2005-01-08 17:15:37.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/qnx4_fs.h	2005-01-08 17:15:52.000000000 +0100
-@@ -114,7 +114,6 @@
- extern unsigned long qnx4_count_free_blocks(struct super_block *sb);
- extern unsigned long qnx4_block_map(struct inode *inode, long iblock);
- 
--extern struct buffer_head *qnx4_getblk(struct inode *, int, int);
- extern struct buffer_head *qnx4_bread(struct inode *, int, int);
- 
- extern struct inode_operations qnx4_file_inode_operations;
-@@ -130,7 +129,6 @@
- extern int qnx4_rmdir(struct inode *dir, struct dentry *dentry);
- extern int qnx4_sync_file(struct file *file, struct dentry *dentry, int);
- extern int qnx4_sync_inode(struct inode *inode);
--extern int qnx4_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh, int create);
- 
- static inline struct qnx4_sb_info *qnx4_sb(struct super_block *sb)
- {
---- linux-2.6.10-mm2-full/fs/qnx4/inode.c.old	2005-01-08 17:15:01.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/qnx4/inode.c	2005-01-08 17:16:08.000000000 +0100
-@@ -162,8 +162,8 @@
- 	return 0;
- }
- 
--struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
--				 int create)
-+static struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
-+				       int create)
- {
- 	struct buffer_head *result = NULL;
- 
-@@ -212,7 +212,7 @@
- 	return NULL;
- }
- 
--int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
-+static int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
- {
- 	unsigned long phys;
- 
-@@ -447,7 +447,7 @@
- {
- 	return generic_block_bmap(mapping,block,qnx4_get_block);
- }
--struct address_space_operations qnx4_aops = {
-+static struct address_space_operations qnx4_aops = {
- 	.readpage	= qnx4_readpage,
- 	.writepage	= qnx4_writepage,
- 	.sync_page	= block_sync_page,
-
+> --- linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c.old       2004-11-13 21:51:26.000000000 +0100
+> +++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c   2004-11-13 21:51:41.000000000 +0100
+> @@ -301,7 +301,7 @@
+>         return ide_do_drive_cmd(drive, rq, ide_preempt);
+>  }
+> 
+> -ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
+> +static ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
+>  {
+>         struct request *rq;
+>         byte err;
+> @@ -327,7 +327,7 @@
+>         return ide_stopped;
+>  }
+> 
+> -ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
+> +static ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
+>  {
+>         struct request *rq;
+>

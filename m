@@ -1,59 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266803AbUGLMN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUGLMVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266803AbUGLMN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 08:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUGLMN3
+	id S266805AbUGLMVm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 08:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266809AbUGLMVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 08:13:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:29675 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266803AbUGLMN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 08:13:27 -0400
-Date: Mon, 12 Jul 2004 14:11:37 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, jmerkey@comcast.net,
-       Pete Harlan <harlan@artselect.com>, linux-kernel@vger.kernel.org
-Subject: Re: Ext3 File System "Too many files" with snort
-In-Reply-To: <4d8e3fd304071203204c51f6c4@mail.gmail.com>
-Message-ID: <Pine.LNX.4.56.0407121407180.24721@jjulnx.backbone.dif.dk>
-References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net>
- <40EF797E.6060601@namesys.com> <20040710083347.GC6386@redhat.com>
- <40F02963.5040500@namesys.com> <20040710174432.GA18719@infradead.org>
- <40F02E05.8090401@namesys.com> <4d8e3fd304071203204c51f6c4@mail.gmail.com>
+	Mon, 12 Jul 2004 08:21:41 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:46979 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266805AbUGLMVj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 08:21:39 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: watchdog infrastructure
+Date: Mon, 12 Jul 2004 14:20:45 +0200
+User-Agent: KMail/1.6.2
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
+References: <200407011923.45226.arnd@arndb.de> <20040712081939.GJ5726@infomag.infomag.iguana.be> <20040712082313.GW12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040712082313.GW12308@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_hIo8Au5eJdzPgJo";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407121420.50190.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Paolo Ciarrocchi wrote:
 
-> On Sat, 10 Jul 2004 10:57:25 -0700, Hans Reiser <reiser@namesys.com> wrote:
-> > Christoph Hellwig wrote:
-> [...]
-> > Lindows does it right.
->
-> I dunno how Lindows manage the release process,
-> but as I already wrote in a different thread, I don't unserstand why
-> the linux kernel release process can't be supported by a suite of test
-> that has to be passed before being released a new -rc or final
-> version.
->
-> It seems there are now the all the tools we need but we are note using
-> them to manage the releases.
->
-> I'm referring to LTP, compile stats and regression test from OSDL.
->
+--Boundary-02=_hIo8Au5eJdzPgJo
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Just wanted to add my 0.02euro - To me it sounds like a good idea to have
-a testsuite with "must pass these" tests that official kernel releases get
-tested against.. maybe just the final -rc's before a new stable release.
-What should be in the test suite and how it should be
-maintained/updated will of course be a matter of debate, but
-the basic idea that if release candidates doesn't pass the basic test
-suite, then another release candidate must surface sounds very sane to me.
+On Montag, 12. Juli 2004 10:23, viro@parcelfarce.linux.theplanet.co.uk wrot=
+e:
+> On Mon, Jul 12, 2004 at 10:19:39AM +0200, Wim Van Sebroeck wrote:
+> > > - You need to get the module reference count before calling any
+> > > =A0 watchdog operation, the best place for this is probably the
+> > > =A0 open() fop.
+>=20
+> Huh? =A0Just set ->owner in file_operations and be done with that.
+>=20
+Yes, that would work. However, I don't feel comfortable with setting
+fops->owner to anything else than THIS_MODULE. In particular, this
+causes problems when multiple watchdog drivers register with the
+watchdog base module.
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+The sequence I had in mind was:
 
+chrdev_open()
+   try_module_get(fops->owner)
+   watchdog_open()
+      try_module_get(wdops->owner)
+      wdops->start()
+
+
+vfs_write
+   watchdog_write()
+      wdops->keepalive()
+
+=2E..
+
+fput()
+   watchdog_release()
+       wdops->stop()
+       module_put(wdops->owner)
+   module_put(fops->owner)
+
+This would practically do the same for the watchdog layer that we already
+do for inside vfs for the file_operations.
+
+	Arnd <><
+
+--Boundary-02=_hIo8Au5eJdzPgJo
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA8oIh5t5GS2LDRf4RAl5MAKCa+xpN4/DjqiXQ1yzEgpOfLq+wnACdFX+4
+j+L3P2Qn+vRFivr7By3KmxU=
+=SHCw
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_hIo8Au5eJdzPgJo--

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280410AbRKSXQK>; Mon, 19 Nov 2001 18:16:10 -0500
+	id <S280448AbRKSXTk>; Mon, 19 Nov 2001 18:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280448AbRKSXQA>; Mon, 19 Nov 2001 18:16:00 -0500
-Received: from N402P014.adsl.highway.telekom.at ([213.33.50.46]:18335 "HELO
-	twinny.dyndns.org") by vger.kernel.org with SMTP id <S280410AbRKSXPz>;
-	Mon, 19 Nov 2001 18:15:55 -0500
-Message-ID: <3BF98FB3.B2713A09@webit.com>
-Date: Tue, 20 Nov 2001 00:03:15 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB-OHCI + USB broken in 2.4.14/15pre2?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280751AbRKSXTa>; Mon, 19 Nov 2001 18:19:30 -0500
+Received: from stephenc.theiqgroup.com ([216.81.249.18]:47761 "EHLO
+	owns.warpcore.org") by vger.kernel.org with ESMTP
+	id <S280448AbRKSXTQ>; Mon, 19 Nov 2001 18:19:16 -0500
+Date: Mon, 19 Nov 2001 17:19:12 -0600
+From: Stephen Clouse <stephenc@theiqgroup.com>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3Com 3c905c invalid checksum?
+Message-ID: <20011119171912.B4048@owns.warpcore.org>
+Mail-Followup-To: Alex Buell <alex.buell@tahallah.demon.co.uk>,
+	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Disposition: inline; filename="msg.pgp"
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Mon, Nov 19, 2001 at 10:37:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Now, I found out how to work around the problem:
+On Mon, Nov 19, 2001 at 10:37:45PM +0000, Alex Buell wrote:
+> The network card in the docking station I plug my Inspirion 8100 in, is a
+> 3Com 3c905C Tornado but apparently at boot time when it is identified, it
+> prints "***INVALID CHECKSUM 00e0**. I can't ping other boxes on the
+> network, nor can I ping other boxes from the laptop. I've double checked
+> and triple checked, and the configuration is indeed correct.
+> 
+> What does the error message INVALID CHECKSUM means?
 
-The only way seems to be rmmod usb-ohci on suspend, insmod at resume...
+The driver predates the 905c, which means you're probably running an older 
+kernel.  Get the latest 2.4 kernel, or optionally, just the latest 3c90x driver:
 
-This isn't quite a nice way doing.... but it works.
+http://www.scyld.com/network/vortex.html
 
-Anyway, can anyone confirm that usb-ohci resumes correctly on similar
-hardware? (SiS630 chipset, 2xSiS7001 USB controller)
+- -- 
+Stephen Clouse <stephenc@theiqgroup.com>
+Senior Programmer, IQ Coordinator Project Lead
+The IQ Group, Inc. <http://www.theiqgroup.com/>
 
-Thomas
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
 
--- 
-Thomas Winischhofer
-Vienna/Austria                  Check it out:         
-mailto:tw@webit.com              *** http://www.webit.com/tw
+iQA/AwUBO/mTbwOGqGs0PadnEQLSJwCeIdfNKkVNf7FAyr/RwxX/SoyzBIkAnRcE
+rhsTW7A5ZCHSQxl4tuVNRg2m
+=DKSy
+-----END PGP SIGNATURE-----

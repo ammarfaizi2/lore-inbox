@@ -1,78 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272123AbTG2Uog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272124AbTG2Uof
+	id S272124AbTG2Upz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272126AbTG2Upy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:44:35 -0400
-Received: from waste.org ([209.173.204.2]:32657 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272123AbTG2Uo0 (ORCPT
+	Tue, 29 Jul 2003 16:45:54 -0400
+Received: from msgbas1tx.cos.agilent.com ([192.25.240.37]:34263 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S272124AbTG2Upi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:44:26 -0400
-Date: Tue, 29 Jul 2003 15:44:19 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] automate patch names in kernel versions
-Message-ID: <20030729204419.GE6049@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Tue, 29 Jul 2003 16:45:38 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: 2.5.x module make questions
+Date: Tue, 29 Jul 2003 14:45:35 -0600
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55239@axcs03.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.5.x module make questions
+Thread-Index: AcNWEnMH6/C7q7DEEdeA3wBgsGgWXA==
+From: <yiding_wang@agilent.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps times have changed enough that I can revive this idea from a
-few years ago:
+Team,
 
-http://groups.google.com/groups?q=patchname+oxymoron&hl=en&lr=&ie=UTF-8&selm=fa.jif8l5v.1b049jd%40ifi.uio.no&rnum=1
+I have two questions regarding kbuild.
+1, According to doc., makefile can do descending.  Could make carry ascending?
+2, Does old style of makefile still work (it should according to the article of "Driver porting: compiling external module")?
 
-<quote year=1999>
-This four-line patch provides a means for listing what patches have
-been built into a kernel. This will help track non-standard kernel
-versions, such as those released by Redhat, or Alan's ac series, etc.
-more easily.
+I was using "make -C /usr/src/linux SUBDIRS=$PWD modules". Build process at the stage 2 after primary Makefile trying to get secondary Makefile to be involved.  I have fairly complicated source tree to be involved in the module build process, including descending and ascending.  The main (primary) Makefile is almost down to the bottom of the tree. It is in old style and has followng content:
 
-With this patch in place, each new patch can include a file of the
-form "patchname.[identifier]" in the top level source directory and
-[identifier] will then be added to the kernel version string. For
-instance, Alan's ac patches could include a file named patchdesc.ac2
-(containing a change log, perhaps), and the resulting kernel would be
-identified as 2.2.0-pre6+ac2, both at boot and by uname.
+export TOPDIR
+export CFLAGS
 
-This may prove especially useful for tracking problems with kernels
-built by distribution packagers and problems reported by automated
-tools.
-</quote>
+all : ag.o
 
-The patch now appends patches as -name rather than +name to avoid
-issues that might exist with packaging tools and scripts.
+ag.o: ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o  s/sl.o 
+	ld -r -o ag.o ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o s/sl.o 
 
-diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/Makefile patched/Makefile
---- orig/Makefile	2003-07-29 13:31:50.000000000 -0500
-+++ patched/Makefile	2003-07-29 15:25:36.000000000 -0500
-@@ -25,7 +25,10 @@
- # descending is started. They are now explicitly listed as the
- # prepare rule.
+../../../../t/s/ts.o:
+	@echo "Making t-s"
+	@make -C ../../../../t/s
+
+../../../f/c/fc.o:
+	@echo "Making F-C"
+	@make -C ../../../f/c 
+
+../../../f/i/fi.o:
+	@echo "Making F-I"
+	@make -C ../../../f/i
+
+s/sl.o:
+	@echo "Making linux s-l"
+	@make -C s 
+
+What happend is the linux make exits after excuting the above Makefile. It did not change the directory "@make -C **" and perform futher make.
+
+At the end of tree, a Makefile is regular like (../../../f/c/Makefile):
+T_INC = -I../../../t/api -I../../../t/s 
+SL_INC = -I../../d/l/c
+FC_INC = -I../i
+TI_INC = -I../../d/api
+INCLUDE_LOCAL = $(T_INC) $(SL_INC) $(FC_INC) $(TII_INC)
+
+obj-m := fc.o
+
+fc-objs := t1.o t2.o t3.o t4.o
+
+EXTRA_CFLAGS := $(INCLUDE_LOCAL) -I$(TOPDIR)/drivers/scsi
+
+Any suggestion is welcomed.  If the kbuild cannot do ascending, I have to change the source tree structure but that is the least I want to do.
+
+Many thanks!
+
+Eddie
  
--KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-+PATCHES=$(shell find -maxdepth 1 -name 'patchdesc.*[^~]' -printf '+%f' | \
-+	sed -e 's/+patchdesc\./-/g')
-+KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(PATCHES)
-+
- 
- # SUBARCH tells the usermode build what the underlying arch is.  That is set
- # first, and if a usermode build is happening, the "ARCH=um" on the command
-@@ -504,7 +507,7 @@
- 	)
- endef
- 
--include/linux/version.h: Makefile
-+include/linux/version.h: Makefile patchdesc.*
- 	$(call filechk,version.h)
- 
- # ---------------------------------------------------------------------------
-
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

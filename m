@@ -1,63 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSGGBwR>; Sat, 6 Jul 2002 21:52:17 -0400
+	id <S314243AbSGGCXw>; Sat, 6 Jul 2002 22:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSGGBwQ>; Sat, 6 Jul 2002 21:52:16 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:59147 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314149AbSGGBwP>;
-	Sat, 6 Jul 2002 21:52:15 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Albert Cranford <ac9410@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.25 remove unnecessary recompiles when changing EXTRAVERSION 
-In-reply-to: Your message of "Sat, 06 Jul 2002 16:47:21 -0400."
-             <3D275759.A0B105A8@bellsouth.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 07 Jul 2002 11:54:40 +1000
-Message-ID: <6291.1026006880@ocs3.intra.ocs.com.au>
+	id <S314277AbSGGCXw>; Sat, 6 Jul 2002 22:23:52 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:43505 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S314243AbSGGCXv>; Sat, 6 Jul 2002 22:23:51 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: James Simmons <jsimmons@transvirtual.com>, torvalds@transmeta.com
+Subject: Re: [patch] Typo fixes in input code
+Date: Sun, 7 Jul 2002 12:22:48 +1000
+User-Agent: KMail/1.4.5
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <vojtech@twilight.ucw.cz>
+References: <Pine.LNX.4.44.0207061047370.26054-100000@www.transvirtual.com>
+In-Reply-To: <Pine.LNX.4.44.0207061047370.26054-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_0AXUFMZBNSYGBNY9JFPV"
+Message-Id: <200207071222.48783.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Jul 2002 16:47:21 -0400, 
-Albert Cranford <ac9410@bellsouth.net> wrote:
->What do the changes to Makefile-2.5 look like for
->Kbuild-3.1 ?
 
-This has had two minutes of testing.  Apply after core-21, it should
-auto detect if the uts_release patch has been applied or not.  This
-will be included in kbuild 2.5 once the uts_release.h patch is included
-in 2.5.x, I am holding off in case the uts_release patch has to change.
+--------------Boundary-00=_0AXUFMZBNSYGBNY9JFPV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Index: 18.99/Makefile-2.5
---- 18.99/Makefile-2.5 Fri, 05 Jul 2002 17:16:39 +1000 kaos (linux-2.4/E/d/40_Makefile-2 1.32.2.27.1.8 644)
-+++ 18.99(w)/Makefile-2.5 Sun, 07 Jul 2002 11:52:02 +1000 kaos (linux-2.4/E/d/40_Makefile-2 1.32.2.27.1.8 644)
-@@ -588,13 +588,24 @@ endif
+On Sun, 7 Jul 2002 03:48, James Simmons wrote:
+> You patch is right except for drivers/input/gameport/Config.help. That was
+> right before your patch.
+OK. I assumed that Config.in was the authoritative source, and Config.help 
+should match. Looks like (based on the Makefile) that I probably should have 
+changed it to be CONFIG_GAMEPORT_EMU10K1 in the Config.in. In fact, that 
+driver won't ever be built with vanilla 2.5.25, with or without the previous 
+patch
+
+BK already has the previous change applied, so this in an incremental diff:
+
+<bk text>
+EMU10K1 build fix
+
+Revert the CONFIG_INPUT_EMU10K1 change to drivers/input/gameport/Config.help, 
+and change drivers/input/gameport/Config.in to use CONFIG_GAMEPORT_EMU10K1
+</bk text> 
+
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+--------------Boundary-00=_0AXUFMZBNSYGBNY9JFPV
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="EMU10K1-typo.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="EMU10K1-typo.patch"
+
+diff -Naur -X dontdiff linux-2.5.25-inputtypos1/drivers/input/gameport/Config.help linux-2.5.25-inputtypos2/drivers/input/gameport/Config.help
+--- linux-2.5.25-inputtypos1/drivers/input/gameport/Config.help	Sun Jul  7 12:19:47 2002
++++ linux-2.5.25-inputtypos2/drivers/input/gameport/Config.help	Sun Jul  7 12:18:56 2002
+@@ -34,7 +34,7 @@
+   The module will be called lightning.o. If you want to compile it as
+   a module, say M here and read <file:Documentation/modules.txt>.
  
- export KERNELRELEASE VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION USERVERSION
+-CONFIG_INPUT_EMU10K1
++CONFIG_GAMEPORT_EMU10K1
+   Say Y here if you have a SoundBlaster Live! or SoundBlaster
+   Audigy card and want to use its gameport.
  
-+# This code has to work on kernels with and without a separate uts_release.h.
-+# If module.h still uses UTS_RELEASE then then assume that version.h must
-+# include uts_release.h.
-+
-+ifneq ($(shell grep UTS_RELEASE $(KBUILD_SRCTREE_000)include/linux/module.h),)
-+  include_uts_release	:= \#include <linux/uts_release.h>
-+else
-+  include_uts_release	:= /* uts_release.h is now handled separately */
-+endif
-+
- $(KBUILD_OBJTREE)include/linux/version.h: $(KBUILD_OBJTREE)A_version FORCE_BUILD
- 	@cd $(KBUILD_OBJTREE)
- ifeq ($(KBUILD_WRITABLE),y)
- 	@mkdir -p $(KBUILD_OBJTREE)include/linux
--	@(echo \#include \<linux/uts_release.h\> && \
-+	@(echo '$(include_uts_release)' && \
- 	  echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 + $(PATCHLEVEL) \\* 256 + $(SUBLEVEL)` && \
--	  echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))' \
-+	  echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))' && \
-+	  echo '#define KERNEL_VERSION_STRING "$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)"' \
- 	 ) > $(KBUILD_OBJTREE).tmp_version.h && \
- 	 (cmp -s $(KBUILD_OBJTREE).tmp_version.h $@ || mv -f $(KBUILD_OBJTREE).tmp_version.h $@)
- endif
+diff -Naur -X dontdiff linux-2.5.25-inputtypos1/drivers/input/gameport/Config.in linux-2.5.25-inputtypos2/drivers/input/gameport/Config.in
+--- linux-2.5.25-inputtypos1/drivers/input/gameport/Config.in	Sat Jul  6 09:42:01 2002
++++ linux-2.5.25-inputtypos2/drivers/input/gameport/Config.in	Sun Jul  7 12:18:56 2002
+@@ -13,7 +13,7 @@
+ 
+ dep_tristate '  Classic ISA and PnP gameport support' CONFIG_GAMEPORT_NS558 $CONFIG_GAMEPORT
+ dep_tristate '  PDPI Lightning 4 gamecard support' CONFIG_GAMEPORT_L4 $CONFIG_GAMEPORT
+-dep_tristate '  SB Live and Audigy gameport support' CONFIG_INPUT_EMU10K1 $CONFIG_GAMEPORT
++dep_tristate '  SB Live and Audigy gameport support' CONFIG_GAMEPORT_EMU10K1 $CONFIG_GAMEPORT
+ dep_tristate '  Aureal Vortex, Vortex 2 gameport support' CONFIG_GAMEPORT_VORTEX $CONFIG_GAMEPORT
+ dep_tristate '  ForteMedia FM801 gameport support' CONFIG_GAMEPORT_FM801 $CONFIG_GAMEPORT
+ dep_tristate '  Crystal SoundFusion gameport support' CONFIG_GAMEPORT_CS461x $CONFIG_GAMEPORT
+
+--------------Boundary-00=_0AXUFMZBNSYGBNY9JFPV--
 

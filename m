@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266927AbTADOKo>; Sat, 4 Jan 2003 09:10:44 -0500
+	id <S266933AbTADOOI>; Sat, 4 Jan 2003 09:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbTADOKo>; Sat, 4 Jan 2003 09:10:44 -0500
-Received: from daimi.au.dk ([130.225.16.1]:6272 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S266927AbTADOKn>;
-	Sat, 4 Jan 2003 09:10:43 -0500
-Message-ID: <3E16ED5D.425E4DE4@daimi.au.dk>
-Date: Sat, 04 Jan 2003 15:19:09 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-17.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.54
-References: <20030104140643.19228.qmail@linuxmail.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S266938AbTADOOI>; Sat, 4 Jan 2003 09:14:08 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:30439 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S266933AbTADOOH>; Sat, 4 Jan 2003 09:14:07 -0500
+Date: Sat, 4 Jan 2003 09:22:35 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Honest does not pay here ...
+Message-ID: <20030104142235.GA1535@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
+On Sat, Jan 04, 2003 at 06:12:29AM -0800, Andre Hedrick wrote:
 > 
-> From: Kasper Dupont <kasperd@daimi.au.dk>
-> >
-> > How many versions do you have to go backwards to find a kernel
-> > you can compile?
+> Well, all this goes to show you is that if you try to do the right thing
+> and you have something of value, you are attacked.
 > 
-> Just one :-) 2.5.53 is happily running on my laptop.
-> I think I've compiled and booted all the kernel version
-> since 2.5.3something.
 
-A closer look on the patch reveals that the lines causing
-trouble for you are in fact new:
-http://www.kernel.org/diff/diffview.cgi?css=%2Fdiff%2Fdiff.css;file=%2Fpub%2Flinux%2Fkernel%2Fv2.5%2Fpatch-2.5.54.gz;z=65
-And so are the fields being manipulated:
-http://www.kernel.org/diff/diffview.cgi?css=%2Fdiff%2Fdiff.css;file=%2Fpub%2Flinux%2Fkernel%2Fv2.5%2Fpatch-2.5.54.gz;z=862
-
-Could the compiler somehow be using headers from the
-wrong location? (Just a wild guess)
+I think you're taking the words of a few extremists a little too personal.
+Judging from the responses I've seen on the threads Hell.Surfers has forked
+the majority of the kernel hackers do not agree with the more offensive
+"free software or die" crowd. Your efforts are appreciated also by those of
+us who know better than to get into a flamewar with zealots. You don't see
+our posts because we don't argue when the logic will be ignored.
+I hope you change your mind, but if not - thanks for your contributions.
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker
+  #cooker = moderated Mandrake Cooker
+

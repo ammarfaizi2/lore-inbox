@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276665AbRJ2Rnw>; Mon, 29 Oct 2001 12:43:52 -0500
+	id <S279326AbRJ2RtC>; Mon, 29 Oct 2001 12:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276646AbRJ2Rnm>; Mon, 29 Oct 2001 12:43:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62738 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276628AbRJ2Rne>; Mon, 29 Oct 2001 12:43:34 -0500
-Date: Mon, 29 Oct 2001 09:32:52 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Juergen Doelle <jdoelle@de.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Pls apply this spinlock patch to the kernel
-In-Reply-To: <E15yG7P-0003Kb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110290930540.8904-100000@penguin.transmeta.com>
+	id <S279321AbRJ2Rsx>; Mon, 29 Oct 2001 12:48:53 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:36994 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S279326AbRJ2Rsj>;
+	Mon, 29 Oct 2001 12:48:39 -0500
+Message-ID: <3BDD9699.1F448A54@candelatech.com>
+Date: Mon, 29 Oct 2001 10:49:13 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: arjanv@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: eepro100.c & Intel integrated MBs
+In-Reply-To: <11361.1004374395@nova.botz.org> <3BDD8EEC.6DFE6BA5@candelatech.com> <3BDD92E5.40EFFE90@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
 
-On Mon, 29 Oct 2001, Alan Cox wrote:
->
-> So why not just add a macro for aligning then do
->
-> spinlock_t pagecache_lock ____cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-> cache_line_pad;
->
-> where cache_line_pad is an asm(".align") - I would assume that is
-> sufficient - Linus ?
+> No we do not.  eepro100 is the default in Red Hat Linux 7.1 and 7.2 at
+> least.
+> I wish Intel would help fix eepro100 for the last few remaining issues
+> it has....
 
-Gcc won't guarantee that it puts different variables adjacently - the
-linker (or even the compiler) can move things around to make them fit
-better. Which is why it would be better to use the separate section trick.
+Perhaps that was only 7.0, or just my particular NICs...  I would
+definately prefer a fully functional eepro100 driver in the kernel too...
 
-(The union trick Juergen uses obviously also works around this, but
-requires that the _users_ be aware of what kind of lock it is, which I
-don't particularly like - then you can't just change the lock, you have to
-change the users too).
+Ben
 
-		Linus
-
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

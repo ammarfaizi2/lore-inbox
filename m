@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313264AbSDOVCo>; Mon, 15 Apr 2002 17:02:44 -0400
+	id <S313265AbSDOVKe>; Mon, 15 Apr 2002 17:10:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313265AbSDOVCn>; Mon, 15 Apr 2002 17:02:43 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:27911 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S313264AbSDOVCn>;
-	Mon, 15 Apr 2002 17:02:43 -0400
-Date: Mon, 15 Apr 2002 16:57:40 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Bill Abt <babt@us.ibm.com>, drepper@redhat.com,
-        linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
-        =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Futex Generalization Patch
-Message-ID: <20020415165740.A28056@mark.mielke.cc>
-In-Reply-To: <OF24E0B753.2B92A422-ON85256B9C.00512368@raleigh.ibm.com> <20020415172204.4B6073FE08@smtp.linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313267AbSDOVKd>; Mon, 15 Apr 2002 17:10:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21255 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313265AbSDOVKc>; Mon, 15 Apr 2002 17:10:32 -0400
+Date: Mon, 15 Apr 2002 14:08:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>, <wli@holomorphy.com>
+Subject: Re: [PATCH] for_each_zone / for_each_pgdat
+In-Reply-To: <Pine.LNX.4.44L.0204151755491.16531-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 12:22:59PM -0400, Hubertus Franke wrote:
-> typedef struct siginfo {
->    ...
->         union {
->                 int _pad[SI_PAD_SIZE];
->  
->                 struct {
->                         ...
->                 } _kill;
->  ...
+
+On Mon, 15 Apr 2002, Rik van Riel wrote:
 > 
-> I'd suggest we tag along the _sigfault semantics.
-> We don't need to know who woke us up, just which <addr> got signalled.
-> 
+> However, I really don't like the fact of teaching now-simple
+> VM code about pgdats again ;)
 
-Is there issues with creating a new struct in the union that represents
-exactly what you wish it to represent?
+Well, you don't actually have to teach it about pgdats, but try out how 
+much simpler the actual implementation is if you were to just add a 
+"endzone" macro, allowing the macros to do nesting.
 
-mark
+Once you do that, you can basically expand the thing any which way, 
+something like
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+#define for_each_zone(zone) \
+	do { pg_data_t * __pgdat; \
+		for (__pgdat = pgdat_list; __pgdat; __pgdat = __pgdat->next) { \
+			int __i; \
+			for (i = 0; i < MAX_ZONES; i++) { \
+				zone = pgdat->node_zones; \
+				if (!zone->size) \
+					break; \
+				do { \
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+#define end_zone \
+				while (0); \
+			} \
+		} \
+	} while (0)
 
-                           http://mark.mielke.cc/
+Which requires the user to use something like
+
+	for_each_zone(zone) {
+		...
+	} end_zone;
+
+but doesn't need changing the double loop into a artificial single loop.
+
+		Linus
 

@@ -1,509 +1,526 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbULIPRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbULIPTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbULIPRP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULIPRP
+	id S261524AbULIPTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULIPTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:17:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19913 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261522AbULIPJa (ORCPT
+	Thu, 9 Dec 2004 10:19:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20681 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261524AbULIPJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 9 Dec 2004 10:09:30 -0500
-Date: Thu, 9 Dec 2004 15:08:55 GMT
+Date: Thu, 9 Dec 2004 15:08:58 GMT
+Message-Id: <200412091508.iB9F8wja027564@warthog.cambridge.redhat.com>
 From: dhowells@redhat.com
 To: akpm@osdl.org, davidm@snapgear.com, gerg@snapgear.com, wli@holomorphy.com
 cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH 1/5] NOMMU: MM cleanups
-Message-ID: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
+Subject: [PATCH 4/5] NOMMU: Make POSIX shmem work on ramfs-backed files
+In-Reply-To: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com> 
+References: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me try these again, this time with the To: line correct...
+The attached patch makes ramfs able to support POSIX shared memory under !MMU
+conditions. It does this by:
 
-The attached patch does some cleaning up of the MM code preparatory to
-overhauling the high-order page handling:
+ (1) Intercept file expansion from zero-size by truncation. If this happens,
+     ramfs will attempt to allocate a high-order page sufficient to hold the
+     entire file. If successful, it'll split the high-order page into an array
+     of single pages and attach those that it needs to the inode. Any excess
+     will be returned to the allocator.
 
- (1) Trailing spaces have been cleaned up on lines in page_alloc.c and
-     bootmem.c.
+     If unsuccessful then the operation will return error ENOMEM or EFBIG
+     beyond the normal error returns for truncation.
 
- (2) bootmem.c now has a separate path to release pages to the main allocator
-     that bypasses many of the checks performed on struct pages.
+     The assumption is made that an mmap() will be performed to the size given
+     should this be successful.
 
- (3) __pagevec_free() has moved to swap.c with all the other pagevec
-     functions.
+ (2) Prevent file contraction leaving VM_SHARED VMAs dangling in midair. If
+     this were to happen, error ETXTBSY is returned instead. It's not quite the
+     right error, but it'll probably do.
 
- (4) put_page() has moved to page_alloc.c with all the other related
-     functions. This could be relegated to a separate file, but since there
-     are many other conditionals in page_alloc.c, what's the point?
+ (3) get_unmapped_area() is now provided on ramfs files if !MMU. This checks
+     that if a shared mapping is desired the pages requested are all present
+     with the file and that they're all contiguous. The address of the
+     appropriate start page in the file returned if they are; ENOMEM is
+     returned if not.
+
+The page attachment mentioned in (1) could be done by get_unmapped_area()
+instead if mapping->nrpages is zero; however, this would mean that open(),
+ftruncate(), write(), mmap() wouldn't work. There's no ideal solution since
+there's effectively no MMU.
+
+What (1) allows is data passed to write() calls made after the truncation to
+appear on the memory indicated by mmap() whilst it is mapped.
+
+This is sufficient to allow POSIX shared memory on ramfs.
 
 Signed-Off-By: dhowells@redhat.com
 ---
-diffstat mmcleanup-2610rc2mm3.diff
- bootmem.c    |   35 ++++++++-------
- internal.h   |    3 -
- page_alloc.c |  136 +++++++++++++++++++++++++++++++++++++----------------------
- swap.c       |   29 +++---------
- 4 files changed, 116 insertions(+), 87 deletions(-)
+diffstat nommu-ramfs-2610rc2mm3-3.diff
+ fs/ramfs/Makefile     |    8 +
+ fs/ramfs/file-mmu.c   |   57 +++++++++
+ fs/ramfs/file-nommu.c |  295 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/ramfs/inode.c      |   22 ---
+ fs/ramfs/internal.h   |   15 ++
+ include/linux/ramfs.h |   10 +
+ 6 files changed, 385 insertions(+), 22 deletions(-)
 
-diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/bootmem.c linux-2.6.10-rc2-mm3-mmcleanup/mm/bootmem.c
---- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/bootmem.c	2004-11-22 10:54:17.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-mmcleanup/mm/bootmem.c	2004-11-23 15:32:12.964968405 +0000
-@@ -89,7 +89,7 @@ static void __init reserve_bootmem_core(
- 	 * fully reserved.
- 	 */
- 	unsigned long sidx = (addr - bdata->node_boot_start)/PAGE_SIZE;
--	unsigned long eidx = (addr + size - bdata->node_boot_start + 
-+	unsigned long eidx = (addr + size - bdata->node_boot_start +
- 							PAGE_SIZE-1)/PAGE_SIZE;
- 	unsigned long end = (addr + size + PAGE_SIZE-1)/PAGE_SIZE;
- 
-@@ -174,7 +174,7 @@ __alloc_bootmem_core(struct bootmem_data
- 	 * We try to allocate bootmem pages above 'goal'
- 	 * first, then we try to allocate lower pages.
- 	 */
--	if (goal && (goal >= bdata->node_boot_start) && 
-+	if (goal && (goal >= bdata->node_boot_start) &&
- 	    ((goal >> PAGE_SHIFT) < bdata->node_low_pfn)) {
- 		preferred = goal - bdata->node_boot_start;
- 
-@@ -264,7 +264,7 @@ static unsigned long __init free_all_boo
- 	bootmem_data_t *bdata = pgdat->bdata;
- 	unsigned long i, count, total = 0;
- 	unsigned long idx;
--	unsigned long *map; 
-+	unsigned long *map;
- 	int gofast = 0;
- 
- 	BUG_ON(!bdata->node_bootmem_map);
-@@ -274,55 +274,59 @@ static unsigned long __init free_all_boo
- 	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
- 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
- 	map = bdata->node_bootmem_map;
-+
- 	/* Check physaddr is O(LOG2(BITS_PER_LONG)) page aligned */
- 	if (bdata->node_boot_start == 0 ||
- 	    ffs(bdata->node_boot_start) - PAGE_SHIFT > ffs(BITS_PER_LONG))
- 		gofast = 1;
-+
- 	for (i = 0; i < idx; ) {
- 		unsigned long v = ~map[i / BITS_PER_LONG];
-+
- 		if (gofast && v == ~0UL) {
- 			int j, order;
- 
- 			count += BITS_PER_LONG;
- 			__ClearPageReserved(page);
- 			order = ffs(BITS_PER_LONG) - 1;
--			set_page_refs(page, order);
- 			for (j = 1; j < BITS_PER_LONG; j++) {
- 				if (j + 16 < BITS_PER_LONG)
- 					prefetchw(page + j + 16);
- 				__ClearPageReserved(page + j);
- 			}
--			__free_pages(page, order);
-+			__free_pages_bootmem(page, order);
- 			i += BITS_PER_LONG;
- 			page += BITS_PER_LONG;
-+
- 		} else if (v) {
- 			unsigned long m;
- 			for (m = 1; m && i < idx; m<<=1, page++, i++) {
- 				if (v & m) {
- 					count++;
- 					__ClearPageReserved(page);
--					set_page_refs(page, 0);
--					__free_page(page);
-+					__free_pages_bootmem(page, 0);
- 				}
- 			}
-+
- 		} else {
--			i+=BITS_PER_LONG;
-+			i += BITS_PER_LONG;
- 			page += BITS_PER_LONG;
- 		}
- 	}
- 	total += count;
- 
- 	/*
--	 * Now free the allocator bitmap itself, it's not
--	 * needed anymore:
-+	 * Now free the allocator bitmap itself, it's not needed anymore:
- 	 */
- 	page = virt_to_page(bdata->node_bootmem_map);
--	count = 0;
--	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
--		count++;
-+
-+	count = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
-+	count = ((count / 8) + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+
-+	for (i = count; i > 0; i--) {
- 		__ClearPageReserved(page);
--		set_page_count(page, 1);
--		__free_page(page);
-+		__free_pages_bootmem(page, 0);
-+		page++;
- 	}
- 	total += count;
- 	bdata->node_bootmem_map = NULL;
-@@ -402,4 +406,3 @@ void * __init __alloc_bootmem_node (pg_d
- 
- 	return __alloc_bootmem(size, align, goal);
- }
--
-diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/internal.h linux-2.6.10-rc2-mm3-mmcleanup/mm/internal.h
---- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/internal.h	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-mmcleanup/mm/internal.h	2004-11-23 15:31:55.601409553 +0000
-@@ -10,4 +10,5 @@
-  */
- 
- /* page_alloc.c */
--extern void set_page_refs(struct page *page, int order);
-+extern void fastcall free_hot_cold_page(struct page *page, int cold);
-+extern fastcall void __init __free_pages_bootmem(struct page *page, unsigned int order);
-diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/page_alloc.c linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c
---- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/page_alloc.c	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c	2004-11-23 16:13:04.184628888 +0000
-@@ -103,6 +103,23 @@ static void bad_page(const char *functio
- 	tainted |= TAINT_BAD_PAGE;
- }
- 
-+void set_page_refs(struct page *page, int order)
-+{
-+#ifdef CONFIG_MMU
-+	set_page_count(page, 1);
-+#else
-+	int i;
-+
-+	/*
-+	 * We need to reference all the pages for this order, otherwise if
-+	 * anyone accesses one of the pages with (get/put) it will be freed.
-+	 * - eg: access_process_vm()
-+	 */
-+	for (i = 0; i < (1 << order); i++)
-+		set_page_count(page + i, 1);
-+#endif /* CONFIG_MMU */
-+}
-+
- #ifndef CONFIG_HUGETLB_PAGE
- #define prep_compound_page(page, order) do { } while (0)
- #define destroy_compound_page(page, order) do { } while (0)
-@@ -167,11 +184,13 @@ static void destroy_compound_page(struct
-  * zone->lock is already acquired when we use these.
-  * So, we don't need atomic page->flags operations here.
-  */
--static inline unsigned long page_order(struct page *page) {
-+static inline unsigned long page_order(struct page *page)
-+{
- 	return page->private;
- }
- 
--static inline void set_page_order(struct page *page, int order) {
-+static inline void set_page_order(struct page *page, int order)
-+{
- 	page->private = order;
- 	__SetPagePrivate(page);
- }
-@@ -217,10 +236,10 @@ static inline int page_is_buddy(struct p
-  * free pages of length of (1 << order) and marked with PG_Private.Page's
-  * order is recorded in page->private field.
-  * So when we are allocating or freeing one, we can derive the state of the
-- * other.  That is, if we allocate a small block, and both were   
-- * free, the remainder of the region must be split into blocks.   
-+ * other.  That is, if we allocate a small block, and both were
-+ * free, the remainder of the region must be split into blocks.
-  * If a block is freed, and its buddy is also free, then this
-- * triggers coalescing into a block of larger size.            
-+ * triggers coalescing into a block of larger size.
-  *
-  * -- wli
-  */
-@@ -286,7 +305,7 @@ static inline void free_pages_check(cons
- }
- 
- /*
-- * Frees a list of pages. 
-+ * Frees a list of pages.
-  * Assumes all pages on list are in same zone, and of same order.
-  * count is the number of pages to free, or 0 for all on the list.
-  *
-@@ -337,10 +356,33 @@ void __free_pages_ok(struct page *page, 
- 	for (i = 0 ; i < (1 << order) ; ++i)
- 		free_pages_check(__FUNCTION__, page + i);
- 	list_add(&page->lru, &list);
--	kernel_map_pages(page, 1<<order, 0);
-+	kernel_map_pages(page, 1 << order, 0);
- 	free_pages_bulk(page_zone(page), 1, &list, order);
- }
- 
-+/*
-+ * permit the bootmem allocator to evade page validation on high-order frees
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-mmu.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-mmu.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-mmu.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-mmu.c	2004-11-26 13:58:54.000000000 +0000
+@@ -0,0 +1,57 @@
++/* file-mmu.c: ramfs MMU-based file operations
++ *
++ * Resizable simple ram filesystem for Linux.
++ *
++ * Copyright (C) 2000 Linus Torvalds.
++ *               2000 Transmeta Corp.
++ *
++ * Usage limits added by David Gibson, Linuxcare Australia.
++ * This file is released under the GPL.
 + */
-+fastcall void __init __free_pages_bootmem(struct page *page, unsigned int order)
++
++/*
++ * NOTE! This filesystem is probably most useful
++ * not as a real filesystem, but as an example of
++ * how virtual filesystems can be written.
++ *
++ * It doesn't get much simpler than this. Consider
++ * that this file implements the full semantics of
++ * a POSIX-compliant read-write filesystem.
++ *
++ * Note in particular how the filesystem does not
++ * need to implement any data structures of its own
++ * to keep track of the virtual data: using the VFS
++ * caches is sufficient.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/ramfs.h>
++
++#include <asm/uaccess.h>
++#include "internal.h"
++
++struct address_space_operations ramfs_aops = {
++	.readpage	= simple_readpage,
++	.prepare_write	= simple_prepare_write,
++	.commit_write	= simple_commit_write
++};
++
++struct file_operations ramfs_file_operations = {
++	.read		= generic_file_read,
++	.write		= generic_file_write,
++	.mmap		= generic_file_mmap,
++	.fsync		= simple_sync_file,
++	.sendfile	= generic_file_sendfile,
++	.llseek		= generic_file_llseek,
++};
++
++struct inode_operations ramfs_file_inode_operations = {
++	.getattr	= simple_getattr,
++};
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-nommu.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-nommu.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-nommu.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-nommu.c	2004-12-07 20:30:01.000000000 +0000
+@@ -0,0 +1,295 @@
++/* file-nommu.c: no-MMU version of ramfs
++ *
++ * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/ramfs.h>
++#include <linux/quotaops.h>
++#include <linux/pagevec.h>
++#include <linux/mman.h>
++
++#include <asm/uaccess.h>
++#include "internal.h"
++
++static int ramfs_nommu_setattr(struct dentry *, struct iattr *);
++
++struct address_space_operations ramfs_aops = {
++	.readpage		= simple_readpage,
++	.prepare_write		= simple_prepare_write,
++	.commit_write		= simple_commit_write
++};
++
++struct file_operations ramfs_file_operations = {
++	.mmap			= ramfs_nommu_mmap,
++	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
++	.read			= generic_file_read,
++	.write			= generic_file_write,
++	.fsync			= simple_sync_file,
++	.sendfile		= generic_file_sendfile,
++	.llseek			= generic_file_llseek,
++};
++
++struct inode_operations ramfs_file_inode_operations = {
++	.setattr		= ramfs_nommu_setattr,
++	.getattr		= simple_getattr,
++};
++
++/*****************************************************************************/
++/*
++ * add a contiguous set of pages into a ramfs inode when it's truncated from
++ * size 0 on the assumption that it's going to be used for an mmap of shared
++ * memory
++ */
++static int ramfs_nommu_expand_for_mapping(struct inode *inode, size_t newsize)
 +{
-+	set_page_refs(page, order);
-+	set_page_count(page, 0);
++	struct pagevec lru_pvec;
++	unsigned long npages, xpages, loop, limit;
++	struct page *pages;
++	unsigned order;
++	void *data;
++	int ret;
 +
-+	if (order == 0) {
-+		free_hot_cold_page(page, 0);
-+	} else {
-+		LIST_HEAD(list);
++	/* make various checks */
++	order = get_order(newsize);
++	if (unlikely(order >= MAX_ORDER))
++		goto too_big;
 +
-+		arch_free_page(page, order);
++	limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
++	if (limit != RLIM_INFINITY && newsize > limit)
++		goto fsize_exceeded;
 +
-+		mod_page_state(pgfree, 1 << order);
++	if (newsize > inode->i_sb->s_maxbytes)
++		goto too_big;
 +
-+		list_add(&page->lru, &list);
-+		kernel_map_pages(page, 1 << order, 0);
-+		free_pages_bulk(page_zone(page), 1, &list, order);
++	i_size_write(inode, newsize);
++
++	/* allocate enough contiguous pages to be able to satisfy the
++	 * request */
++	pages = alloc_pages(mapping_gfp_mask(inode->i_mapping), order);
++	if (!pages)
++		return -ENOMEM;
++
++	/* split the high-order page into an array of single pages */
++	split_highorder_page(pages, 0, order);
++
++	xpages = 1UL << order;
++	npages = (newsize + PAGE_SIZE - 1) >> PAGE_SHIFT;
++
++	/* trim off any pages we don't actually require */
++	for (loop = npages; loop < xpages; loop++)
++		__free_page(pages + loop);
++
++	/* clear the memory we allocated */
++	newsize = PAGE_SIZE * npages;
++	data = page_address(pages);
++	memset(data, 0, newsize);
++
++	/* attach all the pages to the inode's address space */
++	pagevec_init(&lru_pvec, 0);
++	for (loop = 0; loop < npages; loop++) {
++		struct page *page = pages + loop;
++
++		page->index = loop;
++
++		ret = add_to_page_cache(page, inode->i_mapping, loop, GFP_KERNEL);
++		if (ret < 0)
++			goto add_error;
++
++		if (!pagevec_add(&lru_pvec, page))
++			__pagevec_lru_add(&lru_pvec);
++
++		unlock_page(page);
 +	}
++
++	pagevec_lru_add(&lru_pvec);
++	return 0;
++
++ fsize_exceeded:
++	send_sig(SIGXFSZ, current, 0);
++ too_big:
++	return -EFBIG;
++
++ add_error:
++	page_cache_release(pages + loop);
++	for (loop++; loop < npages; loop++)
++		__free_page(pages + loop);
++	return ret;
 +}
 +
- 
- /*
-  * The order of subdivision here is critical for the IO subsystem.
-@@ -374,23 +416,6 @@ expand(struct zone *zone, struct page *p
- 	return page;
- }
- 
--void set_page_refs(struct page *page, int order)
--{
--#ifdef CONFIG_MMU
--	set_page_count(page, 1);
--#else
--	int i;
--
--	/*
--	 * We need to reference all the pages for this order, otherwise if
--	 * anyone accesses one of the pages with (get/put) it will be freed.
--	 * - eg: access_process_vm()
--	 */
--	for (i = 0; i < (1 << order); i++)
--		set_page_count(page + i, 1);
--#endif /* CONFIG_MMU */
--}
--
- /*
-  * This page is about to be returned from the page allocator
-  */
-@@ -415,7 +440,7 @@ static void prep_new_page(struct page *p
- 	set_page_refs(page, order);
- }
- 
--/* 
++/*****************************************************************************/
 +/*
-  * Do the hard work of removing an element from the buddy allocator.
-  * Call me with the zone->lock already held.
-  */
-@@ -441,19 +466,19 @@ static struct page *__rmqueue(struct zon
- 	return NULL;
- }
- 
--/* 
-+/*
-  * Obtain a specified number of elements from the buddy allocator, all under
-  * a single hold of the lock, for efficiency.  Add them to the supplied list.
-  * Returns the number of new pages which were placed at *list.
-  */
--static int rmqueue_bulk(struct zone *zone, unsigned int order, 
-+static int rmqueue_bulk(struct zone *zone, unsigned int order,
- 			unsigned long count, struct list_head *list)
- {
- 	unsigned long flags;
- 	int i;
- 	int allocated = 0;
- 	struct page *page;
--	
-+
- 	spin_lock_irqsave(&zone->lock, flags);
- 	for (i = 0; i < count; ++i) {
- 		page = __rmqueue(zone, order);
-@@ -517,9 +542,9 @@ void drain_local_pages(void)
- {
- 	unsigned long flags;
- 
--	local_irq_save(flags);	
-+	local_irq_save(flags);
- 	__drain_pages(smp_processor_id());
--	local_irq_restore(flags);	
-+	local_irq_restore(flags);
- }
- #endif /* CONFIG_PM */
- 
-@@ -552,8 +577,7 @@ static void zone_statistics(struct zonel
- /*
-  * Free a 0-order page
-  */
--static void FASTCALL(free_hot_cold_page(struct page *page, int cold));
--static void fastcall free_hot_cold_page(struct page *page, int cold)
-+void fastcall free_hot_cold_page(struct page *page, int cold)
- {
- 	struct zone *zone = page_zone(page);
- 	struct per_cpu_pages *pcp;
-@@ -580,7 +604,7 @@ void fastcall free_hot_page(struct page 
- {
- 	free_hot_cold_page(page, 0);
- }
--	
-+
- void fastcall free_cold_page(struct page *page)
- {
- 	free_hot_cold_page(page, 1);
-@@ -957,14 +981,6 @@ fastcall unsigned long get_zeroed_page(u
- 
- EXPORT_SYMBOL(get_zeroed_page);
- 
--void __pagevec_free(struct pagevec *pvec)
--{
--	int i = pagevec_count(pvec);
--
--	while (--i >= 0)
--		free_hot_cold_page(pvec->pages[i], pvec->cold);
--}
--
- fastcall void __free_pages(struct page *page, unsigned int order)
- {
- 	if (!PageReserved(page) && put_page_testzero(page)) {
-@@ -987,6 +1003,26 @@ fastcall void free_pages(unsigned long a
- 
- EXPORT_SYMBOL(free_pages);
- 
-+#ifdef CONFIG_HUGETLB_PAGE
-+
-+void put_page(struct page *page)
++ * check that file shrinkage doesn't leave any VMAs dangling in midair
++ */
++static int ramfs_nommu_check_mappings(struct inode *inode,
++				      size_t newsize, size_t size)
 +{
-+	if (unlikely(PageCompound(page))) {
-+		page = (struct page *)page->private;
-+		if (put_page_testzero(page)) {
-+			void (*dtor)(struct page *page);
++	struct vm_area_struct *vma;
++	struct prio_tree_iter iter;
 +
-+			dtor = (void (*)(struct page *))page[1].mapping;
-+			(*dtor)(page);
++	/* search for VMAs that fall within the dead zone */
++	vma_prio_tree_foreach(vma, &iter, &inode->i_mapping->i_mmap,
++			      newsize >> PAGE_SHIFT,
++			      (size + PAGE_SIZE - 1) >> PAGE_SHIFT
++			      ) {
++		/* found one - only interested if it's shared out of the page
++		 * cache */
++		if (vma->vm_flags & VM_SHARED)
++			return -ETXTBSY; /* not quite true, but near enough */
++	}
++
++	return 0;
++}
++
++/*****************************************************************************/
++/*
++ *
++ */
++static int ramfs_nommu_resize(struct inode *inode, loff_t newsize, loff_t size)
++{
++	int ret;
++
++	/* assume a truncate from zero size is going to be for the purposes of
++	 * shared mmap */
++	if (size == 0) {
++		if (unlikely(newsize >> 32))
++			return -EFBIG;
++
++		return ramfs_nommu_expand_for_mapping(inode, newsize);
++	}
++
++	/* check that a decrease in size doesn't cut off any shared mappings */
++	if (newsize < size) {
++		ret = ramfs_nommu_check_mappings(inode, newsize, size);
++		if (ret < 0)
++			return ret;
++	}
++
++	ret = vmtruncate(inode, size);
++
++	return ret;
++}
++
++/*****************************************************************************/
++/*
++ * handle a change of attributes
++ * - we're specifically interested in a change of size
++ */
++static int ramfs_nommu_setattr(struct dentry *dentry, struct iattr *ia)
++{
++	struct inode *inode = dentry->d_inode;
++	unsigned int old_ia_valid = ia->ia_valid;
++	int ret = 0;
++
++	/* by providing our own setattr() method, we skip this quotaism */
++	if ((old_ia_valid & ATTR_UID && ia->ia_uid != inode->i_uid) ||
++	    (old_ia_valid & ATTR_GID && ia->ia_gid != inode->i_gid))
++		ret = DQUOT_TRANSFER(inode, ia) ? -EDQUOT : 0;
++
++	/* pick out size-changing events */
++	if (ia->ia_valid & ATTR_SIZE) {
++		loff_t size = i_size_read(inode);
++		if (ia->ia_size != size) {
++			ret = ramfs_nommu_resize(inode, ia->ia_size, size);
++			if (ret < 0 || ia->ia_valid == ATTR_SIZE)
++				goto out;
++		} else {
++			/* we skipped the truncate but must still update
++			 * timestamps
++			 */
++			ia->ia_valid |= ATTR_MTIME|ATTR_CTIME;
 +		}
-+		return;
 +	}
-+	if (!PageReserved(page) && put_page_testzero(page))
-+		__page_cache_release(page);
++
++	ret = inode_setattr(inode, ia);
++ out:
++	ia->ia_valid = old_ia_valid;
++	return ret;
 +}
-+EXPORT_SYMBOL(put_page);
-+#endif
 +
- /*
-  * Total amount of free (allocatable) RAM:
-  */
-@@ -1498,7 +1534,7 @@ static void __init build_zonelists(pg_da
-  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
-  		for (node = 0; node < local_node; node++)
-  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
-- 
-+
- 		zonelist->zones[j] = NULL;
- 	}
- }
-@@ -1636,7 +1672,7 @@ static void __init free_area_init_core(s
- 	pgdat->nr_zones = 0;
- 	init_waitqueue_head(&pgdat->kswapd_wait);
- 	pgdat->kswapd_max_order = 0;
--	
-+
- 	for (j = 0; j < MAX_NR_ZONES; j++) {
- 		struct zone *zone = pgdat->node_zones + j;
- 		unsigned long size, realsize;
-@@ -1798,7 +1834,7 @@ static void frag_stop(struct seq_file *m
- {
- }
- 
--/* 
++/*****************************************************************************/
 +/*
-  * This walks the free areas for each zone.
-  */
- static int frag_show(struct seq_file *m, void *arg)
-@@ -2038,8 +2074,8 @@ static void setup_per_zone_protection(vo
- }
++ * try to determine where a shared mapping can be made
++ * - we require that:
++ *   - the pages to be mapped must exist
++ *   - the pages be physically contiguous in sequence
++ */
++unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
++					    unsigned long addr, unsigned long len,
++					    unsigned long pgoff, unsigned long flags)
++{
++	unsigned long maxpages, lpages, nr, loop, ret;
++	struct inode *inode = file->f_dentry->d_inode;
++	struct page **pages = NULL, **ptr, *page;
++	loff_t isize;
++
++	if (!(flags & MAP_SHARED))
++		return addr;
++
++	/* the mapping mustn't extend beyond the EOF */
++	lpages = (len + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	isize = i_size_read(inode);
++
++	ret = -EINVAL;
++	maxpages = (isize + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	if (pgoff >= maxpages)
++		goto out;
++
++	if (maxpages - pgoff < lpages)
++		goto out;
++
++	/* gang-find the pages */
++	ret = -ENOMEM;
++	pages = kmalloc(lpages * sizeof(struct page *), GFP_KERNEL);
++	if (!pages)
++		goto out;
++
++	memset(pages, 0, lpages * sizeof(struct page *));
++
++	nr = find_get_pages(inode->i_mapping, pgoff, lpages, pages);
++	if (nr != lpages)
++		goto out; /* leave if some pages were missing */
++
++	/* check the pages for physical adjacency */
++	ptr = pages;
++	page = *ptr++;
++	page++;
++	for (loop = lpages; loop > 1; loop--)
++		if (*ptr++ != page++)
++			goto out;
++
++	/* okay - all conditions fulfilled */
++	ret = (unsigned long) page_address(pages[0]);
++
++ out:
++	if (pages) {
++		ptr = pages;
++		for (loop = lpages; loop > 0; loop--)
++			put_page(*ptr++);
++		kfree(pages);
++	}
++
++	return ret;
++}
++
++/*****************************************************************************/
++/*
++ * set up a mapping
++ */
++int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	return 0;
++}
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/inode.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/inode.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/inode.c	2004-10-19 10:42:09.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/inode.c	2004-11-26 13:58:54.000000000 +0000
+@@ -34,13 +34,12 @@
+ #include <linux/ramfs.h>
  
- /*
-- * setup_per_zone_pages_min - called when min_free_kbytes changes.  Ensures 
-- *	that the pages_{min,low,high} values for each zone are set correctly 
-+ * setup_per_zone_pages_min - called when min_free_kbytes changes.  Ensures
-+ *	that the pages_{min,low,high} values for each zone are set correctly
-  *	with respect to min_free_kbytes.
-  */
- static void setup_per_zone_pages_min(void)
-@@ -2073,10 +2109,10 @@ static void setup_per_zone_pages_min(voi
- 				min_pages = 128;
- 			zone->pages_min = min_pages;
- 		} else {
--			/* if it's a lowmem zone, reserve a number of pages 
-+			/* if it's a lowmem zone, reserve a number of pages
- 			 * proportionate to the zone's size.
- 			 */
--			zone->pages_min = (pages_min * zone->present_pages) / 
-+			zone->pages_min = (pages_min * zone->present_pages) /
- 			                   lowmem_pages;
- 		}
- 
-@@ -2132,11 +2168,11 @@ static int __init init_per_zone_pages_mi
- module_init(init_per_zone_pages_min)
- 
- /*
-- * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so 
-+ * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so
-  *	that we can call two helper functions whenever min_free_kbytes
-  *	changes.
-  */
--int min_free_kbytes_sysctl_handler(ctl_table *table, int write, 
-+int min_free_kbytes_sysctl_handler(ctl_table *table, int write,
- 		struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
- {
- 	proc_dointvec(table, write, file, buffer, length, ppos);
-diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/swap.c linux-2.6.10-rc2-mm3-mmcleanup/mm/swap.c
---- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/swap.c	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-mmcleanup/mm/swap.c	2004-11-23 15:31:55.602409470 +0000
-@@ -30,30 +30,11 @@
- #include <linux/cpu.h>
- #include <linux/notifier.h>
- #include <linux/init.h>
+ #include <asm/uaccess.h>
 +#include "internal.h"
  
- /* How many pages do we try to swap or page in/out together? */
- int page_cluster;
+ /* some random number */
+ #define RAMFS_MAGIC	0x858458f6
  
--#ifdef CONFIG_HUGETLB_PAGE
--
--void put_page(struct page *page)
--{
--	if (unlikely(PageCompound(page))) {
--		page = (struct page *)page->private;
--		if (put_page_testzero(page)) {
--			void (*dtor)(struct page *page);
--
--			dtor = (void (*)(struct page *))page[1].mapping;
--			(*dtor)(page);
--		}
--		return;
--	}
--	if (!PageReserved(page) && put_page_testzero(page))
--		__page_cache_release(page);
--}
--EXPORT_SYMBOL(put_page);
--#endif
--
- /*
-  * Writeback is about to end against a page which has been marked for immediate
-  * reclaim.  If it still appears to be reclaimable, move it to the tail of the
-@@ -242,6 +223,14 @@ void release_pages(struct page **pages, 
- 	pagevec_free(&pages_to_free);
+ static struct super_operations ramfs_ops;
+-static struct address_space_operations ramfs_aops;
+-static struct inode_operations ramfs_file_inode_operations;
+ static struct inode_operations ramfs_dir_inode_operations;
+ 
+ static struct backing_dev_info ramfs_backing_dev_info = {
+@@ -140,25 +139,6 @@ static int ramfs_symlink(struct inode * 
+ 	return error;
  }
  
-+void __pagevec_free(struct pagevec *pvec)
-+{
-+	int i = pagevec_count(pvec);
+-static struct address_space_operations ramfs_aops = {
+-	.readpage	= simple_readpage,
+-	.prepare_write	= simple_prepare_write,
+-	.commit_write	= simple_commit_write
+-};
+-
+-struct file_operations ramfs_file_operations = {
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
+-	.mmap		= generic_file_mmap,
+-	.fsync		= simple_sync_file,
+-	.sendfile	= generic_file_sendfile,
+-	.llseek		= generic_file_llseek,
+-};
+-
+-static struct inode_operations ramfs_file_inode_operations = {
+-	.getattr	= simple_getattr,
+-};
+-
+ static struct inode_operations ramfs_dir_inode_operations = {
+ 	.create		= ramfs_create,
+ 	.lookup		= simple_lookup,
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/internal.h linux-2.6.10-rc2-mm3-shmem/fs/ramfs/internal.h
+--- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/internal.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/internal.h	2004-11-26 13:58:54.000000000 +0000
+@@ -0,0 +1,15 @@
++/* internal.h: ramfs internal definitions
++ *
++ * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
 +
-+	while (--i >= 0)
-+		free_hot_cold_page(pvec->pages[i], pvec->cold);
-+}
 +
- /*
-  * The pages which we're about to release may be in the deferred lru-addition
-  * queues.  That would prevent them from really being freed right now.  That's
++extern struct address_space_operations ramfs_aops;
++extern struct file_operations ramfs_file_operations;
++extern struct inode_operations ramfs_file_inode_operations;
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile
+--- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile	2004-06-18 13:41:28.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile	2004-11-26 15:36:07.000000000 +0000
+@@ -4,4 +4,10 @@
+ 
+ obj-$(CONFIG_RAMFS) += ramfs.o
+ 
+-ramfs-objs := inode.o
++ifeq ($(CONFIG_MMU),y)
++ramfs-objs := file-mmu.o
++else
++ramfs-objs := file-nommu.o
++endif
++
++ramfs-objs += inode.o
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/ramfs.h linux-2.6.10-rc2-mm3-shmem/include/linux/ramfs.h
+--- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/ramfs.h	2004-10-19 10:42:17.000000000 +0100
++++ linux-2.6.10-rc2-mm3-shmem/include/linux/ramfs.h	2004-12-02 16:21:26.000000000 +0000
+@@ -5,6 +5,16 @@ struct inode *ramfs_get_inode(struct sup
+ struct super_block *ramfs_get_sb(struct file_system_type *fs_type,
+ 	 int flags, const char *dev_name, void *data);
+ 
++#ifndef CONFIG_MMU
++extern unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
++						   unsigned long addr,
++						   unsigned long len,
++						   unsigned long pgoff,
++						   unsigned long flags);
++
++extern int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma);
++#endif
++
+ extern struct file_operations ramfs_file_operations;
+ extern struct vm_operations_struct generic_file_vm_ops;
+ 

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUHBMoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266460AbUHBMtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUHBMoS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 08:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBMoS
+	id S266460AbUHBMtW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 08:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUHBMtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 08:44:18 -0400
-Received: from zero.aec.at ([193.170.194.10]:57868 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266469AbUHBMoJ (ORCPT
+	Mon, 2 Aug 2004 08:49:21 -0400
+Received: from zero.aec.at ([193.170.194.10]:58892 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266460AbUHBMtU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 08:44:09 -0400
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch for review] BSD accounting IO stats
-References: <2oJkL-4sl-41@gated-at.bofh.it>
+	Mon, 2 Aug 2004 08:49:20 -0400
+To: Tony Lindgren <tony@atomide.com>
+cc: linuxkernellist@wonderclown.com, linux-kernel@vger.kernel.org
+Subject: Re: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
+References: <2o2IK-8gu-7@gated-at.bofh.it> <2oI5h-3A8-7@gated-at.bofh.it>
 From: Andi Kleen <ak@muc.de>
-Date: Mon, 02 Aug 2004 14:44:03 +0200
-In-Reply-To: <2oJkL-4sl-41@gated-at.bofh.it> (Guillaume Thouvenin's message
- of "Mon, 02 Aug 2004 13:40:11 +0200")
-Message-ID: <m3r7qpsoa4.fsf@averell.firstfloor.org>
+Date: Mon, 02 Aug 2004 14:49:13 +0200
+In-Reply-To: <2oI5h-3A8-7@gated-at.bofh.it> (Tony Lindgren's message of
+ "Mon, 02 Aug 2004 12:20:07 +0200")
+Message-ID: <m3n01dso1i.fsf@averell.firstfloor.org>
 User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Thouvenin <guillaume.thouvenin@bull.net> writes:
+Tony Lindgren <tony@atomide.com> writes:
+>
+> Just to clarify a bit, my patch only uses the 800MHz hardcoded, which
+> should work on all AMD64 processors. The max value used is the current
+> running value.
 
-> diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
-> --- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
-> +++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
-> @@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
->  
->  	if (rw == READ) {
->  		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
-> +		current->rblk += nr_sectors;
+No, it won't. It will fail on the new/upcomming CPUs with 1Ghz HyperTransport. 
+The minimum frequency cannot be lower than the HyperTransport speed.
 
-This doesn't look very useful, because most writes which
-are flushed delayed would get accounted to pdflushd.
-Using such inaccurate data for accounting sounds quite dangerous
-to me.
+And for others sometimes laptop batteries are not designed to support
+more than 800Mhz.
 
-If you really wanted to do this i guess you would need to 
-track the pid of the process and account it there. But the
-process may be already gone, so it would better fit into
-some other longer lived data structure (like the uid) 
-
-Overall I don't think this accounting is worth it because
-doing it right would be quite some overhead and doing it in
-a simple way like this patch is too inaccurate.
+Overall hardcoding such tables is imho a bad idea, unless you
+*really* know what you're doing.
 
 -Andi
 

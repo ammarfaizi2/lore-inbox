@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272401AbTHEDPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 23:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272403AbTHEDOf
+	id S272412AbTHEDUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 23:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272413AbTHEDUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 23:14:35 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7579
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272401AbTHEDNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 23:13:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Tue, 5 Aug 2003 13:18:47 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200308050207.18096.kernel@kolivas.org> <200308051220.04779.kernel@kolivas.org> <3F2F149F.1020201@cyberone.com.au>
-In-Reply-To: <3F2F149F.1020201@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 23:20:05 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:57216 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S272412AbTHEDT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 23:19:59 -0400
+Date: Tue, 5 Aug 2003 11:19:56 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Eugene Teo <eugene.teo@eugeneteo.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: Memory-related problem leads to laptop freeze
+Message-ID: <20030805031956.GA6112@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <20030803091115.GA781@eugeneteo.net> <20030804100322.1c7a9795.rddunlap@osdl.org> <20030805023108.GB5562@eugeneteo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308051318.47464.kernel@kolivas.org>
+In-Reply-To: <20030805023108.GB5562@eugeneteo.net>
+X-Operating-System: Linux 2.4.21-ck3
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 12:21, Nick Piggin wrote:
-> No, this still special-cases the uninterruptible sleep. Why is this
-> needed? What is being worked around? There is probably a way to
-> attack the cause of the problem.
+<quote sender="Eugene Teo">
+> <quote sender="Randy.Dunlap">
+> > On Sun, 3 Aug 2003 17:11:15 +0800 Eugene Teo <eugene.teo@eugeneteo.net> wrote:
+> > 
+> > | Hi everyone,
+> > | 
+> > | I was using kernel 2.6.0-test2-mm3. As usual, I anticipated that
+> > | I will have a random freeze, and true enough, I have one after a
+> > | few hours.
+> > | 
+> > | I have attached the log. Please take a look, and advise.
+> > 
+> > Hi,
+> > 
+> > What were you doing?  It seems that you have had several (repeated?)
+> > problems.  Were you doing the same kind of activity each time,
+> > or are they "random," as you say?
+> 
+> It is random. Even when I am not doing nothing, I get hangs. If I am
+> doing something, then it probably is icqing, ircing, compiling kernel,
+> editing codes, mutt'ing, that's all. I did not try to test the kernel
+> real hard.
 
-Footnote: I was thinking of using this to also _elevate_ the dynamic priority 
-of tasks waking from interruptible sleep as well which may help throughput.
+I know this is not useful info but I hope I am not the
+only one experiencing this problem. If anyone can get
+hold of the Fujitsu E-7010 laptop, you should be able
+to reproduce this results. Let me know if you want my
+.config. I have tested my ram using memtest86, no errors
+at all. I have yet test a minimal kernel configuration 
+as suggested by Andrew but will do so later on but I am
+sure it will be a painful one, even with ccache :/
 
-Con
+Eugene
 

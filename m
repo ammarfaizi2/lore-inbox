@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTECT3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 15:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTECT3W
+	id S263408AbTECTgz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 15:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTECTgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 15:29:22 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:9221 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263407AbTECT3U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 15:29:20 -0400
-Date: Sat, 3 May 2003 20:39:08 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DECNET in latest BK
-Message-ID: <20030503203908.A5915@electric-eye.fr.zoreil.com>
-References: <20030503175913.GA13595@work.bitmover.com> <1051987091.14504.9.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1051987091.14504.9.camel@rth.ninka.net>; from davem@redhat.com on Sat, May 03, 2003 at 11:38:11AM -0700
-X-Organisation: Hungry patch-scripts (c) users
+	Sat, 3 May 2003 15:36:55 -0400
+Received: from mailout.mbnet.fi ([194.100.161.24]:10504 "EHLO posti.mbnet.fi")
+	by vger.kernel.org with ESMTP id S263408AbTECTgy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 15:36:54 -0400
+Message-ID: <1649.194.100.165.159.1051991352.squirrel@webmail.mbnet.fi>
+Date: Sat, 3 May 2003 22:49:12 +0300 (EEST)
+Subject: [2.5.68-osdl2] hisax unknown symbols
+From: Kmt Sundqvist <rabbit80@mbnet.fi>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.5)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-OriginalArrivalTime: 03 May 2003 19:49:16.0551 (UTC) FILETIME=[14625970:01C311AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller <davem@redhat.com> :
-[...]
-> Turn off CONFIG_DECNET_ROUTE_FWMARK, aparently even the maintainer
-> doesn't even enable this option :-)
+Hello
 
-Does the attached patch make sense ?
+2.5.68-osdl2, a HFC-PCI card, "modprobe hisax type=35" done
 
- net/decnet/dn_route.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+These are from kern.log, and this came at boot-time.  Is isdn4linux or
+CAPI 2 working in 2.5.68?  Couldn't find anything about it in
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+May  3 14:53:50 kernel: isdn: Unknown symbol group_send_sig_info
+May  3 14:53:50 kernel: hisax: Unknown symbol kstat__per_cpu
+May  3 14:53:50 kernel: hisax: Unknown symbol register_isdn
 
-diff -puN net/decnet/dn_route.c~decnet-compile-fix net/decnet/dn_route.c
---- linux-2.5.68-1.1118.1.6-to-1.1192/net/decnet/dn_route.c~decnet-compile-fix	Fri May  2 23:19:48 2003
-+++ linux-2.5.68-1.1118.1.6-to-1.1192-fr/net/decnet/dn_route.c	Fri May  2 23:19:48 2003
-@@ -1055,7 +1055,7 @@ make_route:
- 	rt->fl.oif        = oldflp->oif;
- 	rt->fl.iif        = 0;
- #ifdef CONFIG_DECNET_ROUTE_FWMARK
--	rt->fl.fld_fwmark = flp->fld_fwmark;
-+	rt->fl.fld_fwmark = oldflp->fld_fwmark;
- #endif
- 
- 	rt->rt_saddr      = fl.fld_src;
-@@ -1180,7 +1180,7 @@ static int dn_route_input_slow(struct sk
- 				       .saddr = cb->src,
- 				       .scope = RT_SCOPE_UNIVERSE,
- #ifdef CONFIG_DECNET_ROUTE_FWMARK
--				       .fwmark = skb->fwmark
-+				       .fwmark = skb->nfmark
- #endif
- 				    } },
- 			    .iif = skb->dev->ifindex };
+modprobe gives the same results into kern.log
+
+*** lspci ***
+
+00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC
+[Triton II] (rev 01)
+00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA
+[Natoma/Triton II]
+00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE
+[Natoma/Triton II]
+00:0b.0 Network controller: Asustek Computer, Inc.:
+Unknown device 0675 (rev 02)
+00:0d.0 VGA compatible controller: S3 Inc. 86c764/765
+[Trio32/64/64V+]
+
+-Kimmo Sundqvist
+
 

@@ -1,44 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbSLLLxF>; Thu, 12 Dec 2002 06:53:05 -0500
+	id <S262779AbSLLL4I>; Thu, 12 Dec 2002 06:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbSLLLxF>; Thu, 12 Dec 2002 06:53:05 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:36293
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262708AbSLLLxE>; Thu, 12 Dec 2002 06:53:04 -0500
-Subject: Re: 2.5.51 ide module problem (fwd)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Chua <jchua@fedex.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021212094909.67D3D2C0F7@lists.samba.org>
-References: <20021212094909.67D3D2C0F7@lists.samba.org>
-Content-Type: text/plain
+	id <S262808AbSLLL4I>; Thu, 12 Dec 2002 06:56:08 -0500
+Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:6289 "EHLO
+	picard.csi-inc.com") by vger.kernel.org with ESMTP
+	id <S262779AbSLLL4H>; Thu, 12 Dec 2002 06:56:07 -0500
+Message-ID: <029301c2a1d6$85cbe280$f6de11cc@black>
+From: "Mike Black" <mblack@csi-inc.com>
+To: "Anders Henke" <anders.henke@sysiphus.de>, <linux-kernel@vger.kernel.org>
+References: <20021212111237.GA12143@schlund.de>
+Subject: Re: using 2 TB  in real life
+Date: Thu, 12 Dec 2002 07:03:45 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Dec 2002 12:38:27 +0000
-Message-Id: <1039696707.21192.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 09:48, Rusty Russell wrote:
-> And you will continue to.  There really is a loop, which means neither
-> module can be loaded (ide_dump_status is in ide.ko, and ide-io.ko wants
-> it, however ide.ko uses lots of things in ide-io.ko).  However, this
-> patch will stop depmod from crashing.
+Looks like it's already handled in 2.5.
+Here's a patch for 2.4:
+http://www.gelato.unsw.edu.au/patches-index.html
+
+----- Original Message ----- 
+From: "Anders Henke" <anders.henke@sysiphus.de>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, December 12, 2002 6:12 AM
+Subject: using 2 TB in real life
+
+
+> I've just added a 1.9 TB array to one of my servers (running 2.4.20,
+> the device is an 12bay-IFT IDE-to-Fibre-RAID connected via a 
+> Qlogic 2300 HBA):
 > 
-> Ask the IDE people,
-
-The module changes basically left me unable to do any further 2.5.5x
-work at an acceptable rate. My time is now allocated to other projects
-until January. At that point hopefully the module stuff will be usable
-again, parameters will work etc and I can go back to work on 2.5.
-
-Rusty is right that the ide stuff has dependancy loops right now. His
-new module stuff shouldn't have crashed but the fundamental work to be
-done is in the IDE layer. There are also some locking problems to
-address before modular IDE becomes useful.
-
-Alan
-
+> Disk /dev/sdb: 255 heads, 63 sectors, 247422 cylinders
+> Units = cylinders of 16065 * 512 bytes
+> 
+>    Device Boot    Start       End    Blocks   Id  System
+> /dev/sdb1             1    247422 1987417183+  83  Linux
+> [...]
+> Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
+> SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
+>  sdb: sdb1
+> 
+> 
+> Another array (1.2 TB) gives almost the same effect:
+> Disk /dev/sdb: 255 heads, 63 sectors, 157450 cylinders
+> Units = cylinders of 16065 * 512 bytes
+> 
+>    Device Boot    Start       End    Blocks   Id  System
+> /dev/sdb1             1    157450 1264717093+  83  Linux
+> [...]
+> Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
+> SCSI device sdb: -1765523456 512-byte hdwr sectors (195564 MB)
+>  sdb: sdb1
+> 
+> These issues arise when using arrays larger than around 0.5 T;
+> nevertheless, these devices do work fine with both xfs or ext3, 
+> it's "just" a cosmetical issue. However, this negative
+> values make one feel like Linux isn't truely capable of using up to
+> 2 TB of disk devices and so this should be resolved.
+> To me it seems that sd.c doesn't know how to calculate the
+> correct values for such beasts - any ideas?
+> 
+> 
+> Regards
+> 
+> Anders
+> -- 
+> http://sysiphus.de/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

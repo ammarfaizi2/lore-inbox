@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUGOSA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266267AbUGOSHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266257AbUGOSA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 14:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGOSA2
+	id S266267AbUGOSHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 14:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGOSHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 14:00:28 -0400
-Received: from zero.aec.at ([193.170.194.10]:41994 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266257AbUGOSA1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 14:00:27 -0400
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp_window_scaling degrades performance
-References: <2igbK-82L-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 15 Jul 2004 20:00:08 +0200
-In-Reply-To: <2igbK-82L-13@gated-at.bofh.it> (Maciej Soltysiak's message of
- "Thu, 15 Jul 2004 17:20:08 +0200")
-Message-ID: <m3zn615exj.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Thu, 15 Jul 2004 14:07:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60091 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266267AbUGOSHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 14:07:47 -0400
+Message-ID: <40F6C7D3.1070005@pobox.com>
+Date: Thu, 15 Jul 2004 14:07:15 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Arnd Bergmann <arnd@arndb.de>, "Robert M. Stockmann" <stock@stokkie.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SATA disk device naming ?
+References: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net> <40F35140.6020509@pobox.com> <200407141320.32608.arnd@arndb.de> <200407151937.43862.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200407151937.43862.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
+Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 14 of July 2004 13:20, Arnd Bergmann wrote:
+> 
+>>On Dienstag, 13. Juli 2004 05:04, Jeff Garzik wrote:
+>>
+>>>Whoever builds your kernels changed around the kernel configuration on
+>>>you.
+>>>
+>>>SATA "disk naming" (what driver you use) did not change from 2.6.3 to
+>>>2.6.7.
+>>
+>>The thing that changed is the new BLK_DEV_IDE_SATA option that defaults
+>>to 'n', while before it was enabled implicitly.
+> 
+> 
+> This is a quite fresh change (post 2.6.7) and should be fixed before 2.6.8.
+> This option should default to 'y', we can put some runtime warning instead.
+> 
+> Jeff, do you agree?
 
 
-> I have been experiencied weird problems with network throughput
-> lately and I after experimenting with /proc/sys/net/ipv4 knobs
-> I found that when I have tcp_window_scaling 0 I can
-> get throughput from a distant server of about 600kB/s (well, 200kB/s
-> is fast enough)
+It's a really tough question...  default=n will eliminate a lot of 
+problems people are reporting on lkml, but default=y changes the disks 
+for the few users not having problems.
 
-It's pretty easy for you to find out. Do a tcpdump -v or ethereal -v 
-from both the side of a host you download from and from the linux side.
-Then compare all packets. If they don't match the firewall is 
-doing something bad. Especially check window values and TCP options
-in the SYN packets
+It's a tough call...
 
-It is very very likely the firewall, window scaling works for a lot
-of people.
+	Jeff
 
--Andi
 

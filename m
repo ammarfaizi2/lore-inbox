@@ -1,57 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbSKONIT>; Fri, 15 Nov 2002 08:08:19 -0500
+	id <S266203AbSKONXB>; Fri, 15 Nov 2002 08:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266236AbSKONIT>; Fri, 15 Nov 2002 08:08:19 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:61173 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S266224AbSKONIS>;
-	Fri, 15 Nov 2002 08:08:18 -0500
-Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20021115120233.GC25902@atrey.karlin.mff.cuni.cz>
-References: <20021115081044.GI18180@conectiva.com.br>
-	<20021115084915.GS23425@holomorphy.com>
-	<20021115094827.GT23425@holomorphy.com> 
-	<20021115120233.GC25902@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Nov 2002 14:16:12 +0100
-Message-Id: <1037366172.877.30.camel@zion>
+	id <S266236AbSKONXB>; Fri, 15 Nov 2002 08:23:01 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:45060 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S266203AbSKONXA>;
+	Fri, 15 Nov 2002 08:23:00 -0500
+Date: Fri, 15 Nov 2002 16:29:08 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PC-9800 patch for 2.5.47-ac4: not merged yet (15/15) SMP
+Message-ID: <20021115132908.GB552@pazke.ipt>
+Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <3DD4E2D5.AEF13F1@cinet.co.jp> <3DD4F1D9.A4F58358@cinet.co.jp>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
+Content-Disposition: inline
+In-Reply-To: <3DD4F1D9.A4F58358@cinet.co.jp>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 13:02, Pavel Machek wrote:
-> Hi!
-> 
-> > > The following dropped hunk from Pavel should repair it:
-> > 
-> > [cc: list trimmed to spare the uninterested]
-> > 
-> > Hmm, there are some oddities here in count_and_copy_data_pages(). It
-> > looks like the CONFIG_HIGHMEM panic() is there because copy_page() is
-> > done without kmapping, and the CONFIG_DISCONTIGMEM panic() is there
-> > because the pgdat list etc. are not walked according to VM
-> > conventions.
-> 
-> How much memory is needed for HIGHMEM to be neccessary? Is it 1GB? If
-> so, I can well imagine 1GB laptop....
 
-Depends on the arch & other matters. 768Mb on PPC at least, and
-it starting to be common within laptops as well.
+--4bRzO86E/ozDv8r1
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This certainly does not work. We'd need to do some deep magic in
-> suspend_asm.S to copy pages back. [Well, deep magic... Same
-> kmap_atomic.] But suspend_asm.S has to guarantee not touching any
-> memory so the change is not quite trivial.
+On =D0=9F=D1=82=D0=BD, =D0=9D=D0=BE=D1=8F 15, 2002 at 10:08:41 +0900, Osamu=
+ Tomita wrote:
+> This is for SMP support.
+=20
+>  void __init find_smp_config (void)
+>  {
+> +#ifndef CONFIG_PC9800
+>  	unsigned int address;
+> +#endif
+> =20
+>  	/*
+>  	 * FIXME: Linux assumes you have 640K of base ram..
+> @@ -762,6 +793,7 @@
+>  		smp_scan_config(639*0x400,0x400) ||
+>  			smp_scan_config(0xF0000,0x10000))
+>  		return;
+> +#ifndef CONFIG_PC9800	/* PC-9800 has no EBDA area? */
+>  	/*
+>  	 * If it is an SMP machine we should know now, unless the
+>  	 * configuration is in an EISA/MCA bus machine with an
+> @@ -784,6 +816,7 @@
+>  	smp_scan_config(address, 0x400);
+>  	if (smp_found_config)
+>  		printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, cont=
+act linux-smp@vger.kernel.org if you experience SMP problems!\n");
+> +#endif
+>  }
 
-At worst, that could be an arch provided routine. On most PPC32's
-I can then just disable data translation on the MMU and access
-all pages without kmap'ing them. But that's not terribly portable
-and each arch would need different kind of hacking.
+Can you redo this fragment this way ?
 
-Ben.
+#ifndef CONFIG_PC9800	/* PC-9800 has no EBDA area? */
+	{
+		unsigned int address =3D *(unsigned short *)phys_to_virt(0x40E);
+		address <<=3D 4;
+		smp_scan_config(address, 0x400);
+		if (smp_found_config)
+			printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contac=
+t linux-smp@vger.kernel.org if you experience SMP problems!\n");
+	}
+#endif
 
+IMHO this is better way (one #ifndef less)
+
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--4bRzO86E/ozDv8r1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD4DBQE91PakBm4rlNOo3YgRAhYfAJUTxJBb7LzspoNt9nEuu8TSvrlIAJ4lPCB9
+LbsYguqDan/2GuxKQhtmVA==
+=BOsk
+-----END PGP SIGNATURE-----
+
+--4bRzO86E/ozDv8r1--

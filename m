@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263063AbTCWNyZ>; Sun, 23 Mar 2003 08:54:25 -0500
+	id <S263064AbTCWN72>; Sun, 23 Mar 2003 08:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263064AbTCWNyZ>; Sun, 23 Mar 2003 08:54:25 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6818
+	id <S263065AbTCWN71>; Sun, 23 Mar 2003 08:59:27 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9634
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263063AbTCWNyW>; Sun, 23 Mar 2003 08:54:22 -0500
-Subject: Re: smp overhead, and rwlocks considered harmful
+	id <S263064AbTCWN71>; Sun, 23 Mar 2003 08:59:27 -0500
+Subject: Re: IDE todo list
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Vergoz <mvergoz@sysdoor.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030323133332.4693024e.mvergoz@sysdoor.com>
-References: <20030322175816.225a1f23.akpm@digeo.com>
-	 <20030323133332.4693024e.mvergoz@sysdoor.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030323104916.GI837@suse.de>
+References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
+	 <20030323104916.GI837@suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048432671.10727.12.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048432981.10727.14.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Mar 2003 15:17:51 +0000
+Date: 23 Mar 2003 15:23:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 12:33, Michael Vergoz wrote:
-> Hi Andrew,
+On Sun, 2003-03-23 at 10:49, Jens Axboe wrote:
+> On Sat, Mar 22 2003, Alan Cox wrote:
+> > -	Finish verifying 256 sector I/O or larger on LBA48
+> > 	[How to handle change dynamically on hotplug ?]
 > 
-> I would like to noticed to you that the SMP capacity can't be used on one process under Linux.
-> 
-> when you run 'time dd if=/dev/zero of=foo bs=1 count=1M', the capacity of 1 processor will
-> use since your command sets is executed in ONE process.
+> That is basically impossible. How are you going to handle the case where
+> you have a queue full of 256 request writes, and the plugged in disk
+> chokes on them? And insolvable unless you start setting aside requests
+> simply for this purpose. Also breaks the pseudo atomic segments that a
+> single request represents. This is just way beyond ugly...
 
-Your dd is benchmarking the lock operations in the C library I suspect.
-The kernel will happily use both processors and a given syscall can
-evne start on one cpu and complete on another, or have the IRQ tasks
-executed on its behalf on another CPU.
+I don't think its impossible at all. Remember if you hotplug a drive you
+*dont* want the pending I/O to hit the new drive!
 
-There are *good* reasons btw for avoiding splitting stuff too far, the
-cost of copying data between processor caches is very high.
+Alan
+
 

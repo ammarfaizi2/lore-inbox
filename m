@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbUCJHMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 02:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUCJHMh
+	id S262260AbUCJHeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 02:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbUCJHeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 02:12:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16524 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262469AbUCJHMf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 02:12:35 -0500
-Message-ID: <404EBFD6.2090804@pobox.com>
-Date: Wed, 10 Mar 2004 02:12:22 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 10 Mar 2004 02:34:12 -0500
+Received: from may.nosdns.com ([207.44.240.96]:55526 "EHLO may.nosdns.com")
+	by vger.kernel.org with ESMTP id S262260AbUCJHeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 02:34:08 -0500
+Date: Wed, 10 Mar 2004 00:26:32 -0700
+From: Elikster <elik@webspires.com>
+X-Mailer: The Bat! (v2.04.4) Personal
+Reply-To: Elikster <elik@webspires.com>
+Organization: WebSpires Technologies
+X-Priority: 3 (Normal)
+Message-ID: <187223550.20040310002632@webspires.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re[2]: Darren's ipfilter ported to linux
+In-Reply-To: <20040310061359.GL1653@mea-ext.zmailer.org>
+References: <1078895385.2559.29.camel@amnesiac>
+ <404EA4C5.2050509@matchmail.com> <20040310061359.GL1653@mea-ext.zmailer.org>
 MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
-References: <20040304023524.GA19453@bougret.hpl.hp.com> <40469683.3000609@pobox.com> <20040310032452.GA25038@bougret.hpl.hp.com>
-In-Reply-To: <20040310032452.GA25038@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - may.nosdns.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - webspires.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> On Wed, Mar 03, 2004 at 09:37:55PM -0500, Jeff Garzik wrote:
-> 
->>Jean Tourrilhes wrote:
->>
->>>	Hi Dave & Jeff,
->>>
->>>	The attached .bz2 file is a patch for 2.6.3 adding the
->>>Intersil Prism54 wireless driver. Sorry for the attachement, the file
->>>is rather big, if you want inline+plaintext, I'll send that personal
->>>to you.
->>>	I've been using this driver with great success on 2.6.3 and
->>>2.6.4-rc1 (SMP). This driver support various popular CardBus and PCI
->>>802.11g cards (54 Mb/s) based on the Intersil PrismGT/PrismDuette
->>>chipset.
->>>	I would like this driver to go into 2.6.X. However, I
->>>understand that it's lot's of code to review.
->>
->>
->>I would like it to go into 2.6 too :)  I'm glad somebody submitted it.
->>
->>I'll review it this weekend... and hopefully some other netdev denizens 
->>will review as well and post their comments.
->>
->>	Jeff
-> 
-> 
-> 	Any news, Jeff ?
-> 	Thanks in advance...
+Greetings folks,
+
+    *Groans*  Do we need another revision here again?  It is pain in the butt going from ipf to ipchains and then to Iptables.  Just going over to ipfilter from Iptables is just asking for suicide among lot us if we going to be using the new filter system.
+
+    Just improve on Iptables and stick with it. :)  I don't feel like learning another ip filtering system all over again after going though 3 changes. :)
+
+    Although, it would be nice if we can add the natural language filtering system to the IPtables, something akin to this line:
+
+    REJECT 32.31.38.83:80 INPUT, which make it lot easier than the IPTables setup, but it is just me wishing. :)
+
+Tuesday, March 9, 2004, 11:13:59 PM, you wrote:
+
+MA> On Tue, Mar 09, 2004 at 09:16:53PM -0800, Mike Fedyk wrote:
+>> Jett Tayer wrote:
+>> >Hi,
+>> >
+>> >When will this be integrated to the kernel???
+>> 
+>> Why should it be?
+>> What does it gain us?
+>> Is it GPL?
+
+MA>   It is (probably) "Darren Reed's ipfilter", aka BSD ipf(ilter).
+
+MA>   Having used ipf, ipchains, iptables, etc. in different system,
+MA>   I take iptables any day.   YMMV, etc.
+
+MA> /Matti Aarnio
+MA> -
+MA> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+MA> the body of a message to majordomo@vger.kernel.org
+MA> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+MA> Please read the FAQ at  http://www.tux.org/lkml/
 
 
-Looks pretty decent to me.  I'm basically waiting on 2.6.4 release to 
-merge it.  I might remove some of the more egregious #ifdefs.
-
-	Jeff
 
 
+-- 
+Best regards,
+ Elikster                            mailto:elik@webspires.com
 

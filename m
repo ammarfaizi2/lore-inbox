@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271464AbTGQOdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 10:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271465AbTGQOdU
+	id S271465AbTGQOg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 10:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271467AbTGQOg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 10:33:20 -0400
-Received: from list.rug.nl ([129.125.4.44]:38188 "EHLO list.rug.nl")
-	by vger.kernel.org with ESMTP id S271464AbTGQOdP (ORCPT
+	Thu, 17 Jul 2003 10:36:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40882 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271466AbTGQOg5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 10:33:15 -0400
-From: "J. Hidding" <J.Hidding@student.rug.nl>
-Subject: Re: linux-2.6.0-test1 freezes sometimes
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro Web Mailer v.4.0.6
-Date: Thu, 17 Jul 2003 16:48:04 +0200
-Message-ID: <web-8156551@mail.rug.nl>
-In-Reply-To: <3F1545FD.5060801@gts.it>
+	Thu, 17 Jul 2003 10:36:57 -0400
+Date: Thu, 17 Jul 2003 07:55:39 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI vendor and device strings in sysfs
+In-Reply-To: <20030717101123.GA6069@in.ibm.com>
+Message-ID: <Pine.LNX.4.44.0307170753240.1213-100000@cherise>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Yes, me :(
->
->They seem to be totally random (no mozilla, here): I use 
->KDE and they may occur while scrolling down a window, or 
->while typing in a shell session or whatever.
->
->I couldn't find a way to reproduce it so far.
->
->Note that they did not happen up to kernel 2.5.75, and 
->they show up with 2.6.0-t1 and 2.6.0-t1-mm1.
->
->No clues in syslog or kern.log, simply a sudden hard 
->freeze, without particular HD or CPU activity before.
->
->Bye!
->
->-- 
->Stefano RIVOIR
->GTS Srl
->
 
-I'm getting very frustated right now, as I seem to be 
-unable to find ANY kernel that doesn't freeze. (2.4.21 
-this time) I'm beginning to think there's something wrong 
-with my machine itself. How can I test my computer for any 
-malfunctioning hardware (memory for example, or 
-overheating)?
+> Here is a patch against 2.6.0-test1 to display PCI vendor and
+> device strings in sysfs.
+> 
+> At present, the PCI "name" attribute has a length restriction
+> (DEVICE_NAME_SIZE) within which it tries to accomodate the vendor
+> and device strings, leading to, in most cases, truncation of one
+> or both strings.
+> 
+> This patch alleviates the issue by creating the vendor_name and
+> device_name attributes for PCI devices.
 
-Johan Hidding
+We don't necessarily need to keep the ASCII strings around at all, and in 
+the case in which CONFIG_PCI_NAMES=n, they are completely irrelevant. They 
+are pretty, but we could just export the vendor/device IDs and have a 
+userspace tool (e.g. sysutils from IBM) look up the name in a userspace 
+database. 
+
+
+	-pat
+

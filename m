@@ -1,107 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265559AbRFVWrU>; Fri, 22 Jun 2001 18:47:20 -0400
+	id <S265563AbRFVW6y>; Fri, 22 Jun 2001 18:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265560AbRFVWrM>; Fri, 22 Jun 2001 18:47:12 -0400
-Received: from rumor.cps.intel.com ([192.102.198.242]:1530 "EHLO
-	rumor.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S265559AbRFVWqw>; Fri, 22 Jun 2001 18:46:52 -0400
-Message-ID: <10C8636AE359D4119118009027AE998709BE50E3@FMSMSX34>
-From: "Mroczek, Joseph T" <joseph.t.mroczek@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: EEPRO100/S support
-Date: Fri, 22 Jun 2001 15:46:34 -0700
+	id <S265562AbRFVW6o>; Fri, 22 Jun 2001 18:58:44 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:23508 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S265561AbRFVW63>; Fri, 22 Jun 2001 18:58:29 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac17 oops on Sony Vaio pCG-FX140
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 23 Jun 2001 00:58:25 +0200
+Message-ID: <qwwu218w29a.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.5 (anise)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1;
-	boundary="----=_NextPart_000_00C8_01C0FB32.7E3764F0"
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Alan,
 
-------=_NextPart_000_00C8_01C0FB32.7E3764F0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+ac17 oopsed on boot, ac16 runs fine.  Here is the output of lspci -v and
+ksymoops. I hope I did not make too many typos when I copied the oops.
+
+                                             Regards, Petr
+
+lspci -v output:
+00:00.0 Host bridge: Intel Corporation: Unknown device 1130 (rev 11)
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, fast devsel, latency 0
+	Capabilities: [88] #09 [f205]
+
+00:02.0 VGA compatible controller: Intel Corporation: Unknown device 1132 (rev 11) (prog-if 00 [VGA])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 10
+	Memory at f8000000 (32-bit, prefetchable) [size=64M]
+	Memory at f4000000 (32-bit, non-prefetchable) [size=512K]
+	Capabilities: [dc] Power Management version 2
+
+00:1e.0 PCI bridge: Intel Corporation: Unknown device 2448 (rev 03) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 00003000-00003fff
+	Memory behind bridge: f4100000-f41fffff
+
+00:1f.0 ISA bridge: Intel Corporation: Unknown device 244c (rev 03)
+	Flags: bus master, medium devsel, latency 0
+
+00:1f.1 IDE interface: Intel Corporation: Unknown device 244a (rev 03) (prog-if 80 [Master])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0
+	I/O ports at 1800 [size=16]
+
+00:1f.2 USB Controller: Intel Corporation 82820 820 (Camino 2) Chipset USB (Hub A) (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0, IRQ 9
+	I/O ports at 1820 [size=32]
+
+00:1f.3 SMBus: Intel Corporation 82820 820 (Camino 2) Chipset SMBus (rev 03)
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: medium devsel, IRQ 5
+	I/O ports at 1810 [size=16]
+
+00:1f.4 USB Controller: Intel Corporation 82820 820 (Camino 2) Chipset USB (Hub B) (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0, IRQ 11
+	I/O ports at 2400 [size=32]
+
+00:1f.5 Multimedia audio controller: Intel Corporation: Unknown device 2445 (rev 03)
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0, IRQ 5
+	I/O ports at 1c00 [size=256]
+	I/O ports at 1840 [size=64]
+
+00:1f.6 Modem: Intel Corporation: Unknown device 2446 (rev 03) (prog-if 00 [Generic])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: medium devsel, IRQ 5
+	I/O ports at 2000 [size=256]
+	I/O ports at 1880 [size=128]
+
+01:00.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8021 (rev 02) (prog-if 10 [OHCI])
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: medium devsel
+	Memory at f4104000 (32-bit, non-prefetchable) [disabled] [size=2K]
+	Memory at f4100000 (32-bit, non-prefetchable) [disabled] [size=16K]
+	Capabilities: [44] Power Management version 2
+
+01:02.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0
+	Memory at f4106000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=01, secondary=02, subordinate=05, sec-latency=0
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	16-bit legacy interface ports at 0001
+
+01:02.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: Sony Corporation: Unknown device 80df
+	Flags: bus master, medium devsel, latency 0
+	Memory at f4107000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=01, secondary=06, subordinate=09, sec-latency=0
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	16-bit legacy interface ports at 0001
+
+01:08.0 Ethernet controller: Intel Corporation 82820 820 (Camino 2) Chipset Ethernet (rev 03)
+	Subsystem: Intel Corporation: Unknown device 3013
+	Flags: bus master, medium devsel, latency 66, IRQ 9
+	Memory at f4105000 (32-bit, non-prefetchable) [size=4K]
+	I/O ports at 3000 [size=64]
+	Capabilities: [dc] Power Management version 2
 
 
+------------------------------------------------
+ksymoops 2.4.1 on i686 2.4.5-ac16.  Options used
+     -V (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.5-ac17 (specified)
+     -m /boot/System.map-2.4.5-ac17 (specified)
 
->The e100 driver from intel claims to support these cards (the 100 S
->desktop adaptor, that is), but in fact the drivers lock up under heavy
->UDP load (at least they do for me in 2.2.19).  It seems to only be a
->problem with these newer cards, the e100 is solid with older cards
->(and things like the 100VE which is onboard on many Easterns).
->
->Intel are working on fixing the lockups, they thought it was related
->to the checksum offload though turning that off doesn't prevent the
->lockups.  Version 1.66 is much more stable than 1.55a (1.55a would
->lockup after 60-80M of traffic on these cards), I'm awaiting the next
->version to see if they have nailed it.
->
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address 00000030
+c019c23c
+*pde = 00000000
+Oops: 0000
+CPU:  0
+EIP:  0010:[<c019c23c>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax:  00000000    ebx: 00000286  ecx: c0267784   edx: c14f7fd3
+esi:  00000040    edi: 00000000  ebp: 0008e000   esp: c14f7fb4
+Process swapper (pid: 1, stackpage=c14f7000)
+Stack: c14f7fd3 c0255fc0 c018f0cb c0267784 00000040 c14f7fd3 c0287b58 00000000
+       c0260c05 c0256856 00010f00 c0256892 c010503b 00010f00 c0255fc0 c010545c
+       00000000 00000078 00098700
+Call Trace: [<c018f0cb>] [<c010503b>] [<c010545c>]
+Code: 8b 40 30 52 56 51 8b 00 ff d0 83 c4 0c 53 9d 5b 5e c3 89 f6
 
-A temporary workaround for e100-1.6.6 that works in most cases is to
-disable the CPUSaver features by using the ucode=0 option.
+>>EIP; c019c23c <pci_read_config_byte+14/28>   <=====
+Trace; c018f0cb <i810tco_getdevice+4b/140>
+Trace; c010503b <init+7/11c>
+Trace; c010545c <kernel_thread+28/38>
+Code;  c019c23c <pci_read_config_byte+14/28>
+00000000 <_EIP>:
+Code;  c019c23c <pci_read_config_byte+14/28>   <=====
+   0:   8b 40 30                  mov    0x30(%eax),%eax   <=====
+Code;  c019c23f <pci_read_config_byte+17/28>
+   3:   52                        push   %edx
+Code;  c019c240 <pci_read_config_byte+18/28>
+   4:   56                        push   %esi
+Code;  c019c241 <pci_read_config_byte+19/28>
+   5:   51                        push   %ecx
+Code;  c019c242 <pci_read_config_byte+1a/28>
+   6:   8b 00                     mov    (%eax),%eax
+Code;  c019c244 <pci_read_config_byte+1c/28>
+   8:   ff d0                     call   *%eax
+Code;  c019c246 <pci_read_config_byte+1e/28>
+   a:   83 c4 0c                  add    $0xc,%esp
+Code;  c019c249 <pci_read_config_byte+21/28>
+   d:   53                        push   %ebx
+Code;  c019c24a <pci_read_config_byte+22/28>
+   e:   9d                        popf   
+Code;  c019c24b <pci_read_config_byte+23/28>
+   f:   5b                        pop    %ebx
+Code;  c019c24c <pci_read_config_byte+24/28>
+  10:   5e                        pop    %esi
+Code;  c019c24d <pci_read_config_byte+25/28>
+  11:   c3                        ret    
+Code;  c019c24e <pci_read_config_byte+26/28>
+  12:   89 f6                     mov    %esi,%esi
 
->
->I've no idea if the e100 works on anything other than ia32/ia64.
+ <0>Kernel panic: Attempted to kill init!
 
-Yes it does. At this point it should be platform independent, I see all
-the required changes for both big and little endian support. 
-
-~joe
-
-------=_NextPart_000_00C8_01C0FB32.7E3764F0
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIFvzCCAo4w
-ggH3oAMCAQICAwTI2DANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
-FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
-MC44LjMwMB4XDTAxMDUxMDIzMDM0M1oXDTAyMDUxMDIzMDM0M1owTDEfMB0GA1UEAxMWVGhhd3Rl
-IEZyZWVtYWlsIE1lbWJlcjEpMCcGCSqGSIb3DQEJARYaam9zZXBoLnQubXJvY3pla0BpbnRlbC5j
-b20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALGbKjcIssEC6xteQxlAOfiRpWNYP0QNnX2s
-xk7AyLOVTMWCVp2Aa4xXB8ira+9F0l3jtiwiV5O2ucGR7aQCQfROKhSS45mIknXgtTir9e8FHwZl
-vuVYsbeppXUTZGlqLBcXyACwmM8E/sHNX3NwqKecabpFzTswQaQXoeG272+jAgMBAAGjNzA1MCUG
-A1UdEQQeMByBGmpvc2VwaC50Lm1yb2N6ZWtAaW50ZWwuY29tMAwGA1UdEwEB/wQCMAAwDQYJKoZI
-hvcNAQEEBQADgYEASG8nl40VCz5rEf72knoMmY+Sabz12R3MdBYVjzVRvjjUjxSnQIVW9D9UAnG6
-610+JMbOr5qW0o/WF3zJFYHtgzRVm85KeNsbqiUZpIfEaSoOO6bq5O0YyUGnCM92TL5hXyzQI36s
-XNe3vjPkNr5CBGOwJi+EW77B5zVvzckoy7MwggMpMIICkqADAgECAgEMMA0GCSqGSIb3DQEBBAUA
-MIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRv
-d24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNl
-cnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzAp
-BgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDAwODMwMDAwMDAw
-WhcNMDIwODI5MjM1OTU5WjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
-MBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRl
-IFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMIGfMA0G
-CSqGSIb3DQEBAQUAA4GNADCBiQKBgQDeMzKmY8cJJUU+0m54J2eBxdqIGYKXDuNEKYpjNSptcDz6
-3K737nRvMLwzkH/5NHGgo22Y8cNPomXbDfpL8dbdYaX5hc1VmjUanZJ1qCeu2HL5ugL217CR3hzp
-q+AYA6h8Q0JQUYeDPPA5tJtUihOH/7ObnUlmAC0JieyUa+mhaQIDAQABo04wTDApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMS0yOTcwEgYDVR0TAQH/BAgwBgEB/wIBADALBgNV
-HQ8EBAMCAQYwDQYJKoZIhvcNAQEEBQADgYEAcxtvJmWL/xU0S1liiu1EvknH6A27j7kNaiYqYoQf
-uIdjdBxtt88aU5FL4c3mONntUPQ6bDSSrOaSnG7BIwHCCafvS65y3QZn9VBvLli4tgvBUFe17BzX
-7xe21Yibt6KIGu05Wzl9NPy2lhglTWr0ncXDkS+plrgFPFL83eliA0gxggKaMIIClgIBATCBmjCB
-kjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3du
-MQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQD
-Ex9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwAgMEyNgwCQYFKw4DAhoFAKCCAVUwGAYJ
-KoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDEwNjIyMjI0NjI0WjAjBgkq
-hkiG9w0BCQQxFgQUFpO1T5hPuhgQSSGpHW8zwzrJ9+UwSAYJKoZIhvcNAQkPMTswOTAKBggqhkiG
-9w0DBzAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjAKBggqhkiG9w0CBTCBqwYJKwYB
-BAGCNxAEMYGdMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
-VQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2Vy
-dmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwTI2DANBgkq
-hkiG9w0BAQEFAASBgB7gBGxuqQc5u7FOdthNWJTkr+93OPEk33/AmQFYVmMRpFfhPyKgbmR9V89X
-O7eGZxUg9gx5LH6XWdWQwkLrgvtYeY2Qoa3x9wqUHHsKT+HtEbL22oYFmUTu1ULBiHV6J2CU4QVJ
-dq4+IFoPib2xAXGi8OMG50w9QYc12I9NqIWCAAAAAAAA
-
-------=_NextPart_000_00C8_01C0FB32.7E3764F0--
-
-
+-- 
+While you recently had your problems on the run, they've regrouped and
+are making another attack.

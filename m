@@ -1,68 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVAKU71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbVAKVC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVAKU71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAKU70
+	id S262821AbVAKVC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAKVAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:59:26 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:19872 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262407AbVAKU7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:59:11 -0500
-Date: Tue, 11 Jan 2005 21:58:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050111205809.GB21308@elte.hu>
-References: <20050110212019.GG2995@waste.org> <200501111305.j0BD58U2000483@localhost.localdomain> <20050111191701.GT2940@waste.org> <20050111125008.K10567@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050111125008.K10567@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 11 Jan 2005 16:00:49 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:52447 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262755AbVAKU7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:59:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] user based capabilities 0.1
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Tue, 11 Jan 2005 21:59:29 +0100
+Message-ID: <87r7krr8b2.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-* Chris Wright <chrisw@osdl.org> wrote:
+This patch implements user based capabilities.
 
-> > We have not established that at all. In principle, because SCHED_OTHER
-> > tasks running at full priority lie on the boundary between SCHED_OTHER
-> > and SCHED_FIFO, they can be made to run arbitrarily close to the
-> > performance of tasks in SCHED_FIFO. With the upside that they won't be
-> > able to deadlock the machine.
-> 
-> I don't think they lie quite so neatly on this boundary.  There's one
-> fundamental difference which is how the dynamic priority is adjusted
-> which alters the basic preemptibility rules.
+With this module, you will be able to grant capabilities based on
+user-/groupid (root by default). This patch uses sysfs/kobject for the
+user interface.
 
-but at nice level -20 this adjustment is at most +5 priority levels -
-i.e. down to an equivalent of nice -15. Consider that a nice 0 task can
-at most get a -5 priority boost gives a nice -5 task worst-case - so the
-nice -20 task still preempts the lower prio task.
+For example you can create a group raw and change the capability
+net_raw to this group:
 
-so this could work in theory. But practice shows it doesnt work at the
-moment, and nobody has analyzed why, yet.
+# chgrp raw /sys/usercaps/net_raw
+# chmod ug+x /sys/usercaps/net_raw
+# chgrp raw /sbin/ping
+# chmod u-s /sbin/ping; chmod g+s /sbin/ping
 
-(There are some other differences in scheduling like starvation
-prevention adding potential delays, but those should in theory not
-affect the basic tests that were done so far. There are also some
-differences in timeslice management, but with the huge timeslices that
-nice -20 tasks get this shouldnt be causing problems either. So my
-current thinking is that there's an unknown scheduling effect causing
-latency regression of nice -20 tasks, compared to the latencies of
-RT-prio-1 tasks.)
+or you can give a group of users some capability:
 
-	Ingo
+# chgrp wheel /sys/usercaps/sys_admin
+# chmod ug+x /sys/usercaps/sys_admin
+
+Known bugs:
+- show()/store() not implemented
+- only minimally tested against 2.6.9
+
+Regards, Olaf.
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline; filename=usercaps.patch
+Content-Description: User base capabilities
+
+diff -urN a/usercaps/Makefile b/usercaps/Makefile
+--- a/usercaps/Makefile	Thu Jan  1 01:00:00 1970
++++ b/usercaps/Makefile	Tue Jan 11 19:12:07 2005
+@@ -0,0 +1,7 @@
++#
++# Makefile for user based capabilities
++# usage: make -C /usr/src/linux M=$PWD
++#
++
++obj-m += usercaps.o
++usercaps-objs := capabilities.o
+diff -urN a/usercaps/capabilities.c b/usercaps/capabilities.c
+--- a/usercaps/capabilities.c	Thu Jan  1 01:00:00 1970
++++ b/usercaps/capabilities.c	Tue Jan 11 19:08:55 2005
+@@ -0,0 +1,120 @@
++/* Copyright (c) 2005 Olaf Dietsche
++ *
++ * User based capabilities for Linux.
++ */
++
++#include <linux/dcache.h>
++#include <linux/init.h>
++#include <linux/kobject.h>
++#include <linux/module.h>
++#include <linux/namei.h>
++#include <linux/security.h>
++#include <linux/sysfs.h>
++
++static struct kobject usercaps = {
++	.name = "usercaps",
++};
++
++struct caps_attribute {
++	struct attribute attr;
++	struct inode *inode;
++};
++
++static struct caps_attribute caps[] = {
++	{ .attr = { .name = "chown", .mode = 0100, } },
++	{ .attr = { .name = "dac_override", .mode = 0100, } },
++	{ .attr = { .name = "dac_read_search", .mode = 0100, } },
++	{ .attr = { .name = "fowner", .mode = 0100, } },
++	{ .attr = { .name = "fsetid", .mode = 0100, } },
++	{ .attr = { .name = "kill", .mode = 0100, } },
++	{ .attr = { .name = "setgid", .mode = 0100, } },
++	{ .attr = { .name = "setuid", .mode = 0100, } },
++	{ .attr = { .name = "setpcap", .mode = 0100, } },
++	{ .attr = { .name = "linux_immutable", .mode = 0100, } },
++	{ .attr = { .name = "net_bind_service", .mode = 0100, } },
++	{ .attr = { .name = "net_broadcast", .mode = 0100, } },
++	{ .attr = { .name = "net_admin", .mode = 0100, } },
++	{ .attr = { .name = "net_raw", .mode = 0100, } },
++	{ .attr = { .name = "ipc_lock", .mode = 0100, } },
++	{ .attr = { .name = "ipc_owner", .mode = 0100, } },
++	{ .attr = { .name = "sys_module", .mode = 0100, } },
++	{ .attr = { .name = "sys_rawio", .mode = 0100, } },
++	{ .attr = { .name = "sys_chroot", .mode = 0100, } },
++	{ .attr = { .name = "sys_ptrace", .mode = 0100, } },
++	{ .attr = { .name = "sys_pacct", .mode = 0100, } },
++	{ .attr = { .name = "sys_admin", .mode = 0100, } },
++	{ .attr = { .name = "sys_boot", .mode = 0100, } },
++	{ .attr = { .name = "sys_nice", .mode = 0100, } },
++	{ .attr = { .name = "sys_resource", .mode = 0100, } },
++	{ .attr = { .name = "sys_time", .mode = 0100, } },
++	{ .attr = { .name = "sys_tty_config", .mode = 0100, } },
++	{ .attr = { .name = "mknod", .mode = 0100, } },
++	{ .attr = { .name = "lease", .mode = 0100, } },
++};
++
++static inline int usercaps_permitted(struct inode *i, int mask)
++{
++	mode_t mode = i->i_mode;
++	if (current->fsuid == i->i_uid)
++		mode >>= 6;
++	else if (in_group_p(i->i_gid))
++		mode >>= 3;
++
++	return (mode & mask) == mask;
++}
++
++static int usercaps_capable(struct task_struct *tsk, int cap)
++{
++	if (usercaps_permitted(caps[cap].inode, MAY_EXEC)) {
++		/* capability granted */
++		tsk->flags |= PF_SUPERPRIV;
++		return 0;
++	}
++
++	/* capability denied */
++	return -EPERM;
++}
++
++static struct security_operations usercaps_security_ops = {
++	.capable = usercaps_capable,
++};
++
++static struct dentry *get_dentry(struct dentry *parent, const char *name)
++{
++	struct qstr qstr;
++	qstr.name = name;
++	qstr.len = strlen(name);
++	qstr.hash = full_name_hash(name, qstr.len);
++	return lookup_hash(&qstr, parent);
++}
++
++static int __init init_capabilities(void)
++{
++	int i, err;
++	kobject_register(&usercaps);
++	for (i = 0; i < sizeof(caps) / sizeof(caps[0]); ++i) {
++		struct dentry *d;
++		sysfs_create_file(&usercaps, &caps[i].attr);
++		d = get_dentry(usercaps.dentry, caps[i].attr.name);
++		caps[i].inode = d->d_inode;
++	}
++
++	err = register_security(&usercaps_security_ops);
++	if (err)
++		kobject_unregister(&usercaps);
++
++	return err;
++}
++
++static void __exit exit_capabilities(void)
++{
++	kobject_unregister(&usercaps);
++	unregister_security(&usercaps_security_ops);
++}
++
++module_init(init_capabilities)
++module_exit(exit_capabilities)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("User based capabilities");
++MODULE_LICENSE("GPL");
+
+--=-=-=--

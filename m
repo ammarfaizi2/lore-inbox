@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbUCAVPk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 16:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbUCAVPk
+	id S261436AbUCAVPK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 16:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUCAVPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 16:15:40 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51385 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261439AbUCAVPh (ORCPT
+	Mon, 1 Mar 2004 16:15:10 -0500
+Received: from ns.suse.de ([195.135.220.2]:16621 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261436AbUCAVPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 16:15:37 -0500
+	Mon, 1 Mar 2004 16:15:08 -0500
+Date: Mon, 1 Mar 2004 22:14:58 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Cc: akpm@osdl.org, yi.zhu@intel.com, linux-kernel@vger.kernel.org
 Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, yi.zhu@intel.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <p73vfloz45t.fsf@verdi.suse.de>
+Message-Id: <20040301221458.50b0dade.ak@suse.de>
+In-Reply-To: <20040301205426.GA5862@redhat.com>
 References: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
-	 <20040301025637.338f41cf.akpm@osdl.org>  <p73vfloz45t.fsf@verdi.suse.de>
-Content-Type: text/plain
-Message-Id: <1078175723.27444.214.camel@nighthawk>
+	<20040301025637.338f41cf.akpm@osdl.org>
+	<p73vfloz45t.fsf@verdi.suse.de>
+	<20040301205426.GA5862@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 01 Mar 2004 13:15:23 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-01 at 12:46, Andi Kleen wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > I think the only problem with this is if we get a fault during
-> > parse_args(), the kernel flies off into outer space.  So you lose some
-> > debuggability when using an early console.
-> > 
-> > But 2.4 does trap_init() after parse_args() and nobody has complained, as
-> > did 2.6 until recently.  So the change is probably OK.
->...
-> Another way that i've considered on x86-64 for 2.7 at least is a special
-> __early_setup() for this
+On Mon, 1 Mar 2004 20:54:26 +0000
+Dave Jones <davej@redhat.com> wrote:
 
-It might be nice to have the same thing as the initcalls:
-#define core_initcall(fn)               __define_initcall("1",fn)
-...
-#define late_initcall(fn)               __define_initcall("7",fn)
 
-If we had something like this, we could also use it for stuff like
-early_printk(), in addition to things like mem= in setup_arch().  You
-can actually do serial early printk in about 3 lines of code if you can
-parse arguments really, really early.  
+> Did that get fixed in 2.6 ?
 
--- dave
+It's called directly after paging_init now. That should be early enough.
 
+-Andi

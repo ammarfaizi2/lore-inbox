@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265289AbTLaXnx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 18:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTLaXnw
+	id S265296AbTLaXso (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 18:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTLaXso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 18:43:52 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:42400 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265289AbTLaXnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 18:43:51 -0500
-Date: Wed, 31 Dec 2003 18:43:35 -0500
-From: Chris Heath <chris@heathens.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.6] Remove warning in ftape
-Message-Id: <20031231183856.0A65.CHRIS@heathens.co.nz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.04 [en]
-X-Antirelay: Good relay from local net1 127.0.0.1/32
+	Wed, 31 Dec 2003 18:48:44 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:3325 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S265296AbTLaXsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 18:48:43 -0500
+Date: Wed, 31 Dec 2003 16:48:24 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Rob Love <rml@ximian.com>, Nathan Conrad <lk@bungled.net>,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20031231164824.I6144@schatzie.adilger.int>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Rob Love <rml@ximian.com>, Nathan Conrad <lk@bungled.net>,
+	Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+	Greg KH <greg@kroah.com>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur> <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur> <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Wed, Dec 31, 2003 at 10:55:36PM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a trivial patch that removes an unused-variable warning in ftape.
+On Dec 31, 2003  22:55 +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 	h) nfsd uses device number as a substitute for export ID if said
+> ID is not given explicitly.  That, BTW, is a big problem for crackpipe
+> dreams about random device numbers - export ID _must_ be stable across
+> reboots.
 
-Chris
+We had a problem with this and Lustre, when we NFS export it.  Lustre is
+already a network filesystem so we don't have a device number.  I had a
+discussion with Neil Brown about this and suggested that we allow NFS to
+get a _real_ stable export ID from the filesystem (e.g. superblock UUID
+or similar) instead of the device number hackery which only has a vague
+relationship to stable.
 
+We implemented it for Lustre with a filesystem option FS_NFSEXP_FSID
+that tells nfsd it can export such a filesystem in the absence of
+FS_REQUIRES_DEV and then put our export ID into sb->s_dev (although I'd
+prefer something slightly cleaner than that).
 
---- a/drivers/char/ftape/lowlevel/ftape-init.c	2003-10-23 23:19:03.000000000 -0400
-+++ b/drivers/char/ftape/lowlevel/ftape-init.c	2003-10-23 23:20:18.000000000 -0400
-@@ -55,7 +55,7 @@
- char ft_dat[] __initdata = "$Date: 1997/11/06 00:38:08 $";
- 
- 
--#ifndef CONFIG_FT_NO_TRACE_AT_ALL
-+#if defined(MODULE) && !defined(CONFIG_FT_NO_TRACE_AT_ALL)
- static int ft_tracing = -1;
- #endif
- 
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

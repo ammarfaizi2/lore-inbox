@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264532AbTIJFH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTIJFH6
+	id S264529AbTIJFUx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264549AbTIJFUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:07:58 -0400
-Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:15630
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S264532AbTIJFHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:07:46 -0400
-Message-ID: <3F5EB194.2020102@cyberone.com.au>
-Date: Wed, 10 Sep 2003 15:07:32 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tony Jones <sir_tez@softhome.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm5 and Warcraft III - WineX
-References: <1063169563.21739.1.camel@thelight.sir-tez.org>
-In-Reply-To: <1063169563.21739.1.camel@thelight.sir-tez.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 01:20:53 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:51120 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264529AbTIJFUv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:20:51 -0400
+Date: Wed, 10 Sep 2003 17:18:03 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Do I have to buy a license to use BK for kernel development?
+In-reply-to: <20030910045941.GD1990@work.bitmover.com>
+To: Larry McVoy <lm@bitmover.com>, support@bitmover.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1063171071.4479.13.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1063167031.3399.7.camel@laptop-linux>
+ <20030910045941.GD1990@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+I did read the license and am happy to comply with it. I was wondering
+if there's something that is failing to work properly. Are there details
+somewhere on how BK expects to be able to send the data, or how it can
+be made to try to send it?
 
-Tony Jones wrote:
+Regards,
 
->In my testing of recent kernels 2.6.0-test5 and 2.6.0-test4-mm4 (mm6
->wouldn't cooperate with X for some reason and I didn't do much
->investigation) I've experied an easily replicable and highly annoying
->problem with Warcraft III and WineX 3.1 (prebuilt).
->
->After playing 1 or 2 games, or leaving the game idle in the chat room,
->the sound will eventually start to stutter and chop badly.  In the
->presence of this incredibly bad sound, the mouse and game respond just
->fine (kudos to the scheduler on that point).  Considering the game is
->played in "real-time" and is full of audio cues I hate to imagine that
->Con's scheduler will be the "official" scheduler of 2.6 without having
->this issue addressed.
->
->The kernels I use are tainted with nvidia's video drivers, 1.0.4496.  
->
->Nick's scheduler in 2.6.0-test4-mm5 seems to be the only thing capable
->of correcting this problem.  In general operation, mm5's scheduler
->seems better at handling about everything I threw at it, with a rare
->xmms skip once in a week of use.
->
->I'm not a developer but I'd love some feedback and or questions to
->help figure out why this happens with Con's scheduler patches in mm4
->and test5 to help improve 2.6.0 altogether.
->
+Nigel
 
-Actually, I'd love some feedback from you.
-Use this: http://www.kerneltrap.org/~npiggin/v14/sched-rollup-v14.gz
-It will apply against 2.6.0-test4 or test5 (not mm). See how you go.
+On Wed, 2003-09-10 at 16:59, Larry McVoy wrote:
+> > I've made one or two attempts at beginning to use BK for my kernel
+> > development work, but each time I've been stuck by the licensing code. I
+> > use it for a little while, and then get a message about not being
+> > allowed to commit because of logging (or something to that effect). Can
+> > someone give me info on how to set up BK so that you don't get these
+> > issues? (I'm assuming I don't need to buy it to use it for kernel
+> > development). I should add that I'm doing 99% of my work disconnected
+> > from the internet.
+> 
+> Read the license.  The free use requires that you connect periodically to 
+> log what it is you are doing.  Those are the terms of use.  If that doesn't
+> work for you there is the CVS gateway and the SVN gateway.
+> 
+> If you are having problems with BK you might try support@bitmover.com
+> or bitkeeper-users@bitmover.com.
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-Thanks
-
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

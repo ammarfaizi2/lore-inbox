@@ -1,86 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262832AbVAKRHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVAKRKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262832AbVAKRHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVAKRGV
+	id S262854AbVAKRKP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVAKRHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:06:21 -0500
-Received: from maxipes.logix.cz ([217.11.251.249]:43143 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S262832AbVAKREC (ORCPT
+	Tue, 11 Jan 2005 12:07:48 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:64131 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262831AbVAKRF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:04:02 -0500
-Date: Tue, 11 Jan 2005 18:03:57 +0100 (CET)
-From: Michal Ludvig <michal@logix.cz>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
-Subject: PadLock processing multiple blocks at a time
-In-Reply-To: <20041130222442.7b0f4f67.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0412031353120.17402@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0411301009560.11945-100000@thoron.boston.redhat.com>
- <Pine.LNX.4.61.0411301722270.4409@maxipes.logix.cz>
- <20041130222442.7b0f4f67.davem@davemloft.net>
+	Tue, 11 Jan 2005 12:05:59 -0500
+Date: Tue, 11 Jan 2005 18:05:54 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+In-Reply-To: <Pine.LNX.4.61.0501111754400.3368@dragon.hygekrogen.localhost>
+Message-ID: <Pine.LNX.4.61.0501111804530.15932@yvahk01.tjqt.qr>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+ <41E2F6B3.9060008@rueb.com> <20050110230827.4d13ae7b.diegocg@gmail.com>
+ <20050111001901.GA4378@ip68-4-98-123.oc.oc.cox.net>
+ <Pine.LNX.4.61.0501111754400.3368@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>Not everyone agrees that that is the proper way to do things, some prefer 
+>full disclosure.
+>Personally I'd prefer full disclosure on a public mailing list (copying 
+>vendors, maintainers etc of course), so as many people as possible can get 
+>to work on a fix as soon as possible. Keeping things secret doesn't speed 
+>up the time to get a fix made.
 
-I have got some improvements for VIA PadLock crypto driver.
+But five people working on the same thing aiming to provide a patch (the 
+very same one, probably) is also no better; work could be saved.
 
-1. Generic extension to crypto/cipher.c that allows offloading the 
-   encryption of the whole buffer in a given mode (CBC, ...) to the 
-   algorithm provider (i.e. PadLock). Basically it extends 'struct 
-   cipher_alg' by some new fields:
 
-@@ -69,6 +73,18 @@ struct cipher_alg {
-                          unsigned int keylen, u32 *flags);
-        void (*cia_encrypt)(void *ctx, u8 *dst, const u8 *src);
-        void (*cia_decrypt)(void *ctx, u8 *dst, const u8 *src);
-+       size_t cia_max_nbytes;
-+       size_t cia_req_align;
-+       void (*cia_ecb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-+                       size_t nbytes, int encdec, int inplace);
-+       void (*cia_cbc)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-+                       size_t nbytes, int encdec, int inplace);
-+       void (*cia_cfb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-+                       size_t nbytes, int encdec, int inplace);
-+       void (*cia_ofb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-+                       size_t nbytes, int encdec, int inplace);
-+       void (*cia_ctr)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-+                       size_t nbytes, int encdec, int inplace);
- };
 
-  If cia_<mode> is non-NULL that function is used instead of the 
-  software <mode>_process chaining function (e.g. cbc_process()). In the 
-  case of PadLock it can significantly speed-up the {en,de}cryption.
-
-2. On top of this I have an extension of the padlock module to support 
-   this scheme.
-
-I will send both patches in separate follow ups.
-
-The speedup gained by this change is quite significant (measured with 
-bonnie on ext2 over dm-crypt with aes128):
-
-			No encryption	2.6.10-bk1	multiblock
-Writing with putc()	10454 (100%)	7479  (72%)	9353  (89%)
-Rewriting		16510 (100%)	7628  (46%)	10611 (64%)
-Writing intelligently	61128 (100%)	21132 (35%)	48103 (79%)
-Reading with getc()	9406  (100%)	6916  (74%)	8801  (94%)
-Reading intelligently	35885 (100%)	15271 (43%)	23202 (65%)
-
-Numbers are in kB/s, percents show the slowdown from plaintext run. 
-As can be seen, the multiblock encryption is significantly faster 
-in comparsion to the already comitted single-block-at-a-time 
-processing.
-
-More statistics (e.g. comparsion with aes.ko and aes-i586.ko) are 
-available at http://www.logix.cz/michal/devel/padlock/bench.xp
-
-Dave, if you're OK with these changes, please merge them.
-
-Michal Ludvig
+Jan Engelhardt
 -- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal
+ENOSPC

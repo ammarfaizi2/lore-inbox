@@ -1,70 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291825AbSBYTDz>; Mon, 25 Feb 2002 14:03:55 -0500
+	id <S292130AbSBYTNt>; Mon, 25 Feb 2002 14:13:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292130AbSBYTDp>; Mon, 25 Feb 2002 14:03:45 -0500
-Received: from bitmover.com ([192.132.92.2]:1718 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291825AbSBYTD2>;
-	Mon, 25 Feb 2002 14:03:28 -0500
-Date: Mon, 25 Feb 2002 11:03:27 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>,
-        Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] NUMA scheduling
-Message-ID: <20020225110327.A22497@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>,
-	Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
-	lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0202251737420.30318-100000@sx6.ess.nec.de> <20940000.1014663303@flay>
-Mime-Version: 1.0
+	id <S292163AbSBYTNk>; Mon, 25 Feb 2002 14:13:40 -0500
+Received: from fw2.primusdatacenter.net ([62.72.60.251]:45168 "HELO
+	main.primuseurope.com") by vger.kernel.org with SMTP
+	id <S292130AbSBYTNY>; Mon, 25 Feb 2002 14:13:24 -0500
+Date: Mon, 25 Feb 2002 19:09:53 +0000
+From: Manohar Pradhan <mpml@isp.primuseurope.com>
+Reply-To: Manohar Pradhan <mpml@isp.primuseurope.com>
+Message-ID: <194779754037.20020225190953@isp.primuseurope.com>
+To: linux-kernel@vger.kernel.org
+Subject: Urgent SCSI I/O Error
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20940000.1014663303@flay>; from Martin.Bligh@us.ibm.com on Mon, Feb 25, 2002 at 10:55:03AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 10:55:03AM -0800, Martin J. Bligh wrote:
-> > - The load_balancing() concept is different:
-> > 	- there are no special time intervals for balancing across pool
-> > 	boundaries, the need for this can occur very quickly and I
-> > 	have the feeling that 2*250ms is a long time for keeping the 
-> > 	nodes unbalanced. This means: each time load_balance() is called
-> > 	it _can_ balance across pool boundaries (but doesn't have to).
-> 
-> Imagine for a moment that there's a short spike in workload on one node.
-> By agressively balancing across nodes, won't you incur a high cost
-> in terms of migrating all the cache data to the remote node (destroying
-> the cache on both the remote and local node), when it would be cheaper 
-> to wait for a few more ms, and run on the local node?
+Hi,
 
-Great question!  The answer is that you are absolutely right.  SGI tried
-a pile of things in this area, both on NUMA and on traditional SMPs (the
-NUMA stuff was more page migration and the SMP stuff was more process
-migration, but the problems are the same, you screw up the cache).  They
-never got the page migration to give them better performance while I was
-there and I doubt they have today.  And the process "migration" from CPU
-to CPU didn't work either, people tended to lock processes to processors
-for exactly the reason you alluded to.
+This question might have been raised before but I am stucked in
+between wierd/helpless situation and wondering if someone can help me
+out.
 
-If you read the early hardware papers on SMP, they all claim "Symmetric
-Multi Processor", i.e., you can run any process on any CPU.  Skip forward
-3 years, now read the cache affinity papers from the same hardware people.
-You have to step back and squint but what you'll see is that these papers
-could be summarized on one sentence:
+I have Red Hat Linux 6.2 (2.2.14-5.0smp) running in my HP Netserver
+box. I have 2 9.1 GB HDD. The server has been up for few months and
+have not had seen any problem. But today all of sudden it gave
+panicking message saying following:
 
-	"Oops, we lied, it's not really symmetric at all"
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:06, sector 4194368
+Feb 25 18:48:12 nsdb1 kernel: EXT2-fs error (device sd(8,6)): ext2_write_inode: unable to read inode block - inode=251018, block=524296
+Feb 25 18:48:12 nsdb1 kernel: SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 28000002
+Feb 25 18:48:12 nsdb1 kernel: [valid=0] Info fld=0x0, Current sd08:06: sense key Not Ready
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:06, sector 1835048
+Feb 25 18:48:12 nsdb1 kernel: EXT2-fs error (device sd(8,6)): ext2_write_inode: unable to read inode block - inode=109814, block=229381
+Feb 25 18:48:12 nsdb1 kernel: SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 28000002
+Feb 25 18:48:12 nsdb1 kernel: [valid=0] Info fld=0x0, Current sd08:06: sense key Not Ready
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:06, sector 40
+Feb 25 18:48:12 nsdb1 kernel: EXT2-fs error (device sd(8,6)): ext2_write_inode: unable to read inode block - inode=57, block=5
+Feb 25 18:48:12 nsdb1 kernel: SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 28000002
+Feb 25 18:48:12 nsdb1 kernel: [valid=0] Info fld=0x0, Current sd08:07: sense key Not Ready
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:07, sector 1048832
+Feb 25 18:48:12 nsdb1 kernel: EXT2-fs error (device sd(8,7)): ext2_write_inode: unable to read inode block - inode=62495, block=131104
+Feb 25 18:48:12 nsdb1 kernel: SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 28000002
+Feb 25 18:48:12 nsdb1 kernel: [valid=0] Info fld=0x0, Current sd08:06: sense key Not Ready
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:06, sector 0
+Feb 25 18:48:12 nsdb1 kernel: SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 28000002
+Feb 25 18:48:12 nsdb1 kernel: [valid=0] Info fld=0x0, Current sd08:07: sense key Not Ready
+Feb 25 18:48:12 nsdb1 kernel: scsidisk I/O error: dev 08:07, sector 0
 
-You should treat each CPU as a mini system and think of a process reschedule
-someplace else as a checkpoint/restart and assume that is heavy weight.  In
-fact, I'd love to see the scheduler code forcibly sleep the process for 
-500 milliseconds each time it lands on a different CPU.  Tune the system
-to work well with that, then take out the sleep, and you'll have the right
-answer.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+I have system running but cannot access files/database saved in
+volumes in the second HDD sdb. Following are the partitions I have and
+I haven't used any RAID while instaling, means plain hard drive spaces
+in 2 drives.
+
+/dev/sdb6               917072    732972    137516  84% /
+/dev/sda1                18820      5811     12037  33% /boot
+/dev/sda6              2218336    462492   1643156  22% /www
+/dev/sda5              5297560    418936   4609520   8% /home
+/dev/sda7              1210440    711516    437436  62% /software
+/dev/sdb1              5550188     50896   5217356   1% /usr
+/dev/sdb5              2016016     28572   1885032   1% /var
+
+I can access files in all the other partitions but cannot access
+files/directories in partition /www. I can see files in the
+directories listing using 'ls' however accessing any file gives
+Input/Output error saying:
+
+cat check1.htm: Input/output error
+
+
+
+Can anyone help/suggest me what should I do to make it work? I am
+wondering if I reboot the system, I may fall into problem on booting
+itself. Is there any thing I need to do to make this partition work?
+
+Thanks in advance for the help.
+
+Regards
+Manohar
+

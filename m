@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270681AbTHQUDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 16:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270824AbTHQUDJ
+	id S271090AbTHQUM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271091AbTHQUM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 16:03:09 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:56554 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S270681AbTHQUDG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 16:03:06 -0400
-From: Patrick Dreker <patrick@dreker.de>
-To: Jussi Laako <jussi.laako@pp.inet.fi>,
-       Alistair J Strachan <alistair@devzero.co.uk>
-Subject: Re: nforce2 lockups
-Date: Sun, 17 Aug 2003 22:02:40 +0200
-User-Agent: KMail/1.5.9
-Cc: Clock <clock@twibright.com>, kenton.groombridge@us.army.mil,
-       linux-kernel@vger.kernel.org
-References: <df962fdf9006.df9006df962f@us.army.mil> <200308151738.08965.alistair@devzero.co.uk> <1061148472.1459.3.camel@vaarlahti.uworld>
-In-Reply-To: <1061148472.1459.3.camel@vaarlahti.uworld>
+	Sun, 17 Aug 2003 16:12:28 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:39373
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S271090AbTHQUMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 16:12:21 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Coen Rosdorff <coen@rosdorff.dyndns.org>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: VM: killing process amavis
+Date: Sun, 17 Aug 2003 05:48:16 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0308132119140.4138-100000@rosdorff.dyndns.org>
+In-Reply-To: <Pine.LNX.4.44.0308132119140.4138-100000@rosdorff.dyndns.org>
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308172202.47521.patrick@dreker.de>
+Message-Id: <200308170548.16094.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Am Sunday 17 August 2003 21:27 schrieb Jussi Laako <jussi.laako@pp.inet.fi> 
-zum Thema Re: nforce2 lockups:
-> On Fri, 2003-08-15 at 19:38, Alistair J Strachan wrote:
-> > > NFORCE2: chipset revision 162
-> > I use APIC and ACPI on my EPoX 8RDA+, and I've never had any IO problems.
-> > So it seems unlikely that it is tied to a chipset revision.
+On Wednesday 13 August 2003 15:40, Coen Rosdorff wrote:
+> On Wed, 13 Aug 2003, Hugh Dickins wrote:
+> > It really would be worth giving memtest86 a good long run.
+> >
+> > 02000000 looks very much like a single-bit memory error,
+> > and swap_free is exactly where such errors often show up.
 >
-> I have ASUS A7N8X Deluxe mobo with nForce2 rev 162 without any problems
-> (if not counting unability to enabe SiI SATA DMA mode with attached
-> Seagate Barracuda drive).
+> I had the same problem before on the previous server. Running memtest for
+> 19 days didn't showed any memory problems.
+>
+> After replacing the motherboard cpu and ram, now I have the same problem.
 
-I have the exact same Board (except I'm not using SATA), and it's a nightmare. 
-Best uptime so far: a little more than 16 hours. Usually it locks up a lot 
-earlier. When I do network transfers I can cause it to lock within a few 
-minutes. Under "the other OS" it runs without any problems.
+I had a system once that looked very much like it had bad ram, but it turned 
+out to have a bad hard drive controller, which showed up paging stuff into 
+memory from disk (ala exec, sometimes), and in bringing stuff back in from 
+swap.  (The kernel almost never went bye-bye, because it never swapped out, 
+you see...)
 
-- -- 
-Patrick Dreker
+Caused the weirdest problems in Myth II, among other things...
 
-GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
-Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
-Key available from keyservers or http://www.dreker.de/pubkey.asc
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> So the problem moved from 00000100 to 02000000
+>
+> The networkcards and the 3ware raid controler moved form the old to the
+> new box. Could one of them be the problem?
+>
+> I am running out of options.
 
-iD8DBQE/P99ncERm2vzC96cRAkl3AJ9XG9ShZVlQXqyupyhz08EHNdiPiwCgj/ji
-W++fbQC3hOVBvR6xCgV7V6A=
-=HVPf
------END PGP SIGNATURE-----
+Check the raid controller.  Especially if you're swapping through the raid 
+controller.  I found out what was wrong with the other system by copying big 
+tarballs through the network and verifying them.
+
+Try this:
+
+1) Copy a tarball to the remote system and confirm that it came out OK just 
+coming across the network.
+
+  cat enormous.tgz | ssh othersystem "tar tvz"
+
+2) Now copy the tarball to the remote machine's disk, and test that the copy 
+on disk is good.
+
+  cat enormous.tgz | ssh othersystem "cat > temp.tgz; tar tvzf temp.tgz"
+
+Of course using a tarball that's bigger than your ram, so it actually does 
+have to write it out to disk and read it back in again.  Using ssh provides a 
+little bit of a CPU load, and of course the network is providing a competing 
+source of interrupts.  (You could also run contest in the background or some 
+such to really beat the system to death...)
+
+Rob
+
+

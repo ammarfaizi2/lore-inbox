@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUENKwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUENLDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbUENKwt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 06:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbUENKwt
+	id S264358AbUENLDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 07:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbUENLDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 06:52:49 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:31986 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265248AbUENKws (ORCPT
+	Fri, 14 May 2004 07:03:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48770 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264358AbUENLDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 06:52:48 -0400
-Date: Fri, 14 May 2004 03:50:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: raghav@in.ibm.com
-Cc: akpm@osdl.org, maneesh@in.ibm.com, dipankar@in.ibm.com, torvalds@osdl.org,
-       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-Message-Id: <20040514035039.347871e8.pj@sgi.com>
-In-Reply-To: <20040514103322.GA6474@in.ibm.com>
-References: <409B1511.6010500@colorfullife.com>
-	<20040508012357.3559fb6e.akpm@osdl.org>
-	<20040508022304.17779635.akpm@osdl.org>
-	<20040508031159.782d6a46.akpm@osdl.org>
-	<Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
-	<20040508120148.1be96d66.akpm@osdl.org>
-	<Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
-	<20040508201259.GA6383@in.ibm.com>
-	<20041006125824.GE2004@in.ibm.com>
-	<20040511132205.4b55292a.akpm@osdl.org>
-	<20040514103322.GA6474@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 14 May 2004 07:03:45 -0400
+Date: Fri, 14 May 2004 04:03:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Alberto Bertogli <albertogli@telpin.com.ar>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: BUG when removing USB flash drive
+Message-ID: <20040514110301.GB29423@kroah.com>
+References: <20040514004132.GA10537@telpin.com.ar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040514004132.GA10537@telpin.com.ar>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like the new hashing function has brought down the performance.
+On Thu, May 13, 2004 at 09:41:32PM -0300, Alberto Bertogli wrote:
+> 
+> This is a stock 2.6.6 kernel, on a Pentium 4 with HT (the kernel is
+> compiled with both SMP and preempt).
 
-"brought down the performance" as in "better, faster", right?
+Can you test the latest -mm tree and see if it fixes this problem for
+you?
 
-That is, your numbers show that the new hashing function is good, right?
+thanks,
 
-Or do I have it backwards?
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+greg k-h

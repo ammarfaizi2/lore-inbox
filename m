@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314258AbSDVQKW>; Mon, 22 Apr 2002 12:10:22 -0400
+	id <S314265AbSDVQNY>; Mon, 22 Apr 2002 12:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314260AbSDVQKV>; Mon, 22 Apr 2002 12:10:21 -0400
-Received: from bitmover.com ([192.132.92.2]:36518 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314258AbSDVQKN>;
-	Mon, 22 Apr 2002 12:10:13 -0400
-Date: Mon, 22 Apr 2002 09:10:12 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422091012.C17613@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zGq9-0001EW-00@starship> <20020422084421.A17613@work.bitmover.com> <E16zJbd-0001GZ-00@starship>
+	id <S314266AbSDVQNX>; Mon, 22 Apr 2002 12:13:23 -0400
+Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:6704 "EHLO
+	carey-server.stronghold.to") by vger.kernel.org with ESMTP
+	id <S314265AbSDVQNV>; Mon, 22 Apr 2002 12:13:21 -0400
+Message-Id: <4.3.2.7.2.20020422120453.01c43538@mail.strongholdtech.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 22 Apr 2002 12:15:24 -0400
+To: "Vasja J Zupan" <vasja@nuedi.com>, <linux-kernel@vger.kernel.org>
+From: "Nicolae P. Costescu" <nick@strongholdtech.com>
+Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
+In-Reply-To: <001d01c1e6e3$c2ef1e60$b4a6a8c0@si>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 05:50:25PM +0200, Daniel Phillips wrote:
-> > The existence (or non-existence) of the docs has absolutely no marketing
-> > value to BK.
-> 
-> So you have no problem with moving them to a website, leaving a url in
-> SubmittingPatches?
+Vasja
+I evaluated this board for linux server use. Stay away from it.
+When you hook up and install the hpt raid, it corrupts disk files. This is 
+100% reproducible.
+The non hpt controller on board works ok.
+I believe this is related to the via chipset problem with the PCI bus 
+(doesn't allow bursts that are long enough for high bandwidth pci devices).
 
-It's not my call to make.  Take it up with the people who own the tree.
+We went with i845 based Intel 845BG boards and p4/1.8GHz cpu. Cost 
+difference is not much and performance was much better
+If you like an athlon solution, Tyan's 2466N-4M AMD MPX based board works 
+well too.
 
-Personally, I think a patch like this is more of what you need:
+You can read about the via bug here...
 
-===== bk-kernel-howto.txt 1.2 vs edited =====
---- 1.2/Documentation/BK-usage/bk-kernel-howto.txt      Fri Mar 15 09:08:54 2002
-+++ edited/bk-kernel-howto.txt  Mon Apr 22 09:04:26 2002
-@@ -1,5 +1,9 @@
-+To placate some pedantic people who feel that this document is an
-+advertisement, the name of the source management system has been
-+replaced with "groovy SCM".
- 
--                  Doing the BK Thing, Penguin-Style
-+
-+                  Doing the groovy SCM Thing, Penguin-Style
- 
- 
- 
-@@ -11,48 +15,48 @@
- Due to the author's background, an operation may be described in terms
- of CVS, or in terms of how that operation differs from CVS.
- 
--This is -not- intended to be BitKeeper documentation.  Always run
-+This is -not- intended to be groovy SCM documentation.  Always run
- "bk help <command>" or in X "bk helptool <command>" for reference
- documentation.
- 
- 
--BitKeeper Concepts
--------------------
-+groovy SCM Concepts
-+-------------------
+http://www.tecchannel.de/hardware/817/index.html
 
-etc.
+I had this problem with KT133A and KT266A motherboards.
 
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Email me if you want more info.
+Thanks
+Nick
+
+
+At 04:16 PM 4/18/2002 +0200, Vasja J Zupan wrote:
+>Hi,
+>I'm buying a production server for webservices for mobile operators.
+>
+>My HW provider suggested Abit's KR7A-133R (ATA133)  with HPT372.
+>
+>Is this motherboard already fully supported and when will stable kernel be
+>ready for production use on these motherboards? (btw - any advice on good
+>amd combo is appreciated)
+>
+>Thank you for your help and I'd appreciate a personal cc: cos I'm not a
+>member of this list.
+>
+>Thanx!
+>Vasja
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+****************************************************
+Nicolae P. Costescu, Ph.D.  / Senior Developer
+Stronghold Technologies
+46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
+Tel: 571-434-1472 / Fax: 571-434-1478
+

@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUKDSIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbUKDSML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUKDSIw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUKDSIn
+	id S262346AbUKDSML (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbUKDSKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:08:43 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:22117 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S262350AbUKDSCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:02:39 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+	Thu, 4 Nov 2004 13:10:49 -0500
+Received: from mail.timesys.com ([65.117.135.102]:23185 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262352AbUKDSEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:04:11 -0500
+Message-ID: <418A7BFB.6020501@timesys.com>
+Date: Thu, 04 Nov 2004 13:59:07 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+CC: Mark_H_Johnson@raytheon.com, Karsten Wiese <annabellesgarden@yahoo.de>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
        Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF21951A86.850E776A-ON86256F42.00610EF0@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 4 Nov 2004 11:52:22 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/04/2004 11:52:28 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+References: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com> <20041104163012.GA3498@elte.hu> <20041104163254.GA3810@elte.hu>
+In-Reply-To: <20041104163254.GA3810@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Nov 2004 17:58:23.0703 (UTC) FILETIME=[E0968E70:01C4C297]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Perhaps "should be fine" but the test I just ran indicates otherwise.
->The kernel is -V0.7.7 plus the patch you just sent me.
->All IRQ and /# tasks were set to RT priority 99.
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> 
+>>X should be scheduled on the other CPU just fine. Only per-CPU kernel
+>>threads (which are affine to their particular CPU) are affected by
+>>this problem - ordinary tasks not. I.e. the system threads that have
+>>/0 and /1 in their name. In theory you should not even need to chrt
+>>the hardirq threads, those should schedule fine too.
+> 
+> 
+> plus there's the 'priority inheritance dependency-chain closure' bug
+> noticed by John Cooper - that should only affect the latency of RT tasks
+> though.
 
-A follow up to my previous message since the test just completed
-with the following results:
+This is a fairly gnarly problem to address.  The obvious
+solution is to hold spinlocks in the mutexes as the dependency
+tree is atomically traversed.  However this will deadlock under
+MP due to the unpredictable order of mutexes traversed.  If the
+dependency chain is not traversed (and semantics applied)
+atomically, races exist which cause promotion decisions to be
+made on [now] stale data.
 
-2.6.10-rc1-mm2-RT-V0.7.7
-181 packets lost (5%)
-0.343, 2525.872, 213979, 21685 (min, average, max, deviation)
-elapsed time was 3090 seconds
+The simple solution is a global spinlock which doesn't scale
+well under MP.  Another possible solution would be conditional
+traversal of the chain where contention within the chain under
+foot (from another chain walker) causes the traversal to
+abort and retry.  Though this has the down side of being
+nondeterministic.
 
-There was a burst of lost packets between seq 1777 and 1959,
-that appears to cover all the lost ones. There was also a big
-delay (up to 27305 msec) at seq 1665 through 1699 but no lost
-packets. If I throw out those data points, the max drops to
-something like 1800 msec and the average is in the 0.4 to 0.5
-msec range.
-
-The display lockup on the top test was a little odd. The window
-that should have shown top appeared blank, stayed on the screen
-for several seconds and then disappeared by itself. Apparently
-top didn't even get enough CPU time to display the first cycle
-before its time ran out. The audio test continued to run a while
-after than & then stopped itself when the script noticed that top
-was done.
-
-The display lockups on the other tests (network and disk I/O)
-were much less severe though still present at times.
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+-- 
+john.cooper@timesys.com

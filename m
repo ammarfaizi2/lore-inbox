@@ -1,109 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbRAKSbV>; Thu, 11 Jan 2001 13:31:21 -0500
+	id <S131900AbRAKSgL>; Thu, 11 Jan 2001 13:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRAKSbK>; Thu, 11 Jan 2001 13:31:10 -0500
-Received: from mons.uio.no ([129.240.130.14]:8581 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S130006AbRAKSbG>;
-	Thu, 11 Jan 2001 13:31:06 -0500
-MIME-Version: 1.0
+	id <S131476AbRAKSgB>; Thu, 11 Jan 2001 13:36:01 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:50685 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S131900AbRAKSfq>; Thu, 11 Jan 2001 13:35:46 -0500
+Date: Thu, 11 Jan 2001 14:48:29 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: andre@linux-ide.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] ide-probe.c: check kmalloc return
+Message-ID: <20010111144829.J5473@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	andre@linux-ide.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14941.64473.902580.756312@charged.uio.no>
-Date: Thu, 11 Jan 2001 19:30:49 +0100 (CET)
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-In-Reply-To: <20010111192758.E3560@athlon.random>
-In-Reply-To: <20010110013755.D13955@suse.de>
-	<200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
-	<20010110163158.F19503@athlon.random>
-	<shszogy2jmr.fsf@charged.uio.no>
-	<3A5DDD09.C8C70D36@colorfullife.com>
-	<14941.61668.697523.866481@charged.uio.no>
-	<shsae8y2blg.fsf@charged.uio.no>
-	<20010111192758.E3560@athlon.random>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
+Hi,
 
-     > On Thu, Jan 11, 2001 at 07:22:03PM +0100, Trond Myklebust
-     > wrote:
-    >> [..] Are there any alignment requirements on them?
+	Please consider applying.
 
-     > On some arch int can be read only at a sizeof(int) byte aligned
-     > address (details in my example in reply to Russell).
+- Arnaldo
 
-OK. In that case my patch, would just be amended to eliminate the
-redundant comparison as is the case below.
-
-Cheers,
-   Trond
-
-diff -u --recursive --new-file linux-2.2.18/fs/lockd/svcsubs.c linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c
---- linux-2.2.18/fs/lockd/svcsubs.c	Mon Dec 11 01:49:44 2000
-+++ linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c	Thu Jan 11 19:00:11 2001
-@@ -49,34 +49,36 @@
- nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
- 					struct nfs_fh *f)
- {
--	struct knfs_fh	*fh = (struct knfs_fh *) f->data;
-+	struct knfs_fh	fh;
- 	struct nlm_file	*file;
- 	unsigned int	hash;
- 	u32		nfserr;
+--- linux-2.4.0-ac6/drivers/ide/ide-probe.c	Thu Aug 10 10:14:26 2000
++++ linux-2.4.0-ac6.acme/drivers/ide/ide-probe.c	Thu Jan 11 14:37:35 2001
+@@ -56,6 +56,12 @@
+ 	struct hd_driveid *id;
  
-+	/* Copy filehandle to avoid pointer alignment issues */
-+	memcpy(&fh, f->data, sizeof(fh));
-+
- 	dprintk("lockd: nlm_file_lookup(%s/%u)\n",
--		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
-+		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
- 
--	hash = file_hash(u32_to_kdev_t(fh->fh_dev), u32_to_ino_t(fh->fh_ino));
-+	hash = file_hash(u32_to_kdev_t(fh.fh_dev), u32_to_ino_t(fh.fh_ino));
- 
- 	/* Lock file table */
- 	down(&nlm_file_sema);
- 
- 	for (file = nlm_files[hash]; file; file = file->f_next) {
--		if (file->f_handle.fh_dcookie == fh->fh_dcookie &&
--		    !memcmp(&file->f_handle, fh, sizeof(*fh)))
-+		if (!memcmp(&file->f_handle, &fh, sizeof(fh)))
- 			goto found;
+ 	id = drive->id = kmalloc (SECTOR_WORDS*4, GFP_ATOMIC);	/* called with interrupts disabled! */
++	if (!id) {
++		printk(KERN_WARNING "%s: ouch, out of memory in do_identify!\n",
++			       	drive->name);
++		drive->present = 0;
++		return;
++	}
+ 	ide_input_data(drive, id, SECTOR_WORDS);		/* read 512 bytes of id info */
+ 	ide__sti();	/* local CPU only */
+ 	ide_fix_driveid(id);
+@@ -652,6 +658,10 @@
+ 		hwgroup = match->hwgroup;
+ 	} else {
+ 		hwgroup = kmalloc(sizeof(ide_hwgroup_t), GFP_KERNEL);
++		if (!hwgroup) {
++			restore_flags(flags);	/* all CPUs */
++			return 1;
++		}
+ 		memset(hwgroup, 0, sizeof(ide_hwgroup_t));
+ 		hwgroup->hwif     = hwif->next = hwif;
+ 		hwgroup->rq       = NULL;
+@@ -746,11 +756,23 @@
  	}
+ 	minors    = units * (1<<PARTN_BITS);
+ 	gd        = kmalloc (sizeof(struct gendisk), GFP_KERNEL);
++	if (!gd)
++		goto out;
+ 	gd->sizes = kmalloc (minors * sizeof(int), GFP_KERNEL);
++	if (!gd->sizes)
++		goto out_gd;
+ 	gd->part  = kmalloc (minors * sizeof(struct hd_struct), GFP_KERNEL);
++	if (!gd->part)
++		goto out_sizes;
+ 	bs        = kmalloc (minors*sizeof(int), GFP_KERNEL);
++	if (!bs)
++		goto out_part;
+ 	max_sect  = kmalloc (minors*sizeof(int), GFP_KERNEL);
++	if (!max_sect)
++		goto out_bs;
+ 	max_ra    = kmalloc (minors*sizeof(int), GFP_KERNEL);
++	if (!max_ra)
++		goto out_max_sect;
  
- 	dprintk("lockd: creating file for %s/%u\n",
--		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
-+		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
- 	nfserr = nlm4_lck_denied_nolocks;
- 	file = (struct nlm_file *) kmalloc(sizeof(*file), GFP_KERNEL);
- 	if (!file)
- 		goto out_unlock;
+ 	memset(gd->part, 0, minors * sizeof(struct hd_struct));
  
- 	memset(file, 0, sizeof(*file));
--	file->f_handle = *fh;
-+	memcpy(&file->f_handle, &fh, sizeof(file->f_handle));
- 	file->f_sema   = MUTEX;
- 
- 	/* Open the file. Note that this must not sleep for too long, else
-@@ -85,7 +87,7 @@
- 	 * We have to make sure we have the right credential to open
- 	 * the file.
- 	 */
--	if ((nfserr = nlmsvc_ops->fopen(rqstp, fh, &file->f_file)) != 0) {
-+	if ((nfserr = nlmsvc_ops->fopen(rqstp, &fh, &file->f_file)) != 0) {
- 		dprintk("lockd: open failed (nfserr %d)\n", ntohl(nfserr));
- 		goto out_free;
+@@ -802,6 +824,13 @@
+ 				devfs_mk_dir (ide_devfs_handle, name, NULL);
+ 		}
  	}
++	goto out;
++out_max_sect:	kfree(max_sect);
++out_bs:		kfree(bs);
++out_part:	kfree(gd->part);
++out_sizes:	kfree(gd->sizes);
++out_gd:		kfree(gd);
++out:		return;
+ }
+ 
+ static int hwif_init (ide_hwif_t *hwif)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbQKMURr>; Mon, 13 Nov 2000 15:17:47 -0500
+	id <S129518AbQKMVgy>; Mon, 13 Nov 2000 16:36:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129103AbQKMUR2>; Mon, 13 Nov 2000 15:17:28 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:56845 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129100AbQKMURV>; Mon, 13 Nov 2000 15:17:21 -0500
-Date: Mon, 13 Nov 2000 13:46:30 -0600
-To: Torsten.Duwe@caldera.de
-Cc: Francis Galiegue <fg@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit
-Message-ID: <20001113134630.C18203@wire.cadcamlab.org>
-In-Reply-To: <14864.5656.706778.275865@ns.caldera.de> <Pine.LNX.4.21.0011131744100.594-100000@toy.mandrakesoft.com> <14864.6812.849398.988598@ns.caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14864.6812.849398.988598@ns.caldera.de>; from duwe@caldera.de on Mon, Nov 13, 2000 at 05:45:16PM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129380AbQKMVgp>; Mon, 13 Nov 2000 16:36:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:55311 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129230AbQKMVga>;
+	Mon, 13 Nov 2000 16:36:30 -0500
+Message-Id: <200011132031.OAA15635@kenobi.americas.sgi.com>
+To: linux-kernel@vger.kernel.org
+From: kohnke@sgi.com (Marlys Kohnke)
+Subject: blocks read/written counters
+Date: Mon, 13 Nov 2000 14:31:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Torsten Duwe]
-> >>>>> "Francis" == Francis Galiegue <fg@mandrakesoft.com> writes:
-> 
->     >> + if ((*p & 0xdf) >= 'a' && (*p & 0xdf) <= 'z') continue;
-> 
->     Francis> Just in case... Some modules have uppercase letters too :)
-> 
-> That's what the &0xdf is intended for...
+     As part of the new resource counters I'm adding for our job
+accounting feature, I'm trying to gather blocks read and written
+on a per task basis (which will get rolled into a per job statistic
+outside of the kernel).  I added task struct counters which get
+incremented in drivers/block/ll_rw_blk.c in the drive_stat_acct() procedure, 
+which is where the kernel stats are gathered for blocks read/written.
 
-It's wrong, then: you've converted to uppercase, not lowercase.
+     What I noticed, though, was that some system daemons would be
+the current task when going through drive_stat_acct() for writes, but 
+usually it was kupdate.  In doing some searching, I now see that kupdate
+is the kernel thread responsible to flush the dirty buffers out to disk.
+I need to capture this blocks read/written information for user
+processes, not kupdate. 
 
-request_module is not a fast path.  Do it the obvious, unoptimized way:
+     We were able to get this block info on the Cray systems (which
+have separate direct IO and buffered IO) and somewhat on the IRIX 
+systems (where whichever process is running when the buffers get flushed 
+is the process which gets charged for those buffers).  Apparently, this
+information is useful for capacity planning and in cache thrashing
+situations.  It's not used for billing purposes.
 
-  if ((*p < 'a' || *p > 'z') &&
-      (*p < 'A' || *p > 'Z') &&
-      (*p < '0' || *p > '9') &&
-      *p != '-' && *p != '_')
-    return -EINVAL;
+     Is there a reasonable way on Linux to get any blocks read and
+written information on a per task basis?  Thanks for any help.
 
-Peter
+----
+Marlys Kohnke			Silicon Graphics Inc.
+kohnke@sgi.com			655F Lone Oak Drive
+(651)683-5324			Eagan, MN 55121
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

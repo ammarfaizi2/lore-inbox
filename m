@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBPWwP>; Fri, 16 Feb 2001 17:52:15 -0500
+	id <S129069AbRBPXCt>; Fri, 16 Feb 2001 18:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129069AbRBPWwF>; Fri, 16 Feb 2001 17:52:05 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:44038 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129066AbRBPWvw>; Fri, 16 Feb 2001 17:51:52 -0500
-Date: Fri, 16 Feb 2001 14:51:43 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Dennis <dennis@etinc.com>
-Cc: <jesse@cats-chateau.net>, Andrew Scott <A.J.Scott@casdn.neu.edu>,
-        Andrew Scott <A.J.Scott@casdn.neu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
-Message-ID: <Pine.LNX.4.30.0102161451340.8826-100000@ns-01.hislinuxbox.com>
+	id <S129240AbRBPXC3>; Fri, 16 Feb 2001 18:02:29 -0500
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:45577 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S129069AbRBPXCX>; Fri, 16 Feb 2001 18:02:23 -0500
+Message-ID: <3A8DB0D0.5603E01@damncats.org>
+Date: Fri, 16 Feb 2001 17:59:28 -0500
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dennis <dennis@etinc.com>
+CC: jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation... [way O.T.]
+In-Reply-To: <3A8CF1FE.16672.10105D@localhost>
+	 <3A8CF1FE.16672.10105D@localhost> <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ROTFL, man this guy is funny.
-
-
-
-On Fri, 16 Feb 2001, Dennis wrote:
-
-> At 02:48 PM 02/16/2001, Jesse Pollard wrote:
-> >On Fri, 16 Feb 2001, Andrew Scott wrote:
-> > >On 15 Feb 2001, at 9:49, fsnchzjr wrote:
-> > >
-> > >> Watch Microsoft's Jim Allchin go Linux-bashing!!!
-> > >> Nice little article on how we're all going to die of herpes from our
-> > >> repeated exposition to Linux...
-> > >>
-> > http://news.cnet.com/investor/news/newsitem/0-9900-1028-4825719-RHAT.html?ta
-> > >> g=ltnc
-> > >
-> > >That's about as self-serving a statement as I've ever seen. If this
-> > >'Jim Alchin' actually believes what he's saying, he's got to be one
-> > >of the worlds biggest fools, and if he doesn't believe what he's
-> > >saying, well there aren't too many words that would accurately
-> > >describe what he is.
-> > >
-> > >It's pretty funny in some ways, e.g. "We can build a better product
-> > >than Linux...", which begs the question, "Well, why don't you?".
-> > >Perhaps it costs too much?
->
+Dennis wrote:
 > objective, arent we?
->
-> There is much truth to the concept, although Microsoft should not be ones
-> to comment on it as such.
->
+
+You might ask yourself the same question...
+
 > For example, if there were six different companies that marketed ethernet
 > drivers for the eepro100, you'd have a choice of which one to buy..perhaps
 > with different "features" that were of value to you. Instead, you have
@@ -61,29 +37,21 @@ On Fri, 16 Feb 2001, Dennis wrote:
 > use, its not worth building a better mousetrap either because the market is
 > too small. So, the handful of users with problems get to "fit it
 > themselves", most of whom cant of course.
->
-> Theres also the propensity for mediocre stuff to get into the kernel
-> because some half-baked programmer was willing to contribute some code. The
-> 50% of the kernel that remains "experimental" ad infinitum is evidence of that.
->
-> The biggest thing that the linux community does to stifle innovation is to
-> bash commercial vendors trying to make a profit by whining endlessly about
-> "sourceless" distributions and recommending "open-source" solutions even
-> when they are wholly inferior. You're only hurting yourselves in the long
-> run. In that respect MS is correct, because those with the dollars to
-> innovate will stay away.
->
-> DB
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
--- 
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
+A large bulk of the investment in Linux is starting to come in from
+hardware manufacturers, notably IBM. These companies see Linux as a
+means to sell more hardware, not as a means to sell software. This is
+critical, because it means that it IS worth the money to make the driver
+perform correctly, GPL or not, because a bad driver means no sales.
 
+You can't argue from the standpoint of "small market" and then the
+destruction of the market itself. By definition, in order for the
+software market to be significantly damaged, Linux (and other open
+source projects) would have to hold more than a small percentage of the
+market. Hence, your market just got big and if you make hardware, you
+better make a good driver.
+
+[snip general name calling and other sorts of bashing - remember,
+objective?]
+
+John

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277268AbRJDXrM>; Thu, 4 Oct 2001 19:47:12 -0400
+	id <S277266AbRJDXuc>; Thu, 4 Oct 2001 19:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277266AbRJDXrD>; Thu, 4 Oct 2001 19:47:03 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:62738 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S277271AbRJDXqw>; Thu, 4 Oct 2001 19:46:52 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-From: Robert Love <rml@tech9.net>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, mingo@elte.hu,
-        jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>, netdev@oss.sgi.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
-In-Reply-To: <20011004192645.A20389@redhat.com>
-In-Reply-To: <20011004174945.B18528@redhat.com>
-	<309455016.1002241234@[195.224.237.69]>  <20011004192645.A20389@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.03.20.06 (Preview Release)
-Date: 04 Oct 2001 19:47:10 -0400
-Message-Id: <1002239236.872.8.camel@phantasy>
-Mime-Version: 1.0
+	id <S277270AbRJDXuW>; Thu, 4 Oct 2001 19:50:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44039 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277266AbRJDXuK>; Thu, 4 Oct 2001 19:50:10 -0400
+Date: Thu, 4 Oct 2001 16:50:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+In-Reply-To: <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0110041647130.975-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-04 at 19:26, Benjamin LaHaise wrote:
-> Frankly I'm sick of this entire discussion where people claim that no 
-> form of interrupt throttling is ever needed.  It's an emergency measure 
-> that is needed under some circumstances as very few drivers properly 
-> protect against this kind of DoS.  Drivers that do things correctly will 
-> never trigger the hammer.  Plus it's configurable.  If you'd bothered to 
-> read and understand the rest of this thread you wouldn't have posted.
 
-Agreed.  I am actually amazed that the opposite of what is happening
-does not happen -- that more people aren't clamoring for this solution.
+On Thu, 4 Oct 2001, Mike Kravetz wrote:
 
-Six months ago I was testing some TCP application and by accident placed
-a sendto() in an infinite loop.  The destination of the packets (on my
-LAN) locked up completely!  And this was a powerful Pentium III with a
-3c905 NIC.  Not acceptable.
+> On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
+> > Could we try to hit just two? Probably, but it doesn't really matter,
+> > though: to make the lmbench scheduler benchmark go at full speed, you
+> > want to limit it to _one_ CPU, which is not sensible in real-life
+> > situations.
+>
+> Can you clarify?  I agree that tuning the system for the best LMbench
+> performance is not a good thing to do!  However, in general on an
+> 8 CPU system with only 2 'active' tasks I would think limiting the
+> tasks to 2 CPUs would be desirable for cache effects.
 
-	Robert Love
+Yes, limiting to 2 CPU's probably gets better cache behaviour, and it
+might be worth looking into why it doesn't. The CPU affinity _should_
+prioritize it down to two, but I haven't thought through your theory about
+IPI latency.
+
+However, the reason 2.2.x does so well is that in 2.2.x it will stay on
+_once_ CPU if I remember correctly. We basically tuned the scheduler for
+lmbench, and not much else.
+
+		Linus
 

@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbULVIJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbULVIYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbULVIJz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 03:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbULVIJz
+	id S261878AbULVIYW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 03:24:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbULVIYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 03:09:55 -0500
-Received: from dsl093-216-237.aus1.dsl.speakeasy.net ([66.93.216.237]:12763
-	"EHLO defaultvalue.org") by vger.kernel.org with ESMTP
-	id S261230AbULVIJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 03:09:53 -0500
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend on
- EMBEDDED
-References: <20041220001644.GI21288@stusta.de>
-	<20041220003146.GB11358@kroah.com> <20041220013542.GK21288@stusta.de>
-	<20041219205104.5054a156@lembas.zaitcev.lan>
-	<41C65EA0.7020805@osdl.org>
-	<20041220062055.GA22120@one-eyed-alien.net>
-	<20041219223723.3e861fc5@lembas.zaitcev.lan>
-From: Rob Browning <rlb@defaultvalue.org>
-Date: Wed, 22 Dec 2004 02:10:00 -0600
-In-Reply-To: <20041219223723.3e861fc5@lembas.zaitcev.lan> (Pete Zaitcev's
- message of "Sun, 19 Dec 2004 22:37:23 -0800")
-Message-ID: <87u0qepxd3.fsf@trouble.defaultvalue.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Dec 2004 03:24:22 -0500
+Received: from KECGATE03.infosys.com ([220.227.179.21]:46096 "EHLO
+	kecgate03.infosys.com") by vger.kernel.org with ESMTP
+	id S261831AbULVIYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 03:24:13 -0500
+Subject: Re: zero copy issue while receiving the data (counter part of
+	sendfil e)
+From: Mandeep Sandhu <Mandeep_Sandhu@infosys.com>
+To: dima@s2io.com
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Rajat Jain, Noida" <rajatj@noida.hcltech.com>,
+       linux-newbie@vger.kernel.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       kernelnewbies <kernelnewbies@nl.linux.org>,
+       "Sanjay Kumar, Noida" <sanjayku@hcltech.com>,
+       "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
+In-Reply-To: <1103658190.7217.121.camel@beastie>
+References: <267988DEACEC5A4D86D5FCD780313FBB02C66FCA@exch-03.noida.hcltech.com>
+	 <1103649767.7217.100.camel@beastie>  <41C879CB.3040600@pobox.com>
+	 <1103658190.7217.121.camel@beastie>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103703718.3775.93.camel@samish.india.ascend.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 22 Dec 2004 13:51:58 +0530
+X-OriginalArrivalTime: 22 Dec 2004 08:20:23.0169 (UTC) FILETIME=[15350710:01C4E7FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> writes:
+On Wed, 2004-12-22 at 01:13, Dmitry Yusupov wrote:
+> indeed :)
+> another words if you have modern NIC than you get "zero-copy"(except
+> copy_to_user()) for free :)
+what does "checksum on rx" mean??? Don't most of the NIC's support
+DMA-ing to mem on rx-ing a packet? so what does "zero-copy for free"
+mean here?
 
-> Is it that bad, really? Honestly, I could not imagine users can be
-> so dumb.  The option defaults to off. There is a warning in the
-> Kconfig. And yet they first enable it and then complain about it. I
-> don't know what to do about it, either.
-
-Well, I presume you know this, but at least in 2.6.9, there's no
-warning.  When I read it, it said:
-
-   CONFIG_BLK_DEV_UB:
-
-   This driver supports certain USB attached storage devices
-   such as flash keys.
-
-   If unsure, say N.
-
-which sounded potentially useful, and certainly didn't give the
-impression that the driver was likely to perform terribly in common
-cases (i.e. when using an external drive).
-
-The sample Kconfig warnings I saw posted later in this thread would
-certainly have given enough information to know to avoid the driver,
-though if true, this might be even clearer:
-
-  Note: this driver does not coexist well with usb-storage, and
-  usb-storage is is often the best driver for common devices like
-  external drive enclosures.  At the moment, usb-storage may peform
-  dramatically better for those devices.
-
-  If you're not certain you need this driver, you should probably
-  say 'N' here, and choose usb-storage instead.
-
--- 
-Rob Browning
-rlb @defaultvalue.org and @debian.org; previously @cs.utexas.edu
-GPG starting 2002-11-03 = 14DD 432F AE39 534D B592  F9A0 25C8 D377 8C7E 73A4
+thanx,
+-mandeep
+> 
+> Regards,
+> Dima
+> 
+> On Tue, 2004-12-21 at 14:30 -0500, Jeff Garzik wrote:
+> > Dmitry Yusupov wrote:
+> > > Rajat,
+> > > 
+> > > small correction, if NIC supports DMA operation on receive, than no
+> > > extra copy required. Therefore sock_recvmsg() and tcp_read_sock
+> > 
+> > large correction:  if NIC supports _checksum_ on receive, then no extra 
+> > copy is required.
+> > 
+> > 	Jeff
+> > 
+> 
+> 
+> --
+> Kernelnewbies: Help each other learn about the Linux kernel.
+> Archive:       http://mail.nl.linux.org/kernelnewbies/
+> FAQ:           http://kernelnewbies.org/faq/
+> 

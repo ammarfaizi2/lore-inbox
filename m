@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVCVCmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVCVCoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVCVCmO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVCVClz
+	id S262273AbVCVCoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 21:44:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVCVCnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:41:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8102 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262215AbVCVB4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:56:04 -0500
-Date: Mon, 21 Mar 2005 20:56:03 -0500
-From: Dave Jones <davej@redhat.com>
-To: Dan Maas <dmaas@maasdigital.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Distinguish real vs. virtual CPUs?
-Message-ID: <20050322015603.GB19541@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dan Maas <dmaas@maasdigital.com>, linux-kernel@vger.kernel.org
-References: <20050321202726.A7630@morpheus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321202726.A7630@morpheus>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Mar 2005 21:43:09 -0500
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:26575 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S262289AbVCVCBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 21:01:20 -0500
+Message-ID: <423F7CC3.599ABE5D@sdl.hitachi.co.jp>
+Date: Tue, 22 Mar 2005 11:02:43 +0900
+From: sugita <sugita@sdl.hitachi.co.jp>
+X-Mailer: Mozilla 4.78 [ja] (Windows NT 5.0; U)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: lkst-develop@lists.sourceforge.net
+Subject: Disk Allocation Viewer (dav) is released
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 08:27:26PM -0500, Dan Maas wrote:
- > Is there a canonical way for user-space software to determine how many
- > real CPUs are present in a system (as opposed to HyperThreaded or
- > otherwise virtual CPUs)?
- > 
- > We have an application that for performance reasons wants to run one
- > process per CPU. However, on a HyperThreaded system /proc/cpuinfo
- > lists two CPUs, and running two processes in this case is the wrong
- > thing to do. (Hyperthreading ends up degrading our performance,
- > perhaps due to cache or bus contention).
+Dear all,
 
-Compare the 'physical id' fields of /proc/cpuinfo, and count
-how many unique values you get.
-Ie, on my dual+ht, I see..
+We are pleased to announce releasing the new function,
+Disk Allocation Viewer (a.k.a. dav).
 
-physical id     : 0
-physical id     : 0
-physical id     : 3
-physical id     : 3
+---
+The development of this program is partly supported by IPA
+(Information-Technology Promotion Agency, Japan).
+---
 
-Which indicates 2 real CPUs split in two.
+dav is a program which collects and visualizes the fragmentation
+status information of Linux filesystem, ext2/ext3. dav can collect
+the fragmentation status information regardless of whether
+filesystem is mounted, and can output its text data or visualize it.
+Please use this tool and give us some comment.
 
-		Dave
+The following software is necessary for the compilation and the
+execution of dav.
+ - Linux kernel v2.4 / v2.6
+ - GTK+1.2
+
+---
+dav binaries, source code and documents are
+available in the following site,
+http://sourceforge.net/projects/davtools/
+http://sourceforge.jp/projects/dav/
+
+We prepared a mailing list written below in order to let users know
+update of dav.
+ dav-users@lists.sourceforge.jp
+ davtools-users@lists.sourceforge.net
+
+And if you have any comments, please send to the above list, or to
+another mailing-list written below.
+ davtools-develop@lists.sourceforge.net
+ dav-develop@lists.sourceforge.jp
+
+Best regards,
+All of the dav developers
+-----------------
+Yumiko Sugita
+Hitachi,Ltd., Systems Development Laboratory
+E-mail: sugita@sdl.hitachi.co.jp
+
 

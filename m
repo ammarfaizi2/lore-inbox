@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269085AbTGORVM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbTGORVM
+	id S269124AbTGORWx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269140AbTGORWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:21:12 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:2198 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S269085AbTGORVK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:21:10 -0400
-Date: Tue, 15 Jul 2003 18:35:57 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch] vesafb fix
-Message-ID: <20030715173557.GB1491@mail.jlokier.co.uk>
-References: <20030715141023.GA14133@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030715141023.GA14133@bytesex.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Jul 2003 13:22:53 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:29707 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S269124AbTGORWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:22:21 -0400
+Date: Tue, 15 Jul 2003 18:38:39 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: ACPI-Devel mailing list <acpi-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, Len Brown <lenb417@yahoo.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: RE: ACPI patches updated (20030714)
+In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EE8F@orsmsx401.jf.intel.com>
+Message-ID: <Pine.LNX.4.44.0307151832520.7904-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
->  * mtrr is enabled by default.  That should improve the vesafb
->    performance alot.  Also added a option to disable mtrr.
+On Tue, 15 Jul 2003, Grover, Andrew wrote:
+> > From: Hugh Dickins [mailto:hugh@veritas.com] 
+> > > Make it so acpismp=force works (reported by Andrew Morton)
+> > 
+> > But we don't want "acpismp=force" to work, it now serves no purpose
+> > but to confuse.  May I push again to Marcelo my patch you acked
+> > before, which removes it completely?  I had been waiting to say it's
+> > in 2.6, but Andrew didn't push it from 2.5-mm into 2.6 - any reason?
+> > 
+> > Whereas we would still like "noht" to work, but it's now beyond me.
+> 
+> That patch was sitting in my bk tree but yeah it's kinda stale. Len
+> Brown was going to completely redo all this stuff, so Hugh if you have a
+> need for your fix in the interim then great feel free to push, but there
+> is a more comprehensive fix also in the works.
 
-There used to be a vesafb problem with MTRRs when the framebuffer had
-an odd size: 2.5MB of RAM (my laptop has this).
+I've no desperate need to push it, can easily apply the patch to my own
+tree.  It's just that Marcelo is motoring so speedily towards 2.4.22,
+be a shame if that goes out with CONFIG_ACPI_HT_ONLY needing pointless
+"acpismp=force" too.  What's the schedule for Len's rework to Marcelo?
 
-It would create an MTRR for the first 0.5MB of the framebuffer, and
-then try to create another for the subsequent 2MB.
+Hugh
 
-The latter failed because it's not suitably aligned - i.e. there was a
-problem in th logic which splits non-power-of-two regions.
-
-Is that fixed these days?
-
-Cheers,
--- Jamie

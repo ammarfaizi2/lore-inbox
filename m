@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbULUSxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbULUSzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbULUSxA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbULUSxA
+	id S261272AbULUSzN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULUSzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:53:00 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63169 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261834AbULUSw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:52:56 -0500
-Date: Tue, 21 Dec 2004 10:52:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Tomas Carnecky <tom@dbservice.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Is it possible to access sysfs from within the kernel?
-Message-ID: <20041221185236.GA8656@kroah.com>
-References: <41C48B3F.8010709@dbservice.com>
+	Tue, 21 Dec 2004 13:55:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3724 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261272AbULUSzC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 13:55:02 -0500
+Date: Tue, 21 Dec 2004 08:37:50 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Horms <horms@verge.net.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       solar@openwall.com
+Subject: Re: [PATCH] binfmt_elf force_sig arguments fix
+Message-ID: <20041221103750.GB2088@logos.cnet>
+References: <20041221123744.GA2294@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41C48B3F.8010709@dbservice.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041221123744.GA2294@verge.net.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 18, 2004 at 08:55:43PM +0100, Tomas Carnecky wrote:
-> Why? Lets see.
-> Sysfs describes the system with all its devices etc but is also an 
-> interface to access kernel internal data.
-> Sysfs data could easily be put into a hierarchical tree. (I think it 
-> even is, but it's not so obvious, because it's done using the fs code 
-> (inodes, dentries), maybe the kobjects do play a big role here, too).
-> To access sysfs from an application, you have to use extensively open() 
-> and close() for each file (attributes) and readdir for directories... or 
-> use libsysfs which does these things for you.
-> While the current design is good for users (cat /sys/.../.../attribute), 
-> it's not very efficient for applications (due to the many syscalls).
+On Tue, Dec 21, 2004 at 09:37:47PM +0900, Horms wrote:
+> Hi,
+> 
+> There appears to be a small error in the change that was recently
+> applied to fs/binfmt_elf.c to fix error codes and eraly corrupt
+> binary detection.
+> 
+> The patch includes changing a send_sig() call to a force_sig() call in
+> load_elf_binary(). However force_sig() only accepts 2 arguments, and
+> thus the patch causes the build to fail.
+> 
+> I propose the following patch to simply remove the extra argument to
+> force_sig(), which I beleive will give a sensible result.  That or
+> change the call back to send_sig(), though I assume it was changed to
+> force_sig() for a reason.
 
-Why not?  Do you have numbers showing that this is inefficient?  Have
-you looked at using libsysfs to make it easier for your program to
-access sysfs?
+Applied, thanks.
 
-> IMO it would be much better (for the applications) to have a device node 
-> in /dev which could be used to access the sysfs tree. No ioctl but using 
-> simple packets.
-
-No, please just use the filesystem.
-
-> Besides the simple query/result things, you could register for recieving 
-> events (now hotplug),
-
-And netlink.
-
-> with the difference that the current hotplug 
-> (AFAIK) can inform (execute) only one application (/sbin/hotplug).
-
-Not true.  Please read the /sbin/hotplug script to find out how your
-program can get those notifications.
-
-> Or even make it possible to recieve events only from certain 
-> classes/devices/subsystems etc.
-
-It does that already today.  Again, please read the documentation that
-is already included in the program.
-
-thanks,
-
-greg k-h
+> -- 
+> Horms
+> 
+> ===== fs/binfmt_elf.c 1.36 vs edited =====
+> --- 1.36/fs/binfmt_elf.c	2004-12-18 03:17:46 +09:00
+> +++ edited/fs/binfmt_elf.c	2004-12-21 21:21:25 +09:00
+> @@ -806,7 +806,7 @@
+>  		if (BAD_ADDR(elf_entry)) {
+>  			printk(KERN_ERR "Unable to load interpreter %.128s\n",
+>  				elf_interpreter);
+> -			force_sig(SIGSEGV, current, 0);
+> +			force_sig(SIGSEGV, current);
+>  			retval = -ENOEXEC; /* Nobody gets to see this, but.. */
+>  			goto out_free_dentry;
+>  		}

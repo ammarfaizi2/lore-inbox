@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280104AbRKEBuC>; Sun, 4 Nov 2001 20:50:02 -0500
+	id <S280096AbRKEB64>; Sun, 4 Nov 2001 20:58:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280106AbRKEBtw>; Sun, 4 Nov 2001 20:49:52 -0500
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:34234 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S280104AbRKEBtq>; Sun, 4 Nov 2001 20:49:46 -0500
-Message-ID: <3BE5F0B5.52274D07@kegel.com>
-Date: Sun, 04 Nov 2001 17:51:49 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
+	id <S280106AbRKEB6q>; Sun, 4 Nov 2001 20:58:46 -0500
+Received: from gear.torque.net ([204.138.244.1]:47879 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S280096AbRKEB6Z>;
+	Sun, 4 Nov 2001 20:58:25 -0500
+Message-ID: <3BE5F238.6121972C@torque.net>
+Date: Sun, 04 Nov 2001 20:58:16 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Luigi Genoni <kernel@Expansa.sns.it>
-CC: Mike Galbraith <mikeg@wen-online.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stp@osdlab.org
-Subject: Re: Regression testing of 2.4.x before release?
-In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.13-ac7
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luigi Genoni wrote:
-> Problem is:
-> there is a lot of HW out there, and we should ALL do stress tests, to have
-> a wide basis for HWs and test cases.  Basically it is very hard to agree
-> about a set of stress tests, because we all have different needs, and our
-> tests are based on our needs. That is a streght, because they tend to be
-> real life tests.
+Alan,
+I getting repeatable lockups on my SMP box (dual Celeron
+Abit hack) after sg does direct IO in this new version.
 
-Sure, no argument there.
+This sequence using sg_rbuf from my sg3_utils package
+(www.torque.net/sg) locks at the end of the transfer
+just before returning:
+   $ echo 1 > /proc/scsi/sg/allow_dio
+   $ sg_rbuf -d -b=512 /dev/sg0
+# /dev/sg0 is a fast disk.
+# this executes multiple READ BUFFER commands each 512 KB
 
-> In my esperience, if some default set of tests comes out, then software
-> tend to be optimized for this set. And that is badly wrong.
+The box is still usable but the "sg_rbuf" process is
+unkillable and ps locks just before it would have 
+listed the damaged process. Alt-SysRq-T shows that
+the sg_rbuf task in "D" state. The stack backtrace is:
+  write_chan
+  rwsem_down_write_failed
+  ????
+  ret_from_fork
 
-My post was motivated by two observations:
+This is with sg version 3.2.21 utilising alloc_kiovec_sz()
+and friend. I didn't see this "feature" when I tested it
+against ac4 before submitting it to you. Changing the "nbhs"
+value from 0 to 256 doesn't make any difference. I have
+just retested with ac4+sg3.1.21 and it works.
 
-1. Alan Cox complains occasionally that Linus' trees are not well tested,
-   and can't survive the torture tests that the ac tree goes through before
-   release.  (e.g.
-"2.4.8-ac12
-        I'm trying to make sure I can keep this testable
-        as 2.4.9 vanilla isnt being stable on my test sets "
+When normal double buffering is used (i.e. no "-d" switch
+to the above sg_rbuf) there is no lockup.
 
-2. The STP at OSDLab seems like a great resource that we might be able
-to leverage to solve the problem Alan points out.
-
-I'm not suggesting anyone do any less testing.  Just the opposite;
-if we set things up properly with the STP, we might be able to run
-many more tests before each final release.
-
-- Dan
+Doug Gilbert

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267801AbTBKSRJ>; Tue, 11 Feb 2003 13:17:09 -0500
+	id <S267869AbTBKSWm>; Tue, 11 Feb 2003 13:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267866AbTBKSRI>; Tue, 11 Feb 2003 13:17:08 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:29870 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S267801AbTBKSRF>; Tue, 11 Feb 2003 13:17:05 -0500
-Date: Tue, 11 Feb 2003 13:37:22 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@master
+	id <S267879AbTBKSWm>; Tue, 11 Feb 2003 13:22:42 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:59877 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267869AbTBKSWk>; Tue, 11 Feb 2003 13:22:40 -0500
+Subject: Can't enable dma on /dev/hda
+From: maxxle@t-online.de (maxxle)
 To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.60 : drivers/media/video/saa5249.c
-Message-ID: <Pine.LNX.4.44.0302111335510.15042-100000@master>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 11 Feb 2003 19:31:16 +0000
+Message-Id: <1044991886.3923.43.camel@sam>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  The following addresses bugzilla bug # 340. Please review.
+Hi!
 
-Regards,
-Frank
+I'm running a debian 3.0 System using kernel 2.4.19 (also tried 2.4.20).
+On this system it's not possible to enable dma on /dev/hda (HDD IDE)
 
---- linux/drivers/media/video/saa5249.c.old	2003-02-10 15:33:58.000000000 -0500
-+++ linux/drivers/media/video/saa5249.c	2003-02-11 13:34:07.000000000 -0500
-@@ -254,21 +254,19 @@
- 
- static struct i2c_driver i2c_driver_videotext = 
- {
--	IF_NAME,		/* name */
--	I2C_DRIVERID_SAA5249, /* in i2c.h */
--	I2C_DF_NOTIFY,
--	saa5249_probe,
--	saa5249_detach,
--	saa5249_command
-+	.owner 		= THIS_MODULE,
-+	.name 		= IF_NAME,		/* name */
-+	.id 		= I2C_DRIVERID_SAA5249, /* in i2c.h */
-+	.flags 		= I2C_DF_NOTIFY,
-+	.attach_adapter = saa5249_probe,
-+	.detach_client  = saa5249_detach,
-+	.command 	= saa5249_command
- };
- 
- static struct i2c_client client_template = {
--	"(unset)",
--	-1,
--	0,
--	0,
--	NULL,
--	&i2c_driver_videotext
-+	.name 		= "(unset)",
-+	.id 		= -1,
-+	.driver 	= &i2c_driver_videotext
- };
- 
- /*
+The MoBo is a VIA Board called VIA-C3M266 (CLE266 chipset)
+Northbridge: VT8623
+Southbridge: VT8235
+
+My kernel is compiled with this features:
+ATAPI/IDE/MFM/RLL support --> IDE, ATA and ATAPI Block devices --> 
+[*] generic PCI bus-master DMA support
+[*] Use PCI DMA by default when available  
+[*] VIA82CXXX chipset support
+
+And this is what hdparm tels me:
+hdparm -d 1 /dev/hda:
+
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
+
+
+What can I do to force my system to run using dma on /dev/hda.
+Or is my CLE266 chipset a bit too new for being supported by 2.4.19/20?
+
+
+Hope somebody is able to help me
+
+
+maxxle
 

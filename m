@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUFXQek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266179AbUFXQwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266140AbUFXQek (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 12:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFXQek
+	id S266179AbUFXQwA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 12:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUFXQwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 12:34:40 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:54158 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266145AbUFXQeW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 12:34:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH]2.6.7 MSI-X Update
-Date: Thu, 24 Jun 2004 09:29:47 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240584453D@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]2.6.7 MSI-X Update
-Thread-Index: AcRZvMSlgtGQjYAOTC6fHpfJ+MOkQQARTNKQ
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>,
-       "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: <ak@muc.de>, <akpm@osdl.org>, <greg@kroah.com>, <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>, <eli@mellanox.co.il>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 24 Jun 2004 16:29:49.0500 (UTC) FILETIME=[7822C7C0:01C45A08]
+	Thu, 24 Jun 2004 12:52:00 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49372
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266179AbUFXQv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 12:51:58 -0400
+Date: Thu, 24 Jun 2004 18:52:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Takashi Iwai <tiwai@suse.de>, Andi Kleen <ak@suse.de>, ak@muc.de,
+       tripperda@nvidia.com, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
+Message-ID: <20040624165200.GM30687@dualathlon.random>
+References: <m3acyu6pwd.fsf@averell.firstfloor.org> <20040623213643.GB32456@hygelac> <20040623234644.GC38425@colin2.muc.de> <s5hhdt1i4yc.wl@alsa2.suse.de> <20040624112900.GE16727@wotan.suse.de> <s5h4qp1hvk0.wl@alsa2.suse.de> <20040624164258.1a1beea3.ak@suse.de> <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40DAF7DF.9020501@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ON Thursday, June 24, 2004 Roland Dreier wrote:
->    Roland> I could imagine hardware where the driver does not know
->    Roland> exactly how many vectors it will use until it starts up.
->    Roland> As a hypothetical example, imagine some storage networking
->    Roland> host adapter that supports an interrupt vector per storage
->    Roland> target.  The driver does not know how many vectors it will
->    Roland> actually use until it has logged into the storage fabric;
->    Roland> in fact, the driver may want to keep some vectors "in
->    Roland> reserve" in case a new target is added to the fabric
->    Roland> later.
->
->    Roland> I think it would be better to preserve maximum flexibility
->    Roland> for devices and drivers, and not mandate that every
->    Roland> allocated MSI-X vector is always used.
->
->    Zwane> The MSI subsystem should at most reserve and the driver
->    Zwane> make a request.  There may be a limit per PCI device as
->    Zwane> specified by the MSI subsystem for some reason or
->    Zwane> other. Isn't this what we're all saying?
->
->No, Long is actually saying that a driver must actually call
->request_irq() on all the vectors that it is allocated.  I am saying
->that this requirement is too stringent, since there may be devices and
->drivers that cannot predict exactly how many MSI-X vectors they will
->use during driver initialization.
+On Fri, Jun 25, 2004 at 01:48:47AM +1000, Nick Piggin wrote:
+> Andrea Arcangeli wrote:
+> 
+> >
+> >why does it fail? note that with the lower_zone_reserve_ratio algorithm I
+> >added to 2.4 all dma zone will be reserved for __GFP_DMA allocations so
+> >you should have troubles only with 2.6, 2.4 should work fine.
+> >
+> >So with latest 2.4 it has to fail only if you already allocated 16M with
+> >pci_alloc_consistent which sounds unlikely.
+> >
+> >the fact 2.6 lacks the lower_zone_reserve_ratio algorithm is a different
+> >issue, but I'm confortable there's no other possible algorithm to solve
+> >this memory balancing problem completely so there's no way around a
+> >forward port.
+> >
+> >well 2.6 has a tiny hack like some older 2.4 that attempts to do what
+> >lower_zone_reserve_ratio does, but it's not nearly enough, there's no
+> >per-zone-point-of-view watermark in 2.6 etc.. 2.6 actually has a more
+> >hardcoded hack for highmem, but the lower_zone_reserve_ratio has
+> >absolutely nothing to do with highmem vs lowmem. it's by pure
+> >coincidence that it avoids highmem machine to lockup without swap, but
+> >the very same problem happens on x86-64 with lowmem vs dma.
+> 
+> 2.6 has the "incremental min" thing. What is wrong with that?
+> Though I think it is turned off by default.
 
-That is what we're all saying.
-
->    Roland> It seems in the code right now you are able to tell if any
->    Roland> MSI-X vectors are hooked, since you wait for the last
->    Roland> vector to be unhooked to disable MSI-X.  I would just have
->    Roland> it be a WARN_ON() (or maybe BUG_ON()) if a driver calls
->    Roland> pci_disable_msix() without calling free_irq for all its
->    Roland> MSI-X vectors.
->
->    Roland> Right now there is an issue if a driver is unloaded
->    Roland> without freeing all its IRQs -- the device will be left in
->    Roland> MSI-X mode and can not be recovered without rebooting.
->
->    Zwane> This sounds like a case of bad driver bug generally the
->    Zwane> kernel would oops when the ISR text gets unloaded. What
->    Zwane> kind of behaviour do you expect here?
->
->Yes, I agree, it is a bad driver bug if the driver is unloaded without
->doing free_irq() on all the vectors it has done request_irq() on.
->However, with Long's API, there is a problem if for example a device
->driver does pci_enable_msix() and is allocated 2 vectors, then
->correctly does request_irq()/free_irq() on one vector and doesn't
->touch the second vector, and then is unloaded.  The device will be
->left with MSI-X enabled and leak its vectors.
-
-It's very convincing. The addition of the pci_disable_msi() and 
-pci_disable_msix() functions are what is needed to handle this issue.
-
-Thanks,
-Long
+sysctl_lower_zone_protection is an inferior implementation of the
+lower_zone_reserve_ratio, inferior because it has no way to give a
+different balance to each zone. As you said it's turned off by default
+so it had no tuning. The lower_zone_reserve_ratio has already been
+tuned in 2.4. Somebody can attempt a conversion but it'll never be equal
+since lower_zone_reserve_ratio is a superset of what
+sysctl_lower_zone_protection can do.

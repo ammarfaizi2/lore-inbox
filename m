@@ -1,130 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVCEQgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263077AbVCEQtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263067AbVCEQgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 11:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVCEQcE
+	id S263077AbVCEQtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 11:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVCEQtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 11:32:04 -0500
-Received: from 64-85-47-3.ip.van.radiant.net ([64.85.47.3]:17169 "EHLO
-	vlinkmail") by vger.kernel.org with ESMTP id S262008AbVCEQ0a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 11:26:30 -0500
-Date: Fri, 4 Mar 2005 22:44:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Wen Xiong <wendyx@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
-Message-ID: <20050305064445.GA8447@kroah.com>
-References: <42225A64.6070904@us.ltcfwd.linux.ibm.com> <20050228065534.GC23595@kroah.com> <4228CE5C.9010207@us.ltcfwd.linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4228CE5C.9010207@us.ltcfwd.linux.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Sat, 5 Mar 2005 11:49:08 -0500
+Received: from chaos.sr.unh.edu ([132.177.249.105]:25992 "EHLO
+	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S263077AbVCEQhk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 11:37:40 -0500
+Date: Sat, 5 Mar 2005 11:36:23 -0500 (EST)
+From: Kai Germaschewski <kai.germaschewski@unh.edu>
+X-X-Sender: kai@chaos.sr.unh.edu
+To: Adrian Bunk <bunk@stusta.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>,
+       <keenanpepper@gmail.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+In-Reply-To: <20050305153638.GD6373@stusta.de>
+Message-ID: <Pine.LNX.4.44.0503051108300.20560-100000@chaos.sr.unh.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 04:08:44PM -0500, Wen Xiong wrote:
-> +/************************************************************************
-> + * Structure used with ioctl commands for DIGI parameters.
-> + ************************************************************************/
-> +struct digi_t {
-> +	unsigned short	digi_flags;		/* Flags (see above)	*/
-> +	unsigned short	digi_maxcps;		/* Max printer CPS	*/
-> +	unsigned short	digi_maxchar;		/* Max chars in print queue */
-> +	unsigned short	digi_bufsize;		/* Buffer size		*/
-> +	unsigned char	digi_onlen;		/* Length of ON string	*/
-> +	unsigned char	digi_offlen;		/* Length of OFF string	*/
-> +	char		digi_onstr[DIGI_PLEN];	/* Printer on string	*/
-> +	char		digi_offstr[DIGI_PLEN];	/* Printer off string	*/
-> +	char		digi_term[DIGI_TSIZ];	/* terminal string	*/
-> +};
+On Sat, 5 Mar 2005, Adrian Bunk wrote:
 
-Oops, don't use _t for a structure name please.
+> This warning sounds like a good plan (but it won't let many objects stay 
+> inside lib-y).
 
-> +#ifndef __JSM_DRIVER_H
-> +#define __JSM_DRIVER_H
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/version.h>
-> +#include <linux/types.h>	/* To pick up the varions Linux types */
-> +#include <linux/tty.h>		
-> +#include <linux/serial_core.h>
-> +#include <linux/serial_reg.h>
-> +#include <linux/interrupt.h>	/* For irqreturn_t type */
-> +#include <linux/module.h>	
-> +#include <linux/moduleparam.h>	
-> +#include <linux/kdev_t.h>	
-> +#include <linux/pci.h>
-> +#include <linux/pci_ids.h>
-> +#include <linux/device.h>
-> +#include <linux/config.h>
+The patch is simple (except that the warning it throws looks rather ugly), 
+see appended.
 
-Don't put header files in header files if you can help it.  It really
-isn't needed here, and odds are, you are including files you don't
-really need for each of the different driver .c files.  The build will
-go faster if you don't do that.
+However, I spoke too soon. There actually is a legitimate use for 
+EXPORT_SYMBOL() in a lib-y object, e.g. lib/dump_stack.c. This provides a 
+default implementation for dump_stack(). Most archs provide their own 
+implementation (and EXPORT_SYMBOL() it), and in this case we definitely 
+want the default version in lib to be thrown away, including its 
+EXPORT_SYMBOL. So the appended patch throws false positives and thus can 
+not be applied.
 
-Also, check your ordering, some of those .h files already included the
-ones above it.
+Still, many files in lib-y "should" be moved to obj-y. Then again, the 
+clear cases (e.g. ctype, vsnprintf) are getting used in the static kernel 
+image, so they get linked in anyway, moving them from lib-y to obj-y 
+doesn't make any difference whatsoever.
 
-> +#include "digi.h"		/* Digi specific ioctl header */
+The interesting cases are more of the crc32 type -- some people may not 
+use this at all, so they want the space savings. Moving all of those into 
+obj-y unconditionally creates unnecessary bloat. Actually, crc32 already 
+did the right thing -- a config option. That would work for parser.o, too, 
+just make the filesystems which need it "select CONFIG_PARSER".
 
-Why do you have your own ioctls?  Please do not add any new ones to the
-kernel.
+I think there are basically three cases of objects in lib-y:
 
-> +#define DRVSTR	"jsm"		/* Driver name string */
+o functions we clearly use anyway, e.g. vsprintf.o.
+  these should be always available, also for modules (pretty much every
+  module uses printk, right?)
+  So these should be in obj-y, however since they always get used in the
+  kernel, too, independent of the .config, in practice there's no 
+  difference to them being in lib-y.
+o "weak" implementations, which may be overwritten by a arch-specific
+  implementation.
+  These need to be in lib-y for this mechanism to work.
+o Marginal cases like crc32.o, parser.o, bitmap.o
+  There are real world cases out there where these functions will never be 
+  used, so just compiling them into the kernel because one day there may 
+  be a module which wants to use them does cause some bloat. Making them
+  config options and have every module which needs them mention them in
+  Kconfig causes some bloat on the source side.
+  It's a trade-off. In my tree (current -bk), parser.o symbols are
+  referenced by procfs, i.e. 99.9% of all builds will pull it in anyway.
+  So putting it into obj-y is a good solution, IMO. (Do I hear the 
+  embedded people cry?)
+  I guess in -mm this changed, which may justify going to CONFIG_PARSER
+  (along the lines of CONFIG_CRC32) way. Then again, .text of
+  parser.o is 0x373 bytes on my x86_64 system. Not a whole lot to
+  lose when it's compiled in unconditionally. (And it's used among others 
+  by ext2 and ext3, so chances are, you need it anyway)
+ 
 
-What is this for?
+--Kai
 
-> +#define DPRINTK(nlevel, klevel, fmt, args...) \
-> +	(void)((DBG_##nlevel & debug) && \
-> +	printk(KERN_##klevel "%s: " fmt, \
-> +		__FUNCTION__, ## args)); 
+===== include/linux/module.h 1.92 vs edited =====
+--- 1.92/include/linux/module.h	2005-01-10 14:28:15 -05:00
++++ edited/include/linux/module.h	2005-03-05 10:49:05 -05:00
+@@ -200,10 +200,18 @@
+ 	= { (unsigned long)&sym, __kstrtab_##sym }
+ 
+ #define EXPORT_SYMBOL(sym)					\
++        __EXPORT_SYMBOL_WARN					\
+ 	__EXPORT_SYMBOL(sym, "")
+ 
+ #define EXPORT_SYMBOL_GPL(sym)					\
++        __EXPORT_SYMBOL_WARN					\
+ 	__EXPORT_SYMBOL(sym, "_gpl")
++
++#ifdef KBUILD_LIB
++#define __EXPORT_SYMBOL_WARN DO_NOT_USE_EXPORT_SYMBOL_IN_LIBRARY_FILES;
++#else
++#define __EXPORT_SYMBOL_WARN
++#endif
+ 
+ #endif
+ 
+===== scripts/Makefile.build 1.53 vs edited =====
+--- 1.53/scripts/Makefile.build	2004-12-28 18:15:17 -05:00
++++ edited/scripts/Makefile.build	2005-03-05 10:34:44 -05:00
+@@ -105,6 +105,8 @@
+ $(real-objs-m:.o=.s)  : modkern_cflags := $(CFLAGS_MODULE)
+ $(real-objs-m:.o=.lst): modkern_cflags := $(CFLAGS_MODULE)
+ 
++$(lib-y)              : lib_cflags := -DKBUILD_LIB
++
+ $(real-objs-m)        : quiet_modtag := [M]
+ $(real-objs-m:.o=.i)  : quiet_modtag := [M]
+ $(real-objs-m:.o=.s)  : quiet_modtag := [M]
+===== scripts/Makefile.lib 1.27 vs edited =====
+--- 1.27/scripts/Makefile.lib	2004-10-26 18:06:46 -04:00
++++ edited/scripts/Makefile.lib	2005-03-05 10:33:38 -05:00
+@@ -126,7 +126,7 @@
+ endif
+ 
+ c_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
+-		 $(__c_flags) $(modkern_cflags) \
++		 $(__c_flags) $(modkern_cflags) $(lib_cflags) \
+ 		 $(basename_flags) $(modname_flags)
+ 
+ a_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
 
-Please use dev_dbg() or at least dev_printk() for this.  It provides
-consistancy with the rest of the kernel, and it helps identify your
-device much better.
-
-> +#define JSM_MAJOR(x)	(imajor(x))
-> +#define JSM_MINOR(x)	(iminor(x))
-
-Not needed, please don't use.
-
-> +#ifndef _POSIX_VDISABLE
-> +#define	_POSIX_VDISABLE '\0'
-> +#endif
-
-What would have defined that before?
-
-> +/*
-> + * Our Global Variables.
-> + */
-> +extern struct	uart_driver jsm_uart_driver;
-> +extern struct	board_ops jsm_neo_ops;
-> +extern int	debug;
-> +extern int	rawreadok;
-
-Both of these are bad global variable names.
-
-> +extern int	jsm_driver_state;	/* The state of the driver	*/
-> +extern char	*jsm_driver_state_text[];/* Array of driver state text */
-> +
-> +extern spinlock_t jsm_board_head_lock;
-> +static LIST_HEAD(jsm_board_head);
-
-Hm, static variable in a header file?  bad...
-
-> +/*************************************************************************
-> + *
-> + * Prototypes for non-static functions used in more than one module
-> + *
-> + *************************************************************************/
-> +extern char *jsm_ioctl_name(int cmd);
-> +extern int get_jsm_board_number(void);
-
-Bad name for a global function, put the "jsm" at the front please.
-
-thanks,
-
-greg k-h

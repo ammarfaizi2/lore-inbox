@@ -1,55 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130985AbQKIUZX>; Thu, 9 Nov 2000 15:25:23 -0500
+	id <S130989AbQKIU1d>; Thu, 9 Nov 2000 15:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130876AbQKIUZN>; Thu, 9 Nov 2000 15:25:13 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:31888 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S131152AbQKIUY5>;
-	Thu, 9 Nov 2000 15:24:57 -0500
-Date: Thu, 9 Nov 2000 15:24:40 -0500
-Message-Id: <200011092024.PAA21945@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: paulj@itg.ie, rothwell@holly-springs.nc.us, cr@sap.com,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: Alan Cox's message of Thu, 9 Nov 2000 14:26:33 +0000 (GMT),
-	<E13tsex-0001Cs-00@the-village.bc.nu>
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Phone: (781) 391-3464
+	id <S130894AbQKIU1X>; Thu, 9 Nov 2000 15:27:23 -0500
+Received: from front5m.grolier.fr ([195.36.216.55]:31669 "EHLO
+	front5m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S131154AbQKIU1M> convert rfc822-to-8bit; Thu, 9 Nov 2000 15:27:12 -0500
+Date: Thu, 9 Nov 2000 20:27:24 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: hiren_mehta@agilent.com
+cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: RE: accessing on-card ram/rom
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718808E5@xsj02.sjs.agilent.com>
+Message-ID: <Pine.LNX.4.10.10011092011010.1341-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 9 Nov 2000 14:26:33 +0000 (GMT)
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-
-   > Actually, he's been quite specific.  It's ok to have binary modules as
-   > long as they conform to the interface defined in /proc/ksyms.  
-
-   What is completely unclear is if he has the authority to say that given that
-   there is code from other people including the FSF merged into the
-   tree.
-
-He said it long enough ago that presumably people who merged code in
-would have accepted it as an implicit agreement, if it had been
-documented in the COPYING file.  Unfortuantely, it wasn't so documented,
-so I agree it's unclear.
-
-   I've taken to telling folks who ask about binary modules to talk to
-   their legal department. The whole question is simply to complicated
-   for anyone else to work on.
-
-... and at that point we run intothe oft-debated (but never tested in a
-court of law) question of into the whether or not Copyright can infect
-across a link, especially since the link is done by the end-user.  (Yes,
-there are some questions about inline functions in the header files.)
-
-The intent of what the FSF would like the case to be is clear, but it's
-not clear at all that Copyright law works that way; intent doesn't
-matter if the laws don't give you the right to sue on those grounds.
-See a lawyer and get official legal advice indeed....
 
 
-						- Ted
+On Wed, 8 Nov 2000 hiren_mehta@agilent.com wrote:
+
+> I looked at the IO-mapping.txt file. It says that
+> on x86 architecture it should not make any difference.
+> It also says that "on x86 it _is_ the same memory space. So
+> on x86 it actually works to just dereference a pointer".
+
+For bus_to_virt() to give a usable virtual address, such a virtual 
+mapping must exist and additionnally be part of the linear kernel 
+mapping. A PCI MMIO address is generally _not_ even mapped by default 
+by the kernel.
+
+On the other hand, bus_to_virt() hasn't the proper semantic for your
+problem, since it applies to main memory addresses as seen from the PCI
+BUS, and you want an MMIO address usable by the CPU (=virtual).
+
+Hmmm... ioremap() just create a virtual mapping for the CPU to access 
+the MMIO window of your PCI chip just fine.
+
+  Gérard.
+
+> Any inputs on this ?
+> 
+> Thanks and regards,
+> -hiren
+> 
+> > -----Original Message-----
+> > From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+> > Sent: Wednesday, November 08, 2000 2:53 PM
+> > To: MEHTA,HIREN (A-SanJose,ex1)
+> > Cc: 'linux-kernel@vger.kernel.org'
+> > Subject: Re: accessing on-card ram/rom
+> > 
+> > 
+> > "MEHTA,HIREN (A-SanJose,ex1)" wrote:
+> > > I have a PCI card which has on-card ram/rom which gets mapped
+> > > into pci address space and there is a separate base register
+> > > for this memory. Now the question is : can I access this on-card
+> > > memory by converting the pci base address into the virtual address
+> > > using bus_to_virt and adding the required offset ? Or do I need
+> > > to use ioremap function to map the physical address space starting
+> > > from the pci base address into the kernel virtual address space ?
+> > > Or is there any other interface to access the on-card memory ?
+> > > Is it that bus_to_virt can be used only for the normal RAM ?
+> > 
+> > Use ioremap.
+> > 
+> > For more details, read linux/Documentation/IO-mapping.txt.
+> > 
+> > 	Jeff
+> > 
+> > 
+> > -- 
+> > Jeff Garzik             | "When I do this, my computer freezes."
+> > Building 1024           |          -user
+> > MandrakeSoft            | "Don't do that."
+> >                         |          -level 1
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbSKTVrr>; Wed, 20 Nov 2002 16:47:47 -0500
+	id <S262779AbSKTVvS>; Wed, 20 Nov 2002 16:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSKTVrr>; Wed, 20 Nov 2002 16:47:47 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:16522 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261660AbSKTVrq>;
-	Wed, 20 Nov 2002 16:47:46 -0500
-Date: Wed, 20 Nov 2002 21:55:40 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
-Message-ID: <20021120215540.GA11879@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com> <20021120033747.GB9007@bjl1.asuk.net> <3DDB09C2.3070100@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DDB09C2.3070100@redhat.com>
-User-Agent: Mutt/1.4i
+	id <S262790AbSKTVvR>; Wed, 20 Nov 2002 16:51:17 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:5523 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262779AbSKTVvP>;
+	Wed, 20 Nov 2002 16:51:15 -0500
+Message-ID: <3DDC051F.2060904@us.ibm.com>
+Date: Wed, 20 Nov 2002 13:56:47 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] early command-line parsing
+References: <3DDBD70B.7090501@us.ibm.com> <24571.1037826022@passion.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > (That said, I'm not entirely convinced that blocking signals in cfork()
-> > is so bad, if we assume that cfork() is a relatively expensive
-> > operation anyway...)
+David Woodhouse wrote:
+> Not all architectures have asm/setup.h. And not all have the command line 
+> somewhere convenient before setup_arch runs, although that could perhaps be 
+> changed.
 > 
-> It could mean a signal cannot be delivered and reacted on in time.  The
-> other threads could have blocked the signal which arrives.  Every time
-> signals have to be blocked to implement a function something is wrong,
+> I wonder if calling checksetup(0, ...) should be called from setup_arch as 
+> soon as the command line is available, rather than in start_kernel().
 
-I don't buy this argument.  You block signals, do something, unblock
-signals.  There may be a _tiny_ delay in delivering the signal - of
-the order of a single system call time, i.e. not significant.  (That
-delay is much shorter than signal delivery time itself).  No signals
-are actually _lost_, which would be important if it could happen.
+11 of the 18 architectures that I looked at do some form of their own 
+command-line parsing.  There is a lot of arch code that could be saved 
+if they could use the __setup mechanisms for this.
+	
+As far as the architectures that don't have the command-line 
+available, we could do something like this:
+void start_kernel(void)
+{
+         char * command_line;
+         extern char saved_command_line[];
 
-Blocking signals briefly is very similar to taking a spinlock.  It has
-a small overhead, which is probably not significant in the case of
-cfork() and its likely applications.
+	get_command_line_arch(&saved_command_line);
+	strcpy(command_line, saved_command_line);
+	checksetup(0, ...)
+	...
+}
 
-Regarding whether clone() needs a separate child tid_address pointer -
-I have no strong opinion (you can implement cfork() with or without),
-but you might want to consider, from Glibc's perspective, that there
-aren't many argument words left for future uses..
+The weird ones like sparc could do their prom_getcmdline() in 
+get_command_line_arch();
 
--- Jamie
+Use of command line in setup_arch:
+---------------------------------
+alpha	does parsing in setup_arch
+  	modifies read command line, in case of INSTALL
+
+arm	has its own command-line parsing function
+
+cris	doesn't use a command line
+
+i386	has its own parse_cmdline_early
+	can use command line before setup_arch
+
+ia64	the only thing that happens before the strcopy is unw_init
+
+m68k	does its own parsing
+	can modify the cmd line in m68k_parse_bootinfo(), which is
+  	  early in setup_arch()
+
+mips	many per-arch setups first
+	next after those is cmdline copy
+
+ppc+64	does a bit of its own parsing for the debuggers
+
+s390+x	does its own parsing for mem=, and others
+
+sh	has own early printk
+	does its own parsing
+
+sparc	get cmdline from prom call
+and 64	does own parsing in boot_flags_init()
+	
+um	cmdline copy happens after paging_init() in setup_arch
+
+v850	does cmdline copy, first thing
+
+x86_64	does its own parsing for early_printk, and in
+	  parse_cmdline_early
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

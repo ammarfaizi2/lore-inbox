@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267140AbRHFHOn>; Mon, 6 Aug 2001 03:14:43 -0400
+	id <S267184AbRHFHVf>; Mon, 6 Aug 2001 03:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbRHFHOd>; Mon, 6 Aug 2001 03:14:33 -0400
-Received: from lutra.sztaki.hu ([193.225.86.1]:194 "EHLO lutra.sztaki.hu")
-	by vger.kernel.org with ESMTP id <S267140AbRHFHOQ>;
-	Mon, 6 Aug 2001 03:14:16 -0400
-Date: Mon, 06 Aug 2001 09:14:21 +0200 (MET DST)
-From: Gergely Madarasz <gorgo@sztaki.hu>
-Subject: Re: 2.4.8-pre4 drivers/net/wan/comx.c unresolved symbol
-In-Reply-To: <Pine.GSO.4.21.0108060309440.13716-100000@weyl.math.psu.edu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Message-id: <Pine.GS4.4.33.0108060912240.5076-100000@lutra.sztaki.hu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	id <S267196AbRHFHVY>; Mon, 6 Aug 2001 03:21:24 -0400
+Received: from nathan.polyware.nl ([193.67.144.241]:54288 "EHLO
+	nathan.polyware.nl") by vger.kernel.org with ESMTP
+	id <S267184AbRHFHVF>; Mon, 6 Aug 2001 03:21:05 -0400
+Date: Mon, 6 Aug 2001 09:21:02 +0200
+From: Pauline Middelink <middelink@polyware.nl>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, middelink@polyware.nl,
+        Alan Cox <alan@redhat.com>
+Subject: Re: drivers/media/video/videodev.c uses init_zoran_cards.  2.4.8-pre4
+Message-ID: <20010806092102.A29597@polyware.nl>
+Mail-Followup-To: Pauline Middelink <middelin@polyware.nl>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	middelink@polyware.nl, Alan Cox <alan@redhat.com>
+In-Reply-To: <386.997073272@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <386.997073272@ocs3.ocs-net>; from kaos@ocs.com.au on Mon, Aug 06, 2001 at 02:47:52PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Alexander Viro wrote:
+On Mon, 06 Aug 2001 around 14:47:52 +1000, Keith Owens wrote:
+> drivers/media/video/videodev.c calls init_zoran_cards but that symbol
+> does not exist in 2.4.8-pre4.  It looks like a hangover from the rework
+> of the zoran drivers.
 
->
->
-> On Mon, 6 Aug 2001, Gergely Madarasz wrote:
->
-> > On Mon, 6 Aug 2001, Keith Owens wrote:
-> >
-> > > This is probably already known but 2.4.8-pre4 drivers/net/wan/comx.c
-> > > has an unresolved symbol proc_get_inode when compiled as a module.
-> > >
-> > > I was pleasently suprised when doing a full kernel compile as modules.
-> > > 840 modules created, only one unresolved symbol.
-> >
-> > It is using a symbol which was exported in 2.2, but is not exported in
-> > 2.4. Either the driver needs a major rewrite to work as a module (it works
-> > compiled into the kernel) or proc_get_inode needs to be exported again.
->
-> The driver needs a major rewrite to work.
+Ah, gotcha. You have been fooled by the naming stuff. My driver is
+for the zr36120, and is based on module_init(),module_exit().
 
-Ok. I was just maintaining that code, I didn't write it, and it was
-accepted into 2.2 with no mention of these problems. And btw it at
-least seemed to be working...
+There is also a BUZ zoran (zr36057/60) driver around which happens
+to use the generic zoran.c name. (This driver is not made by me...)
+That driver is indeed upgraded and it seems uses module_init(),
+module_exit() too. So it seems the videodev.c lines can be removed.
 
+    Met vriendelijke groet,
+        Pauline Middelink
 -- 
-Madarasz Gergely          gorgo@sztaki.hu          gorgo@linux.rulez.org
-    It's practically impossible to look at a penguin and feel angry.
-        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
-                  HuLUG: http://mlf.linux.rulez.org/
-
+GPG Key fingerprint = 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
+For more details look at my website http://www.polyware.nl/~middelink

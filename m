@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSJQDHJ>; Wed, 16 Oct 2002 23:07:09 -0400
+	id <S261663AbSJQDGl>; Wed, 16 Oct 2002 23:06:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbSJQDHJ>; Wed, 16 Oct 2002 23:07:09 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:1669 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261664AbSJQDHH>;
-	Wed, 16 Oct 2002 23:07:07 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.43 export _end
+	id <S261664AbSJQDGl>; Wed, 16 Oct 2002 23:06:41 -0400
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:12934
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S261663AbSJQDGk>; Wed, 16 Oct 2002 23:06:40 -0400
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Simon Roscic <simon.roscic@chello.at>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DAD988B.40704@metaparadigm.com>
+References: <200210152120.13666.simon.roscic@chello.at>
+	 <200210152153.08603.simon.roscic@chello.at>
+	 <3DACD41F.2050405@metaparadigm.com>
+	 <200210161828.18985.simon.roscic@chello.at>
+	 <3DAD988B.40704@metaparadigm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1034824350.26.33.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 17 Oct 2002 13:12:37 +1000
-Message-ID: <8402.1034824357@kao2.melbourne.sgi.com>
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 16 Oct 2002 22:12:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some programs such as ps, lkcd and others need to validate that
-System.map matches the kernel.  Comparing all symbol names from ksyms
-against map breaks badly when faced with function descriptors (ia64 has
-hundreds of mismatches because of function descriptors).  lkcd attempts
-to solve this problem by adding kernel_magic which contains the value
-of _end, but that requires /dev/kmem access to read kernel_magic.
+On Wed, 2002-10-16 at 11:49, Michael Clark wrote:
+> On 10/17/02 00:28, Simon Roscic wrote:
+> 
+> >>This was happening in pretty much all kernels I tried (a variety of
+> >>redhat kernels and aa kernels). Removing LVM has solved the problem.
+> >>Although i was blaming LVM - maybe it was a buffer overflow in qla driver.
+> > 
+> > looks like i had a lot of luck, because my 3 servers wich are using the
+> > qla2x00 5.36.3 driver were running without problems, but i'll update to 6.01
+> > in the next few day's.
+> > 
+> > i don't use lvm, the filesystem i use is xfs, so it smells like i had a lot of luck for 
+> > not running into this problem, ...
 
-Trivial fix - export _end.  Every arch *lds* file defines _end.
-No special access is required to match ksyms _end against System.map
-_end.
+So then, it seems that LVM is adding stress to the system in a way that
+is bad for the kernel. Perhaps the read-ahead in conjunction with the
+large buffers from XFS, plus the amount of volumes we run(22 on the
+latest machine to crash).
 
-Index: 43.1/kernel/ksyms.c
---- 43.1/kernel/ksyms.c Wed, 16 Oct 2002 14:25:21 +1000 kaos (linux-2.5/w/d/18_ksyms.c 1.22.1.31 444)
-+++ 43.1(w)/kernel/ksyms.c Thu, 17 Oct 2002 12:16:14 +1000 kaos (linux-2.5/w/d/18_ksyms.c 1.22.1.31 444)
-@@ -602,3 +602,7 @@ EXPORT_SYMBOL(__per_cpu_offset);
- 
- /* debug */
- EXPORT_SYMBOL(dump_stack);
-+
-+/* To match ksyms with System.map */
-+extern const char _end[];
-+EXPORT_SYMBOL(_end);
+> Seems to be the correlation so far. qlogic driver without lvm works okay.
+> qlogic driver with lvm, oopsorama.
 
+Michael, what exactly do your servers do? Are they DB servers with ~1Tb
+connected, or file-servers with hundreds of gigs, etc?
+
+> ~mc
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRIJMCp>; Mon, 10 Sep 2001 08:02:45 -0400
+	id <S270721AbRIJMDP>; Mon, 10 Sep 2001 08:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270721AbRIJMCg>; Mon, 10 Sep 2001 08:02:36 -0400
-Received: from t2.redhat.com ([199.183.24.243]:40182 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S270646AbRIJMCU>; Mon, 10 Sep 2001 08:02:20 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27313@hasmsx52.iil.intel.com> 
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27313@hasmsx52.iil.intel.com> 
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: Developing code for ia64 
-Mime-Version: 1.0
+	id <S270724AbRIJMDG>; Mon, 10 Sep 2001 08:03:06 -0400
+Received: from [144.137.83.84] ([144.137.83.84]:6133 "EHLO e4.eyal.emu.id.au")
+	by vger.kernel.org with ESMTP id <S270721AbRIJMCy>;
+	Mon, 10 Sep 2001 08:02:54 -0400
+Message-ID: <3B9CAB2E.8FB4F100@eyal.emu.id.au>
+Date: Mon, 10 Sep 2001 21:59:42 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.10-pre7/drivers/sound/i810_audio.c missing definitions
+In-Reply-To: <20010910042132.A880@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Sep 2001 13:02:40 +0100
-Message-ID: <19902.1000123360@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Adam J. Richter" wrote:
+> 
+>         linux-2.4.10-pre7/drivers/sound/i810_audio.c fails to compile,
+> because it or some .h file lacks definitions of the following symbols:
 
-shmulik.hen@intel.com said:
-> Our product contains a pre-compiled core object (IP protection :-\ )
-> and a set of wrapper source files, so for dual platform support the
-> tar ball has to contain both an ia32 and ia64 versions of the
-> executable. Is there any way to get an ia64 compiler (and libs)
-> installed on an ia32 machine and use it to get ia64 compatible
-> binaries ?
-
-This list is for people interested in Linux, which is Free Software. If you 
-are not working on Free Software, then your message is off-topic, and 
-offensive to many. You should not expect to get any assistance here.
-
-Please go away.
+Grab 'include/linux/ac97_codec.h' from -ac10.
 
 --
-dwmw2
-
-
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTJJLpc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 07:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTJJLpc
+	id S261403AbTJJLzx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 07:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbTJJLzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 07:45:32 -0400
-Received: from CPE-203-51-31-61.nsw.bigpond.net.au ([203.51.31.61]:58616 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S261411AbTJJLpa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 07:45:30 -0400
-Message-ID: <3F869BD4.ADB4D648@eyal.emu.id.au>
-Date: Fri, 10 Oct 2003 21:45:24 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-pre5 i686)
-X-Accept-Language: en
+	Fri, 10 Oct 2003 07:55:53 -0400
+Received: from [80.88.36.193] ([80.88.36.193]:56009 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261403AbTJJLzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 07:55:50 -0400
+Date: Fri, 10 Oct 2003 13:55:32 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Arun Sharma <arun.sharma@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
+In-Reply-To: <16261.49965.101563.951148@gargle.gargle.HOWL>
+Message-ID: <Pine.GSO.4.21.0310101349110.8302-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-To: "list, linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Tosatti, Marcelo" <marcelo@conectiva.com.br>
-Subject: 2.4.23-pre7 build problems
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dropped off the list for a few days so am not sure what was already
-reported, neither did I find anything in the archives about -pre7.
+On Thu, 9 Oct 2003, Mikael Pettersson wrote:
+> Arun Sharma writes:
+>  > Andrew Morton wrote:
+>  > > Perhaps we should just back it out and watch more closely next time someone
+>  > > tries to fix it?
+>  > 
+>  > I'm fine with backing out the Kconfig part of the patch. Perhaps this is one of those things where an explicit list of platforms which do support this feature is unavoidable ? 
+> 
+> The Kconfig patch also broke floppy on x86-64. Since no x86-64 board
+> to date has any ISA _slots_, x86-64 doesn't even give you the option
+> of enabling CONFIG_ISA...
 
-already reported:
+I'm not happy with the `CONFIG_ISA means ISA slots' logic, neither. For e.g.
+PC-style floppy, it means `we have a (possibly burried withing PCI) ISA-style
+bus'.
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-pro
-totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer
- -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DMODULE -DM
-ODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=megaraid2  -c -o
-megaraid2.
-o megaraid2.c
-megaraid2.c: In function `mega_find_card':
-megaraid2.c:403: structure has no member named `lock'
-make[2]: *** [megaraid2.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/scsi'
+Furthermore, on some m68k machines we do have an ISA-style bus, but without
+ISA-style DMA. This causes more drivers to fail compilation, giving me
+headaches when trying to compile an all-yes-config kernel for m68k. I guess
+other architectures are faced with the same problems.
 
-no report found:
+Well, I guess I have to try the new drivers/Kconfig first and elaborate with a
+list of drivers that failed and why they failed...
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-pro
-totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer
- -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DMODULE -DM
-ODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=nsp32  -c -o
-nsp32.o nsp32.
-c
-In file included from nsp32.c:56:
-nsp32.h:645: redefinition of `irqreturn_t'
-/data2/usr/local/src/linux-2.4-pre/include/linux/interrupt.h:16:
-`irqreturn_t' previously declared here
-make[2]: *** [nsp32.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/scsi'
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

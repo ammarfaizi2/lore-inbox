@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbTJRUww (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 16:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTJRUww
+	id S261844AbTJRVNo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 17:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJRVNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 16:52:52 -0400
-Received: from 72.dom-sp.ru ([212.57.164.72]:17672 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S261820AbTJRUwv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 16:52:51 -0400
-Date: Sun, 19 Oct 2003 02:52:34 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
-Message-ID: <20031019025234.A26563@natasha.ward.six>
-References: <20031015003036.A10226@natasha.ward.six> <20031017133301.B27349@infradead.org>
+	Sat, 18 Oct 2003 17:13:43 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:33685 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261844AbTJRVNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 17:13:43 -0400
+Subject: Re: PPC: slab error in cache_free_debugcheck() from
+	sd_revalidate_disk
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: John Mock <kd6pag@qsl.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F919763.1000901@colorfullife.com>
+References: <3F919763.1000901@colorfullife.com>
+Content-Type: text/plain
+Message-Id: <1066511556.4777.286.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031017133301.B27349@infradead.org>; from hch@infradead.org on Fri, Oct 17, 2003 at 01:33:01PM +0100
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 18 Oct 2003 23:12:37 +0200
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 01:33:01PM +0100, Christoph Hellwig wrote:
-> On Wed, Oct 15, 2003 at 12:30:36AM +0600, Denis Zaitsev wrote:
-> > I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
-> > 
-> > The patch below fixes this.  And the same patch fits for the 2.6
-> > kernels.  Please, apply it.
-> 
-> You probably want to send this to Justin, the driver Maintainer.  If he
-> doesn't reply in say a week I?d suggest submitting it to Marcelo as it's
-> obviously correct.
 
-Thanks for the reply.  I've already tried exactly the same sequence
-some weeks ago... :)  Anyway, I'll do this again right now.  Thanks.
+> That looks like a bug Ben reported some time ago: The dma controller 
+> trashes the whole cacheline when it transfers data from disk to memory.
+> I think the only solution is to disable redzoning for the kmalloc 
+> caches, or to use get_free_pages instead of kmalloc for the disk buffers,.
+
+Looks like it indeed. I will probably send a patch to use get_free_page()
+instead one of these days (after I've moved)
+
+Ben.
+
+

@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265333AbTANWCz>; Tue, 14 Jan 2003 17:02:55 -0500
+	id <S265339AbTANWAd>; Tue, 14 Jan 2003 17:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265369AbTANWCy>; Tue, 14 Jan 2003 17:02:54 -0500
-Received: from pc-80-192-208-23-mo.blueyonder.co.uk ([80.192.208.23]:24460
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id <S265333AbTANWCx>;
-	Tue, 14 Jan 2003 17:02:53 -0500
-Subject: Re: Linux 2.4.21-pre3-ac3 and KT400 -high memory now works!
-From: Edward Tandi <ed@efix.biz>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042580942.2696.9.camel@wires.home.biz>
-References: <1042489183.2617.28.camel@wires.home.biz>
-	 <3E236B2C.1050403@rackable.com>  <1042580942.2696.9.camel@wires.home.biz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042582306.2180.2.camel@wires.home.biz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 14 Jan 2003 22:11:46 +0000
-Content-Transfer-Encoding: 7bit
+	id <S265333AbTANWAd>; Tue, 14 Jan 2003 17:00:33 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:59852 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265339AbTANWAb>; Tue, 14 Jan 2003 17:00:31 -0500
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.51.0301142044400.6432@dns.toxicfilms.tv>
+From: Olaf Dietsche <olaf.dietsche@t-online.de>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Subject: Re: timing an application
+Date: Tue, 14 Jan 2003 23:09:16 +0100
+Message-ID: <87vg0rjsdv.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 21:49, Edward Tandi wrote:
-> On Tue, 2003-01-14 at 01:43, Samuel Flory wrote:
-> > Edward Tandi wrote:
-> > 
-> > >I'm new to this list and most of the e-mail here seems to be very
-> > >low-level, so I'm not so sure if this is the right forum for these kinds
-> > >of questions -please do point me in the right direction...
-> > >
-> > >I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard. The
-> > >processor is a 1.5GHz Athlon XP. I started experimenting with new-ish
-> > >kernels again because of the general lack of kernel support for this
-> > >chipset in stock kernels. 3 questions below:
-> > >
-> > >
-> > >1) I have 1GB ram, but I cannot get high memory support to work. It
-> > >falls over during boot. I've seen discussions about AMD cache issues,
-> > >but has it been fixed yet? Is it supposed to work?
-> > >
-> >   Have you tried to forcing the amount of memory?  Try something short 
-> > of you expected total.  Maybe "mem=1000M".
-> 
-> OK, I tried this. If I set it to 800M it was OK. At 900M I got the same
-> problem.
-> 
-> Due to the nature of the replies I have been getting, I suspected that
-> the problem was with the IDE driver's initialisation. So I disabled the
-> "Use PCI DMA by default" option in the kernel.
-> 
-> It booted with the full amount of high memory. Not only that, but
-> "hdparm -X66 /dev/hda" after booting also works!
-> 
-> I can only conclude that there must be a bug in the IDE initialisation
-> code for this board. Thanks for the replies.
+Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
 
-Oops, I forgot to enable DMA transfers with "hdparm -d 1". It turns out
-that (U)DMA transfers don't work when high memory is enabled. The
-problem _is_ the IDE driver.
+> being inspired by some book about optimizing c++ code i decided to do
+> timing of functions i wrote. I am using gettimeofday to set
+> two timeval structs and calculate the time between them.
+> But the results depend heavily on the load, also i reckon that this
+> is an innacurate timing.
 
-Ed-T.
+You will get elapsed time, which is usually not the same as used cpu
+time.
 
+> Any ideas on timing a function, or a block of code? Maybe some kernel
+> timers or something.
+
+If you're timing/pofiling some user space functions, gprof should be
+sufficient. If you want to profile kernel and module functions as
+well, try oprofile at <http://oprofile.sourceforge.net/>. It is part
+of the kernel since 2.5.43.
+
+Regards, Olaf.

@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262344AbSJ0KPF>; Sun, 27 Oct 2002 05:15:05 -0500
+	id <S261340AbSJ0K1z>; Sun, 27 Oct 2002 05:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262346AbSJ0KPF>; Sun, 27 Oct 2002 05:15:05 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:28686 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S262344AbSJ0KPE>;
-	Sun, 27 Oct 2002 05:15:04 -0500
-Message-ID: <3DBBBE1B.5050809@xss.co.at>
-Date: Sun, 27 Oct 2002 11:21:15 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: rootfs exposure in /proc/mounts
-References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de> <3DBAEC79.5050605@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261415AbSJ0K1z>; Sun, 27 Oct 2002 05:27:55 -0500
+Received: from h-66-166-207-249.SNVACAID.covad.net ([66.166.207.249]:5579 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261340AbSJ0K1z>; Sun, 27 Oct 2002 05:27:55 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 27 Oct 2002 02:33:29 -0800
+Message-Id: <200210271033.CAA02842@adam.yggdrasil.com>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Pauses in 2.5.44 (some kind of memory policy change?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-[...]
-> 
-> Bug 1 - don't softlink directly to /proc/mounts :)  embedded guys 
-> typically do this, and you see why it bites you in the ass :)
-> 
+	I run /usr/bin/mail to read my mail box file, which has about
+24 megabytes (in 2300 messages, mostly spam).  After this, about half
+of the time, my keyboard and mouse will intermittently stop responding
+for a second or two, maybe one or two times, and then everything
+seems to be OK.  This happens *after* the mail spool has been read.
+This did not happen in previous kernels (well, maybe 2.5.43, I can't
+quite be sure about that one).
 
-Jeff, this remembers me on some discussion on LKML we had almost 
-exactly 2 years ago (look for the thread starting with Message-ID 
-Pine.LNX.4.02.10010251043060.5657-100000@rimbaud.xss.co.at)
+	The mail spool is on NFS, but I suspect the culprit might be
+some kind of memory balancing change in 2.5.44.
 
-Do you remember?
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-My opinion on this issue is still the same:
-
-- Not only "embedded guys" symlink /etc/mtab to /proc/mounts!
-   We do this for years now on our diskless workstations, because
-   here our root-fs (and therefore /etc) is mounted readonly and
-   so there is no way to update a _regular_ "/etc/mtab" file on
-   a running system.
-
-- /etc should contain only static configuration information.
-   The table of mounted filesystems is not this kind of data.
-   It's state information and should live somewhere else.
-
-- the table of mounted filesystems is information which
-   the kernel must have, anyway. Why maintain a separate
-   file in userspace?
-
-Comments?
-
-- Andreas
-
--- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
 

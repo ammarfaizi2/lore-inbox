@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291243AbSAaTPa>; Thu, 31 Jan 2002 14:15:30 -0500
+	id <S291241AbSAaTSA>; Thu, 31 Jan 2002 14:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291241AbSAaTPL>; Thu, 31 Jan 2002 14:15:11 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:23610 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S291244AbSAaTO7>; Thu, 31 Jan 2002 14:14:59 -0500
-Date: Thu, 31 Jan 2002 20:14:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Momchil Velikov <velco@fadata.bg>,
-        John Stoffel <stoffel@casc.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020131201412.L1309@athlon.random>
-In-Reply-To: <20020131190202.I1309@athlon.random> <Pine.LNX.4.33.0201311031180.1637-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33.0201311031180.1637-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 31, 2002 at 10:32:35AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S291242AbSAaTRv>; Thu, 31 Jan 2002 14:17:51 -0500
+Received: from flubber.jvb.tudelft.nl ([130.161.76.47]:3206 "EHLO
+	mail.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S291241AbSAaTRe>; Thu, 31 Jan 2002 14:17:34 -0500
+From: "Robbert Kouprie" <robbert@jvb.tudelft.nl>
+To: "'Ben Greear'" <greearb@candelatech.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
+Date: Thu, 31 Jan 2002 20:17:21 +0100
+Message-ID: <000f01c1aa8b$e7fbcee0$020da8c0@nitemare>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <3C5984C9.20104@candelatech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 10:32:35AM -0800, Linus Torvalds wrote:
-> 
-> On Thu, 31 Jan 2002, Andrea Arcangeli wrote:
-> > >
-> > > The radix tree is basically O(1), because the maximum depth of a 7-bit
-> > > radix tree is just 5. The index is only a 32-bit number.
-> >
-> > then it will break on archs with more ram than 1<<(32+PAGE_CACHE_SHIFT).
-> 
-> NO.
-> 
-> The radix tree is an index lookup mechanism.
-> 
-> The index is 32 bits.
-> 
-> That's true regardless of how much RAM you have.
+I experienced the 10 Mbit half duplex problems too with this card, but
+they seemed to have gone away after a bugfix from Alan Cox somewhere in
+2.4. Somewhere later I upgraded to 100 Mbit full duplex and never
+experienced problems again until 2.4.17.
 
-then there must be some collision handling that raise the complexity to
-O(N) like with the hashtable, if the depth is fixed and if 32bits of
-index are enough regardless of how many entries are in the tree.
+I think im gonna try some older kernels and look through diffs if I have
+time.
 
-I'm confused by the comments I heard so far, but well I don't want to
-bother you further until I have clear how this data structure is layed
-out exactly. I mainly wanted to give a warning, to be sure some point is
-evalulated properly before integration.
+- Robbert
 
-> Considering that the radix tree can _remove_ 8 bytes per "struct page", I
-> suspect you potentially win more memory than you lose.
+> -----Original Message-----
+> From: Ben Greear [mailto:greearb@candelatech.com] 
+> Sent: donderdag 31 januari 2002 18:54
+> To: Robbert Kouprie
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
+> 
+> 
+> 
+> 
+> Robbert Kouprie wrote:
+> 
+> > The box is an Abit BP6 with Dual Celerons 433 and 192 Mb RAM. No
+> > PCI-Riser cards. It is connected at 100 Mbit full duplex to a 100
+> > Mbit switch. APIC is enabled. No kind of power management 
+> is enabled.
+> 
+> 
+> The only lockup problems I have run into are connecting some 
+> eepro nics to
+> a 10bt hub, and using (cheap arsed, it appears) PCI riser 
+> cards.  I have
+> heard of some SMP related issues, but nothing concrete, and I don't
+> have any SMP systems personally.  You could try the e100, but I have
+> no idea if it will be better or worse for your particular problem.
+> 
+> 
+> -- 
+> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+> President of Candela Technologies Inc      http://www.candelatech.com
+> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+> 
+> 
 
-of course if we add kmalloc to the pagecache code we can drop such part
-from the page structure with the hashtable too.
-
-Andrea

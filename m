@@ -1,105 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262130AbSJVEOe>; Tue, 22 Oct 2002 00:14:34 -0400
+	id <S262128AbSJVEYe>; Tue, 22 Oct 2002 00:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262137AbSJVEOa>; Tue, 22 Oct 2002 00:14:30 -0400
-Received: from packet.digeo.com ([12.110.80.53]:49061 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262130AbSJVEOZ>;
-	Tue, 22 Oct 2002 00:14:25 -0400
-Message-ID: <3DB4D20A.8A579516@digeo.com>
-Date: Mon, 21 Oct 2002 21:20:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S262129AbSJVEYe>; Tue, 22 Oct 2002 00:24:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8238 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262128AbSJVEYc>; Tue, 22 Oct 2002 00:24:32 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: mochel@osdl.org, eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+References: <200210212056.NAA01321@adam.yggdrasil.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Oct 2002 22:28:37 -0600
+In-Reply-To: <200210212056.NAA01321@adam.yggdrasil.com>
+Message-ID: <m1wuobt7uy.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Rik van Riel <riel@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-References: <3DB4C87E.7CF128F3@digeo.com> <2622146086.1035233637@[10.10.2.3]>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2002 04:20:26.0978 (UTC) FILETIME=[593E9C20:01C27982]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+"Adam J. Richter" <adam@yggdrasil.com> writes:
+
+> Eric Biederman writes:
+> >My big concern is with getting the shutdown path setup in a manner
+> >that works, and gets testing.
 > 
-> > I cannot make it happen here, either.  2.5.43-mm2 or current devel
-> > stuff.  Heisenbug; maybe something broke dcache-rcu?  Or the math
-> > overflow (unlikely).
-> 
-> Dipankar is going to give me some debug code once he's slept for
-> a while ... that should help see if dcache-rcu went wacko.
+> 	Rebooting without traversing the device tree seems to have
+> essentially worked fine for 2.4.x.
 
-Well if it doesn't happen again...
+Yes.  I expect that most of the shutdown routines will be made conditional
+on something like, like CONFIG_HOTPLUG so you can disable the cleanly.
+Or perhaps, device_shutdown will be made a compile time conditional.
 
-> >> So it looks as though it's actually ext2_inode cache that's first against the wall.
-> >
-> > Well that's to be expected.  Each ext2 directory inode has highmem
-> > pagecache attached to it, which pins the inode.  There's no highmem
-> > eviction pressure so your normal zone gets stuffed full of inodes.
-> >
-> > There's a fix for this in Andrea's tree, although that's perhaps a
-> > bit heavy on inode_lock for 2.5 purposes.  It's a matter of running
-> > invalidate_inode_pages() against the inodes as they come off the
-> > unused_list.  I haven't got around to it yet.
-> 
-> Thanks; no urgent problem (though we did seem to have a customer hitting
-> a very similar situation very easily in 2.4 ... we'll see if Andrea's
-> fixes that, then I'll try to reproduce their problem on current 2.5).
-
-Oh it's reproduceable OK.  Just run
-
-	make-teeny-files 7 7
-
-against a few filesystems and watch the fun
-
-http://www.zip.com.au/~akpm/linux/patches/stuff/make-teeny-files.c
+But please note a number of 2.4.x drivers are starting to grow reboot
+notifiers.  So it appears that some people have needed code to shut
+down their driver at reboot time in 2.4.x
  
-> >> larry:~# egrep '(dentry|inode)' /proc/slabinfo
-> >> isofs_inode_cache      0      0    320    0    0    1 :  120   60
-> >> ext2_inode_cache  667345 809181    416 89909 89909    1 :  120   60
-> >> shmem_inode_cache      3      9    416    1    1    1 :  120   60
-> >> sock_inode_cache      16     22    352    2    2    1 :  120   60
-> >> proc_inode_cache      12     12    320    1    1    1 :  120   60
-> >> inode_cache          385    396    320   33   33    1 :  120   60
-> >> dentry_cache      1068289 1131096    160 47129 47129    1 :  248  124
-> >
-> > OK, so there's reasonable dentry shrinkage there, and the inodes
-> > for regular files whch have no attached pagecache were reaped.
-> > But all the directory inodes are sitting there pinned.
+> >When booting linux from linux with
+> >sys_kexec a lot of my problems come back to some device driver not
+> >getting shutdown.
 > 
-> OK, this all makes a lot of sense ... apart from one thing:
-> from looking at meminfo:
-> 
-> HighTotal:    15335424 kB
-> HighFree:     15066160 kB
-> 
-> Even if every highmem page is pagecache, that's only 67316 pages by
-> my reckoning (is pagecache broken out seperately in meminfo? both
-> Buffers and Cached seem to large). If I only have 67316 page of
-> pagecache, how can I have 667345 inodes with attatched pagecache pages?
-> Or am I just missing something obvious and fundamental?
+> 	kmonte and sys_kexec skip the BIOS reset code and therefore
+> may need to do more elaborate shutdown, but please do not saddle the
+> normal reboot case with the reliability risk of calling code in each
+> driver when a user might be rebooting a remote machine precisely
+> because of a a confused device driver or the potential slow down
+> (especially since you want an interface where the function that gets
+> called before reboot may need to do blocking IO).  For
+> kmonte/sys_kexec, this high cost might be necessary, but for the
+> normal reboot the cost is not worth the benefit.
 
-Maybe you didn't cat /dev/sda2 for long enough?
+In general if a routine takes a long time, that is a bug.
 
-You should end up with very little dcache and tons of icache.
-Here's what I get:
+> 	By way, given the ability to register reboot notifiers in the
+> device tree, I would be happy to see one registered at the top of the
+> PCI bus tree (so it would be called last) that would shut off the PCI
+> bus before reboot, along the lines of what Richard B. Johnson posted.
+> That would not involve walking a lot of data structures in many
+> different device drivers and it would be just a few instrutions.
 
-  ext2_inode_cache:   420248KB   420256KB   99.99
-       buffer_head:    40422KB    41648KB   97.5 
-      dentry_cache:      667KB    10211KB    6.54
-biovec-BIO_MAX_PAGES:      768KB      780KB   98.46
+That code was chipset specific, so it may be a good thing for a host bridge
+driver to do that but it is by no means generally possible.
 
-Massive internal fragmentation of the dcache there.  But it takes
-a long time.
-
-Generally, I feel that the proportional-shrink on slab is applying
-too much pressure when there's not much slab and too little when
-there's a lot.  If you have 400 megs of inodes I don't really think
-they are likely to be used again soon.
-
-Perhaps we need to multiply the slab cache scanning pressure by the
-slab occupancy.  That's simple to do.
+Eric

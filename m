@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261943AbREQWyQ>; Thu, 17 May 2001 18:54:16 -0400
+	id <S262208AbREQW6I>; Thu, 17 May 2001 18:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262206AbREQWyH>; Thu, 17 May 2001 18:54:07 -0400
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:23312 "HELO
+	id <S262215AbREQW56>; Thu, 17 May 2001 18:57:58 -0400
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:28176 "HELO
 	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S261943AbREQWxv>; Thu, 17 May 2001 18:53:51 -0400
-Date: Thu, 17 May 2001 23:53:45 +0100 (BST)
+	id <S262208AbREQW5v>; Thu, 17 May 2001 18:57:51 -0400
+Date: Thu, 17 May 2001 23:57:45 +0100 (BST)
 From: Chris Evans <chris@scary.beasts.org>
-To: <davem@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: 2.2, 2.4 bug in sock_no_fcntl()/F_SETOWN? (fwd)
-Message-ID: <Pine.LNX.4.30.0105172353170.13175-100000@ferret.lmh.ox.ac.uk>
+To: <linux-kernel@vger.kernel.org>
+cc: <davem@redhat.com>
+Subject: Kernel bug with UNIX sockets not detecting other end gone?
+Message-ID: <Pine.LNX.4.30.0105172353480.13175-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Resend (no response first time)
-
----------- Forwarded message ----------
-Date: Wed, 24 Jan 2001 21:09:09 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: linux-kernel@vger.kernel.org
-Cc: davem@redhat.com
-Subject: 2.2, 2.4 bug in sock_no_fcntl()/F_SETOWN?
-
-
 Hi,
 
-Looking at the code for sock_no_fcntl() in net/core.c, I cannot specify
-"0" as a value for F_SETOWN, unless I'm the superuser. I believe this to
-be a bug, it stops de-registering an interest in SIGURG signals. Let me
-know if you want a patch.
+I wonder if the following is a bug? It certainly differs from FreeBSD 4.2
+behaviour, which gives the behaviour I would expect.
+
+The following program blocks indefinitely on Linux (2.2, 2.4 not tested).
+Since the other end is clearly gone, I would expect some sort of error
+condition. Indeed, FreeBSD gives ECONNRESET.
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int
+main(int argc, const char* argv[])
+{
+  int the_sockets[2];
+  int retval;
+  char the_char;
+  int opt = 1;
+
+  retval = socketpair(PF_UNIX, SOCK_DGRAM, 0, the_sockets);
+  if (retval != 0)
+  {
+    perror("socketpair");
+    exit(1);
+  }
+  close(the_sockets[0]);
+  /* Linux (2.2) blocks here; FreeBSD does not */
+  retval = read(the_sockets[1], &the_char, sizeof(the_char));
+}
 
 Cheers
 Chris
-
 

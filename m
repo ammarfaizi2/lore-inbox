@@ -1,114 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbUAAUOp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUAAUGh
+	id S265431AbUAAUZW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUAAUWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:06:37 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:61015 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264855AbUAAUB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:01:59 -0500
-Date: Thu, 1 Jan 2004 21:01:57 +0100
-Message-Id: <200401012001.i01K1uWh031775@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 355] Mac ADB IOP fix
+	Thu, 1 Jan 2004 15:22:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61092 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264981AbUAAUUO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:20:14 -0500
+Date: Thu, 1 Jan 2004 12:19:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+cc: Arjan van de Ven <arjanv@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Dri-devel] 2.6 kernel change in nopage
+In-Reply-To: <1072967278.1603.270.camel@thor.asgaard.local>
+Message-ID: <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
+References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> 
+ <1072958618.1603.236.camel@thor.asgaard.local>  <1072959055.5717.1.camel@laptop.fenrus.com>
+  <1072959820.1600.252.camel@thor.asgaard.local>  <20040101122851.GA13671@devserv.devel.redhat.com>
+ <1072967278.1603.270.camel@thor.asgaard.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mac ADB IOP: Fix improperly initialized request struct in the reset code,
-causing a bogus pointer (from Matthias Urlichs)
 
---- linux-2.6.0/drivers/macintosh/adb-iop.c	Thu Jan  2 12:54:27 2003
-+++ linux-m68k-2.6.0/drivers/macintosh/adb-iop.c	Mon Oct 20 21:45:56 2003
-@@ -105,18 +105,19 @@
- 	struct adb_iopmsg *amsg = (struct adb_iopmsg *) msg->message;
- 	struct adb_request *req;
- 	uint flags;
-+#ifdef DEBUG_ADB_IOP
-+	int i;
-+#endif
- 
- 	local_irq_save(flags);
- 
- 	req = current_req;
- 
- #ifdef DEBUG_ADB_IOP
--	printk("adb_iop_listen: rcvd packet, %d bytes: %02X %02X",
-+	printk("adb_iop_listen %p: rcvd packet, %d bytes: %02X %02X", req,
- 		(uint) amsg->count + 2, (uint) amsg->flags, (uint) amsg->cmd);
--	i = 0;
--	while (i < amsg->count) {
--		printk(" %02X", (uint) amsg->data[i++]);
--	}
-+	for (i = 0; i < amsg->count; i++)
-+		printk(" %02X", (uint) amsg->data[i]);
- 	printk("\n");
- #endif
- 
-@@ -134,7 +135,7 @@
- 			adb_iop_end_req(req, idle);
- 		}
- 	} else {
--		/* TODO: is it possible for more tha one chunk of data  */
-+		/* TODO: is it possible for more than one chunk of data  */
- 		/*       to arrive before the timeout? If so we need to */
- 		/*       use reply_ptr here like the other drivers do.  */
- 		if ((adb_iop_state == awaiting_reply) &&
-@@ -163,6 +164,9 @@
- 	unsigned long flags;
- 	struct adb_request *req;
- 	struct adb_iopmsg amsg;
-+#ifdef DEBUG_ADB_IOP
-+	int i;
-+#endif
- 
- 	/* get the packet to send */
- 	req = current_req;
-@@ -171,7 +175,7 @@
- 	local_irq_save(flags);
- 
- #ifdef DEBUG_ADB_IOP
--	printk("adb_iop_start: sending packet, %d bytes:", req->nbytes);
-+	printk("adb_iop_start %p: sending packet, %d bytes:", req, req->nbytes);
- 	for (i = 0 ; i < req->nbytes ; i++)
- 		printk(" %02X", (uint) req->data[i]);
- 	printk("\n");
-@@ -267,13 +271,17 @@
- 
- int adb_iop_reset_bus(void)
- {
--	struct adb_request req;
-+	struct adb_request req = {
-+		.reply_expected = 0,
-+		.nbytes = 2,
-+		.data = { ADB_PACKET, 0 },
-+	};
- 
--	req.reply_expected = 0;
--	req.nbytes = 2;
--	req.data[0] = ADB_PACKET;
--	req.data[1] = 0; /* RESET */
- 	adb_iop_write(&req);
--	while (!req.complete) adb_iop_poll();
-+	while (!req.complete) {
-+		adb_iop_poll();
-+		schedule();
-+	}
-+
- 	return 0;
- }
 
-Gr{oetje,eeting}s,
+On Thu, 1 Jan 2004, Michel Dänzer wrote:
+>
+> > well the advantage is that the ifdefs can just go away in kernel trees of
+> > specific versions... (eg unifdef it)
+> 
+> Does this look better? Maybe a macro (or a typedef?) for the type of the
+> last argument would still be a good idea? Or is there yet a better way?
 
-						Geert
+My preference is either:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ - we can still undo the "nopage" argument change. It's been in the -mm 
+   tree for a long time, and it _does_ solve a problem (page fault type 
+   accounting), but the problem it solves is potentially so small that we
+   might decide it's ok for 2.6.x.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+   However, Andrew is king, and besides, it does fix a tiny bug, so I 
+   don't think this is what we should do. I just wanted to put it on the 
+   table as a possibility.
+
+ - Use separate (and trivial) wrapper functions for this. Keep the "real" 
+   function the same across everything, and just have a _static_ function 
+   (ie no header file declaration crap) that does
+
+   linux-new-vm.h:
+
+	static int DRM(nopage_interface)(struct vm_area_struct * area, 
+					 unsigned long address,
+					 int *type)
+	{
+		*type = VM_FAULT_MINOR;
+		DRM(nopage)(area, address);
+	}
+
+
+   linux-old-vm.h:
+
+	static int DRM(nopage_interface)(struct vm_area_struct * area,
+					 unsigned long address,   
+					 int unused)
+	{
+		DRM(nopage)(area, address);
+	}
+
+
+   drm_vm.h:
+
+	/*
+	 * Or, poreferably, we could create a symlink and avoid
+	 * the #if's at compile-time _entirely_.
+	 */
+	#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+	  #include "linux-new-vm.h"
+	#else
+	  #include "linux-old-v.h
+	#endif
+
+	..
+	.nopage = nopage_interface;
+	..
+
+Done right, the virtualization could be a bit higher still, and maybe 
+the BSD code can do the same thing.
+
+In general, at least I personally _much_ prefer the #ifdef's etc to be 
+outside the code. So even if you don't like to have separate small files 
+for different architectures/ports/versions, I'd at least personally 
+much rather have
+
+	#if xxxx
+
+	int onewholefunction(..)
+	...
+	
+
+	#else
+
+	int onewholefunction(..)
+	...
+
+	#endif
+
+rather than the messy
+
+	int onewholefunction(
+	#if xxx
+	..
+	#else
+	..
+	#endif
+	(
+	{
+	...
+	#if xxxx
+	..
+	#endif
+
+The latter is a huge pain not just to read (you go blind after a while), 
+but it's also painful as _hell_ to merge anywhere else.
+
+In contrast, full-file interfaces for different kernel versions are a 
+_lot_ easier to merge and keep track of. They may look like "duplication", 
+but the advantages are legion. You don't mix different OS's and different 
+versions together, and that makes it much easier to support them all 
+without going crazy.
+
+		Linus
+

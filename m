@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293027AbSCJMsG>; Sun, 10 Mar 2002 07:48:06 -0500
+	id <S293026AbSCJMx0>; Sun, 10 Mar 2002 07:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293026AbSCJMr4>; Sun, 10 Mar 2002 07:47:56 -0500
-Received: from [194.228.240.11] ([194.228.240.11]:63404 "EHLO sakal.vgd.cz")
-	by vger.kernel.org with ESMTP id <S293024AbSCJMrr>;
-	Sun, 10 Mar 2002 07:47:47 -0500
-Subject: 2.5.6 Swap weirdness
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFF7BC4A71.4F6A5218-ONC1256B78.00383620@vgd.cz>
-From: Petr.Titera@whitesoft.cz
-Date: Sun, 10 Mar 2002 11:18:30 +0100
-X-MIMETrack: Serialize by Router on Sakal/SRV/SOCO/CZ(Release 5.0.8 |June 18, 2001) at
- 03/10/2002 01:47:45 PM
+	id <S293028AbSCJMxQ>; Sun, 10 Mar 2002 07:53:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23566 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293026AbSCJMxJ>; Sun, 10 Mar 2002 07:53:09 -0500
+Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 10 Mar 2002 13:08:25 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), gone@us.ibm.com (Patricia Gaughen),
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <m1zo1gzx60.fsf@frodo.biederman.org> from "Eric W. Biederman" at Mar 10, 2002 12:42:15 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16k33p-0006Ra-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> I will tenatively vote in favor of this kind of action.  There
+> are a couple of directions to consider.  This is a two dimensional
+> problem.
 
-     in linux kernel 2.5.6 swap statistics are displayed incorrectly. Used
-space is added to total swap size and not subtracted from free space. See
-attached output
+That should not be suprising 
 
+> Dimension 1.  Different basic hardware architectures. 
+>   (pc,numaq,visws,voyager)
+(and others upcoming)
 
-[root@nevskij proc]# free
-             total       used       free     shared    buffers     cached
-Mem:        257348     159748      97600          0       9328      41004
--/+ buffers/cache:     109416     147932
-Swap:       152800      24320     128480
-[root@nevskij proc]# cat /proc/swaps
-Filename                                Type            Size    Used
-Priority
-/dev/hda5                               partition       128480  24316   -1
-[root@nevskij proc]#
+> Dimension 2.  Different firmware implementations.  
+>   (pcbios,linuxbios,openfirmware,acpi?)
 
-Petr Titera
+i386-pc-pcbios
+
+Maybe autoconf got the concept right. You don't neccessarily want to think
+of it as a grid though. A lot of the stuff is i386-*-pcbios and i386-pc-*
+
+Alan
+
 

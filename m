@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130762AbRBUXvV>; Wed, 21 Feb 2001 18:51:21 -0500
+	id <S129170AbRBUXzb>; Wed, 21 Feb 2001 18:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130408AbRBUXvL>; Wed, 21 Feb 2001 18:51:11 -0500
-Received: from fe4.rdc-kc.rr.com ([24.94.163.51]:6664 "EHLO mail4.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S129381AbRBUXuz>;
-	Wed, 21 Feb 2001 18:50:55 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-legal@nl.linux.org,
-        Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
-        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-        Guido Socher <guido@bearix.oche.de>
-Subject: Re: Software Mestizo Manifesto
-In-Reply-To: <E14QR2C-0008EK-00@the-village.bc.nu> <Pine.LNX.4.21.0102071923170.494-100000@vivaldi.ddts.net> <20010211210818.G3748@bug.ucw.cz>
-From: Mike Coleman <mkc@mathdogs.com>
-Date: 21 Feb 2001 17:50:17 -0600
-In-Reply-To: Pavel Machek's message of "Sun, 11 Feb 2001 21:08:18 +0100"
-Message-ID: <87ofvvzjd2.fsf@mathdogs.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S129381AbRBUXzX>; Wed, 21 Feb 2001 18:55:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:30592 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129170AbRBUXzQ>;
+	Wed, 21 Feb 2001 18:55:16 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14996.21701.542448.49413@pizda.ninka.net>
+Date: Wed, 21 Feb 2001 15:52:37 -0800 (PST)
+To: Jordan Mendelson <jordy@napster.com>
+Cc: ookhoi@dds.nl, Vibol Hou <vibol@khmer.cc>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>, sim@stormix.com,
+        netdev@oss.sgi.com
+Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev issues 
+ (3c905B))
+In-Reply-To: <3A9453F4.993A9A74@napster.com>
+In-Reply-To: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
+	<20010221104723.C1714@humilis>
+	<14995.40701.818777.181432@pizda.ninka.net>
+	<3A9453F4.993A9A74@napster.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
-> You may say "please don't drop nuclear weapon". You may *not* say "you
-> must not drop nuclear weapon", that would violate GPL.
 
-I can see the headline/FUD now:
+Jordan Mendelson writes:
+ > Now, if it didn't have the side effect of dropping packets left and
+ > right after ~4000 open connections (simultaneously), I could finally
+ > move our production system to 2.4.x.
 
-   FREE SOFTWARE FANATICS REFUSE TO DISAVOW USE OF NUCLEAR WEAPONS
+There is no reason my patch should have this effect.
 
-:-)
+All of this is what appears to be a bug in Windows TCP header
+compression, if the ID field of the IPv4 header does not change then
+it drops every other packet.
 
+The change I posted as-is, is unacceptable because it adds unnecessary
+cost to a fast path.  The final change I actually use will likely
+involve using the TCP sequence numbers to calculate an "always
+changing" ID number in the IPv4 headers to placate these broken
+windows machines.
 
--- 
-[O]ne of the features of the Internet [...] is that small groups of people can
-greatly disturb large organizations.  --Charles C. Mann
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVCSHJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVCSHMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVCSHJO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 02:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVCSHJO
+	id S262424AbVCSHMo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 02:12:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVCSHMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 02:09:14 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:4825 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262422AbVCSHJK (ORCPT
+	Sat, 19 Mar 2005 02:12:44 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1456 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262424AbVCSHMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 02:09:10 -0500
-Date: Sat, 19 Mar 2005 08:08:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "Jack O'Quin" <joq@io.com>
-Subject: Re: Latency tests with 2.6.12-rc1
-Message-ID: <20050319070810.GA20059@elte.hu>
-References: <1111204984.12740.22.camel@mindpipe>
+	Sat, 19 Mar 2005 02:12:42 -0500
+Date: Fri, 18 Mar 2005 23:01:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Locking changes to the driver-model core
+Message-ID: <20050319070128.GC22579@kroah.com>
+References: <Pine.LNX.4.44L0.0503161422440.639-100000@ida.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1111204984.12740.22.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.44L0.0503161422440.639-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 16, 2005 at 03:58:30PM -0500, Alan Stern wrote:
+> Greg KH has said that he would like to remove the bus subsystem rwsem from 
+> the driver model.  Here's a proposal for a way to accomplish that.  The 
+> proposal is incomplete and requires changing the driver-model API a 
+> little; I'd like to hear people's reactions and get suggestions on ways to 
+> improve it.  (There's no patch with example code because it wouldn't be 
+> functional yet.)
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+<nice proposal snipped>
 
-> I did the same quick latency tests with 2.6.12-rc1 that I posted about
-> for 2.6.11 a few weeks ago.
-> 
-> 2.6.12-rc1 is significantly better than 2.6.11.  Running JACK at 64
-> frames (1.3 ms) works very well.  I was not able to produce xruns even
-> with "dbench 64", which slows the system to a crawl.  With 2.6.11, I
-> could easily produce xruns with much lighter loads.
-> 
-> It would appear that the latency issues related to the 4 level page
-> tables merge have been resolved.
+It all sounds good, and I think that Pat has some code that implements
+almost all of this already (I've seen some rough versions from him
+recently.)  Hopefully he'll get that all cleaned up and send it out for
+people to beat up on soon (hint...)
 
-great! The change in question is most likely the copy_page_range() fix
-that Hugh resurrected:
+thanks,
 
-ChangeSet 1.2037, 2005/03/08 09:26:46-08:00, hugh@veritas.com
-
-	[PATCH] copy_pte_range latency fix
-	
-	Ingo's patch to reduce scheduling latencies, by checking for lockbreak in
-	copy_page_range, was in the -VP and -mm patchsets some months ago; but got
-	preempted by the 4level rework, and not reinstated since. Restore it now
-	in copy_pte_range - which mercifully makes it easier.
-
-are the ext3 related latencies are gone as well - or are you working it
-around by not using data=ordered?
-
-    Ingo
+greg k-h

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263456AbRFALpj>; Fri, 1 Jun 2001 07:45:39 -0400
+	id <S263461AbRFALza>; Fri, 1 Jun 2001 07:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263457AbRFALp3>; Fri, 1 Jun 2001 07:45:29 -0400
-Received: from mgw-x2.nokia.com ([131.228.20.22]:32246 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S263456AbRFALpS>;
-	Fri, 1 Jun 2001 07:45:18 -0400
-Date: Fri, 1 Jun 2001 14:44:32 +0300
-To: linux-kernel@vger.kernel.org
-Subject: Q: ip_build_and_send_pkt
-Message-ID: <20010601144432.A7887@Hews1193nrc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
+	id <S263473AbRFALzT>; Fri, 1 Jun 2001 07:55:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43014 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263469AbRFALzO>; Fri, 1 Jun 2001 07:55:14 -0400
+Subject: Re: Linux 2.4.5-ac6
+To: viro@math.psu.edu (Alexander Viro)
+Date: Fri, 1 Jun 2001 12:52:37 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0106010725530.20420-100000@weyl.math.psu.edu> from "Alexander Viro" at Jun 01, 2001 07:28:42 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155nTp-0000Ou-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> Tt's still broken on r/w. R/o should be OK now.
+> 
+> > o	Move UFS file system to use dcache for metadata	(Al Viro)
+> 
+> What???
 
-I have a couple of questions about 2.4.5 IP layer and will be very grateful if
-someone will answer :)
+My error. I was pasting down the notes when you were talking about that bit
+on #kernel and forgot to take it out
 
-In net/ipv4/ip_output.c there is the function ip_build_and_send_pkt().
-This function adds an IP header to given skbuff and sends it out. 
-But it seems that the only place where this function is called is 
-tcp_v4_send_synack() in tcp_ipv4.c.
-
-Questions:
-
-1. What is the difference between tcp synack and other types of packets? Why
-tcp synack needs separate entry point in IP layer?
-2. Is it really good to have such common name (ip_build_and_send_pkt) for this
-function? I'd say that function with this name pretends to be IP layer entry
-point for upper layer protocols. But it isn't?
-
-
--- 
-Alexey

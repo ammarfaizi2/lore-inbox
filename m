@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUEWIp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUEWIst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUEWIp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 04:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUEWIp3
+	id S262351AbUEWIst (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 04:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUEWIst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 04:45:29 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:26122 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262382AbUEWIp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 04:45:28 -0400
-Date: Sun, 23 May 2004 10:44:15 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: i486 emu in mainline?
-Message-ID: <20040523084415.GB16071@alpha.home.local>
-References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1085296400.2781.2.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4i
+	Sun, 23 May 2004 04:48:49 -0400
+Received: from mx4.cs.washington.edu ([128.208.4.190]:12744 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S262351AbUEWIsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 04:48:47 -0400
+Date: Sun, 23 May 2004 01:48:45 -0700 (PDT)
+From: Vadim Lobanov <vadim@cs.washington.edu>
+To: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Trivial patch in /net/core/net-sysfs.c
+Message-ID: <20040523014005.R31528-100000@attu2.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan,
+Hello,
 
-On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
-> on first look it seems to be missing a bunch of get_user() calls and
-> does direct access instead....
+Here is a trivial patch to /net/core/net-sysfs.c, to remove 3 unnecessary 
+word lengths from memory. Diffed against the base 2.6.6 tree. Please note 
+that this is a first stab at attempting to submit a patch, so let me know if
+something's not quite right, so that I can rework it. :)
 
-It was intentional for speed purpose. The areas are checked once with
-verify_area() when we need to access memory, then data is copied directly
-from/to memory. I don't think there's any risk, but I can be wrong.
+=========================================================================
 
-Regards,
-Willy
+--- linux-2.6.6/net/core/net-sysfs.c    2004-05-09 19:33:19.000000000 
+-0700
++++ linux-2.6.6/net/core/net-sysfs.c    2004-05-23 01:33:57.000000000 
+-0700
+@@ -20,9 +20,9 @@
+ #define to_class_dev(obj) container_of(obj,struct class_device,kobj)
+ #define to_net_dev(class) container_of(class, struct net_device, 
+class_dev)
+ 
+-static const char *fmt_hex = "%#x\n";
+-static const char *fmt_dec = "%d\n";
+-static const char *fmt_ulong = "%lu\n";
++static const char fmt_hex[] = "%#x\n";
++static const char fmt_dec[] = "%d\n";
++static const char fmt_ulong[] = "%lu\n";
+ 
+ static inline int dev_isalive(const struct net_device *dev) 
+ {
+
+========================================================================
+
+-Vadim Lobanov
 

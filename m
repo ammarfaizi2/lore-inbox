@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272179AbRHWBtl>; Wed, 22 Aug 2001 21:49:41 -0400
+	id <S272182AbRHWBxS>; Wed, 22 Aug 2001 21:53:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272181AbRHWBtb>; Wed, 22 Aug 2001 21:49:31 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:7 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S272179AbRHWBtS>;
-	Wed, 22 Aug 2001 21:49:18 -0400
-Message-Id: <200108230149.f7N1nKY22862@aslan.scsiguy.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: groudier@free.fr, axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch 
-In-Reply-To: Your message of "Wed, 22 Aug 2001 18:39:12 PDT."
-             <20010822.183912.61335222.davem@redhat.com> 
-Date: Wed, 22 Aug 2001 19:49:20 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S272185AbRHWBxJ>; Wed, 22 Aug 2001 21:53:09 -0400
+Received: from relay.eqip.net ([195.206.66.146]:12709 "HELO mailgate.eqip.net")
+	by vger.kernel.org with SMTP id <S272182AbRHWBxE>;
+	Wed, 22 Aug 2001 21:53:04 -0400
+Path: Home.Lunix!not-for-mail
+Subject: Re: /dev/random entropy calcs - patch [not related to net devices]
+Date: Thu, 23 Aug 2001 01:53:07 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <9547398.998437243@_169.254.198.40_>
+NNTP-Posting-Host: kali.eth
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Trace: quasar.home.lunix 998531587 2919 10.253.0.3 (23 Aug 2001 01:53:07
+    GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Thu, 23 Aug 2001 01:53:07 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:108082
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <9m1nm3$2r7$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
->   Date: Wed, 22 Aug 2001 19:32:46 -0600
->
->   Perhaps its different for SBUS, but its not different for ISA
->   or EISA.
->
->Right, you pass in a NULL pci_dev pointer.  What is the
->problem with that?
+In article <9547398.998437243@_169.254.198.40_>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> writes:
+> 2. Anyone have any problem changing fs/proc/proc_misc.c to
+>    register /proc/interrupts to be 0600 instead of 0644 to help
+>    prevent entropy attacks that way?
 
-I don't have the same lattitude to express dma characteristics of
-broken, non-PCI devices.  For instance, I can't set the "dma mask"
-for a VLB card (say some early BusLogic 445) that had some DMA bugs.
-I have to treat it like an ISA card even if it may have problems
-with DMAs below the typical ISA dma limit.
-
->   Do you believe that it is architecturally correct to have a single
->   api or multiple apis?
->
->I think just plain different entry points are the way to do things,
->because function pointers and/or extra conditional execution rots when
->it's really not needed.
-
-That needent be the case.  If I can use a single API to define the
-DMA characteristics of my device, and the system knows where it
-is in the bus hierarchy (and all the warts of the bridges along
-the way, etc.), the magic to do the mapping can be hidden from me
-and I don't need to have multiple APIs or code paths.  I just pass
-a "dma descriptor" that has the necessary info for that type of
-dma operation on that platform, and the system does the rest.  This
-even allows a device to allocate multiple descriptors to handle its
-different operations (bulk data is 64bit capable, transaction descriptors
-need to be handled with 24bit addresses, etc.).
-
->   The "pci" api already allows you to express this.
->
->There will be a "struct device" in 2.5.x and lots of unification.
-
-That's good to know.
-
---
-Justin
+Yes, i don't want to have to switch to root to read /proc/interrupts
+because some people have gone utterly paranoid about an attack that's not
+feasable if you reseed your randum numbers normally at boot.

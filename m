@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264515AbTEPRKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTEPRKx
+	id S264499AbTEPRIB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 13:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTEPRIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:10:53 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:29708 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S264515AbTEPRKw (ORCPT
+	Fri, 16 May 2003 13:08:01 -0400
+Received: from ida.rowland.org ([192.131.102.52]:30724 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264499AbTEPRIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:10:52 -0400
-Message-ID: <3EC51E98.1070600@xss.co.at>
-Date: Fri, 16 May 2003 19:23:36 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Fri, 16 May 2003 13:08:00 -0400
+Date: Fri, 16 May 2003 13:20:52 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Paul Fulghum <paulkf@microgate.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       <johannes@erdfelt.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+In-Reply-To: <1053100440.1948.17.camel@toshiba>
+Message-ID: <Pine.LNX.4.44L0.0305161316380.1171-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21rc2-ac2
-References: <200305121756.h4CHu4t20051@devserv.devel.redhat.com>
-In-Reply-To: <200305121756.h4CHu4t20051@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 16 May 2003, Paul Fulghum wrote:
 
-Hi!
+> Moving the wait out of the ISR and doing the wakeup
+> only for RD on non-OC ports are winners.
+> 
+> I can't comment on the 1 second grace period. Was that
+> in response to this investigation, or have you actually
+> seen false RD indications due to noise?
 
-There are still a few glitches remaining (sorry, no patches yet)...
+Well, I have actually seen false indications.  Whether they are due to
+noise is open to debate.  Since they occur just at the time when I turn
+the power to my USB peripheral on or off, that's my best guess.  It might
+even turn out that power on/off generates a temporary OC condition, so
+fixing that might render the grace period unnecessary.  I haven't had a
+chance try it yet.
 
-*) "make xconfig" fails
-   (Again, but on a different place than in plain 2.4.21-rc2...
-    kernel hackers just don't seem to like "make xconfig"...)
+> There is also the more trivial matter of removing the
+> unnecessary setting of the FGR bit on wakeup.
 
-root@install:/usr/src/linux {511} $ make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.21-rc2-ac2/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-drivers/ide/Config.in: 69: can't handle dep_bool/dep_mbool/dep_tristate condition
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.21-rc2-ac2/scripts'
-make: *** [xconfig] Error 2
+Yes.  That can be done in any case.
 
-*) Unresolved symbols in xfs.o
-root@install:~ {501} $ depmod -ae
-depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc2-ac2/kernel/fs/xfs/xfs.o
-depmod:         find_trylock_page
-depmod:         path_lookup
+> I'll check that the global RD interrupt does not
+> keep repeating after a false RD by an OC port.
 
-- - andreas
+Good.
 
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> So I suggest you build a patch that does all of
+> the above (with the grace period at your discretion).
+> Then we can both test it, and you can submit it
+> for actual inclusion.
 
-iD8DBQE+xR6QxJmyeGcXPhERAtGEAJ4w83NzN/UV8kBJDGdrUnIbPADxoQCgkh5/
-9pQCmndk6pIMA6W7H0qSsXc=
-=e8mM
------END PGP SIGNATURE-----
+I will.  Probably won't be ready until some time next week.
+
+Alan Stern
 

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUCaAXT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 19:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUCaAXT
+	id S262431AbUCaA0j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 19:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUCaA0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 19:23:19 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:48886 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262382AbUCaAXR (ORCPT
+	Tue, 30 Mar 2004 19:26:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4738 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262431AbUCaA0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 19:23:17 -0500
-Date: Tue, 30 Mar 2004 16:22:35 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, hari@in.ibm.com
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
-Message-ID: <187940000.1080692555@flay>
-In-Reply-To: <20040330151729.1bd0c5d0.rddunlap@osdl.org>
-References: <006701c415a4$01df0770$d100000a@sbs2003.local><20040329162123.4c57734d.akpm@osdl.org><20040329162555.4227bc88.akpm@osdl.org><20040330132832.GA5552@in.ibm.com> <20040330151729.1bd0c5d0.rddunlap@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Mar 2004 19:26:37 -0500
+Date: Tue, 30 Mar 2004 16:28:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-mm1
+Message-Id: <20040330162850.50a0fad4.akpm@osdl.org>
+In-Reply-To: <20040331000301.GB9269@kroah.com>
+References: <20040330023437.72bb5192.akpm@osdl.org>
+	<20040331000301.GB9269@kroah.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->| We faced this problem starting 2.6.3 while working on kexec. 
->| 
->| The problem is because we now initialize cpu_vm_mask for init_mm with 
->| CPU_MASK_ALL (from 2.6.3 onwards) which makes all bits in cpumask 1 (on SMP). 
->| Hence BUG_ON(!cpus_equal(cpumask,tmp) fails. The change to set
->| cpu_vm_mask to CPU_MASK_ALL was done to remove tlb flush optimizations 
->| for ppc64. 
->| 
->| I had posted a patch for this in the earlier thread. Reposting the same
->| here. This patch removes the assertion and uses "tmp" instead of cpumask. 
->| Otherwise, we will end up sending IPIs to offline CPUs as well.
->| 
->| Comments please.
+Greg KH <greg@kroah.com> wrote:
+>
+> On Tue, Mar 30, 2004 at 02:34:37AM -0800, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc3/2.6.5-rc3-mm1/
+> > 
+> > - Dropped the tty locking fix.  As predicted, it deadlocked.  I also
+> >   reverted the patch from bk-driver-core.patch which is causing this race to
+> >   trigger more frequently.
 > 
-> I'll just say that kexec fails without this patch and works with
-> it applied, so I'd like to see it merged.  If this patch isn't
-> acceptable, let's find out why and try to make one that is.
-> 
-> Thanks for the patch, Hari.
+> Argh, so the only way I'm going to be able to get my little, tiny,
+> simple vc class patch is by fixing all of the tty layer locking code?
 
->From discussions with Andy, it seems this still has the same race as before
-just smaller. I don't see how we can fix this properly without having some
-locking on cpu_online_map .... probably RCU as it's massively read-biased
-and we don't want to pay a spinlock cost to read it.
+Well the good news is that my test box now oopses on about 2-out-of-3 boot
+attempts.  But that gets tiresome.
 
-M.
+> Ugh, that's so mean...  :)
 
+Optimistic, too.
+
+I'm thinking that this can be fixed from the other direction: just before
+release_dev() calls close (dropping BKL), if tty->count==1, make the
+going-away tty ineligible for concurrent lookups.  Do that by setting
+tty->driver->ttys[idx] to NULL.  Maybe.

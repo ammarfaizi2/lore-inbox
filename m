@@ -1,94 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTJLQvW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 12:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTJLQvW
+	id S263481AbTJLRKh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 13:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTJLRKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 12:51:22 -0400
-Received: from web13004.mail.yahoo.com ([216.136.174.14]:55148 "HELO
-	web13004.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263487AbTJLQvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 12:51:20 -0400
-Message-ID: <20031012165119.17264.qmail@web13004.mail.yahoo.com>
-Date: Sun, 12 Oct 2003 09:51:19 -0700 (PDT)
-From: retu <retu834@yahoo.com>
-Subject: Re: 2.7 thoughts: common well-architected object model 
-To: Valdis.Kletnieks@vt.edu
-Cc: Jamie Lokier <jamie@shareable.org>, Kenn Humborg <kenn@linux.ie>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200310121644.h9CGiUeb011798@turing-police.cc.vt.edu>
+	Sun, 12 Oct 2003 13:10:36 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:25861 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263481AbTJLRKf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 13:10:35 -0400
+To: Ludovico Gardenghi <garden@despammed.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vfat corruption in 2.6.0?
+References: <20031012095720.GA21405@ripieno.somiere.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 13 Oct 2003 02:10:09 +0900
+In-Reply-To: <20031012095720.GA21405@ripieno.somiere.org>
+Message-ID: <87pth2jsb2.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ludovico Gardenghi <garden@despammed.com> writes:
 
-nobody says that it belongs into the kernel rather
-designed by core=kernel folks core-up, that is e.g.
-not being a derivative of a set of all-encompassing
-classes developed for an application. 
-
-I think the issue is serious and brushing it aside as
-being non-kernel at first will come back biting.
-What's going on could be described as being cornered. 
-
-
---- Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 12 Oct 2003 09:04:19 PDT, retu said:
+> He has a quite big vfat partition (60 GB) created with mkfs.vfat; he
+> ran a program that had to write ~5000 files summing up to 18 GB but
+> some hour after that program started (it's a simulation tool that
+> runs for ~20 hours on an athlon XP 2500+) his /var started to fill with
+> log errors of "attempt to access beyond the end of the device".
+> The files are very fragmented because they are written line by line
+> more or less in parallel.
 > 
-> > What's the solution out of this - a clean, open
-> object
-> > model designed by the core folks, extensible and
-> free
-> > of licensing issues - and that in the next months.
->  
+> Moreover, the partition resulted unmountable and fsck.vfat could not
+> manage to repair it --- the only solution being running MS win's
+> scandisk tool. After the repair some of the smaller files on the disk
+> got lost and some part of the bigger files got corrupted.
 > 
-> The point that seems to be continually missed is
-> that although
-> it may be a *fine* concept for userspace, it doesn't
-> belong in the
-> kernel.  There's a syscall barrier for multiple
-> reasons, some technical
-> and some political/legal.
+> This happened twice (with test3 and test6) and the partition was
+> completely erased and re-created between the 2 crashes.
 > 
-> If anything, we collectively DON'T want to go there
-> because a clever lawyer
-> could argue that doing a "all the way from kernel to
-> userspace" object-oriented
-> scheme would make essentially all userspace code a
-> derived work, since it would
-> be so tightly entwined with the kernel
-> implementation (basically, you'd be
-> subjecting all of userspace to the same "derived
-> work" limbo that closed-source
-> kernel modules currently live in).  This could
-> render totally irrelevant this
-> text from /usr/src/linux/COPYING:
+> I can't tell much more than this because my friend had to erase his logs
+> because they filled up /var.
 > 
->    NOTE! This copyright does *not* cover user
-> programs that use kernel
->  services by normal system calls - this is merely
-> considered normal use
->  of the kernel, and does *not* fall under the
-> heading of "derived work".
->  Also note that the GPL below is copyrighted by the
-> Free Software
->  Foundation, but the instance of code that it refers
-> to (the Linux
->  kernel) is copyrighted by me and others who
-> actually wrote it.
-> 
-> Yes, this would mean that userspace would be GPL'ed
-> as well, and
-> you'll never see Oracle on a Linux box again for a
-> VERY long time....
+> Ludovico
+> -- 
+> <dunadan@libero.it>          #acheronte (irc.freenode.net) ICQ: 64483080
+> GPG ID: 07F89BB8              Jabber: garden@jabber.students.cs.unibo.it
+> -- This is signature nr. 1249
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-> ATTACHMENT part 2 application/pgp-signature 
-
-
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

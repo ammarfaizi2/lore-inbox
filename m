@@ -1,118 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTEFQ0A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTEFQZ4
+	id S263855AbTEFQ1L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbTEFQ0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:25:56 -0400
-Received: from mail.convergence.de ([212.84.236.4]:9929 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S263945AbTEFQOC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:14:02 -0400
-Message-ID: <3EB7E18B.5080701@convergence.de>
-Date: Tue, 06 May 2003 18:23:39 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: [PATCH[[2.5][10-11] update analog saa7146 drivers mxb and dpc7146
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050107090509070303030205"
+	Tue, 6 May 2003 12:26:12 -0400
+Received: from www1.mail.lycos.com ([209.202.220.140]:7548 "HELO lycos.com")
+	by vger.kernel.org with SMTP id S263855AbTEFQPV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 12:15:21 -0400
+To: "Sumit Narayan" <sumit_uconn@lycos.com>, "Peder Stray" <peder@ifi.uio.no>
+Date: Tue, 06 May 2003 12:26:57 -0400
+From: "Sumit Narayan" <sumit_uconn@lycos.com>
+Message-ID: <KOBLHIAKBGCCCDAA@mailcity.com>
+Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+X-Sent-Mail: off
+Reply-To: sumit_uconn@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: Files truncate on vfat filesystem
+X-Sender-Ip: 137.99.1.12
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050107090509070303030205
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This probably couldnt be the problem, but I have faced the similar problem on my XP machine, while transferring files ranging in 600MB+ from CD to HD. The transfer would be complete, and when I remove the CD, it showed the file size 0. I just assumed that the same problem existed with you also.
+Sorry for wrong info..
+Sumit 
+--
 
-Hello,
+On Tue, 6 May 2003 18:12:07   
+ Peder Stray wrote:
+>On Tue, 6 May 2003, Sumit Narayan wrote:
+>
+>> I think the problem that you are facing is because you umount the disk
+>> immediately after transferring the file. Though ls indicates that the
+>> file has been transferred, and the size match, the transfer would still
+>> be in progress behind the scene, and once you umount, and remove the USB
+>> disk, the data is lost, since the transfer was not complete.
+>
+>That is definitly not the problem... i have mounted both with and without
+>the sync option, and umount usually hangs until all buffers are flushed to
+>the disk.
+>
+>> You are facing this problem randomly, depending on how long you wait
+>> after the transfer to remove the disk.
+>
+>yes, i usually have the disk mounted all the time it is connected to my
+>computer, and umount/mount is just somthing i use to check if the files
+>got transferred correctly
+>
+>> This happens when you are transferring large files, and not while using
+>> small files.
+>
+>size doesn't matter at all with this problem... files ranging from under
+>1k in size to well up under 1GiB have been truncated
+>
+>> This will happen even when you are transferring large files from your
+>> CDs.
+>
+>never tried to copy from my cd.
+>
+>> I hope this helps. Just wait for few seconds after the transfer is done,
+>> and you wont lose your data anymore.
+>
+>sorry to report that your input didn't help at all.
+>
+>> Regards,
+>> Sumit
+>> --
+>>
+>> On 06 May 2003 17:29:12 +020
+>>  Peder Stray wrote:
+>> >
+>> >I have a 250GB usb-storage disk i use to transport large files between
+>> >work and home, I uses vfat (since I haven't found any other good
+>> >filesystems that don't require me to either be root or have all files
+>> >worldreadable). Anyways...
+>> >
+>> >Some files get its size truncated to 0 after a while (usually a few
+>> >minuts, or when i umount the disk). They seem to be the correct size
+>> >when I do ls -l immediately after i have transfered the files (with cp
+>> >or rsync, doesn't really matter). Moving files on the disk with mv also
+>> >seems to trigger the problem sometimes.
+>> >
+>> >I see that blocks get allocated, but the filesizes are 0. Currently
+>> >there is a difference of 17GB in the output of df and du.
+>> >
+>> >I have also noticed that the size of some directories get truncated too,
+>> >thus all files copied or moved into those directories dissappear. ls -l
+>> >in those directories doesn't even show . and ..
+>> >
+>> >it seem very inconsistent which files are affected, both in size, length
+>> >of filename, unusual characters or depth in the filestructure. No
+>> >messages from the kernel logs.
+>> >
+>> >A check of the filesystem from XP reports no errors in the
+>> >filestructure, and it work 100% there.
+>> >
+>> >kernel versions used are are amongst 2.4.18 and 2.4.20, selfcompiled or
+>> >stock from RH.
+>> >
+>> >More details can of course be supplied if anyone have any ideas what to
+>> >check and how.
+>> >
+>> >any comments or help would be much appreciated as the loss of data i
+>> >experience is more than a little annyoing.
+>> >
+>> >--
+>> >  Peder Stray
+>> >
+>> >-
+>> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> >the body of a message to majordomo@vger.kernel.org
+>> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> >Please read the FAQ at  http://www.tux.org/lkml/
+>> >
+>>
+>>
+>> ____________________________________________________________
+>> Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
+>> http://login.mail.lycos.com/r/referral?aid=27005
+>>
+>
+>-- 
+>  Peder Stray
+>
 
-this patch updates the mxb and dpc7146 drivers.
 
-- add MODULE_DEVICE_TABLE entries, so that /sbin/hotplug can handle the 
-devices
-- fixup due to the latest i2c changes
-
-Please apply.
-
-Thanks
-Michael Hunold.
-
-
-
-
-
-
-
-
-
-
-
-
---------------050107090509070303030205
-Content-Type: text/plain;
- name="10-saa7146-analog-video-drivers-update.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="10-saa7146-analog-video-drivers-update.diff"
-
-diff -uNrwB -x '*.o' --new-file linux-2.5.69/drivers/media/video/dpc7146.c linux-2.5.69.patch/drivers/media/video/dpc7146.c
---- linux-2.5.69/drivers/media/video/dpc7146.c	2003-05-06 13:15:34.000000000 +0200
-+++ linux-2.5.69.patch/drivers/media/video/dpc7146.c	2003-04-22 18:30:31.000000000 +0200
-@@ -23,10 +23,6 @@
- #include <media/saa7146_vv.h>
- #include <linux/video_decoder.h>	/* for saa7111a */
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,51)
--	#define KBUILD_MODNAME dpc7146
--#endif
--
- #define I2C_SAA7111A            0x24
- 
- /* All unused bytes are reserverd. */
-@@ -340,6 +336,8 @@
- 	}
- };
- 
-+MODULE_DEVICE_TABLE(pci, pci_tbl);
-+
- static
- struct saa7146_ext_vv vv_data = {
- 	.inputs		= DPC_INPUTS,
-diff -uNrwB -x '*.o' --new-file linux-2.5.69/drivers/media/video/mxb.c linux-2.5.69.patch/drivers/media/video/mxb.c
---- linux-2.5.69/drivers/media/video/mxb.c	2003-05-06 13:16:20.000000000 +0200
-+++ linux-2.5.69.patch/drivers/media/video/mxb.c	2003-04-28 19:44:54.000000000 +0200
-@@ -26,10 +26,6 @@
- #include <media/saa7146_vv.h>
- #include <linux/video_decoder.h>	/* for saa7111a */
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,51)
--	#define KBUILD_MODNAME mxb
--#endif
--
- #include "mxb.h"
- #include "tea6415c.h"
- #include "tea6420.h"
-@@ -436,10 +432,11 @@
- 		   polling method ... */
- 		extension.flags &= ~SAA7146_USE_I2C_IRQ;
- 		for(i = 1;;i++) {
--			msg.len = mxb_saa7740_init[i].length;		
--			if (msg.len == -1U) {
-+			if( -1 == mxb_saa7740_init[i].length ) {
- 				break;
- 			}
-+
-+			msg.len = mxb_saa7740_init[i].length;		
- 			msg.buf = &mxb_saa7740_init[i].data[0];
- 			if( 1 != (err = i2c_transfer(&mxb->i2c_adapter, &msg, 1))) {
- 				DEB_D(("failed to initialize 'sound arena module'.\n"));
-
---------------050107090509070303030205--
-
-
+____________________________________________________________
+Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
+http://login.mail.lycos.com/r/referral?aid=27005

@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276047AbRJGRkI>; Sun, 7 Oct 2001 13:40:08 -0400
+	id <S276489AbRJGRk6>; Sun, 7 Oct 2001 13:40:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276483AbRJGRj6>; Sun, 7 Oct 2001 13:39:58 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30728 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276047AbRJGRjp>; Sun, 7 Oct 2001 13:39:45 -0400
-Date: Sun, 7 Oct 2001 10:39:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-cc: Simon Kirby <sim@netnation.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11pre4 swapping out all over the place
-In-Reply-To: <Pine.LNX.4.33.0110070906020.30872-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.33.0110071031160.7151-100000@penguin.transmeta.com>
+	id <S276486AbRJGRkj>; Sun, 7 Oct 2001 13:40:39 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:5838 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S276483AbRJGRkd>;
+	Sun, 7 Oct 2001 13:40:33 -0400
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <d3n136tc48.fsf@lxplus014.cern.ch> <15294.47999.501719.858693@cargo.ozlabs.ibm.com> <20011006.013819.17864926.davem@redhat.com> <15294.63138.941581.771248@cargo.ozlabs.ibm.com> <d3adz4u1gx.fsf@lxplus014.cern.ch> <15295.47686.932418.81948@cargo.ozlabs.ibm.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 07 Oct 2001 19:40:56 +0200
+In-Reply-To: Paul Mackerras's message of "Sun, 7 Oct 2001 12:13:26 +1000 (EST)"
+Message-ID: <d37ku7s5zr.fsf@lxplus014.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
 
-On Sun, 7 Oct 2001, Tobias Ringstrom wrote:
->
-> On Sat, 6 Oct 2001, Linus Torvalds wrote:
-> >
-> > Ok, can you try this slightly more involved patch instead? It basically
-> > keeps the old try_to_free_pages() (it _looks_ different, but the logic is
-> > the same), but also should honour the OOM-killer.
->
-> Yes, this patch also solves the problem.
+Paul> Jes Sorensen writes:
+>> I haven't looked at the ohci driver at all, however doesn't it
+>> return anything but the dma address? No index, no offset, no
+>> nothing? If thats the case, someone really needs to go visit the
+>> designers with a large bat ;-(
 
-Good.
+Paul> The OHCI hardware works with linked lists of transfer
+Paul> descriptors, using bus addresses for the pointers of course.
+Paul> When a transfer descriptor is completed, it gets linked onto a
+Paul> done-list by the hardware (on to the front of the list, so you
+Paul> get the completed descriptors in reverse order).
 
-> I just noticed that when reading from an umounted block device, the pages
-> are not cached between runs, i.e. the cache is dropped on close().  If the
-> block device contains a mounted filesystem, the pages are not dropped.
-> Is this intentional?
+Paul> There is no way to predict the completion order in general
+Paul> because you can have transfers in progress to several different
+Paul> devices, and to several endpoints on each device, at the same
+Paul> time, which can each supply or accept data at different rates.
 
-It's intentional, although something that can probably be discussed. The
-reasons for it are:
- - devices with broken or unreliable disk change mechanisms
- - the current dynamic [de-]allocation of block device data structures.
- - historical coherency reasons.
+Ok, so this is actually quite similar to how the AceNIC does it,
+however the great thing about the AceNIC descriptors is that it has an
+opague field in the descriptor which you can use as an index into a
+table or similar to dig out your dma descriptor addresses.
 
-None of the reasons for it are very strong - the block device data
-structure one is a _current_ implementation detail that has a lot of
-reasons going for it, but it's not something that is inherent in any real
-major design (we could reasonably easily delay the block device data
-structure release for some time).
-
-> I was also thinking about Simon's CD-burning case, and the fact that the
-> used-once logic really does not work very well for such cases.  You
-> usually first run mkisofs to create the image, and then read the image
-> when writing the CD.  This is similar to running
->
-> 	dd if=/dev/zero of=/tmp/cd bs=1M count=300
-> 	dd if=/tmp/cd of=/dev/null
-
-Well, I actually champion not considering writes accesses _at_all_, but I
-was overruled by Marcelo Tosatti. However, I bet that a good example would
-change his mind - and a benchmark.
-
-This is easy to test: remove the "SetPageReferenced(page);" from the
-generic_file_write() function (note how the current code is a mix between
-my "writes aren't references" and Marcelo's "writes are accesses like
-reads" - it only marks a page referenced, it never actually activates it).
-
-Are there other valid points in this discussion? I'd love to have a strong
-reason for doing what we're doing (which we don't have right now).
-
-> In this case, the pages are activated.  That is not too bad, since the
-> system now seems to be able to free even active cache pages before paging
-> out stuff.  (BTW, does it always free all cache before paging out?
-> That would most likely be very bad for many scenarios.)
-
-No, activating the pages only makes them slightly harder to get rid of,
-they don't become "pinned".
-
-		Linus
-
+Jes

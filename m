@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317431AbSHCD2f>; Fri, 2 Aug 2002 23:28:35 -0400
+	id <S317454AbSHCDbO>; Fri, 2 Aug 2002 23:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317433AbSHCD2f>; Fri, 2 Aug 2002 23:28:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31240 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317431AbSHCD2e>; Fri, 2 Aug 2002 23:28:34 -0400
-Date: Fri, 2 Aug 2002 20:32:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <davidm@hpl.hp.com>
-cc: Gerrit Huizenga <gh@us.ibm.com>, Hubertus Franke <frankeh@watson.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, <wli@holomorpy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd) 
-In-Reply-To: <15691.19423.265864.413887@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.33.0208022030170.2083-100000@penguin.transmeta.com>
+	id <S317457AbSHCDbO>; Fri, 2 Aug 2002 23:31:14 -0400
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:46808 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S317454AbSHCDbN>; Fri, 2 Aug 2002 23:31:13 -0400
+Message-ID: <3D4B4F1D.8080901@linuxhq.com>
+Date: Fri, 02 Aug 2002 23:33:49 -0400
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: scsi_mod unresolved symbol elv_queue_empty
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Apparently, there is an error resolving the symbol elv_queue_empty in 
+scsi_mod.o.  The only file that I know calls this function is 
+ll_rw_blk.c, but it does include blk.h (which includes elevator.h).  So 
+I am at a loss... any suggestions?
 
-On Fri, 2 Aug 2002, David Mosberger wrote:
-> 
-> The Rice people avoided some of the fragmentation problems by
-> pro-actively allocating a max-order physical page, even when only a
-> (small) virtual page was being mapped.
+[1.] Unresolved symbol in scsi_mod
+[2.] Unresolved symbol in scsi_mod.o (elv_queue_empty)
+[3.] kernel, modules, scsi
+[4.] Linux version 2.5.30 (root@boolean) (gcc version 3.2 20020720 (Red 
+Hat Linux Rawhide 3.2-0.1)) #3 Fri Aug 2 11:38:01 EDT 2002
+[5.]
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.30; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.5.30/kernel/drivers/scsi/scsi_mod.o
+depmod:         elv_queue_empty
 
-This probably works ok if
- - the superpages are only slightly smaller than the smaller page
- - superpages are a nice optimization.
+[6.] N/A
 
->				  And since superpages quickly become
-> counter-productive in tight-memory situations anyhow, this seems like
-> a very reasonable approach.
+[7.1.] Software
+Gnu C                  gcc 3.2 20020720
+Gnu make               3.79.1
+util-linux             2.11r
+mount                  2.11r
+modutils               2.4.19
+e2fsprogs              1.27
+pcmcia-cs              3.1.31
+PPP                    2.4.1
+Linux C Library        2.2.90
+Dynamic linker (ldd)   2.2.90
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    60:
+Sh-utils               2.0.12
 
-Ehh.. The only people who are _really_ asking for the superpages want 
-almost nothing _but_ superpages. They are willing to use 80% of all memory 
-for just superpages.
-
-Yes, it's Oracle etc, and the whole point for these users is to avoid 
-having any OS memory allocation for these areas.
-
-		Linus
+[7.2.] Processor
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : 00/08
+stepping        : 1
+cpu MHz         : 448.321
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
+cmov pat pse36 mmx fxsr sse
+bogomips        : 884.73
 

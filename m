@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132945AbRA3XF2>; Tue, 30 Jan 2001 18:05:28 -0500
+	id <S133005AbRA3XG6>; Tue, 30 Jan 2001 18:06:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132961AbRA3XFI>; Tue, 30 Jan 2001 18:05:08 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:37131 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132945AbRA3XE7>;
-	Tue, 30 Jan 2001 18:04:59 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: root@chaos.analogic.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: Your message of "Tue, 30 Jan 2001 17:57:44 CDT."
-             <Pine.LNX.3.95.1010130175517.3672A-100000@chaos.analogic.com> 
+	id <S132960AbRA3XGs>; Tue, 30 Jan 2001 18:06:48 -0500
+Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:2061 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S132946AbRA3XGj>;
+	Tue, 30 Jan 2001 18:06:39 -0500
+Date: Tue, 30 Jan 2001 23:06:33 +0000
+From: Michael Pacey <michael@wd21.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Multiple SCSI host adapters, naming of attached devices
+Message-ID: <20010130230633.B388@kermit.wd21.co.uk>
+In-Reply-To: <20010130224912.A388@kermit.wd21.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 31 Jan 2001 10:04:53 +1100
-Message-ID: <5363.980895893@ocs3.ocs-net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010130224912.A388@kermit.wd21.co.uk>; from michael@wd21.co.uk on Tue, Jan 30, 2001 at 22:49:12 +0000
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001 17:57:44 -0500 (EST), 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->On Wed, 31 Jan 2001, Keith Owens wrote:
->
->> On Tue, 30 Jan 2001 16:45:16 -0500 (EST), 
->> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
->> >The subject says it all. `make dep` is now broken.
->> >make[4]: Entering directory `/usr/src/linux-2.4.1/drivers/acpi'
->> >Makefile:29: *** target pattern contains no `%'.  Stop.
->> 
->> Which version of make are you running?
->> 
->	3.74
->
->y'a mean even make isn't make anymore?
+Of course I should have said this is linux kernel 2.2.17, an IBM PS/2 9585,
+in-built 'IBM MCA' SCSI adapter and an AHA-1640 MCA card.
 
-You mean that nobody reads Documentation/Changes any more?
+I now realise that in 2.4 I can use scsihosts=ibmmca:aha1542, but have no
+info for 2.2.17.
 
-Current Minimal Requirements
-o  Gnu make               3.77                    # make --version
+Sorry for the lack of info previously :)
 
-PEBCAK.
+Thanks again.
+
+
+On Tue, 30 Jan 2001 22:49:12 Michael Pacey wrote:
+> Sorry for posting this here, I'm sure you're all busy with 2.4.1 and
+> 2.2.18
+> but I'm read the SCSI HOWTO and asked on #LinPeople to no avail:
+> 
+> Given two host adapters each with 1 disk of ID 0, how do I tell Linux
+> which
+> is sda and which sdb?
+> 
+> After this I'll be filling the 2nd SCSI chain completely, so assigning a
+> different ID is not an option.
+> 
+> Thanks in advance.
+> 
+> --
+> Michael Pacey
+> michael@wd21.co.uk
+> ICQ: 105498469
+> 
+> wd21 ltd - world domination in the 21st century
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+> 
+
+--
+Michael Pacey
+michael@wd21.co.uk
+ICQ: 105498469
+
+wd21 ltd - world domination in the 21st century
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

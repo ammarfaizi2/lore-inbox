@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbTFJSCt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTFJSCt
+	id S263777AbTFJSBL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTFJSBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:02:49 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:22263 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263782AbTFJSCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:02:47 -0400
-Date: Tue, 10 Jun 2003 12:14:06 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Large files
-Message-ID: <20030610121406.D12274@schatzie.adilger.int>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0306100952560.4080@chaos> <20030610141759.GU28900@mea-ext.zmailer.org> <Pine.LNX.4.53.0306101057020.4326@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0306101057020.4326@chaos>; from root@chaos.analogic.com on Tue, Jun 10, 2003 at 11:12:55AM -0400
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 10 Jun 2003 14:01:11 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:65006 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263777AbTFJSBI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:01:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Timothy Miller <miller@techsource.com>,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: Coding standards. (Was: Re: [PATCH] [2.5] Non-blocking write can block)
+Date: Tue, 10 Jun 2003 13:14:16 -0500
+X-Mailer: KMail [version 1.2]
+Cc: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk> <Pine.LNX.4.55.0306091001270.3614@bigblue.dev.mcafeelabs.com> <3EE4D80A.2050402@techsource.com>
+In-Reply-To: <3EE4D80A.2050402@techsource.com>
+MIME-Version: 1.0
+Message-Id: <03061013141600.06462@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 10, 2003  11:12 -0400, Richard B. Johnson wrote:
-> > On Tue, Jun 10, 2003 at 09:57:57AM -0400, Richard B. Johnson wrote:
-> > > With 32 bit return values, ix86 Linux has a file-size limitation
-> > > which is currently about 0x7fffffff. Unfortunately, instead of
-> > > returning from a write() with a -1 and errno being set, so that
-> > > a program can do something about it, write() executes a signal(25)
-> > > which kills the task even if trapped. Is this one of those <expletive
-> > > deleted> POSIX requirements or is somebody going to fix it?
-> >
-> >   http://www.sas.com/standards/large.file/
-> >
-> > #define SIGXFSZ    25    /* File size limit exceeded (4.2 BSD). */
-> >
-> > from  fs/buffer.c:
-> >
-> >         err = -EFBIG;
-> >         limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
-> >         if (limit != RLIM_INFINITY && size > (loff_t)limit) {
-> >                 send_sig(SIGXFSZ, current, 0);
-> >                 goto out;
-> >         }
-> >         if (size > inode->i_sb->s_maxbytes)
-> >                 goto out;
-> >
-> >
-> 
-> On the system that fails, there are no ulimits and it's the root
-> account, therefore I don't know how to set the above limit to
-> RLIM_INFINITY (~0LU).  It's also version  2.4.20. I don't think
-> it has anything to do with 'rlim' shown above. In any event
-> sending a signal when the file-size exceeds some level is preposterous.
-> The write should return -1 and errno should have been set to EFBIG
-> (in user space). That allows the user's database to create another
-> file and keep on trucking instead of blowing up and destroying the
-> user's inventory or whatever else was in process.
-> 
-> FYI, this caused the failure of a samba server for M$ stuff. It
-> gives the impression of Linux being defective. This is not good.
+On Monday 09 June 2003 13:55, Timothy Miller wrote:
+> Davide Libenzi wrote:
+>
+> > There's no such a thing as "horrible coding style", since coding style is
+> > strictly personal. Whoever try to convince you that one style is better
+> > than another one is simply plain wrong. Every reason they will give you
+> > to justify one style can be wiped with other opposite reasons. The only
+> > horrible coding style is to not respect coding standards when you work
+> > inside a project. This is a form of respect for other people working
+> > inside the project itself, give the project code a more professional look
+> > and lower the fatigue of reading the project code. Jumping from 24
+> > different coding styles does not usually help this. I do not believe
+> > professional developers can be scared by a coding style, if this is the
+> > coding style adopted by the project where they have to work in.
+>
+> Oh, yes, there is most certainly "horrible coding style".  When I was in
+> college, I met one CS student after another who really just did not
+> belong in CS, and you should have seen the code they wrote.
+>
+> Imagine a 200 line program which is ALL inside of main().  There is no
+> indenting.  Lines of code are broken in random places.  Blank lines are
+> inserted randomly.  The variable names chosen are a, b, c, d, e, etc.
+> It's impossible to tell which '{' is associated with which '}'.
+>
+> It's been a while.  I can't remember all of the violations of reason and
+> sanity I saw.  I pity the grad students who were faced with grading
+> these monstrosities.
 
-If your application is not compiled with O_LARGEFILE, you will also
-get SIGXFSZ if you try to write past the 2GB limit.  This is to avoid
-your application corrupting data by trying to store a 64-bit file
-size in an (apparently) 32-bit data value (32-bit because you didn't
-specify O_LARGEFILE).
+ummm been there... Actually, after the first 20 it got easy... If I couldn't
+read it, it got an "F" (whether it worked or not).
 
-I don't see anything in signal(7) which says that SIGXFSZ(25) can't be
-caught and handled by the application, but at that point you may as
-well just fix the app to just open the file with O_LARGEFILE and handle
-64-bit file offsets properly.
+If it could be read with difficulty (and worked) it got a D
+If it could be read and worked it got a C
+If it could be read and was clear (and worked) it got a B
+If it was short, clear, and worked it got an A
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+And I have met some of the idiots (including Piled higher and Deeper ones) 
+that couldn't program their way through a "hello there" program.

@@ -1,131 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266492AbUBLPvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 10:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLPvB
+	id S266493AbUBLPmc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 10:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLPmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 10:51:01 -0500
-Received: from fed1mtao08.cox.net ([68.6.19.123]:22514 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S266492AbUBLPu5
+	Thu, 12 Feb 2004 10:42:31 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:23719 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266493AbUBLPly
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 10:50:57 -0500
-Date: Thu, 12 Feb 2004 08:50:55 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: [PATCH][6/6] A different KGDB stub
-Message-ID: <20040212155055.GN19676@smtp.west.cox.net>
-References: <20040212000408.GG19676@smtp.west.cox.net.suse.lists.linux.kernel> <p73wu6syf0n.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73wu6syf0n.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 12 Feb 2004 10:41:54 -0500
+Date: Thu, 12 Feb 2004 16:41:50 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4: Problems with dead code/data with gcc 3.4
+Message-ID: <Pine.LNX.4.55.0402121613510.22119@jurand.ds.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 07:43:04AM +0100, Andi Kleen wrote:
+Hello,
 
-> Tom Rini <trini@kernel.crashing.org> writes:
-> 
-> Andrew, please don't add this broken version.
-> 
-> > @@ -219,7 +219,7 @@
-> >  	jnc sysret_signal
-> >  	sti
-> >  	pushq %rdi
-> > -	call schedule
-> > +	call user_schedule
-> 
-> I really don't like this change. It is completely useless because you
-> can get the pt_regs as well from the stack.  Please don't add it.
-> George's stub also didn't need it.
-> 
-> > +#ifdef CONFIG_KGDB_THREAD
-> > +ENTRY(kern_schedule)
-> 
-> Similar. No such crap please.
+ After upgrading gcc to 3.4 I've discovered the compiler is now more
+serious about discarding dead code or data.  As a result parts of the
+kernel that appear unused, such as the ".setup.init" or ".modinfo"
+sections, get removed, and the "unused" attribute only masks the problem
+by quieting warnings.  However, gcc currently provides another attribute,
+"used", that instead of removing warnings, actually tells the compiler
+that whatever it's attached to is indeed used, perhaps in a way that
+cannot be observed by the compiler.  There's code in init/main.c that
+assumes a non-empty ".setup.init" section and failing that leads to
+unpredictable behavior (it just hangs for me on a MIPSel/Linux box).
 
-Amit?  I seem to recall you and George (and Andi?) talking about how to
-get rid of these bits, did you ever write any of it up?
+ Here's a patch that makes the kernel work for me for i386/Linux.  It's
+based on similar changes that are already present in 2.6 and leaves the
+setup as is for gcc versions before 3.3 and using the new attribute for
+newer versions, by defining an "__attribute_used__" macro appropriately.
 
-> > @@ -317,13 +318,26 @@
-> >  		return;
-> >  
-> >  	sum = read_pda(apic_timer_irqs);
-> > -	if (last_irq_sums[cpu] == sum) {
-> > +	if (atomic_read(&debugger_active)) {
-> > +
-> > +		/*
-> > +		 * The machine is in debugger, hold this cpu if already
-> > +		 * not held.
-> > +		 */
-> > +		debugger_nmihook(cpu, regs);
-> > +		alert_counter[cpu] = 0;
-> 
-> This should be a notify_die.
+ Marcelo, would consider such a change for past 2.4.25?
 
-Not being firmiliar with x86_64, do you mean:
-		/*
-		 * The machine is in debugger, hold this cpu if already
-		 * not held.
-		 */
-		 notify_die(cpu, regs);
-? Or so?
+ Ralf, for MIPS/Linux the change is insufficient -- due to fragile
+constructs in arch/mips/kernel/syscall.c some code is removed, but using
+the "used" attribute does not help.  While the code is back again, it's
+reordered compared to what's emitted by older compilers and it's enough to
+stop it working.  I'm currently investigating a solution, or have you
+perhaps looked at the problem already?  It's there for 2.6 as well.
 
-> > +	} else if (last_irq_sums[cpu] == sum) {
-> > +
-> >  		/*
-> >  		 * Ayiee, looks like this CPU is stuck ...
-> >  		 * wait a few IRQs (5 seconds) before doing the oops ...
-> >  		 */
-> >  		alert_counter[cpu]++;
-> >  		if (alert_counter[cpu] == 5*nmi_hz) {
-> > +
-> > +			CHK_DEBUGGER(2,SIGSEGV,0,regs,)
-> > +
-> >  			if (notify_die(DIE_NMI, "nmi", regs, reason, 2, SIGINT) == NOTIFY_BAD) { 
-> 
-> That's complete crap. You have a debugger hook and you add your own
-> hook one line before it. Please fix that.
-
-Yes, Amit's version does this on PPC32 as well, and I'd like to change
-it, but I've been cleaning up other things.
-
-> > --- a/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
-> > +++ b/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
-> > @@ -252,6 +252,7 @@
-> >  	unsigned long	*io_bitmap_ptr;
-> >  /* cached TLS descriptors. */
-> >  	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
-> > +	void		*debuggerinfo;
-> >  };
-> 
-> This should not be needed
-
-What would be used instead to pass around the pt_regs?
-
-> > --- a/include/asm-x86_64/system.h	Wed Feb 11 15:42:06 2004
-> > +++ b/include/asm-x86_64/system.h	Wed Feb 11 15:42:06 2004
-> > @@ -19,6 +19,56 @@
-> >  #define __SAVE(reg,offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
-> >  #define __RESTORE(reg,offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
-> >  
-> > +/* #ifdef CONFIG_KGDB */
-> > +
-> > +/* full frame for the debug stub */
-> > +/* Should be replaced with a dwarf2 cie/fde description, then gdb could
-> > +   figure it out all by itself. */
-> > +struct save_context_frame { 
-> 
-> That's completely broken too. We have a full CFI description in the kernel
-> now, so this isn't needed anymore.
-
-Part of why I'm trying to get this into -mm is so that someone who has
-the hw and knowledge can try and merge some of the things that the other
-stubs got right into the stub that every arch can use.
+  Maciej
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+patch-2.4.24-gcc3-0.1
+diff -up --recursive --new-file linux-2.4.24.macro/include/linux/compiler.h linux-2.4.24/include/linux/compiler.h
+--- linux-2.4.24.macro/include/linux/compiler.h	2001-09-18 14:12:45.000000000 +0000
++++ linux-2.4.24/include/linux/compiler.h	2004-02-12 14:57:06.000000000 +0000
+@@ -13,4 +13,10 @@
+ #define likely(x)	__builtin_expect((x),1)
+ #define unlikely(x)	__builtin_expect((x),0)
+ 
++#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
++#define __attribute_used__	__attribute__((__used__))
++#else
++#define __attribute_used__	__attribute__((__unused__))
++#endif
++
+ #endif /* __LINUX_COMPILER_H */
+diff -up --recursive --new-file linux-2.4.24.macro/include/linux/init.h linux-2.4.24/include/linux/init.h
+--- linux-2.4.24.macro/include/linux/init.h	2004-02-12 12:48:26.000000000 +0000
++++ linux-2.4.24/include/linux/init.h	2004-02-12 14:57:06.000000000 +0000
+@@ -2,6 +2,7 @@
+ #define _LINUX_INIT_H
+ 
+ #include <linux/config.h>
++#include <linux/compiler.h>
+ 
+ /* These macros are used to mark some functions or 
+  * initialized data (doesn't apply to uninitialized data)
+@@ -67,7 +68,7 @@ extern struct kernel_param __setup_start
+ 
+ #define __setup(str, fn)								\
+ 	static char __setup_str_##fn[] __initdata = str;				\
+-	static struct kernel_param __setup_##fn __attribute__((unused)) __initsetup = { __setup_str_##fn, fn }
++	static struct kernel_param __setup_##fn __attribute_used__ __initsetup = { __setup_str_##fn, fn }
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+@@ -76,12 +77,12 @@ extern struct kernel_param __setup_start
+  * or exit time.
+  */
+ #define __init		__attribute__ ((__section__ (".text.init")))
+-#define __exit		__attribute__ ((unused, __section__(".text.exit")))
++#define __exit		__attribute_used__ __attribute__ ((__section__ (".text.exit")))
+ #define __initdata	__attribute__ ((__section__ (".data.init")))
+-#define __exitdata	__attribute__ ((unused, __section__ (".data.exit")))
+-#define __initsetup	__attribute__ ((unused,__section__ (".setup.init")))
+-#define __init_call	__attribute__ ((unused,__section__ (".initcall.init")))
+-#define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
++#define __exitdata	__attribute_used__ __attribute__ ((__section__ (".data.exit")))
++#define __initsetup	__attribute_used__ __attribute__ ((__section__ (".setup.init")))
++#define __init_call	__attribute_used__ __attribute__ ((__section__ (".initcall.init")))
++#define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
+ 
+ /* For assembly routines */
+ #define __INIT		.section	".text.init","ax"
+diff -up --recursive --new-file linux-2.4.24.macro/include/linux/module.h linux-2.4.24/include/linux/module.h
+--- linux-2.4.24.macro/include/linux/module.h	2004-02-12 13:12:17.000000000 +0000
++++ linux-2.4.24/include/linux/module.h	2004-02-12 15:08:00.000000000 +0000
+@@ -8,6 +8,7 @@
+ #define _LINUX_MODULE_H
+ 
+ #include <linux/config.h>
++#include <linux/compiler.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ 
+@@ -202,19 +203,22 @@ extern int try_inc_mod_count(struct modu
+ 
+ /* For documentation purposes only.  */
+ 
+-#define MODULE_AUTHOR(name)						   \
+-const char __module_author[] __attribute__((section(".modinfo"))) = 	   \
+-"author=" name
+-
+-#define MODULE_DESCRIPTION(desc)					   \
+-const char __module_description[] __attribute__((section(".modinfo"))) =   \
+-"description=" desc
++#define MODULE_AUTHOR(name)						\
++const char __module_author[]						\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) = "author=" name
++
++#define MODULE_DESCRIPTION(desc)					\
++const char __module_description[]					\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) = "description=" desc
+ 
+ /* Could potentially be used by kmod...  */
+ 
+-#define MODULE_SUPPORTED_DEVICE(dev)					   \
+-const char __module_device[] __attribute__((section(".modinfo"))) = 	   \
+-"device=" dev
++#define MODULE_SUPPORTED_DEVICE(dev)					\
++const char __module_device[]						\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) = "device=" dev
+ 
+ /* Used to verify parameters given to the module.  The TYPE arg should
+    be a string in the following format:
+@@ -229,15 +233,17 @@ const char __module_device[] __attribute
+ 	s	string
+ */
+ 
+-#define MODULE_PARM(var,type)			\
+-const char __module_parm_##var[]		\
+-__attribute__((section(".modinfo"))) =		\
+-"parm_" __MODULE_STRING(var) "=" type
+-
+-#define MODULE_PARM_DESC(var,desc)		\
+-const char __module_parm_desc_##var[]		\
+-__attribute__((section(".modinfo"))) =		\
+-"parm_desc_" __MODULE_STRING(var) "=" desc
++#define MODULE_PARM(var,type)						\
++const char __module_parm_##var[]					\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) =				\
++  "parm_" __MODULE_STRING(var) "=" type
++
++#define MODULE_PARM_DESC(var,desc)					\
++const char __module_parm_desc_##var[]					\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) =				\
++  "parm_desc_" __MODULE_STRING(var) "=" desc
+ 
+ /*
+  * MODULE_DEVICE_TABLE exports information about devices
+@@ -283,9 +289,10 @@ static const struct gtype##_id * __modul
+  * 3.	So vendors can do likewise based on their own policies
+  */
+  
+-#define MODULE_LICENSE(license) 	\
+-static const char __module_license[] __attribute__((section(".modinfo"))) =   \
+-"license=" license
++#define MODULE_LICENSE(license) 					\
++static const char __module_license[]					\
++  __attribute_used__							\
++  __attribute__((section(".modinfo"))) = "license=" license
+ 
+ /* Define the module variable, and usage macros.  */
+ extern struct module __this_module;
+@@ -296,11 +303,11 @@ extern struct module __this_module;
+ #define MOD_IN_USE		__MOD_IN_USE(THIS_MODULE)
+ 
+ #include <linux/version.h>
+-static const char __module_kernel_version[] __attribute__((section(".modinfo"))) =
+-"kernel_version=" UTS_RELEASE;
++static const char __module_kernel_version[] __attribute_used__
++	__attribute__((section(".modinfo"))) = "kernel_version=" UTS_RELEASE;
+ #ifdef MODVERSIONS
+-static const char __module_using_checksums[] __attribute__((section(".modinfo"))) =
+-"using_checksums=1";
++static const char __module_using_checksums[] __attribute_used__
++	__attribute__((section(".modinfo"))) = "using_checksums=1";
+ #endif
+ 
+ #else /* MODULE */

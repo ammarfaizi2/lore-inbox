@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316686AbSFDUlc>; Tue, 4 Jun 2002 16:41:32 -0400
+	id <S316792AbSFDUn5>; Tue, 4 Jun 2002 16:43:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316780AbSFDUlb>; Tue, 4 Jun 2002 16:41:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20487 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316686AbSFDUla>;
-	Tue, 4 Jun 2002 16:41:30 -0400
-Message-ID: <3CFD25A2.FCC7F66A@zip.com.au>
-Date: Tue, 04 Jun 2002 13:40:02 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
+	id <S316794AbSFDUn4>; Tue, 4 Jun 2002 16:43:56 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:34565 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316792AbSFDUnz>; Tue, 4 Jun 2002 16:43:55 -0400
+Date: Tue, 4 Jun 2002 13:43:40 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Miles Lane <miles@megapathdsl.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 -- Hanging (no oops and sysrq fails) after switching to
+ rivafb
+In-Reply-To: <20020604212747.C32338@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0206041343190.1200-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 12/16] fix race between writeback and unlink
-In-Reply-To: <3CFD1FF0.4A02CE96@zip.com.au> <Pine.LNX.4.44.0206041320280.29100-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> ...
-> I'd still love to see a "fast and slightly stupid" allocator for both
-> blocks and inodes, and have some infrastructure to do run-time defragging
-> in the background.
-> 
 
-I think runtime defrag could yield really good benefits.  In
-particular it would allow us to find_group_dir(), and always
-put directories in the same blockgroup as their parent (big
-speedups for the `untar-a-kernel-tree' workload).
+> If you're seeing this then your /usr/include/{asm,linux} are symlinks to
+> your current kernel source.  These directories must contain a copy of
+> the kernel header files that were used to build glibc with, not the
+> copy that came with the kernel you're currently running.
+>
+> (Please note: this is a FAQ - there's probably even a FAQ entry for it.)
 
-There's a patch at
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre10/ext3-reloc-page.patch
-which provides a simple `relocate page' ioctl for ext3 files.  It
-relocates a page's blocks.  The operation is fully journalled and
-pagecache-coherent.  So you can turn off the power in the middle
-of a defrag operation and the fs will come back just fine.  It doesn't
-make any attempt to relocate inodes.  If the page relocation attempt fails
-then it just returns -EAGAIN and userspace gets to worry about what
-to do.
+Ug. I never had that happen before. Thanks. Problem fixed.
 
-I simply have not had the time to do anything about the userspace
-program which drives that ioctl.  So if there's anyone out there
-who has a little time on their hands...
-
--

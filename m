@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270818AbTG1UPL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 16:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270824AbTG1UPL
+	id S270585AbTG1UHt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 16:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270672AbTG1UHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 16:15:11 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:17888 "EHLO
-	ophelia.hpce.nec.com") by vger.kernel.org with ESMTP
-	id S270818AbTG1UPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 16:15:01 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [patch] scheduler fix for 1cpu/node case
-Date: Mon, 28 Jul 2003 22:18:19 +0200
-User-Agent: KMail/1.5.1
-Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org
-References: <200307280548.53976.efocht@gmx.net> <3900670000.1059422153@[10.10.2.4]>
-In-Reply-To: <3900670000.1059422153@[10.10.2.4]>
+	Mon, 28 Jul 2003 16:07:49 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:21113
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S270585AbTG1UHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 16:07:25 -0400
+Message-ID: <123101c35544$1b382fb0$7f0a0a0a@lappy7>
+Reply-To: "Sean Estabrooks" <seanlkml@rogers.com>
+From: "Sean Estabrooks" <seanlkml@rogers.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3897970000.1059421161@[10.10.2.4]> <20030728205501.A26278@infradead.org>
+Subject: Re: [Bug 999] New: Problem with the /dev/ptmx file
+Date: Mon, 28 Jul 2003 16:09:09 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307282218.19578.efocht@hpce.nec.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.102.213.108] using ID <seanlkml@rogers.com> at Mon, 28 Jul 2003 16:07:24 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 July 2003 21:55, Martin J. Bligh wrote:
-> > after talking to several people at OLS about the current NUMA
-> > scheduler the conclusion was:
-> > (1) it sucks (for particular workloads),
-> > (2) on x86_64 (embarassingly simple NUMA) it's useless, goto (1).
->
-> I really feel there's no point in a NUMA scheduler for the Hammer
-> style architectures. A config option to turn it off would seem like
-> a simpler way to go, unless people can see some advantage of the
-> full NUMA code?
 
-But the Hammer is a NUMA architecture and a working NUMA scheduler
-should be flexible enough to deal with it. And: the corner case of 1
-CPU per node is possible also on any other NUMA platform, when in some
-of the nodes (or even just one) only one CPU is configured in. Solving
-that problem automatically gives the Hammer what it needs.
 
-> > Fact is that the current separation of local and global balancing,
-> > where global balancing is done only in the timer interrupt at a fixed
-> > rate is way too unflexible. A CPU going idle inside a well balanced
-> > node will stay idle for a while even if there's a lot of work to
-> > do. Especially in the corner case of one CPU per node this is
-> > condemning that CPU to idleness for at least 5 ms.
->
-> Surely it'll hit the idle local balancer and rebalance within the node?
-> Or are you thinking of a case with 3 tasks on a 4 cpu/node system?
+> He needs to compile in and use devpts.  But if he insists in the
+> crappy bugzilla interface instead of lkml I won't tell him.
+> 
 
-No, no, the local load balancer just doesn't make sense now if you
-have one cpu per node. It is called although it will never find
-another cpu in the own cell to steal from. There just is nothing
-else... (or did I misunderstand your comment?)
+I noticed that it was already solved by 10:30am so i'm not 
+sure why this is just hitting the list now.
 
-> > So x86_64 platforms
-> > (but not only those!) suffer and whish to switch off the NUMA
-> > scheduler while keeping NUMA memory management on.
->
-> Right - I have a patch to make it a config option (CONFIG_NUMA_SCHED)
-> ... I'll feed that upstream this week.
+What's your objection to bugzilla?  It's not perfect but it
+does seem better than the list alone to track a bug.
 
-That's one way, but the proposed patch just solves the problem (in a
-more general way, also for other NUMA cases). If you deconfigure NUMA
-for a NUMA platform, we'll have problems switching it back on when
-adding smarter things like node affine or homenode extensions.
-
-> > The attached patch is a simple solution which
-> > - solves the 1 CPU / node problem,
-> > - lets other systems behave (almost) as before,
-> > - opens the way to other optimisations like multi-level node
-> >   hierarchies (by tuning the retry rate)
-> > - simpifies the NUMA scheduler and deletes more lines of code than it
-> >   adds.
->
-> Looks simple, I'll test it out.
-
-Great! Thanks!
-
-Erich
-
+Cheers,
+Sean
 

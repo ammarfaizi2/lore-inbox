@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbTBQCDo>; Sun, 16 Feb 2003 21:03:44 -0500
+	id <S265230AbTBQCSl>; Sun, 16 Feb 2003 21:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264925AbTBQCDn>; Sun, 16 Feb 2003 21:03:43 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65042 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264920AbTBQCDn>; Sun, 16 Feb 2003 21:03:43 -0500
-Date: Sun, 16 Feb 2003 21:10:21 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-pre4 comparison bugs
-In-Reply-To: <20030208232510.GA1841@werewolf.able.es>
-Message-ID: <Pine.LNX.3.96.1030216210059.29049F-100000@gatekeeper.tmr.com>
+	id <S265457AbTBQCSl>; Sun, 16 Feb 2003 21:18:41 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:52099 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S265230AbTBQCSi>; Sun, 16 Feb 2003 21:18:38 -0500
+Message-ID: <3E50491C.2030901@didntduck.org>
+Date: Sun, 16 Feb 2003 21:29:48 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Move __this_module to xxx.mod.c
+References: <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Feb 2003, J.A. Magallon wrote:
+Kai Germaschewski wrote:
 
-> So:
-> 
-> unsgined f()
-> {
-> 	return -1;
-> }
-> 
-> if ((int)f()<0)
-> ??
-> 
-> Wouldn't you get killed by some kind of bit/sign extension in the return ?
-> Just to be sure, probably the answer is just 'go learn C internals'...
+> On Sun, 16 Feb 2003, Brian Gerst wrote:
+>
+>
+> >This patch moves the module structure to the generated .mod.c file,
+> >instead of compiling it into each object and relying on the linker to
+> >include it only once.
+>
+>
+> Yeah, it's something I though about doing, but I was not sure. I think
+> it's up to Rusty to comment ;)
+>
+> It will need an associated change to module_init_tools.
+>
+> Another comment:
+>
+> diff -urN linux-2.5.61-bk1/scripts/modpost.c linux/scripts/modpost.c
+> --- linux-2.5.61-bk1/scripts/modpost.c	2003-02-16 10:06:35.000000000 -0500
+> +++ linux/scripts/modpost.c	2003-02-16 14:10:19.000000000 -0500
+> @@ -287,6 +287,10 @@
+>  		/* undefined symbol */
+>  		if (ELF_ST_BIND(sym->st_info) != STB_GLOBAL)
+>  			break;
+> +
+> +		/* ignore __this_module */
+> +		if (!strcmp(symname, "__this_module"))
+> +			break;
+>  		
+>  		s = alloc_symbol(symname);
+>  		/* add to list */
+>
+> Is that necessary? __this_module shouldn't be unresolved, so this case
+> should never be hit AFAICS.
 
-Fuzzy thinking and non-portable. I think the answer is that someone didn't
-put enough thought into the error returns. This is trickery to avoid
-defining an error value to return. One of those "it works on most
-compilers and computers" things. Definitely low human readability. If the
-return value is always small enough to be positive if cast to (int), why
-not return int? Can't say without looking at actual code rather than a
-general example.
+After the definition is removed from module.h, it is unresolved before 
+it is linked to xxx.mod.c.
 
-Because it mostly works, I'm not sure what priority a more readable return
-code would have, though.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+				Brian Gerst
 

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131274AbRBFByE>; Mon, 5 Feb 2001 20:54:04 -0500
+	id <S129333AbRBFCUv>; Mon, 5 Feb 2001 21:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136111AbRBFBxy>; Mon, 5 Feb 2001 20:53:54 -0500
-Received: from beaker.bluetopia.net ([63.219.235.110]:44624 "EHLO
-	beaker.bluetopia.net") by vger.kernel.org with ESMTP
-	id <S131274AbRBFBxk>; Mon, 5 Feb 2001 20:53:40 -0500
-Date: Mon, 5 Feb 2001 20:53:18 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetopia.net>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-cc: Mikael Pettersson <mikpe@csd.uu.se>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
-In-Reply-To: <Pine.LNX.4.04.10102051856530.2712-100000@beaker.bluetopia.net>
-Message-ID: <Pine.LNX.4.04.10102052049070.2712-100000@beaker.bluetopia.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129501AbRBFCUl>; Mon, 5 Feb 2001 21:20:41 -0500
+Received: from [211.100.91.213] ([211.100.91.213]:33520 "EHLO
+	marvin.zhlinux.com") by vger.kernel.org with ESMTP
+	id <S129333AbRBFCUZ>; Mon, 5 Feb 2001 21:20:25 -0500
+Date: Tue, 6 Feb 2001 10:20:48 +0800
+From: Wenzhuo Zhang <wenzhuo@zhmail.com>
+To: reiserfs-list@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: mongo.sh 2.2.18: do_try_to_free_pages failed ...
+Message-ID: <20010206102048.A816@zhmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Ricky Beam wrote:
->Interesting...  I just checked my machine (2.4.1-SMP) to see it only saw
->64MB when it has 256MB.
-...
->Nothing at all has changed in either the BIOS setup, compiler, etc.  All I
->did was reboot (and not pay it any attention.)  The configuration was the
->same (make oldconfig.)
 
-Dammit.  Ok, all better now.  I guess that fruit fly managed to get into
-more than just the slot-1 connector.  We can thank Tyan and AMI for not
-checking the contents of ESCD nor giving me a way to reset it without
-nuking CMOS.
+Hi,
 
-(It would appear ACPI, when re-enabled, powered the RAID controller down.
- That makes it Really Hard (tm) to boot.)
+I got the VM error "VM: do_try_to_free_pages failed for mongo_read..."
+and then I couldn't log into the system, when stress testing
+reiserfs+raid0 setup on a 2.2.18 box using the reiserfs benchmark
+mongo.sh. The problem was reporduceable on each run of mongo.sh.
 
---Ricky
+./mongo.sh reiserfs /dev/md0 /mnt/testfs raid0-rfs 3
 
+Thinking the raid code might cause the problem, I tested on reiserfs
+only, but I got the same error message. Later, I found the same
+problem running mongo.sh on an ext2 partition (stock kernel without
+any patches).
+
+I guess this problem is not reiserfs specific. What can I do now to
+solve the problem?
+
+Here is the hardware configuration of my test box:
+PIII 600, 256M, Adaptec AIC-7896 SCSI controller, two Quantum SCSI
+disks.
+
+Regards,
+-- 
+Wenzhuo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

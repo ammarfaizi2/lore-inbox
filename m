@@ -1,250 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUH1PEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUH1PKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266786AbUH1PEY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 11:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUH1PEY
+	id S266850AbUH1PKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 11:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUH1PKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 11:04:24 -0400
-Received: from vsmtp12.tin.it ([212.216.176.206]:25334 "EHLO vsmtp12.tin.it")
-	by vger.kernel.org with ESMTP id S266786AbUH1PEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 11:04:14 -0400
-From: Al <wizard@slacky.it>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Logitech optical usb mouse and vfat partition passing from 2.6.7 to 2.6.8.1 kernel
-Date: Sat, 28 Aug 2004 17:04:26 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 28 Aug 2004 11:10:24 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:42652 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266850AbUH1PKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 11:10:23 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040828073709.GA8990@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys>
+	 <20040824061459.GA29630@elte.hu>
+	 <1093556379.5678.109.camel@krustophenia.net>
+	 <1093625672.837.25.camel@krustophenia.net>  <20040828073709.GA8990@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093705828.8611.19.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 11:10:28 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408281704.27031.wizard@slacky.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi at all,
+On Sat, 2004-08-28 at 03:37, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > I am seeing large latencies (600-2000 usec) latencies in
+> > dcache_readdir.  This started when the machine became a Samba server
+> > and the dcache presumably got large.  Traces are at the above url (8
+> > and 9 I believe).  I think this patch fixes it.
+> > 
+> > --- fs/libfs.c~	2004-08-14 06:54:47.000000000 -0400
+> > +++ fs/libfs.c	2004-08-27 00:44:17.000000000 -0400
+> > @@ -140,6 +140,7 @@
+> >  			}
+> >  			for (p=q->next; p != &dentry->d_subdirs; p=p->next) {
+> >  				struct dentry *next;
+> > +				voluntary_resched_lock(&dcache_lock);
+> >  				next = list_entry(p, struct dentry, d_child);
+> >  				if (d_unhashed(next) || !next->d_inode)
+> >  					continue;
+> 
+> In this loop we are iterating over the child-directories of this
+> directory. In the next line (not shown in this patch) we drop the
+> dcache_lock - so the issue is the 'continue' - where we skip already
+> deleted entries. Are you positive this fixes the latencies you are
+> seeing? The 'deleted entries' situation ought to be relatively rare.
 
-as first i want to thank you for your precious job.
-I'm sorry for my bad english and i hope don't make you lose your time. I'm 
-sending you this mail not to have an anwser as i don't need the newer kernel 
-(i work with the previous anyway), but only hopping to give you  some 
-"advise" on the possible bugs of the newer kernel.
-So i'm passing to explain my problems.
+No, I am not sure this fixes the problem.  This is a pretty rare one, I
+only saw it twice.  I have not seen it since making the above change,
+but this doesn't mean anything.
 
-I'm using a Slackware 9.1 with gcc 3.2.3 on a MITAC's laptop.
-I tried to compile the newer kernel 2.6.8.1 in this way:
-I copied the ".config" file from kernel2.6.7 to the newer 2.6.8.1, and then i 
-controlled if alway was right with "make menuconfig".
-At the end i compiled the kernel and i saw that my mouse and vfat "dosn't 
-work" (a bad sentense...i know).
+Lee
 
-I controlled then the difference between the ".config" files of the two kernel 
-versions but they are nearly equal.
-To be more precise the following are my .config files and my dmesg messagges 
-(only the part i thought would interesting)
-
-First: Mouse: i have a Logitech optical usb mouse. 
-
-the following are the .config file of kernel 2.6.7 followed from the dmesg:
-
-[...]
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=y
-[...]
-
-#Logitech optical usb mouse
-usb 2-1: new low speed USB device using address 2
-input: USB HID v1.10 Mouse [Logitech Optical USB Mouse] on usb-0000:00:02.3-1
-usb 2-2: new full speed USB device using address 3
-
-#Touchpad //but it function on both kernel version. I insert this information 
-#because it could probably help you.
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-serio: i8042 AUX port at 0x60,0x64 irq 12
-Synaptics Touchpad, model: 1
- Firmware: 5.1
- 180 degree mounted touchpad
- Sensor: 15
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> multifinger detection
- -> palm detection
-input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
-
-
-And this is the .config file of kernel 2.6.8.1 followed from the dmesg: 
-
-[...]
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=y
-[...]
-
-#Logitech optical usb mouse
-there are't messagges for logitech mouse!
-
-#Touchpad //but it function on both kernel version.
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-serio: i8042 AUX port at 0x60,0x64 irq 12
-Synaptics Touchpad, model: 1
- Firmware: 5.1
- 180 degree mounted touchpad
- Sensor: 15
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> multifinger detection
- -> palm detection
-input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
-
-
-Second: i cannot mount my vfat partition.
-
-This is my dmesg log:
-
-[...]
-Unable to load NLS charset cp437
-FAT: codepage cp437 not found
-[...]
-
-this is the error message when i try to mount the partition with my hands:
-
-
-mount: wrong fs type, bad option, bad superblock on /dev/hda7,
-       or too many mounted file systems
-
-the command that i used was: mount -t vfat /dev/hda7 /win
-
-but in this case the config file is a bit different.
-kernel 2.6.7:
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=y
-
-
-kernel 2.6.8.1:
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=y
-
-and the different fields cannot be canged manually....(i mean with menuconfig)
-
-And finally a good news!
-With the newer kernel i can use my sis video card...even if theese are my last 
-messages of dmesg:
-
-sisfb: Deprecated ioctl call received - update your application!
-atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86, might be 
-trying access hardware directly.
-
-the following are the lspci -v messages for the video card:
-
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 
-SiS650/651/M650/740 PCI/AGP VGA Display Adapter (prog-if 00 [VGA])
-        Subsystem: Mitac: Unknown device 8575
-        Flags: 66Mhz, medium devsel, IRQ 5
-        BIST result: 00
-        Memory at 90000000 (32-bit, prefetchable) [size=128M]
-        Memory at e0000000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at c000 [size=128]
-        Capabilities: [40] Power Management version 1
-        Capabilities: [50] AGP version 2.0
-
-
-this is my dmessages for kernel 2.6.7 (where my sis video card was not 
-detected. With this kernel i'm using the generic VESA card instead of sis 
-card, because with the sis video card, when i boot the machine i cannot see 
-anything. I put this messages too because probably can help you.)
-
-vesafb: framebuffer at 0x90000000, mapped to 0xce809000, size 3072k
-vesafb: mode is 1024x768x16, linelength=2048, pages=4
-vesafb: protected mode interface info at cb6b:0004
-vesafb: scrolling: redraw
-vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-fb0: VESA VGA frame buffer device
-
-and this is my dmessages for kernel 2.6.8.1 
-
-sisfb: Using vga mode 1024x768x16 pre-set by kernel as default
-sisfb: Video ROM found and mapped to 0xc00c0000
-sisfb: Framebuffer at 0x90000000, mapped to 0xce809000, size 32768k
-sisfb: MMIO at 0xe0000000, mapped to 0xd080a000, size 128k
-sisfb: Memory heap starting at 32160K, size 32K
-sisfb: Detected SiS301LV video bridge
-sisfb: Detected secondary VGA connection
-sisfb: Detected 1024x768 flat panel
-sisfb: Detected LCD PDC 0x02 (for LCD=CRT2)
-sisfb: Detected LCD PDC1 0x04 (for LCD=CRT1)
-sisfb: Default mode is 1024x768x16 (60Hz)
-sisfb: Initial vbflags 0x400002a
-sisfb: 2D acceleration is enabled, y-panning enabled (auto-max)
-fb0: SiS 650 frame buffer device, Version 1.7.12
-
-
-I hope to do not post at the wrong address or wrote wrong things. 
-I post this mail because i'm suspicious because the nearly equal .config file 
-has produced a kernel so..."unstable".
-I want to remember you that your work is really important for more 
-people...both just students like me, or theachers, firms....and so on.
-Thanks for all.
-
-Alberto

@@ -1,80 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285099AbRL2Rd5>; Sat, 29 Dec 2001 12:33:57 -0500
+	id <S285136AbRL2Rhi>; Sat, 29 Dec 2001 12:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285114AbRL2Rds>; Sat, 29 Dec 2001 12:33:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25359 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285099AbRL2Rde>;
-	Sat, 29 Dec 2001 12:33:34 -0500
-Date: Sat, 29 Dec 2001 18:33:15 +0100
-From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
-Message-ID: <20011229183315.E1821@suse.de>
-In-Reply-To: <20011221154654.E811@suse.de> <20011221185538.A131@earthlink.net> <20011224150337.A593@suse.de> <20011224115953.A118@earthlink.net> <20011224180244.C1241@suse.de> <20011227140723.A4713@earthlink.net> <20011228124037.K2973@suse.de> <20011228091401.A15569@earthlink.net> <20011228153022.D1248@suse.de> <20011229014248.A17257@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011229014248.A17257@earthlink.net>
+	id <S285114AbRL2Rha>; Sat, 29 Dec 2001 12:37:30 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:63776 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S285136AbRL2RhO> convert rfc822-to-8bit; Sat, 29 Dec 2001 12:37:14 -0500
+Date: Sat, 29 Dec 2001 19:39:19 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
+ - update)
+In-Reply-To: <Pine.GSO.4.21.0112291421030.277-100000@vervain.sonytel.be>
+Message-ID: <20011229184019.V1580-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29 2001, rwhron@earthlink.net wrote:
-> > > Kernel panic: Out of memory and no killable processes...
-> > 
-> > Someone else did report a similar case. Very strange, doesn't look bio
-> 
-> Al Viro posted a fix:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=100959128922157&w=2
-> 
-> I used Al's patch and 2.5.2-pre3 boots with reiserfs root_fs
-> and no panic.
-> 
-> Below is the trace on 2.5.2-pre3 after dbench 32 livelocked.
 
-Thanks, could you try with this patch? It's not a fix (haven't found the
-bug yet), but I think we are looking at list corruption so please check
-if this patch at least alters when it hangs etc.
+On Sat, 29 Dec 2001, Geert Uytterhoeven wrote:
 
---- /opt/kernel/linux-2.5.2-pre3/drivers/block/elevator.c	Sat Dec 29 12:17:53 2001
-+++ drivers/block/elevator.c	Sat Dec 29 12:30:20 2001
-@@ -142,7 +142,7 @@
- int elevator_linus_merge(request_queue_t *q, struct request **req,
- 			 struct bio *bio)
- {
--	struct list_head *entry;
-+	struct list_head *entry, *head = &q->queue_head;
- 	struct request *__rq;
- 	int ret;
- 
-@@ -160,17 +160,22 @@
- 		}
- 	}
- 
-+	if ((__rq = __elv_next_request(q)))
-+		if (__rq->flags & REQ_STARTED)
-+			head = head->next;
-+
- 	entry = &q->queue_head;
- 	ret = ELEVATOR_NO_MERGE;
--	while ((entry = entry->prev) != &q->queue_head) {
-+	while ((entry = entry->prev) != head) {
- 		__rq = list_entry_rq(entry);
- 
-+		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
-+			break;
-+
- 		/*
- 		 * simply "aging" of requests in queue
- 		 */
- 		if (__rq->elevator_sequence-- <= 0)
--			break;
--		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
- 			break;
- 		if (!(__rq->flags & REQ_CMD))
- 			continue;
+> On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+> > On Fri, 28 Dec 2001, Geert Uytterhoeven wrote:
+> > > The sym-2 driver has a define for modifying the PCI latency timer
+> > > (SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
+> >
+> > By default sym-2 use value 3 for the pci_fix_up (cache line size + memory
+> > write and invalidate). The latency timer fix-up has been removed, since it
+> > is rather up to the generic PCI driver to tune latency timers.
+> >
+> > > Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
+> > > bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
+> > > driver (wrong burst_max)?
+> >
+> > Great bug hunting!
+> >
+> > It is about certainly not a software bug in the driver. Any latency timer
+> > value should not give any trouble if hardware was flawless. Just the PCI
+> > performances could be affected.
+>
+> I played a bit with sym-2 and setpci. Everything goes fine as long as the PCI
+> latency timer value is smaller than 0x16 (yes, at first I thought it was
+> decimal, but setpci parameters are in hex).
 
--- 
-Jens Axboe
+Interesting result, even if it doesn't trigger any of my guessing
+capabilities, for now. :-)
+
+Just it means that the 875 must release the PCI BUS if its GNT# signal is
+deasserted by PCI arbiter and current transaction lasted 22 PCI cycles or
+more since the assertion of FRAME#.
+
+If I remember correctly, the problem occurred when data is written to the
+device. Is it ok?
+
+If so, the MWI problem I pointed out in my previous posting is unlikely to
+apply. But, for user data DMA write, the 875 may execute Memory Read Line
+or Memory Read Multiple Lines transactions. It would be interesting to
+know if it makes difference disabling those capabilities.
+
+Setting to zero the PCI cache line register in the PCI configuration space
+does force the chip not to use any of the cache line based PCI
+transactions. It is brute force but should work.
+
+In order to disable separately those features, some IO register bits must
+be set to zero. The faster way is to hack the driver (sym_hipd.c) at some
+place, for example (entered by hand just for you):
+
+	/*
+	 *  Select all supported special features.
+	 *  If we are using on-board RAM for scripts, prefetch (PFEN)
+	 *  does not help, but burst op fetch (BOF) does.
+	 *  Disabling PFEN makes sure BOF will be used.
+	 */
+	if (np->features & FE_ERL)
+		np->rv_dmode	|= ERL;		/* Enable Read Line */
+	if (np->features & FE_BOF)
+		np->rv_dmode	|= BOF;		/* Burst Opcode Fetch */
+	if (np->features & FE_ERMP)
+		np->rv_dmode	|= ERMP;	/* Enable Read Multiple */
+#if 1
+	if ((np->features & FE_PFEN) && !np->ram_ba)
+#else
+	if (np->features & FE_PFEN)
+#endif
+		np->rv_dcntl	|= PFEN;	/* Prefetch Enable */
+	if (np->features & FE_CLSE)
+		np->rv_dcntl	|= CLSE;	/* Cache Line Size Enable */
+	if (np->features & FE_WRIE)
+		np->rv_ctest3	|= WRIE;	/* Write and Invalidate */
+	if (np->features & FE_DFS)
+		np->rv_ctest5	|= DFS;		/* Dma Fifo Size */
+
++ #if 0 /* Disable all cache line based features */
++ 	np->rv_dcntl	&= ~CLSE;
++ #endif
++ #if 1 /* Disable Read Line */
++ 	np->rv_dmode	&= ~ERL;
++ #endif
++ #if 1 /* Disable Read Multiple */
++ 	np->rv_dmode	&= ~ERMP;
++ #endif
++ #if 0 /* Disable Write and Invalidate */
++ 	np->rv_ctest3	&= ~WRIE;
++ #endif
+
+This example disables Read Line and Memory Read Multiple. I just added
+provisions (#if'ed zero) for other bits that also apply to cache line
+based transactions.
+
+Gérard.
 

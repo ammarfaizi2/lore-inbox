@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUAFIvk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 03:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUAFIvk
+	id S261567AbUAFJBp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 04:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAFJBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 03:51:40 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:14491 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261563AbUAFIvh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 03:51:37 -0500
-Message-ID: <3FFA7717.7080808@namesys.com>
-Date: Tue, 06 Jan 2004 11:51:35 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Tue, 6 Jan 2004 04:01:45 -0500
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:11375 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S261567AbUAFJBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 04:01:44 -0500
+Date: Tue, 6 Jan 2004 10:01:41 +0100 (CET)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.24-rc1
+In-Reply-To: <Pine.LNX.4.58L.0401052105460.5618@logos.cnet>
+Message-ID: <Pine.LNX.4.58LT.0401060955270.27546@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.58L.0401051130250.1188@logos.cnet>
+ <200401051744.i05HiJI1005152@lt.wsisiz.edu.pl> <20040105182117.GZ1882@matchmail.com>
+ <Pine.LNX.4.58LT.0401052156570.1448@lt.wsisiz.edu.pl>
+ <Pine.LNX.4.58L.0401052105460.5618@logos.cnet>
 MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: "Tigran A. Aivazian" <tigran@veritas.com>,
-       Hans Reiser <reiserfs-dev@namesys.com>,
-       Daniel Pirkl <daniel.pirkl@email.cz>,
-       Russell King <rmk@arm.linux.org.uk>, Will Dyson <will_dyson@pobox.com>,
-       linux-kernel@vger.kernel.org, nikita@namesys.com
-Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related
- to sector_t being unsigned, advice requested
-References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
-In-Reply-To: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+On Mon, 5 Jan 2004, Marcelo Tosatti wrote:
+> Hi Lukasz,
+> 
+> Which kernels work on this box?
+> 
+> Have you tried any other 2.4.x or 2.6.x ?
 
->
->
->The problem is what seems (to me, but I could be dead wrong) to be invalid
->use of variables of type sector_t.
->
->  
->
-thanks.  nikita, please clean.
+Yes, most of 2.4.X Most of them works well, except (2.4.20?-22 was problem 
+with aplication like slocate or amanda backup  running on big ext3 area).
+
 
 -- 
-Hans
-
-
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

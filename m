@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131841AbRAIVOc>; Tue, 9 Jan 2001 16:14:32 -0500
+	id <S129431AbRAIVQc>; Tue, 9 Jan 2001 16:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbRAIVOW>; Tue, 9 Jan 2001 16:14:22 -0500
-Received: from ns.caldera.de ([212.34.180.1]:25358 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129383AbRAIVOK>;
-	Tue, 9 Jan 2001 16:14:10 -0500
-Date: Tue, 9 Jan 2001 22:12:55 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010109221254.A10085@caldera.de>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200101092036.VAA06353@ns.caldera.de> <Pine.LNX.4.10.10101091252330.2331-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S131051AbRAIVQW>; Tue, 9 Jan 2001 16:16:22 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:9746 "EHLO quark.didntduck.org")
+	by vger.kernel.org with ESMTP id <S130092AbRAIVQK>;
+	Tue, 9 Jan 2001 16:16:10 -0500
+Message-ID: <3A5B7F76.ABDFED7A@didntduck.org>
+Date: Tue, 09 Jan 2001 16:15:34 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rob@sysgo.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+In-Reply-To: <01010922090000.02630@rob>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.10.10101091252330.2331-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 09, 2001 at 12:55:51PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 12:55:51PM -0800, Linus Torvalds wrote:
+Robert Kaiser wrote:
 > 
+> Hi list,
 > 
-> On Tue, 9 Jan 2001, Christoph Hellwig wrote:
-> > 
-> > Also the tuple argument you gave earlier isn't right in this specific case:
-> > 
-> > when doing sendfile from pagecache to an fs, you have a bunch of pages,
-> > an offset in the first and a length that makes the data end before last
-> > page's end.
+> I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
+> The kernel was built for a 386 Processor, Math emulation has been enabled.
+> I tried three different 386 boards. Execution seems to get as far as
+> pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
+> if someone had pressed the reset button. The same kernel boots fine on
+> 486 and Pentium Systems.
 > 
-> No.
-> 
-> Look at sendfile(). You do NOT have a "bunch" of pages.
-> 
-> Sendfile() is very much a page-at-a-time thing, and expects the actual IO
-> layers to do it's own scatter-gather. 
-> 
-> So sendfile() doesn't want any array at all: it only wants a single
-> page-offset-length tuple interface.
+> Any ideas/suggestions ?
 
-The current implementations does.
-But others are possible.  I could post one in a few days to show that it is
-possible.
 
-	Christoph
+is "Checking if this processor honours the WP bit even in supervisor
+mode... " the last thing you see before the reset?
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+--
+
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

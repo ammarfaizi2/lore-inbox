@@ -1,77 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbTDXS6u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTDXS6u
+	id S263823AbTDXTDd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 15:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTDXTDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:58:50 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:1161 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S263802AbTDXS6s
+	Thu, 24 Apr 2003 15:03:33 -0400
+Received: from watch.techsource.com ([209.208.48.130]:52220 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263823AbTDXTDc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:58:48 -0400
-From: bob <bob@watson.ibm.com>
+	Thu, 24 Apr 2003 15:03:32 -0400
+Message-ID: <3EA83BBA.5060502@techsource.com>
+Date: Thu, 24 Apr 2003 15:32:10 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Phillips <phillips@arcor.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, John Bradford <john@grabjohn.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+References: <Pine.LNX.4.44.0304240741530.20549-100000@home.transmeta.com> <20030424190207.319431257A9@mx12.arcor-online.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Apr 2003 15:10:09 -0400 (EDT)
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: bob <bob@watson.ibm.com>, linux-kernel@vger.kernel.org
-Subject: RE: [patch] printk subsystems
-In-Reply-To: <3EA8336F.2000609@colorfullife.com>
-References: <3EA8336F.2000609@colorfullife.com>
-X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
-Message-ID: <16040.13839.811454.16308@k42.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul writes:
- > Robert wrote:
- > 
- > >There is both a qualitative difference and quantitative difference in a
- > >lockless algorithm as described versus one that uses locking.  Most
- > >importantly for Linux, these algorithms in practice have better performance
- > >characteristics.
- > >
- > Do you have benchmark numbers that compare "lockless" and locking 
- > algorithms on large MP systems?
- > 
- > For example, how much faster is one 'lock;cmpxchg' compared to 
- > 'spin_lock();if (x==var) var = y;spin_unlock();'.
- > 
- > So far I assumed that for spinlock that are only held for a few cycles, 
- > the cacheline trashing dominates, and not the spinning.
- > I've avoided to replace spin_lock+inc+spin_unlock with atomic_inc(). 
- > (Just look at the needed memory barriers: smp_mb__after_clear_bit & friends)
- > 
- > RCU uses per-cpu queues that are really lockless and avoid the cache 
- > trashing, that is a real win.
- > 
- > --
- >     Manfred
- > 
 
-You're right in the common case - cache thrashing is definitely dominant
-(though in K42 we've tried to be very careful to design code and data so
-the last acquisition is almost always on the same processor).  The problem
-arises is the process ever gets interrupted after spin_lock.  Then
-performance falls of a cliff because everyone backs up for the lock.
-That's what I had meant by in practice it works better.  From my experience
-the OS likes to interrupt you in the place you least want :-).  I certainly
-could point to lots of preemption numbers (which motivated the comment),
-and though I'm sure there's the other, I don't know where offhand.
 
-In some specific places it's probably all right to go with a spin lock, for
-the logging/tracing code (which started this thread) that will be used
-generically throughout the kernel by many callers, lockless is the way to
-go.
+Daniel Phillips wrote:
 
--bob
+>On Thu 24 Apr 03 16:45, Linus Torvalds wrote:
+>  
+>
+>>If open hardware is what you want, FPGA's are actually getting to the
+>>point where you can do real CPU's with them. They won't be gigahertz, and
+>>they won't have big nice caches (but hey, you might make something that
+>>clocks fairly close to memory speeds, so you might not care about the
+>>latter once you have the former).
+>>
+>>They're even getting reasonably cheap.
+>>    
+>>
+>
+>The big problem with FPGAs at the moment is that the vendors want you to use 
+>their tools, which come with license agreements that limit your options in 
+>arbitrary ways, otherwise this would be peachy.
+>
+>
+>  
+>
+For their smaller devices, Xilinx has a free "WebPack" which is a 
+complete Verilog synthesizer (I don't know if it does VHDL), as well as 
+place & route, of course.  I think it'll do up to Virtex II 250.  It 
+also tends use fewer gates for a given design than the version of 
+Leonardo Spectrum we have.  It just doesn't have a simulator, which is 
+vital to any good development process.  Also, the Web Pack only runs 
+under Windows.  Maybe it'll work with WINE?
 
-Robert Wisniewski
-The K42 MP OS Project
-Advanced Operating Systems
-Scalable Parallel Systems
-IBM T.J. Watson Research Center
-914-945-3181
-http://www.research.ibm.com/K42/
-bob@watson.ibm.com
+I've been working on my own 32-bit CPU design for FPGA lately.  Maybe we 
+can get Linux to run on it.  :)
+
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262276AbSI1RSi>; Sat, 28 Sep 2002 13:18:38 -0400
+	id <S262251AbSI1RQU>; Sat, 28 Sep 2002 13:16:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262278AbSI1RSh>; Sat, 28 Sep 2002 13:18:37 -0400
-Received: from h005018136633.ne.client2.attbi.com ([24.60.20.142]:18429 "EHLO
-	Notebook") by vger.kernel.org with ESMTP id <S262276AbSI1RSc>;
-	Sat, 28 Sep 2002 13:18:32 -0400
+	id <S262268AbSI1RQU>; Sat, 28 Sep 2002 13:16:20 -0400
+Received: from h005018136633.ne.client2.attbi.com ([24.60.20.142]:54781 "EHLO
+	Notebook") by vger.kernel.org with ESMTP id <S262251AbSI1RQS>;
+	Sat, 28 Sep 2002 13:16:18 -0400
 From: carolh@service.com
 Subject: $3.50 to join Before Launch!!!!!!!!!!! Will Make $1,000's later!!!!!!!
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain;
 	charset="US-ASCII";
 	charset="US-ASCII";
-Message-Id: <20020928171833Z262276-8740+2753@vger.kernel.org>
-Date: Sat, 28 Sep 2002 13:18:32 -0400
+Message-Id: <20020928171618Z262251-8740+2748@vger.kernel.org>
+Date: Sat, 28 Sep 2002 13:16:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -68,48 +68,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
  charset="US-ASCII";
 	charset="US-ASCII";
 	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
 	charset="US-ASCII"
 Reply-To: carolh@service.com
-Date: Sat, 28 Sep 2002 13:23:56 -0400
+Date: Sat, 28 Sep 2002 13:21:42 -0400
 X-Priority: 3
 X-Library: Indy 9.00.10
 X-Mailer: Foxmail

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271459AbTGQPCc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271488AbTGQPCc
+	id S271492AbTGQPRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271491AbTGQPRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:02:32 -0400
-Received: from mailc.telia.com ([194.22.190.4]:31466 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id S271459AbTGQPCa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:02:30 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: dongili@supereva.it
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: swsusp + synaptics + usb: 2 issues 1 workaround
-References: <20030716211421.GA29335@inferi.kami.home>
-From: Peter Osterlund <petero2@telia.com>
-Date: 17 Jul 2003 17:17:13 +0200
-In-Reply-To: <20030716211421.GA29335@inferi.kami.home>
-Message-ID: <m2lluxqj2e.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 17 Jul 2003 11:17:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29828 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271489AbTGQPRt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:17:49 -0400
+Message-ID: <3F16C190.3080205@pobox.com>
+Date: Thu, 17 Jul 2003 11:32:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: ricardo.b@zmail.pt
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SET_MODULE_OWNER
+References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
+In-Reply-To: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattia Dongili <dongili@supereva.it> writes:
+Ricardo Bugalho wrote:
+> Hi all,
+>   most net device drivers have replaced MOD_INC/DEC_USE_COUNT with
+> SET_MODULE_OWNER but SET_MODULE_OWNER doesn't do nothing.
+>   Therefore, those modules (though I can only vouch for 8139too) always
+> report 0 use. Some people that had "modprobe -r" in their cronttab found
+> it quite annoying.
+>   I'd guess that there's a good reason for why struct net_device doesn't
+> have .owner field and why this happens. Can someone be so kind to point
+> it
+> out? 
 
-> I'm testing swsusp with the 2.6.0-test1 kernel. I'm experiencing
-> problems when suspending (S4) with usb modules loaded (still hve to
-> narow down which one gives problem - ready to help debugging if not a
-> known issue).
-> 
-> the 2 problems are:
-> 1. cannot suspend with usb modules loaded (as said) and I have to stop
-> hotplug to be able to go S4
-> 2. after resuming an X session the synaptics touchpad goes nuts (not
-> imeediately anyway)
 
-I have some patches to improve synaptics kernel support. One of the
-patches makes the touchpad behave better together with swsusp. The
-patches are available here:
+struct net_device does have an owner field, and SET_MODULE_OWNER 
+obviously _does_ do something.
 
-        http://w1.894.telia.com/~u89404340/patches/touchpad/2.6.0-test1/v2/
+If your interface is up, your net driver's module refcount is greater 
+than zero.
 
-I also see the USB problem, but I think this is already a known issue.
+	Jeff
 
-Vojtech, the swsusp patch in the patchset I sent you a few days ago
-had some problems, so if you haven't applied those patches yet, I
-suggest you apply these new patches instead. Otherwise, I can create
-incremental patches for you.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+

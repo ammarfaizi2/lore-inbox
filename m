@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbTEMRj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTEMRj3
+	id S262410AbTEMRiE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEMRiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:39:29 -0400
-Received: from news.cistron.nl ([62.216.30.38]:42757 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262430AbTEMRj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:39:28 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: 2.6 must-fix list, v2
-Date: Tue, 13 May 2003 17:52:14 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <b9rbce$p0u$1@news.cistron.nl>
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <shsy91aonlt.fsf@charged.uio.no>
+	Tue, 13 May 2003 13:38:04 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:55702 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262410AbTEMRiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 13:38:03 -0400
+Date: Tue, 13 May 2003 18:50:22 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Vesa fix
+Message-ID: <20030513175022.GA3309@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	James Simmons <jsimmons@infradead.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0305122237300.14641-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1052848334 25630 62.216.29.200 (13 May 2003 17:52:14 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305122237300.14641-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <shsy91aonlt.fsf@charged.uio.no>,
-Trond Myklebust  <trond.myklebust@fys.uio.no> wrote:
->[NFS]
->any more?
+On Mon, May 12, 2003 at 10:44:29PM +0100, James Simmons wrote:
 
-NFSv3 O_EXCL support in the client ?
+ >    The results of the EDID info from the BIOS has been varied. For some it 
+ > worked. Others it gave the wrong data. Then for other even the headers 
+ > where corrupted :-( 
 
-Mike.
+XFree86 seems to do a pretty good job of getting it right, maybe they
+have blacklists ? Then again, this stuff is arguably better off done
+in userspace anyway IMO.
+
+		Dave
 

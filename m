@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271039AbTGPSDW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271040AbTGPSC2
+	id S271021AbTGPSHe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270977AbTGPSFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:02:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31465 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271039AbTGPSAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:00:31 -0400
-Date: Wed, 16 Jul 2003 11:13:16 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Pedro Ribeiro <deadheart@netcabo.pt>
+	Wed, 16 Jul 2003 14:05:43 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:10507 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S271040AbTGPSDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:03:40 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: Input layer demand loading
+Date: Wed, 16 Jul 2003 22:19:17 +0400
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.6.0-test1 && depmod
-Message-Id: <20030716111316.2c7dc703.rddunlap@osdl.org>
-In-Reply-To: <3F15F4AE.3080306@netcabo.pt>
-References: <3F15E439.70107@netcabo.pt>
-	<20030716103517.65e146bc.rddunlap@osdl.org>
-	<3F15F4AE.3080306@netcabo.pt>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307162219.17067.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003 01:58:22 +0100 Pedro Ribeiro <deadheart@netcabo.pt> wrote:
+>> True, but then if you try to open the port, you will only get the base
+>> joydev.o module loaded, not the gameport driver, which is what you
+>> _really_ want to have loaded, right?
+>> 
+>> So there really isn't much benifit to doing this, sorry.
+>
+> Why? It could work the way PCMCIA SCSI works.
+> Cardmgr loads the LLDD, but sd, sg, etc. are loaded
+> on demand.
 
-| Randy.Dunlap wrote:
-| 
-| >On Thu, 17 Jul 2003 00:48:09 +0100 Pedro Ribeiro <deadheart@netcabo.pt> wrote:
-| >
-| >| I've just installed 2.6.0-test1 but whenever I try to use depmod, lsmod 
-| >| or insmod I get this error:
-| >| 
-| >| Module                  Size  Used by    Not tainted
-| >| lsmod: QM_MODULES: Function not implemented
-| >| 
-| >| I first noticed this when I was trying to install the nvidia drivers. 
-| >| Needless to say that I was unable to install them. What can I do to 
-| >| solve this problem? By the way,
-| >| 
-| >| depmod version 2.4.16
-| >
-| >Please read
-| >  http://www.codemonkey.org.uk/post-halloween-2.5.txt
-| >when it's back online (maybe 2 hours).
-| >
-| >Also, you need to use the module-init-tools for 2.6.
-| >They are at
-| >  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-| >
-| >--
-| >
-| I'm sorry, but what version am I supposed to download? The lastest? 
-| (module-init-tools-0.9.13-pre.tar.gz)
-| 
-| PR
+how? SCSI (or USB, PCI, EISA etc) have driver-independent means to identify 
+device or at least device class.
 
-I use 0.9.12.  You can try 0.9.13-pre if you want to.
+But how are you going you going to know you need to load specific mouse driver 
+(logitech not microsoft) or specific joystick flavour? All that you possibly 
+know that you have _some_ mouse or _some_ joystick ...
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
-For Linux-2.6:
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-  or http://lwn.net/Articles/39901/
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+-andrey

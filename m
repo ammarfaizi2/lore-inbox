@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133000AbRANS47>; Sun, 14 Jan 2001 13:56:59 -0500
+	id <S133092AbRANTA3>; Sun, 14 Jan 2001 14:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133092AbRANS4t>; Sun, 14 Jan 2001 13:56:49 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34569 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S133000AbRANS4l>; Sun, 14 Jan 2001 13:56:41 -0500
-Date: Sun, 14 Jan 2001 10:56:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: set_page_dirty/page_launder deadlock
-In-Reply-To: <14945.43345.483744.954137@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.10.10101141054530.4086-100000@penguin.transmeta.com>
+	id <S133110AbRANTAN>; Sun, 14 Jan 2001 14:00:13 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:52740 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S133089AbRANS7w>;
+	Sun, 14 Jan 2001 13:59:52 -0500
+Date: Sun, 14 Jan 2001 18:59:57 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 ate my filesystem on rw-mount, getting closer
+In-Reply-To: <Pine.LNX.4.30.0101141636350.6714-301000@svea.tellus>
+Message-ID: <Pine.LNX.4.30.0101141848330.7031-100000@svea.tellus>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I should also add that the 3.11 driver seems to make things better, but
+not yet perfect.  My intuition tells me that I get CRC errors much sooner
+with 2.1e than with 3.11.
 
+Has the timings changed from 2.1e to 3.11, and would it be easy to modify
+3.11 to get extra safe/paranoid, but less high performance, timings?
 
-On Sun, 14 Jan 2001, David S. Miller wrote:
-> 
-> Marcelo Tosatti writes:
->  > 
->  > While taking a look at page_launder()...
-> 
->  ...
-> 
->  > set_page_dirty() may lock the pagecache_lock which means potential
->  > deadlock since we have the pagemap_lru_lock locked.
-> 
-> Indeed, the following should work as a fix:
+Some extra data:
+* B seems to work in 2 with udma2
+* A seems to work in 2 with udma1, but not with udma2.
 
-Well, as the new shm code doesn't return 1 any more, the whole locked page
-handling should just be deleted. ramfs always just re-marked the page
-dirty in its own "writepage()" function, so it was only shmfs that ever
-returned this special case, and because of other issues it already got
-excised by Christoph..
+I wouldn't say it's rock solid, and I would not trust my data to any of
+these combinations, but at least it not break immmediately (i.e. for less
+than 1 GB written).
 
-		Linus
+The worst combination is 2.4.0 with VIA 2.1e and A in 1.  Going from 2.1e
+to 3.11 helps, but it is still very bad.
+
+I'd really like to be more precise, but there are too many combinations to
+try to try them all, and sometimes it fails right away, and sometimes
+after several hundred megabytes.
+
+/Tobias
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

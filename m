@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVAUWuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVAUWuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVAUWuW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:50:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVAUWuV
+	id S262537AbVAUWuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVAUWuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:50:21 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:13264
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262532AbVAUWuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 17:50:02 -0500
-Date: Fri, 21 Jan 2005 14:47:38 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: David Dillow <dave@thedillows.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, dave@thedillows.org
-Subject: Re: [RFC 2.6.10 3/22] xfrm: Add offload management routines
-Message-Id: <20050121144738.7155893e.davem@davemloft.net>
-In-Reply-To: <20041230035000.12@ori.thedillows.org>
-References: <20041230035000.11@ori.thedillows.org>
-	<20041230035000.12@ori.thedillows.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 17:50:06 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:62917 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262521AbVAUWtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 17:49:42 -0500
+Date: Fri, 21 Jan 2005 14:49:39 -0800
+From: Mitch Williams <mitch.a.williams@intel.com>
+X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com
+Subject: [PATCH 1/3] disallow seeks and appends on sysfs files
+Message-ID: <Pine.CYG.4.58.0501211441430.3364@mawilli1-desk2.amr.corp.intel.com>
+ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Dec 2004 03:48:35 -0500
-David Dillow <dave@thedillows.org> wrote:
+This patch causes sysfs to return errors if the caller attempts to append
+to or seek on a sysfs file.
 
-> +static inline struct xfrm_offload *
-> +xfrm_offload_alloc(int sizeof_priv, struct net_device *dev)
+Generated from 2.6.11-rc1.
 
-This whole scheme looks buggy.  The intent is to 8-byte align
-the object, but look at what the code is actually doing.
+Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
 
-Whatever kmalloc() returns to xfrm_offload_alloc() is directly
-used as the xfrm_offload pointer, and the members are initialized.
+diff -uprN -X dontdiff linux-2.6.11-clean/fs/sysfs/file.c linux-2.6.11/fs/sysfs/file.c
+--- linux-2.6.11-clean/fs/sysfs/file.c	2004-12-24 13:33:50.000000000 -0800
++++ linux-2.6.11/fs/sysfs/file.c	2005-01-21 13:09:21.000000000 -0800
+@@ -281,6 +281,11 @@ static int check_perm(struct inode * ino
+ 	if (!ops)
+ 		goto Eaccess;
 
-Then xfrm_offload_priv() does the alignments.
++	/* Is the file is open for append?  Sorry, we don't do that. */
++	if (file->f_flags & O_APPEND) {
++		goto Einval;
++	}
++
+ 	/* File needs write support.
+ 	 * The inode's perms must say it's ok,
+ 	 * and we must have a store method.
+@@ -312,6 +302,10 @@ static int check_perm(struct inode * ino
+ 		file->private_data = buffer;
+ 	} else
+ 		error = -ENOMEM;
++
++	/*  Set mode bits to disallow seeking.  */
++	file->f_mode &= ~(FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE);
++
+ 	goto Done;
 
-It is clear that kmalloc() is always giving you 8-byte aligned
-data else the first time xfrm_offload_priv() is used you'd
-get a bogus pointer since xfrm_offload_alloc() initialized
-the object without first aligning the pointer.
-
-We do something similar when we allocate netdevs, so have a look
-at how net/core/dev.c:alloc_netdev() works.
+  Einval:
+@@ -368,7 +343,7 @@ static int sysfs_release(struct inode *
+ struct file_operations sysfs_file_operations = {
+ 	.read		= sysfs_read_file,
+ 	.write		= sysfs_write_file,
+-	.llseek		= generic_file_llseek,
++	.llseek		= no_llseek,
+ 	.open		= sysfs_open_file,
+ 	.release	= sysfs_release,
+ };

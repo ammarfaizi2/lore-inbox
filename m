@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135310AbRDRUWq>; Wed, 18 Apr 2001 16:22:46 -0400
+	id <S135314AbRDRU3G>; Wed, 18 Apr 2001 16:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135314AbRDRUWh>; Wed, 18 Apr 2001 16:22:37 -0400
-Received: from [62.81.160.68] ([62.81.160.68]:18076 "EHLO smtp2.alehop.com")
-	by vger.kernel.org with ESMTP id <S135306AbRDRUW1>;
-	Wed, 18 Apr 2001 16:22:27 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Manuel Ignacio Monge Garcia <ignaciomonge@navegalia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ATA 100 & VIA and linux-2.4.3ac8
-Date: Wed, 18 Apr 2001 22:21:53 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01041820505300.01783@localhost.localdomain> <3ADDE820.2050103@texoma.net>
-In-Reply-To: <3ADDE820.2050103@texoma.net>
-MIME-Version: 1.0
-Message-Id: <01041822215300.01341@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+	id <S135313AbRDRU24>; Wed, 18 Apr 2001 16:28:56 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:35847 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S135306AbRDRU2m>; Wed, 18 Apr 2001 16:28:42 -0400
+Date: Wed, 18 Apr 2001 22:28:26 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] proc_mknod() should check the mode parameter
+Message-ID: <20010418222826.N6985@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mié 18 Abr 2001 15:16, escribiste:
-> I don't know about other possible problems with the kernel, but you must
-> use an 80 wire IDE cable for UDMA66/100 to work.
->
-> > -----------------------Primary IDE-------Secondary IDE------
-> > Cable Type:                   40w                 40w
+Hi all,
+
+While documenting the procfs interface (more of that later), I came
+across proc_mknod() which is supposed to be used to create devices in
+the procfs. IMHO it should therefore check if the mode parameter
+contains S_IFBLK or S_IFCHR. Here is a patch (against linux-2.4.4-pre3)
+to do that:
+
+Index: fs/proc/generic.c
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/fs/proc/generic.c,v
+retrieving revision 1.1.1.16
+diff -u -r1.1.1.16 generic.c
+--- fs/proc/generic.c	2001/04/08 23:34:42	1.1.1.16
++++ fs/proc/generic.c	2001/04/18 20:20:39
+@@ -445,6 +445,9 @@
+ 	const char *fn = name;
+ 	int len;
+ 
++	if (! (S_ISCHR(mode) || S_ISBLK(mode)))
++		goto out;
++
+ 	if (!parent && xlate_proc_name(name, &parent, &fn) != 0)
+ 		goto out;
+ 	len = strlen(fn);
 
 
-        Strange thing. With previous version of kernel (2.4.1 I think), I 
-haven't  got this problem. May be a bios detection problem?
 
-Extract from /usr/src/linux/drivers/ide/via82cxxx..c:
+Erik
 
-*
-*   PIO 0-5, MWDMA 0-2, SWDMA 0-2 and UDMA 0-5
-*
-* (this includes UDMA33, 66 and 100) modes. UDMA66 and higher modes are
-* autoenabled only in case the BIOS has detected a 80 wire cable. To ignore
-* the BIOS data and assume the cable is present, use 'ide0=ata66' or
-* 'ide1=ata66' on the kernel command line.
-*
-
-I've tried with ide0=ata100, but this options doesn't work.
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

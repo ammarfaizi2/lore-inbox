@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTJQXmP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 19:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTJQXmO
+	id S261235AbTJQXnO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 19:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTJQXnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 19:42:14 -0400
-Received: from web41205.mail.yahoo.com ([66.218.93.38]:380 "HELO
-	web41205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261217AbTJQXmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 19:42:13 -0400
-Message-ID: <20031017234213.61275.qmail@web41205.mail.yahoo.com>
-Date: Fri, 17 Oct 2003 16:42:13 -0700 (PDT)
-From: Umair siddiqui <umairsiddiqui0800@yahoo.com>
-Subject: what features are still lacking as compare with other UN*Xs and crash course for kernel hacking
+	Fri, 17 Oct 2003 19:43:13 -0400
+Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:54404 "EHLO
+	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261235AbTJQXnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 19:43:13 -0400
+Subject: Can't disable vgs text console
+From: Louis Garcia <louisg00@bellsouth.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Message-Id: <1066434198.3231.10.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-4) 
+Date: Fri, 17 Oct 2003 19:43:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sir,
+I'm testing out the fb driver for 2.6.x and just noticed that vga text
+console is not selectable. The help text says that I can say Y so
+presumably I can say N also. How can I turn off vgs text console so I
+can just have fb support?
 
-Most respectfully I beg to state that for starting
-kernel hacking and research,
-I require your help regarding GNU/Linux System.
+--Lou
 
-
-*(Detailed) Info regarding, changes between various
-kernel version since 1st "Official
- Release" till now? and/or a time-line describing
-these changes? 
-
-*What are features of Linux 2.6?
-
-*What are the plans for future versions of the Linux?
-Or what essential features
- (I'm not an advocate of "creeping featurism") still
-lacking in kernel
- (specially comparing with other UN*Xs)?
- 
-*Suggesions regarding crash course on kernel hacking
-and System Programming? 
-
-
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266895AbRGMOOa>; Fri, 13 Jul 2001 10:14:30 -0400
+	id <S267484AbRGMOSu>; Fri, 13 Jul 2001 10:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbRGMOOK>; Fri, 13 Jul 2001 10:14:10 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:53665 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S266895AbRGMOOF>; Fri, 13 Jul 2001 10:14:05 -0400
-Message-ID: <3B4F0273.1DF40F8E@uow.edu.au>
-Date: Sat, 14 Jul 2001 00:15:15 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S267485AbRGMOSk>; Fri, 13 Jul 2001 10:18:40 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:4105 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S267484AbRGMOS2>; Fri, 13 Jul 2001 10:18:28 -0400
+Date: Fri, 13 Jul 2001 10:17:49 -0400
+From: Chris Mason <mason@suse.com>
+To: Steffen Grunewald <steffen@gfz-potsdam.de>, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs error message
+Message-ID: <630460000.995033868@tiny>
+In-Reply-To: <20010712133544.R10669@dss19>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Mike Black <mblack@csihq.com>
-CC: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
-In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black wrote:
-> 
-> I give up!  I'm getting file system corruption now on the ext3 partition...
-> and I've got a kernel oops (soon to be decoded) This is the worst file
-> corruption I've ever seen other than having a disk go bad.
 
-There was a truncate-related bug fixed in 0.9.2.  What workload
-were you using at the time?
+
+On Thursday, July 12, 2001 01:35:44 PM +0200 Steffen Grunewald
+<steffen@gfz-potsdam.de> wrote:
+
+> Should I worry about
+> 
+> kernel: vs-13048: reiserfs_iget: key in inode [62743 393750 0 0] and key
+> 	in entry [62444 393750 0 0] do not match
+> 
+> ? This is SuSE 7.1 kernel 2.2.18, with automatic FTP updates.
+> 
+
+This is due to two files sharing the same inode number, which isn't supposed
+to happen.  You can find the two files by doing a find -inum 393750 on the
+filesystem.  You probably want to grab the latest reiserfsck from
+ftp.namesys.com/pub/reiserfsprogs/pre and check the entire FS.
+
+The only known way to trigger this problems involves running an older version
+of reiserfsck --rebuild-tree.  Have you done that?
+
+-chris
+

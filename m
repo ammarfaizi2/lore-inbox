@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
+	id <S317559AbSGXVCt>; Wed, 24 Jul 2002 17:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317552AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1035 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317547AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
-Date: Wed, 24 Jul 2002 21:00:05 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <ahn4gl$347$1@penguin.transmeta.com>
-References: <20020723114703.GM11081@unthought.net.suse.lists.linux.kernel> <3D3E75E9.28151.2A7FBB2@localhost.suse.lists.linux.kernel> <p73d6tdtg2s.fsf@oldwotan.suse.de>
-X-Trace: palladium.transmeta.com 1027544393 13731 127.0.0.1 (24 Jul 2002 20:59:53 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 Jul 2002 20:59:53 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S317560AbSGXVCt>; Wed, 24 Jul 2002 17:02:49 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:53443 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317559AbSGXVCs>; Wed, 24 Jul 2002 17:02:48 -0400
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+From: Steven Cole <elenstev@mesatop.com>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <1027542523.7518.108.camel@spc9.esa.lanl.gov>
+References: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu> 
+	<1027434665.12588.78.camel@spc9.esa.lanl.gov> 
+	<1027542523.7518.108.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 24 Jul 2002 15:02:29 -0600
+Message-Id: <1027544549.7446.119.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <p73d6tdtg2s.fsf@oldwotan.suse.de>, Andi Kleen  <ak@suse.de> wrote:
->> 
->> As long as your pointers are 32bit this seems to be ok. But on 
->> 64bit implementations pointers are not (unsigned long) so this cast 
->> seems to be wrong.
->
->A pointer fits into unsigned long on all 64bit linux ports.
->The kernel very heavily relies on that.
+On Wed, 2002-07-24 at 14:28, Steven Cole wrote:
+[snipped]
+> I finally got some time for more testing, and I booted this very same
+> 2.5.25-rmap-slablru kernel on the same machine, and this time it booted
+  2.5.27-rmap-slablru I meant to say.
+> just fine. Then I began to exercise the box a little by running dbench
+> with increasing numbers of clients.  At 28 clients, I got this:
+On closer inspection, these errors began at 6 clients.
+> 
+> (31069) open CLIENTS/CLIENT16/~DMTMP/WORDPRO/BENCHS1.PRN failed for handle 4148 (Cannot allocate memory)
+> (31070) nb_close: handle 4148 was not open
+> (31073) unlink CLIENTS/CLIENT16/~DMTMP/WORDPRO/BENCHS1.PRN failed (No such file or directory)
+> 
+> Right after starting 32 dbench clients, the box locked up, no longer
+> responding to the keyboard.  It did respond to pings, but nothing else.
+> 
+> This hardware does run other kernels successfully, most recently
+> 2.4.19-rc3-ac3 and dbench 128 (load over 100).
 
-Not just the kernel, afaik.  I think it's rather tightly integrated into
-gcc internals too (ie pointers are eventually just converted to SI
-inside the compiler, and making a non-SI pointer would be hard). 
+I then tried rebooting 2.5.27-rmap-slablru with /home mounted as ext3,
+and immediately after starting dbench 1, I got this message about 10
+times or so:
 
-			Linus
+ENOMEM in do_get_write_access, retrying.
+
+And the box was locked up.  Next time, I'll have CONFIG_MAGIC_SYSRQ=y.
+Meanwhile, it is running the dbench 1 to 64 series under 2.4.19-rc3 with
+no problems at all.
+
+Steven
+

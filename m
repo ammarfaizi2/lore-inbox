@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbUCPPfY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 10:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUCPOi6
+	id S263101AbUCPPjM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUCPPjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:38:58 -0500
-Received: from styx.suse.cz ([82.208.2.94]:64897 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261933AbUCPOTn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:43 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <1079446777817@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+	Tue, 16 Mar 2004 10:39:10 -0500
+Received: from mail.kroah.org ([65.200.24.183]:9148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263118AbUCPPiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 10:38:10 -0500
+Date: Tue, 16 Mar 2004 07:37:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, bos@serpentine.com,
+       linux-raid@vger.kernel.org
+Subject: Re: [PATCH] klibc update
+Message-ID: <20040316153719.GA13723@kroah.com>
+References: <4056B0DB.9020008@pobox.com> <20040316005229.53e08c0c.akpm@osdl.org>
 Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:37 +0100
-In-Reply-To: <10794467772648@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040316005229.53e08c0c.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+On Tue, Mar 16, 2004 at 12:52:29AM -0800, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> > Too big to post,
+> > 
+> >  http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.5-rc1-klibc1.patch.bz2
+> >  	or
+> >  bk://kernel.bkbits.net/jgarzik/klibc-2.5
+> > 
+> >  IIRC, this is:  my update of Bryan O'Sullivan's update of Greg KH's 
+> >  update of my merge of hpa's and viro's hacking :)
+> > 
+> >  WRT overall klibc merge:  when it can do md RAID autorun, it's 
+> >  mergeable.  And didn't somebody write a tiny mdctl program...
+> 
+> It's so long since klibc was discussed (ie: more than five minutes ago)
+> that I forget the reasons why it should be delivered via the kernel tree.
+> 
+> Remind me please?
 
-===================================================================
+We need a way to build the userspace programs that get put into
+initramfs that will be needed to boot the kernel.
 
-ChangeSet@1.1608.56.2, 2004-03-03 11:49:20+01:00, vojtech@suse.cz
-  input: Workaround i8042 chips with broken MUX mode.
+That help?
 
+thanks,
 
- i8042.c |    5 +++++
- 1 files changed, 5 insertions(+)
-
-===================================================================
-
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Tue Mar 16 13:18:37 2004
-+++ b/drivers/input/serio/i8042.c	Tue Mar 16 13:18:37 2004
-@@ -530,6 +530,11 @@
- 
- 	if (i8042_enable_mux_mode(values, &mux_version))
- 		return -1;
-+	
-+	/* Workaround for broken chips which seem to support MUX, but in reality don't. */
-+	/* They all report version 12.10 */
-+	if (mux_version == 0xCA)
-+		return -1;
- 
- 	printk(KERN_INFO "i8042.c: Detected active multiplexing controller, rev %d.%d.\n",
- 		(mux_version >> 4) & 0xf, mux_version & 0xf);
-
+greg k-h

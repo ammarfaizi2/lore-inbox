@@ -1,300 +1,192 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311443AbSCNAYO>; Wed, 13 Mar 2002 19:24:14 -0500
+	id <S311444AbSCNAYN>; Wed, 13 Mar 2002 19:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311446AbSCNAYH>; Wed, 13 Mar 2002 19:24:07 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:3566 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S311444AbSCNAX5>; Wed, 13 Mar 2002 19:23:57 -0500
-Message-ID: <3C8FE8E3.2040204@didntduck.org>
-Date: Wed, 13 Mar 2002 19:03:47 -0500
+	id <S311445AbSCNAYF>; Wed, 13 Mar 2002 19:24:05 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:25555 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S311443AbSCNAX4>; Wed, 13 Mar 2002 19:23:56 -0500
+Message-ID: <3C8FE978.9090403@didntduck.org>
+Date: Wed, 13 Mar 2002 19:06:16 -0500
 From: Brian Gerst <bgerst@didntduck.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] struct super_block cleanup - msdos/vfat
+Subject: [PATCH] struct super_block cleanup - smbfs
 Content-Type: multipart/mixed;
- boundary="------------070700080207030607030607"
+ boundary="------------080005020308010604040508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070700080207030607030607
+--------------080005020308010604040508
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Seperates msdos_sb_info from struct super_block for msdos and vfat. 
-Umsdos is terminally broken and is not included.
+Seperates smb_sb_info from struct super_block.
 
 -- 
 
 						Brian Gerst
 
---------------070700080207030607030607
+--------------080005020308010604040508
 Content-Type: text/plain;
- name="sb-fat-1"
+ name="sb-smbfs-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="sb-fat-1"
+ filename="sb-smbfs-1"
 
-diff -urN linux-2.5.7-pre1/fs/fat/fatfs_syms.c linux/fs/fat/fatfs_syms.c
---- linux-2.5.7-pre1/fs/fat/fatfs_syms.c	Thu Mar  7 21:18:15 2002
-+++ linux/fs/fat/fatfs_syms.c	Wed Mar 13 09:28:06 2002
-@@ -24,7 +24,7 @@
- EXPORT_SYMBOL(fat_attach);
- EXPORT_SYMBOL(fat_detach);
- EXPORT_SYMBOL(fat_build_inode);
--EXPORT_SYMBOL(fat_read_super);
-+EXPORT_SYMBOL(fat_fill_super);
- EXPORT_SYMBOL(fat_search_long);
- EXPORT_SYMBOL(fat_readdir);
- EXPORT_SYMBOL(fat_scan);
-diff -urN linux-2.5.7-pre1/fs/fat/inode.c linux/fs/fat/inode.c
---- linux-2.5.7-pre1/fs/fat/inode.c	Thu Mar  7 21:18:29 2002
-+++ linux/fs/fat/inode.c	Wed Mar 13 08:20:12 2002
-@@ -167,32 +167,36 @@
- 
- void fat_put_super(struct super_block *sb)
+diff -urN linux-2.5.7-pre1/fs/smbfs/inode.c linux/fs/smbfs/inode.c
+--- linux-2.5.7-pre1/fs/smbfs/inode.c	Tue Mar 12 17:35:11 2002
++++ linux/fs/smbfs/inode.c	Tue Mar 12 21:13:04 2002
+@@ -400,7 +400,7 @@
+ static int
+ smb_show_options(struct seq_file *s, struct vfsmount *m)
  {
--	if (MSDOS_SB(sb)->cvf_format->cvf_version) {
--		dec_cvf_format_use_count_by_version(MSDOS_SB(sb)->cvf_format->cvf_version);
--		MSDOS_SB(sb)->cvf_format->unmount_cvf(sb);
-+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-+
-+	if (sbi->cvf_format->cvf_version) {
-+		dec_cvf_format_use_count_by_version(sbi->cvf_format->cvf_version);
-+		sbi->cvf_format->unmount_cvf(sb);
- 	}
--	if (MSDOS_SB(sb)->fat_bits == 32) {
-+	if (sbi->fat_bits == 32) {
- 		fat_clusters_flush(sb);
- 	}
- 	fat_cache_inval_dev(sb);
- 	set_blocksize (sb->s_dev,BLOCK_SIZE);
--	if (MSDOS_SB(sb)->nls_disk) {
--		unload_nls(MSDOS_SB(sb)->nls_disk);
--		MSDOS_SB(sb)->nls_disk = NULL;
--		MSDOS_SB(sb)->options.codepage = 0;
--	}
--	if (MSDOS_SB(sb)->nls_io) {
--		unload_nls(MSDOS_SB(sb)->nls_io);
--		MSDOS_SB(sb)->nls_io = NULL;
-+	if (sbi->nls_disk) {
-+		unload_nls(sbi->nls_disk);
-+		sbi->nls_disk = NULL;
-+		sbi->options.codepage = 0;
-+	}
-+	if (sbi->nls_io) {
-+		unload_nls(sbi->nls_io);
-+		sbi->nls_io = NULL;
- 	}
- 	/*
- 	 * Note: the iocharset option might have been specified
- 	 * without enabling nls_io, so check for it here.
- 	 */
--	if (MSDOS_SB(sb)->options.iocharset) {
--		kfree(MSDOS_SB(sb)->options.iocharset);
--		MSDOS_SB(sb)->options.iocharset = NULL;
-+	if (sbi->options.iocharset) {
-+		kfree(sbi->options.iocharset);
-+		sbi->options.iocharset = NULL;
+-	struct smb_mount_data_kernel *mnt = m->mnt_sb->u.smbfs_sb.mnt;
++	struct smb_mount_data_kernel *mnt = SMB_SB(m->mnt_sb)->mnt;
+ 	int i;
+ 
+ 	for (i = 0; opts[i].name != NULL; i++)
+@@ -435,7 +435,7 @@
+ static void
+ smb_put_super(struct super_block *sb)
+ {
+-	struct smb_sb_info *server = &(sb->u.smbfs_sb);
++	struct smb_sb_info *server = SMB_SB(sb);
+ 
+ 	if (server->sock_file) {
+ 		smb_dont_catch_keepalive(server);
+@@ -457,11 +457,13 @@
+ 		unload_nls(server->local_nls);
+ 		server->local_nls = NULL;
  	}
 +	sb->u.generic_sbp = NULL;
-+	kfree(sbi);
++	smb_kfree(server);
  }
  
+ int smb_fill_super(struct super_block *sb, void *raw_data, int silent)
+ {
+-	struct smb_sb_info *server = &sb->u.smbfs_sb;
++	struct smb_sb_info *server;
+ 	struct smb_mount_data_kernel *mnt;
+ 	struct smb_mount_data *oldmnt;
+ 	struct inode *root_inode;
+@@ -482,6 +484,13 @@
+ 	sb->s_magic = SMB_SUPER_MAGIC;
+ 	sb->s_op = &smb_sops;
  
-@@ -582,18 +586,14 @@
++	server = smb_kmalloc(sizeof(struct smb_sb_info), GFP_KERNEL);
++	if (!server)
++		goto out_no_server;
++	sb->u.generic_sbp = server;
++	memset(server, 0, sizeof(struct smb_sb_info));
++
++	server->super_block = sb;
+ 	server->mnt = NULL;
+ 	server->sock_file = NULL;
+ 	init_MUTEX(&server->sem);
+@@ -578,6 +587,8 @@
+ out_no_mem:
+ 	if (!server->mnt)
+ 		printk(KERN_ERR "smb_fill_super: allocation failure\n");
++	sb->u.generic_sbp = NULL;
++	smb_kfree(server);
+ 	goto out_fail;
+ out_wrong_data:
+ 	printk(KERN_ERR "smbfs: mount_data version %d is not supported\n", ver);
+@@ -586,6 +597,9 @@
+ 	printk(KERN_ERR "smb_fill_super: missing data argument\n");
+ out_fail:
+ 	return -EINVAL;
++out_no_server:
++	printk(KERN_ERR "smb_fill_super: cannot allocate struct smb_sb_info\n");
++	return -ENOMEM;
+ }
+ 
+ static int
+diff -urN linux-2.5.7-pre1/fs/smbfs/proc.c linux/fs/smbfs/proc.c
+--- linux-2.5.7-pre1/fs/smbfs/proc.c	Thu Mar  7 21:18:13 2002
++++ linux/fs/smbfs/proc.c	Tue Mar 12 20:53:59 2002
+@@ -2884,7 +2884,7 @@
+ int
+ smb_proc_dskattr(struct super_block *sb, struct statfs *attr)
+ {
+-	struct smb_sb_info *server = &(sb->u.smbfs_sb);
++	struct smb_sb_info *server = SMB_SB(sb);
+ 	int result;
+ 	char *p;
+ 	long unit;
+diff -urN linux-2.5.7-pre1/include/linux/fs.h linux/include/linux/fs.h
+--- linux-2.5.7-pre1/include/linux/fs.h	Tue Mar 12 20:22:02 2002
++++ linux/include/linux/fs.h	Tue Mar 12 21:08:13 2002
+@@ -660,7 +660,6 @@
+ #include <linux/ufs_fs_sb.h>
+ #include <linux/efs_fs_sb.h>
+ #include <linux/romfs_fs_sb.h>
+-#include <linux/smb_fs_sb.h>
+ #include <linux/hfs_fs_sb.h>
+ #include <linux/adfs_fs_sb.h>
+ #include <linux/qnx4_fs_sb.h>
+@@ -717,7 +716,6 @@
+ 		struct efs_sb_info	efs_sb;
+ 		struct shmem_sb_info	shmem_sb;
+ 		struct romfs_sb_info	romfs_sb;
+-		struct smb_sb_info	smbfs_sb;
+ 		struct hfs_sb_info	hfs_sb;
+ 		struct adfs_sb_info	adfs_sb;
+ 		struct qnx4_sb_info	qnx4_sb;
+diff -urN linux-2.5.7-pre1/include/linux/smb_fs.h linux/include/linux/smb_fs.h
+--- linux-2.5.7-pre1/include/linux/smb_fs.h	Thu Mar  7 21:18:55 2002
++++ linux/include/linux/smb_fs.h	Tue Mar 12 21:09:06 2002
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/smb.h>
+ #include <linux/smb_fs_i.h>
++#include <linux/smb_fs_sb.h>
  
  /*
-  * Read the super block of an MS-DOS FS.
-- *
-- * Note that this may be called from vfat_read_super
-- * with some fields already initialized.
-  */
--struct super_block *
--fat_read_super(struct super_block *sb, void *data, int silent,
--		struct inode_operations *fs_dir_inode_ops)
-+int fat_fill_super(struct super_block *sb, void *data, int silent,
-+		   struct inode_operations *fs_dir_inode_ops, int isvfat)
- {
- 	struct inode *root_inode;
- 	struct buffer_head *bh;
- 	struct fat_boot_sector *b;
--	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-+	struct msdos_sb_info *sbi;
- 	int logical_sector_size, fat_clusters, debug, cp;
- 	unsigned int total_sectors, rootdir_sectors;
- 	long error = -EIO;
-@@ -602,12 +602,19 @@
- 	char cvf_format[21];
- 	char cvf_options[101];
+  * ioctl commands
+@@ -29,6 +30,11 @@
+ #include <linux/smb_mount.h>
+ #include <asm/unaligned.h>
  
-+	sbi = kmalloc(sizeof(struct msdos_sb_info), GFP_KERNEL);
-+	if (!sbi)
-+		return -ENOMEM;
-+	sb->u.generic_sbp = sbi;
-+	memset(sbi, 0, sizeof(struct msdos_sb_info));
-+
- 	cvf_format[0] = '\0';
- 	cvf_options[0] = '\0';
- 	sbi->private_data = NULL;
- 
- 	sb->s_magic = MSDOS_SUPER_MAGIC;
- 	sb->s_op = &fat_sops;
-+	sbi->options.isvfat = isvfat;
- 	sbi->dir_ops = fs_dir_inode_ops;
- 	sbi->cvf_format = &default_cvf;
- 
-@@ -830,10 +837,10 @@
- 		sbi->cvf_format = cvf_formats[i];
- 		++cvf_format_use_count[i];
- 	}
--	return sb;
-+	return 0;
- 
- out_invalid:
--	error = 0;
-+	error = -EINVAL;
- 
- out_fail:
- 	if (sbi->nls_io)
-@@ -845,8 +852,10 @@
- 	if (sbi->private_data)
- 		kfree(sbi->private_data);
- 	sbi->private_data = NULL;
-+	sb->u.generic_sbp = NULL;
-+	kfree(sbi);
- 
--	return ERR_PTR(error);
-+	return error;
- }
- 
- int fat_statfs(struct super_block *sb,struct statfs *buf)
-diff -urN linux-2.5.7-pre1/fs/msdos/namei.c linux/fs/msdos/namei.c
---- linux-2.5.7-pre1/fs/msdos/namei.c	Thu Mar  7 21:18:32 2002
-+++ linux/fs/msdos/namei.c	Wed Mar 13 08:20:12 2002
-@@ -603,17 +603,14 @@
- 
- int msdos_fill_super(struct super_block *sb,void *data, int silent)
- {
--	struct super_block *res;
-+	int res;
- 
--	MSDOS_SB(sb)->options.isvfat = 0;
--	res = fat_read_super(sb, data, silent, &msdos_dir_inode_operations);
--	if (IS_ERR(res))
--		return PTR_ERR(res);
--	if (res == NULL) {
-+	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
-+	if (res) {
- 		if (!silent)
- 			printk(KERN_INFO "VFS: Can't find a valid"
- 			       " MSDOS filesystem on dev %s.\n", sb->s_id);
--		return -EINVAL;
-+		return res;
- 	}
- 
- 	sb->s_root->d_op = &msdos_dentry_operations;
-diff -urN linux-2.5.7-pre1/fs/vfat/namei.c linux/fs/vfat/namei.c
---- linux-2.5.7-pre1/fs/vfat/namei.c	Thu Mar  7 21:18:11 2002
-+++ linux/fs/vfat/namei.c	Wed Mar 13 08:20:12 2002
-@@ -1285,25 +1285,25 @@
- 
- int vfat_fill_super(struct super_block *sb, void *data, int silent)
- {
--	struct super_block *res;
-+	int res;
-+	struct msdos_sb_info *sbi;
-   
--	MSDOS_SB(sb)->options.isvfat = 1;
--	res = fat_read_super(sb, data, silent, &vfat_dir_inode_operations);
--	if (IS_ERR(res))
--		return PTR_ERR(res);
--	if (res == NULL) {
-+	res = fat_fill_super(sb, data, silent, &vfat_dir_inode_operations, 1);
-+	if (res) {
- 		if (!silent)
- 			printk(KERN_INFO "VFS: Can't find a valid"
- 			       " VFAT filesystem on dev %s.\n", sb->s_id);
--		return -EINVAL;
-+		return res;
- 	}
- 
--	if (parse_options((char *) data, &(MSDOS_SB(sb)->options))) {
--		MSDOS_SB(sb)->options.dotsOK = 0;
--		if (MSDOS_SB(sb)->options.posixfs) {
--			MSDOS_SB(sb)->options.name_check = 's';
-+	sbi = MSDOS_SB(sb);
-+
-+	if (parse_options((char *) data, &(sbi->options))) {
-+		sbi->options.dotsOK = 0;
-+		if (sbi->options.posixfs) {
-+			sbi->options.name_check = 's';
- 		}
--		if (MSDOS_SB(sb)->options.name_check != 's') {
-+		if (sbi->options.name_check != 's') {
- 			sb->s_root->d_op = &vfat_dentry_ops[0];
- 		} else {
- 			sb->s_root->d_op = &vfat_dentry_ops[2];
-diff -urN linux-2.5.7-pre1/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.5.7-pre1/include/linux/fs.h	Tue Mar 12 22:44:13 2002
-+++ linux/include/linux/fs.h	Wed Mar 13 09:24:44 2002
-@@ -652,7 +652,6 @@
- #include <linux/ext3_fs_sb.h>
- #include <linux/hpfs_fs_sb.h>
- #include <linux/ntfs_fs_sb.h>
--#include <linux/msdos_fs_sb.h>
- #include <linux/iso_fs_sb.h>
- #include <linux/nfs_fs_sb.h>
- #include <linux/sysv_fs_sb.h>
-@@ -708,7 +707,6 @@
- 		struct ext3_sb_info	ext3_sb;
- 		struct hpfs_sb_info	hpfs_sb;
- 		struct ntfs_sb_info	ntfs_sb;
--		struct msdos_sb_info	msdos_sb;
- 		struct isofs_sb_info	isofs_sb;
- 		struct nfs_sb_info	nfs_sb;
- 		struct sysv_sb_info	sysv_sb;
-diff -urN linux-2.5.7-pre1/include/linux/msdos_fs.h linux/include/linux/msdos_fs.h
---- linux-2.5.7-pre1/include/linux/msdos_fs.h	Thu Mar  7 21:18:56 2002
-+++ linux/include/linux/msdos_fs.h	Wed Mar 13 09:27:13 2002
-@@ -5,6 +5,7 @@
-  * The MS-DOS filesystem constants/structures
-  */
- #include <linux/msdos_fs_i.h>
-+#include <linux/msdos_fs_sb.h>
- 
- #include <asm/byteorder.h>
- 
-@@ -53,7 +54,11 @@
- #define MSDOS_VALID_MODE (S_IFREG | S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO)
- 	/* valid file mode bits */
- 
--#define MSDOS_SB(s) (&((s)->u.msdos_sb))
-+static inline struct msdos_sb_info *MSDOS_SB(struct super_block *sb)
++static inline struct smb_sb_info *SMB_SB(struct super_block *sb)
 +{
 +	return sb->u.generic_sbp;
 +}
 +
- static inline struct msdos_inode_info *MSDOS_I(struct inode *inode)
+ static inline struct smb_inode_info *SMB_I(struct inode *inode)
  {
- 	return list_entry(inode, struct msdos_inode_info, vfs_inode);
-@@ -282,9 +287,8 @@
- extern void fat_delete_inode(struct inode *inode);
- extern void fat_clear_inode(struct inode *inode);
- extern void fat_put_super(struct super_block *sb);
--extern struct super_block *
--fat_read_super(struct super_block *sb, void *data, int silent,
--	       struct inode_operations *fs_dir_inode_ops);
-+int fat_fill_super(struct super_block *sb, void *data, int silent,
-+		   struct inode_operations *fs_dir_inode_ops, int isvfat);
- extern int fat_statfs(struct super_block *sb, struct statfs *buf);
- extern void fat_write_inode(struct inode *inode, int wait);
- extern int fat_notify_change(struct dentry * dentry, struct iattr * attr);
+ 	return list_entry(inode, struct smb_inode_info, vfs_inode);
+diff -urN linux-2.5.7-pre1/include/linux/smb_fs_sb.h linux/include/linux/smb_fs_sb.h
+--- linux-2.5.7-pre1/include/linux/smb_fs_sb.h	Tue Mar 12 20:22:02 2002
++++ linux/include/linux/smb_fs_sb.h	Tue Mar 12 21:12:19 2002
+@@ -15,10 +15,9 @@
+ #include <linux/smb.h>
+ 
+ /* structure access macros */
+-#define server_from_inode(inode) (&(inode)->i_sb->u.smbfs_sb)
+-#define server_from_dentry(dentry) (&(dentry)->d_sb->u.smbfs_sb)
+-#define SB_of(server) ((struct super_block *) ((char *)(server) - \
+-	(unsigned long)(&((struct super_block *)0)->u.smbfs_sb)))
++#define server_from_inode(inode) SMB_SB((inode)->i_sb)
++#define server_from_dentry(dentry) SMB_SB((dentry)->d_sb)
++#define SB_of(server) ((server)->super_block)
+ 
+ struct smb_sb_info {
+         enum smb_conn_state state;
+@@ -55,6 +54,7 @@
+ 	char *name_buf;
+ 
+ 	struct smb_ops *ops;
++	struct super_block *super_block;
+ };
+ 
+ 
 
---------------070700080207030607030607--
+--------------080005020308010604040508--
 
 

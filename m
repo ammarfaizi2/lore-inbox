@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280495AbRKJR6f>; Sat, 10 Nov 2001 12:58:35 -0500
+	id <S280394AbRKJSAG>; Sat, 10 Nov 2001 13:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280547AbRKJR60>; Sat, 10 Nov 2001 12:58:26 -0500
-Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:9355
-	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
-	id <S280495AbRKJR6K>; Sat, 10 Nov 2001 12:58:10 -0500
-Date: Sat, 10 Nov 2001 17:56:53 +0000
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Oktay Akbal <oktay.akbal@s-tec.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Numbers: ext2/ext3/reiser Performance (ext3 is slow)
-Message-ID: <20011110175653.A24128@fenrus.demon.nl>
-In-Reply-To: <E162ZQN-00069u-00@fenrus.demon.nl> <Pine.LNX.4.40.0111101831440.14552-100000@omega.hbh.net>
+	id <S280547AbRKJR75>; Sat, 10 Nov 2001 12:59:57 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:17506 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S280394AbRKJR7n>; Sat, 10 Nov 2001 12:59:43 -0500
+Date: Sat, 10 Nov 2001 12:58:32 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Patch for kernel.real-root-dev on s390
+Message-ID: <20011110125832.A21437@devserv.devel.redhat.com>
+In-Reply-To: <200111100248.DAA00341@faui11.informatik.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0111101831440.14552-100000@omega.hbh.net>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200111100248.DAA00341@faui11.informatik.uni-erlangen.de>; from weigand@immd1.informatik.uni-erlangen.de on Sat, Nov 10, 2001 at 03:48:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 10, 2001 at 06:41:15PM +0100, Oktay Akbal wrote:
+> From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+> Date: Sat, 10 Nov 2001 03:48:33 +0100 (MET)
+> Cc: linux-kernel@vger.kernel.org
 
-> The question is, when to use what mode. I would use data=journal on my
-> CVS-Archive, and maybe writeback on a news-server.
+> I agree that this looks broken, but I don't see why it 
+> would be s390 specific.  The clobber of adjacent memory
+> happens on all architectures, and on all big endian systems
+> the value read is incorrect even if adjacent memory happens 
+> to be 0.
 
-sounds right; add to this that sync NFS mounts also are far better of with
-data=journal.
+Probably alignment restrictions do not allow anything interesting
+to happen. I know now that ppc people complained about it.
 
-> But what to use for an database like mysql ?
+> However, I'm not convinced the patch is a proper fix; it
+> will cause the MAJOR and MINOR macros to be applied to a
+> variable not of type kdev_t, which happens to work now but will 
+> break if the definition of kdev_t is changed to a structure
+> or pointer type (as it probably will at some point in the 
+> future, if I recall the various discussions correctly).
+> 
+> What about either
+>  - adding support for kdev_t values to procfs
+> or
 
-Well you used reiserfs before. data=writeback is equivalent to the
-protection reiserfs offers. Big databases such as Oracle do their own
-journalling and will make sure transactions are actually on disk before they
-finalize the transaction to the requestor. mysql... I'm not sure about, and
-it also depends on if it's a mostly-read-only database, a mostly-write
-database or a "mixed" one. In the first cases, mounting "sync" with
-full journalling will ensure full datasafety; the second case might just be
-faster with full journalling (full journalling has IO clustering benefits
-for lots of small, random, writes) but for the mixed case it's a matter of
-reliablity versus performance.....
+I thought that would be the right thing to do when kdev_t is changed.
+Currently, I do not know how to change it. Guy Streeter told me
+that someone floated an insanely ugly patch that special-cased
+shorts into do_proc_dointvec(), and I did not like that approach
+too much. Once the structure of new kdev_t is known, the
+do_proc_kdev_t may be defined, but I think it makes no sense
+to jump the gun now.
 
-Greetings,
-   Arjan van de Ven
+>  - keeping two int variables real_root_major and 
+>    real_root_minor ?
+
+Who knows if we are going to have majors and minors at all.
+Suppose Gooch and Viro give us a decent devfs, or something.
+
+An alternative may be to redo the initrd interface, for instance
+have /proc/real-root-path instead of real-root-dev (and no sysctl),
+I did not have time to explore all implications of that way.
+
+-- Pete

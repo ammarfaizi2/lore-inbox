@@ -1,129 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUH0WVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268978AbUH0Vs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUH0WVM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 18:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUH0WTM
+	id S268978AbUH0Vs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 17:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268889AbUH0VqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 18:19:12 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:45326 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264726AbUH0WOg (ORCPT
+	Fri, 27 Aug 2004 17:46:23 -0400
+Received: from smcc.demon.nl ([212.238.157.128]:27660 "HELO smcc.demon.nl")
+	by vger.kernel.org with SMTP id S268737AbUH0Vmc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 18:14:36 -0400
-Message-Id: <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
-Date: Sat, 28 Aug 2004 00:08:05 +0200
-To: Jesper Juhl <juhl-lkml@dif.dk>
-From: Kenneth Lavrsen <kenneth@lavrsen.dk>
-Subject: Re: Summarizing the PWC driver questions/answers
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localho
- st>
-References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
- <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Fri, 27 Aug 2004 17:42:32 -0400
+From: "Nemosoft Unv." <webcam@smcc.demon.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+Date: Fri, 27 Aug 2004 23:42:30 +0200
+User-Agent: KMail/1.6.1
+Cc: Craig Milo Rogers <rogers@isi.edu>, Xavier Bestel <xavier.bestel@free.fr>,
+       Christoph Hellwig <hch@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040826233244.GA1284@isi.edu> <20040827185541.GC24018@isi.edu> <Pine.LNX.4.58.0408271157540.14196@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408271157540.14196@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408272342.30619@smcc.demon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
->  I have boxes where I can't run the latest version
->of AIX any more since the hardware is no longer supported, but you don't
->see me ripping IBM's head off for that reason.
+On Friday 27 August 2004 21:06, Linus Torvalds wrote:
+> On Fri, 27 Aug 2004, Craig Milo Rogers wrote:
+> > 	If you read Nemosoft's final driver release (which has been
+> > reposted, and of which I now have a copy), you can see that he was
+> > rewriting his code to move the proprietary codecs out of the kernel
+> > entirely, and into user-mode libraries to be linked with consenting
+> > applications
+>
+> That sounds quite good, in my opinion.
 
-Ehhh????? No comment.
+And not even too good to be true. In PWC 9.0 I introduced a RAW mode that 
+passes the compressed stream through unmodified, together with some support 
+ioctl()s.
 
->As I understand it the hook should never have been added in the first
->place. Doesn't matter if it has been there for a day, a week, a year or 10
->years - it should never have been added and once it was discovered it was
->removed - I have no trouble with that bit, especially since the pieces
->are still out there and you are free to just patch your personal kernel in
->any way you please to get the result you desire, or you can just stick
->with an older kernel until a suitable alternative shows up.
+> Whenever somebody says "accept the driver to help users", they are
+> missing the big picture. A binary driver SCREWS OVER users on other
+> architectures. It pretty much guarantees that those other architectures
+> will never be supported. (And that's totally ignoring the maintenance
+> issues even on regular x86).
 
-Why not let the current driver be and then work on the alternative?
-Why is it so important that it is removed now?
-Why does it have to be done in a way that create a problem for the common 
-users?
-Linus indicated that since Nemosoft had asked for his driver to be removed 
-noone else could take the sources as they are and add them again. So any 
-altertive would be a start from scratch? Or did I misunderstand this?
-That can take years. So I cannot update my kernel for years?
-How many normal users knows even how to compile their own kernel?
-You guys on this list talk as if anyone knows how to write a kernel module. 
-I think most of you have lost contact with the real users.
+Well, there's cross-compiling. You're probably not aware of this, but the 
+most recent PWC major version increase included some changes that would 
+make it a lot easier for me to cross-compile the real decompressor core to 
+any platform that GCC supports. The code is (was) turned into a library 
+(.a) which can be used as a user-program library, or turned into a kernel 
+module with a bit of glue code. So far, 6 different platforms in various 
+'flavors' were supported, and the number was growing. 
 
->And why is it you expect open source developers to assist in supporting
->binary only drivers?
+Still not a perfect solution, but it means less and less people were 
+'screwed over', with relatively little effort (all they had to do was point 
+me to a cross-compiler toolchain...). I think I was supporting more 
+platforms than nVidia ever will :-P
 
-I am just asking for you guys to not DESTROY what is already there without 
-an alternative.
+> > 	Linus, would you adress a moot issue, please?  If Nemosoft (or
+> > someone else) were to release some of the codecs in question as one or
+> > more open-source loadable kernel modules (similar to sound card
+> > support modules in the ALSA system), while other codecs remain
+> > binary-only loadable kernel modules (distributed outside the kernel,
+> > but using the same hook as the open-source loadable modules), would
+> > the pwc driver and codec extension hook be allowable, in your opinion,
+> > please?
+>
+> I'd be leery.
 
->Binary only drivers undermine open source. If you want to depend on closed
->drivers go ahead, but if that support disappears then take it up with the
->company unwilling to provide open drivers or open specs so people can
->write their own open drivers.
+[snip]
 
-Treating the normal users using Linux this badly undermines open source 
-1000 times more I can assure you.
-Linux is getting a reputation of being an operating system that you cannot 
-trust being fully available in the future.
-I am hearing those arguments in my own company. Stability and making sure 
-that investments in information technilogy will not be obsolete at least 
-some years is vital.
+> So I'd personally much prefer the user mode approach. At that point it's
+> still closed-source, but at least there is not even a whiff of a "hook"
+> inside the kernel.
 
->You purchased a piece of hardware that depended on a closed source driver,
->no open source developer has any resonable commitment to support that.
+My problem with that is that it makes using such cams a lot harder for both 
+users and developers of webcam tools. Basicly, every tool that wanted to 
+use webcam X that has some binary-only library would need to specifically 
+support it, use probing routines, check which formats are supported, set up 
+the decompressor, push the data through it, etc. Conversely, every user 
+that wanted to use webcams X, Y and Z would need to check first if they are 
+all supported by the program(s) he would like to use.
 
-It is sad that you need legal counselling before you buy a USB camera.
-Besides. There are no real altertives. I have tried 4-5 other cameras using 
-for example the OV511 driver. They all failed. They were either not light 
-sensitive enough for surveillance at night or the firmware/driver was so 
-unstable that the cameras froze and had to be disconnected to work again. 
-Only the pwc driven cameras are stable and good enough.
-Otherwise you have to use expensive real video cameras and they cost many 
-times more for the same quality image.
-So I did not really have much choice. And this is still the case as far as 
-I know.
+The point is, the current API for video devices is the Video4Linux of 
+Video4Linux2 interface. It's relative simple one, but it _works_ the same 
+on all hardware, either TV card or webcam. What you're proposing is 
+fragmenting that support into programs that support X, Y or Z, or only a 
+subset, or none, based on whether or not the developer of said tool had the 
+time, skill and desire to incorporate these libraries into their program.
 
+So instead of putting the support burden on one person (me), you want to 
+distribute it among a few dozen software developers. I don't think that's 
+really smart. It also takes the fun out of hacking a small webcam tool 
+together for whatever purpose, if you need a ton of extra tools, libraries 
+and program just to get one image.
 
->If you want to be constructive instead of just bitch and moan, then go
->talk to Philips and get them to release code or specs so we can get proper
->open source drivers - your real beef is with them, not with open source
->developers.
+A solution could be something like JACK for the ALSA sound cards, but then 
+for video. But you need a compelling reason, and somebody (somebodies) to 
+design, write and maintain it.
 
-Many have. And I will again. But if Philips will not let their competitors 
-know about some brillient compression algoritm we cannot blame them for 
-protecting their investment in the development. In the real world not 
-everything can be open source. At least not when new technology needs to be 
-kept secret to prevent copycat companies from lawless countries to harvest 
-the fruits of expensive investments.
-It is our own jobs that are in danger. Remember that.
-But I think it is about time Philips releases the code or at least algoritm 
-now. The copycats must have reverse engineered that little piece of code 5 
-times now.
-I have tried also but it is just too difficult for me to follow the binary 
-stuff.
+Anyway... wether or not PWC was illegal under the GPL, technically 
+undesirable or just not good enough, is irrelevant now. The damage has been 
+done, and that's just sad.
 
->PS. I'm wondering why you asked Linus a whole host of questions yet did
->not even CC the man on your email.
-
-On most mailing lists people get angry if they receive the same mail both 
-from the list and directly. It seems to be different on this list. I am 
-starting to figure out the tradition here.
-
-Kenneth
-
-PS: Thanks to the many that writes support mails directly to me. I am 
-really happy to receive them. And post them in public too. Linus is not God 
-and he is not always right. He and his kernel developers need to learn that 
-there are actual users out there.
-
-
--- 
-Kenneth Lavrsen,
-Glostrup, Denmark
-kenneth@lavrsen.dk
-Home Page - http://www.lavrsen.dk 
+ - Nemosoft
 
 

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317408AbSFRN6h>; Tue, 18 Jun 2002 09:58:37 -0400
+	id <S317414AbSFROE1>; Tue, 18 Jun 2002 10:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317414AbSFRN6h>; Tue, 18 Jun 2002 09:58:37 -0400
-Received: from ns.suse.de ([213.95.15.193]:32774 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317408AbSFRN6g>;
-	Tue, 18 Jun 2002 09:58:36 -0400
-Date: Tue, 18 Jun 2002 15:58:37 +0200
-From: Dave Jones <davej@suse.de>
-To: Petter <petter@kernelspace.com>
+	id <S317415AbSFROE0>; Tue, 18 Jun 2002 10:04:26 -0400
+Received: from catbert.mcs.anl.gov ([140.221.8.87]:60544 "EHLO
+	catbert.mcs.anl.gov") by vger.kernel.org with ESMTP
+	id <S317414AbSFROEZ>; Tue, 18 Jun 2002 10:04:25 -0400
+To: William Lee Irwin III <wli@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: small 5575 PCI ATM fix
-Message-ID: <20020618155837.S758@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Petter <petter@kernelspace.com>, linux-kernel@vger.kernel.org
-References: <20020618133527.GA11756@kernelspace.com>
-Mime-Version: 1.0
+Subject: Re: bizarre segv problem on 2.5.22
+References: <yrxvg8h5oto.fsf@catbert.mcs.anl.gov>
+	<20020618020429.GN22961@holomorphy.com>
+From: "Narayan Desai" <desai@mcs.anl.gov>
+Date: Tue, 18 Jun 2002 09:03:46 -0500
+In-Reply-To: <20020618020429.GN22961@holomorphy.com> (William Lee Irwin
+ III's message of "Mon, 17 Jun 2002 19:04:29 -0700")
+Message-ID: <yrxn0ts65vh.fsf@catbert.mcs.anl.gov>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-redhat-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020618133527.GA11756@kernelspace.com>; from petter@kernelspace.com on Tue, Jun 18, 2002 at 03:35:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 03:35:27PM +0200, Petter wrote:
- > 
- > I was grepping through some code, and noticed that the return value
- > of a kmalloc in iphase.c was not checked.
- > A patch was sendt to the author, but this was the reply I got:
- > 
- > "Peter Wang is no longer a member of the Interphase team.  Interphase
- > does support the 5575 PCI ATM adapter with Linux, but for driver enhancements
- > and fixes, we require a current software warranty contract.  If you
- > could send me the serial number and / or the MAC address of your adapter, I
- > can verify your warranty status and have the latest driver sent to you."
+>>>>> "Bill" == William Lee Irwin <wli@holomorphy.com> writes:
 
-rofl. 8-)
+Bill> On Mon, Jun 17, 2002 at 08:59:47PM -0500, Narayan Desai wrote:
+>> I am having an odd problem under 2.5.22. python2 run from inside of
+>> an rpm rebuild call dies with a sevfault, while everything works
+>> properly with a 2.4.18. Does anyone have any idea what is going on?
+>> thanks...  -nld
 
- > I do not care about their driver since I do not have an ATM card, but
- > the current driver should anyhow be fixed.
+Bill> Does it still happen in 2.5.21?
 
-Error handling in that driver seems to be 'creative' at best.
-No releasing of already allocated resources, just returning -EAGAIN
-everywhere, and no checking for already allocated resources.
+I am not sure. 2.5.22 was the first 2.5 kernel I have tried on this
+machine. I can try it out, but it may be a while before I get a chance.
+ -nld
 
-Someone with too much time on their hands[1] could probably clean this
-up to free allocated resources on failure and return -ENOMEM on
-allocation failures.
-
-        Dave
-
-[1] or a 'software warranty contract'.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

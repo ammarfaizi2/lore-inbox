@@ -1,99 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267917AbTAHUHS>; Wed, 8 Jan 2003 15:07:18 -0500
+	id <S267910AbTAHUCP>; Wed, 8 Jan 2003 15:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267916AbTAHUHS>; Wed, 8 Jan 2003 15:07:18 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:43499 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267869AbTAHUHQ>;
-	Wed, 8 Jan 2003 15:07:16 -0500
-Subject: Re: Getting interface IP addresses with proc filesystem
-To: Burton Samograd <kruhft@kruhft.dyndns.org>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF6BBE4A7C.C4B419C9-ON87256CA8.006F1B9C@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Wed, 8 Jan 2003 12:16:04 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
- 01/08/2003 13:15:50
+	id <S267907AbTAHUCL>; Wed, 8 Jan 2003 15:02:11 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:22190 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S267906AbTAHUCI>; Wed, 8 Jan 2003 15:02:08 -0500
+Date: Wed, 8 Jan 2003 15:10:44 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: greg@kroah.com, <harold.yang@intel.com>, <linux-kernel@vger.kernel.org>,
+       <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re:[BUG] cpci patch for kernel 2.4.19 bug
+In-Reply-To: <200301081946.h08Jksh06332@linux.intel.com>
+Message-ID: <Pine.LNX.4.44.0301081453520.15466-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                                                                                               
-                                                                                                               
-                                                                                                               
+On Wed, 8 Jan 2003, Rusty Lynch wrote:
+
+> From: "Yang, Harold" <harold.yang@intel.com>
+> > 
+> > Hi, Scott & Greg:
+> > 
+> > I have applied the cpci patch for kernel 2.4.19, and test it
+> > thoroughly on ZT5084 platform. Two bugs are found:
+> > 
+> > 1. In my ZT5084, the driver can't correctly detect the cPCI
+> >    Hot Swap bridge device. Two DEC21154 exist on ZT5084,
+> >    however, only one is the right bridge. The driver can't 
+> >    distinguish them correctly.
+> 
+> I just got a couple of ZT5541 peripheral master boards
+> and can finally see what happens when an enumerable board
+> is plugged into a ZT5084 chassis using a ZT5550 system master 
+> board.
+> 
+> As of yet I have only tried a 2.5.54 kernel, but I see the 
+> same problems along with some other wacky behavior that I 
+> am trying to isolate.
+> 
+> Now about the multiple DEC21154 devices ==>  on my ZT5550 that
+> is in system master mode, the first DEC21154 device is a bridge
+> for the slots to the left of the system slots, and the second
+> DEC21154 is a bridge for the right of the system slots.
+
+Okay, that's what I originally wanted to determine from the lspci
+output I requested when Harold mentioned this problem at the end
+of November.
+
+> So if I boot the system master (I'll talk about problems with 
+> hotswaping in another email) with a peripheral board plugged
+> into one of the slots on the right of the master using the
+> current 2.5.54 kernel then I run into problems the first time 
+> cpci_hotplug_core.c::check_slots() runs because it only looks
+> at the first bus when trying to find the card that caused the
+> #ENUM.
+
+I assume by problems you mean that the cPCI event thread gets
+shut down (which is what I'd expect), or do you mean something more 
+severe?
+
+> The following patch will register each of the cpci busses instead
+> of just the first one detected.
+
+Your patch is better than Harold's hack, but I'm probably going to
+try and think of some other alternative, as the while loop idea
+doesn't handle the possibility of someone having a 21154 bridge
+on a PMC card or actually as a bridge on a cPCI card.  The original
+code doesn't really handle that possiblity either, so I'll need to
+cook up something better anyway.
+
+> NOTE: I'm a little worried that the right way to do this is to
+>       properly initialize the RSS bits, or at least see how the
+>       chassis is configured via the RSS bits to determine which 
+>       cpci bus to register.  The ZT5084 doesn't have near as many
+>       configurations as newer designs like the ZT5088.
+[snip]
+
+I will investigate reading the active bus(es) out of the HC, as I've
+gotten the documentation for the HC from Performance Tech, I was just
+too busy before Christmas to dig into it then.  I'll try and have
+something that attempts to handle your ZT5084 chassis done in a few
+days.
+
+Scott
 
 
-I proposed something along this lines but got lot of opposing remarks as I
-wanted to identify a given interface as *primary*.
-I think this feature is needed and we should add it to the kernel, I need
-it, you need it, for sure someone else will need it.
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 
 
-Juan
-
-
-
-
-
-|---------+---------------------------------->
-|         |           Burton Samograd        |
-|         |           <kruhft@kruhft.dyndns.o|
-|         |           rg>                    |
-|         |           Sent by:               |
-|         |           linux-kernel-owner@vger|
-|         |           .kernel.org            |
-|         |                                  |
-|         |                                  |
-|         |           01/07/03 06:06 PM      |
-|         |                                  |
-|---------+---------------------------------->
-  >-------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                         |
-  |       To:       linux-kernel@vger.kernel.org                                                                            |
-  |       cc:                                                                                                               |
-  |       Subject:  Getting interface IP addresses with proc filesystem                                                     |
-  |                                                                                                                         |
-  >-------------------------------------------------------------------------------------------------------------------------|
-
-
-
-
-Hi all,
-
-I'm curious how one goes about getting the current IP addresses held by a
-machine.  I saw some rather convoluted code in qmail that shows how to do
-it but
-it seems like a rather difficult (and future bug ridden if the interface
-changes) piece of code and was thinking that a /proc/net interface would be
-the
-easiest solution, at least on the end user side.
-
-My thinking goes along the lines of adding a file in /proc/net called
-interfaces
-(or something more appropriate) which gives the following type of listing:
-
-eth0 12.35.23.58
-eth0:0 192.168.0.1
-lo 127.0.0.1
-ppp0 45.3.3.89
-
-etc
-
-for each of the registered interfaces on the machine.  Nice, simple and
-shouldn't be too hard to implement, correct? Is this type of information
-already present through some other mechanism that I haven't found yet?
-
-Thanks in advance.
-
---
-burton samograd
-kruhft@kruhft.dyndns.org
-http://kruhftwerk.dyndns.org
-
-
-#### C.DTF has been removed from this note on January 08, 2003 by Juan
-Gomez
 
 

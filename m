@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318074AbSGWOim>; Tue, 23 Jul 2002 10:38:42 -0400
+	id <S318076AbSGWOrU>; Tue, 23 Jul 2002 10:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318076AbSGWOim>; Tue, 23 Jul 2002 10:38:42 -0400
-Received: from ccs.covici.com ([209.249.181.196]:37002 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S318074AbSGWOim>;
-	Tue, 23 Jul 2002 10:38:42 -0400
+	id <S318077AbSGWOrT>; Tue, 23 Jul 2002 10:47:19 -0400
+Received: from firewall.webigen.com ([212.108.223.254]:32049 "EHLO
+	mail.webigen.com") by vger.kernel.org with ESMTP id <S318076AbSGWOrT>;
+	Tue, 23 Jul 2002 10:47:19 -0400
+Subject: problems on crusoe-based laptop
+From: Tibor Veres <infrared@webigen.com>
 To: linux-kernel@vger.kernel.org
-Subject: is flock broken in 2.4 or 2.5 kernels or what does this mean?
-From: John Covici <covici@ccs.covici.com>
-Date: Tue, 23 Jul 2002 10:41:51 -0400
-Message-ID: <m37kjmik0g.fsf@ccs.covici.com>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 Jul 2002 16:50:09 +0200
+Message-Id: <1027435810.26534.28.camel@infrared>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the latest release notes of sendmail I have read the following:
+I'm trying to install linux to a toshiba libretto l5 (transmeta crusoe
+TM5800). 
 
-		NOTE: Linux appears to have broken flock() again.  Unless
-			the bug is fixed before sendmail 8.13 is shipped,
-			8.13 will change the default locking method to
-			fcntl() for Linux kernel 2.4 and later.  You may
-			want to do this in 8.12 by compiling with
-			-DHASFLOCK=0.  Be sure to update other sendmail
-			related programs to match locking techniques.
+I have no cd or floppy, I boot over the network with intel pxe bootrom..
+DHCP works, after stripping down the kernel to <512k, the kernel loads
+too, but I get the following error message: 
 
-Can anyone tell me what this is all about -- is there any basis in
-reality for what they are saying?
+AX: 0205
+BX: 0200
+CX: 0020
+DX: 0000.
+8000
 
-Thanks.
+I tryed with the following configurations:
+version: 2.4.18, 2.4.17
+toshiba laptop support: on/off
+pci access mode: direct/bios/both
+cpu: 386/crusoe
+everything else turned off except for IDE and ext2
 
--- 
-         John Covici
-         covici@ccs.covici.com
+What does the error message mean? What should I do to make it boot.
+
+
+Please CC to my address too.
+
+
+
+

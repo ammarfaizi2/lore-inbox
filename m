@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279228AbRKXSmU>; Sat, 24 Nov 2001 13:42:20 -0500
+	id <S278959AbRKXSgi>; Sat, 24 Nov 2001 13:36:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279064AbRKXSmL>; Sat, 24 Nov 2001 13:42:11 -0500
-Received: from mail006.mail.bellsouth.net ([205.152.58.26]:24757 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S279113AbRKXSl4>; Sat, 24 Nov 2001 13:41:56 -0500
-Message-ID: <3BFFE9EE.F3402F0A@mandrakesoft.com>
-Date: Sat, 24 Nov 2001 13:41:50 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
-X-Accept-Language: en
+	id <S279064AbRKXSg3>; Sat, 24 Nov 2001 13:36:29 -0500
+Received: from [65.13.170.37] ([65.13.170.37]:50778 "EHLO
+	cx662584-c.okcnc1.ok.home.com") by vger.kernel.org with ESMTP
+	id <S278959AbRKXSgV>; Sat, 24 Nov 2001 13:36:21 -0500
+Message-ID: <3BFFE8A2.1010708@rueb.com>
+Date: Sat, 24 Nov 2001 12:36:18 -0600
+From: Steve Bergman <steve@rueb.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: ethtool 1.4 released
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, steve@rueb.com
+Subject: Disk hardware caching, performance, and journalling
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ethtool has been made current with kernel 2.4.15/2.5.0.
+Hi,
 
-Only the natsemi driver in the kernel fully supports all capabilities at
-this time, but patches are available in gkernel cvs to implement ethtool
-support in many more drivers.
+I made a couple of discoveries today which were surprising to me:
 
-Kudos to Tim Hockin @ Sun for most of the implementation work, both in
-natsemi and in userspace ethtool.
+1. Disk hardware caching defaults to ON. (hdparm -W1 /dev/hda)
+2. It makes a *big* difference in write performance.
 
-ChangeLog and download at http://sf.net/projects/gkernel/
+I had always thought that the default was off.  I also always assumed 
+that a small cache behind a large (OS) cache would make no difference.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Here are my results with bonnie under kernel 2.4.14 on a reiserfs with a 
+maxtor Diamond max+ 60GB udma100 drive:
+
+Write caching on:
+-------Sequential Output-------- ---Sequential Input-- --Random--
+-Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  
+/sec %CPU
+                 256 12618 97.1 38027 36.3  9647  6.9 11250 73.6 31832 
+12.1 200.9  1.2
+
+
+Write caching off:
+-------Sequential Output-------- ---Sequential Input-- --Random--
+-Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  
+/sec %CPU
+                 256  9917 76.3 12280 11.2  5159  3.5  9934 65.3 33056 
+14.1 203.9  1.4
+                                        
+Note that block writes are over 3 times faster with caching on.
+
+So what are the implications here for journalling?  Do I have to turn 
+off caching and suffer a huge performance hit?
+
+
+-Steve Bergman
 

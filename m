@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312882AbSCZAAz>; Mon, 25 Mar 2002 19:00:55 -0500
+	id <S312881AbSCZAM0>; Mon, 25 Mar 2002 19:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312883AbSCZAAf>; Mon, 25 Mar 2002 19:00:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27662 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312882AbSCZAAa>; Mon, 25 Mar 2002 19:00:30 -0500
-Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
-To: per@computer.org
-Date: Tue, 26 Mar 2002 00:14:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
-        mcp@linux-systeme.de (mcp@linux-systeme.de)
-In-Reply-To: <3C98664E0008DBE9@freesurfmta04.sunrise.ch> (added by from "Per Jessen" at Mar 25, 2002 09:58:50 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312885AbSCZAMR>; Mon, 25 Mar 2002 19:12:17 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:12384 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S312881AbSCZAMF>; Mon, 25 Mar 2002 19:12:05 -0500
+Message-ID: <3C9FBCCE.6010200@ngforever.de>
+Date: Mon, 25 Mar 2002 17:11:58 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Wakko Warner <wakko@animx.eu.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE and hot-swap disk caddies
+In-Reply-To: <20020325152617.A18605@animx.eu.org> <Pine.LNX.4.10.10203251319100.1305-100000@master.linux-ide.org> <20020325173234.A18888@animx.eu.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16pec1-00023g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >o   add:        ISDN LZS Compression
-> 
-> I thought there was some fairly good reason as to why the LZS compression
-> patch is not in the official kernel ? Isn't somebodys patent getting in
-> the way ?
+Wakko Warner wrote:
+> IIRC, windows nt sees ide controllers as a scsi controller (in a sence)
+And ran into trouble with it, remember? Thus, they reinvented the 
+different interfaces, multi(n) and scsi(n).
+Thunder
+-- 
+Thunder from the hill.
+Citizen of our universe.
 
-LZS isn't shippable in the USA, only the free world

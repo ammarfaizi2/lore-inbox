@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266790AbUHCS2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266792AbUHCS2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266790AbUHCS2X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 14:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUHCS2X
+	id S266792AbUHCS2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 14:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUHCS2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 14:28:23 -0400
-Received: from mail.convergence.de ([212.84.236.4]:55940 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S266790AbUHCS2V
+	Tue, 3 Aug 2004 14:28:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18397 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266792AbUHCS2g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 14:28:21 -0400
-Date: Tue, 3 Aug 2004 20:28:24 +0200
-From: Johannes Stezenbach <js@convergence.de>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: boolean typo in DVB
-Message-ID: <20040803182824.GB2628@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <20040803010055.GB12571@redhat.com>
+	Tue, 3 Aug 2004 14:28:36 -0400
+Date: Tue, 3 Aug 2004 15:08:21 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Richard Wohlstadter <rwohlsta@watson.wustl.edu>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: dma problems with Serverworks CSB5 chipset
+Message-ID: <20040803180821.GB6265@logos.cnet>
+References: <4107E4B3.6070904@watson.wustl.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040803010055.GB12571@redhat.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <4107E4B3.6070904@watson.wustl.edu>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(The email addresses in the source files are out of date,
-bug reports should go to linux-dvb-maintainer [at] linuxtv.org.)
-
-Dave Jones wrote:
-> This looks like what was intended here..
-...
-> Signed-off-by: Dave Jones <davej@redhat.com>
+On Wed, Jul 28, 2004 at 12:38:59PM -0500, Richard Wohlstadter wrote:
+> Hello,
 > 
-> --- 1/drivers/media/dvb/dvb-core/dvb_demux.c~	2004-08-03 01:57:45.605369592 +0100
-> +++ 2/drivers/media/dvb/dvb-core/dvb_demux.c	2004-08-03 01:57:58.979336440 +0100
-> @@ -179,7 +179,7 @@
->  		neq |= f->maskandnotmode[i] & xor;
->  	}
->  
-> -	if (f->doneq & !neq)
-> +	if (f->doneq && !neq)
->  		return 0;
->  
->  	return feed->cb.sec (feed->feed.sec.secbuf, feed->feed.sec.seclen, 
+> I have 200 servers in a cluster running vanilla kernel 2.4.26(not 
+> tainted).  Under heavy I/O activity I have various servers completely 
+> lose access to their IDE bus.  Logs show the same error every time:
+> 
+> hda: dma_timer_expiry: dma status == 0x61
+> 
+> The kernel resets the IDE bus at this point.  Sometimes things start 
+> working again but mostly all ide access is lost and I have to reboot the 
+> server.  The chipset is:
+> 
+>  00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
+> 
+> I have searched archives for problems with this chipset and I have seen 
+> other users with this same issue, but no resolution to the problem.  Is 
+> there a known problem with this chipset version or could there be some 
+> issues still with the serverworks driver?  Any help would be much 
+> appreciated.  Thanks.
 
-Yes, you've spotted a bug. I'll correct this in linuxtv CVS.
+Richard,
 
-Thanks a lot,
-Johannes
+ServerWorks OSB4/5 chipsets are known to not work reliably with the Linux
+IDE code. AFAIK its a hardware problem which we dont correctly work around.
+
+Have you tried disabling DMA?
+
+Bart and Alan are IDE experts, they can probably give you more useful
+information.

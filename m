@@ -1,90 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311147AbSDDTtf>; Thu, 4 Apr 2002 14:49:35 -0500
+	id <S311211AbSDDTvF>; Thu, 4 Apr 2002 14:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311262AbSDDTtZ>; Thu, 4 Apr 2002 14:49:25 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26364
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311147AbSDDTtR>; Thu, 4 Apr 2002 14:49:17 -0500
-Date: Thu, 4 Apr 2002 11:50:46 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@linux-ide.org>
-Subject: Re: ide timer trbl ...
-Message-ID: <20020404195046.GA29089@matchmail.com>
-Mail-Followup-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <E16kWS8-0001f5-00@the-village.bc.nu> <Pine.LNX.4.44.0203121550320.32078-100000@netfinity.realnet.co.sz>
-Mime-Version: 1.0
+	id <S311262AbSDDTu4>; Thu, 4 Apr 2002 14:50:56 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24313 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S311211AbSDDTut>;
+	Thu, 4 Apr 2002 14:50:49 -0500
+Message-ID: <3CACAE05.5422E3B0@mvista.com>
+Date: Thu, 04 Apr 2002 11:48:22 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+        linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() atboot 
+ time
+In-Reply-To: <Pine.LNX.4.33.0204041108040.12895-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 04:21:52PM +0200, Zwane Mwaikambo wrote:
-> On Mon, 11 Mar 2002, Alan Cox wrote:
+Linus Torvalds wrote:
 > 
-> > In all the command cases thats because the previous command state has
-> > completed. I'm pretty sure there is one path alone wrong and its in the 
-> > WIP DMA timeout stuff
+> On Thu, 4 Apr 2002, Dave Hansen wrote:
+> >
+> > I've diabled preemption in the area where it used to be disabled because
+> > of the old lock_kernel().  I'm sending this message from a machine with
+> > that patch applied, so the patch does fix it.
 > 
-> I don't know if you guys have come across the ide timer added twice 
-> problem personally, but its pretty easy to reproduce by dropping the 
-> device from DMA to PIO. 100% reproducible over here with my ide cdrom.
+> I think the real fix is to make sure that preemption never hits while
+> current->state == TASK_ZOMBIE.
+> 
+> In other words, I think the _correct_ fix is to just make
+> preempt_schedule() check for something like
+> 
+>         if (current->state != TASK_RUNNING)
+>                 return;
+> 
+I agree that the set state to running code should go, but there are
+places in the kernel where a great deal of time is spent with the state
+other than running.  AND most of them make sense.  Adding a PREEMPTING
+super state, as was in the original patch, addressed this quite well
+IMHO.  This super state was treated by the scheduler as RUNNING
+regardless of the actual state.  As long as it is not in the actual
+"state" member, the condition waited for can still set the true state to
+RUNNING and all is well.
 
-It looks like this issue has moved over to 2.4-ac now.
+What is the objection to this?
 
-I too am able to reproduce this on two drives in PIO mode.
+> and just getting rid of the current "unconditionally set state to
+> running".
+> 
+> (Side note: if the state isn't running, we're most likely going to
+> reschedule in a controlled manner soon anyway. Sure, there are some loops
+> which set state to non-runnable early for race avoidance, but is it a
+> _problem_?)
+> 
+All I can say is that we thought it was when we did the original
+preemption work.  Some of those loops are long.
 
-There are only two drives, hda and hdc.  I was copying from hda to md0 (one
-half of a new RAID1 array that will (completed now as of this writing) be on
-hda and hdc.
+I tend to agree with not doing the random "set state to running".  It
+breeds paranoia, and rightly so.
 
-I can provide more information upon request.
+And yes the ZOMBIE code must not be preempted.  This is one of the
+reasons the preempt code was designed to allow schedule() to be called
+with preemption disabled.  I gives a nice clean schedule() call.  It
+might be a better solution than the interrupt off schedule() calls made
+in the sleep calls in sched.c.
 
-Mike
+>                 Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-2.4.19-pre4-ac3
-
-Apr  3 03:43:19 gw kernel: EXT3 FS 2.4-0.9.17, 10 Jan 2002 on md(9,0), internal journal
-Apr  3 03:43:19 gw kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Apr  3 03:44:58 gw kernel: hda: status timeout: status=0xd0 { Busy }
-Apr  3 03:45:05 gw kernel: hda: ide_set_handler: handler not null; old=c01b9630, new=c01bab40
-Apr  3 03:45:05 gw kernel: bug: kernel timer added twice at c01ba9a2.
-Apr  3 03:45:05 gw kernel: hda: no DRQ after issuing MULTWRITE
-Apr  3 03:45:05 gw kernel: ide0: reset: success
-
-System.map:
-c01ba940 T ide_set_handler
-c01ba9c0 T current_capacity
-
-00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 03)
-00:01.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:01.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-00:01.2 USB Controller: Intel Corp. 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
-00:06.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
-00:07.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 02)
-00:08.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] (rev 54)
-00:0b.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 16)
-
->From 2.4.19-pre3-ac4 (logs not saved from pre4-ac3, but can be reproduced
-upon request...):
-
-PIIX3: IDE controller on PCI bus 00 dev 09
-PIIX3: chipset revision 0
-PIIX3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-hda: WDC AC32500H, ATA DISK drive
-hdc: WDC AC32500H, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: Disabling (U)DMA for WDC AC32500H
-hda: 4999680 sectors (2560 MB) w/128KiB Cache, CHS=620/128/63
-hdc: Disabling (U)DMA for WDC AC32500H
-hdc: 4999680 sectors (2560 MB) w/128KiB Cache, CHS=4960/16/63
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

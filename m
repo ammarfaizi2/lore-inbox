@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287804AbSAFKiu>; Sun, 6 Jan 2002 05:38:50 -0500
+	id <S287794AbSAFKlt>; Sun, 6 Jan 2002 05:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287802AbSAFKij>; Sun, 6 Jan 2002 05:38:39 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11023
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S287794AbSAFKiY>; Sun, 6 Jan 2002 05:38:24 -0500
-Date: Sun, 6 Jan 2002 02:33:47 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Davide Libenzi <davidel@xmailserver.org>, Matthias Hanisch <mjh@vr-web.de>,
-        Mikael Pettersson <mikpe@csd.uu.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.2-pre performance degradation on an old 486
-In-Reply-To: <20020106112129.D8673@suse.de>
-Message-ID: <Pine.LNX.4.10.10201060232210.24436-100000@master.linux-ide.org>
+	id <S287802AbSAFKlj>; Sun, 6 Jan 2002 05:41:39 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:61965 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287794AbSAFKla>; Sun, 6 Jan 2002 05:41:30 -0500
+Message-ID: <3C370AFF.9385091A@linux-m68k.org>
+Date: Sat, 05 Jan 2002 15:17:35 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Steffen Persvold <sp@scali.no>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Short question about the mmap method
+In-Reply-To: <3C360FD5.91285F5D@scali.no>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Jens Axboe wrote:
+Hi,
 
-> On Sat, Jan 05 2002, Davide Libenzi wrote:
-> > > > (*) 100MHz 486DX4, 28MB ram, no L2 cache, two old and slow IDE disks,
-> > > > small custom no-nonsense RedHat 7.2, kernels compiled with gcc 2.95.3.
-> > >
-> > > Is this ISA (maybe it has something to do with ISA bouncing)? Mine is:
-> > >
-> > > 486 DX/2 ISA, Adaptec 1542, two slow scsi disks and a self-made
-> > > slackware-based system.
-> > >
-> > > Can you also backout the scheduler changes to verify this? I have a
-> > > backout patch for 2.5.2-pre6, if you don't want to do this for yourself.
-> > 
-> > There should be some part of the kernel that assume a certain scheduler
-> > behavior. There was a guy that reported a bad  hdparm  performance and i
-> > tried it. By running  hdparm -t  my system has a context switch of 20-30
-> > and an irq load of about 100-110.
-> > The scheduler itself, even if you code it in visual basic, cannot make
-> > this with such loads.
-> > Did you try to profile the kernel ?
-> 
-> Davide,
-> 
-> If this is caused by ISA bounce problems, then you should be able to
-> reproduce by doing something ala
-> 
-> [ drivers/ide/ide-dma.c ]
-> 
-> ide_toggle_bounce()
-> {
-> 	...
-> 
-> +	addr = BLK_BOUNCE_ISA;
-> 	blk_queue_bounce_limit(&drive->queue, addr);
-> }
+Steffen Persvold wrote:
 
-Jens, how about getting a hardware list because I have prime2/3 ISA DMA
-cards.  Just not ready to test in 2.5.
+> I have a question regarding drivers implementing the mmap and nopage methods. In some references
+> I've read that pages in kernel allocated memory (either allocated with kmalloc, vmalloc or
+> __get_free_pages) should be set to reserved (mem_map_reserve or set_bit(PG_reserved, page->flags)
+> before they can be mmap'ed to guarantee that they can't be swapped out. Is this true ?
+> 
+> The reason I ask is that I have a test driver that allocates some pages with vmalloc(), reserves
+> them with mem_map_reserve(), and uses the "nopage" method to give a userspace app access to them.
+> When the userpace app accesses the page, the "nopage" function is invoked as expected and the
+> page->count is incremented (by the nopage function).
 
-Regards,
+You must only set PG_reserved or only increment the page count. If you
+increment the page count, the kernel will try to free memory by removing
+the page from the process and reread the page later by calling the
+nopage function again.
+If you have the pages allocated all the time anyway, it's better to set
+PG_reserved, but these pages can only be freed again when all files are
+closed. You probably also want to set VM_RESERVED in vma->vm_flags, so
+the kernel won't even look at these pages, while scanning the process
+for freeable memory.
 
+> When getting the "struct page" for pages allocated with vmalloc() I use the same method as
+> drivers/media/video/bttv-driver.c (checking the page table). Somewhere (I think Rubini) I read that
+> the init_mm.page_table_lock should be held before checking the page table. Is this true, or can it
+> safely be done without doing that (the bttv-driver.c doesn't) ?
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+Currently this lock isn't needed, since noone will remove or change this
+mapping until you call vfree().
+
+bye, Roman
 

@@ -1,101 +1,417 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbTABJqF>; Thu, 2 Jan 2003 04:46:05 -0500
+	id <S261173AbTABK0B>; Thu, 2 Jan 2003 05:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTABJqF>; Thu, 2 Jan 2003 04:46:05 -0500
-Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:1809 "EHLO
-	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S261330AbTABJqE>; Thu, 2 Jan 2003 04:46:04 -0500
-Date: Thu, 2 Jan 2003 09:55:01 +0000
-To: Kevin Corry <corry@ecn.purdue.edu>
-Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>, dm-devel@sistina.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dm.c : Check memory allocations
-Message-ID: <20030102095501.GB2677@reti>
-References: <20021230105114.GB2703@reti> <200212311622.gBVGMS5R028448@shay.ecn.purdue.edu>
+	id <S261205AbTABK0B>; Thu, 2 Jan 2003 05:26:01 -0500
+Received: from pheniscidae.tvnetwork.hu ([80.95.85.58]:44306 "EHLO
+	pheniscidae.TvNetWork.Hu") by vger.kernel.org with ESMTP
+	id <S261173AbTABKZz>; Thu, 2 Jan 2003 05:25:55 -0500
+Date: Thu, 2 Jan 2003 11:34:22 +0100
+From: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.54
+Message-ID: <20030102103422.GB24116@sasa.home>
+References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212311622.gBVGMS5R028448@shay.ecn.purdue.edu>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+In-Reply-To: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 11:22:28AM -0500, Kevin Corry wrote:
-> > 
-> > On Fri, Dec 27, 2002 at 04:55:31PM -0500, Kevin Corry wrote:
-> > > Check memory allocations when cloning bio's.
-> > 
-> > Rejected, clone_bio() cannot fail since it's allocating from a mempool
-> > with __GFP_WAIT set.
-> > 
-> > - Joe
-> 
-> Hmm. Yep. I must have mistaken GFP_NOIO for GFP_ATOMIC.
-> 
-> But based on that reasoning, shouldn't the bio_alloc() call
-> in split_bvec() always return a valid bio, and hence make the
-> checks in split_bvec() and __clone_and_map() unnecessary?
+Hi All!
 
-y, I was mistakenly under the impression that bio_alloc could fail
-during the allocation of the bvec.  I'll add the following patch.
+I have a linking problem with 2.5.54 (and 2.5.53 too)
 
-- Joe
+drivers/built-in.o: In function `kd_nosound':
+drivers/built-in.o(.text+0x37923): undefined reference to 	nput_event'
+drivers/built-in.o(.text+0x3793c): undefined reference to 	nput_event'
+drivers/built-in.o: In function `kd_mksound':
+drivers/built-in.o(.text+0x379e7): undefined reference to 	nput_event'
+drivers/built-in.o: In function `kbd_bh':
+drivers/built-in.o(.text+0x385a2): undefined reference to 	nput_event'
+drivers/built-in.o(.text+0x385b0): undefined reference to 	nput_event'
+drivers/built-in.o(.text+0x385c1): more undefined references to 	nput_event' follow
+drivers/built-in.o: In function `kbd_connect':
+drivers/built-in.o(.text+0x389e3): undefined reference to 	nput_open_device'
+drivers/built-in.o: In function `kbd_disconnect':
+drivers/built-in.o(.text+0x389ff): undefined reference to 	nput_close_device'
+drivers/built-in.o: In function `kbd_init':
+drivers/built-in.o(.init.text+0x2ae1): undefined reference to 	nput_register_handler'
+make[1]: *** [vmlinux] Error 1
+
+The .config file:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PREFETCH=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_PROCESSOR_PERF=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_CPU_FREQ=y
+CONFIG_X86_SPEEDSTEP=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=m
+CONFIG_CARDBUS=y
+CONFIG_I82365=m
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_PNP_NAMES=y
+CONFIG_PNP_CARD=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_PCMCIA=y
+CONFIG_PCMCIA_AHA152X=m
+CONFIG_PCMCIA_FDOMAIN=m
+CONFIG_PCMCIA_NINJA_SCSI=m
+CONFIG_PCMCIA_QLOGIC=m
+CONFIG_I2O=m
+CONFIG_I2O_PCI=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_LAN=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=m
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_INET_ECN=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_XFRM_USER=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IPV6=y
+CONFIG_IP6_NF_IPTABLES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_IP_SCTP=m
+CONFIG_VLAN_8021Q=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_SIS900=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_NET_RADIO=y
+CONFIG_HERMES=m
+CONFIG_PCMCIA_NETWAVE=m
+CONFIG_PCMCIA_WAVELAN=m
+CONFIG_PCMCIA_HERMES=m
+CONFIG_AIRO_CS=m
+CONFIG_NET_WIRELESS=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+CONFIG_IRTTY_SIR=m
+CONFIG_DONGLE=y
+CONFIG_ESI_DONGLE=m
+CONFIG_ACTISYS_DONGLE=m
+CONFIG_TEKRAM_DONGLE=m
+CONFIG_IRPORT_SIR=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
+CONFIG_INPUT=m
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=m
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_CS=m
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_PHILIPSPAR=m
+CONFIG_I2C_ELV=m
+CONFIG_I2C_VELLEMAN=m
+CONFIG_SCx200_ACB=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ELEKTOR=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_LM75=m
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_SIS=m
+CONFIG_SYNCLINK_CS=m
+CONFIG_MWAVE=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_CIFS=m
+CONFIG_ZISOFS_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=y
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_TRIDENT=m
+CONFIG_SND_USB_AUDIO=m
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_MIDI=m
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_POWERMATE=m
+CONFIG_USB_XPAD=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_CATC=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_USS720=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_KLSI=m
+CONFIG_USB_SERIAL_KOBIL_SCT=m
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_SAFE=m
+CONFIG_USB_SERIAL_SAFE_PADDED=y
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_EZUSB=y
+CONFIG_USB_EMI26=m
+CONFIG_USB_TIGL=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_RIO500=m
+CONFIG_USB_BRLVGER=m
+CONFIG_USB_LCD=m
+CONFIG_BT=m
+CONFIG_BT_L2CAP=m
+CONFIG_BT_SCO=m
+CONFIG_BT_RFCOMM=m
+CONFIG_BT_BNEP=m
+CONFIG_BT_BNEP_MC_FILTER=y
+CONFIG_BT_BNEP_PROTO_FILTER=y
+CONFIG_BT_HCIUSB=m
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
 
 
---- diff/drivers/md/dm.c	2002-12-30 11:40:30.000000000 +0000
-+++ source/drivers/md/dm.c	2003-01-02 09:51:07.000000000 +0000
-@@ -347,18 +347,15 @@
- 	struct bio_vec *bv = bio->bi_io_vec + idx;
- 
- 	clone = bio_alloc(GFP_NOIO, 1);
-+	memcpy(clone->bi_io_vec, bv, sizeof(*bv));
- 
--	if (clone) {
--		memcpy(clone->bi_io_vec, bv, sizeof(*bv));
--
--		clone->bi_sector = sector;
--		clone->bi_bdev = bio->bi_bdev;
--		clone->bi_rw = bio->bi_rw;
--		clone->bi_vcnt = 1;
--		clone->bi_size = to_bytes(len);
--		clone->bi_io_vec->bv_offset = offset;
--		clone->bi_io_vec->bv_len = clone->bi_size;
--	}
-+	clone->bi_sector = sector;
-+	clone->bi_bdev = bio->bi_bdev;
-+	clone->bi_rw = bio->bi_rw;
-+	clone->bi_vcnt = 1;
-+	clone->bi_size = to_bytes(len);
-+	clone->bi_io_vec->bv_offset = offset;
-+	clone->bi_io_vec->bv_len = clone->bi_size;
- 
- 	return clone;
- }
-@@ -432,11 +429,6 @@
- 
- 		clone = split_bvec(bio, ci->sector, ci->idx,
- 				   bv->bv_offset, max);
--		if (!clone) {
--			dec_pending(ci->io, -ENOMEM);
--			return;
--		}
--
- 		__map_bio(ti, clone, ci->io);
- 
- 		ci->sector += max;
-@@ -446,11 +438,6 @@
- 		len = to_sector(bv->bv_len) - max;
- 		clone = split_bvec(bio, ci->sector, ci->idx,
- 				   bv->bv_offset + to_bytes(max), len);
--		if (!clone) {
--			dec_pending(ci->io, -ENOMEM);
--			return;
--		}
--
- 		__map_bio(ti, clone, ci->io);
- 
- 		ci->sector += len;
+gcc: 2.95.4
+ ld: 2.12.90.0.1 20020307 Debian/GNU Linux
 
+-- 
+PGP ID 0x8D143771, /C5 95 43 F8 6F 19 E8 29  53 5E 96 61 05 63 42 D0
+GPG ID   ABA0E8B2, 45CF B559 8281 8091 8469  CACD DB71 AEFC ABA0 E8B2
 
+I refused to attend his funeral. But I wrote a very nice letter
+explaining that I approved of it. -- Mark Twain

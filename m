@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264452AbTICUPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTICUNp
+	id S264434AbTICULz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTICUKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:13:45 -0400
-Received: from smtp.terra.es ([213.4.129.129]:40683 "EHLO tsmtp9.mail.isp")
-	by vger.kernel.org with ESMTP id S264438AbTICUL5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:11:57 -0400
-Date: Wed, 3 Sep 2003 22:11:52 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Larry McVoy <lm@bitmover.com>
-Cc: wli@holomorphy.com, len.brown@intel.com, lm@bitmover.com, pochini@shiny.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-Id: <20030903221152.3e080f60.diegocg@teleline.es>
-In-Reply-To: <20030903180755.GE5769@work.bitmover.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
-	<20030903173213.GC5769@work.bitmover.com>
-	<20030903180702.GQ4306@holomorphy.com>
-	<20030903180755.GE5769@work.bitmover.com>
+	Wed, 3 Sep 2003 16:10:21 -0400
+Received: from mail.gmx.net ([213.165.64.20]:50845 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264307AbTICUG0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 16:06:26 -0400
+Date: Wed, 3 Sep 2003 22:05:54 +0200
+From: Sebastian Reichelt <SebastianR@gmx.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.21] orinoco_cs card reinsertion
+Message-Id: <20030903220554.70356a21.SebastianR@gmx.de>
+In-Reply-To: <Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
+References: <20030903213644.1a56a7f2.SebastianR@gmx.de>
+	<Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 3 Sep 2003 11:07:55 -0700 Larry McVoy <lm@bitmover.com> escribió:
+> Hum, are you using ACPI? There have a few IRQ assignment issues
+> reported with the new ACPI in 2.4.22.
+> 
+> Can you please try booting with "pci=noacpi" option ? 
 
-> How you can look at those two companies and not see what is obvious is
-> beyond me but everyone is entitled to their opinion.  It's nice when your
-> opinion is based on data, not religion.
+Yes, thanks. That solves both problems (the reinsertion detection and
+the crash). I still get the message "orinoco_lock() called with
+hw_unavailable" in syslog, just in case that means something.
 
-What those companies sell isn't a good enough reason to get any conclusion.
+Speaking about messages, ever since I've been using PCMCIA (the
+SourceForge stuff for 2.2 and the kernel support in 2.4), I've been
+getting the following message three times in a row after insertion:
+eth1: Error -110 setting multicast list.
 
-Those data don't mean you're right; they just mean what you're *supposing*.
+I was told on SourceForge that I should just ignore it. However, it
+covered by login prompt, so I simply commented out everything about
+"multicasting" in orinoco.c. Is there a correct way to handle this?
 
-
-Diego Calleja
+-- 
+Sebastian Reichelt

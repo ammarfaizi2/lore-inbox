@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270931AbTGVVqI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 17:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270948AbTGVVqH
+	id S270889AbTGVVvF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 17:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270884AbTGVVvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 17:46:07 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:40943 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270931AbTGVVqF
+	Tue, 22 Jul 2003 17:51:05 -0400
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:11780 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id S270916AbTGVVvB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 17:46:05 -0400
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-Cc: Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F1DA09F.4020503@gibraltar.at>
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
-	 <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-	 <3F1D7C80.6020605@gibraltar.at>
-	 <1058904025.4160.30.camel@dhcp22.swansea.linux.org.uk>
-	 <3F1DA09F.4020503@gibraltar.at>
-Content-Type: text/plain
+	Tue, 22 Jul 2003 17:51:01 -0400
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [BK PATCHES] more 2.6.x net driver merges
+Date: Wed, 23 Jul 2003 00:06:15 +0200
+User-Agent: KMail/1.5.2
+References: <20030720043948.GA20201@gtf.org>
+In-Reply-To: <20030720043948.GA20201@gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058910871.4674.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Jul 2003 22:54:31 +0100
+Content-Disposition: inline
+Message-Id: <200307230006.15884.rudmer@legolas.dynup.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Give vanilla 2.4.22-pre7 a go. I suspect it'll break the same if its the unshare stuff
+Hi,
+
+I have a Broadcom Corporation BCM4401 100Base-T (rev 01) NIC, it did not work 
+with 2.6-vanilla or 2.6-mm but with this patch it works!
+
+thanks!
+
+	Rudmer
+
+On Sunday 20 July 2003 06:39, Jeff Garzik wrote:
+> Added some more stuff at
+>
+> 	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.6
+>
+> Others may download the patch from
+>
+> ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0
+>-test1-netdrvr2.patch.bz2
+>
 

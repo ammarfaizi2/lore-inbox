@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSHFWwW>; Tue, 6 Aug 2002 18:52:22 -0400
+	id <S316500AbSHFXIr>; Tue, 6 Aug 2002 19:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSHFWvj>; Tue, 6 Aug 2002 18:51:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50677 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316408AbSHFWvU>; Tue, 6 Aug 2002 18:51:20 -0400
-Subject: Re: intel chipsets not recognized in 2.4.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Walter A. Boring IV" <wboring@qualys.com>
+	id <S316503AbSHFXIr>; Tue, 6 Aug 2002 19:08:47 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:61707 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316500AbSHFXIq>; Tue, 6 Aug 2002 19:08:46 -0400
+Date: Wed, 7 Aug 2002 00:12:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Adlung <Ingo.Adlung@t-online.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028673358.2551.4.camel@hemna.qualys.com>
-References: <1028673358.2551.4.camel@hemna.qualys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 01:14:12 +0100
-Message-Id: <1028679252.18156.222.camel@irongate.swansea.linux.org.uk>
+Subject: Re: [PATCH] 18/18 scsi core changes
+Message-ID: <20020807001224.A16527@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Adlung <Ingo.Adlung@t-online.de>, linux-kernel@vger.kernel.org
+References: <200208051830.50713.arndb@de.ibm.com> <200208052008.35187.arndb@de.ibm.com> <20020805181234.B16035@infradead.org> <200208061306.03627.arnd@bergmann-dalldorf.de> <20020806101807.A16350@infradead.org> <3D505758.8090002@t-online.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D505758.8090002@t-online.de>; from Ingo.Adlung@t-online.de on Wed, Aug 07, 2002 at 01:10:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-06 at 23:35, Walter A. Boring IV wrote:
-> Howdy, 
->   I just compiled/installed 2.4.19 on my new Dell box.
-> I can't seem to enable dma on it due to the kernel not detecting the IDE
-> chipset correctly, as you can see from the lspci dump below.
+On Wed, Aug 07, 2002 at 01:10:16AM +0200, Ingo Adlung wrote:
+> > Following that argumentation we could also include the broken qlogic driver
+> > and the nvidia glue..
+> > 
+> 
+> Well, if the hardware implementation would always be straight forward to 
+> what you know from PCs, it wouldn't be required to apply additional 
+> patches to the common code, but it would be easy to stay within the 
+> architecture specifics.
 
->  Any ideas how to hack around this so I can get dma running?
-
-2.4.19-ac4 will do the job. And hopefully 2.4.20 base
+That above statement was about the horrible code quality of most if not
+all s390 drivers.  Yes there are similarly bad vendor drivers around for
+intel hardware - buf fortunately they are not in the tree.
 

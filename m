@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265201AbUGDQsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUGDQs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265201AbUGDQsz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 12:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUGDQsz
+	id S265203AbUGDQs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 12:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUGDQs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 12:48:55 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:45577 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S265201AbUGDQsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 12:48:53 -0400
-Date: Sun, 4 Jul 2004 18:42:24 +0200
-From: DervishD <raul@pleyades.net>
-To: Witukind <witukind@nsbm.kicks-ass.org>
-Cc: "Zephaniah E. Hull" <warp@babylon.d2dc.net>, linux-kernel@vger.kernel.org
-Subject: Re: Voodoo3 2000 is eating my chars!
-Message-ID: <20040704164224.GA914@DervishD>
-Mail-Followup-To: Witukind <witukind@nsbm.kicks-ass.org>,
-	"Zephaniah E. Hull" <warp@babylon.d2dc.net>,
-	linux-kernel@vger.kernel.org
-References: <20040701185527.GB122@DervishD> <20040702073636.GA25592@babylon.d2dc.net> <20040702065645.27e93ac3.witukind@nsbm.kicks-ass.org>
+	Sun, 4 Jul 2004 12:48:57 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:38585 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S265203AbUGDQsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 12:48:54 -0400
+Date: Sun, 4 Jul 2004 18:48:53 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: backblue <backblue@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc 3.4 problem
+Message-ID: <20040704164853.GB18688@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	backblue <backblue@netcabo.pt>, linux-kernel@vger.kernel.org
+References: <20040703023138.00dc1c81@fork.ketic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040702065645.27e93ac3.witukind@nsbm.kicks-ass.org>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+In-Reply-To: <20040703023138.00dc1c81@fork.ketic.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Witukind :)
+On Sat, Jul 03, 2004 at 02:31:38AM +0100, backblue wrote:
 
- * Witukind <witukind@nsbm.kicks-ass.org> dixit:
-> > >     I recently put a Voodoo3 2000 (AGP) card to my home linux box,
-> > > and now I have a problem in the console. When switching from X to
-> > > the console, some chars dissappear, or appear cut, etc. I've googled
-> > > for this, but with no success. Is this a known bug? Maybe an X bug?
-> > This is actually an X bug, which I thought I had fixed a long time ago
-> > when I was still doing 3Dfx stuff.
-> Same behavior here with Voodoo 3 2000 PCI. I just quickly switch
-> back to X and back to the console to get the font right, it'll mess
-> up a character or two only quite rarely though, at most 10% of the
-> times when I switch. I'm not even sure it happened yet since I
-> upgraded to XFree86 4.4.0, but I'm not 100% positive on this.
+> I have a problem with gcc 3.4, and kernel 2.6.6, i have every thing
+> compiled and installed, no problems compiling, but when i'm going to load
+> a kernel module, it gives me problems, with all the modules, the problem
+> it's the same, and with gcc 3.3.3 i dont have problems, so it's gcc fault,
+> my question it's, does kernel 2.6.7, have this solved?
 
-    Thanks for the information. A friend of mine also has this problem
-(with an AGP card). Don't know which X version is he running :?
+Please specify the error. Make doubly sure you are compiling both kernel and
+modules with the same compiler!
 
-    Raúl Núñez de Arenas Coronado
+
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

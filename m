@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRECPHJ>; Thu, 3 May 2001 11:07:09 -0400
+	id <S131244AbRECPRK>; Thu, 3 May 2001 11:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130532AbRECPG7>; Thu, 3 May 2001 11:06:59 -0400
-Received: from www.topmail.de ([212.255.16.226]:4992 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129381AbRECPGz>;
-	Thu, 3 May 2001 11:06:55 -0400
-Message-ID: <001101c0d3e2$b0620f60$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D595@EXCHANGE2>
-Subject: Re: Whether can we put our company's  linux driver into linux kernel?
-Date: Thu, 3 May 2001 15:06:24 -0000
-Organization: eccesys.net Linux development
+	id <S131323AbRECPRB>; Thu, 3 May 2001 11:17:01 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:7437 "EHLO
+	mail.compro.net") by vger.kernel.org with ESMTP id <S131244AbRECPQn>;
+	Thu, 3 May 2001 11:16:43 -0400
+Message-ID: <3AF17679.DCD39840@compro.net>
+Date: Thu, 03 May 2001 11:17:13 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: markh@compro.net
+Subject: raw tape device support???
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm is he sure he knows what linux is...?
-I dunno whether he has understood the concept right,
-maybe he'll post a WDM driver ;-)
+ Sorry if this isn't the correct place for this question. Is there or
+will there
+ever be raw tape device access. I'm trying to port an app from Dec unix
+and at
+least there the app requires /dev/rmt** (raw device). I've read in the
+archives
+about how to bind a block device to a raw device using the raw command
+but the
+tape dev (/dev/st*) is a char device and the command doesn't work on
+char devices.
+So I'm trying to figure out to get the same effect as /dev/rmt* does on
+the dec
+box in a linux environment. 
+ I'm not a member of this list (sorry) so if anyone can respond to this
+please
+cc to it markh@compro.net.
 
--mirabilos
--- 
-EA F0 FF 00 F0 #$@%CARRIER LOST
+Thank you very much in advance
 
+Mark Hounschell
+markh@compro.net

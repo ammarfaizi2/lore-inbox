@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278171AbRJRWB4>; Thu, 18 Oct 2001 18:01:56 -0400
+	id <S278177AbRJRWY1>; Thu, 18 Oct 2001 18:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278172AbRJRWBq>; Thu, 18 Oct 2001 18:01:46 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:47065 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S278171AbRJRWBm>;
-	Thu, 18 Oct 2001 18:01:42 -0400
-Date: Thu, 18 Oct 2001 18:02:13 -0400
-Message-Id: <200110182202.f9IM2Dw30821@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: arjan@fenrus.demon.nl
-Cc: linux-kernel@vger.kernel.org, spotter@cs.columbia.edu (Shaya Potter)
-Subject: Re: xircom_cb and promiscious mode
-In-Reply-To: <E15uKqE-0004VS-00@fenrus.demon.nl>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
+	id <S278181AbRJRWYR>; Thu, 18 Oct 2001 18:24:17 -0400
+Received: from smtp-rt-9.wanadoo.fr ([193.252.19.55]:63646 "EHLO
+	alisier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S278177AbRJRWYA>; Thu, 18 Oct 2001 18:24:00 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: John Alvord <jalvo@mbay.net>
+Cc: Patrick Mochel <mochelp@infinity.powertie.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Fri, 19 Oct 2001 00:23:44 +0200
+Message-Id: <20011018222344.7467@smtp.wanadoo.fr>
+In-Reply-To: <pbiust45nr5rtsl7d8qlf6gu8p8er91gtj@4ax.com>
+In-Reply-To: <pbiust45nr5rtsl7d8qlf6gu8p8er91gtj@4ax.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001 22:36:38 +0100, arjan@fenrus.demon.nl wrote:
+>Maybe each driver could pass back a value indicating
+>
+>1) all done
+>2) N milliseconds more, please
+>
+>and you could keep calling until every driver says all done. The
+>all-done drivers would ignore any new interrupts. The Not-Yet drivers
+>could get the last few interrupts the need to complete. Of course
+>there would need to be an overall timeout. That would leave most of
+>the responsibility with the drivers... who know most of the true
+>requirements.
 
-> The xircom_tulip_cb driver is more advanced, and probably works well for
-> your system. (It doesn't work for all cards, but I suspect that correlates
-> highly with the revision that needs the promisc)
+Hrm... The interesting thing with this scheme is that it allows
+you to first block your queue, then let other driver do the same
+while your async IO completes, and then come back. Well... this
+could be an option to step "2" of my earlier proposal.
+This requires the device structure to keep track of which driver
+still wants to be called. It would only go to step 3 once all
+drivers have ack'ed step 2.
 
-In particular the xircom_tulip_cb driver from 2.4.13-pre4 should work well 
-at Columbia (since that's one place where I tested it :-). You can simply 
-copy the xircom_tulip_cb.c from 2.4.13-pre4 into pretty much any 2.4 
-kernel and recompile, and it should work -- except maybe for the 
-MODULE_LICENSE line which can be safely commented out.
+Ben.
 
-Arjan, are there still cards that don't work without promisc mode enabled? 
-I got two different versions myself and both work very nicely with the 
-latest xircom_tulip_cb.
 
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.

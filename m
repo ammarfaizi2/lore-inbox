@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267192AbUBNACS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 19:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267204AbUBNACS
+	id S264454AbUBNAVh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 19:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUBNAVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 19:02:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20453 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267192AbUBNACM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 19:02:12 -0500
-Subject: Re: [PATCH 2.6.3-rc2-mm1] __block_write_full patch
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040213154815.42e74cb5.akpm@osdl.org>
-References: <20040212015710.3b0dee67.akpm@osdl.org>
-	 <1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
-	 <20040213143836.0a5fdabb.akpm@osdl.org>
-	 <1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
-	 <20040213154815.42e74cb5.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076716924.1956.113.camel@ibm-c.pdx.osdl.net>
+	Fri, 13 Feb 2004 19:21:37 -0500
+Received: from mail.shareable.org ([81.29.64.88]:62594 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264454AbUBNAVc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 19:21:32 -0500
+Date: Sat, 14 Feb 2004 00:21:29 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: RANDAZZO@ddc-web.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlocks dont work
+Message-ID: <20040214002129.GD31199@mail.shareable.org>
+References: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Feb 2004 16:02:04 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-13 at 15:48, Andrew Morton wrote:
-> Daniel McNeil <daniel@osdl.org> wrote:
-> >
-> > My only concern is that a racing mpage_writepages(WB_SYNC_NONE)
-> > with a mpage_write_pages(WB_SYNC_ALL) from a filemap_write_and_wait. 
-> > Both could be processing the io_pages list, if the
-> > mpage_writepages(WB_SYNC_NONE) moves a page that has locked buffers 
-> > back to the dirty_pages list, then when the filemap_write_and_wait()
-> > calls filemap_fdatawait, it will not wait for the page moved back
-> > to the dirty list.
-> 
-> Yes.  I suspect we simply cannot get this right without insane locking. 
-> We're trying to do something here which the writeback code simply does not
-> and cannot generally do, namely write and wait upon IO and dirtyings which
-> are initiated by other processes.
-> 
-> The best way to handle *all* this crap is to remove the address_space page
-> lists completely and replace all these things with radix tree walks, but I
-> never got onto that.  Sad.
-> 
-> Maybe we could implement some form of per-address_space serialisation which
-> permts multiple WB_SYNC_NONE writers, but exclusive WB_SYNC_ALL writers. 
-> That's basically an rwsem, but we don't want to block WB_SYNC_NONE
-> processes if there's a sync in progress.
-> 
-> So WB_SYNC_NONE callers would use down_read_trylock() and WB_SYNC_ALL
-> callers would use down_write().   That just fixes all this stuff up.
-> 
+RANDAZZO@ddc-web.com wrote:
+> On my uniprocessor system, I have two LKM's
+>
+> driver1 takes hold of the spinlock....but does not release it...
+> driver2 attempts to take hold, and is allowed!!!!
 
-This sounds like an interesting idea.  I'll take a look and see if
-I can give it a try.
+How does driver2 run when driver1 holds the spinlock?  It is not
+possible: driver1 is running, and you only have one CPU.
 
-BTW, the 2.6.3-rc2-mm1 __block_write_full_page() almost already did
-your option c) except for the "if (buffer_dirty())".  If the
-buffer is in flight buffer_dirty would already be cleared, so
-it would not call __set_page_dirty_nobuffers().
+It is an error if you call schedule() while holding a spinlock.  It is
+also an error if you call the non-irqsave or non-bh spinlock functions
+from a context where an irq or bh could interrupt and take the same lock.
 
-                if (wbc->sync_mode != WB_SYNC_NONE) {
-                        lock_buffer(bh);
-                } else {
-                        if (test_set_buffer_locked(bh)) {
-                                if (buffer_dirty(bh))
-                                        __set_page_dirty_nobuffers(page);
-                                continue;
-                        }
-                }
-Thanks,
+These rules ensure that driver1 and driver2 are prevented from
+accessing the hardware at the same time.
 
-Daniel
+> how come spin locks don't work?????
 
+They do, if you use them correctly.
 
+> how can I restrict access (to hardware) to only one driver at a time???
+
+By following the correct rules.
+See http://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/
+
+> should I use semaphores,  etc...
+
+Are you scheduling while you hold the spinlock?  Then you should use
+semaphores instead.  But you cannot use semaphores if you are locking
+from any kind of interrupt (this includes timer callbacks and wakeup
+functions).
+
+Are you using the spinlock from an interrupt?  This is not normally a
+problem because each hardware device normally has just one interrupt source.
+
+Are you using the spinlock from a softirq or whatever they are called
+these days, as well as an interrupt?  Then you should be using the
+spin_lock_irqsave functions in those cases.
+
+And so on.  You must use the correct type of lock functions.
+
+In a uniprocessor kernel, spinlocks compile to almost no code.
+(Someone said they compile to nops; this is not quite accurate).  Even
+on a uniprocessor, they disable preemptive scheduling while the lock
+is held.  This is completely correct.
+
+-- Jamie

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267714AbRGUQ3S>; Sat, 21 Jul 2001 12:29:18 -0400
+	id <S267718AbRGUQgS>; Sat, 21 Jul 2001 12:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267718AbRGUQ3I>; Sat, 21 Jul 2001 12:29:08 -0400
-Received: from smtp.alacritech.com ([209.10.208.82]:36618 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S267714AbRGUQ3C>; Sat, 21 Jul 2001 12:29:02 -0400
-From: "Michael S. Miles" <mmiles@alacritech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kgdb and/or kdb for RH7.1
-Date: Sat, 21 Jul 2001 12:30:34 -0400
-Message-ID: <KIEKJCGPOOADIOGPDJJLOEPGEFAA.mmiles@alacritech.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20010721111732.A9618@hapablap.dyn.dhs.org>
-Importance: Normal
+	id <S267727AbRGUQgI>; Sat, 21 Jul 2001 12:36:08 -0400
+Received: from 3-118.ctame701-2.telepar.net.br ([200.181.171.118]:50937 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S267718AbRGUQfy>; Sat, 21 Jul 2001 12:35:54 -0400
+Date: Sat, 21 Jul 2001 13:36:05 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "peter k." <spam-goes-to-dev-null@gmx.net>
+Cc: "David Schwartz" <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
+Message-ID: <20010721133605.C3667@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"peter k." <spam-goes-to-dev-null@gmx.net>,
+	"David Schwartz" <davids@webmaster.com>,
+	<linux-kernel@vger.kernel.org>
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMCECBCKAA.davids@webmaster.com> <002f01c11202$60f22100$c20e9c3e@host1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <002f01c11202$60f22100$c20e9c3e@host1>; from spam-goes-to-dev-null@gmx.net on Sat, Jul 21, 2001 at 06:29:37PM +0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Does anyone know if patches exist against the stock RedHat 7.1
-kernel(2.4.2-2) to support remote kernel debugging(kgdb).  I would also be
-interested in the same for kdb, but I'm primarily interested in kgdb.
+Em Sat, Jul 21, 2001 at 06:29:37PM +0200, peter k. escreveu:
+> 
+> > > i just installed 2.4.7, now a new process called "ksoftirqd_CPU0"
+> > > is started
+> > > automatically when booting (by the kernel obviously)? why? what
+> > > does it do?
+> > > i didnt find any useful information on it in linuxdoc / linux-kernel
+> > > archives
+> > It's the kernel soft IRQ daemon. It provides a context from which to
+> > execute 'slow' code that was triggered by an interrupt. There will be one
+> > per CPU.
+> 
+> why wasnt it run in previous kernels? im just wondering why it suddenly
 
-If it doesn't exist I guess I will have to try to port the patches over
-myself, I just didn't want to reinvent the wheel.
+because previous kernels had problems that Andrea's approach fixes? Read
+the archives for the thread about it.
 
-hopefully TIA,
-michael
-
+- Arnaldo

@@ -1,118 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269797AbUJAOLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269792AbUJAO0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269797AbUJAOLD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 10:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269794AbUJAOLD
+	id S269792AbUJAO0N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 10:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269798AbUJAO0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 10:11:03 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:53164 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S269799AbUJAOKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 10:10:53 -0400
-Date: Fri, 1 Oct 2004 16:10:50 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Cc: Vitezslav Samel <samel@mail.cz>
-Subject: Re: [BUG] active ftp doesn't work since 2.6.9-rc1
-Message-ID: <20041001141050.GH27499@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	Vitezslav Samel <samel@mail.cz>
-References: <20041001111201.GA23033@pc11.op.pod.cz> <20041001132248.GG27499@sunbeam.de.gnumonks.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7LkOrbQMr4cezO2T"
+	Fri, 1 Oct 2004 10:26:13 -0400
+Received: from [193.29.205.125] ([193.29.205.125]:35480 "EHLO s1.conecto.pl")
+	by vger.kernel.org with ESMTP id S269792AbUJAO0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 10:26:11 -0400
+From: Marcin =?iso-8859-2?q?Gibu=B3a?= <mg@iceni.pl>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Windows Logical Disk Manager error
+Date: Fri, 1 Oct 2004 16:26:07 +0200
+User-Agent: KMail/1.7
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <200409231254.12287@senat> <200410010149.19951@senat> <1096619799.17297.22.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1096619799.17297.22.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041001132248.GG27499@sunbeam.de.gnumonks.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-Spam-Score: -4.8 (----)
+Message-Id: <200410011626.09995@senat>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I would not advise you to use volume6 without the md driver.  You are
+> then missing the last 32kb off the end and you never know when they
 
---7LkOrbQMr4cezO2T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, I can't even build it... mdadm failes and driver complains with
+md: Dev sda2 smaller than chunk_size: 0k < 32k
 
-On Fri, Oct 01, 2004 at 03:22:48PM +0200, Harald Welte wrote:
-> On Fri, Oct 01, 2004 at 01:12:01PM +0200, Vitezslav Samel wrote:
-> > 	Hi!
-> >=20
-> >   After upgrade to 2.6.9-rc3 on the firewall (with NAT), active ftp sto=
-pped
-> > working. The first kernel, which doesn't work is 2.6.9-rc1.
-> > Sympotms: passive ftp works O.K., active FTP doesn't open data
-> > stream (and in logs there entries about invalid packets - using
-> > iptables ... -m state --state INVALID -j LOG)
+Different chunk size doesn't make any difference.
 
-Please use the following (attached) fix:
+> direction.  Fortunately you can fix this case by using the "--rounding="
+> parameter to mdadm.  So if you have a cluster size of 4k try
+> --rounding=4.  (If you don't know your cluster size enable debugging in
+> the ntfs driver and then do the mount and "dmesg | grep cluster_size"
+> will tell you the answer.  To enable debugging in the driver it must be
+> compiled with debugging enabled and you need to, as root, do: "echo 1 >
+> /proc/sys/fs/ntfs-debug" after loading the module if modular and before
+> doing the mount command.)
 
-DaveM: Please apply and push to Linus:
+According to ntfs driver output my cluster size is indeed 4kb, but it still 
+failes to read mounted fs.
 
-Thanks!
+Error is now:
+NTFS-fs error (device md1): ntfs_readdir(): Actual VCN (0x20006500680054) of 
+index buffer is different from expected VCN (0x4). Directory inode 0x5 is 
+corrupt or driver bug.
 
+Oh, and my system (and kernel) is x86-64 if it matters.
 
-Fix NAT helper code to update TCP window tracking information
-if it resizes payload (and thus alrers sequence numbers).
+> "chkdsk /f" on it fixed it in that particular case (even though chkdsk
+> reported no errors, apparently it fixed them without telling anyone!).
+> So this is worth trying before you start messing around with --rounding=
+> and mdadm.
 
-This patchlet was somehow lost during 2.4.x->2.6.x port of TCP=20
-window tracking :(
+I've tried that. No effect though.
 
-Signed-off-by: Harald Welte <laforge@netfilter.org>
-
---- linux-2.6.9-rc3-plain/net/ipv4/netfilter/ip_nat_helper.c	2004-10-01 12:=
-08:40.000000000 +0000
-+++ linux-2.6.9-rc3-test/net/ipv4/netfilter/ip_nat_helper.c	2004-10-01 13:3=
-7:05.283639640 +0000
-@@ -347,7 +347,7 @@
- 	return 1;
- }
-=20
--/* TCP sequence number adjustment.  Returns true or false.  */
-+/* TCP sequence number adjustment.  Returns 1 on success, 0 on failure */
- int
- ip_nat_seq_adjust(struct sk_buff **pskb,=20
- 		  struct ip_conntrack *ct,=20
-@@ -396,7 +396,12 @@
- 	tcph->seq =3D newseq;
- 	tcph->ack_seq =3D newack;
-=20
--	return ip_nat_sack_adjust(pskb, tcph, ct, ctinfo);
-+	if (!ip_nat_sack_adjust(pskb, tcph, ct, ctinfo))
-+		return 0;
-+
-+	ip_conntrack_tcp_update(*pskb, ct, dir);
-+
-+	return 1;
- }
-=20
- static inline int
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---7LkOrbQMr4cezO2T
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBXWVqXaXGVTD0i/8RAqslAKCbomLVUexsIUNKJoD5J5ygzirMngCfZKSh
-S0NMK0XDGluJTkEZopSo4Uo=
-=FQ4R
------END PGP SIGNATURE-----
-
---7LkOrbQMr4cezO2T--
+-- 
+mg

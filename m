@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316069AbSE3Bce>; Wed, 29 May 2002 21:32:34 -0400
+	id <S316059AbSE3BbA>; Wed, 29 May 2002 21:31:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316079AbSE3Bcd>; Wed, 29 May 2002 21:32:33 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12816 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S316069AbSE3Bcb>; Wed, 29 May 2002 21:32:31 -0400
-Date: Wed, 29 May 2002 21:34:23 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
-        Greg KH <greg@kroah.com>
-Subject: Re: Linux 2.4.19-pre9
-In-Reply-To: <20020529053732.GH6521@marowsky-bree.de>
-Message-ID: <Pine.LNX.4.44.0205292123520.9955-100000@freak.distro.conectiva>
+	id <S316067AbSE3Ba7>; Wed, 29 May 2002 21:30:59 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:22882 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316059AbSE3Ba6>; Wed, 29 May 2002 21:30:58 -0400
+Cc: a_new_hope@gmx.de
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Date: Thu, 30 May 2002 03:33:16 +0200
+From: Andreas Roedl <flood@flood-net.de>
+In-Reply-To: <9711.1022720483@www54.gmx.net>
+Message-Id: <200205300333.16821.flood@flood-net.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Organization: Flood-Net
+Subject: Re: Off-Topic: We need your Help! Please help Cargolifter!
+To: linux-kernel@vger.kernel.org
+X-AntiVirus: OK! AvMailGate Version 6.13.0.6
+	 at exciter has not found any known virus in this email.
+X-Mailer: KMail [version 1.4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Wed, 29 May 2002, Lars Marowsky-Bree wrote:
+Am Donnerstag, 30. Mai 2002 03:01 schrieb a_new_hope@gmx.de:
+> Hello,
 
-> On 2002-05-28T19:06:42,
->    Marcelo Tosatti <marcelo@conectiva.com.br> said:
->
-> Good morning Marcelo, could you please also consider switching to the somewhat
-> more dense format used by Linus recently? It makes the changelogs a lot more
-> readable.
+> We, a group of Cargolifter enthusiast
+> want to collect money to help that
+> company to survive so that it can continue
+> to build those large airships that will
+> help many people all over the world
+> in times of disasters (like earthquakes, famines etc.)
+> or in transportating goods, needed for building
+> infrastructures all over the world.
 
-I guess I'll use Matthias changelog.pl. Havent tested it yet, though.
-
-> As a further comment:
->
-> > <greg@kroah.com> (02/05/03 1.408)
-> > 	USB io_edgeport driver
-> >
-> > <davem@nuts.ninka.net> (02/05/06 1.383.11.22)
-> > 	soft-fp fix:
-> >
-> > <colin@gibbs.dhs.org> (02/05/07 1.383.11.23)
-> > 	copy_mm fix:
->
-> and alike aren't actually very useful one-line summaries of the patch in
-> question to a "casual" reader, sorry.
-
-I got them through BK pull: I can't change comments of those patches.
-
-David, Greg, and others, please, more readable changelogs :)
-
-> In the first case, I can guess that probably, it is a new driver added; or
-> maybe it is just an update to an existing one? In the later two, what is
-> fixed? How does it affect my own code, or my running system?
->
-> The good work by all contributors not withstanding, it would be very nice if
-> they could make the summary slightly more useful before sending a patch to
-> Marcelo, for which I would like to thank everyone in advance ;-)
-
-I have to change a patch's changelog (which is the message body which
-people send me in case of a GNU patch) pretty often to make it more
-readable.
-
-I just can't change all of them.
+This is definitively the wrong place for a mail like this. Do you really think 
+that somebody would spend money for people like you (investment banker...)? 
+It's over - you should realise that!
 
 
+Andi
+
+-- 
+Web:   http://www.flood-net.de/
+Mail:  flood@flood-net.de
+Phone: +49-(0)-30-680577-44
+
+Windows sucks, Linux rules :-)              http://srom.zgp.org/
+Watch more TV! http://www.cadsoft.de/people/kls/vdr/software.htm
+Who needs DivX?                          telnet blinkenlights.nl
 

@@ -1,120 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQKKFSk>; Sat, 11 Nov 2000 00:18:40 -0500
+	id <S129669AbQKKF3Z>; Sat, 11 Nov 2000 00:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbQKKFSU>; Sat, 11 Nov 2000 00:18:20 -0500
-Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:2308 "EHLO
-	wr5z.localdomain") by vger.kernel.org with ESMTP id <S129655AbQKKFRq>;
-	Sat, 11 Nov 2000 00:17:46 -0500
-Date: Fri, 10 Nov 2000 23:17:44 -0600 (CST)
-From: Thomas Molina <tmolina@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: patch for pas16 configuration in 2.4
-Message-ID: <Pine.LNX.4.21.0011102304040.626-100000@wr5z.localdomain>
+	id <S129675AbQKKF3P>; Sat, 11 Nov 2000 00:29:15 -0500
+Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:17291 "EHLO
+	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129669AbQKKF3A>; Sat, 11 Nov 2000 00:29:00 -0500
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <Pine.LNX.4.30.0011101822120.10847-100000@shambat>
+	<3A0CB6FD.D4CCE09F@transmeta.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 10 Nov 2000 21:28:44 -0800
+In-Reply-To: <3A0CB6FD.D4CCE09F@transmeta.com>
+Message-ID: <m3y9yrf56b.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows someone to select only Pro Audio Spectrum
-configuration and get both PAS and SB emulation, as intended.  Small
-changes were also made to documentation.
+"H. Peter Anvin" <hpa@transmeta.com> writes:
 
-It appears that it is too late for inclusion before 2.4 final, but is
-submitted now for comments.
+> > On x86 machines there is a size limitation on booting.  Though I thought
+> > it was 1024K as the max, 900K should be fine.
+> No, there isn't.  There used to be, but it has been fixed.
 
-diff -urN linux.old/Documentation/Configure.help linux.new1/Documentation/Configure.help
---- linux.old/Documentation/Configure.help	Wed Nov  8 08:48:53 2000
-+++ linux.new1/Documentation/Configure.help	Wed Nov  8 10:29:26 2000
-@@ -13861,6 +13861,8 @@
-   16 or Logitech SoundMan 16 sound card. Answer N if you have some
-   other card made by Media Vision or Logitech since those are not
-   PAS16 compatible. Please read Documentation/sound/PAS16.
-+  It is not necessary to add Sound Blaster support separately; it
-+  is included in PAS support.
- 
-   If you compile the driver into the kernel, you have to add
-   "pas2=<io>,<irq>,<dma>,<dma2>,<sbio>,<sbirq>,<sbdma>,<sbdma2>
-diff -urN linux.old/Documentation/sound/PAS16 linux.new1/Documentation/sound/PAS16
---- linux.old/Documentation/sound/PAS16	Sun Apr  2 17:38:53 2000
-+++ linux.new1/Documentation/sound/PAS16	Wed Nov  8 11:06:37 2000
-@@ -1,7 +1,7 @@
- Pro Audio Spectrum 16 for 2.3.99 and later
- =========================================
- by Thomas Molina (tmolina@home.com)
--last modified 26 Mar 2000
-+last modified 8 Nov 2000
- Acknowledgement to Axel Boldt (boldt@math.ucsb.edu) for stuff taken
- from Configure.help, Riccardo Facchetti for stuff from README.OSS,
- and others whose names I could not find.
-@@ -48,14 +48,6 @@
-           if you want to use the SB emulation of PAS16. It's also possible to
-           the emulation if you want to use a true SB card together with PAS16
-           (there is another question about this that is asked later).
--  "Sound Blaster support",
--        - Answer 'y' if you have an original SB card made by Creative Labs
--          or a full 100% hardware compatible clone (like Thunderboard or
--          SM Games). If your card was in the list of supported cards (above),
--          please look at the card specific instructions later in this file
--          before answering this question. For an unknown card you may answer
--          'y' if the card claims to be SB compatible.
--         Enable this option also with PAS16.
- 
-   "Generic OPL2/OPL3 FM synthesizer support",
-         - Answer 'y' if your card has a FM chip made by Yamaha (OPL2/OPL3/OPL4).
-@@ -113,27 +105,13 @@
-   Answer Y only if you have a Pro Audio Spectrum 16, ProAudio Studio
-   16 or Logitech SoundMan 16 sound card. Don't answer Y if you have
-   some other card made by Media Vision or Logitech since they are not
--  PAS16 compatible.
-+  PAS16 compatible.  It is not necessary to enable the  separate 
-+  Sound Blaster support; it is included in the PAS driver.
-+
-   If you compile the driver into the kernel, you have to add
-   "pas2=<io>,<irq>,<dma>,<dma2>,<sbio>,<sbirq>,<sbdma>,<sbdma2>
-   to the kernel command line.
- 
--100% Sound Blaster compatibles (SB16/32/64, ESS, Jazz16) support
--CONFIG_SOUND_SB
--  Answer Y if you have an original Sound Blaster card made by Creative
--  Labs or a 100% hardware compatible clone (like the Thunderboard or
--  SM Games). For an unknown card you may answer Y if the card claims
--  to be Sound Blaster-compatible.  The PAS16 has 8-bit Soundblaster
--  support, so you can answer Y here for it.
--
--  Please read the file Documentation/sound/Soundblaster.
--
--  If you compile the driver into the kernel and don't want to use isapnp,
--  you have to add "sb=<io>,<irq>,<dma>,<dma2>" to the kernel command line.
--
--  You can say M here to compile this driver as a module; the module is
--  called sb.o.
--
- FM Synthesizer (YM3812/OPL-3) support
- CONFIG_SOUND_YM3812
-   Answer Y if your card has a FM chip made by Yamaha (OPL2/OPL3/OPL4).
-@@ -167,7 +145,7 @@
- CONFIG_SOUND_TRACEINIT=y
- CONFIG_SOUND_DMAP=y
- CONFIG_SOUND_PAS=y
--CONFIG_SOUND_SB=y
-+CONFIG_SOUND_SB=n
- CONFIG_SOUND_YM3812=m
- 
- I have also included the following append line in /etc/lilo.conf:
-diff -urN linux.old/drivers/sound/Makefile linux.new1/drivers/sound/Makefile
---- linux.old/drivers/sound/Makefile	Mon Sep 25 14:32:54 2000
-+++ linux.new1/drivers/sound/Makefile	Wed Nov  8 09:58:56 2000
-@@ -48,7 +48,7 @@
- obj-$(CONFIG_SOUND_CS4232)	+= cs4232.o uart401.o
- obj-$(CONFIG_SOUND_OPL3SA2)	+= opl3sa2.o ad1848.o mpu401.o
- obj-$(CONFIG_SOUND_MSS)		+= ad1848.o
--obj-$(CONFIG_SOUND_PAS)		+= pas2.o sb_lib.o uart401.o
-+obj-$(CONFIG_SOUND_PAS)		+= pas2.o sb.o sb_lib.o uart401.o
- obj-$(CONFIG_SOUND_SB)		+= sb.o sb_lib.o uart401.o
- obj-$(CONFIG_SOUND_WAVEFRONT)	+= wavefront.o
- obj-$(CONFIG_SOUND_MAUI)	+= maui.o mpu401.o
+the main problem is for us distribution if we want to fit this on a
+disk with a couple of modules for our installation process.
 
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

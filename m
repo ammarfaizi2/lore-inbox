@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTJDITF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 04:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTJDITF
+	id S261950AbTJDI3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 04:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbTJDI3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 04:19:05 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:58005 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261947AbTJDITA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 04:19:00 -0400
-Date: Sat, 04 Oct 2003 19:50:18 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [pm] fix oops after saving image
-In-reply-to: <20031004080239.GA213@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Stan Bubrouski <stan@ccs.neu.edu>, Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1065253818.14870.27.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20031002203906.GB7407@elf.ucw.cz>
- <Pine.LNX.4.44.0310031433530.28816-100000@cherise>
- <20031003223352.GB344@elf.ucw.cz> <3F7E57E9.8070904@ccs.neu.edu>
- <20031004080239.GA213@elf.ucw.cz>
+	Sat, 4 Oct 2003 04:29:08 -0400
+Received: from colin2.muc.de ([193.149.48.15]:34309 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261950AbTJDI3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 04:29:04 -0400
+Date: 4 Oct 2003 10:29:17 +0200
+Date: Sat, 4 Oct 2003 10:29:17 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, joe.korty@ccur.com, linux-kernel@vger.kernel.org
+Subject: Re: mlockall and mmap of IO devices don't mix
+Message-ID: <20031004082917.GA23306@colin2.muc.de>
+References: <CFYv.787.23@gated-at.bofh.it> <m34qyp7ae4.fsf@averell.firstfloor.org> <20031004004246.13d1f977.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031004004246.13d1f977.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess he means...
+> It is not a trivial thing to do now we no longer have a single mem_map[].
 
-On Sat, 2003-10-04 at 20:02, Pavel Machek wrote:
-> > >+ *    not freed; its not needed since system is going down anyway
+2.4/DISCONTIGMEM also didn't have a single mem_map and it worked there
+fine.
 
-should be
+I implemented it for x86-64. Arguably it was a bit ugly, but not too bad.
 
-> >+ *    not freed; it's not needed since the system is going down anyway
-
-(it's = it is, its = belongs to it)
-
-and
-
-> > >+ *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
-
-should be
-
-> >+ *    (plus it causes an oops and I'm too lazy^H^H^H^Hbusy).
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
-
+-Andi

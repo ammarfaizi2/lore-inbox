@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbUAMLtz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 06:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbUAMLty
+	id S264386AbUAML6W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 06:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUAML6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 06:49:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31760 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264137AbUAMLtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 06:49:52 -0500
-Date: Tue, 13 Jan 2004 11:49:48 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Outstanding fixups (was: Re: [PROBLEM] ircomm ioctls)
-Message-ID: <20040113114948.B2975@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040113113650.A2975@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jan 13, 2004 at 11:36:51AM +0000
+	Tue, 13 Jan 2004 06:58:22 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:50727 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S264386AbUAML6V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 06:58:21 -0500
+Message-ID: <4003DD4D.1000305@samwel.tk>
+Date: Tue, 13 Jan 2004 12:58:05 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kai Krueger <kai.a.krueger@web.de>, axboe@suse.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+References: <200401130110.i0D1ALQ08941@mailgate5.cinetic.de>
+In-Reply-To: <200401130110.i0D1ALQ08941@mailgate5.cinetic.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 11:36:51AM +0000, Russell King wrote:
-> ircomm needs updating to use the tiocmset/tiocmget driver calls.  Could
-> you see if the following patch solves your problem please?
+Kai Krueger wrote:
+> I can not see any log entries for "kdeinit: [some pid]: dirtied page". There are only the "kdeinit: () WRITE block 65680 on hda1". By the way, it is always block 65680; also across reboots if that is any indication and I have seen other processes like artsd write to that block without dirtying pages before as well.
+> Is there a way to find out what kdeinit writes to disk?
 
-And as a follow up, there are about 30 other drivers which still
-reference TIOCM{GET,SET,BIC,BIS} most of which won't work.  Some of
-them include drivers that were dumped into drivers/serial (despite
-not using the serial_core stuff.)
+Ehm... I don't know how to go from a block to a filename on reiserfs. 
+Jens, do you have an idea?
 
-The list currently looks like this.  Some of these drivers have been
-updated since the change was made back in April, but it seems that
-this particular update was missed.
+Anyway, the other possibility is to use other file activity monitoring 
+tools. Some fam client maybe (couldn't find any so quickly); maybe 
+Filemon (http://www.sysinternals.com/linux/utilities/filemon.shtml) will 
+work, but I don't know if it works for Linux 2.6. You may also try "lsof 
+| grep kded", and see if it's one of those files. For me, it gives:
 
-I'm going to work through this list and update these drivers today.
-However, I will be unable to test most if not all of these drivers.
+# lsof |grep kded
+kdeinit    1185 bsamwel  mem    REG       3,65  117196    5146489 
+/usr/lib/kded.so
+kdeinit    1185 bsamwel  mem    REG       3,65  111412    9470211 
+/usr/lib/kde3/kded_mountwatcher.so
+kdeinit    1185 bsamwel  mem    REG       3,65   62408    9470683 
+/usr/lib/kde3/kded_kinetd.so
 
-drivers/char/rio/rio_linux.c
-drivers/char/amiserial.c
-drivers/char/cyclades.c
-drivers/char/epca.c
-drivers/char/esp.c
-drivers/char/ip2main.c
-drivers/char/isicom.c
-drivers/char/istallion.c
-drivers/char/moxa.c
-drivers/char/mxser.c
-drivers/char/pcxx.c
-drivers/char/riscom8.c
-drivers/char/rocket.c
-drivers/char/serial167.c
-drivers/char/sh-sci.c
-drivers/char/specialix.c
-drivers/char/stallion.c
-drivers/char/sx.c
-drivers/isdn/i4l/isdn_tty.c
-drivers/macintosh/macserial.c
-drivers/net/wan/pc300_tty.c
-drivers/s390/net/ctctty.c
-drivers/sbus/char/aurora.c
-drivers/serial/68360serial.c
-drivers/serial/mcfserial.c
-drivers/tc/zs.c
-drivers/usb/serial/ftdi_sio.c
-drivers/usb/serial/io_edgeport.c
+Alternatively, you can try to attach an strace for kdeinit: kded, and 
+see what calls it makes, e.g. "strace -p <pid>" or something like that.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-- Bart

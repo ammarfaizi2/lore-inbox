@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbTJMV0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 17:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTJMV0Z
+	id S261957AbTJMVjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 17:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTJMVjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 17:26:25 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:18816 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261966AbTJMV0X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 17:26:23 -0400
-Date: Mon, 13 Oct 2003 17:26:23 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: oops early at the boot time
-Message-ID: <20031013212622.GA1221@washoe.rutgers.edu>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 13 Oct 2003 17:39:49 -0400
+Received: from mx1.it.wmich.edu ([141.218.1.89]:35804 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S261957AbTJMVjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 17:39:47 -0400
+Message-ID: <3F8B1BA1.4020800@wmich.edu>
+Date: Mon, 13 Oct 2003 17:39:45 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Tomas <alex@clusterfs.com>
+CC: linux-kernel@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] EXT3 extents against 2.6.0-test7
+References: <20031013222747.37f5ee7b.alex@clusterfs.com>
+In-Reply-To: <20031013222747.37f5ee7b.alex@clusterfs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Developers,
+Alex Tomas wrote:
+> changes since last publication:
+> 1) few bugs fixed: they caused extents tree corruption
+> 2) several asserts added
+> 3) binary search used to find an extent
+> 4) last found entry is cached: this allows to skip tree
+>    traversal and saves cpu a bit
+> 5) truncate_sem is used to serialize get_block()/trucate()
+> 
+> 
+> with best wishes, Alex
+> 
+> 
 
-My desktop/server has been running 2.6.0-test1 kernel for a while and
-recently I decided to try new ones but it crashes early on boot giving
-me dump on test7-bk5 (as well I've tried test6-bk9 before with the same
-crash). pci=noacpi and then acpi=off didn't help - problem persisted
 
+I've been using extents since the patch was introduced.  I haven't seen 
+any corruption when using it with large files (ie. multimedia only).  In 
+short, has there been any progress with getting fsck support? I'm 100% 
+in support of this patch going into mainline kernel as a non-default 
+option.  It's perfect for partitions that deal with large files, but 
+still want ext3's fs corruption protection.  I average 10700 blocks an 
+extent and see an extreme increase in performance over non-extents ext3 
+doing operations on files of the same size.   I guess it's about time to 
+update.
 
-Oops: 0000 [#1]
-CPU : 0
-EIP: 0060:[<c02312a0>] Not tainted
-EFLAGS: 00010286
-EIP is at acpi_pci_register_driver+0x30/0x5c
-eax: c05432d8 ebx: 00000000 ecx:c045d934   edx: 000000000
-esi: c0494514 edi: 00000000 ....
-......
-acpi_glue_init+0x1b/0x30
-init_acpi+0x6/0x30
-acpiphp_init+0x27/0x40
-do_initcalls+0x2c/0xa0
-....
-
-Configuration and some system details are on 
-
-http://www.onerussian.com/Linux/bugs/washoe.test7
-
-Please give me any idea how I can help?
-
-Thank you in advance  
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]

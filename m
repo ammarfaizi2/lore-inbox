@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265304AbTIDQni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265308AbTIDQnh
+	id S265295AbTIDQl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265298AbTIDQl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:43:37 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:42160 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S265304AbTIDQn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:43:28 -0400
-Date: Thu, 4 Sep 2003 17:45:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Jamie Lokier <jamie@shareable.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 2] Little fixes to previous futex patch
-In-Reply-To: <20030903144045.GC21530@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309041644450.3962-100000@localhost.localdomain>
+	Thu, 4 Sep 2003 12:41:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35228 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265295AbTIDQly (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:41:54 -0400
+Date: Thu, 4 Sep 2003 09:41:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Paul Mackerras <paulus@samba.org>, Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+In-Reply-To: <Pine.GSO.4.21.0309041420460.8244-100000@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Jamie Lokier wrote:
-> Patch name: futex-nonlinear-2.6.0-test4-02jl
-> Depends on: futex-fixes-2.6.0-test4-01jl
 
-I've now read your patches, they look good to me:
-I particularly like the way you divided up the locking.
+On Thu, 4 Sep 2003, Geert Uytterhoeven wrote:
+> 
+> `ioremap is meant for PCI memory space only'
 
-In sys_remap_file_pages, you set the VM_NONLINEAR flag, then clear
-it if this particular population matches the vma.  No, you cannot
-clear that flag once set, without checking every page and pte_file
-already set within the vma.  Check if population matches vma first,
-and if it doesn't match just set the VM_NONLINEAR flag in that case.
-(Andrew already mentioned locking: I'd have said page_table_lock,
-but his mmap_sem is also appropriate: it's an odd case.)
+No, I don't agree. The "iomem_resource" is there for all IO-mapped ranges, 
+and it could easily be a mixture of PCI and other buses. In fact, it 
+already is on bog-standard hardware: it contains the AGP windows etc.
 
-I think rip out the FIXADDR_USER_START bit, it's rather over-the-top,
-ugly: and that area is readonly, so not a useful place for a futex.
+Whatever is visible in the physical memory window (by _some_ definition of 
+"physical memory window", and that definition clearly has to be the 
+biggest possible as seen by software, so it's usually a CPU-centric view 
+of "any bus that is outside the CPU") should be mappable into the 
+_virtual_ memory window as seen by the CPU.
 
-The units of keys[1]: bytes if private but pages if shared.
-That's okay for now I think, but if a hashing expert comes along
-later s/he'll probably want to change it.  The current hash does
-add key1 to offset, which is okay: if it xor'ed you'd lose the
-the offset bits in the private case.
+So clearly ioremap() has to work for other buses too.
 
-Those keys[1] pages: in units of PAGE_SIZE in the linear case,
-of PAGE_CACHE_SIZE in the nonlinear case.  Oh well, this is far
-from the only place with such an inconsistency, let's worry
-about that when never comes.
+I think that in the 2.7.x timeframe, the right thing to do is definitely:
+ - move towards using "struct resource" and "ioremap_resource()"
+ - make resource sizes potentially be larger (ie use "u64" instead of 
+   "unsigned long")
 
-The err at the end of __get_page_keys would be 1 from successful
-get_user_pages, treated as error by the callers: need to make it 0.
+This is actually a potential issue already, with 64-bit PCI on regular 
+PC's. We don't handle it at all right now (the PCI probing will just not 
+create the resources), and nobody has complained, but clearly the 
+RightThing(tm) to do eventually is to make sure this all works cleanly.
 
-futex_wait: I didn't get around to it in my version, so haven't
-thought through the issues, but I'm a bit worried that you get
-curval for -EWOULDBLOCK check without holding the futex_lock.
-That looks suspicious to me, but I'm going to be lazy and not
-try to think about it, because Rusty is sure to understand the
-races there.  If that code is insufficient as you have it, may
-need __pin_page reinstated for just that case (hmm, was that
-get_user right before? I'd expect it to kmap_atomic pinned page.)
+I just don't think it's worth worrying about in 2.6.x right now, since it 
+doesn't matter for anybody. 
 
-Hugh
+		Linus
 

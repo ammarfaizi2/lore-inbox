@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129138AbRBSWIJ>; Mon, 19 Feb 2001 17:08:09 -0500
+	id <S129468AbRBSWIb>; Mon, 19 Feb 2001 17:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRBSWH7>; Mon, 19 Feb 2001 17:07:59 -0500
-Received: from slc868.modem.xmission.com ([166.70.6.106]:6410 "EHLO
+	id <S129457AbRBSWIU>; Mon, 19 Feb 2001 17:08:20 -0500
+Received: from slc868.modem.xmission.com ([166.70.6.106]:7690 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129352AbRBSWHt>; Mon, 19 Feb 2001 17:07:49 -0500
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The lack of specification (was Re: [LONG RANT] Re: Linux stifles innovation... )
-In-Reply-To: <Pine.LNX.3.96.1010219191533.6201A-100000@artax.karlin.mff.cuni.cz>
+	id <S129468AbRBSWIQ>; Mon, 19 Feb 2001 17:08:16 -0500
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+Cc: Jaswinder Singh <jaswinder.singh@3disystems.com>, peterw@dascom.com.au,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel executation from ROM
+In-Reply-To: <XFMail.20010219124909.peterw@dascom.com.au> <01e701c09a2a$21e789a0$bba6b3d0@Toshiba> <3A914E57.9990EB7C@sympatico.ca>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Feb 2001 13:02:25 -0700
-In-Reply-To: Mikulas Patocka's message of "Mon, 19 Feb 2001 20:11:14 +0100 (CET)"
-Message-ID: <m1ofvyzbji.fsf@frodo.biederman.org>
+Date: 19 Feb 2001 12:50:34 -0700
+In-Reply-To: Jeremy Jackson's message of "Mon, 19 Feb 2001 11:48:23 -0500"
+Message-ID: <m1snlazc39.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> writes:
+Jeremy Jackson <jeremy.jackson@sympatico.ca> writes:
 
-> Imagine that there is specification of mark_buffer_dirty. That
-> specification says that
-> 	1. it may not block
-> 	2. it may block
+> Jaswinder Singh wrote:
 > 
-> In case 1. implementators wouldn't change it to block in stable kernel
-> 	relese because they don't want to violate the specification.
+> > Dear Sirs,
+> >
+> > Thanks for your help,
+> >
+> > I see . The biggest negative point of running kernel from ROM is that ROM
+> > speed is slow :(
 > 
-> In case 2. implementators of ext2 wouldn't assume that it doesn't block
-> 	even if it doesn't in current implementation.
+> Also, the PCI specification forbids executing code from ROMs over the PCI bus.
+> The system BIOS in a PC is not on the PCI bus, bus, but everything else is.
 
-Whenever the question has been asked the answer is always assume anything
-in the kernel outside of the current function blocks.  
+No it forbids executing boot roms that way, by a standard pc bios.  
+The system BIOS in a PC is normally on the ISA bus which is reached
+across via the PCI bus with a PCI->ISA bridge.
 
-> In both cases, the bug wouldn't be created.
+The thing is slow it really doesn't matter, all you need to do is
+enable caching on that area of the physical address space.  You can't
+do this on the alpha currently but only because the alpha sucks that
+way.  You can on practically everything else.
 
-Nope.  It looks like someone made a mistake in ext2...
-
-> 
-> Anytime you change implementation of syscalls, you gotta check all
-> applications that use them ;-) Luckily not - because there is
-> specification and you can check that syscalls conform to the
-> specification, not apps. 
-
-Not normally.  The rule is that syscall don't change period.  The
-internal kernel interface is different.  It is allowed to change.
-
-As for syscall changing auditing most apps did happen when the LFS
-spec was put together.  So you would have an implementation that would
-keep most apps from failing on large files.
-
-> > > Saying "code is the specification" is not good.
-> > 
-> > I'm not arguing against documentation.  That is dumb.  But the code is
-> > ALWAYS canonical.  Not docs.
-> 
-> Let's see:
-
-> Who is right? If there is no specification....
-
-Hmm.  The developers should get together and pow wow when the problem
-is noticed.  When it is finally talked out about how it should happen
-then the code should get fixed accordingly.
-
-It isn't about right and wrong it is about working code.  Not that
-documenting things doesn't help.  And 2.4 is going in that direction...
+As for ROM being slow on x86 you can enable the MTRR to speed things
+up.  Usually though ROMs are at least as expensive as RAM, so it is
+pointless.
 
 Eric

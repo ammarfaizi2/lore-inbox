@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266577AbRHAKlH>; Wed, 1 Aug 2001 06:41:07 -0400
+	id <S266582AbRHAKtH>; Wed, 1 Aug 2001 06:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266507AbRHAKk5>; Wed, 1 Aug 2001 06:40:57 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:44813 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S266469AbRHAKko>; Wed, 1 Aug 2001 06:40:44 -0400
-Date: Wed, 1 Aug 2001 12:40:36 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.8-pre3 NTFS update (1.1.16)
-In-Reply-To: <E15Rn2h-0000E5-00@virgo.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0108011135300.9860-100000@cola.teststation.com>
+	id <S266580AbRHAKs5>; Wed, 1 Aug 2001 06:48:57 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:65042 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S266582AbRHAKsm>; Wed, 1 Aug 2001 06:48:42 -0400
+Message-ID: <3B67DE37.CA865F44@idb.hist.no>
+Date: Wed, 01 Aug 2001 12:47:19 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre3 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Simmons <jsimmons@transvirtual.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <Pine.LNX.4.10.10107312113460.13241-100000@transvirtual.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Anton Altaparmakov wrote:
+James Simmons wrote:
+> 
+> Sorry this is off topic but this was way to good :-)
+> 
+>           Virus writers can use the DMCA in a perverse way. Because
+>    computer viruses are programs, they can be copyrighted just like a
+>    book, song, or movie. If a virus writer were to use encryption to hide
+>    the code of a virus, an anti-virus company could be forbidden by the
+>    DMCA to see how the virus works without first getting the permission
+>    of the virus writer. If they didn't, a virus writer could sue the
+>    anti-virus company under the DMCA!
 
-> - Simplified time conversion functions drastically without
-> sacrificing accuracy, now the offending function is 3 lines instead of
-> two pages of code. (-8
+They'd still be able to scan for it though - detecting the encrypted
+string or the decryption algorithm.  
 
-Does this mean I have to change the code I borrowed?
-(Never mind ... :)
+What if I copyright & encrypt a DeCSS program?  Nobody can sue
+because they don't have permission to decrypt, and therefore
+cannot prove that it actually _is_ a decss algorithm? :-)
 
-
-> -/* Converts a single wide character to a sequence of utf8 bytes.
-> +/*
-> + * Converts a single wide character to a sequence of utf8 bytes.
->   * The character is represented in host byte order.
-> - * Returns the number of bytes, or 0 on error. */
-> -static int to_utf8(ntfs_u16 c, unsigned char* buf)
-> + * Returns the number of bytes, or 0 on error.
-> + */
-> +static int to_utf8(ntfs_u16 c, unsigned char *buf)
-
-How is this different from utf8_wctomb in fs/nls/nls_base.c?
-(in purpose)
-
-
-If it is to allow ntfs_dupuni2utf8 to count the new string length, could
-that be done differently? If there is a max allowed length of filenames
-the "double parsing" can be avoided.
-
-ntfs_printcb -> ntfs_encodeuni -> ntfs_dupuni2utf8 -> to_utf8
-
-ntfs_dupuni2utf8 does a kmalloc, which is later free'd by ntfs_printcb.
-Which in turn is called once for each entry read by ntfs_readdir.
-
-Wouldn't it be nicer to allocate one 255*max_utf8_size buffer in
-ntfs_readdir and use that for all entries. Assuming 255 is the upper limit
-on NTFS filename length, as I read somewhere.
-
-
-smbfs does something like this, except it allocates a buffer at mount time
-(which works since it is only used while protected by a per-mount lock).
-
-/Urban
-
+Helge Hafting

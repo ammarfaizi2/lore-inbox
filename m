@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263096AbUJ1W4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263009AbUJ1XCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263096AbUJ1W4k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 18:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbUJ1W4j
+	id S263009AbUJ1XCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUJ1XCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 18:56:39 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:51158 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S263096AbUJ1WzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 18:55:06 -0400
-Date: Fri, 29 Oct 2004 00:54:46 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041028224534.GB29335@work.bitmover.com>
-Message-ID: <Pine.LNX.4.61.0410290052390.877@scrub.home>
-References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com>
- <Pine.LNX.4.61.0410270338310.877@scrub.home> <20041027035412.GA8493@work.bitmover.com>
- <Pine.LNX.4.61.0410272214580.877@scrub.home> <20041028005412.GA8065@work.bitmover.com>
- <Pine.LNX.4.61.0410280314490.877@scrub.home> <20041028030939.GA11308@work.bitmover.com>
- <Pine.LNX.4.61.0410281120150.877@scrub.home> <20041028224534.GB29335@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 19:02:42 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33553 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263022AbUJ1XBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:01:04 -0400
+Date: Fri, 29 Oct 2004 01:00:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: ralf@linux-mips.org
+Cc: linux-hams@vger.kernel.org, davem@davemloft.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] : remove an unused function
+Message-ID: <20041028230032.GU3207@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, 28 Oct 2004, Larry McVoy wrote:
+The patch below removes an unused function from net/ax25/ax25_route.c
 
-> I understand your position,
 
-No, you don't and as I doubt you'll ever get it, I'll better leave at 
-that.
+diffstat output:
+ net/ax25/ax25_route.c |   16 ----------------
+ 1 files changed, 16 deletions(-)
 
-bye, Roman
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+- --- linux-2.6.10-rc1-mm1-full/net/ax25/ax25_route.c.old	2004-10-28 23:50:25.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/net/ax25/ax25_route.c	2004-10-28 23:50:41.000000000 +0200
+@@ -41,22 +41,6 @@
+ 
+ static ax25_route *ax25_get_route(ax25_address *, struct net_device *);
+ 
+- -/*
+- - * small macro to drop non-digipeated digipeaters and reverse path
+- - */
+- -static inline void ax25_route_invert(ax25_digi *in, ax25_digi *out)
+- -{
+- -	int k;
+- -
+- -	for (k = 0; k < in->ndigi; k++)
+- -		if (!in->repeated[k])
+- -			break;
+- -
+- -	in->ndigi = k;
+- -
+- -	ax25_digi_invert(in, out);
+- -}
+- -
+ void ax25_rt_device_down(struct net_device *dev)
+ {
+ 	ax25_route *s, *t, *ax25_rt;
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBgXoQmfzqmE8StAARAqLLAKCZRsBxw7oCIFnvPVFFZ6ss4QRuOgCfcu4e
+++CuY/BJjph1Fr/xntu1j/o=
+=5M44
+-----END PGP SIGNATURE-----

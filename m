@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265250AbTAEUic>; Sun, 5 Jan 2003 15:38:32 -0500
+	id <S265099AbTAEUpI>; Sun, 5 Jan 2003 15:45:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTAEUic>; Sun, 5 Jan 2003 15:38:32 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:9293 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265250AbTAEUi2>; Sun, 5 Jan 2003 15:38:28 -0500
-Date: Sun, 5 Jan 2003 21:47:02 +0100
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: usb_control/bulk_msg: timeout 2.4.20 stock kernel
-Message-ID: <20030105204702.GA24622@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S265097AbTAEUpI>; Sun, 5 Jan 2003 15:45:08 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:29358
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265085AbTAEUpH>; Sun, 5 Jan 2003 15:45:07 -0500
+Date: Sun, 5 Jan 2003 15:54:46 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andries.Brouwer@cwi.nl
+cc: mdharm-kernel@one-eyed-alien.net, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-scsi@vger.kernel.org>,
+       "" <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: inquiry in scsi_scan.c
+In-Reply-To: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.50.0301051548150.15466-100000@montezuma.mastecende.com>
+References: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+On Sun, 5 Jan 2003 Andries.Brouwer@cwi.nl wrote:
 
+> The SCSI code has no means of knowing the actual length transferred,
+> so has no choice but to believe the length byte in the reply.
+> But the USB code does the transferring itself, and knows precisely
+> how many bytes were transferred. If 36 bytes were transferred and
+> the additional length byte is 0, indicating a length of 5, then the
+> USB code can fix the response and change the additional length byte
+> to 31, indicating a length of 36. That way the SCSI code knows that
+> not 5 but 36 bytes are valid, and it gets actual vendor and model strings.
 
+This looks related to something i also bumped into;
 
-maybe it's just me or something but.. I have since 2.4.20 the following
-problem with a fujifilm finepix 1300 camera.
+scsi scan: host 2 channel 0 id 0 lun 0 identifier too long, length 60, max
+50. Device might be improperly identified.
 
-when I switch on the camera :
+The 'HBA' is idescsi with a memorex cdrw with an inquiry returning a
+length value of 34
 
-[....]
-Jan  5 21:38:25 grobbebol last message repeated 76 times
-Jan  5 21:39:24 grobbebol kernel: usb_control/bulk_msg: timeout
-Jan  5 21:39:24 grobbebol kernel: usb.c: USB device not accepting new
-address=9 (error=-110)
-Jan  5 21:39:28 grobbebol kernel: usb_control/bulk_msg: timeout
-Jan  5 21:39:28 grobbebol kernel: usb.c: USB device not accepting new
-address=10 (error=-110)
-[....]
+scsi_check_fill_deviceid:
+...
+	if (scsi_check_id_size(sdev, 26 + id_page[3]))
 
-etc is shown. I am 100% sure 2.4.18 didn't do this. there also is a usb
-cam present that works just fine.
+I wrote up an ugly hack to truncate the length in idescsi_transform_pc2,
+but i don't know SCSI and it doesn't seem right.
 
-anyone who has a tip or maybe a place where to look ? I googled around
-but no obvious links.
+> [the code I showed does the right things; will submit actual diffs
+> sooner or later]
 
-
-
+Thanks,
+	Zwane
+-- 
+function.linuxpower.ca

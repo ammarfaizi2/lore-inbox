@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129063AbQKADbM>; Tue, 31 Oct 2000 22:31:12 -0500
+	id <S129135AbQKADfP>; Tue, 31 Oct 2000 22:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129135AbQKADax>; Tue, 31 Oct 2000 22:30:53 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:22029 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129063AbQKADao>; Tue, 31 Oct 2000 22:30:44 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14847.36411.795012.99317@wire.cadcamlab.org>
-Date: Tue, 31 Oct 2000 21:30:03 -0600 (CST)
-To: jalvo@mbay.net (John Alvord)
-Cc: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7
-In-Reply-To: <11462.972947019@ocs3.ocs-net>
-	<Pine.LNX.4.10.10010301508360.1085-100000@penguin.transmeta.com>
-	<20001031055959.A1041@wire.cadcamlab.org>
-	<3a013178.6803918@mail.mbay.net>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+	id <S131246AbQKADfE>; Tue, 31 Oct 2000 22:35:04 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:40602 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129135AbQKADes>; Tue, 31 Oct 2000 22:34:48 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 31 Oct 2000 19:42:46 -0800
+Message-Id: <200011010342.TAA08318@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        torvalds@transmeta.com
+Subject: Patch: linux-2.4.0-test10-pre7/drivers/usb/usb.c driver matching bug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	linux-2.4.0-test10-pre7/drivers/usb/usb.c introduced a really
+cool feature, where USB drivers can declare a data structure that
+describes the various ID bytes of the USB devices that they are
+relevant to.  Updated versions of depmod and hotplug are then
+used so that the appropriate USB drivers can then be loaded
+automatically as soon as you plug in a device, without any
+need to create additional system configuration files.
 
-  [Peter Samuelson]
-> > There are two ways to handle this:
-> >
-> >   obj-$(CONFIG_WD80x3) += wd.o 8390.o
-> >   obj-$(CONFIG_EL2) += 3c503.o 8390.o
-> >   obj-$(CONFIG_NE2000) += ne.o 8390.o
-> >   obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
-> >   obj-$(CONFIG_HPLAN) += hp.o 8390.o
+	Anyhow, the USB implementation of this has a tiny bug,
+where it does an apples-and-oranges comparison.  The patch is
+attached below.
 
-[John Alvord <jalvo@mbay.net>]
-> You can avoid duplicates with
->   obj-$(CONFIG_WD80x3) += wd.o
->   ifneq (,$(findstring 8390.o,obj-$(CONFIG_WD80x3))
->      obj-$(CONFIG_WD80x3) += 8390.o
->   endif
->  
-> Which is wordy but accomplishes the objective of avoiding duplicates.
+	Since the USB device table support is in
+linux-2.4.0-test10-pre7 and not in the HEAD branch of the
+linux-usb CVS tree on sourceforge.net, and since the bug fix
+is very clear and small, I am sending this patch to Linus and 
+linux-kernel in addition to linux-usb-devel.  If there is some
+better way that I should submit a patch in this sort of situation,
+please let me know.  I don't mean to step on anyone's toes.
 
-I said "there are two ways to handle this".  You snipped the second,
-which was:
+	By the way, I was able to test this all the way to the
+point of plugging in a USB printer and watching the module
+automatically load and bind to the printer interface.  (I
+will submit the usb/printer.c device table support patch to
+linux-usb-devel momentarily.)
 
-> > ...Or do horrible games with 'if' statements and temporary
-> > variables with names like $(NEED_8390) to ensure that it gets
-> > included once if needed and not if not -- thereby pretty much
-> > defeating the readability of the new-style makefiles.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-I would consider your approach a variant of the "horrible games with if
-statements and temporary variables". (:
-
-Here's an exercise to the reader: reformat drivers/net/Makefile using
-John Alford's approach, diff the two, and take a look.  Then come back
-and tell me LINK_FIRST -- 0-2 lines in the Makefile depending on your
-ordering requirements, plus about five lines in Rules.make (*yes*, it
-really is that simple) -- is really uglier.
-
-Peter
+--- linux-2.4.0-test10-pre7/drivers/usb/usb.c	Tue Oct 31 02:42:50 2000
++++ linux/drivers/usb/usb.c	Tue Oct 31 19:26:14 2000
+@@ -540,7 +540,7 @@
+ 			    if (id->bInterfaceClass
+ 				    && id->bInterfaceClass == intf->bInterfaceClass) {
+ 				if (id->bInterfaceSubClass && id->bInterfaceSubClass
+-					!= intf->bInterfaceClass)
++					!= intf->bInterfaceSubClass)
+ 				    continue;
+ 				if (id->bInterfaceProtocol && id->bInterfaceProtocol
+ 					!= intf->bInterfaceProtocol)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290747AbSA3Xib>; Wed, 30 Jan 2002 18:38:31 -0500
+	id <S289293AbSA3XPK>; Wed, 30 Jan 2002 18:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290748AbSA3XiY>; Wed, 30 Jan 2002 18:38:24 -0500
-Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:8635 "EHLO
-	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S290746AbSA3Xhg>; Wed, 30 Jan 2002 18:37:36 -0500
-From: "Karl" <ktatgenhorst@earthlink.net>
-To: "Russell King" <rmk@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: BKL in tty code?
-Date: Wed, 30 Jan 2002 17:52:29 -0500
-Message-ID: <NDBBJHDEALBBOIDJGBNNCEHHCCAA.ktatgenhorst@earthlink.net>
+	id <S290729AbSA3XPB>; Wed, 30 Jan 2002 18:15:01 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60684 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289293AbSA3XO4>; Wed, 30 Jan 2002 18:14:56 -0500
+Date: Wed, 30 Jan 2002 15:14:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Eli Carter <eli.carter@inet.com>, Georg Nikodym <georgn@somanetworks.com>,
+        Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020130143608.I22323@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0201301513040.14950-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020130230532.I19292@flint.arm.linux.org.uk>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. King,
 
-   I tried to send this to your e mail address but I think your spam filter
-doesn't like me. I am very interested in getting involved with any
-(low)level work with the TTY system in Linux I work as a Unix admin with a
-network of serial devices and PCS. I have found that I want specifically to
-learn to understand serial TTY communication. (Unfortunately my coding
-skills are about enough to read code and understand it, I have no design
-skills yet) as I said though I would love to test stuff for you or anyone
-active in this. That would allow me to learn it and apply my own knowledge
-of TTY implementations from AIX and Unixware.
+On Wed, 30 Jan 2002, Larry McVoy wrote:
+>
+> And you just lost some useful information.
 
-   For testing I have an Ibm Netfinity with an Equinox Multi Port Card (I am
-interested in multi port devices) running RH 7.2 with the 4.17 Stable
-Kernel. I also have an IBM RS6000 which I hope to get running Linux soon (it
-too has a multi port card). Both cards are 128 port serial.
+No. If the useless crap ends up hiding the real points in the revision
+history, getting rid of crud is _good_.
 
-I look forward to hearing more you.
+Remember how I asked for a way to "batch up" revision history? Same issue.
+Crap is crap, and it more often hides the real issues than enlightens
+anything at all.
 
-Karl Tatgenhorst
-
+		Linus
 

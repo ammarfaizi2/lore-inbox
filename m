@@ -1,119 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTJWRCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 13:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbTJWRCZ
+	id S263636AbTJWREu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 13:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTJWREt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 13:02:25 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:17826 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S263633AbTJWRCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 13:02:22 -0400
-Date: Thu, 23 Oct 2003 13:00:57 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [NFS] RE: [autofs] multiple servers per automount
-In-reply-to: <Pine.LNX.4.44.0310232127520.2983-100000@raven.themaw.net>
-To: Ian Kent <raven@themaw.net>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3F980949.1040201@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618
- Debian/1.3.1-3
-References: <Pine.LNX.4.44.0310232127520.2983-100000@raven.themaw.net>
+	Thu, 23 Oct 2003 13:04:49 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:46033 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263636AbTJWREp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 13:04:45 -0400
+Message-ID: <3F980A16.1050309@nortelnetworks.com>
+Date: Thu, 23 Oct 2003 13:04:22 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 005 release
+References: <XFMail.20031023103313.pochini@shiny.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent wrote:
+Giuliano Pochini wrote:
 
->On Wed, 15 Oct 2003, Ingo Oeser wrote:
->  
->
->>In your patch you allocate inside the spinlock.
->>    
->>
->
->Do you mean we don't want to sleep under the spin lock?
->Would a GFP_ATOMIC make a difference to the analysis?
->  
->
-Yes, sleeping within a spinlock is bad practice because it may 
-eventually deadlock.  Pretend that the lock is taken, the call to 
-kmalloc is made, the mm system doesn't have any immidiately free memory 
-and through some flow of execution requires that a some pseudo-block 
-device backed filesystem needs to be mounted -> deadlock.  I have no 
-idea if this is currently a likely scenario, however not sleeping within 
-a lock is 'The Right Thing' and should be avoided at all costs. 
+> Just a few dumb questions: Is it possible to make a disk appear
+> always with the same name, regardless the order it is detected in
+> the scsi chain (and possibly its scsi ID) ?
 
-GFP_ATOMIC should be avoided in most circumstances, particularly in 
-environments where the code can be refactored to allow for the sleep.  
-It is less likely to find free memory atomically and is thus more likely 
-to fail.
+Please, do some googling before asking, maybe read the OLS paper.  This 
+has all been covered previously.
 
->>I would suggest to do sth. like the following:
->>
->>void *local;
->>if (!unamed_dev_inuse) {
->>    local = get_zeroed_page(GFP_KERNEL);
->>
->>    if (!local) 
->>        return -ENOMEM;
->>}
->>
->>spinlock(&unamed_dev_lock);
->>mb();
->>if (!unamed_dev_inuse) {
->>    unamed_dev_inuse = local;
->>
->>    /* Used globally, don't free now */
->>    local = NULL;
->>}
->>
->>/* 
->>  Do the lookup and alloc
->> */
->>
->>spinunlock(&unamed_dev_lock);
->>
->>/* Free page, because of race on allocation. */
->>if (local) 
->>    free_page(local);
->>
->>
->>Which will swap the pointers atomically and still alloc outside the
->>non-sleeping locking.
->>    
->>
->
->As I said please give me a hint about your thinking here.
->And the use of a memory barrier as well ... umm?
->
->  
->
+Chris
 
-Ingo's patch simply moved the allocation outside the spinlock..  See my 
-later patch about moving the allocation to and __init section, which is 
-probably the cleaner thing to do and doesn't require grabbing the page 
-and using it conditionally.
 
-As for the mb(), I *thought* that a spinlock implied a memory barrier, 
-however I think he put it there because it solves the age-old badness of 
-double-checked locking (search google for good explanations of the badness).
 
 -- 
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me, 
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVBGWyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVBGXAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVBGWyL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVBGWwZ
+	id S261324AbVBGXAh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 18:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVBGXAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:52:25 -0500
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:51619 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S261336AbVBGWvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:51:55 -0500
-Date: Mon, 7 Feb 2005 23:51:39 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: Ali Bayazit <listeci@bayazit.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Judith und Mirko Kloppstech <jugal@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suggestion for CD filesystem for Backups
-Message-ID: <20050207225138.GC9850@hout.vanvergehaald.nl>
-References: <415204E0.9010203@gmx.net> <1095956209.6776.36.camel@localhost.localdomain> <1096003099.16849.16.camel@mevlevi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096003099.16849.16.camel@mevlevi>
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Feb 2005 18:00:36 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:2948 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261344AbVBGW7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:59:41 -0500
+Message-ID: <4207F2DA.8060101@us.ibm.com>
+Date: Mon, 07 Feb 2005 16:59:38 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Mares <mj@ucw.cz>
+CC: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
+References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com> <20050207221820.GA27543@kroah.com> <4207ECDB.7060506@us.ibm.com> <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 01:18:19AM -0400, Ali Bayazit wrote:
+Martin Mares wrote:
+> Hello!
 > 
-> On Thu, 2004-09-23 at 17:16 +0100, Alan Cox wrote:
-> > On Iau, 2004-09-23 at 00:04, Judith und Mirko Kloppstech wrote:
-> > > Why not write a file system on top of ISO9660 which uses the rest of the 
-> > > CD to write error correction. If a sector becomes unreadable, the error 
-> > > correction saves the data. Besides, a tool for testing the error rate 
-> > > and the safety of the data can be easily written for a normal CD-ROM drive.
-> > > 
-> > > The data for error correction might be written into a file so that the 
-> > > CD can be read using any System, but Linux provides error correction.
-> > 
-> > Send patches, or possibly if you are dumping tars and the like just
-> > write yourself an app to generate a second file of ECC data.
 > 
-> Wouldn't it be safer to do ECC on meta-data also?
-> That probably means replacing ISO9660 though.
+>>>Which is a good thing, right?  "driver_data" is usually a pointer to
+>>>somewhere.  Having userspace specify it would not be a good thing.
+>>
+>>That depends on the driver usage, and the patch allows it to be 
+>>configurable and defaults to not being used.
+> 
+> 
+> Maybe we could just define the operation as cloning of an entry
+> for another device ID, including its driver_data.
 
-There seems to be a good user space alternative for this purpose:
+Possibly. That would potentially require a lot of parameters to 
+userspace. We would really need to duplicate all the currently existing 
+sysfs parms to accomplish this.
 
-	http://dvdisaster.berlios.de
-
-Regards,
-Toon.
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center

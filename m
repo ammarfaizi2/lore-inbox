@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbUK2TfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbUK2TfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbUK2TfU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261640AbUK2TfU (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 29 Nov 2004 14:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUK2Tdw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUK2Tdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:33:52 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:24760 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261597AbUK2TJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:09:44 -0500
-Date: Mon, 29 Nov 2004 19:09:18 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] shmtcl SHM_LOCK perms
-Message-ID: <Pine.LNX.4.44.0411291855560.23341-100000@localhost.localdomain>
+	Mon, 29 Nov 2004 14:33:42 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:46755 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261601AbUK2TGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:06:51 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [PATCH] UML - Build cleanups
+Date: Mon, 29 Nov 2004 20:09:54 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200411242305.iAON5qbn005388@ccure.user-mode-linux.org> <200411250453.18844.blaisorblade_spam@yahoo.it> <200411282014.iASKE2Fr012406@ccure.user-mode-linux.org>
+In-Reply-To: <200411282014.iASKE2Fr012406@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411292009.54479.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Kerrisk has observed that at present any process can SHM_LOCK
-any shm segment of size within process RLIMIT_MEMLOCK, despite having no
-permissions on the segment: surprising, though not obviously evil.  And
-any process can SHM_UNLOCK any shm segment, despite no permissions on it:
-that is surely wrong.
+On Sunday 28 November 2004 21:14, Jeff Dike wrote:
+> blaisorblade_spam@yahoo.it said:
+> > Jeff, sometimes you should upgrade changelogs...
+>
+> I've had that patch sitting in my queue for ages.  You can always send me
+> an update to it.
+Yes, always forgot doing that.
+> I didn't change the chnagelog because I'm considering that to be part of
+> the Signed-off-by material.  If I change it, then it's no longer your
+> creation.
+Well, it's my GPL-compatible licensed patch, so you have the full right to 
+modify it and to also Sign Off By it (patch-scripts can be configured to 
+Sign-Off every patch you forward to someone else) - and fixing the changelog 
+is a good idea.
 
-Unless CAP_IPC_LOCK, restrict both SHM_LOCK and SHM_UNLOCK to when the
-process euid matches the shm owner or creator: that seems the least
-surprising behaviour, which could be relaxed if a need appears later.
+Also, there is 0 code lines from me in this specific patch, actually...
+>     Jeff
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-
---- 2.6.10-rc2-bk13/ipc/shm.c	2004-11-15 16:21:23.000000000 +0000
-+++ linux/ipc/shm.c	2004-11-29 18:07:06.398464576 +0000
-@@ -511,11 +511,6 @@ asmlinkage long sys_shmctl (int shmid, i
- 	case SHM_LOCK:
- 	case SHM_UNLOCK:
- 	{
--		/* Allow superuser to lock segment in memory */
--		if (!can_do_mlock() && cmd == SHM_LOCK) {
--			err = -EPERM;
--			goto out;
--		}
- 		shp = shm_lock(shmid);
- 		if(shp==NULL) {
- 			err = -EINVAL;
-@@ -525,6 +520,16 @@ asmlinkage long sys_shmctl (int shmid, i
- 		if(err)
- 			goto out_unlock;
- 
-+		if (!capable(CAP_IPC_LOCK)) {
-+			err = -EPERM;
-+			if (current->euid != shp->shm_perm.uid &&
-+			    current->euid != shp->shm_perm.cuid)
-+				goto out_unlock;
-+			if (cmd == SHM_LOCK &&
-+			    !current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+				goto out_unlock;
-+		}
-+
- 		err = security_shm_shmctl(shp, cmd);
- 		if (err)
- 			goto out_unlock;
-
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade

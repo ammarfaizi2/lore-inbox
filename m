@@ -1,95 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266815AbUBRAvu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267000AbUBRAva
+	id S267072AbUBRBKV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 20:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267076AbUBRBKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:51:30 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:20139 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266815AbUBRAp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:45:57 -0500
-Content-Class: urn:content-classes:message
+	Tue, 17 Feb 2004 20:10:21 -0500
+Received: from smtp-roam.Stanford.EDU ([171.64.14.91]:15262 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S267072AbUBRBKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 20:10:09 -0500
+Message-ID: <4032BB5A.7040803@myrealbox.com>
+Date: Tue, 17 Feb 2004 17:09:46 -0800
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3F5B8.8AF40FFC"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Limit hash table size
-Date: Tue, 17 Feb 2004 16:45:45 -0800
-Message-ID: <B05667366EE6204181EABE9C1B1C0EB501F2AAE1@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Limit hash table size
-Thread-Index: AcP1rPz/B4fpIreiS+yKtuVaKwtRRAAA7bRgAAHkacA=
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 18 Feb 2004 00:45:46.0675 (UTC) FILETIME=[8BEB5830:01C3F5B8]
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Tridgell <tridge@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: UTF-8 and case-insensitivity
+References: <fa.epf5o9k.1rkudgo@ifi.uio.no> <fa.idvvhjl.1jge92d@ifi.uio.no>
+In-Reply-To: <fa.idvvhjl.1jge92d@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Linus Torvalds wrote:
+> 	int magic_open(
+> 		/* Input arguments */
+> 		const char *pathname,
+> 		unsigned long flags,
+> 		mode_t mode,
+> 
+> 		/* output arguments */
+> 		int *fd,
+> 		struct stat *st,
+> 		int *successful_path_length);
+> 
+> ie the system call would:
+> 
+>  - look up as far into the pathname (using _exact_ lookup) as possible
+>  - return the error code of the last failure
+>  - the "flags" could be extended so that you can specify that you mustn't 
+>    traverse ".." or symlinks (ie those would count as failures)
+> 
+> but also:
+> 
+>  - fill in the "struct stat" information for the last _successful_ 
+>    pathname component.
+>  - fill in the "fd" with a fd of the last _successful_ pathname component.
+>  - tell how much of the pathname it could traverse.
 
-------_=_NextPart_001_01C3F5B8.8AF40FFC
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Aside from just case-insensitivity, I imagine this could give lots of other 
+benefits:
 
-Updates to Documentation/kernel-parameters.txt for the 4 new boot time
-parameters.
+  - file servers that don't want to follow symlinks can do it quickly.
+  - Apache could serve things like http://www.foo.com/a/b/c/d.php/e/f/g a lot 
+faster.
+  - a flag to avoid traversing mountpoints could help someone
+  - a flag for root to see _through_ mountpoints would make it possible to clean 
+up initramfs and such that got mounted over, or to do other useful and currently 
+  impossible tasks.  (e.g. I could see what's under my devfs mount...)
 
-- Ken
+I would be nice to see this added even if it's not the perfect solution for samba :)
 
+BTW, here's a thought for solving samba's negative lookup problem:
 
------Original Message-----
-From: Chen, Kenneth W=20
-Sent: Tuesday, February 17, 2004 4:17 PM
-To: 'Andrew Morton'
-Cc: linux-kernel@vger.kernel.org; linux-ia64@vger.kernel.org
-Subject: RE: Limit hash table size
+int ugly_stat(char *pattern, struct stat *st, char *match_out)
 
-> I think it would be better to leave things as they are,
-> with a boot option to scale the tables down.
+Pattern would be some description of what the filename should look like. 
+Something like:
 
-OK, here is one that adds boot time parameters only and leave everything
-else untouched.
+- pattern is an array of slash-delimited groups of characters separated by nulls 
+and terminated by two nulls.  For example, ugly_stat("F/f\0O/o\0O/o\0\0", ...) 
+finds a file called foo, case-insensitively in English, while 
+ugly_stat("F\0i\0l\0e\011/22/33") finds "File" followed by either 11, 22, or 33.
+- the dcache problem is easy: don't use it.  All Andrew wants (I think) is proof 
+that there is no such file or the name if there is one.  Samba can cache it 
+itself; I don't think the kernel should involve itself in trying to cache this.
+- ugly_stat does not traverse directories -- that's why the slash trick is safe.
+- st gets the stat data, and match_out gets the filename if any
+- if there are multiple matches, one is arbitrarily selected.
 
-> The below patch addresses the inode and dentry caches.
-> Need to think a bit more about the networking ones.
+If the file-system doesn't have specific support for this, then either VFS or 
+the caller could emulate it (probably VFS -- it would avoid lots of syscalls).
 
-Don't know what happened to my mailer, the mailing list archive shows
-complete patch including the network part.  Hope this time you receive
-the whole thing.
+Would ugly_stat + magic_open be sufficient?
 
-------_=_NextPart_001_01C3F5B8.8AF40FFC
-Content-Type: application/octet-stream;
-	name="knl_param.patch"
-Content-Transfer-Encoding: base64
-Content-Description: knl_param.patch
-Content-Disposition: attachment;
-	filename="knl_param.patch"
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4zLXJjNC9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJz
-LnR4dCBsaW51eC0yLjYuMy1yYzQuaGFzaC9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJz
-LnR4dAotLS0gbGludXgtMi42LjMtcmM0L0RvY3VtZW50YXRpb24va2VybmVsLXBhcmFtZXRlcnMu
-dHh0CTIwMDQtMDItMTYgMTg6MjM6NDQuMDAwMDAwMDAwIC0wODAwCisrKyBsaW51eC0yLjYuMy1y
-YzQuaGFzaC9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJzLnR4dAkyMDA0LTAyLTE3IDE2
-OjQxOjU4LjAwMDAwMDAwMCAtMDgwMApAQCAtMjkyLDYgKzI5Miw5IEBACiAKIAlkZXZmcz0JCVtE
-RVZGU10KIAkJCVNlZSBEb2N1bWVudGF0aW9uL2ZpbGVzeXN0ZW1zL2RldmZzL2Jvb3Qtb3B0aW9u
-cy4KKworCWRoYXNoX2VudHJpZXM9CVtLTkxdCisJCQlTZXQgbnVtYmVyIG9mIGhhc2ggYnVja2V0
-cyBmb3IgZGVudHJ5IGNhY2hlLgogIAogCWRpZ2k9CQlbSFcsU0VSSUFMXQogCQkJSU8gcGFyYW1l
-dGVycyArIGVuYWJsZS9kaXNhYmxlIGNvbW1hbmQuCkBAIC00MjQsNiArNDI3LDkgQEAKIAlpZGxl
-PQkJW0hXXQogCQkJRm9ybWF0OiBpZGxlPXBvbGwgb3IgaWRsZT1oYWx0CiAgCisJaWhhc2hfZW50
-cmllcz0JW0tOTF0KKwkJCVNldCBudW1iZXIgb2YgaGFzaCBidWNrZXRzIGZvciBpbm9kZSBjYWNo
-ZS4KKwogCWluMjAwMD0JCVtIVyxTQ1NJXQogCQkJU2VlIGhlYWRlciBvZiBkcml2ZXJzL3Njc2kv
-aW4yMDAwLmMuCiAKQEAgLTg3Myw2ICs4NzksOSBAQAogCiAJcmVzdW1lPQkJW1NXU1VTUF0gU3Bl
-Y2lmeSB0aGUgcGFydGl0aW9uIGRldmljZSBmb3Igc29mdHdhcmUgc3VzcGVuc2lvbgogCisJcmhh
-c2hfZW50cmllcz0JW0tOTCxORVRdCisJCQlTZXQgbnVtYmVyIG9mIGhhc2ggYnVja2V0cyBmb3Ig
-cm91dGUgY2FjaGUKKyAKIAlyaXNjb204PQlbSFcsU0VSSUFMXQogCQkJRm9ybWF0OiA8aW9fYm9h
-cmQxPlssPGlvX2JvYXJkMj5bLC4uLjxpb19ib2FyZE4+XV0KIApAQCAtMTEzNSw2ICsxMTQ0LDkg
-QEAKIAl0Z2Z4XzI9CQlTZWUgRG9jdW1lbnRhdGlvbi9pbnB1dC9qb3lzdGljay1wYXJwb3J0LnR4
-dC4KIAl0Z2Z4XzM9CiAKKwl0aGFzaF9lbnRyaWVzPQlbS05MLE5FVF0KKwkJCVNldCBudW1iZXIg
-b2YgaGFzaCBidWNrZXRzIGZvciBUQ1AgY29ubmVjdGlvbgorCiAJdGlwYXI9CQlbSFddCiAJCQlT
-ZWUgaGVhZGVyIG9mIGRyaXZlcnMvY2hhci90aXBhci5jLgogCg==
-
-------_=_NextPart_001_01C3F5B8.8AF40FFC--
+--Andy

@@ -1,201 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbTFFS3x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 14:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTFFS3x
+	id S262174AbTFFSeq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 14:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTFFSeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 14:29:53 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24750 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262171AbTFFS3p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 14:29:45 -0400
-Subject: [2.5.70] make allmodconfig --> infinite loop
-From: Andy Pfiffer <andyp@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Fri, 6 Jun 2003 14:34:46 -0400
+Received: from pc-80-192-208-23-mo.blueyonder.co.uk ([80.192.208.23]:41959
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S262174AbTFFSeo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 14:34:44 -0400
+Subject: Re: 2.5.70 latest: breaks gnome
+From: Edward Tandi <ed@efix.biz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030605154534.355380e1.akpm@digeo.com>
+References: <20030604142241.0dc6f34e.shemminger@osdl.org>
+	 <3EDE7398.70005@tmsusa.com> <20030605111212.33e63d46.shemminger@osdl.org>
+	 <3EDFB3E2.2090308@tmsusa.com> <20030605143346.197a8923.akpm@digeo.com>
+	 <3EDFBD08.5060902@tmsusa.com> <1054852458.1886.18.camel@wires.home.biz>
+	 <20030605154534.355380e1.akpm@digeo.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1054924969.25858.28.camel@andyp.pdx.osdl.net>
+Message-Id: <1054925329.2215.18.camel@wires.home.biz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Jun 2003 11:42:50 -0700
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 06 Jun 2003 19:48:49 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like this changeset (via tinyurl.com):
+On Thu, 2003-06-05 at 23:45, Andrew Morton wrote:
+> Edward Tandi <ed@efix.biz> wrote:
+> >
+> > FYI,
+> > 
+> > I have just tried mm5. I have Gnome2 working (using kdm) but am still
+> > having the same problems as mm3:
+> 
+> It would be very interesting to know if these things still happen with just
+> 2.5.70 plus
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm5/broken-out/linus.patch
 
-http://tinyurl.com/dnpr
+OK, I've now tried it. Results follow...
 
-causes "make allmodconfig" to go into a silent infinite loop.  The
-changeset immediately before it (on the same bk path -- 1.1259.10.12)
-does not demonstrate the problem.
+> > 1) gnome-terminal still only works as root.
+> 
+> Don't know.
 
-Has anyone else seen this?
+Still only works as root. I do get a message though:
 
-Thanks,
-Andy
+(gnome-terminal:2280): GnomeUI-WARNING **: While connecting to session
+manager: Authentication Rejected, reason : None of the authentication
+protocols specified are supported and host-based authentication failed.
 
--== this appears to be the patch that causes the infinite loop ==-
+> > 2) xosview still freezes (reading /proc/*)
+> 
+> We changed the format of /proc/stat and broke xosview.  I just tried 1.8.0,
+> not joy.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or
-higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1259.10.12 -> 1.1259.10.13
-#	    net/ipv6/Kconfig	1.4     -> 1.5    
-#	    net/ipv4/Kconfig	1.7     -> 1.8    
-#	      crypto/Kconfig	1.15    -> 1.16   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/03	greg@kroah.com	1.1254.4.8
-# [PATCH] PCI: Remove a lot of PCI core only functions from
-include/linux/pci.h
-# --------------------------------------------
-# 03/06/03	jmorris@intercode.com.au	1.1259.10.13
-# [CRYPTO]: Use "select" kconfig facility instead of fragile defaults.
-# --------------------------------------------
-#
-diff -Nru a/crypto/Kconfig b/crypto/Kconfig
---- a/crypto/Kconfig	Fri Jun  6 11:41:07 2003
-+++ b/crypto/Kconfig	Fri Jun  6 11:41:07 2003
-@@ -6,16 +6,12 @@
- 
- config CRYPTO
- 	bool "Cryptographic API"
--	default y if INET_AH=y || INET_AH=m || INET_ESP=y || INET_ESP=m ||
-INET6_AH=y || INET6_AH=m || \
--		     INET6_ESP=y || INET6_ESP=m || INET6_IPCOMP=y || INET6_IPCOMP=m
-|| IPV6_PRIVACY=y
- 	help
- 	  This option provides the core Cryptographic API.
- 
- config CRYPTO_HMAC
- 	bool "HMAC support"
- 	depends on CRYPTO
--	default y if INET_AH=y || INET_AH=m || INET_ESP=y || INET_ESP=m ||
-INET6_AH=y || INET6_AH=m || \
--		     INET6_ESP=y || INET6_ESP=m
- 	help
- 	  HMAC: Keyed-Hashing for Message Authentication (RFC2104).
- 	  This is required for IPSec.
-@@ -35,16 +31,12 @@
- config CRYPTO_MD5
- 	tristate "MD5 digest algorithm"
- 	depends on CRYPTO
--	default y if INET_AH=y || INET_AH=m || INET_ESP=y || INET_ESP=m ||
-INET6_AH=y || INET6_AH=m || \
--	             INET6_ESP=y || INET6_ESP=m || IPV6_PRIVACY=y
- 	help
- 	  MD5 message digest algorithm (RFC1321).
- 
- config CRYPTO_SHA1
- 	tristate "SHA1 digest algorithm"
- 	depends on CRYPTO
--	default y if INET_AH=y || INET_AH=m || INET_ESP=y || INET_ESP=m  ||
-INET6_AH=y || INET6_AH=m || \
--	             INET6_ESP=y || INET6_ESP=m
- 	help
- 	  SHA-1 secure hash standard (FIPS 180-1/DFIPS 180-2).
- 
-@@ -72,7 +64,6 @@
- config CRYPTO_DES
- 	tristate "DES and Triple DES EDE cipher algorithms"
- 	depends on CRYPTO
--	default y if INET_ESP=y || INET_ESP=m || INET6_ESP=y || INET6_ESP=m
- 	help
- 	  DES cipher algorithm (FIPS 46-2), and Triple DES EDE (FIPS 46-3).
- 
-@@ -138,7 +129,6 @@
- config CRYPTO_DEFLATE
- 	tristate "Deflate compression algorithm"
- 	depends on CRYPTO
--	default y if INET_IPCOMP=y || INET_IPCOMP=m || INET6_IPCOMP=y ||
-INET6_IPCOMP=m
- 	help
- 	  This is the Deflate algorithm (RFC1951), specified for use in
- 	  IPSec with the IPCOMP protocol (RFC3173, RFC2394).
-diff -Nru a/net/ipv4/Kconfig b/net/ipv4/Kconfig
---- a/net/ipv4/Kconfig	Fri Jun  6 11:41:07 2003
-+++ b/net/ipv4/Kconfig	Fri Jun  6 11:41:07 2003
-@@ -343,6 +343,10 @@
- 
- config INET_AH
- 	tristate "IP: AH transformation"
-+	select CRYPTO
-+	select CRYPTO_HMAC
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
- 	---help---
- 	  Support for IPsec AH.
- 
-@@ -350,6 +354,11 @@
- 
- config INET_ESP
- 	tristate "IP: ESP transformation"
-+	select CRYPTO
-+	select CRYPTO_HMAC
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
-+	select CRYPTO_DES
- 	---help---
- 	  Support for IPsec ESP.
- 
-@@ -357,6 +366,8 @@
- 
- config INET_IPCOMP
- 	tristate "IP: IPComp transformation"
-+	select CRYPTO
-+	select CRYPTO_DEFLATE
- 	---help---
- 	  Support for IP Paylod Compression (RFC3173), typically needed
- 	  for IPsec.
-diff -Nru a/net/ipv6/Kconfig b/net/ipv6/Kconfig
---- a/net/ipv6/Kconfig	Fri Jun  6 11:41:07 2003
-+++ b/net/ipv6/Kconfig	Fri Jun  6 11:41:07 2003
-@@ -4,6 +4,8 @@
- config IPV6_PRIVACY
- 	bool "IPv6: Privacy Extensions (RFC 3041) support"
- 	depends on IPV6
-+	select CRYPTO
-+	select CRYPTO_MD5
- 	---help---
- 	  Privacy Extensions for Stateless Address Autoconfiguration in IPv6
- 	  support.  With this option, additional periodically-alter 
-@@ -20,6 +22,10 @@
- config INET6_AH
- 	tristate "IPv6: AH transformation"
- 	depends on IPV6
-+	select CRYPTO
-+	select CRYPTO_HMAC
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
- 	---help---
- 	  Support for IPsec AH.
- 
-@@ -28,6 +34,11 @@
- config INET6_ESP
- 	tristate "IPv6: ESP transformation"
- 	depends on IPV6
-+	select CRYPTO
-+	select CRYPTO_HMAC
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
-+	select CRYPTO_DES
- 	---help---
- 	  Support for IPsec ESP.
- 
-@@ -36,6 +47,8 @@
- config INET6_IPCOMP
- 	tristate "IPv6: IPComp transformation"
- 	depends on IPV6
-+	select CRYPTO
-+	select CRYPTO_DEFLATE
- 	---help---
- 	  Support for IP Paylod Compression (RFC3173), typically needed
- 	  for IPsec.
+Got patch now :-) no longer an issue.
 
+> > 3) rmmod still not working -"Can't open 'analog': No such file or
+> > directory"
+> 
+> need more details on this.
 
+It's from a Mandrake package (if that means anything to you):
+Name: module-init-tools
+Version: 0.9.9-1mdk
+
+> > 4) su - <user> returns "operation not permitted". Works as root though
+> > and thereafter as <user>.
+> 
+> Don't know.
+
+This no longer gives me a problem. Not sure why though.
+
+> > 5) This is the second time this has happened after switching to 2.5.x;
+> > My Evolution groups (left-hand icon bar) have gone missing.
+> 
+> Don't know.  2.5 might be triggering latent bugs in evolution.  It's
+> happened before..
+
+It's just happened again! Looks like it's reproducible.
+
+> > 6) from /var/log/messages: /sbin/mingetty[2583]: /dev/tty4: cannot open
+> > tty: Inappropriate ioctl for device
+> 
+> Don't know.
+
+Problem still there.
+
+> > 7) Excessive "anticipatory scheduling elevator" messages allover in
+> > /var/log/messages.
+> 
+> Will fix sometime.
+
+OK, happy.
+
+> > 8) from dmesg: process `named' is using obsolete setsockopt SO_BSDCOMPAT
+> 
+> Overly noisy warning.  How frequently do they occur?
+
+Not so bad, only 3 times when named starts. I suspect the Linux vendors
+will fix it eventually.
+
+> > I think there is something "not quite right" in the terminal I/O area.
+> 
+> Tracking down the kernel version at which this started to occur would be
+> good.
+
+It could go back a long way. I've been having this problem from around
+2.5.69. Before that I had real problems building. And then building
+anything that worked on my hardware.
+
+Ed-T.
 
 

@@ -1,56 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbREZSjE>; Sat, 26 May 2001 14:39:04 -0400
+	id <S262090AbREZTgG>; Sat, 26 May 2001 15:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261979AbREZSiy>; Sat, 26 May 2001 14:38:54 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:43789 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261978AbREZSio>;
-	Sat, 26 May 2001 14:38:44 -0400
-Date: Sat, 26 May 2001 12:51:38 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.5
-In-Reply-To: <20010526173051.B9634@athlon.random>
-Message-ID: <Pine.LNX.4.21.0105261250160.30264-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262164AbREZTf4>; Sat, 26 May 2001 15:35:56 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:61191 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S262090AbREZTfr>;
+	Sat, 26 May 2001 15:35:47 -0400
+Date: Sat, 26 May 2001 21:33:59 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <arjanv@redhat.com>
+Subject: [patch] softirq-2.4.5-A1
+In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0105262128230.1222-200000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1428814003-990905639=:1222"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Andrea Arcangeli wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> > > -	/* 
-> > > -	 * Set our state for sleeping, then check again for buffer heads.
-> > > -	 * This ensures we won't miss a wake_up from an interrupt.
-> > > -	 */
-> > > -	wait_event(buffer_wait, nr_unused_buffer_heads >= MAX_BUF_PER_PAGE);
-> > > +	current->policy |= SCHED_YIELD;
-> > > +	__set_current_state(TASK_RUNNING);
-> > > +	schedule();
-> > >  	goto try_again;
-> > >  }
+--8323328-1428814003-990905639=:1222
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I'm still curious ... is it _really_ needed to busy-spin here?
 
-I've seen some big problems with processes eating CPU time
-while not getting any work done and am slowly trying to
-eliminate those places in the VM by waiting on things.
+i've attached the next round of softirq-handling fixes.
 
-Is it really needed to introduce a new busy-wait place in the
-kernel?
+correctness fixes:
 
-regards,
+ - check for softirqs in the signal return path(s)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+ - make sure all the entry.S return paths check for softirqs with
+   interrupts disabled, otherwise we can end up getting another softirq
+   right after the test. (and this causes a missed softirq.)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+ - add softirq handling to the ACPI and APM code (untested)
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+performance tweaks:
 
+ - remove __cli() from idle-poll, it's not needed.
+
+ - separate exception handling and irq-ret path to avoid double-checking
+   for softirqs
+
+with this -A1 patch applied, softirqs should be executed by the kernel at
+the first possible place, and there should be no unlimited softirq
+latencies anymore.
+
+patch is against vanilla 2.4.5 (patch includes the previous fixes as
+well). The patch compiles, boots and works just fine on x86 SMP.
+
+	Ingo
+
+--8323328-1428814003-990905639=:1222
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.5-A1"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0105262133590.1222@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="softirq-2.4.5-A1"
+
+LS0tIGxpbnV4L2RyaXZlcnMvYWNwaS9jcHUuYy5vcmlnCVNhdCBNYXkgMjYg
+MjE6MTI6MDEgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvYWNwaS9jcHUuYwlT
+YXQgTWF5IDI2IDIxOjE0OjM5IDIwMDENCkBAIC0yMzEsMTAgKzIzMSwxNCBA
+QA0KIAlzbGVlcF9sZXZlbCA9IDE7DQogCWFjcGlfc2xlZXBfb25fYnVzbWFz
+dGVyKCk7DQogCWZvciAoOzspIHsNCisJCWludCB0aGlzX2NwdSA9IHNtcF9w
+cm9jZXNzb3JfaWQoKTsNCiAJCXVuc2lnbmVkIGxvbmcgdGltZTsNCiAJCXVu
+c2lnbmVkIGxvbmcgZGlmZjsNCiANCiAJCV9fY2xpKCk7DQorCQlpZiAoc29m
+dGlycV9hY3RpdmUodGhpc19jcHUpICYgc29mdGlycV9tYXNrKHRoaXNfY3B1
+KSkNCisJCQlkb19zb2Z0aXJxKCk7DQorDQogCQlpZiAoY3VycmVudC0+bmVl
+ZF9yZXNjaGVkKQ0KIAkJCWdvdG8gb3V0Ow0KIAkJdGltZSA9IGFjcGlfcmVh
+ZF9wbV90aW1lcigpOw0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvZW50
+cnkuUy5vcmlnCVRodSBOb3YgIDkgMDI6MDk6NTAgMjAwMA0KKysrIGxpbnV4
+L2FyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUwlTYXQgTWF5IDI2IDIxOjIxOjM5
+IDIwMDENCkBAIC0xMzMsNiArMTMzLDE3IEBADQogCW1vdmwgJC04MTkyLCBy
+ZWc7IFwNCiAJYW5kbCAlZXNwLCByZWcNCiANCisjaWZkZWYgQ09ORklHX1NN
+UA0KKyMgZGVmaW5lIENIRUNLX1NPRlRJUlEgXA0KKwltb3ZsIHByb2Nlc3Nv
+ciglZWJ4KSwlZWF4OyBcDQorCXNobGwgJENPTkZJR19YODZfTDFfQ0FDSEVf
+U0hJRlQsJWVheDsgXA0KKwltb3ZsIFNZTUJPTF9OQU1FKGlycV9zdGF0KSgs
+JWVheCksJWVjeDsgXA0KKwl0ZXN0bCBTWU1CT0xfTkFNRShpcnFfc3RhdCkr
+NCgsJWVheCksJWVjeA0KKyNlbHNlDQorIyBkZWZpbmUgQ0hFQ0tfU09GVElS
+USBcDQorCW1vdmwgU1lNQk9MX05BTUUoaXJxX3N0YXQpLCVlY3g7IFwNCisJ
+dGVzdGwgU1lNQk9MX05BTUUoaXJxX3N0YXQpKzQsJWVjeA0KKyNlbmRpZg0K
+IEVOVFJZKGxjYWxsNykNCiAJcHVzaGZsCQkJIyBXZSBnZXQgYSBkaWZmZXJl
+bnQgc3RhY2sgbGF5b3V0IHdpdGggY2FsbCBnYXRlcywNCiAJcHVzaGwgJWVh
+eAkJIyB3aGljaCBoYXMgdG8gYmUgY2xlYW5lZCB1cCBsYXRlci4uDQpAQCAt
+MjAzLDE4ICsyMTQsMTAgQEANCiAJY2FsbCAqU1lNQk9MX05BTUUoc3lzX2Nh
+bGxfdGFibGUpKCwlZWF4LDQpDQogCW1vdmwgJWVheCxFQVgoJWVzcCkJCSMg
+c2F2ZSB0aGUgcmV0dXJuIHZhbHVlDQogRU5UUlkocmV0X2Zyb21fc3lzX2Nh
+bGwpDQotI2lmZGVmIENPTkZJR19TTVANCi0JbW92bCBwcm9jZXNzb3IoJWVi
+eCksJWVheA0KLQlzaGxsICRDT05GSUdfWDg2X0wxX0NBQ0hFX1NISUZULCVl
+YXgNCi0JbW92bCBTWU1CT0xfTkFNRShpcnFfc3RhdCkoLCVlYXgpLCVlY3gJ
+CSMgc29mdGlycV9hY3RpdmUNCi0JdGVzdGwgU1lNQk9MX05BTUUoaXJxX3N0
+YXQpKzQoLCVlYXgpLCVlY3gJIyBzb2Z0aXJxX21hc2sNCi0jZWxzZQ0KLQlt
+b3ZsIFNZTUJPTF9OQU1FKGlycV9zdGF0KSwlZWN4CQkjIHNvZnRpcnFfYWN0
+aXZlDQotCXRlc3RsIFNZTUJPTF9OQU1FKGlycV9zdGF0KSs0LCVlY3gJIyBz
+b2Z0aXJxX21hc2sNCi0jZW5kaWYNCi0Jam5lICAgaGFuZGxlX3NvZnRpcnEN
+CisJY2xpDQorCUNIRUNLX1NPRlRJUlENCisJam5lIGhhbmRsZV9zb2Z0aXJx
+DQogCQ0KLXJldF93aXRoX3Jlc2NoZWR1bGU6DQogCWNtcGwgJDAsbmVlZF9y
+ZXNjaGVkKCVlYngpDQogCWpuZSByZXNjaGVkdWxlDQogCWNtcGwgJDAsc2ln
+cGVuZGluZyglZWJ4KQ0KQEAgLTIzMCw2ICsyMzMsMTMgQEANCiAJam5lIHY4
+Nl9zaWduYWxfcmV0dXJuDQogCXhvcmwgJWVkeCwlZWR4DQogCWNhbGwgU1lN
+Qk9MX05BTUUoZG9fc2lnbmFsKQ0KKyNpZmRlZiBDT05GSUdfU01QDQorCUdF
+VF9DVVJSRU5UKCVlYngpDQorI2VuZGlmDQorCWNsaQ0KKwlDSEVDS19TT0ZU
+SVJRDQorCWplIHJlc3RvcmVfYWxsDQorCWNhbGwgU1lNQk9MX05BTUUoZG9f
+c29mdGlycSkNCiAJam1wIHJlc3RvcmVfYWxsDQogDQogCUFMSUdODQpAQCAt
+MjM4LDYgKzI0OCwxMyBAQA0KIAltb3ZsICVlYXgsJWVzcA0KIAl4b3JsICVl
+ZHgsJWVkeA0KIAljYWxsIFNZTUJPTF9OQU1FKGRvX3NpZ25hbCkNCisjaWZk
+ZWYgQ09ORklHX1NNUA0KKwlHRVRfQ1VSUkVOVCglZWJ4KQ0KKyNlbmRpZg0K
+KwljbGkNCisJQ0hFQ0tfU09GVElSUQ0KKwlqZSByZXN0b3JlX2FsbA0KKwlj
+YWxsIFNZTUJPTF9OQU1FKGRvX3NvZnRpcnEpDQogCWptcCByZXN0b3JlX2Fs
+bA0KIA0KIAlBTElHTg0KQEAgLTI2MCwyMiArMjc3LDIyIEBADQogcmV0X2Zy
+b21fZXhjZXB0aW9uOg0KICNpZmRlZiBDT05GSUdfU01QDQogCUdFVF9DVVJS
+RU5UKCVlYngpDQotCW1vdmwgcHJvY2Vzc29yKCVlYngpLCVlYXgNCi0Jc2hs
+bCAkQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElGVCwlZWF4DQotCW1vdmwgU1lN
+Qk9MX05BTUUoaXJxX3N0YXQpKCwlZWF4KSwlZWN4CQkjIHNvZnRpcnFfYWN0
+aXZlDQotCXRlc3RsIFNZTUJPTF9OQU1FKGlycV9zdGF0KSs0KCwlZWF4KSwl
+ZWN4CSMgc29mdGlycV9tYXNrDQotI2Vsc2UNCi0JbW92bCBTWU1CT0xfTkFN
+RShpcnFfc3RhdCksJWVjeAkJIyBzb2Z0aXJxX2FjdGl2ZQ0KLQl0ZXN0bCBT
+WU1CT0xfTkFNRShpcnFfc3RhdCkrNCwlZWN4CSMgc29mdGlycV9tYXNrDQog
+I2VuZGlmDQorCWNsaQ0KKwlDSEVDS19TT0ZUSVJRDQogCWpuZSAgIGhhbmRs
+ZV9zb2Z0aXJxDQorCWNtcGwgJDAsbmVlZF9yZXNjaGVkKCVlYngpDQorCWpu
+ZSByZXNjaGVkdWxlDQorCWNtcGwgJDAsc2lncGVuZGluZyglZWJ4KQ0KKwlq
+bmUgc2lnbmFsX3JldHVybg0KKwlqbXAgcmVzdG9yZV9hbGwNCiANCiBFTlRS
+WShyZXRfZnJvbV9pbnRyKQ0KIAlHRVRfQ1VSUkVOVCglZWJ4KQ0KIAltb3Zs
+IEVGTEFHUyglZXNwKSwlZWF4CQkjIG1peCBFRkxBR1MgYW5kIENTDQogCW1v
+dmIgQ1MoJWVzcCksJWFsDQogCXRlc3RsICQoVk1fTUFTSyB8IDMpLCVlYXgJ
+IyByZXR1cm4gdG8gVk04NiBtb2RlIG9yIG5vbi1zdXBlcnZpc29yPw0KLQlq
+bmUgcmV0X3dpdGhfcmVzY2hlZHVsZQ0KKwlqbmUgcmV0X2Zyb21fc3lzX2Nh
+bGwNCiAJam1wIHJlc3RvcmVfYWxsDQogDQogCUFMSUdODQotLS0gbGludXgv
+YXJjaC9pMzg2L2tlcm5lbC9wcm9jZXNzLmMub3JpZwlTYXQgTWF5IDI2IDIw
+OjU0OjMwIDIwMDENCisrKyBsaW51eC9hcmNoL2kzODYva2VybmVsL3Byb2Nl
+c3MuYwlTYXQgTWF5IDI2IDIxOjE3OjA1IDIwMDENCkBAIC03OSw4ICs3OSwx
+MiBAQA0KICAqLw0KIHN0YXRpYyB2b2lkIGRlZmF1bHRfaWRsZSh2b2lkKQ0K
+IHsNCisJaW50IHRoaXNfY3B1ID0gc21wX3Byb2Nlc3Nvcl9pZCgpOw0KKw0K
+IAlpZiAoY3VycmVudF9jcHVfZGF0YS5obHRfd29ya3Nfb2sgJiYgIWhsdF9j
+b3VudGVyKSB7DQogCQlfX2NsaSgpOw0KKwkJaWYgKHNvZnRpcnFfYWN0aXZl
+KHRoaXNfY3B1KSAmIHNvZnRpcnFfbWFzayh0aGlzX2NwdSkpDQorCQkJZG9f
+c29mdGlycSgpOw0KIAkJaWYgKCFjdXJyZW50LT5uZWVkX3Jlc2NoZWQpDQog
+CQkJc2FmZV9oYWx0KCk7DQogCQllbHNlDQpAQCAtOTUsNiArOTksNyBAQA0K
+ICAqLw0KIHN0YXRpYyB2b2lkIHBvbGxfaWRsZSAodm9pZCkNCiB7DQorCWlu
+dCB0aGlzX2NwdSA9IHNtcF9wcm9jZXNzb3JfaWQoKTsNCiAJaW50IG9sZHZh
+bDsNCiANCiAJX19zdGkoKTsNCkBAIC0xMDQsMTQgKzEwOSwxNiBAQA0KIAkg
+KiBydW4gaGVyZToNCiAJICovDQogCW9sZHZhbCA9IHhjaGcoJmN1cnJlbnQt
+Pm5lZWRfcmVzY2hlZCwgLTEpOw0KKwlpZiAob2xkdmFsKQ0KKwkJcmV0dXJu
+Ow0KIA0KLQlpZiAoIW9sZHZhbCkNCi0JCWFzbSB2b2xhdGlsZSgNCi0JCQki
+MjoiDQotCQkJImNtcGwgJC0xLCAlMDsiDQotCQkJInJlcDsgbm9wOyINCi0J
+CQkiamUgMmI7Ig0KLQkJCQk6IDoibSIgKGN1cnJlbnQtPm5lZWRfcmVzY2hl
+ZCkpOw0KKwl3aGlsZSAoY3VycmVudC0+bmVlZF9yZXNjaGVkID09IC0xKSB7
+DQorCQlpZiAoc29mdGlycV9hY3RpdmUodGhpc19jcHUpICYgc29mdGlycV9t
+YXNrKHRoaXNfY3B1KSkgew0KKwkJCWRvX3NvZnRpcnEoKTsNCisJCQlfX3N0
+aSgpOw0KKwkJfQ0KKwkJYXNtIHZvbGF0aWxlKCAicmVwOyBub3A7IiApOw0K
+Kwl9DQogfQ0KIA0KIC8qDQotLS0gbGludXgvYXJjaC9pMzg2L2tlcm5lbC9h
+cG0uYy5vcmlnCVNhdCBNYXkgMjYgMjE6MTU6MTIgMjAwMQ0KKysrIGxpbnV4
+L2FyY2gvaTM4Ni9rZXJuZWwvYXBtLmMJU2F0IE1heSAyNiAyMToxNTo1OCAy
+MDAxDQpAQCAtNjA1LDExICs2MDUsMTUgQEANCiAJd2hpbGUgKDEpIHsNCiAJ
+CWlmICghY3VycmVudC0+bmVlZF9yZXNjaGVkKSB7DQogCQkJaWYgKGppZmZp
+ZXMgLSBzdGFydF9pZGxlIDwgSEFSRF9JRExFX1RJTUVPVVQpIHsNCisJCQkJ
+aW50IHRoaXNfY3B1ID0gc21wX3Byb2Nlc3Nvcl9pZCgpOw0KKw0KIAkJCQlp
+ZiAoIWN1cnJlbnRfY3B1X2RhdGEuaGx0X3dvcmtzX29rKQ0KIAkJCQkJY29u
+dGludWU7DQogCQkJCWlmIChobHRfY291bnRlcikNCiAJCQkJCWNvbnRpbnVl
+Ow0KIAkJCQlfX2NsaSgpOw0KKwkJCQlpZiAoc29mdGlycV9hY3RpdmUodGhp
+c19jcHUpICYgc29mdGlycV9tYXNrKHRoaXNfY3B1KSkNCisJCQkJCWRvX3Nv
+ZnRpcnEoKTsNCiAJCQkJaWYgKCFjdXJyZW50LT5uZWVkX3Jlc2NoZWQpDQog
+CQkJCQlzYWZlX2hhbHQoKTsNCiAJCQkJZWxzZQ0K
+--8323328-1428814003-990905639=:1222--

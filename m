@@ -1,89 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284336AbRLMQWa>; Thu, 13 Dec 2001 11:22:30 -0500
+	id <S284337AbRLMQYA>; Thu, 13 Dec 2001 11:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284334AbRLMQWV>; Thu, 13 Dec 2001 11:22:21 -0500
-Received: from vsat-148-63-243-254.c3.sb4.mrt.starband.net ([148.63.243.254]:260
-	"HELO ns1.ltc.com") by vger.kernel.org with SMTP id <S284330AbRLMQWM>;
-	Thu, 13 Dec 2001 11:22:12 -0500
-Message-ID: <066801c183f2$53f90ec0$5601010a@prefect>
-From: "Bradley D. LaRonde" <brad@ltc.com>
-To: "Thomas Capricelli" <orzel@kde.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: Thu, 13 Dec 2001 11:22:15 -0500
+	id <S284330AbRLMQXy>; Thu, 13 Dec 2001 11:23:54 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:62868 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S284337AbRLMQXb>; Thu, 13 Dec 2001 11:23:31 -0500
+Date: Thu, 13 Dec 2001 08:22:51 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+In-Reply-To: <BDD02BB0D67@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0112130803260.19406-100000@mf1.private>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have maintained, on and off, a patch to crafms that supports traditional
-cramfs decompress-and-read/run-from-RAM, plus direct mmaping with no
-decompression and read/run straight out of ROM:
+On Thu, 13 Dec 2001, Petr Vandrovec wrote:
 
-    http://www.ltc.com/~brad/mips/cramfs-linear-root-xip-linux-2.4.9-2.diff
+> If you have legacy app, how it comes that it uses mmap?
 
-It includes a modification to mkcramfs to compress or not compress
-individual files based on their +t mode setting.  Mkcramfs will leave +t
-uncompressed in the cramfs image and cramfs will directly mmap them.
+Very good question.  The app per se does not call mmap(), but mmap() is
+called once when I execute it.  So it must be something from libc:
 
-Please note that the patch is against 2.4.9.  I haven't tried to use it
-since then.
+[whitney@mf1 whitney]$ ldd `which magma`
+	not a dynamic executable
+[whitney@mf1 whitney]$ magma
+[ . . .]
+[2]+  Stopped                 magma
+[whitney@mf1 whitney]$ cat /proc/`pidof magma`/maps
+08048000-08afb000 r-xp 00000000 21:07 64318 magma
+08afb000-08c3e000 rw-p 00ab2000 21:07 64318 magma     
+08c3e000-0bc54000 rwxp 00000000 00:00 0
+40000000-40001000 rw-p 00000000 00:00 0
+bfffd000-c0000000 rwxp ffffe000 00:00 0
 
-Regards,
-Brad
+> So maybe MAGMA uses some API which it should not use under any
+> circumstances... Such as that you linked it with libc6 stdio.
 
------ Original Message -----
-From: "Thomas Capricelli" <orzel@kde.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 13, 2001 11:02 AM
-Subject: Mounting a in-ROM filesystem efficiently
+Indeed.  How can I avoid the map at 0x40000000?  Must I avoid using
+certain glibc2 functions, and then link the executable carefully to leave
+out their initialization routines?  Or can I set some magic environment
+variable to tell glibc2 to mmap() the single map with MAP_FIXED at a
+higher addresss?  Of course I could modify glibc2 so that it does all (or
+most) of its mmap()'s with MAP_FIXED at a higher address.  Is there an
+alternative libc that might work out of the box or require less
+modification?
 
+So it seems like for MAGMA I should be able to work around the fact that
+mmap()'s start at 0x40000000.  But as difficulties with other programs
+come up here fairly regularly, I still think it makes sense to fully
+understand the downside of modifying the kernel to allocate mmap() VMAs
+going downward.  If the downside is small, I think it is a good tradeoff.
 
->
->
-> Hello,
->
-> I'm looking for a way to put a filesystem into ROM.
-> Seems pretty trivial, isn't it ?
->
-> My understanding is (the way initrd does, and the way I do as of today)
-> * create a RAMDISK
-> * loads the data into ramdisk
-> * mount the ramdisk
->
-> problem is that I don't want to waste the RAM as the data in the ROM is
-> already in the address space. (it's an embedded system, btw)
->
-> Speed is not an issue here. ROM access might be slower than RAM, it will
-> always be so much quicker than a disk access. (wrong?)
->
-> Ideally, i would give address/length of the fs in ROM to a function, and I
-> would get a ramdisk configured to read its data exactly there, and not in
-> ram.
->
-> Any hint ?
->
-> I've tried to look in the different options from mainstream kernels and
-> embedded-oriented kernels whithout success.
->
->
-> thanx,
-> Thomas
-> ps : i'm subscribed to lkml, no need to cc:
->
-> --
-> Thomas Capricelli <orzel@kde.org>
-> boson.eu.org, kvim, zetalinux-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Cheers, Wayne
+
 

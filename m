@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275027AbRIYPNQ>; Tue, 25 Sep 2001 11:13:16 -0400
+	id <S275037AbRIYPUQ>; Tue, 25 Sep 2001 11:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275033AbRIYPNG>; Tue, 25 Sep 2001 11:13:06 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:39697 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S275027AbRIYPM5>; Tue, 25 Sep 2001 11:12:57 -0400
-Date: Tue, 25 Sep 2001 17:13:20 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Message-ID: <20010925171320.B22622@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com,
-	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-In-Reply-To: <20010925021113.B22073@emma1.emma.line.org> <107194016.1001432841@[10.132.113.67]>
+	id <S275038AbRIYPUH>; Tue, 25 Sep 2001 11:20:07 -0400
+Received: from borg.org ([208.218.135.231]:17927 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S275037AbRIYPTq>;
+	Tue, 25 Sep 2001 11:19:46 -0400
+Date: Tue, 25 Sep 2001 11:20:12 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Something Broken in 2.4.9-ac15
+Message-ID: <20010925112012.C27059@borg.org>
+In-Reply-To: <1001377785.1430.7.camel@gromit.house>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <107194016.1001432841@[10.132.113.67]>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1001377785.1430.7.camel@gromit.house>; from rothwell@holly-springs.nc.us on Mon, Sep 24, 2001 at 08:29:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Alex Bligh - linux-kernel wrote:
+On Mon, Sep 24, 2001 at 08:29:44PM -0400, Michael Rothwell wrote:
+> my swap load is at zero, which is probably where it should be (2.4.7
+> would regularly be using 256MB of swap with the same applications
+> running).
 
-> Probably because sectors are so close together on the physical media.
-> If you disable write caching, and are writing sectors 1001, 1002, 1003
-> etc., you tell it to write sector 1001, and it doesn't complete until
-> it's written it, you IRQ the PC, and it sends the write out for 1002,
-> which completes a little later. However, by this time 1002 has
-> flown past the drive head, as it wasn't immediately queued on the drive.
-> If you had only one sector of writeahead, this effect would disappear
-> (but is just as theoretically dangerous if there is no way to force
-> a flush() of the write cache).
+That got my attention.  I think something is broken here and you
+are into swap but the reporting is quite wrong.
 
-Which leads me to the question: which ATA standard brought up the
-mandatory FLUSH CACHE command? I saw it's in the ATA 6 draft. How about
-standards used in drives that are sold today? ATA 4, ATA 5? Do they have
-the FLUSH CACHE command listed, possibly as mandatory? That might be
-rather useful to use after in a "synchronous" write.
+I have 192 MB in my laptop running 2.4.9-ac15 w/preemption patch
+turned on.  I fired up a couple Mozilla windows, a couple Netscape
+windows, Staroffice, a couple acroread windows, a couple emacs
+windows, Abiword, and I forget what all.  Still no swap usage
+reported.  I fired up a second X session and my computer came to a
+crawl as it tried to run all those apps again.  The disk was grinding
+away--it felt just like a swapping death and yet xosview and top both
+reported 0 swap usage.  I don't believe it was so.
 
--- 
-Matthias Andree
+I killed most everything, and now the computer feels like it is back
+to normal, but xosview thinks the CPU is pinned at 100% SYS when
+nothing is going on.  I drag a window around and I get plenty of USR
+and even some FREE, but let go and it goes back to 100%.
 
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
+Something is broken here, me thinks.
+
+
+-kb, the Kent who might go back to 2.4.9-ac12 later today and ry it
+again.

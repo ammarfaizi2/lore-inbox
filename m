@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVC1Lqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVC1MEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVC1Lqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 06:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVC1Lqq
+	id S261422AbVC1MEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 07:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVC1MEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 06:46:46 -0500
-Received: from mail3.euroweb.net.mt ([217.145.4.38]:38026 "EHLO
-	mail3.euroweb.net.mt") by vger.kernel.org with ESMTP
-	id S261383AbVC1Lqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 06:46:33 -0500
-Message-ID: <4247EEA2.1040006@euroweb.net.mt>
-Date: Mon, 28 Mar 2005 13:46:42 +0200
-From: "Josef E. Galea" <josefeg@euroweb.net.mt>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Mon, 28 Mar 2005 07:04:44 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:31452 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261422AbVC1MEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 07:04:39 -0500
+Message-ID: <4247F2AA.7070201@ens-lyon.org>
+Date: Mon, 28 Mar 2005 14:03:54 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EXPORT_SYMBOL question
-References: <4247E62B.5080900@euroweb.net.mt> <20050328111953.GA20502@mars.ravnborg.org>
-In-Reply-To: <20050328111953.GA20502@mars.ravnborg.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb: Fix mode setting on CRT monitors
+References: <1111969496.5409.40.camel@gaston>
+In-Reply-To: <1111969496.5409.40.camel@gaston>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+Benjamin Herrenschmidt a écrit :
+> Hi !
+> 
+> Current radeonfb is a bit "anal" about accepting CRT modes, it basically only
+> accepts modes that have the exact resolution, which tends to break with fbcon
+> on console switches as it provides "approximate" modes. This patch fixes it
+> by having the driver chose the closest possible mode instead of looking for
+> an exact match.
 
->On Mon, Mar 28, 2005 at 01:10:35PM +0200, Josef E. Galea wrote:
->  
->
->>Hi,
->>
->>I have 2 modules. The first one uses EXPORT_SYMBOL to make some function 
->>available to other modules. These prototypes for these functions were 
->>also put in a header file. Now the second module uses the functions the 
->>functions defined in the first module by and includes the afore 
->>mentioned header file. However when i'm compiling the module, I get a 
->>symbol underfined warning. When I load the module it works as expected. 
->>Is there any way to get rid of these warnings.
->>
->>Another problem I'm having is that when I load the second module I get 
->>`no version for "rbnode_initialize" found: kernel tainted.' 
->>(rbnode_initialize is one of the functions exported by the first 
->>module). Both MODULE_LICENSE("GPL"); and MODULE_VERSION are declared in 
->>the two modules. Is there anything I'm missing?
->>    
->>
->
->You need to compile both modules at the same time.
->Do something like this for your two modules foo and bar:
->
->modules/Makefile
->obj-y := foo/ bar/
->modules/foo/	<= Your foo module
->modules/bar/	<= Your bar module
->
->Then when building the modules stay in modules/ and
->execute:
->make -C <path-to-kernel-src> M=`pwd`
->
->And to install modules:
->make -C <path-to-kernel-src> M=`pwd` modules_install
->
->	Sam
->
->  
->
-Thanks for your help. That solved both the warnings and the kernel 
-tainted message.
+Hi Benjamin,
 
-Josef
+I tried your patch because on recent -mm kernels I see dirty colored 
+columns during a few seconds when switching from X to radeon fbcon
+(looks like remaining colors of X).
+I don't know what visible effect your patch is supposed to have.
+I didn't see any difference, but I doesn't seem to break anything.
+
+Regards,
+Brice

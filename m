@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUHUVYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267866AbUHUVXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267863AbUHUVYH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 17:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267842AbUHUVYH
+	id S267866AbUHUVXW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 17:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267842AbUHUVXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 17:24:07 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:15335 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267863AbUHUVYC
+	Sat, 21 Aug 2004 17:23:22 -0400
+Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:16788 "EHLO
+	dedasys.com") by vger.kernel.org with ESMTP id S267922AbUHUVXI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 17:24:02 -0400
-Date: Sat, 21 Aug 2004 23:18:38 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
+	Sat, 21 Aug 2004 17:23:08 -0400
 To: Wakko Warner <wakko@animx.eu.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux Incompatibility List
-Message-ID: <20040821211838.GA10932@electric-eye.fr.zoreil.com>
-References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <1093120274.854.145.camel@krustophenia.net> <20040821205157.GA9300@animx.eu.org>
-Mime-Version: 1.0
+References: <87r7q0th2n.fsf@dedasys.com>
+	<20040821201632.GA7622@digitasaru.net>
+	<20040821202058.GA9218@animx.eu.org>
+From: davidw@dedasys.com (David N. Welton)
+Date: 21 Aug 2004 23:20:44 +0200
+In-Reply-To: <20040821202058.GA9218@animx.eu.org>
+Message-ID: <87ekm0rxw3.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821205157.GA9300@animx.eu.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner <wakko@animx.eu.org> :
-[...]
-> True, however, their video cards *DO* work on linux (even though it is
-> binary-only).  I have a laptop that has the chip.  Does any broadcom
+Wakko Warner <wakko@animx.eu.org> writes:
 
-Mantra: linux is not x86 only.
+> > >Ideas/comments/suggestions are welcome at this stage.
+> > 
+> > Sounds interesting; is there a vendor blacklist (i.e. vendors that are
+> >   either hostile toward or simply don't care about Linux and their products
+> >   just won't ever work with Linux?)
+> 
+> Broadcom's wireless chips come to mind...
 
-Btw have you considered discussion with the people behind
-http://www.linuxhardware.net/ ?
+Sounds good.  I wouldn't know one if it bit me on the leg, though, can
+you point to list archives, a web site, or reassure me that if I
+google for it I will get the right information?  I'd like models or a
+range of models if possible, and why they don't work, and any notes or
+additional information about the situation.
 
---
-Ueimor
+Thanks!
+-- 
+David N. Welton
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/
+       Photos: http://www.dedasys.com/photos/

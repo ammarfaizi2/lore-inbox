@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbREQV0q>; Thu, 17 May 2001 17:26:46 -0400
+	id <S262185AbREQVZq>; Thu, 17 May 2001 17:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262188AbREQV0h>; Thu, 17 May 2001 17:26:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43014 "EHLO
+	id <S262184AbREQVZg>; Thu, 17 May 2001 17:25:36 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38150 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262184AbREQV0U>; Thu, 17 May 2001 17:26:20 -0400
-Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
-To: alborchers@steinerpoint.com
-Date: Thu, 17 May 2001 22:23:20 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, tytso@mit.edu,
-        pberger@brimson.com (Peter Berger), jamesp@dgii.com (James Puzzo)
-In-Reply-To: <3B042DD9.3BDA84D1@steinerpoint.com> from "Al Borchers" at May 17, 2001 03:00:25 PM
+	id <S262185AbREQVZY>; Thu, 17 May 2001 17:25:24 -0400
+Subject: Re: [PATCH] 2.4.5pre3 warning fixes
+To: Sam.Bingner@hickam.af.mil (Bingner Sam J. Contractor RSIS)
+Date: Thu, 17 May 2001 22:21:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), richbaum@acm.org,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <4CDA8A6D03EFD411A1D300D0B7E83E8F697326@FSKNMD07.hickam.af.mil> from "Bingner Sam J. Contractor RSIS" at May 17, 2001 07:49:05 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150VEu-0006AM-00@the-village.bc.nu>
+Message-Id: <E150VDO-00069w-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ted can you get this patch in the kernel or ban it as interface breaking
-> heresy?  It would be much nicer for us device driver writers to have just
-> one interface to support.
+> if (c->devices != NULL){
+> 	c->devices->prev=d;
+> }
+> 
+> I assume the new compiler likes the if to have explicit brackets instead of
+> using the next statement...
 
-It has to be changed, the race is basically unfixable any other way. I didn't
-lightly make that change
-
+Then its not a C compiler

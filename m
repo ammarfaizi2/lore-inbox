@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbTCTUYH>; Thu, 20 Mar 2003 15:24:07 -0500
+	id <S261952AbTCTUXO>; Thu, 20 Mar 2003 15:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262064AbTCTUYG>; Thu, 20 Mar 2003 15:24:06 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:3304 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S262045AbTCTUXw>; Thu, 20 Mar 2003 15:23:52 -0500
-Date: Thu, 20 Mar 2003 15:34:46 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs sitting in the NEW state for more than two weeks
-Message-ID: <20030320203446.GE1757@Master.Wizards>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <3E79D1AD.5080803@us.ibm.com> <20030320182135.GD1757@Master.Wizards> <3E7A1871.4090505@us.ibm.com>
+	id <S262045AbTCTUXN>; Thu, 20 Mar 2003 15:23:13 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:8918 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261952AbTCTUXM>;
+	Thu, 20 Mar 2003 15:23:12 -0500
+Date: Thu, 20 Mar 2003 15:34:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Release of 2.4.21
+Message-ID: <20030320203407.GF8256@gtf.org>
+References: <20030320195657.GA3270@drcomp.erfurt.thur.de> <874r5xyeky.fsf@sdbk.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E7A1871.4090505@us.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <874r5xyeky.fsf@sdbk.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 02:37:21PM -0500, Stacy Woods wrote:
-> Murray J. Root wrote:
-> 
-> >On Thu, Mar 20, 2003 at 09:35:25AM -0500, Stacy Woods wrote:
+On Thu, Mar 20, 2003 at 09:21:01PM +0100, Sebastian D.B. Krause wrote:
+> On 3487 September 1993, Adrian Knoth wrote:
+> > how about releasing 2.4.21 with the ptrace()-fix applied immediately
+> > like it has been done with 2.2.25?
 > >
-> >>There are 101 bugs sitting in the NEW state for more than 2 weeks
-> >>that don't appear to have any activity. 48 of these bugs are owned
-> >>by bugme-janitors which are good candidates for anyone to work on.
-> >>Please check the bugs for before working on them to see if they are
-> >>still available.
-> >>
-> Murray,
->  Bugs 389 and 413 show the "last update" date was  March 12th which 
-> dosen't fall
-> within the two week criteria.    The search is done only on the "last 
-> update" and
-> has nothing to do with severity.    Since you added comments to those 
-> bugs it set
-> the date then.   I realize this is not a perfect system to list all bugs 
-> that are truly
-> not being worked on,  but hopefully it gets some bugs investigated  
-> Especially the
-> ones owned by bugme-janitors.
+> > I think it's a serious bug and therefore it's time for a security-update.
 > 
+> I think the best way is to release a 2.4.21 kernel with only the
+> most important fixes (e.g. ptrace, ext3) and no new features. All
+> new featues which need more testing and are now in 2.4.21-pre could
+> then go to 2.4.22-pre for more testing (as Alan did with
 
-Thanks for the explanation - now I just need to find ways to add info to a
-bug report without affecting the "last updated" time - IRC memos to gregkh?
+Something vaguely like this has been suggested, which I think is a good
+idea:
 
- *G*
+For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
+the 2.4.21-pre cycle, that would be less productive than just patching
+2.4.20 and rolling a separate release off of that.
+
+	Jeff
+
+
 

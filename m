@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVCGONz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVCGO2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVCGONz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 09:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVCGONz
+	id S261186AbVCGO2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 09:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVCGO2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 09:13:55 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:63398 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261159AbVCGONx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 09:13:53 -0500
-To: Michelle Konzack <linux4michelle@freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: diff command line?
-References: <200503051048.00682.gene.heskett@verizon.net>
-	<20050305161822.H3282@flint.arm.linux.org.uk>
-	<20050307105153.GL26452@freenet.de>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Mon, 07 Mar 2005 14:13:50 +0000
-In-Reply-To: <20050307105153.GL26452@freenet.de> (Michelle Konzack's message
- of "Mon, 7 Mar 2005 11:51:53 +0100")
-Message-ID: <tnxpsybczmp.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Mar 2005 09:28:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41353 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261186AbVCGO2k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 09:28:40 -0500
+Subject: Re: [Ext2-devel] [RFC] ext3/jbd race: releasing in-use
+	journal_heads
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1109978252.7236.14.camel@dyn318077bld.beaverton.ibm.com>
+References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1109978252.7236.14.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110205697.15117.28.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 07 Mar 2005 14:28:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michelle Konzack <linux4michelle@freenet.de> wrote:
-> Am 2005-03-05 16:18:24, schrieb Russell King:
->> On Sat, Mar 05, 2005 at 10:48:00AM -0500, Gene Heskett wrote:
->> > What are the options normally used to generate a diff for public 
->> > consumption on this list?  
->> 
->> diff -urpN orig new
->
-> This is what I using curently
->
-> diff -Nurp src.orig/linux src/linux >src.diff/linux
->
-> Now I have a question: How can one create this Type of patches ?
-> (Curently I am using scripts to strip "src.orig" and "src")
+Hi,
 
-Two ways:
-    $ mv src.orig/linux linux.orig
-    $ mv src/linux linux
-    $ diff -Nurp linux.orig linux
+On Fri, 2005-03-04 at 23:17, Badari Pulavarty wrote:
 
-or
-    $ diff -Nurp src.orig/linux src/linux | filterdiff --strip=1
+> I looked at few journalling bugs recently on RHEL4 testing here.
+> I am wondering if your patch fixes this following BUG also ?
+> I never got to bottom of some of these journal panics -
+> since they are not easily reproducible
 
-Catalin
+Right...
+
+>  + I don't understand
+> journal code well enough :(
+
+Fortunately this one seems to be a simple locking violation, nothing
+subtle in the jbd layers.  
+
+> Assertion failure in journal_commit_transaction() at fs/jbd/commit.c:790: "jh->b_next_transaction == ((void *)0)"
+> kernel BUG in journal_commit_transaction at fs/jbd/commit.c:790!
+
+I'm assuming that's the line
+			J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
+in the t_forget loop.  That's not one of the most common footprints I
+saw due to this bug, but it's certainly a possible one.  We saw one case
+where a bh from the wrong transaction was linked onto the j_locked_list,
+due to it being freed then reused while in use; and if that can happen,
+pretty much anything can go wrong afterwards!
+
+--Stephen
 

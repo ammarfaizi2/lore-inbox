@@ -1,138 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265090AbTIDP0N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIDP0N
+	id S265070AbTIDPlP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 11:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTIDPlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:26:13 -0400
-Received: from [24.241.190.29] ([24.241.190.29]:23477 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S265090AbTIDP0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:26:01 -0400
-Date: Thu, 4 Sep 2003 11:25:55 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nmi errors?
-Message-ID: <20030904152555.GH7353@rdlg.net>
-Mail-Followup-To: Martin Schlemmer <azarah@gentoo.org>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030903212038.GQ7353@rdlg.net> <Pine.LNX.4.53.0309031724470.362@chaos> <20030903213417.GT7353@rdlg.net> <1062688292.16818.148.camel@workshop.saharacpt.lan>
+	Thu, 4 Sep 2003 11:41:15 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:19646 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S265070AbTIDPlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 11:41:09 -0400
+Date: Thu, 4 Sep 2003 08:50:04 -0700
+From: Deepak Saxena <dsaxena@mvista.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, "David S. Miller" <davem@redhat.com>,
+       hch@lst.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ppc ioremap prototype
+Message-ID: <20030904155004.GA31420@xanadu.az.mvista.com>
+Reply-To: dsaxena@mvista.com
+References: <20030903203231.GA8772@lst.de> <16214.34933.827653.37614@nanango.paulus.ozlabs.org> <20030904071334.GA14426@lst.de> <20030904083007.B2473@flint.arm.linux.org.uk> <16215.1054.262782.866063@nanango.paulus.ozlabs.org> <20030904023624.592f1601.davem@redhat.com> <20030904104801.A7387@flint.arm.linux.org.uk> <16215.14133.352143.660688@nanango.paulus.ozlabs.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z3PcgjD2qOzdkXVS"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062688292.16818.148.camel@workshop.saharacpt.lan>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <16215.14133.352143.660688@nanango.paulus.ozlabs.org>
+User-Agent: Mutt/1.4i
+Organization: MontaVista Software, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 04 2003, at 22:59, Paul Mackerras was caught saying:
+> Russell King writes:
+> 
+> > Using the high flag bits probably isn't a good idea for two reasons:
+> > 
+> > 1. We already use bit 31 to indicate the busy status:
+> > 
+> >    #define IORESOURCE_BUSY         0x80000000      /* Driver has marked this resource busy */
+> > 
+> >    However, it looks like bits 27 to 17 are currently unused.
+> 
+> Using some flag bits would work but it seems like a bit of a kludge.
+> Maybe the struct resource needs to have a pointer to the struct device
+> which owns it?  Or maybe just a `sysdata' field?
+> 
+> > 2. The resource tree won't know about the upper bits or whatever sitting
+> >    in flags, and as such identical addresses on two different buses will
+> >    clash.
+> > 
+> > Resource start,end needs to be some unique quantity no matter which (PCI)
+> > bus you are on.
+> 
+> They are non-overlapping for PCI buses in the same domain.  Perhaps
+> the sensible thing is to have a separate resource tree for each PCI
+> domain (actually two trees, for I/O and memory space), and have them
+> contain bus addresses rather than physical addresses.  I don't know if
+> the generic iomem_resource and ioport_resource are still useful if we
+> do that.
 
---z3PcgjD2qOzdkXVS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think we need to a have a resource tree per _bus_, not just PCI.
+I have systems which have overlapping devices in multiple PCI domains
+and devices on the local memory bus that also overlap. Before someone
+yells at me about ioremap() only being for PCI memory resources,
+it's already used throughout the kernel for locally mapped devices.
 
+Ideally, the resource "system" as it exists would be rewritten
+with something that ties into the device tree a bit by having
+each resource being owned by a device.  One then calls
+ioremap_resource() which on platforms that need it can look
+at the resource->dev ptr to determine how to map that resource.
 
+~Deepak
 
-I ran some tests Richard gave me which said it wasn't bad ram but a bad
-motherboard.  I just upgraded to 2.4.22-bk10 and it ran MUCH better,
-able to use all 16Gigs happily for quite some time until a couple of the
-processes started finishing then it gave the NMI's en mass, guess it
-couldn't shove them off to the log server in time.
-
-I'll try the below just to make sure but this is getting odd.
-
-
-Thus spake Martin Schlemmer (azarah@gentoo.org):
-
-> On Wed, 2003-09-03 at 23:34, Robert L. Harris wrote:
-> > We ran "memtest" on the machine over the weekend and it completed 3
-> > times without any problems.  Know a better or different test?
-> >=20
->=20
-> You might try to enable all the tests, addresses and set the
-> cache to be always on in memtest.  Typical keys pressed is:
->=20
->   c - 1 - 2 - 2 - 3 - 3 - 3
->=20
-> Another is goldmemory, which is fairly the same in default setup
-> as memtest with above config, but shareware, not gpl.
->=20
-> >=20
-> > Thus spake Richard B. Johnson (root@chaos.analogic.com):
-> >=20
-> > > On Wed, 3 Sep 2003, Robert L. Harris wrote:
-> > >=20
-> > > >
-> > > >
-> > > > Can anyone tell me what this is?
-> > > >
-> > > > 16:00:09 mailserver kernel: Uhhuh. NMI received for unknown reason =
-31.
-> > > > 16:00:09 mailserver kernel: Dazed and confused, but trying to conti=
-nue
-> > > > 16:00:09 mailserver kernel: Do you have a strange power saving mode=
- enabled?
-> > > > 16:00:34 mailserver kernel: Uhhuh. NMI received for unknown reason =
-21.
-> > > > 16:00:34 mailserver kernel: Dazed and confused, but trying to conti=
-nue
-> > > >
-> > > > A coworker put a script on a server which loads up quite afew arrays
-> > > > with pre-set values and then compares the values against arrays.  A=
-s soon as he
-> > > > kicked off the script I got alot of these in my log files.  Not muc=
-h longer and the
-> > > > machine crashed hard.
-> > > >
-> > >=20
-> > > Possible bad RAM.
-> > >=20
-> > > Cheers,
-> > > Dick Johnson
-> > > Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-> > >             Note 96.31% of all statistics are fiction.
-> > >=20
-> >=20
-> > :wq!
-> > -----------------------------------------------------------------------=
-----
-> > Robert L. Harris                     | GPG Key ID: E344DA3B
-> >                                          @ x-hkp://pgp.mit.edu
-> > DISCLAIMER:
-> >       These are MY OPINIONS ALONE.  I speak for no-one else.
-> >=20
-> > Life is not a destination, it's a journey.
-> >   Microsoft produces 15 car pileups on the highway.
-> >     Don't stop traffic to stand and gawk at the tragedy.
-> --=20
-> Martin Schlemmer
->=20
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---z3PcgjD2qOzdkXVS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/V1mD8+1vMONE2jsRArAuAJ9AqfadCgQZVCqk+4djWUQ6M7WZ1ACg2gFH
-4xWirErt+xG0k7vekujKlqI=
-=/d47
------END PGP SIGNATURE-----
-
---z3PcgjD2qOzdkXVS--
+-- 
+Deepak Saxena
+MontaVista Software - Powering the Embedded Revolution - www.mvista.com

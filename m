@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264672AbTF3Ska (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 14:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTF3Ska
+	id S264932AbTF3Sp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 14:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTF3Sp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 14:40:30 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:61067 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264672AbTF3Sk2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 14:40:28 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 30 Jun 2003 11:46:55 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-In-Reply-To: <5.2.0.9.2.20030630133424.00cfe800@pop.gmx.net>
-Message-ID: <Pine.LNX.4.55.0306301141570.3519@bigblue.dev.mcafeelabs.com>
-References: <200306301535.49732.kernel@kolivas.org> <200306281516.12975.kernel@kolivas.org>
- <200306291457.40524.kernel@kolivas.org> <200306301535.49732.kernel@kolivas.org>
- <5.2.0.9.2.20030630133424.00cfe800@pop.gmx.net>
+	Mon, 30 Jun 2003 14:45:57 -0400
+Received: from mx2.idealab.com ([64.208.8.4]:28909 "EHLO butch.idealab.com")
+	by vger.kernel.org with ESMTP id S264932AbTF3Sp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 14:45:56 -0400
+X-Qmail-Scanner-Mail-From: srini@omnilux.net via butch.idealab.com
+X-Qmail-Scanner: 1.03 (Clean. Processed in 6.134806 secs)
+From: "Srini" <srini@omnilux.net>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Process Termination Indication in the Device Driver
+Date: Mon, 30 Jun 2003 12:01:53 -0700
+Message-ID: <GOEALIFINNJACMGKPLKLGEDMCEAA.srini@omnilux.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1056828251.6296.36.camel@dhcp22.swansea.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jun 2003, Mike Galbraith wrote:
+Hi Alan,
+   		Thanks for the Reply. Using multiple instances of driver, which inturn
+causes the kernel to closes the driver when the application dies is the
+approach we
+have planned to go about.
 
-> At 11:39 AM 6/30/2003 +0200, Marc-Christian Petersen wrote:
+Thanks Again
+Srini
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Saturday, June 28, 2003 12:24 PM
+To: Srini
+Cc: Linux Kernel Mailing List
+Subject: Re: Process Termination Indication in the Device Driver
+
+
+On Sad, 2003-06-28 at 00:02, Srini wrote:
+> 	I am new to Linux Kernel. I am experimenting with Device Driver in Kernel
+> version 2.4. Is there a method by which the device driver could be
+indicated
+> by the
+> kernel of the termination of a "user process" asynchronously.
 >
-> >Please, can we invite Ingo to this thread? I think it is now _really_ the
-> >time
-> >to get this fixed up :)
->
-> The giants all seem to be busy... are munchkins stackable? ;-)
+> I know of the function find_task_by_pid that the driver could call to get
+> the task
+> structure given the pid.
 
-Ingo, when you come back from Mars :) ... what has been changed from the
-very first versions of 2.5.x ? I was able to run unrealistic `make -j`
-(among other crap) and still have a liquid desktop back then ...
+If the application has files open then your device will receive flush
+events (and/or release events if its the last open) for each file handle
+as it is closed. Linux drivers dont normally care about process exit
+information in the general case therefore since the OS will ensure
+drivers get told when handles are cleaned up
 
-
-
-- Davide
 

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288550AbSADJpM>; Fri, 4 Jan 2002 04:45:12 -0500
+	id <S288442AbSADJoc>; Fri, 4 Jan 2002 04:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288572AbSADJpD>; Fri, 4 Jan 2002 04:45:03 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:16007 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288571AbSADJon> convert rfc822-to-8bit;
-	Fri, 4 Jan 2002 04:44:43 -0500
-Date: Fri, 4 Jan 2002 12:42:09 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <20020104074239.94E016DAA6@mail.elte.hu>
-Message-ID: <Pine.LNX.4.33.0201041238350.2247-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S288571AbSADJoX>; Fri, 4 Jan 2002 04:44:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56324 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288442AbSADJoS>;
+	Fri, 4 Jan 2002 04:44:18 -0500
+Date: Fri, 4 Jan 2002 10:43:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.17 crashes on SCSI-errors
+Message-ID: <20020104104339.U8673@suse.de>
+In-Reply-To: <XFMail.20020103130541.R.Oehler@GDImbH.com> <E16M7De-0008Dx-00@the-village.bc.nu> <3C34CD08.FC7BEBEF@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C34CD08.FC7BEBEF@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 03 2002, Andrew Morton wrote:
+> Alan Cox wrote:
+> > 
+> > 
+> > BUG trap. Turn on verbose bug reporting,
+> 
+> Boy, was that ever a dumb idea.  Rod.  Back.  Pain.
 
-On Fri, 4 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
+Couldn't agree more...
 
-> What next? Maybe a combination of O(1) and preempt?
-
-yes, fast preemption of kernel-mode tasks and the scheduler code are
-almost orthogonal. So i agree that to get the best interactive performance
-we need both.
-
-	Ingo
-
-ps. i'm working on fixing the crashes you saw.
+-- 
+Jens Axboe
 

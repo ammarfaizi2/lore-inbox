@@ -1,48 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264608AbUAAUsE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbUAAUro
+	id S264883AbUAAUsm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUAAUCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:47:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:36574 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264568AbUAAUrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:47:15 -0500
-Date: Thu, 1 Jan 2004 12:42:18 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Problem with dev_kfree_skb_any() in 2.6.0
-Message-Id: <20040101124218.258e8b73.davem@redhat.com>
-In-Reply-To: <3FF1B939.1090108@pobox.com>
-References: <1072567054.4112.14.camel@gaston>
-	<20031227170755.4990419b.davem@redhat.com>
-	<3FF0FA6A.8000904@pobox.com>
-	<20031229205157.4c631f28.davem@redhat.com>
-	<20031230051519.GA6916@gtf.org>
-	<20031229220122.30078657.davem@redhat.com>
-	<3FF11745.4060705@pobox.com>
-	<20031229221345.31c8c763.davem@redhat.com>
-	<3FF1B939.1090108@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jan 2004 15:02:46 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:7213 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264563AbUAAUBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:01:50 -0500
+Date: Thu, 1 Jan 2004 21:01:48 +0100
+Message-Id: <200401012001.i01K1mLo031697@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 342] M68k head comments
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003 12:43:21 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+M68k: Update some comments (from Roman Zippel)
 
-> Luckily, I feel there is an easy solution, as shown in the attached 
-> patch.  We _already_ queue skbs in dev_kfree_skb_irq().  Therefore, 
-> dev_kfree_skb_any() can simply use precisely that same solution.  The 
-> raise-softirq code will immediately proceed to action if we are not in 
-> hard IRQ context, otherwise it will follow the expected path.
+--- linux-2.6.0/arch/m68k/kernel/head.S	13 Oct 2003 22:48:56 -0000	1.11
++++ linux-m68k-2.6.0/arch/m68k/kernel/head.S	13 Oct 2003 22:52:41 -0000
+@@ -1250,9 +1250,9 @@
+ 	mmu_map		#VIDEOMEMBASE,%d0,#VIDEOMEMSIZE,%d3
+ 	/* The ROM starts at 4000 0000		    	*/
+ 	mmu_map_eq	#0x40000000,#0x02000000,%d3
+-	/* IO devices                               	*/
++	/* IO devices (incl. serial port) from 5000 0000 to 5300 0000 */
+ 	mmu_map_eq	#0x50000000,#0x03000000,%d3
+-	/* NuBus slot space				*/
++	/* Nubus slot space (video at 0xF0000000, rom at 0xF0F80000) */
+ 	mmu_map_tt	#1,#0xf8000000,#0x08000000,%d3
+ 
+ 	jbra	L(mmu_init_done)
+@@ -1891,7 +1891,7 @@
+ 	movel	%a4,%d5
+ 	addil	#PAGESIZE<<13,%d5
+ 	movel	%a0@+,%d6
+-	btst	#1,%d6			/* is it a ptr? */
++	btst	#1,%d6			/* is it a table ptr? */
+ 	jbne	31f			/* yes */
+ 	btst	#0,%d6			/* is it early terminating? */
+ 	jbeq	1f			/* no */
+@@ -1908,9 +1908,9 @@
+ 	movel	%a4,%d5
+ 	addil	#PAGESIZE<<6,%d5
+ 	movel	%a1@+,%d6
+-	btst	#1,%d6
+-	jbne	33f
+-	btst	#0,%d6
++	btst	#1,%d6			/* is it a table ptr? */
++	jbne	33f			/* yes */
++	btst	#0,%d6			/* is it a page descriptor? */
+ 	jbeq	1f			/* no */
+ 	jbsr	mmu_030_print_helper
+ 	jbra	37f
+@@ -3154,7 +3154,7 @@
+ 	moveml	%sp@+,%d0-%d7/%a2-%a6
+ 	jbra	L(serial_putc_done)
+ 2:
+-#endif CONFIG_MVME16x
++#endif /* CONFIG_MVME16x */
+ 
+ #ifdef CONFIG_BVME6000
+ 	is_not_bvme6000(2f)
+@@ -3369,10 +3369,10 @@
+ 
+ 	/*
+ 	 *	At this point we make a shift in register usage
+-	 *	a1 = address of Lconsole_font pointer
++	 *	a1 = address of console_font pointer
+ 	 */
+ 	lea	%pc@(L(console_font)),%a1
+-	movel	%a0,%a1@	/* store pointer to struct font_desc in Lconsole_font */
++	movel	%a0,%a1@	/* store pointer to struct fbcon_font_desc in console_font */
+ 	tstl	%a0
+ 	jeq	1f
+ 
+@@ -3383,10 +3383,10 @@
+ 	 *	6 x 11 also supported
+ 	 */
+ 		/* ASSERT: a0 = contents of Lconsole_font */
+-	movel	%d3,%d0			/* screen width in pixels */
+-	divul	%a0@(FONT_DESC_WIDTH),%d0		/* d0 = max num chars per row */
++	movel	%d3,%d0				/* screen width in pixels */
++	divul	%a0@(FONT_DESC_WIDTH),%d0	/* d0 = max num chars per row */
+ 
+-	movel	%d4,%d1			 /* screen height in pixels */
++	movel	%d4,%d1				 /* screen height in pixels */
+ 	divul	%a0@(FONT_DESC_HEIGHT),%d1	 /* d1 = max num rows */
+ 
+ 	movel	%d0,%a2@(Lconsole_struct_num_columns)
 
-Ok, this is reasonable and works.
+Gr{oetje,eeting}s,
 
-Though, is there any particular reason you don't like adding a
-"|| irqs_disabled()" check to the if statement instead?
-I prefer that solution better actually.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

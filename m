@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268342AbUIPXkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUIPXlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268342AbUIPXkR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 19:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268335AbUIPXg2
+	id S268405AbUIPXlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 19:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268357AbUIPXku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:36:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:10920 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268301AbUIPXdT (ORCPT
+	Thu, 16 Sep 2004 19:40:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18135 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268301AbUIPXiM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:33:19 -0400
-Date: Thu, 16 Sep 2004 16:33:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Bill Huey <bhuey@lnxw.com>, davidsen@tmr.com, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Message-ID: <20040916233312.GW9106@holomorphy.com>
-References: <m3vfefa61l.fsf@averell.firstfloor.org> <cic7f9$i4m$1@gatekeeper.tmr.com> <20040916222903.GA4089@nietzsche.lynx.com> <20040916154011.3f0dbd54.davem@davemloft.net> <20040916225102.GA4386@nietzsche.lynx.com> <20040916155412.47649ba6.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916155412.47649ba6.davem@davemloft.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 16 Sep 2004 19:38:12 -0400
+Message-ID: <414A240B.5050105@sgi.com>
+Date: Thu, 16 Sep 2004 18:38:51 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
+       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] lockmeter: lockmeter fix for generic_read_trylock
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com> <20040916230402.23023.89478.83475@tomahawk.engr.sgi.com> <Pine.LNX.4.53.0409161918520.2897@musoma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0409161918520.2897@musoma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004 15:51:02 -0700 Bill Huey (hui) wrote:
->> Judging from how the Linux code is done and the numbers I get from
->> Bill Irwin in casual conversation, the Linux SMP approach is clearly
->> the right track at this time with it's hand honed per-CPU awareness of
->> things. The only serious problem that spinlocks have as they aren't
->> preemptable, which is what Ingo is trying to fix.
+Zwane Mwaikambo wrote:
+> On Thu, 16 Sep 2004, Ray Bryant wrote:
+> 
+> 
+>>Update lockmeter.c with generic_raw_read_trylock fix.
+>>
+>>+ * Generic declaration of the raw read_trylock() function,
+>>+ * architectures are supposed to optimize this:
+>>+ */
+>>+int __lockfunc generic_raw_read_trylock(rwlock_t *lock)
+>>+{
+>>+	_metered_read_lock(lock, __builtin_return_address(0));
+>>+	return 1;
+>>+}
+> 
+> 
+> What's really going on here? I'm slightly confused by the 
+> _metered_read_lock usage.
+> 
+> Thanks,
+> 	Zwane
+> 
+> 
 
-On Thu, Sep 16, 2004 at 03:54:12PM -0700, David S. Miller wrote:
-> This is what Linus proclaimed 6 or 7 years ago when people were
-> trying to convince us to do things like Solaris and other big
-> Unixes at the time.
+Yeah, I think overly patterned matched on this one.  I just
+grabbed the code from spinlock.c and do what I normally do to
+make it lockmetered, but in this case since its a _raw_ routine, I
+should have left it alone.  It just needs to be duplicated in
+lockmeter.c, not lockmeter'd.
 
-Just in case, I didn't claim it was my idea, I merely gave empirical
-evidence.
+So that middle line there should be:
 
+	_raw_read_lock(lock);
 
--- wli
+instead.  I'll get this straightend out with Andrew shortly.
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
+

@@ -1,38 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277777AbRJIPft>; Tue, 9 Oct 2001 11:35:49 -0400
+	id <S277776AbRJIPhK>; Tue, 9 Oct 2001 11:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277776AbRJIPf3>; Tue, 9 Oct 2001 11:35:29 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:34319 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S277774AbRJIPfZ>;
-	Tue, 9 Oct 2001 11:35:25 -0400
-Date: Tue, 9 Oct 2001 17:22:40 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "G. Hugh Song" <hugh@bellini.kjist.ac.kr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM-related freeze of UP2000SMP using 2.4.11-pre3aa1
-Message-Id: <20011009172240.229db2f2.skraw@ithnet.com>
-In-Reply-To: <200110091506.f99F68P12059@bellini.kjist.ac.kr>
-In-Reply-To: <200110091506.f99F68P12059@bellini.kjist.ac.kr>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277778AbRJIPg5>; Tue, 9 Oct 2001 11:36:57 -0400
+Received: from smtp-out.student.liu.se ([130.236.230.80]:49215 "EHLO elysium")
+	by vger.kernel.org with ESMTP id <S277776AbRJIPg2> convert rfc822-to-8bit;
+	Tue, 9 Oct 2001 11:36:28 -0400
+Date: Tue, 09 Oct 2001 17:38:14 +0200 (CEST)
+From: paran213@student.liu.se
+Subject: ISSUE: vm bug? in 2.4.10
+In-Reply-To: <Pine.LNX.4.40.0110091001250.114-100000@rc.priv.hereintown.net>
+X-X-Sender: per@p114.ryd.student.liu.se
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.40.0110091652060.629-100000@p114.ryd.student.liu.se>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001 00:06:08 +0900 "G. Hugh Song" <hugh@bellini.kjist.ac.kr>
-wrote:
+Hi
+I am having serious problems with the vm in 2.4.10.
+Here is my bugrepport:
 
-> 
-> [...]
-> I wish I could confirm that the current problem is due to the new 
-> kernel.  Was there any known vm-related bug in 2.4.11-pre3aa1?
+System configuration:
+Debian GNU/Linux 2.2 potato, bunks .deb files for kernel 2.4
+gcc version 2.95.2 20000220 (Debian GNU/Linux)
+600M swap
 
-I can't exactly confirm for pre3aa1, but pre3/pre4 has a vm deadlock. Please
-try pre6.
+Hardware:
+AMD K6-2 400MHz (66*6)
+AOpen AP5T motherboard
+160M SDRAM
+580M swap
 
-Regards,
-Stephan
+Tested kernel versions:
+2.4.9        ok
+2.4.10       crashes
+2.4.10-ac4   ok
+2.4.10-ac10  ok
+I also compiled 2.4.10 with only a minimum of options selected in my
+kernel config. No modules, no network, no k6 optimisations (used i386),
+nothing that isn't neccessary to start the system. But I still got the
+same problem with 2.4.10
+
+
+Problem desciption (On 2.4.10):
+When I run a command that use up all the main memory my console immediately fills upp with
+lots of messages like this:
+
+"__alloc_pages: 0-order allocation failed (gpf=0x1d2/0) from c01232ee"
+and then
+"VM: killing process X"
+
+where X is any process that happens to be running, from bash to syslogd and even init.
+This kills all my processes in a couple of seconds.
+Then everything but my login is killed. But when I try
+to log in (even if I wait a long time) I immediately gets the errors. I
+cant reboot by ctrl+alt+del either since VM kills shutdown.. So I have to
+manually reboot the machine.
+
+
+How to replicate the problem:
+When I tested the various kernels I made a 200M file with:
+"dd if=/dev/zero bs=10k of=/tmp/bigfile count=20k"
+And then ran "md5sum /tmp/bigfile"
+It works fine on 2.4.10 untill the main memory is full, then the problem
+occurs. The command executes fine on all the other tested kernels.
+
+Acctually, this was how I discovered the problem. After having upgraded to
+2.4.10 I was going to check the md5sum of a linux-mandrake .iso i
+downloaded for my brother. But thats of-topic ;)
+
+
+Best Regards
+Pär Andersson
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

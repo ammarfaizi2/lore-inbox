@@ -1,76 +1,57 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156406AbPK3Xuc>; Tue, 30 Nov 1999 18:50:32 -0500
-Received: by vger.rutgers.edu id <S155938AbPK3XuX>; Tue, 30 Nov 1999 18:50:23 -0500
-Received: from shaft.engin.umich.edu ([141.213.33.85]:4948 "EHLO shaft.engin.umich.edu") by vger.rutgers.edu with ESMTP id <S156356AbPK3XuA>; Tue, 30 Nov 1999 18:50:00 -0500
-Date: Tue, 30 Nov 1999 18:49:58 -0500 (EST)
-From: Chris Wing <wingc@engin.umich.edu>
-To: linux-kernel@vger.rutgers.edu
-Subject: [RFC] proposed IPC changes to support 32-bit UIDs
-Message-ID: <Pine.LNX.4.10.9911301826240.30512-100000@shaft.engin.umich.edu>
+Received: by vger.rutgers.edu via listexpand id <S156618AbPLAPMR>; Wed, 1 Dec 1999 10:12:17 -0500
+Received: by vger.rutgers.edu id <S156491AbPLAPFi>; Wed, 1 Dec 1999 10:05:38 -0500
+Received: from chiara.csoma.elte.hu ([157.181.71.18]:3614 "EHLO chiara.csoma.elte.hu") by vger.rutgers.edu with ESMTP id <S156675AbPLAO4x>; Wed, 1 Dec 1999 09:56:53 -0500
+Date: Wed, 1 Dec 1999 17:02:09 +0100 (CET)
+From: Ingo Molnar <mingo@chiara.csoma.elte.hu>
+To: Ralph Blach <rcblach@raleigh.ibm.com>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: DMA and Cache coherency on machines without hardware enforced cache  coherency.
+In-Reply-To: <38452EF2.4539A348@raleigh.ibm.com>
+Message-ID: <Pine.LNX.4.10.9912011654400.5533-100000@chiara.csoma.elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello. In my latest set of 32-bit UID support patches, I've changed the
-msgctl(), semctl(), and shmctl() functions to no longer use the same
-structures for both kernel and user space (for IPC_STAT, IPC_SET,
-MSG_STAT, SEM_STAT, and SHM_STAT). Instead, the msg_queue, semid_ds, and
-shmid_ds structures are considered private to the kernel, and there are
-now 2 sets of structures for communicating with user space:
 
-	user_msqid_ds, user_semid_ds, user_shmid_ds
-and
-	old_user_msqid_ds, old_user_semid_ds, old_user_shmid_ds
+On Wed, 1 Dec 1999, Ralph Blach wrote:
 
-The former are used for the "new" IPC_STAT, IPC_SET, et. al, while the
-latter are used for backwards compatibility (i.e. 16-bit UIDs).
+> I have to write a device driver for a machine which does not have
+> hardware enforced cache coherency between bus master devices and the
+> CPU caches.  Is there a way to allocate certain buffers in uncached
+> memory.  I know this would lower performance, but it would also solve
+> certain problems which seem to be cropping up.
 
+ioremap_nocache(). You can also use ioremap_nocache() on allocated pages
+(it's a page granularity thing) via doing something like:
 
-I favored this approach because it made adding 32-bit UID support as
-simple as possible. I've created functions such as
+	page = __get_free_pages(whatever, order);
+	ptr = ioremap_nocache(virt_to_phys(page), 1 <<
+			(order+PAGE_SHIFT));
 
-kernel2user_semid_ds(struct semid_ds *in, struct user_semid_ds *out)
-kernel2user_ipc_perm(struct ipc_perm *in, struct user_ipc_perm *out)
-kernel2old_user_ipc_perm(struct ipc_perm *in, struct old_user_ipc_perm *out)
+then use 'ptr' as an uncached alias to your pages. You cannot do the above
+in interrupts (obviously), and it's not fast so probably it's worth being
+done once, at initization time.
 
-rather than toss all the new code into the already hairy msgctl(),
-semctl(), and shmctl() functions. This makes the 32-bit UID patch much
-smaller and easier to manage.
+for this to work you also have to modify arch/i386/mm/ioremap.c and
+remove the following lines:
 
-If anyone is interested in looking over this patch, you can find it at:
-	http://www.engin.umich.edu/caen/systems/Linux/code/misc/2.3/19991130/linux-ipc.patch
+        /*
+         * Don't allow anybody to remap normal RAM that we're using..
+         */
+        if (phys_addr < virt_to_phys(high_memory))
+                return NULL;
 
-The patch doesn't define the user_ipc_perm, user_msqid_ds, user_semid_ds,
-and user_shmid_ds structures; these are defined on an
-architecture-by-architecture basis for greatest flexibility. You can
-examine the architectural patches at:
-	http://www.engin.umich.edu/caen/systems/Linux/code/misc/2.3/19991130/
-		linux-alpha.patch
-		linux-arm.patch
-		linux-i386.patch
-		linux-m68k.patch
-		linux-mips.patch
-		linux-ppc.patch
-		linux-sh.patch
-		linux-sparc.patch
+and remove:
 
-to see the actual definitions.
+        if (addr > high_memory)
 
+from the iounmap() function.
 
-Questions:
+or better, create a new interface (memremap_nocache()) which only remaps
+normal RAM pages.
 
-	- does anyone think that this is a bad idea?
-
-	- should there be more pad space left in the user_ipc_perm,
-	  user_msqid_ds, user_semid_ds, and user_shmid_ds structures for
-	  future use? At present, I've left 2 machine words worth of pad
-	  space in the msqid, semid, and shmid structures, and no extra
-	  padding in user_ipc_perm.
-
-
-Thanks,
-Chris Wing
-wingc@engin.umich.edu
+-- mingo
 
 
 -

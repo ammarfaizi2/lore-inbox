@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130608AbRBUX1Q>; Wed, 21 Feb 2001 18:27:16 -0500
+	id <S129170AbRBUXdS>; Wed, 21 Feb 2001 18:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130649AbRBUX1G>; Wed, 21 Feb 2001 18:27:06 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:275 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S130608AbRBUX04>;
-	Wed, 21 Feb 2001 18:26:56 -0500
-Date: Thu, 22 Feb 2001 00:26:48 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Martin Mares <mj@suse.cz>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Message-ID: <20010222002648.A26568@pcep-jamie.cern.ch>
-In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S129381AbRBUXdI>; Wed, 21 Feb 2001 18:33:08 -0500
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:17025 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S129170AbRBUXcz>;
+	Wed, 21 Feb 2001 18:32:55 -0500
+Message-ID: <XFMail.20010221153438.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010222000755.A29061@atrey.karlin.mff.cuni.cz>; from mj@suse.cz on Thu, Feb 22, 2001 at 12:07:55AM +0100
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <971i36$180$1@penguin.transmeta.com>
+Date: Wed, 21 Feb 2001 15:34:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: <torvalds@transmeta.com (Linus Torvalds)>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Hello!
-> 
-> > True.  Note too, though, that on a filesystem (which we are, after all,
-> > talking about), if you assume a large linear space you have to create a
-> > file, which means you need to multiply the cost of all random-access
-> > operations with O(log n).
-> 
-> One could avoid this, but it would mean designing the whole filesystem in a
-> completely different way -- merge all directories to a single gigantic
-> hash table and use (directory ID,file name) as a key, but we were originally
-> talking about extending ext2, so such massive changes are out of question
-> and your log n access argument is right.
 
-A gigantic hash table has serious problems with non-locality of
-reference.  Basically any regular access pattern you started with is
-destroyed.  This is a problem with pageable RAM, let alone disks with
-millisecond seek times.
+On 21-Feb-2001 Linus Torvalds wrote:
+> In article <20010221023515.6DF8E18C99@oscar.casa.dyndns.org>,
+> Ed Tomlinson  <tomlins@cam.org> wrote:
+>>
+>>The default in reiserfs is now the R5 hash, but you are right that lots of
+>>efforts went 
+>>into finding this hash.  This includes testing various hashes on real
+>>directory 
+>>structures to see which one worked best.  R5 won.
+> 
+> That's interesting.  The R5 hash is easily also the only one of the
+> reiser hashes that might be useable for the generic VFS hashing.  It's
+> not so different in spirit from the current one, and if you've done the
+> work to test it, it's bound to be a lot better.
+> 
+> (The current VFS name hash is probably _really_ stupid - I think it's
+> still my original one, and nobody probably ever even tried to run it
+> through any testing.  For example, I bet that using a shift factor of 4
+> is really bad, because it evenly divides a byte, which together with the
+> xor means that you can really easily generate trivial bad cases). 
+> 
+> What did you use for a test-case? Real-life directory contents? Did you
+> do any worst-case analysis too?
 
--- Jamie
+Yep, 4 is not good as a shifting factor. Prime number are the better choice for
+this stuff.
+The issue to have a good distribution is not only to have a good hashing
+function, but also to give this function not correlated data.
+Good hashing function for a Domain A may not be so good for a Domain B.
+
+
+
+
+- Davide
+

@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSHIJED>; Fri, 9 Aug 2002 05:04:03 -0400
+	id <S318208AbSHIJKA>; Fri, 9 Aug 2002 05:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318203AbSHIJED>; Fri, 9 Aug 2002 05:04:03 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:59140 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S318202AbSHIJEC>;
-	Fri, 9 Aug 2002 05:04:02 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: modutils for 2.0.40 
-In-reply-to: Your message of "Wed, 07 Aug 2002 14:48:09 CST."
-             <Pine.LNX.4.44.0208071447430.10270-100000@hawkeye.luckynet.adm> 
+	id <S318209AbSHIJKA>; Fri, 9 Aug 2002 05:10:00 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17659 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318208AbSHIJJ7>; Fri, 9 Aug 2002 05:09:59 -0400
+Subject: Re: device driver / char module interrupt vector -> user space code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: SA <bullet.train@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200208090949.48484.bullet.train@ntlworld.com>
+References: <200208090949.48484.bullet.train@ntlworld.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 09 Aug 2002 11:34:00 +0100
+Message-Id: <1028889240.30103.189.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 09 Aug 2002 19:07:32 +1000
-Message-ID: <2528.1028884052@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002 14:48:09 -0600 (MDT), 
-Thunder from the hill <thunder@ngforever.de> wrote:
->What's the latest modutils version expected to work on 2.0?
+On Fri, 2002-08-09 at 09:49, SA wrote:
+> I am writing a char module for a PCI stage controller and want to add the 
+> following functionality; 
+> 
+> The device will generate an interrupt (or software trigger) and I want this to 
+> run a bit of user code with relatively latency.  (<1ms).  I am unclear how to
+> do this while still separating the user from the kernel code and maintaining
+> security - would this usually be handled by issuing a signal to the user space
+> process? if so how and what latency can I expect? 
 
-2.4.19, as long as you build with -enable-compat-2-0.  At least that is
-the theory, it is a long time since I tested modutils on a 2.0 system.
+You could deliver a signal, or if appropriate you can have a system call
+that blocks until the IRQ. To get good reliable latency, mlockall() the 
+process you need to be real time, and set it to a real time scheduling
+priority.
+
 

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277528AbRJJXbS>; Wed, 10 Oct 2001 19:31:18 -0400
+	id <S277501AbRJJX2R>; Wed, 10 Oct 2001 19:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277529AbRJJXbI>; Wed, 10 Oct 2001 19:31:08 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:50415 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S277528AbRJJXav>; Wed, 10 Oct 2001 19:30:51 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 10 Oct 2001 17:28:32 -0600
-To: Juan Quintela <quintela@mandrakesoft.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Concerned Programmer <tkhoadfdsaf@hotmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Alexander Viro <viro@math.psu.edu>, Keith Owens <kaos@ocs.com.au>,
-        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices
-Message-ID: <20011010172832.P10443@turbolinux.com>
-Mail-Followup-To: Juan Quintela <quintela@mandrakesoft.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Concerned Programmer <tkhoadfdsaf@hotmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alexander Viro <viro@math.psu.edu>, Keith Owens <kaos@ocs.com.au>,
-	"Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu> <m2itdnf6a9.fsf@anano.mitica>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2itdnf6a9.fsf@anano.mitica>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S277528AbRJJX2H>; Wed, 10 Oct 2001 19:28:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36868 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277501AbRJJX2B>; Wed, 10 Oct 2001 19:28:01 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Dump corrupts ext2?
+Date: 10 Oct 2001 16:28:24 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9q2lio$65c$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 11, 2001  01:02 +0200, Juan Quintela wrote:
-> >>>>> "alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> alan> Well under the DMCA thats probably a criminal offence with five years in
-> alan> jail. The truth however is that if you want to lie about licensing or
-> alan> run a modutils that doesn't do it nobody stops you. Its there primarily
-> alan> to deal with bug filtering from people who don't know better. Folks who
-> alan> know enough to subvert the mechanism generally also know better than to
-> alan> post Nvdriver bugs to l/k.
+Followup to:  <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
+By author:    Lew Wolfgang <wolfgang@sweet-haven.com>
+In newsgroup: linux.dev.kernel
+>
+> Hi Folks,
 > 
-> Never understimate the ability of users to subert that kind of
-> barriers.
+> I was looking for some scripts to backup ext2 partitions
+> to multiple CDR's when I stumbled onto "cdbackup" at
+> http://www.cableone.net/ccondit/cdbackup/.
+> 
+> Alas, there is a warning saying:
+> 
+> "WARNING! When using this program under Linux, be sure not to use
+>  dump with kernels in the 2.4.x series. Using dump on an ext2
+>  filesystem has a very high potential for causing filesystem
+>  corruption.  As of kernel version 2.4.5, this has not been
+>  resolved, and it may not be for some time."
+> 
+> I don't recall any problems like this, does anyone have
+> additional comments?
+> 
 
-Given that "subversion" will only mean editing the text output of ksymoops
-to not display the "tainted" flag, I don't see it to be a big barrier to
-entry.  If it is in the FAQ (or documented elsewhere) that "if ksymoops
-says 'tainted: 1' submit your bug reports only to the vendor" it will be
-a small matter to delete that line, and if this is NOT documented anywhere
-it will not reduce the number of bug submissions, which was the original
-goal.
+Not really surprising... doesn't dump expect to be able to read a rw
+mounted filesystem by reading the raw device and get the data off it?
+Doesn't work.
 
-I don't think we need to be mucking with "GPL vs. BSD" or anything, but
-rather "source available or not" as the criterion for a tainted module.
-Heaven forbid that using some driver currently in the kernel sources
-marks your kernel as tainted, it would make the whole thing useless.
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

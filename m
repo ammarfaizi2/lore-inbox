@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275289AbTHMRu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275290AbTHMRu0
+	id S275287AbTHMRxG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 13:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275298AbTHMRxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:50:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63408 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275289AbTHMRuS
+	Wed, 13 Aug 2003 13:53:06 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:39950 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S275287AbTHMRw7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:50:18 -0400
-Message-ID: <3F3A7A4D.5070603@pobox.com>
-Date: Wed, 13 Aug 2003 13:50:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <willy@debian.org>, davem@redhat.com,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com> <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com> <20030812235324.GA12953@redhat.com> <3F3A5EAA.5070000@techsource.com>
-In-Reply-To: <3F3A5EAA.5070000@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Aug 2003 13:52:59 -0400
+Date: Wed, 13 Aug 2003 20:00:20 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3-mm1 interactivity scheduling mistakes (smp)
+Message-ID: <20030813180020.GA1339@hh.idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> Dave Jones wrote:
->>     {
->>         .vendor        = PCI_VENDOR_ID_BROADCOM,
->>         .devices    = {
->>             PCI_DEVICE_ID_TIGON3_5700,
->>             PCI_DEVICE_ID_TIGON3_5701,
->>             PCI_DEVICE_ID_TIGON3_5702,
->>             PCI_DEVICE_ID_TIGON3_5703,
->>             PCI_DEVICE_ID_TIGON3_5704,
->>             PCI_DEVICE_ID_TIGON3_5702FE,
->>             PCI_DEVICE_ID_TIGON3_5702X,
->>             PCI_DEVICE_ID_TIGON3_5703X,
->>             PCI_DEVICE_ID_TIGON3_5704S,
->>             PCI_DEVICE_ID_TIGON3_5702A3,
->>             PCI_DEVICE_ID_TIGON3_5703A3,
->>         },
->>         .subvendor    = PCI_ANY_ID,
->>         .subdevice    = PCI_ANY_ID
+I ran a "nice make -j3 bzImage" on 2.6.9-test3-mm1 in order
+to compile 2.6.0-test3-mm2 on my dual celeron.
 
-> struct devicelist BROADCOM_devs[] {
->     PCI_DEVICE_ID_TIGON3_5700,
->     PCI_DEVICE_ID_TIGON3_5701,
->     PCI_DEVICE_ID_TIGON3_5702,
->     PCI_DEVICE_ID_TIGON3_5703,
->     PCI_DEVICE_ID_TIGON3_5704,
->     PCI_DEVICE_ID_TIGON3_5702FE,
->     PCI_DEVICE_ID_TIGON3_5702X,
->     PCI_DEVICE_ID_TIGON3_5703X,
->     PCI_DEVICE_ID_TIGON3_5704S,
->     PCI_DEVICE_ID_TIGON3_5702A3,
->     PCI_DEVICE_ID_TIGON3_5703A3,
->     LIST_TERMINATOR};
+While waiting I played cuyo, a lightweight game similiar to tetris.
 
+This mostly behaved as expected, with a responsive game.
+But mozilla (on some other virtual desktop) occationally
+refreshed its page, causing several seconds with jerky response
+in the game.
 
-This is proving my point ;-)
+This is wrong for two reasons:
+1. There should be enough cpu with two processors,
+   one running the game and another the heavy mozilla stuff.
+   The make was niced after all.  No guessing, I told it explicitly.
 
-You guys are stretching the bounds of C with syntactic sugar, to make it 
-do something it doesn't do well:  store data.
+2. The game has very interactive behaviour, it uses  4-10% cpu
+   and cause X to use about 20%.  Mozilla may have been idle for a 
+   while, getting "interactive".  But it shouldn't remain
+   interactive  for so long,  it sat at 100% till it went
+   idle again.   
 
-Better to store the data outside the C code, where you don't have to do 
-all this C mangling, and then use an automated tool to generate the C 
-code representing pci_device_id tables.
+X runs with elevated priority, (std. debian testing setup)
+but that shouldn't matter - X only used 20% and that was
+for the game and two xterms.  Mozilla wasn't visible
+at all.
 
-	Jeff
-
-
-
+Helge Hafting 

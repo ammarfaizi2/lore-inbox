@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUBIRv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 12:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUBIRv0
+	id S265282AbUBISCU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 13:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUBISCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 12:51:26 -0500
-Received: from dsl-082-083-132-139.arcor-ip.net ([82.83.132.139]:5511 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id S265277AbUBIRvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 12:51:25 -0500
-Date: Mon, 9 Feb 2004 18:51:19 +0100
-From: Dominik Kubla <dominik@kubla.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-Message-ID: <20040209175119.GC1795@intern.kubla.de>
-References: <c07c67$vrs$1@terminus.zytor.com> <20040209092915.GA11305@axis.demon.co.uk> <20040209124739.GC1738@mail.shareable.org> <20040209134005.GA15739@axis.demon.co.uk> <Pine.LNX.4.53.0402090853020.8894@chaos>
+	Mon, 9 Feb 2004 13:02:20 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:26775 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265282AbUBISCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 13:02:14 -0500
+Date: Mon, 9 Feb 2004 12:57:31 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Roland Mas <roland.mas@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS in 2.4.25-rc1 -- video1394
+Message-ID: <20040209175731.GN1042@phunnypharm.org>
+References: <873c9kebhw.fsf@mirexpress.internal.placard.fr.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0402090853020.8894@chaos>
+In-Reply-To: <873c9kebhw.fsf@mirexpress.internal.placard.fr.eu.org>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 09:00:24AM -0500, Richard B. Johnson wrote:
-> > On Mon, Feb 09, 2004 at 07:17:27AM +0000, H. Peter Anvin wrote:
-> > > Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?
-> 
-> Only people who want to log-in from the network..... Of course
-> you could force a re-write of all the stuff like telnet, adding
-> another layer of bugs that'll take another N years to find and
-> remove.
+> | Trace; fcd813af <[video1394]alloc_dma_iso_ctx+1ef/5d0>
+> | Trace; fcd838bf <[video1394].text.end+42a/b13>
+> | Trace; fcd821c1 <[video1394]video1394_ioctl+2d1/e80>
+> | 
+> | Code;  fcd81136 <[video1394]free_dma_iso_ctx+b6/140>
+> | 00000000 <_EIP>:
+> | Code;  fcd81136 <[video1394]free_dma_iso_ctx+b6/140>   <=====
+> |    0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+> | Code;  fcd81139 <[video1394]free_dma_iso_ctx+b9/140>
+> |    3:   89 02                     mov    %eax,(%edx)
+> | Code;  fcd8113b <[video1394]free_dma_iso_ctx+bb/140>
+> |    5:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
+> | Code;  fcd81142 <[video1394]free_dma_iso_ctx+c2/140>
+> |    c:   c7 86 a4 00 00 00 00      movl   $0x0,0xa4(%esi)
+> | Code;  fcd81149 <[video1394]free_dma_iso_ctx+c9/140>
+> |   13:   00 00 00 
+> | 
+> | 
+> | 1 warning issued.  Results may not be reliable.
+> `----
 
-What are you talking about?  On my system (Debian Sid) there are no BSD
-pty's (i removed the device nodes) and everything works without even a
-recompile.
+Looks to me like it is failing in alloc_dma_iso_ctx(), and then calling
+free_dma_iso_ctx() where it encounters some bad data. I can't see off
+hand where this might happen. Was there any message prior to this, like
+maybe a video1394 error message?
 
-Regards,
-  Dominik
 -- 
-This fortune was brought to you by the people at Hewlett-Packard.
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

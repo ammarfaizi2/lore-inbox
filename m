@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbUBRFKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 00:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbUBRFKv
+	id S263646AbUBREsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUBREsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 00:10:51 -0500
-Received: from quantumcode.net ([66.45.229.144]:11781 "EHLO quantumcode.net")
-	by vger.kernel.org with ESMTP id S263661AbUBRFKo (ORCPT
+	Tue, 17 Feb 2004 23:48:25 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:9889 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263646AbUBREsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 00:10:44 -0500
-Subject: USB access via KVM broken in 2.6[0-3]
-From: "Hayden A. James" <hjames@quantumcode.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1077081034.6813.22.camel@haydend.quantumcode.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 18 Feb 2004 00:10:34 -0500
+	Tue, 17 Feb 2004 23:48:19 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16434.61061.493041.238724@napali.hpl.hp.com>
+Date: Tue, 17 Feb 2004 20:48:05 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: davidm@hpl.hp.com, torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: radeon warning on 64-bit platforms
+In-Reply-To: <20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
+References: <1077054385.2714.72.camel@thor.asgaard.local>
+	<16434.36137.623311.751484@napali.hpl.hp.com>
+	<1077055209.2712.80.camel@thor.asgaard.local>
+	<16434.37025.840577.826949@napali.hpl.hp.com>
+	<1077058106.2713.88.camel@thor.asgaard.local>
+	<16434.41884.249541.156083@napali.hpl.hp.com>
+	<20040217234848.GB22534@krispykreme>
+	<16434.46860.429861.157242@napali.hpl.hp.com>
+	<20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
+	<16434.50928.682219.187846@napali.hpl.hp.com>
+	<20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know what happened between 2.4.x and the latest 2.6.x release
-but USB access to my keyboard and mouse from my USB KVM (Ioport
-miniview) does NOT work at all for any of the devices.  The devices work
-normally in 2.6 without having the kvm connected, however.  Is this an
-already known issue?
+>>>>> On Wed, 18 Feb 2004 02:28:31 +0000, Matthew Wilcox <willy@debian.org> said:
 
+  Matthew> On Tue, Feb 17, 2004 at 05:59:12PM -0800, David Mosberger
+  Matthew> wrote:
+  >> I personally would be more than happy to reformat things to 80
+  >> cols, but it's a waste of time unless almost all Linux code gets
+  >> reformatted.
 
--- 
-Hayden A. James
-Computer Engineer
-http://www.quantumcode.net/
+  Matthew> Hm?  I don't know where you're getting that from.  Let's
+  Matthew> talk numbers.
 
-A policeman pulls Werner Heisenberg over on the autobahn for speeding.
-Policeman: Sir, do you know how fast you were going?
-Heisenberg: No, but I know exactly where I am.
+If it bothers you, you're perfectly free to submit patches.
+Source-code width is not something I get overly excited about.
 
-
+	--david

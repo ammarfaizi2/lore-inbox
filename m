@@ -1,57 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269791AbUHZXxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269687AbUH0AOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269791AbUHZXxd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 19:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269762AbUHZXso
+	id S269687AbUH0AOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269843AbUH0AOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 19:48:44 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4224 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269633AbUHZXmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:42:01 -0400
-Date: Thu, 26 Aug 2004 16:40:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Message-ID: <20040826234010.GA22046@kroah.com>
-References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <Pine.LNX.4.61.0408261948480.555@senta.theria.org> <20040826190701.GA13310@kroah.com> <Pine.LNX.4.61.0408270106440.8658@senta.theria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408270106440.8658@senta.theria.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 26 Aug 2004 20:14:39 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:16091 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S269687AbUH0AJt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:09:49 -0400
+Message-ID: <412E7B8F.5050502@ttnet.net.tr>
+Date: Fri, 27 Aug 2004 03:08:47 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: marcelo.tosatti@cyclades.com, willy@w.ods.org
+Subject: [PATCH 2.4] fix typo in mm.h introduced 2.4.28-pre2
+References: <412E4F43.9030801@ttnet.net.tr> <20040826221229.GB564@alpha.home.local> <412E69DC.5050907@ttnet.net.tr>
+In-Reply-To: <412E69DC.5050907@ttnet.net.tr>
+Content-Type: multipart/mixed;
+	boundary="------------080903080202030001040601"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 01:35:01AM +0200, Wouter Van Hemel wrote:
-> On Thu, 26 Aug 2004, Greg KH wrote:
+This is a multi-part message in MIME format.
+--------------080903080202030001040601
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+
+> All the evidence points
+> to the s390 changes in -pre2, specificly cset-1.1514 by schwidefsky
+> which touches include/linux/mm.h this way:
 > 
-> >It's not that kind of decision.  The fact is that the hook is illegal,
-> >so I am forced to remove it.  End of story.
-> >
+> --- 1.44/include/linux/mm.h    2004-08-26 15:51:04 -07:00
+> +++ 1.45/include/linux/mm.h    2004-08-26 15:51:04 -07:00
+> @@ -308,11 +308,9 @@
+> /* Make it prettier to test the above... */
+> #define UnlockPage(page)    unlock_page(page)
+> #define Page_Uptodate(page)    test_bit(PG_uptodate, &(page)->flags)
+> -#define SetPageUptodate(page) \
+> -    do {                                \
+> -        arch_set_page_uptodate(page);                \
+> -        set_bit(PG_uptodate, &(page)->flags);            \
+> -    } while (0)
+> +#ifndef SetPageUptodate
+> +#define SetPageUptodate(page)    set_bit(PG_uptodate, &(page)->flags);
+> +#endif
+> #define ClearPageUptodate(page)    clear_bit(PG_uptodate, &(page)->flags)
+> #define PageDirty(page)        test_bit(PG_dirty, &(page)->flags)
+> #define SetPageDirty(page)    set_bit(PG_dirty, &(page)->flags)
 > 
-> Define 'illegal'.
+> Marcelo, you maybe interested in this.
+> 
+> Cheers,
+> Ozkan Sezer
+> 
 
-Having a hook in the kernel (in GPLed code) for the explicit purpose of
-allowing a binary module is not allowed.  Go read Linus's statements
-about this in the archives.
+And I beleive this was a typo? Marcelo, please review and apply.
 
-> Philips supports the linux driver, for now in it's partial binary form. I 
-> bought the webcam. I also bought the drivers (for windows) that came with 
-> the webcam. I have every right to have my paid-for product working.
+Ozkan Sezer
 
-Then talk to Phillips, or Nemosoft.  I didn't rip the driver out of the
-kernel, only the hook.  Nemosoft asked that the driver be riped out, and
-that's his option.
 
-> Binary code is not illegal. Undesirable, maybe. But not illegal. It's not 
-> even included in the kernel code. Only a hook, and it's not even a forced 
-> dependency.
+--------------080903080202030001040601
+Content-Type: text/plain;
+	name="mm.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="mm.h.diff"
 
-Great, then use the version I did without the hook.  That's fine with
-me.
+--- 28p2/include/linux/mm.h.BAK	2004-08-27 02:39:21.000000000 +0300
++++ 28p2/include/linux/mm.h	2004-08-27 02:56:10.000000000 +0300
+@@ -309,7 +309,7 @@
+ #define UnlockPage(page)	unlock_page(page)
+ #define Page_Uptodate(page)	test_bit(PG_uptodate, &(page)->flags)
+ #ifndef SetPageUptodate
+-#define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags);
++#define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags)
+ #endif
+ #define ClearPageUptodate(page)	clear_bit(PG_uptodate, &(page)->flags)
+ #define PageDirty(page)		test_bit(PG_dirty, &(page)->flags)
 
-thanks,
-
-greg k-h
+--------------080903080202030001040601--

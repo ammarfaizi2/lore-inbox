@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbUKVKug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbUKVK4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbUKVKug (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUKVKuX
+	id S262040AbUKVK4N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUKVKxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:50:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53228 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262053AbUKVKmC (ORCPT
+	Mon, 22 Nov 2004 05:53:52 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10119 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262063AbUKVKwa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:42:02 -0500
-Date: Mon, 22 Nov 2004 02:41:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-Message-Id: <20041122024145.5baaa0b0.akpm@osdl.org>
-In-Reply-To: <877joexjk5.fsf@devron.myhome.or.jp>
-References: <877joexjk5.fsf@devron.myhome.or.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 22 Nov 2004 05:52:30 -0500
+Date: Mon, 22 Nov 2004 11:51:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Message-ID: <20041122105157.GB10463@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk> <200411220752.28264.alan@chandlerfamily.org.uk> <20041122080122.GM26240@suse.de> <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
->  If I do the following operation on fatfs, and my box under heavy load,
+On Mon, Nov 22 2004, Alan Chandler wrote:
+> Jens Axboe writes: 
 > 
->  	open("testfile", O_CREAT | O_TRUNC | O_RDWR, 0664);
->  	lseek(fd, 500*1024*1024 - 1, SEEK_SET);
->  	write(fd, "\0", 1);
+> >On Mon, Nov 22 2004, Alan Chandler wrote:
+> >>On Sunday 21 November 2004 16:13, Alan Chandler wrote:
+> >>...
+> >>>
+> >>> This seems to be some combination of frequently occuring timing problem,
+> >>> and the difference treatment in cdrom_newpc_intr to cdrom_pc_intr 
+> >>
+> >>I put a ndelay(400) at the head of cdrom_newpc_intr and the problem of
+> >>DRQ being set when there was no data to transfer disappeared.  It
+> >>appears that my hardware is too slow. 
+> >>
+> >>I have been reading the ATA/ATAPI - 6 spec, and it implies that the
+> >>state of DRQ line need one pio cycle before being correct and that you
+> >>should read the alternative status register to achieve this.  I tried
+> >>a simple 
+> >>
+> >>HWIF(drive)->INB( IDE_ALTSTATUS_REG); 
+> >>
+> >>But that made no difference.
+> >
+> >ALTSTATUS read should be fine as well, but the implicit delay is
+> >probably better. 
+> >
 > 
->  In cont_prepare_write(), kernel fills the hole by zero cleared page.
+> I don't know why, but the ALTSTATUS read did NOT work when I tried it 
+> yesterday (am currently at work using web mail to access my mail - can't do 
+> more until this evening).  Its possible I put it in the wrong place (ie 
+> after the cdrom_decode_status call, but I don't think so. 
 > 
->  fs/buffer.c:cont_prepare_write:2210,
->  	while(page->index > (pgpos = *bytes>>PAGE_CACHE_SHIFT)) {
+> The ndelay(400) did work. 
 > 
->  		[...]	
+> >Is this enough to fix it? For ->drq_interrupt we already should have
+> >an adequate delay, Alan fixed this one recently. 
+> >
 > 
->  		status = __block_prepare_write(inode, new_page, zerofrom,
->  						PAGE_CACHE_SIZE, get_block);
->  		if (status)
->  			goto out_unmap;
->  		kaddr = kmap_atomic(new_page, KM_USER0);
->  		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
->  		flush_dcache_page(new_page);
->  		kunmap_atomic(kaddr, KM_USER0);
->  		__block_commit_write(inode, new_page,
->  				zerofrom, PAGE_CACHE_SIZE);
->  		unlock_page(new_page);
->  		page_cache_release(new_page);
->  	}
-> 
->  But until ->commit_write(), kernel doesn't update the ->i_size. Then,
->  if kernel writes out that hole page before updates of ->i_size, dirty
->  flag of buffer_head is cleared in __block_write_full_page(). So hole
->  page was not writed to disk.
+> Yes, I had included this patch quite early in my process of tracking
+> the problem down (when I corrected it like you have (add the drive
+> parameter to the OUTBSYNC macro like you have, you also need to
+> declare an unsigned long flags at the head of the routine that was
+> also not in that patch).  Indeed it was this that was the inspiration
+> for the 400 nanosecs in my change.  I have no idea what the right
+> number should be 
 
-But the page remains locked across both the ->prepare_write() and
-->commit_write() operations.  So writeback cannot get in there to call
-->writepage().
+400ns is the correctl value. Your writing is a little unclear to me -
+did it work or not, with that change alone?
 
-The page lock should correctly synchronise the prepare_write/commit_write
-and writeback functions.
+-- 
+Jens Axboe
 

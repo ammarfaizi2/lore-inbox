@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSIIRHD>; Mon, 9 Sep 2002 13:07:03 -0400
+	id <S317540AbSIIRFv>; Mon, 9 Sep 2002 13:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317580AbSIIRHD>; Mon, 9 Sep 2002 13:07:03 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:29576 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S317571AbSIIRHC>; Mon, 9 Sep 2002 13:07:02 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: "'David S. Miller'" <davem@redhat.com>, <phillips@arcor.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Calculating kernel logical address ..
-Date: Mon, 9 Sep 2002 10:06:46 -0700
-Message-ID: <019d01c25823$8714c460$9e10a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: 
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S317544AbSIIRFv>; Mon, 9 Sep 2002 13:05:51 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:36618 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317540AbSIIRFu>;
+	Mon, 9 Sep 2002 13:05:50 -0400
+Date: Mon, 9 Sep 2002 10:07:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Version 2 of the Linux IPMI driver
+Message-ID: <20020909170743.GF5719@kroah.com>
+References: <20020906201856.F26580@parcelfarce.linux.theplanet.co.uk> <3D790F2E.1050306@acm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D790F2E.1050306@acm.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 06, 2002 at 03:25:18PM -0500, Corey Minyard wrote:
+> You access a device as a filesystem?  That's bizarre.
 
-So, what you gurus suggest me to do? How can I get physical address of a
-user buffer (which was originally mmap'ed() from a kmalloc() allocation) and
-which would also be protable across multiple platforms?
+Why?  There's lots of precedent for this model (usbfs, pcihpfs, etc.)
 
-Thanks.
-Imran.
+> It's a device, and they call them "devices" in the kernel for a
+> reason.  Why would you want to do this?  Especially with devfs, the
+> whole device numbering problem goes away.  You could easily make it a
+> misc device.
 
+devfs did not make the device numbering problem go away at all, you
+still need to have a registered major/minor number with Lanana to use
+devfs.  Yes, you can ask for a dynamic misc number, but that is very
+difficult to support.
 
------Original Message-----
-From: David S. Miller [mailto:davem@redhat.com]
-Sent: Sunday, September 08, 2002 10:28 PM
-To: phillips@arcor.de
-Cc: imran.badr@cavium.com; linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
+thanks,
 
-
-   From: Daniel Phillips <phillips@arcor.de>
-   Date: Mon, 9 Sep 2002 07:17:30 +0200
-
-   On Monday 09 September 2002 07:00, David S. Miller wrote:
-   > Actually, KSEG0 the most Linux friendly design in the world
-   > particularly in 64-bit mode.
-
-   That's easy to say until you try and work with it (I assume you have,
-   and forgot).  Just try to do a 3G/1G split on it, for example.
-
-Maybe you missed the "64-bit mode" part of what I said. :-)
-
-In 64-bit mode there is no need to do any kind of split.
-You just use the KSEG mapping with full cache coherency for
-all of physical memory as the PAGE_OFFSET area.
-
-I forget if it was KSEG0 or some other number, but I know it
-works.
-
-
-
+greg k-h

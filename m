@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKCO4m>; Fri, 3 Nov 2000 09:56:42 -0500
+	id <S129034AbQKCPGQ>; Fri, 3 Nov 2000 10:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbQKCO4c>; Fri, 3 Nov 2000 09:56:32 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:46223 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S129145AbQKCO40>;
-	Fri, 3 Nov 2000 09:56:26 -0500
-Date: Fri, 3 Nov 2000 09:56:15 -0500
-Message-Id: <200011031456.JAA21492@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: "David S. Miller" <davem@redhat.com>
+	id <S129129AbQKCPGH>; Fri, 3 Nov 2000 10:06:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:15267 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129034AbQKCPF7>;
+	Fri, 3 Nov 2000 10:05:59 -0500
+Date: Fri, 3 Nov 2000 06:51:05 -0800
+Message-Id: <200011031451.GAA10924@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: tytso@MIT.EDU
 CC: davej@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         linux-mm@kvack.org
-In-Reply-To: David S. Miller's message of Fri, 3 Nov 2000 03:33:37 -0800,
-	<200011031133.DAA10265@pizda.ninka.net>
+In-Reply-To: <200011031456.JAA21492@tsx-prime.MIT.EDU> (tytso@MIT.EDU)
 Subject: Re: BUG FIX?: mm->rss is modified in some places without holding the  page_table_lock
-Phone: (781) 391-3464
+In-Reply-To: <200011031456.JAA21492@tsx-prime.MIT.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Fri, 3 Nov 2000 03:33:37 -0800
-   From: "David S. Miller" <davem@redhat.com>
+   Date: 	Fri, 3 Nov 2000 09:56:15 -0500
+   From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
 
-      Given that we don't have a 64-bit atomic_t type, what do people
-      think of Davej's patch?  (attached, below)
+   Are you saying that the original bug report may not actually be a
+   problem?  Is ms->rss actually protected in _all_ of the right
+   places, but people got confused because of the syntactic sugar?
 
-   Broken, in 9 out of 10 places where he adds page_table_lock
-   acquisitions, this lock is already held --> instant deadlock.
+I don't know if all of them are ok, most are.
 
-   This report is complicated by the fact that people were forgetting
-   that vmlist_*_{lock,unlock}(mm) was actually just spin_{lock,unlock}
-   on mm->page_table_lock.  I fixed that already by removing the dumb
-   vmlist locking macros which were causing all of this confusion.
+Someone would need to do the analysis.  David's patch could be used as
+a good starting point.  A quick glance at mm/memory.c shows these
+spots need to be fixed:
 
-Are you saying that the original bug report may not actually be a
-problem?  Is ms->rss actually protected in _all_ of the right places, but
-people got confused because of the syntactic sugar?
+1) End of zap_page_range()
+2) Middle of do_swap_page
+3) do_anonymous_page
+4) do_no_page
 
-						- Ted
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

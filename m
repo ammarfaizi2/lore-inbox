@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVCVHCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVCVHII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVCVHCt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVCVHAs
+	id S262065AbVCVHII (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVCVHII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:00:48 -0500
-Received: from nijmegen.renzel.net ([195.243.213.130]:51874 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S262040AbVCUWcD
+	Tue, 22 Mar 2005 02:08:08 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:24263 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262263AbVCVHHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:32:03 -0500
-X-Spam-Report: SA TESTS
- -1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                             [score: 0.0000]
-Message-ID: <423F4B88.8020504@twisted-brains.org>
-Date: Mon, 21 Mar 2005 23:32:40 +0100
-From: Mws <mws@twisted-brains.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Paulo Marques <pmarques@grupopie.com>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2/2] SquashFS
-References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz>
-In-Reply-To: <20050321190044.GD1390@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 22 Mar 2005 02:07:42 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Ram <linuxram@us.ibm.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <1111438349.5860.27.camel@localhost>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
+	 <200503170856.57893.jbarnes@engr.sgi.com>
+	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+	 <200503171405.55095.jbarnes@engr.sgi.com>
+	 <1111409303.8329.16.camel@frecb000711.frec.bull.fr>
+	 <1111438349.5860.27.camel@localhost>
+Date: Tue, 22 Mar 2005 08:07:32 +0100
+Message-Id: <1111475252.8465.23.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 22/03/2005 08:17:09,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 22/03/2005 08:17:09,
+	Serialize complete at 22/03/2005 08:17:09
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
--snip-
+On Mon, 2005-03-21 at 12:52 -0800, Ram wrote:
+>      If a bunch of applications are listening for fork events, 
+>      your patch allows any application to turn off the 
+>      fork event notification?  Is this the right behavior?
 
->>>So we are replacing severely-limited cramfs with also-limited
->>>squashfs... 
->>>      
->>>
->>I think that's rather unfair, Squashfs is significantly better than 
->>cramfs.  The main aim of Squashfs has been to achieve the best 
->>    
->>
->
->Yes, it *is* rather unfair. Sorry about that. But having 2 different
->limited compressed filesystems in kernel does not seem good to me.
->
->  
->
-what do you need e.g. reiserfs 4 for? or jfs? or xfs? does not ext2/3 
-the journalling job also?
-is there really a need for cifs and samba and ncpfs and nfs v3 and nfs 
-v4? why?
+Yes it is. The main management is done by application so, if several
+applications are listening for fork events you need to choose which one
+will turn off the fork connector. 
 
--snip-
+I want to keep this turn on/off mechanism simple but if it's needed I
+can manage the variable "cn_fork_enable" as a counter. Thus the callback
+could be something like:
 
->Well, out-of-tree maintainenance takes lot of time, too, so by keeping
->limited code out-of-kernel we provide quite good incentive to make
->those limits go away.
->
->Perhaps squashfs is good enough improvement over cramfs... But I'd
->like those 4Gb limits to go away.
->								Pavel
->  
->
-we all do - but who does really care about stupid 4Gb limits on embedded 
-systems with e.g.
-8 or 32 Mb maybe more of Flash Ram? really noboby
+static void cn_fork_callback(void *data)
+{
+  int start; 
+  struct cn_msg *msg = (struct cn_msg *)data;
 
-if you want to have a squashfs for DVD images e.g. not 4.7Gb but  
-DualLayer ect., why do you complain?
-you are maybe not even - nor you will be - a user of squashfs. but there 
-are many people outside that use
-squashfs on different platforms and want to have it integrated to 
-mainline kernel. so why are you blocking?
+  if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
+    memcpy(&start, msg->data, sizeof(cn_fork_enable));
+    if (start)
+      cn_fork_enable++;
+    else
+      cn_fork_enable > 0 ? cn_fork_enable-- : 0;
+  }
+}
 
-did you have a look at the code? did you find a "trojan horse"?
-no and no? so why are you blocking? if the coding style is not that what 
-nowadays kernel coder have as
-coding style? if you care - fix it - otherwise give hints and other 
-people will do.
 
-regards
-marcel
+What do you think about this implementation? 
+
+Guillaume
 

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSIILsq>; Mon, 9 Sep 2002 07:48:46 -0400
+	id <S317117AbSIILz1>; Mon, 9 Sep 2002 07:55:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSIILsq>; Mon, 9 Sep 2002 07:48:46 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:51590 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317112AbSIILsp>;
-	Mon, 9 Sep 2002 07:48:45 -0400
-Date: Mon, 9 Sep 2002 13:53:25 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE write speed (Promise versus AMD)
-Message-ID: <20020909135325.A1125@ucw.cz>
-References: <20020904195729.A3985@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020904195729.A3985@fi.muni.cz>; from kas@informatics.muni.cz on Wed, Sep 04, 2002 at 07:57:29PM +0200
+	id <S317169AbSIILz1>; Mon, 9 Sep 2002 07:55:27 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:37064 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317117AbSIILz1>; Mon, 9 Sep 2002 07:55:27 -0400
+Message-ID: <3D7C8D61.6070202@synertronixx.de>
+Date: Mon, 09 Sep 2002 14:00:33 +0200
+From: Konstantin Kletschke <kletschke@synertronixx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1b) Gecko/20020721 MultiZilla/v1.1.22
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-preX-acX ide-scsi oops
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 07:57:29PM +0200, Jan Kasprzak wrote:
-> 	Hello, all!
-> 
-> 	I have a machine with six identical IDE drives (WD1200BB),
-> three of them connected to the on-board controller (it is AMD 768MPX chipset),
-> and other three are connected to the Promise controller (PDC 20269).
-> All drives are UDMA 100, read speed measured by "hdparm -t /dev/hd[abcefg]"
-> is about 45 MBytes/s for every drive. However, the write speed seems
-> to differ between AMD and Promise controllers. I've tried to do
-> 
-> time sh -c 'dd if=/dev/zero of=/dev/hdX bs=1024k count=2048; sync'
-> 
-> - it takes about 50 seconds (~40 MByte/s write speed) on hda, hdb and hdc,
-> but 2 minutes 48 seconds (~12 MByte/s write speed) on hde, hdf and hdg.
-> I have 1 GB of RAM, server is dual athlon 2000+. Kernel is 2.4.20-pre5-ac1.
-> 
-> 	Is there any problem with the Promise IDE driver on Linux?
+Hi there!
 
-This looks most likely to be incorrect programming of UDMA registers on
-the Promise chip. UDMA is asymmetrical by design - the hd->mb and mb->hd
-speeds can be different. If you get correct read rates, it's the
-harddrive that's set up correctly, for writes it's the IDE chip that has
-to be programmed for the speed.
+I for myself expierence the same Kernel oopses when using the ide-scsi
+module and mounting cdroms the other peolpe here already mentioned.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+At my box too, the kernel is not tainted, just boot, modprobe ide-scsi,
+mount cdrom and oops.
+
+I do have the same oopses using the 2.4.20-preX-acX series.
+I use a Debian sarge and the gcc-3.1 (because the 3.2 does not compile
+this kernel, make dep complains about a missing stdarg.h which 3.1 does
+not. but thats another issue, which may be broken in the debian package
+because I read some people are able to compile)
+
+I have to use the acX series, because the hpt372 runs pretty well with
+it, with vanilla kernels -> no way!
+
+Why I am posting this is that Alan Cox is not able to reproduce the OOPS
+and it is not clear where the Problem is at all.
+
+But do you know that this Problem is not there after patching
+2.4.20-pre5-ac1 with hedricks' ide-2.4.20-pre5-ac1.3?
+
+After that my ide-scsi cdroms work like a charme, so there must be an
+importand bit in hedrick's patches.
+
+Im just curios if you know that, reading the list it doesn't seem to be
+so...
+
+Happy Hacking,
+Konstantin
+

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266580AbRHALC6>; Wed, 1 Aug 2001 07:02:58 -0400
+	id <S266606AbRHALFS>; Wed, 1 Aug 2001 07:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266606AbRHALCs>; Wed, 1 Aug 2001 07:02:48 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:38663 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266580AbRHALCb>; Wed, 1 Aug 2001 07:02:31 -0400
-To: linux-kernel@vger.kernel.org
-Cc: xinyuepeng@yahoo.com
-Subject: Re: A problem about the mkcramfs!
-In-Reply-To: <20010730080303.45417.qmail@web20005.mail.yahoo.com>
-From: Daniel Quinlan <quinlan@transmeta.com>
-Date: 01 Aug 2001 04:00:36 -0700
-In-Reply-To: =?gb2312?q?=D0=C2=20=D4=C2?='s message of "Mon, 30 Jul 2001 16:03:03 +0800 (CST)"
-Message-ID: <6ypuagavu3.fsf@sodium.transmeta.com>
-X-Mailer: Gnus v5.7/Emacs 20.4
+	id <S266650AbRHALFI>; Wed, 1 Aug 2001 07:05:08 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:50416 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S266606AbRHALE7>; Wed, 1 Aug 2001 07:04:59 -0400
+Date: Wed, 1 Aug 2001 13:04:58 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Dominik Kubla <kubla@sciobyte.de>
+Cc: Riley Williams <rhw@MemAlpha.CX>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        christophe barb? <christophe.barbe@lineo.fr>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Virii on vger.kernel.org lists
+Message-ID: <20010801130458.C2154@intern.kubla.de>
+In-Reply-To: <Pine.LNX.4.33.0107311858360.23876-100000@infradead.org> <20010801124956.B2154@intern.kubla.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010801124956.B2154@intern.kubla.de>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xinyuepeng@yahoo.com writes:
+On Wed, Aug 01, 2001 at 12:49:56PM +0200, Dominik Kubla wrote:
 
-> The mkcramfs uses a function "compress",which is
-> defined in 'zlib.h'.I feel it is a bit odd,which 
-> is defined as following:
-> 
->  ZEXTERN int ZEXPORT compress OF((Bytef *dest,uLongf
-> *destLen,const Bytef *source, uLong sourceLen));
-> 
-> And I can't find its body,only find definition.I want
-> to get explanation.Thanks
+> The german antivirus tool AntiVir is free for personal use (www.free-av.com)
+> and i am pretty sure they would sponsor a version for the list server if asked
+> (if linux-kernel would be considered commercial use).
 
-http://www.gzip.org/zlib/manual.html !
+Hmm. Apparently their free product is just available for Windows. ARGH! But
+one can pickup an evaluation version for Linux from their commercial site:
 
- Dan
+www.antivir.de.
 
+Dominik Kubla
+-- 
+ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
+Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
+
+GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

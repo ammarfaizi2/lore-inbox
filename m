@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131301AbRCHJWm>; Thu, 8 Mar 2001 04:22:42 -0500
+	id <S131305AbRCHJ3C>; Thu, 8 Mar 2001 04:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131304AbRCHJWd>; Thu, 8 Mar 2001 04:22:33 -0500
-Received: from finch-post-12.mail.demon.net ([194.217.242.41]:32013 "EHLO
-	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S131301AbRCHJWY>; Thu, 8 Mar 2001 04:22:24 -0500
-Message-ID: <3AA74F31.554A7A42@beam.demon.co.uk>
-Date: Thu, 08 Mar 2001 09:21:53 +0000
-From: Terry Barnaby <terry@beam.demon.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22enterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Process memory DMA access from devices, kiobuf ?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131310AbRCHJ2x>; Thu, 8 Mar 2001 04:28:53 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:50342 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S131305AbRCHJ2k>;
+	Thu, 8 Mar 2001 04:28:40 -0500
+Date: Thu, 8 Mar 2001 10:28:18 +0100 (MET)
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE bug in 2.4.2-ac12?
+From: Konrad Stopsack <konrad_lkml@gmx.de>
+In-Reply-To: <20010308101559.A1051@suse.cz>
+Message-ID: <11313.984043698@www29.gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0009979400@gmx.net
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Authenticated-IP: [141.76.11.162]
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-We are doing work with FPGA's and have a Linux driver for a particular
-board that has these
-devices. For performance reasons the driver has the ability to DMA
-directly to process (user)
-memory. We have made use of the kiobuf routines such as
-"map_user_kiobuf()" to map into
-physical memory the user address space.
-I note that the RedHat kernels have a patched kernel containing the
-kiobuf code but the
-standard linux source does not right up to 2.4.2.
-Is there a better recommended way to perform DMA access to user memory
-from a device
-using the Linux kernel ?
-
-Cheers
-
-Terry
-
---
-  Dr Terry Barnaby                     BEAM Ltd
-  Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-  Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-  Email: terry@beam.demon.co.uk        Web: www.beam.demon.co.uk
-  BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software Dev
-                         "Tandems are twice the fun !"
 
 
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Vojtech Pavlik wrote:
+> On Thu, Mar 08, 2001 at 10:06:57AM +0100, Konrad Stopsack wrote:
+> > Vojtech Pavlik wrote:
+> > > On Thu, Mar 08, 2001 at 09:51:43AM +0100, Konrad Stopsack wrote:
+> > > 
+> > > > > I don't see any other way how the ZIP could have impact on the 
+IDE
+> 
+> > HDD
+> > > > > on a different IDE interface.
+> > > > The 82c586b can be a chip with locked-together IDE controllers,
+> can't
+> > > it?
+> > > 
+> > > What do you mean by 'locked together'?
+> > Nasty chips whose two IDE channels aren't really separated. On one IDE 
+> > channel you either can use DMA or not. On these chips, switching off 
+DMA
+> 
+> > at the second controller also disables DMA at the first.
+> 
+> Then this is not the case of the 586b. All four IDE drive transfer
+> speeds are programmed separately.
+> 
+> > > I have two vt82c586b's here and one old vt82c586. All work fine with
+> > > different drive combinations, one even has a CD-ROM and a ZIP on the
+> > > secondary channel like yours.
+> > 
+> > Yeah, Ok. My combination SHOULD work without any problems...
+> > 
+> > What else could I do? Swap CD-ROM and ZIP? Try new 2.4.2-ac14 with
+> command 
+> > line parameters "ide0=dma ide1=nodma"?
+> 
+> I don't know. I'm attaching the very latest driver - but I doubt it
+> changes anything.
+
+Thank you. I'll try the 2.4.2-ac14 kernel and your driver.
+
+cu Konrad
+
+-- 
+Konrad Stopsack - konrad@stopsack.de
+
+Sent through GMX FreeMail - http://www.gmx.net
+--4Ckj6UjgE2iN1+kY--
 

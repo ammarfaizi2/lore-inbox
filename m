@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbUKQGeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbUKQGlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbUKQGeV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 01:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbUKQGeU
+	id S262183AbUKQGlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 01:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbUKQGlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 01:34:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59365 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262216AbUKQGd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 01:33:56 -0500
-Date: Tue, 16 Nov 2004 22:33:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@novell.com>
+	Wed, 17 Nov 2004 01:41:52 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:35052
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262183AbUKQGlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 01:41:09 -0500
+Date: Tue, 16 Nov 2004 22:26:11 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, andrea@novell.com
 Subject: Re: loops in get_user_pages() for VM_IO
-Message-Id: <20041116223338.08bb6701.akpm@osdl.org>
-In-Reply-To: <20041116180718.2fa35fbb.davem@davemloft.net>
+Message-Id: <20041116222611.1f59854a.davem@davemloft.net>
+In-Reply-To: <20041116223338.08bb6701.akpm@osdl.org>
 References: <20041116175328.5e425e01.davem@davemloft.net>
 	<20041116180718.2fa35fbb.davem@davemloft.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	<20041116223338.08bb6701.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> wrote:
->
-> In any event, it is still an open question whether get_user_pages()
->  and thus make_pages_present() is meant to be able to handle
->  VM_IO areas.
+On Tue, 16 Nov 2004 22:33:38 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-It doesn't make a lot of sense.  Andrea says that the only caller of
-get_user_pages() which uses a null `pages' arg is mlock(), and mlock of a
-VM_IO region is currently causing hangs, and proposes this change:
+> --- sles/mm/memory.c.~1~	2004-11-12 12:30:25.000000000 +0100
+> +++ sles/mm/memory.c	2004-11-16 17:58:02.752131952 +0100
+> @@ -753,7 +753,7 @@ int get_user_pages(struct task_struct *t
+>  			continue;
+>  		}
+>  
+> -		if (!vma || (pages && (vma->vm_flags & VM_IO))
+> +		if (!vma || (vma->vm_flags & VM_IO)
+>  				|| !(flags & vma->vm_flags))
+>  			return i ? : -EFAULT;
+> 
+> which should fix up the sbuslib.c problem.
 
+It would only becuase do_mmap_pgoff() doesn't check
+the return value of make_pages_present().
 
---- sles/mm/memory.c.~1~	2004-11-12 12:30:25.000000000 +0100
-+++ sles/mm/memory.c	2004-11-16 17:58:02.752131952 +0100
-@@ -753,7 +753,7 @@ int get_user_pages(struct task_struct *t
- 			continue;
- 		}
- 
--		if (!vma || (pages && (vma->vm_flags & VM_IO))
-+		if (!vma || (vma->vm_flags & VM_IO)
- 				|| !(flags & vma->vm_flags))
- 			return i ? : -EFAULT;
+> Or, better, simply advance over the VM_IO vma and onto the next one?
 
-which should fix up the sbuslib.c problem.
+That would work too.
 
-Although I suspect this change will make mlockall() return -EFAULT or a
-short result to userspace if the caller had a VM_IO region mapped, which
-doesn't seem appropriate.  So perhaps we should silently bale out in the
-VM_IO case.
+Although currently in my sparc64 tree I'm setting VM_RESERVED instead
+of VM_LOCKED for I/O mappings and that solves the issue as well.  It
+would not, of course, solve the mlock() case you mentioned.
 
-Or, better, simply advance over the VM_IO vma and onto the next one?
-
-
---- 25/mm/memory.c~get_user_pages-skip-VM_IO	2004-11-16 22:24:34.470017896 -0800
-+++ 25-akpm/mm/memory.c	2004-11-16 22:32:04.890543568 -0800
-@@ -761,9 +761,27 @@ int get_user_pages(struct task_struct *t
- 			continue;
- 		}
- 
--		if (!vma || (pages && (vma->vm_flags & VM_IO))
--				|| !(flags & vma->vm_flags))
--			return i ? : -EFAULT;
-+		if (!vma || !(flags & vma->vm_flags))
-+			return i ? i : -EFAULT;
-+
-+		if (vma->vm_flags & VM_IO) {
-+			if (pages) {
-+				/*
-+				 * No, you cannot gather pageframes from VM_IO
-+				 * regions
-+				 */
-+				return i ? i : -EFAULT;
-+			}
-+			/*
-+			 * OK, someone is simply trying to fault in some pages
-+			 * and they encountered a VM_IO region.  mlockall()
-+			 * can do this.  Simply skip the vma
-+			 */
-+			start = vma->vm_end;
-+			len -= (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+			i += (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+			continue;
-+		}
- 
- 		if (is_vm_hugetlb_page(vma)) {
- 			i = follow_hugetlb_page(mm, vma, pages, vmas,
-_
-
-(I've probably screwed something up there.)
+I think we need to set these bits consistently across the tree.
+And remap_pfn_range() is a good model, so that's what I've used.
+Parts of the x86 tree trigger this case too btw, for example
+the pci mmap support code.  In fact, all the pci mmap support
+routines set VM_LOCKED, probably because they were copied over
+from the first two implementations (sparc64 and i386) :-)

@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318883AbSHQAZl>; Fri, 16 Aug 2002 20:25:41 -0400
+	id <S318943AbSHQA3f>; Fri, 16 Aug 2002 20:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318887AbSHQAZl>; Fri, 16 Aug 2002 20:25:41 -0400
-Received: from waste.org ([209.173.204.2]:45195 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318883AbSHQAZk>;
-	Fri, 16 Aug 2002 20:25:40 -0400
-Date: Fri, 16 Aug 2002 19:29:29 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Jon Burgess <Jon_Burgess@eur.3com.com>, henrique@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with random.c and PPC
-Message-ID: <20020817002929.GM5418@waste.org>
-References: <80256C17.00376E92.00@notesmta.eur.3com.com> <20020816195254.GL5418@waste.org> <3D5D6621.E33EA4BE@nortelnetworks.com>
+	id <S318946AbSHQA3f>; Fri, 16 Aug 2002 20:29:35 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:51615 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S318943AbSHQA3e>;
+	Fri, 16 Aug 2002 20:29:34 -0400
+Date: Sat, 17 Aug 2002 02:33:28 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020817003328.GA3587@win.tue.nl>
+References: <200208170058.39227.m.c.p@wolk-project.de> <Pine.LNX.4.44.0208161622240.1674-100000@home.transmeta.com> <20020816163642.D31052@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D5D6621.E33EA4BE@nortelnetworks.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20020816163642.D31052@work.bitmover.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 04:52:49PM -0400, Chris Friesen wrote:
-> Oliver Xymoron wrote:
-> 
-> > There is little to no reliably unpredictable data in network
-> > interrupts and the current scheme does not include for the mixing of
-> > untrusted sources. It's very likely that an attacker can measure,
-> > model, and control such timings down to the resolution of the PCI bus
-> > clock on a quiescent system. This is more than good enough to defeat
-> > entropy generation on systems without a TSC and given that the bus
-> > clock is a multiple of the processor clock, it's likely possible to
-> > extend this to TSC-based systems as well.
-> 
-> > Entropy accounting is very fickle - if you overestimate _at all_, your
-> > secret state becomes theoretically predictable. I have some patches
-> > that create an API for adding such hard to predict but potentially
-> > observable data to the entropy pool without accounting it as actual
-> > entropy, as well as cleaning up some other major accounting errors but
-> > I'm not quite done testing them.
-> 
-> The problem is this.  If you have an embedded system that is
-> headless, diskless, keyboardless, and mouseless, then your only
-> remaining source of any interrupt-based entropy is the network.
-> Also, if you add entropy to the pool without accounting it as
-> entropy, then how does that help anything?
+On Fri, Aug 16, 2002 at 04:36:42PM -0700, Larry McVoy wrote:
 
-Yes, you _potentially_ improve the unpredictability of /dev/urandom
-without throwing out the guarantees of /dev/random. There is exactly
-one difference between urandom and random - guaranteed entropy (ignore
-for the moment that it's currently completely buggered, I'm fixing
-that.). If you need guaranteed entropy, then you _need_ an
-unobservable entropy source. Period. Pretending network interrupts are
-unpredictable is just pretending.
+> This may be politically incorrect, but could you (or anyone) provide a 
+> history of the IDE maintainers to date and why they didn't work out 
+> and what would need to change to make them work out?  I'm sticking my
+> nose in where I know nothing but maybe one of them could rise up to
+> the necessary level if it were spelled out what that level was.
 
-> For the general user, network-based interrupts are likely okay.
+Prehistory: Linus and others.
 
-If that's really true, then /dev/urandom is okay too, _by
-definition_. Use it. 
+Since start of 1994: Mark Lord. Everybody was happy until mid 1998 (2.1.111),
+when, after a discussion about problems a few people had with DMA
+Linus patched linux/drivers/block/Config.in:
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+-        bool '     Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA
++       # Either the DMA code is buggy or the DMA hardware is unreliable. FIXME.
++        #bool '     Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA
+
+and Mark wrote: "I will not be updating the IDE driver again until the
+linux/drivers/block/Config.in file is restored to its pre-111 state."
+
+Since Fall 1998 (2.1.122): Andre Hedrick.
+
+Recent history is known.
+
+(Lots of other people also did useful work on IDE. I will not try to list
+names since I would forget some.)
+
+Of course, "IDE maintainer" implies work on the interface with the hardware
+and work on the interface with the block I/O subsystem of the kernel.
+Some people know all about the hardware, others know much less about
+hardware but have good ideas about the driver interface.
+There is no reason to force the "IDE maintainer" to be a single person.
+
+Andries
+
+

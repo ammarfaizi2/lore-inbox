@@ -1,77 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262361AbSJDUMR>; Fri, 4 Oct 2002 16:12:17 -0400
+	id <S261836AbSJDUsu>; Fri, 4 Oct 2002 16:48:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262386AbSJDUMQ>; Fri, 4 Oct 2002 16:12:16 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:19393 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262361AbSJDUKc>;
-	Fri, 4 Oct 2002 16:10:32 -0400
-Date: Fri, 4 Oct 2002 22:15:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: jbradford@dial.pipex.com
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.X breaks PS/2 mouse
-Message-ID: <20021004221554.A49104@ucw.cz>
-References: <200210042020.g94KKQX4007896@darkstar.example.net>
+	id <S262190AbSJDUsu>; Fri, 4 Oct 2002 16:48:50 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:41743 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261836AbSJDUsr>;
+	Fri, 4 Oct 2002 16:48:47 -0400
+Date: Fri, 4 Oct 2002 13:51:21 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
+Message-ID: <20021004205121.GA8346@kroah.com>
+References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com> <20021004165955.GC6978@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210042020.g94KKQX4007896@darkstar.example.net>; from jbradford@dial.pipex.com on Fri, Oct 04, 2002 at 09:20:26PM +0100
+In-Reply-To: <20021004165955.GC6978@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 09:20:26PM +0100, jbradford@dial.pipex.com wrote:
-> One of my 486 laptops has a special port on the side, for a dedicated trackball.  I always assumed that it was electrically identical to the standard PS/2 mouse port, which is also present.
-> 
-> With 2.2.x, (I haven't tried 2.4.x on this machine), both the dedicated trackball and a standard external PS/2 mouse work fine, using /dev/psaux.
-> 
-> With 2.5.40, however, the behavior is as follows:
-> 
-> Booting:
-> 
-> With no pointing devices connected, just the port is detected:
-> serio: i8042 AUX port at 0x60, 0x64 irq 12
+Hm, looks like Alan owes me a yummy pizza now...
 
-This is OK.
+It wasn't that hard to fix up the remaining drivers that used these
+functions, here's some changesets that fix up all of the drivers except
+two of them.
 
-> With the dedicated trackball connected, it also gets detected:
-> input: PS/2 Generic mouse on isa0060/serio1
-> serio: i8042 AUX port at 0x60, 0x64 irq 12
+Please pull from:  http://linuxusb.bkbits.net/pci-2.5
 
-Also OK.
+Here's a summary of the status of these pcibios functions after applying
+these changesets:
 
-> Same with a PS/2 mouse, it also gets detected:
-> input: PS/2 Generic mouse on isa0060/serio1
-> serio: i8042 AUX port at 0x60, 0x64 irq 12
+pcibios_present()
+ - shows up in a grep in the following files:
+   	drivers/char/ip2main.c
+	drivers/net/wan/lmc/lmc_ver.h
+	drivers/net/wan/sdladrv.c
+	drivers/scsi/gdth.c
+	drivers/scsi/megaraid.c
+	drivers/scsi/qla1280.c
+	drivers/scsi/sym53c8xx.c
+	drivers/scsi/sym53c8xx_comm.h
+	drivers/scsi/tmscsim.c
+	include/linux/compatmac.h
+   Every one of these instances are for backwards compatibility with
+   older kernel versions and will not be used when building for 2.5
 
-Also OK.
+pcibios_find_class()
+  - completely gone from the 2.5 tree.
 
-> Once booted:
-> 
-> Hot plugging either the dedicated trackball or a PS/2 mouse generates a message on connection:
+pcibios_find_device()
+  - the following drivers use it for when they are compiled for older
+    kernels:
+	drivers/scsi/sym53c8xx.c
+	drivers/scsi/sym53c8xx_comm.h
+	drivers/char/ip2main.c
+	drivers/char/rio/rio_linux.c
+	drivers/char/sx.c
+	drivers/net/wan/sdladrv.c
+	drivers/scsi/gdth.c
+	drivers/scsi/megaraid.c
+	drivers/scsi/tmscsim.c
+   So these instances are safe.
 
-Good, this is expected.
+I did not fix up the following two drivers:
+ 	drivers/char/rocket.c
+		This driver does not build at all right now for 2.5 due
+		to cli() and other assorted api changes over time in
+		2.5.  Also, the PCI probe logic seems very fragile, and
+		I do not want to disturb the current sequence without
+		fully knowing what the correct board type and number
+		sequence should be.
+	drivers/isdn/eicon/lincfg.c
+		Again the probe sequence seems touchy, and Kai (the ISDN
+		maintainer) said he would fix it up properly once these
+		patches were accepted.
 
-> Just to clarify, I am not trying to use them both at the same time.
 
-Not sure if that would work, it might - depends on the notebook keyboard
-controller hardware.
+So the only thing that is broken after these changesets is one isdn
+driver (which will be soon fixed by the maintainer), and the rocket.c
+driver, which was broken before these changesets :)
 
-> X also works with the external PS/2 mouse,
+Please apply.
 
-Good.
+Sorry about the one misleading changeset comment, I couldn't figure out
+how to go back and change it, and if you really object to it, I'll
+rebuild the tree from scratch with it corrected.
 
-> but not the dedicated trackball.
+thanks,
 
-What are the exact symptoms? Does gpm work? Does cat /dev/psaux work? Does cat
-/dev/input/mice work? What does cat /proc/bus/input/devices say in the
-case it doesn't work? ....
+greg k-h
 
-> Any suggestions?
+p.s. I'll send the changesets that I've added since the last set as patches in
+response to this email to lkml for those who want to see them.
 
-Just questions at this time ...
+ drivers/char/rocket.c          |    2 -
+ drivers/net/aironet4500_card.c |   43 +++++++++++------------------------------
+ drivers/net/hp100.c            |    4 +--
+ drivers/net/tulip/de4x5.c      |    4 +--
+ drivers/net/wan/lmc/lmc_main.c |   18 +----------------
+ drivers/pci/compat.c           |   42 ----------------------------------------
+ drivers/pci/syscall.c          |    2 -
+ drivers/sbus/sbus.c            |    2 -
+ drivers/scsi/53c7,8xx.c        |   13 ++++--------
+ drivers/scsi/inia100.c         |    2 -
+ include/linux/pci.h            |   27 +++++++++----------------
+ 11 files changed, 37 insertions(+), 122 deletions(-)
+-----
 
--- 
-Vojtech Pavlik
-SuSE Labs
+ChangeSet@1.674.3.6, 2002-10-04 12:49:31-07:00, greg@kroah.com
+  PCI: remove pcibios_find_device() from the 53c7,8xx.c SCSI driver
+
+ drivers/scsi/53c7,8xx.c |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
+------
+
+ChangeSet@1.674.3.5, 2002-10-04 11:41:16-07:00, greg@kroah.com
+  PCI: remove usages of pcibios_find_class()
+
+ drivers/net/aironet4500_card.c |   43 +++++++++++------------------------------
+ drivers/net/wan/lmc/lmc_main.c |   18 +----------------
+ 2 files changed, 14 insertions(+), 47 deletions(-)
+------
+
+ChangeSet@1.674.3.4, 2002-10-04 10:28:07-07:00, greg@kroah.com
+  PCI: fixed remaining usages of pcibios_present() that I missed previously.
+
+ drivers/char/rocket.c  |    2 +-
+ drivers/sbus/sbus.c    |    2 +-
+ drivers/scsi/inia100.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.674.3.3, 2002-10-03 14:06:24-07:00, greg@kroah.com
+  PCI: removed pcibios_present()
+
+ drivers/net/hp100.c       |    4 ++--
+ drivers/net/tulip/de4x5.c |    4 ++--
+ drivers/pci/compat.c      |    8 --------
+ drivers/pci/syscall.c     |    2 +-
+ include/linux/pci.h       |   21 ++++++++++-----------
+ 5 files changed, 15 insertions(+), 24 deletions(-)
+------
+
+ChangeSet@1.674.3.2, 2002-10-03 13:45:53-07:00, greg@kroah.com
+  PCI: remove pci_find_device()
+
+ drivers/pci/compat.c |   17 -----------------
+ include/linux/pci.h  |    3 ---
+ 2 files changed, 20 deletions(-)
+------
+
+ChangeSet@1.674.3.1, 2002-10-03 13:36:51-07:00, greg@kroah.com
+  PCI: remove pcibios_find_class()
+
+ drivers/pci/compat.c |   17 -----------------
+ include/linux/pci.h  |    3 ---
+ 2 files changed, 20 deletions(-)
+------
+

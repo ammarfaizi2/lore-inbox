@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266129AbUHRMZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUHRM24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266129AbUHRMZC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUHRMZB
+	id S266233AbUHRM24 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUHRMZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:25:01 -0400
-Received: from pD951734E.dip.t-dialin.net ([217.81.115.78]:49030 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S266129AbUHRMX0 (ORCPT
+	Wed, 18 Aug 2004 08:25:52 -0400
+Received: from stacja.kursor.pl ([80.55.191.138]:36284 "EHLO stacja.kursor.pl")
+	by vger.kernel.org with ESMTP id S266181AbUHRMZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:23:26 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-From: Thomas Charbonnel <thomas@undata.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040816120933.GA4211@elte.hu>
-References: <20040816023655.GA8746@elte.hu>
-	 <1092624221.867.118.camel@krustophenia.net>
-	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092831726.5777.160.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 18 Aug 2004 14:22:07 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 08:25:28 -0400
+Date: Wed, 18 Aug 2004 14:24:43 +0200 (CEST)
+From: Janusz Dziemidowicz <rraptorr@kursor.pl>
+To: Diego Calleja <diegocg@teleline.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ext3 documentation (lack of)
+In-Reply-To: <20040818133818.7b0582f3.diegocg@teleline.es>
+Message-ID: <Pine.LNX.4.61.0408181414450.18542@stacja.kursor.pl>
+References: <20040818025951.63c4134e.diegocg@teleline.es>
+ <200408172301.09350.ryan@spitfire.gotdns.org> <20040818133818.7b0582f3.diegocg@teleline.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote :
-> here's -P2:
-> 
->  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
-> 
-> Changes since -P1:
-> 
->  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
-> 
->  - yet another shot at trying to fix the IO-APIC/USB issues.
-> 
->  - mcount speedups - tracing should be faster
-> 
-> 	Ingo
-> -
+On Wed, 18 Aug 2004, Diego Calleja wrote:
 
-The next problem I have relates to irq sharing. 
-On my laptop I can't avoid it :
- 10:    1070631          XT-PIC  yenta, yenta, uhci_hcd, Intel
-82801CA-ICH3, hdsp, eth0
-If I set the sound card's interrupt to be non threaded, then I get a
-rather long non preemptible section :
-http://www.undata.org/~thomas/irq_sharing.trace
+> (It'd be nice if people could provide a description for the rest so we can
+> recollect and submit them)
 
-As a side note, and this has already been reported here several times,
-the SA_INTERRUPT flag set notably by the sound card drivers handlers is
-not honored on current kernels if the device is not the first one to be
-registered. A simple fix would be to add SA_INTERRUPT handlers at the
-beginning instead of the end of the irq queue in setup_irq.
+AFAIK
+user_xattr - turns on POSIX Extended attributes
+nouser_xattr - obvious
+acl - turns on ACL (Access Control Lists)
+noacl - obvious
 
-Similarly, when using SA_SAMPLE_RANDOM, all devices on the given irq
-contribute to the entropy, even those that have a predictable interrupt
-rate (e.g. sound cards), and/or for which the number of interrupts could
-outweight the number of interrupts of the original SA_SAMPLE_RANDOM
-driver. 
+However these features are only present in 2.6.x, they are explained in 
+Help during kernel configuration. I'm not sure if acl requires user_xattr 
+to be turned on. I remember that I spent some time looking for a way to 
+enable these on ext2/ext3 :)
 
-Thomas
-
+--
+Janusz Dziemidowicz
+rraptorr@kursor.pl
 

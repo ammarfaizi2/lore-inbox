@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbTAECjS>; Sat, 4 Jan 2003 21:39:18 -0500
+	id <S262415AbTAECu2>; Sat, 4 Jan 2003 21:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTAECjS>; Sat, 4 Jan 2003 21:39:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14805 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261305AbTAECjR>;
-	Sat, 4 Jan 2003 21:39:17 -0500
-Message-ID: <3E179CCF.F4CAE1E5@digeo.com>
-Date: Sat, 04 Jan 2003 18:47:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.54 i686)
-X-Accept-Language: en
+	id <S262449AbTAECu2>; Sat, 4 Jan 2003 21:50:28 -0500
+Received: from users.ccur.com ([208.248.32.211]:55025 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S262415AbTAECu1>;
+	Sat, 4 Jan 2003 21:50:27 -0500
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200301050258.CAA01487@rudolph.ccur.com>
+Subject: Re: 2.4.21-pre2 stalls out when running unixbench
+To: akpm@digeo.com (Andrew Morton)
+Date: Sat, 4 Jan 2003 21:58:33 -0500 (EST)
+Cc: joe.korty@ccur.com (Joe Korty), sct@redhat.com, adilger@clusterfs.com,
+       rusty@rustcorp.com.au, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org, hch@sgi.com
+Reply-To: joe.korty@ccur.com (Joe Korty)
+In-Reply-To: <3E16C171.BFEA45AE@digeo.com> from "Andrew Morton" at Jan 04, 2003 03:11:45 AM
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
-To: Andre Hedrick <andre@pyxtechnologies.com>
-CC: Rik van Riel <riel@conectiva.com.br>, Richard Stallman <rms@gnu.org>,
-       andrew@indranet.co.nz, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-References: <Pine.LNX.4.10.10301041740090.421-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jan 2003 02:47:43.0840 (UTC) FILETIME=[D2565E00:01C2B464]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+> With respect to the lockup problem: it is due to a non-atomic __set_bit()
+> in the new buffer_attached() implementation.
 > 
-> Rik and Richard,
+> Sure, we don't need atomic semantics for the BH_Attached bit because
+> it is always read and modified under a global spinlock.  But *other*
+> users of buffer_head.b_state do not run under that lock so the nonatomic
+> RMW will stomp on their changes.   2.4.20 does not have this bug.
 > 
-> As you see, I in good faith prior to this holy war, had initiated a formal
-> request include a new protocol into the Linux kernel prior to the freeze.
-> The extention was requested to insure the product was of the highest
-> quality and not limited with excessive erratium as the ratification of the
-> IETF modified, postponed, and delayed ; regardless of reason.
-> 
-> Obviously, PyX had (has) on its schedule to product a high quality target
-> which is transport independent on each side of the protocol.  We are not
-> sure of this position because of the uncertain nature of the basic usages
-> of headers and export_symbols.
-> 
+> Here is a patch:
 
-I suggest that if a function happens to be implemented as an inline
-in a header then it should be treated (for licensing purposes) as
-an exported-to-all-modules symbol.  So in Linux, that would be LGPL-ish.
 
-The fact that a piece of kernel functionality happens to be inlined
-is a pure technical detail of linkage.
-
-If there really is inlined functionality which we do not wish made
-available to non-GPL modules then it should be either uninlined and
-not exported or it should be wrapped in #ifdef GPL.
+Hi Andrew,
+The patch works (been running the unixbench subset for an hour now).
+Your time and effort and very clear explanations are much appreciated.
+Thanks,
+Joe

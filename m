@@ -1,95 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUHBXzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUHCAGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUHBXzz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUHBXzt
+	id S264560AbUHCAGm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 20:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUHCAGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:55:49 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:53770 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S264561AbUHBXze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 19:55:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C478EC.32D07738"
-Subject: [PATCH 2.4.27-rc3] i810_audio.c and pci_ids.h
-Date: Mon, 2 Aug 2004 16:55:33 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9614@hqemmail02.nvidia.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.4.27-rc3] i810_audio.c and pci_ids.h
-Thread-Index: AcR0C1TpQP7X89+/TRuAZWllJhA6jAE4HbFA
-From: "Andrew Chew" <achew@nvidia.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>
-X-OriginalArrivalTime: 02 Aug 2004 23:55:34.0176 (UTC) FILETIME=[3350BA00:01C478EC]
+	Mon, 2 Aug 2004 20:06:41 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64153 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264560AbUHCAGk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 20:06:40 -0400
+Subject: Re: OLS and console rearchitecture
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408021133.09935.jbarnes@engr.sgi.com>
+References: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
+	 <200408021133.09935.jbarnes@engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1091491312.7387.85.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 03 Aug 2004 10:01:53 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C478EC.32D07738
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> 
+> It should probably be a real device driver rather than a sysfs pseudofile.  
+> Not sure if it should be dynamic or not though.  It would be nice if apps 
+> used the driver to do legacy VGA I/O port accesses as well, since that would 
+> make things easier on platforms that unconditionally master abort when a PIO 
+> times out, and would probably make it easier to deal with multiple domains.
 
-Attached is a patch that adds support for audio controller IDs for
-MCP2S, CK8S, CK804, and MCP04.
+I strongly agree. Also, access to VGA memory (in case that is necessary)
+should be provided via MMAP on this driver too.
 
-------_=_NextPart_001_01C478EC.32D07738
-Content-Type: application/octet-stream;
-	name="i810_audio.diff"
-Content-Transfer-Encoding: base64
-Content-Description: i810_audio.diff
-Content-Disposition: attachment;
-	filename="i810_audio.diff"
+There are other reasons than master aborts to go that way, like platforms
+that have multiple PCI domains with separate IO spaces that can accomodate
+VGA cards in several of them.
 
-ZGlmZiAtcnUgbGludXgtMi40LjI3LXJjMy9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYyBsaW51
-eC9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYwotLS0gbGludXgtMi40LjI3LXJjMy9kcml2ZXJz
-L3NvdW5kL2k4MTBfYXVkaW8uYwkyMDA0LTA4LTAyIDE2OjQ0OjQ3LjAwMDAwMDAwMCAtMDcwMAor
-KysgbGludXgvZHJpdmVycy9zb3VuZC9pODEwX2F1ZGlvLmMJMjAwNC0wOC0wMiAxMzoyOToxNC4w
-MDAwMDAwMDAgLTA3MDAKQEAgLTMwMiw4ICszMDIsMTYgQEAKIAkgUENJX0FOWV9JRCwgUENJX0FO
-WV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCiAJe1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lf
-REVWSUNFX0lEX05WSURJQV9NQ1AyX0FVRElPLAogCSBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAw
-LCAwLCBOVklESUFfTkZPUkNFfSwKKwl7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBDSV9ERVZJQ0Vf
-SURfTlZJRElBX01DUDJTX0FVRElPLAorCSBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBO
-VklESUFfTkZPUkNFfSwKIAl7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBDSV9ERVZJQ0VfSURfTlZJ
-RElBX01DUDNfQVVESU8sCiAJIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIE5WSURJQV9O
-Rk9SQ0V9LAorCXtQQ0lfVkVORE9SX0lEX05WSURJQSwgUENJX0RFVklDRV9JRF9OVklESUFfQ0s4
-U19BVURJTywKKwkgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0s
-CisJe1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9DSzgwNF9BVURJ
-TywKKwkgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCisJe1BD
-SV9WRU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9NQ1AwNF9BVURJTywKKwkg
-UENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCiAJe1BDSV9WRU5E
-T1JfSURfQU1ELCBQQ0lfREVWSUNFX0lEX0FNRF9PUFVTXzc0NDUsCiAJIFBDSV9BTllfSUQsIFBD
-SV9BTllfSUQsIDAsIDAsIEFNRDc2OH0sCiAJe1BDSV9WRU5ET1JfSURfQU1ELCBQQ0lfREVWSUNF
-X0lEX0FNRF84MTExX0FVRElPLApkaWZmIC1ydSBsaW51eC0yLjQuMjctcmMzL2luY2x1ZGUvbGlu
-dXgvcGNpX2lkcy5oIGxpbnV4L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCi0tLSBsaW51eC0yLjQu
-MjctcmMzL2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDQtMDgtMDIgMTY6NDQ6NDguMDAwMDAw
-MDAwIC0wNzAwCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAkyMDA0LTA4LTAyIDE2
-OjQ1OjUwLjAwMDAwMDAwMCAtMDcwMApAQCAtOTgwLDEzICs5ODAsMTYgQEAKICNkZWZpbmUgUENJ
-X0RFVklDRV9JRF9OVklESUFfVVZUTlQyCQkweDAwMkQKICNkZWZpbmUgUENJX0RFVklDRV9JRF9O
-VklESUFfTkZPUkNFX01DUDA0X0lERQkweDAwMzUKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklE
-SUFfTkZPUkNFX01DUDA0X1NBVEEJMHgwMDM2CisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElB
-X01DUDA0X0FVRElPCTB4MDAzYQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0Vf
-TUNQMDRfU0FUQTIJMHgwMDNlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9D
-SzgwNF9JREUJMHgwMDUzCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9DSzgw
-NF9TQVRBCTB4MDA1NAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0VfQ0s4MDRf
-U0FUQTIJMHgwMDU1CisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0NLODA0X0FVRElPCTB4
-MDA1OQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UyX0lERQkweDAwNjUKICNk
-ZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTUNQMl9BVURJTwkJMHgwMDZhCiAjZGVmaW5lIFBD
-SV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRTJTX0lERQkweDAwODUKKyNkZWZpbmUgUENJX0RFVklD
-RV9JRF9OVklESUFfTUNQMlNfQVVESU8JMHgwMDhhCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJ
-RElBX05GT1JDRTJTX1NBVEEJMHgwMDhlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0lU
-TlQyCQkweDAwQTAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFMwkJMHgwMGQx
-CkBAIC05OTUsNiArOTk4LDcgQEAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNF
-M1MJCTB4MDBlMQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19TQVRBCTB4
-MDBlMwogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19JREUJMHgwMGU1Cisj
-ZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0NLOFNfQVVESU8JCTB4MDBlYQogI2RlZmluZSBQ
-Q0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19TQVRBMgkweDAwZWUKICNkZWZpbmUgUENJX0RF
-VklDRV9JRF9OVklESUFfR0VGT1JDRV9TRFIJMHgwMTAwCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURf
-TlZJRElBX0dFRk9SQ0VfRERSCTB4MDEwMQo=
+Ben.
 
-------_=_NextPart_001_01C478EC.32D07738--
+

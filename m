@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTH0B0P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 21:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTH0B0P
+	id S263031AbTH0Bbo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 21:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbTH0Bbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 21:26:15 -0400
-Received: from codepoet.org ([166.70.99.138]:44766 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S263015AbTH0B0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 21:26:14 -0400
-Date: Tue, 26 Aug 2003 19:26:16 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise IDE patches
-Message-ID: <20030827012615.GA22578@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Tue, 26 Aug 2003 21:31:44 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:35688 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263031AbTH0Bbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 21:31:42 -0400
+Date: Tue, 26 Aug 2003 21:30:40 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] small sparc Makefile cleanups
+Message-ID: <20030826213040.A16588@devserv.devel.redhat.com>
+References: <20030826221922.GJ7038@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030826221922.GJ7038@fs.tum.de>; from bunk@fs.tum.de on Wed, Aug 27, 2003 at 12:19:23AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks Jan.
-> 
-> Marcelo can you apply these patches?
-> 
-> On Wednesday 27 of August 2003 00:31, Jan Niehusmann wrote:
-> > Hi!
-> >
-> > Two weeks ago, I tried two patches against 2.4.21 regarding
-> > LBA48
-> > support. One limits the size of a drive to 137GB if LBA48 is
-> > not
-> > available. Without this patch, severe data corruption is
-> > possible.
-> >
-> > http://gondor.com/linux/patch-limit48-2.4.21
+> Date: 	Wed, 27 Aug 2003 00:19:23 +0200
+> From: Adrian Bunk <bunk@fs.tum.de>
 
-My recent IDE patch also fixes this problem....
+> -#
+> -# Uncomment the first CFLAGS if you are doing kgdb source level
+> -# debugging of the kernel to get the proper debugging information.
+> -
+> -IS_EGCS := $(shell if $(CC) -m32 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo y; else echo n; fi; )
+> -NEW_GAS := $(shell if $(LD) --version 2>&1 | grep 'elf64_sparc' > /dev/null; then echo y; else echo n; fi)
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106159060721871&w=2
+This is sane, and was on todo list of months. Just shows
+what kind of backlog I accumulated. Can someone else test it
+for me? Please reply with result and outut from
+ gcc -v && as -v < /dev/null.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- Pete

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266148AbUAVAc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 19:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUAVAc3
+	id S266106AbUAVA0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 19:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUAVA0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 19:32:29 -0500
-Received: from gprs148-45.eurotel.cz ([160.218.148.45]:16768 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266148AbUAVAc1 (ORCPT
+	Wed, 21 Jan 2004 19:26:14 -0500
+Received: from [199.45.143.209] ([199.45.143.209]:37384 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S266106AbUAVA0I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 19:32:27 -0500
-Date: Thu, 22 Jan 2004 01:32:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "tuija t." <tuxakka@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swusp acpi
-Message-ID: <20040122003212.GC300@elf.ucw.cz>
-References: <200401211143.51585.tuxakka@yahoo.co.uk>
+	Wed, 21 Jan 2004 19:26:08 -0500
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
+	to public posts
+From: Zan Lynx <zlynx@acm.org>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
+	 <20040121194315.GE9327@redhat.com>
+	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
+	 <1074717499.18964.9.camel@localhost.localdomain>
+	 <20040121211550.GK9327@redhat.com>
+	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>
+	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PFMYSeyH0GViOiMNeYiW"
+Message-Id: <1074731162.25704.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401211143.51585.tuxakka@yahoo.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 21 Jan 2004 17:26:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> And with pressing power button everything else comes back exept
-> usb.
-> This behaviour is kind of "little light nap" and system comes back fast.
-> And I have also noticed that I cannot use bios passwd with
-> # echo 3 > /proc/acpi/sleep   cause even it doesn't reboot it goes
-> somehow to bios and bios passwd prompted but it doesn't accept it?
-> But after disabled bios passwd it works exept usb.
-> 
-> Can somebody give me any wise what I'm doing wrong or point
-> me to some documentation about this matter?
+--=-PFMYSeyH0GViOiMNeYiW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Seems like USB suspend/resume support is not yet working... Talk to
-usb maintainers and offer them some testing...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+On Wed, 2004-01-21 at 16:40, Andreas Jellinghaus wrote:
+> On Wed, 21 Jan 2004 21:44:37 +0000, Mike Fedyk wrote:
+> > What do you think about individual email (non-list) using a confirmatio=
+n
+> > based spam blocking system.
+>=20
+> for personal email it is plain asocial. it tells me that
+> a person does not want to receive mail from me.
+
+For me, that isn't what it says at all.  It tells me that he or she is
+tired of receiving and sorting all of the spam every day.  Since I feel
+exactly the same way about spam, I cooperate and reply with a
+confirmation.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-PFMYSeyH0GViOiMNeYiW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBADxiYG8fHaOLTWwgRAnnyAJ0XFfvcE4JR7OjcM0yHmdwlACFEyACfd6qm
+1xGRBzkZJ3Nf/aYm3wbel0k=
+=GfyD
+-----END PGP SIGNATURE-----
+
+--=-PFMYSeyH0GViOiMNeYiW--
+

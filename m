@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267951AbUHSDsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUHSD5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267951AbUHSDsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 23:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267988AbUHSDsv
+	id S267988AbUHSD5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 23:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUHSD5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 23:48:51 -0400
-Received: from ns.intellilink.co.jp ([61.115.5.249]:22234 "HELO
-	ns.intellilink.co.jp") by vger.kernel.org with SMTP id S267951AbUHSDst
+	Wed, 18 Aug 2004 23:57:33 -0400
+Received: from ns.intellilink.co.jp ([61.115.5.249]:6625 "HELO
+	ns.intellilink.co.jp") by vger.kernel.org with SMTP id S267988AbUHSD51
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 23:48:49 -0400
-Date: Thu, 19 Aug 2004 12:41:03 +0900
-Message-ID: <87u0uz7q28.wl%miura@da-cha.org>
+	Wed, 18 Aug 2004 23:57:27 -0400
+Date: Thu, 19 Aug 2004 12:50:41 +0900
+Message-ID: <87smaj7pm6.wl%miura@da-cha.org>
 From: Hiroshi Miura <miura@da-cha.org>
-To: John Belmonte <john@neggie.net>
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org,
        ACPI Developers <acpi-devel@lists.sourceforge.net>,
        letsnote-tech@ml.good-day.co.jp
 Subject: Re: [PATCH][ACPI] Panasonic Hotkey Driver
-In-Reply-To: <41236D27.1080804@neggie.net>
-References: <87d62cxnud.wl%miura@da-cha.org>
-	<1092805474.25902.126.camel@dhcppc4>
-	<41236D27.1080804@neggie.net>
+In-Reply-To: <1092805474.25902.126.camel@dhcppc4>
+References: <87d62cxnud.wl%miura@da-cha.org>	<1092805474.25902.126.camel@dhcppc4>
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6
  (=?ISO-2022-JP?B?GyRCNF0yLBsoQg==?=) FLIM/1.14.6
  (=?ISO-2022-JP?B?GyRCNF1CQEQuGyhC?=) APEL/10.6 Emacs/21.3
@@ -31,30 +29,125 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I'm sorry, it's my mistake.
-
-At Wed, 18 Aug 2004 10:52:23 -0400,
-John Belmonte wrote:
-> >>+ *      Jul.17, 2004   Hiroshi Miura <miura@da-cha.org>
-> >>+ *             - v0.1  based on acpi video driver
-> >>+ *
+At 18 Aug 2004 01:04:34 -0400,
+Len Brown wrote:
 > > 
-> > 
-> > would be polite to credit the exact files that you leveraged.
+> > The event is for example 'HKEY HKEY 00000080 0000001' for Fn+F1.
 > 
-> I think it's a little beyond a politeness issue.  Large verbatim blocks 
-> of toshiba_acpi.c are used, with my copyright notice nowhere in sight.
+> Would be good if you had a comment that listed what hot keys are
+> available etc.
 
-You are right.  This driver based on my test video 
-driver that start from toshiba_acpi.c. acpi_video driver is still in development.
+ok, I will do. 
 
-I want to fix credit and description asap.
+> > # This is a BitKeeper generated diff -Nru style patch.
+> 
+> Since you're using bitkeeper, one option is to preserve your check-in
+> comments by sending me the patch via bjorn's bkexport script (attached).
+> Though I reserve the right to edit all comments;-)
 
---
+It's good. I want to try it.
+ 
+> >  
+> > +config ACPI_PCC
+> > +       tristate "Panasonic Laptop Extras"
+> 
+> how about  calling it a hot key driver instead of an "extras driver",
+> unless there is something other than hot keys coming.
+
+now I implemented controller for lcd brightness in this driver.
+I will post it soon.
+
+> > + *
+> > + *      Jul.17, 2004   Hiroshi Miura <miura@da-cha.org>
+> > + *             - v0.1  based on acpi video driver
+> > + *
+> 
+> would be polite to credit the exact files that you leveraged.
+
+Sorry, I will fix it as another post.
+ 
+> > +/****************************************************
+> > + * Define ACPI PATHs 
+> > + ****************************************************/
+> > +/* crt/lcd hot key definitions */
+> > +#define DEVICE_NAME_VGA                "\\_SB_.PCI0.GRFX"
+> > +#define DEVICE_NAME_CRT                "CRT1"
+> > +#define DEVICE_NAME_LCD                "LCD1"
+> 
+> These three are unused and should be deleted.
+> (they should be part of the video driver)
+
+Yes these are part of video driver.
+ 
+> > +#define METHOD_CHGD            "\\_SB_.CHGD"
+
+I will remove it as same as above.
+
+> > +#if 0
+> > +static int
+> > +write_acpi_int(const char* methodName, int val)
+> > +{
+> > +       struct acpi_object_list params;
+> > +       union acpi_object in_objs[1];
+> > +       acpi_status status;
+> > +
+> > +       params.count = sizeof(in_objs)/sizeof(in_objs[0]);
+> > +       params.pointer = in_objs;
+> > +       in_objs[0].type = ACPI_TYPE_INTEGER;
+> > +       in_objs[0].integer.value = val;
+> > +
+> > +       status = acpi_evaluate_object(0, (char*)methodName, &params,
+> > 0);
+> > +       return (status == AE_OK);
+> > +}
+> > +#endif
+> 
+> hmm, this dead code above looks familiar:-)
+> 
+> we'll want to clean out the #if 0's, or at least
+> put them under a descriptive #ifdef, yes?
+
+will remove.
+
+ 
+
+> > +/*
+> > + * proc file handlers
+> > + */
+> 
+> Of course we're trying to get away from /proc at this point and head for
+> sysfs...
+
+Uuum, I must study...  will rewrite.
+
+> > +/* device(HKEY) definitions */
+> > +#define HKEY_HID               "MAT0019"
+> 
+> I'm extremely pleased to see this keys off a HID.
+
+> > +/* init funcs. */
+> > +static int __init
+> > +acpi_pcc_init(void)
+> > +{
+> > +       acpi_status result = AE_OK;
+> > + 
+> > +       if (acpi_disabled)
+> > +               return -ENODEV;
+> > +
+> > +       /* simple device detection: look forI method */
+> > +       if (!(is_valid_acpi_path(METHOD_CHGD)))
+> > +               return -ENODEV;
+> 
+> Why is this necessary if you key off the HID with
+> acpi_bus_register_driver below?
+
+It's my first acpi driver. My understanding of acpi functions is 
+not enough at that time. I want to rewrite it.
+
+-- 
 Hiroshi Miura  --- http://www.da-cha.org/  --- miura@da-cha.org
 NTTDATA Corp. OpenSource Software Center. --- miurahr@nttdata.co.jp 
 NTTDATA Intellilink Corp. OpenSource Engineering Dev. -- miurahr@intellilink.co.jp
 Key fingerprint = 9117 9407 5684 FBF1 4063  15B4 401D D077 04AB 8617
-
-

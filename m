@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUDOWIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 18:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUDOWIs
+	id S262226AbUDOWHb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 18:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUDOWHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 18:08:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38623 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262547AbUDOWIr (ORCPT
+	Thu, 15 Apr 2004 18:07:31 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:19676 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262226AbUDOWHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 18:08:47 -0400
-Date: Thu, 15 Apr 2004 15:10:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: maneesh@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-Message-Id: <20040415151059.1136058e.akpm@osdl.org>
-In-Reply-To: <20040415213600.GD13578@kroah.com>
-References: <20040402043814.GA6993@in.ibm.com>
-	<Pine.LNX.4.44L0.0404021629210.889-100000@ida.rowland.org>
-	<20040406101320.GB1270@in.ibm.com>
-	<20040414132015.GD5422@in.ibm.com>
-	<20040415213600.GD13578@kroah.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 15 Apr 2004 18:07:30 -0400
+Date: Thu, 15 Apr 2004 15:07:26 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Lazy NUMA sorting?
+Message-ID: <225720000.1082066846@flay>
+In-Reply-To: <407EFAAB.7060307@techsource.com>
+References: <407EFAAB.7060307@techsource.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> This patch looks sane, Andrew, can you let it sit in your -mm tree for a
-> while to see if anything breaks with it?
+> So, I understand that the 2.6 SMP balancer redistributes workload on a periodic basis.  Once every second or something, it migrates processes.
+> 
+> A NUMA system would have to do something similar, where if there is a page which is referenced by only one process, and the page is located on the "wrong" node, it could be migrated.  This could be done gradually by a periodic background process.  Is this already how it works?
 
-It needs work to make it live alongside ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm6/broken-out/sysfs-d_fsdata-race-fix-2.patch
+We don't do page migration. It has proved extraordinarily hard to know when
+to migrate pages correctly ... in conjunction with the cross-node movement
+of tasks.
 
-What are we doing with sysfs-d_fsdata-race-fix-2 btw?
+> Also, if a page is being referenced by multiple nodes, the same background process could make mirror copies.  (Age of page would be an important consideration here so moves don't happen for short-lived pages.)
 
+We can do that for read-only mappings and kernel text already. Dave Hansen
+did a patch for the read-only mappings, though I need to update it to the
+latest kernel tree.
+
+M.
 

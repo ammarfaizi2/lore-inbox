@@ -1,87 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267599AbTBRElC>; Mon, 17 Feb 2003 23:41:02 -0500
+	id <S267597AbTBREth>; Mon, 17 Feb 2003 23:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTBRElC>; Mon, 17 Feb 2003 23:41:02 -0500
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:20713 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267597AbTBREk7>; Mon, 17 Feb 2003 23:40:59 -0500
-Message-ID: <3E51BBC3.503@nortelnetworks.com>
-Date: Mon, 17 Feb 2003 23:51:15 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S267605AbTBREth>; Mon, 17 Feb 2003 23:49:37 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:32949 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S267597AbTBREtg>; Mon, 17 Feb 2003 23:49:36 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Mark J Roberts <mjr@znex.org>, linux-kernel@vger.kernel.org
+Date: Mon, 17 Feb 2003 20:58:40 -0800 (PST)
+Subject: Re: Annoying /proc/net/dev rollovers.
+In-Reply-To: <20030217103553.GH1073@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.44.0302172057170.656-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: fcntl and flock wakeups not FIFO?
-References: <20030218010054.J28902@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
- > [cc'ing the person or list mentioned in MAINTAINERS would get you
- > a better response :-P]
+don't forget that 10G ethernet is starting to leak out of the labs into
+the real world. I don't know of any linux support yet, but it will come
+and then you will be able to overflow 32bit bitcounters multiple times per
+second.
 
-Hmm...that might be a good idea.  :)
-
- >>I've been doing some experimenting with locking on 2.4.18 and have
- >>noticed that if I have a number of writers waiting on a lock, they are
- >>not woken up in the order in which they requested the lock.
- >>
- >>Is this expected? If so, what was the reasoning for this and are there
- >>any patches to give FIFO wakeups?
- >
- >
- > That certainly isn't what's supposed to happen.  They should get woken
- > up in-order.  The code in 2.4.18 seems to be doing that.  Are you
- > doing anything clever with scheduling?
-
-Well maybe a little bit on the production box, but I don't think its the
-cause since the same thing happens on my home machine with a stock
-Mandrake 9 kernel (2.4.19-16mdk).
-
-Here's the test app:
-
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/file.h>
-
-int main(int argc, char **argv)
-{
-     int fd = open("/dev/null", O_RDWR);
-     if (fd < 0)
-     {
-        perror("open");
-        exit(-1);
-     }
-
-     printf("aquiring exclusive lock\n");
-     int rc = flock(fd, LOCK_EX);
-     if (rc < 0)
-     {
-        perror("flock");
-        exit(-1);
-     }
-
-     printf("got lock\n");
-
-     while(1)
-        pause();
-
-     return 0;
-}
-
-I start up four different instances of it in different windows, then
-kill them (ctrl-c) in the order that I started them.
-
-It doesn't happen every time, but they don't always get the lock in the
-same order that I started them.
-
-Chris
+David Lang
 
 
+ On Mon, 17 Feb 2003, Matti Aarnio wrote:
 
+> Date: Mon, 17 Feb 2003 12:35:53 +0200
+> From: Matti Aarnio <matti.aarnio@zmailer.org>
+> To: Mark J Roberts <mjr@znex.org>, linux-kernel@vger.kernel.org
+> Subject: Re: Annoying /proc/net/dev rollovers.
+>
+> On Sun, Feb 16, 2003 at 08:21:56PM -0800, Chris Wedgwood wrote:
+> > On Sun, Feb 16, 2003 at 08:46:05PM -0600, Mark J Roberts wrote:
+> > > When the windows box behind my NAT is using all of my 640kbit/sec
+> > > downstream to download movies, it takes a little over 14 hours to
+> > > download four gigabytes and roll over the byte counter.
+> >
+> > Therefore userspace needs to check the counters more often... say ever
+> > 30s or so and detect rollover.  Most of this could be simply
+> > encapsulated in a library and made transparent to the upper layers.
+>
+>   Some of my colleques complained once, that at full tilt
+>   the fiber-channel fabric overflowed its SNMP bitcounters
+>   every 2 seconds.
+>
+>   "we need to do polling more rapidly, than the poller can do"
+>
+>   The SNMP pollers do handle gracefully 32-bit unsigned overlow,
+>   they just need to get snapshots in increments a bit under 2G...
+>   (Hmm.. perhaps I remember that wrong, a bit under 4G should be ok.)
+>
+> >   --cw
+>
+> /Matti Aarnio
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

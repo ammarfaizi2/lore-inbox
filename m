@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317508AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
+	id <S317512AbSINTwS>; Sat, 14 Sep 2002 15:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
-Received: from web40510.mail.yahoo.com ([66.218.78.127]:47773 "HELO
-	web40510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317508AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
-Message-ID: <20020914195223.48337.qmail@web40510.mail.yahoo.com>
-Date: Sat, 14 Sep 2002 12:52:23 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: miquels@cistron.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <1032031927.13636.1.camel@irongate.swansea.linux.org.uk>
+	id <S317517AbSINTwR>; Sat, 14 Sep 2002 15:52:17 -0400
+Received: from b.mail.peak.org ([198.88.144.71]:13321 "EHLO b.mail.peak.org")
+	by vger.kernel.org with ESMTP id <S317512AbSINTwR>;
+	Sat, 14 Sep 2002 15:52:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kenneth Corbin <kencx@peak.org>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Linux consistently crashes running grip (solved)
+Date: Sat, 14 Sep 2002 12:51:08 -0700
+User-Agent: KMail/1.4.1
+References: <200209021149.41654.kencx@peak.org>
+In-Reply-To: <200209021149.41654.kencx@peak.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209141251.08528.kencx@peak.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hint 1. Other people make disks too.
-I'm glad you and I realize that. It seems that others might not. So
-far, in this thread, only one person using one brand of disk (IBM)
-has found something in writing about the cache issue. Let's see, 
-that leaves Maxtor/Quantum, Seagate, Fujitsu, .....
+On Monday 02 September 2002 11:49 am, Kenneth Corbin wrote:
+> I am not subscribed to this list, please cc me with any response.
+> Thanks in advance for wading through this.
+>
+> 1. Linux consistently crashes running grip.
 
-> Hint 2. The guys who did the code include a member of the standards
-> committee.
-And your point is...?? Does this somehow preclude them being wrong??
+Confirmed as a sporadic hardware issue.  I took my machine in to a dealer to 
+get checked out, by the time it got there it couldn't boot linux at all.   
+After instaling a new motherboard, with faster memory and CPU upgrades, I 
+haven't had any problem with Linux crashing at all.
 
->Unless Andre agrees the change is required in the new IDE they won't be
->going in. 
-Fair enough.
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+My ISP choose that particular instant to go down, so it took a while to get 
+back on this.   Thanks to everyone for pointing me in the right direction.

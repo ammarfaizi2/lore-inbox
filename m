@@ -1,47 +1,269 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287868AbSBGQIf>; Thu, 7 Feb 2002 11:08:35 -0500
+	id <S287148AbSBGQMO>; Thu, 7 Feb 2002 11:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288117AbSBGQIY>; Thu, 7 Feb 2002 11:08:24 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:48394 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S287868AbSBGQIM>;
-	Thu, 7 Feb 2002 11:08:12 -0500
-Date: Thu, 7 Feb 2002 08:05:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Pharr <ben@benpharr.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: inode.c Compile Error
-Message-ID: <20020207160524.GO14504@kroah.com>
-In-Reply-To: <20020207151518.GA5184@hst000004380um.kincannon.olemiss.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020207151518.GA5184@hst000004380um.kincannon.olemiss.edu>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 10 Jan 2002 01:35:50 -0800
+	id <S287149AbSBGQMG>; Thu, 7 Feb 2002 11:12:06 -0500
+Received: from gra-vd1.iram.es ([150.214.224.250]:54444 "EHLO gra-vd1.iram.es")
+	by vger.kernel.org with ESMTP id <S287148AbSBGQLw>;
+	Thu, 7 Feb 2002 11:11:52 -0500
+Message-ID: <3C62A735.6030906@iram.es>
+Date: Thu, 07 Feb 2002 17:11:33 +0100
+From: Gabriel Paubert <paubert@iram.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.5) Gecko/20011016
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Troy Benjegerdes <hozer@drgw.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit divide cleanup (tested on ppc)
+In-Reply-To: <87r8oez0ks.fsf@fadata.bg> <20020127205141.L5808@mea-ext.zmailer.org> <20020128180001.G14339@altus.drgw.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 09:15:18AM -0600, Benjamin Pharr wrote:
-> I got the following error when trying to compile 2.5.4-pre2:
+	Hi Troy,
 
-This patch fixes this.  I'll send it upstream later today.
+sorry for the delay, I was sick :-(
 
-thanks,
+Troy Benjegerdes wrote:
 
-greg k-h
+> Attached is a patch to get rid of asm/div64.h on arches that don't have 
+> optimized asm routines.
+> 
+> I didn't include removeing the various arch/div64.h file yet, since I want 
+> some comments on this.
+> 
+[snipped]
+> ===================================================================
+> RCS file: /cvsdev/hhl-2.4.17/linux/fs/ntfs/util.c,v
+> retrieving revision 1.1
+> diff -u -r1.1 util.c
+> --- fs/ntfs/util.c	2001/11/30 22:28:59	1.1
+> +++ fs/ntfs/util.c	2002/01/29 00:40:14
+> @@ -13,7 +13,8 @@
+>  #include "util.h"
+>  #include <linux/string.h>
+>  #include <linux/errno.h>
+> -#include <asm/div64.h>		/* For do_div(). */
+> +#define USE_SLOW_64BIT_DIVIDES
+> +#include <linux/div64.h>		/* For do_div(). */
+>  #include "support.h"
+>  
+>  /*
+> @@ -233,7 +234,7 @@
+>  {
+>  	/* Subtract the NTFS time offset, then convert to 1s intervals. */
+>  	ntfs_time64_t t = ntutc - NTFS_TIME_OFFSET;
+> -	do_div(t, 10000000);
+> +	do_div(&t, 10000000);
+>  	return (ntfs_time_t)t;
+>  }
+
+>  
+> Index: fs/smbfs/proc.c
+> ===================================================================
+> RCS file: /cvsdev/hhl-2.4.17/linux/fs/smbfs/proc.c,v
+> retrieving revision 1.1
+> diff -u -r1.1 proc.c
+> --- fs/smbfs/proc.c	2001/11/30 22:28:58	1.1
+> +++ fs/smbfs/proc.c	2002/01/29 00:40:17
+> @@ -18,12 +18,14 @@
+>  #include <linux/dirent.h>
+>  #include <linux/nls.h>
+>  
+> +#define USE_SLOW_64BIT_DIVIDES
+> +#include <linux/div64.h>
+> +
+>  #include <linux/smb_fs.h>
+>  #include <linux/smbno.h>
+>  #include <linux/smb_mount.h>
+>  
+>  #include <asm/string.h>
+> -#include <asm/div64.h>
+>  
+>  #include "smb_debug.h"
+>  #include "proto.h"
+> @@ -375,7 +377,7 @@
+>  	/* FIXME: what about the timezone difference? */
+>  	/* Subtract the NTFS time offset, then convert to 1s intervals. */
+>  	u64 t = ntutc - NTFS_TIME_OFFSET;
+> -	do_div(t, 10000000);
+> +	do_div(&t, 10000000);
+>  	return (time_t)t;
+>  }
 
 
-diff -Nru a/drivers/usb/inode.c b/drivers/usb/inode.c
---- a/drivers/usb/inode.c	Thu Feb  7 08:08:34 2002
-+++ b/drivers/usb/inode.c	Thu Feb  7 08:08:34 2002
-@@ -525,7 +525,7 @@
- static struct super_block *usb_get_sb(struct file_system_type *fs_type,
- 	int flags, char *dev_name, void *data)
- {
--	return get_sb_single(fs_type, flags, data, usb_fill_super);
-+	return get_sb_single(fs_type, flags, data, usbfs_fill_super);
- }
- 
- static struct file_system_type usbdevice_fs_type = {
+At least for these 2, your patch is wrong. 10000000 is not especially 
+small and the algorithm you propose does not work for these. It is 
+limited to about 65536 actually.
+
+
+>  
+> Index: lib/vsprintf.c
+> ===================================================================
+> RCS file: /cvsdev/hhl-2.4.17/linux/lib/vsprintf.c,v
+> retrieving revision 1.1
+> diff -u -r1.1 vsprintf.c
+> --- lib/vsprintf.c	2001/11/30 22:28:59	1.1
+> +++ lib/vsprintf.c	2002/01/29 00:40:24
+> @@ -19,9 +19,9 @@
+>  #include <linux/string.h>
+>  #include <linux/ctype.h>
+>  #include <linux/kernel.h>
+> +/* #define USE_SLOW_64BIT_DIVIDE */
+> +#include <linux/div64.h>
+>  
+> -#include <asm/div64.h>
+> -
+>  /**
+>   * simple_strtoul - convert a string to an unsigned long
+>   * @cp: The start of the string
+> @@ -165,7 +165,7 @@
+>  	if (num == 0)
+>  		tmp[i++]='0';
+>  	else while (num != 0)
+> -		tmp[i++] = digits[do_div(num,base)];
+> +		tmp[i++] = digits[do_div(&num,base)];
+
+
+
+Forcing to use slow do_div version even when base is 8 or 16 is not 
+nice. Heck I believe that seperating it into several cases and having a 
+different 2 or 3 distinct loops (one for base 10, the other or 2 others
+for shifts by 3 or 4) could actually result in smaller code. On PPC and 
+Alpha at lesat the compiler knows how to do a divide by 10 with a 
+multiply high or however it's called instruction.
+
+Oh, and what abour removing the if and doing a do {...} while(num!=0) 
+instead ?
+
+
+>  	if (i > precision)
+>  		precision = i;
+>  	size -= precision;
+> @@ -426,22 +426,31 @@
+>  				}
+>  				continue;
+>  		}
+> -		if (qualifier == 'L')
+> +
+> +		switch (qualifier) {
+> +		case 'L':
+>  			num = va_arg(args, long long);
+> -		else if (qualifier == 'l') {
+> -			num = va_arg(args, unsigned long);
+> +			break;
+> +		case 'l':
+>  			if (flags & SIGN)
+> -				num = (signed long) num;
+> -		} else if (qualifier == 'Z') {
+> +				num = (signed long long) va_arg(args, long);
+> +			else
+> +				num = va_arg(args, unsigned long);
+> +			break;
+> +		case 'Z':
+>  			num = va_arg(args, size_t);
+> -		} else if (qualifier == 'h') {
+> -			num = (unsigned short) va_arg(args, int);
+> +			break;
+> +		case 'h':
+>  			if (flags & SIGN)
+> -				num = (signed short) num;
+> -		} else {
+> -			num = va_arg(args, unsigned int);
+> +				num = (signed long long) va_arg(args, int);
+> +			else
+> +				num = va_arg(args, unsigned int);
+> +			break;
+> +		default:
+>  			if (flags & SIGN)
+> -				num = (signed int) num;
+> +				num = (signed long long) va_arg(args, int);
+> +			else
+> +				num = va_arg(args, unsigned int);
+>  		}
+>  		str = number(str, end, num, base,
+>  				field_width, precision, flags);
+> Index: include/linux/div64.h
+> ===================================================================
+> RCS file: /cvsdev/hhl-2.4.17/linux/include/linux/div64.h
+> diff -N div64.h
+> --- /dev/null	Tue May  5 13:32:27 1998
+> +++ include/linux/div64.h	Mon Jan 28 16:59:28 2002
+> @@ -0,0 +1,85 @@
+> +/*
+> + * include/linux/div64.h
+> + *
+> + * Primarily used by vsprintf to divide a 64 bit int N by a small integer base
+
+                                                                ^^^^^
+Read the comments, here goes you 10000000 factor. The modulo once 
+shifted left by 16 bits can easily overflow.... Perhaps you should patch
+it s/small/_small_/ to better see it.
+
+
+
+> + * We really do NOT want to encourage people to do slow 64 bit divides in
+> + * the kernel, so the 'default' version of this function panics if you
+> + * try and divide a 64 bit number by anything other than 8 or 16.
+> + *
+> + * If you really *really* need this, and are prepared to be flamed by 
+> + * lkml, #define USE_SLOW_64BIT_DIVIDES before including this file.
+> + */
+> +#ifndef __DIV64
+> +#define __DIV64
+> +
+> +#include <linux/config.h>
+> +
+> +/* configurable  */
+> +#undef __USE_ASM
+> +
+> +
+> +#ifdef __USE_ASM
+> +/* yeah, this is a mess, and leaves out m68k.... */
+> +# if defined(CONFIG_X86) || define(CONFIG_ARCH_S390) || defined(CONFIG_MIPS)
+> +#  define __USE_ASM__
+> +# endif
+> +#endif
+> +
+> +#ifdef __USE_ASM__
+> +#include <asm/div64.h>
+> +#else /* __USE_ASM__ */
+> +static inline int do_div(unsigned long long * n, unsigned long base)
+> +{
+> +	int res = 0;
+> +	unsigned long long t = *n;
+> +	if ( t == (unsigned long)t ){ /* this should handle 64 bit platforms */
+> +		res = ((unsigned long) t) % base;
+> +		t = ((unsigned long) t) / base;
+> +	} else {
+> +#ifndef USE_SLOW_64BIT_DIVIDES 
+> +		switch (base) {
+> +			case 8:
+> +				res = ((unsigned long) t & 0x7);
+> +				t = t >> 3;
+> +				break;
+> +			case 16:
+> +				res = ((unsigned long) t & 0xf);
+> +				t = t >> 4;
+> +				break;
+> +			default:
+> +				panic("do_div called with 64 bit arg and unsupported base\n", base);
+> +		}
+> +#else /* USE_SLOW_64BIT_DIVIDES */
+> +		/* this was stolen from the old asm-parisc/div64.h */
+> +		/*
+> +		 * Copyright (C) 1999 Hewlett-Packard Co
+> +		 * Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
+> +		 *
+> +		 * vsprintf uses this to divide a 64-bit integer N by a small 
+
+
+s/small/_small_/ just to be sure that the comment is understood.
+
+For the 10000000 case, I believe a simple stupid looping algorithm is 
+the only solution which does not result in code size explosion.
+
+	Regards,
+	Gabriel.
+

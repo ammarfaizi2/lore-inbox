@@ -1,698 +1,478 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbSJDXrT>; Fri, 4 Oct 2002 19:47:19 -0400
+	id <S262039AbSJDXWM>; Fri, 4 Oct 2002 19:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262121AbSJDXrT>; Fri, 4 Oct 2002 19:47:19 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:42892 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S262120AbSJDXrJ>;
-	Fri, 4 Oct 2002 19:47:09 -0400
-Message-ID: <3D9E29BD.1040902@sun.com>
-Date: Fri, 04 Oct 2002 16:52:29 -0700
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S262068AbSJDXWM>; Fri, 4 Oct 2002 19:22:12 -0400
+Received: from ti200710a082-0338.bb.online.no ([148.122.9.82]:4100 "EHLO
+	empire.e") by vger.kernel.org with ESMTP id <S262039AbSJDXWC>;
+	Fri, 4 Oct 2002 19:22:02 -0400
+Message-ID: <3D9E23E2.8000400@freenix.no>
+Date: Sat, 05 Oct 2002 01:27:30 +0200
+From: "frode@freenix.no" <frode@freenix.no>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: austin@digitalroadkill.net, hahn@physics.mcmaster.ca, jackie.m@vt.edu,
-       rread@clusterfs.com
-Subject: RFC: Patch for >32 groups
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40 (several issues): kernel BUG! at slab.c:1292, imm/ppa IOMega
+ ZIP drivers modules ".o" not found, XFS won't link, depmod complains on
 Content-Type: multipart/mixed;
- boundary="------------070800050108070509000001"
+ boundary="------------070502090506030301070301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070800050108070509000001
+--------------070502090506030301070301
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-All,
+I just downloaded the linux-2.5.40 tarball.
 
-Here is a set of patches (against a recent-ish 2.5 BK) that removes the 
-arbitrary limit of 32 groups.
+The kernel was built and tested on a box running Debian Unstable (refreshed today).
+I had four (five if you include ALSA breaking make menuconfig) issues.
 
-The first patch creates generic qsort() and bsearch() routines (I have 
-another patch to conver XFS to use it, as discussed with Christoph a 
-while back).
+     - the kernel wouldn't link with XFS enabled due to some
+       unreferenced symbols ("run_task_queue", etc).
 
-The second patch converts task->groups[] into a dynamic, refcounted, CoW 
-array.  It does the needed bits for i386 (minor) but not the other 
-architectures.  I have (not included here for brevity) patches that 
-convert other arch trees to do the right thing (I think) and convert 
-other usages of NGROUPS and task->groups and task->ngroups.  There are 
-still a few issues I am working out with those.
+     - configuring for the SCSI IOMega Parallel port drivers as modules,
+       make modules_install fails as the 'imm.o' and 'ppa.o' files
+       are missing. (i just 'touch'ed these files to get
+       "make modules_install" to continue)
 
-I wanted to post this (and CC: people who have mailed me about it) and 
-see if there are any complaints about the approach.  The patches are 
-simple, and have been in use in our own 2.4.x systems or some time.  I 
-did make some changes in forward porting, but they are tested on at 
-least one 2.5.x box here :)
+     - make modules_install runs depmod which fails with
+depmod: cannot read ELF header from /lib/modules/2.5.40/kernel/drivers/scsi/imm.o
+depmod: cannot read ELF header from /lib/modules/2.5.40/kernel/drivers/scsi/ppa.o
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.40/kernel/drivers/usb/input/usbkbd.o
+depmod: 	usb_kbd_free_buffers
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.40/kernel/net/ipv4/netfilter/ipt_owner.o
+depmod: 	next_thread
+depmod: 	find_task_by_pid
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.40/kernel/net/ipv6/netfilter/ip6t_owner.o
+depmod: 	next_thread
+depmod: 	find_task_by_pid
 
-This has the side effect of reducing the size of struct task_struct by a 
-bit, too. :)
+       The first two are naturally caused by me just touching up 0 byte
+       files as mentioned above.
 
-This should run on any glibc, without mods.  Glibc will need to return a 
-different value instead of NGROUPS (32), to be fully correct, though.  I 
-suggest INT_MAX :)
+     - Booting up, i got several "Debug: sleeping function called from illegal
+        context at slab.c:1374", and one nasty-looking BUG!:
+       "kernel BUG at slab.c:1292!" which apparently killed off klogd.
 
-We've found a couple apps that needed to be fixed up in the event of >32 
-groups being used, and when this goes mainline, we'll pop out those 
-patches, too.  Another issue:  this changes /proc/pid/status to only 
-show 32 groups - not sure what better solution is preferred.
+The slab.c:1292 bug occurs during bootup, just after init goes
+to runlevel 2 and starts syslogd and klogd, and is about to enable swap.
 
-Comments, read-overs, and flames requested.  Ideally I'd like to see 
-this go into 2.5.x real soon now. :)
+I tried booting twice, and got the same bug at the same time during bootup.
+I'll attach "dmesg > dmesg.2.5.40.first" and "diff -u dmesg.2.5.40.first 
+dmesg.2.5.40.second" to show the few differences between my two bootups...
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Linux Kernel Engineering
-thockin@sun.com
+As you can see the last dmesg line before the BUG! line mounts a 256mb swap-file 
+residing on my ext3 "/" filesystem mounted with priority '-2'. I also have a 
+160mb swap partition which is mounted with priority '-1'. I don't know if the 
+bug is any way related to this, though. I'm also a bit unsure what to make of 
+the stack trace, but it might be of interest that this machine is an NFS client 
+to another linux NFS server (seeing "vfs" and "dgram_sendmsg" in there :) )
 
---------------070800050108070509000001
+
+Apart from klogd dying, everything else seems fine (although I haven't tried 
+anything fancy apart from running a few ssh sessions and playing some audio).
+Restarting klogd via "/etc/init.d/klogd start" when the system is running
+seems to bring up klogd just fine.
+
+
+(I'm not subscribed to the list; I would appreciate being CC:ed replies.)
+
+
+--------------070502090506030301070301
 Content-Type: text/plain;
- name="sort_search.patch"
+ name="dmesg.2.5.40.first"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="sort_search.patch"
+ filename="dmesg.2.5.40.first"
 
-diff -ruN virgin-2.5/include/linux/kernel.h linux-2.5/include/linux/kernel.h
---- virgin-2.5/include/linux/kernel.h	Tue Oct  1 16:42:45 2002
-+++ linux-2.5/include/linux/kernel.h	Fri Oct  4 13:44:09 2002
-@@ -206,4 +206,9 @@
- #define __FUNCTION__ (__func__)
- #endif
- 
-+void qsort(void *base, size_t nmemb, size_t size,
-+	int (*compar)(const void *, const void *));
-+void *bsearch(const void *key, const void *base, size_t nmemb, size_t size,
-+	int (*compar)(const void *, const void *));
-+
- #endif
-diff -ruN virgin-2.5/lib/Makefile linux-2.5/lib/Makefile
---- virgin-2.5/lib/Makefile	Tue Oct  1 16:46:37 2002
-+++ linux-2.5/lib/Makefile	Fri Oct  4 13:44:09 2002
-@@ -9,10 +9,11 @@
- L_TARGET := lib.a
- 
- export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o \
--	       crc32.o rbtree.o radix-tree.o
-+	       crc32.o rbtree.o radix-tree.o qsort.o bsearch.o
- 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
--	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o
-+	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
-+	 qsort.o bsearch.o
- 
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-diff -ruN virgin-2.5/lib/bsearch.c linux-2.5/lib/bsearch.c
---- virgin-2.5/lib/bsearch.c	Wed Dec 31 16:00:00 1969
-+++ linux-2.5/lib/bsearch.c	Fri Oct  4 13:44:09 2002
-@@ -0,0 +1,49 @@
-+/* Copyright (C) 1991, 1992, 1997, 2000 Free Software Foundation, Inc.
-+   This file is part of the GNU C Library.
-+
-+   The GNU C Library is free software; you can redistribute it and/or
-+   modify it under the terms of the GNU Library General Public License as
-+   published by the Free Software Foundation; either version 2 of the
-+   License, or (at your option) any later version.
-+
-+   The GNU C Library is distributed in the hope that it will be useful,
-+   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+   Library General Public License for more details.
-+
-+   You should have received a copy of the GNU Library General Public
-+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-+   Boston, MA 02111-1307, USA.  */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
-+/* Perform a binary search for KEY in BASE which has NMEMB elements
-+   of SIZE bytes each.  The comparisons are done by (*COMPAR)().  */
-+void *
-+bsearch(const void *key, const void *base, size_t nmemb, size_t size,
-+    int (*compar)(const void *, const void *))
-+{
-+	size_t l, u, idx;
-+	const void *p;
-+	int comparison;
-+
-+	l = 0;
-+	u = nmemb;
-+	while (l < u) {
-+		idx = (l + u) / 2;
-+		p = (void *)(((const char *)base) + (idx * size));
-+		comparison = (*compar)(key, p);
-+		if (comparison < 0)
-+			u = idx;
-+		else if (comparison > 0)
-+			l = idx + 1;
-+		else
-+			return (void *)p;
-+	}
-+
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL(bsearch);
-diff -ruN virgin-2.5/lib/qsort.c linux-2.5/lib/qsort.c
---- virgin-2.5/lib/qsort.c	Wed Dec 31 16:00:00 1969
-+++ linux-2.5/lib/qsort.c	Fri Oct  4 13:44:09 2002
-@@ -0,0 +1,180 @@
-+/*
-+ * Update: The Berkeley copyright was changed, and the change
-+ * is retroactive to all "true" BSD software (ie everything
-+ * from UCB as opposed to other peoples code that just carried
-+ * the same license). The new copyright doesn't clash with the
-+ * GPL, so the module-only restriction has been removed..
-+ */
-+
-+/*-
-+ * Copyright (c) 1992, 1993
-+ *	The Regents of the University of California.  All rights reserved.
-+ * Copyright (c) 2002 SGI
-+ * Copyright (c) 2002 Sun Microsystems, Inc.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. All advertising materials mentioning features or use of this software
-+ *    must display the following acknowledgement:
-+ *	This product includes software developed by the University of
-+ *	California, Berkeley and its contributors.
-+ * 4. Neither the name of the University nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ * 
-+ * From:
-+ *	@(#)qsort.c	8.1 (Berkeley) 6/4/93
-+ *	FreeBSD: src/lib/libc/stdlib/qsort.c,v 1.11 2002/03/22 21:53:10
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
-+typedef int		 cmp_t(const void *, const void *);
-+static inline char	*med3(char *, char *, char *, cmp_t *);
-+static inline void	 swapfunc(char *, char *, int, int);
-+
-+/*
-+ * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
-+ */
-+#define swapcode(TYPE, parmi, parmj, n) do { 		\
-+	long i = (n) / sizeof (TYPE); 			\
-+	TYPE *pi = (TYPE *) (parmi); 			\
-+	TYPE *pj = (TYPE *) (parmj); 			\
-+	do { 						\
-+		TYPE	t = *pi;			\
-+		*pi++ = *pj;				\
-+		*pj++ = t;				\
-+        } while (--i > 0);				\
-+} while (0)
-+
-+#define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % sizeof(long) || \
-+	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
-+
-+static inline void
-+swapfunc(char *a, char *b, int n, int swaptype)
-+{
-+	if(swaptype <= 1)
-+		swapcode(long, a, b, n);
-+	else
-+		swapcode(char, a, b, n);
-+}
-+
-+#define swap(a, b) do {					\
-+	if (swaptype == 0) {				\
-+		long t = *(long *)(a);			\
-+		*(long *)(a) = *(long *)(b);		\
-+		*(long *)(b) = t;			\
-+	} else						\
-+		swapfunc(a, b, es, swaptype);		\
-+} while (0)
-+
-+#define vecswap(a, b, n) 	do { 			\
-+	if ((n) > 0) swapfunc(a, b, n, swaptype);	\
-+} while (0)
-+
-+static inline char *
-+med3(char *a, char *b, char *c, cmp_t *cmp)
-+{
-+	return cmp(a, b) < 0 ?
-+	       (cmp(b, c) < 0 ? b : (cmp(a, c) < 0 ? c : a ))
-+              :(cmp(b, c) > 0 ? b : (cmp(a, c) < 0 ? a : c ));
-+}
-+
-+void
-+qsort(void *a, size_t n, size_t es, cmp_t *cmp)
-+{
-+	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
-+	int d, r, swaptype, swap_cnt;
-+
-+loop:	SWAPINIT(a, es);
-+	swap_cnt = 0;
-+	if (n < 7) {
-+		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
-+			for (pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0;
-+			     pl -= es)
-+				swap(pl, pl - es);
-+		return;
-+	}
-+	pm = (char *)a + (n / 2) * es;
-+	if (n > 7) {
-+		pl = a;
-+		pn = (char *)a + (n - 1) * es;
-+		if (n > 40) {
-+			d = (n / 8) * es;
-+			pl = med3(pl, pl + d, pl + 2 * d, cmp);
-+			pm = med3(pm - d, pm, pm + d, cmp);
-+			pn = med3(pn - 2 * d, pn - d, pn, cmp);
-+		}
-+		pm = med3(pl, pm, pn, cmp);
-+	}
-+	swap(a, pm);
-+	pa = pb = (char *)a + es;
-+
-+	pc = pd = (char *)a + (n - 1) * es;
-+	for (;;) {
-+		while (pb <= pc && (r = cmp(pb, a)) <= 0) {
-+			if (r == 0) {
-+				swap_cnt = 1;
-+				swap(pa, pb);
-+				pa += es;
-+			}
-+			pb += es;
-+		}
-+		while (pb <= pc && (r = cmp(pc, a)) >= 0) {
-+			if (r == 0) {
-+				swap_cnt = 1;
-+				swap(pc, pd);
-+				pd -= es;
-+			}
-+			pc -= es;
-+		}
-+		if (pb > pc)
-+			break;
-+		swap(pb, pc);
-+		swap_cnt = 1;
-+		pb += es;
-+		pc -= es;
-+	}
-+	if (swap_cnt == 0) {  /* Switch to insertion sort */
-+		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
-+			for (pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0;
-+			     pl -= es)
-+				swap(pl, pl - es);
-+		return;
-+	}
-+
-+	pn = (char *)a + n * es;
-+	r = min_t(long, pa - (char *)a, pb - pa);
-+	vecswap(a, pb - r, r);
-+	r = min_t(long, pd - pc, pn - pd - es);
-+	vecswap(pb, pn - r, r);
-+	if ((r = pb - pa) > es)
-+		qsort(a, r / es, es, cmp);
-+	if ((r = pd - pc) > es) {
-+		/* Iterate rather than recurse to save stack space */
-+		a = pn - r;
-+		n = r / es;
-+		goto loop;
-+	}
-+}
-+
-+EXPORT_SYMBOL(qsort);
+Linux version 2.5.40 (root@kingdom.e) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Sat Oct 5 00:08:38 CEST 2002
+Video mode to be used for restore is f01
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000017fec000 (usable)
+ BIOS-e820: 0000000017fec000 - 0000000017fef000 (ACPI data)
+ BIOS-e820: 0000000017fef000 - 0000000017fff000 (reserved)
+ BIOS-e820: 0000000017fff000 - 0000000018000000 (ACPI NVS)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+383MB LOWMEM available.
+ACPI: have wakeup address 0xc0001000
+On node 0 totalpages: 98284
+  DMA zone: 4096 pages
+  Normal zone: 94188 pages
+  HighMem zone: 0 pages
+ACPI: RSDP (v000 ASUS                       ) @ 0x000f65e0
+ACPI: RSDT (v001 ASUS   K7V      12336.12337) @ 0x17fec000
+ACPI: FADT (v001 ASUS   K7V      12336.12337) @ 0x17fec080
+ACPI: BOOT (v001 ASUS   K7V      12336.12337) @ 0x17fec040
+ACPI: DSDT (v001   ASUS K7V      00000.04096) @ 0x00000000
+ACPI: BIOS passes blacklist
+ACPI: MADT not present
+Building zonelist for node : 0
+Kernel command line: BOOT_IMAGE=unstable2540 ro root=345 bootfs=ext3
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 750.033 MHz processor.
+Console: colour VGA+ 80x50
+Calibrating delay loop... 1474.56 BogoMIPS
+Memory: 384368k/393136k available (2170k kernel code, 8380k reserved, 1045k data, 116k init, 0k highmem)
+Security Scaffold v1.0.0 initialized
+Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: Before vendor init, caps: 0183fbff c1c3fbff 00000000, vendor = 2
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 512K (64 bytes/line)
+CPU: After vendor init, caps: 0183fbff c1c3fbff 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+Machine check exception polling timer started.
+CPU:     After generic, caps: 0183fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0183fbff c1c3fbff 00000000 00000000
+CPU: AMD Athlon(tm) Processor stepping 01
+Enabling fast FPU save and restore... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 749.0879 MHz.
+..... host bus clock speed is 199.0967 MHz.
+cpu: 0, clocks: 199967, slice: 99983
+CPU0<T0:199952,T1:99968,D:1,S:99983,C:199967>
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+mtrr: v2.0 (20020519)
+PCI: PCI BIOS revision 2.10 entry at 0xf1010, last bus=1
+PCI: Using configuration type 1
+adding '' to cpu class interfaces
+ACPI: Subsystem revision 20020918
+ tbxface-0099 [03] Acpi_load_tables      : ACPI Tables successfully loaded
+Parsing Methods:...................................................................................................
+Table [DSDT] - 326 Objects with 39 Devices 99 Methods 20 Regions
+ACPI Namespace successfully loaded at root c048491c
+evxfevnt-0074 [04] Acpi_enable           : Transition to ACPI mode successful
+Executing all Device _STA and_INI methods:................................. exfldio-0103 [21] Ex_setup_region       : Field [PS2E] access width (4 bytes) too large for region [PSMG] (length 1)
+ exfldio-0114 [21] Ex_setup_region       : Field [PS2E] Base+Offset+Width 0+0+4 is beyond end of region [PSMG] (length 1)
+ dswexec-0404 [14] Ds_exec_end_op        : [AE_NOT_CONFIGURED]: Could not resolve operands, AE_AML_REGION_LIMIT
+  uteval-0425 [07] Ut_execute_STA        : _STA on PS2M failed AE_AML_REGION_LIMIT
+......
+39 Devices found containing: 38 _STA, 0 _INI methods
+Completing Region/Field/Buffer/Package initialization:................................................
+Initialized 12/20 Regions 5/5 Fields 19/19 Buffers 12/12 Packages (326 nodes)
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: (supports S0 S1 S4 S5)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ exfldio-0103 [20] Ex_setup_region       : Field [PS2E] access width (4 bytes) too large for region [PSMG] (length 1)
+ exfldio-0114 [20] Ex_setup_region       : Field [PS2E] Base+Offset+Width 0+0+4 is beyond end of region [PSMG] (length 1)
+ dswexec-0404 [13] Ds_exec_end_op        : [AE_NOT_CONFIGURED]: Could not resolve operands, AE_AML_REGION_LIMIT
+pci_bind-0191 [04] acpi_pci_bind         : Device 00:00:04.05 not present in PCI namespace
+pci_bind-0191 [04] acpi_pci_bind         : Device 00:00:04.06 not present in PCI namespace
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+PnPBIOS: Found PnP BIOS installation structure at 0xc00fc2b0
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xc2e0, dseg 0xf0000
+PnPBIOS: 17 nodes reported by PnP BIOS; 17 recorded by driver
+PnPBIOS: PNP0c02: ioport range 0x290-0x297 has been reserved
+PnPBIOS: PNP0c02: ioport range 0xe400-0xe47f has been reserved
+PnPBIOS: PNP0c02: ioport range 0xe800-0xe83f could not be reserved
+usb.c: registered new driver usbfs
+usb.c: registered new driver hub
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+SBF: Simple Boot Flag extension found and enabled.
+SBF: Setting boot flags 0x1
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
+apm: overridden by ACPI.
+Starting kswapd
+BIO: pool of 256 setup, 14Kb (56 bytes/bio)
+biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
+biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
+biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
+biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
+biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
+biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
+aio_setup: sizeof(struct page) = 40
+VFS: Disk quotas vdquot_6.5.1
+Journalled Block Device driver loaded
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+Capability LSM initialized
+PCI: Disabling Via external APIC routing
+ACPI: Power Button (FF) [PWRF]
+ACPI: Processor [CPU0] (supports C1 C2, 16 throttling states)
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: cpp_daisy: aa5500ff(18)
+parport0: assign_addrs: aa5500ff(18)
+parport0: Printer, EPSON Stylus COLOR 850
+parport_pc: Via 686A parallel port: io=0x378
+pty: 256 Unix98 ptys configured
+lp0: using parport0 (polling).
+block request queues:
+ 128 requests per read queue
+ 128 requests per write queue
+ 8 requests per batch
+ enter congestion at 31
+ exit congestion at 33
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: loaded (max 8 devices)
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:04.1
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt82c686a (rev 21) IDE UDMA66 controller on pci00:04.1
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
+hda: IBM-DPTA-372050, ATA DISK drive
+hdb: QUANTUM FIREBALLP LM20.5, ATA DISK drive
+hda: DMA disabled
+hdb: DMA disabled
+Debug: sleeping function called from illegal context at slab.c:1374
+d7fcdea8 c01182d4 c032a9c0 c032fd37 0000055e 00000000 c0133c3a c032fd37 
+       0000055e c04ad1f4 c04ad1bc d7efe46c 00000000 0000000e c0445000 c010cd22 
+       c02668b0 d7d33970 000001d0 c04ad1bc c04ad1ac d7efe46c 00000000 00000000 
+Call Trace:
+ [<c01182d4>]__might_sleep+0x54/0x60
+ [<c0133c3a>]kmem_cache_alloc+0x26/0x1d0
+ [<c010cd22>]startup_8259A_irq+0xa/0x10
+ [<c02668b0>]blk_init_free_list+0x4c/0xd0
+ [<c0266941>]blk_init_queue+0xd/0xe8
+ [<c0274d00>]ide_init_queue+0x28/0x68
+ [<c027b0d4>]do_ide_request+0x0/0x18
+ [<c0274fd8>]init_irq+0x298/0x354
+ [<c0275336>]hwif_init+0x112/0x258
+ [<c0274c2c>]probe_hwif_init+0x1c/0x6c
+ [<c028113d>]ide_setup_pci_device+0x3d/0x68
+ [<c0273cef>]via_init_one+0x33/0x3c
+ [<c010508b>]init+0x33/0x188
+ [<c0105058>]init+0x0/0x188
+ [<c0106f59>]kernel_thread_helper+0x5/0xc
 
---------------070800050108070509000001
+spurious 8259A interrupt: IRQ7.
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: _NEC DV-5700A, ATAPI CD/DVD-ROM drive
+hdd: CR-4801TE, ATAPI CD/DVD-ROM drive
+hdc: DMA disabled
+hdd: DMA disabled
+Debug: sleeping function called from illegal context at slab.c:1374
+d7fcdea8 c01182d4 c032a9c0 c032fd37 0000055e 00000000 c0133c3a c032fd37 
+       0000055e c04ad7cc c04ad794 d7efe534 00000000 0000000f c0445080 c010cd22 
+       c02668b0 d7d33970 000001d0 c04ad794 c04ad784 d7efe534 00000000 00000000 
+Call Trace:
+ [<c01182d4>]__might_sleep+0x54/0x60
+ [<c0133c3a>]kmem_cache_alloc+0x26/0x1d0
+ [<c010cd22>]startup_8259A_irq+0xa/0x10
+ [<c02668b0>]blk_init_free_list+0x4c/0xd0
+ [<c0266941>]blk_init_queue+0xd/0xe8
+ [<c0274d00>]ide_init_queue+0x28/0x68
+ [<c027b0d4>]do_ide_request+0x0/0x18
+ [<c0274fd8>]init_irq+0x298/0x354
+ [<c0275336>]hwif_init+0x112/0x258
+ [<c0274c2c>]probe_hwif_init+0x1c/0x6c
+ [<c0281161>]ide_setup_pci_device+0x61/0x68
+ [<c0273cef>]via_init_one+0x33/0x3c
+ [<c010508b>]init+0x33/0x188
+ [<c0105058>]init+0x0/0x188
+ [<c0106f59>]kernel_thread_helper+0x5/0xc
+
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=2495/255/63, UDMA(66)
+ hda:<7>ldm_validate_partition_table(): Found an MS-DOS partition table, not a dynamic disk.
+ hda1 hda2 < hda5 >
+hdb: host protected area => 1
+hdb: 40132503 sectors (20548 MB) w/1900KiB Cache, CHS=2498/255/63, UDMA(66)
+ hdb:<7>ldm_validate_partition_table(): Found an MS-DOS partition table, not a dynamic disk.
+ hdb1 < hdb5 hdb6 hdb7 hdb8 > hdb2
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: _NEC      Model: DV-5700A          Rev: 1.91
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MITSUMI   Model: CR-4801TE         Rev: 2.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Attached scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+sr0: scsi3-mmc drive: 17x/40x cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+sr1: scsi3-mmc drive: 8x/8x writer cd/rw xa/form2 cdda tray
+Debug: sleeping function called from illegal context at slab.c:1374
+d7fcdf14 c01182d4 c032a9c0 c032fd37 0000055e 00001000 c0133e3a c032fd37 
+       0000055e d8800000 00000246 00001000 00001000 c024f156 d7c51954 c041da08 
+       c0132abd 0000001c 000001d0 d7fcc000 00000246 00001000 000001d2 d7c51954 
+Call Trace:
+ [<c01182d4>]__might_sleep+0x54/0x60
+ [<c0133e3a>]kmalloc+0x56/0x214
+ [<c024f156>]attach+0x42/0x48
+ [<c0132abd>]get_vm_area+0x29/0x104
+ [<c0132d6e>]__vmalloc+0x32/0x10c
+ [<c0132e5d>]vmalloc+0x15/0x1c
+ [<c02964ac>]sg_init+0x80/0x100
+ [<c0285635>]scsi_register_device+0x71/0x114
+ [<c010508b>]init+0x33/0x188
+ [<c0105058>]init+0x0/0x188
+ [<c0106f59>]kernel_thread_helper+0x5/0xc
+
+ehci-hcd.c: 2002-Sep-23 USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+ehci-hcd.c: block sizes: qh 96 qtd 96 itd 128 sitd 64
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+register interface 'mouse' with class 'input
+mice: PS/2 mouse device common for all mice
+input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+md: linear personality registered as nr 1
+md: raid0 personality registered as nr 2
+md: raid1 personality registered as nr 3
+md: raid5 personality registered as nr 4
+raid5: measuring checksumming speed
+   8regs     :  1000.000 MB/sec
+   32regs    :   980.000 MB/sec
+   pII_mmx   :  1720.000 MB/sec
+   p5_mmx    :  2188.000 MB/sec
+raid5: using function: p5_mmx (2188.000 MB/sec)
+md: multipath personality registered as nr 7
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+IPv4 over IPv4 tunneling driver
+GRE over IPv4 tunneling driver
+Linux IP multicast router 0.06 plus PIM-SM
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 116k freed
+Adding 160608k swap on /dev/hdb7.  Priority:-1 extents:1
+EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,69), internal journal
+Real Time Clock Driver v1.11
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:0d.0: 3Com PCI 3c900 Cyclone 10Mbps Combo at 0x9800. Vers LK1.1.18
+phy=0, phyx=24, mii_status=0x180d
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,66), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,70), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+FAT: Using codepage cp437
+FAT: Using IO charset iso8859-1
+FAT: Using codepage cp437
+FAT: Using IO charset iso8859-1
+FAT: Using codepage cp437
+FAT: Using IO charset iso8859-1
+Adding 262136k swap on /swapfile.  Priority:-2 extents:519
+------------[ cut here ]------------
+kernel BUG at slab.c:1292!
+invalid operand: 0000
+3c59x rtc  
+CPU:    0
+EIP:    0060:[<c0133f6e>]    Not tainted
+EFLAGS: 00010002
+EIP is at kmalloc+0x18a/0x214
+eax: d756efff   ebx: d7feb6a0   ecx: 00000001   edx: 00000001
+esi: d756ee00   edi: 00000000   ebp: 00012800   esp: d7949e54
+ds: 0068   es: 0068   ss: 0068
+Process klogd (pid: 198, threadinfo=d7948000 task=d78af580)
+Stack: d7bd8314 c04b2ac0 000001d0 00000000 00000200 00000000 00000246 c02ccf42 
+       00000120 000001d0 ffffffe0 d7948000 00000032 c02cc4b4 00000080 000001d0 
+       d792e200 d719a1e4 d792e084 d7949f04 d7949f5c 00000037 00000000 c02cc640 
+Call Trace:
+ [<c02ccf42>]alloc_skb+0xd2/0x19c
+ [<c02cc4b4>]sock_alloc_send_pskb+0x6c/0x1dc
+ [<c02cc640>]sock_alloc_send_skb+0x1c/0x24
+ [<c030ea98>]unix_dgram_sendmsg+0xf8/0x418
+ [<c02ca06e>]sock_sendmsg+0x72/0x94
+ [<c02ca280>]sock_write+0xa4/0xb0
+ [<c01408bd>]vfs_write+0xb1/0x130
+ [<c01409a2>]sys_write+0x2a/0x3c
+ [<c0108a4b>]syscall_call+0x7/0xb
+
+Code: 0f 0b 0c 05 37 fd 32 c0 f7 c5 00 04 00 00 74 36 b8 a5 c2 0f 
+ 
+
+--------------070502090506030301070301
 Content-Type: text/plain;
- name="ngroups.patch"
+ name="dmesg.2.5.40.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ngroups.patch"
+ filename="dmesg.2.5.40.diff"
 
-diff -ruN virgin-2.5/fs/proc/array.c linux-2.5/fs/proc/array.c
---- virgin-2.5/fs/proc/array.c	Tue Oct  1 16:35:03 2002
-+++ linux-2.5/fs/proc/array.c	Fri Oct  4 13:44:38 2002
-@@ -171,7 +171,7 @@
- 		p->files ? p->files->max_fds : 0);
- 	task_unlock(p);
- 
--	for (g = 0; g < p->ngroups; g++)
-+	for (g = 0; g < min(p->ngroups, OLD_NGROUPS); g++)
- 		buffer += sprintf(buffer, "%d ", p->groups[g]);
- 
- 	buffer += sprintf(buffer, "\n");
-diff -ruN virgin-2.5/include/asm-i386/param.h linux-2.5/include/asm-i386/param.h
---- virgin-2.5/include/asm-i386/param.h	Tue Oct  1 16:44:14 2002
-+++ linux-2.5/include/asm-i386/param.h	Fri Oct  4 13:44:38 2002
-@@ -13,10 +13,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -ruN virgin-2.5/include/linux/init_task.h linux-2.5/include/linux/init_task.h
---- virgin-2.5/include/linux/init_task.h	Tue Oct  1 16:42:52 2002
-+++ linux-2.5/include/linux/init_task.h	Fri Oct  4 13:44:17 2002
-@@ -80,6 +80,7 @@
- 	.real_timer	= {						\
- 		.function	= it_real_fn				\
- 	},								\
-+	.ngroups	= 0,						\
- 	.cap_effective	= CAP_INIT_EFF_SET,				\
- 	.cap_inheritable = CAP_INIT_INH_SET,				\
- 	.cap_permitted	= CAP_FULL_SET,					\
-diff -ruN virgin-2.5/include/linux/limits.h linux-2.5/include/linux/limits.h
---- virgin-2.5/include/linux/limits.h	Tue Oct  1 16:43:11 2002
-+++ linux-2.5/include/linux/limits.h	Fri Oct  4 13:44:38 2002
-@@ -3,7 +3,6 @@
- 
- #define NR_OPEN	        1024
- 
--#define NGROUPS_MAX       32	/* supplemental group IDs are available */
- #define ARG_MAX       131072	/* # bytes of args + environ for exec() */
- #define CHILD_MAX        999    /* no limit :-) */
- #define OPEN_MAX         256	/* # open files a process may have */
-@@ -19,4 +18,6 @@
- 
- #define RTSIG_MAX	  32
- 
-+#define OLD_NGROUPS       32	/* old limit of supplemental group IDs */
-+
- #endif
-diff -ruN virgin-2.5/include/linux/sched.h linux-2.5/include/linux/sched.h
---- virgin-2.5/include/linux/sched.h	Tue Oct  1 16:42:52 2002
-+++ linux-2.5/include/linux/sched.h	Fri Oct  4 13:44:17 2002
-@@ -351,7 +351,8 @@
- 	uid_t uid,euid,suid,fsuid;
- 	gid_t gid,egid,sgid,fsgid;
- 	int ngroups;
--	gid_t	groups[NGROUPS];
-+	gid_t *groups;
-+	atomic_t *groups_refcount;
- 	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
- 	int keep_capabilities:1;
- 	struct user_struct *user;
-diff -ruN virgin-2.5/kernel/exit.c linux-2.5/kernel/exit.c
---- virgin-2.5/kernel/exit.c	Tue Oct  1 16:46:42 2002
-+++ linux-2.5/kernel/exit.c	Fri Oct  4 13:44:17 2002
-@@ -7,6 +7,7 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
-+#include <linux/vmalloc.h>
- #include <linux/interrupt.h>
- #include <linux/smp_lock.h>
- #include <linux/module.h>
-@@ -64,6 +65,12 @@
- 		BUG();
- 	if (p != current)
- 		wait_task_inactive(p);
-+
-+	if (p->ngroups && atomic_dec_and_test(p->groups_refcount)) {
-+		vfree(p->groups_refcount);
-+		vfree(p->groups);
-+	}
-+
- 	atomic_dec(&p->user->processes);
- 	security_ops->task_free_security(p);
- 	free_uid(p->user);
-diff -ruN virgin-2.5/kernel/fork.c linux-2.5/kernel/fork.c
---- virgin-2.5/kernel/fork.c	Tue Oct  1 16:46:41 2002
-+++ linux-2.5/kernel/fork.c	Fri Oct  4 13:44:17 2002
-@@ -805,6 +805,10 @@
- 	 */
- 	clear_tsk_thread_flag(p, TIF_SYSCALL_TRACE);
- 
-+	/* increment the groups ref count */
-+	if (p->ngroups)
-+		atomic_inc(p->groups_refcount);
-+
- 	/* Our parent execution domain becomes current domain
- 	   These must match for thread signalling to apply */
- 	   
-diff -ruN virgin-2.5/kernel/sys.c linux-2.5/kernel/sys.c
---- virgin-2.5/kernel/sys.c	Tue Oct  1 16:46:41 2002
-+++ linux-2.5/kernel/sys.c	Fri Oct  4 13:44:46 2002
-@@ -20,6 +20,9 @@
- #include <linux/device.h>
- #include <linux/times.h>
- #include <linux/security.h>
-+#include <linux/vmalloc.h>
-+#include <linux/slab.h>
-+
- 
- #include <asm/uaccess.h>
- #include <asm/io.h>
-@@ -1056,42 +1059,87 @@
- 	return i;
- }
- 
-+static int gid_t_cmp(const void *a, const void *b)
-+{
-+	return *((gid_t *)a) - *((gid_t *)b);
-+}
-+
- /*
-- *	SMP: Our groups are not shared. We can copy to/from them safely
-+ *	SMP: Our groups are copy-on-write. We can set them safely
-  *	without another task interfering.
-  */
-+int do_setgroups(int gidsetsize, gid_t *grouplist)
-+{
-+	atomic_t *newrefcnt = NULL;
-+
-+	BUG_ON(gidsetsize && !grouplist);
-+	if (gidsetsize) {
-+		newrefcnt = vmalloc(sizeof(*newrefcnt));
-+		if (!newrefcnt) {
-+			vfree(grouplist);
-+			return -ENOMEM;
-+		}
-+
-+		atomic_set(newrefcnt, 1);
-+
-+		/* sort the groupslist for faster searches */
-+		qsort(grouplist, gidsetsize, sizeof(gid_t), gid_t_cmp);
-+	}
-+
-+	/* disassociate ourselves from any shared group list */
-+	if (current->ngroups
-+	    && atomic_dec_and_test(current->groups_refcount)) {
-+		vfree(current->groups_refcount);
-+		vfree(current->groups);
-+	}
-+
-+	current->groups = grouplist;
-+	current->groups_refcount = newrefcnt;
-+	current->ngroups = gidsetsize;
-+
-+	return 0;
-+}
-  
- asmlinkage long sys_setgroups(int gidsetsize, gid_t *grouplist)
- {
--	gid_t groups[NGROUPS];
-+	gid_t *groups = NULL;
- 	int retval;
- 
- 	if (!capable(CAP_SETGID))
- 		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
--		return -EINVAL;
--	if(copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
--		return -EFAULT;
-+	if (gidsetsize) {
-+		/*
-+		 * make sure there is at least OLD_NGROUPS amount of space in
-+		 * the group list for backwards compatiblity sake.
-+		 */
-+		int alloc_size = (gidsetsize > OLD_NGROUPS) ? 
-+		    gidsetsize : OLD_NGROUPS;
-+		groups = vmalloc(alloc_size * sizeof(gid_t));
-+		if (!groups)
-+			return -ENOMEM;
-+
-+		if (copy_from_user(groups, grouplist,
-+		    gidsetsize * sizeof(gid_t))) {
-+			vfree(groups);
-+			return -EFAULT;
-+		}
-+	}
-+
- 	retval = security_ops->task_setgroups(gidsetsize, groups);
--	if (retval)
-+	if (retval) {
-+		if (groups)
-+			vfree(groups);
- 		return retval;
--	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
--	current->ngroups = gidsetsize;
--	return 0;
-+	}
-+	return do_setgroups(gidsetsize, groups);
- }
- 
- static int supplemental_group_member(gid_t grp)
- {
--	int i = current->ngroups;
--
--	if (i) {
--		gid_t *groups = current->groups;
--		do {
--			if (*groups == grp)
--				return 1;
--			groups++;
--			i--;
--		} while (i);
-+	if (current->ngroups) {
-+		if (bsearch(&grp, current->groups, current->ngroups,
-+		    sizeof(gid_t), gid_t_cmp))
-+			return 1;
- 	}
- 	return 0;
- }
-@@ -1384,3 +1432,4 @@
- EXPORT_SYMBOL(unregister_reboot_notifier);
- EXPORT_SYMBOL(in_group_p);
- EXPORT_SYMBOL(in_egroup_p);
-+EXPORT_SYMBOL(sys_setgroups);
-diff -ruN virgin-2.5/kernel/uid16.c linux-2.5/kernel/uid16.c
---- virgin-2.5/kernel/uid16.c	Tue Oct  1 16:46:42 2002
-+++ linux-2.5/kernel/uid16.c	Fri Oct  4 13:48:39 2002
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/highuid.h>
- #include <linux/security.h>
-+#include <linux/vmalloc.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -27,6 +28,7 @@
- extern asmlinkage long sys_setresgid(gid_t, gid_t, gid_t);
- extern asmlinkage long sys_setfsuid(uid_t);
- extern asmlinkage long sys_setfsgid(gid_t);
-+extern int do_setgroups(int gidsetsize, gid_t *grouplist);
-  
- asmlinkage long sys_chown16(const char * filename, old_uid_t user, old_gid_t group)
- {
-@@ -109,43 +111,74 @@
- 
- asmlinkage long sys_getgroups16(int gidsetsize, old_gid_t *grouplist)
- {
--	old_gid_t groups[NGROUPS];
-+	old_gid_t *groups;
- 	int i,j;
- 
- 	if (gidsetsize < 0)
- 		return -EINVAL;
- 	i = current->ngroups;
--	if (gidsetsize) {
-+	if (i && gidsetsize) {
- 		if (i > gidsetsize)
- 			return -EINVAL;
-+		groups = vmalloc(sizeof(old_gid_t) * i);
-+		if (!groups)
-+			return -ENOMEM;
- 		for(j=0;j<i;j++)
- 			groups[j] = current->groups[j];
--		if (copy_to_user(grouplist, groups, sizeof(old_gid_t)*i))
-+		if (copy_to_user(grouplist, groups, sizeof(old_gid_t)*i)) {
-+			vfree(groups);
- 			return -EFAULT;
-+		}
-+		vfree(groups);
- 	}
- 	return i;
- }
- 
- asmlinkage long sys_setgroups16(int gidsetsize, old_gid_t *grouplist)
- {
--	old_gid_t groups[NGROUPS];
--	gid_t new_groups[NGROUPS];
-+	old_gid_t *groups;
-+	gid_t *new_groups = NULL;
- 	int i;
- 
- 	if (!capable(CAP_SETGID))
- 		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
--		return -EINVAL;
--	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(old_gid_t)))
--		return -EFAULT;
--	for (i = 0 ; i < gidsetsize ; i++)
--		new_groups[i] = (gid_t)groups[i];
-+	if (gidsetsize) {
-+		/*
-+		 * make sure there is at least OLD_NGROUPS amount of space in
-+		 * the group list for backwards compatiblity sake.
-+		 */
-+		int alloc_size = (gidsetsize > OLD_NGROUPS) ? 
-+		    gidsetsize : OLD_NGROUPS;
-+
-+		groups = vmalloc(sizeof(old_gid_t) * gidsetsize);
-+		if (!groups)
-+			return -ENOMEM;
-+
-+		if (copy_from_user(groups, grouplist,
-+		    gidsetsize * sizeof(old_gid_t))) {
-+			vfree(groups);
-+			return -EFAULT;
-+		}
-+
-+		if (!(new_groups = vmalloc(sizeof(gid_t) * alloc_size))) {
-+			vfree(groups);
-+			return -ENOMEM;
-+		}
-+
-+		for (i = 0; i < gidsetsize; i++)
-+			new_groups[i] = (gid_t)groups[i];
-+
-+		vfree(groups);
-+	}
-+
- 	i = security_ops->task_setgroups(gidsetsize, new_groups);
--	if (i)
-+	if (i) {
-+		if (new_groups)
-+			vfree(new_groups);
- 		return i;
--	memcpy(current->groups, new_groups, gidsetsize * sizeof(gid_t));
--	current->ngroups = gidsetsize;
--	return 0;
-+	}
-+	/* handles the vmalloc()ed new_groups */
-+	return do_setgroups(gidsetsize, new_groups);
- }
- 
- asmlinkage long sys_getuid16(void)
+--- dmesg.2.5.40.first	2002-10-05 01:15:24.000000000 +0200
++++ dmesg.2.5.40.second	2002-10-05 01:15:32.000000000 +0200
+@@ -27,7 +27,7 @@
+ Local APIC disabled by BIOS -- reenabling.
+ Found and enabled local APIC!
+ Initializing CPU#0
+-Detected 750.033 MHz processor.
++Detected 750.191 MHz processor.
+ Console: colour VGA+ 80x50
+ Calibrating delay loop... 1474.56 BogoMIPS
+ Memory: 384368k/393136k available (2170k kernel code, 8380k reserved, 1045k data, 116k init, 0k highmem)
+@@ -53,10 +53,10 @@
+ ESR value after enabling vector: 00000000
+ Using local APIC timer interrupts.
+ calibrating APIC timer ...
+-..... CPU clock speed is 749.0879 MHz.
+-..... host bus clock speed is 199.0967 MHz.
+-cpu: 0, clocks: 199967, slice: 99983
+-CPU0<T0:199952,T1:99968,D:1,S:99983,C:199967>
++..... CPU clock speed is 749.0925 MHz.
++..... host bus clock speed is 199.0980 MHz.
++cpu: 0, clocks: 199980, slice: 99990
++CPU0<T0:199968,T1:99968,D:10,S:99990,C:199980>
+ Linux NET4.0 for Linux 2.4
+ Based upon Swansea University Computer Society NET3.039
+ Initializing RT netlink socket
+@@ -308,13 +308,13 @@
+ EIP:    0060:[<c0133f6e>]    Not tainted
+ EFLAGS: 00010002
+ EIP is at kmalloc+0x18a/0x214
+-eax: d756efff   ebx: d7feb6a0   ecx: 00000001   edx: 00000001
+-esi: d756ee00   edi: 00000000   ebp: 00012800   esp: d7949e54
++eax: d7626fff   ebx: d7feb6a0   ecx: 00000001   edx: 00000001
++esi: d7626e00   edi: 00000000   ebp: 00012800   esp: d705be54
+ ds: 0068   es: 0068   ss: 0068
+-Process klogd (pid: 198, threadinfo=d7948000 task=d78af580)
++Process klogd (pid: 188, threadinfo=d705a000 task=d78ae880)
+ Stack: d7bd8314 c04b2ac0 000001d0 00000000 00000200 00000000 00000246 c02ccf42 
+-       00000120 000001d0 ffffffe0 d7948000 00000032 c02cc4b4 00000080 000001d0 
+-       d792e200 d719a1e4 d792e084 d7949f04 d7949f5c 00000037 00000000 c02cc640 
++       00000120 000001d0 ffffffe0 d705a000 00000032 c02cc4b4 00000080 000001d0 
++       d792f200 d72001e4 d792f084 d705bf04 d705bf5c 00000037 00000000 c02cc640 
+ Call Trace:
+  [<c02ccf42>]alloc_skb+0xd2/0x19c
+  [<c02cc4b4>]sock_alloc_send_pskb+0x6c/0x1dc
 
---------------070800050108070509000001--
+--------------070502090506030301070301--
 

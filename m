@@ -1,74 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbTJCAnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 20:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTJCAnJ
+	id S263528AbTJCAgo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 20:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263562AbTJCAgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 20:43:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58573 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263565AbTJCAnF (ORCPT
+	Thu, 2 Oct 2003 20:36:43 -0400
+Received: from DSL022.LABridge.com ([206.117.136.22]:6410 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S263528AbTJCAgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 20:43:05 -0400
-Date: Thu, 2 Oct 2003 17:43:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Aniket Malatpure <aniket@sgi.com>
-Cc: linux-kernel@vger.kernel.org, gwh@sgi.com, jeremy@sgi.com, jbarnes@sgi.com,
-       aniket_m@hotmail.com,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Message-Id: <20031002174304.5c984dc9.akpm@osdl.org>
-In-Reply-To: <3F7CB4A9.3C1F1237@sgi.com>
-References: <3F7CB4A9.3C1F1237@sgi.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 2 Oct 2003 20:36:43 -0400
+Subject: Re: [PATCH] Net device error logging
+From: Joe Perches <joe@perches.com>
+To: Jim Keniston <jkenisto@us.ibm.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F7C967F.A06A512E@us.ibm.com>
+References: <3F7C967F.A06A512E@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1065141377.6667.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 02 Oct 2003 17:36:17 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aniket Malatpure <aniket@sgi.com> wrote:
->
-> Hi
-> 
-> This patch adds support for the ATAPI part of SGI's IOC4 chipset.
-> A version of this patch for the 2.4 series has been accepted and is present in the tree.
-> This patch is a slight modification of the earlier patch for the 2.4 series.
-> 
+On Thu, 2003-10-02 at 14:19, Jim Keniston wrote:
+> The enclosed patch, updated for v2.6.0-test6, implements the previously
+> discussed netdev_* error-logging macros for network drivers.  Please apply.
 
-Perhaps Bart could take a look over this sometime please?
-
-
-> +++ b/drivers/ide/pci/sgiioc4.c	Thu Oct  2 16:53:34 2003
-> +
-> +extern int dma_timer_expiry(ide_drive_t * drive);
-
-This is unused.  Just as well, as it is static to a different file.
-
-> +static struct pci_device_id sgiioc4_pci_tbl[] __devinitdata = {
-
-This cannot be __devinitdata because the PCI table walking will look at it
-even after __init code has been dropped.  We've had oopses from this.
-
-> --- /dev/null	Wed Dec 31 16:00:00 1969
-> +++ b/drivers/ide/pci/sgiioc4.h	Thu Oct  2 16:53:34 2003
-
-hrm, why does this file exist?  It has only one include site, and should
-not be included by other .c files anyway because it defines static storage.
-
-It looks like the whole file should just be pasted into sgiioc4.c?
-
-> +typedef volatile struct {
-> +	u32 timing_reg0;
-> +	u32 timing_reg1;
-> +	u32 low_mem_ptr;
-> +	u32 high_mem_ptr;
-> +	u32 low_mem_addr;
-> +	u32 high_mem_addr;
-> +	u32 dev_byte_count;
-> +	u32 mem_byte_count;
-> +	u32 status;
-> +} ioc4_dma_regs_t;
-
-Does this actually need to be volatile?
+While I agree with the completely with the concept and nearly completely
+with the implementation, can I suggest that this should be done in the
+2.7 series?
 
 

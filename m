@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbUACFtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 00:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUACFtJ
+	id S262652AbUACFjo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 00:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUACFjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 00:49:09 -0500
-Received: from pD9E56DF6.dip.t-dialin.net ([217.229.109.246]:63386 "EHLO
-	fred.muc.de") by vger.kernel.org with ESMTP id S262674AbUACFtI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 00:49:08 -0500
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export idle_warning (x86-64)
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 03 Jan 2004 06:49:04 +0100
-In-Reply-To: <19Md2-1Yh-7@gated-at.bofh.it> (Srihari Vijayaraghavan's
- message of "Sat, 03 Jan 2004 06:10:08 +0100")
-Message-ID: <m3brplvay7.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <19Md2-1Yh-7@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 00:39:44 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:26520 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S262652AbUACFjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 00:39:43 -0500
+Subject: Synaptics working great!
+From: Dax Kelson <dax@gurulabs.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Content-Type: text/plain
+Message-Id: <1073108238.3613.16.camel@mentor.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 02 Jan 2004 22:37:18 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srihari Vijayaraghavan <harisri@bigpond.com> writes:
+I'm using 2.6.1-rc1-mm1 on a Dell Inspiron 4150.
 
-> Without this patch the ACPI processor module does not load (and hence thermal 
-> module too):
+I after recompiled without ACPI PM timer and fixed up my XF86Config life
+is excellent. I don't need to pass any parameters either.
 
-Thanks. I applied the patch.
+The wacky jitter problems (fixed by patches in mm) is what kept me
+running back to 2.4.
 
--Andi
+Dax Kelson
+
+

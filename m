@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275276AbTHGLDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 07:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275278AbTHGLDQ
+	id S275277AbTHGLBH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 07:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275283AbTHGLBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 07:03:16 -0400
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:24741 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S275276AbTHGLDP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 07:03:15 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: reiserfs4
-Date: Thu, 7 Aug 2003 12:00:53 +0200
-User-Agent: KMail/1.5.3
-References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int>
-In-Reply-To: <20030806230220.I7752@schatzie.adilger.int>
-Cc: Vladimir Lazarenko <vlad@lazarenko.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Thu, 7 Aug 2003 07:01:06 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39179 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275277AbTHGLBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 07:01:04 -0400
+Date: Thu, 7 Aug 2003 12:00:56 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Charles Lepple <clepple@ghz.cc>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-ID: <20030807120056.B17690@flint.arm.linux.org.uk>
+Mail-Followup-To: Stephen Rothwell <sfr@canb.auug.org.au>,
+	Charles Lepple <clepple@ghz.cc>, linux-kernel@vger.kernel.org
+References: <20030806231519.H16116@flint.arm.linux.org.uk> <3F31BDA3.7040700@ghz.cc> <20030807204553.3c5f432e.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308071200.56869.fsdeveloper@yahoo.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030807204553.3c5f432e.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Thu, Aug 07, 2003 at 08:45:53PM +1000
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Aug 07, 2003 at 08:45:53PM +1000, Stephen Rothwell wrote:
+> On Wed, 06 Aug 2003 22:46:59 -0400 Charles Lepple <clepple@ghz.cc> wrote:
+> >
+> > Also saw your post about the 3c59x cardbus adapter. I can't recall ever 
+> > being able to suspend the machine with that card inserted (including 
+> > under 2.4-- I always had to eject the card before suspend or hibernate). 
+> 
+> The IBM Thinkpad documentation mentions this (or used to) you cannot
+> suspend a Thinkpad (using APM?) while there is a card powered in the
+> PCMCIA/Cardbus slot.  You could try doing "cardctrl eject" before
+> suspending - I find that this works for me (Thinkpad T22).
+> 
+> The message "apm: suspend: Unable to enter requested state" is an
+> indication of an error from the BIOS.
 
-On Thursday 07 August 2003 07:02, Andreas Dilger wrote:
-> Why do people ever want a "converter"?
+Well, it all works fine with 2.4, even with a 3c59x in the slot (except
+for the resume problem.)  Even ejecting the card before suspending with
+2.6 doesn't fix the problem though.
 
-It's because most people don't know of the complexity
-of a file-system and think that's a trivial thing.
-And most people are lazy and blindly trust any software :)
-
-- -- 
-Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
-Penguin on this machine:  Linux 2.6.0-test2 - i386
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/MiNVoxoigfggmSgRAtJAAJ0RTjMfzh8nRB/NGFDdLjMbi0WnXACeIAsa
-JPjzxlprtgR1HQt+eFTLaYo=
-=N8sT
------END PGP SIGNATURE-----
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

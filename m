@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271750AbRH0OiB>; Mon, 27 Aug 2001 10:38:01 -0400
+	id <S271755AbRH0OmL>; Mon, 27 Aug 2001 10:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271747AbRH0Ohl>; Mon, 27 Aug 2001 10:37:41 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:55822 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S271744AbRH0Oha>; Mon, 27 Aug 2001 10:37:30 -0400
-Date: Mon, 27 Aug 2001 10:37:30 -0400 (EDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: safemode <safemode@speakeasy.net>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC] make ide-scsi more selective
-In-Reply-To: <200108251734.NAA28426@cs.columbia.edu>
-Message-ID: <Pine.LNX.4.33.0108271033280.1461-100000@age.cs.columbia.edu>
+	id <S271754AbRH0OmC>; Mon, 27 Aug 2001 10:42:02 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:10128 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271748AbRH0Olr>;
+	Mon, 27 Aug 2001 10:41:47 -0400
+Date: Mon, 27 Aug 2001 15:42:00 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Message-ID: <499114355.998926919@[169.254.198.40]>
+In-Reply-To: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
+In-Reply-To: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, safemode wrote:
+--On Monday, 27 August, 2001 4:31 PM +0200 Daniel Phillips 
+<phillips@bonn-fries.net> wrote:
 
-> Is there something wrong with making the Atapi cdrom driver as module and 
-> then loading that with an ignore hdX then loading the ide-scsi module?  That 
-> doesn't seem hard at all.  just two pretty lines in /etc/modules.  Just make 
-> both drivers modular.   otherwise you have people needing to do boot 
-> arguments through lilo.  
+>   - Readahead cache is important enough to get its own lru list.
+>     We know it's a fifo so don't have to waste cycles scanning/aging.
+>     Having a distinct list makes the accounting trivial, vs keeping
+>     readahead on the active list for example.
 
-Some people actually _like_ having a non-modular kernel and passing 
-arguments through lilo. As for myself, personally I just like having both 
-equally functional so I can choose whichever is better for the task at 
-hand.
+A nit: I think it's a MRU list you want. If you are reading
+ahead (let's have caps for a page that has been used for reading,
+as well as read from the disk, and lowercase for read-ahead that
+has not been used):
+	ABCDefghijklmnopq
+             |            |
+            read         disk
+	   ptr          head
+and you want to reclaim memory, you want to drop (say) 'pq'
+to get
+	ABCDefghijklmno
+for two reasons: firstly because 'efg' etc. are most likely
+to be used NEXT, and secondly because the diskhead is nearer
+'pq' when you (inevitably) have to read it again.
 
-> and andre had a patch at one time that was supposed to do something like 
-> allow you to use the recording function of ide CDR's without the scsi layer.  
-> Not sure if it was complete or even really working but i tried it once.  
-> Maybe you can ask him if it's possible.  
+This seems even more imporant when considering multiple streams,
+as if you drop the least recently 'used' (i.e. read in from disk),
+you will instantly create a thrashing storm.
 
-The packet writing stuff? That's actually Jens Axboe's work, and is very 
-different from the good ol' CD burning technique.
+And an idea: when dropping read-ahead pages, you might be better
+dropping many readahed pages for a single stream, rather than
+hitting them all equally, else they will tend to run out of
+readahead in sync.
 
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+--
+Alex Bligh

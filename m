@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbRFBWFQ>; Sat, 2 Jun 2001 18:05:16 -0400
+	id <S261771AbRFBWFg>; Sat, 2 Jun 2001 18:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261783AbRFBWFG>; Sat, 2 Jun 2001 18:05:06 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:3596 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S261771AbRFBWEu>;
-	Sat, 2 Jun 2001 18:04:50 -0400
-Date: Sun, 3 Jun 2001 00:04:42 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-        Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for realthis
-Message-ID: <20010603000442.B1290@pcep-jamie.cern.ch>
-In-Reply-To: <3B1790FB.82FC9251@mandrakesoft.com> <E155oW2-0000Ta-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S261783AbRFBWF0>; Sat, 2 Jun 2001 18:05:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4625 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261771AbRFBWFQ>; Sat, 2 Jun 2001 18:05:16 -0400
+Subject: Re: Reading from /dev/fb0 very slow?
+To: pavel@suse.cz (Pavel Machek)
+Date: Sat, 2 Jun 2001 23:03:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20010602105249.A979@bug.ucw.cz> from "Pavel Machek" at Jun 02, 2001 10:52:49 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E155oW2-0000Ta-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 01, 2001 at 01:58:58PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E156JUS-0002DC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Only some of them can be cached...  (some of the MIIs in some drivers
-> > are already cached, in fact)   you can't cache stuff like what your link
-> > partner is advertising at the moment, or what your battery status is at
-> > the moment.
+> I did some benchmarks, and my framebuffer is *way* faster when writing
+> than when reading:
+
+That is quite normal.
+
+> That is 6 times slower! This is also very visible in X, where moving
+> regions is expensive, while just drawing regions is fast. For example
+> gnome-terminal is *way* faster *with* transparent background option.
 > 
-> I am sure that to an unpriviledged application reporting back the same result
-> as we saw last time we asked the hardware unless it is over 30 seconds old
-> will work fine. Maybe 10 for link partner ?
+> Any idea why such assymetry? [This is toshiba 4030cdt with vesafb and
+> 2.4.5]
 
-Please no, 30 seconds is way too long for "your mains power is
-knackered, please fiddle with the power connector again" notification.
-When I jiggle the wire I need to know if it's making contact within 1
-second, and if it's lost when I let it go, I need to know that within
-1 second so I can jiggle it some more.
+Writes to a PCI device can be queued or posted. Reads from a PCI device for
+obvious reasons have to stall the CPU until the data returns. 
 
-Probably should try some contact cleaner ;-)
-
-Thanks...
--- Jamie

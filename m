@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbTEMQhW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTEMQgW
+	id S261710AbTEMQpD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTEMQpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:36:22 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:26363 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261950AbTEMQgN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:36:13 -0400
-Date: Tue, 13 May 2003 09:48:46 -0700
-From: Greg KH <greg@kroah.com>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse freezes under X - 2.5.69 and 2.5.69-mm*
-Message-ID: <20030513164846.GB10010@kroah.com>
-References: <1052843843.1148.7.camel@serpentine.internal.keyresearch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052843843.1148.7.camel@serpentine.internal.keyresearch.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 13 May 2003 12:45:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63758 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261710AbTEMQo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:44:59 -0400
+Date: Tue, 13 May 2003 09:57:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
+Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
+In-Reply-To: <1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0305130950030.1678-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 09:37:23AM -0700, Bryan O'Sullivan wrote:
-> Hi, Greg -
-> 
-> I just booted into vanilla 2.5.69, and confirmed that my mouse still
-> freezes under X.  I have something vaguely like a reproduction recipe:
-> drag a window around vigorously on the screen for a bit, and the mouse
-> will seize up.
-> 
-> I've attached the usual files, in case they're useful to you in figuring
-> out what might be wrong.  My userspace is Red Hat 9, barely modified.
 
-Hm, I don't know what to say.  It works here for me :)
+On 13 May 2003, Alan Cox wrote:
+>
+> With something like SELinux a PAG may belong to a role not to a user
+> even though other limits like processes probably belong to the user as a
+> whole. 
 
-Anyway, try enabling USB_DEBUG and see if anything interesting happens
-in the logs when the mouse dies.
+Hmm.. That doesn't make a lot of sense to me.
 
-Also, can you create a bug entry in bugzilla.kernel.org for this, so I
-can assign it to the USB mouse author/maintainer?  :)
+A "user" is by definition what the unix filesystem considers to be the
+"atom of security". In fact, a "user" has no other meaning - except for
+the notion of "root", which is obviously special and has meaning outside
+of the scope of filesystems (and even here capabilities have tried to
+separate out that meaning from the "user" definition).
 
-And no, this isn't a "hold 2.6 issue" by any means.  Lots of odd
-driver/device interactions never get figured out, especially for cheap
-USB hardware...
+But if we want to split up users into "roles", then sure, we can have a
+"role" that is shared across processes. But I think that for _usability_
+we really want that to be _shared_ by default, and anybody who wants to
+split it should have to work at it. Exactly so that when you log in, and
+use your private key to mount some encrypted volume, _all_ your processes
+should by default get access to it. Even if the other ones were
+independent logins (another window with another ssh session to that
+machine).
 
-thanks,
+In other words: I really think usability should count very high on the 
+list of requirements. Much higher than SELinux.
 
-greg k-h
+		Linus
+

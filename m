@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUHLU60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268774AbUHLVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268670AbUHLU60 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268774AbUHLU6X
+	id S268774AbUHLVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268785AbUHLVAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:58:23 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:44757 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268670AbUHLU6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:58:13 -0400
-Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <200408110136.06137.ianh@iahastie.local.net>
-References: <20040810161911.GA10565@devserv.devel.redhat.com>
-	 <200408102148.57602.ianh@iahastie.local.net>
-	 <20040810210630.GA30906@devserv.devel.redhat.com>
-	 <200408110136.06137.ianh@iahastie.local.net>
-Content-Type: text/plain
+	Thu, 12 Aug 2004 17:00:43 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:32131 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268774AbUHLVAU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:00:20 -0400
+Message-ID: <411BDB25.8070503@tmr.com>
+Date: Thu, 12 Aug 2004 17:03:33 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: V13 <v13@priest.com>
+CC: Martin Mares <mj@ucw.cz>, Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       axboe@suse.de, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <20040806231529.GA9997@ucw.cz><20040806231529.GA9997@ucw.cz> <200408071331.38793.v13@priest.com>
+In-Reply-To: <200408071331.38793.v13@priest.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092340539.22362.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 20:55:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-11 at 01:36, Ian Hastie wrote:
-> Yes it does.  It's certainly sold as a RAID card and it does have a RAID setup 
-> menu.  I haven't had the opportunity to use it fully as the discs I needed to 
-> use on it were already set up for software RAID.  Maybe I'll have a couple 
-> spare(!) discs to play with if I upgrade to SATA.
+V13 wrote:
+> On Saturday 07 August 2004 02:15, Martin Mares wrote:
+> 
+>>Hello!
+>>
+>>
+>>>Let me lead you to the right place to look for:
+>>>
+>>>	The CAM interface (which is from the SCSI standards group)
+>>>	usually is implemeted in a way that applications open /dev/cam and
+>>>	later supply bus, target and lun in order to get connected
+>>>	to any device on the system that talks SCSI.
+>>>
+>>>Let me repeat: If you believe that this is a bad idea, give very good
+>>>reasons.
+>>
+>>There is one: hotplug. The physical topology of buses where all the
+>>SCSI-like devices (being it ATAPI devices, iSCSI, USB disks or other such
+>>beasts) are connected is too complex, so every attempt to map them to the
+>>(bus, target, lun) triplets in any sane way is destined to fail.
+> 
+> 
+> Just to add on this, how is someone supposed to distinguish between two 
+> identical USB recorders using the scanbus/X:Y:Z method? I suppose he'll have 
+> to try writting to both drives each time he replugs them instead of 
+> having /dev/cdr-red /dev/cdr-blue or something similar using hotplug/udev.
 
-Much obliged - I got one from Novatech and I've been doing a bit more
-hammering on it. For non raid configurations but in smart mode my card
-now seems to be working. Its in part dependant on a core IDE change
-however so I'll push the relevant bits to Bart in order.
+cat /proc/scsi/usb-storage/*
 
-I've not tried raid yet (case logistics) but will do so very soon.
-
-
+There is a utility (name escapes me) which allows binding of a NIC to a 
+name by MAC address, it would be nice to be able to bind by serial 
+number for IDE/SCSI/USB devices. However, until you do that, a simple 
+script to create a few symlinks after discovery will solve your problem. 
+Doesn't bug me enough to bother, but that's how.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

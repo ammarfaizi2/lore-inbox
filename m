@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbULFLLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbULFLPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbULFLLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 06:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULFLLL
+	id S261501AbULFLPD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 06:15:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULFLPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 06:11:11 -0500
-Received: from zork.zork.net ([64.81.246.102]:31947 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261500AbULFLKu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 06:10:50 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: "Riley Williams" <riley_howard_williams@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nVidea Graphics card not recognised by lspci
-References: <BAY101-F22378AB0D9016021445311ABB40@phx.gbl>
-Mail-Followup-To: "Riley Williams" <riley_howard_williams@hotmail.com>,
-	linux-kernel@vger.kernel.org
-Date: Mon, 06 Dec 2004 11:10:45 +0000
-In-Reply-To: <BAY101-F22378AB0D9016021445311ABB40@phx.gbl> (Riley Williams's
-	message of "Mon, 06 Dec 2004 10:44:16 +0000")
-Message-ID: <6umzwrptqi.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Mon, 6 Dec 2004 06:15:02 -0500
+Received: from ns1.enidan.ch ([217.8.216.11]:28123 "EHLO mail.local.net")
+	by vger.kernel.org with ESMTP id S261501AbULFLOv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 06:14:51 -0500
+From: Per Jessen <per@computer.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.28 - kswapd excessive cpu usage under heavy IO
+Date: Mon, 6 Dec 2004 12:14:48 +0100
+User-Agent: KMail/1.5.4
+Organization: n/a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200412061214.48754.per@computer.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Riley Williams" <riley_howard_williams@hotmail.com> writes:
+(apologies if this is sent more than once)
+I've found similar incidences in the archives, but none that indicates that a
+solution was found. 
+I'm seeing excessive cpu usage by kswapd on a 4way 500MHZ Xeon with 2GB RAM.  A
+find in a directory containing perhaps 6-700,000 files makes the box almost
+grind to a halt.  In 12days uptime, kswap has used 590:43.82, and during the
+find-exercise usually runs with 90-100% util.
+The file-system is 150GB with JFS117 on a software-RAID5 - not exactly optimal,
+I agree, but reasonably workable.
 
-> The enclosed is the output from `lspci -vvv` for the video card on one of my 
-> systems. Can anybody tell me any more about this card, as "Unknown device 
-> 0322" isn't too useful a description.
+I've read that 2.6 has significant improvements in this area, but upgrading is
+not currently an option.  
 
-http://www.pcidatabase.com/vendor_details.php?id=606
+All hints & suggestions much appreciated.
 
-0x0322	Chip Number:		NV34.3
-	Chip Description:	GeForce FX 5200
+-- 
+Per Jessen, Zurich
+http://www.spamcek.com - let your spam stop here.
+

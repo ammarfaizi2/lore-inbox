@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318214AbSG3GBj>; Tue, 30 Jul 2002 02:01:39 -0400
+	id <S318215AbSG3GGX>; Tue, 30 Jul 2002 02:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318215AbSG3GBj>; Tue, 30 Jul 2002 02:01:39 -0400
-Received: from mx9.mail.ru ([194.67.57.19]:27657 "EHLO mx9.mail.ru")
-	by vger.kernel.org with ESMTP id <S318214AbSG3GBi>;
-	Tue, 30 Jul 2002 02:01:38 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: ebiederm@xmission.com
-Subject: Re: Funding GPL projects or funding the GPL?
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
-Date: Tue, 30 Jul 2002 10:05:01 +0400
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ZQ7x-000PK2-00@f17.mail.ru>
+	id <S318216AbSG3GGX>; Tue, 30 Jul 2002 02:06:23 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8207 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318215AbSG3GGW>; Tue, 30 Jul 2002 02:06:22 -0400
+Date: Mon, 29 Jul 2002 23:03:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Eric Altendorf <EricAltendorf@orst.edu>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: What patch to get stable IDE in 2.5?
+In-Reply-To: <200207292145.28411.EricAltendorf@orst.edu>
+Message-ID: <Pine.LNX.4.10.10207292301540.17634-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>      Most of you, people, didn`t ever thought about the fact that the money
->> scheme
->>   doesn`t simply work at all. That`s it.
->> 
->>   It`s being a _very_ fundamental issue. Look at the history:
->>   Money were invented as a human work equivalent. What it
->>   became now - this exercise is for the reader.
->
-> Money is not a human work equivalent.  Money is a commodity that
->everyone will barter with.  Making bartering more efficient.
->
-> With pure barter you have to do something like:
->work -> stuff1 -> stuff2 ->stuff3 -> stuff you want.
->With money this usually becomes
-work -> money -> stuff you want.
 
->>   So the life shows that we cannot rely on the
->> money as a human work equivalent.
+There are no problems if you get the patch for LAD and not K dot O.
 
->This makes the assumption that all work is equally valuable.  But you
->already made the assertion that a manager sitting around is not as
->a miner.
-  I`m sorry but you should forget that crap.
-Humans are born for cooperation, otherwise
-they seem not to survive.
-And the said "work valuability" doesn`t seem to be a mental excuse
-for the extreme success of selected individuals in society, does it?
+The only reason I have not updated them is because I have to release
+Serial ATA 1.0 now and some where between pre-final and final I broke it.
 
-We don`t want to reinvent the broken wheel, because all known
-problems will arise then. Again.
+Andre Hedrick
+LAD Storage Consulting Group
 
->Eric
 
----
-cheers,
-   Samium Gromoff
+On Mon, 29 Jul 2002, Eric Altendorf wrote:
+
+> 
+> A while ago a few people posted a few different patches that purported 
+> to patch a stable 2.4 IDE system into the 2.5 code tree...but as I 
+> recall other people pointed out problems in those patches.
+> 
+> Is there a consensus on how to get a stable IDE subsystem in the 2.5 
+> series kernel?
+> 
+> thanks
+> 
+> eric
+> 
+> -- 
+> "First they ignore you.  Then they laugh at you.
+>  Then they fight you.  And then you win."             -Gandhi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

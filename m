@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286672AbSAIODs>; Wed, 9 Jan 2002 09:03:48 -0500
+	id <S286750AbSAIOD2>; Wed, 9 Jan 2002 09:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286692AbSAIODj>; Wed, 9 Jan 2002 09:03:39 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61450 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286672AbSAIODV>;
-	Wed, 9 Jan 2002 09:03:21 -0500
-Date: Wed, 9 Jan 2002 12:03:15 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Error reading multiple large files
-In-Reply-To: <Pine.LNX.4.30.0201091454060.6953-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33L.0201091201330.2985-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286712AbSAIODI>; Wed, 9 Jan 2002 09:03:08 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:54280 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S286672AbSAIODF>; Wed, 9 Jan 2002 09:03:05 -0500
+Date: Wed, 9 Jan 2002 17:03:03 +0300
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [PATCH] Suppress compilation warnings on big endian platform for reiserfs
+Message-ID: <20020109170303.A1025@namesys.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Roy Sigurd Karlsbakk wrote:
 
-> > you really should try akpm's "[patch, CFT] improved disk read latency"
-> > patch.  it sounds almost perfect for your application.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> It seemed like it helped first, but after a while, some 99 processes
-> went Defunct, and locked. After this, the total 'bi' as reported from
-> vmstat went down to ~ 900kB per sec
->
-> What should I do?
+Hello!
 
-I've done a little bit of low memory testing with my -rmap
-VM patch, the system seems to be working just fine with 8MB
-of RAM ...
+    Please apply.
 
-If you have the time, could you try the following patch ?
+Bye,
+    Oleg
 
-	http://surriel.com/patches/2.4/2.4.17-rmap-11a
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="big-endian-const.diff"
 
+--- linux/include/linux/reiserfs_fs.h.orig	Wed Jan  9 12:03:13 2002
++++ linux/include/linux/reiserfs_fs.h	Wed Jan  9 16:57:37 2002
+@@ -244,9 +244,9 @@
+     __u64 linear;
+ } __attribute__ ((__packed__)) offset_v2_esafe_overlay;
+ 
+-static inline __u16 offset_v2_k_type( struct offset_v2 *v2 )
++static inline __u16 offset_v2_k_type( const struct offset_v2 *v2 )
+ {
+-    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
++    offset_v2_esafe_overlay tmp = *(const constoffset_v2_esafe_overlay *)v2;
+     tmp.linear = le64_to_cpu( tmp.linear );
+     return (tmp.offset_v2.k_type <= TYPE_MAXTYPE)?tmp.offset_v2.k_type:TYPE_ANY;
+ }
+@@ -259,9 +259,9 @@
+     tmp->linear = le64_to_cpu(tmp->linear);
+ }
+  
+-static inline loff_t offset_v2_k_offset( struct offset_v2 *v2 )
++static inline loff_t offset_v2_k_offset( const struct offset_v2 *v2 )
+ {
+-    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
++    offset_v2_esafe_overlay tmp = *(const offset_v2_esafe_overlay *)v2;
+     tmp.linear = le64_to_cpu( tmp.linear );
+     return tmp.offset_v2.k_offset;
+ }
 
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+--cNdxnHkX5QqsyA0e--

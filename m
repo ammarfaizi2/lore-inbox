@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265620AbRGSR16>; Thu, 19 Jul 2001 13:27:58 -0400
+	id <S265478AbRGSRd2>; Thu, 19 Jul 2001 13:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265488AbRGSR1j>; Thu, 19 Jul 2001 13:27:39 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:64270 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S265478AbRGSR1e>;
-	Thu, 19 Jul 2001 13:27:34 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107191727.VAA30738@ms2.inr.ac.ru>
-Subject: Re: [PATCH] PPPOE can kfree SKB twice (was Re: kernel panic problem. (smp, iptables?))
-To: mostrows@speakeasy.net
-Date: Thu, 19 Jul 2001 21:27:05 +0400 (MSK DST)
-Cc: davem@redhat.com, saai@swbell.net, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com, prefect_@gmx.net,
-        moritz@chaosdorf.de, egger@suse.de, srwalter@yahoo.com,
-        rusty@rustcorp.com.au
-In-Reply-To: <sb6r8vdgkya.fsf@slug.watson.ibm.com> from "Michal Ostrowski" at Jul 19, 1 08:30:37 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S265480AbRGSRdI>; Thu, 19 Jul 2001 13:33:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:16145 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S265478AbRGSRc7>;
+	Thu, 19 Jul 2001 13:32:59 -0400
+To: Cornel Ciocirlan <ctrl@rdsnet.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Request for comments
+In-Reply-To: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Jul 2001 19:33:02 +0200
+In-Reply-To: Cornel Ciocirlan's message of "19 Jul 2001 18:06:36 +0200"
+Message-ID: <oup4rs8kenl.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+Cornel Ciocirlan <ctrl@rdsnet.ro> writes:
 
-SOme short comment on the patch:
+> Hi, 
+> 
+> I was thinking of starting a project to implement a Cisco-like
+> "NetFlow" architecture for Linux. This would be relevant for edge routers
+> and/or network monitoring devices.  
 
+Linux 2.1+ already has such a cache in form of the rtcache since several
+years.
 
-> -	dev_queue_xmit(skb);
-> +	/* The skb we are to transmit may be a copy (see above).  If
-> +	 * this fails, then the caller is responsible for the original
-> +	 * skb, otherwise we must free it.  Also if this fails we must
-> +	 * free the copy that we made.
-> +	 */
-> +
-> +	if (dev_queue_xmit(skb)<0) {
+-Andi
 
-dev_queue_xmit _frees_ frame, not depending on return value.
-Return value is not a criterium to assume anything.
-
-
-
-> +		if (old_skb) {
-> +			/* The skb we tried to send was a copy.  We
-> +			 * have to free it (the copy) and let the
-> +			 * caller deal with the original one.
-> +			 */
-> +			skb_unlink(skb);
-
-So, do you pass to dev_queue_xmit some skb, which is on some list?
-Not a good idea. Please, clone it and submit clone, if you need to hold
-original in some list.
-
-Alexey

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129463AbQJ3WGn>; Mon, 30 Oct 2000 17:06:43 -0500
+	id <S129467AbQJ3WHd>; Mon, 30 Oct 2000 17:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129691AbQJ3WGd>; Mon, 30 Oct 2000 17:06:33 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:30734 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129513AbQJ3WG0>;
-	Mon, 30 Oct 2000 17:06:26 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S129513AbQJ3WHX>; Mon, 30 Oct 2000 17:07:23 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:3833 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129467AbQJ3WHI>; Mon, 30 Oct 2000 17:07:08 -0500
+Date: Mon, 30 Oct 2000 20:06:55 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alexander Viro <viro@math.psu.edu>
 cc: Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 17:01:20 CDT."
-             <39FDEFB0.B99B7E68@mandrakesoft.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 09:06:20 +1100
-Message-ID: <10523.972943580@ocs3.ocs-net>
+Subject: Re: [PATCH] Re: test10-pre7
+In-Reply-To: <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0010302005100.16609-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 17:01:20 -0500, 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->Keith Owens wrote:
->> USB still gets unresolved symbols when part is in kernel, part is in
->> modules and modversions are set.  Patch against 2.4.0-test10-pre7, only
->> affects drivers/usb/Makefile.
->
->Or instead of all that, you could simply call the core init function
->from init/main.c...
+On Mon, 30 Oct 2000, Alexander Viro wrote:
 
-Does that work when all of usb is a module?  The point of __initcall is
-to avoid all the conditional code that used to be in main.c.
+> The last one is in deactivate_page_nolock() - there we check the
+> ->mapping without pagecache_lock and without page lock. Hell
+> knows whether it's a bug or not. Rik?
 
->Ya know, sorting those lists causes this problem, too...  usb.o is
->listed first in the various lists, as is usbcore.o.  Is it possible to
->avoid sorting?  Doing so will fix this, and also any other link order
->breakage like this that exists, too.
+Shouldn't be a problem, since we'll have the lock at a time
+we actually /do/ something with those pointers.
 
-You have it backwards.  Rules.make does *not* sort, the link order is
-implicit in the declaration order of objects in the Makefiles.  For
-most makefiles, this kludge works, it does not work for USB.  See
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0010.3/0661.html
+In deactivate_page_nolock(), all we can modify is the list
+in which the page resides, the flags indicating on which
+list the page is and the referenced bit + page age. No other
+stuff is touched.
+
+Furthermore, the locking order (first pagecache lock, then
+the page_list_lock) would make it difficult to do this right...
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267311AbUHIWR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUHIWTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267311AbUHIWR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 18:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHIWR7
+	id S267313AbUHIWTO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 18:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHIWTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 18:17:59 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:48578 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S267311AbUHIWR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 18:17:56 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: "Steven E. Woolard" <tuxq@earthlink.net>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: VFAT/MSDOS
-Date: Tue, 10 Aug 2004 00:27:55 +0200
-User-Agent: KMail/1.5
-References: <11497362.1092087656059.JavaMail.root@ernie.psp.pas.earthlink.net>
-In-Reply-To: <11497362.1092087656059.JavaMail.root@ernie.psp.pas.earthlink.net>
+	Mon, 9 Aug 2004 18:19:14 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:11733 "EHLO
+	kartuli.timesys") by vger.kernel.org with ESMTP id S267313AbUHIWS5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 18:18:57 -0400
+Message-ID: <4117F831.90202@timesys.com>
+Date: Mon, 09 Aug 2004 18:18:25 -0400
+From: "La Monte H.P. Yarroll" <piggy@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, de-de
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Dan Malek <dan@embeddededge.com>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       Kumar Gala <kumar.gala@freescale.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Greg Weeks <greg.weeks@timesys.com>,
+       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [BUG] PPC math-emu multiply problem
+References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com> <20040809165650.GA22109@smtp.west.cox.net> <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com>
+In-Reply-To: <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408100027.55463.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 of August 2004 23:40, Steven E. Woolard wrote:
-> VER: 2.6.8-rc3
-> Using a FAT16 file system mounted via /dev/sda1
-> it cannot be written to. When attempt is made it gives the error of being a
-> read-only file system.
+Dan Malek wrote:
 
-It's known.  It appears that you have to mount the fs with _both_ the 
-"iocharset" _and_ "codepage" options explicitly specified to be able to write 
-to it.  Alternatively, you can remount it with "rw" explicitly specified (as 
-root).
+>
+> On Aug 9, 2004, at 12:56 PM, Tom Rini wrote:
+>
+>> Has anyone had a problem with this?  If not, I'll go and pass it
+>> along...
+>
+>
+> The default rounding mode should be whatever is defined
+> by IEEE.  I thought the emulator used the proper default value
+> and if want something different it should be selected by
+> the control register.  Maybe the emulator isn't implementing
+> the control register properly.
+>
+> Thanks.
+>
+>     -- Dan
 
-I hope that someone's working on a fix. ;-)
 
-Greets,
-RJW
+The submitted patch changing the default rounding mode
+caused several regressions in the LSB suite, so it was
+NOT the correct fix.
+
+Greg made a finer-grained change which seems to have
+made LSB happy.  Unfortunately, he's on vacation this
+week, or I'd have him submit the patch he finally used.
+
+I THINK he changed the rouding mode only for a single
+corner case in the normalization macro, but that's
+about all I remember...
 
 -- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
+
+

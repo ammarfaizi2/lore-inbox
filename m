@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318113AbSGRPHE>; Thu, 18 Jul 2002 11:07:04 -0400
+	id <S318129AbSGRPK0>; Thu, 18 Jul 2002 11:10:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318120AbSGRPG7>; Thu, 18 Jul 2002 11:06:59 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:21253 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318113AbSGRPG4>; Thu, 18 Jul 2002 11:06:56 -0400
-Date: Thu, 18 Jul 2002 12:09:40 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Andreas Dilger <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <Pine.LNX.3.96.1020718104332.7522A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44L.0207181208020.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318127AbSGRPJw>; Thu, 18 Jul 2002 11:09:52 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:12419 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S318122AbSGRPJd>; Thu, 18 Jul 2002 11:09:33 -0400
+Message-ID: <180577A42806D61189D30008C7E632E87939A6@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'Maksim (Max) Krasnyanskiy'" <maxk@qualcomm.com>, kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Networking question
+Date: Thu, 18 Jul 2002 11:11:31 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Bill Davidsen wrote:
+I have tried both methods and they work. I would of course like to use the
+most real-time efficient and "Kernel standard" methods. Looking into the
+code code of netif_rx_ni seems to be logically the most correct way since it
+will trigger do_softirq directly after the call to netif_rx.
 
-> I think I'm missing a part of this, the "a snapshot is created" sounds a
-> lot like "here a miracle occurs." Where is this snapshot saved? And how
-> do you take it in one sec regardless of f/s size?
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 
-LVM. Systems like LVM already provide a logical->physical block
-mapping on disk, so they might as well provide multiple mappings.
 
-If the live filesystem writes to a particular disk block, the
-snapshot will keep referencing the old blocks while the filesystem
-gets to work on its own data. Copy on Write snapshots for block
-devices...
+-----Original Message-----
+From: Maksim (Max) Krasnyanskiy [mailto:maxk@qualcomm.com]
+Sent: Wednesday, July 17, 2002 6:32 PM
+To: kuznet@ms2.inr.ac.ru; Bloch, Jack
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Networking question
 
-regards,
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> > the priority of the softirq daemon or ensure that it is always awoken 
+> when a
+> > netif_rx is called?
+>
+>You should suppound it with local_bh_disable()/enable(), when using
+>from process context.
+Actually he should call netif_rx_ni() instead of netif_rx().
+_ni stands for non-interrupt context.
 
+Max

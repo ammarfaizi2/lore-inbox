@@ -1,194 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbVAKVC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVAKVDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262821AbVAKVC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAKVAt
+	id S262755AbVAKVDF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVAKVDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:00:49 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:52447 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262755AbVAKU7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:59:39 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] user based capabilities 0.1
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Tue, 11 Jan 2005 21:59:29 +0100
-Message-ID: <87r7krr8b2.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 11 Jan 2005 16:03:00 -0500
+Received: from [195.110.122.101] ([195.110.122.101]:61325 "EHLO
+	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
+	id S262755AbVAKVBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:01:30 -0500
+From: Simone Piunno <pioppo@ferrara.linux.it>
+To: "Jean Delvare" <khali@linux-fr.org>
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+Date: Tue, 11 Jan 2005 22:04:59 +0100
+User-Agent: KMail/1.7.2
+Cc: sensors@stimpy.netroedge.com, "Jonas Munsin" <jmunsin@iki.fi>,
+       djg@pdp8.net, "Greg KH" <greg@kroah.com>,
+       "LKML" <linux-kernel@vger.kernel.org>
+References: <YN0o4rkI.1105435582.0805630.khali@localhost>
+In-Reply-To: <YN0o4rkI.1105435582.0805630.khali@localhost>
+X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
+X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
+X-Key-ID: 860314FC/C09E842C
+X-Message: GnuPG/PGP5 are welcome
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501112205.02322.pioppo@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Tuesday 11 January 2005 10:26, Jean Delvare wrote:
 
-This patch implements user based capabilities.
+> What you have here is this default configuration, i.e. all fans are
+> supposedly off. Of course it isn't the case, I assume that your fans
+> are running at full speed when you turn your computer on. 
 
-With this module, you will be able to grant capabilities based on
-user-/groupid (root by default). This patch uses sysfs/kobject for the
-user interface.
+Yes, thank you for your analisys.
 
-For example you can create a group raw and change the capability
-net_raw to this group:
+> Additionally, the first fan control output was turned to manual PWM
+> control mode, full speed. The driver supposedly doesn't do that, I
+> guess you did it yourself through the sysfs interface?
 
-# chgrp raw /sys/usercaps/net_raw
-# chmod ug+x /sys/usercaps/net_raw
-# chgrp raw /sbin/ping
-# chmod u-s /sbin/ping; chmod g+s /sbin/ping
+Of course, sorry.
 
-or you can give a group of users some capability:
+> > > Do you know what kind of it87 chip you do have? There are three of
+> > > them, IT8705F, IT8712F and a SIS950 clone (mostly similar to the
+> > > IT8705F).
+> See /sys/bus/i2c/devices/0-0290/name. If it says it8712 it's an IT8712F,
+> if it says it87 it is a less featured IT8705F or clone. After looking at
 
-# chgrp wheel /sys/usercaps/sys_admin
-# chmod ug+x /sys/usercaps/sys_admin
+pioppo@roentgen ~ $ cat /sys/devices/platform/i2c-0/0-0290/name
+it87
 
-Known bugs:
-- show()/store() not implemented
-- only minimally tested against 2.6.9
+> 2* I would then add a check to the it87 driver, which completely disables
+> the fan speed control interface if the initial configuration looks weird
+> (all fans supposedly stopped and polarity set to "active low"). This
+> should protect users of the driver who have a faulty BIOS.
 
-Regards, Olaf.
+If the driver can perform a similar guess, couldn't it also activate a reverse 
+polarity mode as well?  I think all systems boot with with full-speed fan, so 
+any value you found at loading time should be the full-speed one, shouln't 
+it?
 
+BTW:
+  I'm writing a report to giga-byte.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=usercaps.patch
-Content-Description: User base capabilities
-
-diff -urN a/usercaps/Makefile b/usercaps/Makefile
---- a/usercaps/Makefile	Thu Jan  1 01:00:00 1970
-+++ b/usercaps/Makefile	Tue Jan 11 19:12:07 2005
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for user based capabilities
-+# usage: make -C /usr/src/linux M=$PWD
-+#
-+
-+obj-m += usercaps.o
-+usercaps-objs := capabilities.o
-diff -urN a/usercaps/capabilities.c b/usercaps/capabilities.c
---- a/usercaps/capabilities.c	Thu Jan  1 01:00:00 1970
-+++ b/usercaps/capabilities.c	Tue Jan 11 19:08:55 2005
-@@ -0,0 +1,120 @@
-+/* Copyright (c) 2005 Olaf Dietsche
-+ *
-+ * User based capabilities for Linux.
-+ */
-+
-+#include <linux/dcache.h>
-+#include <linux/init.h>
-+#include <linux/kobject.h>
-+#include <linux/module.h>
-+#include <linux/namei.h>
-+#include <linux/security.h>
-+#include <linux/sysfs.h>
-+
-+static struct kobject usercaps = {
-+	.name = "usercaps",
-+};
-+
-+struct caps_attribute {
-+	struct attribute attr;
-+	struct inode *inode;
-+};
-+
-+static struct caps_attribute caps[] = {
-+	{ .attr = { .name = "chown", .mode = 0100, } },
-+	{ .attr = { .name = "dac_override", .mode = 0100, } },
-+	{ .attr = { .name = "dac_read_search", .mode = 0100, } },
-+	{ .attr = { .name = "fowner", .mode = 0100, } },
-+	{ .attr = { .name = "fsetid", .mode = 0100, } },
-+	{ .attr = { .name = "kill", .mode = 0100, } },
-+	{ .attr = { .name = "setgid", .mode = 0100, } },
-+	{ .attr = { .name = "setuid", .mode = 0100, } },
-+	{ .attr = { .name = "setpcap", .mode = 0100, } },
-+	{ .attr = { .name = "linux_immutable", .mode = 0100, } },
-+	{ .attr = { .name = "net_bind_service", .mode = 0100, } },
-+	{ .attr = { .name = "net_broadcast", .mode = 0100, } },
-+	{ .attr = { .name = "net_admin", .mode = 0100, } },
-+	{ .attr = { .name = "net_raw", .mode = 0100, } },
-+	{ .attr = { .name = "ipc_lock", .mode = 0100, } },
-+	{ .attr = { .name = "ipc_owner", .mode = 0100, } },
-+	{ .attr = { .name = "sys_module", .mode = 0100, } },
-+	{ .attr = { .name = "sys_rawio", .mode = 0100, } },
-+	{ .attr = { .name = "sys_chroot", .mode = 0100, } },
-+	{ .attr = { .name = "sys_ptrace", .mode = 0100, } },
-+	{ .attr = { .name = "sys_pacct", .mode = 0100, } },
-+	{ .attr = { .name = "sys_admin", .mode = 0100, } },
-+	{ .attr = { .name = "sys_boot", .mode = 0100, } },
-+	{ .attr = { .name = "sys_nice", .mode = 0100, } },
-+	{ .attr = { .name = "sys_resource", .mode = 0100, } },
-+	{ .attr = { .name = "sys_time", .mode = 0100, } },
-+	{ .attr = { .name = "sys_tty_config", .mode = 0100, } },
-+	{ .attr = { .name = "mknod", .mode = 0100, } },
-+	{ .attr = { .name = "lease", .mode = 0100, } },
-+};
-+
-+static inline int usercaps_permitted(struct inode *i, int mask)
-+{
-+	mode_t mode = i->i_mode;
-+	if (current->fsuid == i->i_uid)
-+		mode >>= 6;
-+	else if (in_group_p(i->i_gid))
-+		mode >>= 3;
-+
-+	return (mode & mask) == mask;
-+}
-+
-+static int usercaps_capable(struct task_struct *tsk, int cap)
-+{
-+	if (usercaps_permitted(caps[cap].inode, MAY_EXEC)) {
-+		/* capability granted */
-+		tsk->flags |= PF_SUPERPRIV;
-+		return 0;
-+	}
-+
-+	/* capability denied */
-+	return -EPERM;
-+}
-+
-+static struct security_operations usercaps_security_ops = {
-+	.capable = usercaps_capable,
-+};
-+
-+static struct dentry *get_dentry(struct dentry *parent, const char *name)
-+{
-+	struct qstr qstr;
-+	qstr.name = name;
-+	qstr.len = strlen(name);
-+	qstr.hash = full_name_hash(name, qstr.len);
-+	return lookup_hash(&qstr, parent);
-+}
-+
-+static int __init init_capabilities(void)
-+{
-+	int i, err;
-+	kobject_register(&usercaps);
-+	for (i = 0; i < sizeof(caps) / sizeof(caps[0]); ++i) {
-+		struct dentry *d;
-+		sysfs_create_file(&usercaps, &caps[i].attr);
-+		d = get_dentry(usercaps.dentry, caps[i].attr.name);
-+		caps[i].inode = d->d_inode;
-+	}
-+
-+	err = register_security(&usercaps_security_ops);
-+	if (err)
-+		kobject_unregister(&usercaps);
-+
-+	return err;
-+}
-+
-+static void __exit exit_capabilities(void)
-+{
-+	kobject_unregister(&usercaps);
-+	unregister_security(&usercaps_security_ops);
-+}
-+
-+module_init(init_capabilities)
-+module_exit(exit_capabilities)
-+
-+MODULE_AUTHOR("Olaf Dietsche");
-+MODULE_DESCRIPTION("User based capabilities");
-+MODULE_LICENSE("GPL");
-
---=-=-=--
+Cheers,
+  Simone
+-- 
+http://thisurlenablesemailtogetthroughoverzealousspamfilters.org

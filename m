@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280628AbRKNPIu>; Wed, 14 Nov 2001 10:08:50 -0500
+	id <S280631AbRKNPMu>; Wed, 14 Nov 2001 10:12:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280629AbRKNPIk>; Wed, 14 Nov 2001 10:08:40 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:45030 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S280628AbRKNPI1>; Wed, 14 Nov 2001 10:08:27 -0500
-Date: Wed, 14 Nov 2001 15:08:25 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-In-Reply-To: <3BF285D7.8F5AAB6E@redhat.com>
-Message-ID: <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S280632AbRKNPMk>; Wed, 14 Nov 2001 10:12:40 -0500
+Received: from smtp2.cluster.oleane.net ([195.25.12.17]:35079 "EHLO
+	smtp2.cluster.oleane.net") by vger.kernel.org with ESMTP
+	id <S280631AbRKNPMf>; Wed, 14 Nov 2001 10:12:35 -0500
+Message-ID: <03e401c16d1f$21a99460$0a01a8c0@beawrk10>
+From: "Philip Dodd" <smpcomputing@free.fr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re:  Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+Date: Wed, 14 Nov 2001 16:15:00 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:55 -0000 Arjan van de Ven wrote:
 
->Alastair Stevens wrote:
->>
->> Hi folks - I'm having real problems getting our new dual CPU server
->> going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
+
+ > > Ehm you know that XP cpu's don't support SMP configuration ?
 >
->Ehm you know that XP cpu's don't support SMP configuration ?
+> Erm, no....
+>
+> If this really is the case, then obviously my supplier doesn't know
+> either,
 
-I hope they do; I've just set up a very similar beast (looks like the same
-mobo and same CPUs). Is the RAM "registered" ECC? Are your CPUs the same
-stepping? One problem we were bitten by was the Radeon DRI, so we disabled
-it (in XF86Config-4) and it now seems to at least boot into X. However,
-it's not any faster than a dual PIII (1GHz) at the task it's meant to
-perform :( both CPUs report 75% usage, and vmstat 1 doesn't show the IO
-systems being slugged. Very strange. We're wondering if we've hit memory
-bandwidth as the tasks involve some hard sums with big matrices.
+ Not impossible ;)  Suppliers think end users are dumb until end users work
+ out it's the suppliers that are dumb :)
 
-$ cat /proc/cpuinfo
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(tm) Processor
-stepping	: 2
-cpu MHz		: 1526.519
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips	: 3047.42
+ I confirm that XP chips aren't supported in smp configs by AMD.  I can't of
+ the top of my head give URLs to confirm what I've just said, but I'l
+rummage
+ around and see if I can dig stuff up.  It's the MP chips that are supported
+ in MP configs (unsurprisingly :))
 
-processor	: 1
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(tm) Processor
-stepping	: 2
-cpu MHz		: 1526.519
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips	: 3047.42
+
+ Philip DODD
+ Sales Engineer
+ SIVA
+ Les Fjords - Immeuble Narvik
+ 19 Avenue de Norvège
+ Z.A. de Courtaboeuf 1
+ 91953 LES ULIS CEDEX
+ http://www.siva.fr
+
 
 

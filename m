@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUEKOBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264749AbUEKOGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUEKOBc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 10:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264738AbUEKOBc
+	id S264749AbUEKOGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 10:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUEKOGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 10:01:32 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:53632 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264746AbUEKOA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 10:00:58 -0400
-Subject: Re: [PATCH] fix dev_printk to work even in the absence of am
-	attached driver
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040422220756.GA2479@kroah.com>
-References: <1082407198.1804.35.camel@mulgrave> 
-	<20040422220756.GA2479@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 May 2004 09:00:47 -0500
-Message-Id: <1084284048.2305.6.camel@mulgrave>
-Mime-Version: 1.0
+	Tue, 11 May 2004 10:06:40 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:23200 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S264738AbUEKOGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 10:06:38 -0400
+Date: Tue, 11 May 2004 10:01:55 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Kurt Garloff <garloff@suse.de>
+cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Format Unit can take many hours
+In-Reply-To: <20040511114936.GI4828@tpkurt.garloff.de>
+Message-ID: <Pine.GSO.4.33.0405110952380.14297-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.GSO.4.33.0405110952382.14297@sweetums.bluetronic.net>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-22 at 17:07, Greg KH wrote: 
-> But doesn't this cause the string "(unbound)" to be created for every
-> dev_printk() call in the code?  I don't think gcc can optimize that very
-> well.  How about making a global string just for that, otherwise the
-> size police will come after me for adding such a patch :)
+On Tue, 11 May 2004, Kurt Garloff wrote:
+>the timeout for FORMAT_UNIT should be much longer; I've seen 8hrs
+>already (75Gig). I've increased the timeout from 2hrs to 12hrs.
 
-OK, I can't find an elegant way of making it global, so I think the best
-thing to do is just leave it blank for no driver (gcc can optimise that
-case). 
+If you execute a FORMAT_UNIT properly, the timeout is irrelevant.  Set the
+IMMED bit so the command returns as soon as the drive begins processing it.
+Send TEST_UNIT_READY to check the progress.  I'll have to consult the
+spec, but I think support for Immed is required.
 
-James 
+That's how my (now 8 year old) tool for formating scsi devices (zip, jaz,
+hard disks, tapes, etc.) has always worked. [No, it is not published code.
+If the script kiddies want to low-level your hard drive, they're gonna have
+to learn how to do it themselves.]
 
-===== include/linux/device.h 1.117 vs edited =====
---- 1.117/include/linux/device.h	Mon Apr 12 12:54:25 2004
-+++ edited/include/linux/device.h	Tue May 11 08:58:44 2004
-@@ -400,7 +400,7 @@
- 
- /* debugging and troubleshooting/diagnostic helpers. */
- #define dev_printk(level, dev, format, arg...)	\
--	printk(level "%s %s: " format , (dev)->driver->name , (dev)->bus_id , ## arg)
-+	printk(level "%s %s: " format , (dev)->driver ? (dev)->driver->name : "" , (dev)->bus_id , ## arg)
- 
- #ifdef DEBUG
- #define dev_dbg(dev, format, arg...)		\
+--Ricky
+
+PS: That even works under Solaris where one does not have the source code
+    to change the command timeouts.
+
 

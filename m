@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267432AbTACClX>; Thu, 2 Jan 2003 21:41:23 -0500
+	id <S267434AbTACC6F>; Thu, 2 Jan 2003 21:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbTACClX>; Thu, 2 Jan 2003 21:41:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11457 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267432AbTACClW>;
-	Thu, 2 Jan 2003 21:41:22 -0500
-Date: Thu, 02 Jan 2003 18:42:14 -0800 (PST)
-Message-Id: <20030102.184214.32718859.davem@redhat.com>
-To: tom@rhadamanthys.org
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030103004543.GA12399@window.dhis.org>
-References: <20030102221210.GA7704@window.dhis.org>
-	<20030102.151346.113640740.davem@redhat.com>
-	<20030103004543.GA12399@window.dhis.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S267435AbTACC6F>; Thu, 2 Jan 2003 21:58:05 -0500
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:1712 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S267434AbTACC6E>; Thu, 2 Jan 2003 21:58:04 -0500
+Date: Thu, 2 Jan 2003 19:06:26 -0800
+From: Andy Chou <acc@CS.Stanford.EDU>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: acc@cs.stanford.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.stanford.edu
+Subject: Re: [CHECKER] 24 more buffer overruns in 2.5.48
+Message-ID: <20030103030626.GA2272@Xenon.stanford.edu>
+Reply-To: acc@cs.stanford.edu
+References: <20030103003708.GA2861@Xenon.stanford.edu> <1041558816.24900.112.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1041558816.24900.112.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Thomas Ogrisegg <tom@rhadamanthys.org>
-   Date: Fri, 3 Jan 2003 01:45:43 +0100
+> > [BUG] Possibly the caller's fault.
+> > /u1/acc/linux/2.5.48/drivers/ide/ide-lib.c:380:ide_get_best_pio_mode: ERROR:BUFFER:380:380:Array bounds error: ide_pio_timings[6] indexed with [255] [Callstack: /u1/acc/linux/2.5.48/drivers/ide/legacy/qd65xx.c:272:ide_get_best_pio_mode(_, _, 255, _)] 
+> > 		pio_mode = max_mode;
+> > 		cycle_time = 0;
+> > 	}
+> > 	if (d) {
+> > 		d->pio_mode = pio_mode;
+> > 
+> > Error --->
+> > 		d->cycle_time = cycle_time ? cycle_time : ide_pio_timings[pio_mode].cycle_time;
+> > 		d->use_iordy = use_iordy;
+> > 		d->overridden = overridden;
+> > 		d->blacklisted = blacklisted;
+> 
+> I can't construct a scenario in which this can occur.
 
-   > This isn't a priority for us.  People who want the best possible
-   > performance can code their apps up to take advantage of sendfile()
-   > on systems that have it.
-   
-   So you want to chain people to your "propritaery solution"?
-   
-I don't hide my APIs.
+In ide/legacy/qd65xx.c:272 there's a call where max_mode is 255.  Right 
+before the piece of code that the checker warns about is the segment:
 
-   > (and really, show me how many systems
-   > lack a sendfile mechanism these days).
-   
-   What kind of systems are you talking about? Operating systems?
-   Nearly all.
-   
-HPUX has it, Solaris has it, Microsoft has something very similar,
-FreeBSD has it as does I believe NetBSD.  Show me the exceptions.
+	if (pio_mode > max_mode) {
+		pio_mode = max_mode;
+		cycle_time = 0;
+	}
 
-   It might be a bit difficult to convert all applications to
-   sendfile. Especially those for which you don't have the
-   source code.
-   
-If the performance really must be top notch, someone will invest
-the time for a given application.  Otherwise, if it's not that
-important enough to port why should it be important enough to put
-a hack into the OS for it?
+Now, it may be that pio_mode can never be >= 255 in this scenario.  But if 
+it can be, then this sets pio_mode to 255.
 
-   I don't see your point. Applications which really need the
-   performance will switch to sendfile anyway because of the
-   problems with mmap, you mentioned.
-   
-Right, so why bother with your patch?
 
-   My patch is very simple and takes less than 1KB of code but
-   will speed up many applications and doesn't have a real
-   drawback (except when sending "normal" data which is larger
-   than a page - but that shouldn't happen very often).
-   
-What about the extra checks you are placing in a fast path?
+> > [BUG] [GEM] The caller is probably at fault: look at the call chain.
+> > /u1/acc/linux/2.5.48/drivers/video/fbgen.c:180:do_install_cmap: ERROR:BUFFER:180:180:Array bounds error: fb_display[63] indexed with [-1] [Callstack: /u1/acc/linux/2.5.48/drivers/video/aty128fb.c:1746:aty128fb_set_var(_, -1, _) -> /u1/acc/linux/2.5.48/drivers/video/aty128fb.c:1406:do_install_cmap(-1, _)] 
+> > 
+> > void do_install_cmap(int con, struct fb_info *info)
+> > {
+> >     if (con != info->currcon)
+> > 	return;
+> 
+> currcon can never be -1. I don't think the compiler can ever deduce that
+> detail though.
+
+Then there's some odd code, such as in fbgen.c:gen_switch():
+
+	if (info->currcon >= 0) {
+		...
+	}
+	
+	info->currcon = con;
+
+-Andy

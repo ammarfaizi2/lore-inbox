@@ -1,152 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319085AbSHMWzA>; Tue, 13 Aug 2002 18:55:00 -0400
+	id <S319082AbSHMWwg>; Tue, 13 Aug 2002 18:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319097AbSHMWy2>; Tue, 13 Aug 2002 18:54:28 -0400
-Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:29837 "EHLO
+	id <S319093AbSHMWwg>; Tue, 13 Aug 2002 18:52:36 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:17037 "EHLO
 	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319085AbSHMWyL>; Tue, 13 Aug 2002 18:54:11 -0400
-Date: Tue, 13 Aug 2002 18:57:59 -0400 (EDT)
+	id <S319082AbSHMWw2>; Tue, 13 Aug 2002 18:52:28 -0400
+Date: Tue, 13 Aug 2002 18:56:16 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 05/38: CLIENT: change CONFIG_NFS_V3 to CONFIG_NFS_V3 ||
- CONFIG_NFS_V4
-Message-ID: <Pine.SOL.4.44.0208131857300.25942-100000@rastan.gpcc.itd.umich.edu>
+Subject: patch 02/38: new error codes
+Message-ID: <Pine.SOL.4.44.0208131855520.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In a number of places in the NFS client, I had to change
+This patch adds new NFSv4-only error codes to include/linux/nfs.h,
+and also indicates which of the old error codes still exist in NFSv4.
 
-  #ifdef CONFIG_NFS_V3
-     /* ... */
-  #endif
-
-to
-
-  #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
-     /* ... */
-  #endif
-
-This is a trivial patch which collects all changes of this type.
-
---- old/fs/nfs/flushd.c	Mon Jul 29 22:36:09 2002
-+++ new/fs/nfs/flushd.c	Mon Jul 29 11:50:09 2002
-@@ -171,7 +171,7 @@ nfs_flushd(struct rpc_task *task)
- 			nfs_pagein_list(&head, server->rpages);
- 			continue;
- 		}
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 		if (nfs_scan_lru_commit_timeout(server, &head)) {
- 			spin_unlock(&nfs_wreq_lock);
- 			nfs_commit_list(&head, FLUSH_AGING);
---- old/fs/nfs/pagelist.c	Mon Jul 29 22:36:09 2002
-+++ new/fs/nfs/pagelist.c	Mon Jul 29 16:04:10 2002
-@@ -458,7 +458,7 @@ nfs_try_to_free_pages(struct nfs_server
- 			continue;
- 		}
-
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 		/* Let's try to free up some completed NFSv3 unstable writes */
- 		nfs_scan_lru_commit(server, &head);
- 		if (!list_empty(&head)) {
---- old/fs/nfs/write.c	Mon Jul 29 22:36:09 2002
-+++ new/fs/nfs/write.c	Mon Jul 29 22:34:26 2002
-@@ -88,7 +88,7 @@ static struct nfs_page * nfs_update_requ
- 					    unsigned int, unsigned int);
- static void	nfs_strategy(struct inode *inode);
- static void	nfs_writeback_done(struct rpc_task *);
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- static void	nfs_commit_done(struct rpc_task *);
- #endif
-
-@@ -414,7 +414,7 @@ nfs_dirty_request(struct nfs_page *req)
- 	return !list_empty(&req->wb_list) && req->wb_list_head == &nfsi->dirty;
- }
-
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- /*
-  * Add a request to the inode's commit list.
+--- old/include/linux/nfs.h	Wed Jul 24 16:03:22 2002
++++ new/include/linux/nfs.h	Mon Jul 29 23:18:38 2002
+@@ -39,39 +39,68 @@
+  * standard, but seem to be widely used nevertheless.
   */
-@@ -554,7 +554,7 @@ nfs_scan_dirty(struct inode *inode, stru
- 	return res;
- }
+  enum nfs_stat {
+-	NFS_OK = 0,			/* v2 v3 */
+-	NFSERR_PERM = 1,		/* v2 v3 */
+-	NFSERR_NOENT = 2,		/* v2 v3 */
+-	NFSERR_IO = 5,			/* v2 v3 */
+-	NFSERR_NXIO = 6,		/* v2 v3 */
++	NFS_OK = 0,			/* v2 v3 v4 */
++	NFSERR_PERM = 1,		/* v2 v3 v4 */
++	NFSERR_NOENT = 2,		/* v2 v3 v4 */
++	NFSERR_IO = 5,			/* v2 v3 v4 */
++	NFSERR_NXIO = 6,		/* v2 v3 v4 */
+ 	NFSERR_EAGAIN = 11,		/* v2 v3 */
+-	NFSERR_ACCES = 13,		/* v2 v3 */
+-	NFSERR_EXIST = 17,		/* v2 v3 */
+-	NFSERR_XDEV = 18,		/*    v3 */
+-	NFSERR_NODEV = 19,		/* v2 v3 */
+-	NFSERR_NOTDIR = 20,		/* v2 v3 */
+-	NFSERR_ISDIR = 21,		/* v2 v3 */
+-	NFSERR_INVAL = 22,		/* v2 v3 that Sun forgot */
+-	NFSERR_FBIG = 27,		/* v2 v3 */
+-	NFSERR_NOSPC = 28,		/* v2 v3 */
+-	NFSERR_ROFS = 30,		/* v2 v3 */
+-	NFSERR_MLINK = 31,		/*    v3 */
++	NFSERR_ACCES = 13,		/* v2 v3 v4 */
++	NFSERR_EXIST = 17,		/* v2 v3 v4 */
++	NFSERR_XDEV = 18,		/*    v3 v4 */
++	NFSERR_NODEV = 19,		/* v2 v3 v4 */
++	NFSERR_NOTDIR = 20,		/* v2 v3 v4 */
++	NFSERR_ISDIR = 21,		/* v2 v3 v4 */
++	NFSERR_INVAL = 22,		/* v2 v3 v4 */
++	NFSERR_FBIG = 27,		/* v2 v3 v4 */
++	NFSERR_NOSPC = 28,		/* v2 v3 v4 */
++	NFSERR_ROFS = 30,		/* v2 v3 v4 */
++	NFSERR_MLINK = 31,		/*    v3 v4 */
+ 	NFSERR_OPNOTSUPP = 45,		/* v2 v3 */
+-	NFSERR_NAMETOOLONG = 63,	/* v2 v3 */
+-	NFSERR_NOTEMPTY = 66,		/* v2 v3 */
+-	NFSERR_DQUOT = 69,		/* v2 v3 */
+-	NFSERR_STALE = 70,		/* v2 v3 */
++	NFSERR_NAMETOOLONG = 63,	/* v2 v3 v4 */
++	NFSERR_NOTEMPTY = 66,		/* v2 v3 v4 */
++	NFSERR_DQUOT = 69,		/* v2 v3 v4 */
++	NFSERR_STALE = 70,		/* v2 v3 v4 */
+ 	NFSERR_REMOTE = 71,		/* v2 v3 */
+ 	NFSERR_WFLUSH = 99,		/* v2    */
+-	NFSERR_BADHANDLE = 10001,	/*    v3 */
++	NFSERR_BADHANDLE = 10001,	/*    v3 v4 */
+ 	NFSERR_NOT_SYNC = 10002,	/*    v3 */
+-	NFSERR_BAD_COOKIE = 10003,	/*    v3 */
+-	NFSERR_NOTSUPP = 10004,		/*    v3 */
+-	NFSERR_TOOSMALL = 10005,	/*    v3 */
+-	NFSERR_SERVERFAULT = 10006,	/*    v3 */
+-	NFSERR_BADTYPE = 10007,		/*    v3 */
+-	NFSERR_JUKEBOX = 10008		/*    v3 */
+- };
++	NFSERR_BAD_COOKIE = 10003,	/*    v3 v4 */
++	NFSERR_NOTSUPP = 10004,		/*    v3 v4 */
++	NFSERR_TOOSMALL = 10005,	/*    v3 v4 */
++	NFSERR_SERVERFAULT = 10006,	/*    v3 v4 */
++	NFSERR_BADTYPE = 10007,		/*    v3 v4 */
++	NFSERR_JUKEBOX = 10008,		/*    v3 v4 */
++	NFSERR_SAME = 10009,		/*       v4 */
++	NFSERR_DENIED = 10010,		/*       v4 */
++	NFSERR_EXPIRED = 10011,		/*       v4 */
++	NFSERR_LOCKED = 10012,		/*       v4 */
++	NFSERR_GRACE = 10013,		/*       v4 */
++	NFSERR_FHEXPIRED = 10014,	/*       v4 */
++	NFSERR_SHARE_DENIED = 10015,	/*       v4 */
++	NFSERR_WRONGSEC = 10016,	/*       v4 */
++	NFSERR_CLID_INUSE = 10017,	/*       v4 */
++	NFSERR_RESOURCE = 10018,	/*       v4 */
++	NFSERR_MOVED = 10019,		/*       v4 */
++	NFSERR_NOFILEHANDLE = 10020,	/*       v4 */
++	NFSERR_MINOR_VERS_MISMATCH = 10021,   /* v4 */
++	NFSERR_STALE_CLIENTID = 10022,	/*       v4 */
++	NFSERR_STALE_STATEID = 10023,	/*       v4 */
++	NFSERR_OLD_STATEID = 10024,	/*       v4 */
++	NFSERR_BAD_STATEID = 10025,	/*       v4 */
++	NFSERR_BAD_SEQID = 10026,	/*       v4 */
++	NFSERR_NOT_SAME = 10027,	/*       v4 */
++	NFSERR_LOCK_RANGE = 10028,	/*       v4 */
++	NFSERR_SYMLINK = 10029,		/*       v4 */
++	NFSERR_READDIR_NOSPC = 10030,	/*       v4 */
++	NFSERR_LEASE_MOVED = 10031,	/*       v4 */
++	NFSERR_ATTRNOTSUPP = 10032,	/*       v4 */
++	NFSERR_NO_GRACE = 10033,	/*       v4 */
++	NFSERR_RECLAIM_BAD = 10034,	/*       v4 */
++	NFSERR_RECLAIM_CONFLICT = 10035,/*       v4 */
++	NFSERR_BAD_XDR = 10036,		/*       v4 */
++	NFSERR_LOCKS_HELD = 10037	/*       v4 */
++};
 
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- /**
-  * nfs_scan_lru_commit_timeout - Scan LRU list for timed out commit requests
-  * @server: NFS superblock data
-@@ -749,7 +749,7 @@ nfs_strategy(struct inode *inode)
+ /* NFSv2 file types - beware, these are not the same in NFSv3 */
 
- 	dirty  = NFS_I(inode)->ndirty;
- 	wpages = NFS_SERVER(inode)->wpages;
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 	if (NFS_PROTO(inode)->version == 2) {
- 		if (dirty >= NFS_STRATEGY_PAGES * wpages)
- 			nfs_flush_file(inode, NULL, 0, 0, 0);
-@@ -1027,7 +1027,7 @@ nfs_writeback_done(struct rpc_task *task
- 		 * an error. */
- 		task->tk_status = -EIO;
- 	}
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 	if (resp->verf->committed < argp->stable && task->tk_status >= 0) {
- 		/* We tried a write call, but the server did not
- 		 * commit data to stable storage even though we
-@@ -1077,7 +1077,7 @@ nfs_writeback_done(struct rpc_task *task
- 			goto next;
- 		}
-
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 		if (argp->stable != NFS_UNSTABLE || resp->verf->committed == NFS_FILE_SYNC) {
- 			nfs_inode_remove_request(req);
- 			dprintk(" OK\n");
-@@ -1096,7 +1096,7 @@ nfs_writeback_done(struct rpc_task *task
- }
-
-
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- /*
-  * Set up the argument/result storage required for the RPC call.
-  */
-@@ -1260,7 +1260,7 @@ int nfs_flush_file(struct inode *inode,
- 	return res;
- }
-
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- int nfs_commit_file(struct inode *inode, struct file *file, unsigned long idx_start,
- 		    unsigned int npages, int how)
- {
-@@ -1297,7 +1297,7 @@ int nfs_sync_file(struct inode *inode, s
- 			error = nfs_wait_on_requests(inode, file, idx_start, npages);
- 		if (error == 0)
- 			error = nfs_flush_file(inode, file, idx_start, npages, how);
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- 		if (error == 0)
- 			error = nfs_commit_file(inode, file, idx_start, npages, how);
- #endif
---- old/include/linux/nfs_fs.h	Mon Jul 29 22:36:09 2002
-+++ new/include/linux/nfs_fs.h	Mon Jul 29 22:37:00 2002
-@@ -303,7 +303,7 @@ extern int  nfs_flush_file(struct inode
- extern int  nfs_flush_list(struct list_head *, int, int);
- extern int  nfs_scan_lru_dirty(struct nfs_server *, struct list_head *);
- extern int  nfs_scan_lru_dirty_timeout(struct nfs_server *, struct list_head *);
--#ifdef CONFIG_NFS_V3
-+#if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
- extern int  nfs_commit_file(struct inode *, struct file *, unsigned long, unsigned int, int);
- extern int  nfs_commit_list(struct list_head *, int);
- extern int  nfs_scan_lru_commit(struct nfs_server *, struct list_head *);
 

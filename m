@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLAR0d>; Fri, 1 Dec 2000 12:26:33 -0500
+	id <S129370AbQLARbe>; Fri, 1 Dec 2000 12:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLAR0Y>; Fri, 1 Dec 2000 12:26:24 -0500
-Received: from [212.140.94.65] ([212.140.94.65]:15368 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129257AbQLAR0R>;
-	Fri, 1 Dec 2000 12:26:17 -0500
-Date: Fri, 1 Dec 2000 16:57:20 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "T. Camp" <campt@openmars.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mutliple root devs (take II)
-In-Reply-To: <Pine.LNX.4.21.0012010843470.4856-100000@magic.skylab.org>
-Message-ID: <Pine.LNX.4.21.0012011655300.1488-100000@penguin.homenet>
+	id <S129348AbQLARbZ>; Fri, 1 Dec 2000 12:31:25 -0500
+Received: from mailhost3.lanl.gov ([128.165.3.9]:61294 "EHLO
+	mailhost3.lanl.gov") by vger.kernel.org with ESMTP
+	id <S129289AbQLARbN>; Fri, 1 Dec 2000 12:31:13 -0500
+Message-ID: <3A27D871.6CE7638B@lanl.gov>
+Date: Fri, 01 Dec 2000 09:57:21 -0700
+From: Roger Crandell <rwc@lanl.gov>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: multiprocessor kernel problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Fri, 1 Dec 2000, T. Camp wrote:
+I should have mentioned this is a 4 processor machine with a 64 bit
+buss.
 
-> A much cleaner patch prompted after right proper chastisement on the
+Roger Crandell
 
-indeed, much cleaner. But still not perfect.
 
-> +	int root_device_index = 0;
-
-this initialisation is not needed. Just make it 'int root_device_index;'
-The kernel will do the right thing for you on boot, trust me.
-
-> +int number_root_devs = 0;
-
-this is not needed either.
-
-Regards,
-Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

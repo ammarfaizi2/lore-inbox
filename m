@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbTDFNVW (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbTDFNVW (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:21:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63469 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261682AbTDFNVV (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:21:21 -0400
-Date: Sun, 6 Apr 2003 15:32:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: John Bradford <john@grabjohn.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] take 48-bit lba a bit further
-Message-ID: <20030406133250.GN786@suse.de>
-References: <20030406130737.GL786@suse.de> <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
+	id S262959AbTDFNYL (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTDFNYL (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:24:11 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:6787 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S262959AbTDFNYK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 09:24:10 -0400
+Message-Id: <200304061335.h36DZfY06199@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: linux-kernel
+To: Michael Buesch <freesoftwaredeveloper@web.de>
+Cc: robn@verdi.et.tudelft.nl, linux-kernel@vger.kernel.org
+Subject: Re: Serial port over TCP/IP 
+In-Reply-To: Your message of "Sun, 06 Apr 2003 14:47:46 +0200."
+             <200304061447.46393.freesoftwaredeveloper@web.de> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Date: Sun, 06 Apr 2003 15:35:41 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06 2003, John Bradford wrote:
-> > Thanks for taking the previous bit Alan, here's an incremental update to
-> > 2.5.66-ac2. Just cleans up the 'when to use 48-bit lba' logic a bit per
-> > Andries suggestion, and also expands the request size for 48-bit lba
-> > capable drives to 512KiB.
-> > 
-> > Works perfectly in testing here, ext2/3 generates nice big 512KiB
-> > requests and the drive flies.
-> 
-> Then, don't we want to be using 48-bit lba all the time on compatible devices
-> instead of falling back to 28-bit when possible to save a small amount of
-> instruction overhead?  (Or is that what we're doing already?  I haven't really
-> had the time to follow this thread).
 
-The logic in the patch is to enable large requests _if_ the drive can do
-48-bit lba. However, we will only use 48-bit lba commands if the request
-is either beyond 2^28 sectors _or_ bigger than 256 sectors since neither
-of these can be addressed with 28-bit lba.
+Michael Buesch wrote:
+> Is it possible to make a char-dev (a serial device ttyS0)
+> available via TCP/IP on a network like it is possible
+> for block-devices like a harddisk via nbd?
+> Is kernel-support for this present?
+> If not, is it technically possible to develop such a driver?
 
-See rq_lba48 in the patch, it explains it.
+Hi Michael,
 
--- 
-Jens Axboe
+No need for kernel support.  This simple shell-script is what I use for
+a project at the moment.
 
+	greetings,
+	Rob van Nieuwkerk
+
+------------------------------------------------
+#!/bin/sh
+
+TCP_PORT=4000
+SERIAL_PORT=/dev/ttyS1
+BAUDRATE=19200
+
+while (true)
+	do
+	(stty $BAUDRATE -echo clocal raw pass8 ; exec nc -l -p $TCP_PORT) \
+		< $SERIAL_PORT > $SERIAL_PORT
+done
+------------------------------------------------

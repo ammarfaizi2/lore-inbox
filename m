@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSKRBj0>; Sun, 17 Nov 2002 20:39:26 -0500
+	id <S261295AbSKRBrj>; Sun, 17 Nov 2002 20:47:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261322AbSKRBj0>; Sun, 17 Nov 2002 20:39:26 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:3819 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261321AbSKRBjY>;
-	Sun, 17 Nov 2002 20:39:24 -0500
-Date: Mon, 18 Nov 2002 01:46:12 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
-       Luca Barbieri <ldb@ldb.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading fix, tid-2.5.47-A3
-Message-ID: <20021118014612.GA2483@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0211172132070.13235-100000@localhost.localdomain> <Pine.LNX.4.44.0211171452480.13106-100000@home.transmeta.com>
+	id <S261322AbSKRBrj>; Sun, 17 Nov 2002 20:47:39 -0500
+Received: from almesberger.net ([63.105.73.239]:28177 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S261295AbSKRBrj>; Sun, 17 Nov 2002 20:47:39 -0500
+Date: Sun, 17 Nov 2002 22:10:45 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lan based kgdb
+Message-ID: <20021117221045.L1407@almesberger.net>
+References: <1037490849.24843.11.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0211161915360.1337-100000@home.transmeta.com> <20021116193008.C25741@work.bitmover.com> <m11y5k3ruw.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211171452480.13106-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <m11y5k3ruw.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Nov 17, 2002 at 12:42:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->  - the async nature of CLONE_CHILD_SETTID is just bound to cause 
->    interesting-to-debug behaviour
+Eric W. Biederman wrote:
+> Otherwise the concept gives me security nightmares.
 
-Fun for debuggers and tracers, certainly.  It could be made
-synchronous by selecting the new tid value and storing it in the
-SETTID address before the mm is cloned.
+Bah, there are a few Fundamental Truths of Networking Simplification
+that we can absolutely rely on:
 
-> Hmm.. I really ahve to say that I just prefer the current two flags,
+ - it is perfectly safe to require that a given port be connected only
+   to a secure and trusted network
+ - if you design a protocol not to work over a WAN, everybody will
+   respect this, and deploy it only on LANs
+ - if any of the above constraints is no longer tenable, people will
+   carefully redesign the protocol in question, and replace the
+   installed base
+ - all LANs have simple, well-understood characteristics - now and
+   forever
 
-Agreed, but for different reasons than you gave.
+After all, SNMP, FSP, LANE, NAT, WEP, etc. can't be wrong (-:C
 
->  - the the for is _not_ a CLONE_VM, the child is really an independent 
->    VM thing, and we should not even _allow_ the parent to change the VM of 
->    the child: the SETTID behaviour (where it changes the parent VM) makes 
->    sense and is good, but we should probably disallow CLEARTID altogether 
->    for that case (and if the independent child wants to clear its own 
->    memory space on exit, it should just do a set_tid_address() itself)
-> 
-> In fact, from what I can tell, your new CLONE_CHILD_SETTID really is 100% 
-> semantically equivalent to the child just doing a "set_tid_address()" on 
-> its own.
+And yes, I can vividly imagine users of dedicated hosts rush to switch
+on that remote console the very moment it becomes available, and use
+it across half of the planet.
 
-Don't get this in a muddle.  As far as I can tell, the only purpose of
-set_tid_address() is to set the address for _CLEARTID_.  (As a bonus,
-it returns the tid so that the caller can save the value, but that's
-just an optimisation).
+- Werner
 
-So, CLONE_CHILD_SETTID is not at all similar to calling
-set_tid_address() in the child.
-
-That said, you're still right.  There should be two flags, and these
-are the simple, obvious semantics:
-
-   1. CLONE_SETTID sets the child's tid in the parent's memory.
-      In the child's memory, if CLONE_VM is not set, the tid word will
-      have whatever value was stored in it before the parent called
-      clone().  Unless I've misread the code, this is the behaviour we
-      have now.
-
-   2. CLONE_CLEARTID sets tid_address in the child (only the child).
-      It is equivalent to calling set_tid_address() first thing in the
-      child.
-
-Note that these semantics make sense, and the implementation is very
-simple.  There is no problem with allowing CLEARTID always.
-
-The race condition which Ulrich brought up, which requires
-CLONE_CHILD_SETTID to be used without CLONE_PARENT_SETTID, only occurs
-when using the same address to store the tid of the forked child as
-the parent's tid address.  In other words, it's a user space error.
-(Please correct me if I'm mistaken, Ulrich).
-
-Finally, it would be kinder to everyone if CLONE_SETTID stored the
-child's tid in _both_ the parent and child address spaces, atomically
-w.r.t. debuggers.  The simplest way to do that is to store the child's
-tid value in the parent's memory before cloning the mm.  If thread
-creation fails, that's fine because the parent knows.
-
--- Jamie
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

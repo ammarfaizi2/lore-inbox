@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277278AbRJRMqM>; Thu, 18 Oct 2001 08:46:12 -0400
+	id <S277687AbRJRNBh>; Thu, 18 Oct 2001 09:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277598AbRJRMpw>; Thu, 18 Oct 2001 08:45:52 -0400
-Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:44790 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S277278AbRJRMpq>; Thu, 18 Oct 2001 08:45:46 -0400
-Date: Thu, 18 Oct 2001 08:46:07 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: joypad bug
-Message-ID: <20011018084607.A626@rochester.rr.com>
-In-Reply-To: <000801c15672$bed14210$1300a8c0@marcelo> <20011017212342.A552@suse.cz> <20011017153214.A12797@rochester.rr.com> <20011017224337.A319@suse.cz>
+	id <S277626AbRJRNBR>; Thu, 18 Oct 2001 09:01:17 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:48393 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S277598AbRJRNBP>; Thu, 18 Oct 2001 09:01:15 -0400
+From: Norbert Preining <preining@logic.at>
+Date: Thu, 18 Oct 2001 15:01:41 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.12 cannot find root device on raid
+Message-ID: <20011018150141.A17493@alpha.logic.tuwien.ac.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011017224337.A319@suse.cz>
-User-Agent: Mutt/1.3.20i
-From: jstrand1@rochester.rr.com (James D Strandboge)
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 10:43:37PM +0200 or thereabouts, Vojtech Pavlik wrote:
-> On Wed, Oct 17, 2001 at 03:32:14PM -0400, James D Strandboge wrote:
-> > On Wed, Oct 17, 2001 at 09:23:42PM +0200 or thereabouts, Vojtech Pavlik wrote:
-> > > On Tue, Oct 16, 2001 at 03:30:40PM -0300, Marcelo Borges Ribeiro wrote:
-> > > > I'm using 2.4.12 and since 2.4.10 my 8-button joypad (via gameport) stoped
-> > > > working.
-> > > > The first 4 buttons work but directions and other 4 buttons doesn?t. I did
-> > > > not notice nothing
-> > > > about it in changelog so I?m reporting it.
-> > > 
-> > > I know about the problem in 2.4.10. But in 2.4.12 that should be fixed ...
-> > > 
-> > I am using kernel 2.4.12 now, and my Logitech WIngman Attack (analog driver)
-> > has the same symptions.  Buttons work, directions don't.
-> 
-> Uh-uh. Gotta get me an analog joystick fast and test this.
-> 
-I just confirmed that joystick works properly in 2.4.9.
+Hi!
 
-Jamie
+I have the following problem:
 
--- 
-GPG/PGP Info
-Email:        jstrand1@rochester.rr.com
-ID:           26384A3A
-Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
---
+kernel 2.4.12, md and raid1 compiled into the kernel.
+/dev/hdb old linux installation
+/dev/md0 -> /dev/hde1,/dev/hdg1 new installation
+
+When I boot my old installation the md device is automatically configured
+by the kernel and I can mount it (reiserfs) without any problems.
+
+When I try to boot the new installation with the same kernel the md device
+is initialized, but the kernel cannot mount the root device. I get msgs
+about FAT problems and about mounting root as msdos.
+
+Here some config files:
+lilo.conf:
+image = /boot/lx-2.4.12
+	root = /dev/hdb1
+	label = old
+image = /boot/lx-2.4.12
+	root = /dev/md0
+	label = new
+	optional
+
+Thanks a lot for any information
+
+Best wishes
+
+Norbert
+
+-----------------------------------------------------------------------
+Norbert Preining <preining@logic.at> 
+University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
+-----------------------------------------------------------------------
+LOUTH (n.)
+
+The sort of man who wears loud check jackets, has a personalised
+tankard behind the bar and always gets served before you do.
+
+			--- Douglas Adams, The Meaning of Liff 

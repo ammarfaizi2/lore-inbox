@@ -1,205 +1,617 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269151AbUIRHXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269149AbUIRH3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269151AbUIRHXX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 03:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUIRHXW
+	id S269149AbUIRH3A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 03:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUIRH3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 03:23:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59576 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269149AbUIRHU4 (ORCPT
+	Sat, 18 Sep 2004 03:29:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1722 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269149AbUIRHYR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 03:20:56 -0400
-Date: Sat, 18 Sep 2004 03:20:37 -0400 (EDT)
+	Sat, 18 Sep 2004 03:24:17 -0400
+Date: Sat, 18 Sep 2004 03:24:01 -0400 (EDT)
 From: James Morris <jmorris@redhat.com>
 X-X-Sender: jmorris@thoron.boston.redhat.com
 To: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>
 cc: Stephen Smalley <sds@epoch.ncsc.mil>,
        Christoph Hellwig <hch@infradead.org>,
        Andreas Gruenbacher <agruen@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/6] xattr consolidation v2 - generic xattr API
-In-Reply-To: <Xine.LNX.4.44.0409180252090.10905@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0409180305300.10905-100000@thoron.boston.redhat.com>
+Subject: [PATCH 3/6] xattr consolidation v2 - ext3
+In-Reply-To: <Xine.LNX.4.44.0409180306490.10905@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0409180308040.10905-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch consolidates common xattr handling logic into the core fs code,
-with modifications suggested by Christoph Hellwig (hang off superblock,
-remove locking, use generic code as methods), for use by ext2, ext3 and
-devpts, as well as upcoming tmpfs xattr code.
+This patch converts the ext3 xattr and acl code to the generic xattr API.
 
-
- fs/xattr.c            |   98 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/fs.h    |    1 
- include/linux/xattr.h |   16 ++++++++
- 3 files changed, 115 insertions(+)
+ fs/ext3/acl.c            |   37 -------
+ fs/ext3/file.c           |    8 +
+ fs/ext3/namei.c          |   16 ++-
+ fs/ext3/super.c          |    1 
+ fs/ext3/symlink.c        |   16 ++-
+ fs/ext3/xattr.c          |  218 +++++++----------------------------------------
+ fs/ext3/xattr.h          |   32 +-----
+ fs/ext3/xattr_security.c |    4 
+ fs/ext3/xattr_trusted.c  |    4 
+ fs/ext3/xattr_user.c     |    4 
+ 10 files changed, 81 insertions(+), 259 deletions(-)
 
 
 Signed-off-by: James Morris <jmorris@redhat.com>
 Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
 
 
-diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/xattr.c linux-2.6.9-rc2.w/fs/xattr.c
---- linux-2.6.9-rc2.p/fs/xattr.c	2004-09-13 01:32:26.000000000 -0400
-+++ linux-2.6.9-rc2.w/fs/xattr.c	2004-09-18 01:26:57.271414448 -0400
-@@ -5,6 +5,7 @@
- 
-   Copyright (C) 2001 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-   Copyright (C) 2001 SGI - Silicon Graphics, Inc <linux-xfs@oss.sgi.com>
-+  Copyright (c) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/acl.c linux-2.6.9-rc2.w/fs/ext3/acl.c
+--- linux-2.6.9-rc2.p/fs/ext3/acl.c	2004-09-13 01:32:00.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/acl.c	2004-09-18 01:43:22.867581056 -0400
+@@ -452,7 +452,7 @@ out:
+  * Extended attribute handlers
   */
- #include <linux/fs.h>
- #include <linux/slab.h>
-@@ -13,6 +14,7 @@
- #include <linux/xattr.h>
- #include <linux/namei.h>
- #include <linux/security.h>
-+#include <linux/module.h>
- #include <asm/uaccess.h>
+ static size_t
+-ext3_xattr_list_acl_access(char *list, struct inode *inode,
++ext3_xattr_list_acl_access(struct inode *inode, char *list,
+ 			   const char *name, int name_len)
+ {
+ 	const size_t size = sizeof(XATTR_NAME_ACL_ACCESS);
+@@ -465,7 +465,7 @@ ext3_xattr_list_acl_access(char *list, s
+ }
+ 
+ static size_t
+-ext3_xattr_list_acl_default(char *list, struct inode *inode,
++ext3_xattr_list_acl_default(struct inode *inode, char *list,
+ 			    const char *name, int name_len)
+ {
+ 	const size_t size = sizeof(XATTR_NAME_ACL_DEFAULT);
+@@ -572,45 +572,16 @@ ext3_xattr_set_acl_default(struct inode 
+ 	return ext3_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
+ }
+ 
+-struct ext3_xattr_handler ext3_xattr_acl_access_handler = {
++struct xattr_handler ext3_xattr_acl_access_handler = {
+ 	.prefix	= XATTR_NAME_ACL_ACCESS,
+ 	.list	= ext3_xattr_list_acl_access,
+ 	.get	= ext3_xattr_get_acl_access,
+ 	.set	= ext3_xattr_set_acl_access,
+ };
+ 
+-struct ext3_xattr_handler ext3_xattr_acl_default_handler = {
++struct xattr_handler ext3_xattr_acl_default_handler = {
+ 	.prefix	= XATTR_NAME_ACL_DEFAULT,
+ 	.list	= ext3_xattr_list_acl_default,
+ 	.get	= ext3_xattr_get_acl_default,
+ 	.set	= ext3_xattr_set_acl_default,
+ };
+-
+-void
+-exit_ext3_acl(void)
+-{
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
+-			      &ext3_xattr_acl_access_handler);
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
+-			      &ext3_xattr_acl_default_handler);
+-}
+-
+-int __init
+-init_ext3_acl(void)
+-{
+-	int error;
+-
+-	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
+-				    &ext3_xattr_acl_access_handler);
+-	if (error)
+-		goto fail;
+-	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
+-				    &ext3_xattr_acl_default_handler);
+-	if (error)
+-		goto fail;
+-	return 0;
+-
+-fail:
+-	exit_ext3_acl();
+-	return error;
+-}
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/file.c linux-2.6.9-rc2.w/fs/ext3/file.c
+--- linux-2.6.9-rc2.p/fs/ext3/file.c	2004-09-13 01:33:37.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/file.c	2004-09-18 01:43:22.868580904 -0400
+@@ -132,10 +132,12 @@ struct file_operations ext3_file_operati
+ struct inode_operations ext3_file_inode_operations = {
+ 	.truncate	= ext3_truncate,
+ 	.setattr	= ext3_setattr,
+-	.setxattr	= ext3_setxattr,
+-	.getxattr	= ext3_getxattr,
++#ifdef CONFIG_EXT3_FS_XATTR	
++	.setxattr	= generic_setxattr,
++	.getxattr	= generic_getxattr,
+ 	.listxattr	= ext3_listxattr,
+-	.removexattr	= ext3_removexattr,
++	.removexattr	= generic_removexattr,
++#endif
+ 	.permission	= ext3_permission,
+ };
+ 
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/namei.c linux-2.6.9-rc2.w/fs/ext3/namei.c
+--- linux-2.6.9-rc2.p/fs/ext3/namei.c	2004-09-13 01:32:54.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/namei.c	2004-09-18 01:43:22.882578776 -0400
+@@ -2355,18 +2355,22 @@ struct inode_operations ext3_dir_inode_o
+ 	.mknod		= ext3_mknod,
+ 	.rename		= ext3_rename,
+ 	.setattr	= ext3_setattr,
+-	.setxattr	= ext3_setxattr,
+-	.getxattr	= ext3_getxattr,
++#ifdef CONFIG_EXT3_FS_XATTR
++	.setxattr	= generic_setxattr,
++	.getxattr	= generic_getxattr,
+ 	.listxattr	= ext3_listxattr,
+-	.removexattr	= ext3_removexattr,
++	.removexattr	= generic_removexattr,
++#endif	
+ 	.permission	= ext3_permission,
+ };
+ 
+ struct inode_operations ext3_special_inode_operations = {
+ 	.setattr	= ext3_setattr,
+-	.setxattr	= ext3_setxattr,
+-	.getxattr	= ext3_getxattr,
++#ifdef CONFIG_EXT3_FS_XATTR
++	.setxattr	= generic_setxattr,
++	.getxattr	= generic_getxattr,
+ 	.listxattr	= ext3_listxattr,
+-	.removexattr	= ext3_removexattr,
++	.removexattr	= generic_removexattr,
++#endif	
+ 	.permission	= ext3_permission,
+ }; 
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/super.c linux-2.6.9-rc2.w/fs/ext3/super.c
+--- linux-2.6.9-rc2.p/fs/ext3/super.c	2004-09-13 01:33:23.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/super.c	2004-09-18 01:43:22.885578320 -0400
+@@ -1473,6 +1473,7 @@ static int ext3_fill_super (struct super
+ 	 */
+ 	sb->s_op = &ext3_sops;
+ 	sb->s_export_op = &ext3_export_ops;
++	sb->s_xattr = ext3_xattr_handlers;
+ #ifdef CONFIG_QUOTA
+ 	sb->s_qcop = &ext3_qctl_operations;
+ 	sb->dq_op = &ext3_quota_operations;
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/symlink.c linux-2.6.9-rc2.w/fs/ext3/symlink.c
+--- linux-2.6.9-rc2.p/fs/ext3/symlink.c	2004-09-13 01:32:48.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/symlink.c	2004-09-18 01:43:22.886578168 -0400
+@@ -34,17 +34,21 @@ struct inode_operations ext3_symlink_ino
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= page_follow_link_light,
+ 	.put_link	= page_put_link,
+-	.setxattr	= ext3_setxattr,
+-	.getxattr	= ext3_getxattr,
++#ifdef CONFIG_EXT3_FS_XATTR
++	.setxattr	= generic_setxattr,
++	.getxattr	= generic_getxattr,
+ 	.listxattr	= ext3_listxattr,
+-	.removexattr	= ext3_removexattr,
++	.removexattr	= generic_removexattr,
++#endif	
+ };
+ 
+ struct inode_operations ext3_fast_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= ext3_follow_link,
+-	.setxattr	= ext3_setxattr,
+-	.getxattr	= ext3_getxattr,
++#ifdef CONFIG_EXT3_FS_XATTR
++	.setxattr	= generic_setxattr,
++	.getxattr	= generic_getxattr,
+ 	.listxattr	= ext3_listxattr,
+-	.removexattr	= ext3_removexattr,
++	.removexattr	= generic_removexattr,
++#endif	
+ };
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/xattr.c linux-2.6.9-rc2.w/fs/ext3/xattr.c
+--- linux-2.6.9-rc2.p/fs/ext3/xattr.c	2004-09-13 01:32:54.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/xattr.c	2004-09-18 01:43:22.888577864 -0400
+@@ -7,6 +7,8 @@
+  * Ext3 code with a lot of help from Eric Jarman <ejarman@acm.org>.
+  * Extended attributes for symlinks and special files added per
+  *  suggestion of Luka Renko <luka.renko@hermes.si>.
++ * xattr consolidation Copyright (c) 2004 James Morris <jmorris@redhat.com>,
++ *  Red Hat Inc.
+  */
  
  /*
-@@ -347,3 +349,99 @@ sys_fremovexattr(int fd, char __user *na
- 	fput(f);
- 	return error;
- }
-+
-+static const char *strcmp_prefix(const char *a, const char *a_prefix)
-+{
-+	while (*a_prefix && *a == *a_prefix) {
-+		a++;
-+		a_prefix++;
-+	}
-+	return *a_prefix ? NULL : a;
-+}
-+
-+#define for_each_xattr_handler(handlers, handler)		\
-+		for ((handler) = *(handlers)++;			\
-+			(handler) != NULL;			\
-+			(handler) = *(handlers)++)	
-+			
-+static struct xattr_handler *xattr_resolve_name(struct xattr_handler **handlers, const char **name)
-+{
-+	struct xattr_handler *handler;
-+
-+	if (!*name)
-+		return NULL;
-+
-+	for_each_xattr_handler(handlers, handler) {
-+		const char *n = strcmp_prefix(*name, handler->prefix);
-+		if (n) {
-+			*name = n;
-+			break;
-+		}
-+	}
-+	return handler;
-+}
-+
-+ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size)
-+{
-+	struct xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+
-+	handler = xattr_resolve_name(inode->i_sb->s_xattr, &name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->get(inode, name, buffer, size);
-+}
-+
-+ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct xattr_handler *handler, **handlers = inode->i_sb->s_xattr;
-+	unsigned int size = 0;
-+	char *buf;
-+
-+	for_each_xattr_handler(handlers, handler)
-+		size += handler->list(inode, NULL, NULL, 0);
-+
-+	if (!buffer)
-+		return size;
-+		
-+	if (size > buffer_size)
-+		return -ERANGE;
-+
-+	buf = buffer;
-+	handlers = inode->i_sb->s_xattr;
-+	
-+	for_each_xattr_handler(handlers, handler)
-+		buf += handler->list(inode, buf, NULL, 0);
-+
-+	return size;
-+}
-+
-+int generic_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags)
-+{
-+	struct xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+	
-+	if (size == 0)
-+		value = "";  /* empty EA, do not remove */
-+	handler = xattr_resolve_name(inode->i_sb->s_xattr, &name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->set(inode, name, value, size, flags);
-+}
-+
-+int generic_removexattr(struct dentry *dentry, const char *name)
-+{
-+	struct xattr_handler *handler;
-+	struct inode *inode = dentry->d_inode;
-+
-+	handler = xattr_resolve_name(inode->i_sb->s_xattr, &name);
-+	if (!handler)
-+		return -EOPNOTSUPP;
-+	return handler->set(inode, name, NULL, 0, XATTR_REPLACE);
-+}
-+
-+EXPORT_SYMBOL(generic_getxattr);
-+EXPORT_SYMBOL(generic_listxattr);
-+EXPORT_SYMBOL(generic_setxattr);
-+EXPORT_SYMBOL(generic_removexattr);
-diff -purN -X dontdiff linux-2.6.9-rc2.p/include/linux/fs.h linux-2.6.9-rc2.w/include/linux/fs.h
---- linux-2.6.9-rc2.p/include/linux/fs.h	2004-09-13 01:31:58.000000000 -0400
-+++ linux-2.6.9-rc2.w/include/linux/fs.h	2004-09-18 01:26:57.273414144 -0400
-@@ -758,6 +758,7 @@ struct super_block {
- 	int			s_need_sync_fs;
- 	atomic_t		s_active;
- 	void                    *s_security;
-+	struct xattr_handler	**s_xattr;
+@@ -100,101 +102,40 @@ static void ext3_xattr_rehash(struct ext
+ 			      struct ext3_xattr_entry *);
  
- 	struct list_head	s_dirty;	/* dirty inodes */
- 	struct list_head	s_io;		/* parked for writeback */
-diff -purN -X dontdiff linux-2.6.9-rc2.p/include/linux/xattr.h linux-2.6.9-rc2.w/include/linux/xattr.h
---- linux-2.6.9-rc2.p/include/linux/xattr.h	2004-09-13 01:32:55.000000000 -0400
-+++ linux-2.6.9-rc2.w/include/linux/xattr.h	2004-09-18 01:26:57.274413992 -0400
-@@ -5,6 +5,7 @@
+ static struct mb_cache *ext3_xattr_cache;
+-static struct ext3_xattr_handler *ext3_xattr_handlers[EXT3_XATTR_INDEX_MAX];
+-static rwlock_t ext3_handler_lock = RW_LOCK_UNLOCKED;
  
-   Copyright (C) 2001 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-   Copyright (c) 2001-2002 Silicon Graphics, Inc.  All Rights Reserved.
-+  Copyright (c) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
- */
- #ifndef _LINUX_XATTR_H
- #define _LINUX_XATTR_H
-@@ -14,4 +15,19 @@
- 
- #define XATTR_SECURITY_PREFIX	"security."
- 
-+struct xattr_handler {
-+	char *prefix;
-+	size_t (*list)(struct inode *inode, char *list, const char *name,
-+		       int name_len);
-+	int (*get)(struct inode *inode, const char *name, void *buffer,
-+		   size_t size);
-+	int (*set)(struct inode *inode, const char *name, const void *buffer,
-+		   size_t size, int flags);
+-int
+-ext3_xattr_register(int name_index, struct ext3_xattr_handler *handler)
+-{
+-	int error = -EINVAL;
+-
+-	if (name_index > 0 && name_index <= EXT3_XATTR_INDEX_MAX) {
+-		write_lock(&ext3_handler_lock);
+-		if (!ext3_xattr_handlers[name_index-1]) {
+-			ext3_xattr_handlers[name_index-1] = handler;
+-			error = 0;
+-		}
+-		write_unlock(&ext3_handler_lock);
+-	}
+-	return error;
+-}
+-
+-void
+-ext3_xattr_unregister(int name_index, struct ext3_xattr_handler *handler)
+-{
+-	if (name_index > 0 || name_index <= EXT3_XATTR_INDEX_MAX) {
+-		write_lock(&ext3_handler_lock);
+-		ext3_xattr_handlers[name_index-1] = NULL;
+-		write_unlock(&ext3_handler_lock);
+-	}
+-}
+-
+-static inline const char *
+-strcmp_prefix(const char *a, const char *a_prefix)
+-{
+-	while (*a_prefix && *a == *a_prefix) {
+-		a++;
+-		a_prefix++;
+-	}
+-	return *a_prefix ? NULL : a;
+-}
+-
+-/*
+- * Decode the extended attribute name, and translate it into
+- * the name_index and name suffix.
+- */
+-static inline struct ext3_xattr_handler *
+-ext3_xattr_resolve_name(const char **name)
+-{
+-	struct ext3_xattr_handler *handler = NULL;
+-	int i;
++static struct xattr_handler *ext3_xattr_handler_map[EXT3_XATTR_INDEX_MAX] = {
++	[EXT3_XATTR_INDEX_USER]		     = &ext3_xattr_user_handler,
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	[EXT3_XATTR_INDEX_POSIX_ACL_ACCESS]  = &ext3_xattr_acl_access_handler,
++	[EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT] = &ext3_xattr_acl_default_handler,
++#endif	
++	[EXT3_XATTR_INDEX_TRUSTED]	     = &ext3_xattr_trusted_handler,
++#ifdef CONFIG_EXT3_FS_SECURITY	
++	[EXT3_XATTR_INDEX_SECURITY]	     = &ext3_xattr_security_handler,
++#endif
 +};
+ 
+-	if (!*name)
+-		return NULL;
+-	read_lock(&ext3_handler_lock);
+-	for (i=0; i<EXT3_XATTR_INDEX_MAX; i++) {
+-		if (ext3_xattr_handlers[i]) {
+-			const char *n = strcmp_prefix(*name,
+-				ext3_xattr_handlers[i]->prefix);
+-			if (n) {
+-				handler = ext3_xattr_handlers[i];
+-				*name = n;
+-				break;
+-			}
+-		}
+-	}
+-	read_unlock(&ext3_handler_lock);
+-	return handler;
+-}
++struct xattr_handler *ext3_xattr_handlers[] = {
++	&ext3_xattr_user_handler,
++	&ext3_xattr_trusted_handler,
++#ifdef CONFIG_EXT3_FS_POSIX_ACL
++	&ext3_xattr_acl_access_handler,
++	&ext3_xattr_acl_default_handler,
++#endif
++#ifdef CONFIG_EXT3_FS_SECURITY	
++	&ext3_xattr_security_handler,
++#endif	
++	NULL
++};
+ 
+-static inline struct ext3_xattr_handler *
++static inline struct xattr_handler *
+ ext3_xattr_handler(int name_index)
+ {
+-	struct ext3_xattr_handler *handler = NULL;
+-	if (name_index > 0 && name_index <= EXT3_XATTR_INDEX_MAX) {
+-		read_lock(&ext3_handler_lock);
+-		handler = ext3_xattr_handlers[name_index-1];
+-		read_unlock(&ext3_handler_lock);
+-	}
+-	return handler;
+-}
+-
+-/*
+- * Inode operation getxattr()
+- *
+- * dentry->d_inode->i_sem: don't care
+- */
+-ssize_t
+-ext3_getxattr(struct dentry *dentry, const char *name,
+-	      void *buffer, size_t size)
+-{
+-	struct ext3_xattr_handler *handler;
+-	struct inode *inode = dentry->d_inode;
++	struct xattr_handler *handler = NULL;
+ 
+-	handler = ext3_xattr_resolve_name(&name);
+-	if (!handler)
+-		return -EOPNOTSUPP;
+-	return handler->get(inode, name, buffer, size);
++	if (name_index > 0 && name_index <= EXT3_XATTR_INDEX_MAX)
++		handler = ext3_xattr_handler_map[name_index];
++	return handler;
+ }
+ 
+ /*
+@@ -209,43 +150,6 @@ ext3_listxattr(struct dentry *dentry, ch
+ }
+ 
+ /*
+- * Inode operation setxattr()
+- *
+- * dentry->d_inode->i_sem: down
+- */
+-int
+-ext3_setxattr(struct dentry *dentry, const char *name,
+-	      const void *value, size_t size, int flags)
+-{
+-	struct ext3_xattr_handler *handler;
+-	struct inode *inode = dentry->d_inode;
+-
+-	if (size == 0)
+-		value = "";  /* empty EA, do not remove */
+-	handler = ext3_xattr_resolve_name(&name);
+-	if (!handler)
+-		return -EOPNOTSUPP;
+-	return handler->set(inode, name, value, size, flags);
+-}
+-
+-/*
+- * Inode operation removexattr()
+- *
+- * dentry->d_inode->i_sem: down
+- */
+-int
+-ext3_removexattr(struct dentry *dentry, const char *name)
+-{
+-	struct ext3_xattr_handler *handler;
+-	struct inode *inode = dentry->d_inode;
+-
+-	handler = ext3_xattr_resolve_name(&name);
+-	if (!handler)
+-		return -EOPNOTSUPP;
+-	return handler->set(inode, name, NULL, 0, XATTR_REPLACE);
+-}
+-
+-/*
+  * ext3_xattr_get()
+  *
+  * Copy an extended attribute into the buffer
+@@ -393,7 +297,7 @@ bad_block:	ext3_error(inode->i_sb, "ext3
+ 	/* compute the size required for the list of attribute names */
+ 	for (entry = FIRST_ENTRY(bh); !IS_LAST_ENTRY(entry);
+ 	     entry = EXT3_XATTR_NEXT(entry)) {
+-		struct ext3_xattr_handler *handler;
++		struct xattr_handler *handler;
+ 		struct ext3_xattr_entry *next =
+ 			EXT3_XATTR_NEXT(entry);
+ 		if ((char *)next >= end)
+@@ -401,7 +305,7 @@ bad_block:	ext3_error(inode->i_sb, "ext3
+ 
+ 		handler = ext3_xattr_handler(entry->e_name_index);
+ 		if (handler)
+-			size += handler->list(NULL, inode, entry->e_name,
++			size += handler->list(inode, NULL, entry->e_name,
+ 					      entry->e_name_len);
+ 	}
+ 
+@@ -420,11 +324,11 @@ bad_block:	ext3_error(inode->i_sb, "ext3
+ 	buf = buffer;
+ 	for (entry = FIRST_ENTRY(bh); !IS_LAST_ENTRY(entry);
+ 	     entry = EXT3_XATTR_NEXT(entry)) {
+-		struct ext3_xattr_handler *handler;
++		struct xattr_handler *handler;
+ 
+ 		handler = ext3_xattr_handler(entry->e_name_index);
+ 		if (handler)
+-			buf += handler->list(buf, inode, entry->e_name,
++			buf += handler->list(inode, buf, entry->e_name,
+ 					     entry->e_name_len);
+ 	}
+ 	error = size;
+@@ -1179,51 +1083,12 @@ static void ext3_xattr_rehash(struct ext
+ int __init
+ init_ext3_xattr(void)
+ {
+-	int	err;
+-
+-	err = ext3_xattr_register(EXT3_XATTR_INDEX_USER,
+-				  &ext3_xattr_user_handler);
+-	if (err)
+-		return err;
+-	err = ext3_xattr_register(EXT3_XATTR_INDEX_TRUSTED,
+-				  &ext3_xattr_trusted_handler);
+-	if (err)
+-		goto out;
+-#ifdef CONFIG_EXT3_FS_SECURITY
+-	err = ext3_xattr_register(EXT3_XATTR_INDEX_SECURITY,
+-				  &ext3_xattr_security_handler);
+-	if (err)
+-		goto out1;
+-#endif
+-#ifdef CONFIG_EXT3_FS_POSIX_ACL
+-	err = init_ext3_acl();
+-	if (err)
+-		goto out2;
+-#endif
+ 	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
+ 		sizeof(struct mb_cache_entry) +
+ 		sizeof(struct mb_cache_entry_index), 1, 6);
+-	if (!ext3_xattr_cache) {
+-		err = -ENOMEM;
+-		goto out3;
+-	}
++	if (!ext3_xattr_cache)
++		return -ENOMEM;
+ 	return 0;
+-out3:
+-#ifdef CONFIG_EXT3_FS_POSIX_ACL
+-	exit_ext3_acl();
+-out2:
+-#endif
+-#ifdef CONFIG_EXT3_FS_SECURITY
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_SECURITY,
+-			      &ext3_xattr_security_handler);
+-out1:
+-#endif
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_TRUSTED,
+-			      &ext3_xattr_trusted_handler);
+-out:
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER,
+-			      &ext3_xattr_user_handler);
+-	return err;
+ }
+ 
+ void
+@@ -1232,15 +1097,4 @@ exit_ext3_xattr(void)
+ 	if (ext3_xattr_cache)
+ 		mb_cache_destroy(ext3_xattr_cache);
+ 	ext3_xattr_cache = NULL;
+-#ifdef CONFIG_EXT3_FS_POSIX_ACL
+-	exit_ext3_acl();
+-#endif
+-#ifdef CONFIG_EXT3_FS_SECURITY
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_SECURITY,
+-			      &ext3_xattr_security_handler);
+-#endif
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_TRUSTED,
+-			      &ext3_xattr_trusted_handler);
+-	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER,
+-			      &ext3_xattr_user_handler);
+ }
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/xattr.h linux-2.6.9-rc2.w/fs/ext3/xattr.h
+--- linux-2.6.9-rc2.p/fs/ext3/xattr.h	2004-09-13 01:33:37.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/xattr.h	2004-09-18 01:43:22.889577712 -0400
+@@ -56,23 +56,13 @@ struct ext3_xattr_entry {
+ 
+ # ifdef CONFIG_EXT3_FS_XATTR
+ 
+-struct ext3_xattr_handler {
+-	char *prefix;
+-	size_t (*list)(char *list, struct inode *inode, const char *name,
+-		       int name_len);
+-	int (*get)(struct inode *inode, const char *name, void *buffer,
+-		   size_t size);
+-	int (*set)(struct inode *inode, const char *name, const void *buffer,
+-		   size_t size, int flags);
+-};
++extern struct xattr_handler ext3_xattr_user_handler;
++extern struct xattr_handler ext3_xattr_trusted_handler;
++extern struct xattr_handler ext3_xattr_acl_access_handler;
++extern struct xattr_handler ext3_xattr_acl_default_handler;
++extern struct xattr_handler ext3_xattr_security_handler;
+ 
+-extern int ext3_xattr_register(int, struct ext3_xattr_handler *);
+-extern void ext3_xattr_unregister(int, struct ext3_xattr_handler *);
+-
+-extern int ext3_setxattr(struct dentry *, const char *, const void *, size_t, int);
+-extern ssize_t ext3_getxattr(struct dentry *, const char *, void *, size_t);
+ extern ssize_t ext3_listxattr(struct dentry *, char *, size_t);
+-extern int ext3_removexattr(struct dentry *, const char *);
+ 
+ extern int ext3_xattr_get(struct inode *, int, const char *, void *, size_t);
+ extern int ext3_xattr_list(struct inode *, char *, size_t);
+@@ -85,11 +75,9 @@ extern void ext3_xattr_put_super(struct 
+ extern int init_ext3_xattr(void);
+ extern void exit_ext3_xattr(void);
+ 
++extern struct xattr_handler *ext3_xattr_handlers[];
 +
-+ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size);
-+ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
-+int generic_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
-+int generic_removexattr(struct dentry *dentry, const char *name);
-+
- #endif	/* _LINUX_XATTR_H */
+ # else  /* CONFIG_EXT3_FS_XATTR */
+-#  define ext3_setxattr		NULL
+-#  define ext3_getxattr		NULL
+-#  define ext3_listxattr	NULL
+-#  define ext3_removexattr	NULL
+ 
+ static inline int
+ ext3_xattr_get(struct inode *inode, int name_index, const char *name,
+@@ -139,8 +127,6 @@ exit_ext3_xattr(void)
+ {
+ }
+ 
+-# endif  /* CONFIG_EXT3_FS_XATTR */
++#define ext3_xattr_handlers	NULL
+ 
+-extern struct ext3_xattr_handler ext3_xattr_user_handler;
+-extern struct ext3_xattr_handler ext3_xattr_trusted_handler;
+-extern struct ext3_xattr_handler ext3_xattr_security_handler;
++# endif  /* CONFIG_EXT3_FS_XATTR */
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/xattr_security.c linux-2.6.9-rc2.w/fs/ext3/xattr_security.c
+--- linux-2.6.9-rc2.p/fs/ext3/xattr_security.c	2004-09-13 01:32:45.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/xattr_security.c	2004-09-18 01:43:22.890577560 -0400
+@@ -12,7 +12,7 @@
+ #include "xattr.h"
+ 
+ static size_t
+-ext3_xattr_security_list(char *list, struct inode *inode,
++ext3_xattr_security_list(struct inode *inode, char *list,
+ 		    const char *name, int name_len)
+ {
+ 	const int prefix_len = sizeof(XATTR_SECURITY_PREFIX)-1;
+@@ -45,7 +45,7 @@ ext3_xattr_security_set(struct inode *in
+ 			      value, size, flags);
+ }
+ 
+-struct ext3_xattr_handler ext3_xattr_security_handler = {
++struct xattr_handler ext3_xattr_security_handler = {
+ 	.prefix	= XATTR_SECURITY_PREFIX,
+ 	.list	= ext3_xattr_security_list,
+ 	.get	= ext3_xattr_security_get,
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/xattr_trusted.c linux-2.6.9-rc2.w/fs/ext3/xattr_trusted.c
+--- linux-2.6.9-rc2.p/fs/ext3/xattr_trusted.c	2004-09-13 01:32:55.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/xattr_trusted.c	2004-09-18 01:43:22.891577408 -0400
+@@ -16,7 +16,7 @@
+ #define XATTR_TRUSTED_PREFIX "trusted."
+ 
+ static size_t
+-ext3_xattr_trusted_list(char *list, struct inode *inode,
++ext3_xattr_trusted_list(struct inode *inode, char *list,
+ 			const char *name, int name_len)
+ {
+ 	const int prefix_len = sizeof(XATTR_TRUSTED_PREFIX)-1;
+@@ -56,7 +56,7 @@ ext3_xattr_trusted_set(struct inode *ino
+ 			      value, size, flags);
+ }
+ 
+-struct ext3_xattr_handler ext3_xattr_trusted_handler = {
++struct xattr_handler ext3_xattr_trusted_handler = {
+ 	.prefix	= XATTR_TRUSTED_PREFIX,
+ 	.list	= ext3_xattr_trusted_list,
+ 	.get	= ext3_xattr_trusted_get,
+diff -purN -X dontdiff linux-2.6.9-rc2.p/fs/ext3/xattr_user.c linux-2.6.9-rc2.w/fs/ext3/xattr_user.c
+--- linux-2.6.9-rc2.p/fs/ext3/xattr_user.c	2004-09-13 01:31:43.000000000 -0400
++++ linux-2.6.9-rc2.w/fs/ext3/xattr_user.c	2004-09-18 01:43:22.891577408 -0400
+@@ -16,7 +16,7 @@
+ #define XATTR_USER_PREFIX "user."
+ 
+ static size_t
+-ext3_xattr_user_list(char *list, struct inode *inode,
++ext3_xattr_user_list(struct inode *inode, char *list,
+ 		     const char *name, int name_len)
+ {
+ 	const int prefix_len = sizeof(XATTR_USER_PREFIX)-1;
+@@ -70,7 +70,7 @@ ext3_xattr_user_set(struct inode *inode,
+ 			      value, size, flags);
+ }
+ 
+-struct ext3_xattr_handler ext3_xattr_user_handler = {
++struct xattr_handler ext3_xattr_user_handler = {
+ 	.prefix	= XATTR_USER_PREFIX,
+ 	.list	= ext3_xattr_user_list,
+ 	.get	= ext3_xattr_user_get,
 
 

@@ -1,108 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTJ2Btk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 20:49:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJ2Btk
+	id S261837AbTJ2BpX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 20:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTJ2BpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 20:49:40 -0500
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:21906 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S261869AbTJ2Bti
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 20:49:38 -0500
-Subject: [PATCH] Re: PS/2 Slowness w/ 2.6.0-test9-bk2
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <rrey@ranty.pantax.net>
-Reply-To: ramon.rey@hispalinux.es
-To: walt <wa1ter@myrealbox.com>
-Cc: Shawn Starr <spstarr@sh0n.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F9F0E72.2010606@myrealbox.com>
-References: <fa.k5maq39.1h6g0b7@ifi.uio.no> <3F9F0E72.2010606@myrealbox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HWh3NqC9JrKW5+Uv+Rv7"
-Message-Id: <1067392135.1052.4.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 29 Oct 2003 02:48:56 +0100
+	Tue, 28 Oct 2003 20:45:22 -0500
+Received: from web13012.mail.yahoo.com ([216.136.172.93]:35226 "HELO
+	web13012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261837AbTJ2BpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 20:45:18 -0500
+Message-ID: <20031029014517.60577.qmail@web13012.mail.yahoo.com>
+Date: Tue, 28 Oct 2003 17:45:17 -0800 (PST)
+From: Amit Patel <patelamitv@yahoo.com>
+Subject: Re: as_arq scheduler alloc with 2.6.0-test8-mm1
+To: Nick Piggin <piggin@cyberone.com.au>, Amit Patel <patelamitv@YAHOO.COM>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3F9DABE6.7050501@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi 
 
---=-HWh3NqC9JrKW5+Uv+Rv7
-Content-Type: multipart/mixed; boundary="=-jHE22hNutbrLEL6rwEL3"
+After doing some printk debugging looks like for each
+block device we allocate elevator structure. But
+during cleanup the elevator->elevator_data is never
+freed. In printk I put printk in as-iosched.c:as_alloc
+where I see elevator_data is allocated from as_arq
+pool and it should have been freed as a part of block
+device cleanup through elevator_release function. I
+never see it coming to elevatore_release function. 
+
+I will try to walk through code some more and see if I
+can figure out who was supposed to call
+elevator_release as part of cleanup. Let me know if I
+am going on wrong track here.
+
+Thanks
+Amit
+--- Nick Piggin <piggin@cyberone.com.au> wrote:
+> 
+> 
+> Mr Amit Patel wrote:
+> 
+> >Hi Andrew,
+> >
+> >The qlogic driver is for Fibre Channel HBA QLA2342.
+> >This is a beta driver which is part of the mjb1
+> patch
+> >against 2.6.0-test8. As a part of driver insmod,
+> >driver tries to find fiber channel device and maps
+> it
+> >to scsi block device. Actually I don't have any
+> fibre
+> >channel target attached, so driver does not find
+> any
+> >scsi devices and discovery finishes without adding
+> any
+> >block device. 
+> >
+> >I am trying to go through driver scsi_scan process
+> and
+> >see when does actual allocation from as_arq
+> happens.
+> >But for some reason after going to kgdb I get
+> SIGEMT
+> >and I cannot debug further. What is causing SIGEMT
+> >cause after doing some search looks like its
+> actually
+> >SIGUSR but linux treats it as SIGEMT. Is there any
+> way
+> >to prevent SIGEMT when I want to use kgdb ? 
+> >
+> >Thanks for your help,
+> >
+> 
+> Hi Amit,
+> 
+> I'm a little bit busy to look at this now, however
+> someone
+> is looking into all these refcounting problems.
+> 
+> If you would like to narrow it down a bit, check
+> that the
+> request queues that are allocated are all released
+> when the
+> driver is unloaded (drivers/block/ll_rw_blk.c
+> blk_alloc_queue
+> and blk_cleanup_queue). Just stick a couple of
+> printks there
+> if your debugger isn't working.
+> 
+> 
 
 
---=-jHE22hNutbrLEL6rwEL3
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-El mi=E9, 29-10-2003 a las 01:48, walt escribi=F3:
-
-> I have the same problem, but I find that booting with the psmouse_noext
-> kernel parameter reverses the unwanted behavior.
-
-I've made a patch with a workaround, a new MOUSE_PS2_FORCE_RATE option
-:). I hope this help somebody while Linus/someone find the perfect
-solution
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
-
---=-jHE22hNutbrLEL6rwEL3
-Content-Disposition: inline; filename=mouse_ps2_force_rate.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=mouse_ps2_force_rate.patch; charset=iso-8859-15
-
-SW5kZXg6IEtjb25maWcNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBLY29uZmlnCShyZXZpc2lvbiAxMzY3NCkN
-CisrKyBLY29uZmlnCSh3b3JraW5nIGNvcHkpDQpAQCAtMjgsNiArMjgsMTMgQEANCiAJICBUbyBj
-b21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUNCiAJICBt
-b2R1bGUgd2lsbCBiZSBjYWxsZWQgcHNtb3VzZS4NCiANCitjb25maWcgTU9VU0VfUFMyX0ZPUkNF
-X1JBVEUNCisJYm9vbCAiRm9yY2UgcmF0ZSBvZiBQUy8yIG1vdXNlIg0KKwlkZWZhdWx0IG4NCisJ
-ZGVwZW5kcyBvbiBNT1VTRV9QUzINCisJLS0taGVscC0tLQ0KKwkgIFNheSBZIGlmIHlvdSBleHBl
-cmltZW50IHNsb3duZXNzIHByb2JsZW1zIHdpdGggeW91ciBQUy8yIG1vdXNlLg0KKw0KIGNvbmZp
-ZyBNT1VTRV9QUzJfU1lOQVBUSUNTDQogCWJvb2wgIlN5bmFwdGljcyBUb3VjaFBhZCINCiAJZGVm
-YXVsdCBuDQpJbmRleDogcHNtb3VzZS1iYXNlLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwc21vdXNlLWJh
-c2UuYwkocmV2aXNpb24gMTQyNDEpDQorKysgcHNtb3VzZS1iYXNlLmMJKHdvcmtpbmcgY29weSkN
-CkBAIC00MCw3ICs0MCwxMyBAQA0KIA0KIHN0YXRpYyBpbnQgcHNtb3VzZV9ub2V4dDsNCiBpbnQg
-cHNtb3VzZV9yZXNvbHV0aW9uOw0KKw0KKyNpZmRlZiBDT05GSUdfTU9VU0VfUFMyX0ZPUkNFX1JB
-VEUNCit1bnNpZ25lZCBpbnQgcHNtb3VzZV9yYXRlID0gNjA7DQorI2Vsc2UNCiB1bnNpZ25lZCBp
-bnQgcHNtb3VzZV9yYXRlOw0KKyNlbmRpZg0KKw0KIGludCBwc21vdXNlX3NtYXJ0c2Nyb2xsID0g
-UFNNT1VTRV9MT0dJVEVDSF9TTUFSVFNDUk9MTDsNCiB1bnNpZ25lZCBpbnQgcHNtb3VzZV9yZXNl
-dGFmdGVyOw0KIA0KQEAgLTQ3MSwxNiArNDc3LDIzIEBADQogICogV2Ugc2V0IHRoZSBtb3VzZSBy
-ZXBvcnQgcmF0ZS4NCiAgKi8NCiANCisjaWZkZWYgQ09ORklHX01PVVNFX1BTMl9GT1JDRV9SQVRF
-DQorCXBzbW91c2Vfc2V0X3JhdGUocHNtb3VzZSk7DQorI2Vsc2UNCiAJaWYgKHBzbW91c2VfcmF0
-ZSkNCiAJCXBzbW91c2Vfc2V0X3JhdGUocHNtb3VzZSk7DQorI2VuZGlmDQogDQogLyoNCiAgKiBX
-ZSBhbHNvIHNldCB0aGUgcmVzb2x1dGlvbiBhbmQgc2NhbGluZy4NCiAgKi8NCiANCisjaWZkZWYg
-Q09ORklHX01PVVNFX1BTMl9GT1JDRV9SQVRFDQorCSBwc21vdXNlX3NldF9yZXNvbHV0aW9uKHBz
-bW91c2UpOw0KKyNlbHNlDQogCWlmIChwc21vdXNlX3Jlc29sdXRpb24pDQogCQlwc21vdXNlX3Nl
-dF9yZXNvbHV0aW9uKHBzbW91c2UpOw0KLQ0KKyNlbmRpZg0KIAlwc21vdXNlX2NvbW1hbmQocHNt
-b3VzZSwgIE5VTEwsIFBTTU9VU0VfQ01EX1NFVFNDQUxFMTEpOw0KIA0KIC8qDQpAQCAtNjU0LDE3
-ICs2NjcsMjIgQEANCiAJcmV0dXJuIDE7DQogfQ0KIA0KKyNpZm5kZWYgQ09ORklHX01PVVNFX1BT
-Ml9GT1JDRV9SQVRFDQogc3RhdGljIGludCBfX2luaXQgcHNtb3VzZV9yYXRlX3NldHVwKGNoYXIg
-KnN0cikNCiB7DQogCWdldF9vcHRpb24oJnN0ciwgJnBzbW91c2VfcmF0ZSk7DQogCXJldHVybiAx
-Ow0KIH0NCisjZW5kaWYNCiANCiBfX3NldHVwKCJwc21vdXNlX25vZXh0IiwgcHNtb3VzZV9ub2V4
-dF9zZXR1cCk7DQogX19zZXR1cCgicHNtb3VzZV9yZXNvbHV0aW9uPSIsIHBzbW91c2VfcmVzb2x1
-dGlvbl9zZXR1cCk7DQogX19zZXR1cCgicHNtb3VzZV9zbWFydHNjcm9sbD0iLCBwc21vdXNlX3Nt
-YXJ0c2Nyb2xsX3NldHVwKTsNCiBfX3NldHVwKCJwc21vdXNlX3Jlc2V0YWZ0ZXI9IiwgcHNtb3Vz
-ZV9yZXNldGFmdGVyX3NldHVwKTsNCisNCisjaWZuZGVmIENPTkZJR19NT1VTRV9QUzJfRk9SQ0Vf
-UkFURQ0KIF9fc2V0dXAoInBzbW91c2VfcmF0ZT0iLCBwc21vdXNlX3JhdGVfc2V0dXApOw0KKyNl
-bmRpZg0KIA0KICNlbmRpZg0KIA0K
-
---=-jHE22hNutbrLEL6rwEL3--
-
---=-HWh3NqC9JrKW5+Uv+Rv7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/nxyGRGk68b69cdURAnNsAJ9HBlgyUTkFMaVX9TPnmTgKmrA9UwCfZhMQ
-D8u9tfTn4fsv/wjmcMCAIoU=
-=Eil2
------END PGP SIGNATURE-----
-
---=-HWh3NqC9JrKW5+Uv+Rv7--
-
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

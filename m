@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292316AbSBUEQw>; Wed, 20 Feb 2002 23:16:52 -0500
+	id <S292313AbSBUEoo>; Wed, 20 Feb 2002 23:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292321AbSBUEQm>; Wed, 20 Feb 2002 23:16:42 -0500
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:30215 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292316AbSBUEQX>; Wed, 20 Feb 2002 23:16:23 -0500
-Message-ID: <20020221041622.16473.qmail@web12308.mail.yahoo.com>
-Date: Wed, 20 Feb 2002 20:16:22 -0800 (PST)
-From: Raghu Angadi <raghuangadi@yahoo.com>
-Subject: Re: memory corruption in tcp bind hash buckets on SMP? 
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020213.190743.66058963.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292323AbSBUEog>; Wed, 20 Feb 2002 23:44:36 -0500
+Received: from [210.176.202.14] ([210.176.202.14]:19072 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S292313AbSBUEoY> convert rfc822-to-8bit; Wed, 20 Feb 2002 23:44:24 -0500
+Subject: Re: tmpfs, NFS, file handles
+From: David Chow <davidchow@shaolinmicro.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: "Peter J. Braam" <braam@clusterfs.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, phil@off.net
+In-Reply-To: <15476.10488.442232.634169@notabene.cse.unsw.edu.au>
+In-Reply-To: <20020220094649.X25738@lustre.cfs>
+	<3C73D548.648C5D64@mandrakesoft.com> <20020220122116.C28913@lustre.cfs> 
+	<15476.10488.442232.634169@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0.1 
+Date: 21 Feb 2002 12:43:52 +0800
+Message-Id: <1014266633.17471.8.camel@star9.planet.rcn.com.hk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+¦b ¶g¥|, 2002-02-21 06:53, Neil Brown ¼g¹D¡G
+> On Wednesday February 20, braam@clusterfs.com wrote:
+> > Hi, 
+> > 
+> > > "Peter J. Braam" wrote:
+> > ...
+> > > > Is there a suggested solution for fh_to_dentry and dentry_to_fh for
+> > > > tmpfs?
+> > > > 
+> > > > An "iget" based solution might work but at present tmpfs inodes are
+> > > > not hashed.
+> > On Wed, Feb 20, 2002 at 11:56:40AM -0500, Jeff Garzik wrote:
+> > ...
+> > > I talked to neil brown about NFS and ramfs... he mentioned using
+> > > iunique()
+> ... but Trond had a better idea....
+> > 
+> > 
+> > So do I understand that hashing tmpfs inodes is perhaps the way to go?
+> > 
+> > Would the following also work? 
+> > 
+> >  - have a 32 bit counter: set inode->i_ino to count++
+> >  - up the generation number each time the counter warps. 
+> 
+> You don't just need a number in inode->i_ino.  You also need to be
+> able to find an inode given that number.
+> So you need to store all the inodes in a hash table.
+> But you don't want to penalise non-NFS users.
+> 
+> I would probably:
+>    leave i_ino as set by new_inode
+>    initialise inode->i_generation to CURRENT_TIME
+> 
+>    in dentry_to_fh,
+>      check if list_empty(&inode->i_hash)
+>        if it is, then add the inode to some hash table indexed by the
+>            address of the inode
+>        put the address of the inode, i_ino and i_generation in the filehandle
+> 
+>    in fh_to_dentry,
+>      lookup the given address in the hash table.
+>      if it is found, check the i_ino and i_generation
+> 
+> 
+> That means you are only hashing inodes exported by NFS, and you have
+> a pretty good guarantee of uniqueness (providing time doesn't go
+> backwards).
+> 
+> NeilBrown
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---- "David S. Miller" <davem@redhat.com> wrote:
->    From: Raghu Angadi <raghuangadi@yahoo.com>
->    Date: Wed, 13 Feb 2002 16:51:52 -0800 (PST)    
->    --- "David S. Miller" <davem@redhat.com> wrote:
->    > 
->    > This bug is fixed in the 2.4.9 Red Hat 7.2 errata kernels.
+What I suggest is nfsd should export a symbol called
+generic_fh_to_dentry() such that it will be more generic like
+generic_file_read() to handle gneeric calls for every fs.
 
-We tried the latest errata kernel from redhat.com (2.4.9-21). This one still
-has the same problem. We saw exactly the same problem at the same place in
-the code. I can add the oops here if you like. 
+Thanks,
 
-(link to the original mail for this thread:
-	http://www.uwsg.iu.edu/hypermail/linux/kernel/0202.1/1193.html)
+David
 
-We are trying to fix this problem but did not have much success yet. I will
-happy to provide any more info if somebody needs.
-
-Raghu.
-   
->    Thanks, Is the following diff the only culprit/fix?
->    
-> There are others, seatch for more instances of tcp_tw_get()
-> and tcp_tw_put() and things like atomic_set(tw->count, 1);
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com

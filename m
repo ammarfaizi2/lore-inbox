@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbTGIKdO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 06:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268173AbTGIKdN
+	id S268171AbTGIKr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 06:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268172AbTGIKr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 06:33:13 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:50092 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S268149AbTGIKaR
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 06:30:17 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Jul 2003 06:47:57 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21167
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S268171AbTGIKrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 06:47:53 -0400
+Subject: Re: [PATCH] idle using PNI monitor/mwait
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+In-Reply-To: <3014AAAC8E0930438FD38EBF6DCEB5640201719C@fmsmsx407.fm.intel.com>
+References: <3014AAAC8E0930438FD38EBF6DCEB5640201719C@fmsmsx407.fm.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16139.61989.920240.358179@laputa.namesys.com>
-Date: Wed, 9 Jul 2003 14:44:53 +0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux-Kernel@vger.kernel.org
-Subject: Re: [PATCH] 3/5 VM changes: dont-rotate-active-list.patch
-In-Reply-To: <20030709031217.21b54196.akpm@osdl.org>
-References: <16139.54928.435252.933882@laputa.namesys.com>
-	<20030709031217.21b54196.akpm@osdl.org>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Organization: 
+Message-Id: <1057748386.6255.10.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Jul 2003 11:59:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Nikita Danilov <Nikita@Namesys.COM> wrote:
- > >
- > > This patch modifies refill_inactive_zone() so that it scans active_list
- > >  without rotating it. 
- > 
- > I'm unconvinced.  The scanning of the active list allows us to keep the
- > referenced state uptodate and balanced across all pages.
- > 
+On Maw, 2003-07-08 at 22:23, Nakajima, Jun wrote:
+> Hi Linus,
+> 
+> Attached is a patch that enables PNI (Prescott New Instructions)
+> monitor/mwait in kernel idle (opcodes are now public). Basically MWAIT
+> is similar to hlt, but you can avoid IPI to wake up the processor
+> waiting. A write (by another processor) to the address range specified
+> by MONITOR would wake up the processor waiting on MWAIT.
 
-With this patch active list is still scanned. The only difference is
-that in !reclaim_mapped mode, mapped but unreferenced pages are left
-behind scanning point instead of being thrown to the head of active list
-(which supposed to be LRU, after all).
+Is mwait dependant on cached cpu memory and the cache exclusivity logic
+or directly on the processor. In other words can I use mwait in future
+to wait for DMA to hit a given location ? - Im mostly thinking about
+debugging uses 
 
-Nikita.

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbUBFSTv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:19:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUBFSTv
+	id S265646AbUBFS2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265677AbUBFS2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:19:51 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:44471
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S265577AbUBFSTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:19:49 -0500
-Message-ID: <4023DB4B.3060008@tmr.com>
-Date: Fri, 06 Feb 2004 13:22:03 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: grouch@edge-op.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel releases 0.01 - 2.6.2
-References: <Pine.LNX.4.51.0402041746050.19792@jak.edge-op.org>
-In-Reply-To: <Pine.LNX.4.51.0402041746050.19792@jak.edge-op.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Feb 2004 13:28:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10210 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265646AbUBFS2p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:28:45 -0500
+Date: Fri, 6 Feb 2004 18:28:44 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: walt <wa1ter@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.1] Kernel panic with ppa driver updates
+Message-ID: <20040206182844.GJ21151@parcelfarce.linux.theplanet.co.uk>
+References: <4023D098.1000904@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4023D098.1000904@myrealbox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-grouch@edge-op.org wrote:
-> At the suggestion of a subscriber to this list,
-> and before the 10th anniversary of Linux v1.0:
+On Fri, Feb 06, 2004 at 09:36:24AM -0800, walt wrote:
+> This panic started with the bk changesets applied by Linus yesterday.
 > 
-> Dates and versions of kernel releases, 0.01 to 2.6.2
-> 
-> http://edge-op.org/files/kernel-releases.html (table)
-> http://edge-op.org/files/kernel-releases  (plain text)
-> 
-> (You folks have cranked out an amazing amount!)
+> The ppa driver works fine when compiled as a module, but when compiled in
+> I get this during boot:
 
-Thanks for the timeline, may it continue! I can't believe how long I 
-have run machines once they became stable... my last 1.2.13 machine was 
-taken down on Y2k-eve, I still have a 2.1.106 machine running, and a 
-2.0.33 machine was upgraded to RHEL-3.0 early this year. Speaks well for 
-stability that machines without security issues can just run virtually 
-forever.
+> ppa_pb_claim+0x7b/0x80
+> __ppa_attach+0x137/0x350
+> ppa_wakeup+0x0/0x70
+> autoremove_wake_function+0x0/0x50 [this line appears twice]
+> parport_register_driver+0x36/0x70
+> ppa_driver_init+0x23/0x30
+> do_initcalls+0x2c/0xa0
+> init_workquese+0xf/0x30
+> init+0x32/0x140
+> init+0x0/0x140
+> kernel_thread_helper+0x5/0xc
+> 
+> Code: c7 80 24 01 00 00 01 00 00 c3 8b 42 50 b9 01 00 00 00 ba
+> <0>Kernel panic: attempted to kill init!
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Very interesting.  So it works as a module (== finds disks and handles them
+OK) and dies when it's built-in?
+
+Could you post the actual oops?  The fun thing being, we are obviously past
+the initialization of parport layer (otherwise ->attach() would not be called
+at all), so init order problems should not be an issue.  And seeing that
+there's no module-specific code in ppa...

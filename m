@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289748AbSAOX1r>; Tue, 15 Jan 2002 18:27:47 -0500
+	id <S289754AbSAOX2R>; Tue, 15 Jan 2002 18:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289759AbSAOX1h>; Tue, 15 Jan 2002 18:27:37 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:47262 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S289748AbSAOX1Z>; Tue, 15 Jan 2002 18:27:25 -0500
-Message-ID: <3C44BB1B.E1F3318C@didntduck.org>
-Date: Tue, 15 Jan 2002 18:28:27 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Thalinger <e9625286@student.tuwien.ac.at>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: floating point exception
-In-Reply-To: <1010925802.674.0.camel@sector17.home.at>
-Content-Type: text/plain; charset=us-ascii
+	id <S289752AbSAOX2I>; Tue, 15 Jan 2002 18:28:08 -0500
+Received: from monster.gotadsl.co.uk ([213.208.127.236]:9634 "EHLO
+	monster.gotadsl.co.uk") by vger.kernel.org with ESMTP
+	id <S289759AbSAOX1w>; Tue, 15 Jan 2002 18:27:52 -0500
+Subject: Re: [patch] O(1) scheduler, -I1
+From: Craig Knox <crg@monster.gotadsl.co.uk>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020115.234823.884032698.rene.rebe@gmx.net>
+In-Reply-To: <Pine.LNX.4.40.0201150915590.1460-100000@blue1.dev.mcafeelabs.com>
+	<Pine.LNX.4.33.0201152022590.14517-100000@localhost.localdomain> 
+	<20020115.234823.884032698.rene.rebe@gmx.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 15 Jan 2002 23:30:51 +0000
+Message-Id: <1011137451.1142.13.camel@crgs.lowerrd.prv>
+Mime-Version: 1.0
+X-Scanner: exiscan *16QczU-0003rj-00*Efq2LvjK96E* (monster.gotadsl.co.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Thalinger wrote:
-> 
-> Hi!
-> 
-> Just downloaded again, after a long time, the setiathome client. I
-> wanted to look how smooth my tyan dual works. So i started the client
-> and after a few seconds it gets and `floating point exception'. No
-> problem till now, cause it seems to be seti bug. Ok.
-> 
-> Right after that my window manager segfaults. Ok, switch to console,
-> restart it and go. No! Can't start any programs anymore, no login. All
-> tasks die one after the other, up to the complete lock of the machine.
-> Even alt-sysrq doesn't work.
-> 
-> So, this is kernel 2.4.17 and i'll try other kernels right after this
-> email.
-> 
-> Anyone knows what's going on?
+> I just tried the sched-O1-2.4.17-I0.patch and interactive performance
+> is unbelieveable bad!
 
-What CPU do you have?  Do you have the FPU emulator compiled in?  Are
-there any oops messages?
+I've noticed that it seems bad as well.  The earlier releases have been
+great.
+With the 2.4.17-I0 patch my mouse jerks around the screen when compiling
+a kernel on a dual PII450.
 
---
-						Brian Gerst

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272616AbTG1BCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272566AbTG1AEF
+	id S272603AbTG1Ayz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 20:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272619AbTG1Ayi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:04:05 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272722AbTG0W6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:58:17 -0400
-Date: Sun, 27 Jul 2003 21:13:54 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272013.h6RKDrgg029697@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: phonedev handles this
+	Sun, 27 Jul 2003 20:54:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23197 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S272603AbTG1AyW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 20:54:22 -0400
+Message-ID: <3F2477C4.2000105@pobox.com>
+Date: Sun, 27 Jul 2003 21:09:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: Rahul Karnik <rahul@genebrew.com>,
+       Marcelo Penna Guerra <eu@marcelopenna.org>,
+       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com> <200307271301.41660.adq_dvb@lidskialf.net>
+In-Reply-To: <200307271301.41660.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/telephony/ixj.c linux-2.6.0-test2-ac1/drivers/telephony/ixj.c
---- linux-2.6.0-test2/drivers/telephony/ixj.c	2003-07-27 19:56:28.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/telephony/ixj.c	2003-07-27 20:29:47.000000000 +0100
-@@ -2250,8 +2250,6 @@
- 	j->flags.cidplay = 0;
- 	j->flags.cidcw_ack = 0;
- 
--	MOD_INC_USE_COUNT;
--
- 	if (ixjdebug & 0x0002)
- 		printk(KERN_INFO "Opening board %d\n", p->board);
- 
-@@ -2463,7 +2461,6 @@
- 
- 	file_p->private_data = NULL;
- 	clear_bit(board, &j->busyflags);
--	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
+One can set the MAC address manually via ifconfig.
+
+So, try modprobing amd8111e with the nforce pci ids, then manually 
+setting the MAC address, and see if that works.
+
+(just make sure the MAC address you make up is unique)
+
+	Jeff
+
+
+

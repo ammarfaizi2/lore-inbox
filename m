@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129374AbQKFHsw>; Mon, 6 Nov 2000 02:48:52 -0500
+	id <S129034AbQKFIAg>; Mon, 6 Nov 2000 03:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130266AbQKFHsm>; Mon, 6 Nov 2000 02:48:42 -0500
-Received: from waste.org ([209.173.204.2]:55080 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129374AbQKFHsd>;
-	Mon, 6 Nov 2000 02:48:33 -0500
-Date: Mon, 6 Nov 2000 01:48:15 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+	id <S129036AbQKFIA0>; Mon, 6 Nov 2000 03:00:26 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:36102 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129034AbQKFIAS>; Mon, 6 Nov 2000 03:00:18 -0500
+Date: Mon, 6 Nov 2000 08:00:05 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <Pine.LNX.4.21.0011060730410.14068-100000@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10011060135050.8248-100000@waste.org>
+In-Reply-To: <3A0661A1.668BD8CB@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0011060752250.15143-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, David Woodhouse wrote:
+On Mon, 6 Nov 2000, Jeff Garzik wrote:
 
-> On Mon, 6 Nov 2000, Oliver Xymoron wrote:
+> David Woodhouse wrote:
+> > The desired mixer levels should be available to the module at the time of
+> > initialisation.
 > 
-> > If I understand you correctly:
-> > 
-> > process 1         process 2
-...
-> 
-> > Is there any reason we ever want to unblock process 1 before process 2
-> > terminates?
-> 
-> No, and I don't think we do. That's not the point.
-> 
-> 'init module' is still _after_ 'set mixer levels'. There is a period
-> during which the mixer levels are changed.
+> For drivers built into the kernel that gets messy.  The command line is
+> only so long.  Sounds messy for modules too.  Further (responding to
+> your other e-mail), few probably care about having the mixer containing
+> default, not custom, values for 10 seconds between driver init and aumix
+> execution from initscripts...
 
-Perhaps you mean before? Otherwise you've lost me.
+I don't mean this to happen on boot. As you say, that gets messy. The
+first time a module is loaded after booting, the levels can be all zeroed. 
 
-> The desired mixer levels should be available to the module at the time of
-> initialisation.
+I'm more interested in the case where the module is loaded for the second
+time:
 
-Is this because active audio sources other than /dev/dsp writers are
-suddenly in and out of the mix? If there's nothing on the inputs, it
-shouldn't matter whether you're changing the levels.
+User loads a mixer to set the 'line' level to something sensible so he can
+listen to the radio, which is routed through the sound card to his amp.
 
-The right way to do this (according to any sound engineer) is to
-initialize all the levels to zero unless told otherwise. This would
-doubtless annoy the average user, but is more or less equivalent to not
-forwarding packets by default.
+User closes mixer program. Module is unloaded. Levels remain the same -
+all is well.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Some time later, something tries to 'beep' via /dev/audio. Module is
+reloaded, the feed the user was listening to is interrupted.
+
+Actually, the way it happened to me was that it was five in the morning, I
+was in halls of residence, and suddenly I was playing the radio at full
+volume :)
+
+After fixing the sb16 driver to use the existing persistent storage, and
+watching that facility disappear from the module support shortly
+thereafter, I just decided not to autoload the sound modules.
+
+-- 
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

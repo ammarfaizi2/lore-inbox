@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272178AbRHWBji>; Wed, 22 Aug 2001 21:39:38 -0400
+	id <S272175AbRHWBjI>; Wed, 22 Aug 2001 21:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272179AbRHWBja>; Wed, 22 Aug 2001 21:39:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59010 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272178AbRHWBjO>;
-	Wed, 22 Aug 2001 21:39:14 -0400
-Date: Wed, 22 Aug 2001 18:39:12 -0700 (PDT)
-Message-Id: <20010822.183912.61335222.davem@redhat.com>
-To: gibbs@scsiguy.com
-Cc: groudier@free.fr, axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200108230132.f7N1WkY22194@aslan.scsiguy.com>
-In-Reply-To: <20010822.180858.89278064.davem@redhat.com>
-	<200108230132.f7N1WkY22194@aslan.scsiguy.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272181AbRHWBi7>; Wed, 22 Aug 2001 21:38:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57095 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272175AbRHWBio>; Wed, 22 Aug 2001 21:38:44 -0400
+Date: Wed, 22 Aug 2001 21:10:44 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: tommy@teatime.com.tw, Linux Kernel <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>
+Subject: Re: Memory Problem in 2.4.9 ?
+In-Reply-To: <20010823010444Z16129-32383+926@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.21.0108222103261.2685-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-   Date: Wed, 22 Aug 2001 19:32:46 -0600
 
-   Perhaps its different for SBUS, but its not different for ISA
-   or EISA.
 
-Right, you pass in a NULL pci_dev pointer.  What is the
-problem with that?
+On Thu, 23 Aug 2001, Daniel Phillips wrote:
 
-   Do you believe that it is architecturally correct to have a single
-   api or multiple apis?
+> On August 22, 2001 09:05 pm, Marcelo Tosatti wrote:
+> > On Wed, 22 Aug 2001, Daniel Phillips wrote:
+> > > What can we do right now?  We could always just comment out the alloc failed 
+> > > message.  The result will be a lot of busy waiting on dirty page writeout 
+> > > which will work but it will keep us from focussing on the question: how did 
+> > > we get so short of bounce buffers?  Well, maybe we are submitting too much IO 
+> > > without intelligent throttling (/me waves at Ben).  That sounds like the 
+> > > place to attack first.
+> > 
+> > We can just wait on the writeout of lowmem buffers at page_launder()
+> > (which will not cause IO buffering since we are doing lowmem IO, duh), and
+> > then we are done.
+> > 
+> > Take a look at the patch I posted before (__GFP_NOBOUNCE). 
+> 
+> A little light reading for a Wednesday afternoon ;-)
+> 
+> Nice hack, way to go.  So this will wait synchronously in try_to_free_buffers
+> if we have to go around twice in alloc_bounce_page or alloc_bounce_bh (the
+> latter eventually resulting in a page_alloc from kmem_cache grow).
 
-I think just plain different entry points are the way to do things,
-because function pointers and/or extra conditional execution rots when
-it's really not needed.
+Not synchronously, no. It will just allow allocations trying to get memory
+for bounce buffering to block on lowmem IO.
 
-   The "pci" api already allows you to express this.
+With this behaviour, its safe to completly remove Ingo's emergency scheme.
 
-There will be a "struct device" in 2.5.x and lots of unification.
+> What does SLAB_LEVEL_MASK do?  Did you find out by hitting the BUG when you
+> tried the patch?  Anyway, it needs a comment.
 
-Frankly, I'd rather not touch the SBUS drivers though.
-All the devices are cast in stone, I'm the only person
-who maintains or even works on any of the drivers, and
-the less I have to change at this point the better.
+SLAB_LEVEL_MASK is the mask for SLAB-valid allocations.
 
-Later,
-David S. Miller
-davem@redhat.com
+> I had in mind a completely different approach to try, using a semaphore to
+> count bounce buffers, and block when they run out.  Your patch fits the
+> pattern of the current busy-waiting strategy much better.  It's the right
+> thing to do.
+> 
+> OK, race you to the next bug ;-)
+
 

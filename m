@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUJAWfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJAWef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUJAWfK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 18:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJAWe5
+	id S266802AbUJAWef (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 18:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUJAWag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 18:34:57 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:38623 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S266768AbUJAWd0 (ORCPT
+	Fri, 1 Oct 2004 18:30:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40586 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266663AbUJAW2A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 18:33:26 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: 2.6.9rc2-mm4 oops
-Date: Fri, 1 Oct 2004 16:33:10 -0600
-User-Agent: KMail/1.7
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
-       Bernhard Rosenkraenzer <bero@arklinux.org>
-References: <1096571653.11298.163.camel@cmn37.stanford.edu> <200410010904.52892.bjorn.helgaas@hp.com> <1096653158.7485.17.camel@cmn37.stanford.edu>
-In-Reply-To: <1096653158.7485.17.camel@cmn37.stanford.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 18:28:00 -0400
+Date: Fri, 1 Oct 2004 15:27:46 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <joq@io.com>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20041001152746.L1924@build.pdx.osdl.net>
+References: <1094967978.1306.401.camel@krustophenia.net> <20040920202349.GI4273@conscoop.ottawa.on.ca> <20040930211408.GE4273@conscoop.ottawa.on.ca> <1096581213.24868.19.camel@krustophenia.net> <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net> <87k6ubcccl.fsf@sulphur.joq.us> <1096663225.27818.12.camel@krustophenia.net> <20041001142259.I1924@build.pdx.osdl.net> <1096669179.27818.29.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410011633.10171.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1096669179.27818.29.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 01, 2004 at 06:19:39PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 11:52 am, Fernando Pablo Lopez-Lezcano wrote:
-> On Fri, 2004-10-01 at 08:04, Bjorn Helgaas wrote:
-> >  Also, can you look up the bad address
-> > (e.g., f8881920) in /proc/kallsyms? 
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> On Fri, 2004-10-01 at 17:23, Chris Wright wrote:
+> > It's nice to have something that's easy to use, but that's not a great
+> > justification for addition to the kernel.  Esp. when there's a
+> > functional userspace solution.
 > 
-> This is what I find:
-> f8880f80 ? __mod_vermagic5      [xor]
-> f8880fcd ? __module_depends     [xor]
-> f8881000 t acpi_button_init     [button]
-> f8881000 t init_module  [button]
-> f8884000 t xor_pII_mmx_2        [xor]
-> f8884130 t xor_pII_mmx_3        [xor]
+> OK, poor choice of words.  Correctness of course comes before ease of
+> use.  I believe the realtime-lsm module satisfies both requirements.
 
-You are remembering that /proc/kallsyms isn't sorted, right?
+I agree with that.  That's not my objection.  It's about pushing code
+(albeit it's small and non-invasive) into the kernel that can be done in
+userspace, that's all.
 
-If you still can't match the address to anything interesting,
-can you see whether it's related to any of the other modules
-(i.e., see whether it happens even if you don't load any of
-the other ACPI drivers, or try leaving out any other drivers
-you can get along without)?  Maybe try loading an ACPI driver
-other than floppy, at the same point in the module load sequence,
-to see if the problem is specific to floppy, or if floppy is
-just an innocent bystander?
+> > > The ulimit approach would probably be acceptable
+> > > if it subsumed all the functionality of the realtime-lsm module.
+> > 
+> > Hrm, I guess we'll have to agree to disagree.  The whole point of the
+> > mlock rlimits code is to enable this policy to be pushed to userspace.
+> > A generic method of enabling capabilities is the best way to go, long
+> > term.  Any interest in pursuing that?
+> 
+> I did not mean to imply that I disagree with the realtime-lsm approach. 
+> Obviously some kernel support is required, and realtime-lsm seems to
+> solve the problem with the minimum possible change to the kernel.  And
+> above all it is a proven working solution that has been field tested for
+> months by many, many users.
 
-I looked at all the callers of acpi_bus_register_driver(), and
-they all look fine (except the hpet one I found yesterday).  But
-maybe there's something I missed, or maybe the acpi_bus_drivers
-list got corrupted somehow.
+Clearly it's useful for the audio folks.  Whether it's the right thing
+to go into the kernel is all that's in question here.  Do we agree it's
+a stopgap measure making up for lack of a better general solution?
 
-If you don't load the floppy driver, is the system stable?
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

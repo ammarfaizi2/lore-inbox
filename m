@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVCEQNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVCEQWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbVCEQNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 11:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVCEQNC
+	id S261911AbVCEQWS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 11:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVCEQO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 11:13:02 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:62105 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S262008AbVCEQFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 11:05:17 -0500
-Subject: [patch 1/1] x86_64: remove old decl (trivial)
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it, ak@suse.de
-From: blaisorblade@yahoo.it
-Date: Fri, 04 Mar 2005 20:10:15 +0100
-Message-Id: <20050304191016.94ED26535@zion>
+	Sat, 5 Mar 2005 11:14:58 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:62132 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262117AbVCEQGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 11:06:13 -0500
+Date: Sat, 05 Mar 2005 11:06:11 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: PATCH-remove experimental depends from forcedeth
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503051106.11678.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings;
 
-CC: Andi Kleen <ak@suse.de>
+I've not seen a forcedeth mention go by on this list for quite some
+time unless I made it.  It has been quite bulletproof here so I don't 
+feel the need for it to remain dependent on the experimental status in 
+the main .config.
 
-vm_force_exec32 and friends were still alive on 2.6.9 release, but now (and in
-2.6.10) they seem deleted.
-I've not compile-tested this, but it seems correct. Below some history of why
-I guess they were deleted (I'm including it so that you can find the changeset
-which deleted the definitions but forgot the declarations in).
+Hence this patch to remove that requirement from the appropriate 
+Kconfig.
 
-They were used in 2.6.9
-arch/x86_64/kernel/setup64.c and arch/x86_64/ia32/sys_ia32.c to implement the
-NX option:
+Signed-off-by Gene Heskett <gene.heskett@verizon.net>
 
-arch/x86_64/ia32/sys_ia32.c-{
-arch/x86_64/ia32/sys_ia32.c-    if (prot & PROT_READ)
-arch/x86_64/ia32/sys_ia32.c:            prot |= vm_force_exec32;
-arch/x86_64/ia32/sys_ia32.c-    return sys_mprotect(start,len,prot);
-arch/x86_64/ia32/sys_ia32.c-}
+/usr/src/linux-2.6.11/drivers/net/Kconfig | 2+-
+ one file changed, 2 deletions, 2 insertions
 
-The above sample code from 2.6.9 or'ed the mask with vm_force_exec32, which
-was PROT_EXEC (NX disabled) or 0 (NX enabled) depending on the user's choice
-at boot.
-
-This was deleted because probably replaced by a check on current->personality
-in do_mmap_pgoff().
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/include/asm-x86_64/page.h |    4 ----
- 1 files changed, 4 deletions(-)
-
-diff -puN include/asm-x86_64/page.h~x86-64-remove-old-decl include/asm-x86_64/page.h
---- linux-2.6.11/include/asm-x86_64/page.h~x86-64-remove-old-decl	2005-03-04 20:01:30.054785960 +0100
-+++ linux-2.6.11-paolo/include/asm-x86_64/page.h	2005-03-04 20:02:27.189100224 +0100
-@@ -63,10 +63,6 @@ typedef struct { unsigned long pgprot; }
- #define __pgd(x) ((pgd_t) { (x) } )
- #define __pgprot(x)	((pgprot_t) { (x) } )
+--- drivers/net/Kconfig.old 2005-03-05 10:43:45.000000000 -0500
++++ drivers/net/Kconfig 2005-03-05 11:01:01.000000000 -0500
+@@ -1342,8 +1342,8 @@ config B44
+    called b44.
  
--extern unsigned long vm_stack_flags, vm_stack_flags32;
--extern unsigned long vm_data_default_flags, vm_data_default_flags32;
--extern unsigned long vm_force_exec32;
--
- #define __START_KERNEL		0xffffffff80100000UL
- #define __START_KERNEL_map	0xffffffff80000000UL
- #define __PAGE_OFFSET           0xffff810000000000UL
-_
+ config FORCEDETH
+- tristate "Reverse Engineered nForce Ethernet support (EXPERIMENTAL)"
+- depends on NET_PCI && PCI && EXPERIMENTAL
++ tristate "Reverse Engineered nForce Ethernet support"
++ depends on NET_PCI && PCI
+  help
+    If you have a network (Ethernet) controller of this type, say Y and
+    read the Ethernet-HOWTO, available from
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUGMJHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUGMJ3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUGMJHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 05:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUGMJHq
+	id S264677AbUGMJ3H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 05:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUGMJ3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 05:07:46 -0400
-Received: from smtpout3.compass.net.nz ([203.97.97.135]:195 "EHLO
-	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
-	id S264650AbUGMJHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 05:07:45 -0400
-Date: Tue, 13 Jul 2004 21:07:55 +0000 (UTC)
-From: haiquy@yahoo.com
-X-X-Sender: sk@linuxcd
-Reply-To: haiquy@yahoo.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.27-rc3 __alloc_pages: 3-order allocation failed (gfp=0x20/0)
-Message-ID: <Pine.LNX.4.53.0407132101340.437@linuxcd>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Jul 2004 05:29:07 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7048 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264677AbUGMJXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 05:23:48 -0400
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+	Preemption Patch
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040713020025.7400c648.akpm@osdl.org>
+References: <20040709182638.GA11310@elte.hu>
+	 <20040710222510.0593f4a4.akpm@osdl.org>
+	 <1089673014.10777.42.camel@mindpipe>
+	 <20040712163141.31ef1ad6.akpm@osdl.org>
+	 <1089677823.10777.64.camel@mindpipe>
+	 <20040712174639.38c7cf48.akpm@osdl.org>
+	 <1089687168.10777.126.camel@mindpipe>
+	 <20040712205917.47d1d58b.akpm@osdl.org>
+	 <1089707483.20381.33.camel@mindpipe>
+	 <20040713014316.2ce9181d.akpm@osdl.org>
+	 <1089708818.20381.36.camel@mindpipe>
+	 <20040713020025.7400c648.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089710638.20381.41.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 13 Jul 2004 05:23:59 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-07-13 at 05:00, Andrew Morton wrote:
+> Lee Revell <rlrevell@joe-job.com> wrote:
+> >
+> > > framebuffer scrolling inside lock_kernel().  Tricky.  Suggest you use X or
+> >  > vgacon.  You can try removing the lock_kernel() calls from do_tty_write(),
+> >  > but make sure you're wearing ear protection.
+> >  > 
+> > 
+> >  OK, I figured this was not an easy one.  I can just not do that.
+> 
+> Why not?  You can certainly try removing those [un]lock_kernel() calls.
+> 
 
-Hi,
+Maybe I missed something.  What exactly do you mean by 'make sure you're
+wearing ear protection'?
 
-I got a lot such errors log when run dmesg and the rpogram cdda2wav seems stop
-extracting audio cds
+Lee
 
-Some others log like:
-
-scsi : aborting command due to timeout : pid 3260, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
-scsi : aborting command due to timeout : pid 3260, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
-SCSI host 0 abort (pid 3260) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-SCSI host 0 channel 0 reset (pid 3260) timed out - trying harder
-SCSI bus is being reset for host 0 channel 0.
-scsi : aborting command due to timeout : pid 3256, scsi0, channel 0, id 1, lun 0 0xbe 04 00 00 00 00 00 00 4b 10 00 00
-hdd: lost interrupt
-
-I use ide-scsi for ide cdrom as cdda2wav requires this. If I use normal ide-cd
-and use cdparanoia it works as normal.
-
-
-What should I do to help debuging this problem?
-
-Regards,
-
-Steve Kieu

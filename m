@@ -1,49 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266302AbRGBAjw>; Sun, 1 Jul 2001 20:39:52 -0400
+	id <S266304AbRGBAjl>; Sun, 1 Jul 2001 20:39:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266305AbRGBAjl>; Sun, 1 Jul 2001 20:39:41 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:23561 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S266302AbRGBAja>; Sun, 1 Jul 2001 20:39:30 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Russell King <rmk@arm.linux.org.uk>, Adam J Richter <adam@yggdrasil.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs 
-In-Reply-To: Your message of "Mon, 02 Jul 2001 00:04:22 +0100."
-             <Pine.LNX.4.33.0107012309340.18977-101000@infradead.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Jul 2001 10:39:04 +1000
-Message-ID: <21374.994034344@kao2.melbourne.sgi.com>
+	id <S266305AbRGBAjc>; Sun, 1 Jul 2001 20:39:32 -0400
+Received: from 35.roland.net ([65.112.177.35]:34828 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S266304AbRGBAjW>;
+	Sun, 1 Jul 2001 20:39:22 -0400
+Message-ID: <007501c1028f$7a60fd00$bb1cfa18@JimWS>
+From: "Jim Roland" <jroland@roland.net>
+To: "Marius Nita" <marius@pdx.edu>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <20010701153250.A7939@pdx.edu>
+Subject: Re: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 19:39:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Jul 2001 00:04:22 +0100 (BST), 
-Riley Williams <rhw@MemAlpha.CX> wrote:
->Can I suggest you re-read your comment and the points you quoted and
->said are correct. As a DIRECT logical consequence of "(1) and (3) are
->correct" (as you phrased it), we get the conclusion that any config
->lines that depend on "if some arch is set" (as you phrased it) are in
->the architecture-specific config files. This leads DIRECTLY to the
->conclusion that ANY lines dependant on a particular architecture that
->are not in the architecture-specific config files are a bug in the
->kernel config scripts.
 
-No.  We want network drivers to be in the network menu, SCSI drivers in
-the SCSI menu etc.  Some of those drivers are restricted to some
-architectures but putting them in the arch config splits the logical
-flow of selection and duplicates text.  Look at the repeated SCSI code
-in some of the arch configs.
+----- Original Message -----
+From: "Marius Nita" <marius@pdx.edu>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, July 01, 2001 5:32 PM
+Subject: Re: Uncle Sam Wants YOU!
 
-> 2. dep_arch_tristate CONFIG_var CONFIG_arch [CONFIG_other_var...]
 
-dep_arch_tristate '  AM79C961A support' CONFIG_ARM_AM79C961A $CONFIG_ARCH_ACORN $CONFIG_NET_ETHERNET
+> On Sun, Jul 01, 2001 at 01:01:51PM -0700, Paul Mundt wrote:
+>
+> > You always have a choice, work elsewhere. If you're in a position where
+you're
+> > working with MS products, you were the one who made the decision to do
+so.
+> > MS is not at fault, claiming so is childish.
+>
+> _I_ think it's childish to claim the above. You _may_ have a choice, yes,
+but
+> is that choice equal or fair? Microsoft has infected both the user area as
 
-fails your code.  $CONFIG_ARCH_ACORN is undefined, $CONFIG_NET_ETHERNET
-is 'y'.  dep_arch_tristate is invoked with 3 (not 4 parameters), text,
-CONFIG_ARM_AM79C961A and 'y'.  The intervening undefined variable
-disappears in shell scripts.
+Look at it from the other side.  If you were in an all AIX or HPUX
+environment and you wanted to support Microsoft products, it could be said
+that it's not fair that you have to change jobs.  Oh please.
+
+> much as the business/work area. If you want to purchase a PC because your
+> computer just fried and you want to finish a paper or something, but you
+> _want_ to use KOffice on Linux, and you don't care for Windows/Word
+> whatsoever, what are the chances that if you run down to the computer
+store
+> your "choices" will be Windows/Word, _period_! You'll then have to make
+sure
+
+What a load of crap.  You *CAN* order a system with Linux on it, just go to
+some computer manufacturer and ask for it.  If it's not available, install
+it yourself or buy a workstation from Penguin Computing, or any other Linux
+hardware mfg.  Retail choices are where the sales are.  That's not someone
+after you, it's business.  The way to beat someone at business is either
+break up a monopoly or beat them at their own game.
+
+Stop blaming and do what they do better.  Period.
+
+> that none of the hardware in it is Software driven-like winmodems-and that
+> it's supported by Linux (or whatever OS you prefer). Almost all computers
+out
+> there (from well-known compianies) ship with winmodems. How is that a
+choice?
+> You have a choice to waste $70 on a harware modem, when someone who uses
+> Windows doesn't?
+
+Choice is with you, not with the manufacturer.  Winmodems are software
+driven, so instead of down-talking the manufacturer, get a driver from a
+Winmodem supplier.  I have a Lucent Winmodem in my system right now, it came
+with a Compaq PC and it works just fine in Linux.  PCTel makes a large chunk
+of winmodems and are willing to work to get a linux driver out there if we
+just work with them.
+
+Fact remains--be open minded, and you will find that there are lots of
+people who want to have their products on Linux (means more money for them
+in sales) if we just work with them instead of blaming them as M$ clones.
 

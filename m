@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKDRPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbUKDRPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbUKDRPu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbUKDRNx
+	id S262307AbUKDRPt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKDROF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:13:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47278 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262307AbUKDRJq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:09:46 -0500
-Date: Thu, 4 Nov 2004 09:09:25 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: foo@porto.bmb.uga.edu
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Bad UDP checksums with 2.6.9
-Message-Id: <20041104090925.188fc471@dxpl.pdx.osdl.net>
-In-Reply-To: <20041104062834.GE12763@porto.bmb.uga.edu>
-References: <20041104054838.GC12763@porto.bmb.uga.edu>
-	<20041104062834.GE12763@porto.bmb.uga.edu>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; x86_64-suse-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 12:14:05 -0500
+Received: from alog0227.analogic.com ([208.224.220.242]:1920 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262321AbUKDRKP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:10:15 -0500
+Date: Thu, 4 Nov 2004 12:09:47 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
+In-Reply-To: <MPG.1bf47baa1b621da0989706@news.gmane.org>
+Message-ID: <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
+References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
+ <MPG.1bf47baa1b621da0989706@news.gmane.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004 01:28:34 -0500
-foo@porto.bmb.uga.edu wrote:
+On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
 
-> On Thu, Nov 04, 2004 at 12:48:38AM -0500, foo wrote:
-> > 'm seeing the same problem as in:
-> > Message-Id: 20041020191203.GA14356@merlin.emma.line.org
-> > or http://www.ussg.iu.edu/hypermail/linux/kernel/0410.2/1310.html
-> > 
-> > I just upgraded a machine from 2.6.5 to 2.6.9, and when the amanda
-> > backup server contacts it, it sometimes replies with a UDP packet with a
-> > bad checksum.  I'm using e1000 here, so it seems to not be related to
-> > the ethernet driver.  I have a binary tcpdump if anyone's interested.
-> 
-> I don't know why I didn't think of this at first, but I have another
-> identical machine that I upgraded at the same time that doesn't have the
-> problem.
-> 
-> Here's a diff between their .configs - albarino is the one having
-> trouble.  Maybe CONFIG_PACKET_MMAP?  If someone can point me at a likely
-> config option to change I'll boot a new kernel for the next backup run
-> Friday night.
+> linux-os wrote:
+>>
+>> Hello anybody maintaining NTFS,
+>>
+>> I can't write to a NTFS file-system.
+>>
+>> /proc/mounts shows it's mounted RW:
+>> /dev/sdd1 /mnt ntfs rw,uid=0,gid=0,fmask=0177,dmask=077,nls=utf8,errors=continue,mft_zone_multiplier=1 0 0
+>>
+>> .config shows RW support.
+>>
+>> CONFIG_NTFS_FS=m
+>> # CONFIG_NTFS_DEBUG is not set
+>> CONFIG_NTFS_RW=y
+>>
+>> Errno is 1 (Operation not permitted), even though root.
+>
+> What are trying to write? AFAIK, the (new) NTFS module only
+> allows one kind of writing: overwriting an existing file, as
+> long as its size doesn't change.
+>
+> -- 
+> Giuseppe "Oblomov" Bilotta
+>
 
-Do both machines have the same exact version of E1000?  Some support
-TCP Segmentation Offload (TSO) and some do not.
+Huh? Are we talking about the same thing? I'm talking about
+the NTFS that Windows/NT and later versions puts on its
+file-systems. I use an USB external disk with my M$ Laptop
+and I have always been able to transfer data to/from
+my machines using that drive. Now I can't. The drive it
+writable under M$, but I can't even delete anything
+(no permission for root) under Linux.
 
-You might try turning off  tso (and tx checksuming) and see if that
-is related.
-	ethtool -K eth0 tso off
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

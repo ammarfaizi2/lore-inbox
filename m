@@ -1,810 +1,496 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316782AbSFQHLA>; Mon, 17 Jun 2002 03:11:00 -0400
+	id <S316789AbSFQGvz>; Mon, 17 Jun 2002 02:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316778AbSFQHK1>; Mon, 17 Jun 2002 03:10:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55054 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316836AbSFQHJc>;
-	Mon, 17 Jun 2002 03:09:32 -0400
-Message-ID: <3D0D8C1B.D14F5171@zip.com.au>
-Date: Mon, 17 Jun 2002 00:13:31 -0700
+	id <S316794AbSFQGva>; Mon, 17 Jun 2002 02:51:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27662 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316797AbSFQGtA>;
+	Mon, 17 Jun 2002 02:49:00 -0400
+Message-ID: <3D0D874D.5464CAC8@zip.com.au>
+Date: Sun, 16 Jun 2002 23:53:01 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 10/19] direct-to-BIO I/O for swapcache pages
-References: <3D0D873A.405ED0BB@zip.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: [patch 13/19] take bio.h out of highmem.h
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> ..
-> I have an
-> additional patch which converts swap to use mpage_writepages(), so we swap
-> out in 16-page BIOs.  It works fine, but I don't intend to submit that.
-> There just doesn't seem to be any significant advantage to it.
-> 
-
-Just for the record, here is the patch which converts swap writeout to
-use large BIOs (via mpage_writepages):
 
 
---- 2.5.21/fs/buffer.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/fs/buffer.c	Sat Jun 15 17:15:02 2002
-@@ -397,7 +397,7 @@ __get_hash_table(struct block_device *bd
- 	struct buffer_head *head;
- 	struct page *page;
- 
--	index = block >> (PAGE_CACHE_SHIFT - bd_inode->i_blkbits);
-+	index = block >> (mapping_page_shift(bd_mapping) - bd_inode->i_blkbits);
- 	page = find_get_page(bd_mapping, index);
- 	if (!page)
- 		goto out;
-@@ -1667,7 +1667,7 @@ static int __block_write_full_page(struc
- 	 * handle that here by just cleaning them.
- 	 */
- 
--	block = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-+	block = page->index << (page_shift(page) - inode->i_blkbits);
- 	head = page_buffers(page);
- 	bh = head;
- 
-@@ -1811,8 +1811,8 @@ static int __block_prepare_write(struct 
- 	char *kaddr = kmap(page);
- 
- 	BUG_ON(!PageLocked(page));
--	BUG_ON(from > PAGE_CACHE_SIZE);
--	BUG_ON(to > PAGE_CACHE_SIZE);
-+	BUG_ON(from > page_size(page));
-+	BUG_ON(to > page_size(page));
- 	BUG_ON(from > to);
- 
- 	blocksize = 1 << inode->i_blkbits;
-@@ -1821,7 +1821,7 @@ static int __block_prepare_write(struct 
- 	head = page_buffers(page);
- 
- 	bbits = inode->i_blkbits;
--	block = page->index << (PAGE_CACHE_SHIFT - bbits);
-+	block = page->index << (page_shift(page) - bbits);
- 
- 	for(bh = head, block_start = 0; bh != head || !block_start;
- 	    block++, block_start=block_end, bh = bh->b_this_page) {
-@@ -1966,8 +1966,8 @@ int block_read_full_page(struct page *pa
- 		create_empty_buffers(page, blocksize, 0);
- 	head = page_buffers(page);
- 
--	blocks = PAGE_CACHE_SIZE >> inode->i_blkbits;
--	iblock = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-+	blocks = page_size(page) >> inode->i_blkbits;
-+	iblock = page->index << (page_shift(page) - inode->i_blkbits);
- 	lblock = (inode->i_size+blocksize-1) >> inode->i_blkbits;
- 	bh = head;
- 	nr = 0;
-@@ -2054,7 +2054,7 @@ int generic_cont_expand(struct inode *in
- 	if (size > inode->i_sb->s_maxbytes)
- 		goto out;
- 
--	offset = (size & (PAGE_CACHE_SIZE-1)); /* Within page */
-+	offset = (size & (mapping_page_size(mapping) - 1)); /* Within page */
- 
- 	/* ugh.  in prepare/commit_write, if from==to==start of block, we 
- 	** skip the prepare.  make sure we never send an offset for the start
-@@ -2063,7 +2063,7 @@ int generic_cont_expand(struct inode *in
- 	if ((offset & (inode->i_sb->s_blocksize - 1)) == 0) {
- 		offset++;
- 	}
--	index = size >> PAGE_CACHE_SHIFT;
-+	index = size >> mapping_page_shift(mapping);
- 	err = -ENOMEM;
- 	page = grab_cache_page(mapping, index);
- 	if (!page)
-@@ -2097,31 +2097,31 @@ int cont_prepare_write(struct page *page
- 	unsigned blocksize = 1 << inode->i_blkbits;
- 	char *kaddr;
- 
--	while(page->index > (pgpos = *bytes>>PAGE_CACHE_SHIFT)) {
-+	while(page->index > (pgpos = *bytes>>page_shift(page))) {
- 		status = -ENOMEM;
- 		new_page = grab_cache_page(mapping, pgpos);
- 		if (!new_page)
- 			goto out;
- 		/* we might sleep */
--		if (*bytes>>PAGE_CACHE_SHIFT != pgpos) {
-+		if (*bytes>>page_shift(page) != pgpos) {
- 			unlock_page(new_page);
- 			page_cache_release(new_page);
- 			continue;
- 		}
--		zerofrom = *bytes & ~PAGE_CACHE_MASK;
-+		zerofrom = *bytes & ~page_mask(page);
- 		if (zerofrom & (blocksize-1)) {
- 			*bytes |= (blocksize-1);
- 			(*bytes)++;
- 		}
- 		status = __block_prepare_write(inode, new_page, zerofrom,
--						PAGE_CACHE_SIZE, get_block);
-+						page_size(new_page), get_block);
- 		if (status)
- 			goto out_unmap;
- 		kaddr = page_address(new_page);
--		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
-+		memset(kaddr+zerofrom, 0, page_size(new_page)-zerofrom);
- 		flush_dcache_page(new_page);
- 		__block_commit_write(inode, new_page,
--				zerofrom, PAGE_CACHE_SIZE);
-+				zerofrom, page_size(new_page));
- 		kunmap(new_page);
- 		unlock_page(new_page);
- 		page_cache_release(new_page);
-@@ -2132,7 +2132,7 @@ int cont_prepare_write(struct page *page
- 		zerofrom = offset;
- 	} else {
- 		/* page covers the boundary, find the boundary offset */
--		zerofrom = *bytes & ~PAGE_CACHE_MASK;
-+		zerofrom = *bytes & ~page_mask(page);
- 
- 		/* if we will expand the thing last block will be filled */
- 		if (to > zerofrom && (zerofrom & (blocksize-1))) {
-@@ -2192,7 +2192,7 @@ int generic_commit_write(struct file *fi
- 		unsigned from, unsigned to)
- {
- 	struct inode *inode = page->mapping->host;
--	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
-+	loff_t pos = ((loff_t)page->index << page_shift(page)) + to;
- 	__block_commit_write(inode,page,from,to);
- 	kunmap(page);
- 	if (pos > inode->i_size) {
-@@ -2205,8 +2205,8 @@ int generic_commit_write(struct file *fi
- int block_truncate_page(struct address_space *mapping,
- 			loff_t from, get_block_t *get_block)
- {
--	unsigned long index = from >> PAGE_CACHE_SHIFT;
--	unsigned offset = from & (PAGE_CACHE_SIZE-1);
-+	unsigned long index = from >> mapping_page_shift(mapping);
-+	unsigned offset = from & (mapping_page_size(mapping) - 1);
- 	unsigned blocksize, iblock, length, pos;
- 	struct inode *inode = mapping->host;
- 	struct page *page;
-@@ -2221,7 +2221,7 @@ int block_truncate_page(struct address_s
- 		return 0;
- 
- 	length = blocksize - length;
--	iblock = index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-+	iblock = index << (mapping_page_shift(mapping) - inode->i_blkbits);
- 	
- 	page = grab_cache_page(mapping, index);
- 	err = -ENOMEM;
-@@ -2283,7 +2283,7 @@ out:
- int block_write_full_page(struct page *page, get_block_t *get_block)
- {
- 	struct inode * const inode = page->mapping->host;
--	const unsigned long end_index = inode->i_size >> PAGE_CACHE_SHIFT;
-+	const unsigned long end_index = inode->i_size >> page_shift(page);
- 	unsigned offset;
- 	char *kaddr;
- 
-@@ -2292,7 +2292,7 @@ int block_write_full_page(struct page *p
- 		return __block_write_full_page(inode, page, get_block);
- 
- 	/* Is the page fully outside i_size? (truncate in progress) */
--	offset = inode->i_size & (PAGE_CACHE_SIZE-1);
-+	offset = inode->i_size & (page_size(page) - 1);
- 	if (page->index >= end_index+1 || !offset) {
- 		unlock_page(page);
- 		return -EIO;
-@@ -2300,7 +2300,7 @@ int block_write_full_page(struct page *p
- 
- 	/* The page straddles i_size */
- 	kaddr = kmap(page);
--	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
-+	memset(kaddr + offset, 0, page_size(page) - offset);
- 	flush_dcache_page(page);
- 	kunmap(page);
- 	return __block_write_full_page(inode, page, get_block);
---- 2.5.21/fs/mpage.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/fs/mpage.c	Sat Jun 15 17:15:02 2002
-@@ -14,6 +14,7 @@
- #include <linux/module.h>
- #include <linux/bio.h>
- #include <linux/fs.h>
-+#include <linux/pagemap.h>
- #include <linux/buffer_head.h>
- #include <linux/blkdev.h>
- #include <linux/highmem.h>
-@@ -22,7 +23,7 @@
- 
- /*
-  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-- * to PAGE_CACHE_SIZE if your drivers are broken.
-+ * to PAGE_SIZE_MAX if your drivers are broken.
+highmem.h includes bio.h, so just about every compilation unit in the
+kernel gets to process bio.h.
+
+The patch moves the BIO-related functions out of highmem.h and into
+bio-related headers.  The nested include is removed and all files which
+need to include bio.h now do so.
+
+
+
+--- 2.5.22/fs/bio.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/fs/bio.c	Sun Jun 16 22:50:19 2002
+@@ -17,6 +17,7 @@
+  *
   */
- #define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
+ #include <linux/mm.h>
++#include <linux/bio.h>
+ #include <linux/blk.h>
+ #include <linux/slab.h>
+ #include <linux/iobuf.h>
+--- 2.5.22/include/linux/highmem.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/highmem.h	Sun Jun 16 22:50:19 2002
+@@ -2,7 +2,6 @@
+ #define _LINUX_HIGHMEM_H
  
-@@ -165,7 +166,7 @@ do_mpage_readpage(struct bio *bio, struc
- {
- 	struct inode *inode = page->mapping->host;
- 	const unsigned blkbits = inode->i_blkbits;
--	const unsigned blocks_per_page = PAGE_CACHE_SIZE >> blkbits;
-+	const unsigned blocks_per_page = page_size(page) >> blkbits;
- 	const unsigned blocksize = 1 << blkbits;
- 	struct bio_vec *bvec;
- 	sector_t block_in_file;
-@@ -175,23 +176,24 @@ do_mpage_readpage(struct bio *bio, struc
- 	unsigned page_block;
- 	unsigned first_hole = blocks_per_page;
- 	struct block_device *bdev = NULL;
--	struct buffer_head bh;
-+	struct buffer_head map_bh;
+ #include <linux/config.h>
+-#include <linux/bio.h>
+ #include <linux/fs.h>
+ #include <asm/cacheflush.h>
  
- 	if (page_has_buffers(page))
- 		goto confused;
+@@ -15,45 +14,8 @@ extern struct page *highmem_start_page;
+ /* declarations for linux/mm/highmem.c */
+ unsigned int nr_free_highpages(void);
  
--	block_in_file = page->index << (PAGE_CACHE_SHIFT - blkbits);
-+	block_in_file = page->index << (page_shift(page) - blkbits);
- 	last_file_block = (inode->i_size + blocksize - 1) >> blkbits;
-+	map_bh.b_page = page;
- 
- 	for (page_block = 0; page_block < blocks_per_page;
- 				page_block++, block_in_file++) {
--		bh.b_state = 0;
-+		map_bh.b_state = 0;
- 		if (block_in_file < last_file_block) {
--			if (get_block(inode, block_in_file, &bh, 0))
-+			if (get_block(inode, block_in_file, &map_bh, 0))
- 				goto confused;
- 		}
- 
--		if (!buffer_mapped(&bh)) {
-+		if (!buffer_mapped(&map_bh)) {
- 			if (first_hole == blocks_per_page)
- 				first_hole = page_block;
- 			continue;
-@@ -202,18 +204,18 @@ do_mpage_readpage(struct bio *bio, struc
- 
- 		if (page_block) {
- 			/* Contiguous blocks? */
--			if (bh.b_blocknr != last_page_block + 1)
-+			if (map_bh.b_blocknr != last_page_block + 1)
- 				goto confused;
- 		} else {
--			first_page_block = bh.b_blocknr;
-+			first_page_block = map_bh.b_blocknr;
- 		}
--		last_page_block = bh.b_blocknr;
--		bdev = bh.b_bdev;
-+		last_page_block = map_bh.b_blocknr;
-+		bdev = map_bh.b_bdev;
- 	}
- 
- 	if (first_hole != blocks_per_page) {
- 		memset(kmap(page) + (first_hole << blkbits), 0,
--				PAGE_CACHE_SIZE - (first_hole << blkbits));
-+				page_size(page) - (first_hole << blkbits));
- 		flush_dcache_page(page);
- 		kunmap(page);
- 		if (first_hole == 0) {
-@@ -231,7 +233,7 @@ do_mpage_readpage(struct bio *bio, struc
- 		bio = mpage_bio_submit(READ, bio);
- 
- 	if (bio == NULL) {
--		unsigned nr_bvecs = MPAGE_BIO_MAX_SIZE / PAGE_CACHE_SIZE;
-+		unsigned nr_bvecs = MPAGE_BIO_MAX_SIZE / page_size(page);
- 
- 		if (nr_bvecs > nr_pages)
- 			nr_bvecs = nr_pages;
-@@ -246,7 +248,7 @@ do_mpage_readpage(struct bio *bio, struc
- 	bvec->bv_len = (first_hole << blkbits);
- 	bvec->bv_offset = 0;
- 	bio->bi_size += bvec->bv_len;
--	if (buffer_boundary(&bh) || (first_hole != blocks_per_page))
-+	if (buffer_boundary(&map_bh) || (first_hole != blocks_per_page))
- 		bio = mpage_bio_submit(READ, bio);
- 	else
- 		*last_block_in_bio = last_page_block;
-@@ -324,7 +326,7 @@ mpage_writepage(struct bio *bio, struct 
- 	struct inode *inode = page->mapping->host;
- 	const unsigned blkbits = inode->i_blkbits;
- 	unsigned long end_index;
--	const unsigned blocks_per_page = PAGE_CACHE_SIZE >> blkbits;
-+	const unsigned blocks_per_page = page_size(page) >> blkbits;
- 	struct bio_vec *bvec;
- 	sector_t last_file_block;
- 	sector_t block_in_file;
-@@ -387,13 +389,14 @@ mpage_writepage(struct bio *bio, struct 
- 	 * The page has no buffers: map it to disk
- 	 */
- 	BUG_ON(!PageUptodate(page));
--	block_in_file = page->index << (PAGE_CACHE_SHIFT - blkbits);
-+	block_in_file = page->index << (page_shift(page) - blkbits);
- 	last_file_block = (inode->i_size - 1) >> blkbits;
- 	for (page_block = 0; page_block < blocks_per_page;
- 				page_block++, block_in_file++) {
- 		struct buffer_head map_bh;
- 
- 		map_bh.b_state = 0;
-+		map_bh.b_page = page;
- 		if (get_block(inode, block_in_file, &map_bh, 1))
- 			goto confused;
- 		if (buffer_new(&map_bh))
-@@ -416,13 +419,13 @@ mpage_writepage(struct bio *bio, struct 
- 
- 	first_unmapped = page_block;
- 
--	end_index = inode->i_size >> PAGE_CACHE_SHIFT;
-+	end_index = inode->i_size >> page_shift(page);
- 	if (page->index >= end_index) {
--		unsigned offset = inode->i_size & (PAGE_CACHE_SIZE - 1);
-+		unsigned offset = inode->i_size & (page_size(page) - 1);
- 
- 		if (page->index > end_index || !offset)
- 			goto confused;
--		memset(kmap(page) + offset, 0, PAGE_CACHE_SIZE - offset);
-+		memset(kmap(page) + offset, 0, page_size(page) - offset);
- 		flush_dcache_page(page);
- 		kunmap(page);
- 	}
-@@ -431,13 +434,17 @@ page_is_mapped:
- 
- 	/*
- 	 * This page will go to BIO.  Do we need to send this BIO off first?
-+	 * Check for changed bdev - swapper_space striping does this.
- 	 */
--	if (bio && (bio->bi_idx == bio->bi_vcnt ||
--				*last_block_in_bio != first_page_block - 1))
--		bio = mpage_bio_submit(WRITE, bio);
-+	if (bio) {
-+		if ((bio->bi_idx == bio->bi_vcnt) ||
-+				(*last_block_in_bio != first_page_block - 1) ||
-+				(bio->bi_bdev != bdev))
-+			bio = mpage_bio_submit(WRITE, bio);
-+	}
- 
- 	if (bio == NULL) {
--		unsigned nr_bvecs = MPAGE_BIO_MAX_SIZE / PAGE_CACHE_SIZE;
-+		unsigned nr_bvecs = MPAGE_BIO_MAX_SIZE / page_size(page);
- 
- 		bio = mpage_alloc(bdev, first_page_block << (blkbits - 9),
- 					nr_bvecs, GFP_NOFS);
---- 2.5.21/include/linux/pagemap.h~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/include/linux/pagemap.h	Sat Jun 15 17:15:02 2002
-@@ -22,6 +22,12 @@
- #define PAGE_CACHE_MASK		PAGE_MASK
- #define PAGE_CACHE_ALIGN(addr)	(((addr)+PAGE_CACHE_SIZE-1)&PAGE_CACHE_MASK)
- 
-+#if PAGE_SIZE > PAGE_CACHE_SIZE
-+#define PAGE_SIZE_MAX PAGE_SIZE
-+#else
-+#define PAGE_SIZE_MAX PAGE_CACHE_SIZE
-+#endif
-+
- #define page_cache_get(x)	get_page(x)
- extern void page_cache_release(struct page *);
- 
-@@ -97,5 +103,35 @@ static inline void wait_on_page_writebac
- 		wait_on_page_bit(page, PG_writeback);
- }
- 
-+static inline unsigned mapping_page_size(struct address_space *mapping)
-+{
-+	return (mapping == &swapper_space) ? PAGE_SIZE : PAGE_CACHE_SIZE;
-+}
-+
-+static inline unsigned mapping_page_shift(struct address_space *mapping)
-+{
-+	return (mapping == &swapper_space) ? PAGE_SHIFT : PAGE_CACHE_SHIFT;
-+}
-+
-+static inline unsigned mapping_page_mask(struct address_space *mapping)
-+{
-+	return (mapping == &swapper_space) ? PAGE_MASK : PAGE_CACHE_MASK;
-+}
-+
-+static inline unsigned page_size(struct page *page)
-+{
-+	return mapping_page_size(page->mapping);
-+}
-+
-+static inline unsigned page_shift(struct page *page)
-+{
-+	return mapping_page_shift(page->mapping);
-+}
-+
-+static inline unsigned page_mask(struct page *page)
-+{
-+	return mapping_page_mask(page->mapping);
-+}
-+
- extern void end_page_writeback(struct page *page);
- #endif /* _LINUX_PAGEMAP_H */
---- 2.5.21/mm/page_io.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/mm/page_io.c	Sat Jun 15 17:15:03 2002
-@@ -15,6 +15,7 @@
- #include <linux/pagemap.h>
- #include <linux/swap.h>
- #include <linux/bio.h>
-+#include <linux/mpage.h>
- #include <linux/buffer_head.h>
- #include <asm/pgtable.h>
- #include <linux/swapops.h>
-@@ -35,6 +36,32 @@ swap_get_block(struct inode *inode, sect
- 	return 0;
- }
- 
-+/*
-+ * swap_write_get_block() is for use by mpage_writepages().  If it sees a stale
-+ * swapcache page (which doesn't need writing), swap_write_get_block() will
-+ * return "failure".  This causes mpage_writepages() to send off its current
-+ * BIO and to fall back to swap_writepage().  Which can simply unlock the page.
-+ */
-+static int
-+swap_write_get_block(struct inode *inode, sector_t iblock,
-+		struct buffer_head *bh_result, int create)
-+{
-+	if (remove_exclusive_swap_page(bh_result->b_page))
-+		return -1;
-+	return swap_get_block(inode, iblock, bh_result, create);
-+}
-+
-+/*
-+ * We may have stale swap cache pages in memory: notice them here and get
-+ * rid of the unnecessary final write.
-+ */
-+static int swap_writepage(struct page *page)
-+{
-+	printk("swap_writepage\n");
-+	unlock_page(page);
-+	return 0;
-+}
-+
- static struct bio *
- get_swap_bio(int gfp_flags, struct page *page, bio_end_io_t end_io)
- {
-@@ -57,17 +84,6 @@ get_swap_bio(int gfp_flags, struct page 
- 	return bio;
- }
- 
--static void end_swap_bio_write(struct bio *bio)
--{
--	const int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
--	struct page *page = bio->bi_io_vec[0].bv_page;
--
--	if (!uptodate)
--		SetPageError(page);
--	end_page_writeback(page);
--	bio_put(bio);
--}
--
- static void end_swap_bio_read(struct bio *bio)
- {
- 	const int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
-@@ -83,32 +99,6 @@ static void end_swap_bio_read(struct bio
- 	bio_put(bio);
- }
+-extern void create_bounce(unsigned long pfn, int gfp, struct bio **bio_orig);
+ extern void check_highmem_ptes(void);
  
 -/*
-- * We may have stale swap cache pages in memory: notice
-- * them here and get rid of the unnecessary final write.
+- * remember to add offset! and never ever reenable interrupts between a
+- * bio_kmap_irq and bio_kunmap_irq!!
 - */
--static int swap_writepage(struct page *page)
+-static inline char *bio_kmap_irq(struct bio *bio, unsigned long *flags)
 -{
--	struct bio *bio;
--	int ret = 0;
+-	unsigned long addr;
 -
--	if (remove_exclusive_swap_page(page)) {
--		unlock_page(page);
--		goto out;
--	}
--	bio = get_swap_bio(GFP_NOFS, page, end_swap_bio_write);
--	if (bio == NULL) {
--		ret = -ENOMEM;
--		goto out;
--	}
--	kstat.pswpout++;
--	SetPageWriteback(page);
--	unlock_page(page);
--	submit_bio(WRITE, bio);
--out:
--	return ret;
+-	__save_flags(*flags);
+-
+-	/*
+-	 * could be low
+-	 */
+-	if (!PageHighMem(bio_page(bio)))
+-		return bio_data(bio);
+-
+-	/*
+-	 * it's a highmem page
+-	 */
+-	__cli();
+-	addr = (unsigned long) kmap_atomic(bio_page(bio), KM_BIO_SRC_IRQ);
+-
+-	if (addr & ~PAGE_MASK)
+-		BUG();
+-
+-	return (char *) addr + bio_offset(bio);
 -}
 -
- int swap_readpage(struct file *file, struct page *page)
- {
- 	struct bio *bio;
-@@ -125,30 +115,75 @@ int swap_readpage(struct file *file, str
- out:
- 	return ret;
- }
-+
-+static int swap_writepages(struct address_space *mapping, int *nr_to_write)
-+{
-+	int to_write = *nr_to_write;
-+	int ret;
-+
-+	ret = mpage_writepages(mapping, nr_to_write, swap_write_get_block);
-+	kstat.pswpout += to_write - *nr_to_write;
-+	return ret;
-+}
-+
- /*
-  * swapper_space doesn't have a real inode, so it gets a special vm_writeback()
-  * so we don't need swap special cases in generic_vm_writeback().
-  *
-- * Swap pages are PageLocked and PageWriteback while under writeout so that
-- * memory allocators will throttle against them.
-+ * Swap pages are PageWriteback while under writeout so that memory allocators
-+ * will throttle against them.
-  */
- static int swap_vm_writeback(struct page *page, int *nr_to_write)
- {
--	struct address_space *mapping = page->mapping;
+-static inline void bio_kunmap_irq(char *buffer, unsigned long *flags)
+-{
+-	unsigned long ptr = (unsigned long) buffer & PAGE_MASK;
 -
- 	unlock_page(page);
--	return generic_writepages(mapping, nr_to_write);
-+	return swap_writepages(page->mapping, nr_to_write);
- }
+-	kunmap_atomic((void *) ptr, KM_BIO_SRC_IRQ);
+-	__restore_flags(*flags);
+-}
+-
+ #else /* CONFIG_HIGHMEM */
  
- struct address_space_operations swap_aops = {
- 	vm_writeback:	swap_vm_writeback,
- 	writepage:	swap_writepage,
-+	writepages:	swap_writepages,
- 	readpage:	swap_readpage,
- 	sync_page:	block_sync_page,
- 	set_page_dirty:	__set_page_dirty_nobuffers,
+ static inline unsigned int nr_free_highpages(void) { return 0; }
+@@ -65,12 +27,6 @@ static inline void *kmap(struct page *pa
+ #define kmap_atomic(page,idx)		kmap(page)
+ #define kunmap_atomic(page,idx)		kunmap(page)
+ 
+-#define bh_kmap(bh)	((bh)->b_data)
+-#define bh_kunmap(bh)	do { } while (0)
+-
+-#define bio_kmap_irq(bio, flags)	(bio_data(bio))
+-#define bio_kunmap_irq(buf, flags)	do { *(flags) = 0; } while (0)
+-
+ #endif /* CONFIG_HIGHMEM */
+ 
+ /* when CONFIG_HIGHMEM is not set these will be plain clear/copy_page */
+--- 2.5.22/include/linux/bio.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/bio.h	Sun Jun 16 22:50:19 2002
+@@ -21,6 +21,8 @@
+ #define __LINUX_BIO_H
+ 
+ #include <linux/kdev_t.h>
++#include <linux/highmem.h>
++
+ /* Platforms may set this to teach the BIO layer about IOMMU hardware. */
+ #include <asm/io.h>
+ #ifndef BIO_VMERGE_BOUNDARY
+@@ -47,9 +49,6 @@ struct bio_vec {
+ 	unsigned int	bv_offset;
  };
  
- /*
-+ * Primitive swap readahead code. We simply read an aligned block of
-+ * (1 << page_cluster) entries in the swap area. This method is chosen
-+ * because it doesn't cost us any seek time.  We also make sure to queue
-+ * the 'original' request together with the readahead ones...
+-/*
+- * weee, c forward decl...
+- */
+ struct bio;
+ typedef void (bio_end_io_t) (struct bio *);
+ typedef void (bio_destructor_t) (struct bio *);
+@@ -206,4 +205,49 @@ extern inline void bio_init(struct bio *
+ 
+ extern int bio_ioctl(kdev_t, unsigned int, unsigned long);
+ 
++#ifdef CONFIG_HIGHMEM
++/*
++ * remember to add offset! and never ever reenable interrupts between a
++ * bio_kmap_irq and bio_kunmap_irq!!
 + *
-+ * Readahead is performed against a single device.  Which is perhaps suboptimal
-+ * when striped swap is being used.  But given that swap uses a one meg chunk
-+ * size for striping, chances are that readahead is reading the right pages.
-+ *
-+ * It would be possible to use mpage and the generic readahead code here.
-+ * We'd have to clone mpage_readpages because add_to_swap_cache() does special
-+ * things.  Doubtful if all this would help much, really.
++ * This function MUST be inlined - it plays with the CPU interrupt flags.
++ * Hence the `extern inline'.
 + */
-+void swapin_readahead(swp_entry_t entry)
++extern inline char *bio_kmap_irq(struct bio *bio, unsigned long *flags)
 +{
-+	int i, num;
-+	unsigned long offset;
++	unsigned long addr;
++
++	__save_flags(*flags);
 +
 +	/*
-+	 * Get the number of handles we should do readahead io to.
++	 * could be low
 +	 */
-+	num = valid_swaphandles(entry, &offset);
-+	for (i = 0; i < num; offset++, i++) {
-+		struct page *new_page;
-+		swp_entry_t ra_entry;
++	if (!PageHighMem(bio_page(bio)))
++		return bio_data(bio);
 +
-+		ra_entry = swp_entry(swp_type(entry), offset);
-+		new_page = read_swap_cache_async(ra_entry);
-+		if (!new_page)
-+			break;
-+		page_cache_release(new_page);
-+	}
++	/*
++	 * it's a highmem page
++	 */
++	__cli();
++	addr = (unsigned long) kmap_atomic(bio_page(bio), KM_BIO_SRC_IRQ);
++
++	if (addr & ~PAGE_MASK)
++		BUG();
++
++	return (char *) addr + bio_offset(bio);
 +}
 +
-+/*
-  * A scruffy utility function to read or write an arbitrary swap page
-  * and wait on the I/O.
-  */
---- 2.5.21/mm/swap_state.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/mm/swap_state.c	Sat Jun 15 17:15:03 2002
-@@ -8,13 +8,11 @@
++extern inline void bio_kunmap_irq(char *buffer, unsigned long *flags)
++{
++	unsigned long ptr = (unsigned long) buffer & PAGE_MASK;
++
++	kunmap_atomic((void *) ptr, KM_BIO_SRC_IRQ);
++	__restore_flags(*flags);
++}
++
++#else
++#define bio_kmap_irq(bio, flags)	(bio_data(bio))
++#define bio_kunmap_irq(buf, flags)	do { *(flags) = 0; } while (0)
++#endif
++
+ #endif /* __LINUX_BIO_H */
+--- 2.5.22/include/linux/buffer_head.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/buffer_head.h	Sun Jun 16 23:22:45 2002
+@@ -106,12 +106,7 @@ BUFFER_FNS(Async_Read, async_read)
+ BUFFER_FNS(Async_Write, async_write)
+ BUFFER_FNS(Boundary, boundary)
+ 
+-/*
+- * FIXME: this is used only by bh_kmap, which is used only by RAID5.
+- * Move all that stuff into raid5.c
+- */
+ #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
+-
+ #define touch_buffer(bh)	mark_page_accessed(bh->b_page)
+ 
+ /* If we *know* page->private refers to buffer_heads */
+--- 2.5.22/include/linux/blkdev.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/blkdev.h	Sun Jun 16 22:50:19 2002
+@@ -246,12 +246,7 @@ extern unsigned long blk_max_low_pfn, bl
+ #define BLK_BOUNCE_ISA		(ISA_DMA_THRESHOLD)
+ 
+ extern int init_emergency_isa_pool(void);
+-extern void create_bounce(unsigned long pfn, int gfp, struct bio **bio_orig);
+-
+-extern inline void blk_queue_bounce(request_queue_t *q, struct bio **bio)
+-{
+-	create_bounce(q->bounce_pfn, q->bounce_gfp, bio);
+-}
++void blk_queue_bounce(request_queue_t *q, struct bio **bio);
+ 
+ #define rq_for_each_bio(bio, rq)	\
+ 	if ((rq->bio))			\
+--- 2.5.22/kernel/ksyms.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/kernel/ksyms.c	Sun Jun 16 23:22:44 2002
+@@ -120,7 +120,7 @@ EXPORT_SYMBOL(vmtruncate);
+ EXPORT_SYMBOL(find_vma);
+ EXPORT_SYMBOL(get_unmapped_area);
+ EXPORT_SYMBOL(init_mm);
+-EXPORT_SYMBOL(create_bounce);
++EXPORT_SYMBOL(blk_queue_bounce);
+ #ifdef CONFIG_HIGHMEM
+ EXPORT_SYMBOL(kmap_high);
+ EXPORT_SYMBOL(kunmap_high);
+--- 2.5.22/mm/highmem.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/mm/highmem.c	Sun Jun 16 22:50:19 2002
+@@ -17,6 +17,7 @@
   */
  
  #include <linux/mm.h>
--#include <linux/kernel_stat.h>
- #include <linux/swap.h>
- #include <linux/swapctl.h>
- #include <linux/init.h>
++#include <linux/bio.h>
  #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
--#include <linux/buffer_head.h>	/* block_sync_page() */
+ #include <linux/mempool.h>
+ #include <linux/blkdev.h>
+@@ -347,13 +348,15 @@ static void bounce_end_io_read_isa(struc
+ 	return __bounce_end_io_read(bio, isa_page_pool);
+ }
  
- #include <asm/pgtable.h>
- 
-@@ -124,7 +122,7 @@ void delete_from_swap_cache(struct page 
- 
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(PageWriteback(page));
--	BUG_ON(page_has_buffers(page));
-+	BUG_ON(PagePrivate(page));
-   
- 	entry.val = page->index;
- 
-@@ -192,7 +190,7 @@ int move_from_swap_cache(struct page *pa
- 
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(PageWriteback(page));
--	BUG_ON(page_has_buffers(page));
-+	BUG_ON(PagePrivate(page));
- 
- 	write_lock(&swapper_space.page_lock);
- 	write_lock(&mapping->page_lock);
---- 2.5.21/mm/swapfile.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/mm/swapfile.c	Sat Jun 15 17:15:03 2002
-@@ -37,6 +37,11 @@ struct swap_info_struct swap_info[MAX_SW
- 
- #define SWAPFILE_CLUSTER 256
- 
-+/*
-+ * Switch to a new device after this many pages
-+ */
-+#define SWAP_STRIPE_PAGES	((1024*1024)/PAGE_SIZE)
-+
- static inline int scan_swap_map(struct swap_info_struct *si)
+-void create_bounce(unsigned long pfn, int gfp, struct bio **bio_orig)
++void blk_queue_bounce(request_queue_t *q, struct bio **bio_orig)
  {
- 	unsigned long offset;
-@@ -47,7 +52,8 @@ static inline int scan_swap_map(struct s
- 	 * first-free allocation, starting a new cluster.  This
- 	 * prevents us from scattering swap pages all over the entire
- 	 * swap partition, so that we reduce overall disk seek times
--	 * between swap pages.  -- sct */
-+	 * between swap pages.  -- sct
-+	 */
- 	if (si->cluster_nr) {
- 		while (si->cluster_next <= si->highest_bit) {
- 			offset = si->cluster_next++;
-@@ -59,29 +65,35 @@ static inline int scan_swap_map(struct s
- 	}
- 	si->cluster_nr = SWAPFILE_CLUSTER;
+ 	struct page *page;
+ 	struct bio *bio = NULL;
+ 	int i, rw = bio_data_dir(*bio_orig), bio_gfp;
+ 	struct bio_vec *to, *from;
+ 	mempool_t *pool;
++	unsigned long pfn = q->bounce_pfn;
++	int gfp = q->bounce_gfp;
  
--	/* try to find an empty (even not aligned) cluster. */
-+	/*
-+	 * Try to find an empty (even not aligned) cluster
-+	 */
- 	offset = si->lowest_bit;
-- check_next_cluster:
--	if (offset+SWAPFILE_CLUSTER-1 <= si->highest_bit)
--	{
-+
-+check_next_cluster:
-+	if (offset + SWAPFILE_CLUSTER - 1 <= si->highest_bit) {
- 		int nr;
--		for (nr = offset; nr < offset+SWAPFILE_CLUSTER; nr++)
--			if (si->swap_map[nr])
--			{
--				offset = nr+1;
-+
-+		for (nr = offset; nr < offset + SWAPFILE_CLUSTER; nr++) {
-+			if (si->swap_map[nr]) {
-+				offset = nr + 1;
- 				goto check_next_cluster;
- 			}
--		/* We found a completly empty cluster, so start
--		 * using it.
-+		}
-+
-+		/*
-+		 * We found a completly empty cluster, so start using it.
- 		 */
- 		goto got_page;
- 	}
--	/* No luck, so now go finegrined as usual. -Andrea */
--	for (offset = si->lowest_bit; offset <= si->highest_bit ; offset++) {
-+	/*
-+	 * No luck, so now go finegrained as usual. -Andrea
-+	 */
-+	for (offset = si->lowest_bit; offset <= si->highest_bit; offset++) {
- 		if (si->swap_map[offset])
- 			continue;
- 		si->lowest_bit = offset+1;
--	got_page:
-+got_page:
- 		if (offset == si->lowest_bit)
- 			si->lowest_bit++;
- 		if (offset == si->highest_bit)
-@@ -92,7 +104,7 @@ static inline int scan_swap_map(struct s
- 		}
- 		si->swap_map[offset] = 1;
- 		nr_swap_pages--;
--		si->cluster_next = offset+1;
-+		si->cluster_next = offset + 1;
- 		return offset;
- 	}
- 	si->lowest_bit = si->max;
-@@ -100,9 +112,11 @@ static inline int scan_swap_map(struct s
- 	return 0;
- }
+ 	BUG_ON((*bio_orig)->bi_idx);
  
-+int akpm;
-+
- swp_entry_t get_swap_page(void)
- {
--	struct swap_info_struct * p;
-+	struct swap_info_struct *p;
- 	unsigned long offset;
- 	swp_entry_t entry;
- 	int type, wrapped = 0;
-@@ -122,11 +136,27 @@ swp_entry_t get_swap_page(void)
- 			offset = scan_swap_map(p);
- 			swap_device_unlock(p);
- 			if (offset) {
--				entry = swp_entry(type,offset);
-+				static int stripe;
-+
-+				entry = swp_entry(type, offset);
-+
-+				/*
-+				 * Keep using the same device for a decent
-+				 * number of pages so that we can build nice
-+				 * big BIOs against it.
-+				 */
-+				if (stripe++ < SWAP_STRIPE_PAGES)
-+					goto out;
-+				stripe = 0;
-+
-+				/*
-+				 * Select the next swapdevice.  Stripe across
-+				 * devices if the priorities are equal.
-+				 */
- 				type = swap_info[type].next;
- 				if (type < 0 ||
- 					p->prio != swap_info[type].prio) {
--						swap_list.next = swap_list.head;
-+					swap_list.next = swap_list.head;
- 				} else {
- 					swap_list.next = type;
- 				}
-@@ -139,12 +169,15 @@ swp_entry_t get_swap_page(void)
- 				type = swap_list.head;
- 				wrapped = 1;
- 			}
--		} else
-+		} else {
- 			if (type < 0)
- 				goto out;	/* out of swap space */
-+		}
- 	}
- out:
- 	swap_list_unlock();
-+	if (akpm)
-+		printk("%d:%lu\n", swp_type(entry), swp_offset(entry));
- 	return entry;
- }
+--- 2.5.22/drivers/block/elevator.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/elevator.c	Sun Jun 16 22:50:19 2002
+@@ -28,6 +28,7 @@
+ #include <linux/fs.h>
+ #include <linux/blkdev.h>
+ #include <linux/elevator.h>
++#include <linux/bio.h>
+ #include <linux/blk.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+--- 2.5.22/drivers/block/ll_rw_blk.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/ll_rw_blk.c	Sun Jun 16 22:50:19 2002
+@@ -18,6 +18,7 @@
+ #include <linux/errno.h>
+ #include <linux/string.h>
+ #include <linux/config.h>
++#include <linux/bio.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
+ #include <linux/init.h>
+--- 2.5.22/drivers/block/floppy.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/floppy.c	Sun Jun 16 22:50:19 2002
+@@ -165,6 +165,7 @@ static int print_unex=1;
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ #include <linux/mm.h>
++#include <linux/bio.h>
+ #include <linux/string.h>
+ #include <linux/fcntl.h>
+ #include <linux/delay.h>
+--- 2.5.22/drivers/block/loop.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/loop.c	Sun Jun 16 22:50:19 2002
+@@ -60,6 +60,7 @@
+ #include <linux/sched.h>
+ #include <linux/fs.h>
+ #include <linux/file.h>
++#include <linux/bio.h>
+ #include <linux/stat.h>
+ #include <linux/errno.h>
+ #include <linux/major.h>
+--- 2.5.22/include/linux/ide.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/ide.h	Sun Jun 16 22:50:19 2002
+@@ -15,6 +15,7 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
++#include <linux/bio.h>
+ #include <asm/byteorder.h>
+ #include <asm/hdreg.h>
  
---- 2.5.21/mm/memory.c~swap-mpage-write	Sat Jun 15 17:15:02 2002
-+++ 2.5.21-akpm/mm/memory.c	Sat Jun 15 17:15:03 2002
-@@ -1112,32 +1112,6 @@ out:
- 	return 0;
- }
+--- 2.5.22/drivers/block/rd.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/rd.c	Sun Jun 16 22:50:19 2002
+@@ -45,6 +45,8 @@
+ #include <linux/config.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <asm/atomic.h>
++#include <linux/bio.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/devfs_fs_kernel.h>
+--- 2.5.22/drivers/md/linear.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/linear.c	Sun Jun 16 22:50:19 2002
+@@ -20,7 +20,7 @@
  
--/* 
-- * Primitive swap readahead code. We simply read an aligned block of
-- * (1 << page_cluster) entries in the swap area. This method is chosen
-- * because it doesn't cost us any seek time.  We also make sure to queue
-- * the 'original' request together with the readahead ones...  
-- */
--void swapin_readahead(swp_entry_t entry)
--{
--	int i, num;
--	struct page *new_page;
--	unsigned long offset;
+ #include <linux/raid/md.h>
+ #include <linux/slab.h>
 -
--	/*
--	 * Get the number of handles we should do readahead io to.
--	 */
--	num = valid_swaphandles(entry, &offset);
--	for (i = 0; i < num; offset++, i++) {
--		/* Ok, do the async read-ahead now */
--		new_page = read_swap_cache_async(swp_entry(swp_type(entry), offset));
--		if (!new_page)
--			break;
--		page_cache_release(new_page);
--	}
--	return;
--}
--
++#include <linux/bio.h>
+ #include <linux/raid/linear.h>
+ 
+ #define MAJOR_NR MD_MAJOR
+--- 2.5.22/drivers/md/raid0.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/raid0.c	Sun Jun 16 22:50:19 2002
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/raid/raid0.h>
++#include <linux/bio.h>
+ 
+ #define MAJOR_NR MD_MAJOR
+ #define MD_DRIVER
+--- 2.5.22/drivers/md/md.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/md.c	Sun Jun 16 22:50:19 2002
+@@ -33,6 +33,7 @@
+ #include <linux/linkage.h>
+ #include <linux/raid/md.h>
+ #include <linux/sysctl.h>
++#include <linux/bio.h>
+ #include <linux/raid/xor.h>
+ #include <linux/devfs_fs_kernel.h>
+ 
+--- 2.5.22/drivers/scsi/scsi_lib.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/scsi/scsi_lib.c	Sun Jun 16 22:50:19 2002
+@@ -23,6 +23,7 @@
+ #include <linux/timer.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <linux/bio.h>
+ #include <linux/ioport.h>
+ #include <linux/kernel.h>
+ #include <linux/stat.h>
+--- 2.5.22/drivers/scsi/sd.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/scsi/sd.c	Sun Jun 16 22:50:19 2002
+@@ -36,6 +36,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/bio.h>
+ #include <linux/string.h>
+ #include <linux/hdreg.h>
+ #include <linux/errno.h>
+--- 2.5.22/drivers/block/cpqarray.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/cpqarray.c	Sun Jun 16 22:50:19 2002
+@@ -24,6 +24,7 @@
+ #include <linux/version.h>
+ #include <linux/types.h>
+ #include <linux/pci.h>
++#include <linux/bio.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+--- 2.5.22/drivers/block/DAC960.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/DAC960.c	Sun Jun 16 22:50:19 2002
+@@ -28,6 +28,7 @@
+ #include <linux/types.h>
+ #include <linux/blk.h>
+ #include <linux/blkdev.h>
++#include <linux/bio.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/genhd.h>
+--- 2.5.22/drivers/block/cciss.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/cciss.c	Sun Jun 16 22:50:19 2002
+@@ -30,6 +30,7 @@
+ #include <linux/delay.h>
+ #include <linux/major.h>
+ #include <linux/fs.h>
++#include <linux/bio.h>
+ #include <linux/blkpg.h>
+ #include <linux/timer.h>
+ #include <linux/proc_fs.h>
+--- 2.5.22/drivers/block/umem.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/umem.c	Sun Jun 16 22:50:19 2002
+@@ -37,6 +37,7 @@
+ #include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/fs.h>
++#include <linux/bio.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/mman.h>
+--- 2.5.22/drivers/block/nbd.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/block/nbd.c	Sun Jun 16 22:50:19 2002
+@@ -39,6 +39,7 @@
+ #include <linux/init.h>
+ #include <linux/sched.h>
+ #include <linux/fs.h>
++#include <linux/bio.h>
+ #include <linux/stat.h>
+ #include <linux/errno.h>
+ #include <linux/file.h>
+--- 2.5.22/drivers/md/raid1.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/raid1.c	Sun Jun 16 22:50:19 2002
+@@ -23,6 +23,7 @@
+  */
+ 
+ #include <linux/raid/raid1.h>
++#include <linux/bio.h>
+ 
+ #define MAJOR_NR MD_MAJOR
+ #define MD_DRIVER
+--- 2.5.22/drivers/md/raid5.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/raid5.c	Sun Jun 16 22:50:19 2002
+@@ -20,6 +20,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/raid/raid5.h>
++#include <linux/bio.h>
+ #include <asm/bitops.h>
+ #include <asm/atomic.h>
+ 
+--- 2.5.22/drivers/md/lvm.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/lvm.c	Sun Jun 16 22:50:19 2002
+@@ -209,6 +209,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/stat.h>
+ #include <linux/fs.h>
++#include <linux/bio.h>
+ #include <linux/proc_fs.h>
+ #include <linux/blkdev.h>
+ #include <linux/genhd.h>
+--- 2.5.22/drivers/md/multipath.c~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/drivers/md/multipath.c	Sun Jun 16 22:50:19 2002
+@@ -23,6 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/raid/multipath.h>
++#include <linux/bio.h>
+ #include <linux/buffer_head.h>
+ #include <asm/atomic.h>
+ 
+--- 2.5.22/include/linux/raid/raid5.h~cleanup-highmem-no-bio	Sun Jun 16 22:50:19 2002
++++ 2.5.22-akpm/include/linux/raid/raid5.h	Sun Jun 16 22:50:19 2002
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/raid/md.h>
+ #include <linux/raid/xor.h>
++#include <linux/bio.h>
+ 
  /*
-  * We hold the mm semaphore and the page_table_lock on entry and
-  * should release the pagetable lock on exit..
+  *
+--- 2.5.22/fs/jfs/jfs_logmgr.c~cleanup-highmem-no-bio	Sun Jun 16 22:58:59 2002
++++ 2.5.22-akpm/fs/jfs/jfs_logmgr.c	Sun Jun 16 22:59:02 2002
+@@ -65,6 +65,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/completion.h>
+ #include <linux/buffer_head.h>		/* for sync_blockdev() */
++#include <linux/bio.h>
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+ #include "jfs_metapage.h"
+--- 2.5.22/drivers/scsi/cpqfcTSinit.c~cleanup-highmem-no-bio	Sun Jun 16 23:04:57 2002
++++ 2.5.22-akpm/drivers/scsi/cpqfcTSinit.c	Sun Jun 16 23:05:06 2002
+@@ -39,6 +39,7 @@
+ #include <linux/pci.h>
+ #include <linux/delay.h>
+ #include <linux/timer.h>
++#include <linux/init.h>
+ #include <linux/ioport.h>  // request_region() prototype
+ #include <linux/vmalloc.h> // ioremap()
+ //#if LINUX_VERSION_CODE >= LinuxVersionCode(2,4,7)
+--- 2.5.22/drivers/scsi/sr.c~cleanup-highmem-no-bio	Sun Jun 16 23:06:44 2002
++++ 2.5.22-akpm/drivers/scsi/sr.c	Sun Jun 16 23:06:53 2002
+@@ -39,6 +39,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/bio.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/cdrom.h>
 
 -

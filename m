@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278297AbRJ1WXT>; Sun, 28 Oct 2001 17:23:19 -0500
+	id <S278652AbRJ1WaA>; Sun, 28 Oct 2001 17:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277313AbRJ1WXJ>; Sun, 28 Oct 2001 17:23:09 -0500
-Received: from ibis.worldnet.net ([195.3.3.14]:13075 "EHLO ibis.worldnet.net")
-	by vger.kernel.org with ESMTP id <S278297AbRJ1WXB>;
-	Sun, 28 Oct 2001 17:23:01 -0500
-Message-ID: <3BDC8565.ADCD6FD0@worldnet.fr>
-Date: Sun, 28 Oct 2001 23:23:33 +0100
-From: Laurent Deniel <deniel@worldnet.fr>
-Organization: Home
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet NIC dual homing
-In-Reply-To: <Pine.LNX.4.10.10110281248320.5138-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278703AbRJ1W3k>; Sun, 28 Oct 2001 17:29:40 -0500
+Received: from AGrenoble-101-1-3-57.abo.wanadoo.fr ([193.253.251.57]:61313
+	"EHLO lyon.ram.loc") by vger.kernel.org with ESMTP
+	id <S278652AbRJ1W3i>; Sun, 28 Oct 2001 17:29:38 -0500
+From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: 8139too on ABIT BP6 causes "eth0: transmit timed out"
+X-Mailer: MH [version 6.8]
+Organization: Home, Grenoble, France
+Date: Sun, 28 Oct 2001 23:30:12 +0100
+Message-ID: <16095.1004308212@nice.ram.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
-> 
-> > the kernel switches to the second NIC. Such a similar feature exists in
-> 
-> why not user-space?
+I'm running:
 
-Good question. The switch could be initiated by a user-space daemon but 
-the switch itself should be implemented at kernel level for performance 
-and atomicity reasons (to avoid too many loss of packets) ?
+	Linux nice 2.4.12-ac3 #1 SMP Sat Oct 20 16:21:24 MEST 2001 i686 unknown
+
+but this problem is not specific to that kernel.  I've been having
+it for a looong time.
+
+Specifically, I get:
+
+ NETDEV WATCHDOG: eth0: transmit timed out
+ eth0: Tx queue start entry 32190531  dirty entry 32190527.
+ eth0:  Tx descriptor 0 is 00002000.
+ eth0:  Tx descriptor 1 is 00002000.
+ eth0:  Tx descriptor 2 is 00002000.
+ eth0:  Tx descriptor 3 is 00002000. (queue head)
+ eth0: Setting 100mbps full-duplex based on auto-negotiated partner ability 45e1.
+
+and then the machine is dead, network-wise.  I have to reboot (reset).
+
+Note that I am on an ABIT BP6 board, and I do get a lot of APIC errors
+under heavy network traffic, which is what raises the above.
+By heavy network traffic, I mean a 7 Mb/s full duplex (it's a 100 Mb/s
+LAN).
+
+I suspect that somewhere, the APIC gets hosed and looses an interrupt,
+and then the ethernet driver no longer processes its queue.
+Is there anything that can be done to reset the hardware state more
+fully when this occurs?
+
+Raphael

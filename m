@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312814AbSDBIAf>; Tue, 2 Apr 2002 03:00:35 -0500
+	id <S312823AbSDBI1Z>; Tue, 2 Apr 2002 03:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312818AbSDBIAZ>; Tue, 2 Apr 2002 03:00:25 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:38041 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S312814AbSDBIAS> convert rfc822-to-8bit; Tue, 2 Apr 2002 03:00:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
-        "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: Linux needs new leadership.
-Date: Tue, 2 Apr 2002 11:03:29 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204011507520.3111-100000@shell1.aracnet.com>
+	id <S312824AbSDBI1Q>; Tue, 2 Apr 2002 03:27:16 -0500
+Received: from www.wen-online.de ([212.223.88.39]:46856 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S312823AbSDBI07>;
+	Tue, 2 Apr 2002 03:26:59 -0500
+Date: Tue, 2 Apr 2002 09:28:51 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: -aa VM splitup
+In-Reply-To: <20020401200202.Q1331@dualathlon.random>
+Message-ID: <Pine.LNX.4.10.10204020916560.313-100000@mikeg.wen-online.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200204021103.29192.linux.johnny@gmx.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 2. April 2002 01:09 schrieb M. Edward (Ed) Borasky:
-> On Mon, 1 Apr 2002, J.A. Magallon wrote:
-> > So think on all non-anglo-saxon people reading the list....
-> > I took me some time to associate 2002.04.01 with jokes...
->
-> Uh ... IIRC April Fool's Day is of French origin, not Anglo-Saxon. At
-> least that was what I was taught in an Anglo-Saxon (USA) school :)
-I read in an newspaper, that there are about 800 [read eighthundred] possible origins for April Fool's Day.
+On Mon, 1 Apr 2002, Andrea Arcangeli wrote:
 
-Johnny
+> ........ can you try 2.4.19pre5aa1 first?
+
+Ok, I tested (and repeated for consistancy to prevent repeat of
+unfortunate premature results) 2.4.19-pre5 and 2.4.19pre5aa1.
+I didn't get my write throughput back (oh well), but I do NOT
+see any bad behavior.  IO looks/feels good in both kernels.
+
+Only thing interesting during testing was that 2.4.19pre5aa1
+lost by a consistant ~15% in the move a tree around test.
+
+(if I find anything interesting on the 2.5 thingy, I'll let you
+know offline)
+
+	-Mike
+

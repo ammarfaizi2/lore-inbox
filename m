@@ -1,48 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290229AbSA3RX4>; Wed, 30 Jan 2002 12:23:56 -0500
+	id <S290120AbSA3R0i>; Wed, 30 Jan 2002 12:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290235AbSA3RWL>; Wed, 30 Jan 2002 12:22:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60168 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290224AbSA3RVz>; Wed, 30 Jan 2002 12:21:55 -0500
-Date: Wed, 30 Jan 2002 09:20:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <E16VrdT-0006t7-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201300917270.1928-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290237AbSA3RXs>; Wed, 30 Jan 2002 12:23:48 -0500
+Received: from ns.caldera.de ([212.34.180.1]:24275 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S290236AbSA3RXA>;
+	Wed, 30 Jan 2002 12:23:00 -0500
+Date: Wed, 30 Jan 2002 18:22:47 +0100
+Message-Id: <200201301722.g0UHMlF29008@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: tkhoadfdsaf@hotmail.com ("T. A.")
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux ABI?
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <OE64G9H9z9YNBjyZhk80000a5d5@hotmail.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <OE64G9H9z9YNBjyZhk80000a5d5@hotmail.com> you wrote:
+> Hi all,
 
-On Wed, 30 Jan 2002, Alan Cox wrote:
->
-> So if someone you trusted actually started batching up small fixes and
-> sending you things like
->
-> "37 random documentation updates - no code changed", "11 patches to fix
-> kmalloc checks", "maintainers updates to 6 network drivers"
->
-> that would work sanely ?
+>     I can't seam to track down the Linux ABI patches.  I need to run some
+> SCO binaries.  Anyone know where they are located?
 
-Yes. That would take a whole lot of load off me - load I currently handle
-by just not sweating the small stuff, and concentrating on the things I
-think are important.
-
-> The other related question is device driver implementation stuff (not interfaces
-> and abstractions). You don't seem to check that much anyway, or have any taste
-> in device drivers 8) so should that be part of the small fixing job ?
-
-I think it has some of the same issues, but I really would prefer to have
-it in a separate batch.
-
-Quite frankly, this is a large part of what you did..
-
-		Linus
+ftp://ftp.kernel.org/pub/linux/kernel/people/hch/linux-abi/
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbTDCSyZ 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:54:25 -0500
+	id S263467AbTDCS6D 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263436AbTDCSvT 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:51:19 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:6798 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S263434AbTDCSvA 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:51:00 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 3 Apr 2003 11:00:02 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rik van Riel <riel@surriel.com>
-cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "" <linux390@de.ibm.com>
-Subject: Re: gcc-3.2 breaks rmap on s390x
-In-Reply-To: <Pine.LNX.4.44.0304031339350.11467-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.50.0304031056340.1827-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0304031339350.11467-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263468AbTDCS6D 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:58:03 -0500
+Received: from granite.he.net ([216.218.226.66]:23304 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263467AbTDCS5y 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 13:57:54 -0500
+Date: Thu, 3 Apr 2003 11:10:35 -0800
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Stacy Woods <stacyw@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs sitting in the NEW state for more than 2 weeks
+Message-ID: <20030403191035.GA5445@kroah.com>
+References: <3E8C5851.6080200@us.ibm.com> <20030403174343.GA4895@kroah.com> <1950000.1049395076@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1950000.1049395076@flay>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, Rik van Riel wrote:
+On Thu, Apr 03, 2003 at 10:37:56AM -0800, Martin J. Bligh wrote:
+> >> 387  Other      Other      bugme-janitors@lists.osdl.org
+> >> poll on usb device does not return immediatly when device is unplugged
+> >> 
+> >> 388  Other      Other      bugme-janitors@lists.osdl.org
+> >> 2.5.60/ioctl on usb device returns wrong length
+> > 
+> > Any reason why these were not assigned to the USB maintainer, like the
+> > other USB bugs have been?
+> 
+> Looks like someone just filed them under the wrong category ....
+> I can move them and reassign if you like?
 
-> On Thu, 3 Apr 2003, Pete Zaitcev wrote:
->
-> >  			cpu_relax();
-> > +			barrier();
->
-> Gah, now I look over the source I see that cpu_relax() is always
-> used together with barrier() ...
->
-> I guess the best long-term thing (2.5) would be to build a barrier
-> into cpu_relax(), but for 2.4-rmap I'll just add your patch.
+I took care of them.
 
-cpu_relax() is a barrier on Intel ( pause ). It's just a coincidence IMHO.
+thanks,
 
-
-
-- Davide
-
+greg k-h

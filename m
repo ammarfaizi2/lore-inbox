@@ -1,68 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264013AbTJFSmd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 14:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTJFSmc
+	id S262449AbTJFSdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJFSdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 14:42:32 -0400
-Received: from gemini.smart.net ([205.197.48.109]:1552 "EHLO gemini.smart.net")
-	by vger.kernel.org with ESMTP id S264013AbTJFSmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 14:42:22 -0400
-Message-ID: <3F81B790.B8AF7136@smart.net>
-Date: Mon, 06 Oct 2003 14:42:24 -0400
-From: "Daniel B." <dsb@smart.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18+dsb+smp+ide i686)
-X-Accept-Language: en
+	Mon, 6 Oct 2003 14:33:24 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8579 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262449AbTJFScH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:32:07 -0400
+Date: Mon, 6 Oct 2003 14:34:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Hans-Georg Thien <1682-600@onlinehome.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: getting timestamp of last interrupt?
+In-Reply-To: <3F81B2A3.4040001@onlinehome.de>
+Message-ID: <Pine.LNX.4.53.0310061426080.11197@chaos>
+References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.fvjdidn.13ni70f@ifi.uio.no>
+ <3F7E46AB.3030709@onlinehome.de> <Pine.LNX.4.53.0310060843500.8593@chaos>
+ <3F81B2A3.4040001@onlinehome.de>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: IDE DMA errors, massive disk corruption:  Why?  Fixed Yet?  Why not 
- re-do failed op?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got bitten _again_ by IDE DMA timeout errors and massive 
-filesystem corruption in kernel 2.4.22 (on an Asus A7M266-D dual-Athlon 
-XP motherboard (AMD 768 chip / amd7441 IDE controller)).
+On Mon, 6 Oct 2003, Hans-Georg Thien wrote:
 
-(I had turned DMA off in my init scripts, but apparently Debian 
-unstable's k7-smp configuration enables DMA by default before my init
-scripts get control.  Ext3 journal "recovery" trashed my system 
-partition.)
+> Richard B. Johnson wrote:
+> > On Sat, 4 Oct 2003, Hans-Georg Thien wrote:
+> >
+> >
+> >>> [...]
+> >>>>I am looking for a possibility to read out the last timestamp when an
+> >>>>interrupt has occured.
+> >>>>
+> >>>>e.g.: the user presses a key on the keyboard. Where can I read out the
+> >>>>timestamp of this event?
+> >>>
+> >>>
+> >>>You can get A SIGIO signal for every keyboard, (or other input) event.
+> >>>What you do with it is entirely up to you. Linux/Unix doesn't have
+> >>>"callbacks", instead it has signals. It also has select() and poll(),
+> >>>all useful for handling such events. If you want a time-stamp, you
+> >>>call gettimeofday() in your signal handler.
+> >>>
+> >>
+> >>Thanks a lot Richard,
+> >>
+> >>... but ... can I use signals in kernel mode?
+> >
+> >
+> > Well you talked about the user pressing a key and getting
+> > a time-stamp as a result. If you need time-stamps
+> > inside the kernel, i.e, a module, then you can call
+> > the kernel's do_gettimeofday() function.
+> >
+> Hello Richard, - It seems, that I should be more precise about what I
+> exactly mean...
+>
+>
+> I'm writing a kernel mode device driver (mouse).
+>
+> In that device driver I need the timestamp of the last event for another
+> kernel mode device (keyboard).
+>
+> I do not care if that timestamp is in jiffies or in gettimeofday()
+> format or whatever format does exist in the world. I am absolutely sure
+> I can convert it somehow to fit my needs.
+>
+> But since it is a kernel mode driver it can not -AFAIK- use the signal()
+> syscall.
+>
+> -Hans
 
-What's going on with the IDE DMA bugs?  They have existed since 2.2 
-(right?), and even at .22 in the 2.4 series they still exist.  Why
-have they been around so long?  Is it that few kernel developers use
-the combinations of hardware or configuration options that expose
-the bugs (like my dual-CPU box with IDE, not SCSI, disks)?
+Then it gets real simple. Just use jiffies, if you can stand the
+wrap that will occur every (2^32 -1)/HZ seconds ~= 497 days with
+HZ = 100. If not, call sys_gettimeofday(). Also, if your events
+are closer in time than a HZ, then you must get time from
+sys_gettimeofday().
 
-Are the DMA bugs believed to be fixed (for real) yet?  IF so, in which 
-version?
-
-Is there any consolidated documentation of the combinations of factors
-that cause corruption, or of how to reliably avoid corruption (like
-all the things to check to make sure your kernel never even tries to 
-enable DMA)?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-Also, why does a DMA timeout cause such corruption?  Doesn't the kernel 
-keep track of uncompleted operations, retain the information needed to
-try again, and try again if there's a failure?  If not, why not?
-
-If it can't try again, shouldn't the kernel at least abort after one 
-disk-write failure instead of performing additional writes, which
-frequently depend on the previous writes?  (E.g., if I try to read 
-block 1's data and write it to block 2, and then write something new 
-to block 1, if the first write fails but continue and do the second
-write, data gets destroyed.  If the first write fails and I stop right 
-away, less is destroyed.)
-
-
-
-
-Daniel
--- 
-Daniel Barclay
-dsb@smart.net

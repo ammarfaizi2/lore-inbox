@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268492AbTBOAoG>; Fri, 14 Feb 2003 19:44:06 -0500
+	id <S268498AbTBOAqw>; Fri, 14 Feb 2003 19:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268493AbTBOAoG>; Fri, 14 Feb 2003 19:44:06 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22657
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268492AbTBOAoE>; Fri, 14 Feb 2003 19:44:04 -0500
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, lkml <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-In-Reply-To: <1045264651.13488.40.camel@vmhack>
-References: <1045106216.1089.16.camel@vmhack>
-	 <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz>
-	 <1045260726.1854.7.camel@irongate.swansea.linux.org.uk>
-	 <20030214213542.GH23589@atrey.karlin.mff.cuni.cz>
-	 <1045264651.13488.40.camel@vmhack>
-Content-Type: text/plain
+	id <S268500AbTBOAqw>; Fri, 14 Feb 2003 19:46:52 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:2344 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S268498AbTBOAqv>; Fri, 14 Feb 2003 19:46:51 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
+To: "'Jamie Lokier'" <jamie@shareable.org>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, "'Larry McVoy'" <lm@bitmover.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: openbkweb-0.0
+Date: Fri, 14 Feb 2003 18:56:28 -0600
+Message-ID: <008d01c2d48d$133b3600$0200a8c0@wsl3>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 15 Feb 2003 01:54:03 +0000
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20030215005211.GD4333@bjl1.jlokier.co.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 23:17, Rusty Lynch wrote:
-> The watchdog infrastructure would just show what ever integer the driver
-> provides via the watchdog_ops.get_temperature() function pointer, so it
-> would be up to the driver developer to decide if the data is really
-> Fahrenheit or whatever.
+Thank you kind sir!  I stand (er, sit) corrected!
 
-We do need to be sure they all agree about it however 8)
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Jamie Lokier
+Sent: Friday, February 14, 2003 6:52 PM
+To: Vlad@geekizoid.com
+Cc: 'Alan Cox'; 'Larry McVoy'; 'Linux Kernel Mailing List'
+Subject: Re: openbkweb-0.0
 
+
+Vlad, I noticed a typographical error in your correction to Alan's message.
+
+You wrote "...software that is being offered to me for free...".
+
+I think you meant "...software that is being offered to me for free
+(as in beer)...".
+
+Thanks for your time.
+
+-- Jamie "pain in the arse" Lokier ;)

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbUAGBP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 20:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUAGBP2
+	id S266116AbUAGBVy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 20:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUAGBVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 20:15:28 -0500
-Received: from cpc1-cosh4-5-0-cust84.cos2.cable.ntl.com ([81.96.30.84]:24470
-	"EHLO slut.local.munted.org.uk") by vger.kernel.org with ESMTP
-	id S266109AbUAGBP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 20:15:28 -0500
-Date: Wed, 7 Jan 2004 01:15:25 +0000 (GMT)
-From: Alex Buell <alex.buell@munted.org.uk>
-X-X-Sender: alex@slut.local.munted.org.uk
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: /proc/slabinfo reports excessive size-64 objects
-Message-ID: <Pine.LNX.4.58.0401070111250.27290@slut.local.munted.org.uk>
-X-no-archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 20:21:53 -0500
+Received: from dp.samba.org ([66.70.73.150]:4767 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266116AbUAGBVv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 20:21:51 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Fw: 2.6.1-rc1-mm[1|2] on Alpha build failure 
+Cc: Nathan Poznick <kraken@drunkmonkey.org>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
+In-reply-to: Your message of "Tue, 06 Jan 2004 16:44:38 -0800."
+             <20040106164438.6f5756ff.akpm@osdl.org> 
+Date: Wed, 07 Jan 2004 12:16:48 +1100
+Message-Id: <20040107012149.0C83D2C097@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both of my 2.4.23 boxes reports excessive size-64 objects 
+In message <20040106164438.6f5756ff.akpm@osdl.org> you write:
+> A change to include/asm-alpha/smp.h went in during 2.6.1-rc1-mm1 which
+> appears to have broken compilation on Alpha.  Specifically, the addition
+> of:
+> #define cpu_possible_map       cpu_present_map
 
-1) on my 512MB box, it's  3176370 3176442     64 53838 53838    1 
-2) on my 128MB box, it's  1223329 1223365     64 20735 20735	1
+Arg, it's "cpu_present_mask" not "cpu_present_map" on Alpha.
 
-Is this really normal? Both boxes have been up for 2 days, but the 128MB
-box is starting to show signs of getting slower and slower the more the
-size-64 cache increases.
+My bad, but fix is trivial:
 
--- 
-http://www.munted.org.uk
-
-Your mother cooks socks in hell
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.1-rc1-mm2/include/asm-alpha/smp.h working-2.6.1-rc1-mm2-fix-alpha/include/asm-alpha/smp.h
+--- linux-2.6.1-rc1-mm2/include/asm-alpha/smp.h	2004-01-06 16:30:42.000000000 +1100
++++ working-2.6.1-rc1-mm2-fix-alpha/include/asm-alpha/smp.h	2004-01-07 12:16:13.000000000 +1100
+@@ -48,7 +48,7 @@ extern struct cpuinfo_alpha cpu_data[NR_
+ extern cpumask_t cpu_present_mask;
+ extern cpumask_t cpu_online_map;
+ extern int smp_num_cpus;
+-#define cpu_possible_map	cpu_present_map
++#define cpu_possible_map	cpu_present_mask
+ 
+ #define cpu_online(cpu)		cpu_isset(cpu, cpu_online_map)
+ 
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

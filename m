@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269155AbRHPXoi>; Thu, 16 Aug 2001 19:44:38 -0400
+	id <S269019AbRHPXv7>; Thu, 16 Aug 2001 19:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269158AbRHPXo2>; Thu, 16 Aug 2001 19:44:28 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:24029 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S269155AbRHPXoS>; Thu, 16 Aug 2001 19:44:18 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 16 Aug 2001 09:44:26 -0700
-Message-Id: <200108161644.JAA02547@adam.yggdrasil.com>
-To: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-Subject: aic7xxx driver that does not need db library?
+	id <S269002AbRHPXvt>; Thu, 16 Aug 2001 19:51:49 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52165 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S269019AbRHPXvj>; Thu, 16 Aug 2001 19:51:39 -0400
+Date: Thu, 16 Aug 2001 16:51:03 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <gibbs@scsiguy.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx driver that does not need db library?
+In-Reply-To: <200108161644.JAA02547@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.33.0108161650090.4812-100000@heat.gghcwest.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Currently, building Justin Gibbs's otherwise excellent
-aic7xxx driver requires the Berkeley DB library, because the
-aic7xxx assembler that is used in the build process uses db
-basically just to implement associative arrays in memory.
 
-	Unfortunately, I'm currently wrestling with db version
-problems because gnome evolution requires the GPL'ed Sleepycat db 3.x,
-so I want to keep db-1.85 around also, and this breaks the aicasm
-build.  I am grateful to aicasm for exposing this problem in my
-Sleepycat and Berkeley db configuration, but looking at the
-aicasm sources makes me think that it would be easy enough to
-make aicasm not to use db, and that would be worth eliminating
-one more software dependency for building the Linux kernel.  It
-also occurred to me that someone else may have already done this,
-so I ought to ask.
+On Thu, 16 Aug 2001, Adam J. Richter wrote:
 
-	So, has anyone done this already?  If not, I guess I'll take a
-whack at it.
+>
+> 	Currently, building Justin Gibbs's otherwise excellent
+> aic7xxx driver requires the Berkeley DB library, because the
+> aic7xxx assembler that is used in the build process uses db
+> basically just to implement associative arrays in memory.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+You don't need berk db if you don't check "rebuild firmware" or whatever
+the config option is.  I don't check it, and I never have problems.  I
+believe it exists only as a convenience for the developers.
+
+-jwb
+

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265646AbRF1MVV>; Thu, 28 Jun 2001 08:21:21 -0400
+	id <S265651AbRF1MOa>; Thu, 28 Jun 2001 08:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265648AbRF1MVL>; Thu, 28 Jun 2001 08:21:11 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:41222 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S265646AbRF1MVC>;
-	Thu, 28 Jun 2001 08:21:02 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: linux-kernel@vger.kernel.org
-Subject: Fourteen new undocumented symbols in 2.4.6-pre6
-Date: Thu, 28 Jun 2001 06:14:11 -0600
-X-Mailer: KMail [version 1.2]
-Cc: esr@thyrsus.com
+	id <S265648AbRF1MOT>; Thu, 28 Jun 2001 08:14:19 -0400
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:53002 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S265646AbRF1MON>; Thu, 28 Jun 2001 08:14:13 -0400
+Message-ID: <3B3B1F91.FBBFB588@damncats.org>
+Date: Thu, 28 Jun 2001 08:14:09 -0400
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01062806141101.01146@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+To: "J. Nick Koston" <nick@burst.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Asus CUV4X-DLS
+In-Reply-To: <20010627215304.D28795@burst.net> <3B3AA1DE.E4419FA8@damncats.org> <20010627233541.A32271@burst.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+"J. Nick Koston" wrote:
+> 
+> Thanks for the tips, however it doesn't help :-(
 
-2.4.6-pre6 introduces 14 new undocumented symbols.
-Would the owners please provide help texts for the following:
+It was worth a shot...
 
-CONFIG_CPU_SUBTYPE_SH7751
-CONFIG_CPU_SUBTYPE_ST40STB1
-CONFIG_HD64465_IOBASE
-CONFIG_MAPLE_KEYBOARD
-CONFIG_MAPLE_MOUSE
-CONFIG_SH_7751_SOLUTION_ENGINE
-CONFIG_SH_BIGSUR
-CONFIG_SH_CAT68701
-CONFIG_SH_SH2000
-CONFIG_SH_STB1_HARP
-CONFIG_SH_STB1_OVERDRIVE
-CONFIG_ST40_LMI_MEMORY
-CONFIG_TULIP_MMIO
-CONFIG_TULIP_MWI
+> > Also, try passing "noapic" to the kernel on boot if the problem still
+> > persists. The downside is that all interrupts will be handled by a
+> > single CPU. There is a definite problem with VIA chipsets.
+> >
+> Tried this as well (mentioned in my original email)
 
-The SuperH ones are just items in a choice menu, so they can be one-liners.
+I realized that after I sent the message. Doh!
 
-Thanks in advance,
-Steven
+I have an AIC7xxxx based SCSI card in my machine as well, hooked up to a
+Jaz. I haven't actually used it in ages, but I'll test it to see of the
+problem is apparent on CUV4X-D board as well.
+
+John

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266303AbUAVRJG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUAVRJG
+	id S266019AbUAVPXb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 10:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUAVPXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:09:06 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:48635 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266303AbUAVRJE
+	Thu, 22 Jan 2004 10:23:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5270 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266019AbUAVPTo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:09:04 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: PATCH: Shutdown IDE before powering off.
-Date: Thu, 22 Jan 2004 18:13:28 +0100
-User-Agent: KMail/1.5.3
-Cc: ncunningham@users.sourceforge.net, john@grabjohn.com,
-       linux-kernel@vger.kernel.org
-References: <1074735774.31963.82.camel@laptop-linux> <20040122004554.26536158.akpm@osdl.org> <400FF433.2010906@pobox.com>
-In-Reply-To: <400FF433.2010906@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2004 10:19:44 -0500
+Date: Thu, 22 Jan 2004 15:19:43 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc1-mm1
+Message-ID: <20040122151943.GW21151@parcelfarce.linux.theplanet.co.uk>
+References: <20040122013501.2251e65e.akpm@osdl.org> <20040122110342.A9271@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401221813.28711.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040122110342.A9271@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 of January 2004 17:02, Jeff Garzik wrote:
-> I'm either shock or very very worried that the reboot notifier that
-> flushes IDE in 2.4.x, ide_notifier, is nowhere to be seen in 2.6.x :(
-> That seems like the real problem -- the code _used_ to be there.
+On Thu, Jan 22, 2004 at 11:03:42AM +0000, Christoph Hellwig wrote:
+> > sysfs-class-06-raw.patch
+> >   From: Greg KH <greg@kroah.com>
+> >   Subject: [PATCH] add sysfs class support for raw devices [06/10]
+> 
+> This one exports get_gendisk, which is a no-go.
 
-Yep, it should be re-added.  I wonder when/why it was removed?
+Moreover, it obviously leaks references to struct gendisk _and_ changes
+semantics of RAW_SETBIND in incompatible way.
 
---bart
+Consider that vetoed.  And yes, get_gendisk() issue alone would be enough.
 
+Greg, please, RTFS to see at which point do we decide which driver will
+be used by raw device.  It's _not_ RAW_SETBIND, it's open().  So where
+your symlink should point is undecided until the same point.

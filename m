@@ -1,356 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbTDEBdH (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbTDEBdH (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:33:07 -0500
-Received: from smtp4.wanadoo.es ([62.37.236.138]:39142 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id S261664AbTDEBdB (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 20:33:01 -0500
-Message-ID: <3E8E3528.3060902@wanadoo.es>
-Date: Sat, 05 Apr 2003 03:45:12 +0200
-From: =?ISO-8859-1?Q?xos=E9_v=E1zquez_p=E9rez?= <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Compile Regression on i386]-2.4.21-pre7
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id S261700AbTDEBg3 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTDEBg3 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:36:29 -0500
+Received: from gumby.usu.edu ([129.123.1.117]:20752 "EHLO gumby.usu.edu")
+	by vger.kernel.org with ESMTP id S261700AbTDEBgR (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 20:36:17 -0500
+Date: Fri, 04 Apr 2003 18:47:46 -0700
+From: Anup Pemmaiah <pemmaiah@cc.usu.edu>
+Subject: Building Kernel-2.5
+To: linux-kernel@vger.kernel.org
+Message-id: <3E8FAF07@webmail.usu.edu>
+MIME-version: 1.0
+X-Mailer: WebMail (Hydra) SMTP v3.62
+Content-type: text/plain; charset="ISO-8859-1"
+Content-transfer-encoding: 7bit
+X-WebMail-UserID: pemmaiah
+X-EXP32-SerialNo: 00002751
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi,
+     How are you? This question is been asked previously, but I haven't found 
+a solution yet. I have searched most of the mailing lists and have mailed to 
+the concerned persons who had posted this question before, but of no success.
+     I wanted to build the kernel-2.5. I dowloaded 2.5.64 and built it as I 
+did for 2.4. Everything went on fine. But when I reboot the system, it doesnt 
+do anything after it shows "Uncompressing Linux....OK". There is no disk 
+activity. I made sure the Input devices and video cards is been selected. I am 
+working on this for past 10 days but of no success.
 
-environment: red hat 7.3
-
-necesary:
-
-- kernel 2.4.21-pre7
-- patch to add the missing config options(randconfig,allyesconfig,allnoconfig,allmodconfig):
-   http://perso.wanadoo.es/xose/linux/kbuild_add_options.patch
-- patch to resolve dependencies problem of kbuild with CONFIG_PROC_FS:
-   http://perso.wanadoo.es/xose/linux/kbuild_error.patch
-- Compile Regression script:
-   http://fire.osdl.org/archive/cherry/stability/compregress.sh
-- time :-)
-
---cut--
-Welcome to the [ Compile Regression on i386 ] Filter V1.1.2
-
-This filter generates a list of warnings and errors in the kernel source.
-A PASS will be reported if there are no errors found, regardless of the
-presence of warning conditions.  It will be uncommon for this to PASS
-on kernels that support allmodconfig.  It is nice to dream though.
-
-The primary purpose of this report is to show WHERE the error and warning
-messages are being generated.
-
-Version information for host [ querida.micasa.es ]
- gcc:    2.96
- ccache: not installed
- patch:  2.5.4
-
-md5sum of available source [.patch .gz .bz2]
-
-This kernel does support 'defconfig' (including)
-This kernel does support 'allmodconfig' (including)
-This kernel does support 'oldconfig' (including)
-
-This kernel supports oldconfig but since it also supports defconfig and
-there is no .config present, we won't use the oldconfig method.
-
-Kernel version: 2.4.21-pre7
-Kernel build:
-   Making bzImage (defconfig): 13 warnings, 4 errors
-   Making modules (defconfig): 0 warnings, 0 errors
-   Making bzImage (allmodconfig): 8 warnings, 0 errors
-   Making modules (allmodconfig): 100 warnings, 4 errors
-
-Building directories:
-   Building fs/adfs: clean
-   Building fs/affs: clean
-   Building fs/autofs: clean
-   Building fs/autofs4: clean
-   Building fs/befs: 4 warnings, 0 errors
-   Building fs/bfs: clean
-   Building fs/coda: clean
-   Building fs/cramfs: clean
-   Building fs/devfs: clean
-   Building fs/devpts: 0 warnings, 2 errors
-   Building fs/efs: clean
-   Building fs/ext2: clean
-   Building fs/ext3: clean
-   Building fs/fat: clean
-   Building fs/freevxfs: clean
-   Building fs/hfs: clean
-   Building fs/hpfs: clean
-   Building fs/intermezzo: 1 warnings, 0 errors
-   Building fs/isofs: clean
-   Building fs/jbd: 1 warnings, 0 errors
-   Building fs/jffs: clean
-   Building fs/jffs2: clean
-   Building fs/jfs: clean
-   Building fs/lockd: clean
-   Building fs/minix: clean
-   Building fs/msdos: clean
-   Building fs/ncpfs: clean
-   Building fs/nfs: clean
-   Building fs/nfsd: clean
-   Building fs/nls: clean
-   Building fs/ntfs: clean
-   Building fs/openpromfs: 19 warnings, 2 errors
-   Building fs/partitions: clean
-   Building fs/proc: clean
-   Building fs/qnx4: clean
-   Building fs/ramfs: clean
-   Building fs/reiserfs: clean
-   Building fs/romfs: clean
-   Building fs/smbfs: clean
-   Building fs/sysv: clean
-   Building fs/udf: clean
-   Building fs/ufs: clean
-   Building fs/umsdos: clean
-   Building fs/vfat: clean
-   Building drivers/net: 9 warnings, 0 errors
-   Building drivers/block: clean
-   Building drivers/char: 17 warnings, 0 errors
-   Building drivers/sound: 4 warnings, 3 errors
-   Building drivers/pci: clean
-   Building drivers/cdrom: clean
-   Building drivers/isdn: 1 warnings, 0 errors
-   Building drivers/sbus: clean
-   Building drivers/ide: 2 warnings, 1 errors
-   Building drivers/pnp: clean
-   Building drivers/misc: clean
-   Building drivers/macintosh: 2 warnings, 1 errors
-   Building drivers/sgi: clean
-   Building drivers/fc4: clean
-   Building drivers/nubus: clean
-   Building drivers/acorn: clean
-   Building drivers/zorro: clean
-   Building drivers/dio: clean
-   Building drivers/usb: 2 warnings, 0 errors
-   Building drivers/tc: clean
-   Building drivers/atm: 5 warnings, 0 errors
-   Building drivers/parport: clean
-   Building drivers/pcmcia: 4 warnings, 0 errors
-   Building drivers/i2c: clean
-   Building drivers/telephony: 2 warnings, 0 errors
-   Building drivers/ieee1394: 1 warnings, 0 errors
-   Building drivers/media: clean
-   Building drivers/acpi: clean
-   Building drivers/mtd: 10 warnings, 0 errors
-   Building drivers/input: clean
-   Building drivers/md: clean
-   Building drivers/bluetooth: clean
-   Building drivers/message: 0 warnings, 1 errors
-   Building drivers/hotplug: 1 warnings, 0 errors
-   Building drivers/gsc: clean
-   Building drivers/hil: clean
-   Building drivers/video/aty: clean
-   Building drivers/video/intel: clean
-   Building drivers/video/matrox: 1 warnings, 0 errors
-   Building drivers/video/riva: 1 warnings, 0 errors
-   Building drivers/video/sis: clean
-   Building drivers/video/sti: clean
-   Building arch/i386: 0 warnings, 1 errors
-   Building lib: clean
-   Building net: 6 warnings, 0 errors
-   Building drivers/video: 8 warnings, 0 errors
+I would like to explain my building process.
 
 
-Error Summary:
+ 1) Downloaded the linux-2.5-66.tar.gz from www.kernel.org website.
+ 2) Saved it in /usr/src directory and un-tarred it which created the
+ linux-2.5-66 directory.
+ 3) Got into the linux-2.5-66 directory for further work
+ 4) "make mrpoper" to remove remains of previous builds
+ 5) "make xconfig", left the default settings as it is, save and exit
+ 6) "make dep", I know it doesn't help because of no change in default 
+settings
+ 7) "make clean"
+ 8) "make bzImage"
+ 9) "make modules_install"
+ 10) "make install", which copied the System.map and vmlinuz-2.5 files to 
+/boot
+ directory and also did the corresponding entry in grub.conf file.
+ 11) /sbin/reboot
 
-   arch/i386: 0 warnings, 1 errors
-   drivers/ide: 2 warnings, 1 errors
-   drivers/macintosh: 2 warnings, 1 errors
-   drivers/message: 0 warnings, 1 errors
-   drivers/sound: 4 warnings, 3 errors
-   fs/devpts: 0 warnings, 2 errors
-   fs/openpromfs: 19 warnings, 2 errors
+    Any advise on this will be greatly appreciated.Looking forward to your 
+help.Please let me know if you need any more information. Please cc your mail 
+to pemmaiah@cc.usu.edu.
 
+Thank you
 
-Warning Summary:
-
-   drivers/atm: 5 warnings, 0 errors
-   drivers/char: 17 warnings, 0 errors
-   drivers/hotplug: 1 warnings, 0 errors
-   drivers/ieee1394: 1 warnings, 0 errors
-   drivers/isdn: 1 warnings, 0 errors
-   drivers/mtd: 10 warnings, 0 errors
-   drivers/net: 9 warnings, 0 errors
-   drivers/pcmcia: 4 warnings, 0 errors
-   drivers/telephony: 2 warnings, 0 errors
-   drivers/usb: 2 warnings, 0 errors
-   drivers/video: 8 warnings, 0 errors
-   drivers/video/matrox: 1 warnings, 0 errors
-   drivers/video/riva: 1 warnings, 0 errors
-   fs/befs: 4 warnings, 0 errors
-   fs/intermezzo: 1 warnings, 0 errors
-   fs/jbd: 1 warnings, 0 errors
-   net: 6 warnings, 0 errors
+Anup
 
 
-Error List:
-
-make[1]: [ac97_codec.o] Error 1 (ignored)
-make[1]: [devpts.o] Error 1 (ignored)
-make[1]: [i810_audio.o] Error 1 (ignored)
-make[1]: [inode.o] Error 1 (ignored)
-make[1]: [_modsubdir_sound] Error 2 (ignored)
-make[1]: [nvram.o] Error 1 (ignored)
-make[1]: [openpromfs.o] Error 1 (ignored)
-make[2]: [ac97_codec.o] Error 1 (ignored)
-make[2]: [hpt366.o] Error 1 (ignored)
-make[2]: [i810_audio.o] Error 1 (ignored)
-make[3]: [ac97_codec.o] Error 1 (ignored)
-make[3]: [hpt366.o] Error 1 (ignored)
-make[3]: [sounddrivers.o] Error 1 (ignored)
-make: [bzImage] Error 2 (ignored)
-make: [_mod_arch/i386] Error 2 (ignored)
-make: [_mod_drivers/message] Error 2 (ignored)
-make: [_mod_drivers/sound] Error 2 (ignored)
-make: [vmlinux] Error 1 (ignored)
+Some parts of the .config file.
 
 
-Warning List:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
 
-acpiphp.h:50: warning: `acpi_evaluate_integer' defined but not used
-advansys.c:5554: warning: `req_cnt' might be used uninitialized in this function
-agpgart_be.c:2453: warning: assignment from incompatible pointer type
-agpgart_be.c:2454: warning: assignment from incompatible pointer type
-agpgart_be.c:2480: warning: assignment from incompatible pointer type
-agpgart_be.c:2481: warning: assignment from incompatible pointer type
-agpgart_be.c:3562: warning: assignment from incompatible pointer type
-agpgart_be.c:3563: warning: assignment from incompatible pointer type
-agpgart_be.c:3591: warning: assignment from incompatible pointer type
-agpgart_be.c:3592: warning: assignment from incompatible pointer type
-agpgart_be.c:580: warning: assignment from incompatible pointer type
-aha1542.c:114: warning: `setup_str' defined but not used
-airo.c:1969: warning: `buffer' might be used uninitialized in this function
-ali5455.c:2951: warning: `addr2' might be used uninitialized in this function
-ali5455.c:2951: warning: `data' might be used uninitialized in this function
-ali5455.c:2987: warning: unused variable `flags'
-ambassador.c:301:10: warning: pasting "." and "start" does not give a valid preprocessing token
-ambassador.c:305:10: warning: pasting "." and "regions" does not give a valid preprocessing token
-ambassador.c:310:10: warning: pasting "." and "data" does not give a valid preprocessing token
-amd74xx.c:389: warning: `ata66_amd74xx' defined but not used
-amd76x_pm.c:482: warning: `activate_amd76x_SLP' defined but not used
-amd76xrom.c:182: warning: label `err_out_none' defined but not used
-amd7930_fn.h:35: warning: `initAMD' defined but not used
-applicom.c:268:2: warning: #warning "LEAK"
-applicom.c:532:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
-aty128fb.c:1066: warning: `aty128_set_crt_enable' defined but not used
-aty128fb.c:1076: warning: `aty128_set_lcd_enable' defined but not used
-aty128fb.c:2478: warning: unused variable `fb'
-aty128fb.c:2479: warning: unused variable `value'
-aty128fb.c:2480: warning: unused variable `rc'
-cardbus.c:226: warning: unused variable `bus'
-cardbus.c:240: warning: assignment makes pointer from integer without a cast
-cardbus.c:240: warning: implicit declaration of function `pci_scan_device'
-cardbus.c:405: warning: control reaches end of non-void function
-cfi_cmdset_0001.c:1135: warning: unsigned int format, different type arg (arg 2)
-cfi_cmdset_0001.c:1165: warning: unsigned int format, different type arg (arg 2)
-cfi_cmdset_0001.c:826: warning: unsigned int format, different type arg (arg 2)
-cfi_cmdset_0020.c:1137: warning: unsigned int format, different type arg (arg 3)
-cfi_cmdset_0020.c:1286: warning: unsigned int format, different type arg (arg 3)
-cfi_cmdset_0020.c:491: warning: unsigned int format, different type arg (arg 3)
-cfi_cmdset_0020.c:851: warning: unsigned int format, different type arg (arg 3)
-cmdlinepart.c:345: warning: `mtdpart_setup' defined but not used
-cpqfcTSi2c.c:62: warning: `i2c_delay' declared `static' but never defined
-crc32.c:91: warning: static declaration for `fn_calc_memory_chunk_crc32' follows non-static
-/datos/kernel/linux/include/linux/ixjuser.h:45: warning: `ixjuser_h_rcsid' defined but not used
-dma.c:160: warning: control reaches end of non-void function
-dmi_scan.c:830: warning: unused variable `data'
-doc1000.c:85:2: warning: #warning This is definitely not SMP safe. Lock the paging mechanism.
-dscc4.c:1847: warning: `dscc4_setup' defined but not used
-dtc.c:182: warning: `dtc_setup' defined but not used
-eata_dma.c:1070: warning: `hd' might be used uninitialized in this function
-evevent.c:802: warning: cast to pointer from integer of different size
-fbcon.c:2138: warning: unused variable `line'
-fbcon.c:2141: warning: unused variable `dst'
-fbcon.c:2141: warning: unused variable `src'
-fbcon.c:2142: warning: unused variable `x1'
-fbcon.c:2142: warning: unused variable `y1'
-fbdev.c:2225: warning: label `err_out_kfree' defined but not used
-file.c:64: warning: `rc' might be used uninitialized in this function
-g_NCR5380.c:212: warning: `do_NCR5380_setup' defined but not used
-g_NCR5380.c:230: warning: `do_NCR53C400_setup' defined but not used
-g_NCR5380.c:248: warning: `do_NCR53C400A_setup' defined but not used
-g_NCR5380.c:266: warning: `do_DTC3181E_setup' defined but not used
-hpt366.c:184: warning: unreachable code at beginning of switch statement
-i2o_block.c:510: warning: `i2ob_flush' defined but not used
-i2o_pci.c:393:1: warning: no newline at end of file
-i810_audio.c:3262: warning: label `out_chan' defined but not used
-inode.c:108: warning: assignment makes pointer from integer without a cast
-inode.c:108: warning: implicit declaration of function `prom_firstprop'
-inode.c:110: warning: assignment makes pointer from integer without a cast
-inode.c:110: warning: implicit declaration of function `prom_nextprop'
-inode.c:114: warning: implicit declaration of function `prom_getproplen'
-inode.c:134: warning: implicit declaration of function `prom_getproperty'
-inode.c:525: warning: implicit declaration of function `prom_feval'
-inode.c:531: warning: implicit declaration of function `prom_setprop'
-inode.c:595: warning: implicit declaration of function `prom_getname'
-inode.c:666: warning: assignment makes pointer from integer without a cast
-inode.c:668: warning: assignment makes pointer from integer without a cast
-inode.c:806: warning: assignment makes pointer from integer without a cast
-inode.c:808: warning: assignment makes pointer from integer without a cast
-inode.c:934: warning: assignment makes pointer from integer without a cast
-inode.c:936: warning: assignment makes pointer from integer without a cast
-inode.c:940: warning: assignment makes pointer from integer without a cast
-inode.c:942: warning: assignment makes pointer from integer without a cast
-inode.c:958: warning: implicit declaration of function `prom_getchild'
-inode.c:964: warning: implicit declaration of function `prom_getsibling'
-ip2main.c:991: warning: unused variable `rc'
-ip6t_ah.c:148: warning: assignment from incompatible pointer type
-ip6t_esp.c:138: warning: assignment from incompatible pointer type
-ip6t_frag.c:162: warning: assignment from incompatible pointer type
-ip6t_ipv6header.c:54: warning: unused variable `opt'
-ip6t_rt.c:145: warning: assignment from incompatible pointer type
-iphase.c:2934: warning: `pad' might be used uninitialized in this function
-iphase.c:2934: warning: unused variable `last'
-ip_nat_helper.c:87: warning: unused variable `data'
-ixj.h:41: warning: `ixj_h_rcsid' defined but not used
-kaweth.c:736: warning: assignment from incompatible pointer type
-linuxvfs.c:682: warning: `befs_listxattr' defined but not used
-linuxvfs.c:690: warning: `befs_getxattr' defined but not used
-linuxvfs.c:697: warning: `befs_setxattr' defined but not used
-linuxvfs.c:703: warning: `befs_removexattr' defined but not used
-ma600.c:189:9: warning: pasting ";" and "return" does not give a valid preprocessing token
-ma600.c:303:9: warning: pasting ";" and "return" does not give a valid preprocessing token
-ma600.c:51:22: warning: extra tokens at end of #undef directive
-matroxfb_g450.c:561: warning: unused variable `minfo'
-NCR5380.c:402: warning: `NCR5380_print' defined but not used
-NCR5380.c:458: warning: `NCR5380_print_phase' defined but not used
-NCR5380.c:684: warning: `NCR5380_probe_irq' defined but not used
-NCR5380.c:738: warning: `NCR5380_print_options' defined but not used
-ns83820.c:1708: warning: `ns83820_probe_phy' defined but not used
-nsp32.h:428:8: warning: extra tokens at end of #endif directive
-nsp32_io.h:268:8: warning: extra tokens at end of #endif directive
-nvram.c:81: warning: unreachable code at beginning of switch statement
-nvram.c:85: warning: implicit declaration of function `pmac_get_partition'
-pm3fb.c:3833: warning: passing arg 2 of `__release_region' makes integer from pointer without a cast
-pm3fb.c:3836: warning: passing arg 2 of `__release_region' makes integer from pointer without a cast
-qla1280.c:1615: warning: `qla1280_do_dpc' defined but not used
-../qlogicfas.c:650: warning: passing arg 1 of `scsi_unregister' from incompatible pointer type
-qlogicfas.c:650: warning: passing arg 1 of `scsi_unregister' from incompatible pointer type
-r128_cce.c:1019: warning: unused variable `dev_priv'
-linuxr128_cce.c:1021: warning: unused variable `buffer'
-r128_cce.c:1023: warning: unused variable `size'
-radeonfb.c:3041: warning: `fbcon_radeon8' defined but not used
-sbc60xxwdt.c:339: warning: label `err_out' defined but not used
-sddr09.c:448: warning: `sddr09_request_sense' defined but not used
-skge.c:2872: warning: `SetQueueSizes' defined but not used
-sym53c8xx.c:6995: warning: `istat' might be used uninitialized in this function
-time.c:433: warning: `do_gettimeoffset_cyclone' defined but not used
-transaction.c:742:17: warning: pasting "KERN_ERR" and ""Possible IO failure.\n"" does not give a valid preprocessing token
-vesafb.c:93: warning: `fbcon_cmap' defined but not used
-wavelan_cs.h:492:33: warning: extra tokens at end of #undef directive
---end--
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
-regards,
--- 
-Galiza nin perdoa nin esquence. Governo demision!
+#
+# General setup
+#
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
 
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMII=y
+# CONFIG_MPENTIUMIII is not set
+..............................
+..................
+....
+#
+# Input device support
+#
+CONFIG_INPUT=m
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_EVBUG=m
+
+#
+# Input I/O drivers
+#
+CONFIG_GAMEPORT=m
+CONFIG_SOUND_GAMEPORT=m
+CONFIG_GAMEPORT_NS558=m
+CONFIG_GAMEPORT_L4=m
+CONFIG_GAMEPORT_EMU10K1=m
+CONFIG_GAMEPORT_VORTEX=m
+CONFIG_GAMEPORT_FM801=m
+CONFIG_GAMEPORT_CS461x=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_CT82C710=m
+CONFIG_SERIO_PARKBD=m
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=m
+CONFIG_KEYBOARD_SUNKBD=m
+CONFIG_KEYBOARD_XTKBD=m
+CONFIG_KEYBOARD_NEWTON=m
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_MOUSE_SERIAL=m
+CONFIG_MOUSE_INPORT=m
+# CONFIG_MOUSE_ATIXL is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+#
+# Character devices
+#
+CONFIG_SERIAL_NONSTANDARD=y
+CONFIG_COMPUTONE=m
+CONFIG_ROCKETPORT=m
+CONFIG_CYCLADES=m
+# CONFIG_CYZ_INTR is not set
+CONFIG_DIGIEPCA=m
+# CONFIG_ESPSERIAL is not set
+# CONFIG_MOXA_INTELLIO is not set
+# CONFIG_MOXA_SMARTIO is not set
+# CONFIG_ISI is not set
+CONFIG_SYNCLINK=m
+# CONFIG_SYNCLINKMP is not set
+CONFIG_N_HDLC=m
+# CONFIG_RISCOM8 is not set
+# CONFIG_SPECIALIX is not set
+# CONFIG_SX is not set
+# CONFIG_RIO is not set
+# CONFIG_STALDRV is not set
+
+....
+....
+
+....
+....
+
+#
+# Graphics support
+#
+CONFIG_FB=y
+# CONFIG_FB_CLGEN is not set
+# CONFIG_FB_PM2 is not set
+# CONFIG_FB_CYBER2000 is not set
+# CONFIG_FB_IMSTT is not set
+# CONFIG_FB_VGA16 is not set
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_HGA=m
+CONFIG_FB_RIVA=m
+# CONFIG_FB_I810 is not set
+# CONFIG_FB_MATROX is not set
+CONFIG_FB_RADEON=m
+CONFIG_FB_ATY128=m
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY_CT=y
+CONFIG_FB_ATY_GX=y
+# CONFIG_FB_SIS is not set
+CONFIG_FB_NEOMAGIC=m
+CONFIG_FB_3DFX=m
+CONFIG_FB_VOODOO1=m
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_PM3 is not set
+
+-------------------------------------------------
+Anup Pemmaiah 
+435-512-0935
+anup_pemmaiah@yahoo.com
+pemmaiah@cc.usu.edu
+-------------------------------------------------
 

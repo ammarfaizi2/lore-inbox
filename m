@@ -1,65 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbRASEgE>; Thu, 18 Jan 2001 23:36:04 -0500
+	id <S129441AbRASFQN>; Fri, 19 Jan 2001 00:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRASEfz>; Thu, 18 Jan 2001 23:35:55 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:3412 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129776AbRASEfr>; Thu, 18 Jan 2001 23:35:47 -0500
-Message-ID: <3A67C419.13C0ED3C@linux.com>
-Date: Fri, 19 Jan 2001 04:35:37 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S129375AbRASFQD>; Fri, 19 Jan 2001 00:16:03 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:26301 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129441AbRASFPw>; Fri, 19 Jan 2001 00:15:52 -0500
+Message-ID: <004701c081ef$e32dcb90$8501a8c0@gromit>
+From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+To: "Mo McKinlay" <mmckinlay@gnu.org>, "Peter Samuelson" <peter@cadcamlab.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0101182129050.1089-100000@nvws005.nv.london>
+Subject: Re: named streams, extended attributes, and posix
+Date: Fri, 19 Jan 2001 00:14:12 -0800
 MIME-Version: 1.0
-To: Brad Felmey <bradf@i-vic.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [off topic] Re: .br blacklisted ?
-In-Reply-To: <Pine.LNX.4.31.0101171635401.5464-100000@localhost.localdomain> <3A6553C8.5030408@voicefx.com> <20010117090610.A21493@grobbebol.xs4all.nl> <3A65F297.8090103@voicefx.com> <3A671625.3D3950CD@mira.net> <3A677A03.9030900@voicefx.com> <iiaf6t8aml86v91h77slh991ts856h5prh@i-vic.net> <3A67BA3C.B021DF61@linux.com> <n5ff6tc9pdr2mmeb32o1mesrf6buun4k8d@i-vic.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Felmey wrote:
+Unfortunately, unix allows everything but "/" in filenames. This was
+probably a mistake, as it makes it nearly impossible to augment the
+namespace, but it is the reality.
 
-> On Fri, 19 Jan 2001 03:53:32 +0000, you, David Ford <david@linux.com>,
-> wrote:
+Did you read the "new namespace" section of the paper?
+
+It also talked a bit about supporting Extended Attributes, which are access
+via an API and not with a filename separator. We could, perhaps, begin by
+supporting EAs. That would take care of HFS, HPFS, XFS, and BeFS, and half
+of NTFS. Then we could go on to tackle the Named Streams problem.
+
+-M
+
+----- Original Message -----
+From: "Mo McKinlay" <mmckinlay@gnu.org>
+To: "Peter Samuelson" <peter@cadcamlab.org>
+Cc: "Mo McKinlay" <mmckinlay@gnu.org>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, January 18, 2001 1:30 PM
+Subject: Re: named streams, extended attributes, and posix
+
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> >So you can't fault John for personally effecting a policy similar to what
-> >ORBS does en masse.
+> Yesterday, Peter Samuelson (peter@cadcamlab.org) wrote:
 >
-> Of course I can. A bad implementation is a bad implementation.
-> MAPS/ORBS is and has been a royal screwup from the word 'go', and it's
-> only getting worse with time. Great idea, miserable execution. It is
-> _not_ the answer, and IMO it's worse than nothing at all. I set up my
-> own mailserver because my ISP decided to institute stupid stuff like
-> this (and worse).
+>   > Yeah, I agree, 'file/stream' is lousy syntax as well.  If it weren't
+>   > for the possibility of having streams on directories, it would almost
+>   > be acceptible.  I still don't know which (':' or '/') is the worse
+>   > hack.
 >
-> My statement still stands. John has obviously annoyed several folks
-> with this approach to filtering, and has been borderline belligerent
-> about it. That is not the approach to use when you're approaching
-> people for help.
-
-I don't think such global filtering is right from either direction, from
-those asking or giving help.  But most of us look to the powers that be as
-examples.  "If they do it it's ok for me to do it."  So you can say he's
-wrong for doing it, but the fault comes from example.
-
-As to your first paragraph, it doesn't much matter to ORBS if you have your
-own mail server, they blacklist netblocks and the prevailing HOWTOs don't
-explain the OK list or show people what rule to use to accept OK mail
-servers.
-
--d
-
---
-..NOTICE fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
-
-
+> Me neither :/
+>
+>   > As I've said elsewhere in this thread, I can't think of *any* clean
+way
+>   > to shoehorn forks into nice, transparent posix calls.  It really wants
+>   > a new API.
+>
+> Likewise. This was my standpoint the last time around - a clear concise
+> portable API for accessing streams (even if it *started out*
+> Linux-specific) - without imposing silly semantics on existing
+> applications which currently ignore streams anyway.
+>
+> Mo.
+>
+> - --
+> Mo McKinlay
+> mmckinlay@gnu.org
+> - ------------------------------------------------------------------------
+-
+> GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+>
+>
+>
+>
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.4 (GNU/Linux)
+> Comment: For info see http://www.gnupg.org
+>
+> iEYEARECAAYFAjpnYGQACgkQRcGgB3aidfmWBQCfXgNq/vqltt76mApoDiNI9HnH
+> ws8AoJZ2vvlH1iCAeUu7yktWWN0Bncc3
+> =gEmD
+> -----END PGP SIGNATURE-----
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

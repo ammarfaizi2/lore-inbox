@@ -1,53 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTENT2I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTENT2I
+	id S261202AbTENTc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbTENTc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:28:08 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:43985 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261159AbTENT2H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:28:07 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Dave Jones" <davej@codemonkey.org.uk>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: What exactly does "supports Linux" mean?
-Date: Wed, 14 May 2003 12:40:51 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEKCCPAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 14 May 2003 15:32:56 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:14210 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261192AbTENTcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:32:52 -0400
+Date: Wed, 14 May 2003 12:41:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: bunk@fs.tum.de, hch@infradead.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, fventuri@mediaone.net
+Subject: Re: 2.5.69-mm5: sb1000.c: undefined reference to `alloc_netdev'
+Message-Id: <20030514124106.5a13c199.akpm@digeo.com>
+In-Reply-To: <1052936763.2492.57.camel@dhcp22.swansea.linux.org.uk>
+References: <20030514012947.46b011ff.akpm@digeo.com>
+	<20030514144727.GG1346@fs.tum.de>
+	<20030514103115.465d18a8.akpm@digeo.com>
+	<1052936763.2492.57.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <20030514144443.GA7203@suse.de>
-Importance: Normal
+X-OriginalArrivalTime: 14 May 2003 19:45:35.0253 (UTC) FILETIME=[63063450:01C31A51]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> Its far from bogus. Its an rx only cable modem device. Your uplink is
+> modem and you dont want to arp on it
 
-> On Wed, May 14, 2003 at 02:09:33PM +0000, Henning P. Schmiedehausen wrote:
 
->  > >From a user land perspective, only major Linux vendors or
->  > organizations could enforce such a logo program, it would cost wads of
->  > cash and it will really suck if you currently run the certification
->  > process for Linux 2.5.102 for your driver and right before you're
->  > done, 2.5.103 is released and you have to start all over again.
+diff -puN drivers/net/sb1000.c~sb1000-fix drivers/net/sb1000.c
+--- 25/drivers/net/sb1000.c~sb1000-fix	Wed May 14 12:39:10 2003
++++ 25-akpm/drivers/net/sb1000.c	Wed May 14 12:40:20 2003
+@@ -137,17 +137,6 @@ static const struct pnp_device_id sb1000
+ };
+ MODULE_DEVICE_TABLE(pnp, sb1000_pnp_ids);
+ 
+-static void
+-sb1000_setup(struct net_device *dev)
+-{
+-	dev->type		= ARPHRD_ETHER;
+-	dev->mtu		= 1500;
+-	dev->addr_len		= ETH_ALEN;
+-
+-	/* New-style flags. */
+-	dev->flags		= IFF_POINTOPOINT|IFF_NOARP;
+-}
+-
+ static int
+ sb1000_probe_one(struct pnp_dev *pdev, const struct pnp_device_id *id)
+ {
+@@ -188,11 +177,18 @@ sb1000_probe_one(struct pnp_dev *pdev, c
+ 			"S/N %#8.8x, IRQ %d.\n", dev->name, dev->base_addr,
+ 			dev->mem_start, serial_number, dev->irq);
+ 
+-	dev = alloc_netdev(sizeof(struct sb1000_private), "cm%d", sb1000_setup);
++	dev = alloc_etherdev(sizeof(struct sb1000_private));
+ 	if (!dev) {
+ 		error = -ENOMEM;
+ 		goto out_release_regions;
+ 	}
++
++	/*
++	 * The SB1000 is an rx-only cable modem device.  The uplink is a modem
++	 * and we do not want to arp on it.
++	 */
++	dev->flags = IFF_POINTOPOINT|IFF_NOARP;
++
+ 	SET_MODULE_OWNER(dev);
+ 
+ 	if (sb1000_debug > 0)
 
-> Certifying anything against a development series kernel is completely
-> pointless.  Breakage outside the driver itself could have adverse
-> affects. Example: For the last dozen or so kernels, the i845 AGP driver
-> crashed on exiting X. Turned out to be a VM bug.
-
-	This is why I think it only makes sense to certify a product that either
-provides a source code driver or sufficient documentation to allow someone
-to write one. Even if the driver is bugfree, you still have to be able to
-debug around it.
-
-	DS
-
+_
 

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265150AbTLHBMD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 20:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTLHBMD
+	id S265153AbTLHBUP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 20:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTLHBUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 20:12:03 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:52180 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265150AbTLHBMB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 20:12:01 -0500
-Date: Mon, 8 Dec 2003 02:11:54 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 - fork, dup, dup2 oddities
-Message-ID: <20031208011154.GK13201@mail.muni.cz>
-References: <20031207210305.GE13201@mail.muni.cz> <20031208004655.GA23644@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031208004655.GA23644@kroah.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Dec 2003 20:20:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38407 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S265153AbTLHBUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 20:20:11 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: const versus __attribute__((const))
+Date: 7 Dec 2003 17:19:46 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <br0jji$8b5$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 07, 2003 at 04:46:55PM -0800, Greg KH wrote:
-> The ttyUSB* nodes right now have a bug that prevents more than one
-> open() to work properly.  Well actually, the bug is on the close()
-> part...
-> 
-> Anyway, can you try the patch I posted here yesterday?  A copy of it is
-> below.  It should fix this bug.  Please let me know either way.
+I have been chasing down a bunch of warnings that have been annoying
+me, and I have observed that a bunch of the byteorder functions are
+defined in ways similar to:
 
-Thanks, this patch works for me. pppd now correctly connect via ttyUSB. 
+static __inline__ __const__ __u16 ___arch__swab16(__u16 value)
 
-However similar patch will be need for ircomm-tty. That is not functional as
-well.
+With -W -Wall at least gcc 3.2.2 will issue a warning:
 
+warning: type qualifiers ignored on function return type
+
+... which seems to imply the __const__ is ignored.  Reading the gcc
+documentation it appears the correct syntax is
+__attribute__((__const__)) rather than __const__.
+
+I have made a patch against the current tree defining
+__attribute_const__ in <linux/compiler.h> and using it in the above
+cases; does anyone know any reason why I should *NOT* submit this to
+Linus?
+
+	-hpa
 -- 
-Luká¹ Hejtmánek
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264274AbUFKRyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUFKSDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbUFKRyt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 13:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFKRyt
+	id S264298AbUFKSDn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 14:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFKSDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 13:54:49 -0400
-Received: from luhmann.netc.dk ([81.7.140.66]:60650 "HELO luhmann.netc.dk")
-	by vger.kernel.org with SMTP id S264274AbUFKRxo (ORCPT
+	Fri, 11 Jun 2004 14:03:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:59291 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264302AbUFKSCA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 13:53:44 -0400
-Date: 11 Jun 2004 17:53:42 -0000
-Subject: [netc.dk #4291] AutoReply: Neue Voelkerwanderung droht! 
-From: "Netpasser via RT" <netpasser@netc.dk>
-Reply-To: netpasser@netc.dk
-In-Reply-To: <rt-4291@netc.dk>
-Message-ID: <rt-3.1.HEAD-4291-18899-2.18.9849667872768@netc.dk>
-X-RT-Loop-Prevention: netc.dk
-RT-Ticket: netc.dk #4291
-Managed-by: RT 3.1.HEAD (http://www.bestpractical.com/rt/)
-RT-Originator: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-RT-Original-Encoding: utf-8
+	Fri, 11 Jun 2004 14:02:00 -0400
+Date: Fri, 11 Jun 2004 10:59:47 -0700
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, rtjohnso@eecs.berkeley.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Finding user/kernel pointer bugs [no html]
+Message-ID: <20040611175946.GA16673@kroah.com>
+References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk> <20040610165821.GB32577@kroah.com> <20040610191004.GA1661@kroah.com> <20040611192116.1bb87553.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040611192116.1bb87553.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 11, 2004 at 07:21:16PM +0200, Jean Delvare wrote:
+> > And to be complete, here's a patch to clean up the warnings in the
+> > drivers/i2c tree.  I've also applied it to my trees.
+> > (...)
+> > # I2C: sparse cleanups for drivers/i2c/*
+> 
+> Should any of these be backported to i2c in 2.4?
 
-Greetings,
+Nah, it's not worth it.
 
-This message has been automatically generated in response to the
-creation of a trouble ticket regarding:
-	"Neue Voelkerwanderung droht!", 
-a summary of which appears below.
+thanks,
 
-There is no need to reply to this message right now.  Your ticket has been
-assigned an ID of [netc.dk #4291].
-
-Please include the string:
-
-         [netc.dk #4291]
-
-in the subject line of all future correspondence about this issue. To do so, 
-you may reply to this message.
-
-                        Thank you,
-                        netpasser@netc.dk
-
--------------------------------------------------------------------------
-Lese selbst:
-http://www.volksgemeinschaft.org/neuevoelkerwanderungdroht.htm
-
+greg k-h

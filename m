@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286959AbSAIOwO>; Wed, 9 Jan 2002 09:52:14 -0500
+	id <S286949AbSAIOvd>; Wed, 9 Jan 2002 09:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286962AbSAIOvy>; Wed, 9 Jan 2002 09:51:54 -0500
-Received: from codepoet.org ([166.70.14.212]:12042 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S286959AbSAIOvm>;
-	Wed, 9 Jan 2002 09:51:42 -0500
-Date: Wed, 9 Jan 2002 07:51:26 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Felix von Leitner <felix-dietlibc@fefe.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] klibc requirements
-Message-ID: <20020109145126.GA17918@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Felix von Leitner <felix-dietlibc@fefe.de>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de> <20020109045109.GA17776@kroah.com> <20020109141514.GF2510@codeblau.de>
-Mime-Version: 1.0
+	id <S286968AbSAIOvX>; Wed, 9 Jan 2002 09:51:23 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:45587 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S286949AbSAIOvP>; Wed, 9 Jan 2002 09:51:15 -0500
+Message-ID: <3C3C58E0.EB1333F0@redhat.com>
+Date: Wed, 09 Jan 2002 14:51:12 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <000a01c19917$0b567ec0$0501a8c0@psuedogod>; from ed.sweetman@wmich.edu on Wed Jan 09 2002 at 09:07:55AM -0500 <20020109152717.J1543@inspiron.school.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020109141514.GF2510@codeblau.de>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Jan 09, 2002 at 03:15:14PM +0100, Felix von Leitner wrote:
-> Thus spake Greg KH (greg@kroah.com):
-> > > > 	- portable, runs on all platforms that the kernel currently
-> > > > 	  works on, but doesn't have to run on any non-Linux based OS.
-> > You didn't address this.  What are the future plans of porting dietLibc
-> > to the platforms that are not currently supported by it (but are by
-> > Linux)?
+Andrea Arcangeli wrote:
 > 
-> We will attempt to port the diet libc to every Linux platform that we
-> have access to.  I won't go out and buy hardware to port my software to,
-> so if anyone needs the diet libc ported somewhere, I need an account on
-> a test box somewhere.
+> On Wed, Jan 09, 2002 at 09:07:55AM -0500, Ed Sweetman wrote:
+> > Ok so the medicine is worse than the disease.   I take it that you only want
+> > some key points made for rescheduling instead of the full preempt patch by
+> > Robert.   That seems logical enough.   The only issue i see is that for the
 > 
-> We are currently missing sh-linux, ia64-linux and m68k-linux and
-> probably a few architectures that I have never heard of ;)
+> My ideal is to have the kernel to be as low worst latency as -preempt,
+> but without being preemptive. that's possible to achieve, I don't think
+> we're that far.
+> 
+> mean latency is another matter, but I personally don't mind about mean
+> latency and I much prefer to save cpu cycles instead.
 
-uClibc runs on both sh and ,68k, so the only arch missing 
-coverage with either dietlibc or uClibc seems to be ia64.
+hear hear!
 
- -Erik
+The akpm patch is achieving a MUCH better latency than pure -preempt,
+and only has 40 
+or so coded preemption points instead of a few hundred (eg every
+spin_unlock).... 
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+and if with 40 we can get <= 1ms then everybody will be happy; if you
+want, say, 50 usec
+latency instead you need RTLinux anyway. With 1ms _worst case_ latency
+the "mean" latency 
+is obviously also very good.......

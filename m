@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRECRDR>; Thu, 3 May 2001 13:03:17 -0400
+	id <S133113AbRECRJH>; Thu, 3 May 2001 13:09:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133098AbRECRDH>; Thu, 3 May 2001 13:03:07 -0400
-Received: from snowstorm.mail.pipex.net ([158.43.192.97]:48858 "HELO
-	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S133113AbRECRDA>; Thu, 3 May 2001 13:03:00 -0400
-Message-ID: <3AF18F40.BD741542@ukgateway.net>
-Date: Thu, 03 May 2001 18:02:56 +0100
-From: Andy Piper <squiggle@ukgateway.net>
-Reply-To: andy.piper@freeuk.com
-Organization: excalibur
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S133116AbRECRI5>; Thu, 3 May 2001 13:08:57 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2577 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S133113AbRECRIt>; Thu, 3 May 2001 13:08:49 -0400
+Date: Thu, 3 May 2001 10:08:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Edward Spidre <beamz_owl@yahoo.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible PCI subsystem bug in 2.4
+In-Reply-To: <20010503140318.7583.qmail@web10704.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.21.0105031004410.30346-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Dane-Elec PhotoMate Combo
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(NB I'm not a subscriber to linux-kernel, I picked up this thread from
-one of the NNTP gateways; please cc me on any replies. Thanks)
 
-I've recently purchased one of these to use with the SmartMedia cards
-from my Fuji FinePix 4700 (yes, I know the camera is already supported
-as a USB mass storage device). Searching for information on using it
-with Linux pointed me to this thread.
+On Thu, 3 May 2001, Edward Spidre wrote:
+> 
+> Note: a diff between booting with mem and without it
+> yield the same results (the user-defined phys ram map
+> is identical to the bios provided one)
 
-I've been unable to get the card reader to work - i.e. get the card
-mounted - using the 2.4.2-2 kernel which came with RedHat 7.1,
-although the device itself appears to be recognised (according to
-/proc/bus/usb/devices). I've also tried 2.4.4, but had even less
-success.
+Interesting. Your BIOS-provided memory map is buggy:
 
-The discussion here between Matt Dharm and Andries Brouwer seems to
-revolve around the fact that the patch Andries has proposed is
-"risky". Clearly I don't have Matt's level of knowledge in this area,
-so I'm following his advice for the moment.
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+>  BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+>  BIOS-e820: 000000000000c000 @ 00000000000c0000 (reserved)
+>  BIOS-e820: 0000000013eec000 @ 0000000000100000 (usable)
+>  BIOS-e820: 0000000000004000 @ 0000000013fec000 (reserved)
+>  BIOS-e820: 0000000000200000 @ 00000000ffe00000 (reserved)
 
-I'd quite like to get the device working and stable, and so would
-Andries and at least one other person who has posted to the list of
-supported USB devices hosted at http://www.qbik.ch/usb/devices/ ... so
-the question is simple: what can we do to help? I've not currently got
-any experience contributing to the kernel, and I have next-to-no
-knowledge of USB, but I'm prepared to put some effort in here.
+Note how it says that you have usable RAM from
 
-Andy
+	0000000000100000 - 0000000013fec000
 
--- 
-Andy Piper - Fareham, Hampshire (UK)
-andy.piper@freeuk.com - ICQ #86489434
-http://www.andyp.uklinux.net
+(the thing is hard to read and the output was changed in later kernels: it
+really says that you have 0000000013eec000 bytes of ram starting at
+0000000000100000, which obviously doing the math means that it goes up to
+0000000013fec000).
+
+Now, it then says that you have reserved memory (ie probably the BIOS has
+reserved 1kB at high memory) from
+
+	0000000013fec000 - 0000000013ff0000
+
+In particular, notice how it does NOT mention the memory region from
+
+	0000000013ff0000 - 0000000014000000
+
+at ALL. Which means that Linux thinks that it is free... And Linux will
+place PCI devices there. Even though there certainly is memory there.
+
+I'll have to work around the BIOS bug some way. Will you be willing to
+try out patches?
+
+		Linus
+

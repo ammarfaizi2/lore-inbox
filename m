@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263374AbSJFKjH>; Sun, 6 Oct 2002 06:39:07 -0400
+	id <S263373AbSJFKgx>; Sun, 6 Oct 2002 06:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263375AbSJFKjH>; Sun, 6 Oct 2002 06:39:07 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:15888 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263374AbSJFKjG>;
-	Sun, 6 Oct 2002 06:39:06 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Benjamin Walkenhorst <krylon@gmx.net>
-To: mec@shout.net
-Subject: Error configuring linux-2.5.40
-Date: Sun, 6 Oct 2002 12:43:26 +0200
+	id <S263374AbSJFKgw>; Sun, 6 Oct 2002 06:36:52 -0400
+Received: from nl-ams-slo-l4-02-pip-4.chellonetwork.com ([213.46.243.20]:39520
+	"EHLO amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S263373AbSJFKgw>; Sun, 6 Oct 2002 06:36:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.40: ALSA menuconfig bug traced
+Date: Sun, 6 Oct 2002 12:42:23 +0200
 X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20021006103906Z263374-8740+7447@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021006104223.QOUN1314.amsfep11-int.chello.nl@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Hello,
+The ALSA Menuconfig bug leads back to sound/Config.in
 
-I recently downloaded the most recent version of the developer's branch of 
-the linux kernel tree (2.5.40). Trying to configure it, I encountered an 
-error:
-In case this matters, the 2.5.40-source-tree was downloaded as .tar.bz2 from 
-the german mirror of kernel.org (ftp.de.kernel.org) and extracted to 
-/usr/local/src/linux-2.5.40 with a symlink at /usr/src/linux
-I tried to configure the source tree as root.
-Now for the error I got:
+When you remove the entire if...fi block of CONFIG_SPARC64 or CONFIG_SPARC32 
+of the ALSA submenu, everything seems to work. 
 
-- -------------------------------------------------------------------------------------
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+It seems to have nothing to do with the SPARC drivers though, for when I 
+duplicate the if ... fi block of CONFIG_ISA (so there are two ISA entries in 
+the submenu) after removing the SPARC(32, 64) block, the problems occur again.
 
- Q> ./scripts/Menuconfig: MCmenu74: command not found
+Disabling CONFIG_ISA or CONFIG_PCI (the only options set "y" on my system) 
+didn't help anything.
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+I checked the Config.in file for odd characters with a binary editor, but 
+nothing was found.
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
+Below you can find a "patch" that makes it work again. It is no solution 
+though...
 
-make: *** [menuconfig] Error 1
-- -------------------------------------------------------------------------------------
+I don't understand it... All I can think of is that the parser goes crazy...
 
-As the error tells me to report to you, I hereby do so. 
+Jos
 
-Have a nice day,
+37,39c37,39
+< if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
+<   source sound/sparc/Config.in
+< fi
+---
+> #if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
+> #  source sound/sparc/Config.in
+> #fi
+[  endmenu
 
-Benjamin Walkenhorst
-- -- 
-- -------------------------------------
-Der Hoffnung beraubt sein,         
-heiﬂt noch nicht - Verzweifeln.    
-(Albert Camus)                          
-- -------------------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Public Key available at http://www.krylon.de
-
-iD8DBQE9oBPVoYumWdMvhMQRAolCAJ9/XnCLf6lUNmQ6JZoG+7iGNtdUjwCfdkh/
-sMiZS9R6gX4vXYgCl5cwzpU=
-=1Fe8
------END PGP SIGNATURE-----

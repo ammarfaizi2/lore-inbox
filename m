@@ -1,84 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267488AbTB1Gu2>; Fri, 28 Feb 2003 01:50:28 -0500
+	id <S267559AbTB1G7u>; Fri, 28 Feb 2003 01:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbTB1Gu2>; Fri, 28 Feb 2003 01:50:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1808 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267488AbTB1Gu1>; Fri, 28 Feb 2003 01:50:27 -0500
-Date: Thu, 27 Feb 2003 22:58:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.63 tsk->usage count.
-In-Reply-To: <200302271134.28229.schwidefsky@de.ibm.com>
-Message-ID: <Pine.LNX.4.44.0302272256520.18176-100000@home.transmeta.com>
+	id <S267568AbTB1G7u>; Fri, 28 Feb 2003 01:59:50 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:4364 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267559AbTB1G7t>;
+	Fri, 28 Feb 2003 01:59:49 -0500
+To: David Monniaux <David.Monniaux@ens.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise PDC 20376
+References: <3E5ED648.5080509@ens.fr>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 28 Feb 2003 08:10:08 +0100
+In-Reply-To: David Monniaux's message of "Fri, 28 Feb 2003 04:23:52 +0100"
+Message-ID: <yw1xr89sdgof.fsf@manganonaujakasit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Monniaux <David.Monniaux@ens.fr> writes:
 
-On Thu, 27 Feb 2003, Martin Schwidefsky wrote:
-> while debugging a memory leak with task structures on s390
-> I found something related to it. If copy_process fails for some
-> reason the task structure created with dup_task_struct has set
-> p->usage to 2 but only one put_task_struct is done in the error
-> cleanup code. The attached patch should take care of it.
+> Is anybody (Andre?) working on a driver for the Promise PDC 20376
+> Serial ATA / RAID controller?
 
-This actually looks wrong, it ends up doing free_user() twice because a 
-final put_task_struct() does that too these days.
+Andre is not, and with his reasons I don't think anyone else will
+either.  There is a binary module available from promise's website, if
+you are using an intel machine.
 
-Does this alternate patch work for you instead?
-
-		Linus
-
-----
-===== kernel/fork.c 1.110 vs edited =====
---- 1.110/kernel/fork.c	Tue Feb 25 02:50:01 2003
-+++ edited/kernel/fork.c	Thu Feb 27 22:56:36 2003
-@@ -72,15 +72,8 @@
- 	return total;
- }
- 
--void __put_task_struct(struct task_struct *tsk)
-+static void free_task_struct(struct task_struct *tsk)
- {
--	WARN_ON(!(tsk->state & (TASK_DEAD | TASK_ZOMBIE)));
--	WARN_ON(atomic_read(&tsk->usage));
--	WARN_ON(tsk == current);
--
--	security_task_free(tsk);
--	free_uid(tsk->user);
--
- 	/*
- 	 * The task cache is effectively disabled right now.
- 	 * Do we want it? The slab cache already has per-cpu
-@@ -103,6 +96,17 @@
- 	}
- }
- 
-+void __put_task_struct(struct task_struct *tsk)
-+{
-+	WARN_ON(!(tsk->state & (TASK_DEAD | TASK_ZOMBIE)));
-+	WARN_ON(atomic_read(&tsk->usage));
-+	WARN_ON(tsk == current);
-+
-+	security_task_free(tsk);
-+	free_uid(tsk->user);
-+	free_task_struct(tsk);
-+}
-+
- void add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait)
- {
- 	unsigned long flags;
-@@ -1034,7 +1038,7 @@
- 	atomic_dec(&p->user->processes);
- 	free_uid(p->user);
- bad_fork_free:
--	put_task_struct(p);
-+	free_task_struct(p);
- 	goto fork_out;
- }
- 
-
+-- 
+Måns Rullgård
+mru@users.sf.net

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289047AbSANU4W>; Mon, 14 Jan 2002 15:56:22 -0500
+	id <S289054AbSANVFW>; Mon, 14 Jan 2002 16:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSANU4O>; Mon, 14 Jan 2002 15:56:14 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:20490 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S289048AbSANUz6>; Mon, 14 Jan 2002 15:55:58 -0500
-Message-ID: <3C4345C8.92F85166@didntduck.org>
-Date: Mon, 14 Jan 2002 15:55:36 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Charles Cazabon <linux@discworld.dyndns.org>, linux-kernel@vger.kernel.org,
-        arjan@fenrus.demon.nl
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the 
- elegant solution)
-In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114142605.A4702@twoflower.internal.do> <20020114151942.A20309@thyrsus.com>
+	id <S289046AbSANVFO>; Mon, 14 Jan 2002 16:05:14 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:39947 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289056AbSANVFC>;
+	Mon, 14 Jan 2002 16:05:02 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts 
+In-Reply-To: Your message of "Mon, 14 Jan 2002 15:19:00 BST."
+             <Pine.GSO.3.96.1020114150024.16706C-100000@delta.ds2.pg.gda.pl> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Jan 2002 08:04:50 +1100
+Message-ID: <31989.1011042290@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> 
-> Charles Cazabon <linux@discworld.dyndns.org>:
-> > > "Crap." Melvin thinks.  "I don't remember what kind of network card I
-> > > compiled in.  Am I going to have to open this puppy up just to eyeball
-> > > the hardware?"
-> >
-> > Uh, no.  Try `lsmod`.
-> 
-> He hard-compiled in that driver.  lsmod(1) can't see it.
+On Mon, 14 Jan 2002 15:19:00 +0100 (MET), 
+"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> wrote:
+> The "noapic" option should probably get removed -- it was meant as a
+>debugging aid (as many of the "no*" options) at the early days of I/O APIC
+>support, I believe...  Now the support is pretty stable.
 
-cat /proc/ioports.  If the card is in use, it will show up there.
+Intel 440GX chipsets hang during SCSI probe with UP kernels unless you
+use noapic.  It works with SMP but many installers use UP kernels.
+Removing noapic will break install on all 440GX machines, there are a
+lot of them out there.
 
---
-
-				Brian Gerst

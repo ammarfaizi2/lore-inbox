@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263619AbTKQT0a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTKQT0a
+	id S263660AbTKQTjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTKQTjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:26:30 -0500
-Received: from mail.gmx.net ([213.165.64.20]:26010 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263619AbTKQT02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:26:28 -0500
-X-Authenticated: #20450766
-Date: Mon, 17 Nov 2003 20:25:19 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: DMA_NONE data_direction in scsi
-Message-ID: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Nov 2003 14:39:15 -0500
+Received: from email-out2.iomega.com ([147.178.1.83]:53690 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S263639AbTKQTjM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 14:39:12 -0500
+Subject: Re: [PATCH] Add lib/parser.c kernel-doc
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: rddunlap@osdl.org
+Cc: will_dyson@pobox.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20031117085529.427bbb0b.rddunlap@osdl.org>
+References: <1068970562.19499.11.camel@thalience>
+	 <1069022225.19499.59.camel@thalience> <20031117072822.GO26866@lug-owl.de>
+	 <1069061369.1139.83.camel@thalience>
+	 <20031117085529.427bbb0b.rddunlap@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069097920.2324.20.camel@patrh9>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Nov 2003 12:38:40 -0700
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Nov 2003 19:39:11.0823 (UTC) FILETIME=[79BAADF0:01C3AD42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+> BTW, where did you find good references for creating kernel-doc?
 
-While trying to fix tmscsim for 2.6, I've arrived at the Oops below, which
-is caused by the BUG_ON() in dma_map_page(). In the backtrace below,
-data_direction is set to DMA_BIDIRECTIONAL in sd_revalidate_disk(),
+I too ask where?
 
-                sreq->sr_data_direction = DMA_BIDIRECTIONAL;
+> Evolution mangles in-line patches??
 
-, but already in sd_spinup_disk() it is reset to DMA_NONE:
+Seemingly yes by default.
 
-                        SRpnt->sr_data_direction = DMA_NONE;
+> That's too bad.
+> Attachments are more difficult to review/reply to.
 
-So, the question is: is this the correct behaviour, and, if so - how is
-the driver supposed to map this request - which direction to pass to
-dma_map_*?
+The Ximian Evolution 1.2.2 here by default does style text "Normal" 
+i.e. aggressively line broken only.  But the "Preformat" style works for
+inline text patches such as my (: newly minted and beautiful but not yet
+rejected for an explicit reason :) linux-scsi patches for making more
+writable devices appear writable.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Pat LaVarre
 
+P.S.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+This paragraph here now is an example of Evolution's Preformat style of English with which we can let the line of text go on and on and on as English so very easily does when written by people who haven't yet learned to limit the length of a sentence, or the length of an email, helpfully.
 

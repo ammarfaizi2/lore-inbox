@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUEWIy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUEWI57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUEWIy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 04:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUEWIy6
+	id S262398AbUEWI57 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 04:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUEWI56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 04:54:58 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:2821 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262389AbUEWIy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 04:54:57 -0400
-Date: Sun, 23 May 2004 10:55:57 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-mm3: i810 agpgart module can't be initialized
-Message-Id: <20040523105557.115b91a0.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 May 2004 04:57:58 -0400
+Received: from mail-relay-1.tiscali.it ([212.123.84.91]:19903 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S262398AbUEWI5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 04:57:35 -0400
+From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Organization: -ENOENT
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
+Date: Sun, 23 May 2004 10:58:03 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200405222107.55505.l_allegrucci@despammed.com> <20040522212028.GA31188@suse.de> <20040522213018.GA31224@suse.de>
+In-Reply-To: <20040522213018.GA31224@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405231058.03336.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Clemens,
+On Saturday 22 May 2004 23:30, Jens Axboe wrote:
+> On Sat, May 22 2004, Jens Axboe wrote:
+> > On Sat, May 22 2004, Andrew Morton wrote:
+> > > Lorenzo Allegrucci <l_allegrucci@despammed.com> wrote:
+> > > > I get a 100% reproducible oops mounting an ext3 or reiserfs
+> > > > partition with -o barrier enabled.
+> > > > Hand written oops (for ext3):
+> > >
+> > > That's a lot of hand-writing.  Thanks for doing that.  You can usually
+> > > omit the hex numbers in [brackets] when doing this.
+> > >
+> > > The crash is here:
+> > >
+> > > static inline void blkdev_dequeue_request(struct request *req)
+> > > {
+> > > 	BUG_ON(list_empty(&req->queuelist));
+> > >
+> > > perhaps related to that I/O error sending the code through less-tested
+> > > paths.
+> >
+> > Ouch indeed, I'll get that fixed up first thing in the morning.
+>
+> Can you test this work-around? The work-around should be perfectly safe,
+> this is just a case where a BUG_ON() does more harm than good :-)
+>
+> --- drivers/ide/ide-io.c~	2004-05-21 11:02:58.000000000 +0200
+> +++ drivers/ide/ide-io.c	2004-05-22 23:28:37.692944185 +0200
+> @@ -291,6 +291,8 @@
+>  		sector = real_rq->hard_sector;
+>
+>  	bad_sectors = real_rq->hard_nr_sectors - good_sectors;
+> +	/* work-around, make sure request is on queue */
+> +	elv_requeue_request(drive->queue, real_rq);
+>  	if (good_sectors)
+>  		__ide_end_request(drive, real_rq, 1, good_sectors);
+>  	if (bad_sectors)
 
-> I have the same problem with 2.6.6-mm3 like I had with 2.6.6-mm2
-> 
-> in my dmesg I have this (complete attached):
-> 
-> i810fb: cannot acquire agp
-> ...
-> Linux agpgart interface v0.100 (c) Dave Jones
-> [drm:i810_probe] *ERROR* Cannot initialize the agpgart module
-> ...
+The oops goes away but:
 
-Could be that you have the i2c-i810 driver loaded. Both drivers (i2c and
-fb) request the PCI device AFAIK, so they are mutually exclusive.
-
-Both drivers should proably be merged so as to solve that issue, but
-nodoby seems to be interested in working on this right now. And I won't
-do it, I don't even have compatible hardware to test on.
-
-Just my two cents, hope it helps.
+hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hda: drive_cmd: error=0x04 { DriveStatusError }
+end_request: I/O error, dev hda, sector 84667085
+Buffer I/O error on device hda11, logical block 559
+lost page write due to I/O error on hda11
+hda: failed barrier write: sector=50beacd(good=0/bad=8)
+Aborting journal on device hda11.
+ext3_abort called.
+EXT3-fs abort (device hda11): ext3_journal_start: Detected aborted journal
+Remounting filesystem read-only
 
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Lorenzo

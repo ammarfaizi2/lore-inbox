@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313470AbSC3Oyd>; Sat, 30 Mar 2002 09:54:33 -0500
+	id <S313065AbSC3P0M>; Sat, 30 Mar 2002 10:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313472AbSC3OyX>; Sat, 30 Mar 2002 09:54:23 -0500
-Received: from web11208.mail.yahoo.com ([216.136.131.190]:30732 "HELO
-	web11208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313470AbSC3OyN>; Sat, 30 Mar 2002 09:54:13 -0500
-Message-ID: <20020330145412.34699.qmail@web11208.mail.yahoo.com>
-Date: Sat, 30 Mar 2002 06:54:12 -0800 (PST)
-From: Matti Langvall <langvall_2000@yahoo.com>
-Subject: 2.4.19-pre5 pcilynx.c undeclared variables, take two
-To: linux-kernel@vger.kernel.org
+	id <S313472AbSC3P0C>; Sat, 30 Mar 2002 10:26:02 -0500
+Received: from dialin-145-254-150-087.arcor-ip.net ([145.254.150.87]:17668
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S313065AbSC3PZt>; Sat, 30 Mar 2002 10:25:49 -0500
+Message-ID: <3CA5D82E.470633C3@loewe-komp.de>
+Date: Sat, 30 Mar 2002 16:22:22 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.17-xfs i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Keith Owens <kaos@ocs.com.au>, Jeremy Jackson <jerj@coplanar.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] which kernel debugger is "best"?
+In-Reply-To: Your message of "Fri, 29 Mar 2002 19:18:39 -0800." <3CA53DE5.668AC7AB@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Andrew Morton wrote:
+> 
+> I would like to see kdb shipped in the mainline kernel, so that
+> we can get better diagnostic reports from users/testers.
+> 
 
-Error when compiling 2.4.19-pre5:
+Whoops, I think the same. And also something like a crash dump
+utility would be nice in the mainline kernels.
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundar 
-y=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h 
--DKBUILD_BASENAME=pcilynx  -c -o pcilynx.o pcilynx.c
-pcilynx.c: In function `mem_open':
-pcilynx.c:647: `num_of_cards' undeclared (first use in this function)
-pcilynx.c:647: (Each undeclared identifier is reported only once
-pcilynx.c:647: for each function it appears in.)
-pcilynx.c:647: `cards' undeclared (first use in this function)
-pcilynx.c: In function `aux_poll':
-pcilynx.c:706: `cards' undeclared (first use in this function)
-make[2]: *** [pcilynx.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
-make[1]: *** [_modsubdir_ieee1394] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
-
-
-Please send replies to this address as im not subscribing to lkml.
-
-Best regards
-Matti L
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Greetings - send holiday greetings for Easter, Passover
-http://greetings.yahoo.com/
+Without them it's hard to get qualified bug reports from
+production machines...

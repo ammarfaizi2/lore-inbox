@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVCFRzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVCFSDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVCFRzK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 12:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVCFRyu
+	id S261453AbVCFSDd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 13:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVCFR7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 12:54:50 -0500
-Received: from rusty.kulnet.kuleuven.ac.be ([134.58.240.42]:49872 "EHLO
-	rusty.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S261455AbVCFRv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 12:51:56 -0500
-From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
-Date: Sun, 6 Mar 2005 18:51:39 +0100
-To: gerg@snapgear.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11-mm1] mtd: fix INFTL failure handling
-Message-ID: <20050306175139.GA6192@mech.kuleuven.ac.be>
+	Sun, 6 Mar 2005 12:59:34 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:42139 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261453AbVCFR5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 12:57:00 -0500
+Subject: Re: [patch] add scsi changer driver
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050216143936.GA23892@bytesex>
+References: <20050215164245.GA13352@bytesex>
+	 <20050215175431.GA2896@infradead.org>  <20050216143936.GA23892@bytesex>
+Content-Type: text/plain
+Date: Sun, 06 Mar 2005 19:55:25 +0200
+Message-Id: <1110131725.9206.25.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Looking through this, the only things I really noticed that need work
+are:
 
-The INFTL mount code contains a kmalloc() followed by a memset() without
-handling a possible memory allocation failure.
+ch_do_scsi():  It looks like this has an effective reimplementation of
+scsi_wait_req.  We're trying to deprecate the usage of scsi_do_req so we
+can make it private eventually.  What's the reason you can't use
+scsi_wait_req?
 
-Signed-off-by: <panagiotis.issaris@mech.kuleuven.ac.be>
+ch_ioctl() (and the compat): since this is a new driver, can't this all
+be done via sysfs?  That way, the user would be able to manipulate it
+from the command line, and we'd no longer need any of the 32->64 compat
+glue.
 
-diff -pruN linux-2.6.11-orig/drivers/mtd/inftlmount.c linux-2.6.11-pi/drivers/mtd/inftlmount.c
---- linux-2.6.11-orig/drivers/mtd/inftlmount.c	2005-03-05 03:08:52.000000000 +0100
-+++ linux-2.6.11-pi/drivers/mtd/inftlmount.c	2005-03-06 18:17:15.000000000 +0100
-@@ -574,6 +574,12 @@ int INFTL_mount(struct INFTLrecord *s)
- 
- 	/* Temporary buffer to store ANAC numbers. */
- 	ANACtable = kmalloc(s->nb_blocks * sizeof(u8), GFP_KERNEL);
-+	if (!ANACtable) {
-+		printk(KERN_WARNING "INFTL: allocation of ANACtable "
-+				"failed (%zd bytes)\n",
-+				s->nb_blocks * sizeof(u8));
-+		return -ENOMEM;
-+	}
- 	memset(ANACtable, 0, s->nb_blocks);
- 
- 	/*
+James
+
+
+

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293607AbSBZVuN>; Tue, 26 Feb 2002 16:50:13 -0500
+	id <S293070AbSBZWAY>; Tue, 26 Feb 2002 17:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293070AbSBZVuE>; Tue, 26 Feb 2002 16:50:04 -0500
-Received: from tomahawk.com ([194.85.82.184]:47109 "HELO gleam.rt.mipt.ru")
-	by vger.kernel.org with SMTP id <S293607AbSBZVtu>;
-	Tue, 26 Feb 2002 16:49:50 -0500
-Date: Wed, 27 Feb 2002 00:49:43 +0300
-From: Andrey Ulanov <drey@au.ru>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] intel740 frame-buffer device driver
-Message-ID: <20020227004943.A2678@gleam.rt.mipt.ru>
-Mail-Followup-To: Andrey Ulanov <drey@au.ru>,
-	linux-fbdev-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
+	id <S293065AbSBZWAO>; Tue, 26 Feb 2002 17:00:14 -0500
+Received: from f227.law15.hotmail.com ([64.4.23.227]:32521 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S293610AbSBZWAD>;
+	Tue, 26 Feb 2002 17:00:03 -0500
+X-Originating-IP: [80.225.54.199]
+From: "Jason Algol" <fooooobar@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: i810_audio support 
+Date: Tue, 26 Feb 2002 21:59:57 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; format=flowed
+Message-ID: <F227XhGJPohZC46seCo00014395@hotmail.com>
+X-OriginalArrivalTime: 26 Feb 2002 21:59:58.0070 (UTC) FILETIME=[EE40F160:01C1BF10]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i wrote intel740 frame-buffer driver. i tested it with my hardware 
-with kernels 2.4.8, 2.4.14, 2.4.17 and 2.5.5. 
+hi guys, and congratulations on another great release (2.4.18) :-)
 
-you can download the patch
-http://i740fbdev.sourceforge.net/download/patch-2.5.5-i740fb-020225.diff.gz
+I have been patiently waiting for support for the i810_audio to be improved, 
+it currently works, and it has flawless stability, but the sound quality it 
+produces it dreadful. I realise this is no life and death problem, and i 
+would imagine a low priority request, but i would really appreciate some 
+info on if it is still being maintained / developed.
 
-if anybody tested it, please drop me a report
+I am currently running 2.4.18 , but have recently downloaded and tried the 
+2.5.5 release, just as a taster, to see if the ALSA integration had fixed my 
+problem, no such luck :-(
 
--- 
-With best regards, Andrey Ulanov.
-mailto: drey<at>au.ru
-XMMS: Tiamat - So Much For Suicide
+I have also been watching the changelogs and have downloaded any 
+kernel/patch release that even mentions the i810 :-) ( I dont run a 
+development kernel, but I have tried them just as a taster :-) )
+
+I dont know very much about the workings of sound cards, but the problem is 
+that when playing anything a total crackling in the background that makes 
+the audio almost unusable...a real pity.
+
+>From reading the comments at the top of the i810_audio.c code, I think the 
+authors have had some difficulty, i guess the hardware is awkward to write 
+for or something :-)
+
+I was so looking forward to the 2.5.5 ALSA release, but as it didnt fix my 
+problem, does anyone know if there are plans to? or am i better off 
+abandoning all hope and getting a new card?
+
+Thanks for any help guys! and keep up the excellent, excellent work your all 
+doing!
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
+

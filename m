@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUF0KYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUF0K1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUF0KYy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 06:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUF0KYx
+	id S261711AbUF0K1w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 06:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUF0K1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 06:24:53 -0400
-Received: from imap.nuit.ca ([66.11.160.83]:10892 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S261610AbUF0KYn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 06:24:43 -0400
-Date: Sun, 27 Jun 2004 10:24:39 +0000
-From: simon@nuit.ca
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot access '/dev/pts/292': Value too large for defined data type
-Message-ID: <20040627102439.GA32767@nuit.ca>
-References: <20040626151108.GA8778@nuit.ca> <20040626135948.7b4396e9.akpm@osdl.org>
+	Sun, 27 Jun 2004 06:27:51 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:13320 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261711AbUF0K0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 06:26:17 -0400
+Date: Sun, 27 Jun 2004 12:16:50 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Cc: Dan Kegel <dank@kegel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20 rh9 thrashing unreasonably
+Message-ID: <20040627101650.GK29808@alpha.home.local>
+References: <40DE3E95.4070702@kegel.com> <200406271134.42853@WOLK>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040626135948.7b4396e9.akpm@osdl.org>
-X-Operating-System: Debian GNU/Linux
-X-GPG-Key-Server: x-hkp://subkeys.pgp.net
-User-Agent: Mutt/1.5.6+20040523i
-X-Scan-Signature: smtp.nuit.ca 1BeWq0-0001ic-0R 9bdd22b723ee078d5c68bbf8b2893f9f
+In-Reply-To: <200406271134.42853@WOLK>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dan & Marc,
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There was a memory leak in do_fork() which was fixed in 2.4.26-pre-something.
+Maybe you can hit it with 200 kernel compiles ! I agree with Marc that you
+should try with a non-rh kernel, and more specifically a *recent* kernel.
+2.4.20 is quite old, even if there were additional security fixes added to
+it. 2.4.27-rc2 is out and doing well, you might want to give it a try ?
 
-Ce jour Sat, 26 Jun 2004, Andrew Morton a dit:
+Regards,
+Willy
 
-> simon@nuit.ca wrote:
->=20
-> 2.6.7 plus
-> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.7-bk9.gz
-> would be suitable.
-
-In file included from include/linux/list.h:8,
-                 from include/linux/signal.h:4,
-                 from arch/ppc/kernel/asm-offsets.c:12:
-include/asm/system.h:85: error: parse error before '{' token
-include/asm/system.h:85: error: parse error before '<' token
-make[2]: *** [arch/ppc/kernel/asm-offsets.s] Error 1
-make[1]: *** [arch/ppc/kernel/asm-offsets.s] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6'
-make: *** [stamp-kernel-configure] Error 2
-
-typos somewhere =3D)
-
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQGVAwUBQN6gZmqIeuJxHfCXAQI9JQwAmo41A5C4DjOqUhs5zpu0OcCebQIx6+6A
-PsKYjSSj0iTOkTq9lpE3X1SgDKlZL2A+QUptKRNA+E2KX5pkVMkT96M1xxpYhDHJ
-qHBquDn1pElcqVf0f7XU+Q4eK7AWWYrf+aiZMiwTc6iuFayNOeHaZs7M5L9MGXII
-fjjnN5lyx/fFkuJjRSjK6w/XpTYZO3dWiAJIDbIyycqVtfAsywAfuC3Yr0rPOAGk
-lQo8PTsH08AOB2FhdI+/8bOBu4oDXN8iLTiI7+hhw3y2HO6/P5ErB4qKp9rmvR8y
-BNLe0F+F3wMeubTZAXW5Ao8ON0b8fsm4DWdBM7jeUWleaIh0icA+QyIxDzB96J5r
-cqKjXYrlm2jyAXCBkKhq9j+yEVoFReHMRHk7CZHogvfsc1v4UVnLx4sIqA/Ieqoh
-kLnU7UGNq4TOuZ+2mGNamPRL0zx1PRZ9sKtHQGO+pJD8CcS6GltXeno4TVed+bV5
-LugVx/NMkUp4Y1XTPjc8btpbO2fuV7IW
-=6I3X
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--

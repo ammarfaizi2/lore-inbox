@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272132AbTHICEz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 22:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272134AbTHICEz
+	id S272145AbTHICOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 22:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272156AbTHICOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 22:04:55 -0400
-Received: from mail.suse.de ([213.95.15.193]:6668 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S272132AbTHICEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 22:04:54 -0400
-Date: Sat, 9 Aug 2003 04:04:53 +0200 (CEST)
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4: Fix steal_locks race
-In-Reply-To: <20030809010736.GA10487@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.53.0308090357290.18879@Chaos.suse.de>
-References: <20030808105321.GA5096@gondor.apana.org.au>
- <20030809010736.GA10487@gondor.apana.org.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Aug 2003 22:14:16 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:8472 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S272145AbTHICOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 22:14:16 -0400
+Date: Sat, 9 Aug 2003 03:13:22 +0100
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6test /proc/net/pnp oops.
+Message-ID: <20030809021317.GF16007@suse.de>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20030809011901.GA16007@suse.de> <20030808184950.3b2bd6e2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030808184950.3b2bd6e2.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003, Herbert Xu wrote:
+On Fri, Aug 08, 2003 at 06:49:50PM -0700, Andrew Morton wrote:
 
-> On Fri, Aug 08, 2003 at 08:53:21PM +1000, herbert wrote:
-> >
-> > The steal_locks() call in binfmt_elf.c is buggy.  It steals locks from
-> > a files entry whose reference was dropped much earlier.  This allows it
-> > to steal other process's locks.
-> >
-> > The following patch calls steal_locks() earlier so that this does not
-> > happen.
->
-> My patch is buggy too.  If a file is closed by another clone between
-> the two steal_locks calls the lock will again be lost.  Fortunately
-> this much harder to trigger than the previous bug.
+ > >  Unable to handle kernel paging request at virtual address c06f977c
+ > Could you please check your System.map and verify that ic_servaddr was at
+ > 0xc06f977c?
 
-I think this is not a strict bug---this scenario is not covered by POSIX
-in the first place. Unless lock stealing is done atomically with
-unshare_files there is a window of oportunity between unshare_files() and
-steal_locks(), so locks can still get lost.
+-ENOSYSTEMMAP
+Though your patch does seem to make sense (to me at least).
+I'll give it a try.  I certainly haven't configured anything, so it
+seems to be showing random junk which resolves to various random
+bits of the internet. Groovy. Only seems to happen on one box though.
 
+		Dave
 
-Cheers,
-Andreas.

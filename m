@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272679AbRHaMhS>; Fri, 31 Aug 2001 08:37:18 -0400
+	id <S272684AbRHaMwr>; Fri, 31 Aug 2001 08:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272680AbRHaMhH>; Fri, 31 Aug 2001 08:37:07 -0400
-Received: from [195.89.159.99] ([195.89.159.99]:6138 "EHLO kushida.degree2.com")
-	by vger.kernel.org with ESMTP id <S272679AbRHaMg6>;
-	Fri, 31 Aug 2001 08:36:58 -0400
-Date: Fri, 31 Aug 2001 13:37:50 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Message-ID: <20010831133750.A25128@thefinal.cern.ch>
-In-Reply-To: <200108310128.f7V1SSn08071@moisil.badula.org> <Pine.LNX.4.33.0108302204350.15159-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S272683AbRHaMwh>; Fri, 31 Aug 2001 08:52:37 -0400
+Received: from mail.netcis.com ([199.227.10.105]:52177 "HELO pop1.netcis.com")
+	by vger.kernel.org with SMTP id <S272682AbRHaMw2>;
+	Fri, 31 Aug 2001 08:52:28 -0400
+Date: Fri, 31 Aug 2001 08:46:46 -0700
+From: Jeremiah Johnson <miah@netcis.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Jeremiah Johnson <miah@netcis.com>
+Organization: NETCIS International Corporation
+X-Priority: 3 (Normal)
+Message-ID: <67111542696.20010831084646@netcis.com>
+To: Steve Kieu <haiquy@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: 2.4.9 UDP broke?
+In-Reply-To: <20010831055008.21675.qmail@web10404.mail.yahoo.com>
+In-Reply-To: <20010831055008.21675.qmail@web10404.mail.yahoo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0108302204350.15159-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 30, 2001 at 10:08:03PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> > 	if (len <= (int) sizeof(short) || len > (int) sizeof(*sunaddr))
-> 
-> You're so full of shit that it's incredible.
-> 
-> I'mnot going to argue this, when people call stuff like the above the
-> "natural way". This is not worth it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: MD5
 
-While I agree with Linus that the above line is ugly, there is a problem
-with the original line:
+Hello Steve,
 
-    if (len <= sizeof(short) || len > sizeof(*sunaddr))
+Thursday, August 30, 2001, 10:50:08 PM, you wrote:
 
-The problem?  Thinking this is natural, suppose you decide you only need
-to check len against sizeof(short), perhaps here, perhaps copying this
-idea to another part of the program:
+SK>  --- Jeremiah Johnson <miah@netcis.com> wrote: >
+SK> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: MD5
+>>
+>> Hello linux-kernel,
+>>
+>>   I am having very strange problems with 2.4.9 and
+>> UDP.  Basically,
+>>   anything using UDP wont work.  Anything using
+>> TCP/ICMP works fine.
 
-    if (len <= sizeof(short))
+SK> May be it is not the kernel, I dont know but in my box
+SK> it works as normal
 
-_This_ code has a bug.  The comparison is unsigned; i.e. len is
-converted to unsigned int first, so if the user passes a negative value,
-the comparison returns false and the code will break.  It only works in
-the original example because the second comparison checks the bogus
-results of the first one.
+SK> (I can use speakfreely ; it uses UDP and otehr program
+SK> too)
 
-Now, any later use of len should not lead to a buffer overflow or
-anything, because you always check against a maximum size for copying,
-yes?
+Well considering the only thing I changed in my configuration is the
+kernel, I think its a problem there.  Went from 2.4.3-ac? to 2.4.9.
+System is RedHat 7.1.. Maybe it has something to do with RedHats
+inclusion of a broken compiler, I'll have to check on that when I get
+into the office.
 
-No.  Consider this hypothetical code to copy things up to a page at a
-time.  len is a signed type s.t. sizeof(len) <= sizeof(size_t):
+I do have 2.4.9 working fine on other systems too.  Strange.
+- --
+Best regards,
+ Jeremiah                            mailto:miah@netcis.com
 
-   if (len <= sizeof(struct thing) || len > MAX_BUFFER_SIZE) {
-           printk(KERN_ERR "Sanity check failed!\n");
-           goto out;
-   }
-   memcpy (to, from, len);
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6
 
-Inexperienced C programmers, and sleepy ones, may not see the fault.
+iQEVAwUAO4+xapHTj7BlqKb5AQE/sQf+MNVYf4Dv4KRS2V3jiexwdlwpAUyNGUDp
+VUli3po/IuoBsiz0zubCK0tFSVMB/2o24kYzAFIBKajrQP7uVVSUqbQzWpwWazpg
+Vu3wAnHx3oPBpWmF3fxrMGjC/1g4FKUAnmBKne8VQOPaEVy+iUxZy5VQhXYXoBs0
+O98+7VzgxjPI7txEmmqcJdLJHy7hQSuKvN9+FYvDmueeWeZV909NuH9P3Estp00c
+HtuKAb57wkea8CcoZlknr+Iuei7geRAti4iGrGMYEVFNTYQxVVSC/FGM+T4UP1ia
+R08TX47WHR2sucVatXv8oT/ixyepo82D0xIHbBltYLB8yqC/JxkDYA==
+=5GKB
+-----END PGP SIGNATURE-----
 
-cheers,
--- Jamie

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290926AbSAaFHQ>; Thu, 31 Jan 2002 00:07:16 -0500
+	id <S290921AbSAaFF0>; Thu, 31 Jan 2002 00:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290927AbSAaFHH>; Thu, 31 Jan 2002 00:07:07 -0500
-Received: from [65.169.83.229] ([65.169.83.229]:60043 "EHLO
-	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
-	id <S290926AbSAaFGr>; Thu, 31 Jan 2002 00:06:47 -0500
-Date: Wed, 30 Jan 2002 23:05:59 -0600
-From: Benjamin Pharr <ben@benpharr.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.3: Unresolved Symbols in ppp_deflate.o and ufs.o
-Message-ID: <20020131050559.GA24062@hst000004380um.kincannon.olemiss.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.18pre2
-X-PGP-ID: 0x6859792C
-X-PGP-Key: http://www.benpharr.com/public_key.asc
-X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
+	id <S290927AbSAaFFQ>; Thu, 31 Jan 2002 00:05:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20442 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290921AbSAaFFG>;
+	Thu, 31 Jan 2002 00:05:06 -0500
+Date: Thu, 31 Jan 2002 00:05:05 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Kris Urquhart <kurquhart@littlefeet-inc.com>
+cc: Andreas Dilger <adilger@turbolabs.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: ext2/mount - multiple mounts corrupts inodes
+In-Reply-To: <B9F49C7F90DF6C4B82991BFA8E9D547B1256F7@BUFORD.littlefeet-inc.com>
+Message-ID: <Pine.GSO.4.21.0201302359210.15689-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-After moving the files from linux/ and applying the i810 patch posted to
-the list, I made it all the way to the end of a "make dep bzImage
-modules modules_install" without any errors. However, I got this right
-at the end:
+On Wed, 30 Jan 2002, Kris Urquhart wrote:
 
-make[1]: Leaving directory `/usr/src/linux-2.5.3/arch/i386/lib'
-cd /lib/modules/2.5.3; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
-pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.3; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.3/kernel/drivers/net/ppp_deflate.o
-depmod: 	zlib_inflateIncomp
-depmod: *** Unresolved symbols in /lib/modules/2.5.3/kernel/fs/ufs/ufs.o
-depmod: 	lock_kernel
-depmod: 	unlock_kernel
-benix:/usr/src/linux-2.5.3#=20
+> + DEVICE=/dev/hda3
+> + MOUNT=/mnt/hd
+> + cat /proc/mounts
+> + grep /mnt/hd
+> + umount /mnt/hd
+> umount: /mnt/hd: not mounted
+[created fs on hda3]
+> + rm -rf /mnt/hd
+> + mkdir -p /mnt/hd
+> + mount -t ext2 /dev/hda3 /mnt/hd
+> + cat /proc/mounts
+> + grep /mnt/hd
+> /dev/hda3 /mnt/hd ext2 rw 0 0
+> + cp -r /bin/tar /mnt/hd
+> + cp -r /bin/zcat /mnt/hd
+> + mount -t ext2 /dev/hda3 /mnt/hd
+> mount: /dev/hda3 already mounted or /mnt/hd busy
+> mount: according to mtab, /dev/hda3 is already mounted on /mnt/hd
 
-Ben Pharr
+Complains about mounting same fs on the same spot, refuses to mount.
 
+> + grep /mnt/hd
+> + cat /proc/mounts
+> /dev/hda3 /mnt/hd ext2 rw 0 0
+> + find /mnt/hd -ls
+>      2    1 drwxr-xr-x   3 root     root         1024 Dec 31 15:17 /mnt/hd
+>     11   12 drwxr-xr-x   2 root     root        12288 Dec 31 15:17
+> /mnt/hd/lost+found
+> find: /mnt/hd/tar: Input/output error
+> find: /mnt/hd/zcat: Input/output error
 
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+WTF???  Very interesting...  What about kernel messages?  It looks like
+stat(2) failing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Just in case - could you put the same find before the second attempt of
+mount?
 
-iD8DBQE8WNC3ROE+HmhZeSwRAidLAJwIShUAK/6vKnmBW68fJZ4KuJd8xQCgrlUF
-ihAxK3iZYRZpK9L2ufaU2cY=
-=89De
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--

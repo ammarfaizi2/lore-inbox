@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275720AbRJAXuv>; Mon, 1 Oct 2001 19:50:51 -0400
+	id <S275734AbRJAXvk>; Mon, 1 Oct 2001 19:51:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275727AbRJAXul>; Mon, 1 Oct 2001 19:50:41 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25593
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S275720AbRJAXub>; Mon, 1 Oct 2001 19:50:31 -0400
-Date: Mon, 1 Oct 2001 16:50:53 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S275731AbRJAXvd>; Mon, 1 Oct 2001 19:51:33 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:44036 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S275727AbRJAXvV>; Mon, 1 Oct 2001 19:51:21 -0400
+Message-ID: <3BB900D1.5A5DB657@osdlab.org>
+Date: Mon, 01 Oct 2001 16:48:33 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jordan Breeding <ledzep37@home.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Increasing dmesg buffer size?
-Message-ID: <20011001165053.A4836@mikef-linux.matchmail.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
 In-Reply-To: <3BB90039.E551000C@home.com>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB90039.E551000C@home.com>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 06:46:01PM -0500, Jordan Breeding wrote:
+Jordan Breeding wrote:
+> 
 > What kernel parameter do I need to modify in the source to allow a
 > larger dmesg buffer?  I have a lot of boot messages and I currently
 > loose about 10-20 lines immediately and they can not even be seen in
 > /var/log/dmesg because that file gets dumped after those lines are
 > already gone.  Thanks to anyone who can help.
-> 
 
-Does dmesg wrap around before klogd can grab the info?  Check
-/var/log/kern.log (in debian, your filename may vary...) to see...
+That would be a #define of LOG_BUF_LEN in linux/kernel/printk.c.
 
-Mike
+Be sure to keep it a power of 2.
+
+There have been several patch files for this on the kernel
+mailing list, but it's easy enough to DIY.
+
+~Randy

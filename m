@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbUKUVdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKUVkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbUKUVdB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 16:33:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUKUVdB
+	id S261815AbUKUVkq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 16:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUKUVkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 16:33:01 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:17077 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261814AbUKUVc7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 16:32:59 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 21 Nov 2004 13:32:53 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Daniel Jacobowitz <dan@debian.org>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <20041120214915.GA6100@tesore.ph.cox.net>
-Message-ID: <Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
- <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
- <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
- <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
- <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org> <20041120214915.GA6100@tesore.ph.cox.net>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Nov 2004 16:40:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42146 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261815AbUKUVkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 16:40:40 -0500
+Subject: Re: pci-resume patch from 2.6.7-rc2 breakes S3 resume on some
+	machines
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matthias Hentges <mailinglisten@hentges.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101027009.4052.11.camel@mhcln03>
+References: <1100811950.3470.23.camel@mhcln03>
+	 <20041119115507.GB1030@elf.ucw.cz> <1100872578.3692.7.camel@mhcln03>
+	 <1100872578.3692.7.camel@mhcln03> <1100905563.3812.59.camel@gaston>
+	 <E1CVLDU-0005jG-00@chiark.greenend.org.uk>
+	 <1100921760.3561.1.camel@mhcln03>  <1100936059.5238.3.camel@gaston>
+	 <1100937706.3497.11.camel@mhcln03>  <1100989638.3796.9.camel@gaston>
+	 <1101027009.4052.11.camel@mhcln03>
+Content-Type: text/plain
+Date: Mon, 22 Nov 2004 08:39:57 +1100
+Message-Id: <1101073197.3796.72.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 01:53:38PM -0800, Linus Torvalds wrote:
+
+> I did some more tests today and found out that 
+> "0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP
+> Controller (rev 21) (prog-if 00 [Normal decode])"
 > 
-> On Fri, 19 Nov 2004, Daniel Jacobowitz wrote:
-> > 
-> > I'm getting the feeling that the question of whether to step into
-> > signal handlers is orthogonal to single-stepping; maybe it should be a
-> > separate ptrace operation.
+> wasn't correctly resumed either.
 > 
-> I really don't see why. If a controlling process is asking for 
-> single-stepping, then it damn well should get it. It it doesn't want to 
-> single-step through a signal handler, then it could decide to just put a 
-> breakpoint on the return point (possibly by modifying the signal handler 
-> save area).
+> I wrote a script to dump the pci data (from lspci -x $device). Importing
+> the data after a resume freezes the machine *if one is touching data
+> that hasn't been changed during S3*. If I only change the values which
+> were modified after resume, the machine does *not* freeze.
+> 
+> Maybe that's the problem with pci_default_resume. It looks like it is
+> just writing back the data it has stored before resuming. Maybe one
+> should only write the values which have actually changed?
+> 
+> Anyways, using my little script, i managed to restore the PCI data of
+> the "Processor to AGP Controller" and the Radeon card after a resume.
 
-I'd agree with Linus here. A signal handler is part of the application, so 
-it should be single stepped in the same way other application code does. 
-My original patch simply reenabled the flag before returning to userspace, 
-and this had the consequence to single step into signal handlers too.
+That "update only what changed" makes little sense ... can you send me
+the lspci state of the Intel bridge before you try to resume it ? I
+suspect our pci_restore_state() should be smarter, that is check if
+something changed (a BAR), if yes, switch mem/io off, restore the BARs,
+then switch mem/io back on...
 
+Ben.
 
-
-PS: I still cannot find the beginning this thread on lkml.
-
-
-- Davide
 

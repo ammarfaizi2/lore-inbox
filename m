@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbUKFMyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUKFNIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbUKFMyb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 07:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbUKFMya
+	id S261383AbUKFNIE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 08:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUKFNIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 07:54:30 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:25103 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261384AbUKFMy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 07:54:26 -0500
-Subject: Re: KSTK_EIP and KSTK_ESP
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C20542CA19@azsmsx406>
-References: <C863B68032DED14E8EBA9F71EB8FE4C20542CA19@azsmsx406>
-Content-Type: text/plain
-Message-Id: <1099745657.2814.6.camel@laptop.fenrus.org>
+	Sat, 6 Nov 2004 08:08:04 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:21769 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261383AbUKFNHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 08:07:55 -0500
+Date: Sat, 6 Nov 2004 13:07:44 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
+       Andreas Schwab <schwab@suse.de>,
+       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Externalize SLIT table
+Message-ID: <20041106130744.GA23897@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@suse.de>, Jack Steiner <steiner@sgi.com>,
+	Andreas Schwab <schwab@suse.de>,
+	Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104040713.GC21211@wotan.suse.de> <20041104.135721.08317994.t-kochi@bq.jp.nec.com> <20041105160808.GA26719@sgi.com> <jevfcknty5.fsf@sykes.suse.de> <20041105164449.GC26719@sgi.com> <20041106115029.GB23305@infradead.org> <20041106124838.GA16434@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sat, 06 Nov 2004 13:54:17 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041106124838.GA16434@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-05 at 16:13 -0700, Hanson, Jonathan M wrote:
-> 	Can someone explain the structure of the memory that these two
-> macros are accessing? Specifically, where do the 1019 and 1022 offsets
+On Sat, Nov 06, 2004 at 01:48:38PM +0100, Andi Kleen wrote:
+> On Sat, Nov 06, 2004 at 11:50:29AM +0000, Christoph Hellwig wrote:
+> > On Fri, Nov 05, 2004 at 10:44:49AM -0600, Jack Steiner wrote:
+> > > > > +	for (i = 0; i < numnodes; i++)
+> > > > > +		len += sprintf(buf + len, "%s%d", i ? " " : "", node_distance(nid, i));
+> > > > 
+> > > > Can this overflow the space allocated for buf?
+> > > 
+> > > 
+> > > Good point. I think we are ok for now. AFAIK, the largest cpu count
+> > > currently supported is 512. That gives a max string of 2k (max of 3 
+> > > digits + space per cpu).
+> > 
+> > I always wondered why sysfs doesn't use the seq_file interface that makes
+> > life easier in the rest of them kernel.
+> 
+> Most fields only output a single number, and seq_file would be 
+> extreme overkill for that.
 
-remember the indexes are in multiples of 32 bit, eg the bottom of the
-stack, since it's close to the end of the pagesize...
+Personally I think even a:
 
+static void
+show_foo(struct device *dev, struct seq_file *s)
+{
+	seq_printf(s, "blafcsvsdfg\n");
+}
+
+static ssize_t
+show_foo(struct device *dev, char *buf)
+{
+	return snprintf(buf, 20, "blafcsvsdfg\n");
+}
+
+would be a definitive improvement.
 

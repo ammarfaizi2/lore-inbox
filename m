@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129889AbQKGWwz>; Tue, 7 Nov 2000 17:52:55 -0500
+	id <S130348AbQKGWzO>; Tue, 7 Nov 2000 17:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129727AbQKGWwo>; Tue, 7 Nov 2000 17:52:44 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:30729 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129598AbQKGWwc>;
-	Tue, 7 Nov 2000 17:52:32 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design 
-In-Reply-To: Your message of "Tue, 07 Nov 2000 16:30:22 MDT."
-             <200011072230.QAA304551@tomcat.admin.navo.hpc.mil> 
-Mime-Version: 1.0
+	id <S130350AbQKGWzF>; Tue, 7 Nov 2000 17:55:05 -0500
+Received: from raven.toyota.com ([205.180.183.200]:29196 "EHLO
+	raven.toyota.com") by vger.kernel.org with ESMTP id <S130348AbQKGWyx>;
+	Tue, 7 Nov 2000 17:54:53 -0500
+Message-ID: <3A08883A.A8A1CF90@toyota.com>
+Date: Tue, 07 Nov 2000 14:54:50 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.4.21.0011072328050.22346-100000@tux.rsn.hk-r.se> <3A08830E.F714C90E@timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 Nov 2000 09:52:20 +1100
-Message-ID: <17582.973637540@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000 16:30:22 -0600 (CST), 
-Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> wrote:
-> From: Keith Owens <kaos@ocs.com.au> 
->> No need for a separate size field.  Note that MODULE_PARM is built at
->> compile time so all persistent data must have a fixed compile time
->> size.
->
->I'll buy that - but it does mean that if there are 300 items then it
->will get LONG... but then, that can be handled. I was thinking of the
->"parameter" to possibly being a full data structure that could be updated
->in an atomic manner, with a minimum of overhead (no number conversions
->in the kernel).
+"Jeff V. Merkey" wrote:
 
-Irrelevant.  Remember that persistent module data is only set when the
-module is loaded and retrieved when it removed.  Atomicity and speed
-are not an issue at those points.
+> So how come NetWare and NT can detect this at run time, and we have to
+> use a .config option to specifiy it?  Come on guys.....
 
->> Pure binary immediately runs into kernel version skew problems.
->
->The identification of data version should be left up to the userspace
->utility that retrieves the data.
+Linux detects this as well -
 
-The userspace utilities are insmod and rmmod.  No, I am not going to
-put version numbers into the saved data.
+However this is not about detection, but optimizations.
 
->For some things, yes. I was thinking of things like automatically changing
->the scheduling priorities for batch+interactive use. Also things like
->fair-share scheduler parameters, resident set size/swap resource control,
->(other large system capabilities, I admit).
+Optimizations e.g. for xeon could keep a K6/2 from booting!
 
-All of which are system level tuning parameters that vary based on time
-and/or load.  My MVS sysprog hat says that there is no point in saving
-these parameters across a reboot.  Instead you have global targets
-which rarely change and let the system tue to meet the targets - like
-MVS Work Load Manager.  These settings are nothing to do with modules.
+It should probably default to something safe like 386 though...
 
->I know it wasn't considered, but batch schedulers may have their parameters
->changed hourly. My site currently works with one that has parameters changed
->to reflect available resources for future scheduling cycles that use updated
->job priorities to determine how the system should respond.
 
-And what is the point of saving those parameters?  Firstly they will
-not be implemented via modules.  Secondly the values just before
-shutdown and at startup will not be useful for the peak hour load, nor
-for the overnight backup window.  Again, set targets and let the system
-auto tune.  The only thing you save are the overall targets, those are
-already in text files with their own specific format.
+jjs
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

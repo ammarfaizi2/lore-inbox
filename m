@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVBYPDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVBYPET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbVBYPDt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVBYPB4
+	id S262717AbVBYPET (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVBYPET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:01:56 -0500
-Received: from cantor.suse.de ([195.135.220.2]:18077 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262714AbVBYPBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:01:39 -0500
-Date: Fri, 25 Feb 2005 16:01:38 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, Ian.Pratt@cl.cam.ac.uk,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-Message-ID: <20050225150138.GA32519@wotan.suse.de>
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+	Fri, 25 Feb 2005 10:04:19 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:15841 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262714AbVBYPCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:02:34 -0500
+Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0502250554420.15862@goblin.wat.veritas.com>
+References: <1109182061.16201.6.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
+	 <1109187381.3174.5.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
+	 <Pine.LNX.4.61.0502232048330.14747@goblin.wat.veritas.com>
+	 <1109196824.4009.1.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502240441260.5427@goblin.wat.veritas.com>
+	 <1109226724.4957.16.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502240821060.5932@goblin.wat.veritas.com>
+	 <1109302249.7807.1.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502250554420.15862@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Fri, 25 Feb 2005 10:02:29 -0500
+Message-Id: <1109343749.9456.0.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Phase 1 is for us to submit a load of patches that squeeze out the low
-> hanging fruit in unifying xen/i386 and i386. Most of these will be
-> strict cleanups to i386, and the result will be to almost halve the
-> number of files that we need to modify.
-
-Sounds good. I would try to track that for x86-64 too then when
-possible to make the later x86-64 merge easier.
-
+On Fri, 2005-02-25 at 05:58 +0000, Hugh Dickins wrote:
+> On Thu, 24 Feb 2005, Lee Revell wrote:
+> > On Thu, 2005-02-24 at 08:26 +0000, Hugh Dickins wrote:
+> > > 
+> > > If we'd got to it earlier, yes.  But 2.6.11 looks to be just a day or
+> > > two away, and we've no idea why zap_pte_range or clear_page_range
+> > > would have reverted.  Nor have we heard from Ingo yet.
+> > 
+> > It's also not clear that the patch completely fixes the copy_pte_range
+> > latency.  This trace is from the Athlon XP.
 > 
-> The next phase is that we re-organise the current arch/xen as follows:
+> Then we need Ingo to investigate and explain all these reversions.
+> I'm not _blaming_ Ingo for them, but I'm not familiar with his patches
+> nor with deciphering latency traces - he's the magician around here.
 > 
-> We move the remaining (reduced) contents of arch/xen/i386 to
-> arch/i386/xen (ditto for x86_64). We then move the xen-specific files
 
-What would these files be? 
+Yup.  Oh well.
 
-> that are shared between all the different xen architectures to
-> drivers/xen/core. I know this last step is a bit odd, but it's the best
-> location that Rusty Russel and I could come up with.
-> 
-> At this point, I'd hope that we could get xen into the main-line tree.
-> 
-> The final phase is to see if we can further unify more native and xen
-> files. This is going to require some significant i386 code refactoring,
-> and I think its going to be much easier to do if all the code is in the
-> main-line tree so that people can see the motivation for what's going
-> on.
+I'll try to compile a comprehensive list of these so we can fix them for
+2.6.12.
 
-Hmm, I would prefer to do that during the merge. I'm not sure there
-will be that much push afterwards to unify stuff, and then we might
-be stuck with an inferior setup.
+Lee
 
-I don't think it makes much difference for review if the previous
-code is in mainline or not.
-
--Andi

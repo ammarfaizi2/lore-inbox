@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133009AbREJLt7>; Thu, 10 May 2001 07:49:59 -0400
+	id <S133110AbREJLmu>; Thu, 10 May 2001 07:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135345AbREJLtu>; Thu, 10 May 2001 07:49:50 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:43197 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S135213AbREJLtm>; Thu, 10 May 2001 07:49:42 -0400
-Date: Thu, 10 May 2001 09:41:45 +0100 (BST)
-From: Mark Hemment <markhe@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
-In-Reply-To: <Pine.LNX.4.21.0105091334540.13878-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0105100935040.31900-100000@alloc>
+	id <S135213AbREJLmk>; Thu, 10 May 2001 07:42:40 -0400
+Received: from phoenix.datrix.co.za ([196.37.220.5]:25900 "EHLO
+	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
+	id <S133110AbREJLmd>; Thu, 10 May 2001 07:42:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Kowalski <kowalski@datrix.co.za>
+Reply-To: kowalski@datrix.co.za
+Organization: Datrix Solutions
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3 Kernel Freeze with highmem BUG at highmem.c:155 - CRASH
+Date: Thu, 10 May 2001 13:42:58 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051013425806.03256@webman>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All
 
-On Wed, 9 May 2001, Marcelo Tosatti wrote:
-> On Wed, 9 May 2001, Mark Hemment wrote:
-> >   Could introduce another allocation flag (__GFP_FAIL?) which is or'ed
-> > with a __GFP_WAIT to limit the looping?
-> 
-> __GFP_FAIL is in the -ac tree already and it is being used by the bounce
-> buffer allocation code. 
+After two weeks of quasi stability the server has crashed.. again... with the 
+following message... (partial)
+------------------
+kernel BUG at highmem.c:155
 
-Thanks for the pointer.
+Invalid Operand : 0000
+CPU : 1
+EIP : 0010:[<c012fcb>]
+EFLAGS: 00010286
+eax:0000001d ebx: 00000000 esi:c2147ec0
+edi: 00000000 ebp: 00001000 esp: df587ebc
 
-  For non-zero order allocations, the test against __GFP_FAIL is a little
-too soon; it would be better after we've tried to reclaim pages from the
-inactive-clean list.  Any nasty side effects to this?
+Process sshd (pid : 6230, stackpage : df587000)
+......
+-----------------
+This is a standard 2.4.3 kernel with four patches, to correct the 
+dcache inode non-clearance (ever growing inode and directory cache) as well 
+as the patch to apply vm pressure to lower these caches (Ed Tomlinsons, I 
+beleive...).., next patches are for aacraid.. including jens axboes' SCSI 
+patch as well as the aacraid patch.
 
-  Plus, the code still prevents PF_MEMALLOC processes from using the
-inactive-clean list for non-zero order allocations.  As the trend seems to
-be to make zero and non-zero allocations 'equivalent', shouldn't this
-restriction to lifted?
+The symptons were an ever more sluggish machine over time, memory usage 
+looked pretty standard with the majority of memory assigned to cache... what 
+would happen is that at terminal it would go into semi-freeze states of about 
+5-10 seconds (increasing with time), where no user interaction was possible. 
+By terminal I mean through a ssh remote terminal.... The load would also 
+occasionally just increase for no apparent reason to values of 7,8,9...
 
-Mark
+The server is a dual 933mhz Xeon (PIII) on a ServerWorks Motherboard (HP 
+NetServer) with 1.2 gig or ram, 6 SCSI III 18.6 GIG drives in HP Netraid and 
+1 9 gig SCSI as the root FS... Running suse 7.0 and reiserfs...
 
+ANy and ALL advice/patches would be greatly appreciated.... I will probably 
+be moving back to 2.2 kernel series as a result of my stability problems..
+
+Thanks 
+MarCin
+
+-- 
+-----------------------------
+     Marcin Kowalski
+     Linux/Perl Developer
+-----------------------------

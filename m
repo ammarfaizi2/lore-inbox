@@ -1,100 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319229AbSHNGeq>; Wed, 14 Aug 2002 02:34:46 -0400
+	id <S319231AbSHNGlx>; Wed, 14 Aug 2002 02:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319231AbSHNGeq>; Wed, 14 Aug 2002 02:34:46 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:20735 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S319229AbSHNGep>; Wed, 14 Aug 2002 02:34:45 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ivan Gyurdiev <ivangurdiev@attbi.com>
-Reply-To: ivangurdiev@attbi.com
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.31 SCSI emulation and cd burner....severe filesystem corruption
-Date: Sun, 11 Aug 2002 10:46:44 -0400
-User-Agent: KMail/1.4.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208111046.44879.ivangurdiev@attbi.com>
+	id <S319232AbSHNGlx>; Wed, 14 Aug 2002 02:41:53 -0400
+Received: from dp.samba.org ([66.70.73.150]:2531 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319231AbSHNGlv>;
+	Wed, 14 Aug 2002 02:41:51 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Rename bitmap_member
+Date: Wed, 14 Aug 2002 16:41:52 +1000
+Message-Id: <20020814014611.657CC2C08A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I'm out of my mind... I'm aware of that... 
-But that's just me... I'm a forward looking person
-so I just have to run the latest 2.5 kernel :)
+Since bitmap_member is useful in general for declaring bitmaps, the
+name is inappropriate.  It's also more logical in linux/bitops.h.
 
-Here's my story...you decide where and what the problem is...
-There might be several unrelated problems, but there's a minimum of one,
-since I have a kernel oops to support it.
-========================================
+Also fixes up the (currently few) users.
 
-I purchased a brand new Toshiba 8x8x8x32 burner
-and decided to test it out on my 2.5.31 kernel.
-I've been running 2.5 kernels for several weeks with my IDE
-IBM drive and no problems at all.
+Linus, please apply,
+Rusty.
 
-So I configured the drive with SCSI emulation
-and the SCSI-CDROM and SCSI-generic support, disabling IDE ATAPI support.
-I configured xcdroast, and tried to burn an image.
-The result was a drive that kept powering up and shutting down, with the
-yellow light on most of the time... X froze, keyboard froze, mouse froze...
-Sysrq - sync, unmount, reboot.
-Tried it again, same thing. This time fsck refused to work on machine powerup.
-It froze. I powered up my backup system and did fsck on /. The system showed 
-clean. Forced fsck detected massive filesystem corruption erasing important 
-libraries which took a while to recover.
+Name: Bitops Cleanup
+Author: Rusty Russell
+Status: Trivial
 
-Some people just don't learn, though. So I fixed all the important stuff,
-and tried it again, this time with DMA for CD disabled, since someone hinted 
-me that it could cause problems. Exactly the same thing happend.
-I managed to kill X somehow and CTRL-ALT-DEL while my burner
-was still trying to do something. The result was a kernel oops.
-After another forced fsck I lost most symlinks in /etc, kernel sources and 
-parts of glibc... when I fixed some of it, I did: ksymoops /var/log/messages
-to get this:  (this is the oops on attempted machine shutdown while the 
-burner was trying to burn a CD)
-=======================================================
-I should mention this machine is a uniprocessor Athlon XP 1600+ with
-local APIC enabled and I/O apic disabled. I use acpi.
-=======================================================
+D: This renames bitmap_member to DECLARE_BITMAP, and moves it to bitops.h.
 
->>EIP; c0113b7f <smp_apic_timer_interrupt+f/100>   <=====
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/bitops.h .7898-linux-2.5.31.updated/include/linux/bitops.h
+--- .7898-linux-2.5.31/include/linux/bitops.h	2002-06-24 00:53:24.000000000 +1000
++++ .7898-linux-2.5.31.updated/include/linux/bitops.h	2002-08-12 18:33:56.000000000 +1000
+@@ -1,6 +1,11 @@
+ #ifndef _LINUX_BITOPS_H
+ #define _LINUX_BITOPS_H
+ #include <asm/bitops.h>
++#include <asm/types.h>
++
++#define BITS_TO_LONG(bits) (((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
++#define DECLARE_BITMAP(name,bits) \
++	unsigned long name[BITS_TO_LONG(bits)]
+ 
+ /*
+  * ffs: find first bit set. This is defined the same way as
+@@ -107,7 +112,4 @@ static inline unsigned int generic_hweig
+         return (res & 0x0F) + ((res >> 4) & 0x0F);
+ }
+ 
+-#include <asm/bitops.h>
+-
+-
+ #endif
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/types.h .7898-linux-2.5.31.updated/include/linux/types.h
+--- .7898-linux-2.5.31/include/linux/types.h	2002-06-17 23:19:25.000000000 +1000
++++ .7898-linux-2.5.31.updated/include/linux/types.h	2002-08-12 18:32:06.000000000 +1000
+@@ -3,9 +3,6 @@
+ 
+ #ifdef	__KERNEL__
+ #include <linux/config.h>
+-
+-#define bitmap_member(name,bits) \
+-	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
+ #endif
+ 
+ #include <linux/posix_types.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/drivers/zorro/zorro.c .7898-linux-2.5.31.updated/drivers/zorro/zorro.c
+--- .7898-linux-2.5.31/drivers/zorro/zorro.c	2002-07-25 10:13:15.000000000 +1000
++++ .7898-linux-2.5.31.updated/drivers/zorro/zorro.c	2002-08-12 18:32:06.000000000 +1000
+@@ -80,7 +80,7 @@ struct zorro_dev *zorro_find_device(zorr
+      *  FIXME: use the normal resource management
+      */
+ 
+-bitmap_member(zorro_unused_z2ram, 128);
++DECLARE_BITMAP(zorro_unused_z2ram, 128);
+ 
+ 
+ static void __init mark_region(unsigned long start, unsigned long end,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/zorro.h .7898-linux-2.5.31.updated/include/linux/zorro.h
+--- .7898-linux-2.5.31/include/linux/zorro.h	2002-07-25 10:13:18.000000000 +1000
++++ .7898-linux-2.5.31.updated/include/linux/zorro.h	2002-08-12 18:32:06.000000000 +1000
+@@ -10,6 +10,7 @@
+ 
+ #ifndef _LINUX_ZORRO_H
+ #define _LINUX_ZORRO_H
++#include <linux/bitops.h>
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -199,7 +200,7 @@ extern struct zorro_dev *zorro_find_devi
+      *  the corresponding bits.
+      */
+ 
+-extern bitmap_member(zorro_unused_z2ram, 128);
++extern DECLARE_BITMAP(zorro_unused_z2ram, 128);
+ 
+ #define Z2RAM_START		(0x00200000)
+ #define Z2RAM_END		(0x00a00000)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/sound/ac97_codec.h .7898-linux-2.5.31.updated/include/sound/ac97_codec.h
+--- .7898-linux-2.5.31/include/sound/ac97_codec.h	2002-06-21 09:41:55.000000000 +1000
++++ .7898-linux-2.5.31.updated/include/sound/ac97_codec.h	2002-08-12 18:32:06.000000000 +1000
+@@ -25,6 +25,7 @@
+  *
+  */
+ 
++#include <linux/bitops.h>
+ #include "control.h"
+ #include "info.h"
+ 
+@@ -169,7 +170,7 @@ struct _snd_ac97 {
+ 	unsigned int rates_mic_adc;
+ 	unsigned int spdif_status;
+ 	unsigned short regs[0x80]; /* register cache */
+-	bitmap_member(reg_accessed,0x80); /* bit flags */
++	DECLARE_BITMAP(reg_accessed, 0x80); /* bit flags */
+ 	union {			/* vendor specific code */
+ 		struct {
+ 			unsigned short unchained[3];	// 0 = C34, 1 = C79, 2 = C69
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h
+--- .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h	2002-06-21 09:41:57.000000000 +1000
++++ .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h	2002-08-12 18:32:06.000000000 +1000
+@@ -53,7 +53,7 @@ struct _snd_seq_client {
+ 	char name[64];		/* client name */
+ 	int number;		/* client number */
+ 	unsigned int filter;	/* filter flags */
+-	bitmap_member(event_filter, 256);
++	DECLARE_BITMAP(event_filter, 256);
+ 	snd_use_lock_t use_lock;
+ 	int event_lost;
+ 	/* ports */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_queue.h .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h
+--- .7898-linux-2.5.31/sound/core/seq/seq_queue.h	2002-06-21 09:41:57.000000000 +1000
++++ .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h	2002-08-12 18:32:06.000000000 +1000
+@@ -26,6 +26,7 @@
+ #include "seq_lock.h"
+ #include <linux/interrupt.h>
+ #include <linux/list.h>
++#include <linux/bitops.h>
+ 
+ #define SEQ_QUEUE_NO_OWNER (-1)
+ 
+@@ -51,7 +52,7 @@ struct _snd_seq_queue {
+ 	spinlock_t check_lock;
+ 
+ 	/* clients which uses this queue (bitmap) */
+-	bitmap_member(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
++ 	DECLARE_BITMAP(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
+ 	unsigned int clients;	/* users of this queue */
+ 	struct semaphore timer_mutex;
+ 
 
->>eax; c032c000 <init_thread_union+0/2000>
->>ebx; d3ebd800 <END_OF_CODE+13b146c4/????>
->>ecx; 00f5cae7 Before first symbol
->>esi; d3ebd8ac <END_OF_CODE+13b14770/????>
->>edi; 00004008 Before first symbol
->>ebp; c032df5c <init_thread_union+1f5c/2000>
->>esp; c032df50 <init_thread_union+1f50/2000>
-
-Trace; c0109402 <apic_timer_interrupt+1a/20>
-Trace; c01c8447 <acpi_processor_idle+177/230>
-Trace; c0107170 <default_idle+0/30>
-Trace; c01c82d0 <acpi_processor_idle+0/230>
-Trace; c0107170 <default_idle+0/30>
-Trace; c0107211 <cpu_idle+31/40>
-Trace; c0105000 <_stext+0/0>
-
-Code;  c0113b7f <smp_apic_timer_interrupt+f/100>
-00000000 <_EIP>:
-Code;  c0113b7f <smp_apic_timer_interrupt+f/100>   <=====
-   0:   c7 05 b0 e0 ff ff 00      movl   $0x0,0xffffe0b0   <=====
-Code;  c0113b86 <smp_apic_timer_interrupt+16/100>
-   7:   00 00 00 
-Code;  c0113b89 <smp_apic_timer_interrupt+19/100>
-   a:   ff 05 00 91 37 c0         incl   0xc0379100
-Code;  c0113b8f <smp_apic_timer_interrupt+1f/100>
-  10:   81 40 10 00 00 00 00      addl   $0x0,0x10(%eax)
-
-Aug 13 01:36:47 cobra kernel:  <0>Kernel panic: Attempted to kill the idle 
-task!
-
-2 warnings issued.  Results may not be reliable.
-
-
-
-
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbUAJGD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 01:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUAJGD1
+	id S264902AbUAJGGh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 01:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbUAJGGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 01:03:27 -0500
-Received: from waste.org ([209.173.204.2]:4550 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264971AbUAJGDZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 01:03:25 -0500
-Date: Sat, 10 Jan 2004 00:03:15 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] arch-specific cond_syscall usage issues
-Message-ID: <20040110060315.GZ18208@waste.org>
-References: <20040110032915.GW18208@waste.org> <20040109193753.3c158b3b.akpm@osdl.org> <20040109212108.3d8f5e54.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040109212108.3d8f5e54.zaitcev@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 10 Jan 2004 01:06:37 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:32004 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264902AbUAJGGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 01:06:35 -0500
+Date: Sat, 10 Jan 2004 14:05:37 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-Reply-To: <3FFF1499.7030508@sun.com>
+Message-ID: <Pine.LNX.4.33.0401101358290.2403-100000@wombat.indigo.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
+	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 09:21:08PM -0800, Pete Zaitcev wrote:
-> On Fri, 9 Jan 2004 19:37:53 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > >  Experimenting with trying to use cond_syscall for a few arch-specific
-> > >  syscalls, I discovered that it can't actually be used outside the file
-> > >  in which sys_ni_syscall is declared because the assembler doesn't feel
-> > >  obliged to output the symbol in that case:
-> 
-> > >  One arch (PPC) is apparently trying to use cond_syscall this way
-> > >  anyway, though it's probably never been actually tested as the above
-> > >  test was done on a PPC.
-> > 
-> > So why does the PPC kernel successfully link?
-> 
-> Perhaps it never was tested right when the change went in.
+On Fri, 9 Jan 2004, Mike Waychison wrote:
 
-On closer inspection, PPC has this:
+> >
+> >This may sound a little silly but it may be able to be done using
+> >stackable filesystem methods (aka. Zadok et. al.). I'm thinking of an
+> >autofs filesystem stacked on a host filesystem. The dentrys corresponding
+> >to mount points marked in some way and the mount occuring under it, on top
+> >of the host filesystem. Yes I know it sounds ugly but maybe it's not.
+> >Maybe it's actually quite simple. I can't give an opinion yet as I'm still
+> >thinking it through and haven't done any feasibility. However, this
+> >approach would lend itself to providing autofs filesystem transparency. A
+> >requirement as yet not discussed.
+> >
+> >Ian
+> >
+> >
+> >
+> Doing stackable filesystems is still an area of OS research.  It turns
+> out to be a very hard problem to solve (if it's possible at all).
+> Although there are systems in the wild that appear to work, they are
+> usually sub-optimal because there remains alot of issues such as
+> maintaining coherent caches, as well as just staying coherent given that
+> one filesystem may be directly accessible while also accessed from
+> another overlayed filesystem.
 
-config PCI
-        bool "PCI support" if 40x || 8260
-        default y if !40x && !8260 && !8xx && !APUS
-        default PCI_PERMEDIA if !4xx && !8260 && !8xx && APUS
-        default PCI_QSPAN if !4xx && !8260 && 8xx
+Yes I see that in what I've read.
 
-which suggests that non-PCI PPC are limited to very old and/or
-embedded boxes. And indeed compiling it for one of these (...much time
-elapses...) gets us:
+But I'm thinking of a very tightly controlled autofs layer controlled
+only by automount. Once owned by automount that part of the underlying fs
+could only be accessed via automount. The boundry cases obviously are
+a sensitive area.
 
-arch/ppc/kernel/built-in.o(.data+0x380):arch/ppc/kernel/entry.S:
-undefined reference to `sys_pciconfig_iobase'
+>
+> Not really something you'd want to waste alot of time on unless your
+> looking for a phd thesis. ;)
 
-> The patch is easy. The hard road would be to take it to binutils people
-> like H.J.Lu and see what they say.
+A masters one day might be good.
 
-I believe Dave M mentioned that gcc uses weak symbols similarly, so
-they've probably decided that the necessary smarts to do what we
-originally wanted are too much trouble.
+Ian
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+
+

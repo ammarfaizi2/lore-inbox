@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbUBREgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUBREgA
+	id S263370AbUBREIR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbUBREHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:36:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3047 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262888AbUBREf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:35:58 -0500
-Date: Wed, 18 Feb 2004 04:35:55 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: module unload deadlock
-Message-ID: <20040218043555.GY8858@parcelfarce.linux.theplanet.co.uk>
-References: <20040217172646.GT4478@dualathlon.random> <20040218041527.052222C510@lists.samba.org>
+	Tue, 17 Feb 2004 23:07:41 -0500
+Received: from mail.timesys.com ([65.117.135.102]:57814 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262687AbUBREGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 23:06:08 -0500
+Subject: Re: [PATCH] sprintf modifiers in usr/gen_init_cpio.c
+From: Pragnesh Sampat <pragnesh.sampat@timesys.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bos@serpentine.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040217164427.027b5643.akpm@osdl.org>
+References: <1077063980.9721.22.camel@dagoban.timesys>
+	 <20040217164427.027b5643.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1077077144.18192.11.camel@mail.sampatonline.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218041527.052222C510@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 17 Feb 2004 23:05:45 -0500
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Feb 2004 03:59:12.0984 (UTC) FILETIME=[91D18D80:01C3F5D3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 02:29:21PM +1100, Rusty Russell wrote:
-> > the actual module doing request_modules in the cleanup handler is
-> > parport_pc, calling parport_enumerate (it calls it for another reason,
-> > and parport enumerate is told to load up a lowlevel driver if none was
-> > present, that's worthless for the unload routine but it's useful for all
-> > other calls of parport_enumerate). It's uncertain if other drivers
+On Tue, 2004-02-17 at 19:44, Andrew Morton wrote:
+> Pragnesh Sampat <pragnesh.sampat@timesys.com> wrote:
+> >
+> > The file initramfs_data.cpio is slightly different when generated on
+> > cygwin, compared to linux, which causes the kernel to panic with the
+> > message "no cpio magic" (See Documentation/early-userspace/README).
+> > 
+> > The problem in cpio generation is due to the difference in sprintf
+> > modifiers on cygwin.  The code uses "%08ZX" for strlen of a device
+> > node.  printf man pages discourages "Z" and has 'z' instead.
+> > Both of these are not available on cygwin sprintf (at least some
+> > versions of cygwin).  The net result of all of this is that the
+> > generated file literally contains "ZX" and then the strlen after that
+> > and messes up that 110 offset etc.  The file is 516 bytes long on the
+> > system that I tested and on linux it is 512 bytes.
+> > 
+> > The fix below just uses "%08X" for that field.  Any basic portable
+> > modifier should be ok, I think.
+> 
+> ugh, OK.
+> 
+> We'll also need to cast the return value of strlen to the correct type.  On
+> ppc64 (at least) size_t is 8 bytes and the printf will otherwise grab the wrong
+> things off the stack.
 
-Bullshit.  Other calls of parport_enumerate() must die - along with that one.
-Patches will go to akpm tomorrow.
+[ Removed the patch ]
+
+Yes, agree with your change, I think all 64 bit archs using
+longs/pointer = 8 probably benefit from the cast.  Thanks,
+
+-Pragnesh
+

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUITQO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUITQZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266786AbUITQO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 12:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUITQO6
+	id S266802AbUITQZe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 12:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUITQZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 12:14:58 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:55981 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S266786AbUITQO5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 12:14:57 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FIXED (Is anyone using vmware 4.5 with 2.6.9-rc2-mm1?)
-Date: Mon, 20 Sep 2004 13:14:46 -0300
-User-Agent: KMail/1.7
-Cc: nhorman@redhat.com, Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200409191214.47206.norberto+linux-kernel@bensa.ath.cx> <414EBA3A.6010205@redhat.com> <200409201024.26912.norberto+linux-kernel@bensa.ath.cx>
-In-Reply-To: <200409201024.26912.norberto+linux-kernel@bensa.ath.cx>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Sep 2004 12:25:34 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:32650 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266741AbUITQZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:25:31 -0400
+Date: Mon, 20 Sep 2004 09:25:20 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Len Brown <len.brown@intel.com>,
+       ACPI Developer <acpi-devel@lists.sourceforge.net>,
+       LHNS list <lhns-devel@lists.sourceforge.net>
+Cc: Linux IA64 <linux-ia64@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH-ACPI based CPU hotplug[0/6]
+Message-ID: <20040920092520.A14208@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409201314.46766.norberto+linux-kernel@bensa.ath.cx>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norberto Bensa wrote:
-> And the message that vmware shows in a dialog box:
->   Could not mmap 139264 bytes of memory from file offset 0 at
->   (nil): Operation not permitted.
->   Failed to allocate shared memory.
+Hi Len,
+  I am resending the following set of patches which support ACPI based physical 
+CPU hotplug for IA64 platform, after having including all the community 
+feedback(of course I got very thin feedback) which I got on 
+acpi-devel mailing list.
 
-It's working now. I had this in fstab:
+This set of patches has been tested on linux-2.6.9-rc2. Also this time I am 
+cc'ing ia64/lkml mailing lists as patch 3/6 and patch 4/6 touches arch specific files.
 
-tmpfs    /dev/shm   tmpfs    size=2m,noexec,nosuid,nodev     0 0
-                             ^^^^^^^
+Details:(Applies cleanly onto linux-2.6.9-rc2)
+Patch[1/6]- Core ACPI enhancement support
+Patch[2/6]- ACPI hotplug eject interface support
+Patch[3/6]- Arch specific support for mapping lsapic to cpu
+Patch[4/6]- Dynamic cpu registration and unregistration support
+Patch[5/6]- Extend ACPI processor driver to support Hotplug
+Patch[6/6]- ACPI container driver(New driver)
 
-I removed "size=2m" and a remount fixed vmware.
+Please consider applying this patch onto your test tree.
 
-
-Thanks everyone!!
-
-Regards,
-Norberto
+Thanks,
+Anil S Keshavamurthy

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288127AbSAQCsx>; Wed, 16 Jan 2002 21:48:53 -0500
+	id <S288130AbSAQCzM>; Wed, 16 Jan 2002 21:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288128AbSAQCsm>; Wed, 16 Jan 2002 21:48:42 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:53720 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S288127AbSAQCsb>;
-	Wed, 16 Jan 2002 21:48:31 -0500
-Date: Thu, 17 Jan 2002 13:47:53 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Joonas Koivunen <rzei@mbnet.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Power off NOT working, kernel 2.4.16
-Message-Id: <20020117134753.4330b0b5.sfr@canb.auug.org.au>
-In-Reply-To: <3C45F45C.5000005@mbnet.fi>
-In-Reply-To: <3C45F45C.5000005@mbnet.fi>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
+	id <S288128AbSAQCyx>; Wed, 16 Jan 2002 21:54:53 -0500
+Received: from femail29.sdc1.sfba.home.com ([24.254.60.19]:34295 "EHLO
+	femail29.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288130AbSAQCyd>; Wed, 16 Jan 2002 21:54:33 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Rob Landley <landley@trommello.org>
+To: Bill Davidsen <davidsen@tmr.com>,
+        Hans-Christian Armingeon <linux.johnny@gmx.net>
+Subject: Re: KDE hang with 2.4.18-pre3-ac2
+Date: Wed, 16 Jan 2002 13:52:29 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020116121752.28369J-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020116121752.28369J-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020117025432.INGX20810.femail29.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 16 Jan 2002 23:45:00 +0200
-Joonas Koivunen <rzei@mbnet.fi> wrote:
+On Wednesday 16 January 2002 12:20 pm, Bill Davidsen wrote:
+> On Wed, 16 Jan 2002, Hans-Christian Armingeon wrote:
+> > I've got the same problems with SuSE7.3 and kde2.2.2.
+> > With kernel 2.4.17, the X locks up, when I push the power button, the box
+> > tries to shut doen [I can hear a beep], but nothing else happens. After
+> > two or three sysrq keys specally sigterm to all processes, the system
+> > locks hard [reset cycle needed]. I am trying 2.4.18-pre4 now.
 >
-> APM poweroff has actually been working with this computer, back when we 
-> used 2.0.36 type kernels, and that one was possibly redhat patched or 
-> something else, and windowses knew also how to poweroff, with mainboards
-> drivers. APM poweroff seized to operate when I switched to 2.2 serie 
-> kernels.
+> Totally other problem. When my KDE won't launch tasks from the bar, it
+> will still work just fine otherwise, shutdown cleanly, etc. System is not
+> in any way hung, just that clicking the browser or terminal button doesn't
+> start a process, and if I bring up a menu from the bar, and try to start
+> something like moon phase, it also doesn't start.
 
-Have you checked your /etc/[rc.d/]init.d/halt script to make sure
-that it is passing the "-p" option to "halt"?  This was a change
-between the 2.0 and 2.2 kernels i.e. powerdown became separate
-from halt.
+Question: did you change your computer's hostname just before this happened?  
+(That can trigger this behavior.  When you change your box's hostname, you 
+have to exit and restart X.  If you ask me, it's a design flaw in X, which 
+thinks it's doing stuff through the network even when it isn't.  KDE isn't 
+helping by cacheing stuff, but it's going for performance...)
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Rob

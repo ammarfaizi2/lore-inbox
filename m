@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129095AbQKDPIP>; Sat, 4 Nov 2000 10:08:15 -0500
+	id <S129057AbQKDPbX>; Sat, 4 Nov 2000 10:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129186AbQKDPIF>; Sat, 4 Nov 2000 10:08:05 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:12307 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129095AbQKDPHw>; Sat, 4 Nov 2000 10:07:52 -0500
-Date: Sat, 4 Nov 2000 16:07:35 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Elmer Joandi <elmer@ylenurme.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: 2.4.0-test10-pre6 around reiserfs 3.6.18
-Message-ID: <20001104160733.D2686@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.10.10011040453160.10531-100000@yle-server.ylenurme.sise>
-Mime-Version: 1.0
+	id <S129128AbQKDPbM>; Sat, 4 Nov 2000 10:31:12 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45583 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129057AbQKDPa7>;
+	Sat, 4 Nov 2000 10:30:59 -0500
+Message-ID: <3A042B87.9AD362A9@mandrakesoft.com>
+Date: Sat, 04 Nov 2000 10:30:15 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Dunlap Randy <randy.dunlap@intel.com>,
+        "'David Woodhouse'" <dwmw2@infradead.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: USB init order dependencies.
+In-Reply-To: <200011041438.OAA05656@raistlin.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10011040453160.10531-100000@yle-server.ylenurme.sise>; from elmer@ylenurme.ee on Sat, Nov 04, 2000 at 05:02:32AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
-X-Loop: erik@arthur.ubicom.tudelft.nl
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2000 at 05:02:32AM +0200, Elmer Joandi wrote:
-> under serious memory shortage, memory hog running and doing random access
-> over 133 MB(128MB ram) and disk output as fast as it could.
-> swap(128M) free = 0M, stable high disk io for long time, then
-> me killing X with -9 , got oops.
-     ^^^^^^^^^^^^^^^^^
+Russell King wrote:
+> There'll be quite a few extra init calls going in there then, with lots
+> and lots of ifdefs ;(
 
-Known problem. When you killed X, all shells wanted to update the
-.bash_history (or .history) file at the same time, which triggered the
-bug.
+I was talking about one or two init/main.c additions.  If you know of
+"quite a few" link order problems outside of main USB subsystem init,
+speak up...
 
-> /home is on reiserfs, which is on raid, which has 5 slices all on same
-> disk (for fun).
-> 
-> 
-> Nov  4 07:22:32 fw kernel:  printing eip: 
-> Nov  4 07:22:32 fw kernel: c0133296 
-> Nov  4 07:22:32 fw kernel: *pde = 00000000 
-> Nov  4 07:22:32 fw kernel: Oops: 0000 
-> Nov  4 07:22:32 fw kernel: CPU:    0 
-> Nov  4 07:22:32 fw kernel: EIP:    0010:[block_read_full_page+14/500] 
-                                           ^^^^^^^^^^^^^^^^^^^^
-Yes, this looks like the symptom.
+	Jeff
 
-This was fixed in 2.4.0-test10-pre7, please upgrade to 2.4.0-test10
-(final version) and see if it fixed your problem.
-
-
-Erik
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

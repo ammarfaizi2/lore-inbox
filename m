@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbSKXNRJ>; Sun, 24 Nov 2002 08:17:09 -0500
+	id <S261218AbSKXNTw>; Sun, 24 Nov 2002 08:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261218AbSKXNRJ>; Sun, 24 Nov 2002 08:17:09 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:8899 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261206AbSKXNRI>;
-	Sun, 24 Nov 2002 08:17:08 -0500
-X-Originating-IP: [62.179.172.61]
-From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
-To: ffmpeg-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Ffmpeg-devel] [RFC] benchmark on athlon + intel xeon + Apple G4 + intel p3
-Date: Sun, 24 Nov 2002 13:25:47 +0000
-Message-ID: <20021124.ZaY.84260300@mail.pronto.tv>
+	id <S261286AbSKXNTw>; Sun, 24 Nov 2002 08:19:52 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:25868 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S261218AbSKXNTv>;
+	Sun, 24 Nov 2002 08:19:51 -0500
+Message-ID: <3DE0D2DE.1090006@iinet.net.au>
+Date: Mon, 25 Nov 2002 00:23:42 +1100
+From: Nero <neroz@iinet.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-X-Mailer: phpGroupWare (http://www.phpgroupware.org) v 0.9.14.000
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] rmap15, rmap14c and rc1aa1 with contest
+References: <3DE0D157.9020906@iinet.net.au>
+In-Reply-To: <3DE0D157.9020906@iinet.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Intel Pentium III Cu-mine 850MHz (on busy system)
->1.  bench: utime=87.380s
->2.  bench: utime=87.390s
->3.  bench: utime=87.440s
->avg bench: utime=87.403s
+Nero wrote:
 
-humtitim...
-trying out on developer.skolelinux.no - a dual P III 997.5MHz (according to /proc/cpuinfo)
-machine:
+> noload:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       84.6    95      0       0       1.00
+> 2.4.19-rmap14c [1]      84.2    96      0       0       1.00
+> 2.4.20-rc1aa1 [2]       41.0    49      0       0       inf
 
-1. bench: utime=75.790s
-2. bench: utime=76.570s
-3. bench: utime=76.330s
-avg. bench: utime=76.230s
+The time for rc1aa1 here is obviously wrong - this is a bug in contest, 
+according to Dr. Kolivas :-)
 
->> K7: Hz*s/1000: 76.963
->> G4: Hz*s/1000: 80.223
->> P4: Hz*s/1000: 93.932
->  P3: Hz*s/1000: 74.293
-P3(2): Hz*s/1000: 76.094
-
-strange... this shows marginally lower performance on mine than yours, but it still beats the
-lot, including the Athlon. Can anyone explain this???????????
-
-I beleive there was some talk on lkml about some sort of P4 optimisation (interrupt stuff) that
-wasn't enabled on 2.4, but comes along in 2.5. Any ideas??? (I cc:ed the lkml on this one)
-
->Hmm, P3 seems pretty fast in comparison and this was not tested on high-end
->system but standard Linux 2.4.18, P3 850, i440BX, 256MB SDRAM, 10GB 4200UPM
->HDD with lots of other apps running at the same time.
-
-The system I was testing on had a load of around 1.2 or something, but given it's a system
-with quite nice I/O and two 1GHz CPUs, I don't think it was important.
-
-roy
---
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+>
+> process_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       140.8   55      133     45      1.66
+> 2.4.19-rmap14c [1]      139.4   56      126     45      1.65
+> 2.4.20-rc1aa1 [2]       133.9   14      211     84      inf
+>
+> io_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       164.8   51      33      19      1.95
+> 2.4.19-rmap14c [1]      160.1   53      33      21      1.90
+> 2.4.20-rc1aa1 [1]       166.2   49      44      23      inf
+>
+> read_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       0.0     0       0       7       0.00
+> 2.4.19-rmap14c [1]      121.0   72      20      7       1.44
+> 2.4.20-rc1aa1 [1]       111.2   79      34      14      inf
+>
+> rmap15 OOM'd the cc1 process twice and fscked this run up.
+>
+> list_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       99.2    84      0       7       1.17
+> 2.4.19-rmap14c [1]      100.7   83      0       7       1.20
+> 2.4.20-rc1aa1 [1]       96.7    85      0       8       inf
+>
+> mem_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19-rmap15 [1]       111.2   80      96      8       1.31
+> 2.4.19-rmap14c [1]      106.1   82      96      9       1.26
+> 2.4.20-rc1aa1 [1]       126.3   66      77      3       inf
+>
 
 

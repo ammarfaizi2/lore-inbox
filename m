@@ -1,110 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269777AbUICTMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269744AbUICTLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269777AbUICTMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUICTMJ
+	id S269744AbUICTLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUICTIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:12:09 -0400
-Received: from hagen.doit.wisc.edu ([144.92.197.163]:14271 "EHLO
-	smtp7.wiscmail.wisc.edu") by vger.kernel.org with ESMTP
-	id S269745AbUICTKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:10:23 -0400
-Date: Fri, 03 Sep 2004 19:09:59 +0000
-From: John Lenz <lenz@cs.wisc.edu>
-Subject: Re: [PATCH 2.6.8.1 0/2] leds: new class for led devices
-In-reply-to: <20040903195555.D15620@flint.arm.linux.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Message-id: <1094238599l.7429l.2l@hydra>
-MIME-version: 1.0
-X-Mailer: Balsa 2.2.4
-Content-type: text/plain; Format=Flowed; DelSp=Yes; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Spam-Score: 
-X-Spam-Report: IsSpam=no, Probability=7%, Hits=__CD 0, __CT 0, __CTE 0,
- __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0,
- __SANE_MSGID 0
-X-Spam-PmxInfo: Server=avs-8, Version=4.7.0.111621, Antispam-Engine: 2.0.0.0,
- Antispam-Data: 2004.9.3.0, SenderIP=146.151.41.63
-References: <1094157190l.4235l.2l@hydra> <20040903135103.GA982@elf.ucw.cz>
- <1094236686l.7429l.0l@hydra> <20040903195555.D15620@flint.arm.linux.org.uk>
+	Fri, 3 Sep 2004 15:08:48 -0400
+Received: from mail4.utc.com ([192.249.46.193]:48383 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S269745AbUICTHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 15:07:48 -0400
+Message-ID: <4138C0D3.5080506@cybsft.com>
+Date: Fri, 03 Sep 2004 14:06:59 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Florian Schmidt <mista.tapas@gmx.net>
+CC: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+Subject: Re: lockup with voluntary preempt R0 and VP, KP, etc, disabled
+References: <20040903120957.00665413@mango.fruits.de>	<20040903100946.GA22819@elte.hu>	<20040903123139.565c806b@mango.fruits.de>	<20040903103244.GB23726@elte.hu>	<20040903135919.719db41d@mango.fruits.de>	<20040903140425.26fddf8e@mango.fruits.de>	<20040903140811.37ae8067@mango.fruits.de>	<1094236105.6575.16.camel@krustophenia.net> <20040903205415.0a3cdc23@mango.fruits.de>
+In-Reply-To: <20040903205415.0a3cdc23@mango.fruits.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/03/04 13:55:55, Russell King wrote:
-> On Fri, Sep 03, 2004 at 06:38:06PM +0000, John Lenz wrote:
-> > On 09/03/04 08:51:03, Pavel Machek wrote:
-> > > > function : a read/write attribute that sets the current function of
-> > > > this led.  The available options are
-> > > >
-> > > >  timer : the led blinks on and off on a timer
-> > > >  idle : the led turns off when the system is idle and on when not
-> idle
-> > > >  power : the led represents the current power state
-> > > >  user : the led is controlled by user space
-> > >
-> > > I'm afraid this is really good idea. It seems quite overengineered to
-> > > me (and I'd be afraid that idle part slows machine). Perhaps having
-> > > only "user" mode is better idea?
-> >
-> > I was only mimicing the support currently in the arm led code.
-> > After thinking about it from a broader perspective of including GPIOs,
-> > we should probably get rid of this function thing entirely.  Just let
-> user
-> > space do everything... userspace can monitor sysfs and hotplug and have
-> the
-> > led represent power or idle or whatever.
+Florian Schmidt wrote:
+> On Fri, 03 Sep 2004 14:28:26 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> Bear in mind that my _original_ reason for implementing some of this
-> was to tell what's going on with the kernel on my machines.  I'm fairly
-> opposed to shifting it to userspace just because someone wants a bloated
-> sysfs interface to drive some tiddly little LEDs and then having to
-> losing the benefits of the existing implementation.
-
-Yea, but there are other uses than developing and debugging.  For example,  
-handheld environments use the leds to display when new mail comes, could  
-also turn on the led based on an entry in the calandar to notify the user  
-that some event is coming up, etc.
-
-It's not really intended for debugging, because you can't control the leds  
-until after module_init/device_initcall.
-
 > 
-> > The led class does not really inforce any policy, it just passes this
-> > number along to the actual driver that is registered.  So say you had
-> > a led that could be red, green, or both red and green at the same time
-> > (not sure how that would work hardware wise, but ok).
+>>Change EXTRAVERSION in the top level kernel Makefile.  The newer VP
+>>patches do this for you.
 > 
-> See Netwinders.  They have a bi-colour LED which has independent red
-> and green LEDs in the same package.  When they're both on it's yellow.
 > 
-> It's _VERY_ useful to see the green LED flashing and know that the
-> headless machine is running, or that the red LED being on means that
-> either it hasn't booted a kernel yet or the system has successfully
-> shut down.
+> Ok, though my incentive was to have different versions of the same VP
+> patched kernel [different config stuff though] ready w/o rebuilding in
+> between.
 > 
-> It means I don't have to fsck around with monitor cables before pulling
-> the power.
+> Thanks for the tip :)
 > 
-> And no, doing that from userspace won't work because userspace is dead
-> _before_ the system has finished shutting down (see drive cache
-> flushing on shutdown.)
-> 
-> It's also _VERY_ useful to know whether the kernel has managed to get
-> far enough through the boot that the heartbeat LED is flashing but
-> maybe not sufficiently to bring up the serial console as well -
-> again another thing that a userspace implementation will never be
-> able to support.
+> flo
 
-Hey I agree!  I use the led as a debugging tool on the Sharp Zaurus.   
-Before I had the framebuffer or the serial port working, being able to see  
-the led told me something was working :)  This patch isn't really intended  
-for debugging support, so perhaps some other interface could be added.
+I believe if you just change the EXTRAVERSION in an already built tree, 
+you can then just do "make modules_install" to install them into a 
+different directory.
 
-On the other hand, perhaps we can just do a #ifdef LEDS_DEBUGGING that  
-would toggle the led on a timer.
-
-John
-
-
+kr

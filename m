@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbTDPWWu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 18:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDPWWu
+	id S261801AbTDPWai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 18:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTDPWai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 18:22:50 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:49784 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261665AbTDPWWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 18:22:47 -0400
-Date: Thu, 17 Apr 2003 00:34:18 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
-cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre7 - aic79xx
-In-Reply-To: <Pine.LNX.4.44.0304161543100.22459-100000@petra.hos.u-szeged.hu>
-Message-ID: <Pine.LNX.4.53.0304170027280.4298@lt.wsisiz.edu.pl>
-References: <Pine.LNX.4.44.0304161543100.22459-100000@petra.hos.u-szeged.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Apr 2003 18:30:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61456 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261801AbTDPWah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 18:30:37 -0400
+Date: Wed, 16 Apr 2003 23:42:27 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 1/3: Remove USR 56K voice modem specific PCI table entry.
+Message-ID: <20030416234227.B17775@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003, Geller Sandor wrote:
+Jordan Breeding confirms that our serial PCI detection algorithms
+now correctly determine this device, and doesn't require a specific
+entry.
 
-> I don't use the aic79xx driver in the -ac tree. In another thread, 1 or 2
-> weeks ago Justin Gibbs stated, that his latest drivers are the most
-> stable. I'm using an Intel 7501VW2 motherboard in a production server, so
-> I don't want to test drivers, which can cause filesystem corruption. Maybe
-> Lukasz can test with noapic - I suggest Justin's drivers, and if the
-> problem still exists, test with the 'noapic' boot parameter, and track
-> down the problem. Regards,
-
-Well, I'm using it also in a production server. I can't test it.
-My problem activating, when process updatedb running on big home 
-area.
+diff -Nru a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
+--- a/drivers/serial/8250_pci.c	Wed Apr 16 23:12:27 2003
++++ b/drivers/serial/8250_pci.c	Wed Apr 16 23:12:27 2003
+@@ -1802,13 +1802,6 @@
+ 		pbn_b1_1_115200 },
+ 
+ 	/*
+-	 * 3Com US Robotics 56k Voice Internal PCI model 5610
+-	 */
+-	{	PCI_VENDOR_ID_USR, 0x1008,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_b0_1_115200 },
+-
+-	/*
+ 	 * Titan Electronic cards
+ 	 *  The 400L and 800L have a custom setup quirk.
+ 	 */
 
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,47 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318866AbSHWQCj>; Fri, 23 Aug 2002 12:02:39 -0400
+	id <S318907AbSHWQI0>; Fri, 23 Aug 2002 12:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318869AbSHWQCj>; Fri, 23 Aug 2002 12:02:39 -0400
-Received: from relay1.pair.com ([209.68.1.20]:17933 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S318866AbSHWQCi>;
-	Fri, 23 Aug 2002 12:02:38 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <3D665EC9.3EF93C37@kegel.com>
-Date: Fri, 23 Aug 2002 09:11:53 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
-X-Accept-Language: en
+	id <S318888AbSHWQI0>; Fri, 23 Aug 2002 12:08:26 -0400
+Received: from string.physics.ubc.ca ([142.103.234.11]:52905 "HELO
+	string.physics.ubc.ca") by vger.kernel.org with SMTP
+	id <S318876AbSHWQIX>; Fri, 23 Aug 2002 12:08:23 -0400
+Date: Fri, 23 Aug 2002 09:12:34 -0700 (PDT)
+From: Bill Unruh <unruh@physics.ubc.ca>
+To: Mike Dresser <mdresser_l@windsormachine.com>
+Cc: <linux-ppp@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.33.0208231113550.8320-100000@router.windsormachine.com>
+Message-ID: <Pine.LNX.4.33L2.0208230905440.16602-100000@string.physics.ubc.ca>
 MIME-Version: 1.0
-To: John Gardiner Myers <jgmyers@netscape.com>
-CC: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 
- (Re:async-io API registration for 2.5.29)]
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk>
-	 <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
-	 <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random>
-	 <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com>
-	 <3D5D0186.7B7724BC@kegel.com> <3D5D1D02.7080206@netscape.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Gardiner Myers wrote:
-> 
-> Dan Kegel wrote:
-> 
-> >You can actually consider posix AIO using sigtimedwait() to pick up completion
-> >notices to fit the definition of completion port if you squint a bit.
+
+OK, that problem is usually a "hardware" problem-- ie the hardware is
+not responding properly to the icotl request. This could be because
+there is not hardware there (eg trying to open a serial port which does
+not exist on the machine), or is busy, or has been left in some weird
+state. The last sounds most likely here-- eg the serial port on your
+modem thinks it is still busy.
+
+You could try running the little program I got basically from Carlson in
+http://axion.physics.ubc.ca/modem-chk.html
+to try resetting the serial line befor the next attempt (eg, put it into
+/etc/ppp/ip-down).
+Not sure if this is the problem however.
+
+On Fri, 23 Aug 2002, Mike Dresser wrote:
+
+> On Fri, 23 Aug 2002, Bill Unruh wrote:
+>
+> > Well, it would be good if you actually told us what problem you were
+> > describing. Is this a new connection attempt after the first hang up?
+> > What?
 > >
-> Except that signal queues are far too short to be useful for c10k.  It's
-> also not possible to allocate a queue (signal number) in a thread safe
-> manner.
-> 
-> Posix AIO is a horrid interface.  Ben has done much better.
+> > What repeats over and over-- I see no repeat.
+>
+> I >
+> > You also do not tell us info like what kind of modem is this-- external,
+> > internal, serial, usb, pci, winmodem,....
+> >
+> > I assume what you are refering to is the "inappropriate ioctl" line.
+> > This indicates a hardware problem.
+> >
+> > Actually, it looks to me like another pppd is up on the line. Those
+> > EchoReq are another pppd receiving stuff on an open pppd on another
+> > line. More information on what it is you are trying to do, on what your
+> > system is, and what the problem is might get you help.
+> >
+>
+> Sorry.
+>
+> It's a new connection from the persist option.  The exact same message
+> repeats for every dial out it attempts.
+>
+> It's a PCI 3com 56k Sportster.  It's a hardware modem.
+>
+> There is sometimes another pppd up on ttys1
+>
+> Here's the setup:
+>
+> There is an external modem on ttyS01, irq 3, that dials in occasionally as
+> needed.
+>
+> there is an internal PCI modem on ttyS04, irq 5, that dials in permamently
+> to the ISP.
+>
+> Every 6 hours, the ISP enforces the 6 hour hangup rule they have.
+>
+> The modem is set to persist, max-fails 0.  It is not able to redial, and
+> keeps giving the error message that i pasted.
+>
+> Under 2.2.x, this functioned properly.
+>
+> System is a VIA VT82C693A/694x [Apollo PRO133x] based motherboard, from
+> Giga-byte, if I remember correctly.  Celeron 533.
+>
+> Sorry about the too brief error message, I fell into my "it makes sense to
+> me the way it is" trap.
+>
+> Mike
+>
+>
 
-You're quite right.  Still, posix AIO with sigtimedwait() might be enough
-prior art to invalidate Microsoft's patent on completion ports.
+-- 
+William G. Unruh        Canadian Institute for          Tel: +1(604)822-3273
+Physics&Astronomy          Advanced Research            Fax: +1(604)822-5324
+UBC, Vancouver,BC        Program in Cosmology           unruh@physics.ubc.ca
+Canada V6T 1Z1               and Gravity           www.theory.physics.ubc.ca/
+For step by step instructions about setting up ppp under Linux, see
+            http://www.theory.physics.ubc.ca/ppp-linux.html
 
-- Dan

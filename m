@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264819AbRFTDCS>; Tue, 19 Jun 2001 23:02:18 -0400
+	id <S264836AbRFTDE6>; Tue, 19 Jun 2001 23:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbRFTDCI>; Tue, 19 Jun 2001 23:02:08 -0400
-Received: from member.michigannet.com ([207.158.188.18]:46349 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S264819AbRFTDBu>; Tue, 19 Jun 2001 23:01:50 -0400
-Date: Tue, 19 Jun 2001 23:01:25 -0400
-From: Paul <set@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Repeatable hard locks on console switch. XFree 4.1.0
-Message-ID: <20010619230125.D268@squish.home.loc>
+	id <S264838AbRFTDEt>; Tue, 19 Jun 2001 23:04:49 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:8800
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S264836AbRFTDEn>; Tue, 19 Jun 2001 23:04:43 -0400
+Date: Tue, 19 Jun 2001 20:04:42 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010619200442.E30785@work.bitmover.com>
+Mail-Followup-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E15CQlA-0006Tr-00@the-village.bc.nu> <993005859.1799.1.camel@gromit>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <993005859.1799.1.camel@gromit>; from rothwell@holly-springs.nc.us on Tue, Jun 19, 2001 at 10:57:38PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Dear All;
+On Tue, Jun 19, 2001 at 10:57:38PM -0400, Michael Rothwell wrote:
+> On 19 Jun 2001 20:01:56 +0100, Alan Cox wrote:
+> 
+> > Linux inherits several unix properties which are not friendly to good state
+> > based programming - lack of good AIO for one.
+> 
+> Oh, how I would love for select() and poll() to work on files... or for
+> any other working AIO mothods to be present.
+> 
+> What would get broken if things were changed to let select() work for
+> filesystem fds?
 
-	I can fire up XFree4.1.0 on one or several virtual
-consoles, and switch between them, and text consoles to my hearts
-content. However, if the X server exits everything is still fine,
-_except_ any attempt to switch consoles at this point will lock
-up the machine completely. (eg. numlock doesnt work, nor does
-magic sysrq, unpingable, no logs)
-	[ Trivially the problem manifests itself when one logs in
-via xdm, then logs out. You can log back on just fine, but if you
-try to switch virtual consoles after this it locks.]
-	XFree3.3.6 works good for me. XFree4.1.0 manifests the
-problem on 2.4.5, and 2.2.18. I128 server.
-	Any comments or suggestions welcome....
+I asked Linus for this a long time ago and he pointed out that you couldn't
+make it work over NFS, at least not nicely.  It does seem like that could 
+be worked around by having a "poll daemon" which knew about all the things
+being waited on and checked them.  Or something.
 
-Thanks;
-Paul
-set@pobox.com
+I'd like it too.  And I'd like a callback for iocompletion, a way to do
+preread(fd, len).
+
+On the other hand, the fact that it doesn't exist on other platforms sort
+of means that it isn't going anywhere.  In a sick sort of way, the most
+likely way to make this happen is to get Microsoft to do it and then Linux
+will do it as well and then the Solaris jocks will also fall in line.  The
+only problem with that is that Microsoft can't design an OS interface to save 
+their lives, so maybe Linux _should_ do it first.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbUAHT3v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 14:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUAHT3v
+	id S266255AbUAHThT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 14:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUAHTeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 14:29:51 -0500
-Received: from [198.70.193.2] ([198.70.193.2]:50522 "EHLO AVEXCH01.qlogic.org")
-	by vger.kernel.org with ESMTP id S265479AbUAHT2t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 14:28:49 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
-Date: Thu, 8 Jan 2004 11:29:03 -0800
-Message-ID: <B179AE41C1147041AA1121F44614F0B0598E00@AVEXCH02.qlogic.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
-Thread-Index: AcPWCBdCUX3fJ36nSv6yJLzCNN41GgAFM4/g
-From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux-SCSI" <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2004 19:29:03.0992 (UTC) FILETIME=[ACEA0780:01C3D61D]
+	Thu, 8 Jan 2004 14:34:44 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:20241 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266226AbUAHTee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 14:34:34 -0500
+Date: Thu, 8 Jan 2004 19:34:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
+Message-ID: <20040108193427.A14545@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B060EDD4@AVEXCH02.qlogic.org> <20040108165414.A12233@infradead.org> <20040108193336.GB10243@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040108193336.GB10243@beaverton.ibm.com>; from andmike@us.ibm.com on Thu, Jan 08, 2004 at 11:33:36AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, January 08, 2004 8:54 AM, Christoph Hellwig wrote:
-> On Thu, Jan 08, 2004 at 08:47:51AM -0800, Andrew Vasquez wrote:
-> > seems to be the proper path.  Just for clarification, given the
-> > structure of the driver now (failover completely separated),
-> > inclusion of the qla2xxx driver would exclude the following
-> > failover files: 
-> > 
-> > 	qla_fo.c qla_foln.c qla_cfg.c qla_cfgln.c
-> > 
-> > correct?
-> 
->  + qla_inioct.c qla_xioct.c
-> 
-> and the associated headers for both the ioctl and failover
-> code, of course
->
+On Thu, Jan 08, 2004 at 11:33:36AM -0800, Mike Anderson wrote:
+> This sounds good. It would seem that HBA API adapter and port
+> information through sysfs (libsysfs) should be doable through the
+> transport class.
 
-Yes, no IOCTLs...
- 
-> > Are you proposing to standardize a transport by which a user-space
-> > application communicates with a driver (beyond IOCTLs), or, are you
-> > suggesting there be some commonality in functional interfaces (i.e.
-> > SNIA) for all FC drivers?
-> 
-> the SNIA HBA-API spec is completely broken.  But we should
-> try to support
-> a sanitized subset of the spec using the transport class work that's
-> currently discussed on linux-scsi.
->
+Yes.
 
-I'll excuse myself from the API debate and take a look at the transport
-class infrastructure being proposed.
+> Also some partial information of the other hba api
+> functions could be supported though other sysfs attributes but the sends
+> would still need to use the old interface.
 
---
-Andrew Vasquez
-
-
+With sends are you referring to function that support certain scsi
+commands like report luns and report capacity?  We have a perfectly
+fine interface for that and it's SG_IO.. 

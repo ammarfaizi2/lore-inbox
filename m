@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbTFFSTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 14:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTFFSTQ
+	id S262164AbTFFSXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 14:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTFFSXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 14:19:16 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:5045 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262151AbTFFSTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 14:19:13 -0400
-Date: Fri, 6 Jun 2003 20:32:47 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: [Patch] 2.5.70-bk11 zlib cleanup #2 cpp
-Message-ID: <20030606183247.GB10487@wohnheim.fh-wedel.de>
-References: <20030606183126.GA10487@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030606183126.GA10487@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+	Fri, 6 Jun 2003 14:23:51 -0400
+Received: from wmail.atlantic.net ([209.208.0.84]:8114 "HELO
+	wmail.atlantic.net") by vger.kernel.org with SMTP id S262164AbTFFSXu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 14:23:50 -0400
+Message-ID: <3EE0E227.7080107@techsource.com>
+Date: Fri, 06 Jun 2003 14:49:11 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel printk format string compression: C syntax problem
+References: <3EE0CF07.2070908@techsource.com> <Pine.LNX.4.53.0306061330520.7633@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hope we don't use any cplusplus in the kernel.
 
-Jörn
 
--- 
-Those who come seeking peace without a treaty are plotting.
--- Sun Tzu
+Richard B. Johnson wrote:
 
---- linux-2.5.70-bk11/include/linux/zlib.h~zlib_cleanup_cpp	2003-06-06 15:56:15.000000000 +0200
-+++ linux-2.5.70-bk11/include/linux/zlib.h	2003-06-06 19:53:06.000000000 +0200
-@@ -33,10 +33,6 @@
- 
- #include <linux/zconf.h>
- 
--#ifdef __cplusplus
--extern "C" {
--#endif
--
- #define ZLIB_VERSION "1.1.3"
- 
- /* 
-@@ -640,8 +636,4 @@
- extern int           zlib_inflateSyncPoint (z_streamp z);
- extern const uLong * zlib_get_crc_table    (void);
- 
--#ifdef __cplusplus
--}
--#endif
--
- #endif /* _ZLIB_H */
+> 
+> Aren't octal values supposed to always start with '0'? I remember
+> this from some formal training when 'C' replaced Pascal. The
+> second "printf()" should __not__ TAB over the text. With GNU
+> gcc, it does. This doesn't mean that it's "correct", only that
+> GNU does it that way.
+> 
+
+Octal values start with '0' when they're numerical values.  When they're 
+in strings as escape characters, the C syntax is "\nnn".  Every 
+reference I find says that.  Some script languages, however require that 
+octal values start with '0' in strings, so csh would expect to see "\0nnn".
+
+Additionally, when I compile in the dictionary into the program that
+does the string replacement, I get no complaints, although every
+character in there is "\nnn".
+

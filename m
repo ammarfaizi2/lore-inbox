@@ -1,258 +1,437 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbTCFGsM>; Thu, 6 Mar 2003 01:48:12 -0500
+	id <S267853AbTCFG4F>; Thu, 6 Mar 2003 01:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267847AbTCFGsL>; Thu, 6 Mar 2003 01:48:11 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:16348 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266932AbTCFGsH>;
-	Thu, 6 Mar 2003 01:48:07 -0500
-Date: Thu, 6 Mar 2003 07:58:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] "interactivity changes", sched-2.5.64-A4
-In-Reply-To: <20030228202555.4391bf87.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0303060723050.2114-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267854AbTCFG4F>; Thu, 6 Mar 2003 01:56:05 -0500
+Received: from packet.digeo.com ([12.110.80.53]:43997 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267853AbTCFGz7>;
+	Thu, 6 Mar 2003 01:55:59 -0500
+Date: Wed, 5 Mar 2003 23:07:12 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.64-mm1
+Message-Id: <20030305230712.5a0ec2d4.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2003 07:06:24.0923 (UTC) FILETIME=[E668AEB0:01C2E3AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew,
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm1/
 
-> hm, you're right.  It's still really bad.  I forgot that I was using
-> distcc.
-> 
-> And I also forgot that tbench starves everything else only on
-> CONFIG_SMP=n. That problem remains with us as well.
+. Included Ingo's file-offset-in-pte patch which allows pages which are in
+  nonlinear mappings to be reestablished by the kernel's pagefault handler. 
+  This is enabled against all mappings for testing purposes.
 
-well, i took out the interactivity improvements from the 2.5.59-E6
-scheduler patch, to keep the pure HT-scheduler bits only, and havent added
-them back since. The two patch-sets (interactivity, and HT scheduler)
-interact heavily, so i did not post the patch separately, but here it goes
-as-is, against 2.5.64 - does it help your interactivity problems on UP
-setups?
+. No functional changes to the anticipatory scheduler this time.  Just
+  stabilisation work.  It doesn't seem to oops any more.
 
-The patch includes the following items:
+. A bunch of buxfixes plus the usual sweepings off the factory floor.
 
- - a new wakeup feature: SMART_WAKE_CHILD (default:1) [this is a reworked 
-   version of the wakeup changes from Andrea's tree.]
 
- - scheduler parameter tunings (CHILD_PENALTY, MAX_TIMESLICE,
-   STARVATION_LIMIT, MAX_SLEEP_AVG)
 
- - activate_task() splitup to separate the interactivity-active variant 
-   from the task-queue variant => this fixes our statistics in some cases.
 
- - finer-grained preemption: if priority is equal then the task with the 
-   longer pending timeslice wins.
+Changes since 2.5.63-mm2:
 
- - make it possible to disable sync-wakeups via SYNC_WAKEUPS (default:1)
+ linus.patch
 
- - a naming cleanup (sleep_timestamp => last_run)
+ Latest from Linus
 
- - fix up STARVATION_LIMIT usage so that a value of 0 is recognized as 'no
-   starvation limit'.
+-separate.patch
+-ppc64-e100-fix.patch
+-deadline-dispatching-fix.patch
+-loop-hack.patch
+-oprofile-up-fix.patch
+-presto_get_sb-fix.patch
+-on_each_cpu.patch
+-on_each_cpu-ldt-cleanup.patch
+-notsc-panic.patch
+-alloc_pages_cleanup.patch
+-ext2-handle-htree-flag.patch
+-mpparse-typo-fix.patch
+-i386-no-swap-fix.patch
+-remove-hugetlb_key.patch
+-hugetlbpage-doc-update.patch
+-hugetlb-valid-page-ranges.patch
+-cciss-startup-problem-fix.patch
+-cciss-retry-bus-reset.patch
+-cciss-add-cmd-type.patch
+-cciss-getluninfo-ioctl.patch
+-cciss-passthrough-ioctl.patch
 
-ideally we'd like to have these piece by piece, but could you just give
-this patchset a go, and if it makes a difference then we can separate out
-the bits that matter, to pinpoint your problems as exactly as possible.
+ Merged
 
-i've test-booted the patch on UP and SMP as well.
++balance_irq-cleanup.patch
 
-	Ingo
+ Clean up some stuff in io_apic.c
 
---- linux/include/linux/sched.h.orig	
-+++ linux/include/linux/sched.h	
-@@ -328,7 +328,7 @@ struct task_struct {
- 	prio_array_t *array;
- 
- 	unsigned long sleep_avg;
--	unsigned long sleep_timestamp;
-+	unsigned long last_run;
- 
- 	unsigned long policy;
- 	unsigned long cpus_allowed;
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -54,20 +54,21 @@
- /*
-  * These are the 'tuning knobs' of the scheduler:
-  *
-- * Minimum timeslice is 10 msecs, default timeslice is 150 msecs,
-- * maximum timeslice is 300 msecs. Timeslices get refilled after
-+ * Minimum timeslice is 10 msecs, default timeslice is 100 msecs,
-+ * maximum timeslice is 200 msecs. Timeslices get refilled after
-  * they expire.
-  */
- #define MIN_TIMESLICE		( 10 * HZ / 1000)
--#define MAX_TIMESLICE		(300 * HZ / 1000)
--#define CHILD_PENALTY		95
-+#define MAX_TIMESLICE		(200 * HZ / 1000)
-+#define CHILD_PENALTY		50
- #define PARENT_PENALTY		100
- #define EXIT_WEIGHT		3
- #define PRIO_BONUS_RATIO	25
- #define INTERACTIVE_DELTA	2
--#define MAX_SLEEP_AVG		(2*HZ)
--#define STARVATION_LIMIT	(2*HZ)
--#define NODE_THRESHOLD          125
-+#define MAX_SLEEP_AVG		(10*HZ)
-+#define STARVATION_LIMIT	(10*HZ)
-+#define SYNC_WAKEUPS		1
-+#define SMART_WAKE_CHILD	1
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -323,16 +324,21 @@ static inline int effective_prio(task_t 
-  * Also update all the scheduling statistics stuff. (sleep average
-  * calculation, priority modifiers, etc.)
-  */
-+static inline void __activate_task(task_t *p, runqueue_t *rq)
-+{
-+	enqueue_task(p, rq->active);
-+	rq->nr_running++;
-+}
-+
- static inline void activate_task(task_t *p, runqueue_t *rq)
- {
--	unsigned long sleep_time = jiffies - p->sleep_timestamp;
--	prio_array_t *array = rq->active;
-+	unsigned long sleep_time = jiffies - p->last_run;
- 
- 	if (!rt_task(p) && sleep_time) {
- 		/*
- 		 * This code gives a bonus to interactive tasks. We update
- 		 * an 'average sleep time' value here, based on
--		 * sleep_timestamp. The more time a task spends sleeping,
-+		 * ->last_run. The more time a task spends sleeping,
- 		 * the higher the average gets - and the higher the priority
- 		 * boost gets as well.
- 		 */
-@@ -341,8 +347,7 @@ static inline void activate_task(task_t 
- 			p->sleep_avg = MAX_SLEEP_AVG;
- 		p->prio = effective_prio(p);
- 	}
--	enqueue_task(p, array);
--	nr_running_inc(rq);
-+	__activate_task(p, rq);
- }
- 
- /*
-@@ -460,6 +465,7 @@ static int try_to_wake_up(task_t * p, un
- 	long old_state;
- 	runqueue_t *rq;
- 
-+	sync &= SYNC_WAKEUPS;
- repeat_lock_task:
- 	rq = task_rq_lock(p, &flags);
- 	old_state = p->state;
-@@ -479,12 +485,17 @@ repeat_lock_task:
- 			}
- 			if (old_state == TASK_UNINTERRUPTIBLE)
- 				rq->nr_uninterruptible--;
--			activate_task(p, rq);
--	
--			if (p->prio < rq->curr->prio)
--				resched_task(rq->curr);
-+			if (sync)
-+				__activate_task(p, rq);
-+			else {
-+				activate_task(p, rq);
-+				if (p->prio < rq->curr->prio)
-+					resched_task(rq->curr);
-+			}
- 			success = 1;
- 		}
-+		if (p->state >= TASK_ZOMBIE)
-+			BUG();
- 		p->state = TASK_RUNNING;
- 	}
- 	task_rq_unlock(rq, &flags);
-@@ -525,8 +536,19 @@ void wake_up_forked_process(task_t * p)
- 		p->prio = effective_prio(p);
- 	}
- 	set_task_cpu(p, smp_processor_id());
--	activate_task(p, rq);
- 
-+	if (SMART_WAKE_CHILD) {
-+		if (unlikely(!current->array))
-+			__activate_task(p, rq);
-+		else {
-+			p->prio = current->prio;
-+			list_add_tail(&p->run_list, &current->run_list);
-+			p->array = current->array;
-+			p->array->nr_active++;
-+			rq->nr_running++;
-+		}
-+	} else
-+		activate_task(p, rq);
- 	task_rq_unlock(rq, &flags);
- }
- 
-@@ -953,6 +975,11 @@ static inline void pull_task(runqueue_t 
- 	 */
- 	if (p->prio < this_rq->curr->prio)
- 		set_need_resched();
-+	else {
-+		if (p->prio == this_rq->curr->prio &&
-+				p->time_slice > this_rq->curr->time_slice)
-+			set_need_resched();
-+	}
- }
- 
- /*
-@@ -1016,7 +1043,7 @@ skip_queue:
- 	 */
- 
- #define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
--	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
-+	((jiffies - (p)->last_run > cache_decay_ticks) &&	\
- 		!task_running(rq, p) &&					\
- 			((p)->cpus_allowed & (1UL << (this_cpu))))
- 
-@@ -1076,9 +1103,9 @@ DEFINE_PER_CPU(struct kernel_stat, kstat
-  * increasing number of running tasks:
-  */
- #define EXPIRED_STARVING(rq) \
--		((rq)->expired_timestamp && \
-+		(STARVATION_LIMIT && ((rq)->expired_timestamp && \
- 		(jiffies - (rq)->expired_timestamp >= \
--			STARVATION_LIMIT * ((rq)->nr_running) + 1))
-+			STARVATION_LIMIT * ((rq)->nr_running) + 1)))
- 
- /*
-  * This function gets called by the timer code, with HZ frequency.
-@@ -1201,7 +1228,7 @@ need_resched:
- 	rq = this_rq();
- 
- 	release_kernel_lock(prev);
--	prev->sleep_timestamp = jiffies;
-+	prev->last_run = jiffies;
- 	spin_lock_irq(&rq->lock);
- 
- 	/*
-@@ -1701,7 +1728,7 @@ static int setscheduler(pid_t pid, int p
- 	else
- 		p->prio = p->static_prio;
- 	if (array)
--		activate_task(p, task_rq(p));
-+		__activate_task(p, task_rq(p));
- 
- out_unlock:
- 	task_rq_unlock(rq, &flags);
---- linux/kernel/fork.c.orig	
-+++ linux/kernel/fork.c	
-@@ -916,7 +916,7 @@ static struct task_struct *copy_process(
- 	 */
- 	p->first_time_slice = 1;
- 	current->time_slice >>= 1;
--	p->sleep_timestamp = jiffies;
-+	p->last_run = jiffies;
- 	if (!current->time_slice) {
- 		/*
- 	 	 * This case is rare, it happens when the parent has only
++balance_irq-fix.patch
+
+ Fix a system lockup.
+
+-sysfs-dget-fix-2.patch
+
+ Dropped - fixed in 2.5.64.
+
+-irq-sharing-fix.patch
+
+ Dropped - mixing SA_INTERRUPT and SA_SHIRQ handlers is illegal anyway.
+
++shared-irq-warning.patch
+
+ Warn about mixed SA_INTERRUPT & SA_SHIRQ handlers.
+
++as-naming-comments-BUG.patch
++as-unnecessary-test.patch
++as-atomicity-fix.patch
+
+ Anticipatory scheduler work.
+
+-update_atime-speedup.patch
+-ext2-update_atime_speedup.patch
+-ext3-update_atime_speedup.patch
+-UPDATE_ATIME-to-update_atime.patch
+
+ Dropped.  Was junk.
+
++objrmap-atomic_t-fix.patch
+
+ Tighten up objrmap's handling of page->pte.mapcount
+
++scheduler-tunables.patch
+
+ Put the CPU scheduler tunables back (/proc/sys/sched)
+
++rtc-locking-fix.patch
+
+ rtc.c lock ranking bugfix
+
++yellowfin-set_bit-fix.patch
+
+ Don't do set_bit() on a ushort.
+
++sk98-build-fix.patch
+
+ Don't do 64-bit divides
+
++cciss-pci-hotplug-fix.patch
+
+ cciss fix
+
++export-pfn_to_nid.patch
+
+ An EXPORT_SYMBOL for discontigmem
+
++move-CONFIG_SWAP.patch
+
+ Tidy up the config menus.
+
++random-stack-use.patch
+
+ Reduce stack use in the random driver
+
++inode-pruning-fix.patch
+
+ Fix the icache shrinking logic
+
++remap-file-pages-2.5.63-a1.patch
+
+ Allow pages in nonlinear mappings to be faulted back in by the kernel.
+
++pte_file-always.patch
+
+ Force the new remap-file-pages logic to apply to _all_ mappings, for
+ testing.
+
++remove-__pgd_offset.patch
++remove-__pmd_offset.patch
++remove-__pte_offset.patch
+
+ Cleanups
+
++htree-lock_kernel-fix.patch
+
+ Missing unlock_kernel() on htree error path
+
++pci-1.patch
++pci-2.patch
++pci-3.patch
++pci-4.patch
++pci-5.patch
+
+ PCI/Cardbus handling changes
+
++elf_core_dump-stack-size-reduction.patch
+
+ Reduce stack size in elf core dumping code
+
++uninline-binfmt_elf.patch
+
+ Nuke some inlines
+
++htree-nfs-fix.patch
+
+ Maybe fix the NFS-server-on-ext3/htree problems
+
++bonding-zerodiv-fix.patch
+
+ Fix a div-by-zero in the bonding driver
+
++update_atime-ng.patch
+
+ Speed up update_atime, and mtime and ctimes too.  (Haven't tested that this
+ is actually working yet).
+
++one-sec-times.patch
+
+ Implement the above for ext2 and ext3.
+
+
+
+
+All 83 patches:
+
+linus.patch
+  Latest from Linus
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+balance_irq-cleanup.patch
+  i386 IRQ balancing cleanup
+
+balance_irq-fix.patch
+  balance_irq lockup fix
+
+rpc_rmdir-fix.patch
+  Fix nfs oops during mount
+
+ppc64-reloc_hide.patch
+
+ppc64-pci-patch.patch
+  Subject: pci patch
+
+ppc64-aio-32bit-emulation.patch
+  32/64bit emulation for aio
+
+ppc64-64-bit-exec-fix.patch
+  Subject: 64bit exec
+
+ppc64-scruffiness.patch
+  Fix some PPC64 compile warnings
+
+sym-do-160.patch
+  make the SYM driver do 160 MB/sec
+
+kgdb.patch
+
+nfsd-disable-softirq.patch
+  Fix race in svcsock.c in 2.5.61
+
+report-lost-ticks.patch
+  make lost-tick detection more informative
+
+ptrace-flush.patch
+  cache flushing in the ptrace code
+
+buffer-debug.patch
+  buffer.c debugging
+
+warn-null-wakeup.patch
+
+ext3-truncate-ordered-pages.patch
+  ext3: explicitly free truncated pages
+
+limit-write-latency.patch
+  fix possible latency in balance_dirty_pages()
+
+reiserfs_file_write-5.patch
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+lockd-lockup-fix-2.patch
+  Subject: Re: Fw: Re: 2.4.20 NFS server lock-up (SMP)
+
+rcu-stats.patch
+  RCU statistics reporting
+
+ext3-journalled-data-assertion-fix.patch
+  Remove incorrect assertion from ext3
+
+nfs-speedup.patch
+
+nfs-oom-fix.patch
+  nfs oom fix
+
+sk-allocation.patch
+  Subject: Re: nfs oom
+
+nfs-more-oom-fix.patch
+
+nfs-sendfile.patch
+  Implement sendfile() for NFS
+
+rpciod-atomic-allocations.patch
+  Make rcpiod use atomic allocations
+
+linux-isp.patch
+
+isp-update-1.patch
+
+remove-unused-congestion-stuff.patch
+  Subject: [PATCH] remove unused congestion stuff
+
+aic-makefile-fix.patch
+  aicasm Makefile fix
+
+atm_dev_sem.patch
+  convert atm_dev_lock from spinlock to semaphore
+
+flock-fix.patch
+  flock fixes for 2.5.62
+
+shared-irq-warning.patch
+  detect and warn about attempts to share SA_INTERRUPT handlers
+
+as-iosched.patch
+  anticipatory I/O scheduler
+
+as-random-fixes.patch
+  Subject: [PATCH] important fixes
+
+as-comment-fix.patch
+  AS: comment fix
+
+as-naming-comments-BUG.patch
+  AS: fix up naming, comments, add more BUGs
+
+as-unnecessary-test.patch
+
+as-atomicity-fix.patch
+
+readahead-shrink-to-zero.patch
+  Allow VFS readahead to fall to zero
+
+cfq-2.patch
+  CFQ scheduler, #2
+
+smalldevfs.patch
+  smalldevfs
+
+objrmap-2.5.62-5.patch
+  object-based rmap
+
+objrmap-X-fix.patch
+  objrmap fix for X
+
+objrmap-nr_mapped-fix.patch
+  objrmap: fix /proc/meminfo:Mapped
+
+objrmap-mapped-mem-fix-2.patch
+  fix objrmap mapped mem accounting again
+
+objrmap-atomic_t-fix.patch
+  Make objrmap mapcount non-atomic
+
+per-cpu-disk-stats.patch
+  Make diskstats per-cpu using kmalloc_percpu
+
+sched-b3.patch
+  HT scheduler, sched-2.5.63-B3
+
+scheduler-tunables.patch
+  scheduler tunables
+
+show_task-free-stack-fix.patch
+  show_task() fix and cleanup
+
+use-after-free-check.patch
+  slab use-after-free detector
+
+reiserfs-fix-memleaks.patch
+  ReiserFS: fix memleaks on journal opening failures
+
+copy_page_range-invalid-page-fix.patch
+  Fix copy_page_range()'s handling of invalid pages
+
+rtc-locking-fix.patch
+  rtc lock ranking fix
+
+yellowfin-set_bit-fix.patch
+  yellowfin driver set_bit fix
+
+sk98-build-fix.patch
+  sk98lin 64-bit divide fix
+
+cciss-pci-hotplug-fix.patch
+  cciss: fix initialization for PCI hotplug
+
+export-pfn_to_nid.patch
+  export pfn_to_nid to modules
+
+move-CONFIG_SWAP.patch
+  move the CONFIG_SWAP menu option to somewhere logical
+
+random-stack-use.patch
+  Reduced stack usage in random.c
+
+inode-pruning-fix.patch
+  fix inode reclaim imbalance.
+
+remap-file-pages-2.5.63-a1.patch
+  Subject: [patch] remap-file-pages-2.5.63-A1
+
+pte_file-always.patch
+  enable file-offset-in-pte's for all mappings
+
+remove-__pgd_offset.patch
+  remove __pgd_offset
+
+remove-__pmd_offset.patch
+  remove __pmd_offset
+
+remove-__pte_offset.patch
+  remove __pte_offset
+
+htree-lock_kernel-fix.patch
+  missed unlock_kernel() in ext3+htree
+
+pci-1.patch
+  PCI probing for cardbus (1/5)
+
+pci-2.patch
+  PCI probing for cardbus (2/5)
+
+pci-3.patch
+  PCI probing for cardbus (3/5)
+
+pci-4.patch
+  PCI probing for cardbus (4/5)
+
+pci-5.patch
+  PCI probing for cardbus (5/5)
+
+elf_core_dump-stack-size-reduction.patch
+  reduce stack size: elf_core_dump()
+
+uninline-binfmt_elf.patch
+  uninlining in fs/binfmt_elf.c
+
+htree-nfs-fix.patch
+  Fix ext3 htree / NFS compatibility problems
+
+bonding-zerodiv-fix.patch
+  Subject: [PATCH][bonding] division by zero bug
+
+update_atime-ng.patch
+  inode a/c/mtime modification speedup
+
+one-sec-times.patch
+  Implement a/c/time speedup in ext2 & ext3
+
+
 

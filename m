@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313676AbSDPNkz>; Tue, 16 Apr 2002 09:40:55 -0400
+	id <S313680AbSDPNoN>; Tue, 16 Apr 2002 09:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313677AbSDPNky>; Tue, 16 Apr 2002 09:40:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40196 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313676AbSDPNkx>; Tue, 16 Apr 2002 09:40:53 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-To: terje.eggestad@scali.com (Terje Eggestad)
-Date: Tue, 16 Apr 2002 14:58:33 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel),
-        l_girdwood@bitwise.co.uk (Liam Girdwood),
-        balbir.singh@wipro.com (BALBIR SINGH),
-        olaf@navi.pl (William Olaf Fraczyk),
-        wli@holomorphy.com (Lee Irwin III)
-In-Reply-To: <1018964120.13527.37.camel@pc-16.office.scali.no> from "Terje Eggestad" at Apr 16, 2002 03:35:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313679AbSDPNoM>; Tue, 16 Apr 2002 09:44:12 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:56370 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S313680AbSDPNoL>; Tue, 16 Apr 2002 09:44:11 -0400
+Date: Tue, 16 Apr 2002 15:44:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <20020416154418.B25328@dualathlon.random>
+In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com> <Pine.LNX.4.33.0204151415110.15353-100000@penguin.transmeta.com> <20020415232058.GO21206@holomorphy.com> <20020416024458.H26561@dualathlon.random> <20020416013016.GA23513@matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xTTd-0008Va-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I seem to recall from theory that the 100HZ is human dependent. Any
-> higher and you would begin to notice delays from you input until
-> whatever program you're talking to responds. 
+On Mon, Apr 15, 2002 at 06:30:16PM -0700, Mike Fedyk wrote:
+> under testing.  Also, Andrew found a problem with your locking changes when
+> he split up your patch, and at the time you were saying it is ready and
+> there were no bug reports against in...
 
-Ultimately its because Linus pulled that number out of a hat about ten years
-ago. For some workloads 1KHz is much better, for others like giant number
-crunching people actually drop it down to about 5..
+btw, it was a problem only for ext3.
+
+> Does this patch conflict in any way with your vm patches?  If not they
+> should be able to co-exist.
+
+it will generate rejects, but that's not the problem. My point is that
+your same argument about merging in later kernels, stable kernel tree,
+could be applied to patches that makes no difference to users too.
+
+Andrea

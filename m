@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVCWO1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVCWOky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVCWO1d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 09:27:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWO1c
+	id S261593AbVCWOky (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 09:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVCWOky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 09:27:32 -0500
-Received: from colino.net ([213.41.131.56]:51451 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262399AbVCWO0f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 09:26:35 -0500
-Date: Wed, 23 Mar 2005 15:26:12 +0100
-From: Colin Leroy <colin@colino.net>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RFC: workaround quality bug in zd1201 hardware
-Message-ID: <20050323152612.66dce7e2@jack.colino.net>
-X-Mailer: Sylpheed-Claws 1.9.6cvs9 (GTK+ 2.6.1; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Mar 2005 09:40:54 -0500
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:7434 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S261593AbVCWOkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 09:40:46 -0500
+Message-ID: <42417FE3.2090506@hp.com>
+Date: Wed, 23 Mar 2005 09:40:35 -0500
+From: Mark Seger <Mark.Seger@hp.com>
+Organization: Consulting and Architecture
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, sebastien.godard@wanadoo.fr
+Subject: Re: Patch for inconsistent recording of block device statistics
+References: <42409313.1010308@hp.com> <20050323091916.GO24105@suse.de>
+In-Reply-To: <20050323091916.GO24105@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I saw in zd1201.c that there's a hardware bug related to quality
-statistics:
- /* Unfortunatly the quality and noise reported is useless. 
-    they seem to be accumulators that increase until you
-    read them, unless we poll on a fixed interval we can't
-    use them
-  */
+>I don't like this patch, it adds 4 * sizeof(unsigned long) to struct
+>request when it can be solved without adding anything. The idea is
+>sound, though, the current way the stats are done isn't very
+>interesting.
+>  
+>
+Actually I wasn't all that excited about using the extra variable 
+myself.  However, I wasn't entirely sure what was going on and this at 
+least allowed me to test the concept without doing anything harmful. 
 
-Given that I couldn't find any spec for the zd1201, I tried the
-following patch to see if we could cheat by updating commsquality while
-scanning. The idea is to use the values we find during scan and copy
-them to zd->iwstats; this can be useful because there are a lots of
-tools out there that perform scanning periodically (netapplet,
-NetworkManager, ...).
+>How about accounting merges the way we currently do it, since that piece
+>of the stats _is_ interesting at queueing time. And then account
+>completion in __end_that_request_first(). Untested patch attached.
+>  
+>
+I also agree with your suggestion about keeping the merged counts where 
+they are and am copying the author of iostat to suggest the man page be 
+updated to reflect the fact that merges are counts for requests queued 
+rather than 'issued to the device' as it currently states.
 
-Unfortunately this doesn't work perfectly, because it looks like the
-scale is different when reporting AP quality on scanning and
-"normal" quality.
+re: your patch - I did try it on both an Operton and Xeon box.  It 
+worked find on the Opeteron and reported 0 for all the sectors on the 
+Xeon.  If nothing immediately jumps to your mind could it have been 
+something I did wrong?  I'll try another build after I send this along, 
+but I don't see how that will help as I did the first one from a brand 
+new source kit.
 
-Maybe this can be made useful with a simple conversion ?
-If anyone that has more knowledge on 802.11b than I have could give me
-an hint, it'd be appreciated.
+The one thing that still jumps out at me about this patch is that the 
+sectors are being counted in one routine and the number of I/Os in 
+another.  If the best place to update the sector counts is indeed where 
+you suggest doing it, is there any reason not to move the update code 
+for all the disk stats from end_that_request_last() to that same place 
+as well for consistency and for better assurances that they are updated 
+as close to the same point in time as possible?
 
-Thanks!
-Signed-off-by: Colin Leroy <colin@colino.net>
---- a/drivers/usb/net/zd1201.c	2005-03-23 15:17:12.000000000 +0100
-+++ b/drivers/usb/net/zd1201.c	2005-03-23 15:17:50.000000000 +0100
-@@ -1160,6 +1160,7 @@
- 		return -EIO;
- 
- 	for(i=8; i<zd->rxlen; i+=62) {
-+		const char *ap_essid;
- 		iwe.cmd = SIOCGIWAP;
- 		iwe.u.ap_addr.sa_family = ARPHRD_ETHER;
- 		memcpy(iwe.u.ap_addr.sa_data, zd->rxdata+i+6, 6);
-@@ -1169,6 +1170,7 @@
- 		iwe.u.data.length = zd->rxdata[i+16];
- 		iwe.u.data.flags = 1;
- 		cev = iwe_stream_add_point(cev, end_buf, &iwe, zd->rxdata+i+18);
-+		ap_essid = zd->rxdata+i+18;
- 
- 		iwe.cmd = SIOCGIWMODE;
- 		if (zd->rxdata[i+14]&0x01)
-@@ -1204,6 +1206,17 @@
- 		iwe.u.qual.noise= zd->rxdata[i+2]/10-100;
- 		iwe.u.qual.level = (256+zd->rxdata[i+4]*100)/255-100;
- 		iwe.u.qual.updated = 7;
-+
-+		if (ap_essid && zd->essid && !strcmp(ap_essid, zd->essid)) {
-+			/* hack: work around hardware bug, update current 
-+			 * link quality using the scan result. 
-+			 */
-+			zd->iwstats.qual.qual = iwe.u.qual.qual;
-+			zd->iwstats.qual.level = iwe.u.qual.level;
-+			zd->iwstats.qual.noise = iwe.u.qual.noise;
-+			zd->iwstats.qual.updated = 2;
-+		}
-+
- 		cev = iwe_stream_add_event(cev, end_buf, &iwe, IW_EV_QUAL_LEN);
- 	}
- 
+-mark
 

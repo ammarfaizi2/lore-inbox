@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292473AbSCEWfF>; Tue, 5 Mar 2002 17:35:05 -0500
+	id <S292485AbSCEWfO>; Tue, 5 Mar 2002 17:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292293AbSCEWef>; Tue, 5 Mar 2002 17:34:35 -0500
-Received: from dsl-213-023-039-135.arcor-ip.net ([213.23.39.135]:17570 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S292320AbSCEWeR>;
-	Tue, 5 Mar 2002 17:34:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Date: Tue, 5 Mar 2002 23:29:46 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Jeremy Higdon <jeremy@classic.engr.sgi.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16hwzT-0000et-00@starship.berlin> <20020305074042.GB716@suse.de>
-In-Reply-To: <20020305074042.GB716@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16iNRL-0002lD-00@starship.berlin>
+	id <S292293AbSCEWfK>; Tue, 5 Mar 2002 17:35:10 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:18381 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S292485AbSCEWee>;
+	Tue, 5 Mar 2002 17:34:34 -0500
+Date: Tue, 5 Mar 2002 14:34:31 -0800
+To: Linus Torvalds <torvalds@transmeta.com>, irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] : ir256_sock_connect_cli.diff
+Message-ID: <20020305143431.C1254@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 5, 2002 08:40 am, Jens Axboe wrote:
-> On Mon, Mar 04 2002, Daniel Phillips wrote:
-> > > FUA is not available on WRITE6, only WRITE10 or WRITE12 commands.
-> > 
-> > I'm having a little trouble seeing the difference between WRITE10, WRITE12
-> > and WRITE16.  WRITE6 seems to be different only in not garaunteeing to 
-> > support the FUA (and one other) bit.  I'm reading the Scsi Block Commands
-> 
-> WRITE6 was deprecated because there is only one byte available to set
-> transfer size. Enter WRITE10. WRITE12 allows the use of the streaming
-> performance settings, that's the only functional difference wrt WRITE10
-> iirc.
+ir256_sock_connect_cli.diff :
+---------------------------
+	o [CRITICA] Fix socket connect to remove dangerous cli()
+	<Tested on SMP>
 
-Thanks.  This is poorly documented, to say the least.
 
-> > (Side note: how nice it would be if t10.org got a clue and posted their
-> > docs in html, in addition to the inconvenient, unhyperlinked, proprietary
-> > format pdfs.)
-> 
-> See the mtfuji docs as an example for how nicely pdf's can be setup too.
-
-Do you have a url?
-
-> The thought of substituting that for a html version makes me want to
-> barf.
-
-Who said substitute?  Provide beside, as is reasonable.  For my part,
-pdf's tend to cause severe indigestion, if not actually cause
-regurgitation.
-
--- 
-Daniel
+--- linux/net/irda/af_irda.d4.c	Mon Mar  4 14:54:38 2002
++++ linux/net/irda/af_irda.c	Mon Mar  4 17:07:45 2002
+@@ -1022,28 +1022,26 @@ static int irda_connect(struct socket *s
+ 	/* Now the loop */
+ 	if (sk->state != TCP_ESTABLISHED && (flags & O_NONBLOCK))
+ 		return -EINPROGRESS;
+-		
+-	cli();	/* To avoid races on the sleep */
+-	
+-	/* A Connect Ack with Choke or timeout or failed routing will go to
+-	 * closed.  */
++
++	/* Here, there is a race condition : the state may change between
++	 * our test and the sleep, via irda_connect_confirm().
++	 * The way to workaround that is to sleep with a timeout, so that
++	 * we don't sleep forever and check the state when waking up.
++	 * 50ms is plenty good enough, because the LAP is already connected.
++	 * Jean II */
+ 	while (sk->state == TCP_SYN_SENT) {
+-		interruptible_sleep_on(sk->sleep);
++		interruptible_sleep_on_timeout(sk->sleep, HZ/20);
+ 		if (signal_pending(current)) {
+-			sti();
+ 			return -ERESTARTSYS;
+ 		}
+ 	}
+ 	
+ 	if (sk->state != TCP_ESTABLISHED) {
+-		sti();
+ 		sock->state = SS_UNCONNECTED;
+ 		return sock_error(sk);	/* Always set at this point */
+ 	}
+ 	
+ 	sock->state = SS_CONNECTED;
+-	
+-	sti();
+ 	
+ 	/* At this point, IrLMP has assigned our source address */
+ 	self->saddr = irttp_get_saddr(self->tsap);

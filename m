@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316764AbSFJIFO>; Mon, 10 Jun 2002 04:05:14 -0400
+	id <S316777AbSFJIXI>; Mon, 10 Jun 2002 04:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316776AbSFJIFN>; Mon, 10 Jun 2002 04:05:13 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:19603 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S316764AbSFJIFN>;
-	Mon, 10 Jun 2002 04:05:13 -0400
-Date: Mon, 10 Jun 2002 11:05:13 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Robert PipCA <robertpipca@yahoo.com>
-Cc: vortex@scyld.com, linux-kernel@vger.kernel.org
+	id <S316778AbSFJIXH>; Mon, 10 Jun 2002 04:23:07 -0400
+Received: from web21301.mail.yahoo.com ([216.136.173.212]:11108 "HELO
+	web21301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316777AbSFJIXG>; Mon, 10 Jun 2002 04:23:06 -0400
+Message-ID: <20020610082307.74491.qmail@web21301.mail.yahoo.com>
+Date: Mon, 10 Jun 2002 01:23:07 -0700 (PDT)
+From: Robert PipCA <robertpipca@yahoo.com>
 Subject: Re: MTU discovery
-Message-ID: <20020610110513.I18899@mea-ext.zmailer.org>
-In-Reply-To: <20020610074507.69402.qmail@web21301.mail.yahoo.com>
-Mime-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: vortex@scyld.com
+In-Reply-To: <20020610110513.I18899@mea-ext.zmailer.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 12:45:07AM -0700, Robert PipCA wrote:
->   Hi,
->   I'm working on a project that require knowing the max MTU size
-> supported by the 3Com PCI 3c905C (Boomerang).
-> The datasheet provided by 3Com does not mention it, and I already
-> did the usual google search, but didn't find it neither.
-> Does anyone knows a "generic way" of knowing this (or chip-specific)?
+  Hi,
+--- Matti Aarnio <matti.aarnio@zmailer.org> wrote:
+>   Oh, it is mentioned there, although not with that
+> name.
+>   Some devices do, however, support reception (and
+> transmit) of what
+>   is called "jumbograms".  With boomerang you can
+> set a register
+>   to contain the limit value.  Alternatively with
+> boomerang, and
+>   its predecessors, you can set a bit to accept
+> extra-large frames.
+>   I recall the ultimate limit is in order of 4kB.
 
-  Oh, it is mentioned there, although not with that name.
+   How did you came up with "4Kb"?
+   I've looked through the datasheets of the board and
+didn't find any mention to it.
+--Robert
 
-  The Ethernet Standard (IEEE 802.3) specifies that the frame size
-  shall be 1500 octets.   That is the NORMAL CASE max MTU value for
-  all ethernet devices.
-
-  Some devices do, however, support reception (and transmit) of what
-  is called "jumbograms".  With boomerang you can set a register
-  to contain the limit value.  Alternatively with boomerang, and
-  its predecessors, you can set a bit to accept extra-large frames.
-
-  I recall the ultimate limit is in order of 4kB.
-
->   Thanks in advance.
-> --Robert
-
-/Matti Aarnio
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

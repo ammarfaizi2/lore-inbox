@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbUK3Ci2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUK3CqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbUK3Ci2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUK3B7l
+	id S261951AbUK3CqM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 21:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUK3Cpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 20:59:41 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:43928 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261820AbUK3B5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 20:57:40 -0500
-Subject: [patch 10/11] Subject: ifdef typos: sound_isa_cs423x_cs4231_lib.c
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org,
-       rddunlap@osdl.org
-From: janitor@sternwelten.at
-Date: Tue, 30 Nov 2004 02:57:38 +0100
-Message-ID: <E1CYxGs-00031G-Lm@sputnik>
+	Mon, 29 Nov 2004 21:45:36 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57047 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261965AbUK3Cnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 21:43:40 -0500
+Date: Mon, 29 Nov 2004 18:43:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource Management
+Message-ID: <20041130024321.GA6317@kroah.com>
+References: <E1CYqW1-00056B-00@w-gerrit.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CYqW1-00056B-00@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 29, 2004 at 10:44:49AM -0800, Gerrit Huizenga wrote:
+> 09-diff_rbce
+> 	A very basic rules based classification engine for automatically
+> 	adding tasks to classes.  Also includes an enhanced rules based
+> 	classification engine with better per-process delay data and
+> 	ability to better monitor class related activities.
 
+This one didn't look like it made it to lkml.
 
-Funny typo.
+Oh, and I stopped reviewing the other patches in the series, as the same
+comments pretty much applied to them :(
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Acked-by: Randy Dunlap <rddunlap@osdl.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+thanks,
 
----
-
- linux-2.6.10-rc2-bk13-max/sound/isa/cs423x/cs4231_lib.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN sound/isa/cs423x/cs4231_lib.c~ifdef-sound_isa_cs423x_cs4231_lib sound/isa/cs423x/cs4231_lib.c
---- linux-2.6.10-rc2-bk13/sound/isa/cs423x/cs4231_lib.c~ifdef-sound_isa_cs423x_cs4231_lib	2004-11-30 02:41:46.000000000 +0100
-+++ linux-2.6.10-rc2-bk13-max/sound/isa/cs423x/cs4231_lib.c	2004-11-30 02:41:46.000000000 +0100
-@@ -694,7 +694,7 @@ static void snd_cs4231_init(cs4231_t *ch
- 
- 	snd_cs4231_mce_down(chip);
- 
--#ifdef SNDRV_DEBUGq_MCE
-+#ifdef SNDRV_DEBUG_MCE
- 	snd_printk("init: (1)\n");
- #endif
- 	snd_cs4231_mce_up(chip);
-_
+greg k-h

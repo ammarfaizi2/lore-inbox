@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319649AbSIMNzd>; Fri, 13 Sep 2002 09:55:33 -0400
+	id <S319660AbSIMOCr>; Fri, 13 Sep 2002 10:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319647AbSIMNzd>; Fri, 13 Sep 2002 09:55:33 -0400
-Received: from copper.ftech.net ([212.32.16.118]:56003 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S319589AbSIMNzc>;
-	Fri, 13 Sep 2002 09:55:32 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF512@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Preventing signal interrupt in Kernel module code
-Date: Fri, 13 Sep 2002 14:54:19 +0100
+	id <S319661AbSIMOCr>; Fri, 13 Sep 2002 10:02:47 -0400
+Received: from dsl-213-023-022-092.arcor-ip.net ([213.23.22.92]:24206 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319660AbSIMOCq>;
+	Fri, 13 Sep 2002 10:02:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Subject: Re: [RFC] Raceless module interface
+Date: Fri, 13 Sep 2002 16:09:24 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209130750270.10048-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0209130750270.10048-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pr8P-00089M-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I have written a Kernel module and I'm having a small problem with
-signals that I hope someone can steer me through.  The signal in question
-are SIGCHILD, but that is not really relevant.  I must be able to handle any
-signal that the process has enabled.
+On Friday 13 September 2002 15:52, Thunder from the hill wrote:
+> Hi,
+> 
+> On Fri, 13 Sep 2002, Daniel Phillips wrote:
+> > On Friday 13 September 2002 08:51, Rusty Russell wrote:
+> > > [cool code]
+> > 
+> > Why is that different from:
+> > 
+> > [more code]
+> 
+> Because in your example, my_module_start() would not be able to run 
+> separately
 
-	My module has several wait queues, most of which I can cope with
-being interrupted by a signal (returning EINTR to the process).  However,
-there are some hardware operations that I need to wait for completion of, as
-it would be impossible to restart them or pick up where we left off.  I
-still want to use a wait queue so other things can run.  Is there some
-system call I can make to mask signals until the operation has completed.
-Would I still call signal_pending() to see if one had occurred while they
-were blocked?
+That's obvious.  What hasn't been shown is why that's necessary.
 
-I'm sure the answer is really simple but I haven't stumbled across it yet.
+Note: this is the *real* meaning of "begs the question".  You answered
+my question "why is it necessary the these to be separate" with "because
+if they were not separate, then you could not use them separately".  In
+logical terms, it amounts to "A because A".  This is a logical falacy
+called "begging the question".
 
-TIA
+When people say "begs the question", 99% of the time they really mean
+"invites the question".  As an exercise, try scanning lkml for "From
+includes Torvalds" and "begs".  Linus studied debating ;-)
 
-Kevin
+
+-- 
+Daniel

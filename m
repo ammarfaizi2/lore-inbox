@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSF0M5c>; Thu, 27 Jun 2002 08:57:32 -0400
+	id <S316840AbSF0NEu>; Thu, 27 Jun 2002 09:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSF0M5b>; Thu, 27 Jun 2002 08:57:31 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:14100 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S316837AbSF0M5a>; Thu, 27 Jun 2002 08:57:30 -0400
-Date: Thu, 27 Jun 2002 07:57:19 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200206271257.HAA61267@tomcat.admin.navo.hpc.mil>
-To: dax@gurulabs.com, Michael Kerrisk <m.kerrisk@gmx.net>
-Subject: Re: Status of capabilities?
-In-Reply-To: <1025157926.1652.35.camel@mentor>
+	id <S316842AbSF0NEs>; Thu, 27 Jun 2002 09:04:48 -0400
+Received: from [193.14.93.89] ([193.14.93.89]:29700 "HELO acolyte.hack.org")
+	by vger.kernel.org with SMTP id <S316840AbSF0NEh>;
+	Thu, 27 Jun 2002 09:04:37 -0400
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+Subject: Re: SCx200 audio support?
+References: <200206271443.35524.roy@karlsbakk.net>
+From: Christer Weinigel <wingel@acolyte.hack.org>
+Date: 27 Jun 2002 15:04:35 +0200
+In-Reply-To: Roy Sigurd Karlsbakk's message of "Thu, 27 Jun 2002 14:43:35 +0200"
+Message-ID: <m3d6uc98kc.fsf@acolyte.hack.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson <dax@gurulabs.com>:
+Roy Sigurd Karlsbakk <roy@karlsbakk.net> writes:
 
+> Any plans to support the National Geode SC1200 integrated audio chipset?
 > 
-> On Wed, 2002-06-26 at 06:40, Michael Kerrisk wrote:
-> 
-> > What's still missing in 2.4, as far as I can see after reading the sources,
-> > is the ability to set capabilities on executable files so that a process
-> > gains those privileges when executing the file.  I recall seeing some
-> > information somewhere saying this wasn't possible / wasn't going to happen
-> > for ext2.  Is it on the drawing board for any file system?
-> 
-> The 2.5 VFS supports Extended Attributes (since 2.5.3). I think the plan
-> was use EAs to store capabilities. So I believe that the infrastructure
-> is in place, someone with the proper skills just needs to:
-> 
-> 1. Define how capabilities will be stored as a EA
-> 2. Teach fs/exec.c to use the capabilities stored with the file
-> 3. Write lscap(1)
-> 4. Write chcap(1)
-> 5. Audit/fix all SUID root binaries to use capabilities
-> 6. Set appropriate capabilities with for each with chcap(1) and then:
->    # find / -type f -perm -4000 -user root -exec chmod u-s {} \;
-> 7. Party and snicker in the general direction of that OS with the slogan
-> "One remote hole in the default install, in nearly 6 years!"
+> 00:12.3 Multimedia audio controller: National Semiconductor
+> Corporation SCx200 Audio
 
-Actually, I think most of that work has already been done by the Linux
-Security Module project (well, except #7).
+The VSA BIOS should emulate a soundblaster card, so the normal
+soundblaster driver ought to work.  There is also a native National
+GX1+CS5530 driver that you can get from National and that driver ought
+to work on the SC1200 although you might have to add the proper PCI
+IDs.
 
-see:
-	http://lsm.immunix.org/
+     /Christer
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+-- 
+"Just how much can I get away with and still go to heaven?"

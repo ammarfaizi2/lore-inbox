@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVCVJH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVCVJSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVCVJH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVCVJEu
+	id S262579AbVCVJSW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 04:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVCVJSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:04:50 -0500
-Received: from mail.dif.dk ([193.138.115.101]:65182 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262580AbVCVJES (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:04:18 -0500
-Date: Tue, 22 Mar 2005 10:05:59 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexander Gran <alex@zodiac.dnsalias.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-mm3] umount: Scheduling while atomic
-In-Reply-To: <20050318172649.56480a4e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0503220956240.2495@dragon.hyggekrogen.localhost>
-References: <200503190127.54669@zodiac.zodiac.dnsalias.org>
- <20050318172649.56480a4e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Mar 2005 04:18:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28431 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262579AbVCVJSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 04:18:16 -0500
+Date: Tue, 22 Mar 2005 10:18:14 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, arjanv@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm1
+Message-ID: <20050322091814.GC3982@stusta.de>
+References: <20050321025159.1cabd62e.akpm@osdl.org> <200503210915.53193.jbarnes@engr.sgi.com> <20050321202506.GA3982@stusta.de> <200503211642.00796.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503211642.00796.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Andrew Morton wrote:
-
-> Alexander Gran <alex@zodiac.dnsalias.org> wrote:
+On Mon, Mar 21, 2005 at 04:42:00PM -0800, Jesse Barnes wrote:
+> On Monday, March 21, 2005 12:25 pm, Adrian Bunk wrote:
+> > On Mon, Mar 21, 2005 at 09:15:53AM -0800, Jesse Barnes wrote:
+> > > On Monday, March 21, 2005 2:51 am, Andrew Morton wrote:
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc
+> > > >1/2. 6.12-rc1-mm1/
+> > >
+> > > Andrew, please drop
+> > >
+> > > revert-allow-oem-written-modules-to-make-calls-to-ia64-oem-sal-functions.
+> > >patch
+> > >
+> > > The tiocx.c driver is now in the tree, and it uses those functions.
 > >
-> > while umounting an ext2 partition on a usb hdd I'm getting:
-> >  scheduling while atomic: umount/0x10000001/14941
-> >   [<c0451392>] schedule+0x5f2/0x600
-> >   [<c0451cc7>] cond_resched+0x27/0x40
-> >   [<c0140af1>] invalidate_mapping_pages+0x81/0xe0
-> >   [<c015b27d>] kill_bdev+0xd/0x20
-> >   [<c015b315>] __set_blocksize+0x85/0xa0
-> >   [<c015bba0>] __bd_release+0x70/0x80
-> >   [<c015c458>] __close_bdev_excl+0x8/0x10
-> >   [<c015a100>] deactivate_super+0x50/0x80
-> >   [<c016f82b>] sys_umount+0x3b/0x90
-> >   [<c0148c20>] do_munmap+0x120/0x150
-> >   [<c016f895>] sys_oldumount+0x15/0x20
-> >   [<c010300b>] sysenter_past_esp+0x54/0x75
+> > IOW:
+> > The EXPORT_SYMBOL's should still be removed, but the functions
+> > themselves should stay.
 > 
-> hm, yes, that was a bug in blockdev-fixes-race-between-mount-umount.patch,
-> but that patch got dropped because Linus fixed things differently.
-> 
-I just got a similar one when shutting down my box with 2.6.11-mm4, 
-rebooted it a few times, and it seems to happen 1 in 4 times.  last few 
-messages during shutdown are here :  
+> Actually, no, since tiocx can be built modular.  The patch should just be 
+> dropped.
 
-Turning off swap.
-Unmounting local file systems.
-Scheduling while atomic: umount/0x10000001/12240
-[<c0103997>] dump_stack+0x17/0x20
-[<c02dd927>] schedule+0x587/0x650
-[<c02de3fa>] cond_resched+0x2a/0x50
-[<c014283a>] invalidate_mapping_pages+0xda/0xe0
-[<c015d7e0>] kill_bdev+0x10/0x30
-[<c015d885>] __set_blocksize+0x85/0xb0
-[<c015e1c2>] __bd_release+0x62/0x70
-[<c015eaeb>] __close_bdev_excl+0xb/0x14
-[<c015c487>] deactivate_super+0x67/0x90
-[<c01730a7>] sys_umount+0x37/0x80
-[<c0173109>] sys_oldumount+0x19/0x20
-[<c0102b15>] syscall_call+0x7/0xb
-Remounting root filesystem read-only.
-Synchronizing SCSI cache for disk sda:
-Power down.
+???
 
+config SGI_TIOCX
+	bool "SGI TIO CX driver support"
 
-Now I'm of to try and see if 2.6.12-rc1-mm1 still does this.
+> Thanks,
+> Jesse
 
+cu
+Adrian
 
 -- 
-Jesper Juhl
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

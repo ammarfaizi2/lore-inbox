@@ -1,76 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbTEYO6O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 10:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTEYO6O
+	id S262577AbTEYOS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 10:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTEYOS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 10:58:14 -0400
-Received: from mail-3.tiscali.it ([195.130.225.149]:13481 "EHLO
-	mail-3.tiscali.it") by vger.kernel.org with ESMTP id S262820AbTEYO6M convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 10:58:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniele Bellucci <bellucda@tiscali.it> (by way of Daniele Bellucci
-	<danielebellucci@libero.it>)
-Subject: Re: [linux-usb-devel] replaced BKL in rio500.c [2.5.69]
-Date: Sun, 25 May 2003 17:11:20 +0200
-User-Agent: KMail/1.4.3
-To: linux-kernel@vger.kernel.org
+	Sun, 25 May 2003 10:18:29 -0400
+Received: from oak.sktc.net ([64.71.97.14]:62119 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S262577AbTEYOS2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 10:18:28 -0400
+Message-ID: <3ED0D3C7.2050008@sktc.net>
+Date: Sun, 25 May 2003 09:31:35 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305251711.20197.danielebellucci@libero.it>
+To: Jens Axboe <axboe@suse.de>
+CC: Brad Chapman <jabiru_croc@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: What does laptop-mode do? (/. spelling)
+References: <20030524204311.47826.qmail@web40001.mail.yahoo.com> <20030525091551.GD812@suse.de>
+In-Reply-To: <20030525091551.GD812@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-..sorry, this one is correct.
+Jens Axboe wrote:
+> This means you could potentially loose 10 minutes worth of data, if you
 
+s/loose/lose
 
---- linux-2.5.69/drivers/usb/misc/rio500.c       2003-05-26
- 16:23:20.000000000 +0200 +++ linux-2.5.69-new/drivers/usb/misc/rio500.c 
- 2003-05-26 16:24:36.000000000 +0200 @@ -23,6 +23,9 @@
-  *
-  * Based upon mouse.c (Brad Keryan) and printer.c (Michael Gee).
-  *
-+ * Changelog:
-+ * 25/05/03  replaced lock/unlock_kernel with up/down in open_rio.
-+ *           Daniele Bellucci (bellucda@tiscali.it)
-  * */
-
- #include <linux/module.h>
-@@ -81,17 +84,17 @@
- {
-        struct rio_usb_data *rio = &rio_instance;
-
--       lock_kernel();
-+       down(&(rio->lock));
-
-        if (rio->isopen || !rio->present) {
--               unlock_kernel();
-+               up(&(rio->lock));
-                return -EBUSY;
-        }
-        rio->isopen = 1;
-
-        init_waitqueue_head(&rio->wait_q);
-
--       unlock_kernel();
-+       up(&(rio->lock));
-
-        info("Rio opened.");
-
-
-
-
------------------------------------------------------------------------------
------------------------------------------------------------------------------
---- PGP PKEY     
- http://pgp.mit.edu:11371/pks/lookup?search=belch76@libero.it&op=index ICQ#  
-             104896040
-Netphone/Fax  178.605.7063
-Homepage       http://web.tiscali.it/bellucda
------------------------------------------------------------------------------
------------------------------------------------------------------------------
----
-
-Daniele Bellucci
 

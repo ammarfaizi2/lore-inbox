@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266567AbTGKAoO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 20:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269709AbTGKAoO
+	id S269725AbTGKApc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 20:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269726AbTGKApb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 20:44:14 -0400
-Received: from mail-05.iinet.net.au ([203.59.3.37]:26116 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266567AbTGKAoM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 20:44:12 -0400
-Message-ID: <3F0E097F.1080601@ii.net>
-Date: Fri, 11 Jul 2003 08:49:03 +0800
-From: Wade <neroz@ii.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030618 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.75
-References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>	<1057879835.584.7.camel@teapot.felipe-alfaro.com>	<1057880428.1984.12.camel@localhost> <20030711022446.0ef98986.diegocg@teleline.es>
-In-Reply-To: <20030711022446.0ef98986.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Jul 2003 20:45:31 -0400
+Received: from holomorphy.com ([66.224.33.161]:25269 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S269725AbTGKApX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 20:45:23 -0400
+Date: Thu, 10 Jul 2003 18:01:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm3 OOM killer fubared ?
+Message-ID: <20030711010122.GZ15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Miquel van Smoorenburg <miquels@cistron.nl>,
+	linux-kernel@vger.kernel.org
+References: <bejhrj$dgg$1@news.cistron.nl> <20030710112728.GX15452@holomorphy.com> <bejnl9$m9l$1@news.cistron.nl> <20030710155643.GY15452@holomorphy.com> <bekrg1$c9m$2@news.cistron.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bekrg1$c9m$2@news.cistron.nl>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja García wrote:
+In article <20030710155643.GY15452@holomorphy.com>, William Lee Irwin III  <wli@holomorphy.com> wrote:
+>> That's not what it's supposed to do. The thought behind it is that since
+>> out_of_memory()'s count is not reset unless it's been 5s since the last
+>> time this was ever invoked, it will happen on a regular basis after the
+>> first kill if it is invoked regularly. It's actually a bit too late,
+>> since something's already been killed, but it should make a larger
+>> difference than merely altering the rate.
 
->El 10 Jul 2003 16:40:29 -0700 Robert Love <rml@tech9.net> escribió:
->
->  
->
->>I do not see it as a _huge_ problem, because we are just worrying about
->>corner cases now. Worst case we can turn off the interactivity estimator
->>- which is both the root of the improvement and the problems - and be
->>back to where we are in 2.4.
->>    
->>
->
->It used to work fine in the past; now as Felipe said, it's a PITA. Con's
->patch helps but it's not even near than what it used to be. My make -j 25
->without any skip is now -j3 with Con's patch and some mp3 skips. Perhaps
->i should start testing when it stopped "working" (i always save the kernel
->images)
->  
->
-Please share this information if you find it :-) I would like a nice 
-desktop kernel again too.
+On Thu, Jul 10, 2003 at 11:05:37PM +0000, Miquel van Smoorenburg wrote:
+> Well, that won't help in my case, as my problem is not that many
+> processes are killed - it's just that every few minutes (sometimes
+> 3 minutes, sometimes 30, sometimes an hour) an innocent process
+> gets killed (just one) with 2.5.74-mm3. And that did not happen 
+> with 2.5.74 or 2.5.72-mm2
 
->Diego Calleja
->
->  
->
+Okay, it won't help your case, then. I've had this improvement to its
+heuristics on the back burner for a while but haven't gone so far as
+to dig up a case it directly benefits. It's small enough I'll think
+about it later.
 
 
+-- wli

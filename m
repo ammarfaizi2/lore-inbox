@@ -1,122 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVAOEOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVAOESZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVAOEOE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 23:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVAOEOE
+	id S262094AbVAOESZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 23:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVAOESZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 23:14:04 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:4288 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262116AbVAOEM5 (ORCPT
+	Fri, 14 Jan 2005 23:18:25 -0500
+Received: from opersys.com ([64.40.108.71]:52745 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262094AbVAOESP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 23:12:57 -0500
-Date: Sat, 15 Jan 2005 05:12:56 +0100
-From: Andi Kleen <ak@suse.de>
-To: akpm@osdl.org
-Cc: manpreet@fabric7.com, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] i386/x86-64: Fix SMP NMI watchdog race
-Message-ID: <20050115041256.GE13525@wotan.suse.de>
-Mime-Version: 1.0
+	Fri, 14 Jan 2005 23:18:15 -0500
+Message-ID: <41E89B3E.3090300@opersys.com>
+Date: Fri, 14 Jan 2005 23:25:34 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Tim Bird <tim.bird@am.sony.com>
+CC: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev <ltt-dev@shafik.org>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <41E84E9E.1000907@am.sony.com>
+In-Reply-To: <41E84E9E.1000907@am.sony.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fix SMP race in NMI watchdog on i386/x86-64
+Tim Bird wrote:
+> Some of these options (e.g. bufsize) are available to the user
+> via tracedaemon. I can honestly say I haven't got a clue what
+> to use for some of them, and so always leave them at defaults.
 
-Fix a long standing SMP Setup race in the NMI watchdog. The
-watchdog would tick from very early and check if all CPUs
-increase their timer interrupts. For that it would check
-the cpu_online_map. Now if a CPU took too long to boot 
-the watchdog would trigger prematurely because the CPU
-didn't increase its timer count yet.
+Yes, but those defaults were chosen by a person who understood the
+kernel part's use of the buffer space, right? Presumably if you
+are writing your own relayfs client you know what type of
+throughput to expect and what size you'd like your buffers to
+be (bufsize and nbufs), so you need to be able to set this somehow
+and it only seems right that this be done upon instantiation.
 
-Fix is to check cpu_callin_map instead of cpu_online_map
-because the first is only set when a CPU started its timer
-interrupt. 
+> Could these be simplified to a few enumerated modes?
 
-I fixed it on i386 and x86-64. 
+I don't see how. Do you have actual examples?
 
-Description of the problem from Manpreet Singh. Thanks.
+As for the other fields, please see my response to Roman.
 
-Cc: manpreet@fabric7.com
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/include/asm-x86_64/smp.h
-===================================================================
---- linux.orig/include/asm-x86_64/smp.h	2005-01-14 10:12:26.%N +0100
-+++ linux/include/asm-x86_64/smp.h	2005-01-14 10:22:57.%N +0100
-@@ -59,6 +59,7 @@
-  */
- 
- extern cpumask_t cpu_callout_map;
-+extern cpumask_t cpu_callin_map;
- #define cpu_possible_map cpu_callout_map
- 
- static inline int num_booting_cpus(void)
-Index: linux/arch/i386/kernel/nmi.c
-===================================================================
---- linux.orig/arch/i386/kernel/nmi.c	2004-10-19 01:55:01.%N +0200
-+++ linux/arch/i386/kernel/nmi.c	2005-01-14 10:22:57.%N +0100
-@@ -117,7 +117,7 @@
- 	/* FIXME: Only boot CPU is online at this stage.  Check CPUs
-            as they come up. */
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		if (!cpu_online(cpu))
-+		if (!cpu_isset(cpu, cpu_callin_map))
- 			continue;
- 		if (nmi_count(cpu) - prev_nmi_count[cpu] <= 5) {
- 			printk("CPU#%d: NMI appears to be stuck!\n", cpu);
-Index: linux/arch/i386/kernel/smpboot.c
-===================================================================
---- linux.orig/arch/i386/kernel/smpboot.c	2005-01-14 10:22:53.%N +0100
-+++ linux/arch/i386/kernel/smpboot.c	2005-01-14 10:22:57.%N +0100
-@@ -67,7 +67,7 @@
- /* bitmap of online cpus */
- cpumask_t cpu_online_map;
- 
--static cpumask_t cpu_callin_map;
-+cpumask_t cpu_callin_map;
- cpumask_t cpu_callout_map;
- static cpumask_t smp_commenced_mask;
- 
-Index: linux/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/nmi.c	2005-01-04 12:12:39.%N +0100
-+++ linux/arch/x86_64/kernel/nmi.c	2005-01-14 10:22:57.%N +0100
-@@ -130,7 +130,9 @@
- 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		if (!cpu_online(cpu))
-+		/* Check cpu_callin_map here because that is set
-+		   after the timer is started. */
-+		if (!cpu_isset(cpu, cpu_callin_map))
- 			continue;
- 		if (cpu_pda[cpu].__nmi_count - counts[cpu] <= 5) {
- 			printk("CPU#%d: NMI appears to be stuck (%d)!\n", 
-Index: linux/include/asm-i386/smp.h
-===================================================================
---- linux.orig/include/asm-i386/smp.h	2005-01-14 10:12:25.%N +0100
-+++ linux/include/asm-i386/smp.h	2005-01-14 10:22:57.%N +0100
-@@ -53,6 +53,7 @@
- #define __smp_processor_id() (current_thread_info()->cpu)
- 
- extern cpumask_t cpu_callout_map;
-+extern cpumask_t cpu_callin_map;
- #define cpu_possible_map cpu_callout_map
- 
- /* We don't mark CPUs online until __cpu_up(), so we need another measure */
-Index: linux/arch/x86_64/kernel/smpboot.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/smpboot.c	2005-01-14 10:22:53.%N +0100
-+++ linux/arch/x86_64/kernel/smpboot.c	2005-01-14 10:22:57.%N +0100
-@@ -64,7 +64,7 @@
- /* Bitmask of currently online CPUs */
- cpumask_t cpu_online_map;
- 
--static cpumask_t cpu_callin_map;
-+cpumask_t cpu_callin_map;
- cpumask_t cpu_callout_map;
- static cpumask_t smp_commenced_mask;
- 
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137070AbRA1OKH>; Sun, 28 Jan 2001 09:10:07 -0500
+	id <S137110AbRA1OLr>; Sun, 28 Jan 2001 09:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137110AbRA1OJ5>; Sun, 28 Jan 2001 09:09:57 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:19380 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S137070AbRA1OJq>;
-	Sun, 28 Jan 2001 09:09:46 -0500
-Date: Sun, 28 Jan 2001 14:09:19 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Ben Ford <ben@kalifornia.com>
-cc: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-In-Reply-To: <3A7426E1.728BB87D@kalifornia.com>
-Message-ID: <Pine.SOL.4.21.0101281406560.21057-100000@red.csi.cam.ac.uk>
+	id <S137109AbRA1OLh>; Sun, 28 Jan 2001 09:11:37 -0500
+Received: from anime.net ([63.172.78.150]:54032 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S137160AbRA1OLX>;
+	Sun, 28 Jan 2001 09:11:23 -0500
+Date: Sun, 28 Jan 2001 06:11:26 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Felix von Leitner <leitner@fefe.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <20010128143748.A9767@convergence.de>
+Message-ID: <Pine.LNX.4.30.0101280609510.27435-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, Ben Ford wrote:
+On Sun, 28 Jan 2001, Felix von Leitner wrote:
+> What is missing here is a good authoritative web ressource that tells
+> people which NIC to buy.
+> I have a tulip NIC because a few years ago that apparently was the NIC
+> of choice.  It has good multicast (which is important to me), but AFAIK
+> it has neither scatter-gather nor hardware checksumming.
+> Is there such a web page already?
 
-> James Sutherland wrote:
-> 
-> > I'm sure we all know what the IETF is, and where ECN came from. I haven't
-> > seen anyone suggesting ignoring RST, either: DM just imagined that,
-> > AFAICS.
-> >
-> > The one point I would like to make, though, is that firewalls are NOT
-> > "brain-damaged" for blocking ECN: according to the RFCs governing
-> > firewalls, and the logic behind their design, blocking packets in an
-> > unknown format (i.e. with reserved bits set) is perfectly legitimate. Yes,
-> > those firewalls should be updated to allow ECN-enabled packets
-> > through. However, to break connectivity to such sites deliberately just
-> > because they are not supporting an *experimental* extension to the current
-> > protocols is rather silly.
-> 
-> Do keep in mind, we aren't breaking connectivity, they are.
+http://www.anime.net/~goemon/cardz/
 
-Let me guess: you're a lawyer? :-)
+Based on discussions I've had with Donald Becker about chipsets.
 
-This is a very strange definition: if someone makes a change such that
-their machine can no longer communicate with existing systems, I would say
-the person making the incompatible change is the one who broke it.
+For 100bt, 3c905C is the most efficient card at the moment.
+I've no idea about gigglebit ethernet.
 
-Maybe my mains sockets should be waterproof: it's still my fault when
-pouring water over them causes problems, even if the standards say the
-socket should be waterproof!
-
-
-James.
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

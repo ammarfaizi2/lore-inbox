@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267554AbTA3QvK>; Thu, 30 Jan 2003 11:51:10 -0500
+	id <S267562AbTA3Qwc>; Thu, 30 Jan 2003 11:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbTA3QvK>; Thu, 30 Jan 2003 11:51:10 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:47110 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S267554AbTA3QvJ>; Thu, 30 Jan 2003 11:51:09 -0500
-Date: Thu, 30 Jan 2003 19:59:44 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: David Brownell <david-b@pacbell.net>
-Cc: Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-Message-ID: <20030130195944.A4966@jurassic.park.msu.ru>
-References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org> <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme> <3E3951E3.7060806@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E3951E3.7060806@pacbell.net>; from david-b@pacbell.net on Thu, Jan 30, 2003 at 08:25:07AM -0800
+	id <S267564AbTA3Qwc>; Thu, 30 Jan 2003 11:52:32 -0500
+Received: from fubar.phlinux.com ([216.254.54.154]:25304 "EHLO
+	fubar.phlinux.com") by vger.kernel.org with ESMTP
+	id <S267562AbTA3Qwb>; Thu, 30 Jan 2003 11:52:31 -0500
+Date: Thu, 30 Jan 2003 09:01:50 -0800 (PST)
+From: Matt C <wago@phlinux.com>
+To: Praveen Ray <praveen.ray@crcnet1.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: timer interrupts on HP machines
+In-Reply-To: <200301300934.54201.praveen.ray@crcnet1.com>
+Message-ID: <Pine.LNX.4.44.0301300859340.22492-100000@fubar.phlinux.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 08:25:07AM -0800, David Brownell wrote:
-> At least on 2.5.59, the pci_generic_prep_mwi() code doesn't check
-> for that type of error:  it just writes the cacheline size, and
-> doesn't verify that setting it worked as expected.  Checking for
-> that kind of problem would make it safer to call pci_set_mwi() in
-> such cases ... e.g. using it on a P4 with 128 byte L1 cachelines
-> would fail cleanly, while on an Athlon (64 byte L1) it might work
-> (depending in which top bits are unusable).
+Hi Praveen-
 
-Hmm, what happens if you boot the kernel configured for 80386
-on P4 and enable MWI?
+We have a few LT6000r servers as well, and have the same problem on all 
+2.4 kernels -- this happens when your MP spec is set to 1.1 in the BIOS. 
+Change it to 1.4 and you should be okay.
 
-Ivan.
+The other common problem on these guys is the CPU speed misdetect, which 
+causes the kernel to think your CPU is roughly 2x as fast as it really is. 
+The solution to that one is to unplug and replug the power cords (even a 
+power-off doesn't fix it, go figure).
+
+Hope that helps.
+
+-Matt
+
+On Thu, 30 Jan 2003, Praveen Ray wrote:
+
+> We have few HP (LPR NetServers and LT6000) which run 2.4.18  (from RedHat 8.0) 
+> . The problem is that sometimes the time interrupts stop coming - i.e. the 
+> (time) counts in /proc/interrupts stop getting incremented! When this 
+> happens, the date on the system falls behind, 'sleep' calls stop working and 
+> basically machine becomes unusable.Has anyone else encountered this problem? 
+> Is it an HP issue?
+> Thanks.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

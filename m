@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289953AbSAWS3w>; Wed, 23 Jan 2002 13:29:52 -0500
+	id <S289958AbSAWShQ>; Wed, 23 Jan 2002 13:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289963AbSAWS3m>; Wed, 23 Jan 2002 13:29:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21187 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S289953AbSAWS3f>;
-	Wed, 23 Jan 2002 13:29:35 -0500
-Date: Wed, 23 Jan 2002 13:29:34 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chuck Campbell <campbell@neosoft.com>
-cc: linux-kernel@vger.kernel.org
+	id <S289959AbSAWShE>; Wed, 23 Jan 2002 13:37:04 -0500
+Received: from [24.64.71.161] ([24.64.71.161]:62961 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S289958AbSAWSgy>;
+	Wed, 23 Jan 2002 13:36:54 -0500
+Date: Wed, 23 Jan 2002 11:36:44 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Chuck Campbell <campbell@neosoft.com>, linux-kernel@vger.kernel.org
 Subject: Re: find a file containing a specific sector
+Message-ID: <20020123113644.R960@lynx.adilger.int>
+Mail-Followup-To: Chuck Campbell <campbell@neosoft.com>,
+	linux-kernel@vger.kernel.org
 In-Reply-To: <20020123120055.A14311@helium.inexs.com>
-Message-ID: <Pine.GSO.4.21.0201231324550.17439-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020123120055.A14311@helium.inexs.com>; from campbell@neosoft.com on Wed, Jan 23, 2002 at 12:00:55PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Jan 2002, Chuck Campbell wrote:
-
-> For the last 7 months, I've been getting the following error in 
-> /var/log/messages every night during the cron.daily execution.  I've finally
-> tracked it down to happening during my tripwire run, and I suspect
-> (based on linear time into the run, and sizes of files) the problem file
-> lies somwhere in /usr/lib.
-> 
-> The error message has been identical for months, so I assume I have a bad 
-> spot that is not spreading.  I'd like to find the affected file, rename it
-> and ignore the problem for a while longer.
-> 
+On Jan 23, 2002  12:00 -0600, Chuck Campbell wrote:
 > If I know the sector and lbasector, can I determine the inode and/or
 > the actual file affected?
+> 
+> The error message is:
+> 
+> Jan 23 04:24:34 helium kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+> Jan 23 04:24:34 helium kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=4200315, sector=4200248 
+> Jan 23 04:24:34 helium kernel: end_request: I/O error, dev 16:01 (hdc), sector 4200248 
+> 
+> as I said before, the sector number has never changed in months.
 
-find /usr/lib -type f|sed -e 's!.*!cat & >/dev/null || echo &!'|sh
+If you run 'badblocks /dev/hdc1' it will do a full (read-only by default)
+surface scan of the disk and report the bad blocks.  This still doesn't
+tell you the filename though.
+
+You can use "debugfs /dev/hdc1" and then "icheck 525031" (assuming
+you have a 4kB block ext2/ext3 filesystem on this drive) and then
+"ncheck <inum>" for the inode number returned by icheck to find the
+filename.
+
+As someone else reported, running "e2fsck -c" will add this block to
+the bad blocks list, and re-assign another block for the file in question.
+It runs 'badblocks' in the background with the correct parameters (read
+only check, correct blocksize for the filesystem).
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

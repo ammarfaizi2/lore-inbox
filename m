@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbULNAqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbULNArD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbULNAqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 19:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbULNAqM
+	id S261360AbULNArD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 19:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbULNArD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 19:46:12 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:64401 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261359AbULNAqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 19:46:07 -0500
-Subject: Re: Suspend 2 merge: 50/51: Device mapper support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dm-devel@redhat.com
-In-Reply-To: <20041203201248.GU24229@agk.surrey.redhat.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101300802.5805.398.camel@desktop.cunninghams>
-	 <20041125235829.GJ2909@elf.ucw.cz>
-	 <1101427667.27250.175.camel@desktop.cunninghams>
-	 <20041202204042.GD24233@agk.surrey.redhat.com>
-	 <1102021461.13302.40.camel@desktop.cunninghams>
-	 <20041202214932.GE24233@agk.surrey.redhat.com>
-	 <1102025297.13302.51.camel@desktop.cunninghams>
-	 <20041203174749.GF24233@agk.surrey.redhat.com>
-	 <1102103827.22511.10.camel@desktop.cunninghams>
-	 <20041203201248.GU24229@agk.surrey.redhat.com>
-Content-Type: text/plain
-Message-Id: <1102975253.15369.2.camel@desktop.cunninghams>
+	Mon, 13 Dec 2004 19:47:03 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59919 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261360AbULNAq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 19:46:56 -0500
+Date: Tue, 14 Dec 2004 01:46:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove unused include/asm-m68k/adb_mouse.h (fwd)
+Message-ID: <20041214004653.GP23151@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 14 Dec 2004 11:47:35 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+The trivial patch forwarded below still applies against 2.6.10-rc3-mm1.
 
-On Sat, 2004-12-04 at 07:12, Alasdair G Kergon wrote:
-> [Quick commment only - travelling]
-> 
-> On Sat, Dec 04, 2004 at 06:57:07AM +1100, Nigel Cunningham wrote:
-> > If, therefore, we we're using DM crypt to do our
-> > I/O, it will help if we can either get it to allocate the memory it will
-> > need prior to us preparing the metadata, or get from it an amount of
-> > memory to include in the pool, given the maximum amount of I/O we intend
-> > to have on the fly at once.
-> 
-> But where does dm-crypt use dm-io?  
-> dm_get_pages is used by snapshots, mirrors etc.
+Please apply.
 
-Sorry for the slow reply. The module isn't just for dm-crypt support,
-but for device mapper support in general. I'm seeking to not make
-assumptions about what the configuration is, but simply make it support
-LVM/md.
 
-Regards,
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Date:	Wed, 8 Dec 2004 02:14:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove unused include/asm-m68k/adb_mouse.h
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+The patch below removes a completely unused header file.
+
+
+diffstat output:
+ include/asm-m68k/adb_mouse.h |   23 -----------------------
+ 1 files changed, 23 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/include/asm-m68k/adb_mouse.h	2004-10-18 23:54:55.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,23 +0,0 @@
+-#ifndef _ASM_ADB_MOUSE_H
+-#define _ASM_ADB_MOUSE_H
+-
+-/*
+- * linux/include/asm-m68k/adb_mouse.h
+- * header file for Macintosh ADB mouse driver
+- * 27-10-97 Michael Schmitz
+- * copied from:
+- * header file for Atari Mouse driver
+- * by Robert de Vries (robert@and.nl) on 19Jul93
+- */
+-
+-struct mouse_status {
+-	char		buttons;
+-	short		dx;
+-	short		dy;
+-	int		ready;
+-	int		active;
+-	wait_queue_head_t wait;
+-	struct fasync_struct *fasyncptr;
+-};
+-
+-#endif
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

@@ -1,34 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbULAVQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbULAVVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbULAVQy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULAVQy
+	id S261452AbULAVVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbULAVVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:16:54 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:51370 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S261450AbULAVQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:16:52 -0500
-Date: Wed, 1 Dec 2004 22:16:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041201211638.GB4530@dualathlon.random>
-References: <20041201104820.1.patchmail@tglx>
+	Wed, 1 Dec 2004 16:21:12 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:51426 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261452AbULAVVD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 16:21:03 -0500
+Date: Wed, 1 Dec 2004 22:20:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+Message-ID: <20041201212051.GD22671@elte.hu>
+References: <OFD409C8B3.8F810860-ON86256F5D.004D6614@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041201104820.1.patchmail@tglx>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <OFD409C8B3.8F810860-ON86256F5D.004D6614@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70, UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 10:49:03AM +0100, tglx@linutronix.de wrote:
-> It gets invoked multiple times [..]
 
-You didn't move the invocation in page_alloc.c which is the major bug I
-can see (besides the other hacks in oom_kill.c). I'd try fixing the
-major bug first.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> Unless I am mistaken, my "PK" config is the closest to 2.4 lowlat+preempt.
+
+indeed, you are right.
+
+> For the relevant differences in .config:
+>   PK                                  RT
+>   CONFIG_PREEMPT_DESKTOP=y            CONFIG_PREEMPT_DESKTOP is not set
+>   CONFIG_PREEMPT_RT is not set        CONFIG_PREEMPT_RT=y
+>   CONFIG_PREEMPT=y                    CONFIG_PREEMPT=y
+>   CONFIG_PREEMPT_SOFTIRQS is not set  CONFIG_PREEMPT_SOFTIRQS=y
+>   CONFIG_PREEMPT_HARDIRQS is not set  CONFIG_PREEMPT_HARDIRQS=y
+> (though the system still creates ksoftirqd/0 and /1 on both...)
+>   CONFIG_SPINLOCK_BKL is not set      [not present]
+>   CONFIG_PREEMPT_BKL=y                CONFIG_PREEMPT_BKL=y
+>   CONFIG_ASM_SEMAPHORES=y             [not present]
+>   CONFIG_RWSEM_XCHGADD_ALGORITHM=y    [not present]
+>   ...
+>   [not present]                       CONFIG_RT_DEADLOCK_DETECT=y
+>   ...
+
+the only thing i'd suggest to change is to also generate an RT (and 
+perhaps PK) result with all debugging options disabled - i.e. both 
+RT_DEADLOCK_DETECT and all LATENCY_TRACING/timing related options 
+disabled.
+
+but your tests did trigger asserts not so long ago so it might not be
+wise to run without debugging. But it's definitely a thing to try in the
+future.
+
+> Unless you are saying that I should back off to one of the other
+> preempt settings (to replicate the 2.4 config on 2.6).
+
+no, i think the PK kernel is supposed to be quite close to what
+2.4+lowlat offers.
+
+	Ingo

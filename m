@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310920AbSCMRmk>; Wed, 13 Mar 2002 12:42:40 -0500
+	id <S310929AbSCMRna>; Wed, 13 Mar 2002 12:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310918AbSCMRma>; Wed, 13 Mar 2002 12:42:30 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:59656 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S310910AbSCMRmU>; Wed, 13 Mar 2002 12:42:20 -0500
-Date: Wed, 13 Mar 2002 18:42:12 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE 21
-Message-ID: <20020313184212.A31198@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0202220901470.6365-100000@home.transmeta.com> <3C8F5EDF.4050802@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C8F5EDF.4050802@evision-ventures.com>; from dalecki@evision-ventures.com on Wed, Mar 13, 2002 at 03:14:55PM +0100
+	id <S310918AbSCMRnL>; Wed, 13 Mar 2002 12:43:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39685 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310923AbSCMRnI>; Wed, 13 Mar 2002 12:43:08 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5.6: ide driver broken in PIO mode
+Date: Wed, 13 Mar 2002 17:41:42 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a6o30m$25j$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0203131339050.26768-100000@serv>
+X-Trace: palladium.transmeta.com 1016041366 641 127.0.0.1 (13 Mar 2002 17:42:46 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 13 Mar 2002 17:42:46 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 03:14:55PM +0100, Martin Dalecki wrote:
+In article <Pine.LNX.4.21.0203131339050.26768-100000@serv>,
+Roman Zippel  <zippel@linux-m68k.org> wrote:
+>
+>I first noticed the problem on my Amiga, but I can reproduce it on an ia32
+>machine, when I turn off dma with hdparm.
 
-> If I was to give this patch a name it would be:
-> 
-> "Vojtech Pavlik unleashed from the chains".
-> 
-> So credit where credit is due :-).
+With PIO, the current IDE/bio stuff doesn't like the write-multiple
+interface and has bad interactions. 
 
-For bugs as well. :(
+Jens, you talked about a patch from Supparna two weeks ago, any
+progress?
 
-In the FIT macro in ide-timing.h the argument got swapped because of a
-typo. All timings generated for VIA and AMD chips are wrong because of
-that. Safe, though, but slow.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+		Linus

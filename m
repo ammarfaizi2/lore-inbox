@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUFYPLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266754AbUFYPL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266753AbUFYPLU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266754AbUFYPLU
+	id S266754AbUFYPL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 11:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUFYPL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:11:20 -0400
-Received: from mail.njit.edu ([128.235.251.173]:5030 "EHLO mail-gw5.njit.edu")
-	by vger.kernel.org with ESMTP id S266753AbUFYPLT (ORCPT
+	Fri, 25 Jun 2004 11:11:26 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2613 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266754AbUFYPLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:11:19 -0400
-Date: Fri, 25 Jun 2004 11:11:17 -0400 (EDT)
-From: rahul b jain cs student <rbj2@oak.njit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: sk_buff understanding
-Message-ID: <Pine.GSO.4.58.0406251109510.6693@chrome.njit.edu>
+	Fri, 25 Jun 2004 11:11:24 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 2.6] Altix serial driver
+Date: Fri, 25 Jun 2004 11:10:07 -0400
+User-Agent: KMail/1.6.2
+Cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Pat Gefre <pfg@sgi.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com> <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com> <20040625083130.GA26557@infradead.org>
+In-Reply-To: <20040625083130.GA26557@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406251110.07383.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday, June 25, 2004 4:31 am, Christoph Hellwig wrote:
+> On Thu, Jun 24, 2004 at 10:15:41PM -0500, Erik Jacobson wrote:
+> > Andrew and LKML folks -
+> >
+> > Pat is on vacation and said he wouldn't mind if I posted the latest
+> > version of this patch.
+> >
+> >  - I fixed up Kconfig (x86 problem)
+> >  - I changed SYSFS_ONLY to USE_DYNAMIC_MINOR
+>
+> Please kill the ifdef completely.  As long as LANANA hasn't responded you
+> should only use the dyanic nimor, and once it's accepted there's no point
+> in using the dynamico ne anymore.  Also I'd sugges grabbing a whole dyanmic
+> major instead of using a miscdevice so the code both cases is more similar.
 
-I just want to know if my understanding of how the sk_buff structure
-works is correct.
-
-When data arrives at the TCP layer it is pointed to by the data pointer
-and the TCP header goes in the skb->data-skb->head area. When this packet
-is passed to the IP layer, skb->tail-skb->data section will now contain
-the TCP header + TCP data and now the IP header will be put in the new
-skb->data-skb->head area.
-
-Please let me know if this understanding is correct.
-
-I also wanted to know does psk_may_pull() only check for correct header
-length or does it (thought some func calls) strip off the IP header ?
+But LANANA doesn't assign minors, right?  And Linus hasn't banned those, so 
+the patch to devices.txt should be sufficient, right?  (Please let the answer 
+be yes!)  Moreover, isn't this Andrew's decision as the 2.6 maintainer?
 
 Thanks,
-Rahul.
-
+Jesse

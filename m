@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUKCNDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbUKCNR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbUKCNDf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 08:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbUKCNDf
+	id S261584AbUKCNR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 08:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbUKCNR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 08:03:35 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:61959 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261588AbUKCNDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 08:03:30 -0500
-Subject: Re: How to ship binary proprietary modules?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arne Henrichsen <ahenric@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <605a56ed041103045027f52b73@mail.gmail.com>
-References: <605a56ed041103045027f52b73@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1099487001.2813.20.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 03 Nov 2004 14:03:21 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 3 Nov 2004 08:17:57 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:55308 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S261584AbUKCNRy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 08:17:54 -0500
+Date: Wed, 3 Nov 2004 14:12:07 +0100 (CET)
+To: ak@suse.de
+Subject: Re: dmi_scan on x86_64
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <oW5plZBL.1099487525.5944720.khali@gcu.info>
+In-Reply-To: <20041103124642.GD18867@wotan.suse.de>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Greg KH" <greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-03 at 14:50 +0200, Arne Henrichsen wrote:
-> Hi,
-> 
-> I would like to get some clarification on how to ship binary
-> proprietary modules.
-> 
 
-First of all you should really talk to your lawyer about if and how you
-can do this legally.
+Hi Andi,
 
-> I did compile my module under linux 2.6.8.1. and loaded it under
-> 2.6.9. From what I understand of versioning it should check if the
-> software interface is valid still and then allow the module to be
-> loaded. Surely between version 2.6.8.1 and 2.6.9 nothing that drastic
-> changed?
+> > Any reason why dmi_scan is availble on the i386 arch and not on the
+> > x86_64 arch? I would have a need for the latter (for run-time
+> > identification purposes, not boot-time blacklisting).
+>
+> So far nothing needed it, so I didn't add it.  For what do you need it?
 
-A *lot* of things changed.
+I am in the process of adding SMBus multiplexing support for the Tyan
+S4882 motherboard, as seen on this thread:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109863982018999&w=2
 
+In the proposed patch, I use the PCI ID of the SMBus master to identify
+the board and enable the additional code. However, I just asked for
+confirmation to the Tyan engineers I am working with and they told me
+that the PCI ID has not been customized (I should have figured that out
+by myself since the subvendor ID was AMD's, not Tyan's, but well
+sometimes you just don't get it). Thus my approach is not correct.
 
-> Or do I totally misunderstood versioning? 
+One possible approach would be to use the DMI data, since it is properly
+set on the S4882 motherboard:
 
-Yes; basically versioning checks are a very rough approximation of a
-check on ABI. Linux does not keep abi for modules at all, every single
-release and a whopping lot of config options each result in an entirely
-different ABI. Heck even most bugfixes will change the abi.
+Handle 0x0001
+  DMI type 1, 25 bytes.
+  System Information
+      Manufacturer: TYAN
+      Product Name: S4882
 
+Thus my question. As you can see, what I would need is merely an
+include/linux/dmi.h-like interface that would work for x86_64 instead of
+only i386. I do not need the dmi_scan blacklisting mechanism, just the
+part which fetches and stores DMI data for later use. As a side note, I
+wonder if this can be done without duplicating a large part of
+arch/i386/kernel/dmi_scan.c.
 
-> Must a customer for instance
-> request the module compiled for a specific kernel?
+Before you ask, detecting the need of SMBus multiplexing by somehow
+scanning the SMBus is believed to be unreliable and possibly dangerous,
+which is why I favor the approach of a list of known boards to enable
+the multiplexing on.
 
-yes; however you're much better off shipping the sourcecode of your
-module, or if your lawyer allows that (there may be some patent issues
-involved), you can choose to ship a .o file and a glue layer, where the
-glue layer abstracts the kernel ABI/API away entirely.
-
-
-
+Thanks,
+Jean

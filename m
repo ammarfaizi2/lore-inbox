@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263928AbUFCT43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUFCUBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263928AbUFCT43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 15:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264205AbUFCT43
+	id S263736AbUFCUBz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 16:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264205AbUFCUBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 15:56:29 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:20967 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S263928AbUFCT41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 15:56:27 -0400
-Message-ID: <40BFBAA1.4080301@drdos.com>
-Date: Thu, 03 Jun 2004 17:56:17 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Thu, 3 Jun 2004 16:01:54 -0400
+Received: from vsmtp14.tin.it ([212.216.176.118]:65258 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S263736AbUFCUBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 16:01:53 -0400
+Message-ID: <40BF83AD.1020401@stanchina.net>
+Date: Thu, 03 Jun 2004 22:01:49 +0200
+From: Flavio Stanchina <flavio@stanchina.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: submit_bh leaves interrupts on upon return
-References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de> <40BF8E1F.1060009@drdos.com> <20040603165250.GO1946@suse.de> <40BF9124.6080807@drdos.com> <20040603170328.GQ1946@suse.de> <Pine.LNX.4.58.0406031025070.3403@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0406031025070.3403@ppc970.osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no
+Subject: Re: Linux 2.6.7-rc2
+References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>	<m3y8n93qak.fsf@telia.com>	<Pine.LNX.4.58.0405310955420.4573@ppc970.osdl.org> <m34qpw5k4h.fsf@telia.com>
+In-Reply-To: <m34qpw5k4h.fsf@telia.com>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Peter Osterlund wrote:
+> [patch to linux/fs/nfs/read.c]
+> +	memset(rdata, 0, sizeof(*rdata));
+> +	rdata->flags = (IS_SWAPFILE(inode)? NFS_RPC_SWAPFLAGS : 0);
 
->On Thu, 3 Jun 2004, Jens Axboe wrote:
->
->  
->
->>On Thu, Jun 03 2004, Jeff V. Merkey wrote:
->>    
->>
->>>Sounds like I need to move to 2.6. I noticed the elevator is coalescing 
->>>quite well, and since I am posting mostly continguous runs of sectors, 
->>>what ends up at the adapter level would probably not change much much 
->>>between 2.4 and 2.6 since I am maxing out the driver request queues as 
->>>it is (255 pending requests of 32 scatter/gather elements of 256 sector 
->>>runs). 2.6 might help but I suspect it will only help alleviate the 
->>>submission overhead, and not make much difference on performance since 
->>>the 3Ware card does have an upward limit on outstanding I/O requests.
->>>      
->>>
->>That's correct, it just helps you diminish the submission overhead by
->>pushing down 256 sector entities in one go. So as long as you're io
->>bound it won't give you better io performance, of course. If you are
->>doing 400MiB/sec it should help you out, though.
->>    
->>
->
->Well, if Jeff does almost exclusively contiguous stuff and submits them in
->order, then the coalescing will make sure that even on 2.4.x the queues
->don't get too long, and he probably won't see the pathological cases.
->
->		Linus
->-
->
-Linus,
+Wouldn't this be better as:
+   if (IS_SWAPFILE(inode))
+     rdata->flags = NFS_RPC_SWAPFLAGS;
 
-This seems to be the case.
+> +	rdata->args.pgbase = 0UL;
 
-Jeff
+Wouldn't this be redundant?
 
-
-
-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+-- 
+Ciao, Flavio
 

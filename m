@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbRCWTnn>; Fri, 23 Mar 2001 14:43:43 -0500
+	id <S131385AbRCWTpB>; Fri, 23 Mar 2001 14:45:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131385AbRCWTnc>; Fri, 23 Mar 2001 14:43:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14347 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131382AbRCWTn2>; Fri, 23 Mar 2001 14:43:28 -0500
-Date: Fri, 23 Mar 2001 11:42:39 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch(?): linux-2.4.3-pre6/mm/vmalloc.c could return with
- init_mm.page_table_lock held
-In-Reply-To: <Pine.LNX.4.21.0103230634320.5947-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.31.0103231140580.766-100000@penguin.transmeta.com>
+	id <S131386AbRCWTow>; Fri, 23 Mar 2001 14:44:52 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:45832 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S131385AbRCWToo>; Fri, 23 Mar 2001 14:44:44 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mojomofo@mojomofo.com (Aaron Tiensivu), linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac22
+In-Reply-To: <E14gODD-0004MR-00@the-village.bc.nu>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Alan Cox's message of "Fri, 23 Mar 2001 09:50:25 +0000 (GMT)"
+Date: 23 Mar 2001 13:43:45 -0600
+Message-ID: <vbar8zoxocu.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> > > o Fix ppp memory corruption (Kevin Buhr)
+> > > | Bizzarely enough a direct re-invention of a 1.2 ppp bug
+> > 
+> > Could this explain my MPPP skb corruption I've reported since 2.3.x?
 
+Unless you saw this corruption immediately after a hardware-initiated
+TTY hangup, my patch wouldn't have had anything to do with it.
 
-On Fri, 23 Mar 2001, Marcelo Tosatti wrote:
->
-> There is no need to hold mm->page_table_lock for vmalloced memory.
+> At most it explains some weird corruption cases with small kernel blocks.
+> I really doubt they are related
 
-But there is. You do need _some_ protection to protect the kernel from
-inserting two different pmd/pgd entries for two different areas in the
-same slot. And that's exactly what page_table_lock does for us.
+And, because I screwed up, the patch doesn't have any effect on PPP
+over async TTYs in 2.4.2, anyway.  The compatibility code for
+pre-2.4.0 versions of "pppd", which was the real source of the
+problem, was removed in kernel 2.4.2, and the patch has no effect.
 
-> I guess a better solution is to make the vmalloc codepath use
-> "pte_alloc_vmalloc" (or something like that) which would be a
-> spinlock-free version of pte_alloc (like the old one).
+The compatibility code is still in the PPP-over-sync-TTY code, but
+once that's removed, we can back the patch out.
 
-The old one avoided the race by using the big kernel lock. Which is
-totally non-sensical, but works. It's much better to use the spinlock that
-is meant for exactly this thing.
+There are still horrible locking problems, but they represent a
+problem with the TTY line discipline switching code.  It's possible
+for the line discipline to be "close"d asynchronously by the "eventd"
+kernel thread while other line discipline functions (even "open"!) are
+sleeping.  Once this is fixed, the vanilla 2.4.2 "ppp_async.c" code
+(i.e., without my patch) should be lock-proof.
 
-		Linus
-
+Kevin <buhr@stat.wisc.edu>

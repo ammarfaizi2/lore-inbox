@@ -1,38 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265070AbTF2U0g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTF2UZD
+	id S264881AbTF2U2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTF2U0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:25:03 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35470
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264449AbTF2UY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:24:57 -0400
-Subject: Re: 2.4.21(-ac) ide-disk and hpt366 modules problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030629190409.A22124@sith.mimuw.edu.pl>
-References: <20030629190409.A22124@sith.mimuw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056918977.16253.19.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jun 2003 21:36:18 +0100
+	Sun, 29 Jun 2003 16:26:52 -0400
+Received: from smtp-out.comcast.net ([24.153.64.109]:7459 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264979AbTF2U0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:26:04 -0400
+Date: Sun, 29 Jun 2003 16:38:55 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: File System conversion -- ideas
+In-reply-to: <Pine.LNX.4.55.0306291317300.14949@bigblue.dev.mcafeelabs.com>
+To: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Message-id: <200306291638550960.02442800@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
+ <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
+ <20030629192847.GB26258@mail.jlokier.co.uk>
+ <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk>
+ <200306291545410600.02136814@smtp.comcast.net>
+ <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.55.0306291317300.14949@bigblue.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-29 at 18:04, Jan Rekorajski wrote:
-> Hi,
-> There is a chicken-egg problem between ide-disk and hpt366 modules.
-> ide-disk should be loaded after chipset driver to detect what disks are
-> connected, but hpt366 needs ide-disk loaded because of 372N tricks and
-> __ide_do_rw_disk symbol.
 
-Interesting dependancy - I hadn't noticed that one.
+
+*********** REPLY SEPARATOR  ***********
+
+On 6/29/2003 at 1:19 PM Davide Libenzi wrote:
+
+>On Sun, 29 Jun 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+>
+>> I think that I will believe it when I see the patchset implementing it.
+>> Provided that it will be convincing enough.  Other than that...  Not
+>> really.  You will need code for each pair of filesystems, since
+>> convertor will need to know *both* layouts.  No amount of handwaving
+>> is likely to work around that.  And we have what, something between
+>> 10 and 20 local filesystems?  Have fun...
+>>
+>> If you want your idea to be considered seriously - take reiserfs code,
+>> take ext3 code, copy both to userland and put together a conversion
+>> between them.  Both ways.  That, by definition, is easier than doing
+>> it in kernel - you have the same code available and none of the
+>limitations/
+>> interaction with other stuff.  When you have it working, well, time to
+>> see what extra PITA will come from making it coexist with other parts
+>> of kernel (and with much more poor runtime environment).
+>>
+>> AFAICS, it is _very_ hard to implement.  Even outside of the kernel.
+>> If you can get it done - well, that might do a lot for having the
+>> idea considered seriously.  "Might" since you need to do it in a way
+>> that would survive transplantation into the kernel _and_ would scale
+>> better that O((number of filesystem types)^2).
+>
+>Maybe defining a "neutral" metadata export/import might help in limiting
+>such NFS^2 ...
+>
+>
+
+That was in the original message.  :-p  Some people don't read.
+
+>
+>- Davide
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+--Bluefox Icy
 
 

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265845AbSKBA5M>; Fri, 1 Nov 2002 19:57:12 -0500
+	id <S265841AbSKBAys>; Fri, 1 Nov 2002 19:54:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265847AbSKBA5L>; Fri, 1 Nov 2002 19:57:11 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:65520 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265845AbSKBA5L>;
-	Fri, 1 Nov 2002 19:57:11 -0500
-Date: Fri, 1 Nov 2002 17:03:22 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Cc: Krishna Kumar <krkumar@us.ibm.com>
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.45
-Message-ID: <20021102010322.GA5105@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S265844AbSKBAyr>; Fri, 1 Nov 2002 19:54:47 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:25507
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265841AbSKBAyr>; Fri, 1 Nov 2002 19:54:47 -0500
+Date: Fri, 1 Nov 2002 20:01:09 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] swap mini-howto
+In-Reply-To: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0211011958210.3978-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote :
+On Fri, 1 Nov 2002, Randy.Dunlap wrote:
+
 > 
-> Why isn't the home agent code being done in userspace?  That is
-> where it belongs.  It's huge.
+> Anyone have suggestions for where this should/could live,
+> like tldp.org or kernelnewbies.org etc.?
+> (other than where it is :)
 
-	6 years ago (an eternity), a friend of mine did a full
-implementation of Mobile IPv4 for Linux in user space (url below).
-	Of course, it needed some kernel support, such as IP/IP
-tunneling, raw sockets, IP forwarding, gratuitous ARP and routing, but
-there was no additional code added in the kernel. And this was Home
-Agent, Foreign agent, Client and all their friends. And it was
-interoprating successfully with other MIP implementations of that
-time.
+The Linux Documentation Project (www.linuxdoc.org) is probably one of the 
+best places.  They gather all howto/mini-howto they can find.
 
-	This was not the final draft of Mobile-IPv4 (they changed it
-after that), and Mobile-IPv6 is different (for example, it is much
-more integrated with IPsec), so the situation is not exactly the same.
-	But in the meantime, the kernel has gained powerful new
-facilities, such as tun/tap and netfilters, which make very complex
-things possible in user space.
-	But I fully aggree that having your code in the kernel is
-infinitely more sexy than maintaining some user space package ;-)
 
-	Have fun...
+Nicolas
 
-	Jean
-
-The URL :
-	http://www.hpl.hp.com/personal/Jean_Tourrilhes/MobileIP/index.html

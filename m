@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbTAIKlp>; Thu, 9 Jan 2003 05:41:45 -0500
+	id <S265197AbTAIKjc>; Thu, 9 Jan 2003 05:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265886AbTAIKlp>; Thu, 9 Jan 2003 05:41:45 -0500
-Received: from host1.trilliumlane.com ([67.40.6.137]:53934 "EHLO
-	mail1.trilliumlane.com") by vger.kernel.org with ESMTP
-	id <S265872AbTAIKlo>; Thu, 9 Jan 2003 05:41:44 -0500
-Date: Thu, 9 Jan 2003 02:50:25 -0800
-Mime-Version: 1.0 (Apple Message framework v551)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: oss bug introduced since 2.4.18?
-From: Paul Forgey <paulf@trilliumlane.com>
-To: linux-kernel@vger.kernel.org
+	id <S265236AbTAIKjc>; Thu, 9 Jan 2003 05:39:32 -0500
+Received: from lakemtao01.cox.net ([68.1.17.244]:58589 "EHLO
+	lakemtao01.cox.net") by vger.kernel.org with ESMTP
+	id <S265197AbTAIKjb>; Thu, 9 Jan 2003 05:39:31 -0500
+Message-ID: <3E1D5343.9040404@cox.net>
+Date: Thu, 09 Jan 2003 04:47:31 -0600
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Niels den Otter <Niels.denOtter@surfnet.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.55: local symbols in net/ipv6/af_inet6.o
+References: <20030109091025.GW31387@surly.surfnet.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <288553BE-23C0-11D7-A604-00039384AA90@trilliumlane.com>
-X-Mailer: Apple Mail (2.551)
-X-OriginalArrivalTime: 09 Jan 2003 10:47:25.0468 (UTC) FILETIME=[7F2D45C0:01C2B7CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since upgrading from 2.4.18 to 2.4.20, I've had a problem unmapping 
-mmap'd sound buffers.  This problem is still present in 21-pre3.  
-Machine is a P-III Celeron on an Asus CUSL-2 board.
+Niels den Otter wrote:
+> As of 2.5.54bk6 (including 2.5.55) I get the following compilation error:
+> 
+SNIP!
+> net/built-in.o(.init.text+0x1a34): In function `inet6_init':
+> : undefined reference to `local symbols in discarded section .exit.text'
+> make: *** [vmlinux] Error 1
+> 
+> 
+> The reference_discarded.pl script says following:
+>  pangsit:/usr/src/linux/net> perl ~otter/reference_discarded.pl 
+>  Finding objects, 245 objects, ignoring 0 module(s)
+>  Finding conglomerates, ignoring 11 conglomerate(s)
+>  Scanning objects
+>  Error: ./ipv6/af_inet6.o .init.text refers to 000003e4 R_386_PC32 .exit.text
+>  Done
+> 
+> I tried both gcc-2.95 & gcc-3.2.2 .
 
-I have a program which captures audio for streaming using mmap 
-(verified with ptrace).  When I'm done, I issue a SNDCTL_DSP_SETTRIGGER 
-with pointer to int value of 0 and munmap the buffer.  There is about a 
-2/3 chance the munmap call will never return and the process will not 
-die.  At this point, I can still login to the machine through another 
-window or the console, but any process making system calls which I have 
-not yet determined follow the same fate as the original problem 
-process.  So far, I've found the 'who' and 'ps' commands do this.  The 
-ps output runs until what seems to be just before reporting the 
-original hung process.
+Change the IPv6 option in your config from Y to M. That is a workaround 
+until whoever fixes that. I get it too.
 
-This is not a problem if I boot with .18, but I need to run >= 20 for 
-my network card.
-
-I'm using a Sound Blaster Live 5.1, and I've tried switching from the 
-supplied drivers in the kernel to using Creative's open source drivers 
-with the same results.  So it may be in the core sound and not specific 
-to the sound card driver?
+-David
 

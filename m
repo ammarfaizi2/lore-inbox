@@ -1,83 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264385AbUEYAmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264392AbUEYAsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264385AbUEYAmM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 20:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUEYAmL
+	id S264392AbUEYAsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 20:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUEYAsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 20:42:11 -0400
-Received: from warp.hyperdrivedns.net ([65.254.36.146]:56196 "EHLO
-	warp.hyperdrivedns.net") by vger.kernel.org with ESMTP
-	id S264385AbUEYAmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 20:42:07 -0400
-Date: Mon, 24 May 2004 20:41:55 -0400
-From: "Francis J. A. Pinteric" <linuxdoctor@linuxdoctor.biz>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-Id: <20040524204155.17836441.linuxdoctor@linuxdoctor.biz>
-In-Reply-To: <Pine.LNX.4.58.0405241342190.32189@ppc970.osdl.org>
-References: <1YUY7-6fF-11@gated-at.bofh.it>
-	<m3fz9pd2dw.fsf@averell.firstfloor.org>
-	<Pine.LNX.4.58.0405241304580.4174@bigblue.dev.mdolabs.com>
-	<Pine.LNX.4.58.0405241342190.32189@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-GPG-KeyID: F795EE3C
-X-GPG-Fingerprint: 3DAB EF2C 30EF DF33 A80B  49E0 35A8 E2D3 F795 EE3C
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="Multipart_Mon__24_May_2004_20_41_55_-0400_=.5GUBtcDxRFd6zX"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - warp.hyperdrivedns.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxdoctor.biz
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 24 May 2004 20:48:14 -0400
+Received: from mx15.sac.fedex.com ([199.81.195.17]:24582 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S264392AbUEYAsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 20:48:10 -0400
+Date: Tue, 25 May 2004 08:47:56 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Jeff Dike <jdike@addtoit.com>
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] uml-patch-2.6.6-1
+In-Reply-To: <200405241733.i4OHXiWC030995@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.60.0405250845270.3841@boston.corp.fedex.com>
+References: <200405241733.i4OHXiWC030995@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 05/25/2004
+ 08:48:01 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 05/25/2004
+ 08:48:03 AM,
+	Serialize complete at 05/25/2004 08:48:03 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Multipart_Mon__24_May_2004_20_41_55_-0400_=.5GUBtcDxRFd6zX
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Is it possible for you to release one for 2.6.7-rc1?
 
-On Mon, 24 May 2004 13:45:33 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+I haven't tried this latest patch, but my own patches do not work for 
+2.6.7-rc1. arch_free_page seems to have a problem in the following 
+section...
+
+--- a/mm/page_alloc.c   2004-03-10 08:20:20.000000000 -0500
++++ b/mm/page_alloc.c   2004-03-10 08:34:21.000000000 -0500
+@@ -268,6 +268,8 @@
+         LIST_HEAD(list);
+         int i;
+
++       arch_free_page(page, order);
++
+         mod_page_state(pgfree, 1 << order);
+         for (i = 0 ; i < (1 << order) ; ++i)
+                 free_pages_check(__FUNCTION__, page + i);
+@@ -457,6 +459,8 @@
+         struct per_cpu_pages *pcp;
+         unsigned long flags;
+
++       arch_free_page(page, 0);
++
+         kernel_map_pages(page, 1, 0);
+
+
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+
+On Mon, 24 May 2004, Jeff Dike wrote:
+
+> This patch updates UML to 2.6.6.  Aside from the update, there were a few
+> small bug fixes.
 >
-> In other words: this is not about changing the way we work. It's about
-> documenting the things we take for granted. So that outsiders can be
-> shown how it works.
-> 
-
-Personally, I'd like to see this evolve into something along the lines
-of ISO-9000. If linux development can have the ability to create
-detailed audit trails of code changes there would never be a question
-about who contributed what and who owns it.
-
-It would be nice if some sort of ISO-9000 compliance were a long term
-goal here. The proprietary software houses would go nuts.
-
->>>---fja->
-
-
--- 
-If you think what I'm saying is "politically incorrect",
-you've got the wrong politics.
-
-Tired of `netiquette'? Fed up with endless discussion of
-what is '[OT]'? Linux, Free/Open Source discussion without
-the "political correctness:" http://linuxdoctor.dyndns.org/list.html
-
-
---Multipart_Mon__24_May_2004_20_41_55_-0400_=.5GUBtcDxRFd6zX
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAspZcNaji0/eV7jwRAtquAJ9oK3/g5x08iAWznCnPjHtKDHbIBgCfSQYB
-m9vaJQUEfEG54omeb+OGI80=
-=EDt1
------END PGP SIGNATURE-----
-
---Multipart_Mon__24_May_2004_20_41_55_-0400_=.5GUBtcDxRFd6zX--
+> The 2.6.6-1 UML patch is available at
+> 	http://www.user-mode-linux.org/mirror/uml-patch-2.6.6-1.bz2
+>
+> BK users can pull my 2.5 repository from
+> 	http://www.user-mode-linux.org:5000/uml-2.5
+>
+> For the other UML mirrors and other downloads, see
+>        http://user-mode-linux.sourceforge.net/dl-sf.html
+>
+> Other links of interest:
+>
+>        The UML project home page : http://user-mode-linux.sourceforge.net
+>        The UML Community site : http://usermodelinux.org
+>
+> 				Jeff
+>
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: Oracle 10g
+> Get certified on the hottest thing ever to hit the market... Oracle 10g.
+> Take an Oracle 10g class now, and we'll give you the exam FREE.
+> http://ads.osdn.com/?ad_id=3149&alloc_id=8166&op=click
+> _______________________________________________
+> User-mode-linux-devel mailing list
+> User-mode-linux-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
+>

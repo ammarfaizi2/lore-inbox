@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262034AbREQQrO>; Thu, 17 May 2001 12:47:14 -0400
+	id <S262030AbREQQox>; Thu, 17 May 2001 12:44:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262035AbREQQqz>; Thu, 17 May 2001 12:46:55 -0400
-Received: from cs140085.pp.htv.fi ([213.243.140.85]:22438 "EHLO
+	id <S262032AbREQQon>; Thu, 17 May 2001 12:44:43 -0400
+Received: from cs140085.pp.htv.fi ([213.243.140.85]:60558 "EHLO
 	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S262034AbREQQqo>; Thu, 17 May 2001 12:46:44 -0400
-Message-ID: <3B040053.BC69B222@pp.htv.fi>
-Date: Thu, 17 May 2001 19:46:11 +0300
+	id <S262030AbREQQof>; Thu, 17 May 2001 12:44:35 -0400
+Message-ID: <3B03FFCC.B620AA68@pp.htv.fi>
+Date: Thu, 17 May 2001 19:43:56 +0300
 From: Jussi Laako <jlaako@pp.htv.fi>
 X-Mailer: Mozilla 4.76 [en] (Win98; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: VIA/PDC/Athlon
-In-Reply-To: <3B02B824.6FAF5125@pp.htv.fi> <20010516201926.A909@clt88-175-140.carolina.rr.com>
+In-Reply-To: <3B02B824.6FAF5125@pp.htv.fi> <20010516220512.A1400@suse.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zilvinas Valinskas wrote:
+Vojtech Pavlik wrote:
 > 
-> looks like VIA drivers do something to hardware (or maybe only ACPI part
-> of hardware ... I don't know.) and linux can't handle hardware is this
-> new "after win9x" state ...
-> 
-> reset/clear CMOS with jumper helped.
+> > There is also some new bug in VIA IDE driver. It misdetects cable as 
+> > 80-w when it's only 40-w and causes some CRC errors and speed dropping. 
+> There were no changes lately in the VIA driver. Can you spot where the
+> problems begun?
 
-I have ACPI disabled from the kernel. The machine have never seen any
-windows...
+RH 2.4.2-2 works correctly, but 2.4.4-ac9 doesn't. I think 2.4.3 didn't
+work.
 
  - Jussi Laako
 

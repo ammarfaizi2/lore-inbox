@@ -1,100 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUJOWKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUJOWMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUJOWKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 18:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJOWKh
+	id S261724AbUJOWMv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 18:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUJOWMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 18:10:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261426AbUJOWK1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 18:10:27 -0400
-Date: Fri, 15 Oct 2004 18:08:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Greg KH <greg@kroah.com>, Lee Revell <rlrevell@joe-job.com>,
-       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
-       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <4170426E.5070108@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
-References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
- <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net>
- <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
- <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
- <1097860121.13633.358.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
- <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
- <4170426E.5070108@nortelnetworks.com>
+	Fri, 15 Oct 2004 18:12:51 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:21937 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S261724AbUJOWMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 18:12:46 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Date: Fri, 15 Oct 2004 15:12:25 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       penguinppc-team@lists.penguinppc.org,
+       linuxconsole-dev@lists.sourceforge.net
+Message-ID: <416FE8D9.18954.2984F7A@localhost>
+In-reply-to: <20041015214451.GA4739@hh.idb.hist.no>
+References: <416FB624.31033.1D23BE5@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, Chris Friesen wrote:
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
 
-> Greg KH wrote:
->
->> If you have a BSD licensed module, you do not have to provide the source
->> code for it.
->
-> Maybe we need a "BSD with source" module string that doesn't taint?  Or is 
-> that getting too ridiculous?
->
-> Chris
->
+> On Fri, Oct 15, 2004 at 11:36:04AM -0700, Kendall Bennett wrote:
+> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> > 
+> [...]
+> > > Having video BOOT would be great, and please make it independent of
+> > > the framebuffer drivers.  
+> > 
+> > Right now it is independent but I added a single line of code to the 
+> > Radeon driver to init the card prior to initing the rest of the driver. 
+> 
+> That's fine.  What I meant, was please make it independent of the
+> VESA framebuffer driver, because one might want to use an
+> acellerated driver when one is available. 
 
-Like I said, once you put policy in the kernel it can't be right:
+Oh, it already is. The VESA driver is not actually done yet so the only 
+drivers using VideoBoot right now are the accelerated ones ;-)
 
-module: module license 'Public domain' taints kernel.
+> > It can be done earlier than that inside fbmem.c, but I wasn't sure how to 
+> > set up the code so it would only POST each card as it is needed as I 
+> > don't want to bring up secondary controllers unless the user actually 
+> > wants this.
+> 
+> Selecting which cards to "boot" can probably be done with a kernel
+> parameter?  The default could be to bring up all cards except the
+> one the bios brought up already.  Wanting to _not_ bring up some
+> cards seems to be the unusual case to me. 
 
-And, of course, one can always do:
+Not really. In many cases there may be a secondary controller on the 
+system that is not wanted, such as when the user has an i915G or other 
+chipset with integrated video but has plugged a different video card into 
+the system. The integrated video can still be active so trying to bring 
+it up may be problematic unless it is really wanted.
 
-echo "0" >/proc/sys/kernel/tainted
+> > How does the framebuffer console system handle secondary controllers 
+> > right now? It seems from my look at the code that it only brings up the 
+> > primary and not the secondary?
+> 
+> The stock 2.6.x fbcon only use one framebuffer console.  I use the
+> ruby patch which supports multiple consoles.  The ruby patch for
+> 2.6.7 support multiple fbcons so you can have several keyboards
+> attached to separate framebuffers thus supporting several users.
+> (VT1-VT16 is the first kbd on the first fbcon, VT17-VT32 is the
+> second kbd on the second fbcon, and so on.) 
+> 
+> The ruby patch for 2.6.8.1 is somewhat broken, and doesn't work
+> with fbcon. It still support multiple keyboards and multiple
+> framebuffers, so I can support several users with separate xservers
+> but currently not gettys on separate fbcons. 
 
-... to make everything "better" after you've loaded a module
-from Hell.
+Cool. So this stuff is not yet in the official kernel trees. Is that 
+going to happen or is the project to move the video out of the kernel 
+going to happen first?
 
-Any time somebody puts some "deny" hooks in readable source-code
-(the kernel) somebody can either remove them or make a corresponding
-countermeasure, usually in user-mode. It is entirely counter-productive
-to bloat the kernel with this kind of stuff.
+> Note that soft-booting the "extra" video card in order to support a
+> framebuffer driver is nice even if it doesn't attach to the
+> console, because there is other software that can utilize a
+> framebuffer.  X is the most well-known of them. 
 
-The moving of module load/unload code from user-mode code to the
-kernel is a prime example. Time would have been better spent
-removing the races in the hot-swap and module-removal code.
+Yes, but if you don't need a framebuffer console on the card then X or 
+whatever can bring up the secondary controller from user space once the 
+kernel has booted.
 
-One can make a 'certified' kernel with 'certified' modules
-for some hush-hush project. Adding this kind of junk isn't
-how it's done. You just take your favorite kernel with the
-modules you require, you verify that it meets your security
-requirements, then you CRC the kernel and its modules. You
-keep the CRCs somewhere safe, available from a read-only
-source like a CD/ROM or a network file-server. You automatically
-check these CRCs occasionally using a read-only program on
-read-only source like the network or a CD/ROM. If the checks
-fail, you call the "super" and shut down the system.
+Regards,
 
-It's done all the time and it works. Putting more strings
-and other junk in the kernel with all the checking-code
-just tries to hide from the real elements of security.
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
 
-But, it's not __really__ security everybody's after. It's
-sucking up to GNU. For 15 years, before there was a GNU, I
-was the SYSOP of the "Program Exchange". I know what free
-software really is. And, it has nothing to do with FSF and
-Richard Stallman. That's where M$ got their first version
-of Flight Simulator from. The source was in Turbo Pascal
-and MASM assembly. I wrote the assembly. So I know how
-these things go. Been there, done that.
+~ SciTech SNAP - The future of device driver technology! ~
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
 

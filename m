@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbUKPO6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbUKPPAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbUKPO6c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUKPO45
+	id S261995AbUKPPAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 10:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUKPO6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:56:57 -0500
-Received: from sv1.lisha.ufsc.br ([150.162.62.1]:46497 "EHLO sv1.lisha.ufsc.br")
-	by vger.kernel.org with ESMTP id S261998AbUKPO43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:56:29 -0500
-From: Thiago Robert dos Santos <robert@lisha.ufsc.br>
-Message-ID: <33231.150.162.62.34.1100616986.squirrel@150.162.62.34>
-Date: Tue, 16 Nov 2004 12:56:26 -0200 (BRDT)
-Subject: PCI mapper
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-0.f1.1
-X-Mailer: SquirrelMail/1.4.3a-0.f1.1
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20041116125626_73366"
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 16 Nov 2004 09:58:52 -0500
+Received: from irulan.endorphin.org ([212.13.208.107]:57357 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261995AbUKPO6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:58:11 -0500
+Subject: Re: GPL version, "at your option"?
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20041116143546.GA4398@harddisk-recovery.com>
+References: <1100614115.16127.16.camel@ghanima>
+	 <20041116143546.GA4398@harddisk-recovery.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-m+Y3WCsq6qP6ru4rP2ED"
+Date: Tue, 16 Nov 2004 15:58:09 +0100
+Message-Id: <1100617089.16127.20.camel@ghanima>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20041116125626_73366
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
 
-All,
+--=-m+Y3WCsq6qP6ru4rP2ED
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, 2004-11-16 at 15:35 +0100, Erik Mouw wrote:
+> On Tue, Nov 16, 2004 at 03:08:35PM +0100, Fruhwirth Clemens wrote:
+> > I'm about to submit a patch for a new cipher mode called LRW, adding ne=
+w
+> > code/files to the crypto tree. My question is, especially to the
+> > maintainers: Are you going to accept code covered by the terms:
+> >=20
+> >  * This program is free software; you can redistribute it and/or modify
+> >  * it under the terms of the GNU General Public License as published by
+> >  * the Free Software Foundation, version 2 of the License.
+>=20
+> There's already quite some code that's only licensed with GPLv2. Look
+> for example at arch/arm/common/dmabounce.c which does the same as you
+> want but with slightly different words:
 
-  I have developed a module that maps a given device's memory into user
-space.
-The module is very simple (see the source code attached). It just
-defines the following file operations: open, release, ioctl and mmap.
+Thanks, I wasn't sure, what to grep for.=20
 
-   I'm having a problem in porting this module to the 2.6 series.
-Apparently, everything is working fine but I just can't access the
-device's memory (even tough I get a valid point from the mmap system
-call).
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
 
-    Can anyone help me?
+--=-m+Y3WCsq6qP6ru4rP2ED
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Thanks in advance.
+iD8DBQBBmhWBW7sr9DEJLk4RAv/8AKCGeLu1zMLUODTYnWw4c4hAapSzMgCffDzd
+4gBTNaf2dHo+WjIksHaGksA=
+=nwo8
+-----END PGP SIGNATURE-----
 
-------=_20041116125626_73366
-Content-Type: text/x-csrc; name="pcimap.c"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="pcimap.c"
-
-
-------=_20041116125626_73366
-Content-Type: text/x-chdr; name="pcimap.h"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="pcimap.h"
-
-
-------=_20041116125626_73366
-Content-Type: text/x-chdr; name="debug.h"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="debug.h"
-
-
-------=_20041116125626_73366
-Content-Type: application/octet-stream; name="Makefile"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Makefile"
-
-
-------=_20041116125626_73366
-Content-Type: text/x-csrc; name="pcimap_test.c"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="pcimap_test.c"
-
-
-------=_20041116125626_73366--
-
+--=-m+Y3WCsq6qP6ru4rP2ED--

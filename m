@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUBRTQM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267670AbUBRTQM
+	id S268054AbUBRU0I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUBRU0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:16:12 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:60835 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S267669AbUBRTPB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:15:01 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Wed, 18 Feb 2004 16:14:51 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
-In-Reply-To: <1077130933.31049.11.camel@telecentrolivre>
-Message-ID: <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> 
- <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net> 
- <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak> 
- <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org>
- <1077130933.31049.11.camel@telecentrolivre>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 18 Feb 2004 15:26:08 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:16825 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S268054AbUBRU0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:26:05 -0500
+Date: Wed, 18 Feb 2004 20:23:25 +0000
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: ak@suse.de
+Subject: Re: [PATCH] Enable Intel AGP on x86-64
+Message-ID: <20040218202325.GZ6242@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ak@suse.de
+References: <200402182006.i1IK6bL7022634@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402182006.i1IK6bL7022634@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004, Luiz Fernando Capitulino wrote:
+On Wed, Feb 18, 2004 at 07:44:38PM +0000, Linux Kernel wrote:
+ > ChangeSet 1.1564, 2004/02/18 11:44:38-08:00, ak@suse.de
+ > 
+ > 	[PATCH] Enable Intel AGP on x86-64
+ > 	
+ > 	Enable the Intel AGP driver for x86-64 too.
 
-> Em Qua, 2004-02-18 às 13:47, Frédéric L. W. Meunier escreveu:
->
-> > May I suggest ALF for americans, and Priscilla or Fofão for
-> > brazilians ?
->
->  Wow, Fofão is old. :-)
->
->  Me and some (brazilian) friends suggest "Cebolinha":
->
-> http://www.kalizinha.net/monica/imagens/monica05.gif
->
->  It's a comic character created by Mauricio de Sousa. :)
+Please don't do this. At least copy intel-agp.c to
+something new and throw out all the dozens of chipsets
+that will never appear on ia32e.
 
-And Cascão for the -mm series ?
+Splitting agpgart up to seperate drivers allowed us
+to stop adding cruft upon cruft with each generation
+of chipsets.  I don't want to have to spend half of
+2.7 decrufting agpgart again.
 
-BTW, what about replacing the Tux framebuffer logo with them ?
+		Dave
 
--- 
-http://www.pervalidus.net/contact.html

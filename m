@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271933AbTHROam (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 10:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271938AbTHROal
+	id S271814AbTHROfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 10:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271848AbTHROfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 10:30:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:21734 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S271933AbTHROae (ORCPT
+	Mon, 18 Aug 2003 10:35:30 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21120 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271814AbTHROfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 10:30:34 -0400
-Date: Mon, 18 Aug 2003 07:31:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-Message-ID: <20030818143146.GV32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Michael Frank <mhf@linuxmail.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200308170410.30844.mhf@linuxmail.org>
+	Mon, 18 Aug 2003 10:35:25 -0400
+Date: Mon, 18 Aug 2003 07:28:33 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030818072833.1ea7a81b.davem@redhat.com>
+In-Reply-To: <20030818142847.GA19910@alpha.home.local>
+References: <200308171759540391.00AA8CAB@192.168.128.16>
+	<1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
+	<200308171827130739.00C3905F@192.168.128.16>
+	<1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
+	<20030817224849.GB734@alpha.home.local>
+	<20030817223118.3cbc497c.davem@redhat.com>
+	<20030818133957.3d3d51d2.skraw@ithnet.com>
+	<20030818044419.0bc24d14.davem@redhat.com>
+	<20030818125158.GA18699@alpha.home.local>
+	<20030818055329.44db9262.davem@redhat.com>
+	<20030818142847.GA19910@alpha.home.local>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308170410.30844.mhf@linuxmail.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 17, 2003 at 04:10:30AM +0800, Michael Frank wrote:
-> Linux logs almost everything, why not exceptions such as SIGSEGV in
-> userspace which may be very informative?
+On Mon, 18 Aug 2003 16:28:47 +0200
+Willy Tarreau <willy@w.ods.org> wrote:
 
-Such exceptions are part of the normal operation of certain kinds of
-programs, such as ones using (nowadays unusual) certain garbage
-collection algorithms. I actually installed such a beast (Lisp system)
-in no small part so it would exercise "invalid" memory accesses and
-test various bits of VM code related to such. For other VM people
-interested in it, there's an sbcl debian package that recompiles a
-moderately sized chunk of Lisp code and hence runs the system at
-install-time, and so exercises the SIGSEGV path rather heavily on
-32-bit systems and/or systems with <= 2GB of RAM. No particular
-intervention apart from (re)installing it is required to pound the
-SIGSEGV path like a wild monkey, so it's actually a very convenient
-touch test for such things.
+> Now if you think that the behaviour I'm proposing is broken, please explain me
+> why.
 
-
--- wli
+If the user overrides the source address (which is the case I believe
+you're talking about, there are so many cases it's hard for me
+to keep track) then HE KNOWS WHAT HE IS DOING even if using that
+source address to talk to a particular remote address makes no sense.

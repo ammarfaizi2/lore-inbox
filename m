@@ -1,84 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbTDXUEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 16:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbTDXUEo
+	id S263844AbTDXUJz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 16:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTDXUJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 16:04:44 -0400
-Received: from marshall.modwest.com ([216.129.251.30]:28296 "EHLO
-	mail.modwest.com") by vger.kernel.org with ESMTP id S263807AbTDXUEm
+	Thu, 24 Apr 2003 16:09:55 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22249 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263844AbTDXUJw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 16:04:42 -0400
-From: Nils Holland <nils@ravishing.de>
-Organization: Ravishing Enterprises
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Flame Linus to a crisp!
-Date: Thu, 24 Apr 2003 22:16:32 +0200
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 24 Apr 2003 16:09:52 -0400
+Subject: Re: [PATCH] Small bug fix for aio
+From: Mingming Cao <cmm@us.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+In-Reply-To: <20030423231427.A9036@redhat.com>
+References: <1051062904.2808.37.camel@w-ming.beaverton.ibm.com> 
+	<20030423231427.A9036@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304242216.32576.nils@ravishing.de>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Apr 2003 13:21:04 -0700
+Message-Id: <1051215676.2808.236.camel@w-ming.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 April 2003 05:59, Linus Torvalds wrote:
+On Wed, 2003-04-23 at 20:14, Benjamin LaHaise wrote:
+> On Tue, Apr 22, 2003 at 06:54:51PM -0700, Mingming Cao wrote:
+> > Here is a trivial patch fixed a bug in ioctx_alloc(). If
+> > aio_setup_ring() failed, ioctx_alloc() should pass the return error from
+> > aio_setup_ring() back to sys_io_setup().
+> 
+> This particular case was intentional: -ENOMEM really is the right return 
+> code when the ring cannot be allocated.  Mixing it up with the potential 
+> return codes from do_mmap or other functions might result in a very 
+> nonsensical return.  Perhaps someone can provide an arguement in favour 
+> of propagating the value, but I think it really can only mean "you asked 
+> the kernel to allocate too much memory or did something stupidly buggy with 
+> threads".  Cheers,
+> 
+> 		-ben
 
-> In short, it's perfectly ok to sign a kernel image - I do it myself
-> indirectly every day through the kernel.org, as kernel.org will sign the
-> tar-balls I upload to make sure people can at least verify that they came
-> that way. Doing the same thing on the binary is no different: signing a
-> binary is a perfectly fine way to show the world that you're the one
-> behind it, and that _you_ trust it.
+Ok, then I think -ENOMEM makes more sense. Thanks for clarifying.
 
-Do I understand that? Well, what you are doing is signing the kernel tar-ball, 
-so that when I download it from my favorite mirror, I can check if I really 
-received the kernel yoz released yesterday, or if someone probably put some 
-funny backdoors in there and now hopes me to become his prey. This has little 
-to do with DRM, which stands for Digital Rights Management. Your signing 
-doesn't have much to do with rights - I can still use a backdoored kernel if 
-I want to. Signing source / binary files for such purposes is clearly ok.
 
-DRM, however, obviously comes in when it comes to managing / securing rights. 
-This would mean that under certain conditions, I might not be able to use 
-something the way I would like to. As a short example, my digital satellite 
-card may refuse to work with a stock kernel because someone thinks I might 
-illegally decrypt pay-tv channels. So I might be forced to use a kernel 
-signed by <some_vendor>, because that kernel is known to have hooks in it 
-that make sure that I can't do such decrypting of pay-tv.
-
-However, what would happen if I want to upgrade to the latest kernel Linus has 
-just released? If I compile it myself, my tv card would not work with it. So 
-I'd have to wait for whoever signed it to release their signed version. And 
-they might even stop signing new kernels at some point in time, or probably 
-ask me to pay money to get their specifically signed kernel. And in the end, 
-all this nonsense could be there even though I never even intended to do what 
-<whoever> wants to prevent me from doing.
-
-To come back from this example to reality, signing things is not neccessarily 
-bad. Technology that acts on such signatures is not inherently bad either - 
-it's like the kitchen knife that you can use to cut food you want to eat, 
-while it can also be used as a lethal weapon. So it always depends on how 
-things get used, not on whether they exist or not. Surely, we could ban all 
-knives, but the question is if the number of deaths we'd prevent by doing so 
-would make up for the difficulites we'd get in the field of food preparation. 
-For DRM, about the same question applies. And if the OSS community doesn't 
-automatically heasitate to pick this technology up, it's possible that the 
-positive effects can be made dominant - if we let all this stuff happen in 
-the hands of "the others", it's likely that they would focus on using it only 
-for "bad" things. It'd be like a kitchen knive put into the hands of a 
-psychopath instead of the hands of a well-meaning housewife.
-
-Bye,
-Nils <nils@ravishing.de>
-
--- 
-celine.ravishing.de
-Linux 2.4.21-rc1 #5 Tue Apr 22 13:12:21 CEST 2003 i686
-  9:59pm  up  4:21,  3 users,  load average: 0.13, 0.04, 0.01
+Mingming
 

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264684AbTE1LWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbTE1LWl
+	id S264685AbTE1LXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264687AbTE1LXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:22:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:49536 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264684AbTE1LWk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:22:40 -0400
-Date: Wed, 28 May 2003 04:35:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.70-mm1 bootcrash, possibly IDE or RAID
-Message-ID: <20030528113544.GV8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030408042239.053e1d23.akpm@digeo.com> <3ED49A14.2020704@aitel.hist.no> <20030528111345.GU8978@holomorphy.com> <3ED49EB8.1080506@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED49EB8.1080506@aitel.hist.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 28 May 2003 07:23:45 -0400
+Received: from mxout2.netvision.net.il ([194.90.9.21]:18051 "EHLO
+	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
+	id S264685AbTE1LXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:23:40 -0400
+Date: Wed, 28 May 2003 14:36:55 +0300
+From: Nir Livni <nirl@cyber-ark.com>
+Subject: fork() crashes on child but returns success on parent
+To: linux-kernel@vger.kernel.org
+Message-id: <E1298E981AEAD311A98D0000E89F45134B5694@ORCA>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 01:34:16PM +0200, Helge Hafting wrote:
-> Here's the decoded crash, written down by hand:
-> <stuff scrolled off screen>
-> bio_endio
-> _end_that_request_first
-> ide_end_request
-> ide_dma_intr
-> ide_intr
-> ide_dma_intr
-> handle_IRQ_event
-> do_IRQ
-> default_idle
-> default_idle
-> common_interrupt
+Now I know for sure that the child crashes (SIGSEGV) before fork() returns.
+I could see it in the UML debugger.
+It does not use the signal handler I have set up of the SIGSEGV. It simply
+crashes and exits.
 
-This is unusual; I'm having trouble very close to this area. There is
-a remote chance it could be the same problem.
+Could this be any kernel problem ?
+Any ideas what should I do next to track this problem ?
 
-Could you log this to serial and get the rest of the oops/BUG? If it's
-where I think it is, I've been looking at end_page_writeback() and so
-might have an idea or two.
-
-
--- wli
+> Subject: fork() returns on parent but not returns on child
+> 
+> 
+> Hi all,
+> I am experiencing a problem, where fork() returns succesfully 
+> on parent, but does not return on child. The child process 
+> simply "disappears". I believe it might have got a SIGSEGV 
+> (if it makes any sence) before fork() has returned.
+> 
+> I would like to track down this problem.
+> What I did so far is:
+> 1. I tried first to make sure there are no memory overruns 
+> using few tools. 2. I tried to look at strace output, but the 
+> problem does not occur if I use strace 3. I make a 
+> UserModeLinux machine and now I would like to breakpoint the 
+> created child before it crashes (assuming it really crashes)
+> 
+> How do I do that ?
+> 
+> Thanks,
+> Nir
+> 

@@ -1,117 +1,291 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUGaEFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267905AbUGaEO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267670AbUGaEFB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 00:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267905AbUGaEFB
+	id S267905AbUGaEO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 00:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267906AbUGaEO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 00:05:01 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:36006 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S267670AbUGaEE4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 00:04:56 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Solving suspend-level confusion
-Date: Fri, 30 Jul 2004 21:02:12 -0700
-User-Agent: KMail/1.6.2
-Cc: benh@kernel.crashing.org, kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz>
-In-Reply-To: <20040730164413.GB4672@elf.ucw.cz>
-MIME-Version: 1.0
+	Sat, 31 Jul 2004 00:14:56 -0400
+Received: from linuxfools.org ([216.107.2.99]:42631 "EHLO loki.linuxfools.net")
+	by vger.kernel.org with ESMTP id S267905AbUGaEOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 00:14:45 -0400
+Date: Fri, 30 Jul 2004 23:35:42 -0400
+From: jhigdon@unixconfigs.org
+To: linux-kernel@vger.kernel.org
+Cc: Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH] token based thrashing control
+Message-ID: <20040731033542.GA1703@linuxfools.org>
+References: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407302102.12554.david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 July 2004 09:44, Pavel Machek wrote:
+On Fri, Jul 30, 2004 at 05:37:18PM -0400, Rik van Riel wrote:
+> 	
+> The following experimental patch implements token based thrashing
+> protection, using the algorithm described in:
+> 
+> 	http://www.cs.wm.edu/~sjiang/token.htm
+> 
+> When there are pageins going on, a task can grab a token, that
+> protects the task from pageout (except by itself) until it is
+> no longer doing heavy pageins, or until the maximum hold time
+> of the token is over.
+> 
+> If the maximum hold time is exceeded, the task isn't eligable
+> to hold the token for a while more, since it wasn't doing it
+> much good anyway.
+> 
+> I have run a very unscientific benchmark on my system to test
+> the effectiveness of the patch, timing how a 230MB two-process
+> qsbench run takes, with and without the token thrashing
+> protection present.
+> 
+> normal 2.6.8-rc6:	6m45s
+> 2.6.8-rc6 + token:	4m24s
+> 
+> This is a quick hack, implemented without having talked to the
+> inventor of the algorithm.  He's copied on the mail and I suspect
+> we'll be able to do better than my quick implementation ...
+> 
+> Please test this patch.
 
-> * system-wide suspend level is always passed down (it is more
-> detailed, and for example IDE driver cares)
+Hello,
 
-This bothers me -- why should a "system" suspend level matter
-to a device-level suspend call?  Seems like if IDE cares, it's
-probably being given the wrong device-level suspend state,
-or it needs more information than the target device state.
-
-The problem I'm clear on is with PCI suspend, which some
-earlier driver model PM changes goofed up.  It's trying to
-pass a system state to driver suspend() methods that are
-expecting a value appropriate for pci_set_power_state().
-You're proposing to fix that by changing the call semantics,
-while I'd rather just see the call site fixed.
-
-I trust nobody is now disagreeing that's the root cause of
-several suspend problems ... and I suspect that API changes,
-to pass enums, should be part of the "real" fix.  (As Len has
-commented, C enums aren't type-safe ... but at least they
-provide documentation which "u32 state" can't!)
-
-
-> * if you want to derive Dx state, just use provided inline function to
-> convert.
-
-If the model is that there's some PM "layer" (for lack of better term)
-that's in charge of "system suspend" (e.g. to ACPI S3), then I have
-no qualms saying that layer is responsible for mapping the those
-states into PCI D-states before calling PCI suspend routines.  But
-we don't really seem to have such a layer.  MontaVista has some
-"DPM" code, distinct from drivers/base/power calls with that TLA,
-that are one example of such a layer ... allowing multiple power
-configurations.  Not the only way to do it -- but also not quite the
-limited "laptop into S3 now" kind of model either.
-
-Point being that it should certainly be possible to selectively
-suspend devices without trying to put the whole system into a
-different state (just certain devices) ... and also without lying to
-any device about the system state.  (In fact, devices should as
-a rule not care about system power state, only their own state.)
-It should be easy for one driver to suspend or resume another
-one, without any changes to "system" state.
+I tested this patch on my laptop which is a p2 400 and 128mb of ram.
+After loading many applications far more then I usually do (fc2 running gnome2)
+the application I currently use tends to be better responsiveness wise. 
 
 
-Some specific comments on the patch:
-
-> +enum pci_state {
-> +	D0 = 20,		/* For debugging, symbolic constants should be everywhere */
-> +	D1,
-> +	D2,
-> +	D3hot,
-> +	D3cold
-> +};
-
-Those would be better as PCI_D0, PCI_D2 etc ... so they're not confused
-with ACPI_D0, ACPI_D2 etc.
-
+> 
+>  include/linux/sched.h |    4 ++
+>  include/linux/swap.h  |   21 ++++++++++
+>  kernel/fork.c         |    2 +
+>  mm/Makefile           |    2 -
+>  mm/filemap.c          |    1 
+>  mm/memory.c           |    1 
+>  mm/rmap.c             |    3 +
+>  mm/thrash.c           |  100 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  8 files changed, 133 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.6.7/include/linux/swap.h.token	2004-07-30 13:22:17.000000000 -0400
+> +++ linux-2.6.7/include/linux/swap.h	2004-07-30 16:39:27.000000000 -0400
+> @@ -204,6 +204,27 @@
+>  extern struct page * lookup_swap_cache(swp_entry_t);
+>  extern struct page * read_swap_cache_async(swp_entry_t, struct vm_area_struct *vma,
+>  					   unsigned long addr);
+> +/* linux/mm/thrash.c */
+> +#ifdef CONFIG_SWAP
+> +extern struct mm_struct * swap_token_mm;
+> +extern void grab_swap_token(void);
+> +extern void __put_swap_token(struct mm_struct *);
 > +
-> +static inline enum pci_state to_pci_state(enum suspend_state state)
+> +static inline int has_swap_token(struct mm_struct * mm)
 > +{
-> +	switch(state) {
-> +	case RUNTIME_D1:
-> +		return D1;
-> +	case RUNTIME_D2:
-> +		return D2;
-> +	case RUNTIME_D3hot:
-> +		return D3hot;
-> +	case SNAPSHOT:
-> +	case POWERDOWN:
-> +	case RESTART:
-> +	case RUNTIME_D3cold:
-> +		return D3cold;
-> +	default:
-> +		BUG();
-> +	}
+> +	return (mm == swap_token_mm);
 > +}
+> +
+> +static inline void put_swap_token(struct mm_struct * mm)
+> +{
+> +	if (has_swap_token(mm))
+> +		__put_swap_token(mm);
+> +}
+> +#else /* CONFIG_SWAP */
+> +#define put_swap_token do { } while(0)
+> +#define grab_swap_token  do { } while(0)
+> +#define has_swap_token 0
+> +#endif /* CONFIG_SWAP */
 >  
->  #endif /* __KERNEL__ */
-
-This stuff, if it's used, belongs in <linux/pci.h> not <linux/pm.h> ... it's
-not generic to all busses.  And pci_set_power_state() should probably
-be modified to take the enum ... though I don't much like that notion,
-it'd require changing every driver that actually tries to use the PCI
-PM calls (since they currently "know" D3hot==3 and D3cold==4).
-
-- Dave
+>  /* linux/mm/swapfile.c */
+>  extern long total_swap_pages;
+> --- linux-2.6.7/include/linux/sched.h.token	2004-07-30 13:22:28.000000000 -0400
+> +++ linux-2.6.7/include/linux/sched.h	2004-07-30 13:22:29.000000000 -0400
+> @@ -239,6 +239,10 @@
+>  	/* Architecture-specific MM context */
+>  	mm_context_t context;
+>  
+> +	/* Token based thrashing protection. */
+> +	unsigned long swap_token_time;
+> +	char recent_pagein;
+> +
+>  	/* coredumping support */
+>  	int core_waiters;
+>  	struct completion *core_startup_done, core_done;
+> --- linux-2.6.7/kernel/fork.c.token	2004-07-30 13:22:27.000000000 -0400
+> +++ linux-2.6.7/kernel/fork.c	2004-07-30 13:22:29.000000000 -0400
+> @@ -36,6 +36,7 @@
+>  #include <linux/mount.h>
+>  #include <linux/audit.h>
+>  #include <linux/rmap.h>
+> +#include <linux/swap.h>
+>  
+>  #include <asm/pgtable.h>
+>  #include <asm/pgalloc.h>
+> @@ -463,6 +464,7 @@
+>  		exit_aio(mm);
+>  		exit_mmap(mm);
+>  		mmdrop(mm);
+> +		put_swap_token(mm);
+>  	}
+>  }
+>  
+> --- linux-2.6.7/mm/memory.c.token	2004-07-30 13:22:28.000000000 -0400
+> +++ linux-2.6.7/mm/memory.c	2004-07-30 13:22:29.000000000 -0400
+> @@ -1433,6 +1433,7 @@
+>  		/* Had to read the page from swap area: Major fault */
+>  		ret = VM_FAULT_MAJOR;
+>  		inc_page_state(pgmajfault);
+> +		grab_swap_token();
+>  	}
+>  
+>  	mark_page_accessed(page);
+> --- linux-2.6.7/mm/filemap.c.token	2004-07-30 13:22:28.000000000 -0400
+> +++ linux-2.6.7/mm/filemap.c	2004-07-30 13:22:29.000000000 -0400
+> @@ -1195,6 +1195,7 @@
+>  	 * effect.
+>  	 */
+>  	error = page_cache_read(file, pgoff);
+> +	grab_swap_token();
+>  
+>  	/*
+>  	 * The page we want has now been added to the page cache.
+> --- /dev/null	2003-09-15 09:40:47.000000000 -0400
+> +++ linux-2.6.7/mm/thrash.c	2004-07-30 16:55:00.000000000 -0400
+> @@ -0,0 +1,100 @@
+> +/*
+> + * mm/thrash.c
+> + *
+> + * Copyright (C) 2004, Red Hat, Inc.
+> + * Copyright (C) 2004, Rik van Riel <riel@redhat.com>
+> + * Released under the GPL, see the file COPYING for details.
+> + *
+> + * Simple token based thrashing protection, using the algorithm
+> + * described in:  http://www.cs.wm.edu/~sjiang/token.pdf
+> + */
+> +#include <linux/jiffies.h>
+> +#include <linux/mm.h>
+> +#include <linux/sched.h>
+> +#include <linux/swap.h>
+> +
+> +static spinlock_t swap_token_lock = SPIN_LOCK_UNLOCKED;
+> +static unsigned long swap_token_timeout;
+> +unsigned long swap_token_check;
+> +struct mm_struct * swap_token_mm = &init_mm;
+> +
+> +#define SWAP_TOKEN_CHECK_INTERVAL (HZ * 2)
+> +#define SWAP_TOKEN_TIMEOUT (HZ * 300)
+> +
+> +/*
+> + * Take the token away if the process had no page faults
+> + * in the last interval, or if it has held the token for
+> + * too long.
+> + */
+> +#define SWAP_TOKEN_ENOUGH_RSS 1
+> +#define SWAP_TOKEN_TIMED_OUT 2
+> +static int should_release_swap_token(struct mm_struct * mm)
+> +{
+> +	int ret = 0;
+> +	if (!mm->recent_pagein)
+> +		ret = SWAP_TOKEN_ENOUGH_RSS;
+> +	else if (time_after(jiffies, swap_token_timeout))
+> +		ret = SWAP_TOKEN_TIMED_OUT;
+> +	mm->recent_pagein = 0;
+> +	return ret;
+> +}
+> +
+> +/*
+> + * Try to grab the swapout protection token.  We only try to
+> + * grab it once every TOKEN_CHECK_INTERVAL, both to prevent
+> + * SMP lock contention and to check that the process that held
+> + * the token before is no longer thrashing.
+> + */
+> +void grab_swap_token(void)
+> +{
+> +	struct mm_struct * mm;
+> +	int reason;
+> +
+> +	/* We have the token. Let others know we still need it. */
+> +	if (has_swap_token(current->mm)) {
+> +		current->mm->recent_pagein = 1;
+> +		return;
+> +	}
+> +
+> +	if (time_after(jiffies, swap_token_check)) {
+> +
+> +		/* Can't get swapout protection if we exceed our RSS limit. */
+> +		// if (current->mm->rss > current->mm->rlimit_rss)
+> +		//	return;
+> +
+> +		/* ... or if we recently held the token. */
+> +		if (time_before(jiffies, current->mm->swap_token_time))
+> +			return;
+> +
+> +		if (!spin_trylock(&swap_token_lock))
+> +			return;
+> +
+> +		swap_token_check = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
+> +
+> +		mm = swap_token_mm;
+> +		if ((reason = should_release_swap_token(mm))) {
+> +			unsigned long eligable = jiffies;
+> +			if (reason == SWAP_TOKEN_TIMED_OUT) {
+> +				eligable += SWAP_TOKEN_TIMEOUT;
+> +			}
+> +			mm->swap_token_time = eligable;
+> +			swap_token_timeout = jiffies + SWAP_TOKEN_TIMEOUT;
+> +			swap_token_mm = current->mm;
+> +			printk("Took swap token, pid %d (%s)\n",
+> +				 current->pid, current->comm);
+> +		}
+> +		spin_unlock(&swap_token_lock);
+> +	}
+> +	return;
+> +}
+> +
+> +/* Called on process exit. */
+> +void __put_swap_token(struct mm_struct * mm)
+> +{
+> +	spin_lock(&swap_token_lock);
+> +	if (mm == swap_token_mm) {
+> +		swap_token_mm = &init_mm;
+> +		swap_token_check = jiffies;
+> +	}
+> +	spin_unlock(&swap_token_lock);
+> +}
+> --- linux-2.6.7/mm/rmap.c.token	2004-07-30 13:22:24.000000000 -0400
+> +++ linux-2.6.7/mm/rmap.c	2004-07-30 13:22:29.000000000 -0400
+> @@ -230,6 +230,9 @@
+>  	if (ptep_clear_flush_young(vma, address, pte))
+>  		referenced++;
+>  
+> +	if (mm != current->mm && has_swap_token(mm))
+> +		referenced++;
+> +
+>  	(*mapcount)--;
+>  
+>  out_unmap:
+> --- linux-2.6.7/mm/Makefile.token	2004-07-30 13:22:27.000000000 -0400
+> +++ linux-2.6.7/mm/Makefile	2004-07-30 13:22:29.000000000 -0400
+> @@ -12,7 +12,7 @@
+>  			   readahead.o slab.o swap.o truncate.o vmscan.o \
+>  			   $(mmu-y)
+>  
+> -obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o
+> +obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
+>  obj-$(CONFIG_X86_4G)	+= usercopy.o
+>  obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
+>  obj-$(CONFIG_NUMA) 	+= mempolicy.o
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

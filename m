@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289621AbSCDB1P>; Sun, 3 Mar 2002 20:27:15 -0500
+	id <S290796AbSCDBfP>; Sun, 3 Mar 2002 20:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290796AbSCDB1E>; Sun, 3 Mar 2002 20:27:04 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:45062 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S289621AbSCDB0r>;
-	Sun, 3 Mar 2002 20:26:47 -0500
-From: Christer Weinigel <wingel@acolyte.hack.org>
-To: thibaut@celestix.com
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <20020304073729.59946087.thibaut@celestix.com> (message from
-	Thibaut Laurent on Mon, 4 Mar 2002 07:37:29 +0800)
-Subject: Re: [PATCH] NatSemi SCx200 Support
-In-Reply-To: <Pine.LNX.4.21.0202281244330.2117-100000@freak.distro.conectiva>
-	<20020302160110.11DE1F5B@acolyte.hack.org> <20020304073729.59946087.thibaut@celestix.com>
-Message-Id: <20020304012642.D56C7F5B@acolyte.hack.org>
-Date: Mon,  4 Mar 2002 02:26:42 +0100 (CET)
+	id <S290797AbSCDBfG>; Sun, 3 Mar 2002 20:35:06 -0500
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:36875
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S290796AbSCDBe4>; Sun, 3 Mar 2002 20:34:56 -0500
+Date: Mon, 4 Mar 2002 02:34:30 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: linux-kernel@vger.kernel.org
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+        "Patrick R. McManus" <mcmanus@ducksong.com>
+Subject: [PATCH] SiS IDE, several fixes
+Message-ID: <20020304023430.A26562@bouton.inet6-interne.fr>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Manfred Spraul <manfred@colorfullife.com>,
+	"Patrick R. McManus" <mcmanus@ducksong.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thibaut Laurent <thibaut@celestix.com> wrote:
-> There's a typo in drivers/i2c/Config.in.
-> CONFIG_SCx200_I2C is defined but CONFIG_I2C_SCx200 is tested...
-> 
-> +      dep_tristate '  NatSemi SCx200 I2C using GPIO pins' CONFIG_SCx200_I2C $CONFIG_ARCH_SCx200 $CONFIG_I2C_ALGOBIT
-> +      if [ "$CONFIG_I2C_SCx200" != "n" ]; then
->               ^^^^^^^^^^^^^^^^^
->      this should be CONFIG_SCx200_I2C
+Hi,
 
-You are absolutely correct.  I switched the names around and must have
-missed that.  A patch is attached.
+found time to read e-mails and write code.
 
-Thanks,
- /Christer
+- 730 fix (this ATA100 chipset uses the ATA66 family register layout)
+- Hang if UDMA is not set by BIOS fix (thanks to Manfred Spraul)
 
-diff -ur linux/drivers/i2c/Config.in.orig linux/drivers/i2c/Config.in
---- linux/drivers/i2c/Config.in.orig	Mon Mar  4 01:24:27 2002
-+++ linux/drivers/i2c/Config.in	Mon Mar  4 01:25:18 2002
-@@ -14,7 +14,7 @@
-       dep_tristate '  ELV adapter' CONFIG_I2C_ELV $CONFIG_I2C_ALGOBIT
-       dep_tristate '  Velleman K9000 adapter' CONFIG_I2C_VELLEMAN $CONFIG_I2C_ALGOBIT
-       dep_tristate '  NatSemi SCx200 I2C using GPIO pins' CONFIG_SCx200_I2C $CONFIG_ARCH_SCx200 $CONFIG_I2C_ALGOBIT
--      if [ "$CONFIG_I2C_SCx200" != "n" ]; then
-+      if [ "$CONFIG_SCx200_I2C" != "n" ]; then
-          int  '    GPIO pin used for SCL' CONFIG_SCx200_I2C_SCL -1
-          int  '    GPIO pin used for SDA' CONFIG_SCx200_I2C_SDA -1
-       fi
+If you have a 730 chipset or if you couldn't boot without ide=nodma please
+test latest patch and report the results to me.
 
--- 
-"Just how much can I get away with and still go to heaven?"
+Patch against 2.4.18:
+
+http://inet6.dyn.dhs.org/sponsoring/sis5513/sis.patch.20020304_1
+or
+http://gyver.homeip.net/sis5513/sis.patch.20020304_1
+
+Full driver (drop-in replacement of linux/drivers/ide):
+
+http://inet6.dyn.dhs.org/sponsoring/sis5513/sis5513-v0.13.c
+or
+http://gyver.homeip.net/sis5513/sis5513-v0.13.c
+
+LB.

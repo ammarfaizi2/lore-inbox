@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264342AbUAOOf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 09:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAOOf5
+	id S262746AbUAOO0x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 09:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUAOO0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 09:35:57 -0500
-Received: from hostmaster.org ([80.110.173.103]:898 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S264342AbUAOOfy (ORCPT
+	Thu, 15 Jan 2004 09:26:52 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:32784 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262746AbUAOO0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 09:35:54 -0500
-Subject: Re: 2.4.24 SMP lockups
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58L.0401141420090.14071@logos.cnet>
-References: <Pine.LNX.4.58L.0401101758010.1310@logos.cnet>
-	 <20040111090135.GB6834@netnation.com>
-	 <Pine.LNX.4.58L.0401141420090.14071@logos.cnet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SnY4okRmj2Qfm1XZ3iF2"
-Message-Id: <1074177341.1394.11.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 15 Jan 2004 15:35:46 +0100
+	Thu, 15 Jan 2004 09:26:49 -0500
+Date: Thu, 15 Jan 2004 15:26:02 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Gerd Knorr <kraxel@bytesex.org>
+cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] v4l-05 add infrared remote support
+In-Reply-To: <20040115115611.GA16266@bytesex.org>
+Message-ID: <Pine.LNX.4.58.0401151502320.27223@serv>
+References: <20040115115611.GA16266@bytesex.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-SnY4okRmj2Qfm1XZ3iF2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, 15 Jan 2004, Gerd Knorr wrote:
 
-Marcelo,
+> diff -u linux-2.6.1/drivers/media/Kconfig linux/drivers/media/Kconfig
+> --- linux-2.6.1/drivers/media/Kconfig	2004-01-14 15:05:10.000000000 +0100
+> +++ linux/drivers/media/Kconfig	2004-01-14 15:09:35.000000000 +0100
+> @@ -49,5 +49,11 @@
+>  	default VIDEO_BT848
+>  	depends on VIDEO_DEV
+>
+> +config VIDEO_IR
+> +	tristate
+> +	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
+> +	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
+> +	depends on VIDEO_DEV
+> +
+>  endmenu
+>
 
-as I have posted before I do also have a SMP lockup problem with
-2.6.0/2.6.1 and the de4x5 driver that still keeps me from using any of
-the 2.6 kernel series. I have already created a bug report for this
-including the NMI watchdog oops message:
-http://bugme.osdl.org/show_bug.cgi?id=3D1855
+This can also be written as:
 
-Tom
+config VIDEO_IR
+	def_tristate VIDEO_BT848 || VIDEO_SAA7134
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-       mail pgp-key-request@hostmaster.org
+def_tristate is the same as tristate & default ...
+The dependency is redundant as the other options already depend on it.
 
-UNIX is user-friendly ... it's just selective about who it's friends are
+Another possibility is to use select:
 
---=-SnY4okRmj2Qfm1XZ3iF2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+# selected as needed
+config VIDEO_IR
+	tristate
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+config VIDEO_BT848
+	...
+	select VIDEO_IR
 
-iQEVAwUAQAalN2D1OYqW/8uJAQLpZQf+On4SIUMNsqWDOtqB+QyIVCOWi3RpM44D
-0hv6cWdbIlUFw878NJyxtR8Ix2eiZ3YhhqtDYg1MX1nLVbv72EJsVHeQzW94woEa
-GdJ28xgytjUfBGEfTJ8m4fRJ0ZdjfF+VFb+XNDZ2qrAnWCsh9hC5RiRN4EpBZaI3
-DxR6xulVxBm9oto+2UbB8VuA5H0UaeDZq7l2ftA58DqZtI97anS4XcEobrmXap2R
-DBUzNrOqqU+l6uDvdtgRv06+doNKwXqfeq4ayylL+Z7zPpNwlZSws/gXeKAGOJ1z
-TUD+JdMoYZ6O2BiTdzfcaIJ7gHqqg6vlzpbadsE5TyQlTtJrcHoinQ==
-=U1Nx
------END PGP SIGNATURE-----
+This has the advantage that adding/removing drivers only requires changes
+at a single place.
 
---=-SnY4okRmj2Qfm1XZ3iF2--
-
+bye, Roman

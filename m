@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265293AbUHCKVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265285AbUHCKdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265293AbUHCKVb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 06:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUHCKVb
+	id S265285AbUHCKdK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 06:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUHCKdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 06:21:31 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:63223 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265354AbUHCKVJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 06:21:09 -0400
-Date: Tue, 3 Aug 2004 15:47:33 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [patchset] Lockfree fd lookup 0 of 5
-Message-ID: <20040803101733.GB4432@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802165607.GN12308@parcelfarce.linux.theplanet.co.uk> <20040803092316.GE1753@vitalstatistix.in.ibm.com> <20040803093553.GF1753@vitalstatistix.in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040803093553.GF1753@vitalstatistix.in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 3 Aug 2004 06:33:10 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:54749
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S265285AbUHCKdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 06:33:05 -0400
+Message-ID: <410F69DF.7050602@bio.ifi.lmu.de>
+Date: Tue, 03 Aug 2004 12:33:03 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problem: nfsd producing stales when restarting too fast
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 03:05:55PM +0530, Ravikiran G Thirumalai wrote:
-> On Tue, Aug 03, 2004 at 02:53:17PM +0530, Ravikiran G Thirumalai wrote:
-> > I ran tiobench on this patch and here is the comparison:
-> > 
-> > 
-> > Kernel		Seqread		Randread	Seqwrite	Randwrite
-> > --------------------------------------------------------------------------
-> > 2.6.7		410.33		234.15		254.39		189.36
-> > rwlocks-viro	401.84		232.69		254.09		194.62
-> > refcount (kref)	455.72		281.75		272.87		230.10
-> > 
+Hi,
 
-Hm...
+there seems to be a problem with the kernel nfsd on 2.6.7
+when restarting the server too fast. I'm running 2.6.7
+on both NFS server and client.
 
-11514     6.7783  fget_light (vanilla)
-13168     7.7224  fget_light (rwlock)
-1993      1.2633  fget_light (kref)
+I've mounted two test volumes, both with
+-orw,nfsvers=3,rsize=8192,wsize=8192,hard,intr,nolock
+Using soft or hard and udp or tcp does not make any difference.
 
-Total ticks -
+On the client that mounts the volumes (subdirs udp and tcp)
+I run loops like "while true; do date >> udp/bla; done"
 
-169886  (vanilla)
-170520  (rwlock)
-157760  (kref)
+Restarting the nfsserver with "/etc/init.d/nfsserver restart"
+(sometimes a few times, somtimes on the first try) ends up with
+both loops echoing "bash: udp/bla: Stale NFS file handle"
+forever.
+But when I shutdown the nfsserver, wait 5 seconds and
+bring it up again, this never happens. And it does even
+bring back the loops to normal behaviour when they
+were stuck on stale fs before.
 
-Of the 12126 ticks that were reduced by kref, 9521 came from 
-reduction in fget_light(). So, lock-free fget_light() does help.
-Also, it seems the lock contention is not much of an issue -
+Ok, it seems that you just need to insert a sleep statement
+in the init script, but I guess this is not the desired
+behaviour of the nfs daemon.
 
-1203      0.7082  .text.lock.file_table
+Btw, it's not a problem with the init script, I can also
+produce this behaviour manually by
+/usr/sbin/exportfs -au
+killall -9 nfsd
+killall -9 /usr/sbin/rpc.mountd
+[sleep 5]
+/usr/sbin/exportfs -r
+/usr/sbin/rpc.nfsd
+/usr/sbin/rpc.mountd
 
-That explains why rwlock didn't help. I guess we are benefiting
-mostly from avoiding the cacheline bouncing and removal of the
-lock acquisition.
+Without the sleep, everything stales. With the sleep, it works
+fine.
 
-Thanks
-Dipankar
+cu,
+Frank
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

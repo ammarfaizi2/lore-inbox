@@ -1,102 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265884AbUAPWls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUAPWlr
+	id S265924AbUAPWwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbUAPWwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:41:47 -0500
-Received: from pengo.systems.pipex.net ([62.241.160.193]:42632 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S265884AbUAPWln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 17:41:43 -0500
-Date: Fri, 16 Jan 2004 22:44:46 +0000
-From: James Stone <stone1@btinternet.com>
-To: linux-kernel@vger.kernel.org
-Subject: sound usb related kernel panic on reboot
-Message-ID: <20040116224446.GA758@moon.base>
+	Fri, 16 Jan 2004 17:52:31 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5388 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265924AbUAPWwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 17:52:21 -0500
+Date: Fri, 16 Jan 2004 22:52:17 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Serial updates
+Message-ID: <20040116225217.D5904@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc me with any replies.
+Hi all,
 
-I have been getting the already reported kernel panic on shutdown/reboot
-which seems to be related in some way to the modem_run userspace driver
-for the alcatel speedtouch modem. I have now noticed another one which
-is also related to USB in some way.. 
+The following patch updates the 2.6.1 serial code for changes by Bjorn
+Helgaas.  I've included Bjorn's comments below:
 
-I have a midi keyboard (evolution MK-249C) attached via USB and when it
-is switched on, I get the kernel panic on shutdown. I can supply the
-full trace if required although it will require me writing it by hand as
-it does not seem to be recorded in any logs.
+[SERIAL] make ACPI serial module unload work
+  
+  Patch from Bjorn Helgaas
+  
+  This patch makes ACPI serial ports work right when the serial driver
+  is built as a module.  Previously, loading worked fine, but we
+  didn't clean up on module removal.
 
-The output from /var/log/kernel is as follows:
+[SERIAL] make HCDP dependent on serial console
+  
+  Patch from Bjorn Helgaas
+  
+  I propose the following HCDP Kconfig patch.  It makes HCDP
+  selectable only when serial console has been selected.  One
+  desirable side effect is that both are then available only
+  when statically compiled in (i.e., not built as a module).
 
-Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at 
-0000:00:00.0 into 4x mode
-Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at
-0000:01:00.0 into 4x mode
-Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
-set 2, code 0x7a on isa0060/serio0).
-Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
-set 2, code 0x7a on isa0060/serio0).
-Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-driver usb-storage
-Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-driver visor
-Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
-Serial deregistering driver Handspring Visor / Palm OS
-Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
-Serial deregistering driver Sony Clie 3.5
-Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-driver usbserial
-Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-driver usblp
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: remove, state 1
-Jan 16 19:17:27 moon kernel: usb usb1: USB disconnect, address 1
-Jan 16 19:17:27 moon kernel: usb 1-2: USB disconnect, address 2
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: USB bus 1
-deregistered
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: remove, state 1
-Jan 16 19:17:27 moon kernel: usb usb2: USB disconnect, address 1
-Jan 16 19:17:27 moon kernel: usb 2-1: USB disconnect, address 2
-Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
-ddb60000 busy
-Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
-ddb5a000 busy
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: USB bus 2
-deregistered
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: remove, state 1
-Jan 16 19:17:27 moon kernel: usb usb3: USB disconnect, address 1
-Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: USB bus 3
-deregistered
-Jan 16 19:17:27 moon kernel: slab error in kmem_cache_destroy(): cache
-`uhci_urb_priv': Can't free all objects
-Jan 16 19:17:27 moon kernel: Call Trace:
-Jan 16 19:17:27 moon kernel:  [kmem_cache_destroy+152/288]
-kmem_cache_destroy+0x98/0x120
-Jan 16 19:17:27 moon kernel:  [_end+542256840/1069502828]
-uhci_hcd_cleanup+0x1c/0x5
-9 [uhci_hcd]
-Jan 16 19:17:27 moon kernel:  [sys_delete_module+284/320]
-sys_delete_module+0x11c/0
-x140
-Jan 16 19:17:27 moon kernel:  [sys_munmap+68/112] sys_munmap+0x44/0x70
-Jan 16 19:17:27 moon kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 16 19:17:27 moon kernel: 
-Jan 16 19:17:27 moon kernel: uhci: not all urb_priv's were freed
-Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-driver snd-usb-audio
-Jan 16 19:17:32 moon kernel: drivers/usb/core/usb.c: registered new
-driver snd-usb-audio
-Jan 16 19:17:33 moon kernel: drivers/usb/core/usb.c: deregistering
-driver snd-usb-audio
-Jan 16 19:17:35 moon kernel: Kernel logging (proc) stopped.
-Jan 16 19:17:35 moon kernel: Kernel log daemon terminating.
+  The HCDP support doesn't actually depend on IA64, but I left
+  that in for now because nobody else implements support for it
+  and I don't want people confused by a selectable option that
+  doesn't do anything.  Maybe a "depends on EFI" or something
+  will be useful eventually.
 
-Regards,
+[SERIAL] request resources for ACPI & HCDP ports
+  
+  Patch from: Bjorn Helgaas
+  
+  This patch against 2.6.1-rc3 sets UPF_RESOURCES so the
+  appropriate ranges will show up in /proc/ioports and /proc/iomem.
 
-James Stone
+diff -Nru a/drivers/serial/8250_acpi.c b/drivers/serial/8250_acpi.c
+--- a/drivers/serial/8250_acpi.c	Fri Jan 16 22:06:23 2004
++++ b/drivers/serial/8250_acpi.c	Fri Jan 16 22:06:23 2004
+@@ -1,6 +1,7 @@
+ /*
+- * serial/acpi.c
+  * Copyright (c) 2002-2003 Matthew Wilcox for Hewlett-Packard
++ * Copyright (C) 2004 Hewlett-Packard Co
++ *	Bjorn Helgaas <bjorn.helgaas@hp.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -11,13 +12,21 @@
+ #include <linux/acpi.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/tty.h>
+ #include <linux/serial.h>
++#include <linux/tty.h>
++#include <linux/serial_core.h>
+ 
+ #include <acpi/acpi_bus.h>
+ 
+ #include <asm/io.h>
+ #include <asm/serial.h>
+ 
++struct serial_private {
++	int	line;
++	void	*iomem_base;
++};
++
+ static acpi_status acpi_serial_mmio(struct serial_struct *req,
+ 				    struct acpi_resource_address64 *addr)
+ {
+@@ -94,38 +103,72 @@
+ 
+ static int acpi_serial_add(struct acpi_device *device)
+ {
++	struct serial_private *priv;
+ 	acpi_status status;
+ 	struct serial_struct serial_req;
+-	int line;
++	int result;
+ 
+ 	memset(&serial_req, 0, sizeof(serial_req));
+ 
++	priv = kmalloc(sizeof(struct serial_private), GFP_KERNEL);
++	if (!priv) {
++		result = -ENOMEM;
++		goto fail;
++	}
++	memset(priv, 0, sizeof(*priv));
++
+ 	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+ 				     acpi_serial_resource, &serial_req);
+-	if (ACPI_FAILURE(status))
+-		return -ENODEV;
++	if (ACPI_FAILURE(status)) {
++		result = -ENODEV;
++		goto fail;
++	}
+ 
+-	if (!serial_req.iomem_base && !serial_req.port) {
++	if (serial_req.iomem_base)
++		priv->iomem_base = serial_req.iomem_base;
++	else if (!serial_req.port) {
+ 		printk(KERN_ERR "%s: no iomem or port address in %s _CRS\n",
+ 			__FUNCTION__, device->pnp.bus_id);
+-		return -ENODEV;
++		result = -ENODEV;
++		goto fail;
+ 	}
+ 
+ 	serial_req.baud_base = BASE_BAUD;
+-	serial_req.flags = ASYNC_SKIP_TEST|ASYNC_BOOT_AUTOCONF|ASYNC_AUTO_IRQ;
++	serial_req.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF |
++			   UPF_AUTO_IRQ  | UPF_RESOURCES;
+ 
+-	line = register_serial(&serial_req);
+-	if (line < 0) {
+-		printk(KERN_WARNING "Couldn't register serial port %s: %d",
+-			device->pnp.bus_id, line);
+-		return -ENODEV;
++	priv->line = register_serial(&serial_req);
++	if (priv->line < 0) {
++		printk(KERN_WARNING "Couldn't register serial port %s: %d\n",
++			device->pnp.bus_id, priv->line);
++		result = -ENODEV;
++		goto fail;
+ 	}
+ 
++	acpi_driver_data(device) = priv;
+ 	return 0;
++
++fail:
++	if (serial_req.iomem_base)
++		iounmap(serial_req.iomem_base);
++	kfree(priv);
++
++	return result;
+ }
+ 
+ static int acpi_serial_remove(struct acpi_device *device, int type)
+ {
++	struct serial_private *priv;
++
++	if (!device || !acpi_driver_data(device))
++		return -EINVAL;
++
++	priv = acpi_driver_data(device);
++	unregister_serial(priv->line);
++	if (priv->iomem_base)
++		iounmap(priv->iomem_base);
++	kfree(priv);
++
+ 	return 0;
+ }
+ 
+diff -Nru a/drivers/serial/8250_hcdp.c b/drivers/serial/8250_hcdp.c
+--- a/drivers/serial/8250_hcdp.c	Fri Jan 16 22:06:23 2004
++++ b/drivers/serial/8250_hcdp.c	Fri Jan 16 22:06:23 2004
+@@ -185,7 +185,7 @@
+ #else
+ 		port.irq = gsi;
+ #endif
+-		port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF;
++		port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_RESOURCES;
+ 		if (gsi)
+ 			port.flags |= ASYNC_AUTO_IRQ;
+ 
+diff -Nru a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+--- a/drivers/serial/Kconfig	Fri Jan 16 22:06:23 2004
++++ b/drivers/serial/Kconfig	Fri Jan 16 22:06:23 2004
+@@ -62,6 +62,15 @@
+ 
+ 	  If unsure, say N.
+ 
++config SERIAL_8250_HCDP
++	bool "Console device discovery via EFI HCDP table"
++	depends on IA64
++	depends on SERIAL_8250_CONSOLE=y
++	---help---
++	  If you wish to make the serial console port described by the EFI
++	  HCDP table available for use as serial console, say Y here.  See
++	  <http://www.dig64.org/specifications/DIG64_HCDPv10a_01.pdf>.
++
+ config SERIAL_8250_CS
+ 	tristate "8250/16550 PCMCIA device support"
+ 	depends on PCMCIA && SERIAL_8250
+@@ -83,15 +92,6 @@
+ 	---help---
+ 	  If you wish to enable serial port discovery via the ACPI
+ 	  namespace, say Y here.  If unsure, say N.
+-
+-config SERIAL_8250_HCDP
+-	bool "8250/16550 device discovery support via EFI HCDP table"
+-	depends on IA64 && SERIAL_8250
+-	---help---
+-	  If you wish to make the serial console port described by the EFI
+-	  HCDP table available for use as serial console or general
+-	  purpose port, say Y here. See
+-	  <http://www.dig64.org/specifications/DIG64_HCDPv10a_01.pdf>.
+ 
+ config SERIAL_8250_NR_UARTS
+ 	int "Maximum number of non-legacy 8250/16550 serial ports"
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263015AbRFQWVG>; Sun, 17 Jun 2001 18:21:06 -0400
+	id <S263079AbRFQWcb>; Sun, 17 Jun 2001 18:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263020AbRFQWU4>; Sun, 17 Jun 2001 18:20:56 -0400
-Received: from mail1.rdc2.bc.home.com ([24.2.10.84]:16043 "EHLO
-	mail1.rdc2.bc.home.com") by vger.kernel.org with ESMTP
-	id <S263015AbRFQWUo>; Sun, 17 Jun 2001 18:20:44 -0400
-Date: Sun, 17 Jun 2001 15:17:41 -0700 (PDT)
-From: Daniel Bertrand <d.bertrand@ieee.ca>
-X-X-Sender: <d_bertra@kilrogg>
-To: Dylan Griffiths <Dylan_G@bigfoot.com>
-cc: emu10k1-devel <emu10k1-devel@opensource.creative.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
-In-Reply-To: <3B2C8BFE.299BD47@bigfoot.com>
-Message-ID: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263070AbRFQWcV>; Sun, 17 Jun 2001 18:32:21 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:18195 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S263062AbRFQWcO>; Sun, 17 Jun 2001 18:32:14 -0400
+From: dth@trinity.hoho.nl (Danny ter Haar)
+Subject: Re: halting does not shutdown with 2.4.6pre3 (neither on 2.4.5-acxx)
+Date: Sun, 17 Jun 2001 22:32:17 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <9gjb5h$9v6$1@voyager.cistron.net>
+In-Reply-To: <20010617181640.A828@dragon.universe>
+X-Trace: voyager.cistron.net 992817137 10214 195.64.82.84 (17 Jun 2001 22:32:17 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jun 2001, Dylan Griffiths wrote:
+ <newsreader@mediaone.net> wrote:
+>with 2.4.6pre3 or not.  I have
+>also applied the latest patch from reiserfs.org
+>I have intel i810, celeron 566, 384MB
 
-> 	Kernel 2.4.5 has a working emu10k1 driver (all apps which hung with
-> 2.2.19's driver worked fine, none of the working ones stopped working).
-> Could we perhaps see this backported to the 2.2.20 prepatches so that us 2.2
-> lovers can enjoy working sound?
+i also use reiserfs (only) on my systems and
+experience samen problems with 2.4.5-ac11 and up.
+Somehow the machine seems to "hang" on unmounting
+the filessystems.
+I'm happy to have RemotePowerBoots on some machines ;-)
 
-Can you give the CVS driver a try? Snapshots are available here:
-http://opensource.creative.com/snapshot.html
-
-The driver in the kernel is based on a CVS snapshot from last summer, the
-problem may be fixed in CVS. Also, the CVS driver is a common driver for
-2.2 and 2.4 (with some #ifdef), so it may be useful to see if it works for
-you on 2.4.5 but not on 2.2.19.
-
-
+Danny
 -- 
-Daniel Bertrand
+Holland Hosting
+www.hoho.nl      info@hoho.nl
 

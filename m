@@ -1,37 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266886AbTBCRCj>; Mon, 3 Feb 2003 12:02:39 -0500
+	id <S266908AbTBCRV7>; Mon, 3 Feb 2003 12:21:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266908AbTBCRCj>; Mon, 3 Feb 2003 12:02:39 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:27140 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266886AbTBCRCi>;
-	Mon, 3 Feb 2003 12:02:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302031713.h13HD2K8000181@darkstar.example.net>
-Subject: Re: CPU throttling??
-To: assembly@gofree.indigo.ie (Seamus)
-Date: Mon, 3 Feb 2003 17:13:02 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1044291313.17360.4.camel@taherias.sre.tcd.ie> from "Seamus" at Feb 03, 2003 04:55:13 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266917AbTBCRV7>; Mon, 3 Feb 2003 12:21:59 -0500
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:50142 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266908AbTBCRV6>; Mon, 3 Feb 2003 12:21:58 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 fixes (12/12).
+Date: Mon, 3 Feb 2003 15:50:55 +0100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302031550.55512.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just a simple question,
-> 
-> Would it be possible to throttle cpu when machine is in idle mode in
-> Linux? or is it purely a BIOS and motherboard functionality.
-> 
-> As you know some modern laptops in order to save power, throttle cpu
-> (lower the cpu clock cycles per sec) when in idle mode.
+trivial s390 fixes
+diff -urN linux-2.5.59/arch/s390/kernel/setup.c 
+linux-2.5.59-s390/arch/s390/kernel/setup.c
+--- linux-2.5.59/arch/s390/kernel/setup.c	Fri Jan 17 03:21:38 2003
++++ linux-2.5.59-s390/arch/s390/kernel/setup.c	Mon Feb  3 15:20:40 2003
+@@ -551,7 +551,7 @@
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos <= NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+diff -urN linux-2.5.59/arch/s390x/kernel/setup.c 
+linux-2.5.59-s390/arch/s390x/kernel/setup.c
+--- linux-2.5.59/arch/s390x/kernel/setup.c	Fri Jan 17 03:22:02 2003
++++ linux-2.5.59-s390/arch/s390x/kernel/setup.c	Mon Feb  3 15:20:40 2003
+@@ -545,7 +545,7 @@
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos <= NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+diff -urN linux-2.5.59/include/asm-s390/spinlock.h 
+linux-2.5.59-s390/include/asm-s390/spinlock.h
+--- linux-2.5.59/include/asm-s390/spinlock.h	Fri Jan 17 03:23:01 2003
++++ linux-2.5.59-s390/include/asm-s390/spinlock.h	Mon Feb  3 15:20:40 2003
+@@ -122,4 +122,17 @@
+                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
+ 		     : "2", "3", "cc" )
+ 
++extern inline int _raw_write_trylock(rwlock_t *rw)
++{
++	unsigned int result, reg;
++	
++	__asm__ __volatile__("   lhi  %0,1\n"
++			     "   sll  %0,31\n"
++			     "   basr %1,0\n"
++			     "0: cs   %0,%1,0(%3)\n"
++			     : "=&d" (result), "=&d" (reg), "+m" (rw->lock)
++			     : "a" (&rw->lock) : "cc" );
++	return !result;
++}
++
+ #endif /* __ASM_SPINLOCK_H */
+diff -urN linux-2.5.59/include/asm-s390x/spinlock.h 
+linux-2.5.59-s390/include/asm-s390x/spinlock.h
+--- linux-2.5.59/include/asm-s390x/spinlock.h	Fri Jan 17 03:21:41 2003
++++ linux-2.5.59-s390/include/asm-s390x/spinlock.h	Mon Feb  3 15:20:40 2003
+@@ -139,5 +139,17 @@
+ 		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
+ 		     : "2", "3", "cc" )
+ 
++extern inline int _raw_write_trylock(rwlock_t *rw)
++{
++	unsigned int result, reg;
++	
++	__asm__ __volatile__("   llihh %0,0x8000\n"
++			     "   basr  %1,0\n"
++			     "0: csg %0,%1,0(%3)\n"
++			     : "=&d" (result), "=&d" (reg), "+m" (rw->lock)
++			     : "a" (&rw->lock) : "cc" );
++	return !result;
++}
++
+ #endif /* __ASM_SPINLOCK_H */
+ 
 
-CPU speed throttling is is something is that is currently being worked
-on.
-
-Incidently, Linux has always halted the processor, rather than spun in
-an idle loop, which saves power.
-
-John.

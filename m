@@ -1,65 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTFHFHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 01:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTFHFHT
+	id S264509AbTFHGBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 02:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTFHGBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 01:07:19 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:39883 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264499AbTFHFHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 01:07:18 -0400
-Subject: Re: [RFC] machine_reboot and friends
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030606215159.GB10721@h55p111.delphi.afb.lu.se>
-References: <20030606215159.GB10721@h55p111.delphi.afb.lu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055049528.18387.7.camel@nighthawk>
+	Sun, 8 Jun 2003 02:01:12 -0400
+Received: from iris.slb.nwc.acsalaska.net ([209.112.155.43]:18447 "EHLO
+	iris.acsalaska.net") by vger.kernel.org with ESMTP id S264509AbTFHGBI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 02:01:08 -0400
+Date: Sat, 7 Jun 2003 22:14:39 -0800
+From: Ethan Benson <erbenson@alaska.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] don't allow utime()/utimes() on immutable/append-only files
+Message-ID: <20030608061439.GA8983@plato.local.lan>
+Mail-Followup-To: Ethan Benson <erbenson@alaska.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Jun 2003 22:18:48 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-OS: Debian GNU
+X-gpg-fingerprint: E3E4 D0BC 31BC F7BB C1DD  C3D6 24AC 7B1A 2C44 7AFC
+X-gpg-key: http://www.alaska.net/~erbenson/gpg/key.asc
+X-ACS-Spam-Status: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-06 at 14:51, Anders Gustafsson wrote:
-> What if machine_restart/machine_halt/machine_power_off were made
-> functionpointers instead? And let the architectures assign to them
-> instead of defining the functions? Some architectures are already
-> doing this.
 
-We don't usually abstract out architecture features with function
-pointers.  The more standard way is with definitions in
-architecture-specific files.  Also, the 
+Hi,
 
-               if(machine_restart)
-                       machine_restart(NULL);
+I recently noticed that utime() and utimes() is allowed on immutable
+or append-only files.  I believe this should not be permitted.
 
-stuff is fairly messy, and it would probably be preferable to do
-something like this instead:
+Attached is a patch which returns -EPERM on attempts to set timestamps
+explicitly (utime[s]() with a timebuf arg), and which returns EACCES
+when these are called with a NULL time arg for immutable files.
 
-void machine_restart(void)
-{
-               if(arch_machine_restart)
-                       arch_machine_restart(NULL);
-}
+utime/utimes with a NULL time arg is allowed on an append-only file.
+Since timestamps are updated when append-only files are written to, it
+seems acceptable to allow the timestamp to be updated to the current
+time.
 
-Then, let the architectures define arch_machine_restart(), and keep tons
-of duplicate if()s from being scattered around.
+I am not subscribed to linux-kernel, so please CC any replies, thanks.
 
-> A bit orthogonal: Different architechtures do different things if the action
-> fails (or is unimplemented), some panic, some return, some do "for(;;);",
-> isn't it about time someone defined the semantics for these functions?
+--- linux.orig/fs/open.c	Sun Jun  1 20:39:38 2003
++++ linux/fs/open.c	Sun Jun  1 20:54:14 2003
+@@ -272,6 +272,9 @@
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
++		error = -EPERM;
++		if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
++			goto dput_and_out;
+ 		error = get_user(newattrs.ia_atime, &times->actime);
+ 		if (!error) 
+ 			error = get_user(newattrs.ia_mtime, &times->modtime);
+@@ -280,6 +283,9 @@
+ 
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+ 	} else {
++		error = -EACCES;
++		if (IS_IMMUTABLE(inode))
++			goto dput_and_out;
+ 		if (current->fsuid != inode->i_uid &&
+ 		    (error = permission(inode,MAY_WRITE)) != 0)
+ 			goto dput_and_out;
+@@ -318,6 +324,9 @@
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (utimes) {
+ 		struct timeval times[2];
++		error = -EPERM;
++		if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
++			goto dput_and_out;
+ 		error = -EFAULT;
+ 		if (copy_from_user(&times, utimes, sizeof(times)))
+ 			goto dput_and_out;
+@@ -325,6 +334,10 @@
+ 		newattrs.ia_mtime = times[1].tv_sec;
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+ 	} else {
++		error = -EACCES;
++		if (IS_IMMUTABLE(inode))
++			goto dput_and_out;
++
+ 		if (current->fsuid != inode->i_uid &&
+ 		    (error = permission(inode,MAY_WRITE)) != 0)
+ 			goto dput_and_out;
 
-Not really.  It's architecture specific :)  Some machines simply don't
-have a recourse when something that low-level fails.  Is there a case
-when something happens that you don't expect?  The three architecures
-that I compile for work happily, and as I expect.
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Ethan Benson
+http://www.alaska.net/~erbenson/

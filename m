@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270492AbRHISHI>; Thu, 9 Aug 2001 14:07:08 -0400
+	id <S270199AbRHISGs>; Thu, 9 Aug 2001 14:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270491AbRHISG7>; Thu, 9 Aug 2001 14:06:59 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:2041 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S270233AbRHISGx>; Thu, 9 Aug 2001 14:06:53 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108091806.f79I6ong023560@webber.adilger.int>
-Subject: Re: can't get buffer cache to flush with /dev/ram with 2.4.4 using "update"/"sync"
-In-Reply-To: <6a.11d48002.28a42627@aol.com> "from Floydsmith@aol.com at Aug 9,
- 2001 01:45:11 pm"
-To: Floydsmith@aol.com
-Date: Thu, 9 Aug 2001 12:06:50 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S270233AbRHISGj>; Thu, 9 Aug 2001 14:06:39 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:25388 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S270199AbRHISGd>; Thu, 9 Aug 2001 14:06:33 -0400
+Date: Thu, 9 Aug 2001 13:06:41 -0500
+From: Tim Walberg <twalberg@mindspring.com>
+To: linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: Setting up MTRRs for 4096MB RAM
+Message-ID: <20010809130641.B10425@mindspring.com>
+Reply-To: Tim Walberg <twalberg@mindspring.com>
+Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
+	linux-kernel@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <Pine.LNX.4.21.0108091306550.18150-100000@willow.commerce.uk.net> <9kuils$q67$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WfZ7S8PLGjBY9Voh"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9kuils$q67$1@cesium.transmeta.com> from H. Peter Anvin on 08/09/2001 12:53
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Floyd Smith writes:
-> I boot linux using "loadlin" with an "initrd" ram disk image ("minix" type 
-> fs) of size 32 Meg with kernel 2.4.4. The /linuxrc (a C executable) runs and 
-> it shows that the mounted file sysem is of proper type and size. Then my 
-> "linuxrc" extracts a "tar" achrive (to populate the mounted /dev/ram [on 
-> "/"]) with a small subset of  "linux" about (18 Meg) (as a "rescue" floppy 
-> boot). Before the "extract", debug code shows that the "cached" entry in 
-> "/proc/meminfo" to be practically zero (and thus plenty of "freemem"). 
-> However, after the "extract", the "cached" line shows about "18Meg"  and I 
-> can find nothing that works to "flush" it. I have tried "spawing" 
-> "/sbin/update" and waiting several min. and running "/bin/sync" and also 
-> waiting - no change in the "cahed" entry (or and increase in the "freemem").  
-> (ps -ef shows a process "bdflush" running [spawned] on its own.) Thus, trying 
-> to bring up a "logon" shell (and its "init" scripts) results in that process 
-> being killed do to lack of "freemem". I have only 64M and less than 4 Meg 
-> free after the "extract". Any suggestions greatly appreciated in advance. If 
-> there any "syscall" I can make in "linuxrc" that will flush "all" buffers 
-> without knowing anything like "file descriptors"? Is this "syscall" 
-> "synchronus" - or do do I have wait several seconds for it to work?
 
-I would "suggest" that the "cache" has nothing to do with the "problem".
-It is just a "cache", and _should_ be "released" when it is not needed.
-However, the "ramdisk" is using up a fair amount of "memory", and your
-"initrd" is using up "memory" as well.  This "adds up" to about "50MB"
-right there.  Maybe you need to make a "smaller" "initrd" or use "ramfs"
-instead of "ramdisk" so you don't "waste" ram on the "empty" part of the
-"filesystem" from the "tar".  You may also want to use a smaller "shell"
-like "ash" for limited boot environments, or even something like "Tom's
-Root Boot" which is "very small" to start with.
+--WfZ7S8PLGjBY9Voh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That said, there were "problems" in older "kernels" with respect to the
-"VM subsystem", so you are best off using "2.4.8-pre8" or whatever is the
-most recent "kernel" (or even the next one, which has yet more fixes).
+On 08/09/2001 10:53 -0700, H. Peter Anvin wrote:
+>>=09
+>>	Intel MTRRs have to be a multiple of 2, so you'd need 2 MTRRs if you
+>>	wanted to cover 3 GB.  0x80000000 is a multiple of 2; 0xC0000000
+>>	isn't, and 0xFFFFFFFF definitely isn't, although 0x100000000 is.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Since when? Seems to me bit 0 of 0xC0000000 is 0, therefore it is
+a multiple of two. Perhaps you meant "power of 2" (i.e. only one bit
+set in the binary representation)?
 
+
+			tw
+
+
+--=20
+twalberg@mindspring.com
+
+--WfZ7S8PLGjBY9Voh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBO3LRL8PlnI9tqyVmEQLd2gCff1lmpJPLwEgsmVUkAGjuEr8VGa4AoJo3
+2dZ8eg+uXY+Jer/5wkWudlGj
+=s/4K
+-----END PGP SIGNATURE-----
+
+--WfZ7S8PLGjBY9Voh--

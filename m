@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCDTsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262998AbVCDT4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbVCDTsX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbVCDTsM
+	id S262998AbVCDT4n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbVCDTsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:48:12 -0500
-Received: from smartmx-07.inode.at ([213.229.60.39]:7619 "EHLO
-	smartmx-07.inode.at") by vger.kernel.org with ESMTP id S263020AbVCDT3X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 14:29:23 -0500
-Message-ID: <4228B716.7080704@inode.info>
-Date: Fri, 04 Mar 2005 20:29:26 +0100
-From: Richard Fuchs <richard.fuchs@inode.info>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Fri, 4 Mar 2005 14:48:50 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:12462 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S263003AbVCDTfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 14:35:19 -0500
+Message-ID: <4228B868.7010104@dgreaves.com>
+Date: Fri, 04 Mar 2005 19:35:04 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: slab corruption in skb allocs
-References: <42283093.7040405@inode.info> <20050304181050.GB4484@redhat.com> <4228A9A1.2090301@inode.info>
-In-Reply-To: <4228A9A1.2090301@inode.info>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, torvalds@osdl.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <01ef01c520b7$94bebf80$0f01a8c0@max> <20050304132535.A9133@flint.arm.linux.org.uk> <039001c520e0$4ea3fbe0$0f01a8c0@max>
+In-Reply-To: <039001c520e0$4ea3fbe0$0f01a8c0@max>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Fuchs wrote:
+Richard Purdie wrote:
 
- > [e100]
-> i will try again the eepro100 driver and see if it does the same...
+> Writing instructions for setting up oe to build it may be the best 
+> option.
 
-yes, the same thing happens with the eepro100 driver.
+As it happens I was editing that exact page in the wiki t'other day:
+  http://openembedded.org/cgi-bin/moin.cgi/GettingStarted
 
-cheers
-richard
+I actually only wanted a toolchain but oe and scratchbox[1] seemed the 
+rational alternatives.
+Scratchbox seems to offer : arm-gcc-3.3.4-glibc-2.3.2 but I've not 
+gotten round to using it yet.
+
+Thanks for the comment on "bitbake binutils-cross-sdk" and "bitbake 
+gcc-cross-sdk".
+I'll add more notes to the page once I figure it all out.
+
+David
+
+[1] http://www.scratchbox.org/download/scratchbox-1.0/

@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbUKRWx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbUKRWpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbUKRWx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 17:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUKRWv2
+	id S262948AbUKRWpf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262975AbUKRWnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 17:51:28 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:40081
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262923AbUKRWud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 17:50:33 -0500
-Date: Thu, 18 Nov 2004 14:34:51 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: James Morris <jmorris@redhat.com>
-Cc: chrisw@osdl.org, ross.axe@blueyonder.co.uk, netdev@oss.sgi.com,
-       sds@epoch.ncsc.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-Message-Id: <20041118143451.3dae3ffb.davem@davemloft.net>
-In-Reply-To: <Xine.LNX.4.44.0411181219590.5236-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0411181158110.5096-100000@thoron.boston.redhat.com>
-	<Xine.LNX.4.44.0411181219590.5236-100000@thoron.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Nov 2004 17:43:50 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.16]:47640 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262948AbUKRUtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:49:40 -0500
+Date: Thu, 18 Nov 2004 21:49:36 +0100
+Message-Id: <200411182049.iAIKnaNJ007083@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 527] M68k I/O: Move HP300 I/O macros close to other I/O macros again
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004 12:25:21 -0500 (EST)
-James Morris <jmorris@redhat.com> wrote:
+M68k I/O: Move HP300 I/O macros close to other I/O macros again (after merge
+error in 2.6.10-rc2)
 
-> Updated patch below (with Chris Wright's wrapper idea).
-> 
-> This now fixes both issues.
-> 
-> 1) Don't call security_unix_may_send() hook during sendmsg() for 
-> SOCK_SEQPACKET, and ensure that sendmsg() can only be called on a 
-> connected socket so as not to bypass the security_unix_stream_connect() 
-> hook.
-> 
-> 2) Return -EINVAL if sendto() is called on SOCK_SEQPACKET with an address 
-> supplied.
-> 
-> Please review and apply if ok.
-> 
-> 
-> Signed-off-by: James Morris <jmorris@redhat.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Looks good, applied thanks James.
+--- linux-2.6.10-rc2/include/asm-m68k/io.h	2004-11-15 10:56:16.000000000 +0100
++++ linux-m68k-2.6.10-rc2/include/asm-m68k/io.h	2004-11-15 12:26:10.000000000 +0100
+@@ -306,6 +306,24 @@ static inline void isa_delay(void)
+ #endif
+ #endif /* CONFIG_PCI */
+ 
++#if !defined(CONFIG_ISA) && !defined(CONFIG_PCI) && defined(CONFIG_HP300)
++/*
++ * We need to define dummy functions otherwise drivers/serial/8250.c doesn't link
++ */
++#define inb(port)        0xff
++#define inb_p(port)      0xff
++#define outb(val,port)   do { } while (0)
++#define outb_p(val,port) do { } while (0)
++
++/*
++ * These should be valid on any ioremap()ed region
++ */
++#define readb(addr)      in_8(addr)
++#define writeb(val,addr) out_8((addr),(val))
++#define readl(addr)      in_le32(addr)
++#define writel(val,addr) out_le32((addr),(val))
++#endif
++
+ #define mmiowb()
+ 
+ static inline void *ioremap(unsigned long physaddr, unsigned long size)
+@@ -327,23 +345,6 @@ static inline void *ioremap_fullcache(un
+ 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+ }
+ 
+-#if !defined(CONFIG_ISA) && !defined(CONFIG_PCI) && defined(CONFIG_HP300)
+-/*
+- * We need to define dummy functions otherwise drivers/serial/8250.c doesn't link
+- */
+-#define inb(port)        0xff
+-#define inb_p(port)      0xff
+-#define outb(val,port)   do { } while (0)
+-#define outb_p(val,port) do { } while (0)
+-
+-/*
+- * These should be valid on any ioremap()ed region
+- */
+-#define readb(addr)      in_8(addr)
+-#define writeb(val,addr) out_8((addr),(val))
+-#define readl(addr)      in_le32(addr)
+-#define writel(val,addr) out_le32((addr),(val))
+-#endif
+ 
+ /* m68k caches aren't DMA coherent */
+ extern void dma_cache_wback_inv(unsigned long start, unsigned long size);
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284540AbRLIVhv>; Sun, 9 Dec 2001 16:37:51 -0500
+	id <S284464AbRLIVtE>; Sun, 9 Dec 2001 16:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284553AbRLIVhl>; Sun, 9 Dec 2001 16:37:41 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:51913 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S284540AbRLIVha>;
-	Sun, 9 Dec 2001 16:37:30 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 9 Dec 2001 21:37:27 GMT
-Message-Id: <UTC200112092137.VAA252458.aeb@cwi.nl>
-To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
-Subject: Re: On re-working the major/minor system
+	id <S284467AbRLIVsy>; Sun, 9 Dec 2001 16:48:54 -0500
+Received: from shell.cyberus.ca ([216.191.240.114]:8956 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S284464AbRLIVso>;
+	Sun, 9 Dec 2001 16:48:44 -0500
+Date: Sun, 9 Dec 2001 16:45:01 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: <kuznet@ms2.inr.ac.ru>
+cc: <ahu@ds9a.nl>, <lartc@mailman.ds9a.nl>, <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+In-Reply-To: <200112091814.VAA00499@ms2.inr.ac.ru>
+Message-ID: <Pine.GSO.4.30.0112091642480.6079-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: kaih@khms.westfalen.de (Kai Henningsen)
 
-    > The C library, and the POSIX standard, etc, etc.
 
-    I think you'll find that there is *NOTHING* in either the C standard,  
-    POSIX, or the Austin future-{POSIX,UNIX} standard that knows about major  
-    or minor numbers.
+On Sun, 9 Dec 2001 kuznet@ms2.inr.ac.ru wrote:
 
-The Austin draft turned into POSIX 1003.1-2001 yesterday or so.
+> Hello!
+>
+> > > But to do this, you would need to be able to set skb->priority to a 32bit
+> > > number:
+> > >
+> >
+> > Cant think of a straight way to do this .... Alexey would know,
+>
+> SO_PRIORITY. Or I did not follow you?
+>
 
-There is not much, but a few traces can be found.
-For example, the pax archive format uses 8-byte devmajor and devminor fields.
+So priority limits the size of skb->priority to be from 0..6; this wont
+work with that check in cbq.
 
-(But to reassure others: no, this standard does not specify
-major and minor in ls output, but just says
-"If the file is a character special or block special file, the size of
- the file may be replaced with implementation-defined information
- associated with the device in question.")
-
-Andries
-
+cheers,
+jamal
 

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbUDESh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 14:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbUDESh7
+	id S262309AbUDETA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 15:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUDETA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 14:37:59 -0400
-Received: from dns.communicationvalley.it ([212.239.58.133]:25805 "HELO
-	rose.communicationvalley.it") by vger.kernel.org with SMTP
-	id S263129AbUDESh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 14:37:57 -0400
-From: Biker <biker@villagepeople.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5, ACPI, suspend and ThinkPad R40
-Date: Mon, 5 Apr 2004 20:37:52 +0200
-User-Agent: KMail/1.6.1
-References: <Pine.LNX.4.53.0402191116550.500@chaos>
-In-Reply-To: <Pine.LNX.4.53.0402191116550.500@chaos>
+	Mon, 5 Apr 2004 15:00:27 -0400
+Received: from kamikaze.scarlet-internet.nl ([213.204.195.165]:11161 "EHLO
+	kamikaze.scarlet-internet.nl") by vger.kernel.org with ESMTP
+	id S262309AbUDETAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 15:00:25 -0400
+Message-ID: <1081191622.4071acc6e100c@webmail.dds.nl>
+Date: Mon,  5 Apr 2004 21:00:22 +0200
+From: wdebruij@dds.nl
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [ANNOUNCE] various linux kernel devtools : device handling/memory mapping/profiling/etc
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404052037.53306.biker@villagepeople.it>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello,
-> I have an IBM ThinkPad R40...
 
-Me too,
-(model number 2681-BDG) and since the release of 2.6.0 many things have been 
-sligthly getting worse or never worked at all.
 
--It used to suspend/resume correctly until 2.6.3, but afterwards reboots 
-during resume.
--Unplugging a usb bluetooth dongle oopses the machine since 2.6.4 (used to 
-work ok before).
--The radeon fb drivers both have little problems (garbled screen, last screen 
-line not updated correctly)...
--The pcmcia controller does not work correctly (it stays dead if a pccard is 
-plugged in after bootup, I need to restart the pcmcia services to make it 
-work again).
--I never succeded in making infrared work, however it works fine under 2.4.
+On Monday 05 April 2004 18:23, Greg KH wrote:
+> I don't see anything in there that will work properly for udev.  Am I
+> just missing the code somewhere?  Remember, for udev to work, you have
+> to create stuff in sysfs, which I don't see this code doing.
+indeed, automatic creation of the device files is not yet incorporated under 
+udev, but at least it then reverts back to the oldstyle (mknod) device file 
+system, right? That's a work in progress as my systems don't actually use 
+udev just yet.
 
-I'm very willing to help all the kernel hackers out there to solve these 
-problems, please contact me, I can run whatever test/patch/hack you might 
-throw at me.
+> Ick, you are using pci_find_device() which is racy, depreciated, and
+> does not play nice with the rest of the kernel.  Yes, it's the lowest
+> common denominater accross 2.2, 2.4, and 2.6, but please don't sink to
+> that level if you don't have to.  For 2.6 it's just not acceptable.
 
-Regards, Biker.
+hmm, really? thanks for the tip. I basically looked at O'Reilly's book when I 
+coded that. Do you have a quick alternative for me to use?
+
+>
+> I agree that at times the current kernel driver api learning curve is a
+> bit steep.  But people are working to reduce that curve where they can,
+> and it's one of my main priorities for 2.7.  Any help and suggestions
+> that you might have in that area are greatly appreciated.
+>
+perhaps some of this code (when cleaned up) can serve as a guide. I was 
+actually wondering when a 2.7 release was scheduled.
+
+Thanks for taking the time to look at the code,
+
+Willem
+
+
+ps: my regular smtp server stopped, so I had to copy-paste this into webmail.
+Therefore, the in-reply-to, etc. tags are ommitted, possibly causing a
+threadbreak. Sorry.

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273289AbRI0PXq>; Thu, 27 Sep 2001 11:23:46 -0400
+	id <S273349AbRI0P1g>; Thu, 27 Sep 2001 11:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273282AbRI0PX0>; Thu, 27 Sep 2001 11:23:26 -0400
-Received: from sta18.netwrx1.com ([156.46.225.18]:11501 "EHLO
-	eagle.netwrx1.com") by vger.kernel.org with ESMTP
-	id <S273281AbRI0PXZ>; Thu, 27 Sep 2001 11:23:25 -0400
-From: "George R. Kasica" <georgek@netwrx1.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.10
-Date: Thu, 27 Sep 2001 10:23:50 -0500
-Organization: Netwrx Consulting Inc.
-Reply-To: georgek@netwrx1.com
-Message-ID: <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S273326AbRI0P1R>; Thu, 27 Sep 2001 11:27:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273349AbRI0P1E>; Thu, 27 Sep 2001 11:27:04 -0400
+Date: Thu, 27 Sep 2001 08:27:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Linux 0.01 disk lockup
+In-Reply-To: <Pine.LNX.3.96.1010927150812.28147B-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0109270826060.17030-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *15md0w-0000SJ-00*z/cnTUwok92* http://duncanthrax.net/exiscan/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm currently running 2.4.5 here and I'm considering 2.4.10 but am
-somewhat more nervous about this release than others based on the
-number of reports of problems I'm seeing...
 
-What would be the advice of others in terms of moving up from 2.4.5
-which has been rock solid here? 
+On Thu, 27 Sep 2001, Mikulas Patocka wrote:
+>
+> Linux 0.01 has a bug in disk request sorting - when interrupt happens
+> while sorting is active, the interrupt routine won't clear do_hd - thus
+> the disk will stay locked up forever.
 
-Would you recommend doing the upgrade or waiting for 2.4.11 or is
-there a middle ground release (2.4.6,7,8,9) that you'd recommend.
+Ehh..
 
-George
+Mikulas, do you want to be the official maintainer for the 0.01.xxx
+series?
 
+Note that much of the maintenance work is probably just to reproduce and
+make all the user-level etc infrastructure available..
 
-===[George R. Kasica]===        +1 262 677 0766
-President                       +1 206 374 6482 FAX 
-Netwrx Consulting Inc.          Jackson, WI USA 
-http://www.netwrx1.com
-georgek@netwrx1.com
-ICQ #12862186
+		Linus
+

@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292409AbSBUOnk>; Thu, 21 Feb 2002 09:43:40 -0500
+	id <S292396AbSBUOxv>; Thu, 21 Feb 2002 09:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292397AbSBUOnX>; Thu, 21 Feb 2002 09:43:23 -0500
-Received: from [209.195.52.114] ([209.195.52.114]:39428 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S292409AbSBUOnG>;
-	Thu, 21 Feb 2002 09:43:06 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: andersen@codepoet.org, Roman Zippel <zippel@linux-m68k.org>,
-        linux-kernel@vger.kernel.org
-Date: Thu, 21 Feb 2002 06:40:38 -0800 (PST)
-Subject: Re: linux kernel config converter
-In-Reply-To: <3C7505FC.52D5B08E@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0202210636020.8696-100000@dlang.diginsite.com>
+	id <S292402AbSBUOxm>; Thu, 21 Feb 2002 09:53:42 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:25058 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S292396AbSBUOxd>;
+	Thu, 21 Feb 2002 09:53:33 -0500
+Message-ID: <3C75092C.8020508@debian.org>
+Date: Thu, 21 Feb 2002 15:50:20 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Newsgroups: fa.linux.kernel
+To: David Lang <david.lang@digitalinsight.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, andersen@codepoet.org,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+In-Reply-To: <fa.hp69onv.i7qtq3@ifi.uio.no> <fa.lqt3hav.190o1i9@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Feb 2002 14:53:30.0907 (UTC) FILETIME=[870CF6B0:01C1BAE7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Jeff Garzik wrote:
 
-> David Lang wrote:
-> > 1. does this handle the cross directory dependancies?
->
-> I presume you are talking about Roman's tool, so I'll let him answer.  I
-> think he just implemented a converter to a new language, so new language
-> tools to parse the language don't exist yet, I think.
 
-I am so I'll wait for his answer
+David Lang wrote:
 
-> > 2. does it handle the 'I want this feature, turn on everything I need for
-> > it'?
->
-> This is fundamentally impossible for anything beyond the most simple
-> features. Although you can do a lot with config.in info, "everything I
-> need" is something a human needs to define in many cases.
->
+> 
+> 2. does it handle the 'I want this feature, turn on everything I need for
+> it'?
+> 
+> 3. if it handles #2 what does it do if you turn off that feature again
+> (CML2 turns off anything it turned on to support that feature, assuming
+> nothing else needs it)
 
-unless I am missing something this is one of the features that CML2
-implements. Agreed that 'everything I need' needs to be defined by a
-human, that's what Eric has done in his ruleset, define the dependancies.
 
->
-> > 3. if it handles #2 what does it do if you turn off that feature again
-> > (CML2 turns off anything it turned on to support that feature, assuming
-> > nothing else needs it)
->
-> This is a policy decision.  I'm not sure one -wants- to do this...
-> Doing something like this blindly can have unintended side effects, i.e.
-> violate the Principle of Least Surprise.
+These are tools dependent and not language dependent.
+Please split the two problem: the language and the configuration
+tools.
 
-I'll argue that _not_ doing this violated the principle of lease surprise,
-if you turn a feature on and immediatly back off why should anything in
-your config be any different then it was before you turned it on?
+	giacomo
 
-David Lang
+ 
+
 

@@ -1,124 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276397AbRI2BTB>; Fri, 28 Sep 2001 21:19:01 -0400
+	id <S276399AbRI2BUx>; Fri, 28 Sep 2001 21:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276399AbRI2BSw>; Fri, 28 Sep 2001 21:18:52 -0400
-Received: from Cambot.lecs.CS.UCLA.EDU ([131.179.144.110]:38662 "EHLO
-	cambot.lecs.cs.ucla.edu") by vger.kernel.org with ESMTP
-	id <S276397AbRI2BSd>; Fri, 28 Sep 2001 21:18:33 -0400
-Message-Id: <200109290118.f8T1Ixk05717@cambot.lecs.cs.ucla.edu>
-To: linux-kernel@vger.kernel.org
-cc: jelson@circlemud.org
-Subject: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+	id <S276400AbRI2BUc>; Fri, 28 Sep 2001 21:20:32 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16648 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S276399AbRI2BUZ>;
+	Fri, 28 Sep 2001 21:20:25 -0400
+Date: Fri, 28 Sep 2001 22:20:37 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac16 good perfomer?
+In-Reply-To: <20010928180819.A29756@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <5714.1001726339.1@cambot.lecs.cs.ucla.edu>
-Date: Fri, 28 Sep 2001 18:18:59 -0700
-From: Jeremy Elson <jelson@circlemud.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On behalf of Sensoria Corporation, I'm happy to announce the first
-public release of FUSD, a Linux Framework for User-Space Devices.
+On Fri, 28 Sep 2001, Mike Fedyk wrote:
 
-Briefly, FUSD lets you write user-space daemons that can respond to
-device-file callbacks on files in /dev.  These device files look and
-act just like any other device file from the point of view of a
-process trying to use them.  When the FUSD kernel module receives a
-file callback on a device being managed from user-space, it marshals
-the arguments into a message (including data copied from the caller,
-if necessary), blocks the caller, and sends the message to the daemon
-managing the device.  When the daemon generates a reply, the process
-happens in reverse, and the caller is unblocked.
+> Is it normal to have Inact_target 1/4 of main memory (64MB of 256MB RAM)?
+> In previous versions, this value would fluctuate with the load of the system.
+>
+> Is this expected?
 
-More information can be found at the official FUSD home page:
-http://www.circlemud.org/~jelson/software/fusd
+Yes, this is a 'compensation' for the fact that page aging changed
+from exponential to linear.  The combination of linear page aging
+with a large inactive_target results in a good combination of
+frequency- and recency-based page eviction.
 
-I've pasted a portion of the README file below, which has a somewhat
-more detailed description of what FUSD is and does.  A much more
-comprehensive user manual is available on the web page (above).
+Doing just linear page aging with a small inactive target resulted
+in worse throughput than exponential page aging for some workloads,
+better for other workloads.  Linear page aging with a large inactive
+target results in good througput and latency under all workloads I've
+found up to now.  As usual, thanks go out to Matt Dillon for finding
+this balancing point.
 
-Best regards,
-Jeremy
+I guess it really is time to stop reinventing the wheel ;)
 
---------
+cheers,
 
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-WHAT IS FUSD?
-=============
+http://www.surriel.com/		http://distro.conectiva.com/
 
-FUSD (pronounced "fused") is a Linux framework for proxying device
-file callbacks into user-space, allowing device files to be
-implemented by daemons instead of kernel code.  Despite being
-implemented in user-space, FUSD devices can look and act just like any
-other file under /dev which is implemented by kernel callbacks.
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-A user-space device driver can do many of the things that kernel
-drivers can't, such as perform a long-running computation, block while
-waiting for an event, or read files from the file system.  Unlike
-kernel drivers, a user-space device driver can use other device
-drivers--that is, access the network, talk to a serial port, get
-interactive input from the user, pop up GUI windows, or read from
-disks.  User-space drivers implemented using FUSD can be much easier to
-debug; it is impossible for them to crash the machine, are easily
-traceable using tools such as gdb, and can be killed and restarted
-without rebooting.  FUSD drivers don't have to be in C--Perl, Python,
-or any other language that knows how to read from and write to a file
-descriptor can work with FUSD.  User-space drivers can be swapped out,
-whereas kernel drivers lock physical memory.
-
-FUSD drivers are conceptually similar to kernel drivers: a set of
-callback functions called in response to system calls made on file
-descriptors by user programs.  FUSD's C library provides a device
-registration function, similar to the kernel's devfs_register_chrdev()
-function, to create new devices.  fusd_register() accepts the device
-name and a structure full of pointers.  Those pointers are callback
-functions which are called in response to certain user system
-calls--for example, when a process tries to open, close, read from, or
-write to the device file.  The callback functions should conform to
-the standard definitions of POSIX system call behavior.  In many ways,
-the user-space FUSD callback functions are identical to their kernel
-counterparts.
-
-The proxying of kernel system calls that makes this kind of program
-possible is implemented by FUSD, using a combination of a kernel
-module and cooperating user-space library.  The kernel module
-implements a character device, /dev/fusd, which is used as a control
-channel between the two.  fusd_register() uses this channel to send a
-message to the FUSD kernel module, telling the name of the device the
-user wants to register.  The kernel module, in turn, registers that
-device with the kernel proper using devfs.  devfs and the kernel don't
-know anything unusual is happening; it appears from their point of
-view that the registered devices are simply being implemented by the
-FUSD module.
-
-Later, when kernel makes a callback due to a system call (e.g. when
-the character device file is opened or read), the FUSD kernel module's
-callback blocks the calling process, marshals the arguments of the
-callback into a message and sends it to user-space.  Once there, the
-library half of FUSD unmarshals it and calls whatever user-space
-callback the FUSD driver passed to fusd_register().  When that
-user-space callback returns a value, the process happens in reverse:
-the return value and its side-effects are marshaled by the library
-and sent to the kernel.  The FUSD kernel module unmarshals this
-message, matches it up with a corresponding outstanding request, and
-completes the system call.  The calling process is completely unaware
-of this trickery; it simply enters the kernel once, blocks, unblocks,
-and returns from the system call---just as it would for any other
-blocking call.
-
-One of the primary design goals of FUSD is stability.  It should
-not be possible for a FUSD driver to corrupt or crash the kernel,
-either due to error or malice.  Of course, a buggy driver itself may
-corrupt itself (e.g., due to a buffer overrun).  However, strict error
-checking is implemented at the user-kernel boundary which should
-prevent drivers from corrupting the kernel or any other user-space
-process---including the errant driver's own clients, and other FUSD
-drivers.
-
-For more information, please see the comprehensive documentation in
-the 'doc' directory.
-
- Jeremy Elson <jelson@circlemud.org>
- Sensoria Corporation
- September 28, 2001

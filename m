@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272676AbTHOTQS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272681AbTHOTQR
+	id S270750AbTHOTcj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTHOTci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:16:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45720 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272676AbTHOTQO (ORCPT
+	Fri, 15 Aug 2003 15:32:38 -0400
+Received: from mrout1.yahoo.com ([216.145.54.171]:19722 "EHLO mrout1.yahoo.com")
+	by vger.kernel.org with ESMTP id S270750AbTHOTch (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:16:14 -0400
-Date: Fri, 15 Aug 2003 12:12:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [PATCH] Fix loose->lose typos in 2.6.0-test2
-Message-Id: <20030815121240.7ff9fed0.rddunlap@osdl.org>
-In-Reply-To: <20030815184720.A65182CE83@lists.samba.org>
-References: <20030815184720.A65182CE83@lists.samba.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Aug 2003 15:32:37 -0400
+Message-ID: <3F3D354E.80905@bigfoot.com>
+Date: Fri, 15 Aug 2003 12:32:30 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SOLVED: Re: SATA (Serial ATA) support in 2.4.x?
+References: <3F217BE8.5070807@bigfoot.com> <20030725193548.GA14017@gtf.org> <3F2AF529.3040100@bigfoot.com>
+In-Reply-To: <3F2AF529.3040100@bigfoot.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Aug 2003 03:12:52 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
+Erik Steffl wrote:
+> Jeff Garzik wrote:
+> 
+>> On Fri, Jul 25, 2003 at 11:50:16AM -0700, Erik Steffl wrote:
+>>
+>>>  I am specifically interested whether it should support disks above 
+>>> 137GB (as I have problems accessing anything above 137GB on 250GB 
+>>> SATA drive)
+>>
+>>
+>>
+>> It should.
+>>
+>> I will be testing this when I return from OLS, next week.
 
-| > 
-| > I cringe every time I see `loose' used where `lose' is intended.
-| > Here's a fix for the few that escaped the attentions of the spelling mafia...
-| 
-| Me too, however...
-| 
-| After a brief conversation with Andrew, Trivial Patch Monkey is only
-| taking patches for documentation and where grep might be effected.
-| Feel free to push this directly though.
+   just in case anybody's searching the archives:
 
-then it qualifies.
-Who would grep for 'loose' when it should be 'lose' and v.v.?
+   I got the following advice from Jeff Garzik and it worked (didn't do 
+much testing yet, but at least the whole disk is usable):
 
---
-~Randy
+   2.4.21-ac4 (vanilla plus ac4 patches)
+
+   create another vanilla tree with libata5 patches, then copy the 
+following files to ac4 tree: drivers/scsi/{ata_piix,libata}.c and 
+include/linux/ata.h
+
+   build with scsi ata support (make sure you have bios set so that sata 
+drives are seen as sata drives, not legacy ide drives, I only got 
+machines lockups in legacy mode). The disks should be visible as scis 
+disk (/dev/sd[a-z]).
+
+   libata5 patch:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.21-libata5.patch.bz2
+
+	erik
+
+

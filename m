@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSEYXjt>; Sat, 25 May 2002 19:39:49 -0400
+	id <S315458AbSEYXkw>; Sat, 25 May 2002 19:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315451AbSEYXjs>; Sat, 25 May 2002 19:39:48 -0400
-Received: from bs1.dnx.de ([213.252.143.130]:59050 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S315455AbSEYXjq>;
+	id <S315451AbSEYXjt>; Sat, 25 May 2002 19:39:49 -0400
+Received: from bs1.dnx.de ([213.252.143.130]:57514 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S315452AbSEYXjq>;
 	Sat, 25 May 2002 19:39:46 -0400
-Date: Sun, 26 May 2002 01:16:20 +0200
+Date: Sun, 26 May 2002 00:33:59 +0200
 From: Robert Schwebel <robert@schwebel.de>
-To: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020526011620.C598@schwebel.de>
-In-Reply-To: <20020525133637.B17573@work.bitmover.com> <20020525205139.D283611972@denx.denx.de> <20020525140532.A11297@work.bitmover.com>
+Message-ID: <20020526003359.Z598@schwebel.de>
+In-Reply-To: <20020525110830.U598@schwebel.de> <Pine.LNX.4.44.0205251025010.6515-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 25, 2002 at 02:05:32PM -0700, Larry McVoy wrote:
-> s/same core idea/same core code/
+On Sat, May 25, 2002 at 10:27:24AM -0700, Linus Torvalds wrote:
+> It results in the fact that you need to have a _clear_interface_ between
+> the hard realtime parts, and the stuff that isn't.
 
-Not true. Please note that the RTHAL (Realtime Hardware Abstraction Layer)
-which is the core of RTAI was even available under DOS in Paolo
-Mantegazza's group before it was ported to Linux. 
+Show me how you will implement a closed loop controller where the
+application is _not_ implemented as a kernel module. I would really love to
+do it this way, but unfortunately no one of the realtime programmers has
+found a way how it can be achieved so far. 
 
-> Go search around, get the code you can still find on the net and start
-> diffing. 
+> Yes, that does imply a certain amount of good design. And it requires you
+> to understand which parts are time-critical, and which aren't.
 
-This may be true for early versions of RTAI, where everybody thought that
-we are all working together in a friendly way as we have been used to in
-the Linux community. 
+Unfortunately, in the automation field nearly all applications are
+closed-loop, and that means that the application itself is time critical. 
 
-The core has been completely reworked since then¹ - and it nevertheless is
-under the GPL, so there is absolutely no problem with that. When there came
-up doubts about the legal status of the stuff being under the LGPL in
-former times the RTAI team has immediately investigated this, with the
-result of the license situation we have today. 
+> > This is only correct for open-loop applications. Most real life apps are
+> > closed-loop.
+> 
+> Most real life apps have nothing to do with hard-RT.
 
-> So not only do the RTAI people have an issue with the patent, it looks
-> like they'd better be conforming to the GPL as well.
+Perhaps in your life :-) It's different in mine, in Karim's, Wolfgang's,
+Bernhard's, Steve's, Stuart's, Paolo's, Guennadi's, Thomas', Massimo's,
+Pierre's, Lorenzo's, Giuseppe's, Erwin's, Dave's, Ian's, Alex' (just to
+mention the RTAI team) and in that of all the thousands of engineers who
+are working with Linux and RTAI every day. 
 
-We do. Show us where we don't and we will immediately change it. 
+Please, take into account that there are people out there wo are working
+with Linux in automation and control applications every day, and their
+bread and butter _is_ realtime stuff. My experience is that this is
+sometimes really hard to understand for people who normally work on
+problems from the IT industry, you are not the only one.
 
-> Didn't RTAI switch the copyright on "their" sourcebase to LGPL? 
-
-It's different. There is the RTHAL patch, which goes into the kernel. This
-one is GPL, as well as the HRT schedulers. 
-
-All the infrastructure modules providing things like FIFOs, mailboxes,
-tasklets and stuff are under the LGPL, meaning "give back when modifying
-it, but be able to built something ontop of it which doesn't have to be
-free". 
+Realtime may be someting exotic for "normal" PC users, but in the whole
+industrial embedded world it is completely different. 
 
 Robert
-¹ There are surely small things which cannot be implemented in 
-  another way - try to write a counting loop in another way than 
-  for (i=0; i<N; i++) {printf(i);}
 -- 
  +--------------------------------------------------------+
  | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |

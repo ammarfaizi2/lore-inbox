@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262999AbREaC4V>; Wed, 30 May 2001 22:56:21 -0400
+	id <S262690AbREaBzH>; Wed, 30 May 2001 21:55:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263001AbREaC4L>; Wed, 30 May 2001 22:56:11 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:63116 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262999AbREaCz4>;
-	Wed, 30 May 2001 22:55:56 -0400
-Message-ID: <3B15B2BA.D5A1EE88@mandrakesoft.com>
-Date: Wed, 30 May 2001 22:55:54 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S262962AbREaBy5>; Wed, 30 May 2001 21:54:57 -0400
+Received: from elaine5.Stanford.EDU ([171.64.15.70]:56286 "EHLO
+	elaine5.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262690AbREaByo>; Wed, 30 May 2001 21:54:44 -0400
+Date: Wed, 30 May 2001 18:54:31 -0700 (PDT)
+From: John Martin <suntzu@stanford.edu>
+To: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: [PATCH] mtdram.c
+Message-ID: <Pine.GSO.4.31.0105301851210.21137-100000@elaine5.Stanford.EDU>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>,
-        "'Martin Mares'" <pci-ids@ucw.cz>,
-        "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.x: update for PCI vendor id 0x12d4
-In-Reply-To: <14652.991276599@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com> wrote:
-> >What I don't understand is why pci_ids.h doesn't get
-> >generated from pci.ids as well.
+this seemed to be a straight forward null pointer bug.  i just copied the
+error handling code from about 5 lines below what i added in.
+   -john martin
 
-Although they are similar, you cannot reliably generate useable C
-constants from english words in the PCI id list...
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+--- drivers/mtd/mtdram.c.orig       Fri Feb  9 11:30:23 2001
++++ drivers/mtd/mtdram.c    Sat May 26 20:52:56 2001
+@@ -115,6 +115,11 @@
+    mtd_info->size = MTDRAM_TOTAL_SIZE;
+    mtd_info->erasesize = MTDRAM_ERASE_SIZE;
+    mtd_info->priv = vmalloc(MTDRAM_TOTAL_SIZE);
++   if (!mtd_info->priv) {
++     kfree(mtd_info);
++     mtd_info = NULL;
++     return -ENOMEM;
++   }
+    memset(mtd_info->priv, 0xff, MTDRAM_TOTAL_SIZE);
+
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+

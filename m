@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283592AbRLRPcZ>; Tue, 18 Dec 2001 10:32:25 -0500
+	id <S282482AbRLRP3Z>; Tue, 18 Dec 2001 10:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282818AbRLRPcQ>; Tue, 18 Dec 2001 10:32:16 -0500
-Received: from [194.234.65.222] ([194.234.65.222]:2183 "EHLO mustard.heime.net")
-	by vger.kernel.org with ESMTP id <S282690AbRLRPcK>;
-	Tue, 18 Dec 2001 10:32:10 -0500
-Date: Tue, 18 Dec 2001 16:31:34 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Ingo Molnar <mingo@redhat.com>, <linux-raid@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] raid-2.5.1-I7
-In-Reply-To: <Pine.LNX.4.33.0112181809340.4279-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.30.0112181630490.30169-100000@mustard.heime.net>
+	id <S282547AbRLRP3P>; Tue, 18 Dec 2001 10:29:15 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:36615 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S282482AbRLRP3E>;
+	Tue, 18 Dec 2001 10:29:04 -0500
+To: David Weinehall <tao@acc.umu.se>
+Cc: "M. Edward \(Ed\) Borasky" <znmeb@aracnet.com>,
+        Eyal Sohya <linuz_kernel_q@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+In-Reply-To: <F25YXU6KJQcxQv8rcyN00007eb5@hotmail.com>
+	<Pine.LNX.4.33.0112180622320.28881-100000@shell1.aracnet.com>
+	<20011218161844.P5235@khan.acc.umu.se>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20011218161844.P5235@khan.acc.umu.se>
+Date: 18 Dec 2001 17:27:47 +0200
+Message-ID: <876674fszw.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Does this have anything to do with the bug I've reported about 2.4.x
-> > slowing down i/o after heavy sequencial read-only from >=50 files
-> > concurrently? (see BUG raid subsys)
->
-> no. You have a RAID-0 array, while the patch i sent only affects RAID-1.
-> It's very likely that 50 concurrent reads wont perform well on any device
-> (RAID or standalone disk), i hope we can tackle workloads like that later
-> in 2.5.
+>>>>> "David" == David Weinehall <tao@acc.umu.se> writes:
 
-It really DOES perform well ... that is ... until it's used all the memory
-and stops reading fast.
+David> We'd also kill off all the advantages that the bazaar-style development
 
+Bazaaar-style development ? What bazaar-style development ? Last I
+heard most discussions are held in private and many key people don't
+read lkml.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Regards,
+-velco

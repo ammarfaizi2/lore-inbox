@@ -1,61 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVCWVrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVCWVrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVCWVrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVCWVrS
+	id S261387AbVCWVrI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVCWVrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:47:18 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:38101 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261417AbVCWVrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:47:07 -0500
-Date: Wed, 23 Mar 2005 22:46:45 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050323214645.GA10535@elte.hu>
-References: <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050323071604.GA32712@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050323071604.GA32712@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 23 Mar 2005 16:47:08 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:42440 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261387AbVCWVqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 16:46:42 -0500
+Message-ID: <4241E3EA.4080501@comcast.net>
+Date: Wed, 23 Mar 2005 16:47:22 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ubuntu-devel <ubuntu-devel@lists.ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: vfat broken in 2.6.10?
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I'm using Ubuntu Linux Hoary
 
-> i think the 'migrate read-count' method is not adequate either, 
-> because all callbacks queued within an RCU read section must be called 
-> after the lock has been dropped - while with the migration method 
-> CPU#1 would be free to process callbacks queued in the RCU read 
-> section still active on CPU#2.
-> 
-> i'm wondering how much of a problem this is though. Can there be stale 
-> pointers at that point? Yes in theory, because code like:
-> 
-> 	rcu_read_lock();
-> 	call_rcu(&dentry->d_rcu, d_callback);
-> 	func(dentry->whatever);
-> 	rcu_read_unlock();
+root@icebox:~# uname -a
+Linux icebox 2.6.10-5-686 #1 Tue Mar 15 15:16:01 UTC 2005 i686 GNU/Linux
 
-but, this cannot happen, because call_rcu() is used by RCU-write code.
 
-so the important property seems to be that any active RCU-read section 
-should keep at least one CPU's active_readers count elevated 
-permanently, for the duration of the RCU-read section. It doesnt matter 
-that the reader migrates between CPUs - because the RCU code itself 
-guarantees that no callbacks will be executed until _all_ CPUs have been 
-in quiescent state. I.e. all CPUs have to go through a zero 
-active_readers value before the callback is done.
+root@icebox:~# fsck.vfat -r /dev/sda1
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/\uffffSCK0000.REN
+  Duplicate directory entry.
+  First    Size 0 bytes, date 19:03:36 Mar 04 1980
+  Second   Size 0 bytes, date 19:00:00 Dec 31 1979
+1) Drop first
+2) Drop second
+3) Rename first
+4) Rename second
+5) Auto-rename first
+6) Auto-rename second
+? 5
+  Renamed to FSCK0000.REN
+Perform changes ? (y/n) y
+/dev/sda1: 187 files, 167150/246288 clusters
+root@icebox:~# fsck.vfat -r /dev/sda1
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/dev/sda1: 187 files, 167150/246288 clusters
 
-	Ingo
+Now the FS is clean.
+
+root@icebox:~# mount /dev/sda1  /media/usbdisk/
+root@icebox:~# vim /media/usbdisk/a.txt
+root@icebox:~# rm /media/usbdisk/a.txt
+
+Created, deleted a.txt
+
+root@icebox:~# umount /media/usbdisk/
+root@icebox:~# fsck.vfat -r /dev/sda1
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/\uffff.\000a\000.\000t.\000x\000
+  Bad file name.
+1) Drop file
+2) Rename file
+3) Auto-rename
+4) Keep it
+
+Does that say a.txt?
+
+? 1
+/\uffffa\000.\000t\000x.\000t\000
+  Bad file name.
+1) Drop file
+2) Rename file
+3) Auto-rename
+4) Keep it
+? 1
+/\uffff.\000a\000.\000t.\000x\000
+  Start cluster beyond limit (7798784 > 246289). Truncating file.
+/\uffff.\000a\000.\000t.\000x\000
+  File size is 4294967295 bytes, cluster chain length is 0 bytes.
+  Truncating file to 0 bytes.
+/\uffffa\000.\000t\000x.\000t\000
+  Start cluster beyond limit (4294901760 > 246289). Truncating file.
+/\uffffa\000.\000t\000x.\000t\000
+  File size is 4294967295 bytes, cluster chain length is 0 bytes.
+  Truncating file to 0 bytes.
+/\uffff.TXT
+  Contains a free cluster (167160). Assuming EOF.
+/\uffff.TXT
+  File size is 5 bytes, cluster chain length is 0 bytes.
+  Truncating file to 0 bytes.
+Perform changes ? (y/n) y
+
+
+I didn't pull the disk out at all, or anything.  Just umounted and
+remounted and made/removed a file.  Also. . .
+
+
+/dev/sda1: 189 files, 167150/246288 clusters
+root@icebox:~# fsck.vfat -r /dev/sda1
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/\uffff.\000a\000.\000t.\000x\000
+  Bad file name.
+1) Drop file
+2) Rename file
+3) Auto-rename
+4) Keep it
+? 3
+  Renamed to FSCK0001.REN
+/\uffffa\000.\000t\000x.\000t\000
+  Bad file name.
+1) Drop file
+2) Rename file
+3) Auto-rename
+4) Keep it
+? 3
+  Renamed to FSCK0002.REN
+Perform changes ? (y/n) y
+/dev/sda1: 191 files, 167150/246288 clusters
+root@icebox:~# fsck.vfat -r /dev/sda1
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/dev/sda1: 191 files, 167150/246288 clusters
+
+It appears dosfsck may not be working quite right.  I've taken this into
+account, hence the second pass after each fsck.  This is either a
+dosfsck issue, a usb-storage issue for the PNY compact flash drive, or
+an issue with vfat itself.
+
+So either LKML needs to fix the drivers, or Ubuntu needs to upgrade/fix
+dosfsck or some patch they've applied to the kernel.
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCQePohDd4aOud5P8RAhxRAJ9ydXWfLZbu0r/B4rY6zhaWScR3rQCfVNMY
+lGsqNpIPDIBREqIWGVlQJFo=
+=1Nlg
+-----END PGP SIGNATURE-----

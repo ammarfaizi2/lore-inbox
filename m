@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282810AbRK0FgZ>; Tue, 27 Nov 2001 00:36:25 -0500
+	id <S282046AbRK0GGI>; Tue, 27 Nov 2001 01:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282811AbRK0FgP>; Tue, 27 Nov 2001 00:36:15 -0500
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:61641 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S282810AbRK0FgJ>;
-	Tue, 27 Nov 2001 00:36:09 -0500
-Date: Tue, 27 Nov 2001 08:36:02 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: sekhar raja <manamraja@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Doubt in Kernel Timers
-Message-Id: <20011127083602.0d19d985.johnpol@2ka.mipt.ru>
-In-Reply-To: <20011126125517.27715.qmail@web14504.mail.yahoo.com>
-In-Reply-To: <20011126125517.27715.qmail@web14504.mail.yahoo.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S282766AbRK0GF7>; Tue, 27 Nov 2001 01:05:59 -0500
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:44048
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S282046AbRK0GFw>; Tue, 27 Nov 2001 01:05:52 -0500
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200111270542.fAR5g3S15976@www.hockin.org>
+Subject: Re: [PATCH] proc-based cpu affinity user interface
+To: anton@samba.org (Anton Blanchard)
+Date: Mon, 26 Nov 2001 21:42:02 -0800 (PST)
+Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org
+In-Reply-To: <20011127153740.A13824@krispykreme> from "Anton Blanchard" at Nov 27, 2001 03:37:40 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001 04:55:17 -0800 (PST)
-sekhar raja <manamraja@yahoo.com> wrote:
+> > Attached is my procfs-based implementation of a user interface for
+> > getting and setting a task's CPU affinity.  Patch is against 2.4.16. 
+> 
+> Have you seen Andrew Mortons cpus_allowed patch?
 
-> What do i mean is with out Doing add_timer() can we
-> use del_timer(). 
+I really need to push pset - I guess I should finish the 2.4.x port, eh?
 
-george anzinger is right, you may del_timer() at any time.
-If the timer was actually queued, del_timer() returns 0, otherwise, it
-returns 1.
-
-But you should use del_timer_sync() to be sure, that your timer function
-is not currentky running on other CPU.
-
-
-> Thanks in Advance
-> -Rajasekhar 
----
-WBR. //s0mbre
+www.hockin.org/~thockin/pset

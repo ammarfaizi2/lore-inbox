@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268660AbUIGVJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUIGVHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268660AbUIGVJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUIGVI2
+	id S268650AbUIGVHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIGVHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:08:28 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:15861 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S268646AbUIGVHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:07:03 -0400
-Date: Tue, 7 Sep 2004 14:06:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update arch/ppc/defconfig
-Message-ID: <20040907210659.GI20951@smtp.west.cox.net>
-References: <20040907200013.GA14330@suse.de> <20040907202218.GH20951@smtp.west.cox.net> <20040907204135.GA14700@suse.de>
+	Tue, 7 Sep 2004 17:07:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64435 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S268602AbUIGVCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 17:02:19 -0400
+Date: Tue, 7 Sep 2004 23:02:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: 2.6.9-rc1-mm4 breaks OpenOffice
+Message-ID: <20040907210216.GB17555@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040907204135.GA14700@suse.de>
-User-Agent: Mutt/1.5.6+20040818i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 10:41:35PM +0200, Olaf Hering wrote:
->  On Tue, Sep 07, Tom Rini wrote:
-> 
-> > Is it all that common for pmacs to be using a serial console?
-> 
-> It cant hurt.
-> 
-> > If that's working again, we should enable it, Mot PRePs have those
-> > cards.
-> 
-> It doesnt work for me right now.
+Hi!
 
-Doesn't compile or doesn't work on your prep board?
+Are there some futex-related changes in -mm4? [Hmm, does not seem
+so]. OpenOffice seems to be pretty unhappy... (read "crashes with
+segmentation fault after some futex operations).
 
-> > Er, is there a good reason to have only the 16color one?
-> 
-> Why have all 3 enabled?
+Anyone else see the problems?
 
-Because that's the way they are.  And I always pick CLUT244 for my
-machiens :)
+open("/home/pavel/.user60.rdb", O_RDWR) = 6
+fcntl64(6, F_GETFD)                     = 0
+fcntl64(6, F_SETFD, FD_CLOEXEC)         = 0
+lseek(6, 0, SEEK_END)                   = 2048
+mmap2(NULL, 2048, PROT_READ|PROT_WRITE, MAP_SHARED, 6, 0) = 0xb6c46000
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb6c45000
+mmap2(NULL, 8388608, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb6445000
+mprotect(0xb6445000, 4096, PROT_NONE)   = 0
+clone(child_stack=0xb6c44b48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0xb6c44bf8, {entry_number:6, base_addr:0xb6c44bb0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0xb6c44bf8) = 1112
+futex(0x808cd98, FUTEX_WAKE, 1)         = 1
+futex(0x808ce10, FUTEX_WAIT, 0, NULL)   = -1 EINTR (Interrupted system call)
++++ killed by SIGSEGV (core dumped) +++
 
-> > > +CONFIG_JOLIET=y
-> > > +CONFIG_ZISOFS=y
-> > > +CONFIG_ZISOFS_FS=y
-> > 
-> > Ick, please no.
-> 
-> Why not?
+								Pavel
 
-Because this is a basic config.
-
-> > > +CONFIG_CRAMFS=m
-> > 
-> > Why?
-> 
-> Why not?
-
-It's not needed or required.
-
-> > > +#
-> > >  # Kernel hacking
-> > >  #
-> > > -# CONFIG_DEBUG_KERNEL is not set
-> > > +CONFIG_DEBUG_KERNEL=y
-> > 
-> > Why?
-> 
-> having sysrq is always a win.
-
-Only when you can see the output.  Or do you mean SysRq-S-U-B? :)
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

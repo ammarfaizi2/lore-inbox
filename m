@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269252AbTGJMbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 08:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269253AbTGJMbA
+	id S269247AbTGJM2z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbTGJM2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 08:31:00 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7349
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S269252AbTGJMa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 08:30:59 -0400
-Subject: Re: RFC:  what's in a stable series?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva>
-References: <3F0CBC08.1060201@pobox.com>
-	 <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
-	 <20030710085338.C28672@infradead.org>
-	 <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk>
-	 <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057840919.8027.19.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jul 2003 13:42:00 +0100
+	Thu, 10 Jul 2003 08:28:55 -0400
+Received: from ns.suse.de ([213.95.15.193]:27914 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269247AbTGJM2y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 08:28:54 -0400
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] minor optimization for EXT3
+References: <87smpeigio.fsf@gw.home.net.suse.lists.linux.kernel>
+	<20030710042016.1b12113b.akpm@osdl.org.suse.lists.linux.kernel>
+	<87y8z6gyt3.fsf@gw.home.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Jul 2003 14:43:07 +0200
+In-Reply-To: <87y8z6gyt3.fsf@gw.home.net.suse.lists.linux.kernel>
+Message-ID: <p73of02pn6s.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-07-10 at 13:13, Marcelo Tosatti wrote:
-> So Christoph's quota patch does not support vendors "v1" files?
-> 
-> I must be misunderstanding someone.
+Alex Tomas <bzzz@tmi.comex.ru> writes:
+> +			if (i == start + inodes_per_buffer) {
+> +				/* all inodes (but our) are free. so, we skip I/O */
 
-There are three species of quota in Linux
+Won't this make undeletion a lot harder? Deleted inodes will now be trashed
+at will, so you cannot use their contents anymore. 
 
-v0	(official old Linux)
-v1	(most 2.4 vendor trees)
-v2	(the 2.5 format)
+Also dtimes in free inodes  can be now lost, can't they? Did you check 
+if that causes problems in fsck?  [my understanding was that ext2/3 fsck relies on the 
+dtime to make some heuristics when recovering files work better]
 
-[Plus other per file system stuff that is abstracted by the quota
-updates and used by folks like XFS]
+Maybe it should be an mount option so that users can trade performance against
+better recoverability.
 
-The v1 quota definitely doesn't belong in 2.5, but its needed by a
-lot of 2.4 users who come from vendor trees (and may want to go back
-again)
-
-
+-Andi

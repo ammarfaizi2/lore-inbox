@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbSI3S4r>; Mon, 30 Sep 2002 14:56:47 -0400
+	id <S261271AbSI3SyP>; Mon, 30 Sep 2002 14:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261283AbSI3S4r>; Mon, 30 Sep 2002 14:56:47 -0400
-Received: from server0027.freedom2surf.net ([194.106.33.36]:45226 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S261282AbSI3S4q>; Mon, 30 Sep 2002 14:56:46 -0400
-Date: Mon, 30 Sep 2002 20:15:20 +0100
-From: Ian Molton <spyro@f2s.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UFS filesystem
-Message-Id: <20020930201520.5ab47124.spyro@f2s.com>
-In-Reply-To: <20020929231904.161b5a00.spyro@f2s.com>
-References: <20020929231904.161b5a00.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.3cvs4 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261283AbSI3SyP>; Mon, 30 Sep 2002 14:54:15 -0400
+Received: from packet.digeo.com ([12.110.80.53]:3519 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261271AbSI3SyO>;
+	Mon, 30 Sep 2002 14:54:14 -0400
+Message-ID: <3D989F25.F6605540@digeo.com>
+Date: Mon, 30 Sep 2002 11:59:49 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] procps 2.0.9
+References: <Pine.LNX.4.44L.0209301357500.22735-100000@imladris.surriel.com> from "Rik van Riel" at Sep 30, 2002 01:59:56 PM <200209301843.g8UIhjZ151770@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2002 18:59:33.0990 (UTC) FILETIME=[83D36860:01C268B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002 23:19:04 +0100
-Ian Molton <spyro@f2s.com> wrote:
-
-> Hi.
+"Albert D. Cahalan" wrote:
 > 
-> I'd like to use linux to create a UFS filesystem, but cant find the
-> utilities to go along with the kernel module.
+> > Procps is the package containing various system monitoring tools, like
+> > ps, top, vmstat, free, kill, sysctl, uptime and more.  After a long
+> > period of inactivity procps maintenance is active again and suggestions,
+> > bugreports and patches are always welcome on the procps list.
 > 
-> Documentation/filesystems/ufs.txt doesnt have any clues.
+> It should be mentioned that this is a fork off of an obsolete
+> code base. I was keeping quiet in hopes of resolving the fork.
+> Many of the "fixes" have been in Debian's procps for years.
+> 
+> Debian's code has been fully maintained for years. It is
+> available in CVS at SourceForge. Let us know what you think
+> of the new "top" program.
+> 
 
-Anyone? I think I need 'newfs' but cant find it anywhere...
+Does it support the /proc/stat cleanups which I have queued,
+and the additional /proc/meminfo fields?

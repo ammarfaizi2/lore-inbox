@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315229AbSDWPFp>; Tue, 23 Apr 2002 11:05:45 -0400
+	id <S315227AbSDWPHc>; Tue, 23 Apr 2002 11:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315230AbSDWPFo>; Tue, 23 Apr 2002 11:05:44 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:44306 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S315229AbSDWPFn>; Tue, 23 Apr 2002 11:05:43 -0400
-Date: Tue, 23 Apr 2002 12:05:33 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <Pine.LNX.4.21.0204231016220.19435-100000@serv>
-Message-ID: <Pine.LNX.4.44L.0204231203400.7447-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315231AbSDWPHb>; Tue, 23 Apr 2002 11:07:31 -0400
+Received: from trained-monkey.org ([209.217.122.11]:31754 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S315227AbSDWPHa>; Tue, 23 Apr 2002 11:07:30 -0400
+To: Larry McVoy <lm@bitmover.com>
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
+Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <20020421134851.B7828@havoc.gtf.org> <20020421105437.L10525@work.bitmover.com> <m3elh6obt7.fsf@trained-monkey.org> <20020423080216.E25771@work.bitmover.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 23 Apr 2002 11:07:28 -0400
+Message-ID: <m38z7eo3m7.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Apr 2002, Roman Zippel wrote:
+>>>>> "Larry" == Larry McVoy <lm@bitmover.com> writes:
 
-> Free speech is really not at danger here. The problem is something
-> completely different. Linux is still a free software project and the
-> question is how seriously do we take this?
+Larry> On Tue, Apr 23, 2002 at 08:10:28AM -0400, Jes Sorensen wrote:
+>>  One thing that really irritates me about the bkbits.com page
+>> (unless I missed figuring out how to so this) is that you can't
+>> seem to be able to pull down the plain text version of a source
+>> file. The only thing it will give you is a vile HTML'ified version
+>> which adds about 15 chars/line with naming and which has all tab's
+>> converted into spaces.
+>> 
+>> Any chance you'd add this?
 
-IMHO Linux would stop being a free software project the moment
-we start telling Linus what he can and can't distribute in his
-copy of the kernel.
+Larry> Sure, as soon as we find a mirror for bkbits.net, having a
+Larry> plain text interface to the files/patches, is a fine idea.
+Larry> Until then, I need to hoard my bandwidth.  I'm working on the
+Larry> mirror problem.
 
-Freedom includes the freedom for people to promote an opinion
-that isn't the same as yours.
+My suggestion is actually a bandwidth saver, browsing it and searching
+for the text file made me download a lot of HTML I would never have
+downloaded.
 
-regards,
+And just the spaces replaced with the original tabs would be a big
+save ;-)
 
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Jes

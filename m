@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUJLNxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUJLN7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUJLNxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 09:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUJLNxu
+	id S263664AbUJLN7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 09:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUJLN7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 09:53:50 -0400
-Received: from pat.uio.no ([129.240.130.16]:26078 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263962AbUJLNxi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 09:53:38 -0400
-Subject: Re: lock issues
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041011225700.GD32228@DUMA.13thfloor.at>
-References: <20041011225700.GD32228@DUMA.13thfloor.at>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1097539708.5432.64.camel@lade.trondhjem.org>
+	Tue, 12 Oct 2004 09:59:24 -0400
+Received: from cantor.suse.de ([195.135.220.2]:5607 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263664AbUJLN7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 09:59:21 -0400
+Date: Tue, 12 Oct 2004 15:59:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com
+Subject: 4level page tables for Linux
+Message-ID: <20041012135919.GB20992@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 02:08:28 +0200
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 12/10/2004 klokka 00:57, skreiv Herbert Poetzl:
-> Hi Trond!
-> 
-> experiencing the following panic on a linux-vserver
-> kernel (2.6.9-rc4, no modifications to locking)
 
-Which filesystem? Is this NFS or CIFS (which both have an f_op->lock()
-routine)?
+I released a 4level page table patch for 2.6.9rc4.  It is available
+from ftp://ftp.suse.com/pub/people/ak/4level/4level-2.6.9rc4-1.gz
 
-> it's the locks_free_lock(file_lock); at the end of 
-> fcntl_setlk64() and I'm asking myself if something
-> like in sys_flock()
-> 
->         if (list_empty(&lock->fl_link)) {
->                 locks_free_lock(lock);
->         }
-> 
-> would help here or just paper over the real issue?
+It changes the Linux MM which currently only supports 3 levels of 
+page tables to support a fourth level (PML4). This is needed to 
+exceed more than 512GB of virtual address space per process on x86-64. 
+People have been running into the 512GB limit when mmaping large files.
 
-Actually, the sys_flock() thing looks a lot more iffy to me: why should
-list_empty(lock->fl_link) mean that you are responsible for freeing that
-lock? Couldn't a sibling or child thread have released it from
-underneath you?
+The patch extends all the code in the VM that walks the 3level
+hierarchy to handle the fourth level too.
 
-Anyhow, that would indeed be papering over an issue in the posix lock
-case. By the time we get to the end of fcntl_setlk64(), the file_lock
-should not be on any lists. If it got added to somebody else's block
-list, it should either have been unblocked when the region was freed, or
-in case of a signal, we remove it from the block list manually. Unlike
-the flock case, file_lock itself never gets added to the active list.
+The patch changes x86-64 to now support 47bits (128TB) of virtual
+address space per process. 
 
-Cheers,
-  Trond
+The changes are fortunately quite localized. Only mm/* had to change
+(mostly in straight forward ways), drivers etc. already were well
+isolated from the page tables with the get_user_pages() function.
+The only exception was DRM, which needed a small patch.
 
+Excluding the i386/x86-64 architecture specific parts the patch looks like:
+
+ drivers/char/drm/drm_memory.h        |    3 
+ fs/exec.c                            |    6 
+ include/asm-generic/nopml4-page.h    |   11 
+ include/asm-generic/nopml4-pgalloc.h |   21 +
+ include/asm-generic/nopml4-pgtable.h |   39 ++
+ include/asm-generic/pgtable.h        |    2 
+ include/asm-generic/tlb.h            |    6 
+ include/linux/init_task.h            |    2 
+ include/linux/mm.h                   |   10 
+ include/linux/sched.h                |    2 
+ kernel/fork.c                        |    6 
+ mm/fremap.c                          |   18 -
+ mm/memory.c                          |  584 ++++++++++++++++++++++++-----------
+ mm/mempolicy.c                       |   18 -
+ mm/mmap.c                            |   36 +-
+ mm/mprotect.c                        |   44 ++
+ mm/mremap.c                          |   21 +
+ mm/msync.c                           |   43 ++
+ mm/rmap.c                            |   21 +
+ mm/swapfile.c                        |   61 ++-
+ mm/vmalloc.c                         |   85 ++++-
+
+For architectures with less levels of page tables the code should be mostly a 
+nop. 
+
+The patch currently only supports x86-64 and i386. Other architectures
+will need some changes to compile. The changes to convert an architecture
+over are quite straight forward, please see the changes to i386 in
+the patch. I renamed all functions that need changing so things
+that are broken will not compile.
+
+I will need some help to do this conversion because I can only test
+i386 and x86-64 easily.  I can convert architectures over, but someone
+will need to test the result.
+
+Plan is to merge it into -mm* ASAP, when the major architectures
+
+have been ported over.
+
+-Andi

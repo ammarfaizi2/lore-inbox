@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUGLUwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUGLU4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUGLUwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUGLUwe
+	id S263032AbUGLU4v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGLU4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:52:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13493 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262730AbUGLUwb (ORCPT
+	Mon, 12 Jul 2004 16:56:50 -0400
+Received: from mailadmin.wku.edu ([161.6.18.52]:50921 "EHLO mailadmin.wku.edu")
+	by vger.kernel.org with ESMTP id S263032AbUGLU4t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:52:31 -0400
-Date: Mon, 12 Jul 2004 13:54:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: lmb@suse.de, arjanv@redhat.com, phillips@istop.com, sdake@mvista.com,
-       teigland@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-Id: <20040712135432.57d0133c.akpm@osdl.org>
-In-Reply-To: <40F294D2.3010203@yahoo.com.au>
-References: <1089501890.19787.33.camel@persist.az.mvista.com>
-	<200407111544.25590.phillips@istop.com>
-	<20040711210624.GC3933@marowsky-bree.de>
-	<1089615523.2806.5.camel@laptop.fenrus.com>
-	<20040712100547.GF3933@marowsky-bree.de>
-	<20040712101107.GA31013@devserv.devel.redhat.com>
-	<20040712102124.GH3933@marowsky-bree.de>
-	<20040712102818.GB31013@devserv.devel.redhat.com>
-	<20040712115003.GV3933@marowsky-bree.de>
-	<20040712120127.GB16604@devserv.devel.redhat.com>
-	<20040712131312.GY3933@marowsky-bree.de>
-	<40F294D2.3010203@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 12 Jul 2004 16:56:49 -0400
+From: "Bikram Assal" <bikram.assal@wku.edu>
+Subject: Upgrading from RHL 7.3 to RHEL AS3 and using same old partiton
+ on Raid Array
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Mon, 12 Jul 2004 15:56:47 -0500
+Message-ID: <web-72140815@mailadmin.wku.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> I don't see why it would be a problem to implement a "this task
-> facilitates page reclaim" flag for userspace tasks that would take
-> care of this as well as the kernel does.
+Hi,
 
-Yes, that has been done before, and it works - userspace "block drivers"
-which permanently mark themselves as PF_MEMALLOC to avoid the obvious
-deadlocks.
 
-Note that you can achieve a similar thing in current 2.6 by acquiring
-realtime scheduling policy, but that's an artifact of some brainwave which
-a VM hacker happened to have and isn't a thing which should be relied upon.
+I have 2 questions.
 
-A privileged syscall which allows a task to mark itself as one which
-cleans memory would make sense.
+1) I m planning on upgrading from RHL 7.3 to RHEL AS3.
+Is it possible to upgrade from RHL 7.3 to RHEL AS3 using the installation CD instead of going for the fresh install ?
+
+
+2) Currently, we have been using DELL Raid Array.
+At boot time, the system mounts the linux partition on the Raid Array.
+
+I wanted to ask whether it is possible to keep the same old partition on Raid Array without losing any data on it and mounting that same partition after RHEL AS3 is installed on the system. Would I just need to add an entry in the /etc/fstab file to mount the linux partition on the Raid Array ???
+
+Currently the partition is created on a logical device /dev/sdb1.
+
+I hope I do not have to create the filesystem on Raid Array device again because of a fresh install because with that I would have to take backup of all the data on some other device and then recreate filesystem on the Raid Array and restore all the files again.
+
+Please let me know what do you think about it.
+
+
+- Bikram

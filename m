@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290260AbSAQTuE>; Thu, 17 Jan 2002 14:50:04 -0500
+	id <S290239AbSAQTuE>; Thu, 17 Jan 2002 14:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290275AbSAQTty>; Thu, 17 Jan 2002 14:49:54 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36880 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290260AbSAQTts>;
-	Thu, 17 Jan 2002 14:49:48 -0500
-Date: Thu, 17 Jan 2002 17:49:26 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: <rwhron@earthlink.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-In-Reply-To: <200201171908.OAA02671@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33L.0201171733280.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290260AbSAQTtz>; Thu, 17 Jan 2002 14:49:55 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:1299 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S290239AbSAQTto>;
+	Thu, 17 Jan 2002 14:49:44 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200201171949.WAA04520@ms2.inr.ac.ru>
+Subject: Re: arpd not working in 2.4.17 or 2.5.1
+To: amit.gupta@amd.COM (Amit Gupta)
+Date: Thu, 17 Jan 2002 22:49:17 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C45B97C.9F7466B5@cmdmail.amd.com> from "Amit Gupta" at Jan 16, 2 08:45:02 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, bill davidsen wrote:
+Hello!
 
->   I can't disagree with Rik on the VM in the unpatched kernel for
-> several months. It really was not good, and both the -ac and -aa kernels
-> were taking aim at that problem. IMHO the changes went in before the
-> bugs went out. Needless to say Rik should not apply for a job as a
-> diplomat, but I can't disagree with the existance of a problem.
+> the master daemon tries to connect to systems >1024.. arp kills it with
 
-Good thing I'm a programmer, I'm allowed to say ambiguous
-stuff on IRC. If I were a diplomat, I'd only be allowed
-to unambiguously say nothing.
+Make echo 2048 > /proc/sys/net/ipv4/neigh/default/gc_thresh3
+and live in peace.
 
-> If RH uses a custom VM he was factual about that, although there may
-> be several reasons for the choice.
+arpd will _not_ help you at all. Without tuning above you are lost
+in any case, with this tuning arpd is useless.
 
-I've tried to be as factual as possible; I've also learnt
-that articles and IRC really use a different kind of
-language ... some of the things I said turned out pretty
-ambiguous ;)
+Not quite useless though, but its task has nothing to do with
+size of table. Its task is reducing broadcasting on LAN, which is
+importnat but a second order effect yet. Well, you can use arpd
+from iproute2.
 
->   Maybe we could deflect the pissing contest back to technical
-> discussion now?
-
-I've released rmap-11c today ;)
-
-cheers,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Alexey

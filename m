@@ -1,103 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265025AbTFTXP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 19:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTFTXP0
+	id S265030AbTFTXXp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 19:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbTFTXXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 19:15:26 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:54975 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265025AbTFTXPG (ORCPT
+	Fri, 20 Jun 2003 19:23:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:4486 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265030AbTFTXXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 19:15:06 -0400
-Subject: Re: 2.5.72: wall-clock time advancing too rapidly?
-From: Andy Pfiffer <andyp@osdl.org>
-To: Andreas Haumer <andreas@xss.co.at>
-Cc: john stultz <johnstul@us.ibm.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EF32223.6000207@xss.co.at>
-References: <1056039012.3879.5.camel@andyp.pdx.osdl.net>
-	 <1056058206.18644.532.camel@w-jstultz2.beaverton.ibm.com>
-	 <3EF32223.6000207@xss.co.at>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056151705.1162.114.camel@andyp.pdx.osdl.net>
+	Fri, 20 Jun 2003 19:23:42 -0400
+Date: Fri, 20 Jun 2003 16:36:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Bastian Blank <bastian@waldi.eu.org>, linux-kernel@vger.kernel.org
+Cc: linux-security-module@wirex.com
+Subject: Re: [PATCH] builtin stack support
+Message-ID: <20030620233606.GA14869@kroah.com>
+References: <20030620195051.GA28020@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Jun 2003 16:28:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620195051.GA28020@wavehammer.waldi.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-20 at 08:02, Andreas Haumer wrote:
-> john stultz wrote:
-> > On Thu, 2003-06-19 at 09:10, Andy Pfiffer wrote:
+On Fri, Jun 20, 2003 at 09:50:51PM +0200, Bastian Blank wrote:
+> hi folks
 
-> >>By "racing ahead rapidly", I mean this:
-> >>
-> >>	% date ; sleep 60 ; date
-> >>	Thu Jun 19 09:04:29 PDT 2003
-> >>	Thu Jun 19 09:05:29 PDT 2003
-> >>	%
-> >>
-> >>returns in 35 seconds (measured with my eyeballs and cheap wristwatch).
-> >>
+I'd suggest CC: the lsm mailing list, they might have some comments
+about this.
 
-> > Well, variants on a theme. Can I get more hardware info? Is this a
-> > laptop? Are we running w/ Speed Step?
-> >
-> I had this symptom recently on an Asus PR-DLS533 mainboard
-> (ServerWorks GCLE chipset) with linux-2.4.21 and found out
-> it happens only if I had BIOS "USB legacy support" enabled.
-> As soon as I disabled this BIOS option, the phenomenon
-> disappeard.
+> the following patch
 
-Update:
+Please don't compress patches, it's a pain to read them.
 
-1) USB legacy support setting in the BIOS had no effect on the problem.
-2) adding "clock=pit" (as suggested elsewhere) worked around the
-problem.
+> - modifies the security modules registering code to built a stack of
+>   modules themself
+> - changes the internal interface of the security functions to get a
+>   pointer to that stack
+> - the dummy functions always traverse through the stack
+> - register the dummy functions as a special security module
+> - drop the cap_* declaration
+> - drop mod_(un)reg_security
+> - add a name parameter to (un)register_security
+> 
+> missing things
+> - register_security isn't called, it may decide if it allowes the other
+>   module to be stacked together.
+> 
+> advantages
+> - it is possible to stack modules together without special support by
+>   the modules
+> - add functions which will be handled by a non standard module without
+>   need to modify the standard one
+> 
+> problems
+> - abi change, change of the security inline functions
+> - root_plug is currently unbuildable because the exports of the cap_*
+>   functions are dropped, it don't need to use them directly
 
-So, does this fit the symptoms of:
-http://bugme.osdl.org/show_bug.cgi?id=827
+Why not fix this, as you just broke it :)
 
-The system is not a laptop, and SpeedStep related issues should not be
-messing things up here.
+> - if the modules don't define a function, the call always travers
+>   through the stack until it hits the dummy module
+> - more pointer needs to be dereferences, more parameter
 
-% cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 10
-cpu MHz         : 0.000
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov 
-pat pse36 mmx fxsr sse
-bogomips        : 794.62
+How does the performance of this work out, if you only have 1 security
+module?  In my opinion, preformance should not drop, unless you want to
+stack modules.
 
-% lspci
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:01.0 VGA compatible controller: S3 Inc. Savage 4 (rev 04)
-00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 08)
-00:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 08)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev
-04)
-01:03.0 SCSI storage controller: Adaptec AIC-7892P U160/m (rev 02)
+And did you see the previous stacker lsm module?  What advantage does
+this patch over that one?
 
+thanks,
 
-
+greg k-h

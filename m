@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbUC3TZM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbUC3TZL
+	id S263855AbUC3T1R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbUC3T1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:25:11 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:46477 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263564AbUC3TZI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:25:08 -0500
-Date: Tue, 30 Mar 2004 13:23:50 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Clay Haapala <chaapala@cisco.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lib/libcrc32c
-Message-ID: <20040330192350.GB5149@lists.us.dell.com>
-References: <Xine.LNX.4.44.0403261134210.4331-100000@thoron.boston.redhat.com> <yqujr7vai6k4.fsf@chaapala-lnx2.cisco.com> <200403302043.22938.bzolnier@elka.pw.edu.pl> <yqujwu52ywsy.fsf@chaapala-lnx2.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Mar 2004 14:27:17 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56054 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263855AbUC3T1N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 14:27:13 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-mm2
+Date: Tue, 30 Mar 2004 11:27:05 -0800
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040317201454.5b2e8a3c.akpm@osdl.org>
+In-Reply-To: <20040317201454.5b2e8a3c.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <yqujwu52ywsy.fsf@chaapala-lnx2.cisco.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403301127.05151.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 01:11:41PM -0600, Clay Haapala wrote:
-> > +#if CRC_BE_BITS == 1
-> >  u32 attribute((pure)) crc32_be(u32 crc,
+On Wednesday 17 March 2004 8:14 pm, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6
+>.5-rc1-mm2/
+>
+> - Dropped the early-x86-cpu-detection patches, as these appear to be the
+>   source of recent early-crash problems.
+>
+> - Several fixes against the new writeback code.
+>
+> - Several fixes against the new block unplugging code.
 
-Shouldn't this be crc32c_bc() instead?
+I just tracked down a hang I've been seeing in the 2.6.5-rcX-mm trees to this 
+release.  The symptom is that the machine hangs sometime during init script 
+startup, usually at around the time swap space is enabled (using pretty stock 
+Red Hat scripts).  Before I look into it any further, are there any patches 
+that I should look at dropping to see if the hang goes away?
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+The hang occurs all the way through 2.6.5-rc3-mm1, but Linus' 2.6.5-rc3 
+release works fine.
+
+Thanks,
+Jesse

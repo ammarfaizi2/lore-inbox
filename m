@@ -1,81 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUDCByd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 20:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUDCByd
+	id S261416AbUDCB73 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 20:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUDCB73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 20:54:33 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6530
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261389AbUDCByb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 20:54:31 -0500
-Date: Sat, 3 Apr 2004 03:54:27 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc3-aa3
-Message-ID: <20040403015427.GA2307@dualathlon.random>
+	Fri, 2 Apr 2004 20:59:29 -0500
+Received: from mail.shareable.org ([81.29.64.88]:28054 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261416AbUDCB72
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 20:59:28 -0500
+Date: Sat, 3 Apr 2004 02:59:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: andersen@codepoet.org, Pavel Machek <pavel@ucw.cz>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
+       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040403015920.GA2857@mail.shareable.org>
+References: <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <20040403010425.GJ653@mail.shareable.org> <20040403012112.GA6499@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040403012112.GA6499@codepoet.org>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this avoids (harmless) warnings while freeing non-compound pages, adds
-some more robustness check to the freelist by making sure no page has
-PG_compound set, and most important it adds merging for filebacked
-mappings and anonymous mappings in mprotect. I'm running it on my main
-desktop and there are no problems so far.
+Erik Andersen wrote:
+> > Here's a tricky situation:
+> > 
+> >    1. A file is cowlinked.  Then each cowlink is mmap()'d, one per process.
+> > 
+> >    2. At this point both mappings share the same pages in RAM.
+> > 
+> >    3. Then one of the cowlinks is written to...
+> 
+> Using mmap with PROT_WRITE on a cowlink must preemptively
+> break the link.
 
-I believe the VM side is feature complete, in order:
+I forget to mention, they are PROT_READ shared mappings.
 
------------
-[..]
-# -aa VM (remove rmap)
-objrmap-core
-anon-vma
-prio-tree
-gfp-no-compound
-mprotect-vma-merging
------------
-
-Two pending thing to clarify are swapsuspend/swapresume (works partially
-for me because aic7xxx isn't swap-resume capable), and Christoph's xfs
-oops on ppc that looks a miscompilation of some sort.
-
-URL:
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc3-aa3.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc3-aa3/
-
-Changelog diff between 2.6.5-rc3-aa2 and 2.6.5-rc3-aa3:
-
-Files 2.6.5-rc3-aa2/extraversion and 2.6.5-rc3-aa3/extraversion differ
-
-	Rediffed.
-
-Files 2.6.5-rc3-aa2/gfp-no-compound and 2.6.5-rc3-aa3/gfp-no-compound differ
-
-	Avoid flood of warnings while freeing a non-compound multipage.
-	Added bugchecks to be sure all pages in the freelist have PG_compound
-	unset (for robusteness, the check for PG_compound is zerocost anyways
-	since we check it in a bitmask).
-
-	Christoph's troubles with ppc seems to be a gcc miscompilation if it's
-	really the second bad_page in destroy_compound_page triggering.
-
-	The swap suspend/swap resume works for me w/o apparent VM issues,
-	aic7xxx simply hangs at resume, but Pavel said it's expected. I'll
-	later try to load it on my laptop and see if I've more luck with it.
-
-Only in 2.6.5-rc3-aa3: mprotect-vma-merging
-
-	Resurrected mprotect anon-vma and file-backed merging. The file-backed
-	merging is IMHO the most interesting one, and it's for the first time
-	available in linux.
-
-Files 2.6.5-rc3-aa2/prio-tree.gz and 2.6.5-rc3-aa3/prio-tree.gz differ
-
-	Added s390 compilation fix.
+-- Jamie

@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUE2SKD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263828AbUE2SMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbUE2SKD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 14:10:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUE2SKD
+	id S263828AbUE2SMD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 14:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUE2SMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 14:10:03 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63402 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264330AbUE2SJ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 14:09:59 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
-Date: Sat, 29 May 2004 20:07:38 +0200
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040527194920.A1709@jurassic.park.msu.ru> <200405281740.50798.bzolnier@elka.pw.edu.pl> <20040529013738.A629@den.park.msu.ru>
-In-Reply-To: <20040529013738.A629@den.park.msu.ru>
+	Sat, 29 May 2004 14:12:03 -0400
+Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:20395 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S263828AbUE2SLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 14:11:45 -0400
+Message-ID: <40B8D24A.4080703@xfs.org>
+Date: Sat, 29 May 2004 13:11:22 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Vincent van de Camp <vncnt@vzavenue.net>
+CC: linux-kernel@vger.kernel.org, XFS List <linux-xfs@oss.sgi.com>
+Subject: Re: xfs partition refuses to mount
+References: <40B89FE7.5090203@vzavenue.net>
+In-Reply-To: <40B89FE7.5090203@vzavenue.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405292007.38248.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 of May 2004 23:37, Ivan Kokshaysky wrote:
-> On Fri, May 28, 2004 at 05:40:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > - AFAIR there are some buggy disks having flush cache
-> >   bits that need standby anyway
->
-> Oh horror. I wouldn't be surprised if some drives don't flush
-> the cache even on standby...
->
-> > - you will hit 'halt problem' on alpha if your disk has
-> >   write cache enabled and it doesn't have flush cache bits
-> >
-> > -EAGAIN ;)
->
-> Yep... :-(
->
-> Here's variant of the first patch with CONFIG_ALPHA and a Very Big Comment.
+Vincent van de Camp wrote:
+> I run a gentoo system, and after updating python 2.3.3-r1, the emerge 
+> -DU that was running segfaulted. I had to hard reset the computer and 
+> since then the main (and only) partition refuses to mount.
+> 
+> The motherboard is an A7N8X Deluxe, with a Western Digital 36GB SATA 
+> Raptor drive. Kernel version was 2.6.5. The message:
+> 
+> XFS mounting filesystem ide2(33,1)
+> Starting XFS recovery on filesystem: ide2(33,1) (dev: ide2(33,1))
+> XFS assertion failed: *(uint *)dp == XFS_TRANS_HEADER_MAGIC, file: 
+> xfs_log_recover.c, line: 1424
+> kernel BUG at debug.c:55!
+> invalid operand: 0000
+> ohci1394 ieee1394 3c59x floppy serial isa-pnp usb-storage hid usb-ohci 
+> ehci-hcd usbcore
+> CPU:    0
+> EIP:    0010:[<c02c4f96>]    Not tainted
+> EFLAGS: 00010282
+> eax: 00000061   ebx: 00000001   ecx: 00000000   edx: f773c000
+> esi: f6d79780   edi: 00000034   ebp: 00000008   esp: f6de7b68
+> ds: 0018   es: 0018   ss: 0018
+> Process mount (pid: 2689, stackpage=f6de7000)
+> Stack: c04180e0 c0414be0 c03ed901 00000590 c029d43e c0414be0 c03ed901 
+> 00000590
+>        f7340720 f7c36260 f6d79774 00000008 c029f6e5 f7340720 f6d79780 
+> 00000034
+>        f6d79780 00000020 f6d7a200 00000001 f7341200 f6de7c24 f73d1070 
+> 00000011
+> Call Trace: [<c029d43e>]  [<c029f6e5>]  [<c02a04d5>]  [<c0308912>] 
+> [<c02a0dd4>]  [<c02a0e96>]  [<c02a10a4>]  [<c029735b>]  [<c02a523f>] 
+> [<c02b995a>]  [<c02a4782>]  [<c02b953c>]  [<c0294df0>]  [<c02ae54c>] 
+> [<c02c4151>]  [<c02c3f80>]  [<c01daea5>]  [<c01db87d>]  [<c01eaedb>] 
+> [<c01dbafb>]  [<c01ebcf1>]  [<c01ebf68>]  [<c01ebdef>]  [<c01ec2c8>] 
+> [<c01aaab3>]
+> Code: 0f 0b 37 00 6f f1 3e c0 83 c4 10 c3 89 f6 8b 0d e0 95 10 c0
+> 
+> If there's a separate xfs list, I'll be happy to post it there too.
+> 
+> Thanks,
+> Vincent
 
-Looks good, thanks!
+Added the XFS mailing list to the cc list....
 
-> Ivan.
->
-> --- 2.6/drivers/ide/ide-disk.c	Sat May 29 00:43:41 2004
-> +++ linux/drivers/ide/ide-disk.c	Sat May 29 00:43:06 2004
-> @@ -1713,7 +1713,22 @@ static void ide_device_shutdown(struct d
->  {
->  	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
->
-> +#ifdef	CONFIG_ALPHA
-> +	/* On Alpha, halt(8) doesn't actually turn the machine off,
-> +	   it puts you into the sort of firmware monitor. Typically,
-> +	   it's used to boot another kernel image, so it's not much
-> +	   different from reboot(8). Therefore, we don't need to
-> +	   spin down the disk in this case, especially since Alpha
-> +	   firmware doesn't handle disks in standby mode properly.
-> +	   On the other hand, it's reasonably safe to turn the power
-> +	   off when the shutdown process reaches the firmware prompt,
-> +	   as the firmware initialization takes rather long time -
-> +	   at least 10 seconds, which should be sufficient for
-> +	   the disk to expire its write cache. */
-> +	if (system_state != SYSTEM_POWER_OFF) {
-> +#else
->  	if (system_state == SYSTEM_RESTART) {
-> +#endif
->  		ide_cacheflush_p(drive);
->  		return;
->  	}
+You have turned on XFS debug, which is really a developer option. It
+looks like you have a corrupt journal though. A non debug kernel may
+still refuse to mount it and you would need to run xfs_repair from
+a rescue disk in that case.
 
+Steve

@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbUDCUCs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 15:02:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUDCUCs
+	id S261932AbUDCUQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUDCUQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 15:02:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64713 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261915AbUDCUCq (ORCPT
+	Sat, 3 Apr 2004 15:16:09 -0500
+Received: from mail.daybyday.de ([213.191.85.38]:61594 "EHLO data.daybyday.de")
+	by vger.kernel.org with ESMTP id S261920AbUDCUQC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 15:02:46 -0500
-Date: Sat, 3 Apr 2004 12:02:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: hch@infradead.org, hugh@veritas.com, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap
- complexity fix
-Message-Id: <20040403120227.398268aa.akpm@osdl.org>
-In-Reply-To: <20040403174043.GK2307@dualathlon.random>
-References: <20040402001535.GG18585@dualathlon.random>
-	<Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
-	<20040402011627.GK18585@dualathlon.random>
-	<20040401173649.22f734cd.akpm@osdl.org>
-	<20040402020022.GN18585@dualathlon.random>
-	<20040402104334.A871@infradead.org>
-	<20040402164634.GF21341@dualathlon.random>
-	<20040403174043.GK2307@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Apr 2004 15:16:02 -0500
+In-Reply-To: <406E88F7.9090601@steudten.com>
+References: <7CA30FDE-84F1-11D8-8FED-000393C43976@postmail.ch> <20040402223550.GA12467@kroah.com> <406E88F7.9090601@steudten.com>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <A38D0556-85AB-11D8-8FED-000393C43976@postmail.ch>
 Content-Transfer-Encoding: 7bit
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Stefan Wanner <stefan.wanner@postmail.ch>
+Subject: Re: SCSI generic support: Badness in kobject_get
+Date: Sat, 3 Apr 2004 22:15:23 +0200
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
+Actualy the same applies to me, when using 2.6.4. And I also get many 
+of those warnings when compiling kernel modules (like Jay Maynard 
+wrote):
+
+{standard input}: Assembler messages:
+{standard input}:4: Warning: setting incorrect section type for .got
+{standard input}:4: Warning: setting incorrect section attributes for 
+.got
+
+So I tried 2.6.5-rc2 with the corrected version of 
+"arch/alpha/kernel/alpha_ksyms.c" from rc3. The assembler messages are 
+still here... the kernel compiles.... and the message "Badness in 
+kobect_get" is gone when loading the sg module.
+
+But what about those assembler messages??
+
+Regards,
+Stefan
+
+
+On 03.04.2004, at 11:50, Thomas Steudten wrote:
+
+> Not on my alpha 2.6.4, as I post this message a few weeks ago.
 >
-> 
->  I'm very convinced that the alloc_pages API should be the same for all
->  archs w/o or w/ MMU, and I'm fine if we want to make the non-compound
->  retval the default (and change __GFP_NO_COMP to __GFP_COMP) in the long
->  run (to optimize all callers but hugetlbfs). For the short term
->  __GFP_NO_COMP and compound being the default is the safest (for all
->  archs).
-
-This single patch which enables the compound page logic in
-get_page()/put_page():
-
-
---- 25/include/linux/mm.h~a	2004-04-03 11:50:56.900246584 -0800
-+++ 25-akpm/include/linux/mm.h	2004-04-03 11:50:59.189898504 -0800
-@@ -236,7 +236,7 @@ struct page {
- 
- extern void FASTCALL(__page_cache_release(struct page *));
- 
--#ifdef CONFIG_HUGETLB_PAGE
-+#ifndef CONFIG_HUGETLB_PAGE
- 
- static inline int page_count(struct page *p)
- {
-
-
-Increases a 3.5MB vmlinux by 15kB, a lot of it fastpath.  We should retain
-this optimisation.
-
-It might be better to switch over to address masking in get_user_pages()
-and just dump all the compound page logic.  I don't immediately see how the
-get_user_pages() caller can subsequently do put_page() against the correct
-pageframe, but I assume you worked that out?
+> Greg KH wrote:
+>
+>> On Sat, Apr 03, 2004 at 12:02:52AM +0200, Stefan Wanner wrote:
+>>> Hi
+>>>
+>>> I have an Alpha AS400 with Debian Linux 3.0 and Kernel 2.6.3
+>> Please use a newer kernel, this bug has been fixed in 2.6.4.
+>> thanks,
+>> greg k-h
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-alpha" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> -- 
+> Tom
+>
+> LINUX user since kernel 0.99.x 1994.
+> RPM Alpha packages at http://alpha.steudten.com/packages
+> Want to know what S.u.S.E 1995 cdrom-set contains?
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-alpha" 
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 

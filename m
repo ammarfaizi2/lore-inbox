@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUJLSiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUJLSsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUJLSiX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUJLSiX
+	id S266582AbUJLSsr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUJLSsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:38:23 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:39875 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266572AbUJLSiU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:38:20 -0400
-Message-ID: <416C242E.9010102@rtr.ca>
-Date: Tue, 12 Oct 2004 14:36:30 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i				nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<416	5	A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.	ca	>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<200410072215	37.	A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.60	7090	4@rtr.ca>	<1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca>	<1097250465.2	412.49.camel@mulgrave>		<416C0D55.1020603@rtr.ca>	<1097601478.2044.103.camel@mulgrave> 	<416C12CC.1050301@rtr.ca> <1097602220.2044.119.camel@mulgrave>	<416C157A.6030400@rtr.ca> <416C177B.6030504@pobox.com> 	<416C19B9.7000806@rtr.ca> <1097604730.1763.177.camel@mulgrave>
-In-Reply-To: <1097604730.1763.177.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Oct 2004 14:48:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:12526 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266582AbUJLSso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:48:44 -0400
+Subject: Re: 4level page tables for Linux
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@digeo.com
+In-Reply-To: <20041012135919.GB20992@wotan.suse.de>
+References: <20041012135919.GB20992@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1097606902.10652.203.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 12 Oct 2004 11:48:22 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-..
-> What you need to do is to gather as much information as will reset the
-> interrupt and then process the data as a tasklet.  For your hotplug
-> events, they should be fire and forget as schedule_work().
+@@ -110,13 +115,18 @@ int install_file_pte(struct mm_struct *m
+                unsigned long addr, unsigned long pgoff, pgprot_t prot)
+ {
+...
++       pml4 = pml4_offset(mm, addr);
++
++       spin_lock(&mm->page_table_lock);
++       pgd = pgd_alloc(mm, pml4, addr);
++       if (!pgd)
++               goto err_unlock;
 
-Okay.  Good find, thanks.
+Locking isn't needed for access to the pml4?  This is a wee bit
+different from pgd's and I didn't see any documentation about it
+anywhere.  Could be confusing.
 
-I'll rework that portion to remove the bh handling completely,
-doing everything possible directly from within the interrupt handler.
++++ linux-2.6.9rc4-4level/mm/memory.c 
+...
++#undef inline
++#define inline
++unsigned long caddr;
 
-It will continue to use schedule_work to handle hotplug events.
+Is this just for debugging?
 
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
++static inline void free_one_pml4(struct mmu_gather *tlb, pml4_t *pml4,
++                                unsigned long addr, unsigned long end)
++{
+...
++       do {
++               caddr = addr;
++               free_one_pgd(tlb, pgd);
++               free++;
++               addr = (addr + PGDIR_SIZE) & PGDIR_MASK;
++               pgd++;
++       } while (addr && addr < end);
+
+If someone attempts to clear an address which is in the top PGDIR_SIZE
+bytes of memory, this will overflow.  Is that an issue?
+
+There also seems to be quite a bit of churn in the copy_*_range()
+functions that isn't completely related to the pml4 changes.  Should
+that get broken out?
+
+-- Dave
+

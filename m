@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278261AbRJ1Mfb>; Sun, 28 Oct 2001 07:35:31 -0500
+	id <S278286AbRJ1Mll>; Sun, 28 Oct 2001 07:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278265AbRJ1MfV>; Sun, 28 Oct 2001 07:35:21 -0500
-Received: from [203.134.64.99] ([203.134.64.99]:50181 "EHLO
-	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
-	id <S278261AbRJ1MfL>; Sun, 28 Oct 2001 07:35:11 -0500
-Message-ID: <01C16009.C6751AA0.danduke@iprimus.com.au>
-From: Daniel Duke <danduke@iprimus.com.au>
-To: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.x freezes on boot
-Date: Sun, 28 Oct 2001 23:39:18 +1100
-X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
-X-OriginalArrivalTime: 28 Oct 2001 12:35:32.0494 (UTC) FILETIME=[08D062E0:01C15FAD]
+	id <S278269AbRJ1Mlc>; Sun, 28 Oct 2001 07:41:32 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:267 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S278286AbRJ1MlM>; Sun, 28 Oct 2001 07:41:12 -0500
+Date: Sun, 28 Oct 2001 13:25:27 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: =?iso-8859-1?Q?Eduardo_Cort=E9s?= <educm@iceberg.activanet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tar corrupt ext2?
+Message-ID: <20011028132527.J11232@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20011025151858Z274813-17408+5437@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011025151858Z274813-17408+5437@vger.kernel.org>; from educm@iceberg.activanet.net on Thu, Oct 25, 2001 at 05:19:24PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the subject indicates, I'm having trouble running 2.4.x kernels.  I've 
-tried 2.4.10 and 2.4.13, and both of them compile perfectly (no errors) but 
-when I insert them into LILO and reboot I get the following:
+On Thu, Oct 25, 2001 at 05:19:24PM +0200, Eduardo Cortés wrote:
+> I read that dump could corrupt ext2 in 2.4.x . could a full backup dump by 
+> tar corrupt a ext2 filesystem?
 
-LILO:  Linux
-Loading Linux........
-
-and the computer freezes at this point, every time.  I've tried compiling 
-it for PIII/Celeron Coppermine (which is the correct one for me I think) 
-and 386.  I've compiled the kernel under Debian GNU/Linux 2.2r3 (kernel 
-2.2.19) with GCC 2.91.66.
-
-My computer's basic hardware specs are:
-CPU = Celeron 566
-RAM = 256MB PC100 SDRAM
-M/B = Gigabyte GA6VXE7+
-IDE = 	hda = primary hard disk (windows and MBR here)
-	hdb = cd-rw
-	hdc = secondry hard disk (linux root & swap partitions live here)
-	hdd = cd-rom
-
-I've been tearing my hair out over this for about a fortnight now.  I'd 
-provide more debugging info, but the computer doesn't give any because it 
-freezes so early.  I am probably just forgetting to do something important, 
-as this is the first time I've ever tried to compile my own kernel.  Any 
-pointers or suggestions would be greatly appreciated.
-
->From Daniel
+No.
 
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

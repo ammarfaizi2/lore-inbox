@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136342AbRAHX7V>; Mon, 8 Jan 2001 18:59:21 -0500
+	id <S136421AbRAIAAB>; Mon, 8 Jan 2001 19:00:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136438AbRAHX7L>; Mon, 8 Jan 2001 18:59:11 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:18684 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S136342AbRAHX65>; Mon, 8 Jan 2001 18:58:57 -0500
-Date: Mon, 8 Jan 2001 20:11:04 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Bjorn Ekwall <bj0rn@blox.se>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] de620.c: nitpicking
-Message-ID: <20010108201103.E17087@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Bjorn Ekwall <bj0rn@blox.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+	id <S136426AbRAHX7w>; Mon, 8 Jan 2001 18:59:52 -0500
+Received: from anime.net ([63.172.78.150]:5134 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S136438AbRAHX7h>;
+	Mon, 8 Jan 2001 18:59:37 -0500
+Date: Mon, 8 Jan 2001 16:00:45 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Joseph Wang <joe@gnacademy.tzo.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: HomePNA 2.0 flamage
+In-Reply-To: <E14Fm7H-0005e6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0101081600050.21110-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn/Alan,
+On Mon, 8 Jan 2001, Alan Cox wrote:
+> I suspect homepna is dead to be honest.
 
-	Yes, I'm a nitpicker ;)
+Apparently its competing rather well with DSL for MDU deployments (eg
+hotels, apartment complexes)
 
---- linux-2.4.0-ac3/drivers/net/de620.c	Tue Dec 19 11:24:52 2000
-+++ linux-2.4.0-ac3.acme/drivers/net/de620.c	Mon Jan  8 20:06:28 2001
-@@ -563,7 +563,6 @@
- 		printk(KERN_WARNING "%s: No tx-buffer available!\n", dev->name);
- 		restore_flags(flags);
- 		return 1;
--		break;
- 	}
- 	de620_write_block(dev, buffer, len);
- 
+-Dan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

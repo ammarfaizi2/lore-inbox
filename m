@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbTGOQrk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268898AbTGOQrk
+	id S268876AbTGOQrX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbTGOQrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:47:40 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:48862 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268894AbTGOQri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:47:38 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jul 2003 12:47:22 -0400
+Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:15578 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id S268876AbTGOQrV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 12:47:21 -0400
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+From: Adam Voigt <adam@cryptocomm.com>
+Reply-To: adam@cryptocomm.com
+To: dank@reflexsecurity.com
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+In-Reply-To: <bf19d5$d00$1@main.gmane.org>
+References: <1058285021.2209.13.camel@beowulf.cryptocomm.com>
+	 <bf19d5$d00$1@main.gmane.org>
+Content-Type: text/plain
+Organization: Cryptocomm
+Message-Id: <1058288545.2209.16.camel@beowulf.cryptocomm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Jul 2003 13:02:25 -0400
 Content-Transfer-Encoding: 7bit
-Message-ID: <16148.13163.8540.323403@gargle.gargle.HOWL>
-Date: Tue, 15 Jul 2003 12:01:31 -0500
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
-       karim@opersys.com, bob@watson.ibm.com
-Subject: Re: [RFC][PATCH 0/5] relayfs
-In-Reply-To: <1058287227.377.17.camel@sherbert>
-References: <16148.6807.578262.720332@gargle.gargle.HOWL>
-	<1058282847.375.3.camel@sherbert>
-	<16148.9560.602996.872584@gargle.gargle.HOWL>
-	<1058287227.377.17.camel@sherbert>
-X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
+X-OriginalArrivalTime: 15 Jul 2003 17:02:12.0489 (UTC) FILETIME=[D5BB9F90:01C34AF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gianni Tedesco writes:
- > On Tue, 2003-07-15 at 17:01, Tom Zanussi wrote:
- > > Gianni Tedesco writes:
- > >  > 
- > >  > Could this be used to replace mmap() packet socket, how does it compare?
- > > 
- > > I think so - you could send high volumes of packet traffic to a bulk
- > > relayfs channel and read it from the mmap'ed relayfs file in user
- > > space.  The Linux Trace Toolkit does the same thing with large volumes
- > > of trace data - you could look at that code as an example
- > > (http://www.opersys.com/relayfs/ltt-on-relayfs.html).
- > 
- > What are the semantics of the mmap'ing the buffer? With mmaped packet
- > socket the userspace (read-side) requires no sys-calls apart from when
- > the buffer is empty, it then uses poll(2) to sleep until something new
- > is put in the buffer. Can relayfs do a similar thing? poll is not
- > mentioned in the docs...
+You were right, I missed VT support on the config, added
+it and no more compile errors, thanks very much.
 
-You're right - I haven't implemented poll() in the relayfs VFS code
-yet.  I plan on doing that next, but won't have much time for the next
-couple of weeks.  Currently, you'd have to do something like LTT does,
-which is have the kernel side signal the read-side when data is ready.
 
-Tom
 
- > 
- > Thanks.
- > 
- > -- 
- > // Gianni Tedesco (gianni at scaramanga dot co dot uk)
- > lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
- > 8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
- > 
 
+On Tue, 2003-07-15 at 12:16, nick black wrote:
+> In article <1058285021.2209.13.camel@beowulf.cryptocomm.com>, Adam Voigt wrote:
+> > Let me know if I'm being stupid, but here's the error I get,
+> > and my .config is below:
+> > 
+> > 
+> >   CHK     include/linux/compile.h
+> >   UPD     include/linux/compile.h
+> >   CC      init/version.o
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o(.text+0x66e7a): In function `matroxfb_set_par':
+> >: undefined reference to `default_grn'
+> > drivers/built-in.o(.text+0x66e7f): In function `matroxfb_set_par':
+> >: undefined reference to `default_blu'
+> > drivers/built-in.o(.text+0x66e93): In function `matroxfb_set_par':
+> >: undefined reference to `color_table'
+> > drivers/built-in.o(.text+0x66e9b): In function `matroxfb_set_par':
+> >: undefined reference to `default_red'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> you'll need to build VT support.
 -- 
-Regards,
-
-Tom Zanussi <zanussi@us.ibm.com>
-IBM Linux Technology Center/RAS
+Adam Voigt (adam@cryptocomm.com)
+Linux/Unix Network Administrator
+The Cryptocomm Group
 

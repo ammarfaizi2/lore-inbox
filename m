@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263398AbTC2IBo>; Sat, 29 Mar 2003 03:01:44 -0500
+	id <S263399AbTC2ICl>; Sat, 29 Mar 2003 03:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263399AbTC2IBo>; Sat, 29 Mar 2003 03:01:44 -0500
-Received: from smtp2.wanadoo.fr ([193.252.22.26]:3987 "EHLO
-	mwinf0503.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263398AbTC2IBn>; Sat, 29 Mar 2003 03:01:43 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: J S <webnews@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Tasklets vs. Task Queues for Deferred Processing
-Date: Sat, 29 Mar 2003 09:12:53 +0100
-User-Agent: KMail/1.5.1
-References: <1048893277.4058.11.camel@localhost.localdomain>
-In-Reply-To: <1048893277.4058.11.camel@localhost.localdomain>
+	id <S263400AbTC2ICl>; Sat, 29 Mar 2003 03:02:41 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22741 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S263399AbTC2ICX>;
+	Sat, 29 Mar 2003 03:02:23 -0500
+Date: Sat, 29 Mar 2003 09:13:11 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: David Mansfield <lkml@dm.cobite.com>
+Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: very poor performance in 2.5.66[-mm1]
+In-Reply-To: <Pine.LNX.4.44.0303281641320.11928-100000@admin>
+Message-ID: <Pine.LNX.4.44.0303290911500.3834-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303290912.54062.baldrick@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 March 2003 00:14, J S wrote:
-> I'm trying to defer some processing to a later point.  I'm in a softirq,
-> so in_interrupt() returns true.  I need to schedule some work for later,
-> in process context.  I have read in the O'Reilly linux device drivers
-> book that tasklets always run in interrupt time.  Also, I guess the only
-> task_queue that is in process context is the scheduler task queue.  I've
-> seen in a few places that task queues are on their way out and tasklets
-> are being used instead.  Is this completely true?  Should I consider
-> task queues as a deprecated method of deferred processing?`  What other
-> deferred processing methods can I use that will run in process context?
 
-In 2.5, use a workqueue.
+On Fri, 28 Mar 2003, David Mansfield wrote:
 
-Duncan.
+> Yes. gnome-terminal is godawful slow on RHAT 8.0 (it does Xrender
+> alpha-channel crap for every character to get the anti-aliasing).  But I
+> think the problem has to do with the pipe/pty wakeups.  After 'ls'
+> writes a line to the pty, it seems as though the gnome-terminal is being
+> woken up (even though 'ls' has more to write), it's generating the
+> Xrender X-command and sending it to X.  X is waking up and rendering it
+> (which forces a complete update of the screen).
+
+this is a known bug in vte, fixed in the rawhide vte package. (you might
+need to upgrade other packages as well.) Eg. try another, non-gnome-vte
+based terminal, such as xterm or konsole, it wont show this problem.
+
+	Ingo
+

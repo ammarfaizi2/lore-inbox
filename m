@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUAIOaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 09:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUAIOaJ
+	id S261881AbUAIO02 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 09:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUAIO02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 09:30:09 -0500
-Received: from dp.samba.org ([66.70.73.150]:51096 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261890AbUAIOaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 09:30:03 -0500
-Date: Sat, 10 Jan 2004 01:25:45 +1100
-From: Anton Blanchard <anton@samba.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Limit hash table size
-Message-ID: <20040109142544.GA23038@krispykreme>
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com>
+	Fri, 9 Jan 2004 09:26:28 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:4739
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261881AbUAIO00
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 09:26:26 -0500
+Date: Fri, 9 Jan 2004 09:39:13 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Strange lockup with 2.6.0
+Message-ID: <20040109093913.A6710@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I usually do a backup of each filesystem simply using tar.  I attempted to
+backup a machine I had that's running 2.6.0 and it hard locked.
 
-Hi,
+The destination is over NFS to a server also running 2.6.0 (other machines
+have performed the backup to this server w/o problems).  This server is
+using KNFSD with v3 enabled.
 
-> Last time I checked, the tcp ehash table is taking a whooping (insane!)
-> 2GB on one of our large machine.  dentry and inode hash tables also take
-> considerable amount of memory.
-> 
-> This patch just enforces all the hash tables to have a max order of 10,
-> which limits them down to 16MB each on ia64.  People can clean up other
-> part of table size calculation.  But minimally, this patch doesn't
-> change any hash sizes already in use on x86.
+I first thought the problem could be ACPI or Preemt so I disabled both of
+these.  I thought it may be a module conflicting so I booted with
+init=/bin/sh.  In the kernel, I have IDE support (intel piix, no HDD support
+all ide devices are cds)  and aic7xxx.  My next thought was the NIC.  I was
+using a 3c990 card so I swapped it with a 3c905c card.  No change.  I
+thought it could be an over loaded power supply so I removed all drives
+from the power supply except the boot drive.  No change.  I removed all
+irrelevent hardware (leaving only the 3c905c nic and the aha39160 card).  I
+also swapped memory around (3 128mb sticks) leaving only 1 stick in the
+machine.  Still no change. (Only modules loaded was 3c59x, nfs, lockd, and
+sunrpc)  I have NFSv3 snabled in NFS, but not v4.
 
-By limiting it by order you are crippling ppc64 compared to ia64 :)
-Perhaps we should limit it by size instead.
+I simply gave up trying to backup the machine to nfs.  I have a JAZ drive
+installed on this machine (external) and decided to backup to the JAZ.  I
+powered off the machine, booted with init=/bin/sh and performed the exact
+same steps (excluding configuring the NIC and mounting NFS) that caused the
+freeze.  This time it completed the entire backup.  No modules were loaded
+at this time.
 
-Have you done any analysis of hash depths of large memory machines? We
-had some extremely deep pagecache hashchains in 2.4 on a 64GB machine.
-While the radix tree should fix that, whos to say we cant get into a
-similar situation with the dcache?
+Hardware:
+MS6163 System board
+Pentium III 700mhz
+3 128mb sticks memory (2 are same brand 2 sided, other is different 1 sided)
+Adaptec 39160
+3com 3c905c (eth0)
+3com 3c990  (eth0, not installed at same time as 3c905c)
+3com 3c900  (eth1)
+Generic 56k ISA PNP modem
+Belkin USB2.0 5 port
+Ensonic ES1373 Sound card
+Matrox G400Max dual AGP (was a G200 AGP)
 
-Check out how deep some of the inode hash chains are here:
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0105.html
+Relevent kernel config available upon request.
 
-That was on a 64GB box from memory. Switch to the current high end,
-say 512GB and those chains could become a real dogs breakfast,
-especially if we limit the hashtable to 4MB.
-
-Anton
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

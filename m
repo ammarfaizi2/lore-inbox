@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbULTQzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbULTQ5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbULTQzl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULTQzl
+	id S261572AbULTQ5b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 11:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULTQ5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:55:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8872 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261568AbULTQzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:55:35 -0500
-Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hr7lluei7.wl@alsa2.suse.de>
-References: <1103389648.5967.7.camel@gaston>
-	 <1103391238.5775.0.camel@gaston>  <s5hr7lluei7.wl@alsa2.suse.de>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 17:55:17 +0100
-Message-Id: <1103561717.5301.2.camel@gaston>
+	Mon, 20 Dec 2004 11:57:31 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:11695 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261569AbULTQ5V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 11:57:21 -0500
+Date: Mon, 20 Dec 2004 10:56:29 -0600
+From: "Jose R. Santos" <jrsantos@austin.ibm.com>
+To: "Jose R. Santos" <jrsantos@austin.ibm.com>
+Cc: Anton Blanchard <anton@samba.org>, Andi Kleen <ak@suse.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041220165629.GA21231@rx8.austin.ibm.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de> <20041216051323.GI24000@krispykreme.ozlabs.ibm.com> <20041216141814.GA10292@rx8.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216141814.GA10292@rx8.austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 17:21 +0100, Takashi Iwai wrote:
+Jose R. Santos <jrsantos@austin.ibm.com> [041216]:
+> I can do the SpecSFS runs but each runs takes several hours to complete
+> and I would need to do two runs (baseline and patched).  I may have it 
+> ready by today or tommorow.
 
-> Well, the volume and PCM shouldn't be racy.  I'd first suspect another
-> bug in PCM OSS emulation code...
-> 
-> Could you compile with CONFIG_SND_DEBUG=y and see whether it catches
-> anything?
+The difference between the two runs was with in noise of the benchmark on
+my small setup.  I wont be able to get a larger NUMA system until next year,
+so I'll retest when that happens.  In the mean time, I don't see a reason
+either to stall this patch, but that may change on I get numbers on a
+larger system.
 
-Didn't catch anything. However, I reproduced it a bit differently this
-time, it didn't try to jump into a NULL pointer in the rate "plugin",
-but rather went into resample and died there on a data access exception
-to some corrupt pointer.
-
-I don't have a 100% reprocase yet, it seem to be related to playing with
-an OSS mixer while using an OSS app (like xmms), that is basically
-having 2 things opening the OSS emulation, and one of them closing it,
-or something like that, causing the rate plugin (and maybe more) to be
-tore down, while still in use by the other app (looks like a
-use-after-free).
-
-Ben.
-
-
+-JRS

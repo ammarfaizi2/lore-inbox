@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
+	id <S264771AbSL0EfC>; Thu, 26 Dec 2002 23:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
-Received: from almesberger.net ([63.105.73.239]:38411 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S264767AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
-Date: Fri, 27 Dec 2002 01:03:38 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Anomalous Force <anomalous_force@yahoo.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: holy grail
-Message-ID: <20021227010338.A1406@almesberger.net>
-References: <20021227005118.18686.qmail@web13202.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021227005118.18686.qmail@web13202.mail.yahoo.com>; from anomalous_force@yahoo.com on Thu, Dec 26, 2002 at 04:51:18PM -0800
+	id <S264786AbSL0EfC>; Thu, 26 Dec 2002 23:35:02 -0500
+Received: from aphrodite.tassie.net.au ([203.57.213.23]:4612 "EHLO
+	aphrodite.tassie.net.au") by vger.kernel.org with ESMTP
+	id <S264771AbSL0EfB>; Thu, 26 Dec 2002 23:35:01 -0500
+Message-Id: <200212270444.gBR4igJ1019629@aphrodite.tassie.net.au>
+To: linux-kernel@vger.kernel.org
+From: hchandle@tassie.net.au
+Subject: Kernel update and IPchains
+Date: Thu, 26 Dec 2002 23:44:43 EST
+X-Posting-IP: 203.55.103.4 via 192.168.0.11, unknown
+X-Mailer: Endymion MailMan Standard Edition v3.2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anomalous Force wrote:
-> a hot swap kernel would be something like the holy grail of kernel
-> hacking.
+Hi,
 
-:-) This comes up every once in a while. The closest approximation
-you have for this is swsusp. But you'd of course want to start a
-non-identical kernel. And that's where the hard problems lie.
+I have just completed updating RedHat 7.3 to Kernel 2.4.20 and ipchains and 
+table no longer work. Ipchains say that it is not supported by this kernel, 
+ipchains just show module 
+/lib/modules/2.4.20/kernel/net/ipv4/netfilter/ip_tables.o: unresolved symbol 
+nf_unregister_sockopt
+/lib/modules/2.4.20/kernel/net/ipv4/netfilter/ip_tables.o: unresolved symbol 
+nf_register_sockopt
+/lib/modules/2.4.20/kernel/net/ipv4/netfilter/ip_tables.o: 
+insmod /lib/modules/2.4.20/kernel/net/ipv4/netfilter/ip_tables.o failed
+/lib/modules/2.4.20/kernel/net/ipv4/netfilter/ip_tables.o: insmod ip_tables 
+failed
+iptables v1.2.5: can't initialize iptables table `filter': iptables who? (do 
+you need to insmod?)
 
-An older or newer kernel would have different data structures, and
-possibly even data structures which are arranged in a different way
-(e.g. a hash becomes some kind of tree, etc.). So you'd need some
-translation mechanism that "upgrades" or "downgrades" all kernel
-data, including all pointers and offsets that may be sitting
-around somewhere. Good luck :-)
+i hve recompiled the kernel a number of times with including additional support 
+for iptables/chains but there is no difference.
 
-Your best bet would be to use a system that already implements some
-form of checkpointing or process migration, and use this to
-preserve user space state across kexec reboots. openMosix may be
-relatively close to being able to do this for general user space.
-(I don't know what openMosix currently can do, but many of the
-problems they need to solve are similar in nature.)
+Any assistance would be appreciated
 
-- Werner
+Please reply to me privatley
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+Thanks
+
+
+HC
+
+---------------------------------------------
+This message was sent using Tas Access WebMail.
+http://webmail.tassie.net.au/
+
+

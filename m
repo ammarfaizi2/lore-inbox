@@ -1,25 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291400AbSBMGTf>; Wed, 13 Feb 2002 01:19:35 -0500
+	id <S291401AbSBMG3c>; Wed, 13 Feb 2002 01:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291399AbSBMGTZ>; Wed, 13 Feb 2002 01:19:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42122 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291397AbSBMGTP>;
-	Wed, 13 Feb 2002 01:19:15 -0500
-Date: Tue, 12 Feb 2002 22:17:26 -0800 (PST)
-Message-Id: <20020212.221726.34760851.davem@redhat.com>
-To: raghuangadi@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: memory corruption in tcp bind hash buckets on SMP? 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020213060529.91301.qmail@web12305.mail.yahoo.com>
-In-Reply-To: <20020213060529.91301.qmail@web12305.mail.yahoo.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S291402AbSBMG3W>; Wed, 13 Feb 2002 01:29:22 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:63204 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S291401AbSBMG3P>; Wed, 13 Feb 2002 01:29:15 -0500
+Date: Wed, 13 Feb 2002 08:20:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: portmap problems with 2.5.4-pre5
+Message-ID: <Pine.LNX.4.44.0202130818430.15774-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried to mount an NFS filesystem and had mount stuck in the D state for 
+quite a while (minutes), this was also in my logs.
 
-This bug is fixed in the 2.4.9 Red Hat 7.2 errata kernels.
+Jan  1 02:06:00 mondecino kernel: portmap: server localhost not responding, timed out
+Jan  1 02:06:00 mondecino kernel: lockd_up: makesock failed, error=-5
+Jan  1 02:07:40 mondecino kernel: portmap: server localhost not responding, timed out
+
+Eventually it did mount, but i've never had this error before on that box 
+(i use the box daily and do that mount more than 5 times a day). I've been 
+using 2.5 on that box since 2.5.0. I seem to be able to reproduce it, so 
+i'll leave the box running in case anyone wants to try anything.
+
+box: RH 7.2 w/ 2.5.4-pre5
+
+Cheers,
+	Zwane Mwaikambo
+

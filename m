@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279756AbRJYL0Q>; Thu, 25 Oct 2001 07:26:16 -0400
+	id <S270619AbRJYMDQ>; Thu, 25 Oct 2001 08:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279757AbRJYL0G>; Thu, 25 Oct 2001 07:26:06 -0400
-Received: from arabuusi.tky.hut.fi ([130.233.24.169]:30354 "HELO
-	arabuusi.tky.hut.fi") by vger.kernel.org with SMTP
-	id <S279756AbRJYLZ4>; Thu, 25 Oct 2001 07:25:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: HPT366 and 80G Maxtor Diamondmaxes
-Message-ID: <1004009868.3bd7f98c86e95@mail.arabuusimiehet.com>
-Date: Thu, 25 Oct 2001 14:37:48 +0300 (EEST)
-From: Janne Liimatainen <jannel@iki.fi>
+	id <S272773AbRJYMDF>; Thu, 25 Oct 2001 08:03:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24335 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271667AbRJYMCs>; Thu, 25 Oct 2001 08:02:48 -0400
+Subject: Re: dvd and filesystem errors under 2.4.13
+To: imaginos@imaginos.net (Jim Hull)
+Date: Thu, 25 Oct 2001 13:09:41 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110250138380.1704-100000@rosebud> from "Jim Hull" at Oct 25, 2001 01:49:39 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wjKP-0004fk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> ext2_free_blocks: bit already cleared for block 133384
+> Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> ext2_free_blocks: bit already cleared for block 133385
 
-Hi all,
-
-the HPT 1.25 bios seems to be buggy and detects the 80 gig maxtors as 13 gigs. 
-Kernel 2.4.9 reports the highpoint controller as dma disabled by bios and the 
-drives get max. 2 megabytes/s speeds. Is there a way to get dma on? hdparm -d1 
-just reports operation not permitted.
-
-Please CC me!
-
-Thanks!
-
---
-  -Janne
+Thats indicating memory on on disk corruption. It is something you should
+be concerned about.  What version of aic7xxx is on the kernel that is
+stable ?

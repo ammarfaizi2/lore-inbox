@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130390AbRBKXGR>; Sun, 11 Feb 2001 18:06:17 -0500
+	id <S130701AbRBKXOi>; Sun, 11 Feb 2001 18:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130642AbRBKXGH>; Sun, 11 Feb 2001 18:06:07 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:48633 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S130390AbRBKXF6>;
-	Sun, 11 Feb 2001 18:05:58 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hot swap CPU support for 2.4.1 
-In-Reply-To: Your message of "Sun, 11 Feb 2001 00:29:55 BST."
-             <20010211002955.I7877@bug.ucw.cz> 
-Date: Mon, 12 Feb 2001 10:05:35 +1100
-Message-Id: <E14S5Ym-0003m4-00@halfway>
+	id <S130703AbRBKXO2>; Sun, 11 Feb 2001 18:14:28 -0500
+Received: from faui45.informatik.uni-erlangen.de ([131.188.34.45]:17857 "EHLO
+	faui45.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S130701AbRBKXOT>; Sun, 11 Feb 2001 18:14:19 -0500
+Date: Mon, 12 Feb 2001 00:14:16 +0100
+From: Frank Mattern <frank@rommelwood.de>
+To: linux-kernel@vger.kernel.org
+Cc: igor@meta.math.spbu.ru
+Subject: Re: 2.4.1: DMA gets disabled due to irq timeout
+Message-ID: <20010212001416.A854@rommelwood.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010211002955.I7877@bug.ucw.cz> you write:
-> This is not quite right:
-> 
-> @@ -1643,7 +1643,7 @@
->                 printk(KERN_NOTICE "apm: disabled on user
-> request.\n");
->                 return -ENODEV;
->         }
-> -       if ((smp_num_cpus > 1) && !power_off) {
-> +       if ((num_online_cpus() > 1) && !power_off) {
->                 printk(KERN_NOTICE "apm: disabled - APM is not SMP
-> 
-> I do not think it is safe to call APM when there is just CPU #5
-> running. smp_num_cpus in this context means "if we ever had more than
-> boot cpu".
+Hi,
 
-Um, it's not safe to call APM in SMP full stop: we try anyway.
-However, this code changes nothing since it's only run at boot.
+From: Igor Nekrestyanov (igor@meta.math.spbu.ru)
+>I was trying 2.4.1 kernel but under some IO load (bonnie++) 
 
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Me too, same messages...
+
+>DMA gets disabled with following messages: 
+
+hda: timeout waiting for DMA 
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14 
+
+my dmesg: 
+
+ide: Assuming 33MHz system bus speed for PIO modes
+ALI15X3: IDE controller on PCI bus 00 dev 80
+ALI15X3: chipset revision 195
+ALI15X3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x6050-0x6057, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x6058-0x605f, BIOS settings: hdc:DMA, hdd:pio
+hda: IBM-DJSA-210, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 11733120 sectors (6007 MB) w/384KiB Cache, CHS=730/255/63, UDMA(33)
+
+an other chipset but the same problem...
+There are more ide_dma_timeout problems known with other chipsets. 
+It seems to be an chipset independent problem, it exits also in 2.4.0,
+(see http://boudicca.tux.org/hypermail/linux-kernel/2001week02/1429.html)
+and in 2.4.1-ac9.
+
+Are any fixes known?
+
+p.s. 
+  Please cc: me explicitly, because i am not on the list. 
+
+thanks 
+    Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

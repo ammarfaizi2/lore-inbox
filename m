@@ -1,159 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264866AbUDWQst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264872AbUDWQw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264866AbUDWQst (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 12:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUDWQst
+	id S264872AbUDWQw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 12:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUDWQw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 12:48:49 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:14543 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S264866AbUDWQsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 12:48:43 -0400
-Date: Fri, 23 Apr 2004 12:46:43 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: [PATCH] cramfs use pagecache
-Cc: linux-kernel@vger.kernel.org
-Message-id: <40894873.1060401@sun.com>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary=------------090302040000090709020804
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 23 Apr 2004 12:52:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20900 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264872AbUDWQwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 12:52:51 -0400
+Date: Fri, 23 Apr 2004 09:46:46 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.6-rc2 kernel-janitors patchset
+Message-Id: <20040423094646.18496e90.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090302040000090709020804
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.6-rc2/2.6.6-rc2-kj1.patch.bz2  [2004-04-23]
 
-(sending again cause I messed up the lkml addr)
-i
-Hi Al,
+M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
 
-We recently hit a problem when we wanted to have both cramfs and minix
-support built-in.  If we tried to mount a minix filesystem from ramdisk,
-depending on link order, cramfs would be tried first, and it would
-invalidate the pagecache in an attempt to set_blocksize.
+This patch applies to linux-2.6.6-rc2.
+new (for 2.6.6-rc2):  [2004-04-23]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	extraver.patch
+	rddunlap%osdl!org
 
-I saw you fixed this in 2.6, and I backported the fix to 2.4.  If this
-looks good, could this get applied to the 2.4 tree?
+add/	cdu31a_yield_sched_tmout.patch
+	From: Gustavo Franco <stratus@legolas.alternex.com.br>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+add/	com90io_message.patch
+add/	com90xx_message.patch
+	From: Greg Aumann <Greg_Aumann@sil.org>
 
-iD4DBQFAiUhydQs4kOxk3/MRAtATAJ0T98a+DpYiTDAPLsX2j4EmEOESCQCWP1Vr
-ElkL7Hz6vX2BYRxlCcOrrQ==
-=yKtF
------END PGP SIGNATURE-----
+add/	cyclades_cleanup.patch
+	From: Don Koch <aardvark@krl.com>
 
---------------090302040000090709020804
-Content-Type: text/x-patch;
- name="p_cramfs_use_pagecache.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="p_cramfs_use_pagecache.diff"
+add/	sis900_yield_schedtmout.patch
+	From: maximilian attems <janitor@sternwelten.at>
 
---- linux-2.4.24/fs/cramfs/inode.c	2002-08-02 17:39:45.000000000 -0700
-+++ linux-2.4.24-cramfs/fs/cramfs/inode.c	2004-04-16 05:48:42.000000000 -0700
-@@ -111,8 +111,8 @@ static int next_buffer;
-  */
- static void *cramfs_read(struct super_block *sb, unsigned int offset, unsigned int len)
- {
--	struct buffer_head * bh_array[BLKS_PER_BUF];
--	struct buffer_head * read_array[BLKS_PER_BUF];
-+	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
-+	struct page *pages[BLKS_PER_BUF];
- 	unsigned i, blocknr, buffer, unread;
- 	unsigned long devsize;
- 	int major, minor;
-@@ -139,7 +139,7 @@ static void *cramfs_read(struct super_bl
- 		return read_buffers[i] + blk_offset;
- 	}
- 
--	devsize = ~0UL;
-+	devsize = mapping->host->i_size >> PAGE_CACHE_SHIFT;
- 	major = MAJOR(sb->s_dev);
- 	minor = MINOR(sb->s_dev);
- 
-@@ -149,26 +149,31 @@ static void *cramfs_read(struct super_bl
- 	/* Ok, read in BLKS_PER_BUF pages completely first. */
- 	unread = 0;
- 	for (i = 0; i < BLKS_PER_BUF; i++) {
--		struct buffer_head *bh;
-+		struct page *page = NULL;
- 
--		bh = NULL;
- 		if (blocknr + i < devsize) {
--			bh = sb_getblk(sb, blocknr + i);
--			if (!buffer_uptodate(bh))
--				read_array[unread++] = bh;
-+			page = read_cache_page(mapping, blocknr + i,
-+				(filler_t *)mapping->a_ops->readpage,
-+				NULL);
-+			/* synchronous error? */
-+			if (IS_ERR(page))
-+				page = NULL;
- 		}
--		bh_array[i] = bh;
-+		pages[i] = page;
- 	}
- 
--	if (unread) {
--		ll_rw_block(READ, unread, read_array);
--		do {
--			unread--;
--			wait_on_buffer(read_array[unread]);
--		} while (unread);
-+	for (i = 0; i < BLKS_PER_BUF; i++) {
-+		struct page *page = pages[i];
-+		if (page) {
-+			wait_on_page(page);
-+			if (!Page_Uptodate(page)) {
-+				/* asynchronous error */
-+				page_cache_release(page);
-+				pages[i] = NULL;
-+			}
-+		}
- 	}
--
--	/* Ok, copy them to the staging area without sleeping. */
-+		
- 	buffer = next_buffer;
- 	next_buffer = NEXT_BUFFER(buffer);
- 	buffer_blocknr[buffer] = blocknr;
-@@ -176,10 +181,11 @@ static void *cramfs_read(struct super_bl
- 
- 	data = read_buffers[buffer];
- 	for (i = 0; i < BLKS_PER_BUF; i++) {
--		struct buffer_head * bh = bh_array[i];
--		if (bh) {
--			memcpy(data, bh->b_data, PAGE_CACHE_SIZE);
--			brelse(bh);
-+		struct page *page = pages[i];
-+		if (page) {
-+			memcpy(data, kmap(page), PAGE_CACHE_SIZE);
-+			kunmap(page);
-+			page_cache_release(page);
- 		} else
- 			memset(data, 0, PAGE_CACHE_SIZE);
- 		data += PAGE_CACHE_SIZE;
-@@ -195,10 +201,6 @@ static struct super_block * cramfs_read_
- 	unsigned long root_offset;
- 	struct super_block * retval = NULL;
- 
--	set_blocksize(sb->s_dev, PAGE_CACHE_SIZE);
--	sb->s_blocksize = PAGE_CACHE_SIZE;
--	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
--
- 	/* Invalidate the read buffers on mount: think disk change.. */
- 	for (i = 0; i < READ_BUFFERS; i++)
- 		buffer_blocknr[i] = -1;
+add/	videodev_class_reg.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+add/	kernel-api-docs.patch
+add/	parport_doc_arg.patch
+	From: Alexey Dobriyan <adobriyan@mail.ru>
+
+add/	ieee1394_init_register.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+add/	scsi_aic7xcur_macros.patch
+add/	scsi_aic7xold_macros.patch
+add/	scsi_ncr53c_macros.patch
+add/	scsi_nsp_macros.patch
+add/	scsi_pcmcia_macros.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+
+add/	floppy_audit_v3.patch
+add/	floppy_debugt.patch
+	From: Luiz Fernando N. Capitulino <lcapitulino@prefeitura.sp.gov.br>
 
 
---------------090302040000090709020804--
+This patch applies to linux-2.6.4-rc2.
+previous (for 2.6.4-rc2):  [2004-03-09]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	ipv4_fib_hash_check.patch
+	From: Francois Romieu <romieu@fr.zoreil.com>
+	original From: <WHarms@bfs.de>(Walter Harms)
+
+tx/	errno_numbers_assembly.patch
+	From: Danilo Piazzalunga <danilopiazza@libero.it>
+	to akpm: 2004.0126;
+	to akpm: 2004.0316;
+	must go thru arch maintainers;
+	sent to 5 arch mntrs (sh, h8300, arm, arm26, i386): 2004.0405;
+mntr/	h8300; arm26 ("Noted");
+M/	arm;
+
+add/	keyboard_ptr_to_string.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	string_form_drivers.patch
+	From: maximilian attems <janitor@sternwelten.at>
+
+Merged (hence dropped from here):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+M/	pcmcia_cs_class_reg.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to mntr: 2004.0405;
+
+Dropped:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drop/	drivers_ide_minmax.patch
+drop/	drivers_ide_minmax2.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to mntr/linux-ide: 2004.0316;
+	see Bart's reply/comments; no clear resolution on this;
+
+backlog:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- check kernel_thread() results (Walter);
+- list_for_each() usage (max attems);
+
+###
+
+--
+~Randy
+(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature) -- akpm

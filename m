@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbSKRP23>; Mon, 18 Nov 2002 10:28:29 -0500
+	id <S262580AbSKRPhT>; Mon, 18 Nov 2002 10:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbSKRP23>; Mon, 18 Nov 2002 10:28:29 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:30109 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261613AbSKRP22>; Mon, 18 Nov 2002 10:28:28 -0500
-Message-ID: <3DD908AB.8040102@nortelnetworks.com>
-Date: Mon, 18 Nov 2002 10:35:07 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Panos <epp719@aretousa.epp.teiher.gr>
+	id <S262792AbSKRPhT>; Mon, 18 Nov 2002 10:37:19 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:391 "EHLO stine.vestdata.no")
+	by vger.kernel.org with ESMTP id <S262580AbSKRPhS>;
+	Mon, 18 Nov 2002 10:37:18 -0500
+Date: Mon, 18 Nov 2002 16:44:08 +0100
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Rashmi Agrawal <rashmi.agrawal@wipro.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.19 + poweroff
-References: <Pine.LNX.4.44.0211181716220.30592-100000@aretousa.epp.teiher.gr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Failover in NFS
+Message-ID: <20021118164408.B30589@vestdata.no>
+References: <3DD90197.4DDEEE61@wipro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DD90197.4DDEEE61@wipro.com>; from rashmi.agrawal@wipro.com on Mon, Nov 18, 2002 at 08:34:55PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Panos wrote:
-i have compiled the kernel 2.4.19 and when i
-> shutdown the pc using halt it doesnt poweroff. i tried either with apm 
-> builtin and module but nothing happened.
+On Mon, Nov 18, 2002 at 08:34:55PM +0530, Rashmi Agrawal wrote:
+> 1. I have a 4 node cluster and nfsv3 in all the nodes of cluster with
+> server running in one
+> of the 2 nodesconnected to shared storage and 2 other nodes are acting
+> as clients.
+> 2. If nfs server node crashes, I need to failover to another node
+> wherein I need to have access
+> to the lock state of the previous server and I need to tell the clients
+> that the IP address of the
+> nfs server node has changed. IS IT POSSIBLE or what can be done to
+> implement it?
 
-I had to make sure that ACPI power management was not enabled in any 
-form, since it overrides APM but the userspace didn't understand it.
+No, you need to move the IP-address from the old nfs-server to the new
+one. Then to the clients it will look like a regular reboot. (Check out
+heartbeat, at http://www.linux-ha.org/)
 
-
-Chris
+You need to make sure that NFS is using the shared ip (the one you move
+around) rather than the fixed ip. (I assume you will have a fixed ip on
+each host in addition to the one you move around). Also, you need to put
+/var/lib/nfs on shared stoarage. See the archive for more details.
 
 
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+Ragnar Kjørstad
+Big Storage

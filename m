@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUFGVNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUFGVOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUFGVNA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 17:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUFGVNA
+	id S265065AbUFGVOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 17:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265067AbUFGVOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 17:13:00 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:48787 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265060AbUFGVM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 17:12:57 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-Date: Tue, 8 Jun 2004 07:12:44 +1000
-User-Agent: KMail/1.6.1
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <20040607195735.46697.qmail@web51801.mail.yahoo.com>
-In-Reply-To: <20040607195735.46697.qmail@web51801.mail.yahoo.com>
+	Mon, 7 Jun 2004 17:14:19 -0400
+Received: from mail.scienion.de ([141.16.81.54]:3730 "EHLO
+	server03.hq.scienion.de") by vger.kernel.org with ESMTP
+	id S265065AbUFGVOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 17:14:03 -0400
+Message-ID: <40C4DA94.2090102@scienion.de>
+Date: Mon, 07 Jun 2004 23:13:56 +0200
+From: Sebastian Kloska <kloska@scienion.de>
+Reply-To: kloska@scienion.de
+Organization: Scienion AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       psycho@albatross.co.nz, hugh@veritas.com, Matt_Domsch@dell.com
+Subject: Re: APM realy sucks on 2.6.x
+References: <40C0E91D.9070900@scienion.de>	 <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>	 <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de>	 <20040607144841.GD1467@elf.ucw.cz> <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
+X-MIMETrack: Itemize by SMTP Server on SrvW2k01/Scienion(Release 6.5.1|January 28, 2004) at
+ 07.06.2004 23:23:00,
+	Serialize by Router on SrvW2k01/Scienion(Release 6.5.1|January 28, 2004) at
+ 07.06.2004 23:23:07,
+	Serialize complete at 07.06.2004 23:23:07
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406080712.44759.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jun 2004 05:57, Phy Prabab wrote:
-> I have had a chance to test this patch.  
+  Hi Felipe ....
 
-Thanks
+  Lucky one ...
 
-> I have a make 
-> system that has presented 2.6 kernels with problems,
-> so  I am using this as the test.  Observations show
-> that turning off interactive is much more
-> deterministic:
->
-> 2.6.7-rc2-bk8-s63:
-> echo 0 > /proc/sys/kernel/interactive
->
-> A:  35.57user 38.18system 1:20.28elapsed 91%CPU
-> B:  35.54user 38.40system 1:19.48elapsed 93%CPU
-> C:  35.48user 38.28system 1:20.94elapsed 91%CPU
->
-> 2.6.7-rc2-bk8-s63:
-> A:  35.32user 38.51system 1:26.47elapsed 85%CPU
-> B:  35.43user 38.35system 1:20.79elapsed 91%CPU
-> C:  35.61user 38.23system 1:25.00elapsed 86%CPU
->
-> However, something is still slower than the 2.4.x
-> kernels:
->
-> 2.4.23:
-> A:  28.32user 29.51system 1:01.17elapsed 93%CPU
-> B:  28.54user 29.40system 1:01.48elapsed 92%CPU
-> B:  28.23user 28.80system 1:00.21elapsed 94%CPU
->
-> Nice work, as I can now turn off some functionality
-> within the kernel that is causing me some slow down.
+  I do not even use PCMCIA and don't have the stuff
+  compiled in or use the modules ... but the reaction
+  to echo -n '3' >/proc/acpi/sleep is weired.
 
-Glad to see it does what you require. Turning off "interactive" should still 
-provide moderately good interactive performance at low to moderate loads, but 
-is much stricter about cpu usage distribution as you can see.
+  Somthing like (1) The first time nothing happens
+  and (2) On the second run the machine reboots....
 
-Cheers,
-Con
+
+  Up until now I've been slowly upgrading my kernel
+  from minimal functionality to almost perfect
+
+  now USB, and ALSA has been added to the kernel
+  and I still can suspend/resume....
+
+  Now of cause I'm wandering what actually triggers
+  the crash ....
+
+  That might take some time ....
+
+  Thanks for the tip
+
+  Sebastian
+
+Felipe Alfaro Solana wrote:
+> On Mon, 2004-06-07 at 16:48 +0200, Pavel Machek wrote:
+> 
+> 
+>>HP sells compaq nx5000 notebooks with Linux preloaded. Unfortunately
+>>suspend-to-RAM is not there (IIRC). That's because suspend-to-RAM is
+>>hard to do with ACPI.
+> 
+> 
+> It took some time for me to work, but now ACPI S3 (suspend to RAM) is
+> finally working for me (I have been trying it since 2.4.22 with no
+> luck). Only one thing is required before suspending:
+> 
+> # modprobe ds
+> # cardctl eject
+> 
+> This ejects my CardBus NIC before going to sleep. Not doing so, causes
+> the system to freeze when resuming.
+> 
+

@@ -1,58 +1,43 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVBQQCF (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Feb 2005 11:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBQQCE
+	id S261334AbVBRLBZ (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 18 Feb 2005 06:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVBRLBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 11:02:04 -0500
-Received: from [220.234.245.78] ([220.234.245.78]:19981 "EHLO e-hkma.com")
-	by vger.kernel.org with ESMTP id S262294AbVBQQBt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 11:01:49 -0500
-Reply-To: bigr8erfan@yahoo.com
-From: "Intercoms H. Ministries" <bifmalibu@juno.com>
-To: Linux <linux-kernel@vger.kernel.org>
-Subject: Hi Linux, special 0ffer lifetime vip memberships.
-Date: Thu, 17 Feb 2005 16:44:48 +0100
-Message-ID: <110001c51507$9424b51b$6c543573@juno.com>
+	Fri, 18 Feb 2005 06:01:25 -0500
+Received: from nts-33.13-185-64.nts-online.net ([64.185.13.33]:23564 "HELO
+	compuserve.com") by vger.kernel.org with SMTP id S261326AbVBRLBX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 06:01:23 -0500
+Date: Fri, 18 Feb 2005 10:37:36 +0000
+From: Gyv <gyv@hispeed.ch>
+Subject: Linux-kernel, Get a new home
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <HCE9KJD14HKJGHAG@vger.kernel.org>
+In-Reply-To: <HCE9KJD14HKJGHAG@vger.kernel.org>
+Message-ID: <H1I2DFAI5DEJ8IF4@hispeed.ch>
+Reply-To: Vpqaufivhe <vpqaufivhe@badtzmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.10; AVE: 6.20.0.1; VDF: 6.20.0.46; host: e-hkma.com)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262300AbVBQQCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261334AbVBRLBZ@vger.kernel.org>
 
-Hi Linux,
-  
-Special one time promotion only. No charge membership site for life! Use credit card for age verification purposes only! Then you are in. Their hopes are they get you in then you like it so much you want to upgrade to buy another product. It's up to you! Your choice.  
+Homeowners 
 
-http://its.situation.wowthat.com/369997/hxw/index.html
+- do you have less-than-perfect credit* 
 
+We'll quickly match you up with the B.EST provider based on YOUR NEEDS.
 
-You never know what you can do till you try. 
+Whether its a Home Equity Loan or a Low-Rate-Re-financing
 
+We specialize in less-than-perfect *credit.  
 
+We'll help you get the YES! you deserve.
 
-Hasty judgements are generally faulty. . From trivial things, great contests often arise. . Windows will never cease. . It's no use closing the stable door, after the horse has bolted. .
-Oh, what a tangled web site we weave when first we practice. 
+http://www.nocturnull.com/save.asp
 
-What do you expect from a pig, but a grunt? 
-
-no more?
-http://it.as.wowthat.com/emms/preference/control.php
-
-
-
-
-
-
-The gods help them that help themselves. . From trivial things, great contests often arise. . As is the gardener so is the garden. .
-A good thing is all the sweeter when won with pain. . Fools rush in where angels fear to tread. . Kill two birds with the one stone. .
-
-Divide and conquer. . A friend to everybody is a friend to nobody. . Speak clearly, if you speak at all. .
+Future reference options:
+http://www.nocturnull.com/gone.asp
 
 

@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUBIQCd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 11:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUBIQCd
+	id S263909AbUBIQA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 11:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUBIQA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 11:02:33 -0500
-Received: from mailout.informatik.tu-muenchen.de ([131.159.0.5]:22756 "EHLO
-	mailout.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S262603AbUBIQCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 11:02:30 -0500
-From: Daniel Schranz <schranz@in.tum.de>
-Reply-To: schranz@in.tum.de
-To: linux-kernel@vger.kernel.org
-Subject: [Problem]: strange ramdisk-errors with 2.6.1
-Date: Mon, 9 Feb 2004 17:01:10 +0100
-User-Agent: KMail/1.5.3
+	Mon, 9 Feb 2004 11:00:26 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:46816 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S263909AbUBIQAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 11:00:25 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E5703D1A7C2@exa-atlanta.se.lsil.com>
+From: "Moore, Eric Dean" <Emoore@lsil.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.25-rc1: Inconsistent ioctl symbol usage in drivers/messag
+	e/fusion/mptctl.c
+Date: Mon, 9 Feb 2004 10:58:58 -0500 
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402091701.10737.schranz@in.tum.de>
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I encountered a problem with the ramdisk under 2.6.1 (will test with 2.6.2 
-after my exams)
-When modifying a mounted ramdisk i get strange errors (see below)
-
-Kernel is 2.6.1 (compiled with gcc 3.3.2, binutils 2.14.90.0.8)
-ramdisk-support is compiled in (not a module)
-with kernel 2.4.22 everything works fine (rd-support also compiled in)
-Intel P3 (Coppermine) with 512MB RAM
-
-Regards,
-Daniel
+Sure I'm looking at it.
 
 
-
-dd if=/dev/zero of=/dev/ram7 bs=1k count=4096
-mke2fs -b 1024 -m0 /dev/ram7
-mount /dev/ram7 /mnt/tmp
-cp -dpR initrd/* /mnt/tmp/
---> all files under /mnt/tmp
-
-umount /mnt/tmp
-mount /mnt/tmp:
---> only lost+ found is there
-
-rmdir /mnt/tmp/lost+found
-umount + mount:
---> lost+found is there again
-
-dd if=image of=/dev/ram7 bs=1k count=4096 (image created using a 
-loopback-file)
---> all files there
-
-rm /mnt/tmp/linuxrc:
---> all files there except linuxrc
-
-umount + mount + ls /mnt/tmp:
---> ls: /mnt/tmp/linuxrc: Input/output error
---> bin  cdrom  dev  etc  lib  lost+found  newroot  sbin
-
-touch dummy + ls:
---> ls: /mnt/tmp/linuxrc: Input/output error
---> bin  cdrom  dev  dummy  etc  lib  lost+found  newroot  sbin
-
-umount + mount:
---> ls: /mnt/tmp/linuxrc: Input/output error
---> bin  cdrom  dev  etc  lib  lost+found  newroot  sbin
-
-touch linuxrc:
--->  touch: cannot touch `/mnt/tmp/linuxrc': Input/output error
-
+On Monday, February 09, 2004 5:27 AM, Marcelo Tosatti wrote:
+> 
+> Hi Eric,
+> 
+> Can you please fix this up?
+> 
+> On Mon, 9 Feb 2004, Keith Owens wrote:
+> 
+> > 2.4.25-rc1 drivers/message/fusion/mptctl.c expects sys_ioctl,
+> > register_ioctl32_conversion and unregister_ioctl32_conversion to be
+> > exported symbols when MPT_CONFIG_COMPAT is defined.  That symbol is
+> > defined for __sparc_v9__, __x86_64__ and __ia64__.
+> >
+> > The symbols are not exported in ia64, mptctl.o gets 
+> unresolved symbols
+> > when it is a module on ia64.
+> >
+> > x64_64 exports register_ioctl32_conversion and 
+> unregister_ioctl32_conversion,
+> > but not sys_ioctl.
+> 

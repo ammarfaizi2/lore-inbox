@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317592AbSGEW4O>; Fri, 5 Jul 2002 18:56:14 -0400
+	id <S317593AbSGEW5r>; Fri, 5 Jul 2002 18:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317593AbSGEW4N>; Fri, 5 Jul 2002 18:56:13 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:14346 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317592AbSGEW4N>; Fri, 5 Jul 2002 18:56:13 -0400
-Date: Sat, 6 Jul 2002 00:58:43 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
+	id <S317597AbSGEW5q>; Fri, 5 Jul 2002 18:57:46 -0400
+Received: from viper.haque.net ([66.88.179.82]:11145 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S317593AbSGEW5p>;
+	Fri, 5 Jul 2002 18:57:45 -0400
+User-Agent: Microsoft-Entourage/10.1.0.2006
+Date: Fri, 05 Jul 2002 19:00:14 -0400
 Subject: Re: IBM Desktar disk problem?
-Message-ID: <20020705225843.GA4061@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it> <Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz> <20020705201155.GF28569@merlin.emma.line.org> <Pine.LNX.4.44L0.0207052216410.3293-100000@moje.ich.vabo.cz> <20020705203945.GB17912@merlin.emma.line.org> <Pine.LNX.4.44L0.0207052243190.3950-100000@moje.ich.vabo.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0207052243190.3950-100000@moje.ich.vabo.cz>
-User-Agent: Mutt/1.4i
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: <linux-kernel@vger.kernel.org>
+Message-ID: <B94B9D3E.61B3%mhaque@haque.net>
+In-Reply-To: <5.1.0.14.2.20020705215116.00b0a1e0@pop.cus.cam.ac.uk>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/5/02 17:05, "Anton Altaparmakov" <aia21@cantab.net> wrote:
+> You should update your firmware regardless of using TCQ because the errors
+> you experienced have nothing to do with TCQ but a lot to do with buggy
+> firmware. See what I found written about the firmware update on this
+> webpage (Phil Randal posted this URL earlier on in this thread):
+>        http://www.geocities.com/dtla_update/
+> 
+> ---snip---
+> While S.M.A.R.T. offline scan running in background, a read error could
+> cause a potential failure. This is corrected with current microcode.
+> 
+> (A5AA/A6AA) will detect and prevent application specific usage patterns
+> that cause excessive dwell times in particular areas.
+> ---snip---
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+Do you or anyone happen to know if this firmware update fixes UDMA problems
+with the drive (i.e. I can't use the drive on my HTP366 cause it'll lock up
+the machine). I'm wondering if the firmware also addresses the issues that
+caused the drive to be listed in the DMA blacklist.
+
+Also I tried going to page earlier and wasn't able to get to it because of a
+bandwidth threshold. I've since gotten through and mirrored the site to
+<http://haque.net/dtla_update/>
+
+Thanks
+
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.
+   Don't drink and derive." --Unknown
+ 
+=====================================================================
 
 
-AGAIN: Please DO NOT CC: ME on mailing lists unless I ask for a Cc:
-
-On Fri, 05 Jul 2002, Tomas Konir wrote:
-
-> On Fri, 5 Jul 2002, Matthias Andree wrote:
->=20
-> > Are there any strong hints that TCQ caused these?
->=20
-> only hypothesis, but vith high probability, because there were no problem=
-s=20
-> before using TCQ. My hypothesis is that my IBM disk is oveloaded when=20
-> using TCQ. (This is only HW problem. No TCQ ).
-
-Well, DTLA break down without giving advance warnings. So TCQ need not
-be related to this problem.
-
-> > That's your liberty to choose. :-) (And I can understand the IBM part of
-> > it.)
->=20
-> Yes but is there any other disk which supports TCQ ?
-
-I think all relevant SCSI drives do. Not what you intended, but I'm not
-aware of any ATA disks other than IBM DPTA, DTLA, IC35L*AV*.
-
---IS0zKkzwUGydFO0o
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9JiSjFmbjPHp/pcMRAjznAJoDZIfJ80oq+P5q0C2V+ApOx85xlQCfbXJM
-trOpKjUA3PNhTUYDvbO5OAE=
-=hYdg
------END PGP SIGNATURE-----
-
---IS0zKkzwUGydFO0o--

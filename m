@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143571AbRA1Qpt>; Sun, 28 Jan 2001 11:45:49 -0500
+	id <S143524AbRA1Qua>; Sun, 28 Jan 2001 11:50:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143532AbRA1Qpj>; Sun, 28 Jan 2001 11:45:39 -0500
-Received: from colorfullife.com ([216.156.138.34]:57098 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S143524AbRA1Qpb>;
-	Sun, 28 Jan 2001 11:45:31 -0500
-Message-ID: <3A744CA7.AF41F05D@colorfullife.com>
-Date: Sun, 28 Jan 2001 17:45:27 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S143532AbRA1QuV>; Sun, 28 Jan 2001 11:50:21 -0500
+Received: from mserv1a.vianw.co.uk ([195.102.240.34]:33698 "EHLO
+	mserv1a.vianw.co.uk") by vger.kernel.org with ESMTP
+	id <S143524AbRA1QuF>; Sun, 28 Jan 2001 11:50:05 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: compile error in 2.4.0
+Date: Sun, 28 Jan 2001 16:49:45 +0000
+Organization: [private individual]
+Message-ID: <36j87tctr3nfujoqkes8360061284rtg9b@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-In-Reply-To: <3A74456D.7AE44855@colorfullife.com> <20010128123630.K19833@conectiva.com.br>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo wrote:
-> 
-> Em Sun, Jan 28, 2001 at 05:14:37PM +0100, Manfred Spraul escreveu:
-> > >
-> > > Anything which uses sleep_on() has a 90% chance of being broken. Fix
-> > > them all, because we want to remove sleep_on() and friends in 2.5.
-> > >
-> >
-> > Then you can add 'calling schedule() with disabled local interrupts()'
-> > to your list.
-> 
-> any example of code doing this now? That way we can at least point it to
-> interested people and say "look at driver foobar in kernel x.y.z and see
-> how its wrong"
->
+I'm probably doing something silly, but I have just tried to rebuild
+the 2.4.0 kernel.  I changed a few config things and did
 
-It isn't wrong to call schedule() with disabled interrupts - it's a
-feature ;-)
-Those 10% sleep_on() users that aren't broken use it:
+make dep clean bzlilo modules modules_install
 
- for(;;) {
-	cli();
-	if(condition)
-		break;
-	sleep_on(&my_wait_queue);
-	sti();
- }
+and the following appeared.  I did a brief look around for the
+declaration of skb_datarefp but couldn't find it. 
 
-E.g. TIOCMIWAIT in drivers/char/serial.c - a nearly correct sleep_on()
-user.
 
-But I doubt that 10% of the sleep_on() users are non-broken...
+make[3]: Entering directory `/usr/src/linux/net/core'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -
+fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4     -c
+-o sock.o sock.c
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -
+fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4     -c
+-o skbuff.o skbuff.c
+skbuff.c: In function `alloc_skb':
+skbuff.c:208: warning: implicit declaration of function `skb_datarefp'
+skbuff.c:208: invalid type argument of `->'
+skbuff.c: In function `kfree_skbmem':
+skbuff.c:257: warning: passing arg 1 of `atomic_dec_and_test' makes
+pointer from integer witho
+ut a cast
+skbuff.c: In function `skb_clone':
+skbuff.c:321: warning: passing arg 1 of `atomic_inc' makes pointer
+from integer without a cast
+make[3]: *** [skbuff.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/net/core'
+Alan
 
-If you remove sleep_on(), then you can disallow calling schedule() with
-disabled local interrupts.
-
---
-	Manfred
+alan@chandlerfamily.org.uk
+http://www.chandler.u-net.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

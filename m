@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTEIXqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTEIXmb
+	id S263584AbTEIXl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTEIXkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:42:31 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:8159 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263587AbTEIXmG convert rfc822-to-8bit
+	Fri, 9 May 2003 19:40:37 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51405 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263584AbTEIXk1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:42:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10525245943169@kroah.com>
-Subject: Re: [PATCH] More i2c driver changes for 2.5.69
-In-Reply-To: <10525245943581@kroah.com>
+	Fri, 9 May 2003 19:40:27 -0400
+Date: Fri, 9 May 2003 16:53:59 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 9 May 2003 16:56:34 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Driver core changes for 2.5.69
+Message-ID: <20030509235359.GB3517@kroah.com>
+References: <20030509235142.GA3506@kroah.com> <20030509235346.GA3517@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509235346.GA3517@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1083.2.6, 2003/05/09 16:12:53-07:00, greg@kroah.com
+ChangeSet 1.1097, 2003/05/09 16:26:28-07:00, greg@kroah.com
 
-[PATCH] i2c: register the i2c_adapter_driver so things link up properly in sysfs
+[PATCH] driver core: Add driver symlink to class devices in sysfs.
 
-
- drivers/i2c/i2c-core.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
+Thanks to Mike Anderson for the idea for this.
 
 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	Fri May  9 16:47:36 2003
-+++ b/drivers/i2c/i2c-core.c	Fri May  9 16:47:36 2003
-@@ -55,8 +55,8 @@
- 	return 0;
+ drivers/base/class.c |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+)
+
+
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Fri May  9 16:40:29 2003
++++ b/drivers/base/class.c	Fri May  9 16:40:29 2003
+@@ -133,6 +133,21 @@
+ 		sysfs_remove_link(&class_dev->kobj, "device");
  }
  
--static struct device_driver i2c_generic_driver = {
--	.name =	"i2c",
-+static struct device_driver i2c_adapter_driver = {
-+	.name =	"i2c_adapter",
- 	.bus = &i2c_bus_type,
- 	.probe = i2c_device_probe,
- 	.remove = i2c_device_remove,
-@@ -98,7 +98,7 @@
- 	if (adap->dev.parent == NULL)
- 		adap->dev.parent = &legacy_bus;
- 	sprintf(adap->dev.bus_id, "i2c-%d", adap->nr);
--	adap->dev.driver = &i2c_generic_driver;
-+	adap->dev.driver = &i2c_adapter_driver;
- 	device_register(&adap->dev);
++static int class_device_driver_link(struct class_device * class_dev)
++{
++	if ((class_dev->dev) && (class_dev->dev->driver))
++		return sysfs_create_link(&class_dev->kobj,
++					 &class_dev->dev->driver->kobj, "driver");
++	return 0;
++}
++
++static void class_device_driver_unlink(struct class_device * class_dev)
++{
++	if ((class_dev->dev) && (class_dev->dev->driver))
++		sysfs_remove_link(&class_dev->kobj, "driver");
++}
++
++
+ #define to_class_dev(obj) container_of(obj,struct class_device,kobj)
+ #define to_class_dev_attr(_attr) container_of(_attr,struct class_device_attribute,attr)
  
- 	/* Add this adapter to the i2c_adapter class */
-@@ -462,12 +462,16 @@
- 	retval = bus_register(&i2c_bus_type);
- 	if (retval)
- 		return retval;
-+	retval = driver_register(&i2c_adapter_driver);
-+	if (retval)
-+		return retval;
- 	return class_register(&i2c_adapter_class);
- }
+@@ -265,6 +280,7 @@
+ 	}
  
- static void __exit i2c_exit(void)
- {
- 	class_unregister(&i2c_adapter_class);
-+	driver_unregister(&i2c_adapter_driver);
- 	bus_unregister(&i2c_bus_type);
- }
+ 	class_device_dev_link(class_dev);
++	class_device_driver_link(class_dev);
  
-
+  register_done:
+ 	if (error && parent)
+@@ -298,6 +314,7 @@
+ 
+ 	if (class_dev->dev) {
+ 		class_device_dev_unlink(class_dev);
++		class_device_driver_unlink(class_dev);
+ 		put_device(class_dev->dev);
+ 	}
+ 	

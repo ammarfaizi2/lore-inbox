@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTFJSsG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTFJSns
+	id S262013AbTFJSvE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTFJSnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:43:48 -0400
-Received: from gate.perex.cz ([194.212.165.105]:46607 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S264025AbTFJSh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:43:35 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:17797 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264027AbTFJSh2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 10 Jun 2003 14:37:28 -0400
-Date: Tue, 10 Jun 2003 20:50:58 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH/BK] ALSA update
-Message-ID: <Pine.LNX.4.44.0306102046350.4730-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10552709691006@kroah.com>
+Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
+In-Reply-To: <10552709693825@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 10 Jun 2003 11:49:29 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do a
+ChangeSet 1.1373, 2003/06/09 16:18:27-07:00, greg@kroah.com
 
-  bk pull http://linux-sound.bkbits.net/linux-sound
-
-The GNU patch is available at:
-
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-06-10.patch.gz
-
-Additional notes:
-
-  Warning and compilation cleanups.
-  This update will add missing symbols to the PnP layer, too.
-
-The pull command will update the following files:
-
- drivers/pnp/isapnp/core.c     |    1 +
- drivers/pnp/pnpbios/core.c    |    2 ++
- include/linux/isapnp.h        |    4 ++--
- include/sound/sndmagic.h      |    4 ++--
- include/sound/version.h       |    2 +-
- sound/core/Kconfig            |    2 +-
- sound/isa/cs423x/cs4236_lib.c |    2 +-
- sound/isa/gus/interwave.c     |    2 +-
- sound/pci/ac97/ac97_patch.c   |   13 ++++++-------
- sound/pci/emu10k1/emufx.c     |    1 -
- sound/pci/ice1712/Makefile    |    9 +++++----
- sound/pci/ice1712/ak4xxx.c    |    4 ++++
- sound/pcmcia/vx/Makefile      |    9 +++++----
- sound/pcmcia/vx/vx_entry.c    |    5 -----
- sound/pcmcia/vx/vxpocket.c    |   31 ++++++++++++++++---------------
- 15 files changed, 47 insertions(+), 44 deletions(-)
-
-through these ChangeSets:
-
-<perex@suse.cz> (03/06/10 1.1318)
-   ALSA micro update - fixed compilation of VXPocket drivers (missing symbols)
-
-<perex@suse.cz> (03/06/10 1.1243.56.1)
-   ALSA update
-     - fixed undefined symbols in PnP layer
-     - fixed various warnings
-     - azt3328 - fixed compilation in debug mode
-     - ice17xx drivers - fixed compilation when both are built-in
-     - vxpocket and vxp440
-       - fixed compilation against the latest PCMCIA interface
-       - fixed compilation when both drivers are built-in
-     - removed empty sound/pci/ice1712/ak4524.c
+PCI: remove pci_present() from sound/oss/cs46xx.c
 
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+ sound/oss/cs46xx.c |    5 -----
+ 1 files changed, 5 deletions(-)
+
+
+diff -Nru a/sound/oss/cs46xx.c b/sound/oss/cs46xx.c
+--- a/sound/oss/cs46xx.c	Tue Jun 10 11:17:55 2003
++++ b/sound/oss/cs46xx.c	Tue Jun 10 11:17:55 2003
+@@ -5725,11 +5725,6 @@
+ 	int rtn = 0;
+ 	CS_DBGOUT(CS_INIT | CS_FUNCTION, 2, printk(KERN_INFO 
+ 		"cs46xx: cs46xx_init_module()+ \n"));
+-	if (!pci_present()) {	/* No PCI bus in this machine! */
+-		CS_DBGOUT(CS_INIT | CS_FUNCTION, 2, printk(KERN_INFO
+-			"cs46xx: cs46xx_init_module()- no pci bus found\n"));
+-		return -ENODEV;
+-	}
+ 	rtn = pci_module_init(&cs46xx_pci_driver);
+ 
+ 	if(rtn == -ENODEV)
 

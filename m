@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264263AbUESTeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264518AbUESTso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264263AbUESTeW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 15:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUESTeV
+	id S264518AbUESTso (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 15:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUESTso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 15:34:21 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:50960 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264263AbUESTeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 15:34:20 -0400
-Date: Wed, 19 May 2004 20:34:14 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: David Eger <eger-dated-1085563931.b5f459@theboonies.us>
-cc: akpm@osdl.org,
-       Linux Frame Buffer Dev 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] FB accel capabilities patch
-In-Reply-To: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us>
-Message-ID: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 May 2004 15:48:44 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:56242 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S264518AbUESTsl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 15:48:41 -0400
+Date: Wed, 19 May 2004 21:48:20 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: sendfile -EOVERFLOW on AMD64
+Message-ID: <20040519194820.GB16202@fi.muni.cz>
+References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz> <20040519105805.GK30909@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040519105805.GK30909@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jakub Jelinek wrote:
+:         int                     error;
+: 
+:         VOP_SENDFILE(vp, filp, ppos, 0, count, actor, target, NULL, error);
+:         return error;
+: }
+: 
+: (note error is int, not ssize_t), but I don't see anything obvious
+: for other filesystems.
+: 
+	Yes, this fixed the problem - now I can sendfile() the whole
+DVD image without problem. Thanks, and send both these fixes to Linus.
 
-> A month or two ago I noticed that the framebuffer console driver doesn't
-> know to do proper framebuffer acceleration in Linux 2.6;  I've implemented
-> a solution Geert suggested where each framebuffer driver advertizes its 
-> hardware capabilities via fb_info->flags.  Please apply to -mm so I can 
-> get wider testing.
-> 
-> The patches are at:
-> 
-> http://www.yak.net/random/fbdev-patches/accel-cap-take2/relative2mainline/
-> 
-> The core of these patches is enabling the use of the following flags:
-> 
-> +/* FBIF = FB_Info.Flags */
-> +#define FBIF_MODULE		0x0001	/* Low-level driver is a module */
+-Yenya
 
-Ug. You changed that. Could that remain the same. 
-
-I have a patch coming that fixes the mode setting. It changes alot of the 
-core fbcon.c so I will apply your patch to the fbdev-2.5 tree. 
-
-
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+ Any compiler or language that likes to hide things like memory allocations
+ behind your back just isn't a good choice for a kernel.   --Linus Torvalds

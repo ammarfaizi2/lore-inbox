@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265516AbUFON0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUFON1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265516AbUFON0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 09:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265517AbUFON0Y
+	id S265531AbUFON1f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 09:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbUFON1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 09:26:24 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:44536 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265516AbUFON0X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 09:26:23 -0400
+	Tue, 15 Jun 2004 09:27:35 -0400
+Received: from zero.aec.at ([193.170.194.10]:37893 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265517AbUFON1V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 09:27:21 -0400
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NUMA API observations
+References: <271SM-3DT-7@gated-at.bofh.it> <27lI4-29E-19@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 15 Jun 2004 15:27:15 +0200
+In-Reply-To: <27lI4-29E-19@gated-at.bofh.it> (Thomas Zehetbauer's message of
+ "Tue, 15 Jun 2004 15:00:24 +0200")
+Message-ID: <m3wu29kl3g.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-ID: <16590.63737.935300.398152@alkaid.it.uu.se>
-Date: Tue, 15 Jun 2004 15:26:17 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Adolfo =?iso-8859-15?q?Gonz=E1lez=20Bl=E1zquez?= 
-	<agblazquez_mailing@telefonica.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
-In-Reply-To: <200406150118.34034.bzolnier@elka.pw.edu.pl>
-References: <1087253451.4817.4.camel@localhost>
-	<200406150118.34034.bzolnier@elka.pw.edu.pl>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz writes:
- > On Tuesday 15 of June 2004 00:50, Adolfo González Blázquez wrote:
- > > Hi!
- > 
- > Hi,
- > 
- > > Lot of users are reporting seriour problems with pdc202xx_old ide pci
- > > driver. Enabling DMA on any device related with this driver makes the
- > > system unusable.
- > >
- > > This seems to happen in all the 2.6.x kernel series.
- > 
- > Doing binary search on 2.4->2.6 kernels would help greatly
- > (narrowing problem to a specific kernel versions).
- > 
- > > More info on Kerneltrap: http://kerneltrap.org/node/view/3040
- > > More info on Bugzilla: http://bugzilla.kernel.org/show_bug.cgi?id=2494
- > >
- > > I hope someone can fix this, 'cause there's a lot of people using these
- > > ide controllers.
- > 
- > It seems everybody wants it fixed but nobody is willing to help...
+Thomas Zehetbauer <thomasz@hostmaster.org> writes:
 
-FWIW, I run an ASUS P3B-F (440BX chipset) with a 20267 add-on
-card and a WD Caviar WD800JB UDMA100 disk as a server spooling
-News and other high-volume data. Even when moving GBs of data
-around as fast as the disk can read or write it, the system
-has never been less than rock solid with the 2.6 kernels.
+> Looking at these numastat results and the default policy it seems that
+> memory is primarily allocated on the first node which in turn means a
+> unnecessarily large amount of page faults on the second node.
 
-Of course, ACPI is disabled and the 20267 is not sharing
-interrupts with anything else.
+NUMA memory policy has nothing to do with page faults.
+
+If you get most allocations on the first node it either means most 
+programs run on the first node (assuming they don't use NUMA API
+to change their memory affinity) or more likely the programs running
+on node 0 need more memory than those running on node 1.
+
+That's easily possible, e.g. a typical desktop uses most of its
+memory in the X server. If it runs on node 0 you get such skewed 
+statistics. On servers it is often similar.
+
+One way to combat that if it was really a problem would be to run the
+X server with interleaving policy (numactl --interleave=all
+XFree86)[1], but I would recommend careful benchmarks first if it's
+really a win. Normally better local memory latency is the better
+choice.
+
+[1] Don't do that with startx or xinit, the rest of the X session should
+probably not use that.
+
+> I wonder if it is possible to better balance processes among the nodes
+> by e.g. setting nodeAffinity = pid mod nodeCount
+
+I assume you mean scheduling not memory affinity here. execve() and
+clone() do that kind of (but based on node loads, not pids), but not fork.
+
+-Andi
+

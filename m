@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLFJiO>; Wed, 6 Dec 2000 04:38:14 -0500
+	id <S129423AbQLFJje>; Wed, 6 Dec 2000 04:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130000AbQLFJiF>; Wed, 6 Dec 2000 04:38:05 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10743 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129183AbQLFJhx>;
-	Wed, 6 Dec 2000 04:37:53 -0500
-Date: Wed, 6 Dec 2000 04:07:22 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: test12-pre6
-In-Reply-To: <Pine.LNX.4.21.0012060854090.1044-100000@penguin.homenet>
-Message-ID: <Pine.GSO.4.21.0012060356290.14974-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131212AbQLFJjY>; Wed, 6 Dec 2000 04:39:24 -0500
+Received: from [213.237.20.108] ([213.237.20.108]:24365 "EHLO ns.geekboy.dk")
+	by vger.kernel.org with ESMTP id <S131202AbQLFJjK>;
+	Wed, 6 Dec 2000 04:39:10 -0500
+Date: Tue, 5 Dec 2000 22:53:11 +0100
+From: Torben Mathiasen <torben@kernel.dk>
+To: Borislav Deianov <borislav@ensim.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, tytso@mit.edu
+Subject: Re: SCSI Oops (was test12-pre4)
+Message-ID: <20001205225310.A1100@torben>
+In-Reply-To: <20001204153527.A5425@aero.ensim.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001204153527.A5425@aero.ensim.com>; from borislav@ensim.com on Mon, Dec 04, 2000 at 03:35:28PM -0800
+X-OS: Linux 2.4.0-test11-ac4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Dec 2000, Tigran Aivazian wrote:
-
-> On Wed, 6 Dec 2000, Tigran Aivazian wrote:
-> >  	error = -EPERM;
-> >  	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
-> >  		goto dput_and_out;
+On Mon, Dec 04 2000, Borislav Deianov wrote:
+> (cross-posted to linux-kernel and linux-scsi)
 > 
-> also, while we are here -- are you sure that EPERM is a good idea for
-> IS_IMMUTABLE(inode)? Other parts of Linux return EACCES in this
-> case. Maybe it would be more consistent to do EACCES here too? This would
-> simply mean remove IS_IMMUTABLE() from the above if because
-> vfs_permission() does return -EACCES if we ask MAY_WRITE for IS_IMMUTABLE
-> inode.
+> Hi,
 > 
-> Since, the SuSv2 standard is silent on the issue of immutable files (they
-> are Linux-specific) then it may make sense to be consistent?
+> The SCSI oops I reported last week is still present in test12-pre4.
+> This is on a Dell PowerEdge 6300. It has two Adaptec AIC-7890, one
+> Adaptec AIC-7860, and an AMI MegaRAID controller. There's nothing on
+> the 7890s, a CDROM and a tape drive on the 7890.
+> 
+> With all of the above enabled the kernel boots with no problems.
+> However, if I disable the two 7890s from the BIOS (to save 30 seconds
+> of boot time), I get an oops.
+> 
+> The decoded oops is below. Please email me directly for further
+> information.
+>
 
-They are not Linux-specific (check where they came from), so I would rather
-check 4.4BSD and SuSv2[1] be damned. I'll look it up tomorrow, right now I'm
-going down. Sorry.
+Could you find out exactly when this broke?
 
-[1] gotta love the CaPiTaLi2aTi0n, BTW.
 
+-- 
+Torben Mathiasen <torben@kernel.dk>
+Linux ThunderLAN maintainer 
+http://tlan.kernel.dk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272118AbRH2Wp3>; Wed, 29 Aug 2001 18:45:29 -0400
+	id <S272124AbRH2Wq7>; Wed, 29 Aug 2001 18:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272120AbRH2WpT>; Wed, 29 Aug 2001 18:45:19 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:13356 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S272118AbRH2WpE>; Wed, 29 Aug 2001 18:45:04 -0400
-Date: Wed, 29 Aug 2001 18:45:20 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] blkgetsize64 ioctl
-Message-ID: <Pine.LNX.4.33.0108291840310.28439-100000@toomuch.toronto.redhat.com>
+	id <S272123AbRH2Wqt>; Wed, 29 Aug 2001 18:46:49 -0400
+Received: from ns.roland.net ([65.112.177.35]:33043 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S272116AbRH2Wql>;
+	Wed, 29 Aug 2001 18:46:41 -0400
+Date: Wed, 29 Aug 2001 17:46:51 -0500 (CDT)
+From: Jim Roland <jroland@earth.roland.net>
+To: Paul Fulghum <paulkf@microgate.com>
+cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: Novell Attacks Linux
+In-Reply-To: <009901c12fc8$32ab0d00$0c00a8c0@diemos>
+Message-ID: <Pine.LNX.4.21.0108291746180.28775-100000@earth.roland.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-The patch below reserves an ioctl for getting the size in blocks of a
-device as a long long instead of long as the old ioctl did.  The patch for
-this to e2fsprogs sneaked in a bit too early.  There is a conflict with
-the ia64 get/set sector ioctls, but I that's less common than e2fsprogs.
-
-		-ben
-
-diff -urN /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h work-v2.4.10-pre2/include/linux/fs.h
---- /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 18:28:50 2001
-+++ work-v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 18:39:48 2001
-@@ -166,7 +166,7 @@
- #define BLKROSET   _IO(0x12,93)	/* set device read-only (0 = read-write) */
- #define BLKROGET   _IO(0x12,94)	/* get read-only status (0 = read_write) */
- #define BLKRRPART  _IO(0x12,95)	/* re-read partition table */
--#define BLKGETSIZE _IO(0x12,96)	/* return device size */
-+#define BLKGETSIZE _IO(0x12,96)	/* return device size (long *arg) */
- #define BLKFLSBUF  _IO(0x12,97)	/* flush buffer cache */
- #define BLKRASET   _IO(0x12,98)	/* Set read ahead for block device */
- #define BLKRAGET   _IO(0x12,99)	/* get current read ahead setting */
-@@ -182,6 +182,7 @@
- /* This was here just to show that the number is taken -
-    probably all these _IO(0x12,*) ioctls should be moved to blkpg.h. */
- #endif
-+#define BLKGETSIZE64 _IO(0x12,109)	/* return device size (long long *arg) */
 
 
- #define BMAP_IOCTL 1		/* obsolete - kept for compatibility */
+On Tue, 28 Aug 2001, Paul Fulghum wrote:
+
+> > But I know, you're in the country where people marry with 14, may
+> > drive cars with 16, carry guns with 19 but have to wait for being 21
+> > to drink alcohol. 
+> 
+> Booze, guns, cars, and underage girls?
+> Break out the banjos, we're going to have a ho-down.
+
+Hmmm...I seemed to have missed all that the movie Deliverance had for
+us.  Thank God.
+
+> 
+> Paul Fulghum, paulkf@microgate.com
+> Microgate Corporation, www.microgate.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

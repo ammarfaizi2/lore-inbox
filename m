@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311519AbSCNFX5>; Thu, 14 Mar 2002 00:23:57 -0500
+	id <S311520AbSCNFah>; Thu, 14 Mar 2002 00:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311520AbSCNFXi>; Thu, 14 Mar 2002 00:23:38 -0500
-Received: from f00135.st.wakwak.ne.jp ([61.115.73.82]:35847 "EHLO
-	suika.yamamoto.gr.jp") by vger.kernel.org with ESMTP
-	id <S311519AbSCNFXf>; Thu, 14 Mar 2002 00:23:35 -0500
-Message-Id: <200203140521.AA03472@vine.yamamoto.gr.jp>
-Date: Thu, 14 Mar 2002 14:21:02 +0900
-To: linux-kernel@vger.kernel.org
-Subject: BUG CORRECTION: at1700.c
-From: sawa <sawa@yamamoto.gr.jp>
+	id <S311523AbSCNFa2>; Thu, 14 Mar 2002 00:30:28 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:33801 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S311520AbSCNFaQ>;
+	Thu, 14 Mar 2002 00:30:16 -0500
+Date: Wed, 13 Mar 2002 21:29:22 -0800 (PST)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bill Davidsen <davidsen@tmr.com>, Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <E16lHb0-0007go-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0203132126420.15352-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.12
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] at1700.c bug correction.    
-[2.] Multicast does not work.
-[3.] ethernet, at1700, fmv18x, fujitsu, NIC, driver, network, module
-[4.] 2.4.18
-[X.] 
-PATCH:
-% diff -u at1700.c.org at1700.c
---- at1700.c.org        Thu Oct 11 15:24:09 2001
-+++ at1700.c    Thu Mar 14 00:44:15 2002
-@@ -856,6 +856,7 @@
-                         i++, mclist = mclist->next)
-                        set_bit(ether_crc_le(ETH_ALEN, mclist->dmi_addr) >> 26,
-                                        mc_filter);
-+               outb(0x02, ioaddr + RX_MODE);   /* Use normal mode. */
-        }
+On Wed, 13 Mar 2002, Alan Cox wrote:
 
-        save_flags(flags);
+| > I'm looking at P4 chips and boards, my 2Q02 budget has some $$ for a
+| > system. I also will be getting some laptops 3Q02, does the new P4-M mobile
+| > chip by any chance have HT? If so a good reason to go Intel, assuming that
+| > either the BIOS or Linux can get it to use the feature ;-)
 
-RESULT:
- I observed that multicast works using this patch.
+They announced at IDF last week (or 2 weeks back) that "UP"
+P4 next year sometime will include HT.
+I think this is "Prescott."
 
-ACKNOWLEDGMENT:
- This code was written by Tamiya-san.
+I haven't heard details about the P4-M, but I doubt that
+it has HT (yet).
+
+| At the moment HT is Xeon only. Linux can do the right thing with it as of
+| 2.4.18 + acpismp=force. Autodetect should be in soon. I don't know about
+| Intel's future product plans for HT.
+
+-- 
+~Randy
+

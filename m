@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264562AbUEaIKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264572AbUEaIgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264562AbUEaIKq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 04:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264572AbUEaIKq
+	id S264572AbUEaIgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 04:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUEaIgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 04:10:46 -0400
-Received: from main.gmane.org ([80.91.224.249]:8154 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264562AbUEaIKp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 04:10:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Calvin Spealman <calvin@ironfroggy.com>
-Subject: Re: How to use floating point in a module?
-Date: Mon, 31 May 2004 03:57:18 +0000
-Message-ID: <2381159.W1mTlBeItA@ironfroggy.com>
-References: <200405310152.i4V1qNk03732@mailout.despammed.com> <yw1xbrk5baq3.fsf@kth.se> <Pine.LNX.4.58.0405302121440.1730@ppc970.osdl.org>
-Reply-To: calvin@ironfroggy.com
+	Mon, 31 May 2004 04:36:13 -0400
+Received: from goliath.sylaba.poznan.pl ([193.151.36.3]:27411 "EHLO
+	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
+	id S264572AbUEaIgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 04:36:12 -0400
+Subject: Re: Ooops w/2.6.7-rc2 & XFS
+From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Phy Prabab <phyprabab@yahoo.com>, linux-xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040531033821.GA24009@taniwha.stupidest.org>
+References: <20040531023225.93772.qmail@web90002.mail.scd.yahoo.com>
+	 <20040531033821.GA24009@taniwha.stupidest.org>
+Content-Type: text/plain
+Message-Id: <1085992786.2714.18.camel@venus.local.navi.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe-069-132-046-251.carolina.rr.com
-User-Agent: KNode/0.7.7
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 31 May 2004 10:39:46 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> kernel_fpu_begin();
-> ...
-> kernel_fpu_end();
+On Mon, 2004-05-31 at 05:38, Chris Wedgwood wrote:
+> On Sun, May 30, 2004 at 07:32:25PM -0700, Phy Prabab wrote:
+> 
+> > nfsd: non-standard errno: -990
+> 
+> XFS has detected corruption.  Umount and run xfs_repair.
+> 
+Hi,
 
-Don't you love having ideas and just finding they're already well know, in
-use, or obsolete?
+Read his email to the end. He did it, but the error ocurred again.
+
+Regards,
+
+Olaf
 

@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130660AbRCTUMW>; Tue, 20 Mar 2001 15:12:22 -0500
+	id <S130733AbRCTUPn>; Tue, 20 Mar 2001 15:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbRCTUMM>; Tue, 20 Mar 2001 15:12:12 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:14529 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130660AbRCTUL7>;
-	Tue, 20 Mar 2001 15:11:59 -0500
-Date: Tue, 20 Mar 2001 15:09:36 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: IP ROUTE and multi-path route splitting
-Message-ID: <Pine.LNX.4.33.0103201432590.15434-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	id <S130768AbRCTUPY>; Tue, 20 Mar 2001 15:15:24 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:51243 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130733AbRCTUPR>; Tue, 20 Mar 2001 15:15:17 -0500
+Message-ID: <3AB7BB59.9513514C@redhat.com>
+Date: Tue, 20 Mar 2001 15:19:37 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Ford <david@blue-labs.org>
+CC: Peter Lund <firefly@netgroup.dk>, Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: esound (esd), 2.4.[12] chopped up sound -- solved
+In-Reply-To: <Pine.GSO.4.30.0103201832260.15849-100000@balu> <3AB7A2CB.64ED61F3@netgroup.dk> <3AB7B477.2A740CE0@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got two tokenring cards and I'd like to play with multi-path route
-splitting across the interfaces (unfortunately, both are on the same
-ring and subnet, so I doubt I'll see big improvements, but I'm only playing
-anyway).
+David Ford wrote:
+> 
+> Actually you probably upgraded to a non-broken version of esd.  Stock esd -still-
+> writes to the socket without regard to return value.  If the write only accepted
+> 2098 of 4096 bytes, the residual bytes are lost, esd will write the next packet at
+> 4097, not 2099.  esd is incredibly bad about err checking as is old e stuff.
+> 
+> I posted my last patch for esd here and to other places in June of 2000.  All it
+> does is check for return value and adjust the writes accordingly.  For reference,
+> the patch is at http://stuph.org/esound-audio.c.patch.
 
-kernel = 2.4.2-ac20
+Why would esd get a short write() unless it is opening the file in non
+blocking mode (which I didn't see when I was working on the i810 sound
+driver)?  If esd is writing to a file in blocking mode and that write is
+returning short, then that sounds like a driver bug to me.
 
-$ ip -V
-ip utility, iproute2-ss001007
-
-$ ip addr show tr0
-5: tr0: <BROADCAST,MULTICAST,UP> mtu 2000 qdisc pfifo_fast qlen 100
-   link/[800] 40:00:de:ad:be:ef brd ff:ff:ff:ff:ff:ff
-   inet 9.51.81.11/21 brd 9.51.87.255 scope link tr0
-   inet6 fe80::4000:dead:beef/10 scope link
-   inet6 fe80::4200:deff:fead:beef/10 scope link
-
-$ ip addr show tr1
-6: tr1: <BROADCAST,MULTICAST,UP> mtu 2000 qdisc pfifo_fast qlen 100
-    link/[800] 00:06:29:b0:59:63 brd ff:ff:ff:ff:ff:ff
-    inet 9.51.81.9/21 brd 9.51.87.255 scope link tr1
-    inet6 fe80::206:29ff:feb0:5963/10 scope link
-    inet6 fe80::6:29b0:5963/10 scope link
-
-$ ip route show dev tr0
-9.51.80.0/21  proto kernel  scope link  src 9.51.81.11
-multicast 224.0.0.0/4  scope host  src 9.51.81.11
-default via 9.51.80.1  src 9.51.81.11  metric 1
-
-$ ip route show dev tr1
-9.51.80.0/21  proto kernel  scope link  src 9.51.81.9
-
-If I change the default route thusly:
-$ ip route add default metric 1 src 9.51.81.11 \
-	nexthop via 9.51.80.1 dev tr0 nexthop via 9.51.80.1 dev tr1
-
-Then things work fine, incomming requests are processed as normal, but
-it appears that outgoing requests are always sent via dev tr0
-
-If I leave off the src argument, then incomming smtp sessions to dev tr0
-(9.51.81.11) are not properly handled - I'm guessing because the src address
-could be that dev tr1 (9.51.81.9).
-of tr1
-
-What am I misunderstanding...  What I was trying to achieve was:
- *) Incomming requests are handled on whatever interface the're received on
- *) Outgoing requests are handled on either interface
-
-Is this more than can be done via ip route ?
 -- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
 
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

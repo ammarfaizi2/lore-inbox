@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272009AbTG1CBb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTG1ABI
+	id S272635AbTG1Buk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272141AbTG1ABj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:08 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:37598 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S272682AbTG0XUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:20:00 -0400
-Date: Mon, 28 Jul 2003 01:35:06 +0200
-From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
-To: Balram Adlakha <b_adlakha@softhome.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 OSS emu10k1
-Message-ID: <20030728013506.A29614@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: Balram Adlakha <b_adlakha@softhome.net>,
-	linux-kernel@vger.kernel.org
-References: <20030727190257.GA2840@localhost.localdomain>
+	Sun, 27 Jul 2003 20:01:39 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272930AbTG0XBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 19:01:37 -0400
+Subject: Re: 2.6.0-test1: irq18 nobody cared! on Intel D865PERL motherboard
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: Mika Liljeberg <mika.liljeberg@welho.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307262313.08819.adq_dvb@lidskialf.net>
+References: <20030714131240.21759.qmail@linuxmail.org>
+	 <1059256372.8484.9.camel@hades>  <200307262313.08819.adq_dvb@lidskialf.net>
+Content-Type: text/plain
+Message-Id: <1059332957.531.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030727190257.GA2840@localhost.localdomain>; from b_adlakha@softhome.net on Mon, Jul 28, 2003 at 12:32:57AM +0530
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Sun, 27 Jul 2003 21:09:18 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I cannot compile the emu10k1 module:
+On Sun, 2003-07-27 at 00:13, Andrew de Quincey wrote:
+
+> > I have the same problem with Abit IS7-E, which also has the i865PE
+> > chipset.
+> >
+> > Add "noirqdebug" to the kernel command line and you should be able to
+> > boot, although the irq will be firing continously until the device
+> > driver gets initialized and catches it.
 > 
-> sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
-> sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined here
+> Out of interest, do these boxes have an IO-APIC and are you using ACPI? If so, 
+> can you tell me if the attached patch helps?
+> 
+> These are exactly the symptoms I got without the attached patch (it fixes an 
+> IO-APIC setup bug with ACPI).
 
-You screwed up somehow, I see only one definition of that function in 2.6.0-test2...
+I won't have access to those machines until August, 3th. I will give
+your patch a try then :-)
+Thanks!
 
-Rudo.

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130150AbQKTDwa>; Sun, 19 Nov 2000 22:52:30 -0500
+	id <S130614AbQKTDxK>; Sun, 19 Nov 2000 22:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129732AbQKTDwV>; Sun, 19 Nov 2000 22:52:21 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:3339 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129942AbQKTDwN>;
-	Sun, 19 Nov 2000 22:52:13 -0500
-Date: Mon, 20 Nov 2000 04:21:51 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: viro@math.psu.edu
-Cc: jchua@fedex.com, linux-kernel@vger.kernel.org
-Subject: [PATCH,RFC] initrd vs. BLKFLSBUF
-Message-ID: <20001120042151.A599@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130541AbQKTDwv>; Sun, 19 Nov 2000 22:52:51 -0500
+Received: from anime.net ([63.172.78.150]:48911 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S129732AbQKTDwb>;
+	Sun, 19 Nov 2000 22:52:31 -0500
+Date: Sun, 19 Nov 2000 19:22:32 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
+In-Reply-To: <200011192053.VAA23987@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.30.0011191916580.18624-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+On Sun, 19 Nov 2000, Rogier Wolff wrote:
+> Someone wrote:
+> > > > So change the CMOS-settings so that the BIOS changes the boot order
+> > > > from A, C, CD-ROM to C first instead.  *grin*  How long do you want
+> > > > to keep playing Tic-Tac-Toe?
+> > > Writeprotect the flashbios with the motherboard jumper, and remove the
+> > > cmos battery.
+> The "writeprotect flashbios" usually only protects the bottom 8k of
+> the CMOS. That's the part that you still need to boot the system to
+> reflash it should somehow your flash be nuked.
 
-Jeff Chua reported a while ago that BLKFLSBUF returns EBUSY on a RAM disk
-that was obtained via initrd. I think the problem is that the effect of
-the blkdev_open(out_inode, ...) in drivers/block/rd.c:rd_load_image is
-not undone at the end. I've attached a patch for 2.4.0-test11-pre7 that
-seems to solve the problem. Since I'm not quite sure I understand the
-reference counting rules there, I would appreciate your comment.
+The writeprotect jumper on all motherboards ive seen physically prevent
+erase/program voltages from reaching the flash chip (usually pin 1, Vpp).
 
-Thanks,
-- Werner
+This is why enabling writeprotect jumper on motherboards also prevents
+the ECSD area from being updated (which is outside the bottom 8k
+bootblock).
 
----------------------------------- cut here -----------------------------------
+-Dan
 
---- linux.orig/drivers/block/rd.c	Mon Nov 20 02:07:47 2000
-+++ linux/drivers/block/rd.c	Mon Nov 20 04:03:42 2000
-@@ -690,6 +690,7 @@
- done:
- 	if (infile.f_op->release)
- 		infile.f_op->release(inode, &infile);
-+	blkdev_put(out_inode->i_bdev, BDEV_FILE);
- 	set_fs(fs);
- 	return;
- free_inodes: /* free inodes on error */ 
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

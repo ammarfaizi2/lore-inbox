@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVCHPEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCHPMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVCHPEc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 10:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVCHPEc
+	id S261396AbVCHPMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 10:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVCHPMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 10:04:32 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:16610 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261393AbVCHPEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 10:04:25 -0500
-Date: Tue, 8 Mar 2005 15:04:24 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH] 2/2 Prezeroing large blocks of pages during allocation
- Version 4
-In-Reply-To: <422D8F2A.4010002@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0503081458440.3227@skynet>
-References: <20050307194021.E6A86E594@skynet.csn.ul.ie> <422D42BF.4060506@jp.fujitsu.com>
- <Pine.LNX.4.58.0503081012270.30439@skynet> <422D8F2A.4010002@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Mar 2005 10:12:07 -0500
+Received: from mail.linux-mips.org ([62.254.210.162]:47064 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S261396AbVCHPMF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 10:12:05 -0500
+Date: Tue, 8 Mar 2005 15:12:02 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, davej@redhat.com,
+       torvalds@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050308151202.GB10194@linux-mips.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304032632.0a729d11.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005, KAMEZAWA Hiroyuki wrote:
+On Fri, Mar 04, 2005 at 03:26:32AM -0800, Andrew Morton wrote:
 
-> Mel Gorman wrote:
->
-> > > >
-> > > Now, 5bits per  MAX_ORDER pages.
-> > > I think it is simpler to use "char[]" for representing type of  memory
-> > > alloc
-> > > type than bitmap.
-> > >
-> > >
-> >
-> > Possibly, but it would also use up that bit more space. That map could be
-> > condensed to 3 bits but would make it that bit (no pun) more complex and
-> > difficult to merge. On the other hand, it would be faster to use a char[]
-> > as it would be an array-index lookup to get a pageblock type rather than a
-> > number of bit operations.
-> >
-> > So, it depends on what people know to be better in general because I have
-> > not measured it to know for a fact. Is it better to use char[] and use
-> > array indexes rather than bit operations or is it better to leave it as a
-> > bitmap and condense it later when things have settled down?
-> >
-> Hmm, Okay, I'll wait for condensed version.
-> BTW, in space consumption/cache view,  does using bitmap have  real benefit
-> ?
->
+> >  Looking at the http://l4x.org/k/ site, it appears that all -mm versions
+> >  have broken ARM support with the defconfig, while Linus kernels at least
+> >  build fine.
+> 
+> It's very much in an arch maintainer's interest to make sure that
+> cross-compilers are easily obtainable.  Any hints?
 
-For space, there is a small benefit. On my system with 1.5GiB of RAM, it
-is about 130 bytes saved for prezeroing and about 220 with just the
-placement policy.  For speed, I do not know how bitmaps normally perform
-with the CPU cache, but for the placement policy, it makes no difference.
-I implemented a version using char[] array and there was no performance
-difference that I could measure. The bitmaps just are not consulted often
-enough to make a big performance difference.
+In theory.  In practice on some platforms we need special compiler patches
+which will never be accepted into gcc upstream or are restricted to
+particular versions of tools.  Building crosstools is tricky and yet it
+seems every moron really has to toll it's own from his private mouldy
+collection of patches.  The whole tools stuff has become very much a
+battlefield of it's own.
 
--- 
-Mel Gorman
-Part-time Phd Student				Java Applications Developer
-University of Limerick				    IBM Dublin Software Lab
+  Ralf

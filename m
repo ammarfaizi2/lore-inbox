@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319515AbSIGU3g>; Sat, 7 Sep 2002 16:29:36 -0400
+	id <S319516AbSIGUWu>; Sat, 7 Sep 2002 16:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319517AbSIGU3g>; Sat, 7 Sep 2002 16:29:36 -0400
-Received: from 62-190-217-141.pdu.pipex.net ([62.190.217.141]:55817 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S319515AbSIGU3f>; Sat, 7 Sep 2002 16:29:35 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209072041.g87KfJEk002074@darkstar.example.net>
-Subject: Re: ide drive dying?
-To: degger@fhm.edu (Daniel Egger)
-Date: Sat, 7 Sep 2002 21:41:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1031429984.2723.29.camel@sonja.de.interearth.com> from "Daniel Egger" at Sep 07, 2002 10:19:44 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S319517AbSIGUWu>; Sat, 7 Sep 2002 16:22:50 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:29089 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319516AbSIGUWt>; Sat, 7 Sep 2002 16:22:49 -0400
+Date: Sat, 7 Sep 2002 17:27:13 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: Lars Marowsky-Bree <lmb@suse.de>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [lmb@suse.de: Re: [RFC] mount flag "direct" (fwd)]
+In-Reply-To: <200209071959.g87JxKN17732@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.4.44L.0209071723200.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This discussion is becoming stupid, but here we go:
+On Sat, 7 Sep 2002, Peter T. Breuer wrote:
 
-> > No, but you've upgraded the firmware, right?
-> 
-> Not exactly.
+> > Noone appreciates reinventing the wheel another time, especially if - for
+> > simplification - it starts out as a square.
+>
+> But what I suggest is finding a simple way to turn an existing FS into a
+> distributed one. I.e. NOT reinventing the wheel. All those other people
+> are reinventing a wheel, for some reason :-).
 
-???  Either you did or didn't.
+To stick with the wheel analogy, while bicycle wheels will
+fit on a 40-tonne truck, they won't even get you out of the
+parking lot.
 
-> According to IBM technical support there is no such thing
-> as a new firmware. The drives are alright, the OS is broken.
+> > You tell me why Distributed Filesystems are important. I fully agree.
+> >
+> > You fail to give a convincing reason why that must be made to work with
+> > "all" conventional filesystems, especially given the constraints this implies.
+>
+> Because that's the simplest thing to do.
 
-Right, so you're calling Alan Cox a liar, then?  I know who I believe.
+You've already admitted that you would need to modify the
+existing filesystems in order to create "filesystem independant"
+clustered filesystem functionality.
 
-> > If that has fixed the problem, then it is not a faulty drive.
-> Right, and how would you notice without sacrifying more data?
+If you're modifying filesystems, surely it no longer is filesystem
+independant and you might as well design your filesystem so it can
+do clustering in an _efficient_ way.
 
-smartctl -X /dev/hda?
+> > What you are starting would need at least 3-5 years to catch up with what
+> > people currently already can do, and they'll improve in this time too.
+>
+> Maybe 3-4 weeks more like. The discussion is helping me get a picture,
+> and when I'm back next week I'll try something. Then, unfortunately I
+> am away again from the 18th ...
 
-'Execute Extended Self Test' might be a good start
+If you'd only spent 3-4 _days_ looking at clustered filesystems
+you would see that it'd take months or years to get something
+work decently.
 
-or you could just copy data to/from it, generally hammer it and spin it up, down, and sideways, generally try to make it go wrong, and if your data is intact, then I would trust it more than a disk that arrived in a jiffy bag, with an assurance that 'this one works'.
 
-> > So, you'll just plug in your 'new' disk, and in a few months,
-> > bad sectors will start appearing.
-> 
-> Not if you sold it at Ebay,
+> No features. Just take any FS that corrently works, and see if you can
+> distribute it.  Get rid of all fancy features along the way.  You mean
+> "what's wrong with X"?  Well, it won't be mainstream, for a start, and
+> that's surely enough.  The projects involved are huge, and they need to
+> minimize risk, and maximize flexibility. This is CERN, by the way.
 
-The bad sectors are just as likely to appear, but somebody else's data will be lost.  Very nice gesture, not to mention that you probably violate the Ebay T&C by selling a product that you suspect is faulty.
+All you can hope for now is that CERN doesn't care about data
+integrity or performance ;)
 
-> which is what I did with all *new* drives I received from IBM.
+regards,
 
-Well, I won't buy a second hand drive from you then :-).
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-> I just kept the "serviceable used part" one in case I need to install
-> Windows to upgrade the firmware of some drive or anything else in range.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Fine, if that's what floats your boat.
+Spamtraps of the month:  september@surriel.com trac@trac.org
 
-Infact, I was completely wrong, OK?  You were right all along, so there is no need to continue this pointless thread.
-
-John.

@@ -1,87 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTGFVBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 17:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTGFVBo
+	id S266754AbTGFVGB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 17:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbTGFVGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 17:01:44 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9655 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263597AbTGFVBk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 17:01:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
-Date: Mon, 7 Jul 2003 07:17:13 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200307070317.11246.kernel@kolivas.org> <1057516609.818.4.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1057516609.818.4.camel@teapot.felipe-alfaro.com>
+	Sun, 6 Jul 2003 17:06:00 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:11271 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263802AbTGFVFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 17:05:49 -0400
+Message-ID: <3F089281.5BED1A25@SteelEye.com>
+Date: Sun, 06 Jul 2003 17:20:01 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307070717.13951.kernel@kolivas.org>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.74-mm2] nbd: make nbd and block layer agree about device and 
+ block sizes
+References: <3F089177.1A58BFE0@SteelEye.com>
+Content-Type: multipart/mixed;
+ boundary="------------66749B18BC819F9043735563"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003 04:36, Felipe Alfaro Solana wrote:
-> On Sun, 2003-07-06 at 19:16, Con Kolivas wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Attached is an incremental patch against 2.5.74-mm2 with more
-> > interactivity work. Audio should be quite resistant to skips with this,
-> > and it should not induce further unfairness.
-> >
-> > Changes:
-> > The sleep_avg buffer was not needed with the improved semantics in O2int
-> > so it has been removed entirely as it created regressions in O2int.
-> >
-> > A small change to the idle detection code to only make tasks with enough
-> > accumulated sleep_avg become idle.
-> >
-> > Minor cleanups and clarified code.
-> >
-> >
-> > Other issues:
-> > Jerky mouse with heavy page rendering in web browsers remains. This is a
-> > different issue to the audio and will need some more thought.
-> >
-> > The patch is also available for download here:
-> > http://kernel.kolivas.org/2.5
-> >
-> > Note for those who wish to get smooth X desktop feel now for their own
-> > use, the granularity patch on that website will do wonders on top of
-> > O3int, but a different approach will be needed for mainstream
-> > consumption.
->
-> I'm seeing extreme X starvation with this patch under 2.5.74-mm2 when
-> starting a CPU hogger:
->
-> 1. Start a KDE session.
-> 2. Launch a Konsole
-> 3. Launch Konqueror
-> 4. Launch XMMS
-> 5. Make XMMS play an MP3 file
-> 6. On the Konsole terminal, run "while true; do a=2; done"
->
-> When the "while..." is run, X starves completely for ~5 seconds (e.g.
-> the mouse cursor doesn't respond to my input events). After those 5
-> seconds, the mouse cursor goes jerky for a while (~2 seconds) and then
-> the system gets responsive.
+This is a multi-part message in MIME format.
+--------------66749B18BC819F9043735563
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Oh one more thing if you dare. Try commenting out these lines in sched.c ~650:
+Andrew,
 
+here's the revised patch for block and device size changes, using
+set_blocksize() as Jeff suggested
 
-	normalise_sleep(p);
-	normalise_sleep(p->parent);
- 	if (p->sleep_avg < p->parent->sleep_avg)
- 		p->parent->sleep_avg = (p->parent->sleep_avg * EXIT_WEIGHT +
- 			p->sleep_avg) / (EXIT_WEIGHT + 1);
+Thanks,
+Paul
+--------------66749B18BC819F9043735563
+Content-Type: text/x-diff; charset=us-ascii;
+ name="nbd-block_layer_compat-2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-block_layer_compat-2.diff"
 
+--- linux-2.5.74-mm2/drivers/block/nbd.c.MINUS_OPEN_RELEASE	2003-07-06 16:55:22.224389840 -0400
++++ linux-2.5.74-mm2/drivers/block/nbd.c	2003-07-06 16:50:46.287338648 -0400
+@@ -588,18 +588,22 @@ static int nbd_ioctl(struct inode *inode
+ 		}
+ 		return error;
+ 	case NBD_SET_BLKSIZE:
+-		if ((arg & (arg-1)) || (arg < 512) || (arg > PAGE_SIZE))
+-			return -EINVAL;
+ 		lo->blksize = arg;
+-		lo->bytesize &= ~(lo->blksize-1); 
++		lo->bytesize &= ~(lo->blksize-1);
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		set_blocksize(inode->i_bdev, lo->blksize);
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_SET_SIZE:
+-		lo->bytesize = arg & ~(lo->blksize-1); 
++		lo->bytesize = arg & ~(lo->blksize-1);
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		set_blocksize(inode->i_bdev, lo->blksize);
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_SET_SIZE_BLOCKS:
+ 		lo->bytesize = ((u64) arg) * lo->blksize;
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		set_blocksize(inode->i_bdev, lo->blksize);
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_DO_IT:
 
-Con
+--------------66749B18BC819F9043735563--
 
